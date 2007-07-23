@@ -9,7 +9,8 @@ What you need to know
 ---------------------
 
 This project uses Python 2.5 features, so you'll need a working Python
-2.5 setup.
+2.5 setup.  Docutils 0.4 is required, the Docutils SVN trunk does not
+work at the moment, but I don't expect it to be difficult to fix that.
 
 If you want code highlighting, you need Pygments >= 0.8, easily
 installable from PyPI.  Jinja, the template engine, is included as a
