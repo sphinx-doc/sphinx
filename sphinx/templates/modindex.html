@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% set title = 'Global Module Index' %}
+{% block body %}
+
+   <h1 id="global-module-index">Global Module Index</h1>
+{% if builder == 'web' and freqentries %}
+   <p>Most popular modules:</p>
+   <div class="modulecloud">
+   {%- for module in freqentries %}
+     <a href="../q/{{ module.name|e }}/" style="font-size: {{ module.size }}%">{{ module.name|e }}</a>
+   {%- endfor %}
+   </div>
+{% endif %}
+   <form class="pfform" action="" method="get">
+     Show modules only available on these platforms:<br>
+     {% for pl in platforms -%}
+     <input type="checkbox" name="pf" value="{{ pl }}" id="pl-{{ pl }}"
+            {%- if pl in showpf %} checked="checked"{% endif %}>
+     <label for="pl-{{ pl }}">{{ pl }}</label>
+     {% endfor %}
+     <input type="submit" value="Apply">
+   </form>
+
+   <table width="100%" class="indextable" cellspacing="0" cellpadding="2">
+   {%- for modname, collapse, cgroup, indent, fname, synops, pform in modindexentries %}
+   {%- if not modname -%}
+   <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
+   <tr class="cap"><td></td><td><strong>{{ fname }}</strong></td><td></td></tr>
+   {%- else -%}
+   <tr{% if indent %} class="cg-{{ cgroup }}"{% endif %}>
+     <td>{% if collapse -%}
+       <img src="{{ pathto('style/minus.png', 1) }}" id="toggle-{{ cgroup }}"
+            class="toggler" style="display: none">
+         {%- endif %}</td>
+     <td>{% if indent %}&nbsp;&nbsp;&nbsp;{% endif %}
+     {% if fname %}<a href="{{ fname }}">{% endif -%}
+     <tt class="xref">{{ modname|e }}</tt>
+     {%- if fname %}</a>{% endif %}
+   {%- if pform[0] %} <em>({{ pform|join(', ') }})</em>{% endif -%}
+   </td><td><em>{{ synops|e }}</em></td></tr>
+   {%- endif -%}
+   {% endfor %}
+   </table>
+
+{% endblock %}

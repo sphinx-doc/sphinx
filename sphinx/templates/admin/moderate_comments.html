@@ -1,0 +1,104 @@
+{% extends "admin/layout.html" %}
+{% block admin_body %}
+  <h1>Moderate Comments</h1>
+  <p>
+    From here you can delete and edit comments. If you want to be
+    informed about new comments you can use the <a href="{{ pathto('index.rst')
+    }}?feed=recent_comments">feed</a> provided.
+  </p>
+  <form action="" method="post">
+  {% if ask_confirmation %}
+    <div class="dialog">
+      <h2>Confirm</h2>
+      <div class="text">
+        {% trans amount=to_delete|length %}
+          Do you really want to delete one comment?
+        {% pluralize %}
+          Do you really want to delete {{ amount }} comments?
+        {% endtrans %}
+      </div>
+      <div class="buttons">
+        <input type="submit" name="confirmed" value="Yes">
+        <input type="submit" name="aborted" value="No">
+      </div>
+    </div>
+  {% endif %}
+  {% if edit_detail %}
+    <div class="dialog detail_form">
+      <h2>Edit Comment</h2>
+      <div class="text">
+        <input type="hidden" name="edit" value="{{ edit_detail.comment_id }}">
+        <dl>
+          <dt>Name</dt>
+          <dd><input type="text" size="24" name="author" value="{{ edit_detail.author|e(true) }}"></dd>
+          <dt>E-Mail</dt>
+          <dd><input type="text" size="24" name="author_mail" value="{{ edit_detail.author_mail|e(true) }}"></dd>
+          <dt>Comment Title</dt>
+          <dd><input type="text" size="36" name="title" value="{{ edit_detail.title|e(true) }}"></dd>
+        </dl>
+        <textarea name="comment_body" rows="7" cols="50">{{ edit_detail.comment_body|e }}</textarea>
+      </div>
+      <div class="buttons">
+        <input type="submit" value="Save">
+        <input type="submit" name="aborted" value="Cancel">
+        <input type="submit" name="view" value="View">
+        <input type="submit" name="delete_this" value="Delete">
+      </div>
+    </div>
+  {% endif %}
+  {%- macro render_row(comment, include_page=false) %}
+    <tr>
+      <td class="title">
+        <a href="{{ pathto(comment.url, true) }}">{{ comment.title|e }}</a>
+        <span class="meta">by <a href="mailto:{{ comment.author_mail|e
+        }}">{{ comment.author|e }}</a>{% if include_page
+        %} on <a href="{{ pathto('@admin/moderate_comments/' +
+        comment.associated_page) }}">{{ comment.associated_page }}</a{%
+        endif %}</span>
+      </td>
+      <td class="pub_date">{{ comment.pub_date|datetimeformat }}</td>
+      <td class="actions">
+        <span class="meta"><a href="?edit={{ comment.comment_id }}">edit</a></span>
+        <input type="checkbox" name="delete" value="{{
+        comment.comment_id }}"{% if comment.comment_id in to_delete
+        %} checked{% endif %}>
+      </td>
+    </tr>
+  {%- endmacro %}
+    <table class="mapping">
+      {% if pages_with_comments %}
+        <tr>
+          <th colspan="4" class="recent_comments">
+            <a href="{{ pathto('@admin/moderate_comments/recent_comments/', true)
+              }}">Recent Comments</a>
+            <span class="meta">(<a href="{{ pathto('index.rst')
+              }}?feed=recent_comments">feed</a>)</span>
+          </th>
+        </tr>
+        {%- for comment in recent_comments %}
+          {{- render_row(comment, true) }}
+        {%- endfor %}
+        {%- for page in pages_with_comments %}
+          <tr>
+            <th colspan="4">
+              <a href="{{ pathto('@admin/moderate_comments/' + page.page_id) }}">{{ page.title|e }}</a>
+              <span class="meta">(<a href="{{ pathto(page.page_id) }}">view</a> |
+              <a href="{{ pathto(page.page_id) }}?feed=comments">feed</a>)</span>
+            </th>
+          </tr>
+          {%- if page.has_details %}
+            {%- for comment in page.comments %}
+              {{- render_row(comment) }}
+            {%- endfor %}
+          {%- endif %}
+        {% endfor %}
+      {%- else %}
+        <tr><th>no comments submitted so far</th></tr>
+      {%- endif %}
+    </table>
+    <div class="actions">
+      <input type="submit" value="Delete">
+      <input type="submit" name="cancel" value="Cancel">
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% set title = 'Page Not Found' %}
+{% block body %}
+  <h1 id="page-not-found">Page Not Found</h1>
+  <p>
+    The page {{ req.path|e }} does not exist on this server.
+  </p>
+  <p>
+    Click here to <a href="{{ pathto('index.rst') }}">return to the index</a>.
+  </p>
+{% endblock %}

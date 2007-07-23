@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% set current_page_name = 'index' %}
+{% set page_links = [
+  (pathto('@rss/recent'), 'application/rss+xml', 'Recent Comments')
+] %}
+{% block body %}
+  <h1>Python Documentation</h1>
+  <p>
+    Welcome! This is the documentation for Python
+    {{ release }}{% if last_updated %}, last updated {{ last_updated }}{% endif %}.
+  </p>
+
+  <p><strong>Parts of the documentation:</strong></p>
+  <table class="contentstable" align="center"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("whatsnew/2.6.rst") }}">What's new in Python 2.6?</a><br>
+         <span class="linkdescr">changes since previous major release</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("tutorial/index.rst") }}">Tutorial</a><br>
+         <span class="linkdescr">start here</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("reference/index.rst") }}">Language Reference</a><br>
+         <span class="linkdescr">describes syntax, language elements and builtins</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("modules/index.rst") }}">Library Reference</a><br>
+         <span class="linkdescr">keep this under your pillow</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("macmodules/index.rst") }}">Macintosh Library Modules</a><br>
+         <span class="linkdescr">this too, if you use a Macintosh</span></p>
+    </td><td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("extending/index.rst") }}">Extending and Embedding</a><br>
+         <span class="linkdescr">tutorial for C/C++ programmers</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("c-api/index.rst") }}">Python/C API</a><br>
+         <span class="linkdescr">reference for C/C++ programmers</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("install/index.rst") }}">Installing Python Modules</a><br>
+         <span class="linkdescr">information for installers &amp; sys-admins</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("distutils/index.rst") }}">Distributing Python Modules</a><br>
+         <span class="linkdescr">sharing modules with others</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("documenting/index.rst") }}">Documenting Python</a><br>
+         <span class="linkdescr">guide for documentation authors</span></p>
+    </td></tr>
+  </table>
+
+  <p><strong>Indices and tables:</strong></p>
+  <table class="contentstable" align="center"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("modindex.rst") }}">Global Module Index</a><br>
+         <span class="linkdescr">quick access to all modules</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("genindex.rst") }}">General Index</a><br>
+         <span class="linkdescr">all functions, classes, terms</span></p>
+    </td><td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("search.rst") }}">Search page</a><br>
+         <span class="linkdescr">search this documentation</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("contents.rst") }}">Complete Table of Contents</a><br>
+         <span class="linkdescr">lists all sections and subsections</span></p>
+    </td></tr>
+  </table>
+
+  <p><strong>Meta information:</strong></p>
+  <table class="contentstable" align="center"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("bugs.rst") }}">Reporting bugs</a></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("about.rst") }}">About the documentation</a></p>
+    </td><td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("license.rst") }}">History and License of Python</a></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("copyright.rst") }}">Copyright</a></p>
+    </td></tr>
+  </table>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div id="new-commment-box">
+    <h4 id="comments-new-comment">New Comment</h4>
+    {{ form }}
+    <div class="help">
+      <p>
+        <strong>You can format a comment using the
+        following syntax elements provided:</strong>
+      </p>
+      <p>
+        `code` / ``code too`` / **strong** /
+        *emphasized* / !!!important!!! /
+        [[link_target Link Title]] /
+        [[link_target_only]] / &lt;code&gt;code block with
+        syntax highlighting&lt;/code&gt; / &lt;quote&gt;some
+        quoted text&lt;/quote&gt;.
+      </p>
+      <p>
+        HTML is not supported, relative link targets are treated as
+        quicklinks and code blocks that start with "&gt;&gt;&gt;" are
+        highlighted as interactive python sessions.
+      </p>
+    </div>
+  </div>
+{% endblock %}

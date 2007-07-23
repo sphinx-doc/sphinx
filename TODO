@@ -1,0 +1,13 @@
+Global TODO
+===========
+
+- discuss and debug comments system
+- write new Makefile, handle automatic version info and checkout
+- write a "printable" builder (export to latex, most probably)
+- discuss the default role
+- discuss lib -> ref section move
+- prepare for databases other than sqlite for comments
+- look at the old tools/ scripts, what functionality should be rewritten
+- add search via Xapian?
+- optionally have a contents tree view in the sidebar (AJAX based)?
+

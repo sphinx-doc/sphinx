@@ -1,0 +1,19 @@
+/**
+ * Python Doc Design -- Sticky Sidebar Overrides
+ */
+
+div.sidebar {
+    top: 30px;
+    left: 0px;
+    position: fixed;
+    margin: 0;
+    float: none;
+}
+
+div.related {
+    position: fixed;
+}
+
+div.documentwrapper {
+    margin-top: 30px;
+}

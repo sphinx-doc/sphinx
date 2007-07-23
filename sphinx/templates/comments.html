@@ -1,0 +1,22 @@
+  <div id="comments">
+    <h3>Comments</h3>
+    {% for comment in comments %}
+      <div class="comment" id="comment-{{ comment.comment_id }}">
+        <h4>{{ comment.title|e }}
+        {%- if comment.associated_name %} &mdash; on
+        <a href="#{{ comment.associated_name }}">{{-
+          comment.associated_name }}</a>{% endif %}</h4>
+        <div class="text">{{ comment.parsed_comment_body }}</div>
+        <div class="meta">by {{ comment.author|e }}, written on
+          {{ comment.pub_date|datetimeformat }} |
+          <a href="#comment-{{ comment.comment_id }}">#</a></div>
+      </div>
+    {% else %}
+      <div class="nocomments">
+        There are no user contributed notes for this page.
+      </div>
+    {% endfor %}
+    <div class="actions">
+      <a class="newcomment" href="{{ pathto(comment_url, 1)|e }}">add comment to page</a>
+    </div>
+  </div>

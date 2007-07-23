@@ -1,0 +1,19 @@
+{% extends "admin/layout.html" %}
+{% block admin_body %}
+  <h1>Login</h1>
+  <form action="" method="post">
+    <dl>
+      <dt>Username</dt>
+      <dd><input type="text" name="username"></dd>
+      <dt>Password</dt>
+      <dd><input type="password" name="password"></dd>
+    </dl>
+    {% if login_failed %}
+      <div class="error">Invalid username and/or password</div>
+    {% endif %}
+    <div class="actions">
+      <input type="submit" value="Login">
+      <input type="submit" name="cancel" value="Cancel">
+    </div>
+  </form>
+{% endblock %}

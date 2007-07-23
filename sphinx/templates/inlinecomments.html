@@ -1,0 +1,36 @@
+{# rendered for inline comments -#}
+<div class="inlinecomments">
+{%- if mode == 'bottom' %}
+  {%- if comments -%}
+    <a class="bubble" href="#comment-{{ comments[0].comment_id }}"><span>[Read Comments]</span></a>
+  {%- else -%}
+    <a class="bubble emptybubble" href="{{ pathto(comment_url, 1) }}?target={{ id }}"><span>[Write Comments]</span></a>
+  {%- endif %}
+{%- else %}
+  <div>
+    {%- if comments -%}
+      <a class="bubble" href="{{ pathto(comment_url, 1) }}?target={{ id
+        }}"><span>[</span>{{ comments|length }}<span> Comments]</span></a>
+    {%- else -%}
+      <a class="bubble emptybubble" href="{{ pathto(comment_url, 1)
+        }}?target={{ id }}"><span>[Write Comment]</span></a>
+    {%- endif -%}
+  </div>
+  {%- if comments %}
+  <div class="comments">
+    <h3>Comments</h3>
+    <div class="actions"><a href="{{ pathto(comment_url, 1) }}?target={{
+        id }}" onclick="Documentation.newCommentFromBox(this); return false">write new comment</a></div>
+    {%- for comment in comments %}
+    <div class="comment" id="comment-{{ comment.comment_id }}">
+      <h4>{{ comment.title|e }}</h4>
+      <div class="text">{{ comment.parsed_comment_body }}</div>
+      <div class="meta">by {{ comment.author|e }}, written on
+      {{ comment.pub_date|datetimeformat }} |
+      <a href="#comment-{{ comment.comment_id }}">#</a></div>
+    </div>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+{%- endif %}
+</div>

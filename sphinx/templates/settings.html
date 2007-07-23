@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% set title = 'Settings' %}
+{% set current_page_name = 'settings' %}
+{% block body %}
+  <h1>Python Documentation Settings</h1>
+  <p>
+    Here you can customize how you want to view the Python documentation.
+    These settings are saved using a cookie on your computer.
+  </p>
+
+  <form action="{{ pathto('settings.rst') }}" method="post">
+    <p class="subhead">Select your stylesheet:</p>
+    <p>
+      {%- for design, (foo, descr) in known_designs %}
+      <input type="radio" name="design" value="{{ design }}" id="stylesheet-{{ design }}"
+             {% if curdesign == design %}checked="checked"{% endif %}>
+        <label for="stylesheet-{{ design }}">{{ design }} &mdash; {{ descr }}</label><br>
+      {%- endfor %}
+    </p>
+
+    <p class="subhead">Select how you want to view comments:</p>
+    <p>
+      {%- for meth, descr in comments_methods %}
+      <input type="radio" name="comments" value="{{ meth }}" id="comments-{{ meth }}"
+             {% if curcomments == meth %}checked="checked"{% endif %}>
+        <label for="comments-{{ meth }}">{{ descr }}</label><br>
+      {%- endfor %}
+    </p>
+    <input type="hidden" name="referer" value="{{ referer|e}}">
+    <p>
+      <input type="submit" name="goback" value="Save and back to last page">&nbsp;&nbsp;
+      <input type="submit" value="Save">&nbsp;&nbsp;
+      <input type="submit" name="cancel" value="Cancel and back to last page">&nbsp;&nbsp;
+    </p>
+  </form>
+
+{% endblock %}

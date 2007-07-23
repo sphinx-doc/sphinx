@@ -1,0 +1,18 @@
+To do after conversion
+======================
+
+* fix all references and links marked with `XXX`
+* adjust all literal include paths
+* remove all non-literal includes
+* fix all duplicate labels and undefined label references
+* fix the email package docs: add a toctree
+* split very large files and add toctrees
+* integrate standalone HOWTOs
+* find out which files get "comments disabled" metadata
+* double backslashes in production lists
+* add synopses for each module
+* write "About these documents"
+* finish "Documenting Python"
+* extend copyright.rst
+* merge ACKS into about.rst
+* fix the "quadruple" index term

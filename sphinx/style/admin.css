@@ -1,0 +1,162 @@
+/**
+ * Sphinx Admin Panel
+ */
+
+div.admin {
+    margin: 0 -20px -30px -20px;
+    padding: 0 20px 10px 20px;
+    background-color: #f2f2f2;
+    color: black;
+}
+
+div.admin a {
+    color: #333;
+    text-decoration: underline;
+}
+
+div.admin a:hover {
+    color: black;
+}
+
+div.admin h1,
+div.admin h2 {
+    background-color: #555;
+    border-bottom: 1px solid #222;
+    color: white;
+}
+
+div.admin form form {
+    display: inline;
+}
+
+div.admin input, div.admin textarea {
+    font-family: 'Bitstream Vera Sans', 'Arial', sans-serif;
+    font-size: 13px;
+    color: #333;
+    padding: 2px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+}
+
+div.admin input[type="reset"],
+div.admin input[type="submit"] {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 2px;
+}
+
+div.admin input[type="reset"]:hover,
+div.admin input[type="submit"]:hover {
+    border: 1px solid #333;
+}
+
+div.admin div.actions {
+    margin: 10px 0 0 0;
+    padding: 5px;
+    background-color: #aaa;
+    border: 1px solid #777;
+}
+
+div.admin div.error {
+    margin: 10px 0 0 0;
+    padding: 5px;
+    border: 2px solid #222;
+    background-color: #ccc;
+    font-weight: bold;
+}
+
+div.admin div.dialog {
+    background-color: #ccc;
+    margin: 10px 0 10px 0;
+}
+
+div.admin div.dialog h2 {
+    margin: 0;
+    font-size: 18px;
+    padding: 4px 10px 4px 10px;
+}
+
+div.admin div.dialog div.text {
+    padding: 10px;
+}
+
+div.admin div.dialog div.buttons {
+    padding: 5px 10px 5px 10px;
+}
+
+div.admin table.mapping {
+    width: 100%;
+    border: 1px solid #999;
+    border-collapse: collapse;
+    background-color: #aaa;
+}
+
+div.admin table.mapping th {
+    background-color: #ddd;
+    border-bottom: 1px solid #888;
+    padding: 5px;
+}
+
+div.admin table.mapping th.recent_comments {
+    background-color: #c5cba4;
+}
+
+div.admin table.mapping,
+div.admin table.mapping a {
+    color: black;
+}
+
+div.admin table.mapping td {
+    border: 1px solid #888;
+    border-left: none;
+    border-right: none;
+    text-align: left;
+    line-height: 24px;
+    padding: 0 5px 0 5px;
+}
+
+div.admin table.mapping tr:hover {
+    background-color: #888;
+}
+
+div.admin table.mapping td.username {
+    width: 180px;
+}
+
+div.admin table.mapping td.pub_date {
+    font-style: italic;
+    text-align: right;
+}
+
+div.admin table.mapping td.groups input {
+    width: 100%;
+}
+
+div.admin table.mapping td.actions input {
+    padding: 0;
+}
+
+div.admin table.mapping .actions {
+    text-align: right;
+    width: 70px;
+}
+
+div.admin table.mapping span.meta {
+    font-size: 11px;
+    color: #222;
+}
+
+div.admin table.mapping span.meta a {
+    color: #222;
+}
+
+div.admin div.detail_form dt {
+    clear: both;
+    float: left;
+    width: 110px;
+}
+
+div.admin div.detail_form textarea {
+    width: 98%;
+    height: 160px;
+}
