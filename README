@@ -8,13 +8,17 @@ This project uses Python 2.5 features, so you'll need a working Python
 2.5 setup.  Docutils 0.4 is required, the Docutils SVN trunk does not
 work at the moment, but I don't expect it to be difficult to fix that.
 
+Docutils can be installed from the PyPI (Cheese Shop) via ``easy_install``
+or from http://docutils.sourceforge.net/.
+
 If you want code highlighting, you need Pygments >= 0.8, easily
 installable from PyPI.  Jinja, the template engine, is included as a
 SVN external.
 
 For the rest of this document, let's assume that you have a Python
-checkout (you need the 2.6 line, i.e. the trunk) in ~/devel/python and
-this checkout in the current directory.
+checkout (you need the 2.6 line, i.e. the trunk -- the SVN URL for readonly
+access is http://svn.python.org/projects/python/trunk) in ~/devel/python
+and this checkout in the current directory.
 
 To convert the LaTeX doc to reST, you first have to apply the patch in
 ``etc/inst.diff`` to the ``inst/inst.tex`` LaTeX file in the Python
