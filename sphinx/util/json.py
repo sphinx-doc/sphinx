@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.json
-    ~~~~~~~~~~~
+    sphinx.util.json
+    ~~~~~~~~~~~~~~~~
 
     Minimal JSON module that generates small dumps.
 

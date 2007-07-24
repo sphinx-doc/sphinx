@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.console
-    ~~~~~~~~~~~~~~
+    sphinx.util.console
+    ~~~~~~~~~~~~~~~~~~~
 
     Format colored console output.
 

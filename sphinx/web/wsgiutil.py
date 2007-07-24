@@ -24,7 +24,7 @@ from datetime import datetime
 from cStringIO import StringIO
 
 from .util import lazy_property
-from .json import dump_json
+from ..util.json import dump_json
 
 
 HTTP_STATUS_CODES = {

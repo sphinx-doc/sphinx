@@ -12,7 +12,7 @@
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
-from .smartypants import sphinx_smarty_pants
+from .util.smartypants import sphinx_smarty_pants
 
 
 class HTMLWriter(Writer):

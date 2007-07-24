@@ -29,7 +29,7 @@ from docutils.frontend import OptionParser
 from .util import (get_matching_files, attrdict, status_iterator,
                    ensuredir, get_category, relative_uri)
 from .writer import HTMLWriter
-from .console import bold, purple, green
+from .util.console import bold, purple, green
 from .htmlhelp import build_hhx
 from .environment import BuildEnvironment
 from .highlighting import pygments, get_stylesheet

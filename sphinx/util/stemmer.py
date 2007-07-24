@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    sphinx.stemmer
-    ~~~~~~~~~~~~~~
+    sphinx.util.stemmer
+    ~~~~~~~~~~~~~~~~~~~
 
     Porter Stemming Algorithm
 

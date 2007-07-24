@@ -14,7 +14,7 @@ import getopt
 from os import path
 
 from .builder import builders
-from .console import nocolor
+from .util.console import nocolor
 
 __version__ = '$Revision: 5369 $'
 
@@ -98,6 +98,10 @@ def main(argv):
             confoverrides[key] = val
         elif opt == '-N':
             nocolor()
+
+    if sys.platform == 'win32':
+        # Windows' cmd box doesn't understand ANSI sequences
+        nocolor()
 
     if builder is None:
         print 'No builder selected, using default: html'

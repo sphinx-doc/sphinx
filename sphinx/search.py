@@ -13,8 +13,8 @@ import pickle
 
 from collections import defaultdict
 from docutils.nodes import Text, NodeVisitor
-from .stemmer import PorterStemmer
-from .json import dump_json
+from .util.stemmer import PorterStemmer
+from .util.json import dump_json
 
 
 word_re = re.compile(r'\w+(?u)')

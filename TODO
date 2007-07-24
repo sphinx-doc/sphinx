@@ -2,6 +2,7 @@ Global TODO
 ===========
 
 - discuss and debug comments system
+- navigation links at the bottom too
 - write new Makefile, handle automatic version info and checkout
 - write a "printable" builder (export to latex, most probably)
 - discuss the default role
