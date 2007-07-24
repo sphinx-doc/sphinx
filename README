@@ -1,9 +1,5 @@
-py-rest-doc
-===========
-
-This sandbox project is about moving the official Python documentation
-to reStructuredText.
-
+doctools README
+===============
 
 What you need to know
 ---------------------
@@ -78,3 +74,13 @@ web application has a configuration file ``build-web/webconf.py``,
 where you can configure the server and port for the application as
 well as different other settings specific to the web app.
 
+
+Writing new documentation
+-------------------------
+
+The new "Documenting Python" document, contained in a converted documentation
+tree, already lists most of the markup and features, both standard reST and
+additional, that can be used in the source docs.
+
+More reST docs are at http://docutils.sf.net/rst.html, tutorials can be found on
+the web.
