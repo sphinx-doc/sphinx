@@ -339,11 +339,13 @@ class DocumentationApplication(object):
         """
         most_frequent = heapq.nlargest(30, self.freqmodules.iteritems(),
                                        lambda x: x[1])
-        most_frequent = [{
-            'name':         x[0],
-            'size':         100 + math.log(x[1] or 1) * 20,
-            'count':        x[1]
-        } for x in sorted(most_frequent)]
+        if most_frequent:
+            base_count = most_frequent[0][1]
+            most_frequent = [{
+                'name':         x[0],
+                'size':         100 + math.log((x[1] - base_count) + 1) * 20,
+                'count':        x[1]
+                } for x in sorted(most_frequent)]
 
         showpf = None
         newpf = req.args.get('pf')
