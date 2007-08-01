@@ -1,6 +1,7 @@
 Global TODO
 ===========
 
+- "often used" combo box in sidebar
 - discuss and debug comments system
 - navigation links at the bottom too
 - write new Makefile, handle automatic version info and checkout
@@ -11,4 +12,3 @@ Global TODO
 - look at the old tools/ scripts, what functionality should be rewritten
 - add search via Xapian?
 - optionally have a contents tree view in the sidebar (AJAX based)?
-

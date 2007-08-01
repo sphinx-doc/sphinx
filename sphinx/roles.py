@@ -21,9 +21,6 @@ ws_re = re.compile(r'\s+')
 generic_docroles = {
     'command' : nodes.strong,
     'dfn' : nodes.emphasis,
-    'file' : nodes.emphasis,
-    'filenq' : nodes.emphasis,
-    'filevar' : nodes.emphasis,
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
     'keyword' : nodes.literal,
@@ -114,7 +111,25 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    return [nodes.emphasis(rawtext, text.replace('-->', u'\N{TRIANGULAR BULLET}'))], []
+    return [nodes.emphasis(
+        rawtext, utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
+
+
+_filevar_re = re.compile('{([^}]+)}')
+
+def file_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    text = utils.unescape(text)
+    retnodes = []
+    pos = 0
+    for m in _filevar_re.finditer(text):
+        if m.start() > pos:
+            txt = text[pos:m.start()]
+            retnodes.append(nodes.literal(txt, txt))
+        retnodes.append(nodes.emphasis('', '', nodes.literal(m.group(1), m.group(1))))
+        pos = m.end()
+    if pos < len(text):
+        retnodes.append(nodes.literal(text[pos:], text[pos:]))
+    return retnodes, []
 
 
 specific_docroles = {
@@ -137,6 +152,7 @@ specific_docroles = {
     'token' : xfileref_role,
 
     'menuselection' : menusel_role,
+    'file' : file_role,
 }
 
 for rolename, func in specific_docroles.iteritems():

@@ -744,6 +744,12 @@ form.comment textarea {
     margin-bottom: 10px;
 }
 
+.system-message {
+    background-color: #fda;
+    padding: 5px;
+    border: 3px solid red;
+}
+
 /* :::: PRINT :::: */
 @media print {
     div.documentwrapper {
