@@ -14,3 +14,5 @@ docs@python.org mailing list.  We're always looking for volunteers wanting
 to help with the docs, so feel free to send a mail there!
 
 See :ref:`reporting-bugs` for information how to report bugs in Python itself.
+
+.. include:: ACKS

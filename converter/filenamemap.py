@@ -454,6 +454,8 @@ dirs_to_make = [
     'reference',
     'tutorial',
     'whatsnew',
+    'lib',
+    'tools',
 ]
 
 # includefiles for \verbatiminput and \input
@@ -476,6 +478,7 @@ includes_mapping = {
 newfiles_mapping = {
     'conf.py': 'conf.py',
     'TODO': 'TODO',
+    'ACKS': 'ACKS',
 
     'ref_index.rst': 'reference/index.rst',
     'tutorial_index.rst': 'tutorial/index.rst',
