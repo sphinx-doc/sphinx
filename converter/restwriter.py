@@ -332,6 +332,8 @@ class RestWriter(object):
                 # loses comments, but huh
                 return EmptyNode()
             if isinstance(subnode, InlineNode):
+                if subnode.cmdname in ('filevar', 'envvar'):
+                    return NodeList([TextNode('{'), do(subnode.args[0]), TextNode('}')])
                 if subnode.cmdname == 'optional':
                     # this is not mapped to ReST markup
                     return subnode
@@ -639,7 +641,7 @@ class RestWriter(object):
             self.write_directive('deprecated', text(node.args[0]), node.args[1],
                                  spbelow=False)
         elif cmdname == 'localmoduletable':
-            if self.toctree:
+            if self.toctree is not None:
                 self.write_directive('toctree', '', spbelow=True, spabove=True)
                 with self.indented():
                     for entry in self.toctree:
@@ -830,7 +832,7 @@ class RestWriter(object):
 
     # maps argumentless commands to text
     simplecmd_mapping = {
-        'NULL': '`NULL`',
+        'NULL': '*NULL*',
         'shortversion': '|version|',
         'version': '|release|',
         'today': '|today|',
@@ -848,6 +850,7 @@ class RestWriter(object):
         'method': 'meth',
         'module': 'mod',
         'programopt': 'option',
+        'filenq': 'file',
         # these mean: no change
         'cdata': '',
         'class': '',
@@ -857,8 +860,6 @@ class RestWriter(object):
         'dfn': '',
         'envvar': '',
         'file': '',
-        'filenq': '',
-        'filevar': '',
         'guilabel': '',
         'kbd': '',
         'keyword': '',
@@ -890,7 +891,7 @@ class RestWriter(object):
         if cmdname in ('code', 'bfcode', 'samp', 'texttt', 'regexp'):
             self.visit_wrapped('``', self.get_textonly_node(content, 'code',
                                                             warn=1), '``', noescape=True)
-        elif cmdname in ('emph', 'textit'):
+        elif cmdname in ('emph', 'textit', 'var'):
             self.visit_wrapped('*', self.get_textonly_node(content, 'emph',
                                                            warn=1), '*')
         elif cmdname in ('strong', 'textbf'):
@@ -898,7 +899,7 @@ class RestWriter(object):
                                                             warn=1), '**')
         elif cmdname in ('b', 'textrm', 'email'):
             self.visit_node(content)
-        elif cmdname in ('var', 'token'):
+        elif cmdname == 'token':
             # \token appears in productionlists only
             self.visit_wrapped('`', self.get_textonly_node(content, 'var',
                                                            warn=1), '`')
@@ -948,11 +949,13 @@ class RestWriter(object):
             self.visit_wrapped('(', node.args[1], ')')
         elif cmdname == 'longprogramopt':
             self.visit_wrapped(':option:`--', content, '`')
+        elif cmdname == 'filevar':
+            self.visit_wrapped(':file:`{', content, '}`')
         elif cmdname == '':
             self.visit_node(content)
         # stray commands from distutils
         elif cmdname in ('argument name', 'value', 'attribute', 'option name'):
-            self.visit_wrapped('`', content, '`')
+            self.visit_wrapped('*', content, '*')
         else:
             self.visit_wrapped(':%s:`' % (self.role_mapping[cmdname] or cmdname),
                                self.get_textonly_node(

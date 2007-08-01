@@ -546,6 +546,7 @@ rename_mapping = {
 toctree_mapping = {
     'mac/scripting': ['gensuitemodule', 'aetools', 'aepack', 'aetypes', 'miniae'],
     'mac/toolbox': ['colorpicker'],
+    'mac/undoc': [],
     'lib/libstrings': ['string', 're', 'struct', 'difflib', 'stringio', 'textwrap',
                        'codecs', 'unicodedata', 'stringprep', 'fpformat'],
     'lib/datatypes': ['datetime', 'calendar', 'collections', 'heapq', 'bisect',
@@ -601,6 +602,7 @@ toctree_mapping = {
     'lib/libsgi': ['al', 'cd', 'fl', 'fm', 'gl', 'imgfile', 'jpeg'],
     'lib/libsun': ['sunaudio'],
     'lib/windows': ['msilib', 'msvcrt', '_winreg', 'winsound'],
+    'lib/tkinter': [],
 }
 
 # map sourcefilename to [pre, post]

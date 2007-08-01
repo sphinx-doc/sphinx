@@ -368,8 +368,6 @@ in a different style:
 
    The name of a file or directory.
 
-.. XXX: filenq, filevar
-
 .. describe:: guilabel
 
    Labels presented as part of an interactive user interface should be marked
