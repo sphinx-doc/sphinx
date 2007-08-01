@@ -3,7 +3,7 @@ Global TODO
 
 - "often used" combo box in sidebar
 - discuss and debug comments system
-- write new Makefile, handle automatic version info and checkout
+- write new Makefile, handle automatic checkout
 - write a "printable" builder (export to latex, most probably)
 - discuss lib -> ref section move
 - prepare for databases other than sqlite for comments

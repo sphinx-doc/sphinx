@@ -31,6 +31,7 @@ from .util import (get_matching_files, attrdict, status_iterator,
 from .writer import HTMLWriter
 from .util.console import bold, purple, green
 from .htmlhelp import build_hhx
+from .patchlevel import get_version_info, get_sys_version_info
 from .environment import BuildEnvironment
 from .highlighting import pygments, get_stylesheet
 
@@ -96,6 +97,18 @@ class Builder(object):
         for key, val in self.config.items():
             if isinstance(val, types.ModuleType):
                 del self.config[key]
+        # replace version info if 'auto'
+        if self.config['version'] == 'auto' or self.config['revision'] == 'auto':
+            try:
+                version, release = get_version_info(srcdirname)
+            except (IOError, OSError):
+                print >>warning_stream, 'WARNING: Can\'t get version info from ' \
+                      'Include/patchlevel.h, using version of this interpreter.'
+                version, release = get_sys_version_info()
+            if self.config['version'] == 'auto':
+                self.config['version'] = version
+            if self.config['release'] == 'auto':
+                self.config['release'] = release
         if confoverrides:
             self.config.update(confoverrides)
 
