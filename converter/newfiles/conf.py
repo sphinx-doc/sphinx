@@ -37,5 +37,5 @@ last_updated_format = '%b %d, %Y'
 # typographically correct entities.
 use_smartypants = True
 
-# If true, trailing '()' will be stripped from :func: etc. cross-references.
-strip_trailing_parentheses = False
+# If true, '()' will be appended to :func: etc. cross-reference text.
+add_function_parentheses = True

@@ -50,6 +50,6 @@ use_smartypants : bool
    If true, use SmartyPants to convert quotes and dashes to the typographically
    correct entities.
 
-strip_trailing_parentheses : bool
-   If true, trailing parentheses will be stripped from ``:func:`` etc.
-   crossreferences.
+add_function_parentheses : bool
+   If true, ``()`` will be appended to the content of ``:func:``, ``:meth:`` and
+   ``:cfunc:`` cross-references.

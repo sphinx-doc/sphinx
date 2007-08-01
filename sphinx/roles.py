@@ -98,9 +98,9 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # 'token' is the default role inside 'productionlist' directives
     if typ == '':
         typ = 'token'
-    if env.config.get('strip_trailing_parentheses', False):
-        if text[-2:] == '()':
-            text = text[:-2]
+    if typ in ('func', 'meth', 'cfunc') and \
+           env.config.get('add_function_parentheses', True):
+        text += '()'
     pnode = addnodes.pending_xref(rawtext)
     pnode['reftype'] = typ
     pnode['reftarget'] = ws_re.sub('', text)

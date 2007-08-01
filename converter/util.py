@@ -70,6 +70,7 @@ wordchars_s = alphanum + u'_.-'
 wordchars_e = alphanum + u'+`(-'
 bad_markup_re = re.compile(r'(:[a-zA-Z0-9_-]+:)?(`{1,2})[ ]*(.+?)[ ]*(\2)')
 quoted_code_re = re.compile(r'\\`(``.+?``)\'')
+paren_re = re.compile(r':(func|meth|cfunc):`(.*?)\(\)`')
 
 def repair_bad_inline_markup(text):
     # remove quoting from `\code{x}'
@@ -79,6 +80,9 @@ def repair_bad_inline_markup(text):
     xtext = xtext.replace('``\\``', '\x03')
     # special: literal backquotes
     xtext = xtext.replace('``````', '\x02')
+
+    # remove () from function markup
+    xtext = paren_re.sub(r':\1:`\2`', xtext)
 
     ntext = []
     lasti = 0
