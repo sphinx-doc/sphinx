@@ -42,6 +42,7 @@
     {% block head %}{% endblock %}
   </head>
   <body>
+{% filter capture('relbar') %}
     <div class="related">
       <h3>Navigation</h3>
       <ul>
@@ -63,6 +64,7 @@
         {%- endfor %}
       </ul>
     </div>
+{% endfilter %}
     <div class="document">
       <div class="documentwrapper">
         {%- if builder != 'htmlhelp' %}
@@ -80,6 +82,7 @@
       {%- endif %}
       <div class="clearer"></div>
     </div>
+{{ relbar }}
     <div class="footer">
       &copy; <a href="{{ pathto('copyright.rst') }}">Copyright</a>
       1990-2007, Python Software Foundation.
