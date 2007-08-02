@@ -90,7 +90,7 @@ The mathematical and bitwise operations are the most numerous:
 .. function:: add(a, b)
               __add__(a, b)
 
-   Return *a* ``+`` *b*, for *a* and *b* numbers.
+   Return ``a + b``, for *a* and *b* numbers.
 
 
 .. function:: and_(a, b)
@@ -102,14 +102,14 @@ The mathematical and bitwise operations are the most numerous:
 .. function:: div(a, b)
               __div__(a, b)
 
-   Return *a* ``/`` *b* when ``__future__.division`` is not in effect.  This is
+   Return ``a / b`` when ``__future__.division`` is not in effect.  This is
    also known as "classic" division.
 
 
 .. function:: floordiv(a, b)
               __floordiv__(a, b)
 
-   Return *a* ``//`` *b*.
+   Return ``a // b``.
 
    .. versionadded:: 2.2
 
@@ -119,7 +119,7 @@ The mathematical and bitwise operations are the most numerous:
               __inv__(o)
               __invert__(o)
 
-   Return the bitwise inverse of the number *o*.  This is equivalent to ``~``*o*.
+   Return the bitwise inverse of the number *o*.  This is equivalent to ``~o``.
    The names :func:`invert` and :func:`__invert__` were added in Python 2.0.
 
 
@@ -132,13 +132,13 @@ The mathematical and bitwise operations are the most numerous:
 .. function:: mod(a, b)
               __mod__(a, b)
 
-   Return *a* ``%`` *b*.
+   Return ``a % b``.
 
 
 .. function:: mul(a, b)
               __mul__(a, b)
 
-   Return *a* ``*`` *b*, for *a* and *b* numbers.
+   Return ``a * b``, for *a* and *b* numbers.
 
 
 .. function:: neg(o)
@@ -162,7 +162,7 @@ The mathematical and bitwise operations are the most numerous:
 .. function:: pow(a, b)
               __pow__(a, b)
 
-   Return *a* ``**`` *b*, for *a* and *b* numbers.
+   Return ``a ** b``, for *a* and *b* numbers.
 
    .. versionadded:: 2.3
 
@@ -176,13 +176,13 @@ The mathematical and bitwise operations are the most numerous:
 .. function:: sub(a, b)
               __sub__(a, b)
 
-   Return *a* ``-`` *b*.
+   Return ``a - b``.
 
 
 .. function:: truediv(a, b)
               __truediv__(a, b)
 
-   Return *a* ``/`` *b* when ``__future__.division`` is in effect.  This is also
+   Return ``a / b`` when ``__future__.division`` is in effect.  This is also
    known as "true" division.
 
    .. versionadded:: 2.2
@@ -197,7 +197,7 @@ The mathematical and bitwise operations are the most numerous:
 .. function:: index(a)
               __index__(a)
 
-   Return *a* converted to an integer.  Equivalent to *a*``.__index__()``.
+   Return *a* converted to an integer.  Equivalent to ``a.__index__()``.
 
    .. versionadded:: 2.5
 
@@ -207,13 +207,13 @@ Operations which work with sequences include:
 .. function:: concat(a, b)
               __concat__(a, b)
 
-   Return *a* ``+`` *b* for *a* and *b* sequences.
+   Return ``a + b`` for *a* and *b* sequences.
 
 
 .. function:: contains(a, b)
               __contains__(a, b)
 
-   Return the outcome of the test *b* ``in`` *a*. Note the reversed operands.  The
+   Return the outcome of the test ``b in a``. Note the reversed operands.  The
    name :func:`__contains__` was added in Python 2.0.
 
 
@@ -231,7 +231,7 @@ Operations which work with sequences include:
 .. function:: delslice(a, b, c)
               __delslice__(a, b, c)
 
-   Delete the slice of *a* from index *b* to index *c*``-1``.
+   Delete the slice of *a* from index *b* to index *c-1*.
 
 
 .. function:: getitem(a, b)
@@ -243,7 +243,7 @@ Operations which work with sequences include:
 .. function:: getslice(a, b, c)
               __getslice__(a, b, c)
 
-   Return the slice of *a* from index *b* to index *c*``-1``.
+   Return the slice of *a* from index *b* to index *c-1*.
 
 
 .. function:: indexOf(a, b)
@@ -254,7 +254,7 @@ Operations which work with sequences include:
 .. function:: repeat(a, b)
               __repeat__(a, b)
 
-   Return *a* ``*`` *b* where *a* is a sequence and *b* is an integer.
+   Return ``a * b`` where *a* is a sequence and *b* is an integer.
 
 
 .. function:: sequenceIncludes(...)
@@ -274,7 +274,7 @@ Operations which work with sequences include:
 .. function:: setslice(a, b, c, v)
               __setslice__(a, b, c, v)
 
-   Set the slice of *a* from index *b* to index *c*``-1`` to the sequence *v*.
+   Set the slice of *a* from index *b* to index *c-1* to the sequence *v*.
 
 Many operations have an "in-place" version.  The following functions provide a
 more primitive access to in-place operators than the usual syntax does; for
@@ -405,24 +405,23 @@ to the compound statement ``z = x; z += y``.
 
    .. versionadded:: 2.5
 
+
 The :mod:`operator` module also defines a few predicates to test the type of
 objects.
 
 .. note::
 
    Be careful not to misinterpret the results of these functions; only
-   :func:`isCallable` has any measure of reliability with instance objects.  For
-   example:
+   :func:`isCallable` has any measure of reliability with instance objects.
+   For example::
 
-::
-
-   >>> class C:
-   ...     pass
-   ... 
-   >>> import operator
-   >>> o = C()
-   >>> operator.isMappingType(o)
-   True
+      >>> class C:
+      ...     pass
+      ... 
+      >>> import operator
+      >>> o = C()
+      >>> operator.isMappingType(o)
+      True
 
 
 .. function:: isCallable(o)

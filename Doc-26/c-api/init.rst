@@ -204,7 +204,7 @@ Initialization, Finalization, and Threads
 
 .. cfunction:: char* Py_GetExecPrefix()
 
-   Return the *exec-prefix* for installed platform-*de*pendent files.  This is
+   Return the *exec-prefix* for installed platform-*dependent* files.  This is
    derived through a number of complicated rules from the program name set with
    :cfunc:`Py_SetProgramName` and some environment variables; for example, if the
    program name is ``'/usr/local/bin/python'``, the exec-prefix is

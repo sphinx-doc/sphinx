@@ -1103,7 +1103,7 @@ the following methods:
 
    Pretend *count* lines have been changed, starting with line *start*.  If
    *changed* is supplied, it specifies whether the affected lines are marked as
-   having been changed (*changed*=1) or unchanged (*changed*=0).
+   having been changed (*changed*\ =1) or unchanged (*changed*\ =0).
 
 
 .. method:: window.touchwin()

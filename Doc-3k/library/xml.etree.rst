@@ -1,6 +1,5 @@
-
-:mod:`xml.etree` --- The ElementTree API for XML
-=================================================
+:mod:`xml.etree` --- The ElementTree API for XML
+================================================
 
 .. module:: xml.etree
    :synopsis: Package containing common ElementTree modules.

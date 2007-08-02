@@ -189,7 +189,7 @@ result back on the stack.
 
 .. opcode:: UNARY_CONVERT ()
 
-   Implements ``TOS = `TOS``\ `.
+   Implements ``TOS = `TOS```.
 
 
 .. opcode:: UNARY_INVERT ()

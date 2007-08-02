@@ -1,8 +1,8 @@
+.. _reporting-bugs:
+
 **************
 Reporting Bugs
 **************
-
-.. _reporting-bugs:
 
 Python is a mature programming language which has established a reputation for
 stability.  In order to maintain this reputation, the developers would like to

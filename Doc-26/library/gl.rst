@@ -28,7 +28,7 @@ are translated to Python as follows:
 * All arrays are represented by one-dimensional Python lists. In most cases,
   tuples are also allowed.
 
-*  All string and character arguments are represented by Python strings, for
+* All string and character arguments are represented by Python strings, for
   instance, ``winopen('Hi There!')`` and ``rotate(900, 'z')``.
 
 * All (short, long, unsigned) integer arguments or return values that are only

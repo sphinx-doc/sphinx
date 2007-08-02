@@ -77,7 +77,7 @@ The :mod:`EasyDialogs` module defines the following functions:
    options are selected.  Its items can take one of two forms: *optstr* or
    ``(optstr, descr)``.  When present, *descr* is a short descriptive string that
    is displayed in the dialog while this option is selected in the popup menu.  The
-   correspondence between *optstr*s and command-line arguments is:
+   correspondence between *optstr*\s and command-line arguments is:
 
    +----------------------+------------------------------------------+
    | *optstr* format      | Command-line format                      |

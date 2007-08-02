@@ -24,13 +24,12 @@ in this chapter is:
    linecache.rst
    shutil.rst
    dircache.rst
-Also see section :ref:`bltin-file-objects` for a description  of Python's built-
-in file objects.
-
-.. % XXX can this be included in the seealso environment? --amk
 
 
 .. seealso::
+
+   Section :ref:`bltin-file-objects`
+      A description of Python's built-in file objects.
 
    Module :mod:`os`
       Operating system interfaces, including functions to work with files at a lower

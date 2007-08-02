@@ -2,7 +2,6 @@ To do after conversion
 ======================
 
 * fix all references and links marked with `XXX`
-* adjust all literal include paths
 * fix all duplicate labels and undefined label references
 * split very large files and add toctrees
 * integrate standalone HOWTOs

@@ -68,15 +68,15 @@ described here are distributed with the Python sources in the
 #. **Build the example DLL** ---  In order to check that everything is set up
    right, try building:
 
-#. Select a configuration.  This step is optional.  Choose :menuselection:`Build
-      --> Configuration Manager --> Active  Solution Configuration` and select either
-      :guilabel:`Release`  or\ :guilabel:`Debug`.  If you skip this step, VC++ will
-      use the Debug configuration by default.
+#. Select a configuration.  This step is optional.  Choose
+   :menuselection:`Build --> Configuration Manager --> Active Solution Configuration`
+   and select either :guilabel:`Release`  or :guilabel:`Debug`.  If you skip this
+   step, VC++ will use the Debug configuration by default.
 
 #. Build the DLL.  Choose :menuselection:`Build --> Build Solution`.  This
-      creates all intermediate and result files in a subdirectory called either
-      :file:`Debug` or :file:`Release`, depending on which configuration you selected
-      in the preceding step.
+   creates all intermediate and result files in a subdirectory called either
+   :file:`Debug` or :file:`Release`, depending on which configuration you selected
+   in the preceding step.
 
 #. **Testing the debug-mode DLL** ---  Once the Debug build has succeeded, bring
    up a DOS box, and change to the :file:`example_nt\\Debug` directory.  You should

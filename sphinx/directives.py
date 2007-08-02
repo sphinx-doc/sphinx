@@ -416,7 +416,6 @@ def token_xrefs(text, env):
         pos = m.end()
     if pos < len(text):
         retnodes.append(nodes.Text(text[pos:], text[pos:]))
-    print retnodes
     return retnodes
 
 def productionlist_directive(name, arguments, options, content, lineno,

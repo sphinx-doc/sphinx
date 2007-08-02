@@ -766,10 +766,10 @@ func
    are commonly known as *callbacks*.)
 
 add
-   is optional, either ```` or``\ +``.  Passing an empty string denotes that this
-   binding is to replace any other bindings that this event is associated with.
-   Preceeding with a``\ +`` means that this function is to be added to the list of
-   functions bound to this event type.
+   is optional, either ``''`` or ``'+'``.  Passing an empty string denotes that
+   this binding is to replace any other bindings that this event is associated
+   with.  Passing a ``'+'`` means that this function is to be added to the list
+   of functions bound to this event type.
 
 For example::
 

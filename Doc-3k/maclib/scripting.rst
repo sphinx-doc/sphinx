@@ -86,12 +86,7 @@ following modules are relevant to MacPython AppleScript support:
    aepack.rst
    aetypes.rst
    miniae.rst
+
 In addition, support modules have been pre-generated for :mod:`Finder`,
 :mod:`Terminal`, :mod:`Explorer`, :mod:`Netscape`, :mod:`CodeWarrior`,
 :mod:`SystemEvents` and :mod:`StdSuites`.
-
-XXX: input{libgensuitemodule} :XXX
-XXX: input{libaetools} :XXX
-XXX: input{libaepack} :XXX
-XXX: input{libaetypes} :XXX
-XXX: input{libminiae} :XXX

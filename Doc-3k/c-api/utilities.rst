@@ -624,9 +624,9 @@ variable(s) whose address should be passed.
    Convert a Python object to a C variable through a *converter* function.  This
    takes two arguments: the first is a function, the second is the address of a C
    variable (of arbitrary type), converted to :ctype:`void \*`.  The *converter*
-   function in turn is called as follows:
+   function in turn is called as follows::
 
-   *status*``=``*converter*``(``*object*, *address*``);``
+      status = converter(object, address);
 
    where *object* is the Python object to be converted and *address* is the
    :ctype:`void\*` argument that was passed to the :cfunc:`PyArg_Parse\*` function.

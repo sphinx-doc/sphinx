@@ -1160,20 +1160,20 @@ to work with the :class:`Decimal` class::
 Decimal FAQ
 -----------
 
-Q.  It is cumbersome to type ``decimal.Decimal('1234.5')``.  Is there a way to
+Q. It is cumbersome to type ``decimal.Decimal('1234.5')``.  Is there a way to
 minimize typing when using the interactive interpreter?
 
-A.  Some users abbreviate the constructor to just a single letter::
+\A. Some users abbreviate the constructor to just a single letter::
 
    >>> D = decimal.Decimal
    >>> D('1.23') + D('3.45')
    Decimal("4.68")
 
-Q.  In a fixed-point application with two decimal places, some inputs have many
+Q. In a fixed-point application with two decimal places, some inputs have many
 places and need to be rounded.  Others are not supposed to have excess digits
 and need to be validated.  What methods should be used?
 
-A.  The :meth:`quantize` method rounds to a fixed number of decimal places. If
+A. The :meth:`quantize` method rounds to a fixed number of decimal places. If
 the :const:`Inexact` trap is set, it is also useful for validation::
 
    >>> TWOPLACES = Decimal(10) ** -2       # same as Decimal('0.01')
@@ -1191,36 +1191,36 @@ the :const:`Inexact` trap is set, it is also useful for validation::
       ...
    Inexact: Changed in rounding
 
-Q.  Once I have valid two place inputs, how do I maintain that invariant
+Q. Once I have valid two place inputs, how do I maintain that invariant
 throughout an application?
 
-A.  Some operations like addition and subtraction automatically preserve fixed
+A. Some operations like addition and subtraction automatically preserve fixed
 point.  Others, like multiplication and division, change the number of decimal
 places and need to be followed-up with a :meth:`quantize` step.
 
-Q.  There are many ways to express the same value.  The numbers :const:`200`,
+Q. There are many ways to express the same value.  The numbers :const:`200`,
 :const:`200.000`, :const:`2E2`, and :const:`.02E+4` all have the same value at
 various precisions. Is there a way to transform them to a single recognizable
 canonical value?
 
-A.  The :meth:`normalize` method maps all equivalent values to a single
+A. The :meth:`normalize` method maps all equivalent values to a single
 representative::
 
    >>> values = map(Decimal, '200 200.000 2E2 .02E+4'.split())
    >>> [v.normalize() for v in values]
    [Decimal("2E+2"), Decimal("2E+2"), Decimal("2E+2"), Decimal("2E+2")]
 
-Q.  Some decimal values always print with exponential notation.  Is there a way
+Q. Some decimal values always print with exponential notation.  Is there a way
 to get a non-exponential representation?
 
-A.  For some values, exponential notation is the only way to express the number
+A. For some values, exponential notation is the only way to express the number
 of significant places in the coefficient.  For example, expressing
 :const:`5.0E+3` as :const:`5000` keeps the value constant but cannot show the
 original's two-place significance.
 
-Q.  Is there a way to convert a regular float to a :class:`Decimal`?
+Q. Is there a way to convert a regular float to a :class:`Decimal`?
 
-A.  Yes, all binary floating point numbers can be exactly expressed as a
+A. Yes, all binary floating point numbers can be exactly expressed as a
 Decimal.  An exact conversion may take more precision than intuition would
 suggest, so trapping :const:`Inexact` will signal a need for more precision::
 
@@ -1248,28 +1248,28 @@ suggest, so trapping :const:`Inexact` will signal a need for more precision::
        finally:
            setcontext(oldcontext)
 
-Q.  Why isn't the :func:`floatToDecimal` routine included in the module?
+Q. Why isn't the :func:`floatToDecimal` routine included in the module?
 
-A.  There is some question about whether it is advisable to mix binary and
+A. There is some question about whether it is advisable to mix binary and
 decimal floating point.  Also, its use requires some care to avoid the
 representation issues associated with binary floating point::
 
    >>> floatToDecimal(1.1)
    Decimal("1.100000000000000088817841970012523233890533447265625")
 
-Q.  Within a complex calculation, how can I make sure that I haven't gotten a
+Q. Within a complex calculation, how can I make sure that I haven't gotten a
 spurious result because of insufficient precision or rounding anomalies.
 
-A.  The decimal module makes it easy to test results.  A best practice is to re-
+A. The decimal module makes it easy to test results.  A best practice is to re-
 run calculations using greater precision and with various rounding modes. Widely
 differing results indicate insufficient precision, rounding mode issues, ill-
 conditioned inputs, or a numerically unstable algorithm.
 
-Q.  I noticed that context precision is applied to the results of operations but
+Q. I noticed that context precision is applied to the results of operations but
 not to the inputs.  Is there anything to watch out for when mixing values of
 different precisions?
 
-A.  Yes.  The principle is that all values are considered to be exact and so is
+A. Yes.  The principle is that all values are considered to be exact and so is
 the arithmetic on those values.  Only the results are rounded.  The advantage
 for inputs is that "what you type is what you get".  A disadvantage is that the
 results can look odd if you forget that the inputs haven't been rounded::

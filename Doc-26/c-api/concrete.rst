@@ -3040,15 +3040,15 @@ objects.
 
 .. cfunction:: PyObject* PyCObject_FromVoidPtr(void* cobj, void (*destr)(void *))
 
-   Create a :ctype:`PyCObject` from the ``void *``*cobj*.  The *destr* function
+   Create a :ctype:`PyCObject` from the ``void *`` *cobj*.  The *destr* function
    will be called when the object is reclaimed, unless it is *NULL*.
 
 
 .. cfunction:: PyObject* PyCObject_FromVoidPtrAndDesc(void* cobj, void* desc, void (*destr)(void *, void *))
 
-   Create a :ctype:`PyCObject` from the :ctype:`void \*`*cobj*.  The *destr*
-   function will be called when the object is reclaimed. The *desc* argument can be
-   used to pass extra callback data for the destructor function.
+   Create a :ctype:`PyCObject` from the :ctype:`void \*` *cobj*.  The *destr*
+   function will be called when the object is reclaimed. The *desc* argument can
+   be used to pass extra callback data for the destructor function.
 
 
 .. cfunction:: void* PyCObject_AsVoidPtr(PyObject* self)

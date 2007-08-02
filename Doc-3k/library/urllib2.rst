@@ -62,10 +62,10 @@ The :mod:`urllib2` module defines the following functions:
 .. function:: build_opener([handler, ...])
 
    Return an :class:`OpenerDirector` instance, which chains the handlers in the
-   order given. *handler*s can be either instances of :class:`BaseHandler`, or
+   order given. *handler*\s can be either instances of :class:`BaseHandler`, or
    subclasses of :class:`BaseHandler` (in which case it must be possible to call
    the constructor without any parameters).  Instances of the following classes
-   will be in front of the *handler*s, unless the *handler*s contain them,
+   will be in front of the *handler*\s, unless the *handler*\s contain them,
    instances of them or subclasses of them: :class:`ProxyHandler`,
    :class:`UnknownHandler`, :class:`HTTPHandler`, :class:`HTTPDefaultErrorHandler`,
    :class:`HTTPRedirectHandler`, :class:`FTPHandler`, :class:`FileHandler`,

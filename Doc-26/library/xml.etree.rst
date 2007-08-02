@@ -1,6 +1,5 @@
-
-:mod:`xml.etree` --- The ElementTree API for XML
-=================================================
+:mod:`xml.etree` --- The ElementTree API for XML
+================================================
 
 .. module:: xml.etree
    :synopsis: Package containing common ElementTree modules.
@@ -23,4 +22,3 @@ this package contains the :mod:`ElementTree`,  :mod:`ElementPath`, and
    `ElementTree Overview <http://effbot.org/tag/elementtree>`_
       The home page for :mod:`ElementTree`.  This includes links  to additional
       documentation, alternative implementations, and  other add-ons.
-
