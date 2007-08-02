@@ -2,7 +2,6 @@ To do after conversion
 ======================
 
 * split very large files and add toctrees
-* integrate standalone HOWTOs
 * find out which files get "comments disabled" metadata
 * write "About these documents"
 * finish "Documenting Python"

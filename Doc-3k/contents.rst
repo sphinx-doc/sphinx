@@ -14,6 +14,7 @@
    distutils/index.rst
    install/index.rst
    documenting/index.rst
+   howto/index.rst
 
    bugs.rst
    about.rst
