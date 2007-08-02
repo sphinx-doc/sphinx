@@ -39,8 +39,7 @@ This module provides one exception and one type object:
 .. exception:: ExpatError
 
    The exception raised when Expat reports an error.  See section
-   :ref:`expaterror-objects`, "ExpatError Exceptions," for more information on
-   interpreting Expat errors.
+   :ref:`expaterror-objects` for more information on interpreting Expat errors.
 
 
 .. exception:: error

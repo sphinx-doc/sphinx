@@ -385,8 +385,7 @@ characters:
    Not imported by ``from module import *``.  The special identifier ``_`` is used
    in the interactive interpreter to store the result of the last evaluation; it is
    stored in the :mod:`__builtin__` module.  When not in interactive mode, ``_``
-   has no special meaning and is not defined. See section :ref:`import`, "The
-   :keyword:`import` statement."
+   has no special meaning and is not defined. See section :ref:`import`.
 
    .. note::
 
@@ -399,13 +398,13 @@ characters:
    implementation (including the standard library); applications should not expect
    to define additional names using this convention.  The set of names of this
    class defined by Python may be extended in future versions. See section
-   :ref:`specialnames`, "Special method names."
+   :ref:`specialnames`.
 
 ``__*``
    Class-private names.  Names in this category, when used within the context of a
    class definition, are re-written to use a mangled form to help avoid name
    clashes between "private" attributes of base and derived classes. See section
-   :ref:`atom-identifiers`, "Identifiers (Names)."
+   :ref:`atom-identifiers`.
 
 
 .. _literals:

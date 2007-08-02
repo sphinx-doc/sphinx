@@ -37,7 +37,7 @@ Some facts and figures:
 
    Return a :class:`TarFile` object for the pathname *name*. For detailed
    information on :class:`TarFile` objects and the keyword arguments that are
-   allowed, see TarFile Objects (section :ref:`tarfile-objects`).
+   allowed, see :ref:`tarfile-objects`.
 
    *mode* has to be a string of the form ``'filemode[:compression]'``, it defaults
    to ``'r'``. Here is a full list of mode combinations:
@@ -75,14 +75,14 @@ Some facts and figures:
 
    For special purposes, there is a second format for *mode*:
    ``'filemode|[compression]'``.  :func:`open` will return a :class:`TarFile`
-   object that processes its data as a stream of blocks.  No random seeking will be
-   done on the file. If given, *fileobj* may be any object that has a :meth:`read`
-   or :meth:`write` method (depending on the *mode*). *bufsize* specifies the
-   blocksize and defaults to ``20 * 512`` bytes. Use this variant in combination
-   with e.g. ``sys.stdin``, a socket file object or a tape device. However, such a
-   :class:`TarFile` object is limited in that it does not allow to be accessed
-   randomly, see "Examples" (section :ref:`tar-examples`).  The currently possible
-   modes:
+   object that processes its data as a stream of blocks.  No random seeking will
+   be done on the file. If given, *fileobj* may be any object that has a
+   :meth:`read` or :meth:`write` method (depending on the *mode*). *bufsize*
+   specifies the blocksize and defaults to ``20 * 512`` bytes. Use this variant
+   in combination with e.g. ``sys.stdin``, a socket file object or a tape
+   device. However, such a :class:`TarFile` object is limited in that it does
+   not allow to be accessed randomly, see :ref:`tar-examples`.  The currently
+   possible modes:
 
    +-------------+--------------------------------------------+
    | Mode        | Action                                     |
@@ -112,8 +112,7 @@ Some facts and figures:
 .. class:: TarFile
 
    Class for reading and writing tar archives. Do not use this class directly,
-   better use :func:`open` instead. See "TarFile Objects" (section
-   :ref:`tarfile-objects`).
+   better use :func:`open` instead. See :ref:`tarfile-objects`.
 
 
 .. function:: is_tarfile(name)
@@ -221,7 +220,7 @@ The :class:`TarFile` object provides an interface to a tar archive. A tar
 archive is a sequence of blocks. An archive member (a stored file) is made up of
 a header block followed by data blocks. It is possible to store a file in a tar
 archive several times. Each archive member is represented by a :class:`TarInfo`
-object, see TarInfo Objects (section :ref:`tarinfo-objects`) for details.
+object, see :ref:`tarinfo-objects` for details.
 
 
 .. class:: TarFile(name=None, mode='r', fileobj=None, format=DEFAULT_FORMAT, tarinfo=TarInfo, dereference=False, ignore_zeros=False, encoding=None, errors=None, pax_headers=None, debug=0, errorlevel=0)

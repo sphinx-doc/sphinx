@@ -40,8 +40,8 @@ The available attributes of this module are:
 
 .. class:: ZipFile
 
-   The class for reading and writing ZIP files.  See "ZipFile Objects" (section
-   :ref:`zipfile-objects`) for constructor details.
+   The class for reading and writing ZIP files.  See section
+   :ref:`zipfile-objects` for constructor details.
 
 
 .. class:: PyZipFile
@@ -51,14 +51,14 @@ The available attributes of this module are:
 
 .. class:: ZipInfo([filename[, date_time]])
 
-   Class used to represent information about a member of an archive. Instances of
-   this class are returned by the :meth:`getinfo` and :meth:`infolist` methods of
-   :class:`ZipFile` objects.  Most users of the :mod:`zipfile` module will not need
-   to create these, but only use those created by this module. *filename* should be
-   the full name of the archive member, and *date_time* should be a tuple
-   containing six fields which describe the time of the last modification to the
-   file; the fields are described in section :ref:`zipinfo-objects`, "ZipInfo
-   Objects."
+   Class used to represent information about a member of an archive. Instances
+   of this class are returned by the :meth:`getinfo` and :meth:`infolist`
+   methods of :class:`ZipFile` objects.  Most users of the :mod:`zipfile` module
+   will not need to create these, but only use those created by this
+   module. *filename* should be the full name of the archive member, and
+   *date_time* should be a tuple containing six fields which describe the time
+   of the last modification to the file; the fields are described in section
+   :ref:`zipinfo-objects`.
 
 
 .. function:: is_zipfile(filename)

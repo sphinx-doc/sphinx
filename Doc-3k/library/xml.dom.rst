@@ -65,8 +65,7 @@ The specification provided by the W3C defines the DOM API for Java, ECMAScript,
 and OMG IDL.  The Python mapping defined here is based in large part on the IDL
 version of the specification, but strict compliance is not required (though
 implementations are free to support the strict mapping from IDL).  See section
-:ref:`dom-conformance`, "Conformance," for a detailed discussion of mapping
-requirements.
+:ref:`dom-conformance` for a detailed discussion of mapping requirements.
 
 
 .. seealso::
@@ -173,40 +172,40 @@ Note that DOM attributes may also be manipulated as nodes instead of as simple
 strings.  It is fairly rare that you must do this, however, so this usage is not
 yet documented.
 
-+--------------------------------+---------------------------------+---------------------------------+
-| Interface                      | Section                         | Purpose                         |
-+================================+=================================+=================================+
-| :class:`DOMImplementation`     | :ref:`dom-implementation-       | Interface to the underlying     |
-|                                | objects`                        | implementation.                 |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`Node`                  | :ref:`dom-node-objects`         | Base interface for most objects |
-|                                |                                 | in a document.                  |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`NodeList`              | :ref:`dom-nodelist-objects`     | Interface for a sequence of     |
-|                                |                                 | nodes.                          |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`DocumentType`          | :ref:`dom-documenttype-objects` | Information about the           |
-|                                |                                 | declarations needed to process  |
-|                                |                                 | a document.                     |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`Document`              | :ref:`dom-document-objects`     | Object which represents an      |
-|                                |                                 | entire document.                |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`Element`               | :ref:`dom-element-objects`      | Element nodes in the document   |
-|                                |                                 | hierarchy.                      |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`Attr`                  | :ref:`dom-attr-objects`         | Attribute value nodes on        |
-|                                |                                 | element nodes.                  |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`Comment`               | :ref:`dom-comment-objects`      | Representation of comments in   |
-|                                |                                 | the source document.            |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`Text`                  | :ref:`dom-text-objects`         | Nodes containing textual        |
-|                                |                                 | content from the document.      |
-+--------------------------------+---------------------------------+---------------------------------+
-| :class:`ProcessingInstruction` | :ref:`dom-pi-objects`           | Processing instruction          |
-|                                |                                 | representation.                 |
-+--------------------------------+---------------------------------+---------------------------------+
++--------------------------------+-----------------------------------+---------------------------------+
+| Interface                      | Section                           | Purpose                         |
++================================+===================================+=================================+
+| :class:`DOMImplementation`     | :ref:`dom-implementation-objects` | Interface to the underlying     |
+|                                |                                   | implementation.                 |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`Node`                  | :ref:`dom-node-objects`           | Base interface for most objects |
+|                                |                                   | in a document.                  |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`NodeList`              | :ref:`dom-nodelist-objects`       | Interface for a sequence of     |
+|                                |                                   | nodes.                          |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`DocumentType`          | :ref:`dom-documenttype-objects`   | Information about the           |
+|                                |                                   | declarations needed to process  |
+|                                |                                   | a document.                     |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`Document`              | :ref:`dom-document-objects`       | Object which represents an      |
+|                                |                                   | entire document.                |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`Element`               | :ref:`dom-element-objects`        | Element nodes in the document   |
+|                                |                                   | hierarchy.                      |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`Attr`                  | :ref:`dom-attr-objects`           | Attribute value nodes on        |
+|                                |                                   | element nodes.                  |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`Comment`               | :ref:`dom-comment-objects`        | Representation of comments in   |
+|                                |                                   | the source document.            |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`Text`                  | :ref:`dom-text-objects`           | Nodes containing textual        |
+|                                |                                   | content from the document.      |
++--------------------------------+-----------------------------------+---------------------------------+
+| :class:`ProcessingInstruction` | :ref:`dom-pi-objects`             | Processing instruction          |
+|                                |                                   | representation.                 |
++--------------------------------+-----------------------------------+---------------------------------+
 
 An additional section describes the exceptions defined for working with the DOM
 in Python.

@@ -309,7 +309,7 @@ Understanding option actions
 Actions tell :mod:`optparse` what to do when it encounters an option on the
 command line.  There is a fixed set of actions hard-coded into :mod:`optparse`;
 adding new actions is an advanced topic covered in section
-:ref:`optparse-extending-optparse`, Extending :mod:`optparse`. Most actions tell
+:ref:`optparse-extending-optparse`. Most actions tell
 :mod:`optparse` to store a value in some variable---for example, take a string
 from the command line and store it in an attribute of ``options``.
 
@@ -369,8 +369,7 @@ long option strings, :mod:`optparse` looks at the first short option string: the
 default destination for ``"-f"`` is ``f``.
 
 :mod:`optparse` also includes built-in ``long`` and ``complex`` types.  Adding
-types is covered in section :ref:`optparse-extending-optparse`, Extending
-:mod:`optparse`.
+types is covered in section :ref:`optparse-extending-optparse`.
 
 
 .. _optparse-handling-boolean-options:
@@ -415,7 +414,7 @@ Some other actions supported by :mod:`optparse` are:
    call a specified function
 
 These are covered in section :ref:`optparse-reference-guide`, Reference Guide
-and section :ref:`optparse-option-callbacks`, Option Callbacks.
+and section :ref:`optparse-option-callbacks`.
 
 
 .. _optparse-default-values:
@@ -704,8 +703,7 @@ not rely on the order in which the arguments are declared.
 
    ``conflict_handler`` (default: ``"error"``)
       Specifies what to do when options with conflicting option strings are added to
-      the parser; see section :ref:`optparse-conflicts-between-options`, Conflicts
-      between options.
+      the parser; see section :ref:`optparse-conflicts-between-options`.
 
    ``description`` (default: ``None``)
       A paragraph of text giving a brief overview of your program.  :mod:`optparse`
@@ -734,8 +732,7 @@ Populating the parser
 
 There are several ways to populate the parser with options.  The preferred way
 is by using ``OptionParser.add_option()``, as shown in section
-:ref:`optparse-tutorial`, the tutorial.  :meth:`add_option` can be called in one
-of two ways:
+:ref:`optparse-tutorial`.  :meth:`add_option` can be called in one of two ways:
 
 * pass it an Option instance (as returned by :func:`make_option`)
 
@@ -986,7 +983,7 @@ must specify for any option using that action.
 
      func(option, opt_str, value, parser, *args, **kwargs)
 
-  See section :ref:`optparse-option-callbacks`, Option Callbacks for more detail.
+  See section :ref:`optparse-option-callbacks` for more detail.
 
 * :attr:`help`
 
@@ -1083,9 +1080,9 @@ to a particular option, or fail to pass a required option attribute,
 
 * ``callback``
 
-  For options with action ``"callback"``, the callable to call when this option is
-  seen.  See section :ref:`optparse-option-callbacks`, Option Callbacks for detail
-  on the arguments passed to ``callable``.
+  For options with action ``"callback"``, the callable to call when this option
+  is seen.  See section :ref:`optparse-option-callbacks` for detail on the
+  arguments passed to ``callable``.
 
 * ``callback_args``, ``callback_kwargs``
 
@@ -1102,7 +1099,7 @@ to a particular option, or fail to pass a required option attribute,
 * ``metavar`` (default: derived from option strings)
 
   Stand-in for the option argument(s) to use when printing help text. See section
-  :ref:`optparse-tutorial`, the tutorial for an example.
+  :ref:`optparse-tutorial` for an example.
 
 
 .. _optparse-standard-option-types:
@@ -1112,7 +1109,7 @@ Standard option types
 
 :mod:`optparse` has six built-in option types: ``string``, ``int``, ``long``,
 ``choice``, ``float`` and ``complex``.  If you need to add new option types, see
-section :ref:`optparse-extending-optparse`, Extending :mod:`optparse`.
+section :ref:`optparse-extending-optparse`.
 
 Arguments to string options are not checked or converted in any way: the text on
 the command line is stored in the destination (or passed to the callback) as-is.

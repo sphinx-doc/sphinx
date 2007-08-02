@@ -1483,8 +1483,8 @@ A Formatter can be initialized with a format string which makes use of knowledge
 of the :class:`LogRecord` attributes - such as the default value mentioned above
 making use of the fact that the user's message and arguments are pre-formatted
 into a :class:`LogRecord`'s *message* attribute.  This format string contains
-standard python %-style mapping keys. See section :ref:`typesseq-strings`,
-"String Formatting Operations," for more information on string formatting.
+standard python %-style mapping keys. See section :ref:`typesseq-strings`
+for more information on string formatting.
 
 Currently, the useful mapping keys in a :class:`LogRecord` are:
 

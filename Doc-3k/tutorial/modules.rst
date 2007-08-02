@@ -152,16 +152,15 @@ directory names.  When :envvar:`PYTHONPATH` is not set, or when the file is not
 found there, the search continues in an installation-dependent default path; on
 Unix, this is usually :file:`.:/usr/local/lib/python`.
 
-Actually, modules are searched in the list of directories given by the  variable
-``sys.path`` which is initialized from the directory  containing the input
-script (or the current directory), :envvar:`PYTHONPATH` and the installation-
-dependent default.  This allows Python programs that know what they're doing to
-modify or replace the  module search path.  Note that because the directory
-containing the script being run is on the search path, it is important that the
-script not have the same name as a standard module, or Python will attempt to
-load the script as a module when that module is imported. This will generally be
-an error.  See section :ref:`tut-standardmodules`, "Standard Modules," for more
-information.
+Actually, modules are searched in the list of directories given by the variable
+``sys.path`` which is initialized from the directory containing the input script
+(or the current directory), :envvar:`PYTHONPATH` and the installation- dependent
+default.  This allows Python programs that know what they're doing to modify or
+replace the module search path.  Note that because the directory containing the
+script being run is on the search path, it is important that the script not have
+the same name as a standard module, or Python will attempt to load the script as
+a module when that module is imported. This will generally be an error.  See
+section :ref:`tut-standardmodules` for more information.
 
 
 "Compiled" Python files

@@ -365,7 +365,7 @@ always available.
    Their intended use is to allow an interactive user to import a debugger module
    and engage in post-mortem debugging without having to re-execute the command
    that caused the error.  (Typical use is ``import pdb; pdb.pm()`` to enter the
-   post-mortem debugger; see chapter :ref:`debugger`, "The Python Debugger," for
+   post-mortem debugger; see chapter :ref:`debugger` for
    more information.)
 
    The meaning of the variables is the same as that of the return values from
@@ -528,9 +528,9 @@ always available.
       single: trace function
       single: debugger
 
-   Set the system's trace function, which allows you to implement a Python source
-   code debugger in Python.  See section :ref:`debugger-hooks`, "How It Works," in
-   the chapter on the Python debugger.  The function is thread-specific; for a
+   Set the system's trace function, which allows you to implement a Python
+   source code debugger in Python.  See section :ref:`debugger-hooks` in the
+   chapter on the Python debugger.  The function is thread-specific; for a
    debugger to support multiple threads, it must be registered using
    :func:`settrace` for each thread being debugged.
 

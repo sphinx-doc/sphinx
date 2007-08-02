@@ -70,24 +70,23 @@ a new  parser object.
 
 .. class:: AttributesImpl(attrs)
 
-   This is an implementation of the :class:`Attributes` interface (XXX reference:
-   attributes-objects.html) (see section :ref:`attributes-objects`).  This is a
-   dictionary-like object which represents the element attributes in a
-   :meth:`startElement` call. In addition to the most useful dictionary operations,
-   it supports a number of other methods as described by the interface. Objects of
-   this class should be instantiated by readers; *attrs* must be a dictionary-like
-   object containing a mapping from attribute names to attribute values.
+   This is an implementation of the :class:`Attributes` interface (see section
+   :ref:`attributes-objects`).  This is a dictionary-like object which
+   represents the element attributes in a :meth:`startElement` call. In addition
+   to the most useful dictionary operations, it supports a number of other
+   methods as described by the interface. Objects of this class should be
+   instantiated by readers; *attrs* must be a dictionary-like object containing
+   a mapping from attribute names to attribute values.
 
 
 .. class:: AttributesNSImpl(attrs, qnames)
 
    Namespace-aware variant of :class:`AttributesImpl`, which will be passed to
    :meth:`startElementNS`. It is derived from :class:`AttributesImpl`, but
-   understands attribute names as two-tuples of *namespaceURI* and *localname*. In
-   addition, it provides a number of methods expecting qualified names as they
-   appear in the original document.  This class implements the
-   :class:`AttributesNS` interface (XXX reference: attributes-ns-objects.html) (see
-   section :ref:`attributes-ns-objects`).
+   understands attribute names as two-tuples of *namespaceURI* and
+   *localname*. In addition, it provides a number of methods expecting qualified
+   names as they appear in the original document.  This class implements the
+   :class:`AttributesNS` interface (see section :ref:`attributes-ns-objects`).
 
 
 .. _xmlreader-objects:
@@ -359,9 +358,9 @@ including the methods :meth:`copy`, :meth:`get`, :meth:`has_key`, :meth:`items`,
 The :class:`AttributesNS` Interface
 -----------------------------------
 
-This interface is a subtype of the :class:`Attributes` interface (XXX reference:
-attributes-objects.html) (see section :ref:`attributes-objects`).  All methods
-supported by that interface are also available on :class:`AttributesNS` objects.
+This interface is a subtype of the :class:`Attributes` interface (see section
+:ref:`attributes-objects`).  All methods supported by that interface are also
+available on :class:`AttributesNS` objects.
 
 The following methods are also available:
 

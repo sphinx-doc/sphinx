@@ -419,10 +419,9 @@ available.  They are listed here in alphabetical order.
 
 .. function:: file(filename[, mode[, bufsize]])
 
-   Constructor function for the :class:`file` type, described further  in section
-   :ref:`bltin-file-objects`, "File Objects (XXX reference: bltin-file-
-   objects.html)".  The constructor's arguments are the same as those of the
-   :func:`open` built-in function described below.
+   Constructor function for the :class:`file` type, described further in section
+   :ref:`bltin-file-objects`.  The constructor's arguments are the same as those
+   of the :func:`open` built-in function described below.
 
    When opening a file, it's preferable to use :func:`open` instead of  invoking
    this constructor directly.  :class:`file` is more suited to type testing (for
@@ -721,11 +720,10 @@ available.  They are listed here in alphabetical order.
 
 .. function:: open(filename[, mode[, bufsize]])
 
-   Open a file, returning an object of the :class:`file` type described in section
-   :ref:`bltin-file-objects`, "File Objects (XXX reference: bltin-file-
-   objects.html)".  If the file cannot be opened, :exc:`IOError` is raised.  When
-   opening a file, it's preferable to use :func:`open` instead of invoking the
-   :class:`file` constructor directly.
+   Open a file, returning an object of the :class:`file` type described in
+   section :ref:`bltin-file-objects`.  If the file cannot be opened,
+   :exc:`IOError` is raised.  When opening a file, it's preferable to use
+   :func:`open` instead of invoking the :class:`file` constructor directly.
 
    The first two arguments are the same as for ``stdio``'s :cfunc:`fopen`:
    *filename* is the file name to be opened, and *mode* is a string indicating how

@@ -491,7 +491,7 @@ Instance methods:
 
    Return a string representing the date, controlled by an explicit format string.
    Format codes referring to hours, minutes or seconds will see 0 values. See
-   section :ref:`strftime-behavior` -- :meth:`strftime` behavior.
+   section :ref:`strftime-behavior`.
 
 
 .. _datetime-datetime:
@@ -931,7 +931,7 @@ Instance methods:
 .. method:: datetime.strftime(format)
 
    Return a string representing the date and time, controlled by an explicit format
-   string.  See section :ref:`strftime-behavior` -- :meth:`strftime` behavior.
+   string.  See section :ref:`strftime-behavior`.
 
 
 .. _datetime-time:
@@ -1056,7 +1056,7 @@ Instance methods:
 .. method:: time.strftime(format)
 
    Return a string representing the time, controlled by an explicit format string.
-   See section :ref:`strftime-behavior` -- :meth:`strftime` behavior.
+   See section :ref:`strftime-behavior`.
 
 
 .. method:: time.utcoffset()

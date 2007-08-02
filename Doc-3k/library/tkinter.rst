@@ -22,9 +22,8 @@ consult the Tk documentation, and occasionally the Tcl documentation.
 classes.  In addition, the internal module :mod:`_tkinter` provides a threadsafe
 mechanism which allows Python and Tcl to interact.
 
-Tk is not the only GUI for Python; see section :ref:`other-gui-packages`, "Other
-User Interface Modules and Packages," for more information on other GUI toolkits
-for Python.
+Tk is not the only GUI for Python; see section :ref:`other-gui-packages` for
+more information on other GUI toolkits for Python.
 
 .. % Other sections I have in mind are
 .. % Tkinter internals

@@ -1721,9 +1721,8 @@ returning data from the target object.
 
 .. index:: single: PyBufferProcs
 
-More information on the buffer interface is provided in the section "Buffer
-Object Structures" (section :ref:`buffer-structs`), under the description for
-:ctype:`PyBufferProcs`.
+More information on the buffer interface is provided in the section 
+:ref:`buffer-structs`, under the description for :ctype:`PyBufferProcs`.
 
 A "buffer object" is defined in the :file:`bufferobject.h` header (included by
 :file:`Python.h`). These objects look very similar to string objects at the

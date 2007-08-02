@@ -1253,7 +1253,7 @@ precedence (least binding) to highest precedence (most binding). Operators in
 the same box have the same precedence.  Unless the syntax is explicitly given,
 operators are binary.  Operators in the same box group left to right (except for
 comparisons, including tests, which all have the same precedence and chain from
-left to right --- see section :ref:`comparisons` -- and exponentiation, which
+left to right --- see section :ref:`comparisons` --- and exponentiation, which
 groups from right to left).
 
 +-----------------------------------------------+-------------------------------------+

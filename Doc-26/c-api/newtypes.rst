@@ -701,8 +701,8 @@ XXX
 .. cmember:: PyBufferProcs* PyTypeObject.tp_as_buffer
 
    Pointer to an additional structure that contains fields relevant only to objects
-   which implement the buffer interface.  These fields are documented in "Buffer
-   Object Structures" (section :ref:`buffer-structs`).
+   which implement the buffer interface.  These fields are documented in
+   :ref:`buffer-structs`.
 
    The :attr:`tp_as_buffer` field is not inherited, but the contained fields are
    inherited individually.

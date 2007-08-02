@@ -122,8 +122,7 @@ process and user.
               getcwd()
    :noindex:
 
-   These functions are described in "Files and Directories" (section
-   :ref:`os-file-dir`).
+   These functions are described in :ref:`os-file-dir`.
 
 
 .. function:: ctermid()

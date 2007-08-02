@@ -904,7 +904,7 @@ it is a string, the string is parsed as a suite of Python statements which is
 then executed (unless a syntax error occurs).  If it is an open file, the file
 is parsed until EOF and executed.  If it is a code object, it is simply
 executed.  In all cases, the code that's executed is expected to be valid as
-file input (see section :ref:`file-input`, "File input").  Be aware that the
+file input (see section :ref:`file-input`).  Be aware that the
 :keyword:`return` and :keyword:`yield` statements may not be used outside of
 function definitions even within the context of code passed to the
 :keyword:`exec` statement.

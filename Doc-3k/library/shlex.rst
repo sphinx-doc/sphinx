@@ -58,7 +58,7 @@ The :mod:`shlex` module defines the following class:
    was introduced in Python 2.3, and defines the operational mode.  When *posix* is
    not true (default), the :class:`shlex` instance will operate in compatibility
    mode.  When operating in POSIX mode, :class:`shlex` will try to be as close as
-   possible to the POSIX shell parsing rules.  See section :ref:`shlex-objects`.
+   possible to the POSIX shell parsing rules.
 
 
 .. seealso::

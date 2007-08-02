@@ -177,8 +177,8 @@ The :mod:`UserString` module defines the following classes:
    hard to track down.
 
 In addition to supporting the methods and operations of string and Unicode
-objects (see section :ref:`string-methods`, "String Methods"),
-:class:`UserString` instances provide the following attribute:
+objects (see section :ref:`string-methods`), :class:`UserString` instances
+provide the following attribute:
 
 
 .. attribute:: MutableString.data

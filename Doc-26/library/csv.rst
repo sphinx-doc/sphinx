@@ -72,7 +72,7 @@ The :mod:`csv` module defines the following functions:
    :func:`list_dialects` function.  The other optional *fmtparam* keyword arguments
    can be given to override individual formatting parameters in the current
    dialect.  For full details about the dialect and formatting parameters, see
-   section :ref:`csv-fmt-params`, "Dialects and Formatting Parameters".
+   section :ref:`csv-fmt-params`.
 
    All data read are returned as strings.  No automatic data type conversion is
    performed.
@@ -99,7 +99,7 @@ The :mod:`csv` module defines the following functions:
    :func:`list_dialects` function.  The other optional *fmtparam* keyword arguments
    can be given to override individual formatting parameters in the current
    dialect.  For full details about the dialect and formatting parameters, see
-   section :ref:`csv-fmt-params`, "Dialects and Formatting Parameters". To make it
+   section :ref:`csv-fmt-params`. To make it
    as easy as possible to interface with modules which implement the DB API, the
    value :const:`None` is written as the empty string.  While this isn't a
    reversible transformation, it makes it easier to dump SQL NULL data values to
@@ -113,8 +113,7 @@ The :mod:`csv` module defines the following functions:
    dialect can be specified either by passing a sub-class of :class:`Dialect`, or
    by *fmtparam* keyword arguments, or both, with keyword arguments overriding
    parameters of the dialect. For full details about the dialect and formatting
-   parameters, see section :ref:`csv-fmt-params`, "Dialects and Formatting
-   Parameters".
+   parameters, see section :ref:`csv-fmt-params`.
 
 
 .. function:: unregister_dialect(name)

@@ -42,7 +42,7 @@ XXX: input{boilerplate} :XXX
 .. % end{latexonly}
 
 
-.. _intro:
+.. _inst-intro:
 
 Introduction
 ============
@@ -67,7 +67,7 @@ on how to distribute your own Python modules so that others may use them, see
 the Distributing Python Modules (XXX reference: ../dist/dist.html) manual.
 
 
-.. _trivial-install:
+.. _inst-trivial-install:
 
 Best case: trivial installation
 -------------------------------
@@ -95,7 +95,7 @@ standard way.  The bulk of this document is about building and installing
 modules from standard source distributions.
 
 
-.. _new-standard:
+.. _inst-new-standard:
 
 The new standard: Distutils
 ---------------------------
@@ -119,12 +119,12 @@ really need this manual.  Or rather, the above command is everything you need to
 get out of this manual.
 
 
-.. _standard-install:
+.. _inst-standard-install:
 
 Standard Build and Install
 ==========================
 
-As described in section :ref:`new-standard`, building and installing a module
+As described in section :ref:`inst-new-standard`, building and installing a module
 distribution using the Distutils is usually one simple command::
 
    python setup.py install
@@ -134,7 +134,7 @@ open a command prompt window ("DOS box") and do it there; on Mac OS X, you open
 a :command:`Terminal` window to get a shell prompt.
 
 
-.. _platform-variations:
+.. _inst-platform-variations:
 
 Platform variations
 -------------------
@@ -159,7 +159,7 @@ command prompt window ("DOS box"), and run::
    python setup.py install
 
 
-.. _splitting-up:
+.. _inst-splitting-up:
 
 Splitting the job up
 --------------------
@@ -189,7 +189,7 @@ tasks.  If you get into distributing your own Python modules and extensions,
 you'll run lots of individual Distutils commands on their own.
 
 
-.. _how-build-works:
+.. _inst-how-build-works:
 
 How building works
 ------------------
@@ -203,7 +203,7 @@ to keep the source tree pristine, you can change the build directory with the
    python setup.py build --build-base=/tmp/pybuild/foo-1.0
 
 (Or you could do this permanently with a directive in your system or personal
-Distutils configuration file; see section :ref:`config-files`.)  Normally, this
+Distutils configuration file; see section :ref:`inst-config-files`.)  Normally, this
 isn't necessary.
 
 The default layout for the build tree is as follows::
@@ -228,7 +228,7 @@ documentation, binary executables, and whatever else is needed to handle the job
 of installing Python modules and applications.
 
 
-.. _how-install-works:
+.. _inst-how-install-works:
 
 How installation works
 ----------------------
@@ -290,12 +290,12 @@ statements shown below, and get the output as shown, to find out my
 
 If you don't want to install modules to the standard location, or if you don't
 have permission to write there, then you need to read about alternate
-installations in section :ref:`alt-install`.  If you want to customize your
-installation directories more heavily, see section :ref:`custom-install` on
+installations in section :ref:`inst-alt-install`.  If you want to customize your
+installation directories more heavily, see section :ref:`inst-custom-install` on
 custom installations.
 
 
-.. _alt-install:
+.. _inst-alt-install:
 
 Alternate Installation
 ======================
@@ -317,7 +317,7 @@ differ across platforms, so read whichever of the following sections applies to
 you.
 
 
-.. _alt-install-prefix:
+.. _inst-alt-install-prefix:
 
 Alternate installation: the home scheme
 ---------------------------------------
@@ -358,7 +358,7 @@ installed to the following directories under the installation base as follows:
    The :option:`--home` option used to be supported only on Unix.
 
 
-.. _alt-install-home:
+.. _inst-alt-install-home:
 
 Alternate installation: Unix (the prefix scheme)
 ------------------------------------------------
@@ -430,7 +430,7 @@ if your :option:`--prefix` and :option:`--exec-prefix` don't even point to an
 alternate Python installation, this is immaterial.)
 
 
-.. _alt-install-windows:
+.. _inst-alt-install-windows:
 
 Alternate installation: Windows (the prefix scheme)
 ---------------------------------------------------
@@ -461,13 +461,13 @@ installed as follows:
 +------------------------------+---------------------------+-----------------------------+
 
 
-.. _custom-install:
+.. _inst-custom-install:
 
 Custom Installation
 ===================
 
 Sometimes, the alternate installation schemes described in section
-:ref:`alt-install` just don't do what you want.  You might want to tweak just
+:ref:`inst-alt-install` just don't do what you want.  You might want to tweak just
 one or two directories while keeping everything under the same base directory,
 or you might want to completely redefine the installation scheme.  In either
 case, you're creating a *custom installation scheme*.
@@ -513,7 +513,7 @@ For example::
 The specified installation directories are relative to :file:`{prefix}`.  Of
 course, you also have to ensure that these directories are in Python's module
 search path, such as by putting a :file:`.pth` file in :file:`{prefix}`.  See
-section :ref:`search-path` to find out how to modify Python's search path.
+section :ref:`inst-search-path` to find out how to modify Python's search path.
 
 If you want to define an entire installation scheme, you just have to supply all
 of the installation directory options.  The recommended way to do this is to
@@ -548,7 +548,7 @@ parsing your configuration file(s).
 
 Obviously, specifying the entire installation scheme every time you install a
 new module distribution would be very tedious.  Thus, you can put these options
-into your Distutils config file (see section :ref:`config-files`)::
+into your Distutils config file (see section :ref:`inst-config-files`)::
 
    [install]
    install-base=$HOME
@@ -582,7 +582,7 @@ environment variables in config files on platforms that have such a notion but
 the Distutils additionally define a few extra variables that may not be in your
 environment, such as ``$PLAT``.  (And of course, on systems that don't have
 environment variables, such as Mac OS 9, the configuration variables supplied by
-the Distutils are the only ones you can use.) See section :ref:`config-files`
+the Distutils are the only ones you can use.) See section :ref:`inst-config-files`
 for details.
 
 .. % XXX need some Windows examples---when would custom
@@ -591,7 +591,7 @@ for details.
 .. % XXX I'm not sure where this section should go.
 
 
-.. _search-path:
+.. _inst-search-path:
 
 Modifying Python's Search Path
 ------------------------------
@@ -670,7 +670,7 @@ Finally, ``sys.path`` is just a regular Python list, so any Python application
 can modify it by adding or removing entries.
 
 
-.. _config-files:
+.. _inst-config-files:
 
 Distutils Configuration Files
 =============================
@@ -685,7 +685,7 @@ multiple configuration files apply, values from "earlier" files are overridden
 by "later" files.
 
 
-.. _config-filenames:
+.. _inst-config-filenames:
 
 Location and names of config files
 ----------------------------------
@@ -748,7 +748,7 @@ Notes:
    Distutils make no attempt to guess your home directory on Windows.)
 
 
-.. _config-syntax:
+.. _inst-config-syntax:
 
 Syntax of config files
 ----------------------
@@ -802,7 +802,7 @@ and you can find out the complete list of global options by using
 See also the "Reference" section of the "Distributing Python Modules" manual.
 
 
-.. _building-ext:
+.. _inst-building-ext:
 
 Building Extensions: Tips and Tricks
 ====================================
@@ -815,7 +815,7 @@ complicated situations this might be inappropriate.  This section discusses how
 to override the usual Distutils behaviour.
 
 
-.. _tweak-flags:
+.. _inst-tweak-flags:
 
 Tweaking compiler/linker flags
 ------------------------------
@@ -885,7 +885,7 @@ environment variable.  If set, the contents of :envvar:`CFLAGS` will be added to
 the compiler flags specified in the  :file:`Setup` file.
 
 
-.. _non-ms-compilers:
+.. _inst-non-ms-compilers:
 
 Using non-Microsoft compilers on Windows
 ----------------------------------------
@@ -932,7 +932,7 @@ To let Distutils compile your extension with Borland C++ you now have to type::
 
 If you want to use the Borland C++ compiler as the default, you could specify
 this in your personal or system-wide configuration file for Distutils (see
-section :ref:`config-files`.)
+section :ref:`inst-config-files`.)
 
 
 .. seealso::
@@ -998,7 +998,7 @@ and for Cygwin in no-cygwin mode [#]_ or for MinGW type::
 
 If you want to use any of these options/compilers as default, you should
 consider to write it in your personal or system-wide configuration file for
-Distutils (see section :ref:`config-files`.)
+Distutils (see section :ref:`inst-config-files`.)
 
 
 .. seealso::

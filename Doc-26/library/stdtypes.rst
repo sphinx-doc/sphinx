@@ -341,7 +341,7 @@ Notes:
    for well-defined conversions.
 
 (3)
-   See section :ref:`built-in-funcs`, "Built-in Functions," for a full description.
+   See :ref:`built-in-funcs` for a full description.
 
 (4)
    Complex floor division operator, modulo operator, and :func:`divmod`.
@@ -1739,9 +1739,9 @@ File Objects
 
 File objects are implemented using C's ``stdio`` package and can be created with
 the built-in constructor :func:`file` described in section
-:ref:`built-in-funcs`, "Built-in Functions." [#]_  File objects are also
-returned by some other built-in functions and methods, such as :func:`os.popen`
-and :func:`os.fdopen` and the :meth:`makefile` method of socket objects.
+:ref:`built-in-funcs`. [#]_ File objects are also returned by some other
+built-in functions and methods, such as :func:`os.popen` and :func:`os.fdopen`
+and the :meth:`makefile` method of socket objects.
 
 When a file operation fails for an I/O-related reason, the exception
 :exc:`IOError` is raised.  This includes situations where the operation is not
@@ -2366,4 +2366,3 @@ types, where they are relevant.  Some of these are not reported by the
    might matter, for example, if you want to make an exact copy of a file while
    scanning its lines) to tell whether the last line of a file ended in a newline
    or not (yes this happens!).
-

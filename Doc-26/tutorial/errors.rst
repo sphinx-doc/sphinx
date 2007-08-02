@@ -316,7 +316,7 @@ naming of the standard exceptions.
 
 Many standard modules define their own exceptions to report errors that may
 occur in functions they define.  More information on classes is presented in
-chapter :ref:`tut-classes`, "Classes."
+chapter :ref:`tut-classes`.
 
 
 .. _tut-cleanup:

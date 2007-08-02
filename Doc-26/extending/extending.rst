@@ -457,15 +457,14 @@ be part of a module definition::
    }
 
 This function must be registered with the interpreter using the
-:const:`METH_VARARGS` flag; this is described in section :ref:`methodtable`,
-"The Module's Method Table and Initialization Function."  The
+:const:`METH_VARARGS` flag; this is described in section :ref:`methodtable`.  The
 :cfunc:`PyArg_ParseTuple` function and its arguments are documented in section
-:ref:`parsetuple`, "Extracting Parameters in Extension Functions."
+:ref:`parsetuple`.
 
 The macros :cfunc:`Py_XINCREF` and :cfunc:`Py_XDECREF` increment/decrement the
 reference count of an object and are safe in the presence of *NULL* pointers
 (but note that *temp* will not be  *NULL* in this context).  More info on them
-in section :ref:`refcounts`, "Reference Counts."
+in section :ref:`refcounts`.
 
 .. index:: single: PyEval_CallObject()
 

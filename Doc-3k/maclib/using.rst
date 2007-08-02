@@ -108,7 +108,7 @@ Finder is non-standard as the Finder does not read your :file:`.profile` or
 /.MacOSX/environment.plist`. See Apple's Technical Document QA1067 for details.
 
 For more information on installation Python packages in MacPython, see section
-:ref:`mac-package-manager`, "Installing Additional Python Packages."
+:ref:`mac-package-manager`.
 
 
 .. _ide:

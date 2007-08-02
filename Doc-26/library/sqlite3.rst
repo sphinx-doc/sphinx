@@ -227,8 +227,8 @@ A :class:`Connection` instance has the following attributes and methods:
 .. attribute:: Connection.isolation_level
 
    Get or set the current isolation level. None for autocommit mode or one of
-   "DEFERRED", "IMMEDIATE" or "EXLUSIVE". See "Controlling Transactions",  section
-   :ref:`sqlite3-controlling-transactions`, for a more detailed explanation.
+   "DEFERRED", "IMMEDIATE" or "EXLUSIVE". See section
+   :ref:`sqlite3-controlling-transactions` for a more detailed explanation.
 
 
 .. method:: Connection.cursor([cursorClass])
@@ -629,9 +629,8 @@ the database is actually a point. There are two ways of doing this:
 
 * Explicitly via the column name
 
-Both ways are described in "Module Constants", section
-:ref:`sqlite3-module-contents`, in the entries for the constants
-:const:`PARSE_DECLTYPES` and :const:`PARSE_COLNAMES`.
+Both ways are described in section :ref:`sqlite3-module-contents`, in the entries
+for the constants :const:`PARSE_DECLTYPES` and :const:`PARSE_COLNAMES`.
 
 The following example illustrates both approaches.
 

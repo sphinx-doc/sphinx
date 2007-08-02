@@ -90,8 +90,8 @@ The :mod:`urlparse` module defines the following functions:
    |                  |       | if present               |                      |
    +------------------+-------+--------------------------+----------------------+
 
-   See section :ref:`urlparse-result-object`, "Results of :func:`urlparse` and
-   :func:`urlsplit`," for more information on the result object.
+   See section :ref:`urlparse-result-object` for more information on the result
+   object.
 
    .. versionchanged:: 2.5
       Added attributes to return value.
@@ -141,8 +141,8 @@ The :mod:`urlparse` module defines the following functions:
    |                  |       | if present              |                      |
    +------------------+-------+-------------------------+----------------------+
 
-   See section :ref:`urlparse-result-object`, "Results of :func:`urlparse` and
-   :func:`urlsplit`," for more information on the result object.
+   See section :ref:`urlparse-result-object` for more information on the result
+   object.
 
    .. versionadded:: 2.2
 

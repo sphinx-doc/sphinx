@@ -442,7 +442,7 @@ Mappings
       the same dictionary entry.
 
       Dictionaries are mutable; they can be created by the ``{...}`` notation (see
-      section :ref:`dict`, "Dictionary Displays").
+      section :ref:`dict`).
 
       .. index::
          module: dbm
@@ -462,7 +462,7 @@ Callable types
       pair: function; argument
 
    These are the types to which the function call operation (see section
-   :ref:`calls`, "Calls") can be applied:
+   :ref:`calls`) can be applied:
 
    User-defined functions
       .. index::
@@ -470,9 +470,9 @@ Callable types
          object: function
          object: user-defined function
 
-      A user-defined function object is created by a function definition (see section
-      :ref:`function`, "Function definitions").  It should be called with an argument
-      list containing the same number of items as the function's formal parameter
+      A user-defined function object is created by a function definition (see
+      section :ref:`function`).  It should be called with an argument list
+      containing the same number of items as the function's formal parameter
       list.
 
       Special attributes:
@@ -649,7 +649,7 @@ Callable types
          single: generator; iterator
 
       A function or method which uses the :keyword:`yield` statement (see section
-      :ref:`yield`, "The :keyword:`yield` statement") is called a :dfn:`generator
+      :ref:`yield`) is called a :dfn:`generator
       function`.  Such a function, when called, always returns an iterator object
       which can be used to execute the body of the function:  calling the iterator's
       :meth:`next` method will cause the function to execute until it provides a value
@@ -717,7 +717,7 @@ Modules
       object: module
 
    Modules are imported by the :keyword:`import` statement (see section
-   :ref:`import`, "The :keyword:`import` statement"). A module object has a
+   :ref:`import`). A module object has a
    namespace implemented by a dictionary object (this is the dictionary referenced
    by the func_globals attribute of functions defined in the module).  Attribute
    references are translated to lookups in this dictionary, e.g., ``m.x`` is
@@ -750,8 +750,8 @@ Modules
    of the shared library file.
 
 Classes
-   Class objects are created by class definitions (see section :ref:`class`, "Class
-   definitions"). A class has a namespace implemented by a dictionary object. Class
+   Class objects are created by class definitions (see section :ref:`class`).
+   A class has a namespace implemented by a dictionary object. Class
    attribute references are translated to lookups in this dictionary, e.g., ``C.x``
    is translated to ``C.__dict__["x"]``. When the attribute name is not found
    there, the attribute search continues in the base classes.  The search is depth-
@@ -838,8 +838,7 @@ Class instances
       object: mapping
 
    Class instances can pretend to be numbers, sequences, or mappings if they have
-   methods with certain special names.  See section :ref:`specialnames`, "Special
-   method names."
+   methods with certain special names.  See section :ref:`specialnames`.
 
    .. index::
       single: __dict__ (instance attribute)
@@ -1008,7 +1007,7 @@ Internal types
       unwinds the execution stack, at each unwound level a traceback object is
       inserted in front of the current traceback.  When an exception handler is
       entered, the stack trace is made available to the program. (See section
-      :ref:`try`, "The ``try`` statement.") It is accessible as ``sys.exc_traceback``,
+      :ref:`try`.) It is accessible as ``sys.exc_traceback``,
       and also as the third item of the tuple returned by ``sys.exc_info()``.  The
       latter is the preferred interface, since it works correctly when the program is
       using multiple threads. When the program contains no suitable handler, the stack

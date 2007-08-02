@@ -40,8 +40,8 @@ The available attributes of this module are:
 
 .. class:: zipimporter
 
-   The class for importing ZIP files.  See "zipimporter Objects" (section
-   :ref:`zipimporter-objects`) for constructor details.
+   The class for importing ZIP files.  See section :ref:`zipimporter-objects`
+   for constructor details.
 
 
 .. seealso::

@@ -2359,6 +2359,6 @@ with the same name, or create new attributes for names not present in
 Arrays and pointers
 ^^^^^^^^^^^^^^^^^^^
 
-Not yet written - please see section :ref:`ctypes-pointers`, pointers and
-section :ref:`ctypes-arrays`, arrays in the tutorial.
+Not yet written - please see the sections :ref:`ctypes-pointers` and
+section :ref:`ctypes-arrays` in the tutorial.
 
