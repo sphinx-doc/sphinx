@@ -454,7 +454,6 @@ dirs_to_make = [
     'reference',
     'tutorial',
     'whatsnew',
-    'lib',
     'tools',
 ]
 
