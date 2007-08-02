@@ -1,3 +1,6 @@
+:mod:`email`: Generating MIME documents
+---------------------------------------
+
 .. module:: email.generator
    :synopsis: Generate flat text email messages from a message structure.
 

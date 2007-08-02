@@ -1,3 +1,6 @@
+:mod:`email`: Exception and Defect classes
+------------------------------------------
+
 .. module:: email.errors
    :synopsis: The exception classes used by the email package.
 

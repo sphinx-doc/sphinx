@@ -1,3 +1,6 @@
+:mod:`email`: Encoders
+----------------------
+
 .. module:: email.encoders
    :synopsis: Encoders for email message payloads.
 

@@ -1,3 +1,6 @@
+:mod:`email`: Parsing email messages
+------------------------------------
+
 .. module:: email.parser
    :synopsis: Parse flat text email messages to produce a message object structure.
 

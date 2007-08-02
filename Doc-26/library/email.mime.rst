@@ -1,3 +1,6 @@
+:mod:`email`: Creating email and MIME objects from scratch
+----------------------------------------------------------
+
 .. module:: email.mime.text
 
 

@@ -5,7 +5,6 @@ To do after conversion
 * adjust all literal include paths
 * remove all non-literal includes
 * fix all duplicate labels and undefined label references
-* fix the email package docs: add a toctree
 * split very large files and add toctrees
 * integrate standalone HOWTOs
 * find out which files get "comments disabled" metadata

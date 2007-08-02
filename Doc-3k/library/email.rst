@@ -52,6 +52,22 @@ while using the :mod:`email` package, some auxiliary utilities, and a few
 examples.  For users of the older :mod:`mimelib` package, or previous versions
 of the :mod:`email` package, a section on differences and porting is provided.
 
+Contents of the :mod:`email` package documentation:
+
+.. toctree::
+
+   email.message.rst
+   email.parser.rst
+   email.generator.rst
+   email.mime.rst
+   email.header.rst
+   email.charset.rst
+   email.encoders.rst
+   email.errors.rst
+   email.util.rst
+   email.iterators.rst
+   email-examples.rst
+
 
 .. seealso::
 
@@ -60,76 +76,6 @@ of the :mod:`email` package, a section on differences and porting is provided.
 
    Module :mod:`nntplib`
       NNTP protocol client
-
-
-Representing an email message
------------------------------
-
-
-.. include:: email.message.rst
-
-
-Parsing email messages
-----------------------
-
-
-.. include:: email.parser.rst
-
-
-Generating MIME documents
--------------------------
-
-
-.. include:: email.generator.rst
-
-
-Creating email and MIME objects from scratch
---------------------------------------------
-
-
-.. include:: email.mime.rst
-
-
-Internationalized headers
--------------------------
-
-
-.. include:: email.header.rst
-
-
-Representing character sets
----------------------------
-
-
-.. include:: email.charset.rst
-
-
-Encoders
---------
-
-
-.. include:: email.encoders.rst
-
-
-Exception and Defect classes
-----------------------------
-
-
-.. include:: email.errors.rst
-
-
-Miscellaneous utilities
------------------------
-
-
-.. include:: email.util.rst
-
-
-Iterators
----------
-
-
-.. include:: email.iterators.rst
 
 
 .. _email-pkg-history:
@@ -373,43 +319,6 @@ The ``MsgReader`` class/module has been removed.  Its functionality is most
 closely supported in the :func:`body_line_iterator` function in the
 :mod:`email.iterators` module.
 
-
-Examples
---------
-
-Here are a few examples of how to use the :mod:`email` package to read, write,
-and send simple email messages, as well as more complex MIME messages.
-
-First, let's see how to create and send a simple text message:
-
-
-.. include:: ../includes/email-simple.py
-   :literal:
-
-Here's an example of how to send a MIME message containing a bunch of family
-pictures that may be residing in a directory:
-
-
-.. include:: ../includes/email-mime.py
-   :literal:
-
-Here's an example of how to send the entire contents of a directory as an email
-message:  [#]_
-
-
-.. include:: ../includes/email-dir.py
-   :literal:
-
-And finally, here's an example of how to unpack a MIME message like the one
-above, into a directory of files:
-
-
-.. include:: ../includes/email-unpack.py
-   :literal:
-
 .. rubric:: Footnotes
 
 .. [#] Delivery Status Notifications (DSN) are defined in :rfc:`1894`.
-
-.. [#] Thanks to Matthew Dixon Cowles for the original inspiration and examples.
-
