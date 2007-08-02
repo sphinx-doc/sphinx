@@ -246,19 +246,15 @@ by how you built/installed Python itself.  On Unix (and Mac OS X, which is also
 Unix-based), it also depends on whether the module distribution being installed
 is pure Python or contains extensions ("non-pure"):
 
-+-----------------+------------------------------------+--------------------------------------+-------+
-| Platform        | Standard installation              | Default value                        | Notes |
-|                 | location                           |                                      |       |
-+=================+====================================+======================================+=======+
-| Unix (pure)     | :file:`{prefix}/lib/python|version | :file:`/usr/local/lib/python|version | \(1)  |
-|                 | |/site-packages`                   | |/site-packages`                     |       |
-+-----------------+------------------------------------+--------------------------------------+-------+
-| Unix (non-pure) | :file:`{exec-                      | :file:`/usr/local/lib/python|version | \(1)  |
-|                 | prefix}/lib/python|version         | |/site-packages`                     |       |
-|                 | |/site-packages`                   |                                      |       |
-+-----------------+------------------------------------+--------------------------------------+-------+
-| Windows         | :file:`{prefix}`                   | :file:`C:\\Python`                   | \(2)  |
-+-----------------+------------------------------------+--------------------------------------+-------+
++-----------------+-----------------------------------------------------+--------------------------------------------------+-------+
+| Platform        | Standard installation location                      | Default value                                    | Notes |
++=================+=====================================================+==================================================+=======+
+| Unix (pure)     | :file:`{prefix}/lib/python{X.Y}/site-packages`      | :file:`/usr/local/lib/python{X.Y}/site-packages` | \(1)  |
++-----------------+-----------------------------------------------------+--------------------------------------------------+-------+
+| Unix (non-pure) | :file:`{exec-prefix}/lib/python{X.Y}/site-packages` | :file:`/usr/local/lib/python{X.Y}/site-packages` | \(1)  |
++-----------------+-----------------------------------------------------+--------------------------------------------------+-------+
+| Windows         | :file:`{prefix}`                                    | :file:`C:\\Python`                               | \(2)  |
++-----------------+-----------------------------------------------------+--------------------------------------------------+-------+
 
 Notes:
 
@@ -346,17 +342,17 @@ will expand this to your home directory::
 The :option:`--home` option defines the installation base directory.  Files are
 installed to the following directories under the installation base as follows:
 
-+------------------------------+-----------------------------------+-----------------------------+
-| Type of file                 | Installation Directory            | Override option             |
-+==============================+===================================+=============================+
-| pure module distribution     | :file:`{home}`:file:`/lib/python` | :option:`--install-purelib` |
-+------------------------------+-----------------------------------+-----------------------------+
-| non-pure module distribution | :file:`{home}`:file:`/lib/python` | :option:`--install-platlib` |
-+------------------------------+-----------------------------------+-----------------------------+
-| scripts                      | :file:`{home}`:file:`/bin`        | :option:`--install-scripts` |
-+------------------------------+-----------------------------------+-----------------------------+
-| data                         | :file:`{home}`:file:`/share`      | :option:`--install-data`    |
-+------------------------------+-----------------------------------+-----------------------------+
++------------------------------+---------------------------+-----------------------------+
+| Type of file                 | Installation Directory    | Override option             |
++==============================+===========================+=============================+
+| pure module distribution     | :file:`{home}/lib/python` | :option:`--install-purelib` |
++------------------------------+---------------------------+-----------------------------+
+| non-pure module distribution | :file:`{home}/lib/python` | :option:`--install-platlib` |
++------------------------------+---------------------------+-----------------------------+
+| scripts                      | :file:`{home}/bin`        | :option:`--install-scripts` |
++------------------------------+---------------------------+-----------------------------+
+| data                         | :file:`{home}/share`      | :option:`--install-data`    |
++------------------------------+---------------------------+-----------------------------+
 
 .. versionchanged:: 2.4
    The :option:`--home` option used to be supported only on Unix.
@@ -399,20 +395,17 @@ non-pure module distributions, but could be expanded to C libraries, binary
 executables, etc.)  If :option:`--exec-prefix` is not supplied, it defaults to
 :option:`--prefix`.  Files are installed as follows:
 
-+------------------------------+----------------------------------------+-----------------------------+
-| Type of file                 | Installation Directory                 | Override option             |
-+==============================+========================================+=============================+
-| pure module distribution     | :file:`{prefix}`:file:`/lib/python2.{X | :option:`--install-purelib` |
-|                              | }/site-packages`                       |                             |
-+------------------------------+----------------------------------------+-----------------------------+
-| non-pure module distribution | :file:`{exec-                          | :option:`--install-platlib` |
-|                              | prefix}`:file:`/lib/python2.{X         |                             |
-|                              | }/site-packages`                       |                             |
-+------------------------------+----------------------------------------+-----------------------------+
-| scripts                      | :file:`{prefix}`:file:`/bin`           | :option:`--install-scripts` |
-+------------------------------+----------------------------------------+-----------------------------+
-| data                         | :file:`{prefix}`:file:`/share`         | :option:`--install-data`    |
-+------------------------------+----------------------------------------+-----------------------------+
++------------------------------+-----------------------------------------------------+-----------------------------+
+| Type of file                 | Installation Directory                              | Override option             |
++==============================+=====================================================+=============================+
+| pure module distribution     | :file:`{prefix}/lib/python{X.Y}/site-packages`      | :option:`--install-purelib` |
++------------------------------+-----------------------------------------------------+-----------------------------+
+| non-pure module distribution | :file:`{exec-prefix}/lib/python{X.Y}/site-packages` | :option:`--install-platlib` |
++------------------------------+-----------------------------------------------------+-----------------------------+
+| scripts                      | :file:`{prefix}/bin`                                | :option:`--install-scripts` |
++------------------------------+-----------------------------------------------------+-----------------------------+
+| data                         | :file:`{prefix}/share`                              | :option:`--install-data`    |
++------------------------------+-----------------------------------------------------+-----------------------------+
 
 There is no requirement that :option:`--prefix` or :option:`--exec-prefix`
 actually point to an alternate Python installation; if the directories listed
@@ -455,17 +448,17 @@ The installation base is defined by the :option:`--prefix` option; the
 :option:`--exec-prefix` option is not supported under Windows. Files are
 installed as follows:
 
-+------------------------------+-----------------------------------+-----------------------------+
-| Type of file                 | Installation Directory            | Override option             |
-+==============================+===================================+=============================+
-| pure module distribution     | :file:`{prefix}`:file:``          | :option:`--install-purelib` |
-+------------------------------+-----------------------------------+-----------------------------+
-| non-pure module distribution | :file:`{prefix}`:file:``          | :option:`--install-platlib` |
-+------------------------------+-----------------------------------+-----------------------------+
-| scripts                      | :file:`{prefix}`:file:`\\Scripts` | :option:`--install-scripts` |
-+------------------------------+-----------------------------------+-----------------------------+
-| data                         | :file:`{prefix}`:file:`\\Data`    | :option:`--install-data`    |
-+------------------------------+-----------------------------------+-----------------------------+
++------------------------------+---------------------------+-----------------------------+
+| Type of file                 | Installation Directory    | Override option             |
++==============================+===========================+=============================+
+| pure module distribution     | :file:`{prefix}`          | :option:`--install-purelib` |
++------------------------------+---------------------------+-----------------------------+
+| non-pure module distribution | :file:`{prefix}`          | :option:`--install-platlib` |
++------------------------------+---------------------------+-----------------------------+
+| scripts                      | :file:`{prefix}\\Scripts` | :option:`--install-scripts` |
++------------------------------+---------------------------+-----------------------------+
+| data                         | :file:`{prefix}\\Data`    | :option:`--install-data`    |
++------------------------------+---------------------------+-----------------------------+
 
 
 .. _custom-install:
@@ -625,12 +618,12 @@ The null string in ``sys.path`` represents the current working directory.
 .. % $ <-- bow to font-lock
 
 The expected convention for locally installed packages is to put them in the
-:file:`.../site-packages/` directory, but you may want to install Python modules
-into some arbitrary directory.  For example, your site may have a convention of
-keeping all software related to the web server under :file:`/www`.  Add-on
-Python modules might then belong in :file:`/www/python`, and in order to import
-them, this directory must be added to ``sys.path``.  There are several different
-ways to add the directory.
+:file:`{...}/site-packages/` directory, but you may want to install Python
+modules into some arbitrary directory.  For example, your site may have a
+convention of keeping all software related to the web server under :file:`/www`.
+Add-on Python modules might then belong in :file:`/www/python`, and in order to
+import them, this directory must be added to ``sys.path``.  There are several
+different ways to add the directory.
 
 The most convenient way is to add a path configuration file to a directory
 that's already on Python's path, usually to the :file:`.../site-packages/`
@@ -921,7 +914,7 @@ Borland format.  You can do this as follows:
 
 The :file:`coff2omf` program comes with the Borland compiler.  The file
 :file:`python25.lib` is in the :file:`Libs` directory of your Python
-installation.  If your extension uses other libraries (zlib,...) you have to
+installation.  If your extension uses other libraries (zlib, ...) you have to
 convert them too.
 
 The converted files have to reside in the same directories as the normal

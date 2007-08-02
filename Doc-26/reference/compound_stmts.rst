@@ -44,15 +44,15 @@ Summarizing:
 
 .. productionlist::
    compound_stmt: `if_stmt`
-                : \| `while_stmt`
-                : \| `for_stmt`
-                : \| `try_stmt`
-                : \| `with_stmt`
-                : \| `funcdef`
-                : \| `classdef`
-   suite: `stmt_list` NEWLINE \| NEWLINE INDENT `statement`\ + DEDENT
-   statement: `stmt_list` NEWLINE \| `compound_stmt`
-   stmt_list: `simple_stmt` (";" `simple_stmt`)\* [";"]
+                : | `while_stmt`
+                : | `for_stmt`
+                : | `try_stmt`
+                : | `with_stmt`
+                : | `funcdef`
+                : | `classdef`
+   suite: `stmt_list` NEWLINE | NEWLINE INDENT `statement`+ DEDENT
+   statement: `stmt_list` NEWLINE | `compound_stmt`
+   stmt_list: `simple_stmt` (";" `simple_stmt`)* [";"]
 
 .. index::
    single: NEWLINE token
@@ -80,7 +80,7 @@ The :keyword:`if` statement is used for conditional execution:
 
 .. productionlist::
    if_stmt: "if" `expression` ":" `suite`
-          : ( "elif" `expression` ":" `suite` )\*
+          : ( "elif" `expression` ":" `suite` )*
           : ["else" ":" `suite`]
 
 .. index::
@@ -216,7 +216,7 @@ The :keyword:`try` statement specifies exception handlers and/or cleanup code
 for a group of statements:
 
 .. productionlist::
-   try_stmt: try1_stmt \| try2_stmt
+   try_stmt: try1_stmt | try2_stmt
    try1_stmt: "try" ":" `suite`
             : ("except" [`expression` ["," `target`]] ":" `suite`)+
             : ["else" ":" `suite`]
@@ -403,16 +403,16 @@ A function definition defines a user-defined function object (see section
 
 .. productionlist::
    funcdef: [`decorators`] "def" `funcname` "(" [`parameter_list`] ")" ":" `suite`
-   decorators: `decorator`\ +
+   decorators: `decorator`+
    decorator: "@" `dotted_name` ["(" [`argument_list` [","]] ")"] NEWLINE
-   dotted_name: `identifier` ("." `identifier`)\*
-   parameter_list: (`defparameter` ",")\*
-                 : (  "\*" `identifier` [, "\*\*" `identifier`]
-                 : \| "\*\*" `identifier`
-                 : \| `defparameter` [","] )
+   dotted_name: `identifier` ("." `identifier`)*
+   parameter_list: (`defparameter` ",")*
+                 : (  "*" `identifier` [, "**" `identifier`]
+                 : | "**" `identifier`
+                 : | `defparameter` [","] )
    defparameter: `parameter` ["=" `expression`]
-   sublist: `parameter` ("," `parameter`)\* [","]
-   parameter: `identifier` \| "(" `sublist` ")"
+   sublist: `parameter` ("," `parameter`)* [","]
+   parameter: `identifier` | "(" `sublist` ")"
    funcname: `identifier`
 
 .. index::

@@ -323,8 +323,8 @@ Identifiers (also referred to as *names*) are described by the following lexical
 definitions:
 
 .. productionlist::
-   identifier: (`letter`\|"_") (`letter` \| `digit` \| "_")\*
-   letter: `lowercase` \| `uppercase`
+   identifier: (`letter`|"_") (`letter` | `digit` | "_")\*
+   letter: `lowercase` | `uppercase`
    lowercase: "a"..."z"
    uppercase: "A"..."Z"
    digit: "0"..."9"
@@ -432,13 +432,13 @@ String literals are described by the following lexical definitions:
 .. index:: single: ASCII@ASCII
 
 .. productionlist::
-   stringliteral: [`stringprefix`](`shortstring` \| `longstring`)
-   stringprefix: "r" \| "u" \| "ur" \| "R" \| "U" \| "UR" \| "Ur" \| "uR"
-   shortstring: "'" `shortstringitem`\* "'" \| '"' `shortstringitem`\* '"'
-   longstring: ""'" `longstringitem`\* ""'"
-             : \| '"""' `longstringitem`\* '"""'
-   shortstringitem: `shortstringchar` \| `escapeseq`
-   longstringitem: `longstringchar` \| `escapeseq`
+   stringliteral: [`stringprefix`](`shortstring` | `longstring`)
+   stringprefix: "r" | "u" | "ur" | "R" | "U" | "UR" | "Ur" | "uR"
+   shortstring: "'" `shortstringitem`* "'" | '"' `shortstringitem`* '"'
+   longstring: ""'" `longstringitem`* ""'"
+             : | '"""' `longstringitem`* '"""'
+   shortstringitem: `shortstringchar` | `escapeseq`
+   longstringitem: `longstringchar` | `escapeseq`
    shortstringchar: <any source character except "\" or newline or the quote>
    longstringchar: <any source character except "\">
    escapeseq: "\" <any ASCII character>
@@ -639,14 +639,14 @@ Integer literals
 Integer literals are described by the following lexical definitions:
 
 .. productionlist::
-   integer: `decimalinteger` \| `octinteger` \| `hexinteger`
-   decimalinteger: `nonzerodigit` `digit`\* \| "0"+
-   octinteger: "0" ("o" \| "O") `octdigit`\ +
-   hexinteger: "0" ("x" \| "X") `hexdigit`\ +
-   bininteger: "0" ("b" \| "B") `bindigit`\ +
+   integer: `decimalinteger` | `octinteger` | `hexinteger`
+   decimalinteger: `nonzerodigit` `digit`* | "0"+
+   octinteger: "0" ("o" | "O") `octdigit`+
+   hexinteger: "0" ("x" | "X") `hexdigit`+
+   bininteger: "0" ("b" | "B") `bindigit`+
    nonzerodigit: "1"..."9"
    octdigit: "0"..."7"
-   hexdigit: `digit` \| "a"..."f" \| "A"..."F"
+   hexdigit: `digit` | "a"..."f" | "A"..."F"
    bindigit: "0"..."1"
 
 Plain integer literals that are above the largest representable plain integer
@@ -673,12 +673,12 @@ Floating point literals
 Floating point literals are described by the following lexical definitions:
 
 .. productionlist::
-   floatnumber: `pointfloat` \| `exponentfloat`
-   pointfloat: [`intpart`] `fraction` \| `intpart` "."
-   exponentfloat: (`intpart` \| `pointfloat`) `exponent`
-   intpart: `digit`\ +
-   fraction: "." `digit`\ +
-   exponent: ("e" \| "E") ["+" \| "-"] `digit`\ +
+   floatnumber: `pointfloat` | `exponentfloat`
+   pointfloat: [`intpart`] `fraction` | `intpart` "."
+   exponentfloat: (`intpart` | `pointfloat`) `exponent`
+   intpart: `digit`+
+   fraction: "." `digit`+
+   exponent: ("e" | "E") ["+" | "-"] `digit`+
 
 Note that the integer and exponent parts are always interpreted using radix 10.
 For example, ``077e010`` is legal, and denotes the same number as ``77e10``. The
@@ -700,7 +700,7 @@ Imaginary literals
 Imaginary literals are described by the following lexical definitions:
 
 .. productionlist::
-   imagnumber: (`floatnumber` \| `intpart`) ("j" \| "J")
+   imagnumber: (`floatnumber` | `intpart`) ("j" | "J")
 
 An imaginary literal yields a complex number with a real part of 0.0.  Complex
 numbers are represented as a pair of floating point numbers and have the same

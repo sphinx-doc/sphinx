@@ -63,10 +63,10 @@ brackets or braces are also categorized syntactically as atoms.  The syntax for
 atoms is:
 
 .. productionlist::
-   atom: `identifier` \| `literal` \| `enclosure`
-   enclosure: `parenth_form` \| `list_display`
-            : \| `generator_expression` \| `dict_display`
-            : \| `string_conversion` \| `yield_atom`
+   atom: `identifier` | `literal` | `enclosure`
+   enclosure: `parenth_form` | `list_display`
+            : | `generator_expression` | `dict_display`
+            : | `string_conversion` | `yield_atom`
 
 
 .. _atom-identifiers:
@@ -119,8 +119,8 @@ Literals
 Python supports string literals and various numeric literals:
 
 .. productionlist::
-   literal: `stringliteral` \| `integer` \| `longinteger`
-          : \| `floatnumber` \| `imagnumber`
+   literal: `stringliteral` | `integer` | `longinteger`
+          : | `floatnumber` | `imagnumber`
 
 Evaluation of a literal yields an object of the given type (string, integer,
 long integer, floating point number, complex number) with the given value.  The
@@ -183,11 +183,11 @@ A list display is a possibly empty series of expressions enclosed in square
 brackets:
 
 .. productionlist::
-   list_display: "[" [`expression_list` \| `list_comprehension`] "]"
+   list_display: "[" [`expression_list` | `list_comprehension`] "]"
    list_comprehension: `expression` `list_for`
    list_for: "for" `target_list` "in" `old_expression_list` [`list_iter`]
    old_expression_list: `old_expression` [("," `old_expression`)+ [","]]
-   list_iter: `list_for` \| `list_if`
+   list_iter: `list_for` | `list_if`
    list_if: "if" `old_expression` [`list_iter`]
 
 .. index::
@@ -219,7 +219,7 @@ A generator expression is a compact generator notation in parentheses:
 .. productionlist::
    generator_expression: "(" `expression` `genexpr_for` ")"
    genexpr_for: "for" `target_list` "in" `or_test` [`genexpr_iter`]
-   genexpr_iter: `genexpr_for` \| `genexpr_if`
+   genexpr_iter: `genexpr_for` | `genexpr_if`
    genexpr_if: "if" `old_expression` [`genexpr_iter`]
 
 .. index:: object: generator
@@ -262,7 +262,7 @@ curly braces:
 
 .. productionlist::
    dict_display: "{" [`key_datum_list`] "}"
-   key_datum_list: `key_datum` ("," `key_datum`)\* [","]
+   key_datum_list: `key_datum` ("," `key_datum`)* [","]
    key_datum: `expression` ":" `expression`
 
 .. index:: object: dictionary
@@ -470,7 +470,7 @@ Primaries represent the most tightly bound operations of the language. Their
 syntax is:
 
 .. productionlist::
-   primary: `atom` \| `attributeref` \| `subscription` \| `slicing` \| `call`
+   primary: `atom` | `attributeref` | `subscription` | `slicing` | `call`
 
 
 .. _attribute-references:
@@ -562,12 +562,12 @@ or list).  Slicings may be used as expressions or as targets in assignment or
 :keyword:`del` statements.  The syntax for a slicing:
 
 .. productionlist::
-   slicing: `simple_slicing` \| `extended_slicing`
+   slicing: `simple_slicing` | `extended_slicing`
    simple_slicing: `primary` "[" `short_slice` "]"
    extended_slicing: `primary` "[" `slice_list` "]" 
-   slice_list: `slice_item` ("," `slice_item`)\* [","]
-   slice_item: `expression` \| `proper_slice` \| `ellipsis`
-   proper_slice: `short_slice` \| `long_slice`
+   slice_list: `slice_item` ("," `slice_item`)* [","]
+   slice_item: `expression` | `proper_slice` | `ellipsis`
+   proper_slice: `short_slice` | `long_slice`
    short_slice: [`lower_bound`] ":" [`upper_bound`]
    long_slice: `short_slice` ":" [`stride`]
    lower_bound: `expression`
@@ -627,16 +627,16 @@ of arguments:
 
 .. productionlist::
    call: `primary` "(" [`argument_list` [","]
-       : \| `expression` `genexpr_for`] ")"
+       : | `expression` `genexpr_for`] ")"
    argument_list: `positional_arguments` ["," `keyword_arguments`]
-                : ["," "\*" `expression`]
-                : ["," "\*\*" `expression`]
-                : \| `keyword_arguments` ["," "\*" `expression`]
-                : ["," "\*\*" `expression`]
-                : \| "\*" `expression` ["," "\*\*" `expression`]
-                : \| "\*\*" `expression`
-   positional_arguments: `expression` ("," `expression`)\*
-   keyword_arguments: `keyword_item` ("," `keyword_item`)\*
+                : ["," "*" `expression`]
+                : ["," "**" `expression`]
+                : | `keyword_arguments` ["," "*" `expression`]
+                : ["," "**" `expression`]
+                : | "*" `expression` ["," "**" `expression`]
+                : | "**" `expression`
+   positional_arguments: `expression` ("," `expression`)*
+   keyword_arguments: `keyword_item` ("," `keyword_item`)*
    keyword_item: `identifier` "=" `expression`
 
 A trailing comma may be present after the positional and keyword arguments but
@@ -786,7 +786,7 @@ The power operator binds more tightly than unary operators on its left; it binds
 less tightly than unary operators on its right.  The syntax is:
 
 .. productionlist::
-   power: `primary` ["\*\*" `u_expr`]
+   power: `primary` ["**" `u_expr`]
 
 Thus, in an unparenthesized sequence of power and unary operators, the operators
 are evaluated from right to left (this does not constrain the evaluation order
@@ -822,7 +822,7 @@ Unary arithmetic operations
 All unary arithmetic (and bit-wise) operations have the same priority:
 
 .. productionlist::
-   u_expr: `power` \| "-" `u_expr` \| "+" `u_expr` \| "~" `u_expr`
+   u_expr: `power` | "-" `u_expr` | "+" `u_expr` | "~" `u_expr`
 
 .. index::
    single: negation
@@ -859,9 +859,9 @@ from the power operator, there are only two levels, one for multiplicative
 operators and one for additive operators:
 
 .. productionlist::
-   m_expr: `u_expr` \| `m_expr` "\*" `u_expr` \| `m_expr` "//" `u_expr` \| `m_expr` "/" `u_expr`
-         : \| `m_expr` "%" `u_expr`
-   a_expr: `m_expr` \| `a_expr` "+" `m_expr` \| `a_expr` "-" `m_expr`
+   m_expr: `u_expr` | `m_expr` "*" `u_expr` | `m_expr` "//" `u_expr` | `m_expr` "/" `u_expr`
+         : | `m_expr` "%" `u_expr`
+   a_expr: `m_expr` | `a_expr` "+" `m_expr` | `a_expr` "-" `m_expr`
 
 .. index:: single: multiplication
 
@@ -934,7 +934,7 @@ Shifting operations
 The shifting operations have lower priority than the arithmetic operations:
 
 .. productionlist::
-   shift_expr: `a_expr` \| `shift_expr` ( "<<" \| ">>" ) `a_expr`
+   shift_expr: `a_expr` | `shift_expr` ( "<<" | ">>" ) `a_expr`
 
 These operators accept plain or long integers as arguments.  The arguments are
 converted to a common type.  They shift the first argument to the left or right
@@ -959,9 +959,9 @@ Binary bit-wise operations
 Each of the three bitwise operations has a different priority level:
 
 .. productionlist::
-   and_expr: `shift_expr` \| `and_expr` "&" `shift_expr`
-   xor_expr: `and_expr` \| `xor_expr` "^" `and_expr`
-   or_expr: `xor_expr` \| `or_expr` "\|" `xor_expr`
+   and_expr: `shift_expr` | `and_expr` "&" `shift_expr`
+   xor_expr: `and_expr` | `xor_expr` "^" `and_expr`
+   or_expr: `xor_expr` | `or_expr` "|" `xor_expr`
 
 .. index:: pair: bit-wise; and
 
@@ -998,9 +998,9 @@ C, expressions like ``a < b < c`` have the interpretation that is conventional
 in mathematics:
 
 .. productionlist::
-   comparison: `or_expr` ( `comp_operator` `or_expr` )\*
-   comp_operator: "<" \| ">" \| "==" \| ">=" \| "<=" \| "<>" \| "!="
-                : \| "is" ["not"] \| ["not"] "in"
+   comparison: `or_expr` ( `comp_operator` `or_expr` )*
+   comp_operator: "<" | ">" | "==" | ">=" | "<=" | "<>" | "!="
+                : | "is" ["not"] | ["not"] "in"
 
 Comparisons yield boolean values: ``True`` or ``False``.
 
@@ -1124,12 +1124,12 @@ Boolean operations
 Boolean operations have the lowest priority of all Python operations:
 
 .. productionlist::
-   expression: `conditional_expression` \| `lambda_form`
-   old_expression: `or_test` \| `old_lambda_form`
+   expression: `conditional_expression` | `lambda_form`
+   old_expression: `or_test` | `old_lambda_form`
    conditional_expression: `or_test` ["if" `or_test` "else" `expression`]
-   or_test: `and_test` \| `or_test` "or" `and_test`
-   and_test: `not_test` \| `and_test` "and" `not_test`
-   not_test: `comparison` \| "not" `not_test`
+   or_test: `and_test` | `or_test` "or" `and_test`
+   and_test: `not_test` | `and_test` "and" `not_test`
+   not_test: `comparison` | "not" `not_test`
 
 In the context of Boolean operations, and also when expressions are used by
 control flow statements, the following values are interpreted as false:
@@ -1203,7 +1203,7 @@ Expression lists
 .. index:: pair: expression; list
 
 .. productionlist::
-   expression_list: `expression` ( "," `expression` )\* [","]
+   expression_list: `expression` ( "," `expression` )* [","]
 
 .. index:: object: tuple
 
@@ -1306,7 +1306,7 @@ groups from right to left).
 +-----------------------------------------------+-------------------------------------+
 | ``{key:datum...}``                            | Dictionary display                  |
 +-----------------------------------------------+-------------------------------------+
-| ```expressions...``\ `                        | String conversion                   |
+| ```expressions...```                          | String conversion                   |
 +-----------------------------------------------+-------------------------------------+
 
 .. rubric:: Footnotes

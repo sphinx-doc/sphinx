@@ -13,20 +13,20 @@ simple statements is:
 
 .. productionlist::
    simple_stmt: `expression_stmt`
-              : \| `assert_stmt`
-              : \| `assignment_stmt`
-              : \| `augmented_assignment_stmt`
-              : \| `pass_stmt`
-              : \| `del_stmt`
-              : \| `print_stmt`
-              : \| `return_stmt`
-              : \| `yield_stmt`
-              : \| `raise_stmt`
-              : \| `break_stmt`
-              : \| `continue_stmt`
-              : \| `import_stmt`
-              : \| `global_stmt`
-              : \| `exec_stmt`
+              : | `assert_stmt`
+              : | `assignment_stmt`
+              : | `augmented_assignment_stmt`
+              : | `pass_stmt`
+              : | `del_stmt`
+              : | `print_stmt`
+              : | `return_stmt`
+              : | `yield_stmt`
+              : | `raise_stmt`
+              : | `break_stmt`
+              : | `continue_stmt`
+              : | `import_stmt`
+              : | `global_stmt`
+              : | `exec_stmt`
 
 
 .. _exprstmts:
@@ -124,14 +124,14 @@ Assignment statements are used to (re)bind names to values and to modify
 attributes or items of mutable objects:
 
 .. productionlist::
-   assignment_stmt: (`target_list` "=")+ (`expression_list` \| `yield_expression`)
-   target_list: `target` ("," `target`)\* [","]
+   assignment_stmt: (`target_list` "=")+ (`expression_list` | `yield_expression`)
+   target_list: `target` ("," `target`)* [","]
    target: `identifier`
-         : \| "(" `target_list` ")"
-         : \| "[" `target_list` "]"
-         : \| `attributeref`
-         : \| `subscription`
-         : \| `slicing`
+         : | "(" `target_list` ")"
+         : | "[" `target_list` "]"
+         : | `attributeref`
+         : | `subscription`
+         : | `slicing`
 
 (See section :ref:`primaries` for the syntax definitions for the last three
 symbols.)
@@ -272,9 +272,9 @@ Augmented assignment is the combination, in a single statement, of a binary
 operation and an assignment statement:
 
 .. productionlist::
-   augmented_assignment_stmt: `target` `augop` (`expression_list` \| `yield_expression`)
-   augop: "+=" \| "-=" \| "\*=" \| "/=" \| "%=" \| "\*\*="
-        : \| ">>=" \| "<<=" \| "&=" \| "^=" \| "\|="
+   augmented_assignment_stmt: `target` `augop` (`expression_list` | `yield_expression`)
+   augop: "+=" | "-=" | "*=" | "/=" | "%=" | "**="
+        : | ">>=" | "<<=" | "&=" | "^=" | "|="
 
 (See section :ref:`primaries` for the syntax definitions for the last three
 symbols.)
@@ -378,8 +378,8 @@ The :keyword:`print` statement
 .. index:: statement: print
 
 .. productionlist::
-   print_stmt: "print" ([`expression` ("," `expression`)\* [","]
-             : \| ">>" `expression` [("," `expression`)+ [","])
+   print_stmt: "print" ([`expression` ("," `expression`)* [","]
+             : | ">>" `expression` [("," `expression`)+ [","])
 
 :keyword:`print` evaluates each expression in turn and writes the resulting
 object to standard output (see below).  If an object is not a string, it is
@@ -645,14 +645,14 @@ The :keyword:`import` statement
    keyword: from
 
 .. productionlist::
-   import_stmt: "import" `module` ["as" `name`] ( "," `module` ["as" `name`] )\*
-              : \| "from" `relative_module` "import" `identifier` ["as" `name`]
-              : ( "," `identifier` ["as" `name`] )\*
-              : \| "from" `relative_module` "import" "(" `identifier` ["as" `name`]
-              : ( "," `identifier` ["as" `name`] )\* [","] ")"
-              : \| "from" `module` "import" "\*"
-   module: (`identifier` ".")\* `identifier`
-   relative_module: "."\* `module` \| "."+
+   import_stmt: "import" `module` ["as" `name`] ( "," `module` ["as" `name`] )*
+              : | "from" `relative_module` "import" `identifier` ["as" `name`]
+              : ( "," `identifier` ["as" `name`] )*
+              : | "from" `relative_module` "import" "(" `identifier` ["as" `name`]
+              : ( "," `identifier` ["as" `name`] )* [","] ")"
+              : | "from" `module` "import" "*"
+   module: (`identifier` ".")* `identifier`
+   relative_module: "."* `module` | "."+
    name: `identifier`
 
 Import statements are executed in two steps: (1) find a module, and initialize
@@ -781,9 +781,9 @@ the release in which the feature becomes standard.
 
 .. productionlist:: *
    future_statement: "from" "__future__" "import" feature ["as" name]
-                   : ("," feature ["as" name])\*
-                   : \| "from" "__future__" "import" "(" feature ["as" name]
-                   : ("," feature ["as" name])\* [","] ")"
+                   : ("," feature ["as" name])*
+                   : | "from" "__future__" "import" "(" feature ["as" name]
+                   : ("," feature ["as" name])* [","] ")"
    feature: identifier
    name: identifier
 
@@ -851,7 +851,7 @@ The :keyword:`global` statement
 .. index:: statement: global
 
 .. productionlist::
-   global_stmt: "global" `identifier` ("," `identifier`)\*
+   global_stmt: "global" `identifier` ("," `identifier`)*
 
 .. index:: triple: global; name; binding
 

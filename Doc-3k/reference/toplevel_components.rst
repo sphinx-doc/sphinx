@@ -66,7 +66,7 @@ File input
 All input read from non-interactive files has the same form:
 
 .. productionlist::
-   file_input: (NEWLINE \| `statement`)\*
+   file_input: (NEWLINE | `statement`)*
 
 This syntax is used in the following situations:
 
@@ -85,7 +85,7 @@ Interactive input
 Input in interactive mode is parsed using the following grammar:
 
 .. productionlist::
-   interactive_input: [`stmt_list`] NEWLINE \| `compound_stmt` NEWLINE
+   interactive_input: [`stmt_list`] NEWLINE | `compound_stmt` NEWLINE
 
 Note that a (top-level) compound statement must be followed by a blank line in
 interactive mode; this is needed to help the parser detect the end of the input.
@@ -104,7 +104,7 @@ There are two forms of expression input.  Both ignore leading whitespace. The
 string argument to :func:`eval` must have the following form:
 
 .. productionlist::
-   eval_input: `expression_list` NEWLINE\*
+   eval_input: `expression_list` NEWLINE*
 
 .. index:: builtin: input
 

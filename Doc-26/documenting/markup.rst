@@ -673,7 +673,7 @@ pair
 triple
    Likewise, ``triple: module; search; path`` is a shortcut that creates three
    index entries, which are ``module; search path``, ``search; path, module`` and
-    ``path; module search``.
+   ``path; module search``.
 module, keyword, operator, object, exception, statement, builtin
    These all create two index entries.  For example, ``module: hashlib`` creates
    the entries ``module; hashlib`` and ``hashlib; module``.
@@ -700,9 +700,10 @@ the definition of the symbol.  There is this directive:
 
    The definition can contain token names which are marked as interpreted text
    (e.g. ``sum ::= `integer` "+" `integer```) -- this generates cross-references
-   to the productions of these tokens.  Note that vertical bars used to indicate
-   alternatives must be escaped with backslashes because otherwise they would
-   indicate a substitution reference to the reST parser.
+   to the productions of these tokens.
+
+   Note that no further reST parsing is done in the production, so that you
+   don't have to escape ``*`` or ``|`` characters.
 
 
 .. XXX describe optional first parameter 
@@ -710,13 +711,13 @@ the definition of the symbol.  There is this directive:
 The following is an example taken from the Python Reference Manual::
 
    .. productionlist::
-      try_stmt: try1_stmt \| try2_stmt
-      try1_stmt: "try" ":" :token:`suite`
-               : ("except" [:token:`expression` ["," :token:`target`]] ":" :token:`suite`)+
-               : ["else" ":" :token:`suite`]
-               : ["finally" ":" :token:`suite`]
-      try2_stmt: "try" ":" :token:`suite`
-               : "finally" ":" :token:`suite`
+      try_stmt: try1_stmt | try2_stmt
+      try1_stmt: "try" ":" `suite`
+               : ("except" [`expression` ["," `target`]] ":" `suite`)+
+               : ["else" ":" `suite`]
+               : ["finally" ":" `suite`]
+      try2_stmt: "try" ":" `suite`
+               : "finally" ":" `suite`
 
 
 Substitutions

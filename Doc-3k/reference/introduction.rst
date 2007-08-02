@@ -98,7 +98,7 @@ The descriptions of lexical analysis and syntax use a modified BNF grammar
 notation.  This uses the following style of definition:
 
 .. productionlist:: *
-   name: `lc_letter` (`lc_letter` \| "_")\*
+   name: `lc_letter` (`lc_letter` | "_")*
    lc_letter: "a"..."z"
 
 The first line says that a ``name`` is an ``lc_letter`` followed by a sequence

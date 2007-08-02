@@ -3,14 +3,11 @@ To do after conversion
 
 * fix all references and links marked with `XXX`
 * adjust all literal include paths
-* remove all non-literal includes
 * fix all duplicate labels and undefined label references
 * split very large files and add toctrees
 * integrate standalone HOWTOs
 * find out which files get "comments disabled" metadata
-* double backslashes in production lists
 * add synopses for each module
 * write "About these documents"
 * finish "Documenting Python"
 * extend copyright.rst
-* fix :file: and |version| in install
