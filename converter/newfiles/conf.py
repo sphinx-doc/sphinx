@@ -31,8 +31,8 @@ unused_files = [
     'whatsnew/2.3.rst',
     'whatsnew/2.4.rst',
     'whatsnew/2.5.rst',
-    'macmodules/scrap.rst',
-    'modules/xmllib.rst',
+    'maclib/scrap.rst',
+    'library/xmllib.rst',
 ]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,

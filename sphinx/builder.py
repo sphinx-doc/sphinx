@@ -324,6 +324,7 @@ class StandaloneHTMLBuilder(Builder):
             last_updated = self.last_updated,
             builder = self.name,
             release = self.config['release'],
+            version = self.config['version'],
             parents = [],
             len = len,
             titles = {},

@@ -232,7 +232,7 @@ var Search = {
 
             // auto default
             if (areas.length == 1 && areas[0] == 'default') {
-                areas = ['tutorial', 'modules', 'install', 'distutils'];
+                areas = ['tutorial', 'library', 'install', 'distutils'];
             }
 
             // update input fields

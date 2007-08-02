@@ -1,4 +1,4 @@
-.. _modules-index:
+.. _library-index:
 
 ###############################
   The Python standard library
@@ -29,6 +29,12 @@ documented in the Reference Manual.
    :maxdepth: 2
 
    intro.rst
+   functions.rst
+   constants.rst
+   objects.rst
+   stdtypes.rst
+   exceptions.rst
+
    strings.rst
    datatypes.rst
    numeric.rst

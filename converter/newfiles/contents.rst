@@ -7,8 +7,8 @@
    whatsnew/2.6.rst
    tutorial/index.rst
    reference/index.rst
-   modules/index.rst
-   macmodules/index.rst
+   library/index.rst
+   maclib/index.rst
    extending/index.rst
    c-api/index.rst
    distutils/index.rst

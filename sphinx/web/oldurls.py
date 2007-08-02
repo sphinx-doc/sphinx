@@ -60,18 +60,18 @@ def handle_html_url(req, url):
             return 'bugs/'
         if url == 'modindex.html' or url.endswith('/modindex.html'):
             return 'modindex/'
-        # modules, macmodules
+        # library, maclib
         if url[:4] in ('lib/', 'mac/'):
-            p = '' if url[0] == 'l' else 'mac'
+            p = 'library/' if url[0] == 'l' else 'maclib/'
             m = _module_re.match(url[4:])
             if m:
                 mn = m.group(1)
-                return p + 'modules/' + special_module_names.get(mn, mn)
+                return p + special_module_names.get(mn, mn)
             # module sub-pages
             m = _modsub_re.match(url[4:])
             if m and not _modobj_re.match(url[4:]):
                 mn = m.group(1)
-                return p + 'modules/' + special_module_names.get(mn, mn)
+                return p + special_module_names.get(mn, mn)
         # XXX: handle all others
         # tutorial
         elif url[:4] == 'tut/':

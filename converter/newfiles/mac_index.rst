@@ -1,4 +1,4 @@
-.. _macmodules-index:
+.. _maclib-index:
 
 ##############################
   Macintosh Library Modules
@@ -8,7 +8,7 @@
 :Date: |today|
 
 This library reference manual documents Python's extensions for the Macintosh.
-It should be used in conjunction with :ref:`modules-index`, which documents the
+It should be used in conjunction with :ref:`library-index`, which documents the
 standard library and built-in types.
 
 This manual assumes basic knowledge about the Python language.  For an informal

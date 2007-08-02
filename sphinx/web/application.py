@@ -590,7 +590,7 @@ class DocumentationApplication(object):
         """
         Find keyword matches. If there is an exact match, just redirect:
         http://docs.python.org/os.path.exists would automatically
-        redirect to http://docs.python.org/modules/os.path/#os.path.exists.
+        redirect to http://docs.python.org/library/os.path/#os.path.exists.
         Else, show a page with close matches.
 
         Module references are processed first so that "os.path" is handled as

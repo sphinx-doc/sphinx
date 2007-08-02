@@ -12,7 +12,7 @@
 
 _mapping = {
     'lib': {
-        '__newname__' : 'modules',
+        '__newname__' : 'library',
 
         'asttable': '',
         'compiler': '',
@@ -271,12 +271,11 @@ _mapping = {
         'libundoc': '',
         'libintro': '',
 
-        # -> ref
-        'libconsts': 'reference/consts',
-        'libexcs': 'reference/exceptions',
-        'libfuncs': 'reference/functions',
-        'libobjs': 'reference/objects',
-        'libstdtypes': 'reference/stdtypes',
+        'libconsts': 'constants',
+        'libexcs': 'exceptions',
+        'libfuncs': 'functions',
+        'libobjs': 'objects',
+        'libstdtypes': 'stdtypes',
 
         # mainfiles
         'lib': None,
@@ -374,7 +373,7 @@ _mapping = {
     },
 
     'mac': {
-        '__newname__': 'macmodules',
+        '__newname__': 'maclib',
         'mac': None,
 
         'libaepack': 'aepack',
@@ -413,6 +412,7 @@ _mapping = {
         'whatsnew24': '2.4',
         'whatsnew25': '2.5',
         'whatsnew26': '2.6',
+        'whatsnew30': '3.0',
     },
 
     'commontex': {
@@ -449,8 +449,8 @@ dirs_to_make = [
     'includes',
     'includes/sqlite3',
     'install',
-    'macmodules',
-    'modules',
+    'maclib',
+    'library',
     'reference',
     'tutorial',
     'whatsnew',
@@ -482,8 +482,8 @@ newfiles_mapping = {
 
     'ref_index.rst': 'reference/index.rst',
     'tutorial_index.rst': 'tutorial/index.rst',
-    'modules_index.rst': 'modules/index.rst',
-    'mac_index.rst': 'macmodules/index.rst',
+    'modules_index.rst': 'library/index.rst',
+    'mac_index.rst': 'maclib/index.rst',
     'ext_index.rst': 'extending/index.rst',
     'api_index.rst': 'c-api/index.rst',
     'dist_index.rst': 'distutils/index.rst',
