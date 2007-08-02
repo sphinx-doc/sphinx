@@ -1,8 +1,8 @@
-
 :mod:`logging` --- Logging facility for Python
 ==============================================
 
 .. module:: logging
+   :synopsis: Flexible error logging system for applications.
 
 
 .. moduleauthor:: Vinay Sajip <vinay_sajip@red-dove.com>

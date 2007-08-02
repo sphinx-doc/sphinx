@@ -1,10 +1,8 @@
-
 :mod:`urlparse` --- Parse URLs into components
 ==============================================
 
 .. module:: urlparse
-
-
+   :synopsis: Parse URLs into or assemble them from components.
 
 
 .. index::

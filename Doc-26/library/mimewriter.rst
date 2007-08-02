@@ -1,9 +1,8 @@
-
 :mod:`MimeWriter` --- Generic MIME file writer
 ==============================================
 
 .. module:: MimeWriter
-
+   :synopsis: Write MIME format files.
 
 .. sectionauthor:: Christopher G. Petrilli <petrilli@amber.org>
 

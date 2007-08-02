@@ -1,12 +1,10 @@
-
 :mod:`urllib2` --- extensible library for opening URLs
 ======================================================
 
 .. module:: urllib2
+   :synopsis: Next generation URL opening library.
 .. moduleauthor:: Jeremy Hylton <jhylton@users.sourceforge.net>
 .. sectionauthor:: Moshe Zadka <moshez@users.sourceforge.net>
-
-
 
 
 The :mod:`urllib2` module defines functions and classes which help in opening

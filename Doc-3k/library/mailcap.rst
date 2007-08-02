@@ -1,9 +1,8 @@
-
-:mod:`mailcap` --- Mailcap file handling.
-=========================================
+:mod:`mailcap` --- Mailcap file handling
+========================================
 
 .. module:: mailcap
-
+   :synopsis: Mailcap file handling.
 
 
 

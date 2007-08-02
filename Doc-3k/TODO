@@ -4,7 +4,6 @@ To do after conversion
 * split very large files and add toctrees
 * integrate standalone HOWTOs
 * find out which files get "comments disabled" metadata
-* add synopses for each module
 * write "About these documents"
 * finish "Documenting Python"
 * extend copyright.rst

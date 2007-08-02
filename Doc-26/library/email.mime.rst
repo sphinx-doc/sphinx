@@ -1,7 +1,8 @@
 :mod:`email`: Creating email and MIME objects from scratch
 ----------------------------------------------------------
 
-.. module:: email.mime.text
+.. module:: email.mime
+   :synopsis: Build MIME messages. 
 
 
 Ordinarily, you get a message object structure by passing a file or some text to

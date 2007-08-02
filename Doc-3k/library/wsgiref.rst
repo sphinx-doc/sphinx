@@ -1,9 +1,8 @@
-
 :mod:`wsgiref` --- WSGI Utilities and Reference Implementation
 ==============================================================
 
 .. module:: wsgiref
-   :synopsis: WSGI Utilities and Reference Implementation
+   :synopsis: WSGI Utilities and Reference Implementation.
 .. moduleauthor:: Phillip J. Eby <pje@telecommunity.com>
 .. sectionauthor:: Phillip J. Eby <pje@telecommunity.com>
 
@@ -37,6 +36,7 @@ and other resources.
 -------------------------------------------------
 
 .. module:: wsgiref.util
+   :synopsis: WSGI environment utilities.
 
 
 This module provides a variety of utility functions for working with WSGI
@@ -142,6 +142,7 @@ also provides these miscellaneous utilities:
 ----------------------------------------------------
 
 .. module:: wsgiref.headers
+   :synopsis: WSGI response header tools.
 
 
 This module provides a single class, :class:`Headers`, for convenient
@@ -221,6 +222,7 @@ manipulation of WSGI response headers using a mapping-like interface.
 ---------------------------------------------------------
 
 .. module:: wsgiref.simple_server
+   :synopsis: A simple WSGI HTTP server.
 
 
 This module implements a simple HTTP server (based on :mod:`BaseHTTPServer`)
@@ -232,7 +234,7 @@ request.  (E.g., using the :func:`shift_path_info` function from
 :mod:`wsgiref.util`.)
 
 
-.. function:: make_server(host, port, app [, server_class=:class:`WSGIServer` [, handler_class=:class:`WSGIRequestHandler`]])
+.. function:: make_server(host, port, app [, server_class=WSGIServer [, handler_class=:class:`WSGIRequestHandler`]])
 
    Create a new WSGI server listening on *host* and *port*, accepting connections
    for *app*.  The return value is an instance of the supplied *server_class*, and
@@ -327,10 +329,11 @@ request.  (E.g., using the :func:`shift_path_info` function from
       interface.
 
 
-:mod:`wsgiref.validate` -- WSGI conformance checker
----------------------------------------------------
+:mod:`wsgiref.validate` --- WSGI conformance checker
+----------------------------------------------------
 
 .. module:: wsgiref.validate
+   :synopsis: WSGI conformance checker.
 
 
 When creating new WSGI application objects, frameworks, servers, or middleware,
@@ -375,6 +378,7 @@ Paste" library.
 ------------------------------------------------------
 
 .. module:: wsgiref.handlers
+   :synopsis: WSGI server/gateway base classes.
 
 
 This module provides base handler classes for implementing WSGI servers and

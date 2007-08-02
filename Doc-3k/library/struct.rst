@@ -3,9 +3,7 @@
 =========================================================
 
 .. module:: struct
-
-
-
+   :synopsis: Interpret strings as packed binary data.
 
 .. index::
    pair: C; structures

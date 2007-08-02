@@ -3,7 +3,7 @@
 ========================================
 
 .. module:: code
-
+   :synopsis: Facilities to implement read-eval-print loops.
 
 
 

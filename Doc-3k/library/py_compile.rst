@@ -1,9 +1,8 @@
-
 :mod:`py_compile` --- Compile Python source files
 =================================================
 
 .. module:: py_compile
-
+   :synopsis: Generate byte-code files from Python source files.
 
 .. % Documentation based on module docstrings, by Fred L. Drake, Jr.
 .. % <fdrake@acm.org>

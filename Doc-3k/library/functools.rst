@@ -1,16 +1,12 @@
-
-:mod:`functools` --- Higher order functions and operations on callable objects.
-===============================================================================
+:mod:`functools` --- Higher order functions and operations on callable objects
+==============================================================================
 
 .. module:: functools
+   :synopsis: Higher order functions and operations on callable objects.
 .. moduleauthor:: Peter Harris <scav@blueyonder.co.uk>
 .. moduleauthor:: Raymond Hettinger <python@rcn.com>
 .. moduleauthor:: Nick Coghlan <ncoghlan@gmail.com>
 .. sectionauthor:: Peter Harris <scav@blueyonder.co.uk>
-
-
-.. % standard library, in Python
-
 
 
 .. versionadded:: 2.5

@@ -3,8 +3,7 @@
 ================================================
 
 .. module:: cgi
-
-
+   :synopsis: Helpers for running Python scripts via the Common Gateway Interface.
 
 
 .. index::
@@ -13,12 +12,9 @@
    pair: HTTP; protocol
    pair: MIME; headers
    single: URL
-
-.. index:: single: Common Gateway Interface
+   single: Common Gateway Interface
 
 Support module for Common Gateway Interface (CGI) scripts.
-
-.. % 
 
 This module defines a number of utilities for use by CGI scripts written in
 Python.

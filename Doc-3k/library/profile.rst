@@ -355,11 +355,9 @@ Analysis of the profiler data is done using the :class:`Stats` class.
 
    The :class:`Stats` class is defined in the :mod:`pstats` module.
 
+
 .. module:: pstats
-
-
-.. % now switch modules....
-.. % (This \stmodindex use may be hard to change ;-( )
+   :synopsis: Statistics object for use with the profiler.
 
 
 .. class:: Stats(filename[, stream=sys.stdout[, ...]])

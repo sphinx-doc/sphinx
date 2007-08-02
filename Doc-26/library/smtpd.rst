@@ -1,9 +1,8 @@
-
 :mod:`smtpd` --- SMTP Server
 ============================
 
 .. module:: smtpd
-
+   :synopsis: A SMTP server implementation in Python.
 
 .. moduleauthor:: Barry Warsaw <barry@zope.com>
 .. sectionauthor:: Moshe Zadka <moshez@moshez.org>

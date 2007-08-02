@@ -3,8 +3,7 @@
 ================================================
 
 .. module:: os.path
-
-
+   :synopsis: Operations on pathnames.
 
 
 .. index:: single: path; operations

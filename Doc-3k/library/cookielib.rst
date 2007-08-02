@@ -3,6 +3,7 @@
 =====================================================
 
 .. module:: cookielib
+   :synopsis: Classes for automatic handling of HTTP cookies.
 .. moduleauthor:: John J. Lee <jjl@pobox.com>
 .. sectionauthor:: John J. Lee <jjl@pobox.com>
 
