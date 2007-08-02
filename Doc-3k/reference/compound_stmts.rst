@@ -270,7 +270,7 @@ stored in the :mod:`sys` module and can be access via :func:`sys.exc_info`.
 :func:`sys.exc_info` returns a 3-tuple consisting of: ``exc_type`` receives the
 object identifying the exception; ``exc_value`` receives the exception's
 parameter; ``exc_traceback`` receives a traceback object (see section
-:ref:`traceback`) identifying the point in the program where the exception
+:ref:`types`) identifying the point in the program where the exception
 occurred. :func:`sys.exc_info` values are restored to their previous values
 (before the call) when returning from a function that handled an exception.
 

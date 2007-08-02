@@ -500,7 +500,7 @@ constructor is used as the exception value.
 .. index:: object: traceback
 
 If a third object is present and not ``None``, it must be a traceback object
-(see section :ref:`traceback`), and it is substituted instead of the current
+(see section :ref:`types`), and it is substituted instead of the current
 location as the place where the exception occurred.  If the third object is
 present and not a traceback object or ``None``, a :exc:`TypeError` exception is
 raised.  The three-expression form of :keyword:`raise` is useful to re-raise an

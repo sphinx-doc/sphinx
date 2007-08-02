@@ -108,7 +108,7 @@ essentially useless.
       The W3C recommendation for the DOM supported by :mod:`xml.dom.minidom`.
 
 
-.. _dom-objects:
+.. _minidom-objects:
 
 DOM Objects
 -----------

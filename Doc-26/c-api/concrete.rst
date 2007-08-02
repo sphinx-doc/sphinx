@@ -2934,7 +2934,7 @@ Slice Objects
    .. versionadded:: 2.3
 
 
-.. _weakref-objects:
+.. _weakrefobjects:
 
 Weak Reference Objects
 ----------------------
@@ -3168,7 +3168,7 @@ than explicitly calling :cfunc:`PyGen_New`.
    *NULL*.
 
 
-.. _datetime-objects:
+.. _datetimeobjects:
 
 DateTime Objects
 ----------------

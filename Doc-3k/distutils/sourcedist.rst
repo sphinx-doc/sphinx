@@ -4,7 +4,7 @@
 Creating a Source Distribution
 ******************************
 
-As shown in section :ref:`simple-example`, you use the :command:`sdist` command
+As shown in section :ref:`distutils-simple-example`, you use the :command:`sdist` command
 to create a source distribution.  In the simplest case, ::
 
    python setup.py sdist

@@ -1,5 +1,5 @@
 
-.. _strings:
+.. _stringservices:
 
 ***************
 String Services

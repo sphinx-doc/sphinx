@@ -1,7 +1,7 @@
 .. highlightlang:: c
 
 
-.. _intro:
+.. _extending-intro:
 
 ******************************
 Extending Python with C or C++
@@ -21,7 +21,7 @@ The compilation of an extension module depends on its intended use as well as on
 your system setup; details are given in later chapters.
 
 
-.. _simpleexample:
+.. _extending-simpleexample:
 
 A Simple Example
 ================
@@ -103,7 +103,7 @@ latter case it also raises an appropriate exception so the calling function can
 return *NULL* immediately (as we saw in the example).
 
 
-.. _errors:
+.. _extending-errors:
 
 Intermezzo: Errors and Exceptions
 =================================
@@ -1109,8 +1109,8 @@ the module and retrieving its C API pointers; client modules only have to call
 this macro before accessing the C API.
 
 The exporting module is a modification of the :mod:`spam` module from section
-:ref:`simpleexample`. The function :func:`spam.system` does not call the C
-library function :cfunc:`system` directly, but a function
+:ref:`extending-simpleexample`. The function :func:`spam.system` does not call
+the C library function :cfunc:`system` directly, but a function
 :cfunc:`PySpam_System`, which would of course do something more complicated in
 reality (such as adding "spam" to every command). This function
 :cfunc:`PySpam_System` is also exported to other extension modules.

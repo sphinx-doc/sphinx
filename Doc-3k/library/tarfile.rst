@@ -1,3 +1,4 @@
+.. _tarfile-mod:
 
 :mod:`tarfile` --- Read and write tar archive files
 ===================================================
@@ -286,7 +287,7 @@ object, see :ref:`tarinfo-objects` for details.
 .. method:: TarFile.open(...)
 
    Alternative constructor. The :func:`open` function on module level is actually a
-   shortcut to this classmethod. See section :ref:`module-tarfile` for details.
+   shortcut to this classmethod. See section :ref:`tarfile-mod` for details.
 
 
 .. method:: TarFile.getmember(name)

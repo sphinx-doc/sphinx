@@ -1,4 +1,4 @@
-.. _intro:
+.. _distutils-intro:
 
 ****************************
 An Introduction to Distutils
@@ -10,7 +10,7 @@ information on installing Python modules, you should refer to the Installing
 Python Modules (XXX reference: ../inst/inst.html) manual.
 
 
-.. _concepts:
+.. _distutils-concepts:
 
 Concepts & Terminology
 ======================
@@ -41,7 +41,7 @@ their platform, without having to run a single setup script or compile a line of
 code.
 
 
-.. _simple-example:
+.. _distutils-simple-example:
 
 A Simple Example
 ================

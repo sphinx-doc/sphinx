@@ -33,6 +33,7 @@ unused_files = [
     'whatsnew/2.5.rst',
     'maclib/scrap.rst',
     'library/xmllib.rst',
+    'library/xml.etree.rst',
 ]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,

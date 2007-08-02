@@ -8,7 +8,7 @@ The setup script is the centre of all activity in building, distributing, and
 installing modules using the Distutils.  The main purpose of the setup script is
 to describe your module distribution to the Distutils, so that the various
 commands that operate on your modules do the right thing.  As we saw in section
-:ref:`simple-example` above, the setup script consists mainly of a call to
+:ref:`distutils-simple-example` above, the setup script consists mainly of a call to
 :func:`setup`, and most information supplied to the Distutils by the module
 developer is supplied as keyword arguments to :func:`setup`.
 
@@ -33,7 +33,7 @@ the package into Python 1.5.2.) ::
         )
 
 There are only two differences between this and the trivial one-file
-distribution presented in section :ref:`simple-example`: more metadata, and the
+distribution presented in section :ref:`distutils-simple-example`: more metadata, and the
 specification of pure Python modules by package, rather than by module.  This is
 important since the Distutils consist of a couple of dozen modules split into
 (so far) two packages; an explicit list of every module would be tedious to
@@ -114,7 +114,7 @@ Listing individual modules
 For a small module distribution, you might prefer to list all modules rather
 than listing packages---especially the case of a single module that goes in the
 "root package" (i.e., no package at all).  This simplest case was shown in
-section :ref:`simple-example`; here is a slightly more involved example::
+section :ref:`distutils-simple-example`; here is a slightly more involved example::
 
    py_modules = ['mod1', 'pkg.mod2']
 

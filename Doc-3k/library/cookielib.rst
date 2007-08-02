@@ -32,9 +32,8 @@ introduced with RFC 2965.
    :mailheader:`Set-Cookie2` headers (eg. ``domain`` and ``expires``) are
    conventionally referred to as :dfn:`attributes`.  To distinguish them from
    Python attributes, the documentation for this module uses the term
-   :dfn:`cookie-attribute` instead
+   :dfn:`cookie-attribute` instead.
 
-.
 
 The module defines the following exception:
 
@@ -47,9 +46,8 @@ The module defines the following exception:
    .. note::
 
       For backwards-compatibility with Python 2.4 (which raised an :exc:`IOError`),
-      :exc:`LoadError` is a subclass of :exc:`IOError`
+      :exc:`LoadError` is a subclass of :exc:`IOError`.
 
-   .
 
 The following classes are provided:
 
@@ -601,7 +599,7 @@ combinations of the above flags:
    Equivalent to ``DomainStrictNoDots|DomainStrictNonDomain``.
 
 
-.. _cookie-objects:
+.. _cookielib-cookie-objects:
 
 Cookie Objects
 --------------

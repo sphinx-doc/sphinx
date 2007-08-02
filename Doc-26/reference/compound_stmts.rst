@@ -272,7 +272,7 @@ Before an except clause's suite is executed, details about the exception are
 assigned to three variables in the :mod:`sys` module: ``sys.exc_type`` receives
 the object identifying the exception; ``sys.exc_value`` receives the exception's
 parameter; ``sys.exc_traceback`` receives a traceback object (see section
-:ref:`traceback`) identifying the point in the program where the exception
+:ref:`types`) identifying the point in the program where the exception
 occurred. These details are also available through the :func:`sys.exc_info`
 function, which returns a tuple ``(exc_type, exc_value, exc_traceback)``.  Use
 of the corresponding variables is deprecated in favor of this function, since

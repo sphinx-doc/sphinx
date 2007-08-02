@@ -1,5 +1,5 @@
 
-.. _intro:
+.. _library-intro:
 
 ************
 Introduction

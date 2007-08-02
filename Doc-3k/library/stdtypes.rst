@@ -1,5 +1,5 @@
 
-.. _types:
+.. _bltin-types:
 
 **************
 Built-in Types
@@ -120,7 +120,7 @@ Notes:
    interpreted as ``not (a == b)``, and ``a == not b`` is a syntax error.
 
 
-.. _comparisons:
+.. _stdcomparisons:
 
 Comparisons
 ===========
@@ -1764,9 +1764,8 @@ Files have the following methods:
 
       Not all "file-like" types in Python support use as a context manager for the
       :keyword:`with` statement.  If your code is intended to work with any file-like
-      object, you can use the :func:`closing` function in the :mod:`contextlib` module
-      instead of using the object directly.  See section :ref:`context-closing` for
-      details.
+      object, you can use the function :func:`contextlib.closing` instead of using
+      the object directly.
 
 
 .. method:: file.flush()

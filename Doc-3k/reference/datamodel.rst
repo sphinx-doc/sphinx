@@ -989,8 +989,6 @@ Internal types
       can implement a Jump command (aka Set Next Statement) by writing to f_lineno.
 
    Traceback objects
-      .. _traceback:
-
       .. index::
          object: traceback
          pair: stack; trace

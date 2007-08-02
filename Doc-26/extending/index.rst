@@ -17,7 +17,7 @@ operating system supports this feature.
 
 This document assumes basic knowledge about Python.  For an informal
 introduction to the language, see :ref:`tutorial-index`.  :ref:`reference-index`
-gives a more formal definition of the language.  :ref:`modules-index` documents
+gives a more formal definition of the language.  :ref:`library-index` documents
 the existing object types, functions and modules (both built-in and written in
 Python) that give the language its wide application range.
 

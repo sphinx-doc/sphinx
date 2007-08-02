@@ -51,7 +51,7 @@ documented in the Reference Manual.
    ipc.rst
    internet.rst
    mm.rst
-   tkinter.rst
+   tk.rst
    i18n.rst
    frameworks.rst
    development.rst

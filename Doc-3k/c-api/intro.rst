@@ -1,7 +1,7 @@
 .. highlightlang:: c
 
 
-.. _intro:
+.. _api-intro:
 
 ************
 Introduction
@@ -30,7 +30,7 @@ familiar with writing an extension before  attempting to embed Python in a real
 application.
 
 
-.. _includes:
+.. _api-includes:
 
 Include Files
 =============
@@ -80,7 +80,7 @@ header files do properly declare the entry points to be ``extern "C"``, so there
 is no need to do anything special to use the API from C++.
 
 
-.. _objects:
+.. _api-objects:
 
 Objects, Types and Reference Counts
 ===================================
@@ -107,7 +107,7 @@ that type; for instance, ``PyList_Check(a)`` is true if (and only if) the object
 pointed to by *a* is a Python list.
 
 
-.. _refcounts:
+.. _api-refcounts:
 
 Reference Counts
 ----------------
@@ -170,7 +170,7 @@ This leaves the caller with the responsibility to call :cfunc:`Py_DECREF` when
 they are done with the result; this soon becomes second nature.
 
 
-.. _refcountdetails:
+.. _api-refcountdetails:
 
 Reference Count Details
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -335,7 +335,7 @@ using :cfunc:`PySequence_GetItem`. ::
 .. index:: single: sum_sequence()
 
 
-.. _types:
+.. _api-types:
 
 Types
 -----
@@ -349,7 +349,7 @@ of a complex number.  These will  be discussed together with the functions that
 use them.
 
 
-.. _exceptions:
+.. _api-exceptions:
 
 Exceptions
 ==========
@@ -496,7 +496,7 @@ return value is initialized to ``-1`` (failure) and only set to success after
 the final call made is successful.
 
 
-.. _embedding:
+.. _api-embedding:
 
 Embedding Python
 ================
@@ -519,8 +519,6 @@ The basic initialization function is :cfunc:`Py_Initialize`. This initializes
 the table of loaded modules, and creates the fundamental modules
 :mod:`__builtin__`, :mod:`__main__`, :mod:`sys`, and :mod:`exceptions`.  It also
 initializes the module search path (``sys.path``).
-
-.. % 
 
 .. index:: single: PySys_SetArgv()
 
@@ -574,7 +572,7 @@ does *not* free all memory allocated by the Python interpreter, e.g. memory
 allocated by extension modules currently cannot be released.
 
 
-.. _debugging:
+.. _api-debugging:
 
 Debugging Builds
 ================

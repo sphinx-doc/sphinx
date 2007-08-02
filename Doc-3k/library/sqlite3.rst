@@ -148,9 +148,8 @@ Module functions and constants
    for the lock to go away until raising an exception. The default for the timeout
    parameter is 5.0 (five seconds).
 
-   For the *isolation_level* parameter, please see the :attr:`isolation_level`
-   property of :class:`Connection` objects in section
-   :ref:`sqlite3-connection-isolationlevel`.
+   For the *isolation_level* parameter, please see the
+   :attr:`Connection.isolation_level` property of :class:`Connection` objects.
 
    SQLite natively supports only the types TEXT, INTEGER, FLOAT, BLOB and NULL. If
    you want to use other types you must add support for them yourself. The
@@ -220,9 +219,6 @@ Connection Objects
 ------------------
 
 A :class:`Connection` instance has the following attributes and methods:
-
-.. _sqlite3-connection-isolationlevel:
-
 
 .. attribute:: Connection.isolation_level
 
