@@ -6,7 +6,13 @@ String Services
 ***************
 
 The modules described in this chapter provide a wide range of string
-manipulation operations.  Here's an overview:
+manipulation operations.
+
+In addition, Python's built-in string classes support the sequence type
+methods described in the :ref:`typesseq` section, and also the
+string-specific methods described in the :ref:`string-methods` section.
+To output formatted strings use template strings or the ``%`` operator
+described in the :ref:`typesseq-strings` section.
 
 
 .. toctree::
@@ -21,6 +27,4 @@ manipulation operations.  Here's an overview:
    unicodedata.rst
    stringprep.rst
    fpformat.rst
-Information on the methods of string objects can be found in section
-:ref:`string-methods`, "String Methods."
 

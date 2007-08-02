@@ -29,11 +29,11 @@ documented in the Reference Manual.
    :maxdepth: 2
 
    intro.rst
-   constants.rst
-   exceptions.rst
    functions.rst
+   constants.rst
    objects.rst
    stdtypes.rst
+   exceptions.rst
 
    strings.rst
    datatypes.rst

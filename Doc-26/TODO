@@ -14,5 +14,4 @@ To do after conversion
 * write "About these documents"
 * finish "Documenting Python"
 * extend copyright.rst
-* fix the "quadruple" index term
 * fix :file: and |version| in install

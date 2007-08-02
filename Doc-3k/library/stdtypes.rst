@@ -1299,7 +1299,6 @@ defined on mutable sequence types (where *x* is an arbitrary object):
 +------------------------------+--------------------------------+---------------------+
 
 .. index::
-   quadruple: operations on; mutable; sequence; types
    triple: operations on; sequence; types
    triple: operations on; list; type
    pair: subscript; assignment
