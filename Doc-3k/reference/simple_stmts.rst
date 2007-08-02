@@ -59,7 +59,7 @@ expression).
 
 In interactive mode, if the value is not ``None``, it is converted to a string
 using the built-in :func:`repr` function and the resulting string is written to
-standard output (see section :ref:`print`) on a line by itself.  (Expression
+standard output (see :func:`print`) on a line by itself.  (Expression
 statements yielding ``None`` are not written, so that procedure calls do not
 cause any output.)
 

@@ -31,9 +31,11 @@ Arithmetic conversions
 
 .. index:: pair: arithmetic; conversion
 
+.. XXX no coercion rules are documented anymore
+
 When a description of an arithmetic operator below uses the phrase "the numeric
 arguments are converted to a common type," the arguments are coerced using the
-coercion rules listed at  :ref:`coercion-rules`.  If both arguments are standard
+coercion rules.  If both arguments are standard
 numeric types, the following coercions are applied:
 
 * If either argument is a complex number, the other is converted to complex;
