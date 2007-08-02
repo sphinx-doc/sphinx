@@ -215,9 +215,8 @@ Some tips for experts:
 
   .. index:: module: compileall
 
-* The module :mod:`compileall` (XXX reference: ../lib/module-compileall.html)
-  can create :file:`.pyc` files (or :file:`.pyo` files when :option:`-O` is used)
-  for all modules in a directory.
+* The module :mod:`compileall` can create :file:`.pyc` files (or :file:`.pyo`
+  files when :option:`-O` is used) for all modules in a directory.
 
   .. % 
 
@@ -230,15 +229,14 @@ Standard Modules
 .. index:: module: sys
 
 Python comes with a library of standard modules, described in a separate
-document, the Python Library Reference (XXX reference: ../lib/lib.html)
-("Library Reference" hereafter).  Some modules are built into the interpreter;
-these provide access to operations that are not part of the core of the language
-but are nevertheless built in, either for efficiency or to provide access to
-operating system primitives such as system calls.  The set of such modules is a
-configuration option which also depends on the underlying platform  For example,
-the :mod:`winreg` module is only provided on Windows systems. One particular
-module deserves some attention: :mod:`sys` (XXX reference: ../lib/module-
-sys.html), which is built into every  Python interpreter.  The variables
+document, the Python Library Reference ("Library Reference" hereafter).  Some
+modules are built into the interpreter; these provide access to operations that
+are not part of the core of the language but are nevertheless built in, either
+for efficiency or to provide access to operating system primitives such as
+system calls.  The set of such modules is a configuration option which also
+depends on the underlying platform For example, the :mod:`winreg` module is only
+provided on Windows systems. One particular module deserves some attention:
+:mod:`sys`, which is built into every Python interpreter.  The variables
 ``sys.ps1`` and ``sys.ps2`` define the strings used as primary and secondary
 prompts:
 

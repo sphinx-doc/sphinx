@@ -10,8 +10,8 @@ Brief Tour of the Standard Library
 Operating System Interface
 ==========================
 
-The :mod:`os` (XXX reference: ../lib/module-os.html) module provides dozens of
-functions for interacting with the operating system::
+The :mod:`os` module provides dozens of functions for interacting with the
+operating system::
 
    >>> import os
    >>> os.system('time 0:02')
@@ -35,9 +35,8 @@ aids for working with large modules like :mod:`os`::
    >>> help(os)
    <returns an extensive manual page created from the module's docstrings>
 
-For daily file and directory management tasks, the  :mod:`shutil` (XXX
-reference: ../lib/module-shutil.html) module provides a higher level interface
-that is easier to use::
+For daily file and directory management tasks, the :mod:`shutil` module provides
+a higher level interface that is easier to use::
 
    >>> import shutil
    >>> shutil.copyfile('data.db', 'archive.db')
@@ -49,8 +48,8 @@ that is easier to use::
 File Wildcards
 ==============
 
-The :mod:`glob` (XXX reference: ../lib/module-glob.html) module provides a
-function for making file lists from directory wildcard searches::
+The :mod:`glob` module provides a function for making file lists from directory
+wildcard searches::
 
    >>> import glob
    >>> glob.glob('*.py')
@@ -63,18 +62,17 @@ Command Line Arguments
 ======================
 
 Common utility scripts often need to process command line arguments. These
-arguments are stored in the :mod:`sys` (XXX reference: ../lib/module-sys.html)
-module's *argv* attribute as a list.  For instance the following output results
-from running ``python demo.py one two three`` at the command line::
+arguments are stored in the :mod:`sys` module's *argv* attribute as a list.  For
+instance the following output results from running ``python demo.py one two
+three`` at the command line::
 
    >>> import sys
    >>> print sys.argv
    ['demo.py', 'one', 'two', 'three']
 
-The :mod:`getopt` (XXX reference: ../lib/module-getopt.html) module processes
-*sys.argv* using the conventions of the Unix :func:`getopt` function.  More
-powerful and flexible command line processing is provided by the :mod:`optparse`
-(XXX reference: ../lib/module-optparse.html) module.
+The :mod:`getopt` module processes *sys.argv* using the conventions of the Unix
+:func:`getopt` function.  More powerful and flexible command line processing is
+provided by the :mod:`optparse` module.
 
 
 .. _tut-stderr:
@@ -82,10 +80,9 @@ powerful and flexible command line processing is provided by the :mod:`optparse`
 Error Output Redirection and Program Termination
 ================================================
 
-The :mod:`sys` (XXX reference: ../lib/module-sys.html) module also has
-attributes for *stdin*, *stdout*, and *stderr*.  The latter is useful for
-emitting warnings and error messages to make them visible even when *stdout* has
-been redirected::
+The :mod:`sys` module also has attributes for *stdin*, *stdout*, and *stderr*.
+The latter is useful for emitting warnings and error messages to make them
+visible even when *stdout* has been redirected::
 
    >>> sys.stderr.write('Warning, log file not found starting a new one\n')
    Warning, log file not found starting a new one
@@ -98,9 +95,9 @@ The most direct way to terminate a script is to use ``sys.exit()``.
 String Pattern Matching
 =======================
 
-The :mod:`re` (XXX reference: ../lib/module-re.html) module provides regular
-expression tools for advanced string processing. For complex matching and
-manipulation, regular expressions offer succinct, optimized solutions::
+The :mod:`re` module provides regular expression tools for advanced string
+processing. For complex matching and manipulation, regular expressions offer
+succinct, optimized solutions::
 
    >>> import re
    >>> re.findall(r'\bf[a-z]*', 'which foot or hand fell fastest')
@@ -120,8 +117,8 @@ they are easier to read and debug::
 Mathematics
 ===========
 
-The :mod:`math` (XXX reference: ../lib/module-math.html) module gives access to
-the underlying C library functions for floating point math::
+The :mod:`math` module gives access to the underlying C library functions for
+floating point math::
 
    >>> import math
    >>> math.cos(math.pi / 4.0)
@@ -129,8 +126,7 @@ the underlying C library functions for floating point math::
    >>> math.log(1024, 2)
    10.0
 
-The :mod:`random` (XXX reference: ../lib/module-random.html) module provides
-tools for making random selections::
+The :mod:`random` module provides tools for making random selections::
 
    >>> import random
    >>> random.choice(['apple', 'pear', 'banana'])
@@ -149,9 +145,8 @@ Internet Access
 ===============
 
 There are a number of modules for accessing the internet and processing internet
-protocols. Two of the simplest are :mod:`urllib2` (XXX reference: ../lib/module-
-urllib2.html) for retrieving data from urls and :mod:`smtplib` (XXX reference:
-../lib/module-smtplib.html)  for sending mail::
+protocols. Two of the simplest are :mod:`urllib2` for retrieving data from urls
+and :mod:`smtplib` for sending mail::
 
    >>> import urllib2
    >>> for line in urllib2.urlopen('http://tycho.usno.navy.mil/cgi-bin/timer.pl'):
@@ -176,11 +171,11 @@ urllib2.html) for retrieving data from urls and :mod:`smtplib` (XXX reference:
 Dates and Times
 ===============
 
-The :mod:`datetime` (XXX reference: ../lib/module-datetime.html) module supplies
-classes for manipulating dates and times in both simple and complex ways. While
-date and time arithmetic is supported, the focus of the implementation is on
-efficient member extraction for output formatting and manipulation.  The module
-also supports objects that are timezone aware. ::
+The :mod:`datetime` module supplies classes for manipulating dates and times in
+both simple and complex ways. While date and time arithmetic is supported, the
+focus of the implementation is on efficient member extraction for output
+formatting and manipulation.  The module also supports objects that are timezone
+aware. ::
 
    # dates are easily constructed and formatted
    >>> from datetime import date
@@ -203,10 +198,8 @@ Data Compression
 ================
 
 Common data archiving and compression formats are directly supported by modules
-including: :mod:`zlib` (XXX reference: ../lib/module-zlib.html), :mod:`gzip`
-(XXX reference: ../lib/module-gzip.html), :mod:`bz2` (XXX reference: ../lib
-/module-bz2.html), :mod:`zipfile` (XXX reference: ../lib/module-zipfile.html),
-and :mod:`tarfile` (XXX reference: ../lib/module-tarfile.html). ::
+including: :mod:`zlib`, :mod:`gzip`, :mod:`bz2`, :mod:`zipfile` and
+:mod:`tarfile`. ::
 
    >>> import zlib
    >>> s = 'witch which has which witches wrist watch'
@@ -232,8 +225,7 @@ that answers those questions immediately.
 
 For example, it may be tempting to use the tuple packing and unpacking feature
 instead of the traditional approach to swapping arguments. The :mod:`timeit`
-(XXX reference: ../lib/module-timeit.html) module quickly demonstrates a modest
-performance advantage::
+module quickly demonstrates a modest performance advantage::
 
    >>> from timeit import Timer
    >>> Timer('t=a; a=b; b=t', 'a=1; b=2').timeit()
@@ -241,9 +233,9 @@ performance advantage::
    >>> Timer('a,b = b,a', 'a=1; b=2').timeit()
    0.54962537085770791
 
-In contrast to :mod:`timeit`'s fine level of granularity, the :mod:`profile`
-(XXX reference: ../lib/module-profile.html) and :mod:`pstats` modules provide
-tools for identifying time critical sections in larger blocks of code.
+In contrast to :mod:`timeit`'s fine level of granularity, the :mod:`profile` and
+:mod:`pstats` modules provide tools for identifying time critical sections in
+larger blocks of code.
 
 
 .. _tut-quality-control:
@@ -255,12 +247,12 @@ One approach for developing high quality software is to write tests for each
 function as it is developed and to run those tests frequently during the
 development process.
 
-The :mod:`doctest` (XXX reference: ../lib/module-doctest.html) module provides a
-tool for scanning a module and validating tests embedded in a program's
-docstrings.  Test construction is as simple as cutting-and-pasting a typical
-call along with its results into the docstring.  This improves the documentation
-by providing the user with an example and it allows the doctest module to make
-sure the code remains true to the documentation::
+The :mod:`doctest` module provides a tool for scanning a module and validating
+tests embedded in a program's docstrings.  Test construction is as simple as
+cutting-and-pasting a typical call along with its results into the docstring.
+This improves the documentation by providing the user with an example and it
+allows the doctest module to make sure the code remains true to the
+documentation::
 
    def average(values):
        """Computes the arithmetic mean of a list of numbers.
@@ -273,9 +265,9 @@ sure the code remains true to the documentation::
    import doctest
    doctest.testmod()   # automatically validate the embedded tests
 
-The :mod:`unittest` (XXX reference: ../lib/module-unittest.html) module is not
-as effortless as the :mod:`doctest` module, but it allows a more comprehensive
-set of tests to be maintained in a separate file::
+The :mod:`unittest` module is not as effortless as the :mod:`doctest` module,
+but it allows a more comprehensive set of tests to be maintained in a separate
+file::
 
    import unittest
 
@@ -298,28 +290,24 @@ Batteries Included
 Python has a "batteries included" philosophy.  This is best seen through the
 sophisticated and robust capabilities of its larger packages. For example:
 
-* The :mod:`xmlrpclib` (XXX reference: ../lib/module-xmlrpclib.html) and
-  :mod:`SimpleXMLRPCServer` (XXX reference: ../lib/module-SimpleXMLRPCServer.html)
-  modules make implementing remote procedure calls into an almost trivial task.
-  Despite the modules names, no direct knowledge or handling of XML is needed.
+* The :mod:`xmlrpclib` and :mod:`SimpleXMLRPCServer` modules make implementing
+  remote procedure calls into an almost trivial task.  Despite the modules
+  names, no direct knowledge or handling of XML is needed.
 
-* The :mod:`email` (XXX reference: ../lib/module-email.html) package is a
-  library for managing email messages, including MIME and other RFC 2822-based
-  message documents. Unlike :mod:`smtplib` and :mod:`poplib` which actually send
-  and receive messages, the email package has a complete toolset for building or
-  decoding complex message structures (including attachments) and for implementing
-  internet encoding and header protocols.
+* The :mod:`email` package is a library for managing email messages, including
+  MIME and other RFC 2822-based message documents. Unlike :mod:`smtplib` and
+  :mod:`poplib` which actually send and receive messages, the email package has
+  a complete toolset for building or decoding complex message structures
+  (including attachments) and for implementing internet encoding and header
+  protocols.
 
-* The :mod:`xml.dom` (XXX reference: ../lib/module-xml.dom.html) and
-  :mod:`xml.sax` (XXX reference: ../lib/module-xml.sax.html) packages provide
-  robust support for parsing this popular data interchange format. Likewise, the
-  :mod:`csv` (XXX reference: ../lib/module-csv.html) module supports direct reads
-  and writes in a common database format. Together, these modules and packages
-  greatly simplify data interchange between python applications and other tools.
+* The :mod:`xml.dom` and :mod:`xml.sax` packages provide robust support for
+  parsing this popular data interchange format. Likewise, the :mod:`csv` module
+  supports direct reads and writes in a common database format. Together, these
+  modules and packages greatly simplify data interchange between python
+  applications and other tools.
 
 * Internationalization is supported by a number of modules including
-  :mod:`gettext` (XXX reference: ../lib/module-gettext.html), :mod:`locale` (XXX
-  reference: ../lib/module-locale.html), and the :mod:`codecs` (XXX reference:
-  ../lib/module-codecs.html) package.
+  :mod:`gettext`, :mod:`locale`, and the :mod:`codecs` package.
 
 

@@ -1,3 +1,4 @@
+.. _bltin-exceptions:
 
 Built-in Exceptions
 ===================
@@ -40,8 +41,8 @@ prevent user code from raising an inappropriate error.
 The built-in exception classes can be sub-classed to define new exceptions;
 programmers are encouraged to at least derive new exceptions from the
 :exc:`Exception` class and not :exc:`BaseException`.  More information on
-defining exceptions is available in the Python Tutorial (XXX reference:
-../tut/tut.html) under the heading "User-defined Exceptions."
+defining exceptions is available in the Python Tutorial under
+:ref:`tut-userexceptions`.
 
 The following exceptions are only used as base classes for other exceptions.
 

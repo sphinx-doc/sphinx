@@ -115,8 +115,8 @@ deletes the names it creates once they are no longer needed; this is done since
 the startup file is executed in the same namespace as the interactive commands,
 and removing the names avoids creating side effects in the interactive
 environment.  You may find it convenient to keep some of the imported modules,
-such as :mod:`os` (XXX reference: ../lib/module-os.html), which turn out to be
-needed in most sessions with the interpreter. ::
+such as :mod:`os`, which turn out to be needed in most sessions with the
+interpreter. ::
 
    # Add auto-completion and a stored history file of commands to your Python
    # interactive interpreter. Requires Python 2.0+, readline. Autocomplete is

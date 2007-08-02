@@ -30,10 +30,9 @@ enhanced modules is lengthy.
 This article doesn't attempt to provide a complete specification of the new
 features, but instead provides a convenient overview.  For full details, you
 should refer to the documentation for Python 2.3, such as the Python Library
-Reference (XXX reference: ../lib/lib.html) and the Python Reference Manual (XXX
-reference: ../ref/ref.html).  If you want to understand the complete
-implementation and design rationale,  refer to the PEP for a particular new
-feature.
+Reference and the Python Reference Manual.  If you want to understand the
+complete implementation and design rationale, refer to the PEP for a particular
+new feature.
 
 .. % ======================================================================
 
@@ -1345,7 +1344,7 @@ complete list of changes, or look through the CVS logs for all the details.
   elements in the iterator for which the function :func:`predicate` returns
   :const:`True`, and ``itertools.repeat(obj, N)`` returns ``obj`` *N* times.
   There are a number of other functions in the module; see the package's reference
-  documentation (XXX reference: ../lib/module-itertools.html) for details.
+  documentation for details.
   (Contributed by Raymond Hettinger.)
 
 * Two new functions in the :mod:`math` module, :func:`degrees(rads)` and
@@ -1506,8 +1505,7 @@ complete list of changes, or look through the CVS logs for all the details.
   the text wrapping strategy.   Both the :class:`TextWrapper` class and the
   :func:`wrap` and :func:`fill` functions support a number of additional keyword
   arguments for fine-tuning the formatting; consult the module's documentation
-  (XXX reference: ../lib/module-textwrap.html) for details. (Contributed by Greg
-  Ward.)
+  for details. (Contributed by Greg Ward.)
 
 * The :mod:`thread` and :mod:`threading` modules now have companion modules,
   :mod:`dummy_thread` and :mod:`dummy_threading`, that provide a do-nothing
@@ -1725,8 +1723,8 @@ instances.  The largest missing feature is that there's no standard library
 support for parsing strings and getting back a :class:`date` or
 :class:`datetime`.
 
-For more information, refer to the module's reference documentation (XXX
-reference: ../lib/module-datetime.html). (Contributed by Tim Peters.)
+For more information, refer to the module's reference documentation.
+(Contributed by Tim Peters.)
 
 .. % ======================================================================
 
@@ -1787,10 +1785,8 @@ The help message is automatically generated for you::
                            set maximum length of output
    $ 
 
-See the module's documentation (XXX reference: ../lib/module-optparse.html) for
-more details.
+See the module's documentation for more details.
 
-.. % $ prevent Emacs tex-mode from getting confused
 
 Optik was written by Greg Ward, with suggestions from the readers of the Getopt
 SIG.

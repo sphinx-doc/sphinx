@@ -182,9 +182,8 @@ line to define the source file encoding::
 With that declaration, all characters in the source file will be treated as
 having the encoding *encoding*, and it will be possible to directly write
 Unicode string literals in the selected encoding.  The list of possible
-encodings can be found in the Python Library Reference (XXX reference:
-../lib/lib.html), in the section on :mod:`codecs` (XXX reference: ../lib/module-
-codecs.html).
+encodings can be found in the Python Library Reference, in the section on
+:mod:`codecs`.
 
 For example, to write Unicode literals including the Euro currency symbol, the
 ISO-8859-15 encoding can be used, with the Euro symbol having the ordinal value

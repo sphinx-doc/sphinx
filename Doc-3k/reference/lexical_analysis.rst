@@ -389,9 +389,9 @@ characters:
 
    .. note::
 
-      The name ``_`` is often used in conjunction with internationalization; refer to
-      the documentation for the :mod:`gettext` module (XXX reference: ../lib/module-
-      gettext.html) for more information on this convention.
+      The name ``_`` is often used in conjunction with internationalization;
+      refer to the documentation for the :mod:`gettext` module for more
+      information on this convention.
 
 ``__*__``
    System-defined names.  These names are defined by the interpreter and its

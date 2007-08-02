@@ -3,8 +3,8 @@
 ****************************
 
 :Author: A.M. Kuchling
-
-.. |release| replace:: 0.0
+:Release: |release|
+:Date: |today|
 
 .. % $Id: whatsnew26.tex 55746 2007-06-02 18:33:53Z neal.norwitz $
 .. % Rules for maintenance:

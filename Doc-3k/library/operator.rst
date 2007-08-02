@@ -36,13 +36,12 @@ the rich comparison operators they support:
               __gt__(a, b)
 
    Perform "rich comparisons" between *a* and *b*. Specifically, ``lt(a, b)`` is
-   equivalent to ``a < b``, ``le(a, b)`` is equivalent to ``a <= b``, ``eq(a, b)``
-   is equivalent to ``a == b``, ``ne(a, b)`` is equivalent to ``a != b``, ``gt(a,
-   b)`` is equivalent to ``a > b`` and ``ge(a, b)`` is equivalent to ``a >= b``.
-   Note that unlike the built-in :func:`cmp`, these functions can return any value,
-   which may or may not be interpretable as a Boolean value.  See the Python
-   Reference Manual (XXX reference: ../ref/ref.html) for more information about
-   rich comparisons.
+   equivalent to ``a < b``, ``le(a, b)`` is equivalent to ``a <= b``, ``eq(a,
+   b)`` is equivalent to ``a == b``, ``ne(a, b)`` is equivalent to ``a != b``,
+   ``gt(a, b)`` is equivalent to ``a > b`` and ``ge(a, b)`` is equivalent to ``a
+   >= b``.  Note that unlike the built-in :func:`cmp`, these functions can
+   return any value, which may or may not be interpretable as a Boolean value.
+   See :ref:`comparisons` for more information about rich comparisons.
 
    .. versionadded:: 2.2
 

@@ -1355,9 +1355,8 @@ Abstract Protocol Support
 -------------------------
 
 Python supports a variety of *abstract* 'protocols;' the specific interfaces
-provided to use these interfaces are documented in the Python/C API Reference
-Manual (XXX reference: ../api/api.html) in the chapter "Abstract Objects Layer
-(XXX reference: ../api/abstract.html)."
+provided to use these interfaces are documented in :ref:`abstract`.
+
 
 A number of these abstract interfaces were defined early in the development of
 the Python implementation.  In particular, the number, mapping, and sequence

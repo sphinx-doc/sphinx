@@ -13,23 +13,17 @@ additional modules into a Python installation.  The new modules may be either
 100%-pure Python, or may be extension modules written in C, or may be
 collections of Python packages which include modules coded in both Python and C.
 
-This package is discussed in two separate documents which are included in the
-Python documentation package.  To learn about distributing new modules using the
-:mod:`distutils` facilities, read Distributing Python Modules (XXX reference:
-../dist/dist.html); this includes documentation needed to extend distutils.  To
-learn about installing Python modules, whether or not the author made use of the
-:mod:`distutils` package, read Installing Python Modules (XXX reference:
-../inst/inst.html).
+This package is discussed in two separate chapters:
 
 
 .. seealso::
 
-   `Distributing Python Modules <../dist/dist.html>`_
+   :ref:`distutils-index`
       The manual for developers and packagers of Python modules.  This describes how
       to prepare :mod:`distutils`\ -based packages so that they may be easily
       installed into an existing Python installation.
 
-   `Installing Python Modules <../inst/inst.html>`_
+   :ref:`install-index`
       An "administrators" manual which includes information on installing modules into
       an existing Python installation. You do not need to be a Python programmer to
       read this manual.

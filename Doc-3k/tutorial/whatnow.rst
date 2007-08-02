@@ -11,7 +11,7 @@ should you go to learn more?
 This tutorial is part of Python's documentation set.   Some other documents in
 the set are:
 
-* Python Library Reference (XXX reference: ../lib/lib.html):
+* :ref:`library-index`:
 
   You should browse through this manual, which gives complete (though terse)
   reference material about types, functions, and the modules in the standard
@@ -21,12 +21,12 @@ the set are:
   and many other tasks. Skimming through the Library Reference will give you an
   idea of what's available.
 
-* Installing Python Modules (XXX reference: ../inst/inst.html) explains how to
-  install external modules written by other Python users.
+* :ref:`install-index` explains how to install external modules written by other
+  Python users.
 
-* Language Reference (XXX reference: ../ref/ref.html): A detailed  explanation
-  of Python's syntax and semantics.  It's heavy reading,  but is useful as a
-  complete guide to the language itself.
+* :ref:`reference-index`: A detailed explanation of Python's syntax and
+  semantics.  It's heavy reading, but is useful as a complete guide to the
+  language itself.
 
 More Python resources:
 

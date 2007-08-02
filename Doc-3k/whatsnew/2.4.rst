@@ -25,10 +25,9 @@ fixed between Python 2.3 and 2.4.  Both figures are likely to be underestimates.
 This article doesn't attempt to provide a complete specification of every single
 new feature, but instead provides a brief introduction to each feature.  For
 full details, you should refer to the documentation for Python 2.4, such as the
-Python Library Reference (XXX reference: ../lib/lib.html) and the Python
-Reference Manual (XXX reference: ../ref/ref.html).  Often you will be referred
-to the PEP for a particular new feature for explanations of the implementation
-and design rationale.
+Python Library Reference and the Python Reference Manual.  Often you will be
+referred to the PEP for a particular new feature for explanations of the
+implementation and design rationale.
 
 .. % ======================================================================
 

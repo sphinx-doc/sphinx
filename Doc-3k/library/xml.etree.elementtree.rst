@@ -267,7 +267,7 @@ The following methods work on the element's children (subelements).
 
 .. method:: Element.remove(subelement)
 
-   Removes *subelement* from the element.   Unlike the findXXX methods this method
+   Removes *subelement* from the element.   Unlike the findXYZ methods this method
    compares elements based on  the instance identity, not on tag value or contents.
 
 Element objects also support the following sequence type methods for working

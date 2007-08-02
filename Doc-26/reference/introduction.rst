@@ -29,9 +29,9 @@ especially where the implementation imposes additional limitations.  Therefore,
 you'll find short "implementation notes" sprinkled throughout the text.
 
 Every Python implementation comes with a number of built-in and standard
-modules.  These are not documented here, but in the separate Python Library
-Reference (XXX reference: ../lib/lib.html) document.  A few built-in modules are
-mentioned when they interact in a significant way with the language definition.
+modules.  These are documented in :ref:`library-index`.  A few built-in modules
+are mentioned when they interact in a significant way with the language
+definition.
 
 
 .. _implementations:

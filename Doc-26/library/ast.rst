@@ -1,12 +1,10 @@
-.. % XXX Label can't be _ast?
-.. % XXX Where should this section/chapter go?
-
-
 .. _ast:
 
 *********************
 Abstract Syntax Trees
 *********************
+
+.. module:: _ast
 
 .. sectionauthor:: Martin v. Löwis <martin@v.loewis.de>
 

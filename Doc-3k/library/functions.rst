@@ -154,8 +154,7 @@ available.  They are listed here in alphabetical order.
           def f(cls, arg1, arg2, ...): ...
 
    The ``@classmethod`` form is a function decorator -- see the description of
-   function definitions in chapter 7 of the Python Reference Manual (XXX reference:
-   ../ref/ref.html) for details.
+   function definitions in :ref:`function` for details.
 
    It can be called either on the class (such as ``C.f()``) or on an instance (such
    as ``C().f()``).  The instance is ignored except for its class. If a class
@@ -166,8 +165,7 @@ available.  They are listed here in alphabetical order.
    see :func:`staticmethod` in this section.
 
    For more information on class methods, consult the documentation on the standard
-   type hierarchy in chapter 3 of the Python Reference Manual (XXX reference:
-   ../ref/types.html) (at the bottom).
+   type hierarchy in :ref:`types`.
 
    .. versionadded:: 2.2
 
@@ -995,8 +993,7 @@ available.  They are listed here in alphabetical order.
           def f(arg1, arg2, ...): ...
 
    The ``@staticmethod`` form is a function decorator -- see the description of
-   function definitions in chapter 7 of the Python Reference Manual (XXX reference:
-   ../ref/function.html) for details.
+   function definitions in :ref:`function` for details.
 
    It can be called either on the class (such as ``C.f()``) or on an instance (such
    as ``C().f()``).  The instance is ignored except for its class.
@@ -1005,8 +1002,7 @@ available.  They are listed here in alphabetical order.
    advanced concept, see :func:`classmethod` in this section.
 
    For more information on static methods, consult the documentation on the
-   standard type hierarchy in chapter 3 of the Python Reference Manual (XXX
-   reference: ../ref/types.html) (at the bottom).
+   standard type hierarchy in :ref:`types`.
 
    .. versionadded:: 2.2
 

@@ -99,12 +99,11 @@ declared.  The sole exception are the type objects; since these must never be
 deallocated, they are typically static :ctype:`PyTypeObject` objects.
 
 All Python objects (even Python integers) have a :dfn:`type` and a
-:dfn:`reference count`.  An object's type determines what kind of object  it is
-(e.g., an integer, a list, or a user-defined function; there are  many more as
-explained in the Python Reference Manual (XXX reference: ../ref/ref.html)).  For
-each of the well-known types there is a macro to check whether an object is of
-that type; for instance, ``PyList_Check(a)`` is true if (and only if) the object
-pointed to by *a* is a Python list.
+:dfn:`reference count`.  An object's type determines what kind of object it is
+(e.g., an integer, a list, or a user-defined function; there are many more as
+explained in :ref:`types`).  For each of the well-known types there is a macro
+to check whether an object is of that type; for instance, ``PyList_Check(a)`` is
+true if (and only if) the object pointed to by *a* is a Python list.
 
 
 .. _api-refcounts:

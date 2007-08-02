@@ -26,10 +26,7 @@ Some operations are supported by several object types; in particular,
 practically all objects can be compared, tested for truth value, and converted
 to a string (with the :func:`repr` function or the slightly different
 :func:`str` function).  The latter function is implicitly used when an object is
-written by the :keyword:`print` statement. (Information on the :keyword:`print`
-statement (XXX reference: ../ref/print.html) and other language statements can
-be found in the Python Reference Manual (XXX reference: ../ref/ref.html) and the
-Python Tutorial (XXX reference: ../tut/tut.html).)
+written by the :func:`print` function.
 
 
 .. _truth:
@@ -186,10 +183,9 @@ a complex number.
 
 .. index:: single: __cmp__() (instance method)
 
-Instances of a class normally compare as non-equal unless the class  defines the
-:meth:`__cmp__` method.  Refer to the Python Reference Manual (XXX reference:
-../ref/customization.html) for information on the use of this method to effect
-object comparisons.
+Instances of a class normally compare as non-equal unless the class defines the
+:meth:`__cmp__` method.  Refer to :ref:`customization`) for information on the
+use of this method to effect object comparisons.
 
 **Implementation note:** Objects of different types except numbers are ordered
 by their type names; objects of the same types that don't support proper
@@ -498,12 +494,11 @@ and xrange objects.
    object: list
 
 String literals are written in single or double quotes: ``'xyzzy'``,
-``"frobozz"``.  See chapter 2 of the Python Reference Manual (XXX reference:
-../ref/strings.html) for more about string literals.  Unicode strings are much
-like strings, but are specified in the syntax using a preceding ``'u'``
-character: ``u'abc'``, ``u"def"``.  Lists are constructed with square brackets,
-separating items with commas: ``[a, b, c]``.  Tuples are constructed by the
-comma operator (not within square brackets), with or without enclosing
+``"frobozz"``.  See :ref:`strings` for more about string literals.  Unicode
+strings are much like strings, but are specified in the syntax using a preceding
+``'u'`` character: ``u'abc'``, ``u"def"``.  Lists are constructed with square
+brackets, separating items with commas: ``[a, b, c]``.  Tuples are constructed
+by the comma operator (not within square brackets), with or without enclosing
 parentheses, but an empty tuple must have the enclosing parentheses, such as
 ``a, b, c`` or ``()``.  A single item tuple must have a trailing comma, such as
 ``(d,)``.
@@ -2133,8 +2128,7 @@ Classes and Class Instances
 
 .. _classes and instances:
 
-See chapters 3 and 7 of the Python Reference Manual (XXX reference:
-../ref/ref.html) for these.
+See :ref:`objects` and :ref:`class` for these.
 
 
 .. _typesfunctions:
@@ -2149,8 +2143,7 @@ There are really two flavors of function objects: built-in functions and user-
 defined functions.  Both support the same operation (to call the function), but
 the implementation is different, hence the different object types.
 
-See the Python Reference Manual (XXX reference: ../ref/ref.html) for more
-information.
+See :ref:`function` for more information.
 
 
 .. _typesmethods:
@@ -2192,8 +2185,7 @@ explicitly set it on the underlying function object::
    c = C()
    c.method.im_func.whoami = 'my name is c'
 
-See the Python Reference Manual (XXX reference: ../ref/ref.html) for more
-information.
+See :ref:`types` for more information.
 
 
 .. _bltin-code-objects:
@@ -2221,8 +2213,7 @@ attribute.
 A code object can be executed or evaluated by passing it (instead of a source
 string) to the :keyword:`exec` statement or the built-in :func:`eval` function.
 
-See the Python Reference Manual (XXX reference: ../ref/ref.html) for more
-information.
+See :ref:`types` for more information.
 
 
 .. _bltin-type-objects:
@@ -2259,9 +2250,9 @@ It is written as ``None``.
 The Ellipsis Object
 -------------------
 
-This object is used by extended slice notation (see the Python Reference Manual
-(XXX reference: ../ref/ref.html)).  It supports no special operations.  There is
-exactly one ellipsis object, named :const:`Ellipsis` (a built-in name).
+This object is used by extended slice notation (see :ref:`slicings`).  It
+supports no special operations.  There is exactly one ellipsis object, named
+:const:`Ellipsis` (a built-in name).
 
 It is written as ``Ellipsis``.
 
@@ -2290,9 +2281,8 @@ They are written as ``False`` and ``True``, respectively.
 Internal Objects
 ----------------
 
-See the Python Reference Manual (XXX reference: ../ref/ref.html) for this
-information.  It describes stack frame objects, traceback objects, and slice
-objects.
+See :ref:`types` for this information.  It describes stack frame objects,
+traceback objects, and slice objects.
 
 
 .. _specialattrs:
@@ -2342,8 +2332,8 @@ types, where they are relevant.  Some of these are not reported by the
 
 .. rubric:: Footnotes
 
-.. [#] Additional  information on these special methods may be found in the Python
-   Reference Manual (XXX reference: ../ref/ref.html).
+.. [#] Additional information on these special methods may be found in the Python
+   Reference Manual (:ref:`customization`).
 
 .. [#] As a consequence, the list ``[1, 2]`` is considered equal to ``[1.0, 2.0]``, and
    similarly for tuples.

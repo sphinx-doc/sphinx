@@ -115,10 +115,9 @@ inside the interpreter; if this variable is *NULL* no exception has occurred.  A
 second global variable stores the "associated value" of the exception (the
 second argument to :keyword:`raise`).  A third variable contains the stack
 traceback in case the error originated in Python code.  These three variables
-are the C equivalents of the result in Python of  :meth:`sys.exc_info` (see the
-section on module :mod:`sys` in the Python Library Reference (XXX reference:
-../lib/lib.html)).  It is important to know about them to understand how errors
-are passed around.
+are the C equivalents of the result in Python of :meth:`sys.exc_info` (see the
+section on module :mod:`sys` in the Python Library Reference).  It is important
+to know about them to understand how errors are passed around.
 
 The Python API defines a number of functions to set various types of exceptions.
 
@@ -212,8 +211,7 @@ with an exception object (leaving out the error checking for now)::
 Note that the Python name for the exception object is :exc:`spam.error`.  The
 :cfunc:`PyErr_NewException` function may create a class with the base class
 being :exc:`Exception` (unless another class is passed in instead of *NULL*),
-described in the Python Library Reference (XXX reference: ../lib/lib.html) under
-"Built-in Exceptions."
+described in :ref:`bltin-exceptions`.
 
 Note also that the :cdata:`SpamError` variable retains a reference to the newly
 created exception class; this is intentional!  Since the exception could be
@@ -546,10 +544,9 @@ The :cfunc:`PyArg_ParseTuple` function is declared as follows::
 
 The *arg* argument must be a tuple object containing an argument list passed
 from Python to a C function.  The *format* argument must be a format string,
-whose syntax is explained in "Parsing arguments and building values (XXX
-reference: ../api/arg-parsing.html)" in the Python/C API Reference Manual (XXX
-reference: ../api/api.html).  The remaining arguments must be addresses of
-variables whose type is determined by the format string.
+whose syntax is explained in :ref:`arg-parsing` in the Python/C API Reference
+Manual.  The remaining arguments must be addresses of variables whose type is
+determined by the format string.
 
 Note that while :cfunc:`PyArg_ParseTuple` checks that the Python arguments have
 the required types, it cannot check the validity of the addresses of C variables
@@ -814,7 +811,7 @@ the cycle itself.
 The cycle detector is able to detect garbage cycles and can reclaim them so long
 as there are no finalizers implemented in Python (:meth:`__del__` methods).
 When there are such finalizers, the detector exposes the cycles through the
-:mod:`gc` module (XXX reference: ../lib/module-gc.html) (specifically, the
+:mod:`gc` module (specifically, the
 ``garbage`` variable in that module).  The :mod:`gc` module also exposes a way
 to run the detector (the :func:`collect` function), as well as configuration
 interfaces and the ability to disable the detector at runtime.  The cycle
@@ -1255,8 +1252,7 @@ that is exported, so it has to be learned only once.
 Finally it should be mentioned that CObjects offer additional functionality,
 which is especially useful for memory allocation and deallocation of the pointer
 stored in a CObject. The details are described in the Python/C API Reference
-Manual (XXX reference: ../api/api.html) in the section "CObjects (XXX reference:
-../api/cObjects.html)" and in the implementation of CObjects (files
+Manual in the section :ref:`cobjects` and in the implementation of CObjects (files
 :file:`Include/cobject.h` and :file:`Objects/cobject.c` in the Python source
 code distribution).
 

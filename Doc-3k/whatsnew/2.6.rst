@@ -3,8 +3,8 @@
 ****************************
 
 :Author: A.M. Kuchling
-
-.. |release| replace:: 0.0
+:Release: |release|
+:Date: |today|
 
 .. % $Id: whatsnew26.tex 55963 2007-06-13 18:07:49Z guido.van.rossum $
 .. % Rules for maintenance:

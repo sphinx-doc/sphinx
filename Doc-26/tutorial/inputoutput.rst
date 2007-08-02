@@ -323,14 +323,13 @@ data types like lists, dictionaries, or class instances, things get a lot more
 complicated.
 
 Rather than have users be constantly writing and debugging code to save
-complicated data types, Python provides a standard module called :mod:`pickle`
-(XXX reference: ../lib/module-pickle.html).  This is an amazing module that can
-take almost any Python object (even some forms of Python code!), and convert it
-to a string representation; this process is called :dfn:`pickling`.
-Reconstructing the object from the string representation is called
-:dfn:`unpickling`.  Between pickling and unpickling, the string representing the
-object may have been stored in a file or data, or sent over a network connection
-to some distant machine.
+complicated data types, Python provides a standard module called :mod:`pickle`.
+This is an amazing module that can take almost any Python object (even some
+forms of Python code!), and convert it to a string representation; this process
+is called :dfn:`pickling`.  Reconstructing the object from the string
+representation is called :dfn:`unpickling`.  Between pickling and unpickling,
+the string representing the object may have been stored in a file or data, or
+sent over a network connection to some distant machine.
 
 If you have an object ``x``, and a file object ``f`` that's been opened for
 writing, the simplest way to pickle the object takes only one line of code::
@@ -344,15 +343,12 @@ for reading::
 
 (There are other variants of this, used when pickling many objects or when you
 don't want to write the pickled data to a file; consult the complete
-documentation for :mod:`pickle` (XXX reference: ../lib/module-pickle.html) in
-the Python Library Reference (XXX reference: ../lib/).)
+documentation for :mod:`pickle` in the Python Library Reference.)
 
-:mod:`pickle` (XXX reference: ../lib/module-pickle.html) is the standard way to
-make Python objects which can be stored and reused by other programs or by a
-future invocation of the same program; the technical term for this is a
-:dfn:`persistent` object.  Because :mod:`pickle` (XXX reference: ../lib/module-
-pickle.html) is so widely used, many authors who write Python extensions take
-care to ensure that new data types such as matrices can be properly pickled and
-unpickled.
+:mod:`pickle` is the standard way to make Python objects which can be stored and
+reused by other programs or by a future invocation of the same program; the
+technical term for this is a :dfn:`persistent` object.  Because :mod:`pickle` is
+so widely used, many authors who write Python extensions take care to ensure
+that new data types such as matrices can be properly pickled and unpickled.
 
 

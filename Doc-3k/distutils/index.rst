@@ -4,6 +4,8 @@
   Distributing Python Modules
 ###############################
 
+:Authors: Greg Ward, Anthony Baxter
+:Email: distutils-sig@python.org
 :Release: |version|
 :Date: |today|
 

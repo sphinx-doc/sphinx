@@ -1,12 +1,14 @@
-.. _install-index:
-
 .. highlightlang:: none
+
+.. _install-index:
 
 *****************************
   Installing Python Modules  
 *****************************
 
 :Author: Greg Ward
+:Release: |version|
+:Date: |today|
 
 .. % TODO:
 .. % Fill in XXX comments
@@ -21,25 +23,12 @@
 .. % Finally, it might be useful to include all the material from my "Care
 .. % and Feeding of a Python Installation" talk in here somewhere.  Yow!
 
-XXX: input{boilerplate} :XXX
-
 .. topic:: Abstract
 
    This document describes the Python Distribution Utilities ("Distutils") from the
    end-user's point-of-view, describing how to extend the capabilities of a
    standard Python installation by building and installing third-party Python
    modules and extensions.
-
-.. % \begin{abstract}
-.. % \noindent
-.. % Abstract this!
-.. % \end{abstract}
-
-.. % The ugly "%begin{latexonly}" pseudo-environment suppresses the table
-.. % of contents for HTML generation.
-.. % 
-.. % begin{latexonly}
-.. % end{latexonly}
 
 
 .. _inst-intro:
@@ -64,7 +53,7 @@ new goodies to their toolbox.  You don't need to know Python to read this
 document; there will be some brief forays into using Python's interactive mode
 to explore your installation, but that's it.  If you're looking for information
 on how to distribute your own Python modules so that others may use them, see
-the Distributing Python Modules (XXX reference: ../dist/dist.html) manual.
+the :ref:`distutils-index` manual.
 
 
 .. _inst-trivial-install:
@@ -728,7 +717,7 @@ Notes:
 (2)
    On Unix, if the :envvar:`HOME` environment variable is not defined, the user's
    home directory will be determined with the :func:`getpwuid` function from the
-   standard :mod:`pwd` (XXX reference: ../lib/module-pwd.html) module.
+   standard :mod:`pwd` module.
 
 (3)
    I.e., in the current directory (usually the location of the setup script).
@@ -1020,4 +1009,3 @@ Distutils (see section :ref:`inst-config-files`.)
 
 .. [#] Then you have no POSIX emulation available, but you also don't need
    :file:`cygwin1.dll`.
-

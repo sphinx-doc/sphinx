@@ -52,7 +52,7 @@ example above uses only a subset. Specifically, the example specifies meta-
 information to build packages, and it specifies the contents of the package.
 Normally, a package will contain of addition modules, like Python source
 modules, documentation, subpackages, etc. Please refer to the distutils
-documentation in Distributing Python Modules (XXX reference: ../dist/dist.html)
+documentation in :ref:`distutils-index`
 to learn more about the features of distutils; this section explains building
 extension modules only.
 

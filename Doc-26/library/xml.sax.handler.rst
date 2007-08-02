@@ -207,7 +207,7 @@ events in the input document:
    information to the application to expand prefixes in those contexts itself, if
    necessary.
 
-   .. % % XXX This is not really the default, is it? MvL
+   .. % XXX This is not really the default, is it? MvL
 
    Note that :meth:`startPrefixMapping` and :meth:`endPrefixMapping` events are not
    guaranteed to be properly nested relative to each-other: all
@@ -232,7 +232,7 @@ events in the input document:
 
    The *name* parameter contains the raw XML 1.0 name of the element type as a
    string and the *attrs* parameter holds an object of the :class:`Attributes`
-   interface (XXX reference: attributes-objects.html) containing the attributes of
+   interface (see :ref:`attributes-objects`) containing the attributes of
    the element.  The object passed as *attrs* may be re-used by the parser; holding
    on to a reference to it is not a reliable way to keep a copy of the attributes.
    To keep a copy of the attributes, use the :meth:`copy` method of the *attrs*
@@ -254,7 +254,7 @@ events in the input document:
    The *name* parameter contains the name of the element type as a ``(uri,
    localname)`` tuple, the *qname* parameter contains the raw XML 1.0 name used in
    the source document, and the *attrs* parameter holds an instance of the
-   :class:`AttributesNS` interface (XXX reference: attributes-ns-objects.html)
+   :class:`AttributesNS` interface (see :ref:`attributes-ns-objects`)
    containing the attributes of the element.  If no namespace is associated with
    the element, the *uri* component of *name* will be ``None``.  The object passed
    as *attrs* may be re-used by the parser; holding on to a reference to it is not

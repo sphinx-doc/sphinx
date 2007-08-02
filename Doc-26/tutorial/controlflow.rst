@@ -393,12 +393,12 @@ calls. Here's an example that fails due to this restriction::
    TypeError: function() got multiple values for keyword argument 'a'
 
 When a final formal parameter of the form ``**name`` is present, it receives a
-dictionary (XXX reference: ../lib/typesmapping.html) containing all keyword
-arguments except for those corresponding to a formal parameter.  This may be
-combined with a formal parameter of the form ``*name`` (described in the next
-subsection) which receives a tuple containing the positional arguments beyond
-the formal parameter list.  (``*name`` must occur before ``**name``.) For
-example, if we define a function like this::
+dictionary (see :ref:`typesmapping`) containing all keyword arguments except for
+those corresponding to a formal parameter.  This may be combined with a formal
+parameter of the form ``*name`` (described in the next subsection) which
+receives a tuple containing the positional arguments beyond the formal parameter
+list.  (``*name`` must occur before ``**name``.) For example, if we define a
+function like this::
 
    def cheeseshop(kind, *arguments, **keywords):
        print "-- Do you have any", kind, '?'

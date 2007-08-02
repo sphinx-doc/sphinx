@@ -1141,11 +1141,7 @@ the table.
 
 .. module:: encodings.idna
    :synopsis: Internationalized Domain Names implementation
-
-
-.. % XXX The next line triggers a formatting bug, so it's commented out
-.. % until that can be fixed.
-.. % \moduleauthor{Martin v. L\"owis}
+.. moduleauthor:: Martin v. Löwis
 
 .. versionadded:: 2.3
 
@@ -1204,12 +1200,9 @@ functions can be used directly if desired.
 :mod:`encodings.utf_8_sig` --- UTF-8 codec with BOM signature
 -------------------------------------------------------------
 
-.. module:: encodings.utf-8-sig
+.. module:: encodings.utf_8_sig
    :synopsis: UTF-8 codec with BOM signature
 .. moduleauthor:: Walter Dörwald
-
-
-.. % XXX utf_8_sig gives TeX errors
 
 .. versionadded:: 2.5
 

@@ -191,11 +191,7 @@ The module defines the following variables and functions:
 
 .. function:: rms(fragment, width)
 
-   Return the root-mean-square of the fragment, i.e.  ::
-
-      XXX: translate this math
-      \catcode`_=8
-      \sqrt{\frac{\sum{{S_{i}}^{2}}}{n}}
+   Return the root-mean-square of the fragment, i.e. ``sqrt(sum(S_i^2)/n)``.
 
    This is a measure of the power in an audio signal.
 

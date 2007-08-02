@@ -36,13 +36,11 @@ A Cookbook Approach
 ===================
 
 There are two approaches to building extension modules on Windows, just as there
-are on Unix: use the :mod:`distutils` (XXX reference: ../lib/module-
-distutils.html) package to control the build process, or do things manually.
-The distutils approach works well for most extensions; documentation on using
-:mod:`distutils` (XXX reference: ../lib/module-distutils.html) to build and
-package extension modules is available in Distributing Python Modules (XXX
-reference: ../dist/dist.html).  This section describes the manual approach to
-building Python extensions written in C or C++.
+are on Unix: use the :mod:`distutils` package to control the build process, or
+do things manually.  The distutils approach works well for most extensions;
+documentation on using :mod:`distutils` to build and package extension modules
+is available in :ref:`distutils-index`.  This section describes the manual
+approach to building Python extensions written in C or C++.
 
 To build extensions using these instructions, you need to have a copy of the
 Python sources of the same version as your installed Python. You will need

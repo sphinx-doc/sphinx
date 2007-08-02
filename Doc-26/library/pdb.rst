@@ -406,6 +406,5 @@ The events have the following meaning:
 Note that as an exception is propagated down the chain of callers, an
 ``'exception'`` event is generated at each level.
 
-For more information on code and frame objects, refer to the Python Reference
-Manual (XXX reference: ../ref/ref.html).
+For more information on code and frame objects, refer to :ref:`types`.
 

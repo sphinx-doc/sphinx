@@ -747,9 +747,8 @@ a built-in function or method:
       object: method
       object: function
 
-   The result is up to the interpreter; see the Python Library Reference (XXX
-   reference: ../lib/built-in-funcs.html) for the descriptions of built-in
-   functions and methods.
+   The result is up to the interpreter; see :ref:`built-in-funcs` for the
+   descriptions of built-in functions and methods.
 
 a class object:
    .. index::
@@ -903,8 +902,7 @@ identities hold approximately where ``x/y`` is replaced by ``floor(x/y)`` or
 In addition to performing the modulo operation on numbers, the ``%`` operator is
 also overloaded by string and unicode objects to perform string formatting (also
 known as interpolation). The syntax for string formatting is described in the
-Python Library Reference (XXX reference: ../lib/typesseq-strings.html), section
-"Sequence Types".
+Python Library Reference, section :ref:`typesseq-strings`.
 
 .. deprecated:: 2.3
    The floor division operator, the modulo operator, and the :func:`divmod`
@@ -1241,7 +1239,7 @@ their suffixes::
    expr3, expr4 = expr1, expr2
 
 
-.. _summary:
+.. _operator-summary:
 
 Summary
 =======

@@ -32,7 +32,7 @@ presented.
 
 Most importantly, a good understanding of the Python grammar processed by the
 internal parser is required.  For full information on the language syntax, refer
-to the Python Language Reference (XXX reference: ../ref/ref.html).  The parser
+to :ref:`reference-index`.  The parser
 itself is created from a grammar specification defined in the file
 :file:`Grammar/Grammar` in the standard Python distribution.  The parse trees
 stored in the AST objects created by this module are the actual output from the

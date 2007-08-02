@@ -65,14 +65,8 @@ support weak references but can add support through subclassing::
 
    obj = Dict(red=1, green=2, blue=3)   # this object is weak referencable
 
-Extension types can easily be made to support weak references; see "Weak
-Reference Support (XXX reference: ../ext/weakref-support.html)" in Extending and
-Embedding the Python Interpreter (XXX reference: ../ext/ext.html).
-
-.. % The referenced section used to appear in this document with the
-.. % \label weakref-extension.  It would be good to be able to generate a
-.. % redirect for the corresponding HTML page (weakref-extension.html)
-.. % for on-line versions of this document.
+Extension types can easily be made to support weak references; see
+:ref:`weakref-support`.
 
 
 .. class:: ref(object[, callback])

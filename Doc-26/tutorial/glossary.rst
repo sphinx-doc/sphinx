@@ -118,9 +118,8 @@ __future__
       from __future__ import division
 
    the expression ``11/4`` would evaluate to ``2.75``.  By importing the
-   :mod:`__future__` (XXX reference: ../lib/module-future.html) module and
-   evaluating its variables, you can see when a new feature was first added to the
-   language and when it will become the default::
+   :mod:`__future__` module and evaluating its variables, you can see when a new
+   feature was first added to the language and when it will become the default::
 
       >>> import __future__
       >>> __future__.division
@@ -296,9 +295,8 @@ namespace
    namespaces.  Namespaces also aid readability and maintainability by making it
    clear which module implements a function.  For instance, writing
    :func:`random.seed` or :func:`itertools.izip` makes it clear that those
-   functions are implemented by the :mod:`random` (XXX reference: ../lib/module-
-   random.html) and :mod:`itertools` (XXX reference: ../lib/module-itertools.html)
-   modules respectively.
+   functions are implemented by the :mod:`random` and :mod:`itertools` modules
+   respectively.
 
    .. index:: single: nested scope
 

@@ -1,7 +1,6 @@
 To do after conversion
 ======================
 
-* fix all references and links marked with `XXX`
 * split very large files and add toctrees
 * integrate standalone HOWTOs
 * find out which files get "comments disabled" metadata

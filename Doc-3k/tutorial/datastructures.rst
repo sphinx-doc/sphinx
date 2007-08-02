@@ -47,8 +47,7 @@ objects:
    is specified, ``a.pop()`` removes and returns the last item in the list.  (The
    square brackets around the *i* in the method signature denote that the parameter
    is optional, not that you should type square brackets at that position.  You
-   will see this notation frequently in the Python Library Reference (XXX
-   reference: ../lib/lib.html).)
+   will see this notation frequently in the Python Library Reference.)
 
 
 .. method:: list.index(x)
@@ -271,10 +270,10 @@ Tuples and Sequences
 ====================
 
 We saw that lists and strings have many common properties, such as indexing and
-slicing operations.  They are two examples of *sequence* data types (XXX
-reference: ../lib/typesseq.html).  Since Python is an evolving language, other
-sequence data types may be added.  There is also another standard sequence data
-type: the *tuple*.
+slicing operations.  They are two examples of *sequence* data types (see
+:ref:`typesseq`).  Since Python is an evolving language, other sequence data
+types may be added.  There is also another standard sequence data type: the
+*tuple*.
 
 A tuple consists of a number of values separated by commas, for instance::
 
@@ -373,9 +372,9 @@ Here is a brief demonstration::
 Dictionaries
 ============
 
-Another useful data type built into Python is the *dictionary* (XXX reference:
-../lib/typesmapping.html). Dictionaries are sometimes found in other languages
-as "associative memories" or "associative arrays".  Unlike sequences, which are
+Another useful data type built into Python is the *dictionary* (see
+:ref:`typesmapping`). Dictionaries are sometimes found in other languages as
+"associative memories" or "associative arrays".  Unlike sequences, which are
 indexed by a range of numbers, dictionaries are indexed by *keys*, which can be
 any immutable type; strings and numbers can always be keys.  Tuples can be used
 as keys if they contain only strings, numbers, or tuples; if a tuple contains

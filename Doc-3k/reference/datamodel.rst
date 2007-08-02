@@ -60,8 +60,8 @@ are still reachable.  (Implementation note: the current implementation uses a
 reference-counting scheme with (optional) delayed detection of cyclically linked
 garbage, which collects most objects as soon as they become unreachable, but is
 not guaranteed to collect garbage containing circular references.  See the
-Python Library Reference (XXX reference: ../lib/module-gc.html) for information
-on controlling the collection of cyclic garbage.)
+documentation of the :mod:`gc` module for information on controlling the
+collection of cyclic garbage.)
 
 Note that the use of the implementation's tracing or debugging facilities may
 keep objects alive that would normally be collectable. Also note that catching
@@ -865,12 +865,12 @@ Files
       single: stderr (in module sys)
 
    A file object represents an open file.  File objects are created by the
-   :func:`open` built-in function, and also by :func:`os.popen`, :func:`os.fdopen`,
-   and the :meth:`makefile` method of socket objects (and perhaps by other
-   functions or methods provided by extension modules).  The objects ``sys.stdin``,
-   ``sys.stdout`` and ``sys.stderr`` are initialized to file objects corresponding
-   to the interpreter's standard input, output and error streams.  See the Python
-   Library Reference (XXX reference: ../lib/lib.html) for complete documentation of
+   :func:`open` built-in function, and also by :func:`os.popen`,
+   :func:`os.fdopen`, and the :meth:`makefile` method of socket objects (and
+   perhaps by other functions or methods provided by extension modules).  The
+   objects ``sys.stdin``, ``sys.stdout`` and ``sys.stderr`` are initialized to
+   file objects corresponding to the interpreter's standard input, output and
+   error streams.  See :ref:`bltin-file-objects` for complete documentation of
    file objects.
 
 Internal types
@@ -1215,24 +1215,25 @@ Basic customization
 
    .. note::
 
-      ``del x`` doesn't directly call ``x.__del__()`` --- the former decrements the
-      reference count for ``x`` by one, and the latter is only called when ``x``'s
-      reference count reaches zero.  Some common situations that may prevent the
-      reference count of an object from going to zero include: circular references
-      between objects (e.g., a doubly-linked list or a tree data structure with parent
-      and child pointers); a reference to the object on the stack frame of a function
-      that caught an exception (the traceback stored in ``sys.exc_info()[2]`` keeps
-      the stack frame alive); or a reference to the object on the stack frame that
-      raised an unhandled exception in interactive mode (the traceback stored in
-      ``sys.last_traceback`` keeps the stack frame alive).  The first situation can
-      only be remedied by explicitly breaking the cycles; the latter two situations
-      can be resolved by storing ``None`` in ``sys.last_traceback``.  Circular
-      references which are garbage are detected when the option cycle detector is
-      enabled (it's on by default), but can only be cleaned up if there are no Python-
-      level :meth:`__del__` methods involved. Refer to the documentation for the
-      :mod:`gc` module (XXX reference: ../lib/module-gc.html) for more information
-      about how :meth:`__del__` methods are handled by the cycle detector,
-      particularly the description of the ``garbage`` value.
+      ``del x`` doesn't directly call ``x.__del__()`` --- the former decrements
+      the reference count for ``x`` by one, and the latter is only called when
+      ``x``'s reference count reaches zero.  Some common situations that may
+      prevent the reference count of an object from going to zero include:
+      circular references between objects (e.g., a doubly-linked list or a tree
+      data structure with parent and child pointers); a reference to the object
+      on the stack frame of a function that caught an exception (the traceback
+      stored in ``sys.exc_info()[2]`` keeps the stack frame alive); or a
+      reference to the object on the stack frame that raised an unhandled
+      exception in interactive mode (the traceback stored in
+      ``sys.last_traceback`` keeps the stack frame alive).  The first situation
+      can only be remedied by explicitly breaking the cycles; the latter two
+      situations can be resolved by storing ``None`` in ``sys.last_traceback``.
+      Circular references which are garbage are detected when the option cycle
+      detector is enabled (it's on by default), but can only be cleaned up if
+      there are no Python- level :meth:`__del__` methods involved. Refer to the
+      documentation for the :mod:`gc` module for more information about how
+      :meth:`__del__` methods are handled by the cycle detector, particularly
+      the description of the ``garbage`` value.
 
    .. warning::
 
@@ -1821,9 +1822,7 @@ values.
    should also be made available as the method :meth:`iterkeys`.
 
    Iterator objects also need to implement this method; they are required to return
-   themselves.  For more information on iterator objects, see "Iterator Types (XXX
-   reference: ../lib/typeiter.html)" in the Python Library Reference (XXX
-   reference: ../lib/lib.html).
+   themselves.  For more information on iterator objects, see :ref:`typeiter`.
 
 The membership test operators (:keyword:`in` and :keyword:`not in`) are normally
 implemented as an iteration through a sequence.  However, container objects can
@@ -2103,9 +2102,7 @@ used by directly invoking their methods.
 Typical uses of context managers include saving and restoring various kinds of
 global state, locking and unlocking resources, closing opened files, etc.
 
-For more information on context managers, see "Context Types (XXX reference:
-../lib/typecontextmanager.html)" in the Python Library Reference (XXX reference:
-../lib/lib.html).
+For more information on context managers, see :ref:`typecontextmanager`.
 
 
 .. method:: context manager.__enter__(self)

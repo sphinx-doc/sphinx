@@ -697,9 +697,8 @@ the module search works from inside a package.]
 .. index:: builtin: __import__
 
 The built-in function :func:`__import__` is provided to support applications
-that determine which modules need to be loaded dynamically; refer to Built-in
-Functions (XXX reference: ../lib/built-in-funcs.html) in the Python Library
-Reference (XXX reference: ../lib/lib.html) for additional information.
+that determine which modules need to be loaded dynamically; refer to
+:ref:`built-in-funcs` for additional information.
 
 
 .. _future:
@@ -769,9 +768,8 @@ Code compiled by calls to the builtin functions :func:`exec`, :func:`compile`
 and :func:`execfile` that occur in a module :mod:`M` containing a future
 statement will, by default, use the new  syntax or semantics associated with the
 future statement.  This can, starting with Python 2.2 be controlled by optional
-arguments to :func:`compile` --- see the documentation of that function in the
-Python Library Reference (XXX reference: ../lib/built-in-funcs.html) for
-details.
+arguments to :func:`compile` --- see the documentation of that function
+for details.
 
 A future statement typed at an interactive interpreter prompt will take effect
 for the rest of the interpreter session.  If an interpreter is started with the

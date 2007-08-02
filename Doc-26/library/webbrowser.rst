@@ -151,9 +151,7 @@ Notes:
    Only on Windows platforms.
 
 (3)
-   Only on MacOS platforms; requires the standard MacPython :mod:`ic` module,
-   described in the Macintosh Library Modules (XXX reference: ../mac/module-
-   ic.html) manual.
+   Only on MacOS platforms; requires the standard MacPython :mod:`ic` module.
 
 (4)
    Only on MacOS X platform.

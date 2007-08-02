@@ -22,8 +22,8 @@ The tables in this chapter document the priorities of operators by listing them
 in order of ascending priority (within a table) and grouping operators that have
 the same priority in the same box. Binary operators of the same priority group
 from left to right. (Unary operators group from right to left, but there you
-have no real choice.)  See chapter 5 of the Python Reference Manual (XXX
-reference: ../ref/ref.html) for the complete picture on operator priorities.
+have no real choice.)  See :ref:`operator-summary` for the complete picture on
+operator priorities.
 
 .. rubric:: Footnotes
 

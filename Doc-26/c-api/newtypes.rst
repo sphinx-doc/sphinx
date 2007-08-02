@@ -610,17 +610,17 @@ type objects) *must* have the :attr:`ob_size` field.
 
    This field is inherited by subtypes.
 
-PyNumberMethods \*tp_as_number;
+.. cmember:: PyNumberMethods *tp_as_number;
 
-XXX
+   XXX
 
-PySequenceMethods \*tp_as_sequence;
+.. cmember:: PySequenceMethods *tp_as_sequence;
 
-XXX
+   XXX
 
-PyMappingMethods \*tp_as_mapping;
+.. cmember:: PyMappingMethods *tp_as_mapping;
 
-XXX
+   XXX
 
 
 .. cmember:: hashfunc PyTypeObject.tp_hash
@@ -842,12 +842,13 @@ XXX
 
    .. data:: Py_TPFLAGS_HAVE_GC
 
-      This bit is set when the object supports garbage collection.  If this bit is
-      set, instances must be created using :cfunc:`PyObject_GC_New` and destroyed
-      using :cfunc:`PyObject_GC_Del`.  More information in section XXX about garbage
-      collection.  This bit also implies that the GC-related fields
-      :attr:`tp_traverse` and :attr:`tp_clear` are present in the type object; but
-      those fields also exist when :const:`Py_TPFLAGS_HAVE_GC` is clear but
+      This bit is set when the object supports garbage collection.  If this bit
+      is set, instances must be created using :cfunc:`PyObject_GC_New` and
+      destroyed using :cfunc:`PyObject_GC_Del`.  More information in section
+      :ref:`supporting-cycle-detection`.  This bit also implies that the
+      GC-related fields :attr:`tp_traverse` and :attr:`tp_clear` are present in
+      the type object; but those fields also exist when
+      :const:`Py_TPFLAGS_HAVE_GC` is clear but
       :const:`Py_TPFLAGS_HAVE_RICHCOMPARE` is set.
 
 
@@ -1598,9 +1599,8 @@ objects which may also be containers.  Types which do not store references to
 other objects, or which only store references to atomic types (such as numbers
 or strings), do not need to provide any explicit support for garbage collection.
 
-An example showing the use of these interfaces can be found in "Supporting the
-Cycle Collector (XXX reference: ../ext/example-cycle-support.html)" in Extending
-and Embedding the Python Interpreter (XXX reference: ../ext/ext.html).
+.. An example showing the use of these interfaces can be found in "Supporting the
+.. Cycle Collector (XXX reference: ../ext/example-cycle-support.html)".
 
 To create a container type, the :attr:`tp_flags` field of the type object must
 include the :const:`Py_TPFLAGS_HAVE_GC` and provide an implementation of the

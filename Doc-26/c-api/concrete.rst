@@ -2201,22 +2201,19 @@ Dictionary Objects
 .. cfunction:: PyObject* PyDict_Items(PyObject *p)
 
    Return a :ctype:`PyListObject` containing all the items from the dictionary, as
-   in the dictionary method :meth:`items` (see the Python Library Reference (XXX
-   reference: ../lib/lib.html)).
+   in the dictionary method :meth:`dict.items`.
 
 
 .. cfunction:: PyObject* PyDict_Keys(PyObject *p)
 
    Return a :ctype:`PyListObject` containing all the keys from the dictionary, as
-   in the dictionary method :meth:`keys` (see the Python Library Reference (XXX
-   reference: ../lib/lib.html)).
+   in the dictionary method :meth:`dict.keys`.
 
 
 .. cfunction:: PyObject* PyDict_Values(PyObject *p)
 
    Return a :ctype:`PyListObject` containing all the values from the dictionary
-   *p*, as in the dictionary method :meth:`values` (see the Python Library
-   Reference (XXX reference: ../lib/lib.html)).
+   *p*, as in the dictionary method :meth:`dict.values`.
 
 
 .. cfunction:: Py_ssize_t PyDict_Size(PyObject *p)

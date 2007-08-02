@@ -6,8 +6,8 @@ An Introduction to Distutils
 
 This document covers using the Distutils to distribute your Python modules,
 concentrating on the role of developer/distributor: if you're looking for
-information on installing Python modules, you should refer to the Installing
-Python Modules (XXX reference: ../inst/inst.html) manual.
+information on installing Python modules, you should refer to the
+:ref:`install-index` chapter.
 
 
 .. _distutils-concepts:

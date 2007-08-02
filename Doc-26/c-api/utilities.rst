@@ -370,6 +370,7 @@ upon unmarshalling. *Py_MARSHAL_VERSION* indicates the current file format
    .. versionchanged:: 2.4
       *version* indicates the file format.
 
+
 The following functions allow marshalled values to be read back in.
 
 XXX What about error detection?  It appears that reading past the end of the
@@ -425,8 +426,8 @@ Parsing arguments and building values
 =====================================
 
 These functions are useful when creating your own extensions functions and
-methods.  Additional information and examples are available in Extending and
-Embedding the Python Interpreter (XXX reference: ../ext/ext.html).
+methods.  Additional information and examples are available in
+:ref:`extending-index`.
 
 The first three of these functions described, :cfunc:`PyArg_ParseTuple`,
 :cfunc:`PyArg_ParseTupleAndKeywords`, and :cfunc:`PyArg_Parse`, all use *format

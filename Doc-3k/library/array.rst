@@ -112,8 +112,7 @@ The following data items and methods are also supported:
       effectively make use of this information), it makes more sense to use the buffer
       interface supported by array objects.  This method is maintained for backward
       compatibility and should be avoided in new code.  The buffer interface is
-      documented in the Python/C API Reference Manual (XXX reference:
-      ../api/newTypes.html).
+      documented in :ref:`bufferobjects`.
 
 
 .. method:: array.byteswap()

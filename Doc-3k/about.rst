@@ -2,6 +2,7 @@
 About these documents
 =====================
 
+
 These documents are generated from `reStructuredText
 <http://docutils.sf.net/rst.html>`_ sources by *Sphinx*, a document processor
 specifically written for the Python documentation.
@@ -14,5 +15,7 @@ docs@python.org mailing list.  We're always looking for volunteers wanting
 to help with the docs, so feel free to send a mail there!
 
 See :ref:`reporting-bugs` for information how to report bugs in Python itself.
+
+.. % include the ACKS file here so that it can be maintained separately
 
 .. include:: ACKS
