@@ -397,6 +397,28 @@ directives.register_directive('seealso', seealso_directive)
 
 # ------ production list (for the reference) ---------------------------------------
 
+token_re = re.compile('`([a-z_]+)`')
+
+def token_xrefs(text, env):
+    retnodes = []
+    pos = 0
+    for m in token_re.finditer(text):
+        if m.start() > pos:
+            txt = text[pos:m.start()]
+            retnodes.append(nodes.Text(txt, txt))
+        refnode = addnodes.pending_xref(m.group(1))
+        refnode['reftype'] = 'token'
+        refnode['reftarget'] = m.group(1)
+        refnode['modname'] = env.currmodule
+        refnode['classname'] = env.currclass
+        refnode += nodes.literal(m.group(1), m.group(1), classes=['xref'])
+        retnodes.append(refnode)
+        pos = m.end()
+    if pos < len(text):
+        retnodes.append(nodes.Text(text[pos:], text[pos:]))
+    print retnodes
+    return retnodes
+
 def productionlist_directive(name, arguments, options, content, lineno,
                              content_offset, block_text, state, state_machine):
     env = state.document.settings.env
@@ -404,8 +426,6 @@ def productionlist_directive(name, arguments, options, content, lineno,
     messages = []
     i = 0
 
-    # use token as the default role while in production list
-    roles._roles[''] = roles._role_registry['token']
     for rule in arguments[0].split('\n'):
         if i == 0 and ':' not in rule:
             # production group
@@ -423,11 +443,8 @@ def productionlist_directive(name, arguments, options, content, lineno,
                 subnode['ids'].append(idname)
             state.document.note_implicit_target(subnode, subnode)
             env.note_token(subnode['tokenname'])
-        inodes, imessages = state.inline_text(tokens, lineno+i)
-        subnode.extend(inodes)
-        messages.extend(imessages)
+        subnode.extend(token_xrefs(tokens, env))
         node.append(subnode)
-    del roles._roles['']
     return [node] + messages
 
 productionlist_directive.content = 0

@@ -95,9 +95,6 @@ innernodetypes = {
 def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
     text = utils.unescape(text)
-    # 'token' is the default role inside 'productionlist' directives
-    if typ == '':
-        typ = 'token'
     if typ in ('func', 'meth', 'cfunc') and \
            env.config.get('add_function_parentheses', True):
         text += '()'
