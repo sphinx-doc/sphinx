@@ -99,7 +99,7 @@ def main(argv):
         elif opt == '-N':
             nocolor()
 
-    if sys.platform == 'win32':
+    if not sys.stdout.isatty() or sys.platform == 'win32':
         # Windows' cmd box doesn't understand ANSI sequences
         nocolor()
 
