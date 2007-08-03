@@ -12,8 +12,8 @@ interpreter.
 
    Historically (until release 2.2), Python's built-in types have differed from
    user-defined types because it was not possible to use the built-in types as the
-   basis for object-oriented inheritance. This limitation does not exist any
-   longer.
+   basis for object-oriented inheritance. This limitation no longer
+   exists.
 
 .. index:: pair: built-in; types
 
@@ -95,10 +95,10 @@ These are the Boolean operations, ordered by ascending priority:
 | ``x or y``  | if *x* is false, then *y*, else | \(1)  |
 |             | *x*                             |       |
 +-------------+---------------------------------+-------+
-| ``x and y`` | if *x* is false, then *x*, else | \(1)  |
+| ``x and y`` | if *x* is false, then *x*, else | \(2)  |
 |             | *y*                             |       |
 +-------------+---------------------------------+-------+
-| ``not x``   | if *x* is false, then ``True``, | \(2)  |
+| ``not x``   | if *x* is false, then ``True``, | \(3)  |
 |             | else ``False``                  |       |
 +-------------+---------------------------------+-------+
 
@@ -110,9 +110,14 @@ These are the Boolean operations, ordered by ascending priority:
 Notes:
 
 (1)
-   These only evaluate their second argument if needed for their outcome.
+   This is a short-circuit operator, so it only evaluates the second
+   argument if the first one is :const:`False`.
 
 (2)
+   This is a short-circuit operator, so it only evaluates the second
+   argument if the first one is :const:`True`.
+
+(3)
    ``not`` has a lower priority than non-Boolean operators, so ``not a == b`` is
    interpreted as ``not (a == b)``, and ``a == not b`` is a syntax error.
 
@@ -147,8 +152,6 @@ This table summarizes the comparison operations:
 +------------+-------------------------+-------+
 | ``!=``     | not equal               | \(1)  |
 +------------+-------------------------+-------+
-| ``<>``     | not equal               | \(1)  |
-+------------+-------------------------+-------+
 | ``is``     | object identity         |       |
 +------------+-------------------------+-------+
 | ``is not`` | negated object identity |       |
@@ -165,8 +168,9 @@ This table summarizes the comparison operations:
 Notes:
 
 (1)
-   ``<>`` and ``!=`` are alternate spellings for the same operator. ``!=`` is the
-   preferred spelling; ``<>`` is obsolescent.
+    ``!=`` can also be written ``<>``, but this is an obsolete usage
+    kept for backwards compatibility only. New code should always use
+    ``!=``.
 
 .. index::
    pair: object; numeric
