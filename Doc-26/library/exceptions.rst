@@ -479,4 +479,4 @@ module for more information.
 The class hierarchy for built-in exceptions is:
 
 
-.. XXX includefile ../../Lib/test/exception_hierarchy.txt
+.. literalinclude:: ../../Lib/test/exception_hierarchy.txt

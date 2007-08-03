@@ -132,9 +132,8 @@ section).
 
 The code to run a function defined in a Python script is:
 
+.. literalinclude:: ../includes/run-func.c
 
-.. include:: ../includes/run-func.c
-   :literal:
 
 This code loads a Python script using ``argv[1]``, and calls the function named
 in ``argv[2]``.  Its integer arguments are the other values of the ``argv``

@@ -6,33 +6,28 @@ and send simple email messages, as well as more complex MIME messages.
 
 First, let's see how to create and send a simple text message:
 
+.. literalinclude:: ../includes/email-simple.py
 
-.. include:: ../includes/email-simple.py
-   :literal:
 
 Here's an example of how to send a MIME message containing a bunch of family
 pictures that may be residing in a directory:
 
+.. literalinclude:: ../includes/email-mime.py
 
-.. include:: ../includes/email-mime.py
-   :literal:
 
 Here's an example of how to send the entire contents of a directory as an email
-message:  [#]_
+message:  [1]_
 
+.. literalinclude:: ../includes/email-dir.py
 
-.. include:: ../includes/email-dir.py
-   :literal:
 
 And finally, here's an example of how to unpack a MIME message like the one
 above, into a directory of files:
 
-
-.. include:: ../includes/email-unpack.py
-   :literal:
+.. literalinclude:: ../includes/email-unpack.py
 
 
 .. rubric:: Footnotes
 
-.. [#] Thanks to Matthew Dixon Cowles for the original inspiration and examples.
+.. [1] Thanks to Matthew Dixon Cowles for the original inspiration and examples.
 

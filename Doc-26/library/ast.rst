@@ -1,8 +1,7 @@
 .. _ast:
 
-*********************
 Abstract Syntax Trees
-*********************
+=====================
 
 .. module:: _ast
 
@@ -49,12 +48,11 @@ values (marked with an asterisk), the values are represented as Python lists.
 
 
 Abstract Grammar
-================
+----------------
 
 The module defines a string constant ``__version__`` which is the decimal
 subversion revision number of the file shown below.
 
 The abstract grammar is currently defined as follows:
 
-
-.. XXX includefile ../../Parser/Python.asdl
+.. literalinclude:: ../../Parser/Python.asdl

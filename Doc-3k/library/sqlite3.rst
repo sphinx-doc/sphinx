@@ -200,8 +200,7 @@ Module functions and constants
    This can be used to build a shell for SQLite, as in the following example:
 
 
-   .. include:: ../includes/sqlite3/complete_statement.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/complete_statement.py
 
 
 .. function:: enable_callback_tracebacks(flag)
@@ -267,9 +266,7 @@ A :class:`Connection` instance has the following attributes and methods:
 
    Example:
 
-
-   .. include:: ../includes/sqlite3/md5func.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/md5func.py
 
 
 .. method:: Connection.create_aggregate(name, num_params, aggregate_class)
@@ -285,9 +282,7 @@ A :class:`Connection` instance has the following attributes and methods:
 
    Example:
 
-
-   .. include:: ../includes/sqlite3/mysumaggr.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/mysumaggr.py
 
 
 .. method:: Connection.create_collation(name, callable)
@@ -303,9 +298,7 @@ A :class:`Connection` instance has the following attributes and methods:
 
    The following example shows a custom collation that sorts "the wrong way":
 
-
-   .. include:: ../includes/sqlite3/collation_reverse.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/collation_reverse.py
 
    To remove a collation, call ``create_collation`` with None as callable::
 
@@ -349,9 +342,7 @@ A :class:`Connection` instance has the following attributes and methods:
 
    Example:
 
-
-   .. include:: ../includes/sqlite3/row_factory.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/row_factory.py
 
    If returning a tuple doesn't suffice and you want name-based access to columns,
    you should consider setting :attr:`row_factory` to the highly-optimized
@@ -379,9 +370,7 @@ A :class:`Connection` instance has the following attributes and methods:
 
    See the following example code for illustration:
 
-
-   .. include:: ../includes/sqlite3/text_factory.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/text_factory.py
 
 
 .. attribute:: Connection.total_changes
@@ -407,15 +396,11 @@ A :class:`Cursor` instance has the following attributes and methods:
 
    This example shows how to use parameters with qmark style:
 
-
-   .. include:: ../includes/sqlite3/execute_1.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/execute_1.py
 
    This example shows how to use the named style:
 
-
-   .. include:: ../includes/sqlite3/execute_2.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/execute_2.py
 
    :meth:`execute` will only execute a single SQL statement. If you try to execute
    more than one statement with it, it will raise a Warning. Use
@@ -429,15 +414,11 @@ A :class:`Cursor` instance has the following attributes and methods:
    sequence *sql*. The :mod:`sqlite3` module also allows using an iterator yielding
    parameters instead of a sequence.
 
-
-   .. include:: ../includes/sqlite3/executemany_1.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/executemany_1.py
 
    Here's a shorter example using a generator:
 
-
-   .. include:: ../includes/sqlite3/executemany_2.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/executemany_2.py
 
 
 .. method:: Cursor.executescript(sql_script)
@@ -450,9 +431,7 @@ A :class:`Cursor` instance has the following attributes and methods:
 
    Example:
 
-
-   .. include:: ../includes/sqlite3/executescript.py
-      :literal:
+   .. literalinclude:: ../includes/sqlite3/executescript.py
 
 
 .. attribute:: Cursor.rowcount
@@ -559,9 +538,7 @@ Let's just use str and separate the coordinates using a semicolon. Then you need
 to give your class a method ``__conform__(self, protocol)`` which must return
 the converted value. The parameter *protocol* will be :class:`PrepareProtocol`.
 
-
-.. include:: ../includes/sqlite3/adapter_point_1.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/adapter_point_1.py
 
 
 Registering an adapter callable
@@ -575,18 +552,14 @@ string representation and register the function with :meth:`register_adapter`.
    The type/class to adapt must be a new-style class, i. e. it must have
    :class:`object` as one of its bases.
 
-
-.. include:: ../includes/sqlite3/adapter_point_2.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/adapter_point_2.py
 
 The :mod:`sqlite3` module has two default adapters for Python's built-in
 :class:`datetime.date` and :class:`datetime.datetime` types.  Now let's suppose
 we want to store :class:`datetime.datetime` objects not in ISO representation,
 but as a Unix timestamp.
 
-
-.. include:: ../includes/sqlite3/adapter_datetime.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/adapter_datetime.py
 
 
 Converting SQLite values to custom Python types
@@ -630,9 +603,7 @@ for the constants :const:`PARSE_DECLTYPES` and :const:`PARSE_COLNAMES`.
 
 The following example illustrates both approaches.
 
-
-.. include:: ../includes/sqlite3/converter_point.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/converter_point.py
 
 
 Default adapters and converters
@@ -651,9 +622,7 @@ experimental SQLite date/time functions.
 
 The following example demonstrates this.
 
-
-.. include:: ../includes/sqlite3/pysqlite_datetime.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/pysqlite_datetime.py
 
 
 .. _sqlite3-controlling-transactions:
@@ -704,9 +673,7 @@ objects are created implicitly and these shortcut methods return the cursor
 objects. This way, you can execute a SELECT statement and iterate over it
 directly using only a single call on the :class:`Connection` object.
 
-
-.. include:: ../includes/sqlite3/shortcut_methods.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/shortcut_methods.py
 
 
 Accessing columns by name instead of by index
@@ -718,7 +685,5 @@ One useful feature of the :mod:`sqlite3` module is the builtin
 Rows wrapped with this class can be accessed both by index (like tuples) and
 case-insensitively by name:
 
-
-.. include:: ../includes/sqlite3/rowclass.py
-   :literal:
+.. literalinclude:: ../includes/sqlite3/rowclass.py
 

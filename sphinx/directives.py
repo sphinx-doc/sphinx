@@ -8,6 +8,7 @@
     :copyright: 2007 by Georg Brandl.
     :license: Python license.
 """
+from __future__ import with_statement
 
 import re
 import string
@@ -531,5 +532,33 @@ def highlightlang_directive(name, arguments, options, content, lineno,
 
 highlightlang_directive.content = 0
 highlightlang_directive.arguments = (1, 0, 0)
-directives.register_directive('highlightlang',
-                              highlightlang_directive)
+directives.register_directive('highlightlang', highlightlang_directive)
+
+
+# ------ literalinclude directive ---------------------------------------------------
+
+def literalinclude_directive(name, arguments, options, content, lineno,
+                             content_offset, block_text, state, state_machine):
+    """Like .. include:: :literal:, but only warns if the include file is not found."""
+    if not state.document.settings.file_insertion_enabled:
+        return [state.document.reporter.warning('File insertion disabled', line=lineno)]
+    env = state.document.settings.env
+    fn = arguments[0]
+    source_dir = path.dirname(path.abspath(state_machine.input_lines.source(
+        lineno - state_machine.input_offset - 1)))
+    fn = path.normpath(path.join(source_dir, fn))
+
+    try:
+        with open(fn) as f:
+            text = f.read()
+    except (IOError, OSError):
+        retnode = state.document.reporter.warning('Include file %r not found' %
+                                                  arguments[0], line=lineno)
+    else:
+        retnode = nodes.literal_block(text, text, source=fn)
+        retnode.line = 1
+    return [retnode]
+
+literalinclude_directive.content = 0
+literalinclude_directive.arguments = (1, 0, 0)
+directives.register_directive('literalinclude', literalinclude_directive)

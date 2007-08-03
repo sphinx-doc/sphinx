@@ -8,7 +8,7 @@ markup.  This section contains the reference material for these facilities.
 Documentation for "standard" reST constructs is not included here, though
 they are used in the Python documentation.
 
-XXX: file-wide metadata
+.. XXX: file-wide metadata
 
 Meta-information markup
 -----------------------
@@ -250,11 +250,13 @@ Syntax highlighting is handled in a smart way:
 
 Longer displays of verbatim text may be included by storing the example text in
 an external file containing only plain text.  The file may be included using the
-standard ``include`` directive with the ``literal`` option flag.  For example,
-to include the Python source file :file:`example.py`, use::
+``literalinclude`` directive. [1]_ For example, to include the Python source file
+:file:`example.py`, use::
 
-   .. include:: example.py
-      :literal:
+   .. literalinclude:: example.py
+
+The file name is relative to the current file's path.  Documentation-specific
+include files should be placed in the ``Doc/includes`` subdirectory.
 
 
 Inline markup
@@ -741,3 +743,9 @@ They are set in the build configuration file, see :ref:`doc-build-config`.
 
    Replaced by either today's date, or the date set in the build configuration
    file.  Normally has the format ``April 14, 2007``.
+
+
+.. rubric:: Footnotes
+
+.. [1] There is a standard ``.. include`` directive, but it raises errors if the
+       file is not found.  This one only emits a warning.

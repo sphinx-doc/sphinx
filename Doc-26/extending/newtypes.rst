@@ -47,9 +47,8 @@ object.
 This sort of thing can only be explained by example, so here's a minimal, but
 complete, module that defines a new type:
 
+.. literalinclude:: ../includes/noddy.c
 
-.. include:: ../includes/noddy.c
-   :literal:
 
 Now that's quite a bit to take in at once, but hopefully bits will seem familiar
 from the last chapter.
@@ -248,9 +247,8 @@ Let's expend the basic example to add some data and methods.  Let's also make
 the type usable as a base class. We'll create a new module, :mod:`noddy2` that
 adds these capabilities:
 
+.. literalinclude:: ../includes/noddy2.c
 
-.. include:: ../includes/noddy2.c
-   :literal:
 
 This version of the module has a number of changes.
 
@@ -557,9 +555,8 @@ version of our module, the instance variables :attr:`first` and :attr:`last`
 could be set to non-string values or even deleted. We want to make sure that
 these attributes always contain strings.
 
+.. literalinclude:: ../includes/noddy3.c
 
-.. include:: ../includes/noddy3.c
-   :literal:
 
 To provide greater control, over the :attr:`first` and :attr:`last` attributes,
 we'll use custom getter and setter functions.  Here are the functions for
@@ -708,9 +705,8 @@ garbage collector to the :class:`Noddy` example.  To support cyclic garbage
 collection, types need to fill two slots and set a class flag that enables these
 slots:
 
+.. literalinclude:: ../includes/noddy4.c
 
-.. include:: ../includes/noddy4.c
-   :literal:
 
 The traversal method provides access to subobjects that could participate in
 cycles::
@@ -839,9 +835,8 @@ increases an internal counter. ::
    >>> print s.increment()
    2
 
+.. literalinclude:: ../includes/shoddy.c
 
-.. include:: ../includes/shoddy.c
-   :literal:
 
 As you can see, the source code closely resembles the :class:`Noddy` examples in
 previous sections. We will break down the main differences between them. ::
@@ -917,9 +912,8 @@ implement and what they do.
 Here is the definition of :ctype:`PyTypeObject`, with some fields only used in
 debug builds omitted:
 
+.. literalinclude:: ../includes/typestruct.h
 
-.. include:: ../includes/typestruct.h
-   :literal:
 
 Now that's a *lot* of methods.  Don't worry too much though - if you have a type
 you want to define, the chances are very good that you will only implement a

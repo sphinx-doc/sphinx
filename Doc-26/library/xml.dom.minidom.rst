@@ -193,9 +193,7 @@ DOM Example
 This example program is a fairly realistic example of a simple program. In this
 particular case, we do not take much advantage of the flexibility of the DOM.
 
-
-.. include:: ../includes/minidom-example.py
-   :literal:
+.. literalinclude:: ../includes/minidom-example.py
 
 
 .. _minidom-and-dom:

@@ -1253,9 +1253,8 @@ There is one more :class:`tzinfo` method that a subclass may wish to override:
 
 Example :class:`tzinfo` classes:
 
+.. literalinclude:: ../includes/tzinfo-examples.py
 
-.. include:: ../includes/tzinfo-examples.py
-   :literal:
 
 Note that there are unavoidable subtleties twice per year in a :class:`tzinfo`
 subclass accounting for both standard and daylight time, at the DST transition

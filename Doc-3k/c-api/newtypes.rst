@@ -356,9 +356,8 @@ The structure definition for :ctype:`PyTypeObject` can be found in
 :file:`Include/object.h`.  For convenience of reference, this repeats the
 definition found there:
 
+.. literalinclude:: ../includes/typestruct.h
 
-.. include:: ../includes/typestruct.h
-   :literal:
 
 The type object structure extends the :ctype:`PyVarObject` structure. The
 :attr:`ob_size` field is used for dynamic types (created by  :func:`type_new`,
