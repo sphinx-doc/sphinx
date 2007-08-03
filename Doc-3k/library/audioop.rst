@@ -8,8 +8,7 @@
 
 The :mod:`audioop` module contains some useful operations on sound fragments.
 It operates on sound fragments consisting of signed integer samples 8, 16 or 32
-bits wide, stored in Python strings.  This is the same format as used by the
-:mod:`al` and :mod:`sunaudiodev` modules.  All scalar items are integers, unless
+bits wide, stored in Python strings.  All scalar items are integers, unless
 specified otherwise.
 
 .. index::

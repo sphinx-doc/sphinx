@@ -51,19 +51,12 @@ documented beyond this mention.  There's little need to document these.
 Multimedia
 ==========
 
-:mod:`audiodev`
-   --- Platform-independent API for playing audio data.
-
 :mod:`linuxaudiodev`
    --- Play audio data on the Linux audio device.  Replaced in Python 2.3 by the
    :mod:`ossaudiodev` module.
 
 :mod:`sunaudio`
    --- Interpret Sun audio headers (may become obsolete or a tool/demo).
-
-:mod:`toaiff`
-   --- Convert "arbitrary" sound files to AIFF files; should probably become a tool
-   or demo.  Requires the external program :program:`sox`.
 
 
 .. _obsolete-modules:

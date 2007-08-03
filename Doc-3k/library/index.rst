@@ -65,6 +65,5 @@ documented in the Reference Manual.
    modules.rst
    language.rst
    misc.rst
-   sun.rst
    windows.rst
    undoc.rst
