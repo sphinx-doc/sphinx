@@ -516,7 +516,7 @@ class DocumentationApplication(object):
         for modname in self.env.filemodules.get(page_id, ()):
             self.freqmodules[modname] += 1
         # comments enabled?
-        comments = self.env.metadata[page_id].get('comments_enabled', True)
+        comments = self.env.metadata[page_id].get('nocomments', False)
 
         # how does the user want to view comments?
         commentmode = req.session.get('comments', 'inline') if comments else ''

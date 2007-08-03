@@ -16,7 +16,12 @@ available.  They are listed here in alphabetical order.
       module: rexec
       module: imp
 
-   This function is invoked by the :keyword:`import` statement.  It mainly exists
+   .. note::
+
+      This is an advanced function that is not needed in everyday Python
+      programming.
+
+   The function is invoked by the :keyword:`import` statement.  It mainly exists
    so that you can replace it with another function that has a compatible
    interface, in order to change the semantics of the :keyword:`import` statement.
    For examples of why and how you would do this, see the standard library modules
@@ -138,7 +143,8 @@ available.  They are listed here in alphabetical order.
    Return a string of one character whose ASCII code is the integer *i*.  For
    example, ``chr(97)`` returns the string ``'a'``. This is the inverse of
    :func:`ord`.  The argument must be in the range [0..255], inclusive;
-   :exc:`ValueError` will be raised if *i* is outside that range.
+   :exc:`ValueError` will be raised if *i* is outside that range. See
+   also :func:`unichr`.
 
 
 .. function:: classmethod(function)
@@ -346,7 +352,14 @@ available.  They are listed here in alphabetical order.
    iterator returned by :func:`enumerate` returns a tuple containing a count (from
    zero) and the corresponding value obtained from iterating over *iterable*.
    :func:`enumerate` is useful for obtaining an indexed series: ``(0, seq[0])``,
-   ``(1, seq[1])``, ``(2, seq[2])``, ....
+   ``(1, seq[1])``, ``(2, seq[2])``, .... For example::
+
+      >>> for i, season in enumerate(['Spring', 'Summer', 'Fall', 'Winter')]:
+      >>>	    print i, season
+      0 Spring
+      1 Summer
+      2 Fall
+      3 Winter
 
    .. versionadded:: 2.3
 
@@ -1018,6 +1031,14 @@ available.  They are listed here in alphabetical order.
    acceptable to :func:`eval`; its goal is to return a printable string.  If no
    argument is given, returns the empty string, ``''``.
 
+   For more information on strings see :ref:`typesseq` which describes
+   sequence functionality (strings are sequences), and also the
+   string-specific methods described in the :ref:`string-methods`
+   section. To output formatted strings use template strings or the
+   ``%`` operator described in the :ref:`typesseq-strings` section. In
+   addition see the :ref:`stringservices` section. See also
+   :func:`unicode`.
+
 
 .. function:: sum(iterable[, start])
 
@@ -1097,7 +1118,8 @@ available.  They are listed here in alphabetical order.
    *i*.  For example, ``unichr(97)`` returns the string ``u'a'``.  This is the
    inverse of :func:`ord` for Unicode strings.  The valid range for the argument
    depends how Python was configured -- it may be either UCS2 [0..0xFFFF] or UCS4
-   [0..0x10FFFF]. :exc:`ValueError` is raised otherwise.
+   [0..0x10FFFF]. :exc:`ValueError` is raised otherwise. For ASCII and 8-bit
+   strings see :func:`chr`.
 
    .. versionadded:: 2.0
 
@@ -1126,6 +1148,14 @@ available.  They are listed here in alphabetical order.
    without arguments to create a Unicode string. For all other objects, the 8-bit
    string version or representation is requested and then converted to a Unicode
    string using the codec for the default encoding in ``'strict'`` mode.
+
+   For more information on Unicode strings see :ref:`typesseq` which describes
+   sequence functionality (Unicode strings are sequences), and also the
+   string-specific methods described in the :ref:`string-methods`
+   section. To output formatted strings use template strings or the
+   ``%`` operator described in the :ref:`typesseq-strings` section. In
+   addition see the :ref:`stringservices` section. See also
+   :func:`str`.
 
    .. versionadded:: 2.0
 
