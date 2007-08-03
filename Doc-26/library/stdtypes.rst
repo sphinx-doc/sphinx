@@ -562,6 +562,13 @@ are sequences of the same type; *n*, *i* and *j* are integers:
 | ``max(s)``       | largest item of *s*            |          |
 +------------------+--------------------------------+----------+
 
+Sequence types also support comparisons. In particular, tuples and lists
+are compared lexicographically by comparing corresponding
+elements. This means that to compare equal, every element must compare
+equal and the two sequences must be of the same type and have the same
+length. (For full details see :ref:`comparisons` in the language
+reference.)
+
 .. index::
    triple: operations on; sequence; types
    builtin: len
