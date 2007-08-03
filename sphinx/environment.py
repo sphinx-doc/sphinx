@@ -30,6 +30,13 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import FilterMessages
 
+# monkey-patch reST parser to disable alphabetic and roman enumerated lists
+from docutils.parsers.rst.states import Body
+Body.enum.converters['loweralpha'] = \
+    Body.enum.converters['upperalpha'] = \
+    Body.enum.converters['lowerroman'] = \
+    Body.enum.converters['upperroman'] = lambda x: None
+
 from . import addnodes
 from .util import get_matching_files
 from .refcounting import Refcounts

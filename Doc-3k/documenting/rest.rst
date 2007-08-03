@@ -63,8 +63,18 @@ autonumbered using a ``#`` sign::
    * It has two items, the second
      item uses two lines.
 
+   1. This is a numbered list.
+   2. It has two items too.
+
    #. This is a numbered list.
    #. It has two items too.
+
+Note that Sphinx disables the use of enumerated lists introduced by alphabetic
+or roman numerals, such as ::
+
+   A. First item
+   B. Second item
+   
 
 Nested lists are possible, but be aware that they must be separated from the
 parent list items by blank lines::
@@ -210,12 +220,14 @@ body at the bottom of the document after a "Footnotes" rubric heading, like so::
    .. [#] Text of the first footnote.
    .. [#] Text of the second footnote.
 
+You can also explicitly number the footnotes for better context.
+
 
 Comments
 --------
 
 Every explicit markup block which isn't a valid markup construct (like the
-footnotes above) is regared as a comment.
+footnotes above) is regarded as a comment.
 
 
 Source encoding
@@ -229,4 +241,13 @@ All Python documentation source files must be in UTF-8 encoding, and the HTML
 documents written from them will be in that encoding as well.
 
 
-XXX: Gotchas
+Gotchas
+-------
+
+There are some problems one commonly runs into while authoring reST documents:
+
+* **Separation of inline markup:** As said above, inline markup spans must be
+  separated from the surrounding text by non-word characters, you have to use
+  an escaped space to get around that.
+
+.. XXX more?
