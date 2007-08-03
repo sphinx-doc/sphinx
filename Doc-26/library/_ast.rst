@@ -4,6 +4,7 @@ Abstract Syntax Trees
 =====================
 
 .. module:: _ast
+   :synopsis: Abstract Syntax Tree classes.
 
 .. sectionauthor:: Martin v. Löwis <martin@v.loewis.de>
 

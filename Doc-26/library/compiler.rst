@@ -30,15 +30,16 @@ work.  It blends reference material with a tutorial.
 
 The following modules are part of the :mod:`compiler` package:
 
-
 .. toctree::
 
-   ast.rst
+   _ast.rst
+
 
 The basic interface
 ===================
 
 .. module:: compiler
+   :synopsis: Python code compiler written in Python.
 
 
 The top-level of the package defines four functions.  If you import
