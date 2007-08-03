@@ -348,7 +348,7 @@ class DocumentationApplication(object):
                 } for x in sorted(most_frequent)]
 
         showpf = None
-        newpf = req.args.get('pf')
+        newpf = req.args.get('newpf')
         sesspf = req.session.get('pf')
         if newpf or sesspf:
             yield NoCache

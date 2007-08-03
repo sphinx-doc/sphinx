@@ -19,6 +19,7 @@
             {%- if pl in showpf %} checked="checked"{% endif %}>
      <label for="pl-{{ pl }}">{{ pl }}</label>
      {% endfor %}
+     <input type="hidden" name="newpf" value="true">
      <input type="submit" value="Apply">
    </form>
 {% endif %}
