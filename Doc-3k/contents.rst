@@ -16,7 +16,7 @@
    documenting/index.rst
    howto/index.rst
 
-   bugs.rst
    about.rst
-   license.rst
+   bugs.rst
    copyright.rst
+   license.rst

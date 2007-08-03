@@ -1,5 +1,7 @@
 .. highlightlang:: none
 
+.. _history-and-license:
+
 *******************
 History and License
 *******************
