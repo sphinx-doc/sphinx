@@ -1599,7 +1599,7 @@ other objects, or which only store references to atomic types (such as numbers
 or strings), do not need to provide any explicit support for garbage collection.
 
 .. An example showing the use of these interfaces can be found in "Supporting the
-.. Cycle Collector (XXX reference: ../ext/example-cycle-support.html)".
+.. Cycle Collector (XXX not found: ../ext/example-cycle-support.html)".
 
 To create a container type, the :attr:`tp_flags` field of the type object must
 include the :const:`Py_TPFLAGS_HAVE_GC` and provide an implementation of the

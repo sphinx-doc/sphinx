@@ -528,8 +528,7 @@ classes.
 With all of these features the :mod:`logging` package should provide enough
 flexibility for even the most complicated applications.  This is only an
 incomplete overview of its features, so please see the package's reference
-documentation (XXX reference: ../lib/module-logging.html) for all of the
-details.  Reading :pep:`282` will also be helpful.
+documentation for all of the details.  Reading :pep:`282` will also be helpful.
 
 
 .. seealso::

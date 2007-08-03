@@ -42,7 +42,7 @@ A simple demo of embedding Python can be found in the directory
 
 .. seealso::
 
-   `Python/C API Reference Manual <../api/api.html>`_
+   :ref:`c-api-index`
       The details of Python's C interface are given in this manual. A great deal of
       necessary information can be found here.
 

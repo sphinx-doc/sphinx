@@ -790,8 +790,7 @@ bound to a variable, and calls ``object.close`` at the end of the block. ::
       ':keyword:`with`' statement, which can be helpful in learning how the statement
       works.
 
-   ../lib/module-contextlib.html
-      The documentation  for the :mod:`contextlib` module.
+   The documentation  for the :mod:`contextlib` module.
 
 .. % ======================================================================
 
@@ -1734,8 +1733,7 @@ modules, now that :mod:`ctypes` is included with core Python.
    http://starship.python.net/crew/theller/ctypes/
       The ctypes web page, with a tutorial, reference, and FAQ.
 
-   ../lib/module-ctypes.html
-      The documentation  for the :mod:`ctypes` module.
+   The documentation  for the :mod:`ctypes` module.
 
 .. % ======================================================================
 
@@ -1906,8 +1904,7 @@ with the same digest state.
 
 .. seealso::
 
-   ../lib/module-hashlib.html
-      The documentation  for the :mod:`hashlib` module.
+   The documentation  for the :mod:`hashlib` module.
 
 .. % ======================================================================
 
@@ -2013,8 +2010,7 @@ http://www.sqlite.org.
       The SQLite web page; the documentation describes the syntax and the available
       data types for the supported SQL dialect.
 
-   ../lib/module-sqlite3.html
-      The documentation  for the :mod:`sqlite3` module.
+   The documentation  for the :mod:`sqlite3` module.
 
    :pep:`249` - Database API Specification 2.0
       PEP written by Marc-André Lemburg.

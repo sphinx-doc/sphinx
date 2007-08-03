@@ -118,7 +118,7 @@ split across multiple lines for readability.
 
 .. seealso::
 
-   `Installing Python Modules <../inst/config-syntax.html>`_
+   :ref:`inst-config-syntax` in "Installing Python Modules"
       More information on the configuration files is available in the manual for
       system administrators.
 

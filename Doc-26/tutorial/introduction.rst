@@ -370,17 +370,18 @@ The built-in function :func:`len` returns the length of a string::
 
 .. seealso::
 
-   `Sequence Types <../lib/typesseq.html>`_
-      Strings, and the Unicode strings described in the next section, are examples of
-      *sequence types*, and support the common operations supported by such types.
+   :ref:`typesseq`
+      Strings, and the Unicode strings described in the next section, are
+      examples of *sequence types*, and support the common operations supported
+      by such types.
 
-   `String Methods <../lib/string-methods.html>`_
-      Both strings and Unicode strings support a large number of methods for basic
-      transformations and searching.
+   :ref:`string-methods`
+      Both strings and Unicode strings support a large number of methods for
+      basic transformations and searching.
 
-   `String Formatting Operations <../lib/typesseq-strings.html>`_
-      The formatting operations invoked when strings and Unicode strings are the left
-      operand of the ``%`` operator are described in more detail here.
+   :ref:`typesseq-strings`
+      The formatting operations invoked when strings and Unicode strings are the
+      left operand of the ``%`` operator are described in more detail here.
 
 
 .. _tut-unicodestrings:
