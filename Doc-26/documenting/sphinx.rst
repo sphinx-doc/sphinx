@@ -3,7 +3,7 @@
 The Sphinx build system
 =======================
 
-XXX: intro...
+.. XXX: intro...
 
 .. _doc-build-config:
 

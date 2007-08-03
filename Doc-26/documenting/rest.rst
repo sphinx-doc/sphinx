@@ -4,10 +4,9 @@ reStructuredText Primer
 =======================
 
 This section is a brief introduction to reStructuredText (reST) concepts and
-syntax, intended to provide authors with enough information to author
-documents productively.
-Since reST was designed to be a simple, unobtrusive markup language, this will
-not take too long.
+syntax, intended to provide authors with enough information to author documents
+productively.  Since reST was designed to be a simple, unobtrusive markup
+language, this will not take too long.
 
 .. seealso::
 
@@ -18,11 +17,12 @@ not take too long.
 Paragraphs
 ----------
 
-The paragraph is the most basic block in a reST document.
-Paragraphs are simply chunks of text
-separated by one or more blank lines.  As in Python, indentation is significant
-in reST, so all lines of the same paragraph must be left-aligned
+The paragraph is the most basic block in a reST document.  Paragraphs are simply
+chunks of text separated by one or more blank lines.  As in Python, indentation
+is significant in reST, so all lines of the same paragraph must be left-aligned
 to the same level of indentation.
+
+The Python docs use an indentation of 3 spaces.
 
 
 Inline markup

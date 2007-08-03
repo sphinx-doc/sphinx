@@ -8,7 +8,25 @@ markup.  This section contains the reference material for these facilities.
 Documentation for "standard" reST constructs is not included here, though
 they are used in the Python documentation.
 
-.. XXX: file-wide metadata
+File-wide metadata
+------------------
+
+reST has the concept of "field lists"; these are a sequence of fields marked up
+like this::
+
+   :Field name: Field content
+
+A field list at the very top of a file is parsed as the "docinfo", which in
+normal documents can be used to record the author, date of publication and
+other metadata.  In Sphinx, the docinfo is used as metadata, too, but not
+displayed in the output.
+
+At the moment, only one metadata field is recognized:
+
+``nocomments``
+   If set, the web application won't display a comment form for a page generated
+   from this source file.
+
 
 Meta-information markup
 -----------------------
@@ -265,9 +283,7 @@ Inline markup
 As said before, Sphinx uses interpreted text roles to insert semantic markup in
 documents.
 
-The default role is ``var``, as that was one of the most common macros used in
-the old LaTeX docs.  That means that you can use ```var``` to refer to a
-variable named "var".
+Variable names are an exception, they should be marked simply with ``*var*``.
 
 For all other roles, you have to write ``:rolename:`content```.
 
@@ -488,7 +504,7 @@ Cross-linking markup
 --------------------
 
 To support cross-referencing to arbitrary sections in the documentation, the
-standard reST labels are "abused" a bit:  Every label must precede a section
+standard reST labels are "abused" a bit: Every label must precede a section
 title; and every label name must be unique throughout the entire documentation
 source.
 
