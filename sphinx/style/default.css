@@ -589,8 +589,8 @@ div.admonition dt {
     font-weight: bold;
 }
 
-div.admonition dd {
-    margin-bottom: 10px;
+div.admonition dl {
+    margin-bottom: 0;
 }
 
 div.admonition p {
@@ -616,7 +616,6 @@ p.admonition-title {
     margin: 0px 10px 5px 0px;
     font-weight: bold;
     display: inline;
-    font-size: 1em;
 }
 
 table.docutils {

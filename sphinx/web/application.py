@@ -768,7 +768,7 @@ def _check_superuser(app):
             pw2 = getpass.getpass('Enter password again: ')
             if pw1 != pw2:
                 print 'Error: Passwords don\'t match.'
-                sys.exit(1)
+                raise SystemExit(1)
             app.userdb.set_password('admin', pw1)
             app.userdb.privileges['admin'].add('master')
             app.userdb.save()
