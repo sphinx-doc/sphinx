@@ -113,9 +113,9 @@ py_sig_re = re.compile(r'''^([\w.]*\.)?        # class names
 
 py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
 
-def parse_py_signature(signode, sig, desctype, currclass):
+def parse_py_signature(signode, sig, desctype, currmodule, currclass):
     """
-    Transform a python signature into RST nodes. Returns (signode, fullname).
+    Transform a python signature into RST nodes.
     Return the fully qualified name of the thing.
 
     If inside a class, the current class name is handled intelligently:
@@ -139,6 +139,12 @@ def parse_py_signature(signode, sig, desctype, currclass):
 
     if classname:
         signode += addnodes.desc_classname(classname, classname)
+    # only add the module name for module globals
+    # exceptions are a special case, since they are documented in the
+    # 'exceptions' module.
+    elif currmodule and currmodule != 'exceptions':
+        signode += addnodes.desc_classname(currmodule+'.', currmodule+'.')
+
     signode += addnodes.desc_name(name, name)
     if not arglist:
         if desctype in ('function', 'method'):
@@ -282,7 +288,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
         try:
             if desctype in ('function', 'data', 'class', 'exception',
                             'method', 'attribute'):
-                name = parse_py_signature(signode, sig, desctype, env.currclass)
+                name = parse_py_signature(signode, sig, desctype,
+                                          env.currmodule, env.currclass)
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'opcode':
