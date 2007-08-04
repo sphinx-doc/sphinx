@@ -297,13 +297,13 @@ available.  They are listed here in alphabetical order.
    objects, as it attempts to produce the most relevant, rather than complete,
    information:
 
-* If the object is a module object, the list contains the names of the module's
+   * If the object is a module object, the list contains the names of the module's
      attributes.
 
-* If the object is a type or class object, the list contains the names of its
+   * If the object is a type or class object, the list contains the names of its
      attributes, and recursively of the attributes of its bases.
 
-* Otherwise, the list contains the object's attributes' names, the names of its
+   * Otherwise, the list contains the object's attributes' names, the names of its
      class's attributes, and recursively of the attributes of its class's base
      classes.
 

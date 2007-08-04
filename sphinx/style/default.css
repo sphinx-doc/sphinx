@@ -268,6 +268,7 @@ div.inlinecomments div.comments {
 
 div#comments {
     border: 1px solid #2eabb0;
+    margin-top: 20px;
 }
 
 div#comments div.nocomments {
@@ -577,6 +578,21 @@ p.rubric {
     font-weight: bold;
 }
 
+/* "Topics" */
+
+div.topic {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 0 7px 0 7px;
+    margin: 10px 0 10px 0;
+}
+
+p.topic-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
 /* Admonitions */
 
 div.admonition {
@@ -618,12 +634,16 @@ p.admonition-title {
     display: inline;
 }
 
+p.admonition-title:after {
+    content: ":";
+}
+
 table.docutils {
     border: 0;
 }
 
 table.docutils td, table.docutils th {
-    margin: 2px;
+    padding: 0 8px 2px 0;
     border-top: 0;
     border-left: 0;
     border-right: 0;

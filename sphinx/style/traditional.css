@@ -483,12 +483,27 @@ p.rubric {
     font-weight: bold;
 }
 
+/* "Topics" */
+
+div.topic {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 0 7px 0 7px;
+    margin: 10px 0 10px 0;
+}
+
+p.topic-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
 /* Admonitions */
 
 div.admonition {
     margin-top: 10px;
     margin-bottom: 10px;
-    padding: 10px 10px 0px 10px;
+    padding: 7px;
 }
 
 div.admonition dt {
@@ -497,6 +512,14 @@ div.admonition dt {
 
 div.admonition dd {
     margin-bottom: 10px;
+}
+
+div.admonition dl {
+    margin-bottom: 0;
+}
+
+div.admonition p {
+    display: inline;
 }
 
 div.seealso {
@@ -515,9 +538,13 @@ div.note {
 }
 
 p.admonition-title {
-    margin: 0px 0px 5px 0px;
+    margin: 0px 10px 5px 0px;
     font-weight: bold;
-    font-size: 1.1em;
+    display: inline;
+}
+
+p.admonition-title:after {
+    content: ":";
 }
 
 table.docutils {
@@ -525,7 +552,7 @@ table.docutils {
 }
 
 table.docutils td, table.docutils th {
-    margin: 2px;
+    padding: 0 8px 2px 0;
     border-top: 0;
     border-left: 0;
     border-right: 0;
