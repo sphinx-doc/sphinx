@@ -606,7 +606,7 @@ pre {
 tt {
     font-family: 'Bitstream Vera Sans Mono', monospace;
     background-color: #ecf0f3;
-    padding: 1px;
+    padding: 0 1px 0 1px;
 }
 
 tt.descname {

@@ -10,6 +10,7 @@
 """
 
 import cgi
+import parser
 from collections import defaultdict
 
 try:
@@ -57,15 +58,22 @@ def highlight_block(source, lang):
         return '<pre>' + cgi.escape(source) + '</pre>\n'
     if lang == 'python':
         if source.startswith('>>>'):
+            # interactive session
             lexer = lexers['pycon']
         else:
-            lexer = lexers['python']
+            # maybe Python -- try parsing it
+            try:
+                parser.suite(source + '\n')
+            except SyntaxError:
+                return '<pre>' + cgi.escape(source) + '</pre>\n'
+            else:
+                lexer = lexers['python']
     else:
         lexer = lexers[lang]
     try:
         return highlight(source, lexer, fmter)
     except ErrorToken:
-        # this is most probably not Python, so let it pass textonly
+        # this is most probably not Python, so let it pass unhighlighted
         return '<pre>' + cgi.escape(source) + '</pre>\n'
 
 def get_stylesheet():

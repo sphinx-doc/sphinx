@@ -50,7 +50,7 @@ class compact_paragraph(nodes.paragraph): pass
 # sets the highlighting language for literal blocks
 class highlightlang(nodes.Element): pass
 
-# doesn't apply further text processors, e.g. smartypants
+# like emphasis, but doesn't apply further text processors, e.g. smartypants
 class literal_emphasis(nodes.emphasis): pass
 
 # make them known to docutils. this is needed, because the HTMl writer
