@@ -582,7 +582,7 @@ p.rubric {
 div.admonition {
     margin-top: 10px;
     margin-bottom: 10px;
-    padding: 10px 10px 0px 10px;
+    padding: 7px;
 }
 
 div.admonition dt {
@@ -591,6 +591,10 @@ div.admonition dt {
 
 div.admonition dd {
     margin-bottom: 10px;
+}
+
+div.admonition p {
+    display: inline;
 }
 
 div.seealso {
@@ -609,9 +613,10 @@ div.note {
 }
 
 p.admonition-title {
-    margin: 0px 0px 5px 0px;
+    margin: 0px 10px 5px 0px;
     font-weight: bold;
-    font-size: 1.1em;
+    display: inline;
+    font-size: 1em;
 }
 
 table.docutils {
