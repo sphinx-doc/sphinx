@@ -46,3 +46,6 @@ use_smartypants = True
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
+
+# The base URL for download links.
+download_base_url = 'http://docs.python.org/ftp/python/doc/'

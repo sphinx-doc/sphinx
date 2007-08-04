@@ -441,6 +441,14 @@ class StandaloneHTMLBuilder(Builder):
         )
         self.handle_file('modindex.rst', modindexcontext, 'modindex')
 
+        # the download page
+        downloadcontext = dict(
+            pathto = relpath_to(self, self.get_target_uri('download.rst')),
+            current_page_name = 'download',
+            download_base_url = self.config['download_base_url'],
+        )
+        self.handle_file('download.rst', downloadcontext, 'download')
+
         # the index page
         indexcontext = dict(
             pathto = relpath_to(self, self.get_target_uri('index.rst')),
