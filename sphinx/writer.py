@@ -196,6 +196,12 @@ class HTMLTranslator(BaseTranslator):
     def visit_index(self, node):
         raise nodes.SkipNode
 
+    # these are only handled specially in the SmartyPantsHTMLTranslator
+    def visit_literal_emphasis(self, node):
+        return self.visit_emphasis(node)
+    def depart_literal_emphasis(self, node):
+        return self.depart_emphasis(node)
+
 
 class SmartyPantsHTMLTranslator(HTMLTranslator):
     """
@@ -214,6 +220,14 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
             HTMLTranslator.visit_literal(self, node)
         finally:
             self.no_smarty -= 1
+
+    def visit_literal_emphasis(self, node):
+        self.no_smarty += 1
+        self.visit_emphasis(node)
+
+    def depart_literal_emphasis(self, node):
+        self.depart_emphasis(node)
+        self.no_smarty -= 1
 
     def visit_productionlist(self, node):
         self.no_smarty += 1

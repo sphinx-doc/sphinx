@@ -20,16 +20,16 @@ ws_re = re.compile(r'\s+')
 
 generic_docroles = {
     'command' : nodes.strong,
-    'dfn' : nodes.emphasis,
+    'dfn' : addnodes.literal_emphasis,
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
     'keyword' : nodes.literal,
-    'mailheader' : nodes.emphasis,
+    'mailheader' : addnodes.literal_emphasis,
     'makevar' : nodes.Text,
-    'manpage' : nodes.emphasis,
-    'mimetype' : nodes.emphasis,
-    'newsgroup' : nodes.emphasis,
-    'option' : nodes.emphasis,
+    'manpage' : addnodes.literal_emphasis,
+    'mimetype' : addnodes.literal_emphasis,
+    'newsgroup' : addnodes.literal_emphasis,
+    'option' : addnodes.literal_emphasis,
     'program' : nodes.strong,
     'regexp' : nodes.literal,
 }
