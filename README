@@ -15,6 +15,13 @@ If you want code highlighting, you need Pygments >= 0.8, easily
 installable from PyPI.  Jinja, the template engine, is included as a
 SVN external.
 
+
+Converting the LaTeX sources
+----------------------------
+
+**This paragraph is obsolete.**  The conversion has been done, and reST docs
+trees are now maintained for 2.6 and 3.0 branches.
+
 For the rest of this document, let's assume that you have a Python
 checkout (you need the 2.6 line, i.e. the trunk -- the SVN URL for readonly
 access is http://svn.python.org/projects/python/trunk) in ~/devel/python
@@ -47,7 +54,7 @@ Building the HTML version
 Then, create a target directory and run ::
 
    mkdir build-html
-   python sphinx-build.py -b html sources build-html
+   python sphinx-build.py -b html Doc-26 build-html
 
 This will create HTML files in the ``build-html`` directory.
 
@@ -64,7 +71,7 @@ Running the online (web) version
 First, you need to build the source with the "web" builder::
 
    mkdir build-web
-   python sphinx-build.py -b web sources build-web
+   python sphinx-build.py -b web Doc-26 build-web
 
 This will create files with pickled contents for the web application
 in the target directory.
