@@ -21,8 +21,11 @@ consult the Tk documentation, and occasionally the Tcl documentation.
 classes.  In addition, the internal module :mod:`_tkinter` provides a threadsafe
 mechanism which allows Python and Tcl to interact.
 
-Tk is not the only GUI for Python; see section :ref:`other-gui-packages` for
-more information on other GUI toolkits for Python.
+:mod:`Tkinter`'s chief virtues are that it is fast, and that it usually comes
+bundled with Python. Although it has been used to create some very good
+applications, including IDLE, it has weak documentation and an outdated look and
+feel. For more modern, better documented, and much more extensive GUI
+libraries, see the :ref:`other-gui-packages` section.
 
 .. toctree::
    
