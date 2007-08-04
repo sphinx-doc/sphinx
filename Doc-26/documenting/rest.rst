@@ -22,8 +22,6 @@ chunks of text separated by one or more blank lines.  As in Python, indentation
 is significant in reST, so all lines of the same paragraph must be left-aligned
 to the same level of indentation.
 
-The Python docs use an indentation of 3 spaces.
-
 
 Inline markup
 -------------

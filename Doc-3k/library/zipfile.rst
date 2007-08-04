@@ -85,7 +85,7 @@ The available attributes of this module are:
       Documentation on the ZIP file format by Phil Katz, the creator of the format and
       algorithms used.
 
-   `Info-ZIP Home Page <http://www.info-zip.org/pub/infozip/>`_
+   `Info-ZIP Home Page <http://www.info-zip.org/>`_
       Information about the Info-ZIP project's ZIP archive programs and development
       libraries.
 

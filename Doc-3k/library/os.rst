@@ -8,7 +8,8 @@
 
 This module provides a more portable way of using operating system dependent
 functionality than importing a operating system dependent built-in module like
-:mod:`posix` or :mod:`nt`.
+:mod:`posix` or :mod:`nt`. (If you just want to read or write a file see
+:func:`open`.)
 
 This module searches for an operating system dependent built-in module like
 :mod:`mac` or :mod:`posix` and exports the same functions and data as found
@@ -348,7 +349,7 @@ process and user.
 File Object Creation
 --------------------
 
-These functions create new file objects.
+These functions create new file objects. (See also :func:`open`.)
 
 
 .. function:: fdopen(fd[, mode[, bufsize]])
@@ -775,51 +776,52 @@ Files and Directories
    following values (as defined in the :mod:`stat` module) or bitwise or-ed
    combinations of them:
 
-* ``S_ISUID``
+* ``stat.S_ISUID``
 
-* ``S_ISGID``
+* ``stat.S_ISGID``
 
-* ``S_ENFMT``
+* ``stat.S_ENFMT``
 
-* ``S_ISVTX``
+* ``stat.S_ISVTX``
 
-* ``S_IREAD``
+* ``stat.S_IREAD``
 
-* ``S_IWRITE``
+* ``stat.S_IWRITE``
 
-* ``S_IEXEC``
+* ``stat.S_IEXEC``
 
-* ``S_IRWXU``
+* ``stat.S_IRWXU``
 
-* ``S_IRUSR``
+* ``stat.S_IRUSR``
 
-* ``S_IWUSR``
+* ``stat.S_IWUSR``
 
-* ``S_IXUSR``
+* ``stat.S_IXUSR``
 
-* ``S_IRWXG``
+* ``stat.S_IRWXG``
 
-* ``S_IRGRP``
+* ``stat.S_IRGRP``
 
-* ``S_IWGRP``
+* ``stat.S_IWGRP``
 
-* ``S_IXGRP``
+* ``stat.S_IXGRP``
 
-* ``S_IRWXO``
+* ``stat.S_IRWXO``
 
-* ``S_IROTH``
+* ``stat.S_IROTH``
 
-* ``S_IWOTH``
+* ``stat.S_IWOTH``
 
-* ``S_IXOTH``
+* ``stat.S_IXOTH``
 
    Availability: Macintosh, Unix, Windows.
 
    .. note::
 
       Although Windows supports :func:`chmod`, you can only  set the file's read-only
-      flag with it (via the ``S_IWRITE``  and ``S_IREAD`` constants or a corresponding
-      integer value).  All other bits are ignored.
+      flag with it (via the ``stat.S_IWRITE``  and ``stat.S_IREAD``
+      constants or a corresponding integer value).  All other bits are
+      ignored.
 
 
 .. function:: chown(path, uid, gid)
@@ -884,9 +886,11 @@ Files and Directories
 
    Create a filesystem node (file, device special file or named pipe) named
    *filename*. *mode* specifies both the permissions to use and the type of node to
-   be created, being combined (bitwise OR) with one of S_IFREG, S_IFCHR, S_IFBLK,
-   and S_IFIFO (those constants are available in :mod:`stat`). For S_IFCHR and
-   S_IFBLK, *device* defines the newly created device special file (probably using
+   be created, being combined (bitwise OR) with one of ``stat.S_IFREG``,
+   ``stat.S_IFCHR``, ``stat.S_IFBLK``,
+   and ``stat.S_IFIFO`` (those constants are available in :mod:`stat`).
+   For ``stat.S_IFCHR`` and
+   ``stat.S_IFBLK``, *device* defines the newly created device special file (probably using
    :func:`os.makedev`), otherwise it is ignored.
 
    .. versionadded:: 2.3
