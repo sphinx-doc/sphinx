@@ -51,8 +51,8 @@ users specify options for your package is to have them define variables in their
 (The three-argument form of :func:`getattr` is used in case the user has not
 defined ``spam_verbose`` in their :file:`.pythonrc.py` file.)
 
-Programs with extensive customization needs are better off reading a program-
-specific customization file.
+Programs with extensive customization needs are better off reading a
+program-specific customization file.
 
 Programs with security or privacy concerns should *not* import this module; a
 user can easily break into a program by placing arbitrary code in the

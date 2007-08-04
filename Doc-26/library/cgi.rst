@@ -552,7 +552,7 @@ Common problems and solutions
 .. rubric:: Footnotes
 
 .. [#] Note that some recent versions of the HTML specification do state what order the
-   field values should be supplied in, but knowing whether a request was received
-   from a conforming browser, or even from a browser at all, is tedious and error-
-   prone.
+   field values should be supplied in, but knowing whether a request was
+   received from a conforming browser, or even from a browser at all, is tedious
+   and error-prone.
 

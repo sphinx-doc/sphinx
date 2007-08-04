@@ -295,13 +295,13 @@ reading the source code for these modules.
 
 .. function:: run(command[, filename])
 
-   This function takes a single argument that can be passed to the :keyword:`exec`
-   statement, and an optional file name.  In all cases this routine attempts to
-   :keyword:`exec` its first argument, and gather profiling statistics from the
-   execution. If no file name is present, then this function automatically prints a
-   simple profiling report, sorted by the standard name string (file/line/function-
-   name) that is presented in each line.  The following is a typical output from
-   such a call::
+   This function takes a single argument that can be passed to the
+   :keyword:`exec` statement, and an optional file name.  In all cases this
+   routine attempts to :keyword:`exec` its first argument, and gather profiling
+   statistics from the execution. If no file name is present, then this function
+   automatically prints a simple profiling report, sorted by the standard name
+   string (file/line/function-name) that is presented in each line.  The
+   following is a typical output from such a call::
 
             2706 function calls (2004 primitive calls) in 4.504 CPU seconds
 
@@ -527,12 +527,12 @@ The :class:`Stats` Class
    argument is also identical.  Each caller is reported on its own line.  The
    format differs slightly depending on the profiler that produced the stats:
 
-* With :mod:`profile`, a number is shown in parentheses after each caller to
-     show how many times this specific call was made.  For convenience, a second non-
-     parenthesized number repeats the cumulative time spent in the function at the
-     right.
+   * With :mod:`profile`, a number is shown in parentheses after each caller to
+     show how many times this specific call was made.  For convenience, a second
+     non-parenthesized number repeats the cumulative time spent in the function
+     at the right.
 
-* With :mod:`cProfile`, each caller is preceeded by three numbers: the number of
+   * With :mod:`cProfile`, each caller is preceeded by three numbers: the number of
      times this specific call was made, and the total and cumulative times spent in
      the current function while it was invoked by this specific caller.
 

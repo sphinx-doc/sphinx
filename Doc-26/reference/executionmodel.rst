@@ -206,8 +206,8 @@ code.
 
 Python uses the "termination" model of error handling: an exception handler can
 find out what happened and continue execution at an outer level, but it cannot
-repair the cause of the error and retry the failing operation (except by re-
-entering the offending piece of code from the top).
+repair the cause of the error and retry the failing operation (except by
+re-entering the offending piece of code from the top).
 
 .. index:: single: SystemExit (built-in exception)
 

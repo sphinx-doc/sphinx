@@ -181,7 +181,7 @@ support Unicode:
 * ``ord(u)``, where *u* is a 1-character regular or Unicode string, returns the
   number of the character as an integer.
 
-* ``unicode(string [, *encoding*]  [, *errors*] )`` creates a Unicode string
+* ``unicode(string [, encoding]  [, errors] )`` creates a Unicode string
   from an 8-bit string.  ``encoding`` is a string naming the encoding to use. The
   ``errors`` parameter specifies the treatment of characters that are invalid for
   the current encoding; passing ``'strict'`` as the value causes an exception to

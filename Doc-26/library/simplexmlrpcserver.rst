@@ -10,8 +10,8 @@
 
 .. versionadded:: 2.2
 
-The :mod:`SimpleXMLRPCServer` module provides a basic server framework for XML-
-RPC servers written in Python.  Servers can either be free standing, using
+The :mod:`SimpleXMLRPCServer` module provides a basic server framework for
+XML-RPC servers written in Python.  Servers can either be free standing, using
 :class:`SimpleXMLRPCServer`, or embedded in a CGI environment, using
 :class:`CGIXMLRPCRequestHandler`.
 

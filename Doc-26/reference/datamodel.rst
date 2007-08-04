@@ -251,10 +251,10 @@ Sequences
       single: item selection
       single: subscription
 
-   These represent finite ordered sets indexed by non-negative numbers. The built-
-   in function :func:`len` returns the number of items of a sequence. When the
-   length of a sequence is *n*, the index set contains the numbers 0, 1, ...,
-   *n*-1.  Item *i* of sequence *a* is selected by ``a[i]``.
+   These represent finite ordered sets indexed by non-negative numbers. The
+   built-in function :func:`len` returns the number of items of a sequence. When
+   the length of a sequence is *n*, the index set contains the numbers 0, 1,
+   ..., *n*-1.  Item *i* of sequence *a* is selected by ``a[i]``.
 
    .. index:: single: slicing
 
@@ -592,13 +592,13 @@ Callable types
          single: im_self (method attribute)
 
       When a user-defined method object is created by retrieving a user-defined
-      function object from a class, its :attr:`im_self` attribute is ``None`` and the
-      method object is said to be unbound. When one is created by retrieving a user-
-      defined function object from a class via one of its instances, its
-      :attr:`im_self` attribute is the instance, and the method object is said to be
-      bound. In either case, the new method's :attr:`im_class` attribute is the class
-      from which the retrieval takes place, and its :attr:`im_func` attribute is the
-      original function object.
+      function object from a class, its :attr:`im_self` attribute is ``None``
+      and the method object is said to be unbound. When one is created by
+      retrieving a user-defined function object from a class via one of its
+      instances, its :attr:`im_self` attribute is the instance, and the method
+      object is said to be bound. In either case, the new method's
+      :attr:`im_class` attribute is the class from which the retrieval takes
+      place, and its :attr:`im_func` attribute is the original function object.
 
       .. index:: single: im_func (method attribute)
 
@@ -664,14 +664,14 @@ Callable types
          object: function
          pair: C; language
 
-      A built-in function object is a wrapper around a C function.  Examples of built-
-      in functions are :func:`len` and :func:`math.sin` (:mod:`math` is a standard
-      built-in module). The number and type of the arguments are determined by the C
-      function. Special read-only attributes: :attr:`__doc__` is the function's
-      documentation string, or ``None`` if unavailable; :attr:`__name__` is the
-      function's name; :attr:`__self__` is set to ``None`` (but see the next item);
-      :attr:`__module__` is the name of the module the function was defined in or
-      ``None`` if unavailable.
+      A built-in function object is a wrapper around a C function.  Examples of
+      built-in functions are :func:`len` and :func:`math.sin` (:mod:`math` is a
+      standard built-in module). The number and type of the arguments are
+      determined by the C function. Special read-only attributes:
+      :attr:`__doc__` is the function's documentation string, or ``None`` if
+      unavailable; :attr:`__name__` is the function's name; :attr:`__self__` is
+      set to ``None`` (but see the next item); :attr:`__module__` is the name of
+      the module the function was defined in or ``None`` if unavailable.
 
    Built-in methods
       .. index::
@@ -750,12 +750,12 @@ Modules
    of the shared library file.
 
 Classes
-   Class objects are created by class definitions (see section :ref:`class`).
-   A class has a namespace implemented by a dictionary object. Class
-   attribute references are translated to lookups in this dictionary, e.g., ``C.x``
-   is translated to ``C.__dict__["x"]``. When the attribute name is not found
-   there, the attribute search continues in the base classes.  The search is depth-
-   first, left-to-right in the order of occurrence in the base class list.
+   Class objects are created by class definitions (see section :ref:`class`).  A
+   class has a namespace implemented by a dictionary object. Class attribute
+   references are translated to lookups in this dictionary, e.g., ``C.x`` is
+   translated to ``C.__dict__["x"]``. When the attribute name is not found
+   there, the attribute search continues in the base classes.  The search is
+   depth-first, left-to-right in the order of occurrence in the base class list.
 
    .. index::
       object: class
@@ -766,17 +766,17 @@ Classes
       object: dictionary
       pair: class; attribute
 
-   When a class attribute reference (for class :class:`C`, say) would yield a user-
-   defined function object or an unbound user-defined method object whose
+   When a class attribute reference (for class :class:`C`, say) would yield a
+   user-defined function object or an unbound user-defined method object whose
    associated class is either :class:`C` or one of its base classes, it is
    transformed into an unbound user-defined method object whose :attr:`im_class`
    attribute is :class:`C`. When it would yield a class method object, it is
-   transformed into a bound user-defined method object whose :attr:`im_class` and
-   :attr:`im_self` attributes are both :class:`C`.  When it would yield a static
-   method object, it is transformed into the object wrapped by the static method
-   object. See section :ref:`descriptors` for another way in which attributes
-   retrieved from a class may differ from those actually contained in its
-   :attr:`__dict__`.
+   transformed into a bound user-defined method object whose :attr:`im_class`
+   and :attr:`im_self` attributes are both :class:`C`.  When it would yield a
+   static method object, it is transformed into the object wrapped by the static
+   method object. See section :ref:`descriptors` for another way in which
+   attributes retrieved from a class may differ from those actually contained in
+   its :attr:`__dict__`.
 
    .. index:: triple: class; attribute; assignment
 
@@ -2039,14 +2039,14 @@ left undefined.
 
    These methods are called to implement the augmented arithmetic operations
    (``+=``, ``-=``, ``*=``, ``/=``, ``//=``, ``%=``, ``**=``, ``<<=``, ``>>=``,
-   ``&=``, ``^=``, ``|=``).  These methods should attempt to do the operation in-
-   place (modifying *self*) and return the result (which could be, but does not
-   have to be, *self*).  If a specific method is not defined, the augmented
+   ``&=``, ``^=``, ``|=``).  These methods should attempt to do the operation
+   in-place (modifying *self*) and return the result (which could be, but does
+   not have to be, *self*).  If a specific method is not defined, the augmented
    operation falls back to the normal methods.  For instance, to evaluate the
    expression *x*``+=``*y*, where *x* is an instance of a class that has an
-   :meth:`__iadd__` method, ``x.__iadd__(y)`` is called.  If *x* is an instance of
-   a class that does not define a :meth:`__iadd__` method, ``x.__add__(y)`` and
-   ``y.__radd__(x)`` are considered, as with the evaluation of *x*``+``*y*.
+   :meth:`__iadd__` method, ``x.__iadd__(y)`` is called.  If *x* is an instance
+   of a class that does not define a :meth:`__iadd__` method, ``x.__add__(y)``
+   and ``y.__radd__(x)`` are considered, as with the evaluation of *x*``+``*y*.
 
 
 .. method:: numeric object.__neg__(self)

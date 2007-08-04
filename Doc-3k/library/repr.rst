@@ -65,8 +65,6 @@ which format specific object types.
    .. versionadded:: 2.4
       :attr:`maxset`, :attr:`maxfrozenset`, and :attr:`set`.
 
-   .
-
 
 .. attribute:: Repr.maxlong
 

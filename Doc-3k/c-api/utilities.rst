@@ -489,13 +489,13 @@ variable(s) whose address should be passed.
    Unicode into a character buffer. It only works for encoded data without embedded
    NUL bytes.
 
-   This format requires two arguments.  The first is only used as input, and must
-   be a :ctype:`const char\*` which points to the name of an encoding as a NUL-
-   terminated string, or *NULL*, in which case the default encoding is used.  An
-   exception is raised if the named encoding is not known to Python.  The second
-   argument must be a :ctype:`char\*\*`; the value of the pointer it references
-   will be set to a buffer with the contents of the argument text.  The text will
-   be encoded in the encoding specified by the first argument.
+   This format requires two arguments.  The first is only used as input, and
+   must be a :ctype:`const char\*` which points to the name of an encoding as a
+   NUL-terminated string, or *NULL*, in which case the default encoding is used.
+   An exception is raised if the named encoding is not known to Python.  The
+   second argument must be a :ctype:`char\*\*`; the value of the pointer it
+   references will be set to a buffer with the contents of the argument text.
+   The text will be encoded in the encoding specified by the first argument.
 
    :cfunc:`PyArg_ParseTuple` will allocate a buffer of the needed size, copy the
    encoded data into this buffer and adjust *\*buffer* to reference the newly
@@ -513,14 +513,14 @@ variable(s) whose address should be passed.
    input data which contains NUL characters.
 
    It requires three arguments.  The first is only used as input, and must be a
-   :ctype:`const char\*` which points to the name of an encoding as a NUL-
-   terminated string, or *NULL*, in which case the default encoding is used.  An
-   exception is raised if the named encoding is not known to Python.  The second
-   argument must be a :ctype:`char\*\*`; the value of the pointer it references
-   will be set to a buffer with the contents of the argument text.  The text will
-   be encoded in the encoding specified by the first argument.  The third argument
-   must be a pointer to an integer; the referenced integer will be set to the
-   number of bytes in the output buffer.
+   :ctype:`const char\*` which points to the name of an encoding as a
+   NUL-terminated string, or *NULL*, in which case the default encoding is used.
+   An exception is raised if the named encoding is not known to Python.  The
+   second argument must be a :ctype:`char\*\*`; the value of the pointer it
+   references will be set to a buffer with the contents of the argument text.
+   The text will be encoded in the encoding specified by the first argument.
+   The third argument must be a pointer to an integer; the referenced integer
+   will be set to the number of bytes in the output buffer.
 
    There are two modes of operation:
 
@@ -979,14 +979,14 @@ avoid truncation exceeds *size* by more than 512 bytes, Python aborts with a
 The return value (*rv*) for these functions should be interpreted as follows:
 
 * When ``0 <= rv < size``, the output conversion was successful and *rv*
-  characters were written to *str* (excluding the trailing ``'\\0'`` byte at
+  characters were written to *str* (excluding the trailing ``'\0'`` byte at
   *str*[*rv*]).
 
 * When ``rv >= size``, the output conversion was truncated and a buffer with
-  ``rv + 1`` bytes would have been needed to succeed. *str*[*size*-1] is ``'\\0'``
+  ``rv + 1`` bytes would have been needed to succeed. *str*[*size*-1] is ``'\0'``
   in this case.
 
-* When ``rv < 0``, "something bad happened." *str*[*size*-1] is ``'\\0'`` in
+* When ``rv < 0``, "something bad happened." *str*[*size*-1] is ``'\0'`` in
   this case too, but the rest of *str* is undefined. The exact cause of the error
   depends on the underlying platform.
 

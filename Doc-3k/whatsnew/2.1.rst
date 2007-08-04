@@ -755,12 +755,12 @@ of the more notable changes are:
   Wolfson, but after some python-dev discussion, a weaker final version was
   checked in.
 
-* Applying :func:`repr` to strings previously used octal escapes for non-
-  printable characters; for example, a newline was ``'\012'``.  This was a
+* Applying :func:`repr` to strings previously used octal escapes for
+  non-printable characters; for example, a newline was ``'\012'``.  This was a
   vestigial trace of Python's C ancestry, but today octal is of very little
   practical use.  Ka-Ping Yee suggested using hex escapes instead of octal ones,
-  and using the ``\n``, ``\t``, ``\r`` escapes for the appropriate characters, and
-  implemented this new formatting.
+  and using the ``\n``, ``\t``, ``\r`` escapes for the appropriate characters,
+  and implemented this new formatting.
 
 * Syntax errors detected at compile-time can now raise exceptions containing the
   filename and line number of the error, a pleasant side effect of the compiler

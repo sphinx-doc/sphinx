@@ -15,10 +15,10 @@ Headers are :rfc:`2822` style field names and values where the field name and
 value are separated by a colon.  The colon is not part of either the field name
 or the field value.
 
-Headers are stored and returned in case-preserving form but are matched case-
-insensitively.  There may also be a single envelope header, also known as the
-*Unix-From* header or the ``From_`` header.  The payload is either a string in
-the case of simple message objects or a list of :class:`Message` objects for
+Headers are stored and returned in case-preserving form but are matched
+case-insensitively.  There may also be a single envelope header, also known as
+the *Unix-From* header or the ``From_`` header.  The payload is either a string
+in the case of simple message objects or a list of :class:`Message` objects for
 MIME container documents (e.g. :mimetype:`multipart/\*` and
 :mimetype:`message/rfc822`).
 

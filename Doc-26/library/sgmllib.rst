@@ -21,14 +21,14 @@ somewhat different interface is available in the :mod:`HTMLParser` module.
    The :class:`SGMLParser` class is instantiated without arguments. The parser is
    hardcoded to recognize the following constructs:
 
-* Opening and closing tags of the form ``<tag attr="value" ...>`` and
+   * Opening and closing tags of the form ``<tag attr="value" ...>`` and
      ``</tag>``, respectively.
 
-* Numeric character references of the form ``&#name;``.
+   * Numeric character references of the form ``&#name;``.
 
-* Entity references of the form ``&name;``.
+   * Entity references of the form ``&name;``.
 
-* SGML comments of the form ``<!--text-->``.  Note that spaces, tabs, and
+   * SGML comments of the form ``<!--text-->``.  Note that spaces, tabs, and
      newlines are allowed between the trailing ``>`` and the immediately preceding
      ``--``.
 

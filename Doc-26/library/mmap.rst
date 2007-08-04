@@ -147,8 +147,8 @@ Memory-mapped file objects support the following methods:
 
 .. method:: mmap.size()
 
-   Return the length of the file, which can be larger than the size of the memory-
-   mapped area.
+   Return the length of the file, which can be larger than the size of the
+   memory-mapped area.
 
 
 .. method:: mmap.tell()

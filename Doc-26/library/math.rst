@@ -209,15 +209,15 @@ The module also defines two mathematical constants:
 .. note::
 
    The :mod:`math` module consists mostly of thin wrappers around the platform C
-   math library functions.  Behavior in exceptional cases is loosely specified by
-   the C standards, and Python inherits much of its math-function error-reporting
-   behavior from the platform C implementation.  As a result, the specific
-   exceptions raised in error cases (and even whether some arguments are considered
-   to be exceptional at all) are not defined in any useful cross-platform or cross-
-   release way.  For example, whether ``math.log(0)`` returns ``-Inf`` or raises
-   :exc:`ValueError` or :exc:`OverflowError` isn't defined, and in cases where
-   ``math.log(0)`` raises :exc:`OverflowError`, ``math.log(0L)`` may raise
-   :exc:`ValueError` instead.
+   math library functions.  Behavior in exceptional cases is loosely specified
+   by the C standards, and Python inherits much of its math-function
+   error-reporting behavior from the platform C implementation.  As a result,
+   the specific exceptions raised in error cases (and even whether some
+   arguments are considered to be exceptional at all) are not defined in any
+   useful cross-platform or cross-release way.  For example, whether
+   ``math.log(0)`` returns ``-Inf`` or raises :exc:`ValueError` or
+   :exc:`OverflowError` isn't defined, and in cases where ``math.log(0)`` raises
+   :exc:`OverflowError`, ``math.log(0L)`` may raise :exc:`ValueError` instead.
 
 
 .. seealso::

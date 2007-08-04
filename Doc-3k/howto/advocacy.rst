@@ -232,9 +232,9 @@ The Internet community surrounding the language is an active one, and is worth
 being considered another one of Python's advantages. Most questions posted to
 the comp.lang.python newsgroup are quickly answered by someone.
 
-Should you need to dig into the source code, you'll find it's clear and well-
-organized, so it's not very difficult to write extensions and track down bugs
-yourself.  If you'd prefer to pay for support, there are companies and
+Should you need to dig into the source code, you'll find it's clear and
+well-organized, so it's not very difficult to write extensions and track down
+bugs yourself.  If you'd prefer to pay for support, there are companies and
 individuals who offer commercial support for Python.
 
 **Who uses Python for serious work?**

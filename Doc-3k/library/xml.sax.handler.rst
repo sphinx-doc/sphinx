@@ -60,11 +60,11 @@ for the feature and property names.
 
 .. data:: feature_namespace_prefixes
 
-   Value: ``"http://xml.org/sax/features/namespace-prefixes"`` ---  true: Report
-   the original prefixed names and attributes used for Namespace declarations. ---
-   false: Do not report attributes used for Namespace declarations, and optionally
-   do not report original prefixed names (default). ---  access: (parsing) read-
-   only; (not parsing) read/write
+   Value: ``"http://xml.org/sax/features/namespace-prefixes"`` --- true: Report
+   the original prefixed names and attributes used for Namespace
+   declarations. --- false: Do not report attributes used for Namespace
+   declarations, and optionally do not report original prefixed names
+   (default). --- access: (parsing) read-only; (not parsing) read/write
 
 
 .. data:: feature_string_interning
@@ -78,10 +78,10 @@ for the feature and property names.
 
 .. data:: feature_validation
 
-   Value: ``"http://xml.org/sax/features/validation"`` ---  true: Report all
-   validation errors (implies external-general-entities and external-parameter-
-   entities). ---  false: Do not report validation errors. ---  access: (parsing)
-   read-only; (not parsing) read/write
+   Value: ``"http://xml.org/sax/features/validation"`` --- true: Report all
+   validation errors (implies external-general-entities and
+   external-parameter-entities). --- false: Do not report validation errors. ---
+   access: (parsing) read-only; (not parsing) read/write
 
 
 .. data:: feature_external_ges

@@ -155,13 +155,14 @@ GIL
    .. index:: single: global interpreter lock
 
 global interpreter lock
-   The lock used by Python threads to assure that only one thread can be run at a
-   time.  This simplifies Python by assuring that no two processes can access the
-   same memory at the same time.  Locking the entire interpreter makes it easier
-   for the interpreter to be multi-threaded, at the expense of some parallelism on
-   multi-processor machines.  Efforts have been made in the past to create a "free-
-   threaded" interpreter (one which locks shared data at a much finer granularity),
-   but performance suffered in the common single-processor case.
+   The lock used by Python threads to assure that only one thread can be run at
+   a time.  This simplifies Python by assuring that no two processes can access
+   the same memory at the same time.  Locking the entire interpreter makes it
+   easier for the interpreter to be multi-threaded, at the expense of some
+   parallelism on multi-processor machines.  Efforts have been made in the past
+   to create a "free-threaded" interpreter (one which locks shared data at a
+   much finer granularity), but performance suffered in the common
+   single-processor case.
 
    .. index:: single: IDLE
 

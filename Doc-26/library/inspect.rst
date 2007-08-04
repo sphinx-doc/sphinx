@@ -202,12 +202,12 @@ Note:
    identified by *path* if it is a module, or ``None`` if it would not be
    identified as a module.  The return tuple is ``(name, suffix, mode, mtype)``,
    where *name* is the name of the module without the name of any enclosing
-   package, *suffix* is the trailing part of the file name (which may not be a dot-
-   delimited extension), *mode* is the :func:`open` mode that would be used
-   (``'r'`` or ``'rb'``), and *mtype* is an integer giving the type of the module.
-   *mtype* will have a value which can be compared to the constants defined in the
-   :mod:`imp` module; see the documentation for that module for more information on
-   module types.
+   package, *suffix* is the trailing part of the file name (which may not be a
+   dot-delimited extension), *mode* is the :func:`open` mode that would be used
+   (``'r'`` or ``'rb'``), and *mtype* is an integer giving the type of the
+   module.  *mtype* will have a value which can be compared to the constants
+   defined in the :mod:`imp` module; see the documentation for that module for
+   more information on module types.
 
 
 .. function:: getmodulename(path)

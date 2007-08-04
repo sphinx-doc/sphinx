@@ -43,8 +43,8 @@ What you get after installing is a number of things:
 
 The Apple-provided build of Python is installed in
 :file:`/System/Library/Frameworks/Python.framework` and :file:`/usr/bin/python`,
-respectively. You should never modify or delete these, as they are Apple-
-controlled and are used by Apple- or third-party software.
+respectively. You should never modify or delete these, as they are
+Apple-controlled and are used by Apple- or third-party software.
 
 IDLE includes a help menu that allows you to access Python documentation. If you
 are completely new to Python you should start reading the tutorial introduction

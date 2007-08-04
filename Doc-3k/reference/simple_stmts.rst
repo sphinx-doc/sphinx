@@ -727,11 +727,8 @@ A future statement must appear near the top of the module.  The only lines that
 can appear before a future statement are:
 
 * the module docstring (if any),
-
 * comments,
-
 * blank lines, and
-
 * other future statements.
 
 The features recognized by Python 2.5 are ``absolute_import``, ``division``,

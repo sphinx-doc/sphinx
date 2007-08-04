@@ -50,19 +50,13 @@ The :mod:`dis` module defines the following functions and constants:
    Disassembles a code object, indicating the last instruction if *lasti* was
    provided.  The output is divided in the following columns:
 
-#. the line number, for the first instruction of each line
-
-#. the current instruction, indicated as ``-->``,
-
-#. a labelled instruction, indicated with ``>>``,
-
-#. the address of the instruction,
-
-#. the operation code name,
-
-#. operation parameters, and
-
-#. interpretation of the parameters in parentheses.
+   #. the line number, for the first instruction of each line
+   #. the current instruction, indicated as ``-->``,
+   #. a labelled instruction, indicated with ``>>``,
+   #. the address of the instruction,
+   #. the operation code name,
+   #. operation parameters, and
+   #. interpretation of the parameters in parentheses.
 
    The parameter interpretation recognizes local and global variable names,
    constant values, branch targets, and compare operators.
@@ -541,8 +535,8 @@ the more significant byte last.
 
 .. opcode:: UNPACK_SEQUENCE (count)
 
-   Unpacks TOS into *count* individual values, which are put onto the stack right-
-   to-left.
+   Unpacks TOS into *count* individual values, which are put onto the stack
+   right-to-left.
 
 .. % \begin{opcodedesc}{UNPACK_LIST}{count}
 .. % This opcode is obsolete.

@@ -29,8 +29,8 @@ know what you're doing (in which case this HOWTO isn't for you!), you'll get
 better behavior and performance from a STREAM socket than anything else. I will
 try to clear up the mystery of what a socket is, as well as some hints on how to
 work with blocking and non-blocking sockets. But I'll start by talking about
-blocking sockets. You'll need to know how they work before dealing with non-
-blocking sockets.
+blocking sockets. You'll need to know how they work before dealing with
+non-blocking sockets.
 
 Part of the trouble with understanding these things is that "socket" can mean a
 number of subtly different things, depending on context. So first, let's make a
@@ -361,12 +361,12 @@ readable, writable and in error. Each of these lists is a subset (possbily
 empty) of the corresponding list you passed in. And if you put a socket in more
 than one input list, it will only be (at most) in one output list.
 
-If a socket is in the output readable list, you can be as-close-to-certain-as-
-we-ever-get-in-this-business that a ``recv`` on that socket will return
-*something*. Same idea for the writable list. You'll be able to send
-*something*. Maybe not all you want to, but *something* is better than nothing.
-(Actually, any reasonably healthy socket will return as writable - it just means
-outbound network buffer space is available.)
+If a socket is in the output readable list, you can be
+as-close-to-certain-as-we-ever-get-in-this-business that a ``recv`` on that
+socket will return *something*. Same idea for the writable list. You'll be able
+to send *something*. Maybe not all you want to, but *something* is better than
+nothing.  (Actually, any reasonably healthy socket will return as writable - it
+just means outbound network buffer space is available.)
 
 If you have a "server" socket, put it in the potential_readers list. If it comes
 out in the readable list, your ``accept`` will (almost certainly) work. If you

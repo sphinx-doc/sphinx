@@ -11,8 +11,8 @@
 .. versionchanged:: 1.6
    Added support for the ``ncurses`` library and converted to a package.
 
-The :mod:`curses` module provides an interface to the curses library, the de-
-facto standard for portable advanced terminal handling.
+The :mod:`curses` module provides an interface to the curses library, the
+de-facto standard for portable advanced terminal handling.
 
 While curses is most widely used in the Unix environment, versions are available
 for DOS, OS/2, and possibly other systems as well.  This extension module is
@@ -641,10 +641,10 @@ the following methods:
    attributes *attr*.  The change is then applied to every character position in
    that window:
 
-* The attribute of every character in the window  is changed to the new
+   * The attribute of every character in the window  is changed to the new
      background attribute.
 
-* Wherever  the  former background character appears, it is changed to the new
+   * Wherever  the  former background character appears, it is changed to the new
      background character.
 
 
@@ -1023,7 +1023,7 @@ the following methods:
    *sminrow*, or *smincol* are treated as if they were zero.
 
 
-.. method:: window.scroll([lines\ ``= 1``])
+.. method:: window.scroll([lines=1])
 
    Scroll the screen or scrolling region upward by *lines* lines.
 
@@ -1526,8 +1526,8 @@ The following table lists the predefined colors:
 The :mod:`curses.textpad` module provides a :class:`Textbox` class that handles
 elementary text editing in a curses window, supporting a set of keybindings
 resembling those of Emacs (thus, also of Netscape Navigator, BBedit 6.x,
-FrameMaker, and many other programs).  The module also provides a rectangle-
-drawing function useful for framing text boxes or for other purposes.
+FrameMaker, and many other programs).  The module also provides a
+rectangle-drawing function useful for framing text boxes or for other purposes.
 
 The module :mod:`curses.textpad` defines the following function:
 

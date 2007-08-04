@@ -149,8 +149,8 @@ Import this class from the :mod:`email.charset` module.
 
 .. method:: Charset.encoded_header_len()
 
-   Return the length of the encoded header string, properly calculating for quoted-
-   printable or base64 encoding.
+   Return the length of the encoded header string, properly calculating for
+   quoted-printable or base64 encoding.
 
 
 .. method:: Charset.header_encode(s[, convert])
@@ -210,11 +210,11 @@ new entries to the global character set, alias, and codec registries:
    *charset* is the input character set, and must be the canonical name of a
    character set.
 
-   Optional *header_enc* and *body_enc* is either ``Charset.QP`` for quoted-
-   printable, ``Charset.BASE64`` for base64 encoding, ``Charset.SHORTEST`` for the
-   shortest of quoted-printable or base64 encoding, or ``None`` for no encoding.
-   ``SHORTEST`` is only valid for *header_enc*. The default is ``None`` for no
-   encoding.
+   Optional *header_enc* and *body_enc* is either ``Charset.QP`` for
+   quoted-printable, ``Charset.BASE64`` for base64 encoding,
+   ``Charset.SHORTEST`` for the shortest of quoted-printable or base64 encoding,
+   or ``None`` for no encoding.  ``SHORTEST`` is only valid for
+   *header_enc*. The default is ``None`` for no encoding.
 
    Optional *output_charset* is the character set that the output should be in.
    Conversions will proceed from input charset, to Unicode, to the output charset

@@ -1035,7 +1035,7 @@ returns true, and then returns the rest of the iterable's results.
 
 
 Grouping elements
-'''''''''''''''''
+-----------------
 
 The last function I'll discuss, ``itertools.groupby(iter, key_func=None)``, is
 the most complicated.  ``key_func(elem)`` is a function that can compute a key

@@ -354,8 +354,8 @@ ElementTree Objects
 .. method:: ElementTree.write(file[, encoding])
 
    Writes the element tree to a file, as XML. *file* is a file name, or a file
-   object opened for writing. *encoding* is the output encoding (default is US-
-   ASCII).
+   object opened for writing. *encoding* is the output encoding (default is
+   US-ASCII).
 
 
 .. _elementtree-qname-objects:

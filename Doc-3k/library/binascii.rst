@@ -16,8 +16,8 @@ The :mod:`binascii` module contains a number of methods to convert between
 binary and various ASCII-encoded binary representations. Normally, you will not
 use these functions directly but use wrapper modules like :mod:`uu`,
 :mod:`base64`, or :mod:`binhex` instead. The :mod:`binascii` module contains
-low-level functions written in C for greater speed that are used by the higher-
-level modules.
+low-level functions written in C for greater speed that are used by the
+higher-level modules.
 
 The :mod:`binascii` module defines the following functions:
 

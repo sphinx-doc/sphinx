@@ -385,10 +385,10 @@ initialize the "protected" :attr:`_charset` instance variable, defaulting to
 ids and message strings read from the catalog are converted to Unicode using
 this encoding.  The :meth:`ugettext` method always returns a Unicode, while the
 :meth:`gettext` returns an encoded 8-bit string.  For the message id arguments
-of both methods, either Unicode strings or 8-bit strings containing only US-
-ASCII characters are acceptable.  Note that the Unicode version of the methods
-(i.e. :meth:`ugettext` and :meth:`ungettext`) are the recommended interface to
-use for internationalized Python programs.
+of both methods, either Unicode strings or 8-bit strings containing only
+US-ASCII characters are acceptable.  Note that the Unicode version of the
+methods (i.e. :meth:`ugettext` and :meth:`ungettext`) are the recommended
+interface to use for internationalized Python programs.
 
 The entire set of key/value pairs are placed into a dictionary and set as the
 "protected" :attr:`_info` instance variable.

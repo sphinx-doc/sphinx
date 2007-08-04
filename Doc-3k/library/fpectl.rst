@@ -17,10 +17,10 @@
 
 .. index:: single: IEEE-754
 
-Most computers carry out floating point operations in conformance with the so-
-called IEEE-754 standard. On any real computer, some floating point operations
-produce results that cannot be expressed as a normal floating point value. For
-example, try ::
+Most computers carry out floating point operations in conformance with the
+so-called IEEE-754 standard. On any real computer, some floating point
+operations produce results that cannot be expressed as a normal floating point
+value. For example, try ::
 
    >>> import math
    >>> math.exp(1000)

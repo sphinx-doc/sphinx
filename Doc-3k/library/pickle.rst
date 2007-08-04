@@ -91,8 +91,8 @@ object into a byte stream and it can transform the byte stream into an object
 with the same internal structure.  Perhaps the most obvious thing to do with
 these byte streams is to write them onto a file, but it is also conceivable to
 send them across a network or store them in a database.  The module
-:mod:`shelve` provides a simple interface to pickle and unpickle objects on DBM-
-style database files.
+:mod:`shelve` provides a simple interface to pickle and unpickle objects on
+DBM-style database files.
 
 
 Data stream format
@@ -689,9 +689,9 @@ that a self-referencing list is pickled and restored correctly. ::
 
    output.close()
 
-The following example reads the resulting pickled data.  When reading a pickle-
-containing file, you should open the file in binary mode because you can't be
-sure if the ASCII or binary format was used. ::
+The following example reads the resulting pickled data.  When reading a
+pickle-containing file, you should open the file in binary mode because you
+can't be sure if the ASCII or binary format was used. ::
 
    import pprint, pickle
 

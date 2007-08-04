@@ -104,29 +104,26 @@ The module defines the following functions:
    the file descriptor of the file to lock or unlock, and *operation* is one of the
    following values:
 
-* :const:`LOCK_UN` -- unlock
+   * :const:`LOCK_UN` -- unlock
+   * :const:`LOCK_SH` -- acquire a shared lock
+   * :const:`LOCK_EX` -- acquire an exclusive lock
 
-* :const:`LOCK_SH` -- acquire a shared lock
-
-* :const:`LOCK_EX` -- acquire an exclusive lock
-
-   When *operation* is :const:`LOCK_SH` or :const:`LOCK_EX`, it can also be bit-
-   wise OR'd with :const:`LOCK_NB` to avoid blocking on lock acquisition.  If
-   :const:`LOCK_NB` is used and the lock cannot be acquired, an :exc:`IOError` will
-   be raised and the exception will have an *errno* attribute set to
-   :const:`EACCES` or :const:`EAGAIN` (depending on the operating system; for
-   portability, check for both values).  On at least some systems, :const:`LOCK_EX`
-   can only be used if the file descriptor refers to a file opened for writing.
+   When *operation* is :const:`LOCK_SH` or :const:`LOCK_EX`, it can also be
+   bit-wise OR'd with :const:`LOCK_NB` to avoid blocking on lock acquisition.
+   If :const:`LOCK_NB` is used and the lock cannot be acquired, an
+   :exc:`IOError` will be raised and the exception will have an *errno*
+   attribute set to :const:`EACCES` or :const:`EAGAIN` (depending on the
+   operating system; for portability, check for both values).  On at least some
+   systems, :const:`LOCK_EX` can only be used if the file descriptor refers to a
+   file opened for writing.
 
    *length* is the number of bytes to lock, *start* is the byte offset at which the
    lock starts, relative to *whence*, and *whence* is as with :func:`fileobj.seek`,
    specifically:
 
-* :const:`0` -- relative to the start of the file (:const:`SEEK_SET`)
-
-* :const:`1` -- relative to the current buffer position (:const:`SEEK_CUR`)
-
-* :const:`2` -- relative to the end of the file (:const:`SEEK_END`)
+   * :const:`0` -- relative to the start of the file (:const:`SEEK_SET`)
+   * :const:`1` -- relative to the current buffer position (:const:`SEEK_CUR`)
+   * :const:`2` -- relative to the end of the file (:const:`SEEK_END`)
 
    The default for *start* is 0, which means to start at the beginning of the file.
    The default for *length* is 0 which means to lock to the end of the file.  The
@@ -151,7 +148,8 @@ lay-out for the *lockdata* variable is system dependent --- therefore using the
 .. seealso::
 
    Module :mod:`os`
-      If the locking flags :const:`O_SHLOCK` and :const:`O_EXLOCK` are present in the
-      :mod:`os` module, the :func:`os.open` function provides a more platform-
-      independent alternative to the :func:`lockf` and :func:`flock` functions.
+      If the locking flags :const:`O_SHLOCK` and :const:`O_EXLOCK` are present
+      in the :mod:`os` module, the :func:`os.open` function provides a more
+      platform-independent alternative to the :func:`lockf` and :func:`flock`
+      functions.
 

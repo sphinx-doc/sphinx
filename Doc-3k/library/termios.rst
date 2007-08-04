@@ -31,12 +31,12 @@ The module defines the following functions:
 .. function:: tcgetattr(fd)
 
    Return a list containing the tty attributes for file descriptor *fd*, as
-   follows: ``[``*iflag*, *oflag*, *cflag*, *lflag*, *ispeed*, *ospeed*, *cc*``]``
-   where *cc* is a list of the tty special characters (each a string of length 1,
-   except the items with indices :const:`VMIN` and :const:`VTIME`, which are
-   integers when these fields are defined).  The interpretation of the flags and
-   the speeds as well as the indexing in the *cc* array must be done using the
-   symbolic constants defined in the :mod:`termios` module.
+   follows: ``[iflag, oflag, cflag, lflag, ispeed, ospeed, cc]`` where *cc* is a
+   list of the tty special characters (each a string of length 1, except the
+   items with indices :const:`VMIN` and :const:`VTIME`, which are integers when
+   these fields are defined).  The interpretation of the flags and the speeds as
+   well as the indexing in the *cc* array must be done using the symbolic
+   constants defined in the :mod:`termios` module.
 
 
 .. function:: tcsetattr(fd, when, attributes)

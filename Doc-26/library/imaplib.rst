@@ -232,8 +232,8 @@ An :class:`IMAP4` instance has the following methods:
 
 .. method:: IMAP4.getannotation(mailbox, entry, attribute)
 
-   Retrieve the specified ``ANNOTATION``\ s for *mailbox*. The method is non-
-   standard, but is supported by the ``Cyrus`` server.
+   Retrieve the specified ``ANNOTATION``\ s for *mailbox*. The method is
+   non-standard, but is supported by the ``Cyrus`` server.
 
    .. versionadded:: 2.5
 

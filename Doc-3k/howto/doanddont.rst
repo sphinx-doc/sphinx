@@ -272,8 +272,8 @@ classical use of :func:`reduce` is something like ::
    print reduce(operator.add, nums)/len(nums)
 
 This cute little script prints the average of all numbers given on the command
-line. The :func:`reduce` adds up all the numbers, and the rest is just some pre-
-and postprocessing.
+line. The :func:`reduce` adds up all the numbers, and the rest is just some
+pre- and postprocessing.
 
 On the same note, note that :func:`float`, :func:`int` and :func:`long` all
 accept arguments of type string, and so are suited to parsing --- assuming you

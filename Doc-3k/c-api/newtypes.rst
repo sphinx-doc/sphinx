@@ -480,10 +480,10 @@ type objects) *must* have the :attr:`ob_size` field.
    The basic size does not include the GC header size (this is new in Python 2.2;
    in 2.1 and 2.0, the GC header size was included in :attr:`tp_basicsize`).
 
-   These fields are inherited separately by subtypes.  If the base type has a non-
-   zero :attr:`tp_itemsize`, it is generally not safe to set :attr:`tp_itemsize` to
-   a different non-zero value in a subtype (though this depends on the
-   implementation of the base type).
+   These fields are inherited separately by subtypes.  If the base type has a
+   non-zero :attr:`tp_itemsize`, it is generally not safe to set
+   :attr:`tp_itemsize` to a different non-zero value in a subtype (though this
+   depends on the implementation of the base type).
 
    A note about alignment: if the variable items require a particular alignment,
    this should be taken care of by the value of :attr:`tp_basicsize`.  Example:

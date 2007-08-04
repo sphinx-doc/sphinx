@@ -49,12 +49,12 @@ More Python resources:
   Cookbook (O'Reilly & Associates, ISBN 0-596-00797-3.)
 
 For Python-related questions and problem reports, you can post to the newsgroup
-:newsgroup:`comp.lang.python`, or send them to the mailing list at python-
-list@python.org.  The newsgroup and mailing list are gatewayed, so messages
-posted to one will automatically be forwarded to the other.  There are around
-120 postings a day (with peaks up to several hundred), asking (and answering)
-questions, suggesting new features, and announcing new modules.  Before posting,
-be sure to check the list of `Frequently Asked Questions
+:newsgroup:`comp.lang.python`, or send them to the mailing list at
+python-list@python.org.  The newsgroup and mailing list are gatewayed, so
+messages posted to one will automatically be forwarded to the other.  There are
+around 120 postings a day (with peaks up to several hundred), asking (and
+answering) questions, suggesting new features, and announcing new modules.
+Before posting, be sure to check the list of `Frequently Asked Questions
 <http://www.python.org/doc/faq/>`_ (also called the FAQ), or look for it in the
 :file:`Misc/` directory of the Python source distribution.  Mailing list
 archives are available at http://mail.python.org/pipermail/. The FAQ answers

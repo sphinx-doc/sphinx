@@ -20,8 +20,8 @@
 
 .. index:: single: Expat
 
-The :mod:`xml.parsers.expat` module is a Python interface to the Expat non-
-validating XML parser. The module provides a single extension type,
+The :mod:`xml.parsers.expat` module is a Python interface to the Expat
+non-validating XML parser. The module provides a single extension type,
 :class:`xmlparser`, that represents the current state of an XML parser.  After
 an :class:`xmlparser` object has been created, various attributes of the object
 can be set to handler functions.  When an XML document is then fed to the

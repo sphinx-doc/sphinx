@@ -43,13 +43,13 @@ exception:
 
    The return value consists of two elements: the first is a list of ``(option,
    value)`` pairs; the second is the list of program arguments left after the
-   option list was stripped (this is a trailing slice of *args*).  Each option-and-
-   value pair returned has the option as its first element, prefixed with a hyphen
-   for short options (e.g., ``'-x'``) or two hyphens for long options (e.g.,
-   ``'-``\ ``-long-option'``), and the option argument as its second element, or an
-   empty string if the option has no argument.  The options occur in the list in
-   the same order in which they were found, thus allowing multiple occurrences.
-   Long and short options may be mixed.
+   option list was stripped (this is a trailing slice of *args*).  Each
+   option-and-value pair returned has the option as its first element, prefixed
+   with a hyphen for short options (e.g., ``'-x'``) or two hyphens for long
+   options (e.g., ``'-``\ ``-long-option'``), and the option argument as its
+   second element, or an empty string if the option has no argument.  The
+   options occur in the list in the same order in which they were found, thus
+   allowing multiple occurrences.  Long and short options may be mixed.
 
 
 .. function:: gnu_getopt(args, options[, long_options])
@@ -60,8 +60,8 @@ exception:
    non-option argument is encountered.
 
    If the first character of the option string is '+', or if the environment
-   variable POSIXLY_CORRECT is set, then option processing stops as soon as a non-
-   option argument is encountered.
+   variable POSIXLY_CORRECT is set, then option processing stops as soon as a
+   non-option argument is encountered.
 
    .. versionadded:: 2.3
 

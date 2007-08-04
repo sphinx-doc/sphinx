@@ -147,7 +147,7 @@ constructor) are as follows:
    This is generally desired for text in a monospaced font.  However, the sentence
    detection algorithm is imperfect: it assumes that a sentence ending consists of
    a lowercase letter followed by one of ``'.'``, ``'!'``, or ``'?'``, possibly
-   followed by one of ``'"'`` or ``'''``, followed by a space.  One problem with
+   followed by one of ``'"'`` or ``"'"``, followed by a space.  One problem with
    this is algorithm is that it is unable to detect the difference between "Dr." in
    ::
 
@@ -160,9 +160,9 @@ constructor) are as follows:
    :attr:`fix_sentence_endings` is false by default.
 
    Since the sentence detection algorithm relies on ``string.lowercase`` for the
-   definition of "lowercase letter," and a convention of using two spaces after a
-   period to separate sentences on the same line, it is specific to English-
-   language texts.
+   definition of "lowercase letter," and a convention of using two spaces after
+   a period to separate sentences on the same line, it is specific to
+   English-language texts.
 
 
 .. attribute:: TextWrapper.break_long_words
@@ -173,8 +173,8 @@ constructor) are as follows:
    (Long words will be put on a line by themselves, in order to minimize the amount
    by which :attr:`width` is exceeded.)
 
-:class:`TextWrapper` also provides two public methods, analogous to the module-
-level convenience functions:
+:class:`TextWrapper` also provides two public methods, analogous to the
+module-level convenience functions:
 
 
 .. method:: TextWrapper.wrap(text)

@@ -29,8 +29,8 @@ The :mod:`shlex` module defines the following functions:
    Split the string *s* using shell-like syntax. If *comments* is :const:`False`
    (the default), the parsing of comments in the given string will be disabled
    (setting the :attr:`commenters` member of the :class:`shlex` instance to the
-   empty string).  This function operates in POSIX mode by default, but uses non-
-   POSIX mode if the *posix* argument is false.
+   empty string).  This function operates in POSIX mode by default, but uses
+   non-POSIX mode if the *posix* argument is false.
 
    .. versionadded:: 2.3
 
@@ -292,7 +292,7 @@ parsing rules.
   next character that follows;
 
 * Enclosing characters in quotes which are not part of :attr:`escapedquotes`
-  (e.g. ``'''``) preserve the literal value of all characters within the quotes;
+  (e.g. ``"'"``) preserve the literal value of all characters within the quotes;
 
 * Enclosing characters in quotes which are part of :attr:`escapedquotes` (e.g.
   ``'"'``) preserves the literal value of all characters within the quotes, with

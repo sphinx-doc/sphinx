@@ -13,8 +13,9 @@ protocol, which provides for continuous streams of data between the client and
 server.  :class:`UDPServer` uses datagrams, which are discrete packets of
 information that may arrive out of order or be lost while in transit.  The more
 infrequently used :class:`UnixStreamServer` and :class:`UnixDatagramServer`
-classes are similar, but use Unix domain sockets; they're not available on non-
-Unix platforms.  For more details on network programming, consult a book such as
+classes are similar, but use Unix domain sockets; they're not available on
+non-Unix platforms.  For more details on network programming, consult a book
+such as
 W. Richard Steven's UNIX Network Programming or Ralph Davis's Win32 Network
 Programming.
 

@@ -37,13 +37,14 @@ or as base classes.
 
 .. function:: quoteattr(data[, entities])
 
-   Similar to :func:`escape`, but also prepares *data* to be used as an attribute
-   value.  The return value is a quoted version of *data* with any additional
-   required replacements. :func:`quoteattr` will select a quote character based on
-   the content of *data*, attempting to avoid encoding any quote characters in the
-   string.  If both single- and double-quote characters are already in *data*, the
-   double-quote characters will be encoded and *data* will be wrapped in double-
-   quotes.  The resulting string can be used directly as an attribute value::
+   Similar to :func:`escape`, but also prepares *data* to be used as an
+   attribute value.  The return value is a quoted version of *data* with any
+   additional required replacements. :func:`quoteattr` will select a quote
+   character based on the content of *data*, attempting to avoid encoding any
+   quote characters in the string.  If both single- and double-quote characters
+   are already in *data*, the double-quote characters will be encoded and *data*
+   will be wrapped in double-quotes.  The resulting string can be used directly
+   as an attribute value::
 
       >>> print "<element attr=%s>" % quoteattr("ab ' cd \" ef")
       <element attr="ab ' cd &quot; ef">

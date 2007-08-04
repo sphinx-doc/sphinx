@@ -117,18 +117,18 @@ option
 
    Some other option syntaxes that the world has seen include:
 
-* a hyphen followed by a few letters, e.g. ``"-pf"`` (this is *not* the same
-  as multiple options merged into a single argument)
+   * a hyphen followed by a few letters, e.g. ``"-pf"`` (this is *not* the same
+     as multiple options merged into a single argument)
 
-* a hyphen followed by a whole word, e.g. ``"-file"`` (this is technically
-  equivalent to the previous syntax, but they aren't usually seen in the same
-  program)
+   * a hyphen followed by a whole word, e.g. ``"-file"`` (this is technically
+     equivalent to the previous syntax, but they aren't usually seen in the same
+     program)
 
-* a plus sign followed by a single letter, or a few letters, or a word, e.g.
-  ``"+f"``, ``"+rgb"``
+   * a plus sign followed by a single letter, or a few letters, or a word, e.g.
+     ``"+f"``, ``"+rgb"``
 
-* a slash followed by a letter, or a few letters, or a word, e.g. ``"/f"``,
-  ``"/file"``
+   * a slash followed by a letter, or a few letters, or a word, e.g. ``"/f"``,
+     ``"/file"``
 
    These option syntaxes are not supported by :mod:`optparse`, and they never will
    be.  This is deliberate: the first three are non-standard on any environment,
@@ -470,8 +470,8 @@ Generating help
 :mod:`optparse`'s ability to generate help and usage text automatically is
 useful for creating user-friendly command-line interfaces.  All you have to do
 is supply a :attr:`help` value for each option, and optionally a short usage
-message for your whole program.  Here's an OptionParser populated with user-
-friendly (documented) options::
+message for your whole program.  Here's an OptionParser populated with
+user-friendly (documented) options::
 
    usage = "usage: %prog [options] arg1 arg2"
    parser = OptionParser(usage=usage)
@@ -488,9 +488,9 @@ friendly (documented) options::
                      help="interaction mode: novice, intermediate, "
                           "or expert [default: %default]")
 
-If :mod:`optparse` encounters either ``"-h"`` or ``"--help"`` on the command-
-line, or if you just call :meth:`parser.print_help`, it prints the following to
-standard output::
+If :mod:`optparse` encounters either ``"-h"`` or ``"--help"`` on the
+command-line, or if you just call :meth:`parser.print_help`, it prints the
+following to standard output::
 
    usage: <yourscript> [options] arg1 arg2
 
@@ -521,12 +521,12 @@ help message:
   default: ``"usage: %prog [options]"``, which is fine if your script doesn't take
   any positional arguments.
 
-* every option defines a help string, and doesn't worry about line-
-  wrapping---\ :mod:`optparse` takes care of wrapping lines and making the help
-  output look good.
+* every option defines a help string, and doesn't worry about line-wrapping---
+  :mod:`optparse` takes care of wrapping lines and making the help output look
+  good.
 
-* options that take a value indicate this fact in their automatically-
-  generated help message, e.g. for the "mode" option::
+* options that take a value indicate this fact in their automatically-generated
+  help message, e.g. for the "mode" option::
 
      -m MODE, --mode=MODE
 
@@ -1663,14 +1663,14 @@ functions.  A type-checking function has the following signature::
 where ``option`` is an :class:`Option` instance, ``opt`` is an option string
 (e.g., ``"-f"``), and ``value`` is the string from the command line that must be
 checked and converted to your desired type.  ``check_mytype()`` should return an
-object of the hypothetical type ``mytype``.  The value returned by a type-
-checking function will wind up in the OptionValues instance returned by
+object of the hypothetical type ``mytype``.  The value returned by a
+type-checking function will wind up in the OptionValues instance returned by
 :meth:`OptionParser.parse_args`, or be passed to a callback as the ``value``
 parameter.
 
 Your type-checking function should raise OptionValueError if it encounters any
-problems.  OptionValueError takes a single string argument, which is passed as-
-is to OptionParser's :meth:`error` method, which in turn prepends the program
+problems.  OptionValueError takes a single string argument, which is passed
+as-is to OptionParser's :meth:`error` method, which in turn prepends the program
 name and the string ``"error:"`` and prints everything to stderr before
 terminating the process.
 

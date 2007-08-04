@@ -30,19 +30,19 @@ It defines the following functions:
    argument, the encoding name in all lower case letters, and return a
    :class:`CodecInfo` object having the following attributes:
 
-* ``name`` The name of the encoding;
+   * ``name`` The name of the encoding;
 
-* ``encoder`` The stateless encoding function;
+   * ``encoder`` The stateless encoding function;
 
-* ``decoder`` The stateless decoding function;
+   * ``decoder`` The stateless decoding function;
 
-* ``incrementalencoder`` An incremental encoder class or factory function;
+   * ``incrementalencoder`` An incremental encoder class or factory function;
 
-* ``incrementaldecoder`` An incremental decoder class or factory function;
+   * ``incrementaldecoder`` An incremental decoder class or factory function;
 
-* ``streamwriter`` A stream writer class or factory function;
+   * ``streamwriter`` A stream writer class or factory function;
 
-* ``streamreader`` A stream reader class or factory function.
+   * ``streamreader`` A stream reader class or factory function.
 
    The various functions or classes take the following arguments:
 
@@ -408,15 +408,15 @@ define in order to be compatible with the Python codec registry.
    The :class:`IncrementalEncoder` may implement different error handling schemes
    by providing the *errors* keyword argument. These parameters are predefined:
 
-* ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
+   * ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
 
-* ``'ignore'`` Ignore the character and continue with the next.
+   * ``'ignore'`` Ignore the character and continue with the next.
 
-* ``'replace'`` Replace with a suitable replacement character
+   * ``'replace'`` Replace with a suitable replacement character
 
-* ``'xmlcharrefreplace'`` Replace with the appropriate XML character reference
+   * ``'xmlcharrefreplace'`` Replace with the appropriate XML character reference
 
-* ``'backslashreplace'`` Replace with backslashed escape sequences.
+   * ``'backslashreplace'`` Replace with backslashed escape sequences.
 
    The *errors* argument will be assigned to an attribute of the same name.
    Assigning to this attribute makes it possible to switch between different error
@@ -479,11 +479,11 @@ define in order to be compatible with the Python codec registry.
    The :class:`IncrementalDecoder` may implement different error handling schemes
    by providing the *errors* keyword argument. These parameters are predefined:
 
-* ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
+   * ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
 
-* ``'ignore'`` Ignore the character and continue with the next.
+   * ``'ignore'`` Ignore the character and continue with the next.
 
-* ``'replace'`` Replace with a suitable replacement character.
+   * ``'replace'`` Replace with a suitable replacement character.
 
    The *errors* argument will be assigned to an attribute of the same name.
    Assigning to this attribute makes it possible to switch between different error
@@ -562,15 +562,15 @@ compatible with the Python codec registry.
    The :class:`StreamWriter` may implement different error handling schemes by
    providing the *errors* keyword argument. These parameters are predefined:
 
-* ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
+   * ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
 
-* ``'ignore'`` Ignore the character and continue with the next.
+   * ``'ignore'`` Ignore the character and continue with the next.
 
-* ``'replace'`` Replace with a suitable replacement character
+   * ``'replace'`` Replace with a suitable replacement character
 
-* ``'xmlcharrefreplace'`` Replace with the appropriate XML character reference
+   * ``'xmlcharrefreplace'`` Replace with the appropriate XML character reference
 
-* ``'backslashreplace'`` Replace with backslashed escape sequences.
+   * ``'backslashreplace'`` Replace with backslashed escape sequences.
 
    The *errors* argument will be assigned to an attribute of the same name.
    Assigning to this attribute makes it possible to switch between different error
@@ -626,11 +626,11 @@ compatible with the Python codec registry.
    The :class:`StreamReader` may implement different error handling schemes by
    providing the *errors* keyword argument. These parameters are defined:
 
-* ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
+   * ``'strict'`` Raise :exc:`ValueError` (or a subclass); this is the default.
 
-* ``'ignore'`` Ignore the character and continue with the next.
+   * ``'ignore'`` Ignore the character and continue with the next.
 
-* ``'replace'`` Replace with a suitable replacement character.
+   * ``'replace'`` Replace with a suitable replacement character.
 
    The *errors* argument will be assigned to an attribute of the same name.
    Assigning to this attribute makes it possible to switch between different error

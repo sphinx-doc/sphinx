@@ -198,9 +198,9 @@ brackets:
    pair: empty; list
 
 A list display yields a new list object.  Its contents are specified by
-providing either a list of expressions or a list comprehension.  When a comma-
-separated list of expressions is supplied, its elements are evaluated from left
-to right and placed into the list object in that order.  When a list
+providing either a list of expressions or a list comprehension.  When a
+comma-separated list of expressions is supplied, its elements are evaluated from
+left to right and placed into the list object in that order.  When a list
 comprehension is supplied, it consists of a single expression followed by at
 least one :keyword:`for` clause and zero or more :keyword:`for` or :keyword:`if`
 clauses.  In this case, the elements of the new list are those that would be

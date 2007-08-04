@@ -105,7 +105,7 @@ Terms and conditions for accessing or otherwise using Python
 ============================================================
 
 
-.. centered:: **PSF LICENSE AGREEMENT FOR PYTHON |release|**
+.. centered:: **PSF LICENSE AGREEMENT FOR PYTHON** |release|
 
 #. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
    the Individual or Organization ("Licensee") accessing and otherwise using Python

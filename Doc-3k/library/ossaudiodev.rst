@@ -78,11 +78,12 @@ the standard audio interface for Linux and recent versions of FreeBSD.
    module first looks in the environment variable :envvar:`AUDIODEV` for a device
    to use.  If not found, it falls back to :file:`/dev/dsp`.
 
-   *mode* is one of ``'r'`` for read-only (record) access, ``'w'`` for write-only
-   (playback) access and ``'rw'`` for both. Since many sound cards only allow one
-   process to have the recorder or player open at a time, it is a good idea to open
-   the device only for the activity needed.  Further, some sound cards are half-
-   duplex: they can be opened for reading or writing, but not both at once.
+   *mode* is one of ``'r'`` for read-only (record) access, ``'w'`` for
+   write-only (playback) access and ``'rw'`` for both. Since many sound cards
+   only allow one process to have the recorder or player open at a time, it is a
+   good idea to open the device only for the activity needed.  Further, some
+   sound cards are half-duplex: they can be opened for reading or writing, but
+   not both at once.
 
    Note the unusual calling syntax: the *first* argument is optional, and the
    second is required.  This is a historical artifact for compatibility with the

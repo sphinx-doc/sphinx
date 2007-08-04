@@ -42,10 +42,10 @@ with ``import`` (followed by space or tab) are executed.
    triple: path; configuration; file
 
 For example, suppose ``sys.prefix`` and ``sys.exec_prefix`` are set to
-:file:`/usr/local`.  The Python |release| library is then installed in
-:file:`/usr/local/lib/python|version|` (where only the first three characters of
+:file:`/usr/local`.  The Python X.Y library is then installed in
+:file:`/usr/local/lib/python{X.Y}` (where only the first three characters of
 ``sys.version`` are used to form the installation path name).  Suppose this has
-a subdirectory :file:`/usr/local/lib/python|version|/site-packages` with three
+a subdirectory :file:`/usr/local/lib/python{X.Y}/site-packages` with three
 subsubdirectories, :file:`foo`, :file:`bar` and :file:`spam`, and two path
 configuration files, :file:`foo.pth` and :file:`bar.pth`.  Assume
 :file:`foo.pth` contains the following::

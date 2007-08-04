@@ -617,12 +617,13 @@ of a message is indicated by the start of the next message or, in the case of
 the last message, a line containing a Control-Underscore (``'\\037'``)
 character.
 
-Messages in a Babyl mailbox have two sets of headers, original headers and so-
-called visible headers. Visible headers are typically a subset of the original
-headers that have been reformatted or abridged to be more attractive. Each
-message in a Babyl mailbox also has an accompanying list of :dfn:`labels`, or
-short strings that record extra information about the message, and a list of all
-user-defined labels found in the mailbox is kept in the Babyl options section.
+Messages in a Babyl mailbox have two sets of headers, original headers and
+so-called visible headers. Visible headers are typically a subset of the
+original headers that have been reformatted or abridged to be more
+attractive. Each message in a Babyl mailbox also has an accompanying list of
+:dfn:`labels`, or short strings that record extra information about the message,
+and a list of all user-defined labels found in the mailbox is kept in the Babyl
+options section.
 
 :class:`Babyl` instances have all of the methods of :class:`Mailbox` in addition
 to the following:
@@ -772,8 +773,8 @@ whether or not they've actually been read. Each message in :file:`cur` has an
 "info" section added to its file name to store information about its state.
 (Some mail readers may also add an "info" section to messages in :file:`new`.)
 The "info" section may take one of two forms: it may contain "2," followed by a
-list of standardized flags (e.g., "2,FR") or it may contain "1," followed by so-
-called experimental information. Standard flags for Maildir messages are as
+list of standardized flags (e.g., "2,FR") or it may contain "1," followed by
+so-called experimental information. Standard flags for Maildir messages are as
 follows:
 
 +------+---------+--------------------------------+
@@ -1540,9 +1541,9 @@ counterparts are as follows:
    :class:`UnixMailbox` except that individual messages are separated by only
    ``From`` lines.
 
-   For more information, see `Configuring Netscape Mail on Unix: Why the Content-
-   Length Format is Bad <http://home.netscape.com/eng/mozilla/2.0/relnotes/demo
-   /content-length.html>`_.
+   For more information, see `Configuring Netscape Mail on Unix: Why the
+   Content-Length Format is Bad
+   <http://home.netscape.com/eng/mozilla/2.0/relnotes/demo/content-length.html>`_.
 
 
 .. class:: PortableUnixMailbox(fp[, factory])

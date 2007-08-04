@@ -568,9 +568,9 @@ by file descriptors.
 
 .. function:: ttyname(fd)
 
-   Return a string which specifies the terminal device associated with file-
-   descriptor *fd*.  If *fd* is not associated with a terminal device, an exception
-   is raised. Availability:Macintosh,  Unix.
+   Return a string which specifies the terminal device associated with
+   file-descriptor *fd*.  If *fd* is not associated with a terminal device, an
+   exception is raised. Availability:Macintosh, Unix.
 
 
 .. function:: write(fd, str)
@@ -600,8 +600,8 @@ platforms.  For descriptions of their availability and use, consult
           O_EXCL
           O_TRUNC
 
-   Options for the *flag* argument to the :func:`open` function. These can be bit-
-   wise OR'd together. Availability: Macintosh, Unix, Windows.
+   Options for the *flag* argument to the :func:`open` function. These can be
+   bit-wise OR'd together. Availability: Macintosh, Unix, Windows.
 
 
 .. data:: O_DSYNC
@@ -619,8 +619,8 @@ platforms.  For descriptions of their availability and use, consult
 
 .. data:: O_BINARY
 
-   Option for the *flag* argument to the :func:`open` function. This can be bit-
-   wise OR'd together with those listed above. Availability: Windows.
+   Option for the *flag* argument to the :func:`open` function. This can be
+   bit-wise OR'd together with those listed above. Availability: Windows.
 
    .. % XXX need to check on the availability of this one.
 
@@ -632,8 +632,8 @@ platforms.  For descriptions of their availability and use, consult
           O_SEQUENTIAL
           O_TEXT
 
-   Options for the *flag* argument to the :func:`open` function. These can be bit-
-   wise OR'd together. Availability: Windows.
+   Options for the *flag* argument to the :func:`open` function. These can be
+   bit-wise OR'd together. Availability: Windows.
 
 
 .. data:: SEEK_SET
@@ -737,25 +737,16 @@ Files and Directories
    Set the flags of *path* to the numeric *flags*. *flags* may take a combination
    (bitwise OR) of the following values (as defined in the :mod:`stat` module):
 
-* ``UF_NODUMP``
-
-* ``UF_IMMUTABLE``
-
-* ``UF_APPEND``
-
-* ``UF_OPAQUE``
-
-* ``UF_NOUNLINK``
-
-* ``SF_ARCHIVED``
-
-* ``SF_IMMUTABLE``
-
-* ``SF_APPEND``
-
-* ``SF_NOUNLINK``
-
-* ``SF_SNAPSHOT``
+   * ``UF_NODUMP``
+   * ``UF_IMMUTABLE``
+   * ``UF_APPEND``
+   * ``UF_OPAQUE``
+   * ``UF_NOUNLINK``
+   * ``SF_ARCHIVED``
+   * ``SF_IMMUTABLE``
+   * ``SF_APPEND``
+   * ``SF_NOUNLINK``
+   * ``SF_SNAPSHOT``
 
    Availability: Macintosh, Unix.
 
@@ -776,43 +767,25 @@ Files and Directories
    following values (as defined in the :mod:`stat` module) or bitwise or-ed
    combinations of them:
 
-* ``stat.S_ISUID``
-
-* ``stat.S_ISGID``
-
-* ``stat.S_ENFMT``
-
-* ``stat.S_ISVTX``
-
-* ``stat.S_IREAD``
-
-* ``stat.S_IWRITE``
-
-* ``stat.S_IEXEC``
-
-* ``stat.S_IRWXU``
-
-* ``stat.S_IRUSR``
-
-* ``stat.S_IWUSR``
-
-* ``stat.S_IXUSR``
-
-* ``stat.S_IRWXG``
-
-* ``stat.S_IRGRP``
-
-* ``stat.S_IWGRP``
-
-* ``stat.S_IXGRP``
-
-* ``stat.S_IRWXO``
-
-* ``stat.S_IROTH``
-
-* ``stat.S_IWOTH``
-
-* ``stat.S_IXOTH``
+   * ``stat.S_ISUID``
+   * ``stat.S_ISGID``
+   * ``stat.S_ENFMT``
+   * ``stat.S_ISVTX``
+   * ``stat.S_IREAD``
+   * ``stat.S_IWRITE``
+   * ``stat.S_IEXEC``
+   * ``stat.S_IRWXU``
+   * ``stat.S_IRUSR``
+   * ``stat.S_IWUSR``
+   * ``stat.S_IXUSR``
+   * ``stat.S_IRWXG``
+   * ``stat.S_IRGRP``
+   * ``stat.S_IWGRP``
+   * ``stat.S_IXGRP``
+   * ``stat.S_IRWXO``
+   * ``stat.S_IROTH``
+   * ``stat.S_IWOTH``
+   * ``stat.S_IXOTH``
 
    Availability: Macintosh, Unix, Windows.
 
@@ -1241,7 +1214,7 @@ Files and Directories
    Availability: Macintosh, Unix, Windows.
 
 
-.. function:: walk(top[, topdown\ ``=True`` [, onerror\ ``=None``[, followlinks\ ``=False``]]])
+.. function:: walk(top[, topdown=True [, onerror=None[, followlinks=False]]])
 
    .. index::
       single: directory; walking

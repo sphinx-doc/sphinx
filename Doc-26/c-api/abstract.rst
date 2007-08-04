@@ -182,9 +182,9 @@ of.  If :class:`A` and :class:`B` are class objects, :class:`B` is a subclass of
 either is not a class object, a more general mechanism is used to determine the
 class relationship of the two objects.  When testing if *B* is a subclass of
 *A*, if *A* is *B*, :cfunc:`PyObject_IsSubclass` returns true.  If *A* and *B*
-are different objects, *B*'s :attr:`__bases__` attribute is searched in a depth-
-first fashion for *A* --- the presence of the :attr:`__bases__` attribute is
-considered sufficient for this determination.
+are different objects, *B*'s :attr:`__bases__` attribute is searched in a
+depth-first fashion for *A* --- the presence of the :attr:`__bases__` attribute
+is considered sufficient for this determination.
 
 
 .. cfunction:: int PyObject_IsSubclass(PyObject *derived, PyObject *cls)

@@ -100,7 +100,7 @@ setup script). Indirectly provides the  :class:`distutils.dist.Distribution` and
    +--------------------+--------------------------------+-------------------------------------------------------------+
 
 
-.. function:: run_setup(script_name[, script_args=``None``, stop_after=``'run'``])
+.. function:: run_setup(script_name[, script_args=None, stop_after='run'])
 
    Run a setup script in a somewhat controlled environment, and return  the
    :class:`distutils.dist.Distribution` instance that drives things.   This is
@@ -341,7 +341,7 @@ This module provides the following functions.
    to :command:`build`, :command:`build_ext`, :command:`build_clib`).
 
 
-.. class:: CCompiler([verbose=``0``, dry_run=``0``, force=``0``])
+.. class:: CCompiler([verbose=0, dry_run=0, force=0])
 
    The abstract base class :class:`CCompiler` defines the interface that  must be
    implemented by real compiler classes.  The class also has  some utility methods
@@ -431,7 +431,7 @@ This module provides the following functions.
       runtime linker may search by default.
 
 
-   .. method:: CCompiler.define_macro(name[, value=``None``])
+   .. method:: CCompiler.define_macro(name[, value=None])
 
       Define a preprocessor macro for all compilations driven by this compiler object.
       The optional parameter *value* should be a string; if it is not supplied, then
@@ -442,11 +442,11 @@ This module provides the following functions.
    .. method:: CCompiler.undefine_macro(name)
 
       Undefine a preprocessor macro for all compilations driven by this compiler
-      object.  If the same macro is defined by :meth:`define_macro` and undefined by
-      :meth:`undefine_macro`  the last call takes precedence (including multiple
-      redefinitions or undefinitions).  If the macro is redefined/undefined on a per-
-      compilation basis (ie. in the call to :meth:`compile`), then that takes
-      precedence.
+      object.  If the same macro is defined by :meth:`define_macro` and
+      undefined by :meth:`undefine_macro` the last call takes precedence
+      (including multiple redefinitions or undefinitions).  If the macro is
+      redefined/undefined on a per-compilation basis (ie. in the call to
+      :meth:`compile`), then that takes precedence.
 
 
    .. method:: CCompiler.add_link_object(object)
@@ -473,7 +473,7 @@ This module provides the following functions.
       list) to do the job.
 
 
-   .. method:: CCompiler.find_library_file(dirs, lib[, debug=``0``])
+   .. method:: CCompiler.find_library_file(dirs, lib[, debug=0])
 
       Search the specified list of directories for a static or shared library file
       *lib* and return the full path to that file.  If *debug* is true, look for a
@@ -481,7 +481,7 @@ This module provides the following functions.
       ``None`` if *lib* wasn't found in any of the specified directories.
 
 
-   .. method:: CCompiler.has_function(funcname [, includes=``None``, include_dirs=``None``, libraries=``None``, library_dirs=``None``])
+   .. method:: CCompiler.has_function(funcname [, includes=None, include_dirs=None, libraries=None, library_dirs=None])
 
       Return a boolean indicating whether *funcname* is supported on the current
       platform.  The optional arguments can be used to augment the compilation
@@ -536,7 +536,7 @@ This module provides the following functions.
    The following methods invoke stages in the build process.
 
 
-   .. method:: CCompiler.compile(sources[, output_dir=``None``, macros=``None``, include_dirs=``None``, debug=``0``, extra_preargs=``None``, extra_postargs=``None``, depends=``None``])
+   .. method:: CCompiler.compile(sources[, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None])
 
       Compile one or more source files. Generates object files (e.g.  transforms a
       :file:`.c` file to a :file:`.o` file.)
@@ -580,7 +580,7 @@ This module provides the following functions.
       Raises :exc:`CompileError` on failure.
 
 
-   .. method:: CCompiler.create_static_lib(objects, output_libname[, output_dir=``None``, debug=``0``, target_lang=``None``])
+   .. method:: CCompiler.create_static_lib(objects, output_libname[, output_dir=None, debug=0, target_lang=None])
 
       Link a bunch of stuff together to create a static library file. The "bunch of
       stuff" consists of the list of object files supplied as *objects*, the extra
@@ -602,7 +602,7 @@ This module provides the following functions.
       Raises :exc:`LibError` on failure.
 
 
-   .. method:: CCompiler.link(target_desc, objects, output_filename[, output_dir=``None``, libraries=``None``, library_dirs=``None``, runtime_library_dirs=``None``, export_symbols=``None``, debug=``0``, extra_preargs=``None``, extra_postargs=``None``, build_temp=``None``, target_lang=``None``])
+   .. method:: CCompiler.link(target_desc, objects, output_filename[, output_dir=None, libraries=None, library_dirs=None, runtime_library_dirs=None, export_symbols=None, debug=0, extra_preargs=None, extra_postargs=None, build_temp=None, target_lang=None])
 
       Link a bunch of stuff together to create an executable or shared library file.
 
@@ -644,28 +644,28 @@ This module provides the following functions.
       Raises :exc:`LinkError` on failure.
 
 
-   .. method:: CCompiler.link_executable(objects, output_progname[, output_dir=``None``, libraries=``None``, library_dirs=``None``, runtime_library_dirs=``None``, debug=``0``, extra_preargs=``None``, extra_postargs=``None``, target_lang=``None``])
+   .. method:: CCompiler.link_executable(objects, output_progname[, output_dir=None, libraries=None, library_dirs=None, runtime_library_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, target_lang=None])
 
       Link an executable.  *output_progname* is the name of the file executable, while
       *objects* are a list of object filenames to link in. Other arguments  are as for
       the :meth:`link` method.
 
 
-   .. method:: CCompiler.link_shared_lib(objects, output_libname[, output_dir=``None``, libraries=``None``, library_dirs=``None``, runtime_library_dirs=``None``, export_symbols=``None``, debug=``0``, extra_preargs=``None``, extra_postargs=``None``, build_temp=``None``, target_lang=``None``])
+   .. method:: CCompiler.link_shared_lib(objects, output_libname[, output_dir=None, libraries=None, library_dirs=None, runtime_library_dirs=None, export_symbols=None, debug=0, extra_preargs=None, extra_postargs=None, build_temp=None, target_lang=None])
 
       Link a shared library. *output_libname* is the name of the output  library,
       while *objects* is a list of object filenames to link in.  Other arguments are
       as for the :meth:`link` method.
 
 
-   .. method:: CCompiler.link_shared_object(objects, output_filename[, output_dir=``None``, libraries=``None``, library_dirs=``None``, runtime_library_dirs=``None``, export_symbols=``None``, debug=``0``, extra_preargs=``None``, extra_postargs=``None``, build_temp=``None``, target_lang=``None``])
+   .. method:: CCompiler.link_shared_object(objects, output_filename[, output_dir=None, libraries=None, library_dirs=None, runtime_library_dirs=None, export_symbols=None, debug=0, extra_preargs=None, extra_postargs=None, build_temp=None, target_lang=None])
 
       Link a shared object. *output_filename* is the name of the shared object that
       will be created, while *objects* is a list of object filenames  to link in.
       Other arguments are as for the :meth:`link` method.
 
 
-   .. method:: CCompiler.preprocess(source[, output_file=``None``, macros=``None``, include_dirs=``None``, extra_preargs=``None``, extra_postargs=``None``])
+   .. method:: CCompiler.preprocess(source[, output_file=None, macros=None, include_dirs=None, extra_preargs=None, extra_postargs=None])
 
       Preprocess a single C/C++ source file, named in *source*. Output will be written
       to file named *output_file*, or *stdout* if *output_file* not supplied.
@@ -680,14 +680,14 @@ This module provides the following functions.
    use by the various concrete subclasses.
 
 
-   .. method:: CCompiler.executable_filename(basename[, strip_dir=``0``, output_dir=``''``])
+   .. method:: CCompiler.executable_filename(basename[, strip_dir=0, output_dir=''])
 
       Returns the filename of the executable for the given *basename*.  Typically for
       non-Windows platforms this is the same as the basename,  while Windows will get
       a :file:`.exe` added.
 
 
-   .. method:: CCompiler.library_filename(libname[, lib_type=``'static'``, strip_dir=``0``, output_dir=``''``])
+   .. method:: CCompiler.library_filename(libname[, lib_type='static', strip_dir=0, output_dir=''])
 
       Returns the filename for the given library name on the current platform. On Unix
       a library with *lib_type* of ``'static'`` will typically  be of the form
@@ -695,18 +695,18 @@ This module provides the following functions.
       :file:`liblibname.so`.
 
 
-   .. method:: CCompiler.object_filenames(source_filenames[, strip_dir=``0``, output_dir=``''``])
+   .. method:: CCompiler.object_filenames(source_filenames[, strip_dir=0, output_dir=''])
 
       Returns the name of the object files for the given source files.
       *source_filenames* should be a list of filenames.
 
 
-   .. method:: CCompiler.shared_object_filename(basename[, strip_dir=``0``, output_dir=``''``])
+   .. method:: CCompiler.shared_object_filename(basename[, strip_dir=0, output_dir=''])
 
       Returns the name of a shared object file for the given file name *basename*.
 
 
-   .. method:: CCompiler.execute(func, args[, msg=``None``, level=``1``])
+   .. method:: CCompiler.execute(func, args[, msg=None, level=1])
 
       Invokes :func:`distutils.util.execute` This method invokes a  Python function
       *func* with the given arguments *args*, after  logging and taking into account
@@ -719,7 +719,7 @@ This module provides the following functions.
       the given command. XXX see also.
 
 
-   .. method:: CCompiler.mkpath(name[, mode=``511``])
+   .. method:: CCompiler.mkpath(name[, mode=511])
 
       Invokes :func:`distutils.dir_util.mkpath`. This creates a directory  and any
       missing ancestor directories. XXX see also.
@@ -731,7 +731,7 @@ This module provides the following functions.
       also.
 
 
-   .. method:: CCompiler.announce(msg[, level=``1``])
+   .. method:: CCompiler.announce(msg[, level=1])
 
       Write a message using :func:`distutils.log.debug`. XXX see also.
 
@@ -867,7 +867,7 @@ This module provides a few functions for creating archive files, such as
 tarballs or zipfiles.
 
 
-.. function:: make_archive(base_name, format[, root_dir=``None``, base_dir=``None``, verbose=``0``, dry_run=``0``])
+.. function:: make_archive(base_name, format[, root_dir=None, base_dir=None, verbose=0, dry_run=0])
 
    Create an archive file (eg. ``zip`` or ``tar``).  *base_name*  is the name of
    the file to create, minus any format-specific extension;  *format* is the
@@ -883,7 +883,7 @@ tarballs or zipfiles.
       This should be changed to support bz2 files
 
 
-.. function:: make_tarball(base_name, base_dir[, compress=``'gzip'``, verbose=``0``, dry_run=``0``])
+.. function:: make_tarball(base_name, base_dir[, compress='gzip', verbose=0, dry_run=0])
 
    'Create an (optional compressed) archive as a tar file from all files in and
    under *base_dir*. *compress* must be ``'gzip'`` (the default),  ``'compress'``,
@@ -898,7 +898,7 @@ tarballs or zipfiles.
       This should be replaced with calls to the :mod:`tarfile` module.
 
 
-.. function:: make_zipfile(base_name, base_dir[, verbose=``0``, dry_run=``0``])
+.. function:: make_zipfile(base_name, base_dir[, verbose=0, dry_run=0])
 
    Create a zip file from all files in and under *base_dir*.  The output zip file
    will be named *base_dir* + :file:`.zip`.  Uses either the  :mod:`zipfile` Python
@@ -936,7 +936,7 @@ timestamp dependency analysis.
    .. % % equivalent to a listcomp...
 
 
-.. function:: newer_group(sources, target[, missing=``'error'``])
+.. function:: newer_group(sources, target[, missing='error'])
 
    Return true if *target* is out-of-date with respect to any file listed in
    *sources*  In other words, if *target* exists and is newer than every file in
@@ -961,7 +961,7 @@ This module provides functions for operating on directories and trees of
 directories.
 
 
-.. function:: mkpath(name[, mode=``0777``, verbose=``0``, dry_run=``0``])
+.. function:: mkpath(name[, mode=0777, verbose=0, dry_run=0])
 
    Create a directory and any missing ancestor directories.  If the directory
    already exists (or if *name* is the empty string, which means the current
@@ -972,7 +972,7 @@ directories.
    directories actually created.
 
 
-.. function:: create_tree(base_dir, files[, mode=``0777``, verbose=``0``, dry_run=``0``])
+.. function:: create_tree(base_dir, files[, mode=0777, verbose=0, dry_run=0])
 
    Create all the empty directories under *base_dir* needed to put *files* there.
    *base_dir* is just the a name of a directory which doesn't necessarily exist
@@ -982,7 +982,7 @@ directories.
    :func:`mkpath`.
 
 
-.. function:: copy_tree(src, dst[preserve_mode=``1``, preserve_times=``1``, preserve_symlinks=``0``, update=``0``, verbose=``0``, dry_run=``0``])
+.. function:: copy_tree(src, dst[, preserve_mode=1, preserve_times=1, preserve_symlinks=0, update=0, verbose=0, dry_run=0])
 
    Copy an entire directory tree *src* to a new location *dst*.  Both *src* and
    *dst* must be directory names.  If *src* is not a directory, raise
@@ -1002,7 +1002,7 @@ directories.
    as for :func:`copy_file`.
 
 
-.. function:: remove_tree(directory[verbose=``0``, dry_run=``0``])
+.. function:: remove_tree(directory[, verbose=0, dry_run=0])
 
    Recursively remove *directory* and all files and directories underneath it. Any
    errors are ignored (apart from being reported to ``sys.stdout`` if *verbose* is
@@ -1021,16 +1021,16 @@ directories.
 This module contains some utility functions for operating on individual files.
 
 
-.. function:: copy_file(src, dst[preserve_mode=``1``, preserve_times=``1``, update=``0``, link=``None``, verbose=``0``, dry_run=``0``])
+.. function:: copy_file(src, dst[, preserve_mode=1, preserve_times=1, update=0, link=None, verbose=0, dry_run=0])
 
    Copy file *src* to *dst*. If *dst* is a directory, then *src* is copied there
    with the same name; otherwise, it must be a filename. (If the file exists, it
    will be ruthlessly clobbered.) If *preserve_mode* is true (the default), the
-   file's mode (type and permission bits, or whatever is analogous on the current
-   platform) is copied. If *preserve_times* is true (the default), the last-
-   modified and last-access times are copied as well. If *update* is true, *src*
-   will only be copied if *dst* does not exist, or if *dst* does exist but is older
-   than *src*.
+   file's mode (type and permission bits, or whatever is analogous on the
+   current platform) is copied. If *preserve_times* is true (the default), the
+   last-modified and last-access times are copied as well. If *update* is true,
+   *src* will only be copied if *dst* does not exist, or if *dst* does exist but
+   is older than *src*.
 
    *link* allows you to make hard links (using :func:`os.link`) or symbolic links
    (using :func:`os.symlink`) instead of copying: set it to ``'hard'`` or
@@ -1051,7 +1051,7 @@ This module contains some utility functions for operating on individual files.
    .. % (not update) and (src newer than dst)).
 
 
-.. function:: move_file(src, dst[verbose, dry_run])
+.. function:: move_file(src, dst[, verbose, dry_run])
 
    Move file *src* to *dst*. If *dst* is a directory, the file will be moved into
    it with the same name; otherwise, *src* is just renamed to *dst*.  Returns the
@@ -1092,15 +1092,11 @@ other utility module.
 
    Examples of returned values:
 
-* ``linux-i586``
-
-* ``linux-alpha``
-
-* ``solaris-2.6-sun4u``
-
-* ``irix-5.3``
-
-* ``irix64-6.2``
+   * ``linux-i586``
+   * ``linux-alpha``
+   * ``solaris-2.6-sun4u``
+   * ``irix-5.3``
+   * ``irix64-6.2``
 
    For non-POSIX platforms, currently just returns ``sys.platform``.
 
@@ -1130,9 +1126,8 @@ other utility module.
    users can use in config files, command-line options, etc.  Currently this
    includes:
 
-* :envvar:`HOME` - user's home directory (Unix only)
-
-* :envvar:`PLAT` - description of the current platform, including hardware and
+   * :envvar:`HOME` - user's home directory (Unix only)
+   * :envvar:`PLAT` - description of the current platform, including hardware and
      OS (see :func:`get_platform`)
 
 
@@ -1150,7 +1145,7 @@ other utility module.
    underscore. No { } or ( ) style quoting is available.
 
 
-.. function:: grok_environment_error(exc[, prefix=``'error: '``])
+.. function:: grok_environment_error(exc[, prefix='error: '])
 
    Generate a useful error message from an :exc:`EnvironmentError`  (:exc:`IOError`
    or :exc:`OSError`) exception object.   Handles Python 1.5.1 and later styles,
@@ -1173,7 +1168,7 @@ other utility module.
    .. % Should probably be moved into the standard library.
 
 
-.. function:: execute(func, args[, msg=``None``, verbose=``0``, dry_run=``0``])
+.. function:: execute(func, args[, msg=None, verbose=0, dry_run=0])
 
    Perform some action that affects the outside world (for instance, writing to the
    filesystem).  Such actions are special because they are disabled by the
@@ -1191,18 +1186,16 @@ other utility module.
    :exc:`ValueError` if *val*  is anything else.
 
 
-.. function:: byte_compile(py_files[, optimize=``0``, force=``0``, prefix=``None``, base_dir=``None``, verbose=``1``, dry_run=``0``, direct=``None``])
+.. function:: byte_compile(py_files[, optimize=0, force=0, prefix=None, base_dir=None, verbose=1, dry_run=0, direct=None])
 
    Byte-compile a collection of Python source files to either :file:`.pyc` or
    :file:`.pyo` files in the same directory.  *py_files* is a list of files to
    compile; any files that don't end in :file:`.py` are silently skipped.
    *optimize* must be one of the following:
 
-* ``0`` - don't optimize (generate :file:`.pyc`)
-
-* ``1`` - normal optimization (like ``python -O``)
-
-* ``2`` - extra optimization (like ``python -OO``)
+   * ``0`` - don't optimize (generate :file:`.pyc`)
+   * ``1`` - normal optimization (like ``python -O``)
+   * ``2`` - extra optimization (like ``python -OO``)
 
    If *force* is true, all files are recompiled regardless of timestamps.
 
@@ -1333,7 +1326,7 @@ provides the following additional features:
       later).
 
 
-.. class:: FancyGetopt([option_table=``None``])
+.. class:: FancyGetopt([option_table=None])
 
    The option_table is a list of 3-tuples: ``(long_option, short_option,
    help_string)``
@@ -1346,7 +1339,7 @@ provides the following additional features:
 The :class:`FancyGetopt` class provides the following methods:
 
 
-.. method:: FancyGetopt.getopt([args=``None``, object=``None``])
+.. method:: FancyGetopt.getopt([args=None, object=None])
 
    Parse command-line options in args. Store as attributes on *object*.
 
@@ -1367,7 +1360,7 @@ The :class:`FancyGetopt` class provides the following methods:
    yet.
 
 
-.. method:: FancyGetopt.generate_help([header=``None``])
+.. method:: FancyGetopt.generate_help([header=None])
 
    Generate help text (a list of strings, one per suggested line of output) from
    the option table for this :class:`FancyGetopt` object.
@@ -1540,7 +1533,7 @@ text files that (optionally) takes care of stripping comments, ignoring  blank
 lines, and joining lines with backslashes.
 
 
-.. class:: TextFile([filename=``None``, file=``None``, **options])
+.. class:: TextFile([filename=None, file=None, **options])
 
    This class provides a file-like object that takes care of all  the things you
    commonly want to do when processing a text file  that has some line-by-line
@@ -1628,7 +1621,7 @@ lines, and joining lines with backslashes.
       filename and the current line number).
 
 
-   .. method:: TextFile.warn(msg[,line=``None``])
+   .. method:: TextFile.warn(msg[,line=None])
 
       Print (to stderr) a warning message tied to the current logical line in the
       current file.  If the current logical line in the file spans multiple physical
@@ -1952,12 +1945,12 @@ Subclasses of :class:`Command` must define the following methods.
 
 .. method:: Command.finalize_options()
 
-   Set final values for all the options that this command supports. This is always
-   called as late as possible, ie.  after any option assignments from the command-
-   line or from other commands have been done.  Thus, this is the place to to code
-   option dependencies: if *foo* depends on *bar*, then it is safe to set *foo*
-   from  *bar* as long as *foo* still has the same value it was assigned in
-   :meth:`initialize_options`.
+   Set final values for all the options that this command supports. This is
+   always called as late as possible, ie.  after any option assignments from the
+   command-line or from other commands have been done.  Thus, this is the place
+   to to code option dependencies: if *foo* depends on *bar*, then it is safe to
+   set *foo* from *bar* as long as *foo* still has the same value it was
+   assigned in :meth:`initialize_options`.
 
 
 .. method:: Command.run()

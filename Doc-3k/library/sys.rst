@@ -23,8 +23,8 @@ always available.
 .. data:: byteorder
 
    An indicator of the native byte order.  This will have the value ``'big'`` on
-   big-endian (most-significant byte first) platforms, and ``'little'`` on little-
-   endian (least-significant byte first) platforms.
+   big-endian (most-significant byte first) platforms, and ``'little'`` on
+   little-endian (least-significant byte first) platforms.
 
    .. versionadded:: 2.0
 
@@ -217,14 +217,14 @@ always available.
    file names, or ``None`` if the system default encoding is used. The result value
    depends on the operating system:
 
-* On Windows 9x, the encoding is "mbcs".
+   * On Windows 9x, the encoding is "mbcs".
 
-* On Mac OS X, the encoding is "utf-8".
+   * On Mac OS X, the encoding is "utf-8".
 
-* On Unix, the encoding is the user's preference according to the result of
+   * On Unix, the encoding is the user's preference according to the result of
      nl_langinfo(CODESET), or :const:`None` if the ``nl_langinfo(CODESET)`` failed.
 
-* On Windows NT+, file names are Unicode natively, so no conversion is
+   * On Windows NT+, file names are Unicode natively, so no conversion is
      performed. :func:`getfilesystemencoding` still returns ``'mbcs'``, as this is
      the encoding that applications should use when they explicitly want to convert
      Unicode strings to byte strings that are equivalent when used as file names.
@@ -335,8 +335,9 @@ always available.
    more information.)
 
    The meaning of the variables is the same as that of the return values from
-   :func:`exc_info` above.  (Since there is only one interactive thread, thread-
-   safety is not a concern for these variables, unlike for ``exc_type`` etc.)
+   :func:`exc_info` above.  (Since there is only one interactive thread,
+   thread-safety is not a concern for these variables, unlike for ``exc_type``
+   etc.)
 
 
 .. data:: maxint

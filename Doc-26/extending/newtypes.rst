@@ -700,10 +700,10 @@ means that :class:`Noddy` objects can participate in cycles::
    >>> l = [n]
    >>> n.first = l
 
-This is pretty silly, but it gives us an excuse to add support for the cyclic-
-garbage collector to the :class:`Noddy` example.  To support cyclic garbage
-collection, types need to fill two slots and set a class flag that enables these
-slots:
+This is pretty silly, but it gives us an excuse to add support for the
+cyclic-garbage collector to the :class:`Noddy` example.  To support cyclic
+garbage collection, types need to fill two slots and set a class flag that
+enables these slots:
 
 .. literalinclude:: ../includes/noddy4.c
 

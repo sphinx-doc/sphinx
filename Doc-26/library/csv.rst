@@ -59,7 +59,7 @@ Module Contents
 The :mod:`csv` module defines the following functions:
 
 
-.. function:: reader(csvfile[, dialect=``'excel'``][, fmtparam])
+.. function:: reader(csvfile[, dialect='excel'][, fmtparam])
 
    Return a reader object which will iterate over lines in the given *csvfile*.
    *csvfile* can be any object which supports the iterator protocol and returns a
@@ -87,7 +87,7 @@ The :mod:`csv` module defines the following functions:
       be split into lines in a manner which preserves the newline characters.
 
 
-.. function:: writer(csvfile[, dialect=``'excel'``][, fmtparam])
+.. function:: writer(csvfile[, dialect='excel'][, fmtparam])
 
    Return a writer object responsible for converting the user's data into delimited
    strings on the given file-like object.  *csvfile* can be any object with a
@@ -143,7 +143,7 @@ The :mod:`csv` module defines the following functions:
 The :mod:`csv` module defines the following classes:
 
 
-.. class:: DictReader(csvfile[, fieldnames=:const:`None`,[, restkey=:const:`None`[, restval=:const:`None`[, dialect=``'excel'``[, *args, **kwds]]]]])
+.. class:: DictReader(csvfile[, fieldnames=:const:None,[, restkey=:const:None[, restval=None[, dialect='excel'[, *args, **kwds]]]]])
 
    Create an object which operates like a regular reader but maps the information
    read into a dict whose keys are given by the optional  *fieldnames* parameter.
@@ -157,7 +157,7 @@ The :mod:`csv` module defines the following classes:
    arguments are passed to the underlying :class:`reader` instance.
 
 
-.. class:: DictWriter(csvfile, fieldnames[, restval=""[, extrasaction=``'raise'``[, dialect=``'excel'``[, *args, **kwds]]]])
+.. class:: DictWriter(csvfile, fieldnames[, restval=''[, extrasaction='raise'[, dialect='excel'[, *args, **kwds]]]])
 
    Create an object which operates like a regular writer but maps dictionaries onto
    output rows.  The *fieldnames* parameter identifies the order in which values in
@@ -202,7 +202,7 @@ The :mod:`csv` module defines the following classes:
 The :class:`Sniffer` class provides two methods:
 
 
-.. method:: Sniffer.sniff(sample[,delimiters=None])
+.. method:: Sniffer.sniff(sample[, delimiters=None])
 
    Analyze the given *sample* and return a :class:`Dialect` subclass reflecting the
    parameters found.  If the optional *delimiters* parameter is given, it is

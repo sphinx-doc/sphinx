@@ -102,15 +102,16 @@ Initialization, Finalization, and Threads
    ``sys.stdout`` and ``sys.stderr`` (however these refer to the same underlying
    :ctype:`FILE` structures in the C library).
 
-   The return value points to the first thread state created in the new sub-
-   interpreter.  This thread state is made in the current thread state.  Note that
-   no actual thread is created; see the discussion of thread states below.  If
-   creation of the new interpreter is unsuccessful, *NULL* is returned; no
-   exception is set since the exception state is stored in the current thread state
-   and there may not be a current thread state.  (Like all other Python/C API
-   functions, the global interpreter lock must be held before calling this function
-   and is still held when it returns; however, unlike most other Python/C API
-   functions, there needn't be a current thread state on entry.)
+   The return value points to the first thread state created in the new
+   sub-interpreter.  This thread state is made in the current thread state.
+   Note that no actual thread is created; see the discussion of thread states
+   below.  If creation of the new interpreter is unsuccessful, *NULL* is
+   returned; no exception is set since the exception state is stored in the
+   current thread state and there may not be a current thread state.  (Like all
+   other Python/C API functions, the global interpreter lock must be held before
+   calling this function and is still held when it returns; however, unlike most
+   other Python/C API functions, there needn't be a current thread state on
+   entry.)
 
    .. index::
       single: Py_Finalize()
@@ -169,15 +170,15 @@ Initialization, Finalization, and Threads
       single: main()
       single: Py_GetPath()
 
-   This function should be called before :cfunc:`Py_Initialize` is called for the
-   first time, if it is called at all.  It tells the interpreter the value of the
-   ``argv[0]`` argument to the :cfunc:`main` function of the program.  This is used
-   by :cfunc:`Py_GetPath` and some other functions below to find the Python run-
-   time libraries relative to the interpreter executable.  The default value is
-   ``'python'``.  The argument should point to a zero-terminated character string
-   in static storage whose contents will not change for the duration of the
-   program's execution.  No code in the Python interpreter will change the contents
-   of this storage.
+   This function should be called before :cfunc:`Py_Initialize` is called for
+   the first time, if it is called at all.  It tells the interpreter the value
+   of the ``argv[0]`` argument to the :cfunc:`main` function of the program.
+   This is used by :cfunc:`Py_GetPath` and some other functions below to find
+   the Python run-time libraries relative to the interpreter executable.  The
+   default value is ``'python'``.  The argument should point to a
+   zero-terminated character string in static storage whose contents will not
+   change for the duration of the program's execution.  No code in the Python
+   interpreter will change the contents of this storage.
 
 
 .. cfunction:: char* Py_GetProgramName()
@@ -376,12 +377,12 @@ Thread State and the Global Interpreter Lock
    single: interpreter lock
    single: lock, interpreter
 
-The Python interpreter is not fully thread safe.  In order to support multi-
-threaded Python programs, there's a global lock that must be held by the current
-thread before it can safely access Python objects. Without the lock, even the
-simplest operations could cause problems in a multi-threaded program: for
-example, when two threads simultaneously increment the reference count of the
-same object, the reference count could end up being incremented only once
+The Python interpreter is not fully thread safe.  In order to support
+multi-threaded Python programs, there's a global lock that must be held by the
+current thread before it can safely access Python objects. Without the lock,
+even the simplest operations could cause problems in a multi-threaded program:
+for example, when two threads simultaneously increment the reference count of
+the same object, the reference count could end up being incremented only once
 instead of twice.
 
 .. index:: single: setcheckinterval() (in module sys)

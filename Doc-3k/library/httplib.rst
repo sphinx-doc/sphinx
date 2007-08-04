@@ -100,8 +100,8 @@ The following exceptions are raised as appropriate:
 
 .. exception:: InvalidURL
 
-   A subclass of :exc:`HTTPException`, raised if a port is given and is either non-
-   numeric or empty.
+   A subclass of :exc:`HTTPException`, raised if a port is given and is either
+   non-numeric or empty.
 
    .. versionadded:: 2.3
 
@@ -396,11 +396,11 @@ HTTPConnection Objects
 
    This will send a request to the server using the HTTP request method *method*
    and the selector *url*.  If the *body* argument is present, it should be a
-   string of data to send after the headers are finished. Alternatively, it may be
-   an open file object, in which case the contents of the file is sent; this file
-   object should support ``fileno()`` and ``read()`` methods. The header Content-
-   Length is automatically set to the correct value. The *headers* argument should
-   be a mapping of extra HTTP headers to send with the request.
+   string of data to send after the headers are finished. Alternatively, it may
+   be an open file object, in which case the contents of the file is sent; this
+   file object should support ``fileno()`` and ``read()`` methods. The header
+   Content-Length is automatically set to the correct value. The *headers*
+   argument should be a mapping of extra HTTP headers to send with the request.
 
    .. versionchanged:: 2.6
       *body* can be a file object.

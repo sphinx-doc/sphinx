@@ -197,7 +197,7 @@ and may vary across implementations.
 All methods are executed atomically.
 
 
-.. method:: Lock.acquire([blocking\ ``= 1``])
+.. method:: Lock.acquire([blocking=1])
 
    Acquire a lock, blocking or non-blocking.
 
@@ -244,7 +244,7 @@ pair) resets the lock to unlocked and allows another thread blocked in
 :meth:`acquire` to proceed.
 
 
-.. method:: RLock.acquire([blocking\ ``= 1``])
+.. method:: RLock.acquire([blocking=1])
 
    Acquire a lock, blocking or non-blocking.
 

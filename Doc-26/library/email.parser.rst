@@ -51,11 +51,11 @@ and results of the two parser APIs are identical.
 The :class:`FeedParser`'s API is simple; you create an instance, feed it a bunch
 of text until there's no more to feed it, then close the parser to retrieve the
 root message object.  The :class:`FeedParser` is extremely accurate when parsing
-standards-compliant messages, and it does a very good job of parsing non-
-compliant messages, providing information about how a message was deemed broken.
-It will populate a message object's *defects* attribute with a list of any
-problems it found in a message.  See the :mod:`email.errors` module for the list
-of defects that it can find.
+standards-compliant messages, and it does a very good job of parsing
+non-compliant messages, providing information about how a message was deemed
+broken.  It will populate a message object's *defects* attribute with a list of
+any problems it found in a message.  See the :mod:`email.errors` module for the
+list of defects that it can find.
 
 Here is the API for the :class:`FeedParser`:
 
@@ -108,10 +108,10 @@ class.
    The optional *strict* flag is ignored.
 
    .. deprecated:: 2.4
-      Because the :class:`Parser` class is a backward compatible API wrapper around
-      the new-in-Python 2.4 :class:`FeedParser`, *all* parsing is effectively non-
-      strict.  You should simply stop passing a *strict* flag to the :class:`Parser`
-      constructor.
+      Because the :class:`Parser` class is a backward compatible API wrapper
+      around the new-in-Python 2.4 :class:`FeedParser`, *all* parsing is
+      effectively non-strict.  You should simply stop passing a *strict* flag to
+      the :class:`Parser` constructor.
 
    .. versionchanged:: 2.2.2
       The *strict* flag was added.
@@ -129,10 +129,10 @@ The other public :class:`Parser` methods are:
    the :meth:`read` methods on file-like objects.
 
    The text contained in *fp* must be formatted as a block of :rfc:`2822` style
-   headers and header continuation lines, optionally preceded by a envelope header.
-   The header block is terminated either by the end of the data or by a blank line.
-   Following the header block is the body of the message (which may contain MIME-
-   encoded subparts).
+   headers and header continuation lines, optionally preceded by a envelope
+   header.  The header block is terminated either by the end of the data or by a
+   blank line.  Following the header block is the body of the message (which may
+   contain MIME-encoded subparts).
 
    Optional *headersonly* is as with the :meth:`parse` method.
 

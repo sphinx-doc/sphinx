@@ -7,9 +7,9 @@
 .. sectionauthor:: Moshe Zadka <moshez@zadka.site.co.il>
 
 
-The :mod:`SimpleHTTPServer` module defines a request-handler class, interface-
-compatible with :class:`BaseHTTPServer.BaseHTTPRequestHandler`, that serves
-files only from a base directory.
+The :mod:`SimpleHTTPServer` module defines a request-handler class,
+interface-compatible with :class:`BaseHTTPServer.BaseHTTPRequestHandler`, that
+serves files only from a base directory.
 
 The :mod:`SimpleHTTPServer` module defines the following class:
 

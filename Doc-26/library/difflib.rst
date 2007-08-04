@@ -34,10 +34,10 @@
 
 .. class:: Differ
 
-   This is a class for comparing sequences of lines of text, and producing human-
-   readable differences or deltas.  Differ uses :class:`SequenceMatcher` both to
-   compare sequences of lines, and to compare sequences of characters within
-   similar (near-matching) lines.
+   This is a class for comparing sequences of lines of text, and producing
+   human-readable differences or deltas.  Differ uses :class:`SequenceMatcher`
+   both to compare sequences of lines, and to compare sequences of characters
+   within similar (near-matching) lines.
 
    Each line of a :class:`Differ` delta begins with a two-letter code:
 

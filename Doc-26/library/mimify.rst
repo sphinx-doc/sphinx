@@ -11,8 +11,8 @@
    module.  This module is present only to maintain backward compatibility.
 
 The :mod:`mimify` module defines two functions to convert mail messages to and
-from MIME format.  The mail message can be either a simple message or a so-
-called multipart message.  Each part is treated separately. Mimifying (a part
+from MIME format.  The mail message can be either a simple message or a
+so-called multipart message.  Each part is treated separately. Mimifying (a part
 of) a message entails encoding the message as quoted-printable if it contains
 any characters that cannot be represented using 7-bit ASCII.  Unmimifying (a
 part of) a message entails undoing the quoted-printable encoding.  Mimify and
@@ -61,9 +61,9 @@ variables:
 
 .. data:: MAXLEN
 
-   By default, a part will be encoded as quoted-printable when it contains any non-
-   ASCII characters (characters with the 8th bit set), or if there are any lines
-   longer than :const:`MAXLEN` characters (default value 200).
+   By default, a part will be encoded as quoted-printable when it contains any
+   non-ASCII characters (characters with the 8th bit set), or if there are any
+   lines longer than :const:`MAXLEN` characters (default value 200).
 
 
 .. data:: CHARSET

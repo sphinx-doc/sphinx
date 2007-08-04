@@ -11,9 +11,9 @@
 .. sectionauthor:: Moshe Zadka <moshez@zadka.site.co.il>
 
 
-The :mod:`turtle` module provides turtle graphics primitives, in both an object-
-oriented and procedure-oriented ways. Because it uses :mod:`Tkinter` for the
-underlying graphics, it needs a version of python installed with Tk support.
+The :mod:`turtle` module provides turtle graphics primitives, in both an
+object-oriented and procedure-oriented ways. Because it uses :mod:`Tkinter` for
+the underlying graphics, it needs a version of python installed with Tk support.
 
 The procedural interface uses a pen and a canvas which are automagically created
 when any of the functions are called.
@@ -35,16 +35,16 @@ The :mod:`turtle` module defines the following functions:
 
    Sets the size and position of the main window.  Keywords are:
 
-* ``width``: either a size in pixels or a fraction of the screen. The default is
+   * ``width``: either a size in pixels or a fraction of the screen. The default is
      50% of the screen.
 
-* ``height``: either a size in pixels or a fraction of the screen. The default
+   * ``height``: either a size in pixels or a fraction of the screen. The default
      is 50% of the screen.
 
-* ``startx``: starting position in pixels from the left edge of the screen.
+   * ``startx``: starting position in pixels from the left edge of the screen.
      ``None`` is the default value and  centers the window horizontally on screen.
 
-* ``starty``: starting position in pixels from the top edge of the screen.
+   * ``starty``: starting position in pixels from the top edge of the screen.
      ``None`` is the default value and  centers the window vertically on screen.
 
    Examples::

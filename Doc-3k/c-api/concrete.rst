@@ -1758,11 +1758,9 @@ They all return *NULL* or ``-1`` if an exception occurs.
 
    Rich compare two unicode strings and return one of the following:
 
-* ``NULL`` in case an exception was raised
-
-* :const:`Py_True` or :const:`Py_False` for successful comparisons
-
-* :const:`Py_NotImplemented` in case the type combination is unknown
+   * ``NULL`` in case an exception was raised
+   * :const:`Py_True` or :const:`Py_False` for successful comparisons
+   * :const:`Py_NotImplemented` in case the type combination is unknown
 
    Note that :const:`Py_EQ` and :const:`Py_NE` comparisons can cause a
    :exc:`UnicodeWarning` in case the conversion of the arguments to Unicode fails
@@ -2528,7 +2526,7 @@ change in future releases of Python.
 
    .. index:: single: EOFError (built-in exception)
 
-   Equivalent to ``p.readline([*n*])``, this function reads one line from the
+   Equivalent to ``p.readline([n])``, this function reads one line from the
    object *p*.  *p* may be a file object or any object with a :meth:`readline`
    method.  If *n* is ``0``, exactly one line is read, regardless of the length of
    the line.  If *n* is greater than ``0``, no more than *n* bytes will be read
@@ -2890,8 +2888,9 @@ sentinel value is returned.
 
 .. cvar:: PyTypeObject PySeqIter_Type
 
-   Type object for iterator objects returned by :cfunc:`PySeqIter_New` and the one-
-   argument form of the :func:`iter` built-in function for built-in sequence types.
+   Type object for iterator objects returned by :cfunc:`PySeqIter_New` and the
+   one-argument form of the :func:`iter` built-in function for built-in sequence
+   types.
 
    .. versionadded:: 2.2
 
@@ -3082,14 +3081,14 @@ as much as it can.
 
 .. cfunction:: PyObject* PyWeakref_NewRef(PyObject *ob, PyObject *callback)
 
-   Return a weak reference object for the object *ob*.  This will always return a
-   new reference, but is not guaranteed to create a new object; an existing
+   Return a weak reference object for the object *ob*.  This will always return
+   a new reference, but is not guaranteed to create a new object; an existing
    reference object may be returned.  The second parameter, *callback*, can be a
    callable object that receives notification when *ob* is garbage collected; it
    should accept a single parameter, which will be the weak reference object
-   itself. *callback* may also be ``None`` or *NULL*.  If *ob* is not a weakly-
-   referencable object, or if *callback* is not callable, ``None``, or *NULL*, this
-   will return *NULL* and raise :exc:`TypeError`.
+   itself. *callback* may also be ``None`` or *NULL*.  If *ob* is not a
+   weakly-referencable object, or if *callback* is not callable, ``None``, or
+   *NULL*, this will return *NULL* and raise :exc:`TypeError`.
 
    .. versionadded:: 2.2
 
@@ -3098,12 +3097,12 @@ as much as it can.
 
    Return a weak reference proxy object for the object *ob*.  This will always
    return a new reference, but is not guaranteed to create a new object; an
-   existing proxy object may be returned.  The second parameter, *callback*, can be
-   a callable object that receives notification when *ob* is garbage collected; it
-   should accept a single parameter, which will be the weak reference object
-   itself. *callback* may also be ``None`` or *NULL*.  If *ob* is not a weakly-
-   referencable object, or if *callback* is not callable, ``None``, or *NULL*, this
-   will return *NULL* and raise :exc:`TypeError`.
+   existing proxy object may be returned.  The second parameter, *callback*, can
+   be a callable object that receives notification when *ob* is garbage
+   collected; it should accept a single parameter, which will be the weak
+   reference object itself. *callback* may also be ``None`` or *NULL*.  If *ob*
+   is not a weakly-referencable object, or if *callback* is not callable,
+   ``None``, or *NULL*, this will return *NULL* and raise :exc:`TypeError`.
 
    .. versionadded:: 2.2
 

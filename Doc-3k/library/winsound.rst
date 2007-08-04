@@ -41,7 +41,7 @@ provided by Windows platforms.  It includes functions and several constants.
    :exc:`RuntimeError` is raised.
 
 
-.. function:: MessageBeep([type=``MB_OK``])
+.. function:: MessageBeep([type=MB_OK])
 
    Call the underlying :cfunc:`MessageBeep` function from the Platform API.  This
    plays a sound as specified in the registry.  The *type* argument specifies which

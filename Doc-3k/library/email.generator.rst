@@ -100,17 +100,17 @@ representing the part.
    string that is used instead of the message payload. *fmt* is expanded with the
    following keywords, ``%(keyword)s`` format:
 
-* ``type`` -- Full MIME type of the non-\ :mimetype:`text` part
+   * ``type`` -- Full MIME type of the non-\ :mimetype:`text` part
 
-* ``maintype`` -- Main MIME type of the non-\ :mimetype:`text` part
+   * ``maintype`` -- Main MIME type of the non-\ :mimetype:`text` part
 
-* ``subtype`` -- Sub-MIME type of the non-\ :mimetype:`text` part
+   * ``subtype`` -- Sub-MIME type of the non-\ :mimetype:`text` part
 
-* ``filename`` -- Filename of the non-\ :mimetype:`text` part
+   * ``filename`` -- Filename of the non-\ :mimetype:`text` part
 
-* ``description`` -- Description associated with the non-\ :mimetype:`text` part
+   * ``description`` -- Description associated with the non-\ :mimetype:`text` part
 
-* ``encoding`` -- Content transfer encoding of the non-\ :mimetype:`text` part
+   * ``encoding`` -- Content transfer encoding of the non-\ :mimetype:`text` part
 
    The default value for *fmt* is ``None``, meaning ::
 

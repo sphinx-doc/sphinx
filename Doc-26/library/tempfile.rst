@@ -32,7 +32,7 @@ use keyword arguments for clarity.
 The module defines the following user-callable functions:
 
 
-.. function:: TemporaryFile([mode=``'w+b'``[, bufsize=``-1``[, suffix[, prefix[, dir]]]]])
+.. function:: TemporaryFile([mode='w+b'[, bufsize=-1[, suffix[, prefix[, dir]]]]])
 
    Return a file (or file-like) object that can be used as a temporary storage
    area.  The file is created using :func:`mkstemp`. It will be destroyed as soon
@@ -50,7 +50,7 @@ The module defines the following user-callable functions:
    The *dir*, *prefix* and *suffix* parameters are passed to :func:`mkstemp`.
 
 
-.. function:: NamedTemporaryFile([mode=``'w+b'``[, bufsize=``-1``[, suffix[, prefix[, dir[, delete]]]]]])
+.. function:: NamedTemporaryFile([mode='w+b'[, bufsize=-1[, suffix[, prefix[, dir[, delete]]]]]])
 
    This function operates exactly as :func:`TemporaryFile` does, except that the
    file is guaranteed to have a visible name in the file system (on Unix, the
@@ -66,7 +66,7 @@ The module defines the following user-callable functions:
       The *delete* parameter.
 
 
-.. function:: SpooledTemporaryFile([max_size=``0``, [mode=``'w+b'``[, bufsize=``-1``[, suffix[, prefix[, dir]]]]]])
+.. function:: SpooledTemporaryFile([max_size=0, [mode='w+b'[, bufsize=-1[, suffix[, prefix[, dir]]]]]])
 
    This function operates exactly as :func:`TemporaryFile` does, except that data
    is spooled in memory until the file size exceeds *max_size*, or until the file's
@@ -98,13 +98,13 @@ The module defines the following user-callable functions:
    If *prefix* is specified, the file name will begin with that prefix; otherwise,
    a default prefix is used.
 
-   If *dir* is specified, the file will be created in that directory; otherwise, a
-   default directory is used.  The default directory is chosen from a platform-
-   dependent list, but the user of the application can control the directory
-   location by setting the *TMPDIR*, *TEMP* or *TMP* environment variables.  There
-   is thus no guarantee that the generated filename will have any nice properties,
-   such as not requiring quoting when passed to external commands via
-   ``os.popen()``.
+   If *dir* is specified, the file will be created in that directory; otherwise,
+   a default directory is used.  The default directory is chosen from a
+   platform-dependent list, but the user of the application can control the
+   directory location by setting the *TMPDIR*, *TEMP* or *TMP* environment
+   variables.  There is thus no guarantee that the generated filename will have
+   any nice properties, such as not requiring quoting when passed to external
+   commands via ``os.popen()``.
 
    If *text* is specified, it indicates whether to open the file in binary mode
    (the default) or text mode.  On some platforms, this makes no difference.
@@ -162,24 +162,24 @@ function arguments, instead.
    Python searches a standard list of directories and sets *tempdir* to the first
    one which the calling user can create files in.  The list is:
 
-#. The directory named by the :envvar:`TMPDIR` environment variable.
+   #. The directory named by the :envvar:`TMPDIR` environment variable.
 
-#. The directory named by the :envvar:`TEMP` environment variable.
+   #. The directory named by the :envvar:`TEMP` environment variable.
 
-#. The directory named by the :envvar:`TMP` environment variable.
+   #. The directory named by the :envvar:`TMP` environment variable.
 
-#. A platform-specific location:
+   #. A platform-specific location:
 
-* On RiscOS, the directory named by the :envvar:`Wimp$ScrapDir` environment
+      * On RiscOS, the directory named by the :envvar:`Wimp$ScrapDir` environment
         variable.
 
-* On Windows, the directories :file:`C:$\\TEMP`, :file:`C:$\\TMP`,
+      * On Windows, the directories :file:`C:$\\TEMP`, :file:`C:$\\TMP`,
         :file:`\\TEMP`, and :file:`\\TMP`, in that order.
 
-* On all other platforms, the directories :file:`/tmp`, :file:`/var/tmp`, and
+      * On all other platforms, the directories :file:`/tmp`, :file:`/var/tmp`, and
         :file:`/usr/tmp`, in that order.
 
-#. As a last resort, the current working directory.
+   #. As a last resort, the current working directory.
 
 
 .. function:: gettempdir()

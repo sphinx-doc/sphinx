@@ -134,10 +134,10 @@ The special characters are:
 
 ``{m,n}?``
    Causes the resulting RE to match from *m* to *n* repetitions of the preceding
-   RE, attempting to match as *few* repetitions as possible.  This is the non-
-   greedy version of the previous qualifier.  For example, on the 6-character
-   string ``'aaaaaa'``, ``a{3,5}`` will match 5 ``'a'`` characters, while
-   ``a{3,5}?`` will only match 3 characters.
+   RE, attempting to match as *few* repetitions as possible.  This is the
+   non-greedy version of the previous qualifier.  For example, on the
+   6-character string ``'aaaaaa'``, ``a{3,5}`` will match 5 ``'a'`` characters,
+   while ``a{3,5}?`` will only match 3 characters.
 
 ``'\'``
    Either escapes special characters (permitting you to match characters like
@@ -519,7 +519,7 @@ form.
       If you want to locate a match anywhere in *string*, use :meth:`search` instead.
 
 
-.. function:: split(pattern, string[, maxsplit\ ``= 0``])
+.. function:: split(pattern, string[, maxsplit=0])
 
    Split *string* by the occurrences of *pattern*.  If capturing parentheses are
    used in *pattern*, then the text of all groups in the pattern are also returned
@@ -673,7 +673,7 @@ attributes:
    :meth:`match` method.
 
 
-.. method:: RegexObject.split(string[, maxsplit\ ``= 0``])
+.. method:: RegexObject.split(string[, maxsplit=0])
 
    Identical to the :func:`split` function, using the compiled pattern.
 
@@ -688,12 +688,12 @@ attributes:
    Identical to the :func:`finditer` function, using the compiled pattern.
 
 
-.. method:: RegexObject.sub(repl, string[, count\ ``= 0``])
+.. method:: RegexObject.sub(repl, string[, count=0])
 
    Identical to the :func:`sub` function, using the compiled pattern.
 
 
-.. method:: RegexObject.subn(repl, string[, count\ ``= 0``])
+.. method:: RegexObject.subn(repl, string[, count=0])
 
    Identical to the :func:`subn` function, using the compiled pattern.
 

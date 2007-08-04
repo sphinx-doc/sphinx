@@ -263,7 +263,7 @@ the same under Windows, and very often the same under Unix and Mac OS X.  You
 can find out what your Python installation uses for :file:`{prefix}` and
 :file:`{exec-prefix}` by running Python in interactive mode and typing a few
 simple commands. Under Unix, just type ``python`` at the shell prompt.  Under
-Windows, choose :menuselection:`Start --> Programs --> Python |version|-->
+Windows, choose :menuselection:`Start --> Programs --> Python X.Y -->
 Python (command line)`.   Once the interpreter is started, you type Python code
 at the prompt.  For example, on my Linux system, I type the three Python
 statements shown below, and get the output as shown, to find out my
@@ -506,8 +506,8 @@ section :ref:`inst-search-path` to find out how to modify Python's search path.
 
 If you want to define an entire installation scheme, you just have to supply all
 of the installation directory options.  The recommended way to do this is to
-supply relative paths; for example, if you want to maintain all Python module-
-related files under :file:`python` in your home directory, and you want a
+supply relative paths; for example, if you want to maintain all Python
+module-related files under :file:`python` in your home directory, and you want a
 separate directory for each platform that you use your home directory from, you
 might define the following installation scheme::
 
@@ -645,8 +645,8 @@ before doing the installation.
 There are two environment variables that can modify ``sys.path``.
 :envvar:`PYTHONHOME` sets an alternate value for the prefix of the Python
 installation.  For example, if :envvar:`PYTHONHOME` is set to ``/www/python``,
-the search path will be set to ``['', '/www/python/lib/python|version|/',
-'/www/python/lib/python|version|/plat-linux2', ...]``.
+the search path will be set to ``['', '/www/python/lib/pythonX.Y/',
+'/www/python/lib/pythonX.Y/plat-linux2', ...]``.
 
 The :envvar:`PYTHONPATH` variable can be set to a list of paths that will be
 added to the beginning of ``sys.path``.  For example, if :envvar:`PYTHONPATH` is
@@ -812,8 +812,8 @@ Tweaking compiler/linker flags
 Compiling a Python extension written in C or C++ will sometimes require
 specifying custom flags for the compiler and linker in order to use a particular
 library or produce a special kind of object code. This is especially true if the
-extension hasn't been tested on your  platform, or if you're trying to cross-
-compile Python.
+extension hasn't been tested on your platform, or if you're trying to
+cross-compile Python.
 
 In the most general case, the extension author might have foreseen that
 compiling the extensions would be complicated, and provided a :file:`Setup` file

@@ -53,8 +53,8 @@ The module defines the following variables and functions:
 
 .. function:: dither2mono(image, width, height)
 
-   Convert an 8-bit greyscale image to a 1-bit monochrome image using a (simple-
-   minded) dithering algorithm.
+   Convert an 8-bit greyscale image to a 1-bit monochrome image using a
+   (simple-minded) dithering algorithm.
 
 
 .. function:: mono2grey(image, width, height, p0, p1)
@@ -93,11 +93,12 @@ The module defines the following variables and functions:
 
 .. data:: backward_compatible
 
-   If set to 0, the functions in this module use a non-backward compatible way of
-   representing multi-byte pixels on little-endian systems.  The SGI for which this
-   module was originally written is a big-endian system, so setting this variable
-   will have no effect. However, the code wasn't originally intended to run on
-   anything else, so it made assumptions about byte order which are not universal.
-   Setting this variable to 0 will cause the byte order to be reversed on little-
-   endian systems, so that it then is the same as on big-endian systems.
+   If set to 0, the functions in this module use a non-backward compatible way
+   of representing multi-byte pixels on little-endian systems.  The SGI for
+   which this module was originally written is a big-endian system, so setting
+   this variable will have no effect. However, the code wasn't originally
+   intended to run on anything else, so it made assumptions about byte order
+   which are not universal.  Setting this variable to 0 will cause the byte
+   order to be reversed on little-endian systems, so that it then is the same as
+   on big-endian systems.
 

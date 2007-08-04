@@ -324,9 +324,9 @@ A :class:`Connection` instance has the following attributes and methods:
    The first argument to the callback signifies what kind of operation is to be
    authorized. The second and third argument will be arguments or :const:`None`
    depending on the first argument. The 4th argument is the name of the database
-   ("main", "temp", etc.) if applicable. The 5th argument is the name of the inner-
-   most trigger or view that is responsible for the access attempt or :const:`None`
-   if this access attempt is directly from input SQL code.
+   ("main", "temp", etc.) if applicable. The 5th argument is the name of the
+   inner-most trigger or view that is responsible for the access attempt or
+   :const:`None` if this access attempt is directly from input SQL code.
 
    Please consult the SQLite documentation about the possible values for the first
    argument and the meaning of the second and third argument depending on the first
@@ -344,12 +344,12 @@ A :class:`Connection` instance has the following attributes and methods:
 
    .. literalinclude:: ../includes/sqlite3/row_factory.py
 
-   If returning a tuple doesn't suffice and you want name-based access to columns,
-   you should consider setting :attr:`row_factory` to the highly-optimized
-   :class:`sqlite3.Row` type. :class:`Row` provides both index-based and case-
-   insensitive name-based access to columns with almost no memory overhead. It will
-   probably be better than your own custom  dictionary-based approach or even a
-   db_row based solution.
+   If returning a tuple doesn't suffice and you want name-based access to
+   columns, you should consider setting :attr:`row_factory` to the
+   highly-optimized :class:`sqlite3.Row` type. :class:`Row` provides both
+   index-based and case-insensitive name-based access to columns with almost no
+   memory overhead. It will probably be better than your own custom
+   dictionary-based approach or even a db_row based solution.
 
    .. % XXX what's a db_row-based solution?
 

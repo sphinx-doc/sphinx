@@ -23,15 +23,15 @@ bound.  If your program  is processor bound, then pre-emptive scheduled threads
 are probably what  you really need. Network servers are rarely processor bound,
 however.
 
-If your operating system supports the :cfunc:`select` system call  in its I/O
-library (and nearly all do), then you can use it to juggle  multiple
-communication channels at once; doing other work while your  I/O is taking place
-in the "background."  Although this strategy can  seem strange and complex,
-especially at first, it is in many ways  easier to understand and control than
-multi-threaded programming.   The :mod:`asyncore` module solves many of the
-difficult problems for  you, making the task of building sophisticated high-
-performance  network servers and clients a snap. For "conversational"
-applications and protocols the companion  :mod:`asynchat` module is invaluable.
+If your operating system supports the :cfunc:`select` system call in its I/O
+library (and nearly all do), then you can use it to juggle multiple
+communication channels at once; doing other work while your I/O is taking place
+in the "background."  Although this strategy can seem strange and complex,
+especially at first, it is in many ways easier to understand and control than
+multi-threaded programming.  The :mod:`asyncore` module solves many of the
+difficult problems for you, making the task of building sophisticated
+high-performance network servers and clients a snap. For "conversational"
+applications and protocols the companion :mod:`asynchat` module is invaluable.
 
 The basic idea behind both modules is to create one or more network *channels*,
 instances of class :class:`asyncore.dispatcher` and

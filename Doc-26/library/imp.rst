@@ -179,12 +179,12 @@ around for backward compatibility:
 
 .. function:: init_frozen(name)
 
-   Initialize the frozen module called *name* and return its module object.  If the
-   module was already initialized, it will be initialized *again*.  If there is no
-   frozen module called *name*, ``None`` is returned.  (Frozen modules are modules
-   written in Python whose compiled byte-code object is incorporated into a custom-
-   built Python interpreter by Python's :program:`freeze` utility. See
-   :file:`Tools/freeze/` for now.)
+   Initialize the frozen module called *name* and return its module object.  If
+   the module was already initialized, it will be initialized *again*.  If there
+   is no frozen module called *name*, ``None`` is returned.  (Frozen modules are
+   modules written in Python whose compiled byte-code object is incorporated
+   into a custom-built Python interpreter by Python's :program:`freeze`
+   utility. See :file:`Tools/freeze/` for now.)
 
 
 .. function:: is_builtin(name)
@@ -242,10 +242,10 @@ around for backward compatibility:
 
 .. class:: NullImporter(path_string)
 
-   The :class:`NullImporter` type is a :pep:`302` import hook that handles non-
-   directory path strings by failing to find any modules.  Calling this type with
-   an existing directory or empty string raises :exc:`ImportError`.  Otherwise, a
-   :class:`NullImporter` instance is returned.
+   The :class:`NullImporter` type is a :pep:`302` import hook that handles
+   non-directory path strings by failing to find any modules.  Calling this type
+   with an existing directory or empty string raises :exc:`ImportError`.
+   Otherwise, a :class:`NullImporter` instance is returned.
 
    Python adds instances of this type to ``sys.path_importer_cache`` for any path
    entries that are not directories and are not handled by any other path hooks on

@@ -12,10 +12,10 @@
    single: URL
 
 This module provides a high-level interface for fetching data across the World
-Wide Web.  In particular, the :func:`urlopen` function is similar to the built-
-in function :func:`open`, but accepts Universal Resource Locators (URLs) instead
-of filenames.  Some restrictions apply --- it can only open URLs for reading,
-and no seek operations are available.
+Wide Web.  In particular, the :func:`urlopen` function is similar to the
+built-in function :func:`open`, but accepts Universal Resource Locators (URLs)
+instead of filenames.  Some restrictions apply --- it can only open URLs for
+reading, and no seek operations are available.
 
 It defines the following public functions:
 
@@ -42,16 +42,16 @@ It defines the following public functions:
    .. index:: module: mimetools
 
    The :meth:`info` method returns an instance of the class
-   :class:`mimetools.Message` containing meta-information associated with the URL.
-   When the method is HTTP, these headers are those returned by the server at the
-   head of the retrieved HTML page (including Content-Length and Content-Type).
-   When the method is FTP, a Content-Length header will be present if (as is now
-   usual) the server passed back a file length in response to the FTP retrieval
-   request. A Content-Type header will be present if the MIME type can be guessed.
-   When the method is local-file, returned headers will include a Date representing
-   the file's last-modified time, a Content-Length giving file size, and a Content-
-   Type containing a guess at the file's type. See also the description of the
-   :mod:`mimetools` module.
+   :class:`mimetools.Message` containing meta-information associated with the
+   URL.  When the method is HTTP, these headers are those returned by the server
+   at the head of the retrieved HTML page (including Content-Length and
+   Content-Type).  When the method is FTP, a Content-Length header will be
+   present if (as is now usual) the server passed back a file length in response
+   to the FTP retrieval request. A Content-Type header will be present if the
+   MIME type can be guessed.  When the method is local-file, returned headers
+   will include a Date representing the file's last-modified time, a
+   Content-Length giving file size, and a Content-Type containing a guess at the
+   file's type. See also the description of the :mod:`mimetools` module.
 
    The :meth:`geturl` method returns the real URL of the page.  In some cases, the
    HTTP server redirects a client to another URL.  The :func:`urlopen` function

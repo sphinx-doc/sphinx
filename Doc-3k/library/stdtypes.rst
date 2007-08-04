@@ -432,12 +432,13 @@ support:
 .. method:: container.__iter__()
 
    Return an iterator object.  The object is required to support the iterator
-   protocol described below.  If a container supports different types of iteration,
-   additional methods can be provided to specifically request iterators for those
-   iteration types.  (An example of an object supporting multiple forms of
-   iteration would be a tree structure which supports both breadth-first and depth-
-   first traversal.)  This method corresponds to the :attr:`tp_iter` slot of the
-   type structure for Python objects in the Python/C API.
+   protocol described below.  If a container supports different types of
+   iteration, additional methods can be provided to specifically request
+   iterators for those iteration types.  (An example of an object supporting
+   multiple forms of iteration would be a tree structure which supports both
+   breadth-first and depth-first traversal.)  This method corresponds to the
+   :attr:`tp_iter` slot of the type structure for Python objects in the Python/C
+   API.
 
 The iterator objects themselves are required to support the following two
 methods, which together form the :dfn:`iterator protocol`:
@@ -1177,9 +1178,9 @@ The conversion types are:
 Notes:
 
 (1)
-   The alternate form causes a leading zero (``'0'``) to be inserted between left-
-   hand padding and the formatting of the number if the leading character of the
-   result is not already a zero.
+   The alternate form causes a leading zero (``'0'``) to be inserted between
+   left-hand padding and the formatting of the number if the leading character
+   of the result is not already a zero.
 
 (2)
    The alternate form causes a leading ``'0x'`` or ``'0X'`` (depending on whether
@@ -1287,13 +1288,13 @@ defined on mutable sequence types (where *x* is an arbitrary object):
 | ``s.count(x)``               | return number of *i*'s for     |                     |
 |                              | which ``s[i] == x``            |                     |
 +------------------------------+--------------------------------+---------------------+
-| ``s.index(x[, *i*[, *j*]])`` | return smallest *k* such that  | \(4)                |
+| ``s.index(x[, i[, j]])``     | return smallest *k* such that  | \(4)                |
 |                              | ``s[k] == x`` and ``i <= k <   |                     |
 |                              | j``                            |                     |
 +------------------------------+--------------------------------+---------------------+
 | ``s.insert(i, x)``           | same as ``s[i:i] = [x]``       | \(5)                |
 +------------------------------+--------------------------------+---------------------+
-| ``s.pop([*i*])``             | same as ``x = s[i]; del s[i];  | \(6)                |
+| ``s.pop([i])``               | same as ``x = s[i]; del s[i];  | \(6)                |
 |                              | return x``                     |                     |
 +------------------------------+--------------------------------+---------------------+
 | ``s.remove(x)``              | same as ``del s[s.index(x)]``  | \(4)                |
@@ -1301,8 +1302,8 @@ defined on mutable sequence types (where *x* is an arbitrary object):
 | ``s.reverse()``              | reverses the items of *s* in   | \(7)                |
 |                              | place                          |                     |
 +------------------------------+--------------------------------+---------------------+
-| ``s.sort([*cmp*[, *key*[,    | sort the items of *s* in place | (7), (8), (9), (10) |
-| *reverse*]]])``              |                                |                     |
+| ``s.sort([cmp[, key[,        | sort the items of *s* in place | (7), (8), (9), (10) |
+| reverse]]])``                |                                |                     |
 +------------------------------+--------------------------------+---------------------+
 
 .. index::
@@ -1614,23 +1615,23 @@ mappings, *k* is a key, and *v* and *x* are arbitrary objects):
 +--------------------------------+---------------------------------+-----------+
 | ``a.keys()``                   | a copy of *a*'s list of keys    | \(3)      |
 +--------------------------------+---------------------------------+-----------+
-| ``a.update([*b*])``            | updates *a* with key/value      | \(9)      |
+| ``a.update([b])``              | updates *a* with key/value      | \(9)      |
 |                                | pairs from *b*, overwriting     |           |
 |                                | existing keys, returns ``None`` |           |
 +--------------------------------+---------------------------------+-----------+
-| ``a.fromkeys(seq[, *value*])`` | Creates a new dictionary with   | \(7)      |
+| ``a.fromkeys(seq[, value])``   | Creates a new dictionary with   | \(7)      |
 |                                | keys from *seq* and values set  |           |
 |                                | to *value*                      |           |
 +--------------------------------+---------------------------------+-----------+
 | ``a.values()``                 | a copy of *a*'s list of values  | \(3)      |
 +--------------------------------+---------------------------------+-----------+
-| ``a.get(k[, *x*])``            | ``a[k]`` if ``k in a``, else    | \(4)      |
+| ``a.get(k[, x])``              | ``a[k]`` if ``k in a``, else    | \(4)      |
 |                                | *x*                             |           |
 +--------------------------------+---------------------------------+-----------+
-| ``a.setdefault(k[, *x*])``     | ``a[k]`` if ``k in a``, else    | \(5)      |
+| ``a.setdefault(k[, x])``       | ``a[k]`` if ``k in a``, else    | \(5)      |
 |                                | *x* (also setting it)           |           |
 +--------------------------------+---------------------------------+-----------+
-| ``a.pop(k[, *x*])``            | ``a[k]`` if ``k in a``, else    | \(8)      |
+| ``a.pop(k[, x])``              | ``a[k]`` if ``k in a``, else    | \(8)      |
 |                                | *x* (and remove k)              |           |
 +--------------------------------+---------------------------------+-----------+
 | ``a.popitem()``                | remove and return an arbitrary  | \(6)      |
@@ -1705,13 +1706,13 @@ Notes:
 
 (10)
    If a subclass of dict defines a method :meth:`__missing__`, if the key *k* is
-   not present, the *a*[*k*] operation calls that method with the key *k* as
-   argument.  The *a*[*k*] operation then returns or raises whatever is returned or
-   raised by the :func:`__missing__`\ (*k*) call if the key is not present. No
-   other operations or methods invoke :meth:`__missing__`\ (). If
-   :meth:`__missing__` is not defined, :exc:`KeyError` is raised.
-   :meth:`__missing__` must be a method; it cannot be an instance variable. For an
-   example, see :mod:`collections`.\ :class:`defaultdict`.
+   not present, the ``a[k]`` operation calls that method with the key *k* as
+   argument.  The ``a[k]`` operation then returns or raises whatever is returned
+   or raised by the ``__missing__(k)`` call if the key is not present. No other
+   operations or methods invoke :meth:`__missing__`. If :meth:`__missing__` is
+   not defined, :exc:`KeyError` is raised.  :meth:`__missing__` must be a
+   method; it cannot be an instance variable. For an example, see
+   :class:`collections.defaultdict`.
 
    .. versionadded:: 2.5
 
@@ -1777,8 +1778,8 @@ Files have the following methods:
 
 .. method:: file.flush()
 
-   Flush the internal buffer, like ``stdio``'s :cfunc:`fflush`.  This may be a no-
-   op on some file-like objects.
+   Flush the internal buffer, like ``stdio``'s :cfunc:`fflush`.  This may be a
+   no-op on some file-like objects.
 
 
 .. method:: file.fileno()
@@ -1857,11 +1858,11 @@ Files have the following methods:
 .. method:: file.readlines([sizehint])
 
    Read until EOF using :meth:`readline` and return a list containing the lines
-   thus read.  If the optional *sizehint* argument is present, instead of reading
-   up to EOF, whole lines totalling approximately *sizehint* bytes (possibly after
-   rounding up to an internal buffer size) are read.  Objects implementing a file-
-   like interface may choose to ignore *sizehint* if it cannot be implemented, or
-   cannot be implemented efficiently.
+   thus read.  If the optional *sizehint* argument is present, instead of
+   reading up to EOF, whole lines totalling approximately *sizehint* bytes
+   (possibly after rounding up to an internal buffer size) are read.  Objects
+   implementing a file-like interface may choose to ignore *sizehint* if it
+   cannot be implemented, or cannot be implemented efficiently.
 
 
 .. method:: file.seek(offset[, whence])
@@ -1880,9 +1881,8 @@ Files have the following methods:
 
    Note that not all file objects are seekable.
 
-   .. versionchanged:: Passing float values as offset has been deprecated
-
-   [2.6]
+   .. versionchanged:: 2.6
+      Passing float values as offset has been deprecated
 
 
 .. method:: file.tell()
@@ -1960,9 +1960,9 @@ the particular object.
 .. attribute:: file.name
 
    If the file object was created using :func:`open`, the name of the file.
-   Otherwise, some string that indicates the source of the file object, of the form
-   ``<...>``.  This is a read-only attribute and may not be present on all file-
-   like objects.
+   Otherwise, some string that indicates the source of the file object, of the
+   form ``<...>``.  This is a read-only attribute and may not be present on all
+   file-like objects.
 
 
 .. attribute:: file.newlines
@@ -2015,7 +2015,7 @@ The :dfn:`context management protocol` consists of a pair of methods that need
 to be provided for a context manager object to define a runtime context:
 
 
-.. method:: context manager.__enter__()
+.. method:: contextmanager.__enter__()
 
    Enter the runtime context and return either this object or another object
    related to the runtime context. The value returned by this method is bound to
@@ -2034,7 +2034,7 @@ to be provided for a context manager object to define a runtime context:
    :keyword:`with` statement.
 
 
-.. method:: context manager.__exit__(exc_type, exc_val, exc_tb)
+.. method:: contextmanager.__exit__(exc_type, exc_val, exc_tb)
 
    Exit the runtime context and return a Boolean flag indicating if any expection
    that occurred should be suppressed. If an exception occurred while executing the
@@ -2103,7 +2103,7 @@ attribute is not possible (you can write ``m.__dict__['a'] = 1``, which defines
 
 Modules built into the interpreter are written like this: ``<module 'sys'
 (built-in)>``.  If loaded from a file, they are written as ``<module 'os' from
-'/usr/local/lib/python|version|/os.pyc'>``.
+'/usr/local/lib/pythonX.Y/os.pyc'>``.
 
 
 .. _typesobjects:
@@ -2124,9 +2124,9 @@ Functions
 Function objects are created by function definitions.  The only operation on a
 function object is to call it: ``func(argument-list)``.
 
-There are really two flavors of function objects: built-in functions and user-
-defined functions.  Both support the same operation (to call the function), but
-the implementation is different, hence the different object types.
+There are really two flavors of function objects: built-in functions and
+user-defined functions.  Both support the same operation (to call the function),
+but the implementation is different, hence the different object types.
 
 See :ref:`function` for more information.
 

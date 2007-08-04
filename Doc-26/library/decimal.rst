@@ -509,19 +509,13 @@ In addition to the three supplied contexts, new contexts can be created with the
 
    The *rounding* option is one of:
 
-* :const:`ROUND_CEILING` (towards :const:`Infinity`),
-
-* :const:`ROUND_DOWN` (towards zero),
-
-* :const:`ROUND_FLOOR` (towards :const:`-Infinity`),
-
-* :const:`ROUND_HALF_DOWN` (to nearest with ties going towards zero),
-
-* :const:`ROUND_HALF_EVEN` (to nearest with ties going to nearest even integer),
-
-* :const:`ROUND_HALF_UP` (to nearest with ties going away from zero), or
-
-* :const:`ROUND_UP` (away from zero).
+   * :const:`ROUND_CEILING` (towards :const:`Infinity`),
+   * :const:`ROUND_DOWN` (towards zero),
+   * :const:`ROUND_FLOOR` (towards :const:`-Infinity`),
+   * :const:`ROUND_HALF_DOWN` (to nearest with ties going towards zero),
+   * :const:`ROUND_HALF_EVEN` (to nearest with ties going to nearest even integer),
+   * :const:`ROUND_HALF_UP` (to nearest with ties going away from zero), or
+   * :const:`ROUND_UP` (away from zero).
 
    The *traps* and *flags* fields list any signals to be set. Generally, new
    contexts should only set traps and leave the flags clear.
@@ -1260,10 +1254,10 @@ representation issues associated with binary floating point::
 Q. Within a complex calculation, how can I make sure that I haven't gotten a
 spurious result because of insufficient precision or rounding anomalies.
 
-A. The decimal module makes it easy to test results.  A best practice is to re-
-run calculations using greater precision and with various rounding modes. Widely
-differing results indicate insufficient precision, rounding mode issues, ill-
-conditioned inputs, or a numerically unstable algorithm.
+A. The decimal module makes it easy to test results.  A best practice is to
+re-run calculations using greater precision and with various rounding modes.
+Widely differing results indicate insufficient precision, rounding mode issues,
+ill-conditioned inputs, or a numerically unstable algorithm.
 
 Q. I noticed that context precision is applied to the results of operations but
 not to the inputs.  Is there anything to watch out for when mixing values of

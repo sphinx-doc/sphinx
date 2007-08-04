@@ -189,7 +189,7 @@ numbering information.
    information is omitted if the flag is false or omitted.
 
 
-.. function:: compileast(ast[, filename\ ``= '<ast>'``])
+.. function:: compileast(ast[, filename='<ast>'])
 
    .. index::
       builtin: exec

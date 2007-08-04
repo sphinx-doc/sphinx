@@ -15,36 +15,37 @@
 What is curses?
 ===============
 
-The curses library supplies a terminal-independent screen-painting and keyboard-
-handling facility for text-based terminals; such terminals include VT100s, the
-Linux console, and the simulated terminal provided by X11 programs such as xterm
-and rxvt.  Display terminals support various control codes to perform common
-operations such as moving the cursor, scrolling the screen, and erasing areas.
-Different terminals use widely differing codes, and often have their own minor
-quirks.
+The curses library supplies a terminal-independent screen-painting and
+keyboard-handling facility for text-based terminals; such terminals include
+VT100s, the Linux console, and the simulated terminal provided by X11 programs
+such as xterm and rxvt.  Display terminals support various control codes to
+perform common operations such as moving the cursor, scrolling the screen, and
+erasing areas.  Different terminals use widely differing codes, and often have
+their own minor quirks.
 
-In a world of X displays, one might ask "why bother"?  It's true that character-
-cell display terminals are an obsolete technology, but there are niches in which
-being able to do fancy things with them are still valuable.  One is on small-
-footprint or embedded Unixes that  don't carry an X server.  Another is for
-tools like OS installers and kernel configurators that may have to run before X
-is available.
+In a world of X displays, one might ask "why bother"?  It's true that
+character-cell display terminals are an obsolete technology, but there are
+niches in which being able to do fancy things with them are still valuable.  One
+is on small-footprint or embedded Unixes that don't carry an X server.  Another
+is for tools like OS installers and kernel configurators that may have to run
+before X is available.
 
 The curses library hides all the details of different terminals, and provides
-the programmer with an abstraction of a display, containing multiple non-
-overlapping windows.  The contents of a window can be changed in various ways--
-adding text, erasing it, changing its appearance--and the curses library will
-automagically figure out what control codes need to be sent to the terminal to
-produce the right output.
+the programmer with an abstraction of a display, containing multiple
+non-overlapping windows.  The contents of a window can be changed in various
+ways-- adding text, erasing it, changing its appearance--and the curses library
+will automagically figure out what control codes need to be sent to the terminal
+to produce the right output.
 
 The curses library was originally written for BSD Unix; the later System V
 versions of Unix from AT&T added many enhancements and new functions. BSD curses
-is no longer maintained, having been replaced by ncurses, which is an open-
-source implementation of the AT&T interface.  If you're using an open-source
-Unix such as Linux or FreeBSD, your system almost certainly uses ncurses.  Since
-most current commercial Unix versions are based on System V code, all the
-functions described here will probably be available.  The older versions of
-curses carried by some proprietary Unixes may not support everything, though.
+is no longer maintained, having been replaced by ncurses, which is an
+open-source implementation of the AT&T interface.  If you're using an
+open-source Unix such as Linux or FreeBSD, your system almost certainly uses
+ncurses.  Since most current commercial Unix versions are based on System V
+code, all the functions described here will probably be available.  The older
+versions of curses carried by some proprietary Unixes may not support
+everything, though.
 
 No one has made a Windows port of the curses module.  On a Windows platform, try
 the Console module written by Fredrik Lundh.  The Console module provides

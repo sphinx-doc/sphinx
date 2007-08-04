@@ -984,9 +984,9 @@ StreamHandler
 ^^^^^^^^^^^^^
 
 The :class:`StreamHandler` class, located in the core :mod:`logging` package,
-sends logging output to streams such as *sys.stdout*, *sys.stderr* or any file-
-like object (or, more precisely, any object which supports :meth:`write` and
-:meth:`flush` methods).
+sends logging output to streams such as *sys.stdout*, *sys.stderr* or any
+file-like object (or, more precisely, any object which supports :meth:`write`
+and :meth:`flush` methods).
 
 
 .. class:: StreamHandler([strm])
@@ -1635,8 +1635,8 @@ made, and any exception information to be logged.
 
 .. method:: LogRecord.getMessage()
 
-   Returns the message for this :class:`LogRecord` instance after merging any user-
-   supplied arguments with the message.
+   Returns the message for this :class:`LogRecord` instance after merging any
+   user-supplied arguments with the message.
 
 
 Thread Safety

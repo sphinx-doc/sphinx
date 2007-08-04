@@ -154,7 +154,6 @@ def parse_py_signature(signode, sig, desctype, currmodule, currclass):
     signode += addnodes.desc_parameterlist()
 
     stack = [signode[-1]]
-    arglist = arglist.replace('`', '').replace(r'\ ', '') # remove markup
     for token in py_paramlist_re.split(arglist):
         if token == '[':
             opt = addnodes.desc_optional()
@@ -394,7 +393,7 @@ directives.register_directive('versionchanged', version_directive)
 def seealso_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     rv = admonitions.make_admonition(
-        addnodes.seealso, name, ['See also:'], options, content,
+        addnodes.seealso, name, ['See also'], options, content,
         lineno, content_offset, block_text, state, state_machine)
     return rv
 

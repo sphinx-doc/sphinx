@@ -48,7 +48,7 @@ The module defines the following exception and functions:
    (``len(string)`` must equal ``calcsize(fmt)``).
 
 
-.. function:: unpack_from(fmt, buffer[,offset ``= 0``])
+.. function:: unpack_from(fmt, buffer[,offset=0])
 
    Unpack the *buffer* according to tthe given format. The result is a tuple even
    if it contains exactly one item. The *buffer* must contain at least the amount
@@ -280,7 +280,7 @@ Compiled Struct objects support the following methods and attributes:
    (``len(string)`` must equal :attr:`self.size`).
 
 
-.. method:: Struct.unpack_from(buffer[,offset ``= 0``])
+.. method:: Struct.unpack_from(buffer[, offset=0])
 
    Identical to the :func:`unpack_from` function, using the compiled format.
    (``len(buffer[offset:])`` must be at least :attr:`self.size`).

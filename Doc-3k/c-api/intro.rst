@@ -70,7 +70,7 @@ the installation directory specified to the installer.
 
 To include the headers, place both directories (if different) on your compiler's
 search path for includes.  Do *not* place the parent directories on the search
-path and then use ``#include <python|version|/Python.h>``; this will break on
+path and then use ``#include <pythonX.Y/Python.h>``; this will break on
 multi-platform builds since the platform independent headers under
 :envvar:`prefix` include the platform specific headers from
 :envvar:`exec_prefix`.
@@ -397,16 +397,16 @@ bytecode interpreter's  main loop, which takes care of transferring it to
 
 .. index:: single: exc_info() (in module sys)
 
-Note that starting with Python 1.5, the preferred, thread-safe way to  access
-the exception state from Python code is to call the function
-:func:`sys.exc_info`, which returns the per-thread exception state  for Python
-code.  Also, the semantics of both ways to access the  exception state have
-changed so that a function which catches an  exception will save and restore its
-thread's exception state so as to  preserve the exception state of its caller.
-This prevents common bugs  in exception handling code caused by an innocent-
-looking function  overwriting the exception being handled; it also reduces the
-often  unwanted lifetime extension for objects that are referenced by the  stack
-frames in the traceback.
+Note that starting with Python 1.5, the preferred, thread-safe way to access the
+exception state from Python code is to call the function :func:`sys.exc_info`,
+which returns the per-thread exception state for Python code.  Also, the
+semantics of both ways to access the exception state have changed so that a
+function which catches an exception will save and restore its thread's exception
+state so as to preserve the exception state of its caller.  This prevents common
+bugs in exception handling code caused by an innocent-looking function
+overwriting the exception being handled; it also reduces the often unwanted
+lifetime extension for objects that are referenced by the stack frames in the
+traceback.
 
 As a general principle, a function that calls another function to  perform some
 task should check whether the called function raised an  exception, and if so,
@@ -531,13 +531,13 @@ slightly different), :cfunc:`Py_Initialize` calculates the module search path
 based upon its best guess for the location of the standard Python interpreter
 executable, assuming that the Python library is found in a fixed location
 relative to the Python interpreter executable.  In particular, it looks for a
-directory named :file:`lib/python|version|` relative to the parent directory
+directory named :file:`lib/python{X.Y}` relative to the parent directory
 where the executable named :file:`python` is found on the shell command search
 path (the environment variable :envvar:`PATH`).
 
 For instance, if the Python executable is found in
 :file:`/usr/local/bin/python`, it will assume that the libraries are in
-:file:`/usr/local/lib/python|version|`.  (In fact, this particular path is also
+:file:`/usr/local/lib/python{X.Y}`.  (In fact, this particular path is also
 the "fallback" location, used when no executable file named :file:`python` is
 found along :envvar:`PATH`.)  The user can override this behavior by setting the
 environment variable :envvar:`PYTHONHOME`, or insert additional directories in
@@ -589,9 +589,9 @@ frequently-used builds will be described in the remainder of this section.
 Compiling the interpreter with the :cmacro:`Py_DEBUG` macro defined produces
 what is generally meant by "a debug build" of Python. :cmacro:`Py_DEBUG` is
 enabled in the Unix build by adding :option:`--with-pydebug` to the
-:file:`configure` command.  It is also implied by the presence of the not-
-Python-specific :cmacro:`_DEBUG` macro.  When :cmacro:`Py_DEBUG` is enabled in
-the Unix build, compiler optimization is disabled.
+:file:`configure` command.  It is also implied by the presence of the
+not-Python-specific :cmacro:`_DEBUG` macro.  When :cmacro:`Py_DEBUG` is enabled
+in the Unix build, compiler optimization is disabled.
 
 In addition to the reference count debugging described below, the following
 extra checks are performed:

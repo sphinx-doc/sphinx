@@ -47,14 +47,13 @@ up in a subdirectory :file:`build/lib.system`, and may have a name like
 :file:`demo.so` or :file:`demo.pyd`.
 
 In the :file:`setup.py`, all execution is performed by calling the ``setup``
-function. This takes a variable number of keyword  arguments, of which the
-example above uses only a subset. Specifically, the example specifies meta-
-information to build packages, and it specifies the contents of the package.
-Normally, a package will contain of addition modules, like Python source
-modules, documentation, subpackages, etc. Please refer to the distutils
-documentation in :ref:`distutils-index`
-to learn more about the features of distutils; this section explains building
-extension modules only.
+function. This takes a variable number of keyword arguments, of which the
+example above uses only a subset. Specifically, the example specifies
+meta-information to build packages, and it specifies the contents of the
+package.  Normally, a package will contain of addition modules, like Python
+source modules, documentation, subpackages, etc. Please refer to the distutils
+documentation in :ref:`distutils-index` to learn more about the features of
+distutils; this section explains building extension modules only.
 
 It is common to pre-compute arguments to :func:`setup`, to better structure the
 driver script. In the example above, the\ ``ext_modules`` argument to

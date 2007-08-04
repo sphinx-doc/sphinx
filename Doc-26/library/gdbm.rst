@@ -40,13 +40,13 @@ The module defines the following constant and functions:
    The following additional characters may be appended to the flag to control how
    the database is opened:
 
-* ``'f'`` --- Open the database in fast mode.  Writes to the database will not
+   * ``'f'`` --- Open the database in fast mode.  Writes to the database will not
      be synchronized.
 
-* ``'s'`` --- Synchronized mode. This will cause changes to the database will be
+   * ``'s'`` --- Synchronized mode. This will cause changes to the database will be
      immediately written to the file.
 
-* ``'u'`` --- Do not lock database.
+   * ``'u'`` --- Do not lock database.
 
    Not all flags are valid for all versions of ``gdbm``.  The module constant
    ``open_flags`` is a string of supported flag characters.  The exception

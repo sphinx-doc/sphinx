@@ -429,9 +429,10 @@ convenient that the lower 256 characters of Unicode are the same as the 256
 characters of Latin-1.
 
 For experts, there is also a raw mode just like the one for normal strings. You
-have to prefix the opening quote with 'ur' to have Python use the *Raw-Unicode-
-Escape* encoding. It will only apply the above ``\uXXXX`` conversion if there is
-an uneven number of backslashes in front of the small 'u'. ::
+have to prefix the opening quote with 'ur' to have Python use the
+*Raw-Unicode-Escape* encoding. It will only apply the above ``\uXXXX``
+conversion if there is an uneven number of backslashes in front of the small
+'u'. ::
 
    >>> ur'Hello\u0020World !'
    u'Hello World !'

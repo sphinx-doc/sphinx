@@ -288,8 +288,8 @@ InputSource Objects
 
 .. method:: InputSource.setByteStream(bytefile)
 
-   Set the byte stream (a Python file-like object which does not perform byte-to-
-   character conversion) for this input source.
+   Set the byte stream (a Python file-like object which does not perform
+   byte-to-character conversion) for this input source.
 
    The SAX parser will ignore this if there is also a character stream specified,
    but it will use a byte stream in preference to opening a URI connection itself.

@@ -424,7 +424,7 @@ to create MSI files with a user-interface for installing Python packages.
    belongs to, and *name* is the control's name.
 
 
-.. method:: Control.event(event, argument[,  condition = ``1''[, ordering]])
+.. method:: Control.event(event, argument[,  condition=1[, ordering]])
 
    Make an entry into the ``ControlEvent`` table for this control.
 

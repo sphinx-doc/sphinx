@@ -456,14 +456,14 @@ ASCII if no encoding declaration is given in the source file; see section
 
 In plain English: String literals can be enclosed in matching single quotes
 (``'``) or double quotes (``"``).  They can also be enclosed in matching groups
-of three single or double quotes (these are generally referred to as *triple-
-quoted strings*).  The backslash (``\``) character is used to escape characters
-that otherwise have a special meaning, such as newline, backslash itself, or the
-quote character.  String literals may optionally be prefixed with a letter
-``'r'`` or ``'R'``; such strings are called :dfn:`raw strings` and use different
-rules for interpreting backslash escape sequences.  A prefix of ``'u'`` or
-``'U'`` makes the string a Unicode string.  Unicode strings use the Unicode
-character set as defined by the Unicode Consortium and ISO 10646.  Some
+of three single or double quotes (these are generally referred to as
+*triple-quoted strings*).  The backslash (``\``) character is used to escape
+characters that otherwise have a special meaning, such as newline, backslash
+itself, or the quote character.  String literals may optionally be prefixed with
+a letter ``'r'`` or ``'R'``; such strings are called :dfn:`raw strings` and use
+different rules for interpreting backslash escape sequences.  A prefix of
+``'u'`` or ``'U'`` makes the string a Unicode string.  Unicode strings use the
+Unicode character set as defined by the Unicode Consortium and ISO 10646.  Some
 additional escape sequences, described below, are available in Unicode strings.
 The two prefix characters may be combined; in this case, ``'u'`` must appear
 before ``'r'``.

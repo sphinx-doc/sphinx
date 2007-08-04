@@ -136,8 +136,8 @@ Some convenience constants are also provided:
 .. data:: XMLNS_NAMESPACE
 
    The namespace URI for namespace declarations, as defined by `Document Object
-   Model (DOM) Level 2 Core Specification <http://www.w3.org/TR/DOM-
-   Level-2-Core/core.html>`_ (section 1.1.8).
+   Model (DOM) Level 2 Core Specification
+   <http://www.w3.org/TR/DOM-Level-2-Core/core.html>`_ (section 1.1.8).
 
    .. versionadded:: 2.2
 
@@ -281,12 +281,12 @@ All of the components of an XML document are subclasses of :class:`Node`.
 
 .. attribute:: Node.previousSibling
 
-   The node that immediately precedes this one with the same parent.  For instance
-   the element with an end-tag that comes just before the *self* element's start-
-   tag.  Of course, XML documents are made up of more than just elements so the
-   previous sibling could be text, a comment, or something else.  If this node is
-   the first child of the parent, this attribute will be ``None``. This is a read-
-   only attribute.
+   The node that immediately precedes this one with the same parent.  For
+   instance the element with an end-tag that comes just before the *self*
+   element's start-tag.  Of course, XML documents are made up of more than just
+   elements so the previous sibling could be text, a comment, or something else.
+   If this node is the first child of the parent, this attribute will be
+   ``None``. This is a read-only attribute.
 
 
 .. attribute:: Node.nextSibling

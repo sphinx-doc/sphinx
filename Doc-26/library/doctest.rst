@@ -435,10 +435,10 @@ The traceback header is followed by an optional traceback stack, whose contents
 are ignored by doctest.  The traceback stack is typically omitted, or copied
 verbatim from an interactive session.
 
-The traceback stack is followed by the most interesting part:  the line(s)
+The traceback stack is followed by the most interesting part: the line(s)
 containing the exception type and detail.  This is usually the last line of a
-traceback, but can extend across multiple lines if the exception has a multi-
-line detail::
+traceback, but can extend across multiple lines if the exception has a
+multi-line detail::
 
    >>> raise ValueError('multi\n    line\ndetail')
    Traceback (most recent call last):
@@ -823,14 +823,14 @@ and :ref:`doctest-simple-testfile`.
    Optional argument *module_relative* specifies how the filename should be
    interpreted:
 
-* If *module_relative* is ``True`` (the default), then *filename* specifies an
+   * If *module_relative* is ``True`` (the default), then *filename* specifies an
      OS-independent module-relative path.  By default, this path is relative to the
      calling module's directory; but if the *package* argument is specified, then it
      is relative to that package.  To ensure OS-independence, *filename* should use
      ``/`` characters to separate path segments, and may not be an absolute path
      (i.e., it may not begin with ``/``).
 
-* If *module_relative* is ``False``, then *filename* specifies an OS-specific
+   * If *module_relative* is ``False``, then *filename* specifies an OS-specific
      path.  The path may be absolute or relative; relative paths are resolved with
      respect to the current working directory.
 
@@ -1000,14 +1000,14 @@ from text files and modules with doctests:
    Optional argument *module_relative* specifies how the filenames in *paths*
    should be interpreted:
 
-* If *module_relative* is ``True`` (the default), then each filename specifies
+   * If *module_relative* is ``True`` (the default), then each filename specifies
      an OS-independent module-relative path.  By default, this path is relative to
      the calling module's directory; but if the *package* argument is specified, then
      it is relative to that package.  To ensure OS-independence, each filename should
      use ``/`` characters to separate path segments, and may not be an absolute path
      (i.e., it may not begin with ``/``).
 
-* If *module_relative* is ``False``, then each filename specifies an OS-specific
+   * If *module_relative* is ``False``, then each filename specifies an OS-specific
      path.  The path may be absolute or relative; relative paths are resolved with
      respect to the current working directory.
 
@@ -1074,8 +1074,8 @@ from text files and modules with doctests:
    Optional argument *extraglobs* specifies an extra set of global variables, which
    is merged into *globs*.  By default, no extra globals are used.
 
-   Optional argument *test_finder* is the :class:`DocTestFinder` object (or a drop-
-   in replacement) that is used to extract doctests from the module.
+   Optional argument *test_finder* is the :class:`DocTestFinder` object (or a
+   drop-in replacement) that is used to extract doctests from the module.
 
    Optional arguments *setUp*, *tearDown*, and *optionflags* are the same as for
    function :func:`DocFileSuite` above.
@@ -1346,15 +1346,15 @@ DocTestFinder objects
    If the module is not specified or is None, then the test finder will attempt to
    automatically determine the correct module.  The object's module is used:
 
-* As a default namespace, if *globs* is not specified.
+   * As a default namespace, if *globs* is not specified.
 
-* To prevent the DocTestFinder from extracting DocTests from objects that are
+   * To prevent the DocTestFinder from extracting DocTests from objects that are
      imported from other modules.  (Contained objects with modules other than
      *module* are ignored.)
 
-* To find the name of the file containing the object.
+   * To find the name of the file containing the object.
 
-* To help find the line number of the object within its file.
+   * To help find the line number of the object within its file.
 
    If *module* is ``False``, no attempt to find the module will be made.  This is
    obscure, of use mostly in testing doctest itself: if *module* is ``False``, or

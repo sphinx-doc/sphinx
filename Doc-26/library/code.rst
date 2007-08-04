@@ -73,15 +73,15 @@ Interactive Interpreter Objects
    :func:`compile_command`; the default for *filename* is ``'<input>'``, and for
    *symbol* is ``'single'``.  One several things can happen:
 
-* The input is incorrect; :func:`compile_command` raised an exception
+   * The input is incorrect; :func:`compile_command` raised an exception
      (:exc:`SyntaxError` or :exc:`OverflowError`).  A syntax traceback will be
      printed by calling the :meth:`showsyntaxerror` method.  :meth:`runsource`
      returns ``False``.
 
-* The input is incomplete, and more input is required; :func:`compile_command`
+   * The input is incomplete, and more input is required; :func:`compile_command`
      returned ``None``. :meth:`runsource` returns ``True``.
 
-* The input is complete; :func:`compile_command` returned a code object.  The
+   * The input is complete; :func:`compile_command` returned a code object.  The
      code is executed by calling the :meth:`runcode` (which also handles run-time
      exceptions, except for :exc:`SystemExit`). :meth:`runsource` returns ``False``.
 

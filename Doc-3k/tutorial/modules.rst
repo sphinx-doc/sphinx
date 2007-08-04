@@ -168,9 +168,9 @@ section :ref:`tut-standardmodules` for more information.
 
 As an important speed-up of the start-up time for short programs that use a lot
 of standard modules, if a file called :file:`spam.pyc` exists in the directory
-where :file:`spam.py` is found, this is assumed to contain an already-"byte-
-compiled" version of the module :mod:`spam`. The modification time of the
-version of :file:`spam.py` used to create :file:`spam.pyc` is recorded in
+where :file:`spam.py` is found, this is assumed to contain an
+already-"byte-compiled" version of the module :mod:`spam`. The modification time
+of the version of :file:`spam.py` used to create :file:`spam.pyc` is recorded in
 :file:`spam.pyc`, and the :file:`.pyc` file is ignored if these don't match.
 
 Normally, you don't need to do anything to create the :file:`spam.pyc` file.

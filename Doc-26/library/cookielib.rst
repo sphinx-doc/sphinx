@@ -94,10 +94,10 @@ The following classes are provided:
    received in a :mailheader:`Set-Cookie` header with a version cookie-attribute of
    1) are treated according to the RFC 2965 rules.  However, if RFC 2965 handling
    is turned off or :attr:`rfc2109_as_netscape` is True, RFC 2109 cookies are
-   'downgraded' by the :class:`CookieJar` instance to Netscape cookies, by setting
-   the :attr:`version` attribute of the :class:`Cookie` instance to 0.
-   :class:`DefaultCookiePolicy` also provides some parameters to allow some fine-
-   tuning of policy.
+   'downgraded' by the :class:`CookieJar` instance to Netscape cookies, by
+   setting the :attr:`version` attribute of the :class:`Cookie` instance to 0.
+   :class:`DefaultCookiePolicy` also provides some parameters to allow some
+   fine-tuning of policy.
 
 
 .. class:: Cookie()
@@ -320,8 +320,8 @@ http://wwwsearch.sf.net/ClientCookie/.
 
    .. note::
 
-      This loses information about RFC 2965 cookies, and also about newer or non-
-      standard cookie-attributes such as ``port``.
+      This loses information about RFC 2965 cookies, and also about newer or
+      non-standard cookie-attributes such as ``port``.
 
    .. warning::
 
@@ -608,9 +608,10 @@ Cookie Objects
 :class:`Cookie` instances have Python attributes roughly corresponding to the
 standard cookie-attributes specified in the various cookie standards.  The
 correspondence is not one-to-one, because there are complicated rules for
-assigning default values, because the ``max-age`` and ``expires`` cookie-
-attributes contain equivalent information, and because RFC 2109 cookies may be
-'downgraded' by :mod:`cookielib` from version 1 to version 0 (Netscape) cookies.
+assigning default values, because the ``max-age`` and ``expires``
+cookie-attributes contain equivalent information, and because RFC 2109 cookies
+may be 'downgraded' by :mod:`cookielib` from version 1 to version 0 (Netscape)
+cookies.
 
 Assignment to these attributes should not be necessary other than in rare
 circumstances in a :class:`CookiePolicy` method.  The class does not enforce
@@ -676,11 +677,11 @@ internal consistency, so you should know what you're doing if you do that.
 
 .. attribute:: Cookie.rfc2109
 
-   True if this cookie was received as an RFC 2109 cookie (ie. the cookie arrived
-   in a :mailheader:`Set-Cookie` header, and the value of the Version cookie-
-   attribute in that header was 1).  This attribute is provided because
-   :mod:`cookielib` may 'downgrade' RFC 2109 cookies to Netscape cookies, in which
-   case :attr:`version` is 0.
+   True if this cookie was received as an RFC 2109 cookie (ie. the cookie
+   arrived in a :mailheader:`Set-Cookie` header, and the value of the Version
+   cookie-attribute in that header was 1).  This attribute is provided because
+   :mod:`cookielib` may 'downgrade' RFC 2109 cookies to Netscape cookies, in
+   which case :attr:`version` is 0.
 
    .. versionadded:: 2.5
 

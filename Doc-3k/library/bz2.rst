@@ -74,8 +74,8 @@ Handling of compressed files is offered by the :class:`BZ2File` class.
 
 .. method:: BZ2File.readline([size])
 
-   Return the next line from the file, as a string, retaining newline. A non-
-   negative *size* argument limits the maximum number of bytes to return (an
+   Return the next line from the file, as a string, retaining newline. A
+   non-negative *size* argument limits the maximum number of bytes to return (an
    incomplete line may be returned then). Return an empty string at EOF.
 
 

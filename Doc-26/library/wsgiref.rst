@@ -234,7 +234,7 @@ request.  (E.g., using the :func:`shift_path_info` function from
 :mod:`wsgiref.util`.)
 
 
-.. function:: make_server(host, port, app [, server_class=WSGIServer [, handler_class=:class:`WSGIRequestHandler`]])
+.. function:: make_server(host, port, app [, server_class=WSGIServer [, handler_class=WSGIRequestHandler]])
 
    Create a new WSGI server listening on *host* and *port*, accepting connections
    for *app*.  The return value is an instance of the supplied *server_class*, and

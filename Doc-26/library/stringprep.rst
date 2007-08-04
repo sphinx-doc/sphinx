@@ -50,14 +50,14 @@ list of all functions available in the module.
 
 .. function:: map_table_b2(code)
 
-   Return the mapped value for *code* according to tableB.2  (Mapping for case-
-   folding used with NFKC).
+   Return the mapped value for *code* according to tableB.2 (Mapping for
+   case-folding used with NFKC).
 
 
 .. function:: map_table_b3(code)
 
-   Return the mapped value for *code* according to tableB.3  (Mapping for case-
-   folding used with no normalization).
+   Return the mapped value for *code* according to tableB.3 (Mapping for
+   case-folding used with no normalization).
 
 
 .. function:: in_table_c11(code)

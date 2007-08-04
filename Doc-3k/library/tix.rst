@@ -263,10 +263,10 @@ File Selectors
 
 .. class:: DirSelectBox()
 
-   The :class:`DirSelectBox` is similar to the standard Motif(TM) directory-
-   selection box. It is generally used for the user to choose a directory.
-   DirSelectBox stores the directories mostly recently selected into a ComboBox
-   widget so that they can be quickly selected again.
+   The :class:`DirSelectBox` is similar to the standard Motif(TM)
+   directory-selection box. It is generally used for the user to choose a
+   directory.  DirSelectBox stores the directories mostly recently selected into
+   a ComboBox widget so that they can be quickly selected again.
 
 
 .. class:: ExFileSelectBox()

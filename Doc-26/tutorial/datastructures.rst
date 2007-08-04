@@ -451,8 +451,8 @@ Here is a small example using a dictionary::
    >>> 'guido' in tel
    True
 
-The :func:`dict` constructor builds dictionaries directly from lists of key-
-value pairs stored as tuples.  When the pairs form a pattern, list
+The :func:`dict` constructor builds dictionaries directly from lists of
+key-value pairs stored as tuples.  When the pairs form a pattern, list
 comprehensions can compactly specify the key-value list. ::
 
    >>> dict([('sape', 4139), ('guido', 4127), ('jack', 4098)])

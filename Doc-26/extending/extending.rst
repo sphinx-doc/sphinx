@@ -165,9 +165,9 @@ error on to the interpreter but wants to handle it completely by itself
 
 Every failing :cfunc:`malloc` call must be turned into an exception --- the
 direct caller of :cfunc:`malloc` (or :cfunc:`realloc`) must call
-:cfunc:`PyErr_NoMemory` and return a failure indicator itself.  All the object-
-creating functions (for example, :cfunc:`PyInt_FromLong`) already do this, so
-this note is only relevant to those who call :cfunc:`malloc` directly.
+:cfunc:`PyErr_NoMemory` and return a failure indicator itself.  All the
+object-creating functions (for example, :cfunc:`PyInt_FromLong`) already do
+this, so this note is only relevant to those who call :cfunc:`malloc` directly.
 
 Also note that, with the important exception of :cfunc:`PyArg_ParseTuple` and
 friends, functions that return an integer status usually return a positive value
@@ -332,9 +332,9 @@ satisfactorily.
 
 When embedding Python, the :cfunc:`initspam` function is not called
 automatically unless there's an entry in the :cdata:`_PyImport_Inittab` table.
-The easiest way to handle this is to  statically initialize your statically-
-linked modules by directly calling :cfunc:`initspam` after the call to
-:cfunc:`Py_Initialize`::
+The easiest way to handle this is to statically initialize your
+statically-linked modules by directly calling :cfunc:`initspam` after the call
+to :cfunc:`Py_Initialize`::
 
    int
    main(int argc, char *argv[])
@@ -488,10 +488,10 @@ between parentheses.  For example::
    Py_DECREF(arglist);
 
 :cfunc:`PyEval_CallObject` returns a Python object pointer: this is the return
-value of the Python function.  :cfunc:`PyEval_CallObject` is "reference-count-
-neutral" with respect to its arguments.  In the example a new tuple was created
-to serve as the argument list, which is :cfunc:`Py_DECREF`\ -ed immediately
-after the call.
+value of the Python function.  :cfunc:`PyEval_CallObject` is
+"reference-count-neutral" with respect to its arguments.  In the example a new
+tuple was created to serve as the argument list, which is :cfunc:`Py_DECREF`\
+-ed immediately after the call.
 
 The return value of :cfunc:`PyEval_CallObject` is "new": either it is a brand
 new object, or it is an existing object whose reference count has been

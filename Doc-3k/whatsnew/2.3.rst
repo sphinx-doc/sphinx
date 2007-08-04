@@ -1660,12 +1660,13 @@ complete list of changes, or look through the CVS logs for all the details.
      >{}>{}> u"www.Alliancefrançaise.nu".encode("idna")
      'www.xn--alliancefranaise-npb.nu'
 
-  The :mod:`socket` module has also been extended to transparently convert Unicode
-  hostnames to the ACE version before passing them to the C library.  Modules that
-  deal with hostnames such as :mod:`httplib` and :mod:`ftplib`) also support
-  Unicode host names; :mod:`httplib` also sends HTTP ``Host`` headers using the
-  ACE version of the domain name.  :mod:`urllib` supports Unicode URLs with non-
-  ASCII host names as long as the ``path`` part of the URL is ASCII only.
+  The :mod:`socket` module has also been extended to transparently convert
+  Unicode hostnames to the ACE version before passing them to the C library.
+  Modules that deal with hostnames such as :mod:`httplib` and :mod:`ftplib`)
+  also support Unicode host names; :mod:`httplib` also sends HTTP ``Host``
+  headers using the ACE version of the domain name.  :mod:`urllib` supports
+  Unicode URLs with non-ASCII host names as long as the ``path`` part of the URL
+  is ASCII only.
 
   To implement this change, the :mod:`stringprep` module, the  ``mkstringprep``
   tool and the ``punycode`` encoding have been added.

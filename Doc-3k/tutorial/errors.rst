@@ -234,8 +234,8 @@ above could be written as ``raise NameError('HiThere')``.  Either form works
 fine, but there seems to be a growing stylistic preference for the latter.
 
 If you need to determine whether an exception was raised but don't intend to
-handle it, a simpler form of the :keyword:`raise` statement allows you to re-
-raise the exception::
+handle it, a simpler form of the :keyword:`raise` statement allows you to
+re-raise the exception::
 
    >>> try:
    ...     raise NameError, 'HiThere'

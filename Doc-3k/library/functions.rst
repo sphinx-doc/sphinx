@@ -39,16 +39,17 @@ available.  They are listed here in alphabetical order.
    its *locals* argument at all, and uses its *globals* only to determine the
    package context of the :keyword:`import` statement.)
 
-   When the *name* variable is of the form ``package.module``, normally, the top-
-   level package (the name up till the first dot) is returned, *not* the module
-   named by *name*.  However, when a non-empty *fromlist* argument is given, the
-   module named by *name* is returned.  This is done for compatibility with the
-   bytecode generated for the different kinds of import statement; when using
-   ``import spam.ham.eggs``, the top-level package :mod:`spam` must be placed in
-   the importing namespace, but when using ``from spam.ham import eggs``, the
-   ``spam.ham`` subpackage must be used to find the ``eggs`` variable.  As a
-   workaround for this behavior, use :func:`getattr` to extract the desired
-   components.  For example, you could define the following helper::
+   When the *name* variable is of the form ``package.module``, normally, the
+   top-level package (the name up till the first dot) is returned, *not* the
+   module named by *name*.  However, when a non-empty *fromlist* argument is
+   given, the module named by *name* is returned.  This is done for
+   compatibility with the bytecode generated for the different kinds of import
+   statement; when using ``import spam.ham.eggs``, the top-level package
+   :mod:`spam` must be placed in the importing namespace, but when using ``from
+   spam.ham import eggs``, the ``spam.ham`` subpackage must be used to find the
+   ``eggs`` variable.  As a workaround for this behavior, use :func:`getattr` to
+   extract the desired components.  For example, you could define the following
+   helper::
 
       def my_import(name):
           mod = __import__(name)
@@ -258,19 +259,19 @@ available.  They are listed here in alphabetical order.
    keyword is retained in the dictionary. For example, these all return a
    dictionary equal to ``{"one": 2, "two": 3}``:
 
-* ``dict({'one': 2, 'two': 3})``
+   * ``dict({'one': 2, 'two': 3})``
 
-* ``dict({'one': 2, 'two': 3}.items())``
+   * ``dict({'one': 2, 'two': 3}.items())``
 
-* ``dict({'one': 2, 'two': 3}.iteritems())``
+   * ``dict({'one': 2, 'two': 3}.iteritems())``
 
-* ``dict(zip(('one', 'two'), (2, 3)))``
+   * ``dict(zip(('one', 'two'), (2, 3)))``
 
-* ``dict([['two', 3], ['one', 2]])``
+   * ``dict([['two', 3], ['one', 2]])``
 
-* ``dict(one=2, two=3)``
+   * ``dict(one=2, two=3)``
 
-* ``dict([(['one', 'two'][i-2], i) for i in (2, 3)])``
+   * ``dict([(['one', 'two'][i-2], i) for i in (2, 3)])``
 
    .. versionadded:: 2.2
 

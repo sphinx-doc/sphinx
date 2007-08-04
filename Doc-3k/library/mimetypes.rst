@@ -39,11 +39,12 @@ the information :func:`init` sets up.
    Encoding suffixes are case sensitive; type suffixes are first tried case
    sensitively, then case insensitively.
 
-   Optional *strict* is a flag specifying whether the list of known MIME types is
-   limited to only the official types `registered with IANA <http://www.isi.edu/in-
-   notes/iana/assignments/media-types>`_ are recognized.  When *strict* is true
-   (the default), only the IANA types are supported; when *strict* is false, some
-   additional non-standard but commonly used MIME types are also recognized.
+   Optional *strict* is a flag specifying whether the list of known MIME types
+   is limited to only the official types `registered with IANA
+   <http://www.isi.edu/in-notes/iana/assignments/media-types>`_ are recognized.
+   When *strict* is true (the default), only the IANA types are supported; when
+   *strict* is false, some additional non-standard but commonly used MIME types
+   are also recognized.
 
 
 .. function:: guess_all_extensions(type[, strict])

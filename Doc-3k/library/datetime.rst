@@ -139,22 +139,17 @@ dates or times.
    Only *days*, *seconds* and *microseconds* are stored internally.  Arguments are
    converted to those units:
 
-* A millisecond is converted to 1000 microseconds.
-
-* A minute is converted to 60 seconds.
-
-* An hour is converted to 3600 seconds.
-
-* A week is converted to 7 days.
+   * A millisecond is converted to 1000 microseconds.
+   * A minute is converted to 60 seconds.
+   * An hour is converted to 3600 seconds.
+   * A week is converted to 7 days.
 
    and days, seconds and microseconds are then normalized so that the
    representation is unique, with
 
-* ``0 <= microseconds < 1000000``
-
-* ``0 <= seconds < 3600*24`` (the number of seconds in one day)
-
-* ``-999999999 <= days <= 999999999``
+   * ``0 <= microseconds < 1000000``
+   * ``0 <= seconds < 3600*24`` (the number of seconds in one day)
+   * ``-999999999 <= days <= 999999999``
 
    If any argument is a float and there are fractional microseconds, the fractional
    microseconds left over from all arguments are combined and their sum is rounded
@@ -291,11 +286,9 @@ systems.
    All arguments are required.  Arguments may be ints or longs, in the following
    ranges:
 
-* ``MINYEAR <= year <= MAXYEAR``
-
-* ``1 <= month <= 12``
-
-* ``1 <= day <= number of days in the given month and year``
+   * ``MINYEAR <= year <= MAXYEAR``
+   * ``1 <= month <= 12``
+   * ``1 <= day <= number of days in the given month and year``
 
    If an argument outside those ranges is given, :exc:`ValueError` is raised.
 
@@ -514,19 +507,13 @@ Constructor:
    instance of a :class:`tzinfo` subclass.  The remaining arguments may be ints or
    longs, in the following ranges:
 
-* ``MINYEAR <= year <= MAXYEAR``
-
-* ``1 <= month <= 12``
-
-* ``1 <= day <= number of days in the given month and year``
-
-* ``0 <= hour < 24``
-
-* ``0 <= minute < 60``
-
-* ``0 <= second < 60``
-
-* ``0 <= microsecond < 1000000``
+   * ``MINYEAR <= year <= MAXYEAR``
+   * ``1 <= month <= 12``
+   * ``1 <= day <= number of days in the given month and year``
+   * ``0 <= hour < 24``
+   * ``0 <= minute < 60``
+   * ``0 <= second < 60``
+   * ``0 <= microsecond < 1000000``
 
    If an argument outside those ranges is given, :exc:`ValueError` is raised.
 
@@ -894,13 +881,14 @@ Instance methods:
 
 .. method:: datetime.isoformat([sep])
 
-   Return a string representing the date and time in ISO 8601 format, YYYY-MM-
-   DDTHH:MM:SS.mmmmmm or, if :attr:`microsecond` is 0, YYYY-MM-DDTHH:MM:SS
+   Return a string representing the date and time in ISO 8601 format,
+   YYYY-MM-DDTHH:MM:SS.mmmmmm or, if :attr:`microsecond` is 0,
+   YYYY-MM-DDTHH:MM:SS
 
-   If :meth:`utcoffset` does not return ``None``, a 6-character string is appended,
-   giving the UTC offset in (signed) hours and minutes: YYYY-MM-
-   DDTHH:MM:SS.mmmmmm+HH:MM or, if :attr:`microsecond` is 0 YYYY-MM-
-   DDTHH:MM:SS+HH:MM
+   If :meth:`utcoffset` does not return ``None``, a 6-character string is
+   appended, giving the UTC offset in (signed) hours and minutes:
+   YYYY-MM-DDTHH:MM:SS.mmmmmm+HH:MM or, if :attr:`microsecond` is 0
+   YYYY-MM-DDTHH:MM:SS+HH:MM
 
    The optional argument *sep* (default ``'T'``) is a one-character separator,
    placed between the date and time portions of the result.  For example, ::
@@ -949,13 +937,10 @@ day, and subject to adjustment via a :class:`tzinfo` object.
    :class:`tzinfo` subclass.  The remaining arguments may be ints or longs, in the
    following ranges:
 
-* ``0 <= hour < 24``
-
-* ``0 <= minute < 60``
-
-* ``0 <= second < 60``
-
-* ``0 <= microsecond < 1000000``.
+   * ``0 <= hour < 24``
+   * ``0 <= minute < 60``
+   * ``0 <= second < 60``
+   * ``0 <= microsecond < 1000000``.
 
    If an argument outside those ranges is given, :exc:`ValueError` is raised.  All
    default to ``0`` except *tzinfo*, which defaults to :const:`None`.

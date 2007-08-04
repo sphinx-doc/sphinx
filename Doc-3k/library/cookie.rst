@@ -145,19 +145,13 @@ Morsel Objects
    Morsels are dictionary-like objects, whose set of keys is constant --- the valid
    :rfc:`2109` attributes, which are
 
-* ``expires``
-
-* ``path``
-
-* ``comment``
-
-* ``domain``
-
-* ``max-age``
-
-* ``secure``
-
-* ``version``
+   * ``expires``
+   * ``path``
+   * ``comment``
+   * ``domain``
+   * ``max-age``
+   * ``secure``
+   * ``version``
 
    The keys are case-insensitive.
 

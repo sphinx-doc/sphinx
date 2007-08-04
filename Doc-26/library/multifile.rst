@@ -33,8 +33,8 @@ overriding methods  it can be easily adapted for more general use.
 It will be useful to know that in :class:`MultiFile`'s view of the world, text
 is composed of three kinds of lines: data, section-dividers, and end-markers.
 MultiFile is designed to support parsing of messages that may have multiple
-nested message parts, each with its own pattern for section-divider and end-
-marker lines.
+nested message parts, each with its own pattern for section-divider and
+end-marker lines.
 
 
 .. seealso::
@@ -110,9 +110,9 @@ A :class:`MultiFile` instance has the following methods:
    return the empty string to indicate end-of-file, until a call to :meth:`pop`
    removes the boundary a or :meth:`next` call reenables it.
 
-   It is possible to push more than one boundary.  Encountering the most-recently-
-   pushed boundary will return EOF; encountering any other boundary will raise an
-   error.
+   It is possible to push more than one boundary.  Encountering the
+   most-recently-pushed boundary will return EOF; encountering any other
+   boundary will raise an error.
 
 
 .. method:: MultiFile.pop()
@@ -122,19 +122,19 @@ A :class:`MultiFile` instance has the following methods:
 
 .. method:: MultiFile.section_divider(str)
 
-   Turn a boundary into a section-divider line.  By default, this method prepends
-   ``'-``\ ``-'`` (which MIME section boundaries have) but it is declared so it can
-   be overridden in derived classes.  This method need not append LF or CR-LF, as
-   comparison with the result ignores trailing whitespace.
+   Turn a boundary into a section-divider line.  By default, this method
+   prepends ``'--'`` (which MIME section boundaries have) but it is declared so
+   it can be overridden in derived classes.  This method need not append LF or
+   CR-LF, as comparison with the result ignores trailing whitespace.
 
 
 .. method:: MultiFile.end_marker(str)
 
    Turn a boundary string into an end-marker line.  By default, this method
-   prepends ``'-``\ ``-'`` and appends ``'-``\ ``-'`` (like a MIME-multipart end-
-   of-message marker) but it is declared so it can be overridden in derived
-   classes.  This method need not append LF or CR-LF, as comparison with the result
-   ignores trailing whitespace.
+   prepends ``'--'`` and appends ``'--'`` (like a MIME-multipart end-of-message
+   marker) but it is declared so it can be overridden in derived classes.  This
+   method need not append LF or CR-LF, as comparison with the result ignores
+   trailing whitespace.
 
 Finally, :class:`MultiFile` instances have two public instance variables:
 

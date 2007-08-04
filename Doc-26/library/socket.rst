@@ -686,11 +686,11 @@ correspond to Unix system calls applicable to sockets.
 
 Some notes on socket blocking and timeouts: A socket object can be in one of
 three modes: blocking, non-blocking, or timeout.  Sockets are always created in
-blocking mode.  In blocking mode, operations block until complete.  In non-
-blocking mode, operations fail (with an error that is unfortunately system-
-dependent) if they cannot be completed immediately.  In timeout mode, operations
-fail if they cannot be completed within the timeout specified for the socket.
-The :meth:`setblocking` method is simply a shorthand for certain
+blocking mode.  In blocking mode, operations block until complete.  In
+non-blocking mode, operations fail (with an error that is unfortunately
+system-dependent) if they cannot be completed immediately.  In timeout mode,
+operations fail if they cannot be completed within the timeout specified for the
+socket.  The :meth:`setblocking` method is simply a shorthand for certain
 :meth:`settimeout` calls.
 
 Timeout mode internally sets the socket in non-blocking mode.  The blocking and

@@ -1910,9 +1910,9 @@ Utility functions
 
 .. function:: string_at(address[, size])
 
-   This function returns the string starting at memory address address. If size is
-   specified, it is used as size, otherwise the string is assumed to be zero-
-   terminated.
+   This function returns the string starting at memory address address. If size
+   is specified, it is used as size, otherwise the string is assumed to be
+   zero-terminated.
 
 
 .. function:: WinError(code=None, descr=None)
@@ -1928,8 +1928,8 @@ Utility functions
 
    This function returns the wide character string starting at memory address
    ``address`` as unicode string. If ``size`` is specified, it is used as the
-   number of characters of the string, otherwise the string is assumed to be zero-
-   terminated.
+   number of characters of the string, otherwise the string is assumed to be
+   zero-terminated.
 
 
 .. _ctypes-data-types:
@@ -2198,9 +2198,9 @@ These are the fundamental ctypes data types:
 
 .. class:: c_wchar_p
 
-   Represents the C ``wchar_t *`` datatype, which must be a pointer to a zero-
-   terminated wide character string. The constructor accepts an integer address, or
-   a string.
+   Represents the C ``wchar_t *`` datatype, which must be a pointer to a
+   zero-terminated wide character string. The constructor accepts an integer
+   address, or a string.
 
 
 .. class:: c_bool

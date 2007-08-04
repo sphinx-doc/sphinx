@@ -798,21 +798,21 @@ Menu indexes (menu.invoke(), menu.entryconfig(), etc.)
    Some options and methods for menus manipulate specific menu entries. Anytime a
    menu index is needed for an option or a parameter, you may pass in:
 
-* an integer which refers to the numeric position of the entry in the widget,
+   * an integer which refers to the numeric position of the entry in the widget,
      counted from the top, starting with 0;
 
-* the string ``'active'``, which refers to the menu position that is currently
+   * the string ``'active'``, which refers to the menu position that is currently
      under the cursor;
 
-* the string ``"last"`` which refers to the last menu item;
+   * the string ``"last"`` which refers to the last menu item;
 
-* An integer preceded by ``@``, as in ``@6``, where the integer is interpreted
+   * An integer preceded by ``@``, as in ``@6``, where the integer is interpreted
      as a y pixel coordinate in the menu's coordinate system;
 
-* the string ``"none"``, which indicates no menu entry at all, most often used
+   * the string ``"none"``, which indicates no menu entry at all, most often used
      with menu.activate() to deactivate all entries, and finally,
 
-* a text string that is pattern matched against the label of the menu entry, as
+   * a text string that is pattern matched against the label of the menu entry, as
      scanned from the top of the menu to the bottom.  Note that this index type is
      considered after all the others, which means that matches for menu items
      labelled ``last``, ``active``, or ``none`` may be interpreted as the above

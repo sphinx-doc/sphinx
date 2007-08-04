@@ -367,9 +367,9 @@ module.  If you have Tkinter available, you may also want to look at
 :file:`Tools/scripts/redemo.py`, a demonstration program included with the
 Python distribution.  It allows you to enter REs and strings, and displays
 whether the RE matches or fails. :file:`redemo.py` can be quite useful when
-trying to debug a complicated RE.  Phil Schwartz's `Kodos <http://www.phil-
-schwartz.com/kodos.spy>`_ is also an interactive tool for developing and testing
-RE patterns.
+trying to debug a complicated RE.  Phil Schwartz's `Kodos
+<http://www.phil-schwartz.com/kodos.spy>`_ is also an interactive tool for
+developing and testing RE patterns.
 
 This HOWTO uses the standard Python interpreter for its examples. First, run the
 Python interpreter, import the :mod:`re` module, and compile a RE::
@@ -708,10 +708,10 @@ given location, they can obviously be matched an infinite number of times.
    Matches only at the end of the string.
 
 ``\b``
-   Word boundary.   This is a zero-width assertion that matches only at the
+   Word boundary.  This is a zero-width assertion that matches only at the
    beginning or end of a word.  A word is defined as a sequence of alphanumeric
-   characters, so the end of a word is indicated by whitespace or a non-
-   alphanumeric character.
+   characters, so the end of a word is indicated by whitespace or a
+   non-alphanumeric character.
 
    The following example matches ``class`` only when it's a complete word; it won't
    match when it's contained inside another word. ::
@@ -1057,7 +1057,7 @@ whitespace or by a fixed string.  As you'd expect, there's a module-level
 :func:`re.split` function, too.
 
 
-.. method:: .split(string [, maxsplit\ ``= 0``])
+.. method:: .split(string [, maxsplit=0])
    :noindex:
 
    Split *string* by the matches of the regular expression.  If capturing
@@ -1108,7 +1108,7 @@ with a different string.  The :meth:`sub` method takes a replacement value,
 which can be either a string or a function, and the string to be processed.
 
 
-.. method:: .sub(replacement, string[, count\ ``= 0``])
+.. method:: .sub(replacement, string[, count=0])
    :noindex:
 
    Returns the string obtained by replacing the leftmost non-overlapping
@@ -1307,11 +1307,11 @@ at every step.  This produces just the right result::
    >>> print re.match('<.*?>', s).group()
    <html>
 
-(Note that parsing HTML or XML with regular expressions is painful. Quick-and-
-dirty patterns will handle common cases, but HTML and XML have special cases
-that will break the obvious regular expression; by the time you've written a
-regular expression that handles all of the possible cases, the patterns will be
-*very* complicated.  Use an HTML or XML parser module for such tasks.)
+(Note that parsing HTML or XML with regular expressions is painful.
+Quick-and-dirty patterns will handle common cases, but HTML and XML have special
+cases that will break the obvious regular expression; by the time you've written
+a regular expression that handles all of the possible cases, the patterns will
+be *very* complicated.  Use an HTML or XML parser module for such tasks.)
 
 
 Not Using re.VERBOSE
@@ -1366,9 +1366,9 @@ The most complete book on regular expressions is almost certainly Jeffrey
 Friedl's Mastering Regular Expressions, published by O'Reilly.  Unfortunately,
 it exclusively concentrates on Perl and Java's flavours of regular expressions,
 and doesn't contain any Python material at all, so it won't be useful as a
-reference for programming in Python.  (The first edition covered Python's now-
-removed :mod:`regex` module, which won't help you much.)  Consider checking it
-out from your library.
+reference for programming in Python.  (The first edition covered Python's
+now-removed :mod:`regex` module, which won't help you much.)  Consider checking
+it out from your library.
 
 
 .. rubric:: Footnotes

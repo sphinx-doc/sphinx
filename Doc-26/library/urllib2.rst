@@ -33,9 +33,9 @@ The :mod:`urllib2` module defines the following functions:
 
    This function returns a file-like object with two additional methods:
 
-* :meth:`geturl` --- return the URL of the resource retrieved
+   * :meth:`geturl` --- return the URL of the resource retrieved
 
-* :meth:`info` --- return the meta-information of the page, as a dictionary-like
+   * :meth:`info` --- return the meta-information of the page, as a dictionary-like
      object
 
    Raises :exc:`URLError` on errors.
@@ -87,9 +87,10 @@ The following exceptions are raised as appropriate:
 
 .. exception:: HTTPError
 
-   A subclass of :exc:`URLError`, it can also function as a  non-exceptional file-
-   like return value (the same thing that :func:`urlopen` returns).  This is useful
-   when handling exotic HTTP errors, such as requests for authentication.
+   A subclass of :exc:`URLError`, it can also function as a non-exceptional
+   file-like return value (the same thing that :func:`urlopen` returns).  This
+   is useful when handling exotic HTTP errors, such as requests for
+   authentication.
 
 The following classes are provided:
 
@@ -365,20 +366,20 @@ OpenerDirector Objects
    are searched, and added to the possible chains (note that HTTP errors are a
    special case).
 
-* :meth:`protocol_open` --- signal that the handler knows how to open *protocol*
+   * :meth:`protocol_open` --- signal that the handler knows how to open *protocol*
      URLs.
 
-* :meth:`http_error_type` --- signal that the handler knows how to handle HTTP
+   * :meth:`http_error_type` --- signal that the handler knows how to handle HTTP
      errors with HTTP error code *type*.
 
-* :meth:`protocol_error` --- signal that the handler knows how to handle errors
+   * :meth:`protocol_error` --- signal that the handler knows how to handle errors
      from (non-\ ``http``) *protocol*.
 
-* :meth:`protocol_request` --- signal that the handler knows how to pre-process
+   * :meth:`protocol_request` --- signal that the handler knows how to pre-process
      *protocol* requests.
 
-* :meth:`protocol_response` --- signal that the handler knows how to post-
-     process *protocol* responses.
+   * :meth:`protocol_response` --- signal that the handler knows how to
+     post-process *protocol* responses.
 
 
 .. method:: OpenerDirector.open(url[, data][, timeout])
