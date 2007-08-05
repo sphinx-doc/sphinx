@@ -174,9 +174,9 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_centered(self, node):
-        self.body.append(self.starttag(node, 'center') + '<strong>')
+        self.body.append(self.starttag(node, 'p', CLASS="centered") + '<strong>')
     def depart_centered(self, node):
-        self.body.append('</strong></center>')
+        self.body.append('</strong></p>')
 
     def visit_compact_paragraph(self, node):
         pass

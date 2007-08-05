@@ -734,24 +734,24 @@ Encodings and Unicode
 
 Unicode strings are stored internally as sequences of codepoints (to be precise
 as :ctype:`Py_UNICODE` arrays). Depending on the way Python is compiled (either
-via :option:`--enable-unicode=ucs2` or  :option:`--enable-unicode=ucs4`, with
-the former being the default) :ctype:`Py_UNICODE` is either a 16-bit or 32-bit
-data type. Once a Unicode object is used outside of CPU and memory, CPU
-endianness and how these arrays are stored as bytes become an issue.
-Transforming a unicode object into a sequence of bytes is called encoding and
-recreating the unicode object from the sequence of bytes is known as decoding.
-There are many different methods for how this transformation can be done (these
-methods are also called encodings). The simplest method is to map the codepoints
-0-255 to the bytes ``0x0``\ -\ ``0xff``. This means that a unicode object that
-contains  codepoints above ``U+00FF`` can't be encoded with this method (which
-is called ``'latin-1'`` or ``'iso-8859-1'``). :func:`unicode.encode` will raise
-a :exc:`UnicodeEncodeError` that looks like this: ``UnicodeEncodeError:
-'latin-1' codec can't encode character u'\u1234' in position 3: ordinal not in
+via :option:`--enable-unicode=ucs2` or :option:`--enable-unicode=ucs4`, with the
+former being the default) :ctype:`Py_UNICODE` is either a 16-bit or 32-bit data
+type. Once a Unicode object is used outside of CPU and memory, CPU endianness
+and how these arrays are stored as bytes become an issue.  Transforming a
+unicode object into a sequence of bytes is called encoding and recreating the
+unicode object from the sequence of bytes is known as decoding.  There are many
+different methods for how this transformation can be done (these methods are
+also called encodings). The simplest method is to map the codepoints 0-255 to
+the bytes ``0x0``-``0xff``. This means that a unicode object that contains
+codepoints above ``U+00FF`` can't be encoded with this method (which is called
+``'latin-1'`` or ``'iso-8859-1'``). :func:`unicode.encode` will raise a
+:exc:`UnicodeEncodeError` that looks like this: ``UnicodeEncodeError: 'latin-1'
+codec can't encode character u'\u1234' in position 3: ordinal not in
 range(256)``.
 
 There's another group of encodings (the so called charmap encodings) that choose
 a different subset of all unicode code points and how these codepoints are
-mapped to the bytes ``0x0``\ -\ ``0xff.`` To see how this is done simply open
+mapped to the bytes ``0x0``-``0xff``. To see how this is done simply open
 e.g. :file:`encodings/cp1252.py` (which is an encoding that is used primarily on
 Windows). There's a string constant with 256 characters that shows you which
 character is mapped to which byte value.
@@ -824,8 +824,9 @@ sequence: ``0xef``, ``0xbb``, ``0xbf``) is written. As it's rather improbable
 that any charmap encoded file starts with these byte values (which would e.g.
 map to
 
-LATIN SMALL LETTER I WITH DIAERESIS  ---  RIGHT-POINTING DOUBLE ANGLE QUOTATION
-MARK  ---  INVERTED QUESTION MARK
+   | LATIN SMALL LETTER I WITH DIAERESIS
+   | RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+   | INVERTED QUESTION MARK
 
 in iso-8859-1), this increases the probability that a utf-8-sig encoding can be
 correctly guessed from the byte sequence. So here the BOM is not used to be able
@@ -1152,14 +1153,14 @@ and :mod:`stringprep`.
 
 These RFCs together define a protocol to support non-ASCII characters in domain
 names. A domain name containing non-ASCII characters (such as
-"www.Alliancefrançaise.nu") is converted into an ASCII-compatible encoding (ACE,
-such as "www.xn--alliancefranaise-npb.nu"). The ACE form of the domain name is
-then used in all places where arbitrary characters are not allowed by the
-protocol, such as DNS queries, HTTP :mailheader:`Host` fields, and so on. This
-conversion is carried out in the application; if possible invisible to the user:
-The application should transparently convert Unicode domain labels to IDNA on
-the wire, and convert back ACE labels to Unicode before presenting them to the
-user.
+``www.Alliancefrançaise.nu``) is converted into an ASCII-compatible encoding
+(ACE, such as ``www.xn--alliancefranaise-npb.nu``). The ACE form of the domain
+name is then used in all places where arbitrary characters are not allowed by
+the protocol, such as DNS queries, HTTP :mailheader:`Host` fields, and so
+on. This conversion is carried out in the application; if possible invisible to
+the user: The application should transparently convert Unicode domain labels to
+IDNA on the wire, and convert back ACE labels to Unicode before presenting them
+to the user.
 
 Python supports this conversion in several ways: The ``idna`` codec allows to
 convert between Unicode and the ACE. Furthermore, the :mod:`socket` module

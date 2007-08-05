@@ -473,8 +473,8 @@ Instance methods:
 
 .. method:: date.ctime()
 
-   Return a string representing the date, for example date(2002, 12, 4).ctime() ==
-   'Wed Dec  4 00:00:00 2002'. ``d.ctime()`` is equivalent to
+   Return a string representing the date, for example ``date(2002, 12,
+   4).ctime() == 'Wed Dec 4 00:00:00 2002'``. ``d.ctime()`` is equivalent to
    ``time.ctime(time.mktime(d.timetuple()))`` on platforms where the native C
    :cfunc:`ctime` function (which :func:`time.ctime` invokes, but which
    :meth:`date.ctime` does not invoke) conforms to the C standard.

@@ -105,7 +105,7 @@ Terms and conditions for accessing or otherwise using Python
 ============================================================
 
 
-.. centered:: **PSF LICENSE AGREEMENT FOR PYTHON** |release|
+.. centered:: PSF LICENSE AGREEMENT FOR PYTHON |release|
 
 #. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
    the Individual or Organization ("Licensee") accessing and otherwise using Python
@@ -150,10 +150,10 @@ Terms and conditions for accessing or otherwise using Python
    to be bound by the terms and conditions of this License Agreement.
 
 
-.. centered:: **BEOPEN.COM LICENSE AGREEMENT FOR PYTHON 2.0**
+.. centered:: BEOPEN.COM LICENSE AGREEMENT FOR PYTHON 2.0
 
 
-.. centered:: **BEOPEN PYTHON OPEN SOURCE LICENSE AGREEMENT VERSION 1**
+.. centered:: BEOPEN PYTHON OPEN SOURCE LICENSE AGREEMENT VERSION 1
 
 #. This LICENSE AGREEMENT is between BeOpen.com ("BeOpen"), having an office at
    160 Saratoga Avenue, Santa Clara, CA 95051, and the Individual or Organization
@@ -195,7 +195,7 @@ Terms and conditions for accessing or otherwise using Python
    bound by the terms and conditions of this License Agreement.
 
 
-.. centered:: **CNRI LICENSE AGREEMENT FOR PYTHON 1.6.1**
+.. centered:: CNRI LICENSE AGREEMENT FOR PYTHON 1.6.1
 
 #. This LICENSE AGREEMENT is between the Corporation for National Research
    Initiatives, having an office at 1895 Preston White Drive, Reston, VA 20191
@@ -260,7 +260,7 @@ Terms and conditions for accessing or otherwise using Python
 .. centered:: ACCEPT
 
 
-.. centered:: **CWI LICENSE AGREEMENT FOR PYTHON 0.9.0 THROUGH 1.2**
+.. centered:: CWI LICENSE AGREEMENT FOR PYTHON 0.9.0 THROUGH 1.2
 
 Copyright © 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The
 Netherlands.  All rights reserved.

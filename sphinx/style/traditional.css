@@ -547,6 +547,11 @@ p.admonition-title:after {
     content: ":";
 }
 
+div.body p.centered {
+    text-align: center;
+    margin-top: 25px;
+}
+
 table.docutils {
     border: 0;
 }

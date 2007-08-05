@@ -73,25 +73,25 @@ The :mod:`functools` module defines the following function:
    wrapped=wrapped, assigned=assigned, updated=updated)`` as a function decorator
    when defining a wrapper function. For example::
 
-              >>> def my_decorator(f):
-              ...     @wraps(f)
-              ...     def wrapper(*args, **kwds):
-              ...         print 'Calling decorated function'
-              ...         return f(*args, **kwds)
-              ...     return wrapper
-              ...
-              >>> @my_decorator
-              ... def example():
-      	...     """Docstring"""
-              ...     print 'Called example function'
-              ...
-              >>> example()
-              Calling decorated function
-              Called example function
-              >>> example.__name__
-              'example'
-      	>>> example.__doc__
-      	'Docstring'
+      >>> def my_decorator(f):
+      ...     @wraps(f)
+      ...     def wrapper(*args, **kwds):
+      ...         print 'Calling decorated function'
+      ...         return f(*args, **kwds)
+      ...     return wrapper
+      ...
+      >>> @my_decorator
+      ... def example():
+      ...     """Docstring"""
+      ...     print 'Called example function'
+      ...
+      >>> example()
+      Calling decorated function
+      Called example function
+      >>> example.__name__
+      'example'
+      >>> example.__doc__
+      'Docstring'
 
    Without the use of this decorator factory, the name of the example function
    would have been ``'wrapper'``, and the docstring of the original :func:`example`

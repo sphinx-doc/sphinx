@@ -102,28 +102,11 @@ An explanation of some terminology and conventions is in order.
   +-------+-------------------+---------------------------------+
   | 8     | :attr:`tm_isdst`  | 0, 1 or -1; see below           |
   +-------+-------------------+---------------------------------+
-  | -     | :attr:`tm_gmtoff` | offset from UTC/GMT in seconds  |
-  |       |                   | east of the Prime Meridian; see |
-  |       |                   | below                           |
-  +-------+-------------------+---------------------------------+
-  | -     | :attr:`tm_zone`   | time zone name; see below       |
-  +-------+-------------------+---------------------------------+
 
   Note that unlike the C structure, the month value is a range of 1-12, not 0-11.
   A year value will be handled as described under "Year 2000 (Y2K) issues" above.
   A ``-1`` argument as the daylight savings flag, passed to :func:`mktime` will
   usually result in the correct daylight savings state to be filled in.
-
-  To maintain backwards compatibility, the :attr:`tm_gmtoff` and :attr:`tm_zone`
-  attributes are not included in the visual representation of each
-  :class:`struct_time`, but they can be inspected as named, read-only attributes.
-  Since functions such as :func:`mktime` accept either a 9-tuple or a
-  :class:`struct_time`, to manually construct a time with specific values of these
-  attributes, first construct an 11-tuple using the normal 9-tuple extended to
-  include values for :attr:`tm_gmtoff` and :attr:`tm_zone` as the last two
-  elements, then pass this tuple to the :class:`struct_time` constructor.  It is
-  also possible to omit :attr:`tm_zone` and to provide a 10-tuple to the
-  :class:`struct_time` constructor.
 
   When a tuple with an incorrect length is passed to a function expecting a
   :class:`struct_time`, or having elements of the wrong type, a :exc:`TypeError`
@@ -133,12 +116,8 @@ An explanation of some terminology and conventions is in order.
      The time value sequence was changed from a tuple to a :class:`struct_time`, with
      the addition of attribute names for the fields.
 
-  .. versionchanged:: 2.6
-     The time value sequence was extended to provide the :attr:`tm_gmtoff` and
-     :attr:`tm_zone` attributes as described above.
 
 The module defines the following functions and data items:
-
 
 .. data:: accept2dyear
 
@@ -249,25 +228,6 @@ The module defines the following functions and data items:
    The earliest date for which it can generate a time is platform-dependent.
 
 
-.. function:: mktimetz(t)
-
-   This function interprets times in arbitrary time zones, producing a value
-   indicating the number of seconds since the epoch for each time. It combines the
-   ability of :func:`mktime` to convert local times with the ability of
-   :func:`timegm` to convert GMT/UTC times, but is not constrained by the system's
-   current time zone, instead obtaining time zone information directly from its
-   argument where possible. Its argument is the :class:`struct_time` (which may
-   provide time zone information) or a 9-tuple (which does not, causing the
-   argument to be interpreted as a time in the GMT/UTC zone).  It returns a
-   floating point number, for compatibility with :func:`time`.  If the input value
-   cannot be represented as a valid time, either :exc:`OverflowError` or
-   :exc:`ValueError` will be raised (which depends on whether the invalid value is
-   caught by Python or the underlying C libraries).  The earliest date for which it
-   can generate a time is platform-dependent.
-
-   .. versionadded:: 2.6
-
-
 .. function:: sleep(secs)
 
    Suspend execution for the given number of seconds.  The argument may be a
@@ -371,14 +331,6 @@ The module defines the following functions and data items:
    | ``%Y``    | Year with century as a decimal |       |
    |           | number.                        |       |
    +-----------+--------------------------------+-------+
-   | ``%z``    | Time zone offset indicating a  |       |
-   |           | positive or negative time      |       |
-   |           | difference from UTC/GMT of the |       |
-   |           | form +HHMM or -HHMM, where H   |       |
-   |           | represents decimal hour digits |       |
-   |           | and M represents decimal       |       |
-   |           | minute digits [00,59].         |       |
-   +-----------+--------------------------------+-------+
    | ``%Z``    | Time zone name (no characters  |       |
    |           | if no time zone exists).       |       |
    +-----------+--------------------------------+-------+
@@ -461,20 +413,6 @@ The module defines the following functions and data items:
    While this function normally returns non-decreasing values, it can return a
    lower value than a previous call if the system clock has been set back between
    the two calls.
-
-
-.. function:: timegm(t)
-
-   This is the inverse function of :func:`gmtime`.  Its argument is a
-   :class:`struct_time` or full 9-tuple which expresses the time in *GMT/UTC* time,
-   not local time as expected by :func:`mktime`.  It returns a floating point
-   number, for compatibility with :func:`time`.  If the input value cannot be
-   represented as a valid time, either :exc:`OverflowError` or :exc:`ValueError`
-   will be raised (which depends on whether the invalid value is caught by Python
-   or the underlying C libraries).  The earliest date for which it can generate a
-   time is platform-dependent.
-
-   .. versionadded:: 2.6
 
 
 .. data:: timezone
@@ -586,8 +524,7 @@ The module defines the following functions and data items:
 
    Module :mod:`calendar`
       General calendar-related functions.   :func:`timegm` is the inverse of
-      :func:`gmtime` from this module, offering an alternative implementation of
-      :func:`timegm` from this module.
+      :func:`gmtime` from this module.
 
 .. rubric:: Footnotes
 
