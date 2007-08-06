@@ -474,6 +474,14 @@ in a different style:
 
    A regular expression. Quotes should not be included.
 
+.. describe:: samp
+
+   A piece of literal text, such as code.  Within the contents, you can use
+   curly braces to indicate a "variable" part, as in ``:file:``.
+
+   If you don't need the "variable part" indication, use the standard
+   ````code```` instead.   
+
 .. describe:: var
 
    A Python or C variable or parameter name.

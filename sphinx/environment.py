@@ -281,10 +281,10 @@ class BuildEnvironment:
                     if newmtime == mtime:
                         continue
                     # check the MD5
-                    with file(path.join(self.srcdir, filename), 'rb') as f:
-                        newmd5 = hashlib.md5(f.read()).digest()
-                    if newmd5 != md5:
-                        changed.append(filename)
+                    #with file(path.join(self.srcdir, filename), 'rb') as f:
+                    #    newmd5 = hashlib.md5(f.read()).digest()
+                    #if newmd5 != md5:
+                    changed.append(filename)
 
         return removed, changed
 

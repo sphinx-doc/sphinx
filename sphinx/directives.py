@@ -113,7 +113,7 @@ py_sig_re = re.compile(r'''^([\w.]*\.)?        # class names
 
 py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
 
-def parse_py_signature(signode, sig, desctype, currmodule, currclass):
+def parse_py_signature(signode, sig, desctype, env):
     """
     Transform a python signature into RST nodes.
     Return the fully qualified name of the thing.
@@ -126,24 +126,27 @@ def parse_py_signature(signode, sig, desctype, currmodule, currclass):
     if m is None: raise ValueError
     classname, name, arglist = m.groups()
 
-    if currclass:
-        if classname and classname.startswith(currclass):
+    if env.currclass:
+        if classname and classname.startswith(env.currclass):
             fullname = classname + name
-            classname = classname[len(currclass):].lstrip('.')
+            classname = classname[len(env.currclass):].lstrip('.')
         elif classname:
-            fullname = currclass + '.' + classname + name
+            fullname = env.currclass + '.' + classname + name
         else:
-            fullname = currclass + '.' + name
+            fullname = env.currclass + '.' + name
     else:
         fullname = classname + name if classname else name
 
-    if classname:
-        signode += addnodes.desc_classname(classname, classname)
-    # only add the module name for module globals
     # exceptions are a special case, since they are documented in the
     # 'exceptions' module.
-    elif currmodule and currmodule != 'exceptions':
-        signode += addnodes.desc_classname(currmodule+'.', currmodule+'.')
+    if env.config.get('add_module_names', True) and \
+           env.currmodule and env.currmodule != 'exceptions':
+        nodetext = env.currmodule + '.'
+        if classname:
+            nodetext += classname
+        signode += addnodes.desc_classname(nodetext, nodetext)
+    elif classname:
+        signode += addnodes.desc_classname(classname, classname)
 
     signode += addnodes.desc_name(name, name)
     if not arglist:
@@ -287,8 +290,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         try:
             if desctype in ('function', 'data', 'class', 'exception',
                             'method', 'attribute'):
-                name = parse_py_signature(signode, sig, desctype,
-                                          env.currmodule, env.currclass)
+                name = parse_py_signature(signode, sig, desctype, env)
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'opcode':

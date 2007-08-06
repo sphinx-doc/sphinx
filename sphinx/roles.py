@@ -112,13 +112,13 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         rawtext, utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
 
 
-_filevar_re = re.compile('{([^}]+)}')
+_litvar_re = re.compile('{([^}]+)}')
 
-def file_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+def emph_literal_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
     retnodes = []
     pos = 0
-    for m in _filevar_re.finditer(text):
+    for m in _litvar_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]
             retnodes.append(nodes.literal(txt, txt))
@@ -149,7 +149,8 @@ specific_docroles = {
     'token' : xfileref_role,
 
     'menuselection' : menusel_role,
-    'file' : file_role,
+    'file' : emph_literal_role,
+    'samp' : emph_literal_role,
 }
 
 for rolename, func in specific_docroles.iteritems():

@@ -23,6 +23,9 @@ today = ''
 # Else, today_fmt is used as the format for a strftime call.
 today_fmt = '%B %d, %Y'
 
+# The base URL for download links.
+download_base_url = 'http://docs.python.org/ftp/python/doc/'
+
 # List of files that shouldn't be included in the build.
 unused_files = [
     'whatsnew/2.0.rst',
@@ -47,5 +50,6 @@ use_smartypants = True
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
-# The base URL for download links.
-download_base_url = 'http://docs.python.org/ftp/python/doc/'
+# If true, the current module name will be prepended to all description
+# unit titles (such as .. function::).
+add_module_names = True

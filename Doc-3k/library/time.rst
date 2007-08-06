@@ -445,44 +445,44 @@ The module defines the following functions and data items:
 
       The :envvar:`TZ` environment variable should contain no whitespace.
 
-   The standard format of the :envvar:`TZ` environment variable is: (whitespace
-   added for clarity)
+   The standard format of the :envvar:`TZ` environment variable is (whitespace
+   added for clarity)::
 
-   std offset [dst [offset
-      [,start[/time], end[/time]]]]
+      std offset [dst [offset [,start[/time], end[/time]]]]
 
-   Where:
+   Where the components are:
 
-   std and dst
+   ``std`` and ``dst``
       Three or more alphanumerics giving the timezone abbreviations. These will be
       propagated into time.tzname
 
-   offset
-      The offset has the form: ± hh[:mm[:ss]]. This indicates the value added the
-      local time to arrive at UTC.  If preceded by a '-', the timezone is east of the
-      Prime  Meridian; otherwise, it is west. If no offset follows dst, summer time is
-      assumed to be one hour ahead of standard time.
+   ``offset``
+      The offset has the form: ``± hh[:mm[:ss]]``. This indicates the value
+      added the local time to arrive at UTC.  If preceded by a '-', the timezone
+      is east of the Prime Meridian; otherwise, it is west. If no offset follows
+      dst, summer time is assumed to be one hour ahead of standard time.
 
-   start[/time
-      ,end[/time]] Indicates when to change to and back from DST. The format of the
+   ``start[/time], end[/time]``
+      Indicates when to change to and back from DST. The format of the
       start and end dates are one of the following:
 
-      J*n*
-         The Julian day *n* (1 <= *n* <= 365). Leap days are not  counted, so in all
-         years February 28 is day 59 and March 1 is day 60.
+      :samp:`J{n}`
+         The Julian day *n* (1 <= *n* <= 365). Leap days are not counted, so in
+         all years February 28 is day 59 and March 1 is day 60.
 
-      *n*
-         The zero-based Julian day (0 <= *n* <= 365). Leap days are counted, and it is
-         possible to refer to February 29.
+      :samp:`{n}`
+         The zero-based Julian day (0 <= *n* <= 365). Leap days are counted, and
+         it is possible to refer to February 29.
 
-      M*m*.*n*.*d*
-         The *d*'th day (0 <= *d* <= 6) or week *n*  of month *m* of the year (1 <= *n*
-         <= 5,  1 <= *m* <= 12, where week 5 means "the last *d* day in month *m*" which
-         may occur in either the fourth or  the fifth week). Week 1 is the first week in
-         which the  *d*'th day occurs. Day zero is Sunday.
+      :samp:`M{m}.{n}.{d}`
+         The *d*'th day (0 <= *d* <= 6) or week *n* of month *m* of the year (1
+         <= *n* <= 5, 1 <= *m* <= 12, where week 5 means "the last *d* day in
+         month *m*" which may occur in either the fourth or the fifth
+         week). Week 1 is the first week in which the *d*'th day occurs. Day
+         zero is Sunday.
 
-      time has the same format as offset except that no leading sign ('-' or '+') is
-      allowed. The default, if time is not given, is 02:00:00.
+      ``time`` has the same format as ``offset`` except that no leading sign
+      ('-' or '+') is allowed. The default, if time is not given, is 02:00:00.
 
    ::
 
