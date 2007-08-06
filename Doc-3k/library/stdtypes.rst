@@ -650,9 +650,13 @@ String Methods
 
 .. index:: pair: string; methods
 
-These are the string methods which both 8-bit strings and Unicode objects
-support:
-
+Below are listed the string methods which both 8-bit strings and Unicode
+objects support. In addition, Python's strings support the 
+sequence type methods described in the
+:ref:`typesseq` section (above). To output formatted strings use
+template strings or the ``%`` operator described in the
+:ref:`typesseq-strings` section (below). Also, see the :mod:`re` module for
+string functions based on regular expressions.
 
 .. method:: str.capitalize()
 
@@ -1728,11 +1732,12 @@ File Objects
    module: os
    module: socket
 
-File objects are implemented using C's ``stdio`` package and can be created with
-the built-in constructor :func:`file` described in section
-:ref:`built-in-funcs`. [#]_ File objects are also returned by some other
-built-in functions and methods, such as :func:`os.popen` and :func:`os.fdopen`
-and the :meth:`makefile` method of socket objects.
+File objects are implemented using C's ``stdio`` package and can be
+created with the built-in :func:`file` and (more usually) :func:`open`
+constructors described in the :ref:`built-in-funcs` section. [#]_ File
+objects are also returned by some other built-in functions and methods,
+such as :func:`os.popen` and :func:`os.fdopen` and the :meth:`makefile`
+method of socket objects.
 
 When a file operation fails for an I/O-related reason, the exception
 :exc:`IOError` is raised.  This includes situations where the operation is not
