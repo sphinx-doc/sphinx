@@ -54,6 +54,9 @@ class HTMLTranslator(BaseTranslator):
         if node.parent['desctype'] in ('class', 'exception'):
             self.body.append('%s ' % node.parent['desctype'])
     def depart_desc_signature(self, node):
+        if node['ids']:
+            self.body.append(u'<a class="headerlink" href="#%s" ' % node['ids'][0] +
+                             u'title="Permalink to this definition">\u00B6</a>')
         self.body.append('</dt>\n')
 
     def visit_desc_classname(self, node):
@@ -201,6 +204,16 @@ class HTMLTranslator(BaseTranslator):
         return self.visit_emphasis(node)
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
+
+    def depart_title(self, node):
+        close_tag = self.context[-1]
+        if close_tag.startswith(('</h', '</a></h')) and \
+               node.parent.hasattr('ids') and node.parent['ids']:
+            aname = node.parent['ids'][0]
+            # add permalink anchor
+            self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
+                             u'title="Permalink to this headline">\u00B6</a>')
+        BaseTranslator.depart_title(self, node)
 
 
 class SmartyPantsHTMLTranslator(HTMLTranslator):

@@ -94,7 +94,7 @@ jQuery.fn.highlightText = function(text, className) {
 var Documentation = {
 
   init : function() {
-    this.addContextElements();
+    /* this.addContextElements(); -- now done statically */
     this.fixFirefoxAnchorBug();
     this.highlightSearchWords();
     this.initModIndex();
