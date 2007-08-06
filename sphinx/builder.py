@@ -97,6 +97,8 @@ class Builder(object):
         for key, val in self.config.items():
             if isinstance(val, types.ModuleType):
                 del self.config[key]
+        if confoverrides:
+            self.config.update(confoverrides)
         # replace version info if 'auto'
         if self.config['version'] == 'auto' or self.config['revision'] == 'auto':
             try:
@@ -109,8 +111,6 @@ class Builder(object):
                 self.config['version'] = version
             if self.config['release'] == 'auto':
                 self.config['release'] = release
-        if confoverrides:
-            self.config.update(confoverrides)
 
         self.status_stream = status_stream or sys.stdout
         self.warning_stream = warning_stream or sys.stderr
