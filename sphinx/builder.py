@@ -100,7 +100,7 @@ class Builder(object):
         if confoverrides:
             self.config.update(confoverrides)
         # replace version info if 'auto'
-        if self.config['version'] == 'auto' or self.config['revision'] == 'auto':
+        if self.config['version'] == 'auto' or self.config['release'] == 'auto':
             try:
                 version, release = get_version_info(srcdirname)
             except (IOError, OSError):
