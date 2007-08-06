@@ -1153,14 +1153,22 @@ APIs:
    is *NULL*.
 
 
-.. cfunction:: PyObject* PyUnicode_FromString(const char *u)
+.. cfunction:: PyObject* PyUnicode_FromStringAndSize(const char *u, Py_ssize_t size)
 
-   Create a Unicode Object from the char buffer *u*. *u* must be 0-terminated, the
-   bytes will be interpreted as being latin-1 encoded. *u* may also be *NULL* which
+   Create a Unicode Object from the char buffer *u*.  The bytes will be interpreted
+   as being UTF-8 encoded.  *u* may also be *NULL* which
    causes the contents to be undefined. It is the user's responsibility to fill in
    the needed data.  The buffer is copied into the new object. If the buffer is not
    *NULL*, the return value might be a shared object. Therefore, modification of
    the resulting Unicode object is only allowed when *u* is *NULL*.
+
+   .. versionadded:: 3.0
+
+
+.. cfunction:: PyObject *PyUnicode_FromString(const char *u)
+
+   Create a Unicode object from an UTF-8 encoded null-terminated char buffer
+   *u*.
 
    .. versionadded:: 3.0
 
