@@ -854,7 +854,7 @@ identities hold approximately where ``x/y`` is replaced by ``floor(x/y)`` or
 In addition to performing the modulo operation on numbers, the ``%`` operator is
 also overloaded by string and unicode objects to perform string formatting (also
 known as interpolation). The syntax for string formatting is described in the
-Python Library Reference, section :ref:`typesseq-strings`.
+Python Library Reference, section :ref:`string-formatting`.
 
 .. deprecated:: 2.3
    The floor division operator, the modulo operator, and the :func:`divmod`

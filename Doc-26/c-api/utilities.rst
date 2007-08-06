@@ -929,7 +929,7 @@ return true, otherwise they return false and raise an appropriate exception.
    set and *NULL* returned.
 
 
-.. _string-formatting:
+.. _string-conversion:
 
 String conversion and formatting
 ================================

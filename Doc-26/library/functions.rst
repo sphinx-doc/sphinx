@@ -232,6 +232,7 @@ available.  They are listed here in alphabetical order.
    the function serves as a numeric conversion function like :func:`int`,
    :func:`long` and :func:`float`.  If both arguments are omitted, returns ``0j``.
 
+   The complex type is described in :ref:`typesnumeric`.
 
 .. function:: delattr(object, name)
 
@@ -242,42 +243,10 @@ available.  They are listed here in alphabetical order.
 
 
 .. function:: dict([arg])
+   :noindex:
 
-   Return a new dictionary initialized from an optional positional argument or from
-   a set of keyword arguments. If no arguments are given, return a new empty
-   dictionary. If the positional argument *arg* is a mapping object, return a
-   dictionary mapping the same keys to the same values as does the mapping object.
-   Otherwise the positional argument must be a sequence, a container that supports
-   iteration, or an iterator object.  The elements of the argument must each also
-   be of one of those kinds, and each must in turn contain exactly two objects.
-   The first is used as a key in the new dictionary, and the second as the key's
-   value.  If a given key is seen more than once, the last value associated with it
-   is retained in the new dictionary.
-
-   If keyword arguments are given, the keywords themselves with their associated
-   values are added as items to the dictionary. If a key is specified both in the
-   positional argument and as a keyword argument, the value associated with the
-   keyword is retained in the dictionary. For example, these all return a
-   dictionary equal to ``{"one": 2, "two": 3}``:
-
-   * ``dict({'one': 2, 'two': 3})``
-
-   * ``dict({'one': 2, 'two': 3}.items())``
-
-   * ``dict({'one': 2, 'two': 3}.iteritems())``
-
-   * ``dict(zip(('one', 'two'), (2, 3)))``
-
-   * ``dict([['two', 3], ['one', 2]])``
-
-   * ``dict(one=2, two=3)``
-
-   * ``dict([(['one', 'two'][i-2], i) for i in (2, 3)])``
-
-   .. versionadded:: 2.2
-
-   .. versionchanged:: 2.3
-      Support for building a dictionary from keyword arguments added.
+   Create a new dictionary.  The dictionary type is described in
+   :ref:`typesmapping`.
 
 
 .. function:: dir([object])
@@ -477,6 +446,7 @@ available.  They are listed here in alphabetical order.
       these values to be returned depends entirely on the C library and is known to
       vary.
 
+   The float type is described in :ref:`typesnumeric`.
 
 .. function:: frozenset([iterable])
 
@@ -486,6 +456,8 @@ available.  They are listed here in alphabetical order.
    themselves.  To represent sets of sets, the inner sets should also be
    :class:`frozenset` objects.  If *iterable* is not specified, returns a new empty
    set, ``frozenset([])``.
+
+   The frozenset type is described in :ref:`types-set`.
 
    .. versionadded:: 2.4
 
@@ -583,6 +555,8 @@ available.  They are listed here in alphabetical order.
    the integer range a long object will be returned instead.  If no arguments are
    given, returns ``0``.
 
+   The integer type is described in :ref:`typesnumeric`.
+
 
 .. function:: isinstance(object, classinfo)
 
@@ -642,6 +616,8 @@ available.  They are listed here in alphabetical order.
    returns ``['a', 'b', 'c']`` and ``list( (1, 2, 3) )`` returns ``[1, 2, 3]``.  If
    no argument is given, returns a new empty list, ``[]``.
 
+   :class:`list` is a mutable sequence type, as documented in :ref:`typesseq`.
+
 
 .. function:: locals()
 
@@ -667,6 +643,7 @@ available.  They are listed here in alphabetical order.
    with the same value is returned.    Conversion of floating point numbers to
    integers truncates (towards zero).  If no arguments are given, returns ``0L``.
 
+   The long type is described in :ref:`typesnumeric`.
 
 .. function:: map(function, iterable, ...)
 
@@ -1011,6 +988,8 @@ available.  They are listed here in alphabetical order.
    :class:`frozenset` objects.  If *iterable* is not specified, returns a new empty
    set, ``set([])``.
 
+   The set type is described in :ref:`types-set`.
+
    .. versionadded:: 2.4
 
 
@@ -1101,13 +1080,12 @@ available.  They are listed here in alphabetical order.
    acceptable to :func:`eval`; its goal is to return a printable string.  If no
    argument is given, returns the empty string, ``''``.
 
-   For more information on strings see :ref:`typesseq` which describes
-   sequence functionality (strings are sequences), and also the
-   string-specific methods described in the :ref:`string-methods`
-   section. To output formatted strings use template strings or the
-   ``%`` operator described in the :ref:`typesseq-strings` section. In
-   addition see the :ref:`stringservices` section. See also
-   :func:`unicode`.
+   For more information on strings see :ref:`typesseq` which describes sequence
+   functionality (strings are sequences), and also the string-specific methods
+   described in the :ref:`string-methods` section. To output formatted strings
+   use template strings or the ``%`` operator described in the
+   :ref:`string-formatting` section. In addition see the :ref:`stringservices`
+   section. See also :func:`unicode`.
 
 
 .. function:: sum(iterable[, start])
@@ -1152,6 +1130,7 @@ available.  They are listed here in alphabetical order.
    3])`` returns ``(1, 2, 3)``.  If no argument is given, returns a new empty
    tuple, ``()``.
 
+   :class:`tuple` is a mutable sequence type, as documented in :ref:`typesseq`.
 
 .. function:: type(object)
 
@@ -1222,11 +1201,10 @@ available.  They are listed here in alphabetical order.
 
    For more information on Unicode strings see :ref:`typesseq` which describes
    sequence functionality (Unicode strings are sequences), and also the
-   string-specific methods described in the :ref:`string-methods`
-   section. To output formatted strings use template strings or the
-   ``%`` operator described in the :ref:`typesseq-strings` section. In
-   addition see the :ref:`stringservices` section. See also
-   :func:`str`.
+   string-specific methods described in the :ref:`string-methods` section. To
+   output formatted strings use template strings or the ``%`` operator described
+   in the :ref:`string-formatting` section. In addition see the
+   :ref:`stringservices` section. See also :func:`str`.
 
    .. versionadded:: 2.0
 

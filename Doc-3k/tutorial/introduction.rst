@@ -379,7 +379,7 @@ The built-in function :func:`len` returns the length of a string::
       Both strings and Unicode strings support a large number of methods for
       basic transformations and searching.
 
-   :ref:`typesseq-strings`
+   :ref:`string-formatting`
       The formatting operations invoked when strings and Unicode strings are the
       left operand of the ``%`` operator are described in more detail here.
 

@@ -334,7 +334,7 @@ Reader objects (:class:`DictReader` instances and objects returned by the
 :func:`reader` function) have the following public methods:
 
 
-.. method:: csv reader.next()
+.. method:: csvreader.next()
 
    Return the next row of the reader's iterable object as a list, parsed according
    to the current dialect.
@@ -342,12 +342,12 @@ Reader objects (:class:`DictReader` instances and objects returned by the
 Reader objects have the following public attributes:
 
 
-.. attribute:: csv reader.dialect
+.. attribute:: csvreader.dialect
 
    A read-only description of the dialect in use by the parser.
 
 
-.. attribute:: csv reader.line_num
+.. attribute:: csvreader.line_num
 
    The number of lines read from the source iterator. This is not the same as the
    number of records returned, as records can span multiple lines.
@@ -367,13 +367,13 @@ out surrounded by parens. This may cause some problems for other programs which
 read CSV files (assuming they support complex numbers at all).
 
 
-.. method:: csv writer.writerow(row)
+.. method:: csvwriter.writerow(row)
 
    Write the *row* parameter to the writer's file object, formatted according to
    the current dialect.
 
 
-.. method:: csv writer.writerows(rows)
+.. method:: csvwriter.writerows(rows)
 
    Write all the *rows* parameters (a list of *row* objects as described above) to
    the writer's file object, formatted according to the current dialect.
@@ -381,7 +381,7 @@ read CSV files (assuming they support complex numbers at all).
 Writer objects have the following public attribute:
 
 
-.. attribute:: csv writer.dialect
+.. attribute:: csvwriter.dialect
 
    A read-only description of the dialect in use by the writer.
 

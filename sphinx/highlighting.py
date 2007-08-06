@@ -64,7 +64,7 @@ def highlight_block(source, lang):
             # maybe Python -- try parsing it
             try:
                 parser.suite(source + '\n')
-            except SyntaxError:
+            except (SyntaxError, UnicodeEncodeError):
                 return '<pre>' + cgi.escape(source) + '</pre>\n'
             else:
                 lexer = lexers['python']

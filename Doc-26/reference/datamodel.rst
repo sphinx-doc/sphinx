@@ -1701,41 +1701,6 @@ Emulating callable objects
 Emulating container types
 -------------------------
 
-.. index::
-   single: keys() (mapping object method)
-   single: values() (mapping object method)
-   single: items() (mapping object method)
-   single: iterkeys() (mapping object method)
-   single: itervalues() (mapping object method)
-   single: iteritems() (mapping object method)
-   single: has_key() (mapping object method)
-   single: get() (mapping object method)
-   single: setdefault() (mapping object method)
-   single: pop() (mapping object method)
-   single: popitem() (mapping object method)
-   single: clear() (mapping object method)
-   single: copy() (mapping object method)
-   single: update() (mapping object method)
-   single: __contains__() (mapping object method)
-   single: append() (sequence object method)
-   single: count() (sequence object method)
-   single: extend() (sequence object method)
-   single: index() (sequence object method)
-   single: insert() (sequence object method)
-   single: pop() (sequence object method)
-   single: remove() (sequence object method)
-   single: reverse() (sequence object method)
-   single: sort() (sequence object method)
-   single: __add__() (sequence object method)
-   single: __radd__() (sequence object method)
-   single: __iadd__() (sequence object method)
-   single: __mul__() (sequence object method)
-   single: __rmul__() (sequence object method)
-   single: __imul__() (sequence object method)
-   single: __contains__() (sequence object method)
-   single: __iter__() (sequence object method)
-   single: __coerce__() (numeric object method)
-
 The following methods can be defined to implement container objects.  Containers
 usually are sequences (such as lists or tuples) or mappings (like dictionaries),
 but can represent other containers as well.  The first set of methods is used
@@ -1768,7 +1733,7 @@ mappings, :meth:`__iter__` should be the same as :meth:`iterkeys`; for
 sequences, it should iterate through the values.
 
 
-.. method:: container object.__len__(self)
+.. method:: object.__len__(self)
 
    .. index::
       builtin: len
@@ -1780,7 +1745,7 @@ sequences, it should iterate through the values.
    considered to be false in a Boolean context.
 
 
-.. method:: container object.__getitem__(self, key)
+.. method:: object.__getitem__(self, key)
 
    .. index:: object: slice
 
@@ -1799,7 +1764,7 @@ sequences, it should iterate through the values.
       indexes to allow proper detection of the end of the sequence.
 
 
-.. method:: container object.__setitem__(self, key, value)
+.. method:: object.__setitem__(self, key, value)
 
    Called to implement assignment to ``self[key]``.  Same note as for
    :meth:`__getitem__`.  This should only be implemented for mappings if the
@@ -1808,7 +1773,7 @@ sequences, it should iterate through the values.
    for improper *key* values as for the :meth:`__getitem__` method.
 
 
-.. method:: container object.__delitem__(self, key)
+.. method:: object.__delitem__(self, key)
 
    Called to implement deletion of ``self[key]``.  Same note as for
    :meth:`__getitem__`.  This should only be implemented for mappings if the
@@ -1817,7 +1782,7 @@ sequences, it should iterate through the values.
    values as for the :meth:`__getitem__` method.
 
 
-.. method:: container object.__iter__(self)
+.. method:: object.__iter__(self)
 
    This method is called when an iterator is required for a container. This method
    should return a new iterator object that can iterate over all the objects in the
@@ -1833,7 +1798,7 @@ supply the following special method with a more efficient implementation, which
 also does not require the object be a sequence.
 
 
-.. method:: container object.__contains__(self, item)
+.. method:: object.__contains__(self, item)
 
    Called to implement membership test operators.  Should return true if *item* is
    in *self*, false otherwise.  For mapping objects, this should consider the keys
@@ -1850,7 +1815,7 @@ objects.  Immutable sequences methods should at most only define
 :meth:`__getslice__`; mutable sequences might define all three methods.
 
 
-.. method:: sequence object.__getslice__(self, i, j)
+.. method:: object.__getslice__(self, i, j)
 
    .. deprecated:: 2.0
       Support slice objects as parameters to the :meth:`__getitem__` method.
@@ -1866,7 +1831,7 @@ objects.  Immutable sequences methods should at most only define
    is created instead, and passed to :meth:`__getitem__` instead.
 
 
-.. method:: sequence object.__setslice__(self, i, j, sequence)
+.. method:: object.__setslice__(self, i, j, sequence)
 
    Called to implement assignment to ``self[i:j]``. Same notes for *i* and *j* as
    for :meth:`__getslice__`.
@@ -1876,7 +1841,7 @@ objects.  Immutable sequences methods should at most only define
    :meth:`__setitem__`, instead of :meth:`__setslice__` being called.
 
 
-.. method:: sequence object.__delslice__(self, i, j)
+.. method:: object.__delslice__(self, i, j)
 
    Called to implement deletion of ``self[i:j]``. Same notes for *i* and *j* as for
    :meth:`__getslice__`. This method is deprecated. If no :meth:`__delslice__` is
@@ -1940,18 +1905,18 @@ number implemented (e.g., bitwise operations for non-integral numbers) should be
 left undefined.
 
 
-.. method:: numeric object.__add__(self, other)
-            numeric object.__sub__(self, other)
-            numeric object.__mul__(self, other)
-            numeric object.__floordiv__(self, other)
-            numeric object.__mod__(self, other)
-            numeric object.__divmod__(self, other)
-            numeric object.__pow__(self, other[, modulo])
-            numeric object.__lshift__(self, other)
-            numeric object.__rshift__(self, other)
-            numeric object.__and__(self, other)
-            numeric object.__xor__(self, other)
-            numeric object.__or__(self, other)
+.. method:: object.__add__(self, other)
+            object.__sub__(self, other)
+            object.__mul__(self, other)
+            object.__floordiv__(self, other)
+            object.__mod__(self, other)
+            object.__divmod__(self, other)
+            object.__pow__(self, other[, modulo])
+            object.__lshift__(self, other)
+            object.__rshift__(self, other)
+            object.__and__(self, other)
+            object.__xor__(self, other)
+            object.__or__(self, other)
 
    .. index::
       builtin: divmod
@@ -1972,8 +1937,8 @@ left undefined.
    arguments, it should return ``NotImplemented``.
 
 
-.. method:: numeric object.__div__(self, other)
-            numeric object.__truediv__(self, other)
+.. method:: object.__div__(self, other)
+            object.__truediv__(self, other)
 
    The division operator (``/``) is implemented by these methods.  The
    :meth:`__truediv__` method is used when ``__future__.division`` is in effect,
@@ -1982,20 +1947,20 @@ left undefined.
    will be raised instead.
 
 
-.. method:: numeric object.__radd__(self, other)
-            numeric object.__rsub__(self, other)
-            numeric object.__rmul__(self, other)
-            numeric object.__rdiv__(self, other)
-            numeric object.__rtruediv__(self, other)
-            numeric object.__rfloordiv__(self, other)
-            numeric object.__rmod__(self, other)
-            numeric object.__rdivmod__(self, other)
-            numeric object.__rpow__(self, other)
-            numeric object.__rlshift__(self, other)
-            numeric object.__rrshift__(self, other)
-            numeric object.__rand__(self, other)
-            numeric object.__rxor__(self, other)
-            numeric object.__ror__(self, other)
+.. method:: object.__radd__(self, other)
+            object.__rsub__(self, other)
+            object.__rmul__(self, other)
+            object.__rdiv__(self, other)
+            object.__rtruediv__(self, other)
+            object.__rfloordiv__(self, other)
+            object.__rmod__(self, other)
+            object.__rdivmod__(self, other)
+            object.__rpow__(self, other)
+            object.__rlshift__(self, other)
+            object.__rrshift__(self, other)
+            object.__rand__(self, other)
+            object.__rxor__(self, other)
+            object.__ror__(self, other)
 
    .. index::
       builtin: divmod
@@ -2023,19 +1988,19 @@ left undefined.
       subclasses to override their ancestors' operations.
 
 
-.. method:: numeric object.__iadd__(self, other)
-            numeric object.__isub__(self, other)
-            numeric object.__imul__(self, other)
-            numeric object.__idiv__(self, other)
-            numeric object.__itruediv__(self, other)
-            numeric object.__ifloordiv__(self, other)
-            numeric object.__imod__(self, other)
-            numeric object.__ipow__(self, other[, modulo])
-            numeric object.__ilshift__(self, other)
-            numeric object.__irshift__(self, other)
-            numeric object.__iand__(self, other)
-            numeric object.__ixor__(self, other)
-            numeric object.__ior__(self, other)
+.. method:: object.__iadd__(self, other)
+            object.__isub__(self, other)
+            object.__imul__(self, other)
+            object.__idiv__(self, other)
+            object.__itruediv__(self, other)
+            object.__ifloordiv__(self, other)
+            object.__imod__(self, other)
+            object.__ipow__(self, other[, modulo])
+            object.__ilshift__(self, other)
+            object.__irshift__(self, other)
+            object.__iand__(self, other)
+            object.__ixor__(self, other)
+            object.__ior__(self, other)
 
    These methods are called to implement the augmented arithmetic operations
    (``+=``, ``-=``, ``*=``, ``/=``, ``//=``, ``%=``, ``**=``, ``<<=``, ``>>=``,
@@ -2049,10 +2014,10 @@ left undefined.
    and ``y.__radd__(x)`` are considered, as with the evaluation of *x*``+``*y*.
 
 
-.. method:: numeric object.__neg__(self)
-            numeric object.__pos__(self)
-            numeric object.__abs__(self)
-            numeric object.__invert__(self)
+.. method:: object.__neg__(self)
+            object.__pos__(self)
+            object.__abs__(self)
+            object.__invert__(self)
 
    .. index:: builtin: abs
 
@@ -2060,10 +2025,10 @@ left undefined.
    and ``~``).
 
 
-.. method:: numeric object.__complex__(self)
-            numeric object.__int__(self)
-            numeric object.__long__(self)
-            numeric object.__float__(self)
+.. method:: object.__complex__(self)
+            object.__int__(self)
+            object.__long__(self)
+            object.__float__(self)
 
    .. index::
       builtin: complex
@@ -2075,8 +2040,8 @@ left undefined.
    :func:`long`, and :func:`float`.  Should return a value of the appropriate type.
 
 
-.. method:: numeric object.__oct__(self)
-            numeric object.__hex__(self)
+.. method:: object.__oct__(self)
+            object.__hex__(self)
 
    .. index::
       builtin: oct
@@ -2086,7 +2051,7 @@ left undefined.
    return a string value.
 
 
-.. method:: numeric object.__index__(self)
+.. method:: object.__index__(self)
 
    Called to implement :func:`operator.index`.  Also called whenever Python needs
    an integer object (such as in slicing).  Must return an integer (int or long).
@@ -2094,7 +2059,7 @@ left undefined.
    .. versionadded:: 2.5
 
 
-.. method:: numeric object.__coerce__(self, other)
+.. method:: object.__coerce__(self, other)
 
    Called to implement "mixed-mode" numeric arithmetic.  Should either return a
    2-tuple containing *self* and *other* converted to a common numeric type, or
@@ -2233,14 +2198,14 @@ global state, locking and unlocking resources, closing opened files, etc.
 For more information on context managers, see :ref:`typecontextmanager`.
 
 
-.. method:: context manager.__enter__(self)
+.. method:: object.__enter__(self)
 
    Enter the runtime context related to this object. The :keyword:`with` statement
    will bind this method's return value to the target(s) specified in the
    :keyword:`as` clause of the statement, if any.
 
 
-.. method:: context manager.__exit__(self, exc_type, exc_value, traceback)
+.. method:: object.__exit__(self, exc_type, exc_value, traceback)
 
    Exit the runtime context related to this object. The parameters describe the
    exception that caused the context to be exited. If the context was exited

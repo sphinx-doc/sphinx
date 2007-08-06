@@ -15,7 +15,7 @@ classes support the sequence type methods described in the
 :ref:`typesseq` section, and also the string-specific methods described
 in the :ref:`string-methods` section. To output formatted strings use
 template strings or the ``%`` operator described in the
-:ref:`typesseq-strings` section. Also, see the :mod:`re` module for
+:ref:`string-formatting` section. Also, see the :mod:`re` module for
 string functions based on regular expressions.
 
 

@@ -124,19 +124,19 @@ The audio device objects returned by :func:`open` define the following methods
 and (read-only) attributes:
 
 
-.. method:: audio device.close()
+.. method:: oss_audio_device.close()
 
    Explicitly close the audio device.  When you are done writing to or reading from
    an audio device, you should explicitly close it.  A closed device cannot be used
    again.
 
 
-.. method:: audio device.fileno()
+.. method:: oss_audio_device.fileno()
 
    Return the file descriptor associated with the device.
 
 
-.. method:: audio device.read(size)
+.. method:: oss_audio_device.read(size)
 
    Read *size* bytes from the audio input and return them as a Python string.
    Unlike most Unix device drivers, OSS audio devices in blocking mode (the
@@ -144,7 +144,7 @@ and (read-only) attributes:
    available.
 
 
-.. method:: audio device.write(data)
+.. method:: oss_audio_device.write(data)
 
    Write the Python string *data* to the audio device and return the number of
    bytes written.  If the audio device is in blocking mode (the default), the
@@ -153,7 +153,7 @@ and (read-only) attributes:
    ---see :meth:`writeall`.
 
 
-.. method:: audio device.writeall(data)
+.. method:: oss_audio_device.writeall(data)
 
    Write the entire Python string *data* to the audio device: waits until the audio
    device is able to accept data, writes as much data as it will accept, and
@@ -169,13 +169,13 @@ be useful when consulting the OSS documentation).  If the underlying
 :func:`ioctl` fails, they all raise :exc:`IOError`.
 
 
-.. method:: audio device.nonblock()
+.. method:: oss_audio_device.nonblock()
 
    Put the device into non-blocking mode.  Once in non-blocking mode, there is no
    way to return it to blocking mode.
 
 
-.. method:: audio device.getfmts()
+.. method:: oss_audio_device.getfmts()
 
    Return a bitmask of the audio output formats supported by the soundcard.  Some
    of the formats supported by OSS are:
@@ -212,7 +212,7 @@ be useful when consulting the OSS documentation).  If the underlying
    :const:`AFMT_S16_LE`.
 
 
-.. method:: audio device.setfmt(format)
+.. method:: oss_audio_device.setfmt(format)
 
    Try to set the current audio format to *format*---see :meth:`getfmts` for a
    list.  Returns the audio format that the device was set to, which may not be the
@@ -220,7 +220,7 @@ be useful when consulting the OSS documentation).  If the underlying
    by passing an "audio format" of :const:`AFMT_QUERY`.
 
 
-.. method:: audio device.channels(nchannels)
+.. method:: oss_audio_device.channels(nchannels)
 
    Set the number of output channels to *nchannels*.  A value of 1 indicates
    monophonic sound, 2 stereophonic.  Some devices may have more than 2 channels,
@@ -228,7 +228,7 @@ be useful when consulting the OSS documentation).  If the underlying
    the device was set to.
 
 
-.. method:: audio device.speed(samplerate)
+.. method:: oss_audio_device.speed(samplerate)
 
    Try to set the audio sampling rate to *samplerate* samples per second.  Returns
    the rate actually set.  Most sound devices don't support arbitrary sampling
@@ -250,21 +250,21 @@ be useful when consulting the OSS documentation).  If the underlying
    +-------+-------------------------------------------+
 
 
-.. method:: audio device.sync()
+.. method:: oss_audio_device.sync()
 
    Wait until the sound device has played every byte in its buffer.  (This happens
    implicitly when the device is closed.)  The OSS documentation recommends closing
    and re-opening the device rather than using :meth:`sync`.
 
 
-.. method:: audio device.reset()
+.. method:: oss_audio_device.reset()
 
    Immediately stop playing or recording and return the device to a state where it
    can accept commands.  The OSS documentation recommends closing and re-opening
    the device after calling :meth:`reset`.
 
 
-.. method:: audio device.post()
+.. method:: oss_audio_device.post()
 
    Tell the driver that there is likely to be a pause in the output, making it
    possible for the device to handle the pause more intelligently.  You might use
@@ -275,7 +275,7 @@ The following convenience methods combine several ioctls, or one ioctl and some
 simple calculations.
 
 
-.. method:: audio device.setparameters(format, nchannels, samplerate [, strict=False])
+.. method:: oss_audio_device.setparameters(format, nchannels, samplerate [, strict=False])
 
    Set the key audio sampling parameters---sample format, number of channels, and
    sampling rate---in one method call.  *format*,  *nchannels*, and *samplerate*
@@ -298,17 +298,17 @@ simple calculations.
       rate = dsp.rate(channels)
 
 
-.. method:: audio device.bufsize()
+.. method:: oss_audio_device.bufsize()
 
    Returns the size of the hardware buffer, in samples.
 
 
-.. method:: audio device.obufcount()
+.. method:: oss_audio_device.obufcount()
 
    Returns the number of samples that are in the hardware buffer yet to be played.
 
 
-.. method:: audio device.obuffree()
+.. method:: oss_audio_device.obuffree()
 
    Returns the number of samples that could be queued into the hardware buffer to
    be played without blocking.
@@ -316,17 +316,17 @@ simple calculations.
 Audio device objects also support several read-only attributes:
 
 
-.. attribute:: audio device.closed
+.. attribute:: oss_audio_device.closed
 
    Boolean indicating whether the device has been closed.
 
 
-.. attribute:: audio device.name
+.. attribute:: oss_audio_device.name
 
    String containing the name of the device file.
 
 
-.. attribute:: audio device.mode
+.. attribute:: oss_audio_device.mode
 
    The I/O mode for the file, either ``"r"``, ``"rw"``, or ``"w"``.
 
@@ -339,20 +339,20 @@ Mixer Device Objects
 The mixer object provides two file-like methods:
 
 
-.. method:: mixer device.close()
+.. method:: oss_mixer_device.close()
 
    This method closes the open mixer device file.  Any further attempts to use the
    mixer after this file is closed will raise an :exc:`IOError`.
 
 
-.. method:: mixer device.fileno()
+.. method:: oss_mixer_device.fileno()
 
    Returns the file handle number of the open mixer device file.
 
 The remaining methods are specific to audio mixing:
 
 
-.. method:: mixer device.controls()
+.. method:: oss_mixer_device.controls()
 
    This method returns a bitmask specifying the available mixer controls ("Control"
    being a specific mixable "channel", such as :const:`SOUND_MIXER_PCM` or
@@ -372,7 +372,7 @@ The remaining methods are specific to audio mixing:
    Ultrasound, for example, :const:`SOUND_MIXER_VOLUME` does not exist.
 
 
-.. method:: mixer device.stereocontrols()
+.. method:: oss_mixer_device.stereocontrols()
 
    Returns a bitmask indicating stereo mixer controls.  If a bit is set, the
    corresponding control is stereo; if it is unset, the control is either
@@ -383,13 +383,13 @@ The remaining methods are specific to audio mixing:
    data from a bitmask.
 
 
-.. method:: mixer device.reccontrols()
+.. method:: oss_mixer_device.reccontrols()
 
    Returns a bitmask specifying the mixer controls that may be used to record.  See
    the code example for :meth:`controls` for an example of reading from a bitmask.
 
 
-.. method:: mixer device.get(control)
+.. method:: oss_mixer_device.get(control)
 
    Returns the volume of a given mixer control.  The returned volume is a 2-tuple
    ``(left_volume,right_volume)``.  Volumes are specified as numbers from 0
@@ -400,7 +400,7 @@ The remaining methods are specific to audio mixing:
    :exc:`IOError` if an unsupported control is specified.
 
 
-.. method:: mixer device.set(control, (left, right))
+.. method:: oss_mixer_device.set(control, (left, right))
 
    Sets the volume for a given mixer control to ``(left,right)``. ``left`` and
    ``right`` must be ints and between 0 (silent) and 100 (full volume).  On
@@ -412,13 +412,13 @@ The remaining methods are specific to audio mixing:
    specified volumes were out-of-range.
 
 
-.. method:: mixer device.get_recsrc()
+.. method:: oss_mixer_device.get_recsrc()
 
    This method returns a bitmask indicating which control(s) are currently being
    used as a recording source.
 
 
-.. method:: mixer device.set_recsrc(bitmask)
+.. method:: oss_mixer_device.set_recsrc(bitmask)
 
    Call this function to specify a recording source.  Returns a bitmask indicating
    the new recording source (or sources) if successful; raises :exc:`IOError` if an

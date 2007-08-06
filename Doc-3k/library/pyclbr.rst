@@ -47,17 +47,17 @@ The class descriptor objects used as values in the dictionary returned by
 :func:`readmodule` and :func:`readmodule_ex` provide the following data members:
 
 
-.. attribute:: class descriptor.module
+.. attribute:: class_descriptor.module
 
    The name of the module defining the class described by the class descriptor.
 
 
-.. attribute:: class descriptor.name
+.. attribute:: class_descriptor.name
 
    The name of the class.
 
 
-.. attribute:: class descriptor.super
+.. attribute:: class_descriptor.super
 
    A list of class descriptors which describe the immediate base classes of the
    class being described.  Classes which are named as superclasses but which are
@@ -65,17 +65,17 @@ The class descriptor objects used as values in the dictionary returned by
    name instead of class descriptors.
 
 
-.. attribute:: class descriptor.methods
+.. attribute:: class_descriptor.methods
 
    A dictionary mapping method names to line numbers.
 
 
-.. attribute:: class descriptor.file
+.. attribute:: class_descriptor.file
 
    Name of the file containing the ``class`` statement defining the class.
 
 
-.. attribute:: class descriptor.lineno
+.. attribute:: class_descriptor.lineno
 
    The line number of the ``class`` statement within the file named by
    :attr:`file`.
@@ -90,23 +90,23 @@ The function descriptor objects used as values in the dictionary returned by
 :func:`readmodule_ex` provide the following data members:
 
 
-.. attribute:: function descriptor.module
+.. attribute:: function_descriptor.module
 
    The name of the module defining the function described by the function
    descriptor.
 
 
-.. attribute:: function descriptor.name
+.. attribute:: function_descriptor.name
 
    The name of the function.
 
 
-.. attribute:: function descriptor.file
+.. attribute:: function_descriptor.file
 
    Name of the file containing the ``def`` statement defining the function.
 
 
-.. attribute:: function descriptor.lineno
+.. attribute:: function_descriptor.lineno
 
    The line number of the ``def`` statement within the file named by :attr:`file`.
 

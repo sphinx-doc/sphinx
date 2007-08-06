@@ -1,3 +1,5 @@
+.. XXX: reference/datamodel and this have quite a few overlaps!
+
 
 .. _bltin-types:
 
@@ -490,6 +492,8 @@ and range objects.
    object: Unicode
    object: tuple
    object: list
+   object: buffer
+   object: range
 
 String literals are written in single or double quotes: ``'xyzzy'``,
 ``"frobozz"``.  See :ref:`strings` for more about string literals.  Unicode
@@ -501,17 +505,9 @@ parentheses, but an empty tuple must have the enclosing parentheses, such as
 ``a, b, c`` or ``()``.  A single item tuple must have a trailing comma, such as
 ``(d,)``.
 
-.. index::
-   builtin: buffer
-   object: buffer
-
 Buffer objects are not directly supported by Python syntax, but can be created
 by calling the builtin function :func:`buffer`.  They don't support
 concatenation or repetition.
-
-.. index::
-   builtin: range
-   object: range
 
 Xrange objects are similar to buffers in that there is no specific syntax to
 create them, but they are created using the :func:`range` function.  They don't
@@ -650,12 +646,11 @@ String Methods
 
 .. index:: pair: string; methods
 
-Below are listed the string methods which both 8-bit strings and Unicode
-objects support. In addition, Python's strings support the 
-sequence type methods described in the
-:ref:`typesseq` section (above). To output formatted strings use
-template strings or the ``%`` operator described in the
-:ref:`typesseq-strings` section (below). Also, see the :mod:`re` module for
+Below are listed the string methods which both 8-bit strings and Unicode objects
+support. In addition, Python's strings support the sequence type methods
+described in the :ref:`typesseq` section (above). To output formatted strings
+use template strings or the ``%`` operator described in the
+:ref:`string-formatting` section (below). Also, see the :mod:`re` module for
 string functions based on regular expressions.
 
 .. method:: str.capitalize()
@@ -1031,7 +1026,7 @@ string functions based on regular expressions.
    .. versionadded:: 2.2.2
 
 
-.. _typesseq-strings:
+.. _string-formatting:
 
 String Formatting Operations
 ----------------------------
@@ -1098,86 +1093,72 @@ sequential parameter list).
 
 The conversion flag characters are:
 
-+---------+-----------------------------------------------+
-| Flag    | Meaning                                       |
-+=========+===============================================+
-| ``'#'`` | The value conversion will use the "alternate  |
-|         | form" (where defined below).                  |
-+---------+-----------------------------------------------+
-| ``'0'`` | The conversion will be zero padded for        |
-|         | numeric values.                               |
-+---------+-----------------------------------------------+
-| ``'-'`` | The converted value is left adjusted          |
-|         | (overrides the ``'0'`` conversion if both are |
-|         | given).                                       |
-+---------+-----------------------------------------------+
-| ``' '`` | (a space) A blank should be left before a     |
-|         | positive number (or empty string) produced by |
-|         | a signed conversion.                          |
-+---------+-----------------------------------------------+
-| ``'+'`` | A sign character (``'+'`` or ``'-'``) will    |
-|         | precede the conversion (overrides a "space"   |
-|         | flag).                                        |
-+---------+-----------------------------------------------+
++---------+---------------------------------------------------------------------+
+| Flag    | Meaning                                                             |
++=========+=====================================================================+
+| ``'#'`` | The value conversion will use the "alternate form" (where defined   |
+|         | below).                                                             |
++---------+---------------------------------------------------------------------+
+| ``'0'`` | The conversion will be zero padded for numeric values.              |
++---------+---------------------------------------------------------------------+
+| ``'-'`` | The converted value is left adjusted (overrides the ``'0'``         |
+|         | conversion if both are given).                                      |
++---------+---------------------------------------------------------------------+
+| ``' '`` | (a space) A blank should be left before a positive number (or empty |
+|         | string) produced by a signed conversion.                            |
++---------+---------------------------------------------------------------------+
+| ``'+'`` | A sign character (``'+'`` or ``'-'``) will precede the conversion   |
+|         | (overrides a "space" flag).                                         |
++---------+---------------------------------------------------------------------+
 
 A length modifier (``h``, ``l``, or ``L``) may be present, but is ignored as it
 is not necessary for Python.
 
 The conversion types are:
 
-+------------+---------------------------------+-------+
-| Conversion | Meaning                         | Notes |
-+============+=================================+=======+
-| ``'d'``    | Signed integer decimal.         |       |
-+------------+---------------------------------+-------+
-| ``'i'``    | Signed integer decimal.         |       |
-+------------+---------------------------------+-------+
-| ``'o'``    | Unsigned octal.                 | \(1)  |
-+------------+---------------------------------+-------+
-| ``'u'``    | Unsigned decimal.               |       |
-+------------+---------------------------------+-------+
-| ``'x'``    | Unsigned hexadecimal            | \(2)  |
-|            | (lowercase).                    |       |
-+------------+---------------------------------+-------+
-| ``'X'``    | Unsigned hexadecimal            | \(2)  |
-|            | (uppercase).                    |       |
-+------------+---------------------------------+-------+
-| ``'e'``    | Floating point exponential      | \(3)  |
-|            | format (lowercase).             |       |
-+------------+---------------------------------+-------+
-| ``'E'``    | Floating point exponential      | \(3)  |
-|            | format (uppercase).             |       |
-+------------+---------------------------------+-------+
-| ``'f'``    | Floating point decimal format.  | \(3)  |
-+------------+---------------------------------+-------+
-| ``'F'``    | Floating point decimal format.  | \(3)  |
-+------------+---------------------------------+-------+
-| ``'g'``    | Floating point format. Uses     | \(4)  |
-|            | exponential format if exponent  |       |
-|            | is greater than -4 or less than |       |
-|            | precision, decimal format       |       |
-|            | otherwise.                      |       |
-+------------+---------------------------------+-------+
-| ``'G'``    | Floating point format. Uses     | \(4)  |
-|            | exponential format if exponent  |       |
-|            | is greater than -4 or less than |       |
-|            | precision, decimal format       |       |
-|            | otherwise.                      |       |
-+------------+---------------------------------+-------+
-| ``'c'``    | Single character (accepts       |       |
-|            | integer or single character     |       |
-|            | string).                        |       |
-+------------+---------------------------------+-------+
-| ``'r'``    | String (converts any python     | \(5)  |
-|            | object using :func:`repr`).     |       |
-+------------+---------------------------------+-------+
-| ``'s'``    | String (converts any python     | \(6)  |
-|            | object using :func:`str`).      |       |
-+------------+---------------------------------+-------+
-| ``'%'``    | No argument is converted,       |       |
-|            | results in a ``'%'`` character  |       |
-|            | in the result.                  |       |
-+------------+---------------------------------+-------+
++------------+-----------------------------------------------------+-------+
+| Conversion | Meaning                                             | Notes |
++============+=====================================================+=======+
+| ``'d'``    | Signed integer decimal.                             |       |
++------------+-----------------------------------------------------+-------+
+| ``'i'``    | Signed integer decimal.                             |       |
++------------+-----------------------------------------------------+-------+
+| ``'o'``    | Unsigned octal.                                     | \(1)  |
++------------+-----------------------------------------------------+-------+
+| ``'u'``    | Unsigned decimal.                                   |       |
++------------+-----------------------------------------------------+-------+
+| ``'x'``    | Unsigned hexadecimal (lowercase).                   | \(2)  |
++------------+-----------------------------------------------------+-------+
+| ``'X'``    | Unsigned hexadecimal (uppercase).                   | \(2)  |
++------------+-----------------------------------------------------+-------+
+| ``'e'``    | Floating point exponential format (lowercase).      | \(3)  |
++------------+-----------------------------------------------------+-------+
+| ``'E'``    | Floating point exponential format (uppercase).      | \(3)  |
++------------+-----------------------------------------------------+-------+
+| ``'f'``    | Floating point decimal format.                      | \(3)  |
++------------+-----------------------------------------------------+-------+
+| ``'F'``    | Floating point decimal format.                      | \(3)  |
++------------+-----------------------------------------------------+-------+
+| ``'g'``    | Floating point format. Uses exponential format if   | \(4)  |
+|            | exponent is greater than -4 or less than precision, |       |
+|            | decimal format otherwise.                           |       |
++------------+-----------------------------------------------------+-------+
+| ``'G'``    | Floating point format. Uses exponential format if   | \(4)  |
+|            | exponent is greater than -4 or less than precision, |       |
+|            | decimal format otherwise.                           |       |
++------------+-----------------------------------------------------+-------+
+| ``'c'``    | Single character (accepts integer or single         |       |
+|            | character string).                                  |       |
++------------+-----------------------------------------------------+-------+
+| ``'r'``    | String (converts any python object using            | \(5)  |
+|            | :func:`repr`).                                      |       |
++------------+-----------------------------------------------------+-------+
+| ``'s'``    | String (converts any python object using            | \(6)  |
+|            | :func:`str`).                                       |       |
++------------+-----------------------------------------------------+-------+
+| ``'%'``    | No argument is converted, results in a ``'%'``      |       |
+|            | character in the result.                            |       |
++------------+-----------------------------------------------------+-------+
 
 Notes:
 
@@ -1437,37 +1418,52 @@ element of another set.
 Instances of :class:`set` and :class:`frozenset` provide the following
 operations:
 
-+-------------------------------+------------+---------------------------------+
-| Operation                     | Equivalent | Result                          |
-+===============================+============+=================================+
-| ``len(s)``                    |            | cardinality of set *s*          |
-+-------------------------------+------------+---------------------------------+
-| ``x in s``                    |            | test *x* for membership in *s*  |
-+-------------------------------+------------+---------------------------------+
-| ``x not in s``                |            | test *x* for non-membership in  |
-|                               |            | *s*                             |
-+-------------------------------+------------+---------------------------------+
-| ``s.issubset(t)``             | ``s <= t`` | test whether every element in   |
-|                               |            | *s* is in *t*                   |
-+-------------------------------+------------+---------------------------------+
-| ``s.issuperset(t)``           | ``s >= t`` | test whether every element in   |
-|                               |            | *t* is in *s*                   |
-+-------------------------------+------------+---------------------------------+
-| ``s.union(t)``                | *s* \| *t* | new set with elements from both |
-|                               |            | *s* and *t*                     |
-+-------------------------------+------------+---------------------------------+
-| ``s.intersection(t)``         | *s* & *t*  | new set with elements common to |
-|                               |            | *s* and *t*                     |
-+-------------------------------+------------+---------------------------------+
-| ``s.difference(t)``           | *s* - *t*  | new set with elements in *s*    |
-|                               |            | but not in *t*                  |
-+-------------------------------+------------+---------------------------------+
-| ``s.symmetric_difference(t)`` | *s* ^ *t*  | new set with elements in either |
-|                               |            | *s* or *t* but not both         |
-+-------------------------------+------------+---------------------------------+
-| ``s.copy()``                  |            | new set with a shallow copy of  |
-|                               |            | *s*                             |
-+-------------------------------+------------+---------------------------------+
+.. describe:: len(s)
+
+   Return the cardinality of set *s*.
+
+.. describe:: x in s
+
+   Test *x* for membership in *s*.
+
+.. describe:: x not in s
+
+   Test *x* for non-membership in *s*.
+
+.. method:: set.issubset(other)
+            set <= other
+
+   Test whether every element in the set is in *other*.
+
+.. method:: set.issuperset(other)
+            set >= other
+
+   Test whether every element in *other* is in the set.
+
+.. method:: set.union(other)
+            set | other
+
+   Return a new set with elements from both sets.
+
+.. method:: set.intersection(other)
+            set & other
+
+   Return a new set with elements common to both sets.
+
+.. method:: set.difference(other)
+            set - other
+
+   Return a new set with elements in the set that are not in *other*.
+
+.. method:: set.symmetric_difference(other)
+            set ^ other
+
+   Return a new set with elements in either the set or *other* but not both.
+
+.. method:: set.copy()
+
+   Return a new set with a shallow copy of *s*.
+
 
 Note, the non-operator versions of :meth:`union`, :meth:`intersection`,
 :meth:`difference`, and :meth:`symmetric_difference`, :meth:`issubset`, and
@@ -1505,38 +1501,48 @@ returns an instance of :class:`frozenset`.
 The following table lists operations available for :class:`set` that do not
 apply to immutable instances of :class:`frozenset`:
 
-+--------------------------------------+-------------+---------------------------------+
-| Operation                            | Equivalent  | Result                          |
-+======================================+=============+=================================+
-| ``s.update(t)``                      | *s* \|= *t* | update set *s*, adding elements |
-|                                      |             | from *t*                        |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.intersection_update(t)``         | *s* &= *t*  | update set *s*, keeping only    |
-|                                      |             | elements found in both *s* and  |
-|                                      |             | *t*                             |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.difference_update(t)``           | *s* -= *t*  | update set *s*, removing        |
-|                                      |             | elements found in *t*           |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.symmetric_difference_update(t)`` | *s* ^= *t*  | update set *s*, keeping only    |
-|                                      |             | elements found in either *s* or |
-|                                      |             | *t* but not in both             |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.add(x)``                         |             | add element *x* to set *s*      |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.remove(x)``                      |             | remove *x* from set *s*; raises |
-|                                      |             | :exc:`KeyError` if not present  |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.discard(x)``                     |             | removes *x* from set *s* if     |
-|                                      |             | present                         |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.pop()``                          |             | remove and return an arbitrary  |
-|                                      |             | element from *s*; raises        |
-|                                      |             | :exc:`KeyError` if empty        |
-+--------------------------------------+-------------+---------------------------------+
-| ``s.clear()``                        |             | remove all elements from set    |
-|                                      |             | *s*                             |
-+--------------------------------------+-------------+---------------------------------+
+.. method:: set.update(other)
+            set |= other
+
+   Update the set, adding elements from *other*.
+
+.. method:: set.intersection_update(other)
+            set &= other
+
+   Update the set, keeping only elements found in it and *other*.
+
+.. method:: set.difference_update(other)
+            set -= other
+
+   Update the set, removing elements found in *other*.
+
+.. method:: set.symmetric_difference_update(other)
+            set ^= other
+
+   Update the set, keeping only elements found in either set, but not in both.
+
+.. method:: set.add(el)
+
+   Add element *el* to the set.
+
+.. method:: set.remove(el)
+
+   Remove element *el* from the set.  Raises :exc:`KeyError` if *el* is not
+   contained in the set.
+
+.. method:: set.discard(el)
+
+   Remove element *el* from the set if it is present.
+
+.. method:: set.pop()
+
+   Remove and return an arbitrary element from the set.  Raises :exc:`KeyError`
+   if the set is empty.
+
+.. method:: set.clear()
+
+   Remove all elements from the set.
+
 
 Note, the non-operator versions of the :meth:`update`,
 :meth:`intersection_update`, :meth:`difference_update`, and
@@ -1552,173 +1558,216 @@ Mapping Types --- :class:`dict`
 .. index::
    object: mapping
    object: dictionary
+   triple: operations on; mapping; types
+   triple: operations on; dictionary; type
+   statement: del
+   builtin: len
 
-A :dfn:`mapping` object maps  immutable values to arbitrary objects.  Mappings
+A :dfn:`mapping` object maps immutable values to arbitrary objects.  Mappings
 are mutable objects.  There is currently only one standard mapping type, the
-:dfn:`dictionary`.  A dictionary's keys are almost arbitrary values.  Only
+:dfn:`dictionary`.  A dictionary's keys are *almost* arbitrary values.  Only
 values containing lists, dictionaries or other mutable types (that are compared
 by value rather than by object identity) may not be used as keys. Numeric types
 used for keys obey the normal rules for numeric comparison: if two numbers
 compare equal (such as ``1`` and ``1.0``) then they can be used interchangeably
 to index the same dictionary entry.
 
-Dictionaries are created by placing a comma-separated list of ``key: value``
+Dictionaries can be created by placing a comma-separated list of ``key: value``
 pairs within braces, for example: ``{'jack': 4098, 'sjoerd': 4127}`` or ``{4098:
-'jack', 4127: 'sjoerd'}``.
+'jack', 4127: 'sjoerd'}``, or by the :class:`dict` constructor.
 
-.. index::
-   triple: operations on; mapping; types
-   triple: operations on; dictionary; type
-   statement: del
-   builtin: len
-   single: clear() (dictionary method)
-   single: copy() (dictionary method)
-   single: has_key() (dictionary method)
-   single: fromkeys() (dictionary method)
-   single: items() (dictionary method)
-   single: keys() (dictionary method)
-   single: update() (dictionary method)
-   single: values() (dictionary method)
-   single: get() (dictionary method)
-   single: setdefault() (dictionary method)
-   single: pop() (dictionary method)
-   single: popitem() (dictionary method)
-   single: iteritems() (dictionary method)
-   single: iterkeys() (dictionary method)
-   single: itervalues() (dictionary method)
+.. class:: dict([arg])
 
-The following operations are defined on mappings (where *a* and *b* are
-mappings, *k* is a key, and *v* and *x* are arbitrary objects):
+   Return a new dictionary initialized from an optional positional argument or from
+   a set of keyword arguments. If no arguments are given, return a new empty
+   dictionary. If the positional argument *arg* is a mapping object, return a
+   dictionary mapping the same keys to the same values as does the mapping object.
+   Otherwise the positional argument must be a sequence, a container that supports
+   iteration, or an iterator object.  The elements of the argument must each also
+   be of one of those kinds, and each must in turn contain exactly two objects.
+   The first is used as a key in the new dictionary, and the second as the key's
+   value.  If a given key is seen more than once, the last value associated with it
+   is retained in the new dictionary.
 
-+--------------------------------+---------------------------------+-----------+
-| Operation                      | Result                          | Notes     |
-+================================+=================================+===========+
-| ``len(a)``                     | the number of items in *a*      |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a[k]``                       | the item of *a* with key *k*    | (1), (10) |
-+--------------------------------+---------------------------------+-----------+
-| ``a[k] = v``                   | set ``a[k]`` to *v*             |           |
-+--------------------------------+---------------------------------+-----------+
-| ``del a[k]``                   | remove ``a[k]`` from *a*        | \(1)      |
-+--------------------------------+---------------------------------+-----------+
-| ``a.clear()``                  | remove all items from ``a``     |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.copy()``                   | a (shallow) copy of ``a``       |           |
-+--------------------------------+---------------------------------+-----------+
-| ``k in a``                     | ``True`` if *a* has a key *k*,  | \(2)      |
-|                                | else ``False``                  |           |
-+--------------------------------+---------------------------------+-----------+
-| ``k not in a``                 | Equivalent to ``not`` *k* in    | \(2)      |
-|                                | *a*                             |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.has_key(k)``               | Equivalent to *k* ``in`` *a*,   |           |
-|                                | use that form in new code       |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.items()``                  | a copy of *a*'s list of (*key*, | \(3)      |
-|                                | *value*) pairs                  |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.keys()``                   | a copy of *a*'s list of keys    | \(3)      |
-+--------------------------------+---------------------------------+-----------+
-| ``a.update([b])``              | updates *a* with key/value      | \(9)      |
-|                                | pairs from *b*, overwriting     |           |
-|                                | existing keys, returns ``None`` |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.fromkeys(seq[, value])``   | Creates a new dictionary with   | \(7)      |
-|                                | keys from *seq* and values set  |           |
-|                                | to *value*                      |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.values()``                 | a copy of *a*'s list of values  | \(3)      |
-+--------------------------------+---------------------------------+-----------+
-| ``a.get(k[, x])``              | ``a[k]`` if ``k in a``, else    | \(4)      |
-|                                | *x*                             |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.setdefault(k[, x])``       | ``a[k]`` if ``k in a``, else    | \(5)      |
-|                                | *x* (also setting it)           |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.pop(k[, x])``              | ``a[k]`` if ``k in a``, else    | \(8)      |
-|                                | *x* (and remove k)              |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.popitem()``                | remove and return an arbitrary  | \(6)      |
-|                                | (*key*, *value*) pair           |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.iteritems()``              | return an iterator over (*key*, | (2), (3)  |
-|                                | *value*) pairs                  |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.iterkeys()``               | return an iterator over the     | (2), (3)  |
-|                                | mapping's keys                  |           |
-+--------------------------------+---------------------------------+-----------+
-| ``a.itervalues()``             | return an iterator over the     | (2), (3)  |
-|                                | mapping's values                |           |
-+--------------------------------+---------------------------------+-----------+
+   If keyword arguments are given, the keywords themselves with their associated
+   values are added as items to the dictionary. If a key is specified both in the
+   positional argument and as a keyword argument, the value associated with the
+   keyword is retained in the dictionary. For example, these all return a
+   dictionary equal to ``{"one": 2, "two": 3}``:
 
-Notes:
+   * ``dict({'one': 2, 'two': 3})``
 
-(1)
-   Raises a :exc:`KeyError` exception if *k* is not in the map.
+   * ``dict({'one': 2, 'two': 3}.items())``
 
-(2)
+   * ``dict({'one': 2, 'two': 3}.iteritems())``
+
+   * ``dict(zip(('one', 'two'), (2, 3)))``
+
+   * ``dict([['two', 3], ['one', 2]])``
+
+   * ``dict(one=2, two=3)``
+
+   * ``dict([(['one', 'two'][i-2], i) for i in (2, 3)])``
+
    .. versionadded:: 2.2
 
-(3)
-   Keys and values are listed in an arbitrary order which is non-random, varies
-   across Python implementations, and depends on the dictionary's history of
-   insertions and deletions. If :meth:`items`, :meth:`keys`, :meth:`values`,
-   :meth:`iteritems`, :meth:`iterkeys`, and :meth:`itervalues` are called with no
-   intervening modifications to the dictionary, the lists will directly correspond.
-   This allows the creation of ``(value, key)`` pairs using :func:`zip`: ``pairs =
-   zip(a.values(), a.keys())``.  The same relationship holds for the
-   :meth:`iterkeys` and :meth:`itervalues` methods: ``pairs = zip(a.itervalues(),
-   a.iterkeys())`` provides the same value for ``pairs``. Another way to create the
-   same list is ``pairs = [(v, k) for (k, v) in a.iteritems()]``.
+   .. versionchanged:: 2.3
+      Support for building a dictionary from keyword arguments added.
 
-(4)
-   Never raises an exception if *k* is not in the map, instead it returns *x*.  *x*
-   is optional; when *x* is not provided and *k* is not in the map, ``None`` is
-   returned.
 
-(5)
-   :func:`setdefault` is like :func:`get`, except that if *k* is missing, *x* is
-   both returned and inserted into the dictionary as the value of *k*. *x* defaults
-   to ``None``.
+These are the operations that dictionaries support (and therefore, custom mapping
+types should support too):
 
-(6)
-   :func:`popitem` is useful to destructively iterate over a dictionary, as often
-   used in set algorithms.  If the dictionary is empty, calling :func:`popitem`
-   raises a :exc:`KeyError`.
+.. describe:: len(d)
 
-(7)
+   Return the number of items in the dictionary *d*.
+
+.. describe:: d[key]
+
+   Return the item of *d* with key *key*.  Raises a :exc:`KeyError` if *key* is
+   not in the map.
+   
+   .. versionadded:: 2.5
+      If a subclass of dict defines a method :meth:`__missing__`, if the key
+      *key* is not present, the ``d[key]`` operation calls that method with the
+      key *key* as argument.  The ``d[key]`` operation then returns or raises
+      whatever is returned or raised by the ``__missing__(key)`` call if the key
+      is not present. No other operations or methods invoke
+      :meth:`__missing__`. If :meth:`__missing__` is not defined,
+      :exc:`KeyError` is raised.  :meth:`__missing__` must be a method; it
+      cannot be an instance variable. For an example, see
+      :class:`collections.defaultdict`.
+
+.. describe:: d[key] = value
+
+   Set ``d[key]`` to *value*.
+
+.. describe:: del d[key]
+
+   Remove ``d[key]`` from *d*.  Raises a :exc:`KeyError` if *key* is not in the
+   map.
+
+.. describe:: key in d
+
+   Return ``True`` if *d* has a key *key*, else ``False``.
+
+   .. versionadded:: 2.2
+
+.. describe:: key not in d
+
+   Equivalent to ``not key in d``.
+
+   .. versionadded:: 2.2
+
+.. method:: dict.clear()
+
+   Remove all items from the dictionary.
+
+.. method:: dict.copy()
+
+   Return a shallow copy of the dictionary.
+
+.. method:: dict.fromkeys(seq[, value])
+
+   Create a new dictionary with keys from *seq* and values set to *value*.
+
    :func:`fromkeys` is a class method that returns a new dictionary. *value*
    defaults to ``None``.
 
    .. versionadded:: 2.3
 
-(8)
-   :func:`pop` raises a :exc:`KeyError` when no default value is given and the key
-   is not found.
+.. method:: dict.get(key[, default])
+
+   Return the value for *key* if *key* is in the dictionary, else *default*.  If
+   *default* is not given, it defaults to ``None``, so that this method never
+   raises a :exc:`KeyError`.
+
+.. method:: dict.has_key(key)
+
+   ``d.has_key(key)`` is equivalent to ``key in d``, but deprecated.
+
+.. method:: dict.items()
+
+   Return a copy of the dictionary's list of ``(key, value)`` pairs.
+
+   .. note::
+
+      Keys and values are listed in an arbitrary order which is non-random, varies
+      across Python implementations, and depends on the dictionary's history of
+      insertions and deletions. If :meth:`items`, :meth:`keys`, :meth:`values`,
+      :meth:`iteritems`, :meth:`iterkeys`, and :meth:`itervalues` are called with no
+      intervening modifications to the dictionary, the lists will directly correspond.
+      This allows the creation of ``(value, key)`` pairs using :func:`zip`: ``pairs =
+      zip(d.values(), d.keys())``.  The same relationship holds for the
+      :meth:`iterkeys` and :meth:`itervalues` methods: ``pairs = zip(d.itervalues(),
+      d.iterkeys())`` provides the same value for ``pairs``. Another way to create the
+      same list is ``pairs = [(v, k) for (k, v) in d.iteritems()]``.
+
+.. method:: dict.iteritems()
+
+   Return an iterator over the dictionary's ``(key, value)`` pairs.
+   See the note for :meth:`dict.items`.
+
+   .. versionadded:: 2.2
+
+.. method:: dict.iterkeys()
+
+   Return an iterator over the dictionary's keys.  See the note for
+   :meth:`dict.items`.
+
+   .. versionadded:: 2.2
+
+.. method:: dict.itervalues()
+
+   Return an iterator over the dictionary's values.  See the note for
+   :meth:`dict.items`.
+
+   .. versionadded:: 2.2
+
+.. method:: dict.keys()
+
+   Return a copy of the dictionary's list of keys.  See the note for
+   :meth:`dict.items`.
+
+.. method:: dict.pop(key[, default])
+
+   If *key* is in the dictionary, remove it and return its value, else return
+   *default*.  If *default* is not given and *key* is not in the dictionary, a
+   :exc:`KeyError` is raised.
 
    .. versionadded:: 2.3
 
-(9)
-   :func:`update` accepts either another mapping object or an iterable of key/value
-   pairs (as a tuple or other iterable of length two).  If keyword arguments are
-   specified, the mapping is then is updated with those key/value pairs:
-   ``d.update(red=1, blue=2)``.
+.. method:: dict.popitem()
+
+   Remove and return an arbitrary ``(key, value)`` pair from the dictionary.
+
+   :func:`popitem` is useful to destructively iterate over a dictionary, as
+   often used in set algorithms.  If the dictionary is empty, calling
+   :func:`popitem` raises a :exc:`KeyError`.
+
+.. method:: dict.setdefault(key[, default])
+
+   If *key* is in the dictionary, return its value.  If not, insert *key* with a
+   value of *default* and return *default*.  *default* defaults to ``None``.
+
+.. method:: dict.update([other])
+
+   Update the dictionary with the key/value pairs from *other*, overwriting existing
+   keys.  Return ``None``.
+
+   :func:`update` accepts either another dictionary object or an iterable of
+   key/value pairs (as a tuple or other iterable of length two).  If keyword
+   arguments are specified, the dictionary is then is updated with those
+   key/value pairs: ``d.update(red=1, blue=2)``.
 
    .. versionchanged:: 2.4
-      Allowed the argument to be an iterable of key/value pairs and allowed keyword
-      arguments.
+      Allowed the argument to be an iterable of key/value pairs and allowed
+      keyword arguments.
 
-(10)
-   If a subclass of dict defines a method :meth:`__missing__`, if the key *k* is
-   not present, the ``a[k]`` operation calls that method with the key *k* as
-   argument.  The ``a[k]`` operation then returns or raises whatever is returned
-   or raised by the ``__missing__(k)`` call if the key is not present. No other
-   operations or methods invoke :meth:`__missing__`. If :meth:`__missing__` is
-   not defined, :exc:`KeyError` is raised.  :meth:`__missing__` must be a
-   method; it cannot be an instance variable. For an example, see
-   :class:`collections.defaultdict`.
+.. method:: dict.values()
 
-   .. versionadded:: 2.5
+   Return a copy of the dictionary's list of values.  See the note for
+   :meth:`mapping.items`.
 
 
 .. _bltin-file-objects:
