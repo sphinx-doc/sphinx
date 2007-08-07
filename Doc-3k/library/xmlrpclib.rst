@@ -101,10 +101,10 @@ between conformable Python objects and XML on the wire.
    When passing strings, characters special to XML such as ``<``, ``>``, and ``&``
    will be automatically escaped.  However, it's the caller's responsibility to
    ensure that the string is free of characters that aren't allowed in XML, such as
-   the control characters with ASCII values between 0 and 31; failing to do this
-   will result in an XML-RPC request that isn't well-formed XML.  If you have to
-   pass arbitrary strings via XML-RPC, use the :class:`Binary` wrapper class
-   described below.
+   the control characters with ASCII values between 0 and 31 (except, of course,
+   tab, newline and carriage return); failing to do this will result in an XML-RPC
+   request that isn't well-formed XML.  If you have to pass arbitrary strings via
+   XML-RPC, use the :class:`Binary` wrapper class described below.
 
    :class:`Server` is retained as an alias for :class:`ServerProxy` for backwards
    compatibility.  New code should use :class:`ServerProxy`.

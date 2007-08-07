@@ -6,7 +6,7 @@
 
 .. |release| replace:: 1.01
 
-.. % $Id: whatsnew25.tex 55005 2007-04-27 19:54:29Z guido.van.rossum $
+.. % $Id: whatsnew25.tex 56611 2007-07-29 08:26:10Z georg.brandl $
 .. % Fix XXX comments
 
 This article explains the new features in Python 2.5.  The final release of
@@ -574,13 +574,19 @@ structure is::
        with-block
 
 The expression is evaluated, and it should result in an object that supports the
-context management protocol.  This object may return a value that can optionally
-be bound to the name *variable*.  (Note carefully that *variable* is *not*
-assigned the result of *expression*.)  The object can then run set-up code
-before *with-block* is executed and some clean-up code is executed after the
-block is done, even if the block raised an exception.
+context management protocol (that is, has :meth:`__enter__` and :meth:`__exit__`
+methods.
 
-To enable the statement in Python 2.5, you need  to add the following directive
+The object's :meth:`__enter__` is called before *with-block* is executed and
+therefore can run set-up code. It also may return a value that is bound to the
+name *variable*, if given.  (Note carefully that *variable* is *not* assigned
+the result of *expression*.)
+
+After execution of the *with-block* is finished, the object's :meth:`__exit__`
+method is called, even if the block raised an exception, and can therefore run
+clean-up code.
+
+To enable the statement in Python 2.5, you need to add the following directive
 to your module::
 
    from __future__ import with_statement
@@ -596,8 +602,13 @@ be used with the ':keyword:`with`' statement. File objects are one example::
            ... more processing code ...
 
 After this statement has executed, the file object in *f* will have been
-automatically closed, even if the 'for' loop raised an exception part-way
-through the block.
+automatically closed, even if the :keyword:`for` loop raised an exception part-
+way through the block.
+
+.. note::
+
+   In this case, *f* is the same object created by :func:`open`, because
+   :meth:`file.__enter__` returns *self*.
 
 The :mod:`threading` module's locks and condition variables  also support the
 ':keyword:`with`' statement::

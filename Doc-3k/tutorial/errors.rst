@@ -352,7 +352,8 @@ occurred in the :keyword:`try` clause and has not been handled by an
 been executed.  The :keyword:`finally` clause is also executed "on the way out"
 when any other clause of the :keyword:`try` statement is left via a
 :keyword:`break`, :keyword:`continue` or :keyword:`return` statement.  A more
-complicated example::
+complicated example (having :keyword:`except` and :keyword:`finally` clauses in
+the same :keyword:`try` statement works as of Python 2.5)::
 
    >>> def divide(x, y):
    ...     try:
