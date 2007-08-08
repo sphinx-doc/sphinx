@@ -77,6 +77,10 @@ Unlike the memory files implemented by the :mod:`StringIO` module, those
 provided by this module are not able to accept Unicode strings that cannot be
 encoded as plain ASCII strings.
 
+Calling :func:`StringIO` with a Unicode string parameter populates
+the object with the buffer representation of the Unicode string, instead of
+encoding the string. 
+
 Another difference from the :mod:`StringIO` module is that calling
 :func:`StringIO` with a string parameter creates a read-only object. Unlike an
 object created without a string parameter, it does not have write methods.
