@@ -233,6 +233,7 @@ available.  They are listed here in alphabetical order.
 
    The complex type is described in :ref:`typesnumeric`.
 
+
 .. function:: delattr(object, name)
 
    This is a relative of :func:`setattr`.  The arguments are an object and a
@@ -244,10 +245,11 @@ available.  They are listed here in alphabetical order.
 .. function:: dict([arg])
    :noindex:
 
-   Create a new data dictionary.  The dictionary type is described in
-   :ref:`typesmapping`. For other containers see the built in
-   :class:`list`, :class:`set`, and :class:`tuple` classes, and the
-   :mod:`collections` module.
+   Create a new data dictionary, optionally with items taken from *arg*.
+   The dictionary type is described in :ref:`typesmapping`.
+
+   For other containers see the built in :class:`list`, :class:`set`, and
+   :class:`tuple` classes, and the :mod:`collections` module.
 
 
 .. function:: dir([object])
@@ -482,17 +484,13 @@ available.  They are listed here in alphabetical order.
    The float type is described in :ref:`typesnumeric`.
 
 .. function:: frozenset([iterable])
+   :noindex:
 
-   Return a frozenset object whose elements are taken from *iterable*. Frozensets
-   are sets that have no update methods but can be hashed and used as members of
-   other sets or as dictionary keys.  The elements of a frozenset must be immutable
-   themselves.  To represent sets of sets, the inner sets should also be
-   :class:`frozenset` objects.  If *iterable* is not specified, returns a new empty
-   set, ``frozenset([])``.
+   Return a frozenset object, optionally with elements taken from *iterable*.
+   The frozenset type is described in :ref:`types-set`.
 
-   The frozenset type is described in :ref:`types-set`. For other containers see the built in
-   :class:`dict`, :class:`list`, and :class:`tuple` classes, and the
-   :mod:`collections` module.
+   For other containers see the built in :class:`dict`, :class:`list`, and
+   :class:`tuple` classes, and the :mod:`collections` module.
 
    .. versionadded:: 2.4
 
@@ -921,15 +919,13 @@ available.  They are listed here in alphabetical order.
 
 
 .. function:: set([iterable])
+   :noindex:
 
-   Return a set whose elements are taken from *iterable*.  The elements must be
-   immutable.  To represent sets of sets, the inner sets should be
-   :class:`frozenset` objects.  If *iterable* is not specified, returns a new empty
-   set, ``set([])``.
+   Return a new set, optionally with elements are taken from *iterable*.
+   The set type is described in :ref:`types-set`.
 
-   The set type is described in :ref:`types-set`. For other containers see the built in
-   :class:`dict`, :class:`list`, and :class:`tuple` classes, and the
-   :mod:`collections` module.
+   For other containers see the built in :class:`dict`, :class:`list`, and
+   :class:`tuple` classes, and the :mod:`collections` module.
 
    .. versionadded:: 2.4
 

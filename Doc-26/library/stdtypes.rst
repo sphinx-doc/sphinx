@@ -1428,8 +1428,18 @@ The :class:`set` type is mutable --- the contents can be changed using methods
 like :meth:`add` and :meth:`remove`.  Since it is mutable, it has no hash value
 and cannot be used as either a dictionary key or as an element of another set.
 The :class:`frozenset` type is immutable and hashable --- its contents cannot be
-altered after is created; however, it can be used as a dictionary key or as an
-element of another set.
+altered after it is created; it can therefore be used as a dictionary key or as
+an element of another set.
+
+The constructors for both classes work the same:
+
+.. class:: set([iterable])
+           frozenset([iterable])
+
+   Return a new set or frozenset object whose elements are taken from
+   *iterable*.  The elements of a set must be hashable.  To represent sets of
+   sets, the inner sets must be :class:`frozenset` objects.  If *iterable* is
+   not specified, a new empty set is returned.
 
 Instances of :class:`set` and :class:`frozenset` provide the following
 operations:
