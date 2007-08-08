@@ -48,22 +48,21 @@ over 2500 additional components available from the `Python Package Index
    strings.rst
    datatypes.rst
    numeric.rst
-   netdata.rst
-   markup.rst
+   filesys.rst
+   persistence.rst
+   archiving.rst
    fileformats.rst
    crypto.rst
-   filesys.rst
-   archiving.rst
-   persistence.rst
    allos.rst
    someos.rst
-   unix.rst
    ipc.rst
+   netdata.rst
+   markup.rst
    internet.rst
    mm.rst
-   tk.rst
    i18n.rst
    frameworks.rst
+   tk.rst
    development.rst
    pdb.rst
    profile.rst
@@ -77,7 +76,8 @@ over 2500 additional components available from the `Python Package Index
    language.rst
    compiler.rst
    misc.rst
+   windows.rst
+   unix.rst
    sgi.rst
    sun.rst
-   windows.rst
    undoc.rst
