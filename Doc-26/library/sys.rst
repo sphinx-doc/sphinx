@@ -19,6 +19,9 @@ always available.
    the interpreter, ``argv[0]`` is set to the string ``'-c'``.  If no script name
    was passed to the Python interpreter, ``argv[0]`` is the empty string.
 
+   To loop over the standard input, or the list of files given on the
+   command line, see the :mod:`fileinput` module.
+
 
 .. data:: byteorder
 

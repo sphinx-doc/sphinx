@@ -492,6 +492,10 @@ Sequence Types --- :class:`str`, :class:`unicode`, :class:`list`, :class:`tuple`
 
 There are six sequence types: strings, Unicode strings, lists, tuples, buffers,
 and xrange objects.
+(For other containers see the built in :class:`dict`, :class:`list`,
+:class:`set`, and :class:`tuple` classes, and the :mod:`collections`
+module.)
+
 
 .. index::
    object: sequence
@@ -503,20 +507,22 @@ and xrange objects.
    object: xrange
 
 String literals are written in single or double quotes: ``'xyzzy'``,
-``"frobozz"``.  See :ref:`strings` for more about string literals.  Unicode
-strings are much like strings, but are specified in the syntax using a preceding
-``'u'`` character: ``u'abc'``, ``u"def"``.  Lists are constructed with square
-brackets, separating items with commas: ``[a, b, c]``.  Tuples are constructed
-by the comma operator (not within square brackets), with or without enclosing
-parentheses, but an empty tuple must have the enclosing parentheses, such as
-``a, b, c`` or ``()``.  A single item tuple must have a trailing comma, such as
-``(d,)``.
+``"frobozz"``.  See :ref:`strings` for more about string literals.
+Unicode strings are much like strings, but are specified in the syntax
+using a preceding ``'u'`` character: ``u'abc'``, ``u"def"``. In addition
+to the functionality described here, there are also string-specific
+methods described in the :ref:`string-methods` section. Lists are
+constructed with square brackets, separating items with commas: ``[a, b, c]``.
+Tuples are constructed by the comma operator (not within square
+brackets), with or without enclosing parentheses, but an empty tuple
+must have the enclosing parentheses, such as ``a, b, c`` or ``()``.  A
+single item tuple must have a trailing comma, such as ``(d,)``.
 
 Buffer objects are not directly supported by Python syntax, but can be created
 by calling the builtin function :func:`buffer`.  They don't support
 concatenation or repetition.
 
-Xrange objects are similar to buffers in that there is no specific syntax to
+Objects of type xrange are similar to buffers in that there is no specific syntax to
 create them, but they are created using the :func:`xrange` function.  They don't
 support slicing, concatenation or repetition, and using ``in``, ``not in``,
 :func:`min` or :func:`max` on them is inefficient.
@@ -655,9 +661,9 @@ String Methods
 
 Below are listed the string methods which both 8-bit strings and Unicode objects
 support. In addition, Python's strings support the sequence type methods
-described in the :ref:`typesseq` section (above). To output formatted strings
+described in the :ref:`typesseq` section. To output formatted strings
 use template strings or the ``%`` operator described in the
-:ref:`string-formatting` section (below). Also, see the :mod:`re` module for
+:ref:`string-formatting` section. Also, see the :mod:`re` module for
 string functions based on regular expressions.
 
 .. method:: str.capitalize()
@@ -1406,6 +1412,9 @@ A :dfn:`set` object is an unordered collection of distinct hashable objects.
 Common uses include membership testing, removing duplicates from a sequence, and
 computing mathematical operations such as intersection, union, difference, and
 symmetric difference.
+(For other containers see the built in :class:`dict`, :class:`list`,
+and :class:`tuple` classes, and the :mod:`collections` module.)
+
 
 .. versionadded:: 2.4
 
@@ -1581,12 +1590,19 @@ Mapping Types --- :class:`dict`
 
 A :dfn:`mapping` object maps immutable values to arbitrary objects.  Mappings
 are mutable objects.  There is currently only one standard mapping type, the
-:dfn:`dictionary`.  A dictionary's keys are *almost* arbitrary values.  Only
+:dfn:`dictionary`.
+(For other containers see the built in :class:`list`,
+:class:`set`, and :class:`tuple` classes, and the :mod:`collections`
+module.)
+
+A dictionary's keys are *almost* arbitrary values.  Only
 values containing lists, dictionaries or other mutable types (that are compared
 by value rather than by object identity) may not be used as keys. Numeric types
 used for keys obey the normal rules for numeric comparison: if two numbers
 compare equal (such as ``1`` and ``1.0``) then they can be used interchangeably
-to index the same dictionary entry.
+to index the same dictionary entry. (Note however, that since computers
+store floating-point numbers as approximations it is usually unwise to
+use them as dictionary keys.)
 
 Dictionaries can be created by placing a comma-separated list of ``key: value``
 pairs within braces, for example: ``{'jack': 4098, 'sjoerd': 4127}`` or ``{4098:
@@ -1611,19 +1627,16 @@ pairs within braces, for example: ``{'jack': 4098, 'sjoerd': 4127}`` or ``{4098:
    keyword is retained in the dictionary. For example, these all return a
    dictionary equal to ``{"one": 2, "two": 3}``:
 
+   * ``dict(one=2, two=3)``
+
    * ``dict({'one': 2, 'two': 3})``
-
-   * ``dict({'one': 2, 'two': 3}.items())``
-
-   * ``dict({'one': 2, 'two': 3}.iteritems())``
 
    * ``dict(zip(('one', 'two'), (2, 3)))``
 
    * ``dict([['two', 3], ['one', 2]])``
 
-   * ``dict(one=2, two=3)``
-
-   * ``dict([(['one', 'two'][i-2], i) for i in (2, 3)])``
+   The first example only works for keys that are valid Python
+   identifiers; the others work with any valid keys.
 
    .. versionadded:: 2.2
 

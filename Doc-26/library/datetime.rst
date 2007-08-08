@@ -16,7 +16,8 @@
 The :mod:`datetime` module supplies classes for manipulating dates and times in
 both simple and complex ways.  While date and time arithmetic is supported, the
 focus of the implementation is on efficient member extraction for output
-formatting and manipulation.
+formatting and manipulation. For related
+functionality, see also the :mod:`time` and :mod:`calendar` modules.
 
 There are two kinds of date and time objects: "naive" and "aware". This
 distinction refers to whether the object has any notion of time zone, daylight

@@ -245,8 +245,10 @@ available.  They are listed here in alphabetical order.
 .. function:: dict([arg])
    :noindex:
 
-   Create a new dictionary.  The dictionary type is described in
-   :ref:`typesmapping`.
+   Create a new data dictionary.  The dictionary type is described in
+   :ref:`typesmapping`. For other containers see the built in
+   :class:`list`, :class:`set`, and :class:`tuple` classes, and the
+   :mod:`collections` module.
 
 
 .. function:: dir([object])
@@ -326,7 +328,7 @@ available.  They are listed here in alphabetical order.
    ``(1, seq[1])``, ``(2, seq[2])``, .... For example::
 
       >>> for i, season in enumerate(['Spring', 'Summer', 'Fall', 'Winter')]:
-      >>>	    print i, season
+      >>>     print i, season
       0 Spring
       1 Summer
       2 Fall
@@ -457,7 +459,9 @@ available.  They are listed here in alphabetical order.
    :class:`frozenset` objects.  If *iterable* is not specified, returns a new empty
    set, ``frozenset([])``.
 
-   The frozenset type is described in :ref:`types-set`.
+   The frozenset type is described in :ref:`types-set`. For other containers see the built in
+   :class:`dict`, :class:`list`, and :class:`tuple` classes, and the
+   :mod:`collections` module.
 
    .. versionadded:: 2.4
 
@@ -616,7 +620,9 @@ available.  They are listed here in alphabetical order.
    returns ``['a', 'b', 'c']`` and ``list( (1, 2, 3) )`` returns ``[1, 2, 3]``.  If
    no argument is given, returns a new empty list, ``[]``.
 
-   :class:`list` is a mutable sequence type, as documented in :ref:`typesseq`.
+   :class:`list` is a mutable sequence type, as documented in
+   :ref:`typesseq`. For other containers see the built in :class:`dict`,
+   :class:`set`, and :class:`tuple` classes, and the :mod:`collections` module.
 
 
 .. function:: locals()
@@ -760,6 +766,8 @@ available.  They are listed here in alphabetical order.
 
    Python enforces that the mode, after stripping ``'U'``, begins with ``'r'``,
    ``'w'`` or ``'a'``.
+
+   See also the :mod:`fileinput` module.
 
    .. versionchanged:: 2.5
       Restriction on first letter of mode string introduced.
@@ -988,7 +996,9 @@ available.  They are listed here in alphabetical order.
    :class:`frozenset` objects.  If *iterable* is not specified, returns a new empty
    set, ``set([])``.
 
-   The set type is described in :ref:`types-set`.
+   The set type is described in :ref:`types-set`. For other containers see the built in
+   :class:`dict`, :class:`list`, and :class:`tuple` classes, and the
+   :mod:`collections` module.
 
    .. versionadded:: 2.4
 
@@ -1130,7 +1140,10 @@ available.  They are listed here in alphabetical order.
    3])`` returns ``(1, 2, 3)``.  If no argument is given, returns a new empty
    tuple, ``()``.
 
-   :class:`tuple` is a mutable sequence type, as documented in :ref:`typesseq`.
+   :class:`tuple` is an immutable sequence type, as documented in
+   :ref:`typesseq`. For other containers see the built in :class:`dict`,
+   :class:`list`, and :class:`set` classes, and the :mod:`collections` module.
+
 
 .. function:: type(object)
 

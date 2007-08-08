@@ -9,7 +9,8 @@
 This module provides a more portable way of using operating system dependent
 functionality than importing a operating system dependent built-in module like
 :mod:`posix` or :mod:`nt`. (If you just want to read or write a file see
-:func:`open`.)
+:func:`open`, and if you want to manipulate paths, see the :mod:`os.path`
+module.)
 
 This module searches for an operating system dependent built-in module like
 :mod:`mac` or :mod:`posix` and exports the same functions and data as found
