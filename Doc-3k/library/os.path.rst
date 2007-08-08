@@ -8,7 +8,9 @@
 
 .. index:: single: path; operations
 
-This module implements some useful functions on pathnames.
+This module implements some useful functions on pathnames. To read or
+write files see :func:`open`, and for accessing the filesystem see the
+:mod:`os` module.
 
 .. warning::
 

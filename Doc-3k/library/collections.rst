@@ -13,10 +13,10 @@
 This module implements high-performance container datatypes.  Currently,
 there are two datatypes, :class:`deque` and :class:`defaultdict`, and
 one datatype factory function, :func:`NamedTuple`. Python already
-includes built-in containers, :func:`dict`, :func:`list`, and
-:func:`tuple`. The optional :mod:`bsddb` module has a :meth:`btopen`
-method that can be used to create in-memory or file based ordered
-dictionaries with string keys.
+includes built-in containers, :class:`dict`, :class:`list`,
+:class:`set`, and :class:`tuple`. In addition, the optional :mod:`bsddb`
+module has a :meth:`bsddb.btopen` method that can be used to create in-memory
+or file based ordered dictionaries with string keys.
 
 Future editions of the standard library may include balanced trees and
 ordered dictionaries.

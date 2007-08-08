@@ -3,5 +3,4 @@ To do after conversion
 
 * split very large files and add toctrees
 * find out which files get "comments disabled" metadata
-* write "About these documents"
 * finish "Documenting Python"

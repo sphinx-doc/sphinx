@@ -6,10 +6,6 @@ documentation.  It is probably not complete -- if you feel that you or
 anyone else should be on this list, please let us know (send email to
 docs@python.org), and we'll be glad to correct the problem.
 
-It is only with the input and contributions of the Python community
-that Python has such wonderful documentation -- Thank You!
-
-
 * Aahz
 * Michael Abbott
 * Steve Alexander
@@ -28,9 +24,11 @@ that Python has such wonderful documentation -- Thank You!
 * Robin Boerdijk
 * Michal Bozon
 * Aaron Brancotti
+* Georg Brandl
 * Keith Briggs
 * Lee Busby
 * Lorenzo M. Catucci
+* Carl Cerecke
 * Mauro Cicognini
 * Gilles Civario
 * Mike Clarkson
