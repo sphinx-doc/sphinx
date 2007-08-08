@@ -1025,21 +1025,14 @@ Object Presentation
    builtin: repr
    builtin: str
 
-In Python, there are three ways to generate a textual representation of an
-object: the :func:`repr` function (or equivalent back-tick syntax), the
-:func:`str` function, and the :keyword:`print` statement.  For most objects, the
-:keyword:`print` statement is equivalent to the :func:`str` function, but it is
-possible to special-case printing to a :ctype:`FILE\*` if necessary; this should
-only be done if efficiency is identified as a problem and profiling suggests
-that creating a temporary string object to be written to a file is too
-expensive.
+In Python, there are two ways to generate a textual representation of an object:
+the :func:`repr` function, and the :func:`str` function.  (The :func:`print`
+function just calls :func:`str`.)  These handlers are both optional.
 
-These handlers are all optional, and most types at most need to implement the
-:attr:`tp_str` and :attr:`tp_repr` handlers. ::
+::
 
    reprfunc tp_repr;
    reprfunc tp_str;
-   printfunc tp_print;
 
 The :attr:`tp_repr` handler should return a string object containing a
 representation of the instance for which it is called.  Here is a simple
@@ -1553,8 +1546,8 @@ comes with the source distribution of Python.
 In order to learn how to implement any specific method for your new data type,
 do the following: Download and unpack the Python source distribution.  Go the
 :file:`Objects` directory, then search the C source files for ``tp_`` plus the
-function you want (for example, ``tp_print`` or ``tp_compare``).  You will find
-examples of the function you want to implement.
+function you want (for example, ``tp_compare``).  You will find examples of the
+function you want to implement.
 
 When you need to verify that an object is an instance of the type you are
 implementing, use the :cfunc:`PyObject_TypeCheck` function. A sample of its use
