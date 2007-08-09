@@ -510,10 +510,10 @@ package of which the current module is a submodule), the :keyword:`import`
 statement looks for a top-level module with the given name.
 
 When packages are structured into subpackages (as with the :mod:`sound` package
-in the example), there's no shortcut to refer to submodules of sibling packages
-- the full name of the subpackage must be used.  For example, if the module
-:mod:`sound.filters.vocoder` needs to use the :mod:`echo` module in the
-:mod:`sound.effects` package, it can use ``from sound.effects import echo``.
+in the example), you can use absolute imports to refer to submodules of siblings
+packages.  For example, if the module :mod:`sound.filters.vocoder` needs to use
+the :mod:`echo` module in the :mod:`sound.effects` package, it can use ``from
+sound.effects import echo``.
 
 Starting with Python 2.5, in addition to the implicit relative imports described
 above, you can write explicit relative imports with the ``from module import
