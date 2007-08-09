@@ -144,7 +144,7 @@ There are several options for building GUI applications on the Mac with Python.
 
 *PyObjC* is a Python binding to Apple's Objective-C/Cocoa framework, which is
 the foundation of most modern Mac development. Information on PyObjC is
-available from http://pybojc.sourceforge.net.
+available from http://pyobjc.sourceforge.net.
 
 The standard Python GUI toolkit is :mod:`Tkinter`, based on the cross-platform
 Tk toolkit (http://www.tcl.tk). An Aqua-native version of Tk is bundled with OS

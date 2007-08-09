@@ -5,6 +5,10 @@ This directory contains the reStructuredText (reST) sources to the Python
 documentation.  You don't need to build them yourself, prebuilt versions are
 available at http://docs.python.org/download/.
 
+Documentation on the authoring Python documentation, including information about
+both style and markup, is available in the "Documenting Python" chapter of the
+documentation.
+
 
 Building the docs
 =================
@@ -20,7 +24,7 @@ Using make
 ----------
 
 Luckily, a Makefile has been prepared so that on Unix, provided you have
-installed Python and Subversion, you can just run
+installed Python and Subversion, you can just run ::
 
    make html
 
