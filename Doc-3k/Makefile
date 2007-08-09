@@ -6,9 +6,9 @@
 PYTHON  = python
 SVNROOT = http://svn.python.org/projects
 
-.PHONY: default checkout html web htmlhelp clean
+.PHONY: help checkout html web htmlhelp clean
 
-default:
+help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html  to make standalone HTML files"
 	@echo "  web   to make file usable by Sphinx.web"
@@ -18,15 +18,19 @@ checkout:
 	@if [ ! -d tools/sphinx ]; then \
 	  echo "Checking out Sphinx..."; \
 	  svn checkout $(SVNROOT)/doctools/trunk/sphinx tools/sphinx; \
+	fi
+	@if [ ! -d tools/docutils ]; then \
+	  echo "Checking out Docutils..."; \
+	  svn checkout $(SVNROOT)/external/docutils-0.4/docutils tools/docutils; \
+	fi
+	@if [ ! -d tools/pygments ]; then \
 	  echo "Checking out Pygments..."; \
 	  svn checkout $(SVNROOT)/external/Pygments-0.8.1/pygments tools/pygments; \
-	else \
-	  echo "Sphinx already checked out, run \`make update' to update" \
-	       "the toolchain."; \
 	fi
 
 update:
 	svn update tools/sphinx
+	svn update tools/docutils
 	svn update tools/pygments
 
 html: checkout
