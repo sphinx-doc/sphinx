@@ -27,6 +27,7 @@ def usage(argv, msg=None):
 usage: %s [options] sourcedir outdir [filenames...]"
 options: -b <builder> -- builder to use (one of %s)
          -a -- write all files; default is to only write new and changed files
+         -d <path> -- path for the cached doctree files (default outdir/.doctrees)
          -O <option[=value]> -- give option to to the builder (-O help for list)
          -D <setting=value> -- override a setting in sourcedir/conf.py
          -N -- do not do colored output
@@ -38,7 +39,7 @@ modi:
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:O:D:N')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:N')
         srcdirname = path.abspath(args[0])
         if not path.isdir(srcdirname):
             print >>sys.stderr, 'Error: Cannot find source directory.'
@@ -67,6 +68,7 @@ def main(argv):
     opt_help = False
     options = {}
     confoverrides = {}
+    doctreedir = path.join(outdirname, '.doctrees')
     for opt, val in opts:
         if opt == '-b':
             if val not in builders:
@@ -78,6 +80,8 @@ def main(argv):
                 usage(argv, 'Cannot combine -a option and filenames.')
                 return 1
             all_files = True
+        elif opt == '-d':
+            doctreedir = val
         elif opt == '-O':
             if val == 'help':
                 opt_help = True
@@ -115,7 +119,7 @@ def main(argv):
             print ' * %s: %s' % (optname, description)
         return 0
 
-    builderobj = builderobj(srcdirname, outdirname, options,
+    builderobj = builderobj(srcdirname, outdirname, doctreedir, options,
                             status_stream=sys.stdout,
                             warning_stream=sys.stderr,
                             confoverrides=confoverrides)

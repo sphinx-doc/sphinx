@@ -76,13 +76,14 @@ class Builder(object):
         'freshenv': 'Don\'t use a pickled environment',
     }
 
-    def __init__(self, srcdirname, outdirname, options, env=None,
-                 status_stream=None, warning_stream=None,
-                 confoverrides=None):
+    def __init__(self, srcdirname, outdirname, doctreedirname,
+                 options, confoverrides=None, env=None,
+                 status_stream=None, warning_stream=None):
         self.srcdir = srcdirname
         self.outdir = outdirname
-        if not path.isdir(path.join(outdirname, '.doctrees')):
-            os.mkdir(path.join(outdirname, '.doctrees'))
+        self.doctreedir = doctreedirname
+        if not path.isdir(doctreedirname):
+            os.mkdir(doctreedirname)
 
         self.options = attrdict(options)
         self.validate_options()
@@ -104,9 +105,10 @@ class Builder(object):
             try:
                 version, release = get_version_info(srcdirname)
             except (IOError, OSError):
-                print >>warning_stream, 'WARNING: Can\'t get version info from ' \
-                      'Include/patchlevel.h, using version of this interpreter.'
                 version, release = get_sys_version_info()
+                print >>warning_stream, 'WARNING: Can\'t get version info from ' \
+                      'Include/patchlevel.h, using version of this ' \
+                      'interpreter (%s).' % release
             if self.config['version'] == 'auto':
                 self.config['version'] = version
             if self.config['release'] == 'auto':
@@ -163,15 +165,13 @@ class Builder(object):
             try:
                 self.msg('trying to load pickled env...', nonl=True)
                 self.env = BuildEnvironment.frompickle(
-                    path.join(self.outdir, ENV_PICKLE_FILENAME))
+                    path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.msg('done', nobold=True)
             except Exception, err:
                 self.msg('failed: %s' % err, nobold=True)
-                self.env = BuildEnvironment(self.srcdir,
-                                            path.join(self.outdir, '.doctrees'))
+                self.env = BuildEnvironment(self.srcdir, self.doctreedir)
         else:
-            self.env = BuildEnvironment(self.srcdir,
-                                        path.join(self.outdir, '.doctrees'))
+            self.env = BuildEnvironment(self.srcdir, self.doctreedir)
 
     def build_all(self):
         """Build all source files."""
@@ -214,7 +214,7 @@ class Builder(object):
 
         # save the environment
         self.msg('pickling the env...', nonl=True)
-        self.env.topickle(path.join(self.outdir, ENV_PICKLE_FILENAME))
+        self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
         self.msg('done', nobold=True)
 
         # global actions
