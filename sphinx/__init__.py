@@ -26,11 +26,13 @@ def usage(argv, msg=None):
     print >>sys.stderr, """\
 usage: %s [options] sourcedir outdir [filenames...]"
 options: -b <builder> -- builder to use (one of %s)
-         -a -- write all files; default is to only write new and changed files
-         -d <path> -- path for the cached doctree files (default outdir/.doctrees)
+         -a        -- write all files; default is to only write new and changed files
+         -E        -- don't use a saved environment, always read all files
+         -d <path> -- path for the cached environment and doctree files
+                      (default outdir/.doctrees)
          -O <option[=value]> -- give option to to the builder (-O help for list)
          -D <setting=value> -- override a setting in sourcedir/conf.py
-         -N -- do not do colored output
+         -N        -- do not do colored output
 modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
@@ -39,7 +41,7 @@ modi:
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:N')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:NE')
         srcdirname = path.abspath(args[0])
         if not path.isdir(srcdirname):
             print >>sys.stderr, 'Error: Cannot find source directory.'
@@ -65,7 +67,7 @@ def main(argv):
         return 1
 
     builder = all_files = None
-    opt_help = False
+    opt_help = freshenv = False
     options = {}
     confoverrides = {}
     doctreedir = path.join(outdirname, '.doctrees')
@@ -102,6 +104,8 @@ def main(argv):
             confoverrides[key] = val
         elif opt == '-N':
             nocolor()
+        elif opt == '-E':
+            freshenv = True
 
     if not sys.stdout.isatty() or sys.platform == 'win32':
         # Windows' cmd box doesn't understand ANSI sequences
@@ -122,7 +126,8 @@ def main(argv):
     builderobj = builderobj(srcdirname, outdirname, doctreedir, options,
                             status_stream=sys.stdout,
                             warning_stream=sys.stderr,
-                            confoverrides=confoverrides)
+                            confoverrides=confoverrides,
+                            freshenv=freshenv)
     if all_files:
         builderobj.build_all()
     elif filenames:

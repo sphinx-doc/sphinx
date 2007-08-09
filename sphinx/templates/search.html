@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% set title = 'Search Documentation' %}
-{% block header %}
+{% block head %}
     <script type="text/javascript" src="{{ pathto('style/searchtools.js', 1) }}"></script>
 {% endblock %}
 {% block body %}
@@ -26,13 +26,13 @@
       ('tutorial', 'Python Tutorial', true),
       ('library', 'Library Reference', true),
       ('maclib', 'Macintosh Library Modules', false),
+      ('reference', 'Language Reference', false),
       ('extending', 'Extending and Embedding', false),
       ('c-api', 'Python/C API', false),
       ('install', 'Installing Python Modules', true),
       ('distutils', 'Distributing Python Modules', true),
       ('documenting', 'Documenting Python', false),
       ('whatsnew', 'What\'s new in Python?', false),
-      ('reference', 'Language Reference', false)
     ] -%}
       <li><input type="checkbox" name="area" id="area-{{ id }}" value="{{ id
           }}"{% if checked %} checked{% endif %}>

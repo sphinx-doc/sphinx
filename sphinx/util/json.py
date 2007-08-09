@@ -16,7 +16,7 @@
 
 import re
 
-ESCAPE = re.compile(r'[\x00-\x19\\"\b\f\n\r\t]')
+# escape \, ", control characters and everything outside ASCII
 ESCAPE_ASCII = re.compile(r'([\\"]|[^\ -~])')
 ESCAPE_DICT = {
     '\\': '\\\\',
@@ -27,8 +27,6 @@ ESCAPE_DICT = {
     '\r': '\\r',
     '\t': '\\t',
 }
-for i in range(0x20):
-    ESCAPE_DICT.setdefault(chr(i), '\\u%04x' % (i,))
 
 
 def encode_basestring_ascii(s):
@@ -70,3 +68,11 @@ def dump_json(obj, key=False):
     elif isinstance(obj, basestring):
         return encode_basestring_ascii(obj)
     raise TypeError(type(obj))
+
+
+STRING = re.compile(r'("(\\\\|\\"|[^"])*")')
+
+def load_json(s):
+    d = {'null': None, 'true': True, 'false': False}
+    s = STRING.sub(r'u\1', s)
+    return eval(s, d)

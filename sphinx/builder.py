@@ -72,18 +72,18 @@ class Builder(object):
     Builds target formats from the reST sources.
     """
 
-    option_spec = {
-        'freshenv': 'Don\'t use a pickled environment',
-    }
+    option_spec = {}
 
     def __init__(self, srcdirname, outdirname, doctreedirname,
                  options, confoverrides=None, env=None,
-                 status_stream=None, warning_stream=None):
+                 status_stream=None, warning_stream=None,
+                 freshenv=False):
         self.srcdir = srcdirname
         self.outdir = outdirname
         self.doctreedir = doctreedirname
         if not path.isdir(doctreedirname):
             os.mkdir(doctreedirname)
+        self.freshenv = freshenv
 
         self.options = attrdict(options)
         self.validate_options()
@@ -161,7 +161,7 @@ class Builder(object):
            successfully loaded, False if a new environment had to be created."""
         if self.env:
             return
-        if not self.options.freshenv:
+        if not self.freshenv:
             try:
                 self.msg('trying to load pickled env...', nonl=True)
                 self.env = BuildEnvironment.frompickle(
@@ -223,8 +223,6 @@ class Builder(object):
         self.msg('creating index...')
         self.env.create_index(self)
 
-        self.prepare_writing()
-
         if filenames:
             # add all TOC files that may have changed
             filenames_set = set(filenames)
@@ -235,6 +233,8 @@ class Builder(object):
         else:
             # build all
             filenames_set = set(self.env.all_files)
+
+        self.prepare_writing(filenames)
 
         # write target files
         with collect_env_warnings(self):
@@ -249,7 +249,7 @@ class Builder(object):
         self.finish()
         self.msg('done!')
 
-    def prepare_writing(self):
+    def prepare_writing(self, filenames):
         raise NotImplementedError
 
     def write_file(self, filename, doctree):
@@ -264,12 +264,6 @@ class StandaloneHTMLBuilder(Builder):
     Builds standalone HTML docs.
     """
     name = 'html'
-
-    option_spec = Builder.option_spec
-    option_spec.update({
-        'nostyle': 'Don\'t copy style and script files',
-        'nosearchindex': 'Don\'t create a JSON search index for offline search',
-    })
 
     copysource = True
 
@@ -301,12 +295,10 @@ class StandaloneHTMLBuilder(Builder):
             settings_overrides={'output_encoding': 'unicode'}
         )
 
-    def prepare_writing(self):
-        if not self.options.nosearchindex:
-            from .search import IndexBuilder
-            self.indexer = IndexBuilder()
-        else:
-            self.indexer = None
+    def prepare_writing(self, filenames):
+        from .search import IndexBuilder
+        self.indexer = IndexBuilder()
+        self.load_indexer(filenames)
         self.docwriter = HTMLWriter(self.config)
         self.docsettings = OptionParser(
             defaults=self.env.settings,
@@ -463,20 +455,19 @@ class StandaloneHTMLBuilder(Builder):
         )
         self.handle_file('search.rst', searchcontext, 'search')
 
-        if not self.options.nostyle:
-            self.msg('copying style files...')
-            # copy style files
-            styledirname = path.join(path.dirname(__file__), 'style')
-            ensuredir(path.join(self.outdir, 'style'))
-            for filename in os.listdir(styledirname):
-                if not filename.startswith('.'):
-                    shutil.copyfile(path.join(styledirname, filename),
-                                    path.join(self.outdir, 'style', filename))
-            # add pygments style file
-            f = open(path.join(self.outdir, 'style', 'pygments.css'), 'w')
-            if pygments:
-                f.write(get_stylesheet())
-            f.close()
+        # copy style files
+        self.msg('copying style files...')
+        styledirname = path.join(path.dirname(__file__), 'style')
+        ensuredir(path.join(self.outdir, 'style'))
+        for filename in os.listdir(styledirname):
+            if not filename.startswith('.'):
+                shutil.copyfile(path.join(styledirname, filename),
+                                path.join(self.outdir, 'style', filename))
+        # add pygments style file
+        f = open(path.join(self.outdir, 'style', 'pygments.css'), 'w')
+        if pygments:
+            f.write(get_stylesheet())
+        f.close()
 
         # dump the search index
         self.handle_finish()
@@ -496,6 +487,16 @@ class StandaloneHTMLBuilder(Builder):
                 targetmtime = 0
             if path.getmtime(path.join(self.srcdir, filename)) > targetmtime:
                 yield filename
+
+
+    def load_indexer(self, filenames):
+        try:
+            with open(path.join(self.outdir, 'searchindex.json'), 'r') as f:
+                self.indexer.load(f, 'json')
+        except (IOError, OSError):
+            pass
+        # delete all entries for files that will be rebuilt
+        self.indexer.prune(set(self.env.all_files) - set(filenames))
 
     def index_file(self, filename, doctree, title):
         # only index pages with title
@@ -522,11 +523,10 @@ class StandaloneHTMLBuilder(Builder):
                             path.join(self.outdir, context['sourcename']))
 
     def handle_finish(self):
-        if self.indexer is not None:
-            self.msg('dumping search index...')
-            f = open(path.join(self.outdir, 'searchindex.json'), 'w')
+        self.msg('dumping search index...')
+        self.indexer.prune([self.get_target_uri(fn)[:-5] for fn in self.env.all_files])
+        with open(path.join(self.outdir, 'searchindex.json'), 'w') as f:
             self.indexer.dump(f, 'json')
-            f.close()
 
 
 class WebHTMLBuilder(StandaloneHTMLBuilder):
@@ -534,13 +534,6 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
     Builds HTML docs usable with the web-based doc server.
     """
     name = 'web'
-
-    # doesn't use the standalone specific options
-    option_spec = Builder.option_spec.copy()
-    option_spec.update({
-        'nostyle': 'Don\'t copy style and script files',
-        'nosearchindex': 'Don\'t create a search index for the online search',
-    })
 
     def init(self):
         # Nothing to do here.
@@ -563,6 +556,15 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         if source_filename.endswith('/index.rst'):
             return source_filename[:-9] # up to /
         return source_filename[:-4] + '/'
+
+    def load_indexer(self, filenames):
+        try:
+            with open(path.join(self.outdir, 'searchindex.pickle'), 'r') as f:
+                self.indexer.load(f, 'pickle')
+        except (IOError, OSError):
+            pass
+        # delete all entries for files that will be rebuilt
+        self.indexer.prune(set(self.env.all_files) - set(filenames))
 
     def index_file(self, filename, doctree, title):
         # only index pages with title and category
@@ -590,11 +592,11 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         with file(outfilename, 'wb') as fp:
             pickle.dump(self.globalcontext, fp, 2)
 
-        if self.indexer is not None:
-            self.msg('dumping search index...')
-            f = open(path.join(self.outdir, 'searchindex.pickle'), 'w')
+        self.msg('dumping search index...')
+        self.indexer.prune(self.env.all_files)
+        with open(path.join(self.outdir, 'searchindex.pickle'), 'wb') as f:
             self.indexer.dump(f, 'pickle')
-            f.close()
+
         # touch 'last build' file, used by the web application to determine
         # when to reload its environment and clear the cache
         open(path.join(self.outdir, LAST_BUILD_FILENAME), 'w').close()
@@ -611,10 +613,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
     name = 'htmlhelp'
 
-    option_spec = Builder.option_spec.copy()
-    option_spec.update({
+    option_spec = {
         'outname': 'Output file base name (default "pydoc")'
-    })
+    }
 
     # don't copy the reST source
     copysource = False

@@ -424,5 +424,5 @@ var Search = {
 }
 
 $(document).ready(function() {
-        Documentation.Search.init();
+        Search.init();
     });
