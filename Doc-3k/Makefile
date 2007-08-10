@@ -3,10 +3,14 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 
-PYTHON  = python
-SVNROOT = http://svn.python.org/projects
+# You can set these variables from the command line.
+PYTHON       ?= python
+SVNROOT      ?= http://svn.python.org/projects
+SPHINXOPTS   ?=
 
-.PHONY: help checkout html web htmlhelp clean
+ALLSPHINXOPTS = -b$(BUILDER) -dbuild/doctrees $(SPHINXOPTS) . build/$(BUILDER)
+
+.PHONY: help checkout update build html web htmlhelp clean
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -33,24 +37,23 @@ update:
 	svn update tools/docutils
 	svn update tools/pygments
 
-html: checkout
-	mkdir -p build/html build/doctrees
-	$(PYTHON) tools/sphinx-build.py -bhtml -dbuild/doctrees . build/html
+build: checkout
+	mkdir -p build/$(BUILDER) build/doctrees
+	$(PYTHON) tools/sphinx-build.py $(ALLSPHINXOPTS)
 	@echo
+
+html: BUILDER = html
+html: build
 	@echo "Build finished. The HTML pages are in build/html."
 
-web: checkout
-	mkdir -p build/web build/doctrees
-	$(PYTHON) tools/sphinx-build.py -bweb -dbuild/doctrees . build/web
-	@echo
+web: BUILDER = web
+web: build
 	@echo "Build finished; now you can run"
 	@echo "  PYTHONPATH=tools $(PYTHON) -m sphinx.web build/web"
 	@echo "to start the server."
 
-htmlhelp: checkout
-	mkdir -p build/hhp build/doctrees
-	$(PYTHON) tools/sphinx-build.py -bhtmlhelp -dbuild/doctrees . build/hhp
-	@echo
+htmlhelp: BUILDER = htmlhelp
+htmlhelp: build
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      "build/hhp/pydoc.hhp project file."
 
