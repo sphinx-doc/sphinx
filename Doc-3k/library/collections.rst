@@ -22,10 +22,10 @@ Future editions of the standard library may include balanced trees and
 ordered dictionaries.
 
 .. versionchanged:: 2.5
-   Added defaultdict.
+   Added :class:`defaultdict`.
 
 .. versionchanged:: 2.6
-   Added NamedTuple.
+   Added :class:`NamedTuple`.
 
 
 .. _deque-objects:
@@ -42,10 +42,10 @@ ordered dictionaries.
    Deques are a generalization of stacks and queues (the name is pronounced "deck"
    and is short for "double-ended queue").  Deques support thread-safe, memory
    efficient appends and pops from either side of the deque with approximately the
-   same ``O(1)`` performance in either direction.
+   same O(1) performance in either direction.
 
    Though :class:`list` objects support similar operations, they are optimized for
-   fast fixed-length operations and incur ``O(n)`` memory movement costs for
+   fast fixed-length operations and incur O(n) memory movement costs for
    ``pop(0)`` and ``insert(0, v)`` operations which change both the size and
    position of the underlying data representation.
 
@@ -195,16 +195,16 @@ A roundrobin task server can be built from a :class:`deque` using
 :meth:`popleft` to select the current task and :meth:`append` to add it back to
 the tasklist if the input stream is not exhausted::
 
-   def roundrobin(*iterables):
-       pending = deque(iter(i) for i in iterables)
-       while pending:
-           task = pending.popleft()
-           try:
-               yield next(task)
-           except StopIteration:
-               continue
-           pending.append(task)
-
+   >>> def roundrobin(*iterables):
+   ...     pending = deque(iter(i) for i in iterables)
+   ...     while pending:
+   ...         task = pending.popleft()
+   ...         try:
+   ...             yield next(task)
+   ...         except StopIteration:
+   ...             continue
+   ...         pending.append(task)
+   ...
    >>> for value in roundrobin('abc', 'd', 'efgh'):
    ...     print value
 
@@ -226,13 +226,13 @@ queue.
 For example, building a balanced binary tree of nested lists entails reducing
 two adjacent nodes into one by grouping them in a list::
 
-   def maketree(iterable):
-       d = deque(iterable)
-       while len(d) > 1:
-           pair = [d.popleft(), d.popleft()]
-           d.append(pair)
-       return list(d)
-
+   >>> def maketree(iterable):
+   ...     d = deque(iterable)
+   ...     while len(d) > 1:
+   ...         pair = [d.popleft(), d.popleft()]
+   ...         d.append(pair)
+   ...     return list(d)
+   ...
    >>> print maketree('abcdefgh')
    [[[['a', 'b'], ['c', 'd']], [['e', 'f'], ['g', 'h']]]]
 
@@ -298,8 +298,8 @@ sequence of key-value pairs into a dictionary of lists::
    >>> s = [('yellow', 1), ('blue', 2), ('yellow', 3), ('blue', 4), ('red', 1)]
    >>> d = defaultdict(list)
    >>> for k, v in s:
-           d[k].append(v)
-
+   ...     d[k].append(v)
+   ...
    >>> d.items()
    [('blue', [2, 4]), ('red', [1]), ('yellow', [1, 3])]
 
@@ -313,8 +313,8 @@ simpler and faster than an equivalent technique using :meth:`dict.setdefault`::
 
    >>> d = {}
    >>> for k, v in s:
-   	d.setdefault(k, []).append(v)
-
+   ...     d.setdefault(k, []).append(v)
+   ...
    >>> d.items()
    [('blue', [2, 4]), ('red', [1]), ('yellow', [1, 3])]
 
@@ -325,8 +325,8 @@ languages)::
    >>> s = 'mississippi'
    >>> d = defaultdict(int)
    >>> for k in s:
-           d[k] += 1
-
+   ...     d[k] += 1
+   ...
    >>> d.items()
    [('i', 4), ('p', 2), ('s', 4), ('m', 1)]
 
@@ -352,8 +352,8 @@ Setting the :attr:`default_factory` to :class:`set` makes the
    >>> s = [('red', 1), ('blue', 2), ('red', 3), ('blue', 4), ('red', 1), ('blue', 4)]
    >>> d = defaultdict(set)
    >>> for k, v in s:
-           d[k].add(v)
-
+   ...     d[k].add(v)
+   ...
    >>> d.items()
    [('blue', set([2, 4])), ('red', set([1, 3]))]
 

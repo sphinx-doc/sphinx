@@ -44,7 +44,7 @@ The :mod:`pprint` module defines one class:
    controlled by *depth*; if the data structure being printed is too deep, the next
    contained level is replaced by ``...``.  By default, there is no constraint on
    the depth of the objects being formatted.  The desired output width is
-   constrained using the *width* parameter; the default is eighty characters.  If a
+   constrained using the *width* parameter; the default is 80 characters.  If a
    structure cannot be formatted within the constrained width, a best effort will
    be made. ::
 

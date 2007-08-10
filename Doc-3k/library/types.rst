@@ -46,30 +46,32 @@ The module defines the following names:
 
    .. index:: builtin: type
 
-   The type of type objects (such as returned by :func:`type`).
+   The type of type objects (such as returned by :func:`type`); alias of the
+   built-in :class:`type`.
 
 
 .. data:: BooleanType
 
-   The type of the :class:`bool` values ``True`` and ``False``; this is an alias of
-   the built-in :func:`bool` function.
+   The type of the :class:`bool` values ``True`` and ``False``; alias of the
+   built-in :class:`bool`.
 
    .. versionadded:: 2.3
 
 
 .. data:: IntType
 
-   The type of integers (e.g. ``1``).
+   The type of integers (e.g. ``1``); alias of the built-in :class:`int`.
 
 
 .. data:: LongType
 
-   The type of long integers (e.g. ``1L``).
+   The type of long integers (e.g. ``1L``); alias of the built-in :class:`long`.
 
 
 .. data:: FloatType
 
-   The type of floating point numbers (e.g. ``1.0``).
+   The type of floating point numbers (e.g. ``1.0``); alias of the built-in
+   :class:`float`.
 
 
 .. data:: ComplexType
@@ -80,28 +82,33 @@ The module defines the following names:
 
 .. data:: StringType
 
-   The type of character strings (e.g. ``'Spam'``).
+   The type of character strings (e.g. ``'Spam'``); alias of the built-in
+   :class:`str`.
 
 
 .. data:: UnicodeType
 
    The type of Unicode character strings (e.g. ``u'Spam'``).  This is not defined
-   if Python was built without Unicode support.
+   if Python was built without Unicode support.  It's an alias of the built-in
+   :class:`unicode`.
 
 
 .. data:: TupleType
 
-   The type of tuples (e.g. ``(1, 2, 3, 'Spam')``).
+   The type of tuples (e.g. ``(1, 2, 3, 'Spam')``); alias of the built-in
+   :class:`tuple`.
 
 
 .. data:: ListType
 
-   The type of lists (e.g. ``[0, 1, 2, 3]``).
+   The type of lists (e.g. ``[0, 1, 2, 3]``); alias of the built-in
+   :class:`list`.
 
 
 .. data:: DictType
 
-   The type of dictionaries (e.g. ``{'Bacon': 1, 'Ham': 0}``).
+   The type of dictionaries (e.g. ``{'Bacon': 1, 'Ham': 0}``); alias of the
+   built-in :class:`dict`.
 
 
 .. data:: DictionaryType
@@ -166,21 +173,24 @@ The module defines the following names:
 
 .. data:: FileType
 
-   The type of open file objects such as ``sys.stdout``.
+   The type of open file objects such as ``sys.stdout``; alias of the built-in
+   :class:`file`.
 
 
 .. data:: RangeType
 
    .. index:: builtin: range
 
-   The type of range objects returned by :func:`range`.
+   The type of range objects returned by :func:`range`; alias of the built-in
+   :class:`range`.
 
 
 .. data:: SliceType
 
    .. index:: builtin: slice
 
-   The type of objects returned by :func:`slice`.
+   The type of objects returned by :func:`slice`; alias of the built-in
+   :class:`slice`.
 
 
 .. data:: EllipsisType
@@ -245,4 +255,3 @@ The module defines the following names:
    example: ``isinstance(s, types.StringTypes)``.
 
    .. versionadded:: 2.2
-

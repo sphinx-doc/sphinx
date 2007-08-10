@@ -88,16 +88,16 @@ operations:
 | ``s.issuperset(t)``           | ``s >= t`` | test whether every element in   |
 |                               |            | *t* is in *s*                   |
 +-------------------------------+------------+---------------------------------+
-| ``s.union(t)``                | *s* \| *t* | new set with elements from both |
+| ``s.union(t)``                | ``s | t``  | new set with elements from both |
 |                               |            | *s* and *t*                     |
 +-------------------------------+------------+---------------------------------+
-| ``s.intersection(t)``         | *s* & *t*  | new set with elements common to |
+| ``s.intersection(t)``         | ``s & t``  | new set with elements common to |
 |                               |            | *s* and *t*                     |
 +-------------------------------+------------+---------------------------------+
-| ``s.difference(t)``           | *s* - *t*  | new set with elements in *s*    |
+| ``s.difference(t)``           | ``s - t``  | new set with elements in *s*    |
 |                               |            | but not in *t*                  |
 +-------------------------------+------------+---------------------------------+
-| ``s.symmetric_difference(t)`` | *s* ^ *t*  | new set with elements in either |
+| ``s.symmetric_difference(t)`` | ``s ^ t``  | new set with elements in either |
 |                               |            | *s* or *t* but not both         |
 +-------------------------------+------------+---------------------------------+
 | ``s.copy()``                  |            | new set with a shallow copy of  |
@@ -277,7 +277,7 @@ lessons learned from the :mod:`sets` module.  The key differences are:
 * The built-in versions do not have a :meth:`union_update` method. Instead, use
   the :meth:`update` method which is equivalent.
 
-* The built-in versions do not have a :meth:`_repr(sorted=True)` method.
+* The built-in versions do not have a ``_repr(sorted=True)`` method.
   Instead, use the built-in :func:`repr` and :func:`sorted` functions:
   ``repr(sorted(s))``.
 

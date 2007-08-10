@@ -101,11 +101,11 @@ which format specific object types.
    with ``level - 1`` for the value of *level* in the recursive  call.
 
 
-.. method:: Repr.repr_type(obj, level)
+.. method:: Repr.repr_TYPE(obj, level)
    :noindex:
 
    Formatting methods for specific types are implemented as methods with a name
-   based on the type name.  In the method name, *type* is replaced by
+   based on the type name.  In the method name, **TYPE** is replaced by
    ``string.join(string.split(type(obj).__name__, '_'))``. Dispatch to these
    methods is handled by :meth:`repr1`. Type-specific methods which need to
    recursively format a value should call ``self.repr1(subobj, level - 1)``.

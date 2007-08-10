@@ -220,17 +220,18 @@ For simple text calendars this module provides the following functions.
 
 .. function:: leapdays(y1, y2)
 
-   Returns the number of leap years in the range [*y1*...*y2*), where *y1* and *y2*
-   are years.
+   Returns the number of leap years in the range from *y1* to *y2* (exclusive),
+   where *y1* and *y2* are years.
 
    .. versionchanged:: 2.0
-      This function didn't work for ranges spanning  a century change in Python 1.5.2.
+      This function didn't work for ranges spanning a century change in Python
+      1.5.2.
 
 
 .. function:: weekday(year, month, day)
 
-   Returns the day of the week (``0`` is Monday) for *year* (``1970``\ --...),
-   *month* (``1``\ --\ ``12``), *day* (``1``\ --\ ``31``).
+   Returns the day of the week (``0`` is Monday) for *year* (``1970``--...),
+   *month* (``1``--``12``), *day* (``1``--``31``).
 
 
 .. function:: weekheader(n)

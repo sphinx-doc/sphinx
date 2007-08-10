@@ -75,7 +75,7 @@ See the source code for details.  The public methods are:
    ignored in that case).
 
    .. versionadded:: 2.3
-      the timeout parameter.
+      The *timeout* parameter.
 
 
 .. method:: Queue.put_nowait(item)
@@ -93,7 +93,7 @@ See the source code for details.  The public methods are:
    else raise the :exc:`Empty` exception (*timeout* is ignored in that case).
 
    .. versionadded:: 2.3
-      the timeout parameter.
+      The *timeout* parameter.
 
 
 .. method:: Queue.get_nowait()

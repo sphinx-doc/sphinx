@@ -95,8 +95,8 @@ The :mod:`UserList` module defines the :class:`UserList` class:
    Class that simulates a list.  The instance's contents are kept in a regular
    list, which is accessible via the :attr:`data` attribute of :class:`UserList`
    instances.  The instance's contents are initially set to a copy of *list*,
-   defaulting to the empty list ``[]``.  *list* can be either a regular Python
-   list, or an instance of :class:`UserList` (or a subclass).
+   defaulting to the empty list ``[]``.  *list* can be any iterable, e.g. a
+   real Python list or a :class:`UserList` object.
 
 In addition to supporting the methods and operations of mutable sequences (see
 section :ref:`typesseq`), :class:`UserList` instances provide the following
