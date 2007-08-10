@@ -204,7 +204,7 @@ length message::
    	while totalsent < MSGLEN:
    	    sent = self.sock.send(msg[totalsent:])
    	    if sent == 0:
-   		raise RuntimeError, \\
+   		raise RuntimeError, \
    		    "socket connection broken"
    	    totalsent = totalsent + sent
 
@@ -213,7 +213,7 @@ length message::
    	while len(msg) < MSGLEN:
    	    chunk = self.sock.recv(MSGLEN-len(msg))
    	    if chunk == '':
-   		raise RuntimeError, \\
+   		raise RuntimeError, \
    		    "socket connection broken"
    	    msg = msg + chunk
    	return msg
@@ -341,7 +341,7 @@ In C, coding ``select`` is fairly complex. In Python, it's a piece of cake, but
 it's close enough to the C version that if you understand ``select`` in Python,
 you'll have little trouble with it in C. ::
 
-   ready_to_read, ready_to_write, in_error = \\
+   ready_to_read, ready_to_write, in_error = \
                   select.select(
                      potential_readers, 
                      potential_writers, 

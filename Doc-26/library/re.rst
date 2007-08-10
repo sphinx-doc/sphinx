@@ -92,7 +92,7 @@ The special characters are:
    Matches the end of the string or just before the newline at the end of the
    string, and in :const:`MULTILINE` mode also matches before a newline.  ``foo``
    matches both 'foo' and 'foobar', while the regular expression ``foo$`` matches
-   only 'foo'.  More interestingly, searching for ``foo.$`` in 'foo1\\nfoo2\\n'
+   only 'foo'.  More interestingly, searching for ``foo.$`` in ``'foo1\nfoo2\n'``
    matches 'foo2' normally, but 'foo1' in :const:`MULTILINE` mode.
 
 ``'*'``

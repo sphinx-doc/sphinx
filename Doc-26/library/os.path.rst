@@ -183,7 +183,7 @@ write files see :func:`open`, and for accessing the filesystem see the
    directory separator (``os.sep``) inserted between components, unless *path2* is
    empty.  Note that on Windows, since there is a current directory for each drive,
    :func:`os.path.join("c:", "foo")` represents a path relative to the current
-   directory on drive :file:`C:` (:file:`c:foo`), not :file:`c:\\\\foo`.
+   directory on drive :file:`C:` (:file:`c:foo`), not :file:`c:\\foo`.
 
 
 .. function:: normcase(path)

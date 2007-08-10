@@ -177,7 +177,7 @@ either control lexical analysis or can be used for debugging:
 .. attribute:: shlex.escape
 
    Characters that will be considered as escape. This will be only used in POSIX
-   mode, and includes just ``'\\'`` by default.
+   mode, and includes just ``'\'`` by default.
 
    .. versionadded:: 2.3
 
@@ -288,7 +288,7 @@ parsing rules.
 * Quotes are stripped out, and do not separate words (``"Do"Not"Separate"`` is
   parsed as the single word ``DoNotSeparate``);
 
-* Non-quoted escape characters (e.g. ``'\\'``) preserve the literal value of the
+* Non-quoted escape characters (e.g. ``'\'``) preserve the literal value of the
   next character that follows;
 
 * Enclosing characters in quotes which are not part of :attr:`escapedquotes`

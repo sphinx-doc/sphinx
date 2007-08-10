@@ -954,8 +954,8 @@ functions :cfunc:`snprintf` and :cfunc:`vsnprintf`. Their purpose is to
 guarantee consistent behavior in corner cases, which the Standard C functions do
 not.
 
-The wrappers ensure that *str*[*size*-1] is always ``'\\0'`` upon return. They
-never write more than *size* bytes (including the trailing ``'\\0'`` into str.
+The wrappers ensure that *str*[*size*-1] is always ``'\0'`` upon return. They
+never write more than *size* bytes (including the trailing ``'\0'`` into str.
 Both functions require that ``str != NULL``, ``size > 0`` and ``format !=
 NULL``.
 

@@ -612,9 +612,9 @@ remarks:
 
 Babyl is a single-file mailbox format used by the Rmail mail user agent included
 with Emacs. The beginning of a message is indicated by a line containing the two
-characters Control-Underscore (``'\\037'``) and Control-L (``'\\014'``). The end
+characters Control-Underscore (``'\037'``) and Control-L (``'\014'``). The end
 of a message is indicated by the start of the next message or, in the case of
-the last message, a line containing a Control-Underscore (``'\\037'``)
+the last message, a line containing a Control-Underscore (``'\037'``)
 character.
 
 Messages in a Babyl mailbox have two sets of headers, original headers and
@@ -687,7 +687,7 @@ remarks:
 MMDF is a single-file mailbox format invented for the Multichannel Memorandum
 Distribution Facility, a mail transfer agent. Each message is in the same form
 as an mbox message but is bracketed before and after by lines containing four
-Control-A (``'\\001'``) characters. As with the mbox format, the beginning of
+Control-A (``'\001'``) characters. As with the mbox format, the beginning of
 each message is indicated by a line whose first five characters are "From ", but
 additional occurrences of "From " are not transformed to ">From " when storing
 messages because the extra message separator lines prevent mistaking such
