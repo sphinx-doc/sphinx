@@ -856,10 +856,9 @@ also overloaded by string and unicode objects to perform string formatting (also
 known as interpolation). The syntax for string formatting is described in the
 Python Library Reference, section :ref:`string-formatting`.
 
-.. deprecated:: 2.3
-   The floor division operator, the modulo operator, and the :func:`divmod`
-   function are no longer defined for complex numbers.  Instead, convert to a
-   floating point number using the :func:`abs` function if appropriate.
+The floor division operator, the modulo operator, and the :func:`divmod`
+function are not defined for complex numbers.  Instead, convert to a
+floating point number using the :func:`abs` function if appropriate.
 
 .. index:: single: addition
 
