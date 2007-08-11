@@ -2360,20 +2360,6 @@ types, where they are relevant.  Some of these are not reported by the
    attributes.
 
 
-.. attribute:: object.__methods__
-
-   .. deprecated:: 2.2
-      Use the built-in function :func:`dir` to get a list of an object's attributes.
-      This attribute is no longer available.
-
-
-.. attribute:: object.__members__
-
-   .. deprecated:: 2.2
-      Use the built-in function :func:`dir` to get a list of an object's attributes.
-      This attribute is no longer available.
-
-
 .. attribute:: instance.__class__
 
    The class to which a class instance belongs.
