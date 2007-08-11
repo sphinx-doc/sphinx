@@ -363,7 +363,7 @@ Notes:
 Bit-string Operations on Integer Types
 --------------------------------------
 
-.. _bit-string operations:
+.. _bit-string-operations:
 
 Plain and long integer types support additional operations that make sense only
 for bit-strings.  Negative numbers are treated as their 2's complement value
@@ -2213,8 +2213,6 @@ Modules built into the interpreter are written like this: ``<module 'sys'
 
 Classes and Class Instances
 ---------------------------
-
-.. _classes and instances:
 
 See :ref:`objects` and :ref:`class` for these.
 

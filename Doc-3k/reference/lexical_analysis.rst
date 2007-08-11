@@ -323,7 +323,7 @@ Identifiers (also referred to as *names*) are described by the following lexical
 definitions:
 
 .. productionlist::
-   identifier: (`letter`|"_") (`letter` | `digit` | "_")\*
+   identifier: (`letter`|"_") (`letter` | `digit` | "_")*
    letter: `lowercase` | `uppercase`
    lowercase: "a"..."z"
    uppercase: "A"..."Z"

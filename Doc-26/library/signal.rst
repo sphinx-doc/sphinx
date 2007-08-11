@@ -128,10 +128,10 @@ The :mod:`signal` module defines the following functions:
    descriptions in the :mod:`inspect` module).
 
 
+.. _signal-example:
+
 Example
 -------
-
-.. _signal example:
 
 Here is a minimal example program. It uses the :func:`alarm` function to limit
 the time spent waiting to open a file; this is useful if the file is for a

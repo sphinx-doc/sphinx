@@ -429,7 +429,7 @@ affected by the values passed to the :meth:`__new__` method for the type (as it
 is for tuples and strings).  Instances of a new-style type :class:`C` are
 created using ::
 
-   obj = C.__new__(C, \*args)
+   obj = C.__new__(C, *args)
 
 
 where *args* is the result of calling :meth:`__getnewargs__` on the original

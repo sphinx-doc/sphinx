@@ -42,10 +42,10 @@ event handling is available, though, so you can mix FORMS with pure GL windows.
 :cfunc:`foreground` and to the FORMS routine :cfunc:`fl_init`.
 
 
+.. _fl-functions:
+
 Functions Defined in Module :mod:`fl`
 -------------------------------------
-
-.. _fl functions:
 
 Module :mod:`fl` defines the following functions.  For more information about
 what they do, see the description of the equivalent C function in the FORMS

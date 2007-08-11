@@ -41,10 +41,10 @@ suggestions for improvements to: jar@netscape.com.  I won't promise *any*
 support.  ...but I'd appreciate the feedback.
 
 
+.. _profiler-introduction:
+
 Introduction to the profilers
 =============================
-
-.. _profiler introduction:
 
 .. index::
    single: deterministic profiling
@@ -243,10 +243,10 @@ reading and examining profile dumps.  It has a simple line-oriented interface
 (implemented using :mod:`cmd`) and interactive help.
 
 
+.. _deterministic-profiling:
+
 What Is Deterministic Profiling?
 ================================
-
-.. _deterministic profiling:
 
 :dfn:`Deterministic profiling` is meant to reflect the fact that all *function
 call*, *function return*, and *exception* events are monitored, and precise
@@ -623,10 +623,10 @@ If you have a choice, you are better off choosing a smaller constant, and then
 your results will "less often" show up as negative in profile statistics.
 
 
+.. _profiler-extensions:
+
 Extensions --- Deriving Better Profilers
 ========================================
-
-.. _profiler extensions:
 
 The :class:`Profile` class of both modules, :mod:`profile` and :mod:`cProfile`,
 were written so that derived classes could be developed to extend the profiler.

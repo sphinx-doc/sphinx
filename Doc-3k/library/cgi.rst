@@ -58,10 +58,10 @@ prints a simple piece of HTML::
    print "Hello, world!"
 
 
+.. _using-the-cgi-module:
+
 Using the cgi module
 --------------------
-
-.. _using the cgi module:
 
 Begin by writing ``import cgi``.  Do not use ``from cgi import *`` --- the
 module defines all sorts of names for its own use or for backward compatibility
@@ -262,10 +262,10 @@ these and would be inconvenienced when they disappeared from a next version of
 this module, drop me a note.
 
 
+.. _functions-in-cgi-module:
+
 Functions
 ---------
-
-.. _functions in cgi module:
 
 These are useful if you want more control, or if you want to employ some of the
 algorithms implemented in this module in other circumstances.

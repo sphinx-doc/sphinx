@@ -406,10 +406,10 @@ argument regardless of whether a newline precedes it.
    re.compile("^a", re.M).search("ba", 1)   # fails; no preceding \n
 
 
+.. _contents-of-module-re:
+
 Module Contents
 ---------------
-
-.. _contents of module re:
 
 The module defines several functions, constants, and an exception. Some of the
 functions are simplified versions of the full featured methods for compiled

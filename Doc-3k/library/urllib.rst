@@ -433,10 +433,10 @@ overloaded to provide the appropriate behavior:
    environment.
 
 
+.. _urllib-examples:
+
 Examples
 --------
-
-.. _urllib examples:
 
 Here is an example session that uses the ``GET`` method to retrieve a URL
 containing parameters::

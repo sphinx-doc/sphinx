@@ -166,8 +166,6 @@ The script can be given an executable mode, or permission, using the
 
    $ chmod +x myscript.py
 
-.. % $ <-- bow to font-lock
-
 
 Source Code Encoding
 --------------------
@@ -176,7 +174,7 @@ It is possible to use encodings different than ASCII in Python source files. The
 best way to do it is to put one more special comment line right after the ``#!``
 line to define the source file encoding::
 
-   # -\*- coding: encoding -\*- 
+   # -*- coding: encoding -*- 
 
 
 With that declaration, all characters in the source file will be treated as
