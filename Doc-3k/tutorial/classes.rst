@@ -541,7 +541,7 @@ as in the debugger, and that's one reason why this loophole is not closed.
 (Buglet: derivation of a class with the same name as the base class makes use of
 private variables of the base class possible.)
 
-Notice that code passed to ``exec()``, ``eval()`` or ``execfile()`` does not
+Notice that code passed to ``exec()`` or ``eval()`` does not
 consider the classname of the invoking  class to be the current class; this is
 similar to the effect of the  ``global`` statement, the effect of which is
 likewise restricted to  code that is byte-compiled together.  The same

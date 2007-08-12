@@ -21,10 +21,10 @@ must execute the statement ::
 
    import user
 
-.. index:: builtin: execfile
+.. index:: builtin: exec
 
 The :mod:`user` module looks for a file :file:`.pythonrc.py` in the user's home
-directory and if it can be opened, executes it (using :func:`execfile`) in its
+directory and if it can be opened, executes it (using :func:`exec`) in its
 own (the module :mod:`user`'s) global namespace.  Errors during this phase are
 not caught; that's up to the program that imports the :mod:`user` module, if it
 wishes.  The home directory is assumed to be named by the :envvar:`HOME`

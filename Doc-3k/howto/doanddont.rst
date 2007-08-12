@@ -75,8 +75,8 @@ There are situations in which ``from module import *`` is just fine:
 * When the module advertises itself as ``from import *`` safe.
 
 
-Unadorned :keyword:`exec`, :func:`execfile` and friends
--------------------------------------------------------
+Unadorned :keyword:`exec` and friends
+-------------------------------------
 
 The word "unadorned" refers to the use without an explicit dictionary, in which
 case those constructs evaluate code in the *current* environment. This is
@@ -91,7 +91,7 @@ Bad examples::
    >>> def func(s, **kw):
    >>>     for var, val in kw.items():
    >>>         exec "s.%s=val" % var  # invalid!
-   >>> execfile("handler.py")
+   >>> exec(open("handler.py").read())
    >>> handle()
 
 Good examples::
@@ -103,7 +103,7 @@ Good examples::
    >>>     for var, val in kw.items():
    >>>         setattr(s, var, val)
    >>> d={}
-   >>> execfile("handle.py", d, d)
+   >>> exec(open("handle.py").read(), d, d)
    >>> handle = d['handle']
    >>> handle()
 

@@ -33,8 +33,7 @@ The following are blocks: a module, a function body, and a class definition.
 Each command typed interactively is a block.  A script file (a file given as
 standard input to the interpreter or specified on the interpreter command line
 the first argument) is a code block.  A script command (a command specified on
-the interpreter command line with the '**-c**' option) is a code block.  The
-file read by the built-in function :func:`execfile` is a code block.  The string
+the interpreter command line with the '**-c**' option) is a code block.  The string
 argument passed to the built-in functions :func:`eval` and :func:`exec` is a
 code block. The expression read and evaluated by the built-in function
 :func:`input` is a code block.
@@ -158,11 +157,11 @@ If the wild card form of import --- ``import *`` --- is used in a function and
 the function contains or is a nested block with free variables, the compiler
 will raise a :exc:`SyntaxError`.
 
-The :func:`eval`, :func:`exec`, :func:`execfile`, and :func:`input` functions do
+The :func:`eval` and :func:`exec` functions do
 not have access to the full environment for resolving names.  Names may be
 resolved in the local and global namespaces of the caller.  Free variables are
 not resolved in the nearest enclosing namespace, but in the global namespace.
-[#]_ The :func:`exec`, :func:`eval` and :func:`execfile` functions have optional
+[#]_ The :func:`exec` and :func:`eval` functions have optional
 arguments to override the global and local namespace.  If only one namespace is
 specified, it is used for both.
 

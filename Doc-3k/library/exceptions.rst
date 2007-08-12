@@ -286,9 +286,9 @@ The following exceptions are the exceptions that are actually raised.
 .. exception:: SyntaxError
 
    Raised when the parser encounters a syntax error.  This may occur in an
-   :keyword:`import` statement, in a call to the built-in functions :func:`exec`,
-   :func:`execfile`, :func:`eval` or :func:`input`, or when reading the initial
-   script or standard input (also interactively).
+   :keyword:`import` statement, in a call to the built-in functions :func:`exec`
+   or :func:`eval`, or when reading the initial script or standard input
+   (also interactively).
 
    .. % XXXJH xref to these functions?
 

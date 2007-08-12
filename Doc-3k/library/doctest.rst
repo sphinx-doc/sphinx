@@ -1709,7 +1709,7 @@ code under the debugger:
    it does, then post-mortem debugging is invoked, via :func:`pdb.post_mortem`,
    passing the traceback object from the unhandled exception.  If *pm* is not
    specified, or is false, the script is run under the debugger from the start, via
-   passing an appropriate :func:`execfile` call to :func:`pdb.run`.
+   passing an appropriate :func:`exec` call to :func:`pdb.run`.
 
    .. versionadded:: 2.3
 

@@ -761,8 +761,8 @@ Note that there is nothing special about the statement::
 That is not a future statement; it's an ordinary import statement with no
 special semantics or syntax restrictions.
 
-Code compiled by calls to the builtin functions :func:`exec`, :func:`compile`
-and :func:`execfile` that occur in a module :mod:`M` containing a future
+Code compiled by calls to the builtin functions :func:`exec` and :func:`compile`
+that occur in a module :mod:`M` containing a future
 statement will, by default, use the new  syntax or semantics associated with the
 future statement.  This can, starting with Python 2.2 be controlled by optional
 arguments to :func:`compile` --- see the documentation of that function
@@ -807,7 +807,6 @@ them or silently change the meaning of the program.)
 .. index::
    builtin: exec
    builtin: eval
-   builtin: execfile
    builtin: compile
 
 **Programmer's note:** the :keyword:`global` is a directive to the parser.  It
@@ -816,8 +815,7 @@ In particular, a :keyword:`global` statement contained in a string or code
 object supplied to the builtin :func:`exec` function does not affect the code
 block *containing* the function call, and code contained in such a string is
 unaffected by :keyword:`global` statements in the code containing the function
-call.  The same applies to the :func:`eval`, :func:`execfile` and
-:func:`compile` functions.
+call.  The same applies to the :func:`eval` and :func:`compile` functions.
 
 .. rubric:: Footnotes
 

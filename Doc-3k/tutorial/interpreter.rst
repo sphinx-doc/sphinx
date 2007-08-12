@@ -232,13 +232,14 @@ file.
 
 If you want to read an additional start-up file from the current directory, you
 can program this in the global start-up file using code like ``if
-os.path.isfile('.pythonrc.py'): execfile('.pythonrc.py')``.  If you want to use
-the startup file in a script, you must do this explicitly in the script::
+os.path.isfile('.pythonrc.py'): exec(open('.pythonrc.py').read())``.
+If you want to use the startup file in a script, you must do this explicitly
+in the script::
 
    import os
    filename = os.environ.get('PYTHONSTARTUP')
    if filename and os.path.isfile(filename):
-       execfile(filename)
+       exec(open(filename).read())
 
 
 .. rubric:: Footnotes

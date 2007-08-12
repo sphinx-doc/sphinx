@@ -324,14 +324,14 @@ want a list of those, they are defined in the standard module
     '__name__', 'abs', 'basestring', 'bool', 'buffer',
     'chr', 'classmethod', 'cmp', 'compile',
     'complex', 'copyright', 'credits', 'delattr', 'dict', 'dir', 'divmod',
-    'enumerate', 'eval', 'execfile', 'exit', 'file', 'filter', 'float',
+    'enumerate', 'eval', 'exec', 'exit', 'filter', 'float',
     'frozenset', 'getattr', 'globals', 'hasattr', 'hash', 'help', 'hex',
     'id', 'input', 'int', 'isinstance', 'issubclass', 'iter',
-    'len', 'license', 'list', 'locals', 'long', 'map', 'max', 'min',
+    'len', 'license', 'list', 'locals', 'map', 'max', 'min',
     'object', 'oct', 'open', 'ord', 'pow', 'property', 'quit', 'range',
     'repr', 'reversed', 'round', 'set',
     'setattr', 'slice', 'sorted', 'staticmethod', 'str', 'sum', 'super',
-    'tuple', 'type', 'unichr', 'unicode', 'vars', 'zip']
+    'tuple', 'type', 'vars', 'zip']
 
 
 .. _tut-packages:

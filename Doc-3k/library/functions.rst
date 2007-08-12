@@ -106,10 +106,10 @@ available.  They are listed here in alphabetical order.
 
 .. function:: basestring()
 
-   This abstract type is the superclass for :class:`str` and :class:`unicode`. It
+   This abstract type is the superclass for :class:`str`.  It
    cannot be called or instantiated, but it can be used to test whether an object
-   is an instance of :class:`str` or :class:`unicode`. ``isinstance(obj,
-   basestring)`` is equivalent to ``isinstance(obj, (str, unicode))``.
+   is an instance of :class:`str` (or a user-defined type inherited from
+   :class:`basestring`).
 
    .. versionadded:: 2.3
 
@@ -141,11 +141,11 @@ available.  They are listed here in alphabetical order.
 
 .. function:: chr(i)
 
-   Return a string of one character whose ASCII code is the integer *i*.  For
+   Return the string of one character whose Unicode codepoint is the integer *i*.  For
    example, ``chr(97)`` returns the string ``'a'``. This is the inverse of
-   :func:`ord`.  The argument must be in the range [0..255], inclusive;
-   :exc:`ValueError` will be raised if *i* is outside that range. See
-   also :func:`unichr`.
+   :func:`ord`.  The valid range for the argument depends how Python was
+   configured -- it may be either UCS2 [0..0xFFFF] or UCS4 [0..0x10FFFF].
+   :exc:`ValueError` will be raised if *i* is outside that range.
 
 
 .. function:: classmethod(function)
@@ -368,10 +368,9 @@ available.  They are listed here in alphabetical order.
    *kind* argument.
 
    Hints: dynamic execution of statements is supported by the :func:`exec`
-   function.  Execution of statements from a file is supported by the
-   :func:`execfile` function.  The :func:`globals` and :func:`locals` functions
+   function.  The :func:`globals` and :func:`locals` functions
    returns the current global and local dictionary, respectively, which may be
-   useful to pass around for use by :func:`eval` or :func:`execfile`.
+   useful to pass around for use by :func:`eval` or :func:`exec`.
 
 
 .. function:: exec(object[, globals[, locals]])
@@ -405,46 +404,13 @@ available.  They are listed here in alphabetical order.
       global and local dictionary, respectively, which may be useful to pass around
       for use as the second and third argument to :func:`exec`.
 
-
-.. function:: execfile(filename[, globals[, locals]])
-
-   This function is similar to the :func:`exec` function, but parses a file given
-   by the file name instead of a string.  It is different from the
-   :keyword:`import` statement in that it does not use the module administration
-   --- it reads the file unconditionally and does not create a new module.
-
-   The arguments are a file name and two optional dictionaries.  The file is parsed
-   and evaluated as a sequence of Python statements (similarly to a module) using
-   the *globals* and *locals* dictionaries as global and local namespace. If
-   provided, *locals* can be any mapping object.
-
-   .. versionchanged:: 2.4
-      formerly *locals* was required to be a dictionary.
-
-   If the *locals* dictionary is omitted it defaults to the *globals* dictionary.
-   If both dictionaries are omitted, the expression is executed in the environment
-   where :func:`execfile` is called.  The return value is ``None``.
-
    .. warning::
 
       The default *locals* act as described for function :func:`locals` below:
       modifications to the default *locals* dictionary should not be attempted.  Pass
       an explicit *locals* dictionary if you need to see effects of the code on
-      *locals* after function :func:`execfile` returns.  :func:`execfile` cannot be
+      *locals* after function :func:`execfile` returns.  :func:`exec` cannot be
       used reliably to modify a function's locals.
-
-
-.. function:: file(filename[, mode[, bufsize]])
-
-   Constructor function for the :class:`file` type, described further in section
-   :ref:`bltin-file-objects`.  The constructor's arguments are the same as those
-   of the :func:`open` built-in function described below.
-
-   When opening a file, it's preferable to use :func:`open` instead of  invoking
-   this constructor directly.  :class:`file` is more suited to type testing (for
-   example, writing ``isinstance(f, file)``).
-
-   .. versionadded:: 2.2
 
 
 .. function:: filter(function, iterable)
@@ -559,15 +525,15 @@ available.  They are listed here in alphabetical order.
 
 .. function:: int([x[, radix]])
 
-   Convert a string or number to a plain integer.  If the argument is a string, it
-   must contain a possibly signed decimal number representable as a Python integer,
-   possibly embedded in whitespace. The *radix* parameter gives the base for the
+   Convert a string or number to an integer.  If the argument is a string, it
+   must contain a possibly signed number of arbitrary size,
+   possibly embedded in whitespace.  The *radix* parameter gives the base for the
    conversion and may be any integer in the range [2, 36], or zero.  If *radix* is
    zero, the interpretation is the same as for integer literals.  If *radix* is
-   specified and *x* is not a string, :exc:`TypeError` is raised. Otherwise, the
-   argument may be a plain or long integer or a floating point number.  Conversion
-   of floating point numbers to integers truncates (towards zero). If the argument
-   is outside the integer range a long object will be returned instead.  If no
+   specified and *x* is not a string, :exc:`TypeError` is raised.  Otherwise, the
+   argument may be another integer, a floating point number or any other object
+   that has an :meth:`__int__` method.  Conversion
+   of floating point numbers to integers truncates (towards zero).  If no
    arguments are given, returns ``0``.
 
    The integer type is described in :ref:`typesnumeric`.
@@ -649,18 +615,6 @@ available.  They are listed here in alphabetical order.
    Modifications of free variables may not affect the values used by the
    interpreter.  Free variables are not returned in class blocks.
 
-
-.. function:: long([x[, radix]])
-
-   Convert a string or number to a long integer.  If the argument is a string, it
-   must contain a possibly signed number of arbitrary size, possibly embedded in
-   whitespace. The *radix* argument is interpreted in the same way as for
-   :func:`int`, and may only be given when *x* is a string. Otherwise, the argument
-   may be a plain or long integer or a floating point number, and a long integer
-   with the same value is returned.    Conversion of floating point numbers to
-   integers truncates (towards zero).  If no arguments are given, returns ``0L``.
-
-   The long type is described in :ref:`typesnumeric`.
 
 .. function:: map(function, iterable, ...)
 
@@ -1009,13 +963,30 @@ available.  They are listed here in alphabetical order.
       Function decorator syntax added.
 
 
-.. function:: str([object])
+.. function:: str([object[, encoding[, errors]]])
 
-   Return a string containing a nicely printable representation of an object.  For
-   strings, this returns the string itself.  The difference with ``repr(object)``
+   Return a string version of an object, using one of the following modes:
+   
+   If *encoding* and/or *errors* are given, :func:`str` will decode the
+   *object* which can either be a byte string or a character buffer using
+   the codec for *encoding*. The *encoding* parameter is a string giving
+   the name of an encoding; if the encoding is not known, :exc:`LookupError`
+   is raised.  Error handling is done according to *errors*; this specifies the
+   treatment of characters which are invalid in the input encoding. If
+   *errors* is ``'strict'`` (the default), a :exc:`ValueError` is raised on
+   errors, while a value of ``'ignore'`` causes errors to be silently ignored,
+   and a value of ``'replace'`` causes the official Unicode replacement character,
+   U+FFFD, to be used to replace input characters which cannot be decoded.
+   See also the :mod:`codecs` module. 
+
+   When only *object* is given, this returns its nicely printable representation.
+   For strings, this is the string itself.  The difference with ``repr(object)``
    is that ``str(object)`` does not always attempt to return a string that is
-   acceptable to :func:`eval`; its goal is to return a printable string.  If no
-   argument is given, returns the empty string, ``''``.
+   acceptable to :func:`eval`; its goal is to return a printable string.
+   With no arguments, this returns the empty string.
+
+   Objects can specify what ``str(object)`` returns by defining a :meth:`__str__`
+   special method.
 
    For more information on strings see :ref:`typesseq` which describes sequence
    functionality (strings are sequences), and also the string-specific methods
@@ -1101,56 +1072,6 @@ available.  They are listed here in alphabetical order.
    .. versionadded:: 2.2
 
 
-.. function:: unichr(i)
-
-   Return the Unicode string of one character whose Unicode code is the integer
-   *i*.  For example, ``unichr(97)`` returns the string ``u'a'``.  This is the
-   inverse of :func:`ord` for Unicode strings.  The valid range for the argument
-   depends how Python was configured -- it may be either UCS2 [0..0xFFFF] or UCS4
-   [0..0x10FFFF]. :exc:`ValueError` is raised otherwise. For ASCII and 8-bit
-   strings see :func:`chr`.
-
-   .. versionadded:: 2.0
-
-
-.. function:: unicode([object[, encoding [, errors]]])
-
-   Return the Unicode string version of *object* using one of the following modes:
-
-   If *encoding* and/or *errors* are given, ``unicode()`` will decode the object
-   which can either be an 8-bit string or a character buffer using the codec for
-   *encoding*. The *encoding* parameter is a string giving the name of an encoding;
-   if the encoding is not known, :exc:`LookupError` is raised. Error handling is
-   done according to *errors*; this specifies the treatment of characters which are
-   invalid in the input encoding.  If *errors* is ``'strict'`` (the default), a
-   :exc:`ValueError` is raised on errors, while a value of ``'ignore'`` causes
-   errors to be silently ignored, and a value of ``'replace'`` causes the official
-   Unicode replacement character, ``U+FFFD``, to be used to replace input
-   characters which cannot be decoded.  See also the :mod:`codecs` module.
-
-   If no optional parameters are given, ``unicode()`` will mimic the behaviour of
-   ``str()`` except that it returns Unicode strings instead of 8-bit strings. More
-   precisely, if *object* is a Unicode string or subclass it will return that
-   Unicode string without any additional decoding applied.
-
-   For objects which provide a :meth:`__unicode__` method, it will call this method
-   without arguments to create a Unicode string. For all other objects, the 8-bit
-   string version or representation is requested and then converted to a Unicode
-   string using the codec for the default encoding in ``'strict'`` mode.
-
-   For more information on Unicode strings see :ref:`typesseq` which describes
-   sequence functionality (Unicode strings are sequences), and also the
-   string-specific methods described in the :ref:`string-methods` section. To
-   output formatted strings use template strings or the ``%`` operator described
-   in the :ref:`string-formatting` section. In addition see the
-   :ref:`stringservices` section. See also :func:`str`.
-
-   .. versionadded:: 2.0
-
-   .. versionchanged:: 2.2
-      Support for :meth:`__unicode__` added.
-
-
 .. function:: vars([object])
 
    Without arguments, return a dictionary corresponding to the current local symbol
@@ -1200,6 +1121,8 @@ bypass these functions without concerns about missing something important.
    the beginning of *object* (or from the specified *offset*). The slice will
    extend to the end of *object* (or will have a length given by the *size*
    argument).
+
+
 
 .. rubric:: Footnotes
 
