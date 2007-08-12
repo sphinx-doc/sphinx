@@ -299,10 +299,6 @@ PyErr_Format:PyObject*:exception:+1:
 PyErr_Format:char*:format::
 PyErr_Format::...::
 
-PyErr_Warn:int:::
-PyErr_Warn:PyObject*:category:0:
-PyErr_Warn:char*:message::
-
 PyErr_WarnEx:int:::
 PyErr_WarnEx:PyObject*:category:0:
 PyErr_WarnEx:const char*:message::

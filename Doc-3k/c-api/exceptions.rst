@@ -319,16 +319,6 @@ in various ways.  There is a separate error indicator for each thread.
    documentation.  There is no C API for warning control.
 
 
-.. cfunction:: int PyErr_Warn(PyObject *category, char *message)
-
-   Issue a warning message.  The *category* argument is a warning category (see
-   below) or *NULL*; the *message* argument is a message string.  The warning will
-   appear to be issued from the function calling :cfunc:`PyErr_Warn`, equivalent to
-   calling :cfunc:`PyErr_WarnEx` with a *stacklevel* of 1.
-
-   Deprecated; use :cfunc:`PyErr_WarnEx` instead.
-
-
 .. cfunction:: int PyErr_WarnExplicit(PyObject *category, const char *message, const char *filename, int lineno, const char *module, PyObject *registry)
 
    Issue a warning message with explicit control over all warning attributes.  This
