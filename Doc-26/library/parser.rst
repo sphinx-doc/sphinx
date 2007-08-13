@@ -95,7 +95,7 @@ AST object.
       testing node values.
 
 
-.. _creating asts:
+.. _creating-asts:
 
 Creating AST Objects
 --------------------
@@ -149,7 +149,7 @@ and ``'exec'`` forms.
    maintained for backward compatibility.
 
 
-.. _converting asts:
+.. _converting-asts:
 
 Converting AST Objects
 ----------------------
@@ -210,7 +210,7 @@ numbering information.
    tree.
 
 
-.. _querying asts:
+.. _querying-asts:
 
 Queries on AST Objects
 ----------------------
@@ -240,7 +240,7 @@ determine if an AST was created from source code via :func:`expr` or
    syntactic fragments may be supported in the future.
 
 
-.. _ast errors:
+.. _ast-errors:
 
 Exceptions and Error Handling
 -----------------------------
@@ -269,7 +269,7 @@ cases, these exceptions carry all the meaning normally associated with them.
 Refer to the descriptions of each function for detailed information.
 
 
-.. _ast objects:
+.. _ast-objects:
 
 AST Objects
 -----------
@@ -311,7 +311,7 @@ AST objects have the following methods:
    Same as ``ast2tuple(ast, line_info)``.
 
 
-.. _ast examples:
+.. _ast-examples:
 
 Examples
 --------

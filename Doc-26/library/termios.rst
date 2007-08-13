@@ -83,7 +83,7 @@ The module defines the following functions:
 Example
 -------
 
-.. _termios example:
+.. _termios-example:
 
 Here's a function that prompts for a password with echoing turned off.  Note the
 technique using a separate :func:`tcgetattr` call and a :keyword:`try` ...

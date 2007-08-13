@@ -148,7 +148,7 @@ One more support function is also defined:
    1.5/sharedmodules', '/usr/local/lib/python1.5/tkinter']"
 
 
-.. _prettyprinter objects:
+.. _prettyprinter-objects:
 
 PrettyPrinter Objects
 ---------------------

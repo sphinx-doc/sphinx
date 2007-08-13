@@ -343,12 +343,7 @@ Keywords
 
 The following identifiers are used as reserved words, or *keywords* of the
 language, and cannot be used as ordinary identifiers.  They must be spelled
-exactly as written here:
-
-.. % 
-.. % 
-
-::
+exactly as written here::
 
    and       del       from      not       while    
    as        elif      global    or        with     
@@ -357,8 +352,6 @@ exactly as written here:
    class     exec      in        raise              
    continue  finally   is        return             
    def       for       lambda    try 
-
-.. % When adding keywords, use reswords.py for reformatting
 
 .. versionchanged:: 2.4
    :const:`None` became a constant and is now recognized by the compiler as a name

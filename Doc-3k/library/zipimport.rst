@@ -115,7 +115,7 @@ zipimporter Objects
 Examples
 --------
 
-.. _zipimport examples:
+.. _zipimport-examples:
 
 Here is an example that imports a module from a ZIP archive - note that the
 :mod:`zipimport` module is not explicitly used. ::
