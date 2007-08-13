@@ -57,7 +57,7 @@ Here are the methods of the :class:`Message` class:
 
 .. method:: Message.__str__()
 
-   Equivalent to :meth:`as_string(unixfrom=True)`.
+   Equivalent to ``as_string(unixfrom=True)``.
 
 
 .. method:: Message.is_multipart()

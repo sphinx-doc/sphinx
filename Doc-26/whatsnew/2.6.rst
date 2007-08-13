@@ -126,7 +126,7 @@ complete list of changes, or look through the CVS logs for all the details.
 
 * The :mod:`gopherlib` module has been removed.
 
-* New function in the :mod:`heapq` module: :func:`merge(iter1, iter2, ...)`
+* New function in the :mod:`heapq` module: ``merge(iter1, iter2, ...)``
   takes any number of iterables that return data  *in sorted order*,  and  returns
   a new iterator that returns the contents of all the iterators, also in sorted
   order.  For example::
@@ -136,8 +136,8 @@ complete list of changes, or look through the CVS logs for all the details.
 
   (Contributed by Raymond Hettinger.)
 
-* New function in the :mod:`itertools` module: :func:`izip_longest(iter1, iter2,
-  ...[, fillvalue])` makes tuples from each of the elements; if some of the
+* New function in the :mod:`itertools` module: ``izip_longest(iter1, iter2,
+  ...[, fillvalue])`` makes tuples from each of the elements; if some of the
   iterables are shorter than others, the missing values  are set to *fillvalue*.
   For example::
 

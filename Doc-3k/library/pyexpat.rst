@@ -121,8 +121,8 @@ XMLParser Objects
 
 .. method:: xmlparser.ParseFile(file)
 
-   Parse XML data reading from the object *file*.  *file* only needs to provide the
-   :meth:`read(nbytes)` method, returning the empty string when there's no more
+   Parse XML data reading from the object *file*.  *file* only needs to provide
+   the ``read(nbytes)`` method, returning the empty string when there's no more
    data.
 
 

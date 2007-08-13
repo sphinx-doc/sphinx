@@ -160,13 +160,13 @@ characters up to U+01FF, which is represented by ``\777``.
 
 Unicode strings, just like regular strings, are an immutable sequence type.
 They can be indexed and sliced, but not modified in place. Unicode strings have
-an :meth:`encode( [encoding] )` method that returns an 8-bit string in the
-desired encoding.  Encodings are named by strings, such as ``'ascii'``,
-``'utf-8'``, ``'iso-8859-1'``, or whatever.  A codec API is defined for
-implementing and registering new encodings that are then available throughout a
-Python program.  If an encoding isn't specified, the default encoding is usually
-7-bit ASCII, though it can be changed for your Python installation by calling
-the :func:`sys.setdefaultencoding(encoding)` function in a customised version of
+an ``encode( [encoding] )`` method that returns an 8-bit string in the desired
+encoding.  Encodings are named by strings, such as ``'ascii'``, ``'utf-8'``,
+``'iso-8859-1'``, or whatever.  A codec API is defined for implementing and
+registering new encodings that are then available throughout a Python program.
+If an encoding isn't specified, the default encoding is usually 7-bit ASCII,
+though it can be changed for your Python installation by calling the
+:func:`sys.setdefaultencoding(encoding)` function in a customised version of
 :file:`site.py`.
 
 Combining 8-bit and Unicode strings always coerces to Unicode, using the default

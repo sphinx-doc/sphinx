@@ -371,7 +371,7 @@ Logger Objects
 
 Loggers have the following attributes and methods. Note that Loggers are never
 instantiated directly, but always through the module-level function
-:func:`logging.getLogger(name)`.
+``logging.getLogger(name)``.
 
 
 .. attribute:: Logger.propagate
@@ -405,7 +405,7 @@ instantiated directly, but always through the module-level function
 
    Indicates if a message of severity *lvl* would be processed by this logger.
    This method checks first the module-level level set by
-   :func:`logging.disable(lvl)` and then the logger's effective level as determined
+   ``logging.disable(lvl)`` and then the logger's effective level as determined
    by :meth:`getEffectiveLevel`.
 
 
@@ -1620,14 +1620,14 @@ made, and any exception information to be logged.
 
    Returns an instance of :class:`LogRecord` initialized with interesting
    information. The *name* is the logger name; *lvl* is the numeric level;
-   *pathname* is the absolute pathname of the source file in which the logging call
-   was made; *lineno* is the line number in that file where the logging call is
-   found; *msg* is the user-supplied message (a format string); *args* is the tuple
-   which, together with *msg*, makes up the user message; and *exc_info* is the
-   exception tuple obtained by calling :func:`sys.exc_info()`\ (or :const:`None`,
-   if no exception information is available). The *func* is the name of the
-   function from which the logging call was made. If not specified, it defaults to
-   ``None``.
+   *pathname* is the absolute pathname of the source file in which the logging
+   call was made; *lineno* is the line number in that file where the logging
+   call is found; *msg* is the user-supplied message (a format string); *args*
+   is the tuple which, together with *msg*, makes up the user message; and
+   *exc_info* is the exception tuple obtained by calling :func:`sys.exc_info`
+   (or :const:`None`, if no exception information is available). The *func* is
+   the name of the function from which the logging call was made. If not
+   specified, it defaults to ``None``.
 
    .. versionchanged:: 2.5
       *func* was added.

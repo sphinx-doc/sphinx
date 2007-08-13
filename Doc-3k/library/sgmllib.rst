@@ -131,7 +131,7 @@ A single exception is defined as well:
    This method is called to process a character reference of the form ``&#ref;``.
    The base implementation uses :meth:`convert_charref` to convert the reference to
    a string.  If that method returns a string, it is passed to :meth:`handle_data`,
-   otherwise :meth:`unknown_charref(ref)` is called to handle the error.
+   otherwise ``unknown_charref(ref)`` is called to handle the error.
 
    .. versionchanged:: 2.5
       Use :meth:`convert_charref` instead of hard-coding the conversion.

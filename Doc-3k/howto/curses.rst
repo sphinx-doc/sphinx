@@ -249,16 +249,16 @@ upper left corner of a box (handy for drawing borders).
 Windows remember where the cursor was left after the last operation, so if you
 leave out the *y,x* coordinates, the string or character will be displayed
 wherever the last operation left off.  You can also move the cursor with the
-:func:`move(y,x)` method.  Because some terminals always display a flashing
-cursor, you may want to ensure that the cursor is positioned in some location
-where it won't be distracting; it can be confusing to have the cursor blinking
-at some apparently random location.
+``move(y,x)`` method.  Because some terminals always display a flashing cursor,
+you may want to ensure that the cursor is positioned in some location where it
+won't be distracting; it can be confusing to have the cursor blinking at some
+apparently random location.
 
 If your application doesn't need a blinking cursor at all, you can call
-:func:`curs_set(0)` to make it invisible.  Equivalently, and for compatibility
-with older curses versions, there's a :func:`leaveok(bool)` function.  When
-*bool* is true, the curses library will attempt to suppress the flashing cursor,
-and you won't need to worry about leaving it in odd locations.
+``curs_set(0)`` to make it invisible.  Equivalently, and for compatibility with
+older curses versions, there's a ``leaveok(bool)`` function.  When *bool* is
+true, the curses library will attempt to suppress the flashing cursor, and you
+won't need to worry about leaving it in odd locations.
 
 
 Attributes and Color
@@ -328,9 +328,9 @@ They are: 0:black, 1:red, 2:green, 3:yellow, 4:blue, 5:magenta, 6:cyan, and
 7:white.  The curses module defines named constants for each of these colors:
 :const:`curses.COLOR_BLACK`, :const:`curses.COLOR_RED`, and so forth.
 
-The :func:`init_pair(n, f, b)` function changes the definition of color pair
-*n*, to foreground color f and background color b.  Color pair 0 is hard-wired
-to white on black, and cannot be changed.
+The ``init_pair(n, f, b)`` function changes the definition of color pair *n*, to
+foreground color f and background color b.  Color pair 0 is hard-wired to white
+on black, and cannot be changed.
 
 Let's put all this together. To change color 1 to red text on a white
 background, you would call::
@@ -364,8 +364,8 @@ The most common way to get input to a window is to use its :meth:`getch` method.
 to which the cursor should be moved before pausing.
 
 It's possible to change this behavior with the method :meth:`nodelay`. After
-:meth:`nodelay(1)`, :meth:`getch` for the window becomes non-blocking and
-returns ``curses.ERR`` (a value of -1) when no input is ready.  There's also a
+``nodelay(1)``, :meth:`getch` for the window becomes non-blocking and returns
+``curses.ERR`` (a value of -1) when no input is ready.  There's also a
 :func:`halfdelay` function, which can be used to (in effect) set a timer on each
 :meth:`getch`; if no input becomes available within the number of milliseconds
 specified as the argument to :func:`halfdelay`, curses raises an exception.
