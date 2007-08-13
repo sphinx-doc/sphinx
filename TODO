@@ -9,3 +9,4 @@ Global TODO
 - look at the old tools/ scripts, what functionality should be rewritten
 - add search via Xapian?
 - optionally have a contents tree view in the sidebar (AJAX based)?
+- .. caveat?

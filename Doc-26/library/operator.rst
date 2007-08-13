@@ -118,7 +118,9 @@ The mathematical and bitwise operations are the most numerous:
               __invert__(o)
 
    Return the bitwise inverse of the number *o*.  This is equivalent to ``~o``.
-   The names :func:`invert` and :func:`__invert__` were added in Python 2.0.
+
+   .. versionadded:: 2.0
+      The names :func:`invert` and :func:`__invert__`.
 
 
 .. function:: lshift(a, b)
@@ -199,8 +201,8 @@ The mathematical and bitwise operations are the most numerous:
 
    .. versionadded:: 2.5
 
-Operations which work with sequences include:
 
+Operations which work with sequences include:
 
 .. function:: concat(a, b)
               __concat__(a, b)
@@ -211,8 +213,10 @@ Operations which work with sequences include:
 .. function:: contains(a, b)
               __contains__(a, b)
 
-   Return the outcome of the test ``b in a``. Note the reversed operands.  The
-   name :func:`__contains__` was added in Python 2.0.
+   Return the outcome of the test ``b in a``. Note the reversed operands.
+
+   .. versionadded:: 2.0
+      The name :func:`__contains__`.
 
 
 .. function:: countOf(a, b)
@@ -477,6 +481,8 @@ their character equivalents. ::
    >>> vals = map(chr, keys)
    >>> map(operator.setitem, [d]*len(keys), keys, vals)
 
+.. XXX: find a better, readable, example
+
 The :mod:`operator` module also defines tools for generalized attribute and item
 lookups.  These are useful for making fast field extractors as arguments for
 :func:`map`, :func:`sorted`, :meth:`itertools.groupby`, or other functions that
@@ -537,11 +543,11 @@ Python syntax and the functions in the :mod:`operator` module.
 +-----------------------+-------------------------+---------------------------------+
 | Containment Test      | ``o in seq``            | ``contains(seq, o)``            |
 +-----------------------+-------------------------+---------------------------------+
-| Division              | ``a / b``               | ``div(a, b) #`` without         |
-|                       |                         | ``__future__.division``         |
+| Division              | ``a / b``               | ``div(a, b)`` (without          |
+|                       |                         | ``__future__.division``)        |
 +-----------------------+-------------------------+---------------------------------+
-| Division              | ``a / b``               | ``truediv(a, b) #`` with        |
-|                       |                         | ``__future__.division``         |
+| Division              | ``a / b``               | ``truediv(a, b)`` (with         |
+|                       |                         | ``__future__.division``)        |
 +-----------------------+-------------------------+---------------------------------+
 | Division              | ``a // b``              | ``floordiv(a, b)``              |
 +-----------------------+-------------------------+---------------------------------+
@@ -579,7 +585,7 @@ Python syntax and the functions in the :mod:`operator` module.
 +-----------------------+-------------------------+---------------------------------+
 | Sequence Repitition   | ``seq * i``             | ``repeat(seq, i)``              |
 +-----------------------+-------------------------+---------------------------------+
-| Slice Assignment      | ``seq[i:j]`` = *values* | ``setslice(seq, i, j, values)`` |
+| Slice Assignment      | ``seq[i:j] = values``   | ``setslice(seq, i, j, values)`` |
 +-----------------------+-------------------------+---------------------------------+
 | Slice Deletion        | ``del seq[i:j]``        | ``delslice(seq, i, j)``         |
 +-----------------------+-------------------------+---------------------------------+

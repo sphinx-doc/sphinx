@@ -32,24 +32,42 @@ The module defines the following constant and functions:
    Open a ``gdbm`` database and return a ``gdbm`` object.  The *filename* argument
    is the name of the database file.
 
-   The optional *flag* argument can be ``'r'`` (to open an existing database for
-   reading only --- default), ``'w'`` (to open an existing database for reading and
-   writing), ``'c'`` (which creates the database if it doesn't exist), or ``'n'``
-   (which always creates a new empty database).
+   The optional *flag* argument can be:
 
-   The following additional characters may be appended to the flag to control how
-   the database is opened:
+   +---------+-------------------------------------------+
+   | Value   | Meaning                                   |
+   +=========+===========================================+
+   | ``'r'`` | Open existing database for reading only   |
+   |         | (default)                                 |
+   +---------+-------------------------------------------+
+   | ``'w'`` | Open existing database for reading and    |
+   |         | writing                                   |
+   +---------+-------------------------------------------+
+   | ``'c'`` | Open database for reading and writing,    |
+   |         | creating it if it doesn't exist           |
+   +---------+-------------------------------------------+
+   | ``'n'`` | Always create a new, empty database, open |
+   |         | for reading and writing                   |
+   +---------+-------------------------------------------+
 
-   * ``'f'`` --- Open the database in fast mode.  Writes to the database will not
-     be synchronized.
+   The following additional characters may be appended to the flag to control
+   how the database is opened:
 
-   * ``'s'`` --- Synchronized mode. This will cause changes to the database will be
-     immediately written to the file.
-
-   * ``'u'`` --- Do not lock database.
+   +---------+--------------------------------------------+
+   | Value   | Meaning                                    |
+   +=========+============================================+
+   | ``'f'`` | Open the database in fast mode.  Writes    |
+   |         | to the database will not be synchronized.  |
+   +---------+--------------------------------------------+
+   | ``'s'`` | Synchronized mode. This will cause changes |
+   |         | to the database to be immediately written  |
+   |         | to the file.                               |
+   +---------+--------------------------------------------+
+   | ``'u'`` | Do not lock database.                      |
+   +---------+--------------------------------------------+
 
    Not all flags are valid for all versions of ``gdbm``.  The module constant
-   ``open_flags`` is a string of supported flag characters.  The exception
+   :const:`open_flags` is a string of supported flag characters.  The exception
    :exc:`error` is raised if an invalid flag is specified.
 
    The optional *mode* argument is the Unix mode of the file, used only when the

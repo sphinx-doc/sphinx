@@ -311,7 +311,7 @@ loops that truncate the stream.
 
    If one of the iterables is potentially infinite, then the :func:`izip_longest`
    function should be wrapped with something that limits the number of calls (for
-   example :func:`islice` or :func:`take`).
+   example :func:`islice` or :func:`takewhile`).
 
    .. versionadded:: 2.6
 
@@ -414,7 +414,7 @@ can be combined. ::
    64
 
    >>> reportlines = ['EuroPython', 'Roster', '', 'alex', '', 'laura',
-                     '', 'martin', '', 'walter', '', 'mark']
+   ...                '', 'martin', '', 'walter', '', 'mark']
    >>> for name in islice(reportlines, 3, None, 2):
    ...    print name.title()
    ...

@@ -30,8 +30,8 @@ de-serializing Python objects, use the :mod:`pickle` module instead.
 .. warning::
 
    The :mod:`marshal` module is not intended to be secure against erroneous or
-   maliciously constructed data.  Never unmarshal data received from an untrusted
-   or unauthenticated source.
+   maliciously constructed data.  Never unmarshal data received from an
+   untrusted or unauthenticated source.
 
 Not all Python object types are supported; in general, only objects whose value
 is independent from a particular invocation of Python can be written and read by
@@ -59,25 +59,27 @@ The module defines these functions:
 
 .. function:: dump(value, file[, version])
 
-   Write the value on the open file.  The value must be a supported type.  The file
-   must be an open file object such as ``sys.stdout`` or returned by :func:`open`
-   or :func:`posix.popen`.  It must be opened in binary mode (``'wb'`` or
-   ``'w+b'``).
+   Write the value on the open file.  The value must be a supported type.  The
+   file must be an open file object such as ``sys.stdout`` or returned by
+   :func:`open` or :func:`os.popen`.  It must be opened in binary mode (``'wb'``
+   or ``'w+b'``).
 
    If the value has (or contains an object that has) an unsupported type, a
    :exc:`ValueError` exception is raised --- but garbage data will also be written
    to the file.  The object will not be properly read back by :func:`load`.
 
    .. versionadded:: 2.4
-      The *version* argument indicates the data format that ``dump`` should use (see
-      below).
+      The *version* argument indicates the data format that ``dump`` should use
+      (see below).
 
 
 .. function:: load(file)
 
-   Read one value from the open file and return it.  If no valid value is read,
-   raise :exc:`EOFError`, :exc:`ValueError` or :exc:`TypeError`.  The file must be
-   an open file object opened in binary mode (``'rb'`` or ``'r+b'``).
+   Read one value from the open file and return it.  If no valid value is read
+   (e.g. because the data has a different Python version's incompatible marshal
+   format), raise :exc:`EOFError`, :exc:`ValueError` or :exc:`TypeError`.  The
+   file must be an open file object opened in binary mode (``'rb'`` or
+   ``'r+b'``).
 
    .. warning::
 
@@ -92,8 +94,8 @@ The module defines these functions:
    has (or contains an object that has) an unsupported type.
 
    .. versionadded:: 2.4
-      The *version* argument indicates the data format that ``dumps`` should use (see
-      below).
+      The *version* argument indicates the data format that ``dumps`` should use
+      (see below).
 
 
 .. function:: loads(string)
@@ -102,8 +104,8 @@ The module defines these functions:
    :exc:`EOFError`, :exc:`ValueError` or :exc:`TypeError`.  Extra characters in the
    string are ignored.
 
-In addition, the following constants are defined:
 
+In addition, the following constants are defined:
 
 .. data:: version
 
@@ -113,6 +115,7 @@ In addition, the following constants are defined:
    is 2.
 
    .. versionadded:: 2.4
+
 
 .. rubric:: Footnotes
 

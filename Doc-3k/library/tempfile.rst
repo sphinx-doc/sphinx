@@ -81,12 +81,13 @@ The module defines the following user-callable functions:
 
 .. function:: mkstemp([suffix[, prefix[, dir[, text]]]])
 
-   Creates a temporary file in the most secure manner possible.  There are no race
-   conditions in the file's creation, assuming that the platform properly
-   implements the :const:`O_EXCL` flag for :func:`os.open`.  The file is readable
-   and writable only by the creating user ID.  If the platform uses permission bits
-   to indicate whether a file is executable, the file is executable by no one.  The
-   file descriptor is not inherited by child processes.
+   Creates a temporary file in the most secure manner possible.  There are no
+   race conditions in the file's creation, assuming that the platform properly
+   implements the :const:`os.O_EXCL` flag for :func:`os.open`.  The file is
+   readable and writable only by the creating user ID.  If the platform uses
+   permission bits to indicate whether a file is executable, the file is
+   executable by no one.  The file descriptor is not inherited by child
+   processes.
 
    Unlike :func:`TemporaryFile`, the user of :func:`mkstemp` is responsible for
    deleting the temporary file when done with it.
@@ -173,7 +174,7 @@ function arguments, instead.
       * On RiscOS, the directory named by the :envvar:`Wimp$ScrapDir` environment
         variable.
 
-      * On Windows, the directories :file:`C:$\\TEMP`, :file:`C:$\\TMP`,
+      * On Windows, the directories :file:`C:\\TEMP`, :file:`C:\\TMP`,
         :file:`\\TEMP`, and :file:`\\TMP`, in that order.
 
       * On all other platforms, the directories :file:`/tmp`, :file:`/var/tmp`, and
@@ -185,8 +186,8 @@ function arguments, instead.
 .. function:: gettempdir()
 
    Return the directory currently selected to create temporary files in. If
-   ``tempdir`` is not ``None``, this simply returns its contents; otherwise, the
-   search described above is performed, and the result returned.
+   :data:`tempdir` is not ``None``, this simply returns its contents; otherwise,
+   the search described above is performed, and the result returned.
 
 
 .. data:: template

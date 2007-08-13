@@ -124,7 +124,7 @@ There are currently 3 different protocols which can be used for pickling.
 * Protocol version 2 was introduced in Python 2.3.  It provides much more
   efficient pickling of new-style classes.
 
-Refer to PEP 307 for more information.
+Refer to :pep:`307` for more information.
 
 If a *protocol* is not specified, protocol 0 is used. If *protocol* is specified
 as a negative value or :const:`HIGHEST_PROTOCOL`, the highest protocol version
@@ -249,7 +249,8 @@ The :mod:`pickle` module also exports two callables [#]_, :class:`Pickler` and
    This takes a file-like object to which it will write a pickle data stream.
 
    If the *protocol* parameter is omitted, protocol 0 is used. If *protocol* is
-   specified as a negative value, the highest protocol version will be used.
+   specified as a negative value or :const:`HIGHEST_PROTOCOL`, the highest
+   protocol version will be used.
 
    .. versionchanged:: 2.3
       Introduced the *protocol* parameter.
@@ -316,6 +317,9 @@ instance.  If the same object is pickled by multiple :meth:`dump` calls, the
 
    Read a pickled object representation from the open file object given in the
    constructor, and return the reconstituted object hierarchy specified therein.
+
+   This method automatically determines whether the data stream was written in
+   binary mode or not.
 
 
 .. method:: Unpickler.noload()
@@ -713,6 +717,8 @@ member are saved. When the instance is unpickled, the file is reopened, and
 reading resumes from the last location. The :meth:`__setstate__` and
 :meth:`__getstate__` methods are used to implement this behavior. ::
 
+   #!/usr/local/bin/python
+
    class TextReader:
        """Print and number lines in a text file."""
        def __init__(self, file):
@@ -749,11 +755,12 @@ A sample usage might be something like this::
    >>> obj = TextReader.TextReader("TextReader.py")
    >>> obj.readline()
    '1: #!/usr/local/bin/python'
-   >>> # (more invocations of obj.readline() here)
-   ... obj.readline()
-   '7: class TextReader:'
+   >>> obj.readline()
+   '2: '
+   >>> obj.readline()
+   '3: class TextReader:'
    >>> import pickle
-   >>> pickle.dump(obj,open('save.p', 'wb'))
+   >>> pickle.dump(obj, open('save.p', 'wb'))
 
 If you want to see that :mod:`pickle` works across Python processes, start
 another Python session, before continuing.  What follows can happen from either
@@ -762,7 +769,7 @@ the same process or a new process. ::
    >>> import pickle
    >>> reader = pickle.load(open('save.p', 'rb'))
    >>> reader.readline()
-   '8:     "Print and number lines in a text file."'
+   '4:     """Print and number lines in a text file."""'
 
 
 .. seealso::

@@ -119,19 +119,19 @@ The :mod:`functools` module defines the following function:
 have three read-only attributes:
 
 
-.. attribute:: callable.func
+.. attribute:: partial.func
 
    A callable object or function.  Calls to the :class:`partial` object will be
    forwarded to :attr:`func` with new arguments and keywords.
 
 
-.. attribute:: tuple.args
+.. attribute:: partial.args
 
    The leftmost positional arguments that will be prepended to the positional
    arguments provided to a :class:`partial` object call.
 
 
-.. attribute:: dict.keywords
+.. attribute:: partial.keywords
 
    The keyword arguments that will be supplied when the :class:`partial` object is
    called.

@@ -37,29 +37,30 @@ The functions are:
 
 .. function:: asinh(x)
 
-   Return the hyperbolic arc sine of *x*. There are two branch cuts, extending left
-   from ±``1j`` to ±-∞``j``, both continuous from above. These branch cuts should
-   be considered a bug to be corrected in a future release. The correct branch cuts
-   should extend along the imaginary axis, one from ``1j`` up to ∞``j`` and
-   continuous from the right, and one from -\ ``1j`` down to -∞``j`` and continuous
-   from the left.
+   Return the hyperbolic arc sine of *x*. There are two branch cuts, extending
+   left from ``±1j`` to ``±∞j``, both continuous from above. These branch cuts
+   should be considered a bug to be corrected in a future release. The correct
+   branch cuts should extend along the imaginary axis, one from ``1j`` up to
+   ``∞j`` and continuous from the right, and one from ``-1j`` down to ``-∞j``
+   and continuous from the left.
 
 
 .. function:: atan(x)
 
    Return the arc tangent of *x*. There are two branch cuts: One extends from
-   ``1j`` along the imaginary axis to ∞``j``, continuous from the left. The other
-   extends from -\ ``1j`` along the imaginary axis to -∞``j``, continuous from the
-   left. (This should probably be changed so the upper cut becomes continuous from
-   the other side.)
+   ``1j`` along the imaginary axis to ``∞j``, continuous from the left. The
+   other extends from ``-1j`` along the imaginary axis to ``-∞j``, continuous
+   from the left. (This should probably be changed so the upper cut becomes
+   continuous from the other side.)
 
 
 .. function:: atanh(x)
 
-   Return the hyperbolic arc tangent of *x*. There are two branch cuts: One extends
-   from 1 along the real axis to ∞, continuous from above. The other extends from
-   -1 along the real axis to -∞, continuous from above. (This should probably be
-   changed so the right cut becomes continuous from the other side.)
+   Return the hyperbolic arc tangent of *x*. There are two branch cuts: One
+   extends from ``1`` along the real axis to ``∞``, continuous from above. The
+   other extends from ``-1`` along the real axis to ``-∞``, continuous from
+   above. (This should probably be changed so the right cut becomes continuous
+   from the other side.)
 
 
 .. function:: cos(x)
@@ -122,12 +123,12 @@ The module also defines two mathematical constants:
 
 .. data:: pi
 
-   The mathematical constant *pi*, as a real.
+   The mathematical constant *pi*, as a float.
 
 
 .. data:: e
 
-   The mathematical constant *e*, as a real.
+   The mathematical constant *e*, as a float.
 
 .. index:: module: math
 

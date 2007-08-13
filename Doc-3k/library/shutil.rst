@@ -66,7 +66,7 @@ codes will not be correct.
 .. function:: copy2(src, dst)
 
    Similar to :func:`copy`, but last access time and last modification time are
-   copied as well.  This is similar to the Unix command :program:`cp` :option:`-p`.
+   copied as well.  This is similar to the Unix command :program:`cp -p`.
 
 
 .. function:: copytree(src, dst[, symlinks])
@@ -137,9 +137,10 @@ This example is the implementation of the :func:`copytree` function, described
 above, with the docstring omitted.  It demonstrates many of the other functions
 provided by this module. ::
 
-   def copytree(src, dst, symlinks=0):
+   def copytree(src, dst, symlinks=False):
        names = os.listdir(src)
-       os.mkdir(dst)
+       os.makedirs(dst)
+       errors = []
        for name in names:
            srcname = os.path.join(src, name)
            dstname = os.path.join(dst, name)
@@ -151,6 +152,20 @@ provided by this module. ::
                    copytree(srcname, dstname, symlinks)
                else:
                    copy2(srcname, dstname)
+               # XXX What about devices, sockets etc.?
            except (IOError, os.error) as why:
-               print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
+               errors.append((srcname, dstname, str(why)))
+           # catch the Error from the recursive copytree so that we can
+           # continue with other files
+           except Error as err:
+               errors.extend(err.args[0])
+       try:
+           copystat(src, dst)
+       except WindowsError:
+           # can't copy file access times on Windows
+           pass
+       except OSError as why:
+           errors.extend((src, dst, str(why)))
+       if errors:
+           raise Error, errors
 

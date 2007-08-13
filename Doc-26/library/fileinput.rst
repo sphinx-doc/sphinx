@@ -34,14 +34,14 @@ Empty files are opened and immediately closed; the only time their presence in
 the list of filenames is noticeable at all is when the last file opened is
 empty.
 
-It is possible that the last line of a file does not end in a newline character;
-lines are returned including the trailing newline when it is present.
+Lines are returned with any newlines intact, which means that the last line in
+a file may not have one.
 
 You can control how files are opened by providing an opening hook via the
-*openhook* parameter to :func:`input` or :class:`FileInput()`. The hook must be
-a function that takes two arguments, *filename* and *mode*, and returns an
-accordingly opened file-like object. Two useful hooks are already provided by
-this module.
+*openhook* parameter to :func:`fileinput.input` or :class:`FileInput()`. The
+hook must be a function that takes two arguments, *filename* and *mode*, and
+returns an accordingly opened file-like object. Two useful hooks are already
+provided by this module.
 
 The following function is the primary interface of this module:
 
@@ -56,8 +56,8 @@ The following function is the primary interface of this module:
    .. versionchanged:: 2.5
       Added the *mode* and *openhook* parameters.
 
-The following functions use the global state created by :func:`input`; if there
-is no active state, :exc:`RuntimeError` is raised.
+The following functions use the global state created by :func:`fileinput.input`;
+if there is no active state, :exc:`RuntimeError` is raised.
 
 
 .. function:: filename()
@@ -121,7 +121,7 @@ available for subclassing as well:
 .. class:: FileInput([files[, inplace[, backup[, mode[, openhook]]]]])
 
    Class :class:`FileInput` is the implementation; its methods :meth:`filename`,
-   :meth:`fileno`, :meth:`lineno`, :meth:`fileline`, :meth:`isfirstline`,
+   :meth:`fileno`, :meth:`lineno`, :meth:`filelineno`, :meth:`isfirstline`,
    :meth:`isstdin`, :meth:`nextfile` and :meth:`close` correspond to the functions
    of the same name in the module. In addition it has a :meth:`readline` method
    which returns the next input line, and a :meth:`__getitem__` method which
@@ -139,14 +139,15 @@ available for subclassing as well:
       Added the *mode* and *openhook* parameters.
 
 **Optional in-place filtering:** if the keyword argument ``inplace=1`` is passed
-to :func:`input` or to the :class:`FileInput` constructor, the file is moved to
-a backup file and standard output is directed to the input file (if a file of
-the same name as the backup file already exists, it will be replaced silently).
-This makes it possible to write a filter that rewrites its input file in place.
-If the keyword argument ``backup='.<some extension>'`` is also given, it
-specifies the extension for the backup file, and the backup file remains around;
-by default, the extension is ``'.bak'`` and it is deleted when the output file
-is closed.  In-place filtering is disabled when standard input is read.
+to :func:`fileinput.input` or to the :class:`FileInput` constructor, the file is
+moved to a backup file and standard output is directed to the input file (if a
+file of the same name as the backup file already exists, it will be replaced
+silently).  This makes it possible to write a filter that rewrites its input
+file in place.  If the *backup* parameter is given (typically as
+``backup='.<some extension>'``), it specifies the extension for the backup file,
+and the backup file remains around; by default, the extension is ``'.bak'`` and
+it is deleted when the output file is closed.  In-place filtering is disabled
+when standard input is read.
 
 **Caveat:** The current implementation does not work for MS-DOS 8+3 filesystems.
 

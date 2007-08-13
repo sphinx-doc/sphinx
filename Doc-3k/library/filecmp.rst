@@ -44,9 +44,9 @@ The :mod:`filecmp` module defines the following functions:
 Example::
 
    >>> import filecmp
-   >>> filecmp.cmp('libundoc.tex', 'libundoc.tex')
+   >>> filecmp.cmp('undoc.rst', 'undoc.rst')
    True
-   >>> filecmp.cmp('libundoc.tex', 'lib.tex')
+   >>> filecmp.cmp('undoc.rst', 'index.rst')
    False
 
 

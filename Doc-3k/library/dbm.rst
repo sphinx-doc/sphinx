@@ -7,8 +7,8 @@
    :synopsis: The standard "database" interface, based on ndbm.
 
 
-The :mod:`dbm` module provides an interface to the Unix (``n``)``dbm`` library.
-Dbm objects behave like mappings (dictionaries), except that keys and values are
+The :mod:`dbm` module provides an interface to the Unix "(n)dbm" library.  Dbm
+objects behave like mappings (dictionaries), except that keys and values are
 always strings. Printing a dbm object doesn't print the keys and values, and the
 :meth:`items` and :meth:`values` methods are not supported.
 
@@ -57,7 +57,8 @@ The module defines the following:
    +---------+-------------------------------------------+
 
    The optional *mode* argument is the Unix mode of the file, used only when the
-   database has to be created.  It defaults to octal ``0666``.
+   database has to be created.  It defaults to octal ``0666`` (and will be
+   modified by the prevailing umask).
 
 
 .. seealso::

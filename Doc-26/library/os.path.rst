@@ -182,7 +182,7 @@ write files see :func:`open`, and for accessing the filesystem see the
    the concatenation of *path1*, and optionally *path2*, etc., with exactly one
    directory separator (``os.sep``) inserted between components, unless *path2* is
    empty.  Note that on Windows, since there is a current directory for each drive,
-   :func:`os.path.join("c:", "foo")` represents a path relative to the current
+   ``os.path.join("c:", "foo")`` represents a path relative to the current
    directory on drive :file:`C:` (:file:`c:foo`), not :file:`c:\\foo`.
 
 
@@ -267,12 +267,12 @@ write files see :func:`open`, and for accessing the filesystem see the
 
    Split the pathname *path* into a pair ``(root, ext)``  such that ``root + ext ==
    path``, and *ext* is empty or begins with a period and contains at most one
-   period. Leading periods on the basename are  ignored; ``splitext.('.cshrc')``
+   period. Leading periods on the basename are  ignored; ``splitext('.cshrc')``
    returns  ``('.cshrc', '')``.
 
    .. versionchanged:: 2.6
-      Earlier versions could produce an empty root when the only period was the first
-      character.
+      Earlier versions could produce an empty root when the only period was the
+      first character.
 
 
 .. function:: splitunc(path)

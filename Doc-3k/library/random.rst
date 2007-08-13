@@ -103,7 +103,7 @@ Bookkeeping functions:
    .. versionadded:: 2.1
 
    .. versionchanged:: 2.3
-      Instead of jumping to a specific state, *n* steps ahead, :meth:`jumpahead(n)`
+      Instead of jumping to a specific state, *n* steps ahead, ``jumpahead(n)``
       jumps to another state likely to be separated by many steps.
 
 
@@ -185,7 +185,7 @@ be found in any statistics text.
 
 .. function:: uniform(a, b)
 
-   Return a random real number *N* such that ``a <= N < b``.
+   Return a random floating point number *N* such that ``a <= N < b``.
 
 
 .. function:: betavariate(alpha, beta)
@@ -228,10 +228,10 @@ be found in any statistics text.
 
 .. function:: vonmisesvariate(mu, kappa)
 
-   *mu* is the mean angle, expressed in radians between 0 and 2\**pi*, and *kappa*
+   *mu* is the mean angle, expressed in radians between 0 and 2\*\ *pi*, and *kappa*
    is the concentration parameter, which must be greater than or equal to zero.  If
    *kappa* is equal to zero, this distribution reduces to a uniform random angle
-   over the range 0 to 2\**pi*.
+   over the range 0 to 2\*\ *pi*.
 
 
 .. function:: paretovariate(alpha)
@@ -244,8 +244,8 @@ be found in any statistics text.
    Weibull distribution.  *alpha* is the scale parameter and *beta* is the shape
    parameter.
 
-Alternative Generators:
 
+Alternative Generators:
 
 .. class:: WichmannHill([seed])
 
