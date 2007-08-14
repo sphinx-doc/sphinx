@@ -35,7 +35,7 @@ The module defines the following exception and functions:
 
    Pack the values ``v1, v2, ...`` according to the given format, write the packed
    bytes into the writable *buffer* starting at *offset*. Note that the offset is
-   not an optional argument.
+   a required argument.
 
    .. versionadded:: 2.5
 

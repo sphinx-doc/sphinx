@@ -10,19 +10,19 @@
 
 
 
-This module provides regular expression matching operations similar to those
-found in Perl.  Regular expression pattern strings may not contain null bytes,
-but can specify the null byte using the ``\number`` notation.  Both patterns and
-strings to be searched can be Unicode strings as well as 8-bit strings.  The
-:mod:`re` module is always available.
+This module provides regular expression matching operations similar to
+those found in Perl. Both patterns and strings to be searched can be
+Unicode strings as well as 8-bit strings.  The :mod:`re` module is
+always available.
 
-Regular expressions use the backslash character (``'\'``) to indicate special
-forms or to allow special characters to be used without invoking their special
-meaning.  This collides with Python's usage of the same character for the same
-purpose in string literals; for example, to match a literal backslash, one might
-have to write ``'\\\\'`` as the pattern string, because the regular expression
-must be ``\\``, and each backslash must be expressed as ``\\`` inside a regular
-Python string literal.
+Regular expressions use the backslash character (``'\'``) to indicate
+special forms or to allow special characters to be used without invoking
+their special meaning.  This collides with Python's usage of the same
+character for the same purpose in string literals; for example, to match
+a literal backslash, one might have to write ``'\\\\'`` as the pattern
+string, because the regular expression must be ``\\``, and each
+backslash must be expressed as ``\\`` inside a regular Python string
+literal.
 
 The solution is to use Python's raw string notation for regular expression
 patterns; backslashes are not handled in any special way in a string literal
@@ -30,7 +30,6 @@ prefixed with ``'r'``.  So ``r"\n"`` is a two-character string containing
 ``'\'`` and ``'n'``, while ``"\n"`` is a one-character string containing a
 newline. Usually patterns will be expressed in Python code using this raw string
 notation.
-
 
 .. seealso::
 
@@ -71,9 +70,12 @@ characters, so ``last`` matches the string ``'last'``.  (In the rest of this
 section, we'll write RE's in ``this special style``, usually without quotes, and
 strings to be matched ``'in single quotes'``.)
 
-Some characters, like ``'|'`` or ``'('``, are special. Special characters either
-stand for classes of ordinary characters, or affect how the regular expressions
-around them are interpreted.
+Some characters, like ``'|'`` or ``'('``, are special. Special
+characters either stand for classes of ordinary characters, or affect
+how the regular expressions around them are interpreted. Regular
+expression pattern strings may not contain null bytes, but can specify
+the null byte using the ``\number`` notation, e.g., ``'\x00'``.
+
 
 The special characters are:
 
@@ -156,12 +158,15 @@ The special characters are:
    Used to indicate a set of characters.  Characters can be listed individually, or
    a range of characters can be indicated by giving two characters and separating
    them by a ``'-'``.  Special characters are not active inside sets.  For example,
-   ``[akm$]`` will match any of the characters ``'a'``, ``'k'``, ``'m'``, or
-   ``'$'``; ``[a-z]`` will match any lowercase letter, and ``[a-zA-Z0-9]`` matches
-   any letter or digit.  Character classes such as ``\w`` or ``\S`` (defined below)
-   are also acceptable inside a range.  If you want to include a ``']'`` or a
-   ``'-'`` inside a set, precede it with a backslash, or place it as the first
-   character.  The pattern ``[]]`` will match ``']'``, for example.
+   ``[akm$]`` will match any of the characters ``'a'``, ``'k'``,
+   ``'m'``, or ``'$'``; ``[a-z]`` will match any lowercase letter, and
+   ``[a-zA-Z0-9]`` matches any letter or digit.  Character classes such
+   as ``\w`` or ``\S`` (defined below) are also acceptable inside a
+   range, although the characters they match depends on whether :const:`LOCALE`
+   or  :const:`UNICODE` mode is in force.  If you want to include a
+   ``']'`` or a ``'-'`` inside a set, precede it with a backslash, or
+   place it as the first character.  The pattern ``[]]`` will match
+   ``']'``, for example.
 
    You can match the characters not within a range by :dfn:`complementing` the set.
    This is indicated by including a ``'^'`` as the first character of the set;
@@ -222,7 +227,7 @@ The special characters are:
    accessible via the symbolic group name *name*.  Group names must be valid Python
    identifiers, and each group name must be defined only once within a regular
    expression.  A symbolic group is also a numbered group, just as if the group
-   were not named.  So the group named 'id' in the example above can also be
+   were not named.  So the group named 'id' in the example below can also be
    referenced as the numbered group 1.
 
    For example, if the pattern is ``(?P<id>[a-zA-Z_]\w*)``, the group can be
@@ -277,7 +282,7 @@ The special characters are:
 
 ``(?(id/name)yes-pattern|no-pattern)``
    Will try to match with ``yes-pattern`` if the group with given *id* or *name*
-   exists, and with ``no-pattern`` if it doesn't. ``|no-pattern`` is optional and
+   exists, and with ``no-pattern`` if it doesn't. ``no-pattern`` is optional and
    can be omitted. For example,  ``(<)?(\w+@\w+(?:\.\w+)+)(?(1)>)`` is a poor email
    matching pattern, which will match with ``'<user@host.com>'`` as well as
    ``'user@host.com'``, but not with ``'<user@host.com'``.
