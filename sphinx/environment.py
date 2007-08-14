@@ -254,7 +254,7 @@ class BuildEnvironment:
 
     def get_outdated_files(self, config):
         """
-        Return (removed, changed) iterables.
+        Return (added, changed, removed) iterables.
         """
         all_source_files = list(get_matching_files(
             self.srcdir, '*.rst', exclude=set(config.get('unused_files', ()))))
@@ -262,14 +262,16 @@ class BuildEnvironment:
         # clear all files no longer present
         removed = set(self.all_files) - set(all_source_files)
 
+        added = []
+        changed = []
+
         if config != self.config:
             # config values affect e.g. substitutions
-            changed = all_source_files
+            added = all_source_files
         else:
-            changed = []
             for filename in all_source_files:
                 if filename not in self.all_files:
-                    changed.append(filename)
+                    added.append(filename)
                 else:
                     # if the doctree file is not there, rebuild
                     if not path.isfile(path.join(self.doctreedir,
@@ -286,15 +288,15 @@ class BuildEnvironment:
                     #if newmd5 != md5:
                     changed.append(filename)
 
-        return removed, changed
+        return added, changed, removed
 
     def update(self, config):
         """
         (Re-)read all files new or changed since last update.
         Yields a summary and then filenames as it processes them.
         """
-        removed, changed = self.get_outdated_files(config)
-        msg = '%s removed, %s changed' % (len(removed), len(changed))
+        added, changed, removed = self.get_outdated_files(config)
+        msg = '%s added, %s changed, %s removed' % (len(added), len(changed), len(removed))
         if self.config != config:
             msg = '[config changed] ' + msg
         yield msg
@@ -310,7 +312,7 @@ class BuildEnvironment:
             path.join(self.srcdir, 'data', 'refcounts.dat'))
 
         # read all new and changed files
-        for filename in changed:
+        for filename in added + changed:
             yield filename
             self.read_file(filename)
 
