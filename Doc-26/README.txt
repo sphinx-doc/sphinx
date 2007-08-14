@@ -47,6 +47,8 @@ Available make targets are:
    To create the CHM file, you need to run the Microsoft HTML Help Workshop
    over the generated project (.hhp) file.
 
+A "make update" updates the Subversion checkouts in `tools/`.
+
 
 Without make
 ------------
