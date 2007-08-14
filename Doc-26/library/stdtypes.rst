@@ -2291,7 +2291,7 @@ executable Python code such as a function body. They differ from function
 objects because they don't contain a reference to their global execution
 environment.  Code objects are returned by the built-in :func:`compile` function
 and can be extracted from function objects through their :attr:`func_code`
-attribute.
+attribute. See also the :mod:`code` module.
 
 .. index::
    statement: exec

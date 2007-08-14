@@ -195,12 +195,16 @@ The special characters are:
    currently supported extensions.
 
 ``(?iLmsux)``
-   (One or more letters from the set ``'i'``, ``'L'``, ``'m'``, ``'s'``, ``'u'``,
-   ``'x'``.)  The group matches the empty string; the letters set the corresponding
-   flags (:const:`re.I`, :const:`re.L`, :const:`re.M`, :const:`re.S`,
-   :const:`re.U`, :const:`re.X`) for the entire regular expression.  This is useful
-   if you wish to include the flags as part of the regular expression, instead of
-   passing a *flag* argument to the :func:`compile` function.
+   (One or more letters from the set ``'i'``, ``'L'``, ``'m'``, ``'s'``,
+   ``'u'``, ``'x'``.)  The group matches the empty string; the letters
+   set the corresponding flags: :const:`re.I` (ignore case),
+   :const:`re.L` (locale dependent), :const:`re.M` (multi-line),
+   :const:`re.S` (dot matches all), :const:`re.U` (Unicode dependent),
+   and :const:`re.X` (verbose), for the entire regular expression. (The
+   flags are described in :ref:`contents-of-module-re`.) This
+   is useful if you wish to include the flags as part of the regular
+   expression, instead of passing a *flag* argument to the
+   :func:`compile` function.
 
    Note that the ``(?x)`` flag changes how the expression is parsed. It should be
    used first in the expression string, or after one or more whitespace characters.
@@ -310,7 +314,7 @@ the second character.  For example, ``\$`` matches the character ``'$'``.
 
 ``\B``
    Matches the empty string, but only when it is *not* at the beginning or end of a
-   word.  This is just the opposite of ``\ b``, so is also subject to the settings
+   word.  This is just the opposite of ``\b``, so is also subject to the settings
    of ``LOCALE`` and ``UNICODE``.
 
 ``\d``
