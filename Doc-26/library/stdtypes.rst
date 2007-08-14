@@ -2160,7 +2160,8 @@ to be provided for a context manager object to define a runtime context:
 Python defines several context managers to support easy thread synchronisation,
 prompt closure of files or other objects, and simpler manipulation of the active
 decimal arithmetic context. The specific types are not treated specially beyond
-their implementation of the context management protocol.
+their implementation of the context management protocol. See the
+:mod:`contextlib` module for some examples.
 
 Python's generators and the ``contextlib.contextfactory`` decorator provide a
 convenient way to implement these protocols.  If a generator function is

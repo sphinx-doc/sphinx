@@ -9,7 +9,8 @@
 .. versionadded:: 2.5
 
 This module provides utilities for common tasks involving the :keyword:`with`
-statement.
+statement. For more information see also :ref:`typecontextmanager` and
+:ref:`context-managers`.
 
 Functions provided:
 
