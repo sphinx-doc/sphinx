@@ -32,6 +32,7 @@ from .util import render_template, render_simple_template, get_target_uri, \
      blackhole_dict, striptags
 from .admin import AdminPanel
 from .userdb import UserDatabase
+from .robots import robots_txt
 from .oldurls import handle_html_url
 from .antispam import AntiSpam
 from .database import connect, set_connection, Comment
@@ -150,7 +151,7 @@ class DocumentationApplication(object):
                 self.globalcontext = pickle.load(f)
             with file(path.join(self.data_root, 'searchindex.pickle')) as f:
                 self.search_frontend = SearchFrontend(pickle.load(f))
-            self.buildmtime = path.getmtime(self.buildfile)
+            self.buildmtime = new_mtime
             self.cache.clear()
         finally:
             env_lock.release()
@@ -679,6 +680,8 @@ class DocumentationApplication(object):
             if req.path == 'favicon.ico':
                 # TODO: change this to real favicon?
                 resp = self.get_error_404()
+            elif req.path == 'robots.txt':
+                resp = Response(robots_txt, mimetype='text/plain')
             elif not req.path.endswith('/') and req.method == 'GET':
                 # may be an old URL
                 if url.endswith('.html'):
@@ -720,7 +723,7 @@ class DocumentationApplication(object):
             # start the fuzzy search
             elif url[:2] == 'q/':
                 resp = self.get_keyword_matches(req, url[2:])
-            # special URLs
+            # special URLs -- don't forget to add them to robots.py
             elif url[0] == '@':
                 # source view
                 if url[:8] == '@source/':
