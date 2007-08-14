@@ -677,10 +677,10 @@ class DocumentationApplication(object):
             self.load_env(new_mtime)
 
         try:
-            if req.path == 'favicon.ico':
+            if req.path == '/favicon.ico':
                 # TODO: change this to real favicon?
                 resp = self.get_error_404()
-            elif req.path == 'robots.txt':
+            elif req.path == '/robots.txt':
                 resp = Response(robots_txt, mimetype='text/plain')
             elif not req.path.endswith('/') and req.method == 'GET':
                 # may be an old URL
