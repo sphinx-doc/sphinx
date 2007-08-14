@@ -17,6 +17,10 @@ links may extend beyond that.
 Make generous use of blank lines where applicable; they help grouping things
 together.
 
+A sentence-ending period may be followed by one or two spaces; while reST
+ignores the second space, it is customarily put in by some users, for example
+to aid Emacs' auto-fill mode.
+
 Footnotes are generally discouraged, though they may be used when they are the
 best way to present specific information. When a footnote reference is added at
 the end of the sentence, it should follow the sentence-ending punctuation. The
