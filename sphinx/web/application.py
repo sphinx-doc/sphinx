@@ -679,7 +679,7 @@ class DocumentationApplication(object):
         try:
             if req.path == '/favicon.ico':
                 # TODO: change this to real favicon?
-                resp = self.get_error_404()
+                resp = self.get_error_404(req)
             elif req.path == '/robots.txt':
                 resp = Response(robots_txt, mimetype='text/plain')
             elif not req.path.endswith('/') and req.method == 'GET':
