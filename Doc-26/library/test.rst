@@ -268,14 +268,6 @@ The :mod:`test.test_support` module defines the following functions:
    returned. This does not equal a failure since it could be the path to the file.
 
 
-.. function:: guard_warnings_filter()
-
-   Returns a context manager that guards the :mod:`warnings` module's filter
-   settings.
-
-   .. versionadded:: 2.6
-
-
 .. function:: run_unittest(*classes)
 
    Execute :class:`unittest.TestCase` subclasses passed to the function. The
@@ -297,10 +289,11 @@ The :mod:`test.test_support` module defines the following classes:
 
 .. class:: TransientResource(exc[, **kwargs])
 
-   Create a context manager that raises :class:`ResourceDenied` if the specified
-   exception type is raised.  Any keyword arguments are treated as name/value pairs
-   to be compared against any exception raised with the ``with`` statement.  Only
-   if all pairs match is :class:`ResourceDenied` raised.
+   Instances are a context manager that raises :exc:`ResourceDenied` if the
+   specified exception type is raised.  Any keyword arguments are treated as
+   attribute/value pairs to be compared against any exception raised within the
+   :keyword:`with` statement.  Only if all pairs match properly against
+   attributes on the exception is :exc:`ResourceDenied` raised.
 
    .. versionadded:: 2.6
 
