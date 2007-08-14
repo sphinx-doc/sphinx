@@ -574,7 +574,8 @@ class DocumentationApplication(object):
         """
         Show a simple error 404 page.
         """
-        return Response(render_template(req, 'not_found.html', self.globalcontext))
+        return Response(render_template(req, 'not_found.html', self.globalcontext),
+                        status=404)
 
 
     pretty_type = {
@@ -679,7 +680,7 @@ class DocumentationApplication(object):
         try:
             if req.path == '/favicon.ico':
                 # TODO: change this to real favicon?
-                resp = self.get_error_404(req)
+                resp = Response('404 Not Found', status=404)
             elif req.path == '/robots.txt':
                 resp = Response(robots_txt, mimetype='text/plain')
             elif not req.path.endswith('/') and req.method == 'GET':
