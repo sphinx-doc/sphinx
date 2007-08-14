@@ -2131,7 +2131,8 @@ to be provided for a context manager object to define a runtime context:
 Python defines several context managers to support easy thread synchronisation,
 prompt closure of files or other objects, and simpler manipulation of the active
 decimal arithmetic context. The specific types are not treated specially beyond
-their implementation of the context management protocol.
+their implementation of the context management protocol. See the
+:mod:`contextlib` module for some examples.
 
 Python's generators and the ``contextlib.contextfactory`` decorator provide a
 convenient way to implement these protocols.  If a generator function is
@@ -2261,7 +2262,7 @@ executable Python code such as a function body. They differ from function
 objects because they don't contain a reference to their global execution
 environment.  Code objects are returned by the built-in :func:`compile` function
 and can be extracted from function objects through their :attr:`__code__`
-attribute.
+attribute. See also the :mod:`code` module.
 
 .. index::
    builtin: exec
