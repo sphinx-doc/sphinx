@@ -53,22 +53,6 @@ The constants defined in this module are:
    The string ``'0123456789abcdefABCDEF'``.
 
 
-.. data:: letters
-
-   The concatenation of the strings :const:`lowercase` and :const:`uppercase`
-   described below.  The specific value is locale-dependent, and will be updated
-   when :func:`locale.setlocale` is called.
-
-
-.. data:: lowercase
-
-   A string containing all the characters that are considered lowercase letters.
-   On most systems this is the string ``'abcdefghijklmnopqrstuvwxyz'``.  Do not
-   change its definition --- the effect on the routines :func:`upper` and
-   :func:`swapcase` is undefined.  The specific value is locale-dependent, and will
-   be updated when :func:`locale.setlocale` is called.
-
-
 .. data:: octdigits
 
    The string ``'01234567'``.
@@ -76,32 +60,22 @@ The constants defined in this module are:
 
 .. data:: punctuation
 
-   String of ASCII characters which are considered punctuation characters in the
-   ``C`` locale.
+   String of ASCII characters which are considered punctuation characters
+   in the ``C`` locale.
 
 
 .. data:: printable
 
-   String of characters which are considered printable.  This is a combination of
-   :const:`digits`, :const:`letters`, :const:`punctuation`, and
-   :const:`whitespace`.
-
-
-.. data:: uppercase
-
-   A string containing all the characters that are considered uppercase letters.
-   On most systems this is the string ``'ABCDEFGHIJKLMNOPQRSTUVWXYZ'``.  Do not
-   change its definition --- the effect on the routines :func:`lower` and
-   :func:`swapcase` is undefined.  The specific value is locale-dependent, and will
-   be updated when :func:`locale.setlocale` is called.
+   String of ASCII characters which are considered printable.  This is a
+   combination of :const:`digits`, :const:`ascii_letters`, :const:`punctuation`,
+   and :const:`whitespace`.
 
 
 .. data:: whitespace
 
-   A string containing all characters that are considered whitespace. On most
-   systems this includes the characters space, tab, linefeed, return, formfeed, and
-   vertical tab.  Do not change its definition --- the effect on the routines
-   :func:`strip` and :func:`split` is undefined.
+   A string containing all characters that are considered whitespace.
+   This includes the characters space, tab, linefeed, return, formfeed, and
+   vertical tab.
 
 
 Template strings
