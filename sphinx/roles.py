@@ -100,6 +100,12 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         text += '()'
     pnode = addnodes.pending_xref(rawtext)
     pnode['reftype'] = typ
+    # if the first character is a dot, search more specific namespaces first
+    # else search builtins first
+    if text[0:1] == '.' and \
+       typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
+        text = text[1:]
+        pnode['refspecific'] = True
     pnode['reftarget'] = ws_re.sub('', text)
     pnode['modname'] = env.currmodule
     pnode['classname'] = env.currclass

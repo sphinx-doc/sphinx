@@ -116,7 +116,7 @@ py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
 def parse_py_signature(signode, sig, desctype, env):
     """
     Transform a python signature into RST nodes.
-    Return the fully qualified name of the thing.
+    Return (fully qualified name of the thing, classname if any).
 
     If inside a class, the current class name is handled intelligently:
     * it is stripped from the displayed name if present
@@ -153,7 +153,7 @@ def parse_py_signature(signode, sig, desctype, env):
         if desctype in ('function', 'method'):
             # for callables, add an empty parameter list
             signode += addnodes.desc_parameterlist()
-        return fullname
+        return fullname, classname
     signode += addnodes.desc_parameterlist()
 
     stack = [signode[-1]]
@@ -171,7 +171,7 @@ def parse_py_signature(signode, sig, desctype, env):
             token = token.strip()
             stack[-1] += addnodes.desc_parameter(token, token)
     if len(stack) != 1: raise ValueError
-    return fullname
+    return fullname, classname
 
 
 c_sig_re = re.compile(
@@ -280,6 +280,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     noindex = ('noindex' in options)
     signatures = map(lambda s: s.strip(), arguments[0].split('\n'))
     names = []
+    clsname = None
     for i, sig in enumerate(signatures):
         # add a signature node for each signature in the current unit
         # and add a reference target for it
@@ -290,7 +291,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         try:
             if desctype in ('function', 'data', 'class', 'exception',
                             'method', 'attribute'):
-                name = parse_py_signature(signode, sig, desctype, env)
+                name, clsname = parse_py_signature(signode, sig, desctype, env)
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'opcode':
@@ -323,13 +324,18 @@ def desc_directive(desctype, arguments, options, content, lineno,
     if desctype == 'cfunction':
         add_refcount_annotation(env, subnode, name)
     # needed for automatic qualification of members
+    clsname_set = False
     if desctype == 'class' and names:
         env.currclass = names[0]
+        clsname_set = True
+    elif desctype in ('method', 'attribute') and clsname and not env.currclass:
+        env.currclass = clsname.strip('.')
+        clsname_set = True
     # needed for association of version{added,changed} directives
     if names:
         env.currdesc = names[0]
     state.nested_parse(content, content_offset, subnode)
-    if desctype == 'class':
+    if clsname_set:
         env.currclass = None
     env.currdesc = None
     node.append(subnode)

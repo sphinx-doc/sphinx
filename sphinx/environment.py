@@ -621,7 +621,8 @@ class BuildEnvironment:
                         builder.get_relative_uri(docfilename, filename) + anchor)
                     newnode.append(contnode)
             else:
-                name, desc = self.find_desc(modname, clsname, target, typ)
+                searchorder = 1 if node.hasattr('refspecific') else 0
+                name, desc = self.find_desc(modname, clsname, target, typ, searchorder)
                 if not desc:
                     newnode = contnode
                 else:
@@ -742,12 +743,15 @@ class BuildEnvironment:
 
     # --------- QUERYING -------------------------------------------------------
 
-    def find_desc(self, modname, classname, name, type):
+    def find_desc(self, modname, classname, name, type, searchorder=0):
         """Find a description node matching "name", perhaps using
            the given module and/or classname."""
         # skip parens
         if name[-2:] == '()':
             name = name[:-2]
+
+        if not name:
+            return None, None
 
         # don't add module and class names for C things
         if type[0] == 'c' and type not in ('class', 'const'):
@@ -757,22 +761,32 @@ class BuildEnvironment:
                 return name, self.descrefs[name]
             return None, None
 
-        if name in self.descrefs:
-            newname = name
-        elif modname and modname + '.' + name in self.descrefs:
-            newname = modname + '.' + name
-        elif modname and classname and \
-                 modname + '.' + classname + '.' + name in self.descrefs:
-            newname = modname + '.' + classname + '.' + name
-        # special case: builtin exceptions have module "exceptions" set
-        elif type == 'exc' and '.' not in name and \
-             'exceptions.' + name in self.descrefs:
-            newname = 'exceptions.' + name
-        # special case: object methods
-        elif type in ('func', 'meth') and '.' not in name and \
-             'object.' + name in self.descrefs:
-            newname = 'object.' + name
+        newname = None
+        if searchorder == 1:
+            if modname and classname and \
+                   modname + '.' + classname + '.' + name in self.descrefs:
+                newname = modname + '.' + classname + '.' + name
+            elif modname and modname + '.' + name in self.descrefs:
+                newname = modname + '.' + name
+            elif name in self.descrefs:
+                newname = name
         else:
+            if name in self.descrefs:
+                newname = name
+            elif modname and modname + '.' + name in self.descrefs:
+                newname = modname + '.' + name
+            elif modname and classname and \
+                     modname + '.' + classname + '.' + name in self.descrefs:
+                newname = modname + '.' + classname + '.' + name
+            # special case: builtin exceptions have module "exceptions" set
+            elif type == 'exc' and '.' not in name and \
+                 'exceptions.' + name in self.descrefs:
+                newname = 'exceptions.' + name
+            # special case: object methods
+            elif type in ('func', 'meth') and '.' not in name and \
+                 'object.' + name in self.descrefs:
+                newname = 'object.' + name
+        if newname is None:
             return None, None
         return newname, self.descrefs[newname]
 
