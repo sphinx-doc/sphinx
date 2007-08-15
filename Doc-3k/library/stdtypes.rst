@@ -766,6 +766,14 @@ string functions based on regular expressions.
    For 8-bit strings, this method is locale-dependent.
 
 
+.. method:: str.isidentifier()
+
+   Return true if the string is a valid identifier according to the language
+   definition.
+
+   .. XXX link to the definition?
+
+
 .. method:: str.islower()
 
    Return true if all cased characters in the string are lowercase and there is at
