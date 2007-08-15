@@ -12,6 +12,8 @@ Python on a Macintosh running Mac OS X is in principle very similar to Python on
 any other Unix platform, but there are a number of additional features such as
 the IDE and the Package Manager that are worth pointing out.
 
+The Mac-specific modules are documented in :ref:`mac-specific-services`.
+
 Python on Mac OS 9 or earlier can be quite different from Python on Unix or
 Windows, but is beyond the scope of this manual, as that platform is no longer
 supported, starting with Python 2.4. See http://www.cwi.nl/~jack/macpython for
