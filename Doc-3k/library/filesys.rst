@@ -24,6 +24,7 @@ in this chapter is:
    linecache.rst
    shutil.rst
    dircache.rst
+   macpath.rst
 
 
 .. seealso::

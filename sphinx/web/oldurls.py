@@ -60,9 +60,11 @@ def handle_html_url(req, url):
             return 'bugs/'
         if url == 'modindex.html' or url.endswith('/modindex.html'):
             return 'modindex/'
-        # library, maclib
+        if url == 'mac/using.html':
+            return 'howto/pythonmac/'
+        # library
         if url[:4] in ('lib/', 'mac/'):
-            p = 'library/' if url[0] == 'l' else 'maclib/'
+            p = 'library/'
             m = _module_re.match(url[4:])
             if m:
                 mn = m.group(1)

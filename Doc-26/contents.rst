@@ -8,7 +8,6 @@
    tutorial/index.rst
    reference/index.rst
    library/index.rst
-   maclib/index.rst
    extending/index.rst
    c-api/index.rst
    distutils/index.rst

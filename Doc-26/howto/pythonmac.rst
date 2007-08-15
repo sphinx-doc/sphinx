@@ -1,11 +1,11 @@
 
-.. _using:
+.. _using-on-mac:
 
 ***************************
 Using Python on a Macintosh
 ***************************
 
-.. sectionauthor:: Bob Savage <bobsavage@mac.com>
+:Author: Bob Savage <bobsavage@mac.com>
 
 
 Python on a Macintosh running Mac OS X is in principle very similar to Python on

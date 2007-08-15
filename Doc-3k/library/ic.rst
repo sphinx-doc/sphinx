@@ -1,10 +1,10 @@
 
-:mod:`ic` --- Access to Internet Config
-=======================================
+:mod:`ic` --- Access to the Mac OS X Internet Config
+====================================================
 
 .. module:: ic
    :platform: Mac
-   :synopsis: Access to Internet Config.
+   :synopsis: Access to the Mac OS X Internet Config.
 
 
 This module provides access to various internet-related preferences set through
@@ -117,4 +117,3 @@ methods:
    Given an existing *file*, specified either as a filename or as an :func:`FSSpec`
    result, set its creator and type correctly based on its extension.  The finder
    is told about the change, so the finder icon will be updated quickly.
-

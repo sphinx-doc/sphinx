@@ -1,5 +1,5 @@
 
-.. _scripting:
+.. _mac-scripting:
 
 *********************
 MacPython OSA Modules
@@ -78,14 +78,14 @@ according to a small number of rules:
 Python also has support for creating scriptable applications in Python, but The
 following modules are relevant to MacPython AppleScript support:
 
-
 .. toctree::
 
    gensuitemodule.rst
    aetools.rst
    aepack.rst
    aetypes.rst
-   miniae.rst
+   miniaeframe.rst
+
 
 In addition, support modules have been pre-generated for :mod:`Finder`,
 :mod:`Terminal`, :mod:`Explorer`, :mod:`Netscape`, :mod:`CodeWarrior`,

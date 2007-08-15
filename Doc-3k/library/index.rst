@@ -76,4 +76,6 @@ over 2500 additional components available from the `Python Package Index
    misc.rst
    windows.rst
    unix.rst
+   mac.rst
+   macosa.rst
    undoc.rst
