@@ -25,7 +25,7 @@
 {% endif %}
 
    <table width="100%" class="indextable" cellspacing="0" cellpadding="2">
-   {%- for modname, collapse, cgroup, indent, fname, synops, pform in modindexentries %}
+   {%- for modname, collapse, cgroup, indent, fname, synops, pform, dep in modindexentries %}
    {%- if not modname -%}
    <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
    <tr class="cap"><td></td><td><strong>{{ fname }}</strong></td><td></td></tr>
@@ -40,7 +40,8 @@
      <tt class="xref">{{ modname|e }}</tt>
      {%- if fname %}</a>{% endif %}
    {%- if pform[0] %} <em>({{ pform|join(', ') }})</em>{% endif -%}
-   </td><td><em>{{ synops|e }}</em></td></tr>
+   </td><td>{% if dep %}<strong>Deprecated:</strong>{% endif %}
+     <em>{{ synops|e }}</em></td></tr>
    {%- endif -%}
    {% endfor %}
    </table>

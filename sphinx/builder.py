@@ -393,8 +393,8 @@ class StandaloneHTMLBuilder(Builder):
 
         # the sorted list of all modules, for the global module index
         modules = sorted(((mn, (self.get_relative_uri('modindex.rst', fn) +
-                                '#module-' + mn, sy, pl))
-                          for (mn, (fn, sy, pl)) in self.env.modules.iteritems()),
+                                '#module-' + mn, sy, pl, dep))
+                          for (mn, (fn, sy, pl, dep)) in self.env.modules.iteritems()),
                          key=lambda x: x[0].lower())
         # collect all platforms
         platforms = set()
@@ -403,11 +403,11 @@ class StandaloneHTMLBuilder(Builder):
         pmn = ''
         cg = 0 # collapse group
         fl = '' # first letter
-        for mn, (fn, sy, pl) in modules:
+        for mn, (fn, sy, pl, dep) in modules:
             pl = pl.split(', ') if pl else []
             platforms.update(pl)
             if fl != mn[0].lower() and mn[0] != '_':
-                modindexentries.append(['', False, 0, False, mn[0].upper(), '', []])
+                modindexentries.append(['', False, 0, False, mn[0].upper(), '', [], False])
             tn = mn.partition('.')[0]
             if tn != mn:
                 # submodule
@@ -417,10 +417,10 @@ class StandaloneHTMLBuilder(Builder):
                 elif not pmn.startswith(tn):
                     # submodule without parent in list, add dummy entry
                     cg += 1
-                    modindexentries.append([tn, True, cg, False, '', '', []])
+                    modindexentries.append([tn, True, cg, False, '', '', [], False])
             else:
                 cg += 1
-            modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl])
+            modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl, dep])
             pmn = mn
             fl = mn[0].lower()
         platforms = sorted(platforms)

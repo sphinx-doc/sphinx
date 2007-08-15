@@ -52,7 +52,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 9
+ENV_VERSION = 10
 
 
 def walk_depth(node, depth, maxdepth):
@@ -203,7 +203,7 @@ class BuildEnvironment:
         # X-ref target inventory
         self.descrefs = {}          # fullname -> filename, desctype
         self.filemodules = {}       # filename -> [modules]
-        self.modules = {}           # modname -> filename, synopsis, platform
+        self.modules = {}           # modname -> filename, synopsis, platform, deprecated
         self.tokens = {}            # tokenname -> filename
         self.labels = {}            # labelname -> filename, labelid
 
@@ -238,7 +238,7 @@ class BuildEnvironment:
                 if fn == filename:
                     del self.descrefs[fullname]
             self.filemodules.pop(filename, None)
-            for modname, (fn, _, _) in self.modules.items():
+            for modname, (fn, _, _, _) in self.modules.items():
                 if fn == filename:
                     del self.modules[modname]
             for tokenname, fn in self.tokens.items():
@@ -490,8 +490,8 @@ class BuildEnvironment:
                    'in %s and %s' % (self.descrefs[fullname][0], self.filename))
         self.descrefs[fullname] = (self.filename, desctype)
 
-    def note_module(self, modname, synopsis, platform):
-        self.modules[modname] = (self.filename, synopsis, platform)
+    def note_module(self, modname, synopsis, platform, deprecated):
+        self.modules[modname] = (self.filename, synopsis, platform, deprecated)
         self.filemodules.setdefault(self.filename, []).append(modname)
 
     def note_token(self, tokenname):
@@ -605,7 +605,8 @@ class BuildEnvironment:
                             docfilename, filename) + '#grammar-token-' + target
                     newnode.append(contnode)
             elif typ == 'mod':
-                filename, synopsis, platform = self.modules.get(target, ('','',''))
+                filename, synopsis, platform, deprecated = \
+                    self.modules.get(target, ('','',''))
                 # just link to an anchor if there are multiple modules in one file
                 # because the anchor is generally below the heading which is ugly
                 # but can't be helped easily
@@ -619,6 +620,9 @@ class BuildEnvironment:
                     newnode = nodes.reference('', '')
                     newnode['refuri'] = (
                         builder.get_relative_uri(docfilename, filename) + anchor)
+                    newnode['reftitle'] = '%s%s%s' % (
+                        ('(%s) ' % platform if platform else ''),
+                        synopsis, (' (deprecated)' if deprecated else ''))
                     newnode.append(contnode)
             else:
                 searchorder = 1 if node.hasattr('refspecific') else 0
@@ -803,7 +807,7 @@ class BuildEnvironment:
         """
 
         if keyword in self.modules:
-            filename, title, system = self.modules[keyword]
+            filename, title, system, deprecated = self.modules[keyword]
             return 'module', filename, 'module-' + keyword
         if keyword in self.descrefs:
             filename, ref_type = self.descrefs[keyword]
@@ -827,7 +831,7 @@ class BuildEnvironment:
         s.set_seq2(keyword.lower())
 
         def possibilities():
-            for title, (fn, desc, _) in self.modules.iteritems():
+            for title, (fn, desc, _, _) in self.modules.iteritems():
                 yield ('module', fn, 'module-'+title, desc)
             for title, (fn, desctype) in self.descrefs.iteritems():
                 yield (desctype, fn, title, '')

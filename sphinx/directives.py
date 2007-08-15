@@ -472,7 +472,9 @@ def module_directive(name, arguments, options, content, lineno,
     env = state.document.settings.env
     modname = arguments[0].strip()
     env.currmodule = modname
-    env.note_module(modname, options.get('synopsis', ''), options.get('platform', ''))
+    env.note_module(modname, options.get('synopsis', ''),
+                    options.get('platform', ''),
+                    'deprecated' in options)
     ret = []
     targetnode = nodes.target('', '', ids=['module-' + modname])
     state.document.note_explicit_target(targetnode)
@@ -489,7 +491,8 @@ def module_directive(name, arguments, options, content, lineno,
 
 module_directive.arguments = (1, 0, 0)
 module_directive.options = {'platform': lambda x: x,
-                            'synopsis': lambda x: x}
+                            'synopsis': lambda x: x,
+                            'deprecated': directives.flag}
 directives.register_directive('module', module_directive)
 
 

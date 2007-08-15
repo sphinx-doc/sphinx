@@ -112,6 +112,17 @@ class HTMLTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.body.append('</p>\n')
 
+    # overwritten
+    def visit_reference(self, node):
+        BaseTranslator.visit_reference(self, node)
+        if node.hasattr('reftitle'):
+            # ugly hack to add a title attribute
+            starttag = self.body[-1]
+            if not starttag.startswith('<a '):
+                return
+            self.body[-1] = '<a title="%s"' % self.attval(node['reftitle']) + \
+                            starttag[2:]
+
     # overwritten -- we don't want source comments to show up in the HTML
     def visit_comment(self, node):
         raise nodes.SkipNode
