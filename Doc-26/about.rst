@@ -27,7 +27,7 @@ Many thanks go to:
 See :ref:`reporting-bugs` for information how to report bugs in Python itself.
 
 .. including the ACKS file here so that it can be maintained separately
-.. include:: ACKS
+.. include:: ACKS.txt
 
 It is only with the input and contributions of the Python community
 that Python has such wonderful documentation -- Thank You!
