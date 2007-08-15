@@ -7,7 +7,8 @@ available at http://docs.python.org/download/.
 
 Documentation on the authoring Python documentation, including information about
 both style and markup, is available in the "Documenting Python" chapter of the
-documentation.
+documentation.  There's also a chapter intended to point out differences to
+those familiar with the previous docs written in LaTeX.
 
 
 Building the docs

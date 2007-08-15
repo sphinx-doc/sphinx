@@ -1,6 +1,6 @@
-To do after conversion
-======================
+To do
+=====
 
 * split very large files and add toctrees
-* find out which files get "comments disabled" metadata
 * finish "Documenting Python"
+* care about XXX comments

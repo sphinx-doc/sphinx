@@ -164,4 +164,29 @@ These changes to information units should be noted:
         The equals operator.
 
 
+Structure
+---------
+
+The LaTeX docs were split in several toplevel manuals.  Now, all files
+are part of the same documentation tree, as indicated by the *toctree*
+directives in the sources.  Every *toctree* directive embeds other files
+as subdocuments of the current file (this structure is not necessarily
+mirrored in the filesystem layout).  The toplevel file is
+:file:`contents.rst`.
+
+However, most of the old directory structure has been kept, with the
+directories renamed as follows:
+
+* :file:`api` -> :file:`c-api`
+* :file:`dist` -> :file:`distutils`, with the single TeX file split up
+* :file:`doc` -> :file:`documenting`
+* :file:`ext` -> :file:`extending`
+* :file:`inst` -> :file:`installing`
+* :file:`lib` -> :file:`library`
+* :file:`mac` -> merged into :file:`library`, with `mac/using.tex`
+  moved to `howto/pythonmac.rst`
+* :file:`ref` -> :file:`reference`
+* :file:`tut` -> :file:`tutorial`, with the single TeX file split up
+
+
 .. XXX more (index-generating, production lists, ...)
