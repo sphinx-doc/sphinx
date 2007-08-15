@@ -39,6 +39,7 @@ class HTMLTranslator(BaseTranslator):
         self.no_smarty = 0
         BaseTranslator.__init__(self, *args, **kwds)
         self.highlightlang = 'python'
+        self.language.labels['warning'] = 'Caveat'
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['desctype']))
