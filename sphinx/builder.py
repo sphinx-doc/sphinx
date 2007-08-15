@@ -597,6 +597,11 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         with open(path.join(self.outdir, 'searchindex.pickle'), 'wb') as f:
             self.indexer.dump(f, 'pickle')
 
+        # copy the environment file from the doctree dir to the output dir
+        # as needed by the web app
+        shutil.copyfile(path.join(self.doctreedir, ENV_PICKLE_FILENAME),
+                        path.join(self.outdir, ENV_PICKLE_FILENAME))
+
         # touch 'last build' file, used by the web application to determine
         # when to reload its environment and clear the cache
         open(path.join(self.outdir, LAST_BUILD_FILENAME), 'w').close()
