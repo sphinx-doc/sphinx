@@ -606,7 +606,7 @@ class BuildEnvironment:
                     newnode.append(contnode)
             elif typ == 'mod':
                 filename, synopsis, platform, deprecated = \
-                    self.modules.get(target, ('','',''))
+                    self.modules.get(target, ('','','', ''))
                 # just link to an anchor if there are multiple modules in one file
                 # because the anchor is generally below the heading which is ugly
                 # but can't be helped easily
