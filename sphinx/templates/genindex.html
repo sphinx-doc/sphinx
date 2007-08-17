@@ -11,36 +11,34 @@
    <hr>
 
    {% for key, entries in genindexentries %}
-      <h2 id="{{ key }}">{{ key }}</h2>
-      <table width="100%" class="indextable"><tr><td width="33%" valign="top">
-      <dl>
-      {%- set breakat = genindexcounts[loop.index0] // 2 %}
-      {%- set numcols = 1 %}
-      {%- set numitems = 0 %}
-      {% for entryname, (links, subitems) in entries %}
-         <dt>{%- if links -%}
-            <a href="{{ links[0] }}">{{ entryname }}</a>
-            {%- for link in links[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
-         {%- else -%}
-            {{ entryname }}
-         {%- endif -%}</dt>
-         {%- if subitems %}
-            <dd><dl>
-            {%- for subentryname, subentrylinks in subitems %}
-               <dt><a href="{{ subentrylinks[0] }}">{{ subentryname }}</a>
-               {%- for link in subentrylinks[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
-               </dt>
-            {%- endfor %}
-            </dl></dd>
-         {%- endif -%}
-         {%- set numitems = numitems + 1 + len(subitems) -%}
-         {%- if numcols < 2 and numitems > breakat -%}
-           {%- set numcols = numcols+1 -%}
-           </dl></td><td width="33%" valign="top"><dl>
-         {%- endif -%}
-      {% endfor %}
-      </dl></td></tr></table>
-
-   {% endfor %}
+<h2 id="{{ key }}">{{ key }}</h2>
+<table width="100%" class="indextable"><tr><td width="33%" valign="top">
+<dl>
+{%- set breakat = genindexcounts[loop.index0] // 2 %}
+{%- set numcols = 1 %}
+{%- set numitems = 0 %}
+{% for entryname, (links, subitems) in entries %}
+<dt>{%- if links -%}<a href="{{ links[0] }}">{{ entryname }}</a>
+  {%- for link in links[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
+  {%- else -%}
+{{ entryname }}
+  {%- endif -%}</dt>
+  {%- if subitems %}
+  <dd><dl>
+    {%- for subentryname, subentrylinks in subitems %}
+    <dt><a href="{{ subentrylinks[0] }}">{{ subentryname }}</a>
+    {%- for link in subentrylinks[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
+    </dt>
+    {%- endfor %}
+  </dl></dd>
+  {%- endif -%}
+{%- set numitems = numitems + 1 + len(subitems) -%}
+{%- if numcols < 2 and numitems > breakat -%}
+{%- set numcols = numcols+1 -%}
+</dl></td><td width="33%" valign="top"><dl>
+{%- endif -%}
+{%- endfor %}
+</dl></td></tr></table>
+{% endfor %}
 
 {% endblock %}
