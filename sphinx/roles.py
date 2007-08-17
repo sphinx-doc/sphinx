@@ -99,6 +99,11 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     if typ in ('func', 'meth', 'cfunc') and \
            env.config.get('add_function_parentheses', True):
         text += '()'
+    # if the first character is a bang, don't cross-reference at all
+    if text[0:1] == '!':
+        text = text[1:]
+        return [innernodetypes.get(typ, nodes.literal)(
+            rawtext, text, classes=['xref'])], []
     pnode = addnodes.pending_xref(rawtext)
     pnode['reftype'] = typ
     # if the first character is a dot, search more specific namespaces first
