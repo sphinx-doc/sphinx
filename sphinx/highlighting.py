@@ -63,7 +63,8 @@ def highlight_block(source, lang):
         else:
             # maybe Python -- try parsing it
             try:
-                parser.suite(source + '\n')
+                parser.suite('from __future__ import with_statement\n' +
+                             source + '\n')
             except (SyntaxError, UnicodeEncodeError):
                 return '<pre>' + cgi.escape(source) + '</pre>\n'
             else:
