@@ -20,7 +20,7 @@ ws_re = re.compile(r'\s+')
 
 generic_docroles = {
     'command' : nodes.strong,
-    'dfn' : addnodes.emphasis,
+    'dfn' : nodes.emphasis,
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
     'keyword' : nodes.literal,

@@ -485,7 +485,9 @@ class StandaloneHTMLBuilder(Builder):
                                                       filename[:-4] + '.html'))
             except:
                 targetmtime = 0
-            if path.getmtime(path.join(self.srcdir, filename)) > targetmtime:
+            if filename not in self.env.all_files:
+                yield filename
+            elif path.getmtime(path.join(self.srcdir, filename)) > targetmtime:
                 yield filename
 
 
