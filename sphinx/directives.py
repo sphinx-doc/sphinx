@@ -579,3 +579,35 @@ def literalinclude_directive(name, arguments, options, content, lineno,
 literalinclude_directive.content = 0
 literalinclude_directive.arguments = (1, 0, 0)
 directives.register_directive('literalinclude', literalinclude_directive)
+
+
+# ------ glossary directive ---------------------------------------------------------
+
+def glossary_directive(name, arguments, options, content, lineno,
+                       content_offset, block_text, state, state_machine):
+    """Glossary with cross-reference targets for :dfn: roles."""
+    env = state.document.settings.env
+    node = addnodes.glossary()
+    state.nested_parse(content, content_offset, node)
+
+    # the content should be definition lists
+    dls = [child for child in node if isinstance(child, nodes.definition_list)]
+    # now, extract definition terms to enable cross-reference creation
+    for dl in dls:
+        dl['classes'].append('glossary')
+        for li in dl.children:
+            if not li.children or not isinstance(li[0], nodes.term):
+                continue
+            termtext = li.children[0].astext()
+            new_id = 'term-' + nodes.make_id(termtext)
+            if new_id in env.gloss_entries:
+                new_id = 'term-' + str(len(env.gloss_entries))
+            env.gloss_entries.add(new_id)
+            li[0]['names'].append(new_id)
+            li[0]['ids'].append(new_id)
+            state.document.settings.env.note_glossaryterm(termtext, new_id)
+    return [node]
+
+glossary_directive.content = 1
+glossary_directive.arguments = (0, 0, 0)
+directives.register_directive('glossary', glossary_directive)

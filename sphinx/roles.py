@@ -20,7 +20,7 @@ ws_re = re.compile(r'\s+')
 
 generic_docroles = {
     'command' : nodes.strong,
-    'dfn' : addnodes.literal_emphasis,
+    'dfn' : addnodes.emphasis,
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
     'keyword' : nodes.literal,
@@ -89,6 +89,7 @@ roles.register_local_role('rfc', indexmarkup_role)
 # default is `literal`
 innernodetypes = {
     'ref': nodes.emphasis,
+    'term': nodes.emphasis,
     'token': nodes.strong,
 }
 
@@ -106,7 +107,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
        typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
         text = text[1:]
         pnode['refspecific'] = True
-    pnode['reftarget'] = ws_re.sub('', text)
+    pnode['reftarget'] = ws_re.sub((' ' if typ == 'term' else ''), text)
     pnode['modname'] = env.currmodule
     pnode['classname'] = env.currclass
     pnode += innernodetypes.get(typ, nodes.literal)(rawtext, text, classes=['xref'])
@@ -153,6 +154,7 @@ specific_docroles = {
 
     'ref': xfileref_role,
     'token' : xfileref_role,
+    'term': xfileref_role,
 
     'menuselection' : menusel_role,
     'file' : emph_literal_role,

@@ -211,6 +211,11 @@ class HTMLTranslator(BaseTranslator):
     def visit_index(self, node):
         raise nodes.SkipNode
 
+    def visit_glossary(self, node):
+        pass
+    def depart_glossary(self, node):
+        pass
+
     # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):
         return self.visit_emphasis(node)

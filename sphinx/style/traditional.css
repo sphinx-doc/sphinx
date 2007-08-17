@@ -591,6 +591,11 @@ dd {
     margin-left: 30px;
 }
 
+dl.glossary dt {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
 .refcount {
     color: #060;
 }

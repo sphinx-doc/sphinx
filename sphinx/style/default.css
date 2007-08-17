@@ -691,6 +691,11 @@ dt:target,
     background-color: #fbe54e;
 }
 
+dl.glossary dt {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
 th {
     text-align: left;
     padding-right: 5px;

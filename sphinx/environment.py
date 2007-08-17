@@ -52,7 +52,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 10
+ENV_VERSION = 11
 
 
 def walk_depth(node, depth, maxdepth):
@@ -206,6 +206,7 @@ class BuildEnvironment:
         self.modules = {}           # modname -> filename, synopsis, platform, deprecated
         self.tokens = {}            # tokenname -> filename
         self.labels = {}            # labelname -> filename, labelid
+        self.glossary = {}          # term -> filename, labelid
 
         # Other inventories
         self.indexentries = {}      # filename -> list of
@@ -219,6 +220,7 @@ class BuildEnvironment:
         self.currclass = None       # current class name
         self.currdesc = None        # current descref name
         self.index_num = 0          # autonumber for index targets
+        self.gloss_entries = set()  # existing definition labels
 
     def set_warning_stream(self, stream):
         self.warning_stream = stream
@@ -247,6 +249,9 @@ class BuildEnvironment:
             for labelname, (fn, _, _) in self.labels.items():
                 if fn == filename:
                     del self.labels[labelname]
+            for term, (fn, _) in self.glossary.items():
+                if fn == filename:
+                    del self.glossary[term]
             self.indexentries.pop(filename, None)
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != filename]
@@ -351,6 +356,8 @@ class BuildEnvironment:
         self.filename = None
         self.currmodule = None
         self.currclass = None
+        self.indexnum = 0
+        self.gloss_entries = set()
 
         if save_parsed:
             # save the parsed doctree
@@ -497,7 +504,6 @@ class BuildEnvironment:
     def note_token(self, tokenname):
         self.tokens[tokenname] = self.filename
 
-
     def note_index_entry(self, type, string, targetid, aliasname):
         self.indexentries.setdefault(self.filename, []).append(
             (type, string, targetid, aliasname))
@@ -505,6 +511,9 @@ class BuildEnvironment:
     def note_versionchange(self, type, version, node):
         self.versionchanges.setdefault(version, []).append(
             (type, self.filename, self.currmodule, self.currdesc, node.deepcopy()))
+
+    def note_glossaryterm(self, text, labelname):
+        self.glossary[text] = (self.filename, labelname)
     # -------
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
@@ -592,6 +601,20 @@ class BuildEnvironment:
                         newnode['refuri'] = builder.get_relative_uri(
                             docfilename, filename) + '#' + labelid
                     newnode.append(nodes.emphasis(sectname, sectname))
+            elif typ == 'term':
+                filename, labelid = self.glossary.get(target, ('', ''))
+                if not filename:
+                    print >>self.warning_stream, \
+                          '%s: term not in glossary: %s' % (docfilename, target)
+                    newnode = contnode
+                else:
+                    newnode = nodes.reference('', '')
+                    if filename == docfilename:
+                        newnode['refid'] = labelid
+                    else:
+                        newnode['refuri'] = builder.get_relative_uri(
+                            docfilename, filename) + '#' + labelid
+                    newnode.append(contnode)
             elif typ == 'token':
                 filename = self.tokens.get(target, '')
                 if not filename:

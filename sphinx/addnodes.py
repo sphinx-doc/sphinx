@@ -53,9 +53,13 @@ class highlightlang(nodes.Element): pass
 # like emphasis, but doesn't apply further text processors, e.g. smartypants
 class literal_emphasis(nodes.emphasis): pass
 
+# glossary
+class glossary(nodes.Element): pass
+
 # make them known to docutils. this is needed, because the HTMl writer
 # will choke at some point if these are not added
 nodes._add_node_class_names("""index desc desc_content desc_signature
       desc_classname desc_name desc_parameterlist desc_parameter desc_optional
       centered versionmodified seealso productionlist production toctree
-      pending_xref compact_paragraph highlightlang""".split())
+      pending_xref compact_paragraph highlightlang literal_emphasis
+      glossary""".split())
