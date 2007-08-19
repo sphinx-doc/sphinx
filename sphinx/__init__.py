@@ -12,6 +12,7 @@
 import sys
 import getopt
 from os import path
+from cStringIO import StringIO
 
 from .builder import builders
 from .util.console import nocolor
@@ -33,6 +34,7 @@ options: -b <builder> -- builder to use (one of %s)
          -O <option[=value]> -- give option to to the builder (-O help for list)
          -D <setting=value> -- override a setting in sourcedir/conf.py
          -N        -- do not do colored output
+         -q        -- no output on stdout, just warnings on stderr
 modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
@@ -41,7 +43,7 @@ modi:
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:NE')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:NEq')
         srcdirname = path.abspath(args[0])
         if not path.isdir(srcdirname):
             print >>sys.stderr, 'Error: Cannot find source directory.'
@@ -68,6 +70,7 @@ def main(argv):
 
     builder = all_files = None
     opt_help = freshenv = False
+    status = sys.stdout
     options = {}
     confoverrides = {}
     doctreedir = path.join(outdirname, '.doctrees')
@@ -106,13 +109,15 @@ def main(argv):
             nocolor()
         elif opt == '-E':
             freshenv = True
+        elif opt == '-q':
+            status = StringIO()
 
     if not sys.stdout.isatty() or sys.platform == 'win32':
         # Windows' cmd box doesn't understand ANSI sequences
         nocolor()
 
     if builder is None:
-        print 'No builder selected, using default: html'
+        print >>status, 'No builder selected, using default: html'
         builder = 'html'
 
     builderobj = builders[builder]
@@ -124,7 +129,7 @@ def main(argv):
         return 0
 
     builderobj = builderobj(srcdirname, outdirname, doctreedir, options,
-                            status_stream=sys.stdout,
+                            status_stream=status,
                             warning_stream=sys.stderr,
                             confoverrides=confoverrides,
                             freshenv=freshenv)
