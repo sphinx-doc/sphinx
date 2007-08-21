@@ -3,7 +3,7 @@
  */
 
 body {
-    font-family: 'Bitstream Vera Sans', 'Arial', sans-serif;
+    font-family: sans-serif;
     font-size: 13px;
     background-color: #11303d;
     color: #000;
@@ -143,7 +143,7 @@ div.sidebar form {
 
 div.sidebar input {
     border: 1px solid #98dbcc;
-    font-family: 'Bitstream Vera Sans', 'Arial', sans-serif;
+    font-family: sans-serif;
     font-size: 1em;
 }
 
@@ -702,7 +702,6 @@ th {
 }
 
 pre {
-    font-family: 'Bitstream Vera Sans Mono', monospace;
     padding: 5px;
     background-color: #efc;
     color: #333;
@@ -712,7 +711,6 @@ pre {
 }
 
 tt {
-    font-family: 'Bitstream Vera Sans Mono', monospace;
     background-color: #ecf0f3;
     padding: 0 1px 0 1px;
 }
@@ -764,7 +762,7 @@ form.comment input,
 form.comment textarea {
     border: 1px solid #ccc;
     padding: 2px;
-    font-family: 'Bitstream Vera Sans', 'Verdana', sans-serif;
+    font-family: sans-serif;
     font-size: 13px;
 }
 
