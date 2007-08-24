@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ pathto('style/default.css', 1) }}" type="text/css">
     <link rel="stylesheet" href="{{ pathto('style/pygments.css', 1) }}" type="text/css">
     {%- endif %}
+    {%- if builder != 'htmlhelp' %}
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:   '{{ pathto("", 1) }}',
@@ -24,6 +25,7 @@
     <script type="text/javascript" src="{{ pathto('style/jquery.js', 1) }}"></script>
     <script type="text/javascript" src="{{ pathto('style/interface.js', 1) }}"></script>
     <script type="text/javascript" src="{{ pathto('style/doctools.js', 1) }}"></script>
+    {%- endif %}
     <link rel="author" title="About these documents" href="{{ pathto('about.rst') }}">
     <link rel="contents" title="Global table of contents" href="{{ pathto('contents.rst') }}">
     <link rel="index" title="Global index" href="{{ pathto('genindex.rst') }}">

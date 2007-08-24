@@ -1,6 +1,10 @@
 doctools README
 ===============
 
+FIXME: This is already outdated since the conversion has happened and the
+reST sources are in the Python tree now.
+
+
 What you need to know
 ---------------------
 

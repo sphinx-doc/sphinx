@@ -291,7 +291,7 @@ class StandaloneHTMLBuilder(Builder):
             doc,
             source_class=DocTreeInput,
             reader=doctree.Reader(),
-            writer=HTMLWriter(self.config),
+            writer=HTMLWriter(self.config, self.name),
             settings_overrides={'output_encoding': 'unicode'}
         )
 
@@ -299,7 +299,7 @@ class StandaloneHTMLBuilder(Builder):
         from .search import IndexBuilder
         self.indexer = IndexBuilder()
         self.load_indexer(filenames)
-        self.docwriter = HTMLWriter(self.config)
+        self.docwriter = HTMLWriter(self.config, self.name)
         self.docsettings = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,)).get_default_values()
