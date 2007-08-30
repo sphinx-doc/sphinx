@@ -278,7 +278,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
     node['desctype'] = desctype
 
     noindex = ('noindex' in options)
-    signatures = map(lambda s: s.strip(), arguments[0].split('\n'))
+    # remove backslashes to support (dummy) escapes; helps Vim's highlighting
+    signatures = map(lambda s: s.strip().replace('\\', ''), arguments[0].split('\n'))
     names = []
     clsname = None
     for i, sig in enumerate(signatures):
