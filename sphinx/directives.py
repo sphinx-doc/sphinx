@@ -23,8 +23,8 @@ from . import addnodes
 # ------ index markup --------------------------------------------------------------
 
 entrytypes = [
-    'single', 'pair', 'triple', 'quadruple',
-    'module', 'keyword', 'operator', 'object', 'exception', 'statement', 'builtin',
+    'single', 'pair', 'triple', 'module', 'keyword', 'operator',
+    'object', 'exception', 'statement', 'builtin',
 ]
 
 def index_directive(name, arguments, options, content, lineno,
