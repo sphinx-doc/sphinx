@@ -683,8 +683,8 @@ class BuildEnvironment:
             # new entry types must be listed in directives.py!
             for type, string, tid, alias in entries:
                 if type == 'single':
-                    entry, _, subentry = string.partition('!')
-                    add_entry(entry, subentry)
+                    entry, _, subentry = string.partition(';')
+                    add_entry(entry.strip(), subentry.strip())
                 elif type == 'pair':
                     first, second = map(lambda x: x.strip(), string.split(';', 1))
                     add_entry(first, second)
@@ -694,14 +694,6 @@ class BuildEnvironment:
                     add_entry(first, second+' '+third)
                     add_entry(second, third+', '+first)
                     add_entry(third, first+' '+second)
-# this is a bit ridiculous...
-#                 elif type == 'quadruple':
-#                     first, second, third, fourth = \
-#                            map(lambda x: x.strip(), string.split(';', 3))
-#                     add_entry(first, '%s %s %s' % (second, third, fourth))
-#                     add_entry(second, '%s %s, %s' % (third, fourth, first))
-#                     add_entry(third, '%s, %s %s' % (fourth, first, second))
-#                     add_entry(fourth, '%s %s %s' % (first, second, third))
                 elif type in ('module', 'keyword', 'operator', 'object',
                               'exception', 'statement'):
                     add_entry(string, type)
