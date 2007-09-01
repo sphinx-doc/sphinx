@@ -529,11 +529,6 @@ div.body h4 { font-size: 120%; }
 div.body h5 { font-size: 110%; }
 div.body h6 { font-size: 100%; }
 
-a.headerlink,
-a.headerlink,
-a.headerlink,
-a.headerlink,
-a.headerlink,
 a.headerlink {
     color: #c60f0f;
     font-size: 0.8em;
@@ -542,20 +537,16 @@ a.headerlink {
     visibility: hidden;
 }
 
-*:hover > a.headerlink,
-*:hover > a.headerlink,
-*:hover > a.headerlink,
-*:hover > a.headerlink,
-*:hover > a.headerlink,
-*:hover > a.headerlink {
+h1:hover > a.headerlink,
+h2:hover > a.headerlink,
+h3:hover > a.headerlink,
+h4:hover > a.headerlink,
+h5:hover > a.headerlink,
+h6:hover > a.headerlink,
+dt:hover > a.headerlink {
     visibility: visible;
 }
 
-a.headerlink:hover,
-a.headerlink:hover,
-a.headerlink:hover,
-a.headerlink:hover,
-a.headerlink:hover,
 a.headerlink:hover {
     background-color: #c60f0f;
     color: white;
