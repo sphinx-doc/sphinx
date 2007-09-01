@@ -39,6 +39,7 @@ div.sidebar {
     float: left;
     width: 230px;
     margin-left: -100%;
+    font-size: 90%;
 }
 
 div.clearer {
@@ -50,6 +51,7 @@ div.footer {
     width: 100%;
     padding: 9px 0 9px 0;
     text-align: center;
+    font-size: 75%;
 }
 
 div.footer a {
@@ -63,6 +65,7 @@ div.related {
     width: 100%;
     height: 30px;
     line-height: 30px;
+    font-size: 90%;
 }
 
 div.related h3 {
@@ -92,7 +95,7 @@ div.related a {
 div.sidebar h3 {
     font-family: 'Trebuchet MS', sans-serif;
     color: white;
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: normal;
     margin: 0;
     padding: 0;
@@ -101,7 +104,7 @@ div.sidebar h3 {
 div.sidebar h4 {
     font-family: 'Trebuchet MS', sans-serif;
     color: white;
-    font-size: 1.2em;
+    font-size: 1.3em;
     font-weight: normal;
     margin: 5px 0 0 0;
     padding: 0;
@@ -441,12 +444,13 @@ table.contentstable p.biglink {
 }
 
 a.biglink {
-    font-size: 1.5em;
+    font-size: 1.3em;
 }
 
 span.linkdescr {
     font-style: italic;
     padding-top: 5px;
+    font-size: 90%;
 }
 
 /* :::: INDEX STYLES :::: */
@@ -518,11 +522,11 @@ div.body h6 {
     padding: 3px 0 3px 10px;
 }
 
-div.body h1 { margin-top: 0; font-size: 250%; }
-div.body h2 { font-size: 200%; }
-div.body h3 { font-size: 160%; }
-div.body h4 { font-size: 140%; }
-div.body h5 { font-size: 120%; }
+div.body h1 { margin-top: 0; font-size: 200%; }
+div.body h2 { font-size: 160%; }
+div.body h3 { font-size: 140%; }
+div.body h4 { font-size: 120%; }
+div.body h5 { font-size: 110%; }
 div.body h6 { font-size: 100%; }
 
 a.headerlink,
