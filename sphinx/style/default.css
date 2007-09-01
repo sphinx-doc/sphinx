@@ -4,7 +4,7 @@
 
 body {
     font-family: sans-serif;
-    font-size: 13px;
+    font-size: 100%;
     background-color: #11303d;
     color: #000;
     margin: 0;
@@ -92,7 +92,7 @@ div.related a {
 div.sidebar h3 {
     font-family: 'Trebuchet MS', sans-serif;
     color: white;
-    font-size: 24px;
+    font-size: 1.5em;
     font-weight: normal;
     margin: 0;
     padding: 0;
@@ -101,7 +101,7 @@ div.sidebar h3 {
 div.sidebar h4 {
     font-family: 'Trebuchet MS', sans-serif;
     color: white;
-    font-size: 16px;
+    font-size: 1.2em;
     font-weight: normal;
     margin: 5px 0 0 0;
     padding: 0;
@@ -236,7 +236,7 @@ div.inlinecomments a.bubble {
     height: 25px;
     text-align: center;
     padding-top: 3px;
-    font-size: 12px;
+    font-size: 0.9em;
     line-height: 14px;
     font-weight: bold;
     color: black;
@@ -348,7 +348,7 @@ div.commentwindow h3 {
     color: white;
     border: none;
     padding: 5px;
-    font-size: 22px;
+    font-size: 1.5em;
     cursor: pointer;
 }
 
@@ -396,7 +396,7 @@ div.commentwindow div.preview h4 {
     margin: 0 0 -5px -20px;
     padding: 4px 0 0 4px;
     color: white;
-    font-size: 18px;
+    font-size: 1.3em;
 }
 
 div.commentwindow div.preview div.comment {
@@ -406,7 +406,7 @@ div.commentwindow div.preview div.comment {
 div.commentwindow div.preview div.comment h4 {
     margin: 10px 0 0 0!important;
     padding: 1px 4px 1px 4px!important;
-    font-size: 16px;
+    font-size: 1.2em;
 }
 
 /* :::: SUGGEST CHANGES :::: */
@@ -518,12 +518,12 @@ div.body h6 {
     padding: 3px 0 3px 10px;
 }
 
-div.body h1 { margin-top: 0; font-size: 30px; }
-div.body h2 { font-size: 25px; }
-div.body h3 { font-size: 21px; }
-div.body h4 { font-size: 18px; }
-div.body h5 { font-size: 14px; }
-div.body h6 { font-size: 12px; }
+div.body h1 { margin-top: 0; font-size: 250%; }
+div.body h2 { font-size: 200%; }
+div.body h3 { font-size: 160%; }
+div.body h4 { font-size: 140%; }
+div.body h5 { font-size: 120%; }
+div.body h6 { font-size: 100%; }
 
 a.headerlink,
 a.headerlink,
@@ -763,7 +763,7 @@ form.comment textarea {
     border: 1px solid #ccc;
     padding: 2px;
     font-family: sans-serif;
-    font-size: 13px;
+    font-size: 100%;
 }
 
 form.comment input[type="text"] {
