@@ -145,11 +145,11 @@ class DocumentationApplication(object):
                 # happens if another thread already reloaded the env
                 return
             print "* Loading the environment..."
-            with file(path.join(self.data_root, ENV_PICKLE_FILENAME)) as f:
+            with file(path.join(self.data_root, ENV_PICKLE_FILENAME), 'rb') as f:
                 self.env = pickle.load(f)
-            with file(path.join(self.data_root, 'globalcontext.pickle')) as f:
+            with file(path.join(self.data_root, 'globalcontext.pickle'), 'rb') as f:
                 self.globalcontext = pickle.load(f)
-            with file(path.join(self.data_root, 'searchindex.pickle')) as f:
+            with file(path.join(self.data_root, 'searchindex.pickle'), 'rb') as f:
                 self.search_frontend = SearchFrontend(pickle.load(f))
             self.buildmtime = new_mtime
             self.cache.clear()
