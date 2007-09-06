@@ -230,7 +230,6 @@ class Builder(object):
                 for tocfilename in self.env.files_to_rebuild.get(filename, []):
                     filenames_set.add(tocfilename)
             filenames_set.add('contents.rst')
-            import pdb; pdb.set_trace()
         else:
             # build all
             filenames_set = set(self.env.all_files)
