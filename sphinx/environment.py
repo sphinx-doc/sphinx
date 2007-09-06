@@ -197,7 +197,7 @@ class BuildEnvironment:
                                     # (don't show if it's only one item)
         self.toctree_relations = {} # filename -> ["parent", "previous", "next"] filename
                                     # for navigating in the toctree
-        self.files_to_rebuild = {}  # filename -> list of files (containing its TOCs)
+        self.files_to_rebuild = {}  # filename -> set of files (containing its TOCs)
                                     # to rebuild too
 
         # X-ref target inventory
@@ -234,8 +234,9 @@ class BuildEnvironment:
             self.titles.pop(filename, None)
             self.tocs.pop(filename, None)
             self.toc_num_entries.pop(filename, None)
-            self.files_to_rebuild.pop(filename, None)
 
+            for subfn, fnset in self.files_to_rebuild.iteritems():
+                fnset.discard(filename)
             for fullname, (fn, _) in self.descrefs.items():
                 if fn == filename:
                     del self.descrefs[fullname]
