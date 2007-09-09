@@ -1,6 +1,7 @@
 Global TODO
 ===========
 
+- add OpenSearch
 - "seealso" links to external examples, see http://svn.python.org/projects/sandbox/trunk/seealso/ and http://effbot.org/zone/idea-seealso.htm
 - "often used" combo box in sidebar
 - discuss and debug comments system
