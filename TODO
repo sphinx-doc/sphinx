@@ -1,14 +1,21 @@
 Global TODO
 ===========
 
+Sphinx
+******
+
+- section numbers
+- split the general index
 - add OpenSearch
 - "seealso" links to external examples, see http://svn.python.org/projects/sandbox/trunk/seealso/ and http://effbot.org/zone/idea-seealso.htm
-- "often used" combo box in sidebar
-- discuss and debug comments system
-- write new Makefile, handle automatic checkout
 - write a "printable" builder (export to latex, most probably)
-- prepare for databases other than sqlite for comments
-- look at the old tools/ scripts, what functionality should be rewritten
+- "often used" combo box in sidebar
 - source file cross-references?
+
+Web App
+*******
+
+- discuss and debug comments system
+- prepare for databases other than sqlite for comments
 - add search via Xapian?
 - optionally have a contents tree view in the sidebar (AJAX based)?
