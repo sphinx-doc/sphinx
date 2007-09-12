@@ -141,16 +141,14 @@ def parse_py_signature(signode, sig, desctype, env):
     else:
         fullname = classname + name if classname else name
 
+    if classname:
+        signode += addnodes.desc_classname(classname, classname)
     # exceptions are a special case, since they are documented in the
     # 'exceptions' module.
-    if env.config.get('add_module_names', True) and \
+    elif env.config.get('add_module_names', True) and \
            env.currmodule and env.currmodule != 'exceptions':
         nodetext = env.currmodule + '.'
-        if classname:
-            nodetext += classname
         signode += addnodes.desc_classname(nodetext, nodetext)
-    elif classname:
-        signode += addnodes.desc_classname(classname, classname)
 
     signode += addnodes.desc_name(name, name)
     if not arglist:
