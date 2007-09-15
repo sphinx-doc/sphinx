@@ -18,7 +18,7 @@
 {%- set numcols = 1 %}
 {%- set numitems = 0 %}
 {% for entryname, (links, subitems) in entries %}
-<dt>{%- if links -%}<a href="{{ links[0] }}">{{ entryname }}</a>
+<dt>{%- if links -%}<a href="{{ links[0] }}">{{ entryname|e }}</a>
   {%- for link in links[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
   {%- else -%}
 {{ entryname }}
@@ -26,7 +26,7 @@
   {%- if subitems %}
   <dd><dl>
     {%- for subentryname, subentrylinks in subitems %}
-    <dt><a href="{{ subentrylinks[0] }}">{{ subentryname }}</a>
+    <dt><a href="{{ subentrylinks[0] }}">{{ subentryname|e }}</a>
     {%- for link in subentrylinks[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
     </dt>
     {%- endfor %}
