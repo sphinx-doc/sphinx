@@ -22,7 +22,7 @@ try:
     from pygments.filters import ErrorToken
     from pygments.style import Style
     from pygments.styles.friendly import FriendlyStyle
-    from pygments.token import Generic, Comment
+    from pygments.token import Generic, Comment, Number
 except ImportError:
     pygments = None
 else:
@@ -38,6 +38,7 @@ else:
         styles.update({
             Generic.Output: 'italic #333',
             Comment: 'italic #408090',
+            Number: '#208050',
         })
 
     lexers = defaultdict(TextLexer,

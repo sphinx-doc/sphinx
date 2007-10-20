@@ -299,8 +299,20 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'opcode':
                 name = parse_opcode_signature(signode, sig, desctype)
+            elif desctype == 'cmdoption':
+                # TODO: add custom parsing for <optional> parts?
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+                if not noindex:
+                    targetname = 'cmdoption-%s' % env.index_num
+                    env.index_num += 1
+                    signode['ids'].append(targetname)
+                    state.document.note_explicit_target(signode)
+                    env.note_index_entry('pair', 'command line option; %s' % sig,
+                                         targetname, targetname)
+                continue
             else:
-                # describe: use generic fallback
+                # for "describe": use generic fallback
                 raise ValueError
         except ValueError, err:
             signode.clear()
@@ -364,7 +376,8 @@ desctypes = [
     'cvar',
     # the odd one
     'opcode',
-    # the generic one
+    # the generic ones
+    'cmdoption', # for command line options
     'describe',
 ]
 
