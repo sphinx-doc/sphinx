@@ -36,7 +36,7 @@ else:
 
         styles = FriendlyStyle.styles
         styles.update({
-            Generic.Output: 'italic #333',
+            Generic.Output: '#333',
             Comment: 'italic #408090',
             Number: '#208050',
         })
