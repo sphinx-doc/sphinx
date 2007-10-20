@@ -246,7 +246,7 @@ def parse_c_signature(signode, sig, desctype):
 
 opcode_sig_re = re.compile(r'(\w+(?:\+\d)?)\s*\((.*)\)')
 
-def parse_opcode_signature(signode, sig, desctype):
+def parse_opcode_signature(signode, sig):
     """Transform an opcode signature into RST nodes."""
     m = opcode_sig_re.match(sig)
     if m is None: raise ValueError
@@ -256,6 +256,18 @@ def parse_opcode_signature(signode, sig, desctype):
     signode += paramlist
     paramlist += addnodes.desc_parameter(arglist, arglist)
     return opname.strip()
+
+
+option_desc_re = re.compile(r'([-/])([-_a-zA-Z0-9]+)(\s*.*)')
+
+def parse_option_desc(signode, sig):
+    """Transform an option description into RST nodes."""
+    m = option_desc_re.match(sig)
+    if m is None: raise ValueError
+    prefix, optname, args = m.groups()
+    signode += addnodes.desc_name(prefix+optname, prefix+optname)
+    signode += addnodes.desc_classname(args, args)
+    return optname
 
 
 def add_refcount_annotation(env, node, name):
@@ -298,18 +310,27 @@ def desc_directive(desctype, arguments, options, content, lineno,
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'opcode':
-                name = parse_opcode_signature(signode, sig, desctype)
+                name = parse_opcode_signature(signode, sig)
             elif desctype == 'cmdoption':
-                # TODO: add custom parsing for <optional> parts?
-                signode.clear()
-                signode += addnodes.desc_name(sig, sig)
+                optname = parse_option_desc(signode, sig)
                 if not noindex:
-                    targetname = 'cmdoption-%s' % env.index_num
-                    env.index_num += 1
+                    targetname = 'cmdoption-' + optname
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
                     env.note_index_entry('pair', 'command line option; %s' % sig,
                                          targetname, targetname)
+                    env.note_reftarget('option', optname, targetname)
+                continue
+            elif desctype == 'envvar':
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+                if not noindex:
+                    targetname = 'envvar-' + sig
+                    signode['ids'].append(targetname)
+                    state.document.note_explicit_target(signode)
+                    env.note_index_entry('pair', 'environment variable; %s' % sig,
+                                         targetname, targetname)
+                    env.note_reftarget('envvar', sig, targetname)
                 continue
             else:
                 # for "describe": use generic fallback
@@ -378,6 +399,7 @@ desctypes = [
     'opcode',
     # the generic ones
     'cmdoption', # for command line options
+    'envvar', # for environment variables
     'describe',
 ]
 
@@ -472,7 +494,7 @@ def productionlist_directive(name, arguments, options, content, lineno,
             if idname not in state.document.ids:
                 subnode['ids'].append(idname)
             state.document.note_implicit_target(subnode, subnode)
-            env.note_token(subnode['tokenname'])
+            env.note_reftarget('token', subnode['tokenname'], idname)
         subnode.extend(token_xrefs(tokens, env))
         node.append(subnode)
     return [node] + messages
@@ -621,7 +643,7 @@ def glossary_directive(name, arguments, options, content, lineno,
             env.gloss_entries.add(new_id)
             li[0]['names'].append(new_id)
             li[0]['ids'].append(new_id)
-            state.document.settings.env.note_glossaryterm(termtext, new_id)
+            state.document.settings.env.note_reftarget('term', termtext, new_id)
     return [node]
 
 glossary_directive.content = 1

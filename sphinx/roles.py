@@ -29,7 +29,6 @@ generic_docroles = {
     'manpage' : addnodes.literal_emphasis,
     'mimetype' : addnodes.literal_emphasis,
     'newsgroup' : addnodes.literal_emphasis,
-    'option' : addnodes.literal_emphasis,
     'program' : nodes.strong,
     'regexp' : nodes.literal,
 }
@@ -48,10 +47,14 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     if typ == 'envvar':
         env.note_index_entry('single', '%s' % text,
                              targetid, text)
-        env.note_index_entry('single', 'environment variables!%s' % text,
+        env.note_index_entry('single', 'environment variable; %s' % text,
                              targetid, text)
-        textnode = nodes.strong(text, text)
-        return [targetnode, textnode], []
+        #textnode = nodes.strong(text, text)
+        pnode = addnodes.pending_xref(rawtext)
+        pnode['reftype'] = 'envvar'
+        pnode['reftarget'] = text
+        pnode += nodes.strong(text, text, classes=['xref'])
+        return [targetnode, pnode], []
     elif typ == 'pep':
         env.note_index_entry('single', 'Python Enhancement Proposals!PEP %s' % text,
                              targetid, 'PEP %s' % text)
@@ -91,6 +94,7 @@ innernodetypes = {
     'ref': nodes.emphasis,
     'term': nodes.emphasis,
     'token': nodes.strong,
+    'option': addnodes.literal_emphasis,
 }
 
 def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -112,7 +116,12 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
        typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
         text = text[1:]
         pnode['refspecific'] = True
-    pnode['reftarget'] = ws_re.sub((' ' if typ == 'term' else ''), text)
+    if typ == 'term':
+        pnode['reftarget'] = ws_re.sub(' ', text)
+    elif typ == 'option':
+        pnode['reftarget'] = text[1:] if text[0] in '-/' else text
+    else:
+        pnode['reftarget'] = ws_re.sub('', text)
     pnode['modname'] = env.currmodule
     pnode['classname'] = env.currclass
     pnode += innernodetypes.get(typ, nodes.literal)(rawtext, text, classes=['xref'])
@@ -160,6 +169,7 @@ specific_docroles = {
     'ref': xfileref_role,
     'token' : xfileref_role,
     'term': xfileref_role,
+    'option': xfileref_role,
 
     'menuselection' : menusel_role,
     'file' : emph_literal_role,

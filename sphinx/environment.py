@@ -52,7 +52,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 11
+ENV_VERSION = 12
 
 
 def walk_depth(node, depth, maxdepth):
@@ -204,9 +204,9 @@ class BuildEnvironment:
         self.descrefs = {}          # fullname -> filename, desctype
         self.filemodules = {}       # filename -> [modules]
         self.modules = {}           # modname -> filename, synopsis, platform, deprecated
-        self.tokens = {}            # tokenname -> filename
-        self.labels = {}            # labelname -> filename, labelid
-        self.glossary = {}          # term -> filename, labelid
+        self.labels = {}            # labelname -> filename, labelid, sectionname
+        self.reftargets = {}        # (type, name) -> filename, labelid
+                                    # where type is term, token, option, envvar
 
         # Other inventories
         self.indexentries = {}      # filename -> list of
@@ -244,15 +244,12 @@ class BuildEnvironment:
             for modname, (fn, _, _, _) in self.modules.items():
                 if fn == filename:
                     del self.modules[modname]
-            for tokenname, fn in self.tokens.items():
-                if fn == filename:
-                    del self.tokens[tokenname]
             for labelname, (fn, _, _) in self.labels.items():
                 if fn == filename:
                     del self.labels[labelname]
-            for term, (fn, _) in self.glossary.items():
+            for key, (fn, _) in self.reftargets.items():
                 if fn == filename:
-                    del self.glossary[term]
+                    del self.reftargets[key]
             self.indexentries.pop(filename, None)
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != filename]
@@ -302,7 +299,8 @@ class BuildEnvironment:
         Yields a summary and then filenames as it processes them.
         """
         added, changed, removed = self.get_outdated_files(config)
-        msg = '%s added, %s changed, %s removed' % (len(added), len(changed), len(removed))
+        msg = '%s added, %s changed, %s removed' % (len(added), len(changed),
+                                                    len(removed))
         if self.config != config:
             msg = '[config changed] ' + msg
         yield msg
@@ -502,8 +500,8 @@ class BuildEnvironment:
         self.modules[modname] = (self.filename, synopsis, platform, deprecated)
         self.filemodules.setdefault(self.filename, []).append(modname)
 
-    def note_token(self, tokenname):
-        self.tokens[tokenname] = self.filename
+    def note_reftarget(self, type, name, labelid):
+        self.reftargets[type, name] = (self.filename, labelid)
 
     def note_index_entry(self, type, string, targetid, aliasname):
         self.indexentries.setdefault(self.filename, []).append(
@@ -512,9 +510,6 @@ class BuildEnvironment:
     def note_versionchange(self, type, version, node):
         self.versionchanges.setdefault(version, []).append(
             (type, self.filename, self.currmodule, self.currdesc, node.deepcopy()))
-
-    def note_glossaryterm(self, text, labelname):
-        self.glossary[text] = (self.filename, labelname)
     # -------
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
@@ -584,8 +579,6 @@ class BuildEnvironment:
 
             typ = node['reftype']
             target = node['reftarget']
-            modname = node['modname']
-            clsname = node['classname']
 
             if typ == 'ref':
                 filename, labelid, sectname = self.labels.get(target, ('','',''))
@@ -602,11 +595,12 @@ class BuildEnvironment:
                         newnode['refuri'] = builder.get_relative_uri(
                             docfilename, filename) + '#' + labelid
                     newnode.append(nodes.emphasis(sectname, sectname))
-            elif typ == 'term':
-                filename, labelid = self.glossary.get(target, ('', ''))
+            elif typ in ('token', 'term', 'envvar', 'option'):
+                filename, labelid = self.reftargets.get((typ, target), ('', ''))
                 if not filename:
-                    print >>self.warning_stream, \
-                          '%s: term not in glossary: %s' % (docfilename, target)
+                    if typ == 'term':
+                        print >>self.warning_stream, \
+                              '%s: term not in glossary: %s' % (docfilename, target)
                     newnode = contnode
                 else:
                     newnode = nodes.reference('', '')
@@ -615,18 +609,6 @@ class BuildEnvironment:
                     else:
                         newnode['refuri'] = builder.get_relative_uri(
                             docfilename, filename) + '#' + labelid
-                    newnode.append(contnode)
-            elif typ == 'token':
-                filename = self.tokens.get(target, '')
-                if not filename:
-                    newnode = contnode
-                else:
-                    newnode = nodes.reference('', '')
-                    if filename == docfilename:
-                        newnode['refid'] = 'grammar-token-' + target
-                    else:
-                        newnode['refuri'] = builder.get_relative_uri(
-                            docfilename, filename) + '#grammar-token-' + target
                     newnode.append(contnode)
             elif typ == 'mod':
                 filename, synopsis, platform, deprecated = \
@@ -649,6 +631,8 @@ class BuildEnvironment:
                         synopsis, (' (deprecated)' if deprecated else ''))
                     newnode.append(contnode)
             else:
+                modname = node['modname']
+                clsname = node['classname']
                 searchorder = 1 if node.hasattr('refspecific') else 0
                 name, desc = self.find_desc(modname, clsname, target, typ, searchorder)
                 if not desc:

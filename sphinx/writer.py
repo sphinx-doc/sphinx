@@ -258,6 +258,14 @@ def translator_class(config, buildername):
             self.depart_emphasis(node)
             self.no_smarty -= 1
 
+        def visit_desc_signature(self, node):
+            self.no_smarty += 1
+            HTMLTranslator.visit_desc_signature(self, node)
+
+        def depart_desc_signature(self, node):
+            self.no_smarty -= 1
+            HTMLTranslator.depart_desc_signature(self, node)
+
         def visit_productionlist(self, node):
             self.no_smarty += 1
             try:

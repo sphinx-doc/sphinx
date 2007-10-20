@@ -407,7 +407,8 @@ class StandaloneHTMLBuilder(Builder):
             pl = pl.split(', ') if pl else []
             platforms.update(pl)
             if fl != mn[0].lower() and mn[0] != '_':
-                modindexentries.append(['', False, 0, False, mn[0].upper(), '', [], False])
+                modindexentries.append(['', False, 0, False,
+                                        mn[0].upper(), '', [], False])
             tn = mn.partition('.')[0]
             if tn != mn:
                 # submodule
