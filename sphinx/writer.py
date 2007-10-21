@@ -160,6 +160,13 @@ def translator_class(config, buildername):
             self.body.append(highlight_block(node.rawsource, self.highlightlang))
             raise nodes.SkipNode
 
+        # overwritten
+        def visit_literal(self, node):
+            if len(node.children) == 1 and \
+                   node.children[0] in ('None', 'True', 'False'):
+                node['classes'].append('xref')
+            BaseTranslator.visit_literal(self, node)
+
         def visit_productionlist(self, node):
             self.body.append(self.starttag(node, 'pre'))
             names = []

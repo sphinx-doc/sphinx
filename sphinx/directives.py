@@ -643,7 +643,8 @@ def glossary_directive(name, arguments, options, content, lineno,
             env.gloss_entries.add(new_id)
             li[0]['names'].append(new_id)
             li[0]['ids'].append(new_id)
-            state.document.settings.env.note_reftarget('term', termtext, new_id)
+            state.document.settings.env.note_reftarget('term', termtext.lower(),
+                                                       new_id)
     return [node]
 
 glossary_directive.content = 1
