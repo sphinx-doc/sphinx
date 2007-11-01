@@ -17,5 +17,5 @@ Web App
 
 - discuss and debug comments system
 - prepare for databases other than sqlite for comments
-- add search via Xapian?
+- add search via Xapian or Nucular (Python indexer - nucular.sf.net)
 - optionally have a contents tree view in the sidebar (AJAX based)?

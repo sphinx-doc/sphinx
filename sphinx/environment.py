@@ -441,7 +441,7 @@ class BuildEnvironment:
             for subnode in node:
                 if isinstance(subnode, addnodes.toctree):
                     # just copy the toctree node which is then resolved
-                    # in self.resolve_toctrees
+                    # in self.get_and_resolve_doctree
                     item = subnode.copy()
                     entries.append(item)
                     # do the inventory stuff
