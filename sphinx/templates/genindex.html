@@ -21,7 +21,7 @@
 <dt>{%- if links -%}<a href="{{ links[0] }}">{{ entryname|e }}</a>
   {%- for link in links[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
   {%- else -%}
-{{ entryname }}
+{{ entryname|e }}
   {%- endif -%}</dt>
   {%- if subitems %}
   <dd><dl>
