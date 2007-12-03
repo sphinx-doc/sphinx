@@ -27,13 +27,15 @@ from docutils.readers import doctree
 from docutils.frontend import OptionParser
 
 from .util import (get_matching_files, attrdict, status_iterator,
-                   ensuredir, get_category, relative_uri)
-from .writer import HTMLWriter
-from .util.console import bold, purple, green
+                   ensuredir, get_category, relative_uri,
+                   webify_filepath, unwebify_filepath)
 from .htmlhelp import build_hhx
 from .patchlevel import get_version_info, get_sys_version_info
+from .htmlwriter import HTMLWriter
+#from .latexwriter import LaTeXWriter
 from .environment import BuildEnvironment
 from .highlighting import pygments, get_stylesheet
+from .util.console import bold, purple, green
 
 # side effect: registers roles and directives
 from . import roles
@@ -234,7 +236,7 @@ class Builder(object):
             # build all
             filenames_set = set(self.env.all_files)
 
-        self.prepare_writing(filenames)
+        self.prepare_writing(filenames_set)
 
         # write target files
         with collect_env_warnings(self):
@@ -483,12 +485,12 @@ class StandaloneHTMLBuilder(Builder):
             self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
             try:
                 targetmtime = path.getmtime(path.join(self.outdir,
-                                                      filename[:-4] + '.html'))
+                                                      unwebify_filepath(filename)[:-4] + '.html'))
             except:
                 targetmtime = 0
             if filename not in self.env.all_files:
                 yield filename
-            elif path.getmtime(path.join(self.srcdir, filename)) > targetmtime:
+            elif path.getmtime(path.join(self.srcdir, unwebify_filepath(filename))) > targetmtime:
                 yield filename
 
 
@@ -513,7 +515,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx = self.globalcontext.copy()
         ctx.update(context)
         output = self.templates[templatename].render(ctx)
-        outfilename = path.join(self.outdir, filename[:-4] + '.html')
+        outfilename = path.join(self.outdir, unwebify_filepath(filename)[:-4] + '.html')
         ensuredir(path.dirname(outfilename)) # normally different from self.outdir
         try:
             with codecs.open(outfilename, 'w', 'utf-8') as fp:
@@ -522,7 +524,7 @@ class StandaloneHTMLBuilder(Builder):
             print >>self.warning_stream, "Error writing file %s: %s" % (outfilename, err)
         if self.copysource and context.get('sourcename'):
             # copy the source file for the "show source" link
-            shutil.copyfile(path.join(self.srcdir, filename),
+            shutil.copyfile(path.join(self.srcdir, unwebify_filepath(filename)),
                             path.join(self.outdir, context['sourcename']))
 
     def handle_finish(self):
@@ -547,10 +549,10 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
             self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
             try:
                 targetmtime = path.getmtime(path.join(self.outdir,
-                                                      filename[:-4] + '.fpickle'))
+                                                      unwebify_filepath(filename)[:-4] + '.fpickle'))
             except:
                 targetmtime = 0
-            if path.getmtime(path.join(self.srcdir, filename)) > targetmtime:
+            if path.getmtime(path.join(self.srcdir, unwebify_filepath(filename))) > targetmtime:
                 yield filename
 
     def get_target_uri(self, source_filename):
@@ -577,7 +579,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
                 self.indexer.feed(filename, category, title, doctree)
 
     def handle_file(self, filename, context, templatename='page'):
-        outfilename = path.join(self.outdir, filename[:-4] + '.fpickle')
+        outfilename = path.join(self.outdir, unwebify_filepath(filename)[:-4] + '.fpickle')
         ensuredir(path.dirname(outfilename))
         context.pop('pathto', None) # can't be pickled
         with file(outfilename, 'wb') as fp:
@@ -587,7 +589,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         if context.get('sourcename'):
             source_name = path.join(self.outdir, 'sources', context['sourcename'])
             ensuredir(path.dirname(source_name))
-            shutil.copyfile(path.join(self.srcdir, filename), source_name)
+            shutil.copyfile(path.join(self.srcdir, unwebify_filepath(filename)), source_name)
 
     def handle_finish(self):
         # dump the global context
@@ -632,8 +634,43 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         build_hhx(self, self.outdir, self.options.get('outname') or 'pydoc')
 
 
+class LaTeXBuilder(Builder):
+    """
+    Builds LaTeX output to create PDF.
+    """
+    name = 'latex'
+
+    def init(self):
+        pass
+
+    def get_outdated_files(self):
+        # always rebuild everything for now
+        return self.env.all_files
+
+    def get_target_uri(self, source_filename):
+        # XXX: returns nothing for now
+        return ''
+
+    def prepare_writing(self, filenames):
+        self.docwriter = LaTeXWriter(self.config, self.name)
+        self.docsettings = OptionParser(
+            defaults=self.env.settings,
+            components=(self.docwriter,)).get_default_values()
+        
+
+    def write_file(self, filename, doctree):
+        destination = StringOutput(encoding='utf-8')
+        doctree.settings = self.docsettings
+        output = self.docwriter.write(doctree, destination)
+        print output
+
+    def finish(self):
+        pass
+
+
 builders = {
     'html': StandaloneHTMLBuilder,
     'web': WebHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
+#    'latex': LaTeXBuilder,
 }

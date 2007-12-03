@@ -15,17 +15,35 @@ import fnmatch
 from os import path
 
 
+#
+# Define WEB_SEP as a manifest constant, not
+# so much because we expect it to change in
+# the future as to avoid the suspicion that
+# a stray "/" in the code is a hangover from
+# more *nix-oriented origins.
+#
+WEB_SEP = "/"
+
+
+def webify_filepath(filepath):
+    return filepath.replace(os.path.sep, WEB_SEP)
+    
+    
+def unwebify_filepath(webpath):
+    return webpath.replace(WEB_SEP, os.path.sep)
+
+
 def relative_uri(base, to):
     """Return a relative URL from ``base`` to ``to``."""
-    b2 = base.split('/')
-    t2 = to.split('/')
+    b2 = base.split(WEB_SEP)
+    t2 = to.split(WEB_SEP)
     # remove common segments
     for x, y in zip(b2, t2):
         if x != y:
             break
         b2.pop(0)
         t2.pop(0)
-    return '../' * (len(b2)-1) + '/'.join(t2)
+    return ('..' + WEB_SEP) * (len(b2)-1) + WEB_SEP.join(t2)
 
 
 def ensuredir(path):
@@ -60,12 +78,12 @@ def get_matching_files(dirname, pattern, exclude=()):
             qualified_name = path.join(root[dirlen:], sfile)
             if qualified_name in exclude:
                 continue
-            yield qualified_name
+            yield webify_filepath(qualified_name)
 
 
 def get_category(filename):
     """Get the "category" part of a RST filename."""
-    parts = filename.split('/', 1)
+    parts = filename.split(WEB_SEP, 1)
     if len(parts) < 2:
         return
     return parts[0]

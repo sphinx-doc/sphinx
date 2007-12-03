@@ -19,6 +19,7 @@ from docutils.parsers.rst import directives, roles
 from docutils.parsers.rst.directives import admonitions
 
 from . import addnodes
+from .util import webify_filepath, unwebify_filepath
 
 # ------ index markup --------------------------------------------------------------
 
@@ -554,7 +555,8 @@ def toctree_directive(name, arguments, options, content, lineno,
     subnode = addnodes.toctree()
     includefiles = filter(None, content)
     # absolutize filenames
-    includefiles = map(lambda x: path.normpath(path.join(dirname, x)), includefiles)
+    includefiles = [webify_filepath(path.normpath(path.join (dirname, x))) for x in includefiles]
+    #~ includefiles = map(lambda x: path.normpath(path.join(dirname, x)), includefiles)
     subnode['includefiles'] = includefiles
     subnode['maxdepth'] = options.get('maxdepth', -1)
     return [subnode]
@@ -599,9 +601,9 @@ def literalinclude_directive(name, arguments, options, content, lineno,
         return [state.document.reporter.warning('File insertion disabled', line=lineno)]
     env = state.document.settings.env
     fn = arguments[0]
-    source_dir = path.dirname(path.abspath(state_machine.input_lines.source(
-        lineno - state_machine.input_offset - 1)))
-    fn = path.normpath(path.join(source_dir, fn))
+    source_dir = webify_filepath(path.dirname(path.abspath(state_machine.input_lines.source(
+        lineno - state_machine.input_offset - 1))))
+    fn = webify_filepath(path.normpath(path.join(source_dir, fn)))
 
     try:
         with open(fn) as f:
