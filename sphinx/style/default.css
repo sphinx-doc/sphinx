@@ -783,8 +783,12 @@ form.comment textarea {
         width: 100%;
     }
 
-    div.body {
+	div.document, 
+	div.documentwrapper, 
+	div.bodywrapper, 
+	div.body {
         margin: 0;
+		width : 100%;
     }
 
     div.sidebar,
