@@ -74,6 +74,11 @@ default_substitutions = set([
 ])
 
 
+class NoUri(Exception):
+    """Raised by get_relative_uri if there is no URI available."""
+    pass
+
+
 class DefaultSubstitutions(Transform):
     """
     Replace some substitutions if they aren't defined in the document.
@@ -582,73 +587,75 @@ class BuildEnvironment:
             typ = node['reftype']
             target = node['reftarget']
 
-            if typ == 'ref':
-                filename, labelid, sectname = self.labels.get(target, ('','',''))
-                if not filename:
-                    newnode = doctree.reporter.system_message(
-                        2, 'undefined label: %s' % target)
-                    print >>self.warning_stream, \
-                          '%s: undefined label: %s' % (docfilename, target)
-                else:
-                    newnode = nodes.reference('', '')
-                    if filename == docfilename:
-                        newnode['refid'] = labelid
-                    else:
-                        newnode['refuri'] = builder.get_relative_uri(
-                            docfilename, filename) + '#' + labelid
-                    newnode.append(nodes.emphasis(sectname, sectname))
-            elif typ in ('token', 'term', 'envvar', 'option'):
-                filename, labelid = self.reftargets.get((typ, target), ('', ''))
-                if not filename:
-                    if typ == 'term':
+            try:
+                if typ == 'ref':
+                    filename, labelid, sectname = self.labels.get(target, ('','',''))
+                    if not filename:
+                        newnode = doctree.reporter.system_message(
+                            2, 'undefined label: %s' % target)
                         print >>self.warning_stream, \
-                              '%s: term not in glossary: %s' % (docfilename, target)
-                    newnode = contnode
-                else:
-                    newnode = nodes.reference('', '')
-                    if filename == docfilename:
-                        newnode['refid'] = labelid
+                              '%s: undefined label: %s' % (docfilename, target)
                     else:
-                        newnode['refuri'] = builder.get_relative_uri(
-                            docfilename, filename) + '#' + labelid
-                    newnode.append(contnode)
-            elif typ == 'mod':
-                filename, synopsis, platform, deprecated = \
-                    self.modules.get(target, ('','','', ''))
-                # just link to an anchor if there are multiple modules in one file
-                # because the anchor is generally below the heading which is ugly
-                # but can't be helped easily
-                anchor = ''
-                if not filename or filename == docfilename:
-                    # don't link to self
-                    newnode = contnode
-                else:
-                    if len(self.filemodules[filename]) > 1:
-                        anchor = '#' + 'module-' + target
-                    newnode = nodes.reference('', '')
-                    newnode['refuri'] = (
-                        builder.get_relative_uri(docfilename, filename) + anchor)
-                    newnode['reftitle'] = '%s%s%s' % (
-                        ('(%s) ' % platform if platform else ''),
-                        synopsis, (' (deprecated)' if deprecated else ''))
-                    newnode.append(contnode)
-            else:
-                modname = node['modname']
-                clsname = node['classname']
-                searchorder = 1 if node.hasattr('refspecific') else 0
-                name, desc = self.find_desc(modname, clsname, target, typ, searchorder)
-                if not desc:
-                    newnode = contnode
-                else:
-                    newnode = nodes.reference('', '')
-                    if desc[0] == docfilename:
-                        newnode['refid'] = name
+                        newnode = nodes.reference('', '')
+                        if filename == docfilename:
+                            newnode['refid'] = labelid
+                        else:
+                            newnode['refuri'] = builder.get_relative_uri(
+                                docfilename, filename) + '#' + labelid
+                        newnode.append(nodes.emphasis(sectname, sectname))
+                elif typ in ('token', 'term', 'envvar', 'option'):
+                    filename, labelid = self.reftargets.get((typ, target), ('', ''))
+                    if not filename:
+                        if typ == 'term':
+                            print >>self.warning_stream, \
+                                  '%s: term not in glossary: %s' % (docfilename, target)
+                        newnode = contnode
                     else:
+                        newnode = nodes.reference('', '')
+                        if filename == docfilename:
+                            newnode['refid'] = labelid
+                        else:
+                            newnode['refuri'] = builder.get_relative_uri(
+                                docfilename, filename) + '#' + labelid
+                        newnode.append(contnode)
+                elif typ == 'mod':
+                    filename, synopsis, platform, deprecated = \
+                        self.modules.get(target, ('','','', ''))
+                    # just link to an anchor if there are multiple modules in one file
+                    # because the anchor is generally below the heading which is ugly
+                    # but can't be helped easily
+                    anchor = ''
+                    if not filename or filename == docfilename:
+                        # don't link to self
+                        newnode = contnode
+                    else:
+                        if len(self.filemodules[filename]) > 1:
+                            anchor = '#' + 'module-' + target
+                        newnode = nodes.reference('', '')
                         newnode['refuri'] = (
-                            builder.get_relative_uri(docfilename, desc[0])
-                            + '#' + name)
-                    newnode.append(contnode)
-
+                            builder.get_relative_uri(docfilename, filename) + anchor)
+                        newnode['reftitle'] = '%s%s%s' % (
+                            ('(%s) ' % platform if platform else ''),
+                            synopsis, (' (deprecated)' if deprecated else ''))
+                        newnode.append(contnode)
+                else:
+                    modname = node['modname']
+                    clsname = node['classname']
+                    searchorder = 1 if node.hasattr('refspecific') else 0
+                    name, desc = self.find_desc(modname, clsname, target, typ, searchorder)
+                    if not desc:
+                        newnode = contnode
+                    else:
+                        newnode = nodes.reference('', '')
+                        if desc[0] == docfilename:
+                            newnode['refid'] = name
+                        else:
+                            newnode['refuri'] = (
+                                builder.get_relative_uri(docfilename, desc[0])
+                                + '#' + name)
+                        newnode.append(contnode)
+            except NoUri:
+                newnode = contnode
             if newnode:
                 node.replace_self(newnode)
 
@@ -663,8 +670,11 @@ class BuildEnvironment:
             if subword:
                 add_entry(subword, '', dic=entry[1])
             else:
-                entry[0].append(builder.get_relative_uri('genindex.rst', fn)
-                                + '#' + tid)
+                try:
+                    entry[0].append(builder.get_relative_uri('genindex.rst', fn)
+                                    + '#' + tid)
+                except NoUri:
+                    pass
 
         for fn, entries in self.indexentries.iteritems():
             # new entry types must be listed in directives.py!

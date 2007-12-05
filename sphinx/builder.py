@@ -20,7 +20,7 @@ import cPickle as pickle
 import cStringIO as StringIO
 from os import path
 
-from docutils.io import StringOutput, DocTreeInput
+from docutils.io import StringOutput, FileOutput, DocTreeInput
 from docutils.core import publish_parts
 from docutils.utils import new_document
 from docutils.readers import doctree
@@ -32,11 +32,12 @@ from .util import (get_matching_files, attrdict, status_iterator,
 from .htmlhelp import build_hhx
 from .patchlevel import get_version_info, get_sys_version_info
 from .htmlwriter import HTMLWriter
-#from .latexwriter import LaTeXWriter
-from .environment import BuildEnvironment
+from .latexwriter import LaTeXWriter
+from .environment import BuildEnvironment, NoUri
 from .highlighting import pygments, get_stylesheet
 from .util.console import bold, purple, green
 
+from . import addnodes
 # side effect: registers roles and directives
 from . import roles
 from . import directives
@@ -225,6 +226,16 @@ class Builder(object):
         self.msg('creating index...')
         self.env.create_index(self)
 
+        # another indirection to support methods which don't build files
+        # individually
+        self.write(filenames)
+
+        # finish (write style files etc.)
+        self.msg('finishing...')
+        self.finish()
+        self.msg('done!')
+
+    def write(self, filenames):
         if filenames:
             # add all TOC files that may have changed
             filenames_set = set(filenames)
@@ -245,11 +256,6 @@ class Builder(object):
                                             stream=self.status_stream):
                 doctree = self.env.get_and_resolve_doctree(filename, self)
                 self.write_file(filename, doctree)
-
-        # finish (write style files etc.)
-        self.msg('finishing...')
-        self.finish()
-        self.msg('done!')
 
     def prepare_writing(self, filenames):
         raise NotImplementedError
@@ -641,36 +647,85 @@ class LaTeXBuilder(Builder):
     name = 'latex'
 
     def init(self):
-        pass
+        self.filenames = []
 
     def get_outdated_files(self):
         # always rebuild everything for now
         return self.env.all_files
 
     def get_target_uri(self, source_filename):
-        # XXX: returns nothing for now
-        return ''
+        if source_filename not in self.filenames:
+            raise NoUri
+        else:
+            return ''
 
-    def prepare_writing(self, filenames):
-        self.docwriter = LaTeXWriter(self.config, self.name)
-        self.docsettings = OptionParser(
+    def write(self, filenames):
+        # "filenames" is ignored here...
+
+        # first, assemble the "special" docs that are in every PDF
+        specials = []
+        for fname in ["license", "copyright", "about", "glossary"]:
+            specials.extend(self.env.get_doctree(fname+".rst").children)
+
+        docwriter = LaTeXWriter(self.config, self.name)
+        docsettings = OptionParser(
             defaults=self.env.settings,
-            components=(self.docwriter,)).get_default_values()
-        
+            components=(docwriter,)).get_default_values()
 
-    def write_file(self, filename, doctree):
-        destination = StringOutput(encoding='utf-8')
-        doctree.settings = self.docsettings
-        output = self.docwriter.write(doctree, destination)
-        print output
+        # XXX get names of toplevels automatically?
+        for docname in ["c-api"]:#, "distutils", "documenting", "extending",
+                        #"howto", "install", "library", "reference",
+                        #"tutorial", "using"]:
+            # XXX whatsnew missing
+            destination = FileOutput(
+                destination_path=path.join(self.outdir, docname+".tex"),
+                encoding='utf-8')
+            doctree = self.assemble_doctree(path.join(docname, "index.rst"))
+            doctree.extend(specials)
+            print "Writing..."
+            doctree.settings = docsettings
+            doctree.settings.filename = docname
+            output = docwriter.write(doctree, destination)
+            print "Done!"
+
+    def assemble_doctree(self, indexfile):
+        self.filenames = [indexfile]
+        print "Processing", indexfile
+        def process_tree(tree):
+            tree = tree.deepcopy()
+            for toctreenode in tree.traverse(addnodes.toctree):
+                index = toctreenode.parent.index(toctreenode)
+                includefiles = map(str, toctreenode['includefiles'])
+                for includefile in includefiles:
+                    try:
+                        print "Including", includefile
+                        subtree = process_tree(self.env.get_doctree(includefile))
+                        self.filenames.append(includefile)
+                    except:
+                        print >>self.warning_stream, 'WARNING: %s: toctree contains ' \
+                              'ref to nonexisting file %r' % (filename, includefile)
+                    else:
+                        toctreenode.parent[index:index] = subtree.children
+                toctreenode.parent.remove(toctreenode)
+            return tree
+        largetree = process_tree(self.env.get_doctree(indexfile))
+        print "Resolving references..."
+        self.env.resolve_references(largetree, indexfile, self)
+        #print largetree
+        return largetree
 
     def finish(self):
-        pass
+        self.msg('copying TeX support files...')
+        styledirname = path.join(path.dirname(__file__), 'texinputs')
+        for filename in os.listdir(styledirname):
+            if not filename.startswith('.'):
+                shutil.copyfile(path.join(styledirname, filename),
+                                path.join(self.outdir, filename))
 
 
 builders = {
     'html': StandaloneHTMLBuilder,
     'web': WebHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
-#    'latex': LaTeXBuilder,
+    'latex': LaTeXBuilder,
 }
