@@ -18,7 +18,7 @@ try:
     from pygments import highlight
     from pygments.lexers import PythonLexer, PythonConsoleLexer, CLexer, \
          TextLexer, RstLexer
-    from pygments.formatters import HtmlFormatter
+    from pygments.formatters import HtmlFormatter, LatexFormatter
     from pygments.filters import ErrorToken
     from pygments.style import Style
     from pygments.styles.friendly import FriendlyStyle
@@ -28,7 +28,8 @@ except ImportError:
 else:
     class PythonDocStyle(Style):
         """
-        Like friendly, but a bit darker to enhance contrast on the green background.
+        Like friendly, but a bit darker to enhance contrast on
+        the green background.
         """
 
         background_color = '#eeffcc'
@@ -51,12 +52,18 @@ else:
     for _lexer in lexers.values():
         _lexer.add_filter('raiseonerror')
 
-    fmter = HtmlFormatter(style=PythonDocStyle)
+    hfmter = HtmlFormatter(style=PythonDocStyle)
+    lfmter = LatexFormatter(style=PythonDocStyle)
 
 
-def highlight_block(source, lang):
+def highlight_block(source, lang, dest='html'):
+    def unhighlighted():
+        if dest == 'html':
+            return '<pre>' + cgi.escape(source) + '</pre>\n'
+        else:
+            return source
     if not pygments:
-        return '<pre>' + cgi.escape(source) + '</pre>\n'
+        return unhighlighted()
     if lang == 'python':
         if source.startswith('>>>'):
             # interactive session
@@ -67,16 +74,16 @@ def highlight_block(source, lang):
                 parser.suite('from __future__ import with_statement\n' +
                              source + '\n')
             except (SyntaxError, UnicodeEncodeError):
-                return '<pre>' + cgi.escape(source) + '</pre>\n'
+                return unhighlighted()
             else:
                 lexer = lexers['python']
     else:
         lexer = lexers[lang]
     try:
-        return highlight(source, lexer, fmter)
+        return highlight(source, lexer, dest == 'html' and hfmter or lfmter)
     except ErrorToken:
         # this is most probably not Python, so let it pass unhighlighted
-        return '<pre>' + cgi.escape(source) + '</pre>\n'
+        return unhighlighted()
 
-def get_stylesheet():
-    return fmter.get_style_defs()
+def get_stylesheet(dest='html'):
+    return (dest == 'html' and hfmter or lfmter).get_style_defs()

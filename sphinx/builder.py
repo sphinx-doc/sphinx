@@ -673,7 +673,7 @@ class LaTeXBuilder(Builder):
             components=(docwriter,)).get_default_values()
 
         # XXX get names of toplevels automatically?
-        for docname in ["library"]:#, "distutils", "documenting", "extending",
+        for docname in ["c-api"]:#, "distutils", "documenting", "extending",
                         #"howto", "install", "library", "reference",
                         #"tutorial", "using"]:
             # XXX whatsnew missing
