@@ -17,10 +17,15 @@ class desc(nodes.Admonition, nodes.Element): pass
 class desc_content(nodes.General, nodes.Element): pass
 class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement): pass
 class desc_classname(nodes.Part, nodes.Inline, nodes.TextElement): pass
+class desc_type(nodes.Part, nodes.Inline, nodes.TextElement): pass
 class desc_name(nodes.Part, nodes.Inline, nodes.TextElement): pass
-class desc_parameterlist(nodes.Part, nodes.Inline, nodes.TextElement): pass
+class desc_parameterlist(nodes.Part, nodes.Inline, nodes.TextElement):
+    child_text_separator = ', '
 class desc_parameter(nodes.Part, nodes.Inline, nodes.TextElement): pass
-class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement): pass
+class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
+    child_text_separator = ', '
+    def astext(self):
+        return '[' + nodes.TextElement.astext(self) + ']'
 
 # refcount annotation
 class refcount(nodes.emphasis): pass
@@ -58,7 +63,7 @@ class glossary(nodes.Element): pass
 
 # make them known to docutils. this is needed, because the HTMl writer
 # will choke at some point if these are not added
-nodes._add_node_class_names("""index desc desc_content desc_signature
+nodes._add_node_class_names("""index desc desc_content desc_signature desc_type
       desc_classname desc_name desc_parameterlist desc_parameter desc_optional
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis

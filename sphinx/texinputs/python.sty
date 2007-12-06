@@ -7,8 +7,9 @@
              [1998/01/11 LaTeX package (Python markup)]
 
 \RequirePackage{longtable}
-\RequirePackage{underscore}
 \RequirePackage{times}
+\RequirePackage{fancyvrb}
+\renewcommand{\sfdefault}{cmbr}
 
 % Uncomment these two lines to ignore the paper size and make the page 
 % size more like a typical published manual.
@@ -676,12 +677,14 @@
 
 % classes ----------------------------------------------------------------
 % \begin{classdesc}{name}{constructor args}
+\newcommand{\classline}[2]{
+  \py@sigline{\strong{class }\bfcode{#1}}{#2}%
+  \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}}
 \newenvironment{classdesc}[2]{
   % Using \renewcommand doesn't work for this, for unknown reasons:
   \global\def\py@thisclass{#1}
   \begin{fulllineitems}
-    \py@sigline{\strong{class }\bfcode{#1}}{#2}%
-    \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}
+    \classline{#1}{#2}
 }{\end{fulllineitems}}
 
 % \begin{classdesc*}{name}
@@ -800,6 +803,11 @@
     \item[\bfcode{#1}\quad\var{#2}]
 }{\end{fulllineitems}}
 
+% generic description ----------------------------------------------------
+\newenvironment{describe}[1]{
+  \begin{fulllineitems}
+    \item[\bfcode{#1}]\nopagebreak
+}{\end{fulllineitems}}
 
 \newcommand{\nodename}[1]{\label{#1}}
 
@@ -990,7 +998,7 @@
 \newlength{\py@noticelength}
 
 \newcommand{\py@heavybox}{
-  \setlength{\fboxrule}{2pt}
+  \setlength{\fboxrule}{1pt}
   \setlength{\fboxsep}{7pt}
   \setlength{\py@noticelength}{\linewidth}
   \addtolength{\py@noticelength}{-2\fboxsep}
@@ -1050,14 +1058,14 @@
   \ifx\@undefined#1\relax%
     {  New in version #2.  }%
   \else%
-    {  New in version #2:\ #1.  }%
+    {  New in version #2:\ #1  }%
   \fi%
 }
 \newcommand{\versionchanged}[2][\py@badkey]{%
   \ifx\@undefined#1\relax%
     {  Changed in version #2.  }%
   \else%
-    {  Changed in version #2:\ #1.  }%
+    {  Changed in version #2:\ #1  }%
   \fi%
 }
 

@@ -664,8 +664,8 @@ class LaTeXBuilder(Builder):
 
         # first, assemble the "special" docs that are in every PDF
         specials = []
-        for fname in ["license", "copyright", "about", "glossary"]:
-            specials.extend(self.env.get_doctree(fname+".rst").children)
+        for fname in ["glossary", "about", "license", "copyright"]:
+            specials.append(self.env.get_doctree(fname+".rst"))
 
         docwriter = LaTeXWriter(self.config, self.name)
         docsettings = OptionParser(
@@ -673,7 +673,7 @@ class LaTeXBuilder(Builder):
             components=(docwriter,)).get_default_values()
 
         # XXX get names of toplevels automatically?
-        for docname in ["c-api"]:#, "distutils", "documenting", "extending",
+        for docname in ["library"]:#, "distutils", "documenting", "extending",
                         #"howto", "install", "library", "reference",
                         #"tutorial", "using"]:
             # XXX whatsnew missing
@@ -682,36 +682,37 @@ class LaTeXBuilder(Builder):
                 encoding='utf-8')
             doctree = self.assemble_doctree(path.join(docname, "index.rst"))
             doctree.extend(specials)
-            print "Writing..."
+            print "writing...",
             doctree.settings = docsettings
             doctree.settings.filename = docname
+            doctree.settings.docclass = 'manual'  # XXX howto for whatsnew
             output = docwriter.write(doctree, destination)
-            print "Done!"
+            print "done"
 
     def assemble_doctree(self, indexfile):
         self.filenames = [indexfile]
-        print "Processing", indexfile
+        print "processing", indexfile
         def process_tree(tree):
-            tree = tree.deepcopy()
+            #tree = tree.deepcopy()
             for toctreenode in tree.traverse(addnodes.toctree):
-                index = toctreenode.parent.index(toctreenode)
+                newnodes = []
                 includefiles = map(str, toctreenode['includefiles'])
                 for includefile in includefiles:
                     try:
-                        print "Including", includefile
+                        print green(includefile),
                         subtree = process_tree(self.env.get_doctree(includefile))
                         self.filenames.append(includefile)
                     except:
                         print >>self.warning_stream, 'WARNING: %s: toctree contains ' \
                               'ref to nonexisting file %r' % (filename, includefile)
                     else:
-                        toctreenode.parent[index:index] = subtree.children
-                toctreenode.parent.remove(toctreenode)
+                        newnodes.extend(subtree.children)
+                toctreenode.parent.replace(toctreenode, newnodes)
             return tree
         largetree = process_tree(self.env.get_doctree(indexfile))
-        print "Resolving references..."
+        print
+        print "resolving references..."
         self.env.resolve_references(largetree, indexfile, self)
-        #print largetree
         return largetree
 
     def finish(self):

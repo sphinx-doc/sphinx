@@ -217,7 +217,8 @@ def parse_c_signature(signode, sig, desctype):
         raise ValueError('no match')
     rettype, name, arglist = m.groups()
 
-    parse_c_type(signode, rettype)
+    signode += addnodes.desc_type("", "")
+    parse_c_type(signode[-1], rettype)
     signode += addnodes.desc_name(name, name)
     if not arglist:
         if desctype == 'cfunction':
@@ -293,6 +294,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     node['desctype'] = desctype
 
     noindex = ('noindex' in options)
+    node['noindex'] = noindex
     # remove backslashes to support (dummy) escapes; helps Vim's highlighting
     signatures = map(lambda s: s.strip().replace('\\', ''), arguments[0].split('\n'))
     names = []

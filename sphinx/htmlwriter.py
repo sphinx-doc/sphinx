@@ -63,6 +63,12 @@ def translator_class(config, buildername):
         def depart_desc_classname(self, node):
             self.body.append('</tt>')
 
+        def visit_desc_type(self, node):
+            # return type of C functions -- nothing to do here
+            pass
+        def depart_desc_type(self, node):
+            pass
+
         def visit_desc_name(self, node):
             self.body.append(self.starttag(node, 'tt', '', CLASS='descname'))
         def depart_desc_name(self, node):
