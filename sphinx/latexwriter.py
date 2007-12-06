@@ -600,7 +600,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node):
         if self.verbatim is not None:
-            self.verbatim += node.astext()
+            self.verbatim += node.astext().replace('@', '@@')
         else:
             self.body.append(self.encode(node.astext()))
     def depart_Text(self, node):

@@ -61,7 +61,7 @@ def highlight_block(source, lang, dest='html'):
         if dest == 'html':
             return '<pre>' + cgi.escape(source) + '</pre>\n'
         else:
-            return source
+            return highlight(source, lexers['none'], lfmter)
     if not pygments:
         return unhighlighted()
     if lang == 'python':

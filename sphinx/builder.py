@@ -673,7 +673,7 @@ class LaTeXBuilder(Builder):
             components=(docwriter,)).get_default_values()
 
         # XXX get names of toplevels automatically?
-        for docname in ["c-api"]:#, "distutils", "documenting", "extending",
+        for docname in ["library"]:#, "distutils", "documenting", "extending",
                         #"howto", "install", "library", "reference",
                         #"tutorial", "using"]:
             # XXX whatsnew missing
@@ -693,7 +693,7 @@ class LaTeXBuilder(Builder):
         self.filenames = [indexfile]
         print "processing", indexfile
         def process_tree(tree):
-            #tree = tree.deepcopy()
+            #tree = tree.deepcopy() XXX
             for toctreenode in tree.traverse(addnodes.toctree):
                 newnodes = []
                 includefiles = map(str, toctreenode['includefiles'])
