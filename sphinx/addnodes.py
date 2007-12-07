@@ -52,6 +52,9 @@ class pending_xref(nodes.Element): pass
 # compact paragraph -- never makes a <p>
 class compact_paragraph(nodes.paragraph): pass
 
+# for the ACKS list
+class acks(nodes.Element): pass
+
 # sets the highlighting language for literal blocks
 class highlightlang(nodes.Element): pass
 
@@ -67,4 +70,4 @@ nodes._add_node_class_names("""index desc desc_content desc_signature desc_type
       desc_classname desc_name desc_parameterlist desc_parameter desc_optional
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis
-      glossary""".split())
+      glossary acks""".split())

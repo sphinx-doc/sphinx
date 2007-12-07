@@ -12,6 +12,7 @@ from __future__ import with_statement
 
 import re
 import string
+import posixpath
 from os import path
 
 from docutils import nodes
@@ -19,7 +20,6 @@ from docutils.parsers.rst import directives, roles
 from docutils.parsers.rst.directives import admonitions
 
 from . import addnodes
-from .util import webify_filepath, unwebify_filepath
 
 # ------ index markup --------------------------------------------------------------
 
@@ -552,13 +552,12 @@ directives.register_directive('moduleauthor', author_directive)
 def toctree_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     env = state.document.settings.env
-    dirname = path.dirname(env.filename)
+    dirname = posixpath.dirname(env.filename)
 
     subnode = addnodes.toctree()
     includefiles = filter(None, content)
     # absolutize filenames
-    includefiles = [webify_filepath(path.normpath(path.join (dirname, x))) for x in includefiles]
-    #~ includefiles = map(lambda x: path.normpath(path.join(dirname, x)), includefiles)
+    includefiles = [posixpath.normpath(posixpath.join(dirname, x)) for x in includefiles]
     subnode['includefiles'] = includefiles
     subnode['maxdepth'] = options.get('maxdepth', -1)
     return [subnode]
@@ -603,16 +602,16 @@ def literalinclude_directive(name, arguments, options, content, lineno,
         return [state.document.reporter.warning('File insertion disabled', line=lineno)]
     env = state.document.settings.env
     fn = arguments[0]
-    source_dir = webify_filepath(path.dirname(path.abspath(state_machine.input_lines.source(
-        lineno - state_machine.input_offset - 1))))
-    fn = webify_filepath(path.normpath(path.join(source_dir, fn)))
+    source_dir = path.dirname(path.abspath(state_machine.input_lines.source(
+        lineno - state_machine.input_offset - 1)))
+    fn = path.normpath(path.join(source_dir, fn))
 
     try:
         with open(fn) as f:
             text = f.read()
     except (IOError, OSError):
-        retnode = state.document.reporter.warning('Include file %r not found' %
-                                                  arguments[0], line=lineno)
+        retnode = state.document.reporter.warning(
+            'Include file %r not found or reading it failed' % arguments[0], line=lineno)
     else:
         retnode = nodes.literal_block(text, text, source=fn)
         retnode.line = 1
@@ -654,3 +653,19 @@ def glossary_directive(name, arguments, options, content, lineno,
 glossary_directive.content = 1
 glossary_directive.arguments = (0, 0, 0)
 directives.register_directive('glossary', glossary_directive)
+
+
+# ------ acks directive -------------------------------------------------------------
+
+def acks_directive(name, arguments, options, content, lineno,
+                   content_offset, block_text, state, state_machine):
+    node = addnodes.acks()
+    state.nested_parse(content, content_offset, node)
+    if len(node.children) != 1 or not isinstance(node.children[0], nodes.bullet_list):
+        return [state.document.reporter.warning('.. acks content is not a list',
+                                                line=lineno)]
+    return [node]
+
+acks_directive.content = 1
+acks_directive.arguments = (0, 0, 0)
+directives.register_directive('acks', acks_directive)

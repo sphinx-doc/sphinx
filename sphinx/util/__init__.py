@@ -15,35 +15,31 @@ import fnmatch
 from os import path
 
 
+# SEP separates path elements in the canonical file names
 #
-# Define WEB_SEP as a manifest constant, not
-# so much because we expect it to change in
-# the future as to avoid the suspicion that
-# a stray "/" in the code is a hangover from
-# more *nix-oriented origins.
-#
-WEB_SEP = "/"
+# Define SEP as a manifest constant, not so much because we expect it to change
+# in the future as to avoid the suspicion that a stray "/" in the code is a
+# hangover from more *nix-oriented origins.
+SEP = "/"
 
+def canonical_path(ospath):
+    return ospath.replace(os.path.sep, SEP)
 
-def webify_filepath(filepath):
-    return filepath.replace(os.path.sep, WEB_SEP)
-    
-    
-def unwebify_filepath(webpath):
-    return webpath.replace(WEB_SEP, os.path.sep)
+def os_path(canpath):
+    return canpath.replace(SEP, os.path.sep)
 
 
 def relative_uri(base, to):
     """Return a relative URL from ``base`` to ``to``."""
-    b2 = base.split(WEB_SEP)
-    t2 = to.split(WEB_SEP)
+    b2 = base.split(SEP)
+    t2 = to.split(SEP)
     # remove common segments
     for x, y in zip(b2, t2):
         if x != y:
             break
         b2.pop(0)
         t2.pop(0)
-    return ('..' + WEB_SEP) * (len(b2)-1) + WEB_SEP.join(t2)
+    return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
 
 
 def ensuredir(path):
@@ -78,12 +74,12 @@ def get_matching_files(dirname, pattern, exclude=()):
             qualified_name = path.join(root[dirlen:], sfile)
             if qualified_name in exclude:
                 continue
-            yield webify_filepath(qualified_name)
+            yield canonical_path(qualified_name)
 
 
 def get_category(filename):
     """Get the "category" part of a RST filename."""
-    parts = filename.split(WEB_SEP, 1)
+    parts = filename.split(SEP, 1)
     if len(parts) < 2:
         return
     return parts[0]

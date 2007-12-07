@@ -227,6 +227,11 @@ def translator_class(config, buildername):
         def depart_glossary(self, node):
             pass
 
+        def visit_acks(self, node):
+            pass
+        def depart_acks(self, node):
+            pass
+
         # these are only handled specially in the SmartyPantsHTMLTranslator
         def visit_literal_emphasis(self, node):
             return self.visit_emphasis(node)

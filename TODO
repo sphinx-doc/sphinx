@@ -10,6 +10,7 @@ Sphinx
 - "seealso" links to external examples, see http://svn.python.org/projects/sandbox/trunk/seealso/ and http://effbot.org/zone/idea-seealso.htm
 - write a "printable" builder (export to latex, most probably)
 - "often used" combo box in sidebar
+- link to keywords
 - source file cross-references?
 
 Web App

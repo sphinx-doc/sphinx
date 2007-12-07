@@ -26,9 +26,8 @@ from docutils.utils import new_document
 from docutils.readers import doctree
 from docutils.frontend import OptionParser
 
-from .util import (get_matching_files, attrdict, status_iterator,
-                   ensuredir, get_category, relative_uri,
-                   webify_filepath, unwebify_filepath)
+from .util import (get_matching_files, attrdict, status_iterator, ensuredir,
+                   get_category, relative_uri, os_path, SEP)
 from .htmlhelp import build_hhx
 from .patchlevel import get_version_info, get_sys_version_info
 from .htmlwriter import HTMLWriter
@@ -491,12 +490,12 @@ class StandaloneHTMLBuilder(Builder):
             self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
             try:
                 targetmtime = path.getmtime(path.join(self.outdir,
-                                                      unwebify_filepath(filename)[:-4] + '.html'))
+                                                      os_path(filename)[:-4] + '.html'))
             except:
                 targetmtime = 0
             if filename not in self.env.all_files:
                 yield filename
-            elif path.getmtime(path.join(self.srcdir, unwebify_filepath(filename))) > targetmtime:
+            elif path.getmtime(path.join(self.srcdir, os_path(filename))) > targetmtime:
                 yield filename
 
 
@@ -521,7 +520,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx = self.globalcontext.copy()
         ctx.update(context)
         output = self.templates[templatename].render(ctx)
-        outfilename = path.join(self.outdir, unwebify_filepath(filename)[:-4] + '.html')
+        outfilename = path.join(self.outdir, os_path(filename)[:-4] + '.html')
         ensuredir(path.dirname(outfilename)) # normally different from self.outdir
         try:
             with codecs.open(outfilename, 'w', 'utf-8') as fp:
@@ -530,8 +529,8 @@ class StandaloneHTMLBuilder(Builder):
             print >>self.warning_stream, "Error writing file %s: %s" % (outfilename, err)
         if self.copysource and context.get('sourcename'):
             # copy the source file for the "show source" link
-            shutil.copyfile(path.join(self.srcdir, unwebify_filepath(filename)),
-                            path.join(self.outdir, context['sourcename']))
+            shutil.copyfile(path.join(self.srcdir, os_path(filename)),
+                            path.join(self.outdir, os_path(context['sourcename'])))
 
     def handle_finish(self):
         self.msg('dumping search index...')
@@ -554,19 +553,20 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         for filename in get_matching_files(
             self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
             try:
-                targetmtime = path.getmtime(path.join(self.outdir,
-                                                      unwebify_filepath(filename)[:-4] + '.fpickle'))
+                targetmtime = path.getmtime(
+                    path.join(self.outdir, os_path(filename)[:-4] + '.fpickle'))
             except:
                 targetmtime = 0
-            if path.getmtime(path.join(self.srcdir, unwebify_filepath(filename))) > targetmtime:
+            if path.getmtime(path.join(self.srcdir,
+                                       os_path(filename))) > targetmtime:
                 yield filename
 
     def get_target_uri(self, source_filename):
         if source_filename == 'index.rst':
             return ''
-        if source_filename.endswith('/index.rst'):
-            return source_filename[:-9] # up to /
-        return source_filename[:-4] + '/'
+        if source_filename.endswith(SEP+'index.rst'):
+            return source_filename[:-9] # up to sep
+        return source_filename[:-4] + SEP
 
     def load_indexer(self, filenames):
         try:
@@ -585,7 +585,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
                 self.indexer.feed(filename, category, title, doctree)
 
     def handle_file(self, filename, context, templatename='page'):
-        outfilename = path.join(self.outdir, unwebify_filepath(filename)[:-4] + '.fpickle')
+        outfilename = path.join(self.outdir, os_path(filename)[:-4] + '.fpickle')
         ensuredir(path.dirname(outfilename))
         context.pop('pathto', None) # can't be pickled
         with file(outfilename, 'wb') as fp:
@@ -593,9 +593,9 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
 
         # if there is a source file, copy the source file for the "show source" link
         if context.get('sourcename'):
-            source_name = path.join(self.outdir, 'sources', context['sourcename'])
+            source_name = path.join(self.outdir, 'sources', os_path(context['sourcename']))
             ensuredir(path.dirname(source_name))
-            shutil.copyfile(path.join(self.srcdir, unwebify_filepath(filename)), source_name)
+            shutil.copyfile(path.join(self.srcdir, os_path(filename)), source_name)
 
     def handle_finish(self):
         # dump the global context
@@ -659,6 +659,17 @@ class LaTeXBuilder(Builder):
         else:
             return ''
 
+    def get_document_data(self):
+        for toplevel in ["c-api", "distutils", "documenting", "extending",
+                        "install", "reference", "tutorial", "using", "library"]:
+            yield (toplevel + SEP + 'index.rst', toplevel+'.tex', 'manual')
+        yield ('whatsnew' + SEP + self.config['version'] + '.rst',
+               'whatsnew.tex', 'howto')
+        for howto in [fn for fn in self.env.all_files
+                      if fn.startswith('howto'+SEP)
+                         and not fn.endswith('index.rst')]:
+            yield (howto, 'howto-'+howto[6:-4]+'.tex', 'howto')
+
     def write(self, filenames):
         # "filenames" is ignored here...
 
@@ -672,26 +683,24 @@ class LaTeXBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,)).get_default_values()
 
-        # XXX get names of toplevels automatically?
-        for docname in ["library"]:#, "distutils", "documenting", "extending",
-                        #"howto", "install", "library", "reference",
-                        #"tutorial", "using"]:
-            # XXX whatsnew missing
+        for sourcename, targetname, docclass in self.get_document_data():
             destination = FileOutput(
-                destination_path=path.join(self.outdir, docname+".tex"),
+                destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            doctree = self.assemble_doctree(path.join(docname, "index.rst"))
-            doctree.extend(specials)
+            print "processing", targetname + "...",
+            doctree = self.assemble_doctree(sourcename,
+                                            specials=(docclass == 'manual') and specials or [])
             print "writing...",
             doctree.settings = docsettings
-            doctree.settings.filename = docname
-            doctree.settings.docclass = 'manual'  # XXX howto for whatsnew
+            doctree.settings.filename = sourcename
+            doctree.settings.docclass = docclass
             output = docwriter.write(doctree, destination)
             print "done"
 
-    def assemble_doctree(self, indexfile):
-        self.filenames = [indexfile]
-        print "processing", indexfile
+    def assemble_doctree(self, indexfile, specials):
+        self.filenames = set([indexfile, 'glossary.rst', 'about.rst',
+                              'license.rst', 'copyright.rst'])
+        print green(indexfile),
         def process_tree(tree):
             #tree = tree.deepcopy() XXX
             for toctreenode in tree.traverse(addnodes.toctree):
@@ -701,7 +710,7 @@ class LaTeXBuilder(Builder):
                     try:
                         print green(includefile),
                         subtree = process_tree(self.env.get_doctree(includefile))
-                        self.filenames.append(includefile)
+                        self.filenames.add(includefile)
                     except:
                         print >>self.warning_stream, 'WARNING: %s: toctree contains ' \
                               'ref to nonexisting file %r' % (filename, includefile)
@@ -710,6 +719,7 @@ class LaTeXBuilder(Builder):
                 toctreenode.parent.replace(toctreenode, newnodes)
             return tree
         largetree = process_tree(self.env.get_doctree(indexfile))
+        largetree.extend(specials)
         print
         print "resolving references..."
         self.env.resolve_references(largetree, indexfile, self)

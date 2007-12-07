@@ -38,7 +38,7 @@ Body.enum.converters['loweralpha'] = \
     Body.enum.converters['upperroman'] = lambda x: None
 
 from . import addnodes
-from .util import get_matching_files, unwebify_filepath, WEB_SEP
+from .util import get_matching_files, os_path, SEP
 from .refcounting import Refcounts
 
 default_settings = {
@@ -283,11 +283,11 @@ class BuildEnvironment:
                 else:
                     # if the doctree file is not there, rebuild
                     if not path.isfile(path.join(self.doctreedir,
-                                                 unwebify_filepath(filename)[:-3] + 'doctree')):
+                                                 os_path(filename)[:-3] + 'doctree')):
                         changed.append(filename)
                         continue
                     mtime, md5 = self.all_files[filename]
-                    newmtime = path.getmtime(path.join(self.srcdir, unwebify_filepath(filename)))
+                    newmtime = path.getmtime(path.join(self.srcdir, os_path(filename)))
                     if newmtime == mtime:
                         continue
                     # check the MD5
@@ -302,8 +302,8 @@ class BuildEnvironment:
         """
         (Re-)read all files new or changed since last update.
         Yields a summary and then filenames as it processes them.
-        Store all environment filenames as webified (ie using "/"
-        as a separator in place of os.path.sep).
+        Store all environment filenames in the canonical format
+        (ie using SEP as a separator in place of os.path.sep).
         """
         added, changed, removed = self.get_outdated_files(config)
         msg = '%s added, %s changed, %s removed' % (len(added), len(changed),
@@ -336,7 +336,7 @@ class BuildEnvironment:
         self.clear_file(filename)
 
         if src_path is None:
-            src_path = path.join(self.srcdir, unwebify_filepath(filename))
+            src_path = path.join(self.srcdir, os_path(filename))
 
         self.filename = filename
         doctree = publish_doctree(None, src_path, FileInput,
@@ -367,7 +367,7 @@ class BuildEnvironment:
 
         if save_parsed:
             # save the parsed doctree
-            doctree_filename = path.join(self.doctreedir, unwebify_filepath(filename)[:-3] + 'doctree')
+            doctree_filename = path.join(self.doctreedir, os_path(filename)[:-3] + 'doctree')
             dirname = path.dirname(doctree_filename)
             if not path.isdir(dirname):
                 os.makedirs(dirname)
@@ -523,7 +523,7 @@ class BuildEnvironment:
 
     def get_doctree(self, filename):
         """Read the doctree for a file from the pickle and return it."""
-        doctree_filename = path.join(self.doctreedir, unwebify_filepath(filename)[:-3] + 'doctree')
+        doctree_filename = path.join(self.doctreedir, os_path(filename)[:-3] + 'doctree')
         with file(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
         doctree.reporter = Reporter(filename, 2, 4, stream=self.warning_stream)
@@ -597,12 +597,16 @@ class BuildEnvironment:
                               '%s: undefined label: %s' % (docfilename, target)
                     else:
                         newnode = nodes.reference('', '')
+                        innernode = nodes.emphasis(sectname, sectname)
                         if filename == docfilename:
                             newnode['refid'] = labelid
                         else:
+                            # in case the following calls raises NoUri...
+                            # else the final node will contain a label name
+                            contnode = innernode
                             newnode['refuri'] = builder.get_relative_uri(
                                 docfilename, filename) + '#' + labelid
-                        newnode.append(nodes.emphasis(sectname, sectname))
+                        newnode.append(innernode)
                 elif typ in ('token', 'term', 'envvar', 'option'):
                     filename, labelid = self.reftargets.get((typ, target), ('', ''))
                     if not filename:
@@ -874,6 +878,6 @@ class BuildEnvironment:
         filename. This also resolves the special `index.rst` files. If the file
         does not exist the return value will be `None`.
         """
-        for rstname in filename + '.rst', filename + WEB_SEP + 'index.rst':
+        for rstname in filename + '.rst', filename + SEP + 'index.rst':
             if rstname in self.all_files:
                 return rstname
