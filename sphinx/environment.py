@@ -260,7 +260,7 @@ class BuildEnvironment:
                 new = [change for change in changes if change[1] != filename]
                 changes[:] = new
 
-    def get_outdated_files(self, config):
+    def get_outdated_files(self, config, config_changed):
         """
         Return (added, changed, removed) iterables.
         """
@@ -273,7 +273,7 @@ class BuildEnvironment:
         added = []
         changed = []
 
-        if config != self.config:
+        if config_changed:
             # config values affect e.g. substitutions
             added = all_source_files
         else:
@@ -298,6 +298,11 @@ class BuildEnvironment:
 
         return added, changed, removed
 
+    # If one of these config values changes, all files need to be re-read.
+    influential_config_values = [
+        'version', 'release', 'today', 'today_fmt', 'unused_files'
+    ]
+
     def update(self, config):
         """
         (Re-)read all files new or changed since last update.
@@ -305,11 +310,17 @@ class BuildEnvironment:
         Store all environment filenames in the canonical format
         (ie using SEP as a separator in place of os.path.sep).
         """
-        added, changed, removed = self.get_outdated_files(config)
-        msg = '%s added, %s changed, %s removed' % (len(added), len(changed),
-                                                    len(removed))
-        if self.config != config:
-            msg = '[config changed] ' + msg
+        config_changed = False
+        for val in self.influential_config_values:
+            if self.config.get(val) != config.get(val):
+                msg = '[config changed] '
+                config_changed = True
+                break
+        else:
+            msg = ''
+        added, changed, removed = self.get_outdated_files(config, config_changed)
+        msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
+                                                     len(removed))
         yield msg
 
         self.config = config

@@ -223,8 +223,6 @@ class Builder(object):
         # global actions
         self.msg('checking consistency...')
         self.env.check_consistency()
-        self.msg('creating index...')
-        self.env.create_index(self)
 
         # another indirection to support methods which don't build files
         # individually
@@ -236,6 +234,8 @@ class Builder(object):
         self.msg('done!')
 
     def write(self, filenames):
+        self.msg('creating index...')
+        self.env.create_index(self)
         if filenames:
             # add all TOC files that may have changed
             filenames_set = set(filenames)
@@ -314,7 +314,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        lufmt = self.config.get('last_updated_format')
+        lufmt = self.config.get('html_last_updated_fmt')
         if lufmt:
             self.last_updated = time.strftime(lufmt)
         else:
@@ -446,7 +446,7 @@ class StandaloneHTMLBuilder(Builder):
         downloadcontext = dict(
             pathto = relpath_to(self, self.get_target_uri('download.rst')),
             current_page_name = 'download',
-            download_base_url = self.config['download_base_url'],
+            download_base_url = self.config['html_download_base_url'],
         )
         self.handle_file('download.rst', downloadcontext, 'download')
 
@@ -490,8 +490,8 @@ class StandaloneHTMLBuilder(Builder):
         for filename in get_matching_files(
             self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
             try:
-                targetmtime = path.getmtime(path.join(self.outdir,
-                                                      os_path(filename)[:-4] + '.html'))
+                rstname = path.join(self.outdir, os_path(filename))
+                targetmtime = path.getmtime(rstname[:-4] + '.html')
             except:
                 targetmtime = 0
             if filename not in self.env.all_files:
@@ -652,7 +652,7 @@ class LaTeXBuilder(Builder):
 
     def get_outdated_files(self):
         # XXX always rebuild everything for now
-        return self.env.all_files
+        return ['dummy']
 
     def get_target_uri(self, source_filename, typ=None):
         if typ == 'token':
@@ -665,6 +665,7 @@ class LaTeXBuilder(Builder):
             return ''
 
     def get_document_data(self):
+        # Python specific...
         for toplevel in ["c-api", "distutils", "documenting", "extending",
                          "install", "reference", "tutorial", "using", "library"]:
             yield (toplevel + SEP + 'index.rst', toplevel+'.tex', 'manual')

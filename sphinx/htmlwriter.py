@@ -232,6 +232,11 @@ def translator_class(config, buildername):
         def depart_acks(self, node):
             pass
 
+        def visit_module(self, node):
+            pass
+        def depart_module(self, node):
+            pass
+
         # these are only handled specially in the SmartyPantsHTMLTranslator
         def visit_literal_emphasis(self, node):
             return self.visit_emphasis(node)
@@ -297,7 +302,7 @@ def translator_class(config, buildername):
                 text = sphinx_smarty_pants(text)
             return text
 
-    if config.get('use_smartypants', False):
+    if config.get('html_use_smartypants', False):
         return SmartyPantsHTMLTranslator
     else:
         return HTMLTranslator

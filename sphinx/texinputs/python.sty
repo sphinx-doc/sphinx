@@ -330,6 +330,10 @@
   \py@UseModuleIndextrue
 }
 
+\newcommand{\printmodindex}{
+  \@input@{mod\jobname.ind}
+}
+
 % Add the defining entry for a module
 \newcommand{\py@modindex}[2]{%
   \renewcommand{\py@thismodule}{#1}

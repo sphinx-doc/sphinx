@@ -518,11 +518,14 @@ def module_directive(name, arguments, options, content, lineno,
     env.note_module(modname, options.get('synopsis', ''),
                     options.get('platform', ''),
                     'deprecated' in options)
-    ret = []
+    modulenode = addnodes.module()
+    modulenode['modname'] = modname
+    modulenode['synopsis'] = options.get('synopsis', '')
     targetnode = nodes.target('', '', ids=['module-' + modname])
     state.document.note_explicit_target(targetnode)
-    ret.append(targetnode)
+    ret = [modulenode, targetnode]
     if 'platform' in options:
+        modulenode['platform'] = options['platform']
         node = nodes.paragraph()
         node += nodes.emphasis('Platforms: ', 'Platforms: ')
         node += nodes.Text(options['platform'], options['platform'])
