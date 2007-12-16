@@ -42,22 +42,26 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     text = utils.unescape(text)
     targetid = 'index-%s' % env.index_num
     env.index_num += 1
+    indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
     inliner.document.note_explicit_target(targetnode)
     if typ == 'envvar':
-        env.note_index_entry('single', '%s' % text,
-                             targetid, text)
+        env.note_index_entry('single', text, targetid, text)
         env.note_index_entry('single', 'environment variable; %s' % text,
                              targetid, text)
-        #textnode = nodes.strong(text, text)
+        indexnode['entries'] = [('single', text, targetid, text),
+                                ('single', 'environment variable; %s' % text,
+                                 targetid, text)]
         pnode = addnodes.pending_xref(rawtext)
         pnode['reftype'] = 'envvar'
         pnode['reftarget'] = text
         pnode += nodes.strong(text, text, classes=['xref'])
-        return [targetnode, pnode], []
+        return [indexnode, targetnode, pnode], []
     elif typ == 'pep':
         env.note_index_entry('single', 'Python Enhancement Proposals!PEP %s' % text,
                              targetid, 'PEP %s' % text)
+        indexnode['entries'] = [('single', 'Python Enhancement Proposals!PEP %s' % text,
+                                 targetid, 'PEP %s' % text)]
         try:
             pepnum = int(text)
         except ValueError:
@@ -68,10 +72,12 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         sn = nodes.strong('PEP '+text, 'PEP '+text)
         rn = nodes.reference('', '', refuri=ref)
         rn += sn
-        return [targetnode, rn], []
+        return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        env.note_index_entry('single', 'RFC!RFC %s' % text,
+        env.note_index_entry('single', 'RFC; RFC %s' % text,
                              targetid, 'RFC %s' % text)
+        indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
+                                 targetid, 'RFC %s' % text)]
         try:
             rfcnum = int(text)
         except ValueError:
@@ -82,7 +88,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         sn = nodes.strong('RFC '+text, 'RFC '+text)
         rn = nodes.reference('', '', refuri=ref)
         rn += sn
-        return [targetnode, rn], []
+        return [indexnode, targetnode, rn], []
 
 roles.register_canonical_role('envvar', indexmarkup_role)
 roles.register_local_role('pep', indexmarkup_role)

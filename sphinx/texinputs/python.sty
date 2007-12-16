@@ -6,6 +6,7 @@
 \ProvidesPackage{python}
              [1998/01/11 LaTeX package (Python markup)]
 
+\RequirePackage{textcomp}
 \RequirePackage{longtable}
 \RequirePackage{times}
 \RequirePackage{fancyvrb}
@@ -808,9 +809,12 @@
 }{\end{fulllineitems}}
 
 % generic description ----------------------------------------------------
+\newcommand{\descline}[1]{%
+  \item[\bfcode{#1}]\nopagebreak%
+}
 \newenvironment{describe}[1]{
   \begin{fulllineitems}
-    \item[\bfcode{#1}]\nopagebreak
+    \descline{#1}
 }{\end{fulllineitems}}
 
 \newcommand{\nodename}[1]{\label{#1}}

@@ -59,14 +59,13 @@ class relpath_to(object):
 class collect_env_warnings(object):
     def __init__(self, builder):
         self.builder = builder
+        self.warnings = []
     def __enter__(self):
-        self.stream = StringIO.StringIO()
-        self.builder.env.set_warning_stream(self.stream)
+        self.builder.env.set_warnfunc(self.warnings.append)
     def __exit__(self, *args):
-        self.builder.env.set_warning_stream(self.builder.warning_stream)
-        warnings = self.stream.getvalue()
-        if warnings:
-            print >>self.builder.warning_stream, warnings
+        self.builder.env.set_warnfunc(self.builder.warn)
+        for warning in self.warnings:
+            self.builder.warn(warning)
 
 
 class Builder(object):
@@ -90,6 +89,9 @@ class Builder(object):
         self.options = attrdict(options)
         self.validate_options()
 
+        self.status_stream = status_stream or sys.stdout
+        self.warning_stream = warning_stream or sys.stderr
+
         # probably set in load_env()
         self.env = env
 
@@ -108,16 +110,12 @@ class Builder(object):
                 version, release = get_version_info(srcdirname)
             except (IOError, OSError):
                 version, release = get_sys_version_info()
-                print >>warning_stream, 'WARNING: Can\'t get version info from ' \
-                      'Include/patchlevel.h, using version of this ' \
-                      'interpreter (%s).' % release
+                self.warn('Can\'t get version info from Include/patchlevel.h, '
+                          'using version of this interpreter (%s).' % release)
             if self.config['version'] == 'auto':
                 self.config['version'] = version
             if self.config['release'] == 'auto':
                 self.config['release'] = release
-
-        self.status_stream = status_stream or sys.stdout
-        self.warning_stream = warning_stream or sys.stderr
 
         self.init()
 
@@ -138,6 +136,9 @@ class Builder(object):
         else:
             print >>self.status_stream, message
         self.status_stream.flush()
+
+    def warn(self, message):
+        print >>self.warning_stream, 'WARNING:', message
 
     def init(self):
         """Load necessary templates and perform initialization."""
@@ -527,7 +528,7 @@ class StandaloneHTMLBuilder(Builder):
             with codecs.open(outfilename, 'w', 'utf-8') as fp:
                 fp.write(output)
         except (IOError, OSError), err:
-            print >>self.warning_stream, "Error writing file %s: %s" % (outfilename, err)
+            self.warn("Error writing file %s: %s" % (outfilename, err))
         if self.copysource and context.get('sourcename'):
             # copy the source file for the "show source" link
             shutil.copyfile(path.join(self.srcdir, os_path(filename)),
@@ -707,7 +708,7 @@ class LaTeXBuilder(Builder):
         self.filenames = set([indexfile, 'glossary.rst', 'about.rst',
                               'license.rst', 'copyright.rst'])
         print green(indexfile),
-        def process_tree(tree):
+        def process_tree(filename, tree):
             #tree = tree.deepcopy() XXX
             for toctreenode in tree.traverse(addnodes.toctree):
                 newnodes = []
@@ -715,16 +716,17 @@ class LaTeXBuilder(Builder):
                 for includefile in includefiles:
                     try:
                         print green(includefile),
-                        subtree = process_tree(self.env.get_doctree(includefile))
+                        subtree = process_tree(includefile,
+                                               self.env.get_doctree(includefile))
                         self.filenames.add(includefile)
                     except:
-                        print >>self.warning_stream, 'WARNING: %s: toctree contains ' \
-                              'ref to nonexisting file %r' % (filename, includefile)
+                        self.warn('%s: toctree contains ref to nonexisting file %r' %
+                                  (filename, includefile))
                     else:
                         newnodes.extend(subtree.children)
                 toctreenode.parent.replace(toctreenode, newnodes)
             return tree
-        largetree = process_tree(self.env.get_doctree(indexfile))
+        largetree = process_tree(indexfile, self.env.get_doctree(indexfile))
         largetree.extend(specials)
         print
         print "resolving references..."

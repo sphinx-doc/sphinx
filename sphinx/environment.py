@@ -74,6 +74,11 @@ default_substitutions = set([
 ])
 
 
+class RedirStream(object):
+    def __init__(self, write):
+        self.write = write
+
+
 class NoUri(Exception):
     """Raised by get_relative_uri if there is no URI available."""
     pass
@@ -159,12 +164,12 @@ class BuildEnvironment:
 
     def topickle(self, filename):
         # remove unpicklable attributes
-        wstream = self.warning_stream
-        self.set_warning_stream(None)
+        warnfunc = self._warnfunc
+        self.set_warnfunc(None)
         with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         # reset stream
-        self.set_warning_stream(wstream)
+        self.set_warnfunc(warnfunc)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -181,8 +186,8 @@ class BuildEnvironment:
         self.settings = default_settings.copy()
         self.settings['env'] = self
 
-        # the stream to write warning messages to
-        self.warning_stream = None
+        # the function to write warning messages with
+        self._warnfunc = None
 
         # this is to invalidate old pickles
         self.version = ENV_VERSION
@@ -227,9 +232,9 @@ class BuildEnvironment:
         self.index_num = 0          # autonumber for index targets
         self.gloss_entries = set()  # existing definition labels
 
-    def set_warning_stream(self, stream):
-        self.warning_stream = stream
-        self.settings['warning_stream'] = stream
+    def set_warnfunc(self, func):
+        self._warnfunc = func
+        self.settings['warnfunc'] = func
 
     def clear_file(self, filename):
         """Remove all traces of a source file in the inventory."""
@@ -367,7 +372,7 @@ class BuildEnvironment:
         doctree.reporter = None
         doctree.transformer = None
         doctree.settings.env = None
-        doctree.settings.warning_stream = None
+        doctree.settings.warnfunc = None
 
         # cleanup
         self.filename = None
@@ -429,9 +434,8 @@ class BuildEnvironment:
                 continue
             sectname = node[0].astext() # node[0] == title node
             if name in self.labels:
-                print >>self.warning_stream, \
-                      ('WARNING: duplicate label %s, ' % name +
-                       'in %s and %s' % (self.labels[name][0], filename))
+                self._warnfunc('duplicate label %s, ' % name +
+                               'in %s and %s' % (self.labels[name][0], filename))
             self.labels[name] = filename, labelid, sectname
 
     def note_toctree(self, filename, toctreenode):
@@ -509,9 +513,8 @@ class BuildEnvironment:
     #
     def note_descref(self, fullname, desctype):
         if fullname in self.descrefs:
-            print >>self.warning_stream, \
-                  ('WARNING: duplicate canonical description name %s, ' % fullname +
-                   'in %s and %s' % (self.descrefs[fullname][0], self.filename))
+            self._warnfunc('duplicate canonical description name %s, ' % fullname +
+                           'in %s and %s' % (self.descrefs[fullname][0], self.filename))
         self.descrefs[fullname] = (self.filename, desctype)
 
     def note_module(self, modname, synopsis, platform, deprecated):
@@ -537,7 +540,7 @@ class BuildEnvironment:
         doctree_filename = path.join(self.doctreedir, os_path(filename)[:-3] + 'doctree')
         with file(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
-        doctree.reporter = Reporter(filename, 2, 4, stream=self.warning_stream)
+        doctree.reporter = Reporter(filename, 2, 4, stream=RedirStream(self._warnfunc))
         return doctree
 
     def get_and_resolve_doctree(self, filename, builder, doctree=None):
@@ -560,8 +563,8 @@ class BuildEnvironment:
                     toc = self.tocs[includefile].deepcopy()
                 except KeyError, err:
                     # this is raised if the included file does not exist
-                    print >>self.warning_stream, 'WARNING: %s: toctree contains ' \
-                          'ref to nonexisting file %r' % (filename, includefile)
+                    self._warnfunc('%s: toctree contains ref to nonexisting '
+                                   'file %r' % (filename, includefile))
                 else:
                     for toctreenode in toc.traverse(addnodes.toctree):
                         toctreenode.parent.replace_self(
@@ -604,8 +607,7 @@ class BuildEnvironment:
                     if not filename:
                         newnode = doctree.reporter.system_message(
                             2, 'undefined label: %s' % target)
-                        print >>self.warning_stream, \
-                              '%s: undefined label: %s' % (docfilename, target)
+                        self._warnfunc('%s: undefined label: %s' % (docfilename, target))
                     else:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)
@@ -622,8 +624,8 @@ class BuildEnvironment:
                     filename, labelid = self.reftargets.get((typ, target), ('', ''))
                     if not filename:
                         if typ == 'term':
-                            print >>self.warning_stream, \
-                                  '%s: term not in glossary: %s' % (docfilename, target)
+                            self._warnfunc('%s: term not in glossary: %s' %
+                                           (docfilename, target))
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
@@ -714,8 +716,7 @@ class BuildEnvironment:
                     add_entry(string, 'built-in function')
                     add_entry('built-in function', string)
                 else:
-                    print >>self.warning_stream, \
-                          "unknown index entry type %r in %s" % (type, fn)
+                    self._warnfunc("unknown index entry type %r in %s" % (type, fn))
 
         newlist = new.items()
         newlist.sort(key=lambda t: t[0].lower())
@@ -769,8 +770,7 @@ class BuildEnvironment:
                 if filename == 'contents.rst':
                     # the master file is not included anywhere ;)
                     continue
-                self.warning_stream.write(
-                    'WARNING: %s isn\'t included in any toctree\n' % filename)
+                self._warnfunc('%s isn\'t included in any toctree' % filename)
 
     # --------- QUERYING -------------------------------------------------------
 
