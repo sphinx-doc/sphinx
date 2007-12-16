@@ -97,7 +97,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         'papersize': 'a4paper', # XXX
                         'pointsize': '12pt',
                         'filename': document.settings.filename,
-                        'title': None, # comes later
+                        'title': None, # is determined later
                         'release': config['release'],
                         'date': time.strftime(config.get('today_fmt', '%B %d, %Y')),
                         }
@@ -109,6 +109,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # flags
         self.verbatim = None
         self.in_title = 0
+        self.in_production_list = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -156,10 +157,24 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode # XXX
 
     def visit_glossary(self, node):
-        raise nodes.SkipNode # XXX
+        pass
+    def depart_glossary(self, node):
+        pass
 
     def visit_productionlist(self, node):
-        raise nodes.SkipNode # XXX
+        self.body.append('\n\n\\begin{productionlist}\n')
+        self.in_production_list = 1
+    def depart_productionlist(self, node):
+        self.body.append('\\end{productionlist}\n\n')
+        self.in_production_list = 0
+
+    def visit_production(self, node):
+        if node['tokenname']:
+            self.body.append('\\production{%s}{' % self.encode(node['tokenname']))
+        else:
+            self.body.append('\\productioncont{')
+    def depart_production(self, node):
+        self.body.append('}\n')
 
     def visit_transition(self, node):
         self.body.append('\n\n\\bigskip\\hrule{}\\bigskip\n\n')
@@ -410,9 +425,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
+        if node.has_key('ids') and node['ids']:
+            self.body.append('\\hypertarget{%s}{}' % node['ids'][0])
         self.body.append('\\item[')
     def depart_term(self, node):
-        # definition list term.
         self.body.append(']\n')
 
     def visit_classifier(self, node):
@@ -461,27 +477,60 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(self.context.pop())
 
     def visit_target(self, node):
-        # XXX: no "index-" targets
+        def add_target(id):
+            # indexing uses standard LaTeX index markup, so the targets
+            # will be generated differently
+            if not id.startswith('index-'):
+                self.body.append(r'\hypertarget{%s}{' % id)
+                return '}'
+            return ''
+
+        # XXX specialcase 'module-' targets: add \declaremodule
+        # XXX where to put \makemodindex
+
         if not (node.has_key('refuri') or node.has_key('refid')
                 or node.has_key('refname')):
             ctx = ''
             for id in node['ids']:
                 if id not in self.written_ids:
-                    self.body.append(r'\hypertarget{%s}{' % id)
                     self.written_ids.add(id)
-                    ctx += '}'
+                    ctx += add_target(id)
             self.context.append(ctx)
         elif node.has_key('refid') and node['refid'] not in self.written_ids:
-            self.body.append(r'\hypertarget{%s}{' % node['refid'])
+            self.context.append(add_target(node['refid']))
             self.written_ids.add(node['refid'])
-            self.context.append('}')
         else:
             self.context.append('')
     def depart_target(self, node):
         self.body.append(self.context.pop())
 
-    def visit_index(self, node):
-        raise nodes.SkipNode # XXX
+    indextype_map = {
+        'module': 'refmodindex', # XXX: key?
+        'keyword': 'kwindex',
+        'operator': 'opindex',
+        'object': 'obindex',
+        'exception': 'exindex',
+        'statement': 'stindex',
+        'builtin': 'bifuncindex',
+    }
+
+    def visit_index(self, node, scre=re.compile(r';\s*')):
+        entries = node['entries']
+        for type, string, tid, _ in entries:
+            if type == 'single':
+                self.body.append(r'\index{%s}' % scre.sub('!', self.encode(string)))
+            elif type == 'pair':
+                parts = tuple(self.encode(x.strip()) for x in string.split(';', 1))
+                self.body.append(r'\indexii{%s}{%s}' % parts)
+            elif type == 'triple':
+                parts = tuple(self.encode(x.strip()) for x in string.split(';', 2))
+                self.body.append(r'\indexiii{%s}{%s}{%s}' % parts)
+            elif type in self.indextype_map:
+                self.body.append(r'\%s{%s}' % (self.indextype_map[type],
+                                               self.encode(string)))
+            else:
+                raise RuntimeError('XXX unknown index entry type')
+        raise nodes.SkipNode
 
     def visit_reference(self, node):
         uri = node.get('refuri', '')
@@ -492,6 +541,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('}')
         elif uri.startswith('#'):
             self.body.append('\\hyperlink{%s}{' % uri[1:])
+            self.context.append('}')
+        elif uri.startswith('@token'):
+            if self.in_production_list:
+                self.body.append('\\token{')
+            else:
+                self.body.append('\\grammartoken{')
             self.context.append('}')
         else:
             raise RuntimeError('XXX malformed reference target %s' % uri)

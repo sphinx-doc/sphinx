@@ -143,14 +143,14 @@ class Builder(object):
         """Load necessary templates and perform initialization."""
         raise NotImplementedError
 
-    def get_target_uri(self, source_filename):
+    def get_target_uri(self, source_filename, typ=None):
         """Return the target URI for a source filename."""
         raise NotImplementedError
 
-    def get_relative_uri(self, from_, to):
+    def get_relative_uri(self, from_, to, typ=None):
         """Return a relative URI between two source filenames."""
         return relative_uri(self.get_target_uri(from_),
-                            self.get_target_uri(to))
+                            self.get_target_uri(to, typ))
 
     def get_outdated_files(self):
         """Return a list of output files that are outdated."""
@@ -195,10 +195,11 @@ class Builder(object):
         self.load_env()
         to_build = list(self.get_outdated_files())
         if not to_build:
-            self.msg('no files are out of date, exiting.')
+            self.msg('no target files are out of date, exiting.')
             return
         self.build(to_build,
-                   summary='%d source files that are out of date' % len(to_build))
+                   summary='targets for %d source files that are '
+                   'out of date' % len(to_build))
 
     def build(self, filenames, summary=None):
         if summary:
@@ -482,7 +483,7 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the Web builder
 
-    def get_target_uri(self, source_filename):
+    def get_target_uri(self, source_filename, typ=None):
         return source_filename[:-4] + '.html'
 
     def get_outdated_files(self):
@@ -561,7 +562,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
                                        os_path(filename))) > targetmtime:
                 yield filename
 
-    def get_target_uri(self, source_filename):
+    def get_target_uri(self, source_filename, typ=None):
         if source_filename == 'index.rst':
             return ''
         if source_filename.endswith(SEP+'index.rst'):
@@ -650,10 +651,14 @@ class LaTeXBuilder(Builder):
         self.filenames = []
 
     def get_outdated_files(self):
-        # always rebuild everything for now
+        # XXX always rebuild everything for now
         return self.env.all_files
 
-    def get_target_uri(self, source_filename):
+    def get_target_uri(self, source_filename, typ=None):
+        if typ == 'token':
+            # token references are always inside production lists and must be
+            # replaced by \token{} in LaTeX
+            return '@token'
         if source_filename not in self.filenames:
             raise NoUri
         else:
@@ -661,7 +666,7 @@ class LaTeXBuilder(Builder):
 
     def get_document_data(self):
         for toplevel in ["c-api", "distutils", "documenting", "extending",
-                        "install", "reference", "tutorial", "using", "library"]:
+                         "install", "reference", "tutorial", "using", "library"]:
             yield (toplevel + SEP + 'index.rst', toplevel+'.tex', 'manual')
         yield ('whatsnew' + SEP + self.config['version'] + '.rst',
                'whatsnew.tex', 'howto')
@@ -722,6 +727,7 @@ class LaTeXBuilder(Builder):
         largetree.extend(specials)
         print
         print "resolving references..."
+        # XXX problem here: :ref:s to distant PDF
         self.env.resolve_references(largetree, indexfile, self)
         return largetree
 

@@ -52,7 +52,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 12
+ENV_VERSION = 13
 
 
 def walk_depth(node, depth, maxdepth):
@@ -620,7 +620,7 @@ class BuildEnvironment:
                             newnode['refid'] = labelid
                         else:
                             newnode['refuri'] = builder.get_relative_uri(
-                                docfilename, filename) + '#' + labelid
+                                docfilename, filename, typ) + '#' + labelid
                         newnode.append(contnode)
                 elif typ == 'mod':
                     filename, synopsis, platform, deprecated = \

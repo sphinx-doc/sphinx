@@ -37,18 +37,20 @@ def index_directive(name, arguments, options, content, lineno,
     targetnode = nodes.target('', '', ids=[targetid])
     state.document.note_explicit_target(targetnode)
     indexnode = addnodes.index()
-    indexnode['entries'] = arguments
+    indexnode['entries'] = ne = []
     for entry in arguments:
         entry = entry.strip()
         for type in entrytypes:
             if entry.startswith(type+':'):
                 value = entry[len(type)+1:].strip()
                 env.note_index_entry(type, value, targetid, value)
+                ne.append((type, value, targetid, value))
                 break
         # shorthand notation for single entries
         else:
             for value in entry.split(','):
                 env.note_index_entry('single', value.strip(), targetid, value.strip())
+                ne.append(('single', value.strip(), targetid, value.strip()))
     return [indexnode, targetnode]
 
 index_directive.arguments = (1, 0, 1)
