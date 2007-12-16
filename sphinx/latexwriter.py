@@ -155,15 +155,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.sectionlevel -= 1
 
     def visit_problematic(self, node):
-        self.body.append('{\\color{red}\\bfseries{}')
+        self.body.append(r'{\color{red}\bfseries{}')
     def depart_problematic(self, node):
         self.body.append('}')
 
     def visit_topic(self, node):
-        raise nodes.SkipNode # XXX
-
-    def visit_sidebar(self, node):
-        raise nodes.SkipNode # XXX
+        self.body.append('\\begin{center}\\setlength{\\fboxsep}{5pt}'
+                         '\\fbox{\\begin{minipage}{0.95\\textwidth}\n')
+    def depart_topic(self, node):
+        self.body.append('\end{minipage}}\\end{center}\n')
+    visit_sidebar = visit_topic
+    depart_sidebar = depart_topic
 
     def visit_glossary(self, node):
         pass
@@ -203,6 +205,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(node.parent, nodes.section):
             self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
             self.context.append('}\n')
+        elif isinstance(node.parent, (nodes.topic, nodes.sidebar)):
+            self.body.append(r'\textbf{')
+            self.context.append('}\n\n\medskip\n\n')
         else:
             raise RuntimeError("XXX title without section")
         self.in_title = 1
