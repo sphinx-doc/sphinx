@@ -299,7 +299,7 @@ class StandaloneHTMLBuilder(Builder):
             doc,
             source_class=DocTreeInput,
             reader=doctree.Reader(),
-            writer=HTMLWriter(self.config, self.name),
+            writer=HTMLWriter(self),
             settings_overrides={'output_encoding': 'unicode'}
         )
 
@@ -307,7 +307,7 @@ class StandaloneHTMLBuilder(Builder):
         from .search import IndexBuilder
         self.indexer = IndexBuilder()
         self.load_indexer(filenames)
-        self.docwriter = HTMLWriter(self.config, self.name)
+        self.docwriter = HTMLWriter(self)
         self.docsettings = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,)).get_default_values()
@@ -684,7 +684,7 @@ class LaTeXBuilder(Builder):
         for fname in ["glossary", "about", "license", "copyright"]:
             specials.append(self.env.get_doctree(fname+".rst"))
 
-        docwriter = LaTeXWriter(self.config, self.name)
+        docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,)).get_default_values()
@@ -728,7 +728,7 @@ class LaTeXBuilder(Builder):
         largetree.extend(specials)
         print
         print "resolving references..."
-        # XXX problem here: :ref:s to distant PDF
+        # XXX problem here: :ref:s to distant tex files
         self.env.resolve_references(largetree, indexfile, self)
         return largetree
 

@@ -16,9 +16,9 @@ from .util.smartypants import sphinx_smarty_pants
 
 
 class HTMLWriter(Writer):
-    def __init__(self, config, buildername):
+    def __init__(self, builder):
         Writer.__init__(self)
-        self.translator_class = translator_class(config, buildername)
+        self.translator_class = translator_class(builder)
 
 
 version_text = {
@@ -27,7 +27,7 @@ version_text = {
     'versionadded': 'New in version %s',
 }
 
-def translator_class(config, buildername):
+def translator_class(builder):
     class HTMLTranslator(BaseTranslator):
         """
         Our custom HTML translator.
@@ -53,7 +53,7 @@ def translator_class(config, buildername):
             if node.parent['desctype'] in ('class', 'exception'):
                 self.body.append('%s ' % node.parent['desctype'])
         def depart_desc_signature(self, node):
-            if node['ids'] and buildername != 'htmlhelp':
+            if node['ids'] and builder.name != 'htmlhelp':
                 self.body.append(u'<a class="headerlink" href="#%s" ' % node['ids'][0] +
                                  u'title="Permalink to this definition">\u00B6</a>')
             self.body.append('</dt>\n')
@@ -245,7 +245,7 @@ def translator_class(config, buildername):
 
         def depart_title(self, node):
             close_tag = self.context[-1]
-            if buildername != 'htmlhelp' and \
+            if builder.name != 'htmlhelp' and \
                    close_tag.startswith(('</h', '</a></h')) and \
                    node.parent.hasattr('ids') and node.parent['ids']:
                 aname = node.parent['ids'][0]
@@ -302,7 +302,7 @@ def translator_class(config, buildername):
                 text = sphinx_smarty_pants(text)
             return text
 
-    if config.get('html_use_smartypants', False):
+    if builder.config.get('html_use_smartypants', False):
         return SmartyPantsHTMLTranslator
     else:
         return HTMLTranslator
