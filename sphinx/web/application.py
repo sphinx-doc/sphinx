@@ -28,8 +28,7 @@ from collections import defaultdict
 
 from .feed import Feed
 from .mail import Email
-from .util import render_template, render_simple_template, get_target_uri, \
-     blackhole_dict, striptags
+from .util import render_template, get_target_uri, blackhole_dict, striptags
 from .admin import AdminPanel
 from .userdb import UserDatabase
 from .robots import robots_txt
@@ -39,9 +38,9 @@ from .database import connect, set_connection, Comment
 from .wsgiutil import Request, Response, RedirectResponse, \
      JSONResponse, SharedDataMiddleware, NotFound, get_base_uri
 
-from ..util import relative_uri, shorten_result
+from ..util import relative_uri
 from ..search import SearchFrontend
-from ..writer import HTMLWriter
+from ..htmlwriter import HTMLWriter
 from ..builder import LAST_BUILD_FILENAME, ENV_PICKLE_FILENAME
 
 from docutils.io import StringOutput
@@ -88,6 +87,7 @@ comments_methods = {
 class MockBuilder(object):
     def get_relative_uri(self, from_, to):
         return ''
+    name = 'web'
 
 
 NoCache = object()
@@ -139,8 +139,7 @@ class DocumentationApplication(object):
 
 
     def load_env(self, new_mtime):
-        env_lock.acquire()
-        try:
+        with env_lock:
             if self.buildmtime == new_mtime:
                 # happens if another thread already reloaded the env
                 return
@@ -153,8 +152,6 @@ class DocumentationApplication(object):
                 self.search_frontend = SearchFrontend(pickle.load(f))
             self.buildmtime = new_mtime
             self.cache.clear()
-        finally:
-            env_lock.release()
 
 
     def search(self, req):
@@ -209,9 +206,11 @@ class DocumentationApplication(object):
         warning_stream = StringIO.StringIO()
         env2 = copy.deepcopy(self.env)
         destination = StringOutput(encoding='utf-8')
-        writer = HTMLWriter(env2.config)
+        builder = MockBuilder()
+        builder.config = env2.config
+        writer = HTMLWriter(builder)
         doctree = env2.read_file(page_id, pathname, save_parsed=False)
-        doctree = env2.get_and_resolve_doctree(page_id, MockBuilder(), doctree)
+        doctree = env2.get_and_resolve_doctree(page_id, builder, doctree)
         doctree.settings = OptionParser(defaults=env2.settings,
                                         components=(writer,)).get_default_values()
         doctree.reporter = Reporter(page_id, 2, 4, stream=warning_stream)

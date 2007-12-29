@@ -1,10 +1,13 @@
 %
-% python.sty for the Python docummentation  [works only with Latex2e]
+% sphinx.sty
+%
+% Adapted from the old python.sty, mostly written by Fred Drake,
+% by Georg Brandl.
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{python}
-             [1998/01/11 LaTeX package (Python markup)]
+\ProvidesPackage{sphinx}
+             [2007/12/30 LaTeX package (Sphinx markup)]
 
 \RequirePackage{textcomp}
 \RequirePackage{longtable}
@@ -309,17 +312,6 @@
 \newcommand{\refbimodindex}[1]{\py@refmodule{#1}{built-in }}
 \newcommand{\refexmodindex}[1]{\py@refmodule{#1}{extension }}
 \newcommand{\refstmodindex}[1]{\py@refmodule{#1}{standard }}
-
-% Refer to a module's documentation using a hyperlink of the module's
-% name, at least if we're building PDF:
-\ifpdf
-  \newcommand{\refmodule}[2][\py@modulebadkey]{%
-    \ifx\py@modulebadkey#1\def\py@modulekey{#2}\else\def\py@modulekey{#1}\fi%
-    \py@linkToName{label-module-\py@modulekey}{\module{#2}}%
-  }
-\else
-  \newcommand{\refmodule}[2][\py@modulebadkey]{\module{#2}}
-\fi
 
 % support for the module index
 \newif\ifpy@UseModuleIndex
@@ -839,9 +831,7 @@
 
 % Also for consistency: spell Python "Python", not "python"!
 
-% code is the most difficult one...
-\newcommand{\code}[1]{\textrm{\@vobeyspaces\@noligs\def\{{\char`\{}\def\}{\char`\}}\def\~{\char`\~}\def\^{\char`\^}\def\e{\char`\\}\def\${\char`\$}\def\#{\char`\#}\def\&{\char`\&}\def\%{\char`\%}%
-\texttt{#1}}}
+\newcommand{\code}[1]{\texttt{#1}}
 
 \newcommand{\bfcode}[1]{\code{\bfseries#1}} % bold-faced code font
 \newcommand{\csimplemacro}[1]{\code{#1}}
@@ -861,28 +851,6 @@
 \newcommand{\file}[1]{`\filenq{#1}'}
 \newcommand{\filenq}[1]{{\py@smallsize\textsf{\let\e=\textbackslash#1}}}
 
-% Use this def/redef approach for \url{} since hyperref defined this already,
-% but only if we actually used hyperref:
-%\ifpdf
-%  \newcommand{\url}[1]{{%
-%    \py@pdfstartlink%
-%    attr{ /Border [0 0 0] }%
-%    user{%
-%      /Subtype/Link%
-%      /A<<%
-%      /Type/Action%
-%      /S/URI%
-%      /URI(#1)%
-%      >>%
-%    }%
-%    \py@LinkColor%                      color of the link text
-%    \py@smallsize\sf #1%
-%    \py@NormalColor%                    Turn it back off; these are declarative
-%    \pdfendlink}%                       and don't appear bound to the current
-%  }%                                    formatting "box".
-%\else
-%  \newcommand{\url}[1]{\mbox{\py@smallsize\textsf{#1}}}
-%\fi
 \newcommand{\email}[1]{{\py@smallsize\textsf{#1}}}
 \newcommand{\newsgroup}[1]{{\py@smallsize\textsf{#1}}}
 
@@ -890,14 +858,6 @@
   {\let\unspecified=\py@unspecified%
    \let\moreargs=\py@moreargs%
    \var{#1}}}}
-
-% I'd really like to get rid of this!
-\newif\iftexi\texifalse
-
-% This is used to get l2h to put the copyright and abstract on
-% a separate HTML page.
-\newif\ifhtml\htmlfalse
-
 
 % These should be used for all references to identifiers which are
 % used to refer to instances of specific language constructs.  See the
@@ -946,29 +906,6 @@
 \newcommand{\programopt}[1]{\strong{#1}}
 % Note that \longprogramopt provides the '--'!
 \newcommand{\longprogramopt}[1]{\strong{-{}-#1}}
-
-% \ulink{link text}{URL}
-\ifpdf
-  \newcommand{\ulink}[2]{{%
-    % For PDF, we *should* only generate a link when the URL is absolute.
-    \py@pdfstartlink%
-    attr{ /Border [0 0 0] }%
-    user{%
-      /Subtype/Link%
-      /A<<%
-      /Type/Action%
-      /S/URI%
-      /URI(#2)%
-      >>%
-    }%
-    \py@LinkColor%                              color of the link text
-    #1%
-    \py@NormalColor%                    Turn it back off; these are declarative
-    \pdfendlink}%                       and don't appear bound to the current
-  }%                                    formatting "box".
-\else
-  \newcommand{\ulink}[2]{#1}
-\fi
 
 % cited titles:  \citetitle{Title of Work}
 %       online:  \citetitle[url-to-resource]{Title of Work}
@@ -1159,27 +1096,6 @@
     \end{longtable}%
   \end{center}%
 }
-
-% XXX Don't think we can use this yet, though it cleans up some
-% tedious markup.  There's no equivalent for the HTML transform yet,
-% and that needs to exist.  I don't know how to write it.
-%
-% This should really have something that makes it easier to bind a
-% table's ``Notes'' column and an associated tablenotes environment,
-% and generates the right magic for getting the numbers right in the
-% table.
-%
-% So this is quite incomplete.
-%
-\newcounter{py@tablenotescounter}
-\newenvironment{tablenotes}{%
-  \noindent Notes:
-  \par
-  \setcounter{py@tablenotescounter}{0}
-  \begin{list}{(\arabic{py@tablenotescounter})}%
-              {\usecounter{py@tablenotescounter}}
-}{\end{list}}
-
 
 % Cross-referencing (AMK, new impl. FLD)
 % Sample usage:

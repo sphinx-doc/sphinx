@@ -71,11 +71,6 @@ def render_template(req, template_name, *contexts):
     return tmpl.render(context)
 
 
-def render_simple_template(template_name, context):
-    tmpl = jinja_env.get_template(template_name)
-    return tmpl.render(context)
-
-
 class lazy_property(object):
     """
     Descriptor implementing a "lazy property", i.e. the function

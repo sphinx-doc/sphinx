@@ -54,6 +54,9 @@
               <input type="hidden" name="check_keywords" value="yes">
               <input type="hidden" name="area" value="default">
             </form>
+            {% if builder == 'web' %}
+            <p style="font-size: 90%">Enter a module, class or function name.</p>
+            {% endif %}
           {% endif %}
         </div>
       </div>

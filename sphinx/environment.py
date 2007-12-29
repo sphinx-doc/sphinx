@@ -52,7 +52,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 13
+ENV_VERSION = 14
 
 
 def walk_depth(node, depth, maxdepth):
@@ -222,7 +222,7 @@ class BuildEnvironment:
         self.indexentries = {}      # filename -> list of
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of
-                                    # (type, filename, module, descname, content)
+                                    # (type, filename, lineno, module, descname, content)
 
         # These are set while parsing a file
         self.filename = None        # current file name
@@ -383,7 +383,8 @@ class BuildEnvironment:
 
         if save_parsed:
             # save the parsed doctree
-            doctree_filename = path.join(self.doctreedir, os_path(filename)[:-3] + 'doctree')
+            doctree_filename = path.join(self.doctreedir,
+                                         os_path(filename)[:-3] + 'doctree')
             dirname = path.dirname(doctree_filename)
             if not path.isdir(dirname):
                 os.makedirs(dirname)
@@ -528,9 +529,9 @@ class BuildEnvironment:
         self.indexentries.setdefault(self.filename, []).append(
             (type, string, targetid, aliasname))
 
-    def note_versionchange(self, type, version, node):
+    def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
-            (type, self.filename, self.currmodule, self.currdesc, node.deepcopy()))
+            (type, self.filename, lineno, self.currmodule, self.currdesc, node.astext()))
     # -------
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
@@ -603,6 +604,8 @@ class BuildEnvironment:
 
             try:
                 if typ == 'ref':
+                    # reference to the named label; the final node will contain the
+                    # section name after the label
                     filename, labelid, sectname = self.labels.get(target, ('','',''))
                     if not filename:
                         newnode = doctree.reporter.system_message(
@@ -620,6 +623,20 @@ class BuildEnvironment:
                             newnode['refuri'] = builder.get_relative_uri(
                                 docfilename, filename) + '#' + labelid
                         newnode.append(innernode)
+                elif typ == 'keyword':
+                    # keywords are referenced by named labels
+                    filename, labelid, _ = self.labels.get(target, ('','',''))
+                    if not filename:
+                        self._warnfunc('%s: unknown keyword: %s' % (docfilename, target))
+                        newnode = contnode
+                    else:
+                        newnode = nodes.reference('', '')
+                        if filename == docfilename:
+                            newnode['refid'] = labelid
+                        else:
+                            newnode['refuri'] = builder.get_relative_uri(
+                                docfilename, filename) + '#' + labelid
+                        newnode.append(contnode)
                 elif typ in ('token', 'term', 'envvar', 'option'):
                     filename, labelid = self.reftargets.get((typ, target), ('', ''))
                     if not filename:
@@ -656,10 +673,12 @@ class BuildEnvironment:
                             synopsis, (' (deprecated)' if deprecated else ''))
                         newnode.append(contnode)
                 else:
+                    # "descrefs"
                     modname = node['modname']
                     clsname = node['classname']
                     searchorder = 1 if node.hasattr('refspecific') else 0
-                    name, desc = self.find_desc(modname, clsname, target, typ, searchorder)
+                    name, desc = self.find_desc(modname, clsname,
+                                                target, typ, searchorder)
                     if not desc:
                         newnode = contnode
                     else:

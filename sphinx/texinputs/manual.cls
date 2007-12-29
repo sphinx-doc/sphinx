@@ -1,5 +1,5 @@
 %
-% manual.cls for the Python documentation
+% manual.cls for Sphinx
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
@@ -43,9 +43,9 @@
 % This gives us all the Python-specific markup that we really want.
 % This should come last.  Do not change this.
 %
-\RequirePackage{python}
+\RequirePackage{sphinx}
 
-% This comes after python.sty because it otherwise defines its own
+% This comes after sphinx.sty because it otherwise defines its own
 % "seealso" command.
 \RequirePackage{makeidx}
 

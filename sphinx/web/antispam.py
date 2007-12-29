@@ -43,13 +43,16 @@ class AntiSpam(object):
             else:
                 lines = [l.strip() for l in data.splitlines()
                               if not l.startswith('#')]
-                f = file(bad_content_file, 'w')
-                f.write('\n'.join(lines))
+                with file(bad_content_file, 'w') as f:
+                    f.write('\n'.join(lines))
                 last_change = int(time.time())
 
         if lines is None:
-            with file(bad_content_file) as f:
-                lines = [l.strip() for l in f]
+            try:
+                with file(bad_content_file) as f:
+                    lines = [l.strip() for l in f]
+            except:
+                lines = []
         self.rules = [re.compile(rule) for rule in lines if rule]
 
     def is_spam(self, fields):

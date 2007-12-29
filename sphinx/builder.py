@@ -19,6 +19,7 @@ import shutil
 import cPickle as pickle
 import cStringIO as StringIO
 from os import path
+from cgi import escape
 
 from docutils.io import StringOutput, FileOutput, DocTreeInput
 from docutils.core import publish_parts
@@ -33,7 +34,7 @@ from .patchlevel import get_version_info, get_sys_version_info
 from .htmlwriter import HTMLWriter
 from .latexwriter import LaTeXWriter
 from .environment import BuildEnvironment, NoUri
-from .highlighting import pygments, get_stylesheet
+from .highlighting import pygments, highlight_block, get_stylesheet
 from .util.console import bold, purple, green
 
 from . import addnodes
@@ -194,66 +195,74 @@ class Builder(object):
     def build_update(self):
         """Only rebuild files changed or added since last build."""
         self.load_env()
-        to_build = list(self.get_outdated_files())
+        to_build = self.get_outdated_files()
         if not to_build:
             self.msg('no target files are out of date, exiting.')
             return
-        self.build(to_build,
-                   summary='targets for %d source files that are '
-                   'out of date' % len(to_build))
+        if isinstance(to_build, str):
+            self.build([], to_build)
+        else:
+            to_build = list(to_build)
+            self.build(to_build,
+                       summary='targets for %d source files that are '
+                       'out of date' % len(to_build))
 
     def build(self, filenames, summary=None):
         if summary:
             self.msg('building [%s]:' % self.name, nonl=1)
             self.msg(summary, nobold=1)
 
+        updated_filenames = []
         # while reading, collect all warnings from docutils
         with collect_env_warnings(self):
             self.msg('reading, updating environment:', nonl=1)
             iterator = self.env.update(self.config)
-            self.msg(iterator.next(), nobold=1)
+            self.msg(iterator.next(), nonl=1, nobold=1)
             for filename in iterator:
+                if not updated_filenames:
+                    self.msg('')
+                updated_filenames.append(filename)
                 self.msg(purple(filename), nonl=1, nobold=1)
             self.msg()
 
-        # save the environment
-        self.msg('pickling the env...', nonl=True)
-        self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-        self.msg('done', nobold=True)
+        if updated_filenames:
+            # save the environment
+            self.msg('pickling the env...', nonl=True)
+            self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+            self.msg('done', nobold=True)
 
-        # global actions
-        self.msg('checking consistency...')
-        self.env.check_consistency()
+            # global actions
+            self.msg('checking consistency...')
+            self.env.check_consistency()
 
         # another indirection to support methods which don't build files
         # individually
-        self.write(filenames)
+        self.write(filenames, updated_filenames)
 
         # finish (write style files etc.)
         self.msg('finishing...')
         self.finish()
         self.msg('done!')
 
-    def write(self, filenames):
+    def write(self, build_filenames, updated_filenames):
+        if build_filenames is None: # build_all
+            build_filenames = self.env.all_files
+        filenames = set(build_filenames) | set(updated_filenames)
+
+        # add all toctree-containing files that may have changed
+        for filename in list(filenames):
+            for tocfilename in self.env.files_to_rebuild.get(filename, []):
+                filenames.add(tocfilename)
+        filenames.add('contents.rst')
+
         self.msg('creating index...')
         self.env.create_index(self)
-        if filenames:
-            # add all TOC files that may have changed
-            filenames_set = set(filenames)
-            for filename in filenames:
-                for tocfilename in self.env.files_to_rebuild.get(filename, []):
-                    filenames_set.add(tocfilename)
-            filenames_set.add('contents.rst')
-        else:
-            # build all
-            filenames_set = set(self.env.all_files)
-
-        self.prepare_writing(filenames_set)
+        self.prepare_writing(filenames)
 
         # write target files
         with collect_env_warnings(self):
             self.msg('writing output...')
-            for filename in status_iterator(sorted(filenames_set), green,
+            for filename in status_iterator(sorted(filenames), green,
                                             stream=self.status_stream):
                 doctree = self.env.get_and_resolve_doctree(filename, self)
                 self.write_file(filename, doctree)
@@ -595,7 +604,8 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
 
         # if there is a source file, copy the source file for the "show source" link
         if context.get('sourcename'):
-            source_name = path.join(self.outdir, 'sources', os_path(context['sourcename']))
+            source_name = path.join(self.outdir, 'sources',
+                                    os_path(context['sourcename']))
             ensuredir(path.dirname(source_name))
             shutil.copyfile(path.join(self.srcdir, os_path(filename)), source_name)
 
@@ -652,8 +662,7 @@ class LaTeXBuilder(Builder):
         self.filenames = []
 
     def get_outdated_files(self):
-        # XXX always rebuild everything for now
-        return ['dummy']
+        return 'all documents' # for now
 
     def get_target_uri(self, source_filename, typ=None):
         if typ == 'token':
@@ -677,9 +686,7 @@ class LaTeXBuilder(Builder):
                          and not fn.endswith('index.rst')]:
             yield (howto, 'howto-'+howto[6:-4]+'.tex', 'howto')
 
-    def write(self, filenames):
-        # "filenames" is ignored here...
-
+    def write(self, *ignored):
         # first, assemble the "special" docs that are in every PDF
         specials = []
         for fname in ["glossary", "about", "license", "copyright"]:
@@ -695,8 +702,8 @@ class LaTeXBuilder(Builder):
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             print "processing", targetname + "...",
-            doctree = self.assemble_doctree(sourcename,
-                                            specials=(docclass == 'manual') and specials or [])
+            doctree = self.assemble_doctree(
+                sourcename, specials=(docclass == 'manual') and specials or [])
             print "writing...",
             doctree.settings = docsettings
             doctree.settings.filename = sourcename
@@ -743,9 +750,119 @@ class LaTeXBuilder(Builder):
                                 path.join(self.outdir, filename))
 
 
+class ChangesBuilder(Builder):
+    """
+    Write a summary with all versionadded/changed directives.
+    """
+    name = 'changes'
+
+    def init(self):
+        from ._jinja import Environment, FileSystemLoader
+        templates_path = path.join(path.dirname(__file__), 'templates')
+        jinja_env = Environment(loader=FileSystemLoader(templates_path),
+                                # disable traceback, more likely that something in the
+                                # application is broken than in the templates
+                                friendly_traceback=False)
+        self.ftemplate = jinja_env.get_template('versionchanges_frameset.html')
+        self.vtemplate = jinja_env.get_template('versionchanges.html')
+        self.stemplate = jinja_env.get_template('rstsource.html')
+
+    def get_outdated_files(self):
+        return self.outdir
+
+    typemap = {
+        'versionadded': 'added',
+        'versionchanged': 'changed',
+        'deprecated': 'deprecated',
+    }
+
+    def write(self, *ignored):
+        ver = self.config['version']
+        libchanges = {}
+        apichanges = []
+        otherchanges = {}
+        self.msg('writing summary file...')
+        for type, filename, lineno, module, descname, content in \
+                self.env.versionchanges[ver]:
+            ttext = self.typemap[type]
+            context = content.replace('\n', ' ')
+            if descname and filename.startswith('c-api'):
+                if not descname:
+                    continue
+                if context:
+                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
+                else:
+                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                apichanges.append((entry, filename, lineno))
+            elif descname or module:
+                if not module:
+                    module = 'Builtins'
+                if not descname:
+                    descname = 'Module level'
+                if context:
+                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
+                else:
+                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                libchanges.setdefault(module, []).append((entry, filename, lineno))
+            else:
+                if not context:
+                    continue
+                entry = '<i>%s:</i> %s' % (ttext.capitalize(), context)
+                title = self.env.titles[filename].astext()
+                otherchanges.setdefault((filename, title), []).append(
+                    (entry, filename, lineno))
+
+        ctx = {
+            'version': ver,
+            'libchanges': sorted(libchanges.iteritems()),
+            'apichanges': sorted(apichanges),
+            'otherchanges': sorted(otherchanges.iteritems()),
+        }
+        with open(path.join(self.outdir, 'index.html'), 'w') as f:
+            f.write(self.ftemplate.render(ctx))
+        with open(path.join(self.outdir, 'changes.html'), 'w') as f:
+            f.write(self.vtemplate.render(ctx))
+
+        hltext = ['.. versionadded:: %s' % ver,
+                  '.. versionchanged:: %s' % ver,
+                  '.. deprecated:: %s' % ver]
+
+        def hl(no, line):
+            line = '<a name="L%s"> </a>' % no + escape(line)
+            for x in hltext:
+                if x in line:
+                    line = '<span class="hl">%s</span>' % line
+                    break
+            return line
+
+        self.msg('copying source files...')
+        for filename in self.env.all_files:
+            with open(path.join(self.srcdir, os_path(filename))) as f:
+                lines = f.readlines()
+            targetfn = path.join(self.outdir, 'rst', os_path(filename)) + '.html'
+            ensuredir(path.dirname(targetfn))
+            with codecs.open(targetfn, 'w', 'utf8') as f:
+                text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
+                ctx = {'filename': filename, 'text': text}
+                f.write(self.stemplate.render(ctx))
+        shutil.copyfile(path.join(path.dirname(__file__), 'style', 'default.css'),
+                        path.join(self.outdir, 'default.css'))
+
+    def hl(self, text, ver):
+        text = escape(text)
+        for directive in ['versionchanged', 'versionadded', 'deprecated']:
+            text = text.replace('.. %s:: %s' % (directive, ver),
+                                '<b>.. %s:: %s</b>' % (directive, ver))
+        return text
+
+    def finish(self):
+        pass
+
+
 builders = {
     'html': StandaloneHTMLBuilder,
     'web': WebHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
     'latex': LaTeXBuilder,
+    'changes': ChangesBuilder,
 }

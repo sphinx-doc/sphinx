@@ -35,6 +35,7 @@ options: -b <builder> -- builder to use (one of %s)
          -D <setting=value> -- override a setting in sourcedir/conf.py
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
+         -P        -- run Pdb on exception
 modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
@@ -43,7 +44,7 @@ modi:
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:NEq')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:NEqP')
         srcdirname = path.abspath(args[0])
         if not path.isdir(srcdirname):
             print >>sys.stderr, 'Error: Cannot find source directory.'
@@ -69,7 +70,7 @@ def main(argv):
         return 1
 
     builder = all_files = None
-    opt_help = freshenv = False
+    opt_help = freshenv = use_pdb = False
     status = sys.stdout
     options = {}
     confoverrides = {}
@@ -111,6 +112,8 @@ def main(argv):
             freshenv = True
         elif opt == '-q':
             status = StringIO()
+        elif opt == '-P':
+            use_pdb = True
 
     if not sys.stdout.isatty() or sys.platform == 'win32':
         # Windows' cmd box doesn't understand ANSI sequences
@@ -128,17 +131,23 @@ def main(argv):
             print ' * %s: %s' % (optname, description)
         return 0
 
-    builderobj = builderobj(srcdirname, outdirname, doctreedir, options,
-                            status_stream=status,
-                            warning_stream=sys.stderr,
-                            confoverrides=confoverrides,
-                            freshenv=freshenv)
-    if all_files:
-        builderobj.build_all()
-    elif filenames:
-        builderobj.build_specific(filenames)
-    else:
-        builderobj.build_update()
+    try:
+        builderobj = builderobj(srcdirname, outdirname, doctreedir, options,
+                                status_stream=status,
+                                warning_stream=sys.stderr,
+                                confoverrides=confoverrides,
+                                freshenv=freshenv)
+        if all_files:
+            builderobj.build_all()
+        elif filenames:
+            builderobj.build_specific(filenames)
+        else:
+            builderobj.build_update()
+    except:
+        if not use_pdb:
+            raise
+        import pdb
+        pdb.post_mortem(sys.exc_info()[2])
 
 
 if __name__ == '__main__':

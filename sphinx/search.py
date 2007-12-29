@@ -10,9 +10,10 @@
 """
 import re
 import pickle
-
 from collections import defaultdict
+
 from docutils.nodes import Text, NodeVisitor
+
 from .util.stemmer import PorterStemmer
 from .util.json import dump_json, load_json
 

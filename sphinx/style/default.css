@@ -154,7 +154,6 @@ div.sidebar input {
 div.modulecloud {
     margin: -5px 10px 5px 10px;
     padding: 10px;
-    font-size: 110%;
     line-height: 160%;
     border: 1px solid #cbe7e5;
     background-color: #f2fbfd;
@@ -708,6 +707,7 @@ pre {
 tt {
     background-color: #ecf0f3;
     padding: 0 1px 0 1px;
+    font-size: 0.95em;
 }
 
 tt.descname {

@@ -23,7 +23,6 @@ generic_docroles = {
     'dfn' : nodes.emphasis,
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
-    'keyword' : nodes.literal,
     'mailheader' : addnodes.literal_emphasis,
     'makevar' : nodes.Text,
     'manpage' : addnodes.literal_emphasis,
@@ -172,6 +171,7 @@ specific_docroles = {
 
     'mod' : xfileref_role,
 
+    'keyword': xfileref_role,
     'ref': xfileref_role,
     'token' : xfileref_role,
     'term': xfileref_role,

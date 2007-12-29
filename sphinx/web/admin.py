@@ -88,7 +88,7 @@ class AdminPanel(object):
         Log the user out.
         """
         req.logout()
-        return RedirectResponse('admin/login/')
+        return RedirectResponse('@admin/login/')
 
     def do_change_password(self, req):
         """

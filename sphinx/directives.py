@@ -428,7 +428,7 @@ def version_directive(name, arguments, options, content, lineno,
     else:
         ret = [node]
     env = state.document.settings.env
-    env.note_versionchange(node['type'], node['version'], node)
+    env.note_versionchange(node['type'], node['version'], node, lineno)
     return ret
 
 version_directive.arguments = (1, 1, 1)
