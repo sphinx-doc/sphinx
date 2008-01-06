@@ -48,21 +48,21 @@
     <div class="related">
       <h3>Navigation</h3>
       <ul>
-        <li class="right" style="margin-right: 10px"><a href="{{ pathto('genindex.rst') }}" title="General Index">index</a></li>
-        <li class="right"><a href="{{ pathto('modindex.rst') }}" title="Global Module Index">modules</a> |</li>
+        <li class="right" style="margin-right: 10px"><a href="{{ pathto('genindex.rst') }}" title="General Index" accesskey="I">index</a></li>
+        <li class="right"><a href="{{ pathto('modindex.rst') }}" title="Global Module Index" accesskey="M">modules</a> |</li>
         {%- if next %}
-          <li class="right"><a href="{{ next.link|e }}" title="{{ next.title|striptags }}">next</a> |</li>
+          <li class="right"><a href="{{ next.link|e }}" title="{{ next.title|striptags }}" accesskey="N">next</a> |</li>
         {%- endif %}
         {%- if prev %}
-          <li class="right"><a href="{{ prev.link|e }}" title="{{ prev.title|striptags }}">previous</a> |</li>
+          <li class="right"><a href="{{ prev.link|e }}" title="{{ prev.title|striptags }}" accesskey="P">previous</a> |</li>
         {%- endif %}
         {%- if builder == 'web' %}
           <li class="right"><a href="{{ pathto('settings.rst') }}"
-                               title="Customize your viewing settings">settings</a> |</li>
+                               title="Customize your viewing settings" accesskey="S">settings</a> |</li>
         {%- endif %}
         <li><a href="{{ pathto('index.rst') }}">Python v{{ release }} Documentation</a> &raquo;</li>
         {%- for parent in parents %}
-          <li><a href="{{ parent.link|e }}">{{ parent.title }}</a> &raquo;</li>
+          <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a> &raquo;</li>
         {%- endfor %}
       </ul>
     </div>
