@@ -1,4 +1,6 @@
 The doctools are written and maintained by Georg Brandl <georg@python.org>.
+Substantial parts of the templates and the web application were written by
+Armin Ronacher <armin.ronacher@active-4.com>.
 
 Other contributors are noted in the :copyright: fields within the docstrings
 of the respective files.
