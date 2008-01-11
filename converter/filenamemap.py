@@ -3,8 +3,8 @@
     Map LaTeX filenames to ReST filenames
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2007 by Georg Brandl.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl.
+    :license: BSD.
 """
 
 # '' means: use same name, strip prefix if applicable.

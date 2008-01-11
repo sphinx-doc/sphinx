@@ -7,8 +7,8 @@
     automatically. Works with any WSGI application but it won't help in non
     `wsgiref` environments. Use it only for development.
 
-    :copyright: 2007 by Armin Ronacher, Georg Brandl.
-    :license: Python license.
+    :copyright: 2007-2008 by Armin Ronacher, Georg Brandl.
+    :license: BSD.
 """
 import os
 import sys

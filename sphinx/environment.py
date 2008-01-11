@@ -5,8 +5,8 @@
 
     Global creation environment.
 
-    :copyright: 2007 by Georg Brandl.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl.
+    :license: BSD.
 """
 from __future__ import with_statement
 

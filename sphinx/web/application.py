@@ -6,8 +6,8 @@
     A simple WSGI application that serves an interactive version
     of the python documentation.
 
-    :copyright: 2007 by Georg Brandl, Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl, Armin Ronacher.
+    :license: BSD.
 """
 from __future__ import with_statement
 

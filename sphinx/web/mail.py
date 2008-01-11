@@ -6,8 +6,8 @@
     A simple module for sending e-mails, based on simplemail.py.
 
     :copyright: 2004-2007 by Gerold Penz.
-                2007 by Georg Brandl.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl.
+    :license: BSD.
 """
 
 import os.path

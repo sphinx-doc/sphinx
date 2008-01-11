@@ -5,8 +5,8 @@
 
     Admin application parts.
 
-    :copyright: 2007 by Georg Brandl, Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl, Armin Ronacher.
+    :license: BSD.
 """
 
 from .util import render_template

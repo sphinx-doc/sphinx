@@ -9,8 +9,8 @@
     usable connection which is also set as the connection for the
     thread that called that function.
 
-    :copyright: 2007 by Georg Brandl, Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl, Armin Ronacher.
+    :license: BSD.
 """
 import time
 import sqlite3

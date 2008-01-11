@@ -35,8 +35,8 @@
     <quote>cite someone</quote>
         Like <blockquote> in HTML.
 
-    :copyright: 2007 by Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Armin Ronacher.
+    :license: BSD.
 """
 import cgi
 import re

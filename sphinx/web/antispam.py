@@ -6,8 +6,8 @@
     Small module that performs anti spam tests based on the bad content
     regex list provided by moin moin.
 
-    :copyright: 2007 by Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Armin Ronacher.
+    :license: BSD.
 """
 from __future__ import with_statement
 import re

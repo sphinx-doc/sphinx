@@ -7,8 +7,8 @@
     that stores users and their passwords so that they can gain access
     to the administration system.
 
-    :copyright: 2007 by Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Armin Ronacher.
+    :license: BSD.
 """
 from __future__ import with_statement
 from os import path

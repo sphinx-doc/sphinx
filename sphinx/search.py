@@ -5,8 +5,8 @@
 
     Create a search index for offline search.
 
-    :copyright: 2007 by Armin Ronacher.
-    :license: Python license.
+    :copyright: 2007-2008 by Armin Ronacher.
+    :license: BSD.
 """
 import re
 import pickle

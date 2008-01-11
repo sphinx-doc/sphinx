@@ -8,8 +8,8 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: 2007 by Georg Brandl, Dave Kuhlman.
-    :license: Python license.
+    :copyright: 2007-2008 by Georg Brandl, Dave Kuhlman.
+    :license: BSD.
 """
 
 import re
