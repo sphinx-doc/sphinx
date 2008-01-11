@@ -105,9 +105,13 @@ innernodetypes = {
 def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
     text = utils.unescape(text)
-    if typ in ('func', 'meth', 'cfunc') and \
-           env.config.get('add_function_parentheses', True):
-        text += '()'
+    if typ in ('func', 'meth', 'cfunc'):
+        if text.endswith('()'):
+            # remove parentheses
+            text = text[:-2]
+        if env.config.get('add_function_parentheses', True):
+            # add them back to all occurrences if configured
+            text += '()'
     # if the first character is a bang, don't cross-reference at all
     if text[0:1] == '!':
         text = text[1:]
