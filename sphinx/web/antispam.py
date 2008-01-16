@@ -9,7 +9,7 @@
     :copyright: 2007-2008 by Armin Ronacher.
     :license: BSD.
 """
-from __future__ import with_statement
+
 import re
 import urllib
 import time
@@ -43,14 +43,20 @@ class AntiSpam(object):
             else:
                 lines = [l.strip() for l in data.splitlines()
                               if not l.startswith('#')]
-                with file(bad_content_file, 'w') as f:
+                f = open(bad_content_file, 'w')
+                try:
                     f.write('\n'.join(lines))
+                finally:
+                    f.close()
                 last_change = int(time.time())
 
         if lines is None:
             try:
-                with file(bad_content_file) as f:
+                f = open(bad_content_file)
+                try:
                     lines = [l.strip() for l in f]
+                finally:
+                    f.close()
             except:
                 lines = []
         self.rules = [re.compile(rule) for rule in lines if rule]

@@ -6,10 +6,11 @@
     Extract version info from Include/patchlevel.h.
     Adapted from Doc/tools/getversioninfo.
 
+    XXX Python specific
+
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import os
 import re
@@ -23,12 +24,15 @@ def get_version_info(srcdir):
     rx = re.compile(r"\s*#define\s+([a-zA-Z][a-zA-Z_0-9]*)\s+([a-zA-Z_0-9]+)")
 
     d = {}
-    with open(patchlevel_h) as f:
+    f = open(patchlevel_h)
+    try:
         for line in f:
             m = rx.match(line)
             if m is not None:
                 name, value = m.group(1, 2)
                 d[name] = value
+    finally:
+        f.close()
 
     release = version = "%s.%s" % (d["PY_MAJOR_VERSION"], d["PY_MINOR_VERSION"])
     micro = int(d["PY_MICRO_VERSION"])

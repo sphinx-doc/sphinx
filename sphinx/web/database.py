@@ -17,7 +17,7 @@ import sqlite3
 from datetime import datetime
 from threading import local
 
-from .markup import markup
+from sphinx.web.markup import markup
 
 
 _thread_local = local()
@@ -88,14 +88,14 @@ class Comment(object):
     @property
     def url(self):
         return '%s#comment-%s' % (
-            self.associated_page[:-4],
+            self.associated_page,
             self.comment_id
         )
 
     @property
     def parsed_comment_body(self):
-        from .util import get_target_uri
-        from ..util import relative_uri
+        from sphinx.web.util import get_target_uri
+        from sphinx.util import relative_uri
         uri = get_target_uri(self.associated_page)
         def make_rel_link(keyword):
             return relative_uri(uri, 'q/%s/' % keyword)
@@ -153,7 +153,7 @@ class Comment(object):
         cur = get_cursor()
         cur.execute('''select * from comments where associated_page = ?
                     order by associated_name, comment_id %s''' %
-                     ('desc' if reverse else 'asc'),
+                     (reverse and 'desc' or 'asc'),
                     (associated_page,))
         try:
             return [Comment._make_comment(row) for row in cur]

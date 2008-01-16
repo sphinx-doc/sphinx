@@ -228,27 +228,15 @@ var Search = {
         var params = $.getQueryParameters();
         if (params.q) {
             var query = params.q[0];
-            var areas = params.area || [];
-
-            // auto default
-            if (areas.length == 1 && areas[0] == 'default') {
-                areas = ['tutorial', 'library', 'install', 'distutils'];
-            }
-
-            // update input fields
-            $('input[@type="checkbox"]').each(function() {
-                    this.checked = $.contains(areas, this.value);
-                });
             $('input[@name="q"]')[0].value = query;
-
-            this.performSearch(query, areas);
+            this.performSearch(query);
         }
     },
 
     /**
      * perform a search for something
      */
-    performSearch : function(query, areas) {
+    performSearch : function(query) {
         // create the required interface elements
         var out = $('#search-results');
         var title = $('<h2>Searching</h2>').appendTo(out);
@@ -301,14 +289,12 @@ var Search = {
         console.debug('SEARCH: searching for:');
         console.info('required: ', searchwords);
         console.info('excluded: ', excluded);
-        console.info('areas:    ', areas);
 
         // fetch searchindex and perform search
         $.getJSON('searchindex.json', function(data) {
 
                 // prepare search
                 var filenames = data[0];
-                var areaMap = data[1];
                 var titles = data[2]
                     var words = data[3];
                 var fileMap = {};
@@ -342,38 +328,25 @@ var Search = {
                     if (fileMap[file].length != searchwords.length) {
                         continue;
                     }
-                    var valid = false;
-
-                    // check if the file is in one of the searched
-                    // areas.
-                    for (var i = 0; i < areas.length; i++) {
-                        if ($.contains(areaMap[areas[i]] || [], file)) {
-                            valid = true;
-                            break;
-                        }
-                    };
-
                     // ensure that none of the excluded words is in the
                     // search result.
-                    if (valid) {
-                        for (var i = 0; i < excluded.length; i++) {
-                            if ($.contains(words[excluded[i]] || [], file)) {
-                                valid = false;
-                                break;
-                            }
+                    for (var i = 0; i < excluded.length; i++) {
+                        if ($.contains(words[excluded[i]] || [], file)) {
+                            valid = false;
+                            break;
                         }
+                    }
 
-                        // if we have still a valid result we can add it
-                        // to the result list
-                        if (valid) {
-                            results.push([filenames[file], titles[file]]);
-                        }
+                    // if we have still a valid result we can add it
+                    // to the result list
+                    if (valid) {
+                        results.push([filenames[file], titles[file]]);
                     }
                 }
 
                 // delete unused variables in order to not waste
                 // memory until list is retrieved completely
-                delete filenames, areaMap, titles, words, data;
+                delete filenames, titles, words, data;
 
                 // now sort the results by title
                 results.sort(function(a, b) {

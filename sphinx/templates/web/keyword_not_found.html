@@ -20,12 +20,12 @@
     </ul>
   {% endif %}
   <p>
-    If you want to search the entire Python documentation for the string
-    "{{ keyword|e }}", then <a href="{{ pathto('search.rst') }}?q={{ keyword|e
+    If you want to search the entire {{ project }} documentation for the string
+    "{{ keyword|e }}", then <a href="{{ pathto('search') }}?q={{ keyword|e
     }}">use the search function</a>.
   </p>
   <p>
     For a quick overview over all documented modules,
-    <a href="{{ pathto('library/index.rst') }}">click here</a>.
+    <a href="{{ pathto('modindex') }}">click here</a>.
   </p>
 {% endblock %}

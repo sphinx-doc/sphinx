@@ -9,7 +9,6 @@
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import os
 import cgi
@@ -17,7 +16,7 @@ from os import path
 
 from docutils import nodes
 
-from . import addnodes
+from sphinx import addnodes
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
 # the pythlp in pythlp.hhp); 'version' is the doc version number (like
@@ -64,10 +63,10 @@ Full text search stop list file=%(outname)s.stp
 Full-text search=Yes
 Index file=%(outname)s.hhk
 Language=0x409
-Title=Python %(version)s Documentation
+Title=%(project)s %(version)s Documentation
 
 [WINDOWS]
-%(outname)s="Python %(version)s Documentation","%(outname)s.hhc","%(outname)s.hhk",\
+%(outname)s="%(project)s %(version)s Documentation","%(outname)s.hhc","%(outname)s.hhk",\
 "index.html","index.html",,,,,0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0
 
 [FILES]
@@ -119,24 +118,32 @@ was  will  with
 
 def build_hhx(builder, outdir, outname):
     builder.msg('dumping stopword list...')
-    with open(path.join(outdir, outname+'.stp'), 'w') as f:
+    f = open(path.join(outdir, outname+'.stp'), 'w')
+    try:
         for word in sorted(stopwords):
             print >>f, word
+    finally:
+        f.close()
 
     builder.msg('writing project file...')
-    with open(path.join(outdir, outname+'.hhp'), 'w') as f:
+    f = open(path.join(outdir, outname+'.hhp'), 'w')
+    try:
         f.write(project_template % {'outname': outname,
-                                    'version': builder.config['version']})
+                                    'version': builder.config['version'],
+                                    'project': builder.config['project']})
         if not outdir.endswith(os.sep):
             outdir += os.sep
         olen = len(outdir)
         for root, dirs, files in os.walk(outdir):
             for fn in files:
-                if fn.endswith(('.html', '.css', '.js')):
+                if fn.endswith('.html') or fn.endswith('.css') or fn.endswith('.js'):
                     print >>f, path.join(root, fn)[olen:].replace('/', '\\')
+    finally:
+        f.close()
 
     builder.msg('writing TOC file...')
-    with open(path.join(outdir, outname+'.hhc'), 'w') as f:
+    f = open(path.join(outdir, outname+'.hhc'), 'w')
+    try:
         f.write(contents_header)
         # special books
         f.write('<LI> ' + object_sitemap % ('Main page', 'index.html'))
@@ -167,9 +174,12 @@ def build_hhx(builder, outdir, outname):
                 write_toc(node[0], ullevel)
         write_toc(toc)
         f.write(contents_footer)
+    finally:
+        f.close()
 
     builder.msg('writing index file...')
-    with open(path.join(outdir, outname+'.hhk'), 'w') as f:
+    f = open(path.join(outdir, outname+'.hhk'), 'w')
+    try:
         f.write('<UL>\n')
         def write_index(title, refs, subitems):
             if refs:
@@ -186,3 +196,5 @@ def build_hhx(builder, outdir, outname):
             for title, (refs, subitems) in group:
                 write_index(title, refs, subitems)
         f.write('</UL>\n')
+    finally:
+        f.close()

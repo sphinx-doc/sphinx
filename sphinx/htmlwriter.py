@@ -12,7 +12,7 @@
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
-from .util.smartypants import sphinx_smarty_pants
+from sphinx.util.smartypants import sphinx_smarty_pants
 
 
 class HTMLWriter(Writer):
@@ -162,7 +162,7 @@ def translator_class(builder):
 
         # overwritten
         def visit_literal_block(self, node):
-            from .highlighting import highlight_block
+            from sphinx.highlighting import highlight_block
             self.body.append(highlight_block(node.rawsource, self.highlightlang))
             raise nodes.SkipNode
 
@@ -246,7 +246,8 @@ def translator_class(builder):
         def depart_title(self, node):
             close_tag = self.context[-1]
             if builder.name != 'htmlhelp' and \
-                   close_tag.startswith(('</h', '</a></h')) and \
+                   (close_tag.startswith('</h') or
+                    close_tag.startswith('</a></h')) and \
                    node.parent.hasattr('ids') and node.parent['ids']:
                 aname = node.parent['ids'][0]
                 # add permalink anchor

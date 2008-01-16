@@ -2,13 +2,13 @@
 {% set title = 'Settings' %}
 {% set current_page_name = 'settings' %}
 {% block body %}
-  <h1>Python Documentation Settings</h1>
+  <h1>{{ project }} Documentation Settings</h1>
   <p>
-    Here you can customize how you want to view the Python documentation.
+    Here you can customize how you want to view the {{ project }} documentation.
     These settings are saved using a cookie on your computer.
   </p>
 
-  <form action="{{ pathto('settings.rst') }}" method="post">
+  <form action="{{ pathto('settings') }}" method="post">
     <p class="subhead">Select your stylesheet:</p>
     <p>
       {%- for design, (foo, descr) in known_designs %}

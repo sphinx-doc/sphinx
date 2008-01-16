@@ -10,12 +10,11 @@
 """
 import re
 import pickle
-from collections import defaultdict
 
 from docutils.nodes import Text, NodeVisitor
 
-from .util.stemmer import PorterStemmer
-from .util.json import dump_json, load_json
+from sphinx.util.stemmer import PorterStemmer
+from sphinx.util.json import dump_json, load_json
 
 
 word_re = re.compile(r'\w+(?u)')
@@ -61,18 +60,14 @@ class IndexBuilder(object):
         self._titles = {}
         # stemmed word -> set(filenames)
         self._mapping = {}
-        # category -> set(filenames)
-        self._categories = {}
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
         frozen = self.formats[format][1](stream.read())
         index2fn = frozen[0]
-        self._titles = dict(zip(frozen[0], frozen[2]))
-        self._categories = dict((k, set(index2fn[i] for i in v))
-                                for (k, v) in frozen[1].iteritems())
+        self._titles = dict(zip(frozen[0], frozen[1]))
         self._mapping = dict((k, set(index2fn[i] for i in v))
-                             for (k, v) in frozen[3].iteritems())
+                             for (k, v) in frozen[2].iteritems())
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
@@ -87,8 +82,6 @@ class IndexBuilder(object):
         fn2index = dict((f, i) for (i, f) in enumerate(fns))
         return [
             fns,
-            dict((k, [fn2index[fn] for fn in v])
-                 for (k, v) in self._categories.iteritems()),
             titles,
             dict((k, [fn2index[fn] for fn in v])
                  for (k, v) in self._mapping.iteritems()),
@@ -103,13 +96,10 @@ class IndexBuilder(object):
         self._titles = new_titles
         for wordnames in self._mapping.itervalues():
             wordnames.intersection_update(filenames)
-        for catnames in self._categories.itervalues():
-            catnames.intersection_update(filenames)
 
-    def feed(self, filename, category, title, doctree):
+    def feed(self, filename, title, doctree):
         """Feed a doctree to the index."""
         self._titles[filename] = title
-        self._categories.setdefault(category, set()).add(filename)
 
         visitor = WordCollector(doctree)
         doctree.walk(visitor)
@@ -125,25 +115,24 @@ class SearchFrontend(object):
     """
 
     def __init__(self, index):
-        self.filenames, self.areas, self.titles, self.words = index
+        self.filenames, self.titles, self.words = index
         self._stemmer = Stemmer()
 
-    def query(self, required, excluded, areas):
-        file_map = defaultdict(set)
+    def query(self, required, excluded):
+        file_map = {}
         for word in required:
             if word not in self.words:
                 break
             for fid in self.words[word]:
-                file_map[fid].add(word)
+                file_map.setdefault(fid, set()).add(word)
 
         return sorted(((self.filenames[fid], self.titles[fid])
             for fid, words in file_map.iteritems()
-            if len(words) == len(required) and
-               any(fid in self.areas.get(area, ()) for area in areas) and not
+            if len(words) == len(required) and not
                any(fid in self.words.get(word, ()) for word in excluded)
         ), key=lambda x: x[1].lower())
 
-    def search(self, searchstring, areas):
+    def search(self, searchstring):
         required = set()
         excluded = set()
         for word in searchstring.split():
@@ -154,4 +143,4 @@ class SearchFrontend(object):
                 storage = required
             storage.add(self._stemmer.stem(word.lower()))
 
-        return self.query(required, excluded, areas)
+        return self.query(required, excluded)

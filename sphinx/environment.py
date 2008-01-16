@@ -8,18 +8,22 @@
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import re
 import os
 import time
 import heapq
-import hashlib
 import difflib
 import itertools
 import cPickle as pickle
 from os import path
 from string import uppercase
+try:
+    import hashlib
+    md5 = hashlib.md5
+except:
+    import md5
+    md5 = md5.new
 
 from docutils import nodes
 from docutils.io import FileInput
@@ -37,9 +41,9 @@ Body.enum.converters['loweralpha'] = \
     Body.enum.converters['lowerroman'] = \
     Body.enum.converters['upperroman'] = lambda x: None
 
-from . import addnodes
-from .util import get_matching_files, os_path, SEP
-from .refcounting import Refcounts
+from sphinx import addnodes
+from sphinx.util import get_matching_files, os_path, SEP
+from sphinx.refcounting import Refcounts
 
 default_settings = {
     'embed_stylesheet': False,
@@ -156,8 +160,11 @@ class BuildEnvironment:
 
     @staticmethod
     def frompickle(filename):
-        with open(filename, 'rb') as picklefile:
+        picklefile = open(filename, 'rb')
+        try:
             env = pickle.load(picklefile)
+        finally:
+            picklefile.close()
         if env.version != ENV_VERSION:
             raise IOError('env version not current')
         return env
@@ -166,8 +173,11 @@ class BuildEnvironment:
         # remove unpicklable attributes
         warnfunc = self._warnfunc
         self.set_warnfunc(None)
-        with open(filename, 'wb') as picklefile:
+        picklefile = open(filename, 'wb')
+        try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
+        finally:
+            picklefile.close()
         # reset stream
         self.set_warnfunc(warnfunc)
 
@@ -178,9 +188,8 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.config = {}
 
-        # read the refcounts file
-        self.refcounts = Refcounts.fromfile(
-            path.join(self.srcdir, 'data', 'refcounts.dat'))
+        # refcount data if present
+        self.refcounts = {}
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -194,7 +203,7 @@ class BuildEnvironment:
 
         # Build times -- to determine changed files
         # Also use this as an inventory of all existing and built filenames.
-        self.all_files = {}         # filename -> (mtime, md5) at the time of build
+        self.all_files = {}         # filename -> (mtime, md5sum) at the time of build
 
         # File metadata
         self.metadata = {}          # filename -> dict of metadata items
@@ -291,21 +300,22 @@ class BuildEnvironment:
                                                  os_path(filename)[:-3] + 'doctree')):
                         changed.append(filename)
                         continue
-                    mtime, md5 = self.all_files[filename]
+                    mtime, md5sum = self.all_files[filename]
                     newmtime = path.getmtime(path.join(self.srcdir, os_path(filename)))
                     if newmtime == mtime:
                         continue
                     # check the MD5
                     #with file(path.join(self.srcdir, filename), 'rb') as f:
-                    #    newmd5 = hashlib.md5(f.read()).digest()
-                    #if newmd5 != md5:
+                    #    newmd5sum = md5(f.read()).digest()
+                    #if newmd5sum != md5sum:
                     changed.append(filename)
 
         return added, changed, removed
 
     # If one of these config values changes, all files need to be re-read.
     influential_config_values = [
-        'version', 'release', 'today', 'today_fmt', 'unused_files'
+        'version', 'release', 'today', 'today_fmt', 'unused_files',
+        'project', 'refcount_file', 'add_function_parentheses', 'add_module_names'
     ]
 
     def update(self, config):
@@ -330,13 +340,14 @@ class BuildEnvironment:
 
         self.config = config
 
+        # read the refcounts file
+        if self.config.get('refcount_file'):
+            self.refcounts = Refcounts.fromfile(
+                path.join(self.srcdir, self.config['refcount_file']))
+
         # clear all files no longer present
         for filename in removed:
             self.clear_file(filename)
-
-        # re-read the refcount file
-        self.refcounts = Refcounts.fromfile(
-            path.join(self.srcdir, 'data', 'refcounts.dat'))
 
         # read all new and changed files
         for filename in added + changed:
@@ -364,9 +375,12 @@ class BuildEnvironment:
         self.build_toc_from(filename, doctree)
 
         # calculate the MD5 of the file at time of build
-        with file(src_path, 'rb') as f:
-            md5 = hashlib.md5(f.read()).digest()
-        self.all_files[filename] = (path.getmtime(src_path), md5)
+        f = open(src_path, 'rb')
+        try:
+            md5sum = md5(f.read()).digest()
+        finally:
+            f.close()
+        self.all_files[filename] = (path.getmtime(src_path), md5sum)
 
         # make it picklable
         doctree.reporter = None
@@ -388,8 +402,11 @@ class BuildEnvironment:
             dirname = path.dirname(doctree_filename)
             if not path.isdir(dirname):
                 os.makedirs(dirname)
-            with file(doctree_filename, 'wb') as f:
+            f = open(doctree_filename, 'wb')
+            try:
                 pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+            finally:
+                f.close()
         else:
             return doctree
 
@@ -446,9 +463,9 @@ class BuildEnvironment:
         includefiles_len = len(includefiles)
         for i, includefile in enumerate(includefiles):
             # the "previous" file for the first toctree item is the parent
-            previous = includefiles[i-1] if i > 0 else filename
+            previous = i > 0 and includefiles[i-1] or filename
             # the "next" file for the last toctree item is the parent again
-            next = includefiles[i+1] if i < includefiles_len-1 else filename
+            next = i < includefiles_len-1 and includefiles[i+1] or filename
             self.toctree_relations[includefile] = [filename, previous, next]
             # note that if the included file is rebuilt, this one must be
             # too (since the TOC of the included file could have changed)
@@ -539,8 +556,11 @@ class BuildEnvironment:
     def get_doctree(self, filename):
         """Read the doctree for a file from the pickle and return it."""
         doctree_filename = path.join(self.doctreedir, os_path(filename)[:-3] + 'doctree')
-        with file(doctree_filename, 'rb') as f:
+        f = open(doctree_filename, 'rb')
+        try:
             doctree = pickle.load(f)
+        finally:
+            f.close()
         doctree.reporter = Reporter(filename, 2, 4, stream=RedirStream(self._warnfunc))
         return doctree
 
@@ -617,9 +637,11 @@ class BuildEnvironment:
                         if filename == docfilename:
                             newnode['refid'] = labelid
                         else:
-                            # in case the following calls raises NoUri...
-                            # else the final node will contain a label name
-                            contnode = innernode
+                            # set more info in contnode in case the following call
+                            # raises NoUri, the builder will have to resolve these
+                            contnode = addnodes.pending_xref('')
+                            contnode['reffilename'] = filename
+                            contnode['refsectname'] = sectname
                             newnode['refuri'] = builder.get_relative_uri(
                                 docfilename, filename) + '#' + labelid
                         newnode.append(innernode)
@@ -669,14 +691,14 @@ class BuildEnvironment:
                         newnode['refuri'] = (
                             builder.get_relative_uri(docfilename, filename) + anchor)
                         newnode['reftitle'] = '%s%s%s' % (
-                            ('(%s) ' % platform if platform else ''),
-                            synopsis, (' (deprecated)' if deprecated else ''))
+                            (platform and '(%s) ' % platform),
+                            synopsis, (deprecated and ' (deprecated)' or ''))
                         newnode.append(contnode)
                 else:
                     # "descrefs"
                     modname = node['modname']
                     clsname = node['classname']
-                    searchorder = 1 if node.hasattr('refspecific') else 0
+                    searchorder = node.hasattr('refspecific') and 1 or 0
                     name, desc = self.find_desc(modname, clsname,
                                                 target, typ, searchorder)
                     if not desc:
@@ -716,7 +738,10 @@ class BuildEnvironment:
             # new entry types must be listed in directives.py!
             for type, string, tid, alias in entries:
                 if type == 'single':
-                    entry, _, subentry = string.partition(';')
+                    try:
+                        entry, subentry = string.split(';', 1)
+                    except:
+                        entry, subentry = string, ''
                     add_entry(entry.strip(), subentry.strip())
                 elif type == 'pair':
                     first, second = map(lambda x: x.strip(), string.split(';', 1))

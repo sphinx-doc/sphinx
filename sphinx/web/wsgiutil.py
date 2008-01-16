@@ -9,7 +9,6 @@
     :copyright: 2007-2008 by Armin Ronacher.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import cgi
 import urllib
@@ -23,8 +22,8 @@ from hashlib import sha1
 from datetime import datetime
 from cStringIO import StringIO
 
-from .util import lazy_property
-from ..util.json import dump_json
+from sphinx.web.util import lazy_property
+from sphinx.util.json import dump_json
 
 
 HTTP_STATUS_CODES = {
@@ -371,8 +370,11 @@ class Session(dict):
         self.sid = sid
         if sid is not None:
             if path.exists(self.filename):
-                with file(self.filename, 'rb') as f:
+                f = open(self.filename, 'rb')
+                try:
                     self.update(pickle.load(f))
+                finally:
+                    f.close()
         self._orig = dict(self)
 
     @property
@@ -387,8 +389,11 @@ class Session(dict):
     def save(self):
         if self.sid is None:
             self.sid = sha1('%s|%s' % (time(), random())).hexdigest()
-        with file(self.filename, 'wb') as f:
+        f = open(self.filename, 'wb')
+        try:
             pickle.dump(dict(self), f, pickle.HIGHEST_PROTOCOL)
+        finally:
+            f.close()
         self._orig = dict(self)
 
 
@@ -669,8 +674,11 @@ class SharedDataMiddleware(object):
         start_response('200 OK', [('Content-Type', mime_type),
                                   ('Cache-Control', 'public'),
                                   ('Expires', expiry)])
-        with open(filename, 'rb') as f:
+        f = open(filename, 'rb')
+        try:
             return [f.read()]
+        finally:
+            f.close()
 
     def __call__(self, environ, start_response):
         p = environ.get('PATH_INFO', '')

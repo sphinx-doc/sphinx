@@ -9,7 +9,6 @@
     :copyright: 2007-2008 by Georg Brandl, Armin Ronacher.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import os
 import re
@@ -24,24 +23,23 @@ import cPickle as pickle
 import cStringIO as StringIO
 from os import path
 from itertools import groupby
-from collections import defaultdict
 
-from .feed import Feed
-from .mail import Email
-from .util import render_template, get_target_uri, blackhole_dict, striptags
-from .admin import AdminPanel
-from .userdb import UserDatabase
-from .robots import robots_txt
-from .oldurls import handle_html_url
-from .antispam import AntiSpam
-from .database import connect, set_connection, Comment
-from .wsgiutil import Request, Response, RedirectResponse, \
+from sphinx.web.feed import Feed
+from sphinx.web.mail import Email
+from sphinx.web.util import render_template, get_target_uri, blackhole_dict, striptags
+from sphinx.web.admin import AdminPanel
+from sphinx.web.userdb import UserDatabase
+from sphinx.web.robots import robots_txt
+from sphinx.web.oldurls import handle_html_url
+from sphinx.web.antispam import AntiSpam
+from sphinx.web.database import connect, set_connection, Comment
+from sphinx.web.wsgiutil import Request, Response, RedirectResponse, \
      JSONResponse, SharedDataMiddleware, NotFound, get_base_uri
 
-from ..util import relative_uri
-from ..search import SearchFrontend
-from ..htmlwriter import HTMLWriter
-from ..builder import LAST_BUILD_FILENAME, ENV_PICKLE_FILENAME
+from sphinx.util import relative_uri
+from sphinx.search import SearchFrontend
+from sphinx.htmlwriter import HTMLWriter
+from sphinx.builder import LAST_BUILD_FILENAME, ENV_PICKLE_FILENAME
 
 from docutils.io import StringOutput
 from docutils.utils import Reporter
@@ -123,8 +121,11 @@ class DocumentationApplication(object):
     """
 
     def __init__(self, config):
-        self.cache = blackhole_dict() if config['debug'] else {}
-        self.freqmodules = defaultdict(int)
+        if config['debug']:
+            self.cache = blackhole_dict()
+        else:
+            self.cache = {}
+        self.freqmodules = {}
         self.last_most_frequent = []
         self.generated_stylesheets = {}
         self.config = config
@@ -139,19 +140,31 @@ class DocumentationApplication(object):
 
 
     def load_env(self, new_mtime):
-        with env_lock:
+        env_lock.acquire()
+        try:
             if self.buildmtime == new_mtime:
                 # happens if another thread already reloaded the env
                 return
             print "* Loading the environment..."
-            with file(path.join(self.data_root, ENV_PICKLE_FILENAME), 'rb') as f:
+            f = open(path.join(self.data_root, ENV_PICKLE_FILENAME), 'rb')
+            try:
                 self.env = pickle.load(f)
-            with file(path.join(self.data_root, 'globalcontext.pickle'), 'rb') as f:
+            finally:
+                f.close()
+            f = open(path.join(self.data_root, 'globalcontext.pickle'), 'rb')
+            try:
                 self.globalcontext = pickle.load(f)
-            with file(path.join(self.data_root, 'searchindex.pickle'), 'rb') as f:
+            finally:
+                f.close()
+            f = open(path.join(self.data_root, 'searchindex.pickle'), 'rb')
+            try:
                 self.search_frontend = SearchFrontend(pickle.load(f))
+            finally:
+                f.close()
             self.buildmtime = new_mtime
             self.cache.clear()
+        finally:
+            env_lock.release()
 
 
     def search(self, req):
@@ -167,12 +180,15 @@ class DocumentationApplication(object):
         """
         Get the reST source of a page.
         """
-        page_id = self.env.get_real_filename(page)
+        page_id = self.env.get_real_filename(page)[:-4]
         if page_id is None:
             raise NotFound()
-        filename = path.join(self.data_root, 'sources', page_id)[:-3] + 'txt'
-        with file(filename) as f:
+        filename = path.join(self.data_root, 'sources', page_id) + '.txt'
+        f = open(filename)
+        try:
             return page_id, f.read()
+        finally:
+            f.close()
 
 
     def show_source(self, req, page):
@@ -191,7 +207,7 @@ class DocumentationApplication(object):
         return Response(render_template(req, 'edit.html', self.globalcontext, dict(
             contents=contents,
             pagename=page,
-            doctitle=self.globalcontext['titles'].get(page_id) or 'this page',
+            doctitle=self.globalcontext['titles'].get(page_id+'.rst') or 'this page',
             submiturl=relative_uri('/@edit/'+page+'/', '/@submit/'+page),
         )))
 
@@ -209,11 +225,11 @@ class DocumentationApplication(object):
         builder = MockBuilder()
         builder.config = env2.config
         writer = HTMLWriter(builder)
-        doctree = env2.read_file(page_id, pathname, save_parsed=False)
-        doctree = env2.get_and_resolve_doctree(page_id, builder, doctree)
+        doctree = env2.read_file(page_id+'.rst', pathname, save_parsed=False)
+        doctree = env2.get_and_resolve_doctree(page_id+'.rst', builder, doctree)
         doctree.settings = OptionParser(defaults=env2.settings,
                                         components=(writer,)).get_default_values()
-        doctree.reporter = Reporter(page_id, 2, 4, stream=warning_stream)
+        doctree.reporter = Reporter(page_id+'.rst', 2, 4, stream=warning_stream)
         output = writer.write(doctree, destination)
         writer.assemble_parts()
         return writer.parts['fragment']
@@ -302,7 +318,7 @@ class DocumentationApplication(object):
                 referer = ''
             else:
                 referer = referer[len(base):]
-                referer = referer.rpartition('?')[0] or referer
+                referer = referer.split('?')[0] or referer
 
         if req.method == 'POST':
             if req.form.get('cancel'):
@@ -362,8 +378,11 @@ class DocumentationApplication(object):
             yield '@modindex'
 
         filename = path.join(self.data_root, 'modindex.fpickle')
-        with open(filename, 'rb') as f:
+        f = open(filename, 'rb')
+        try:
             context = pickle.load(f)
+        finally:
+            f.close()
         if showpf:
             entries = context['modindexentries']
             i = 0
@@ -386,7 +405,7 @@ class DocumentationApplication(object):
         """
         Show the "new comment" form.
         """
-        page_id = self.env.get_real_filename(page)
+        page_id = self.env.get_real_filename(page)[:-4]
         ajax_mode = req.args.get('mode') == 'ajax'
         target = req.args.get('target')
         page_comment_mode = not target
@@ -466,7 +485,7 @@ class DocumentationApplication(object):
             return
 
         comment_url = '@comments/%s/' % url
-        page_id = self.env.get_real_filename(url)
+        page_id = self.env.get_real_filename(url)[:-4]
         tx = context['body']
         all_comments = Comment.get_for_page(page_id)
         global_comments = []
@@ -509,17 +528,17 @@ class DocumentationApplication(object):
         Show the requested documentation page or raise an
         `NotFound` exception to display a page with close matches.
         """
-        page_id = self.env.get_real_filename(url)
+        page_id = self.env.get_real_filename(url)[:-4]
         if page_id is None:
             raise NotFound(show_keyword_matches=True)
         # increment view count of all modules on that page
-        for modname in self.env.filemodules.get(page_id, ()):
-            self.freqmodules[modname] += 1
+        for modname in self.env.filemodules.get(page_id+'.rst', ()):
+            self.freqmodules[modname] = self.freqmodules.get(modname, 0) + 1
         # comments enabled?
-        comments = self.env.metadata[page_id].get('nocomments', False)
+        comments = self.env.metadata[page_id+'.rst'].get('nocomments', False)
 
         # how does the user want to view comments?
-        commentmode = req.session.get('comments', 'inline') if comments else ''
+        commentmode = comments and req.session.get('comments', 'inline') or ''
 
         # show "old URL" message? -> no caching possible
         oldurl = req.args.get('oldurl')
@@ -530,9 +549,12 @@ class DocumentationApplication(object):
             yield page_id + '|' + commentmode
 
         # cache miss; load the page and render it
-        filename = path.join(self.data_root, page_id[:-3] + 'fpickle')
-        with open(filename, 'rb') as f:
+        filename = path.join(self.data_root, page_id + '.fpickle')
+        f = open(filename, 'rb')
+        try:
             context = pickle.load(f)
+        finally:
+            f.close()
 
         # add comments to paqe text
         if commentmode != 'none':
@@ -546,8 +568,11 @@ class DocumentationApplication(object):
     def get_special_page(self, req, name):
         yield '@'+name
         filename = path.join(self.data_root, name + '.fpickle')
-        with open(filename, 'rb') as f:
+        f = open(filename, 'rb')
+        try:
             context = pickle.load(f)
+        finally:
+            f.close()
         yield render_template(req, name+'.html',
                               self.globalcontext, context)
 
@@ -559,8 +584,8 @@ class DocumentationApplication(object):
                 feed.add_item(comment.title, comment.author, comment.url,
                               comment.parsed_comment_body, comment.pub_date)
         else:
-            page_id = self.env.get_real_filename(url)
-            doctitle = striptags(self.globalcontext['titles'].get(page_id, url))
+            page_id = self.env.get_real_filename(url)[:-4]
+            doctitle = striptags(self.globalcontext['titles'].get(page_id+'.rst', url))
             feed = Feed(req, 'Comments for "%s"' % doctitle,
                         'List of comments for the topic "%s"' % doctitle, url)
             for comment in Comment.get_for_page(page_id):
@@ -632,7 +657,7 @@ class DocumentationApplication(object):
                 'close_matches':        close_matches,
                 'good_matches_count':   good_matches,
                 'keyword':              term
-            }, self.globalcontext), status=404 if is_error_page else 404)
+            }, self.globalcontext), status=404)
 
 
     def get_user_stylesheet(self, req):
@@ -650,15 +675,21 @@ class DocumentationApplication(object):
         else:
             stylesheet = []
             for filename in known_designs[style][0]:
-                with file(path.join(self.data_root, 'style', filename)) as f:
+                f = open(path.join(self.data_root, 'style', filename))
+                try:
                     stylesheet.append(f.read())
+                finally:
+                    f.close()
             stylesheet = '\n'.join(stylesheet)
             if not self.config.get('debug'):
                 self.generated_stylesheets[style] = stylesheet
 
         if req.args.get('admin') == 'yes':
-            with file(path.join(self.data_root, 'style', 'admin.css')) as f:
+            f = open(path.join(self.data_root, 'style', 'admin.css'))
+            try:
                 stylesheet += '\n' + f.read()
+            finally:
+                f.close()
 
         # XXX: add timestamp based http caching
         return Response(stylesheet, mimetype='text/css')

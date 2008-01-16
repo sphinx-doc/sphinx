@@ -6,39 +6,14 @@
 {% block body %}
   <h1 id="search-documentation">Search Documentation</h1>
   <p>
-    From here you can search the Python documentation. Enter your search
+    From here you can search the {{ project }} documentation. Enter your search
     words into the box below and click "search". Note that the search
     function will automatically search for all of the words. Pages
     containing less words won't appear in the result list.
   </p>
-  <p>
-    In order to speed up the results you can limit your search by
-    excluding some of the sections listed below.
-  </p>
   <form action="" method="get">
     <input type="text" name="q" value="">
     <input type="submit" value="search">
-    <p>
-      Sections:
-    </p>
-    <ul class="fakelist">
-    {% for id, name, checked in [
-      ('tutorial', 'Python Tutorial', true),
-      ('library', 'Library Reference', true),
-      ('using', 'Using Python', true),
-      ('reference', 'Language Reference', false),
-      ('extending', 'Extending and Embedding', false),
-      ('c-api', 'Python/C API', false),
-      ('install', 'Installing Python Modules', true),
-      ('distutils', 'Distributing Python Modules', true),
-      ('documenting', 'Documenting Python', false),
-      ('whatsnew', 'What\'s new in Python?', false),
-    ] -%}
-      <li><input type="checkbox" name="area" id="area-{{ id }}" value="{{ id
-          }}"{% if checked %} checked{% endif %}>
-          <label for="area-{{ id }}">{{ name }}</label></li>
-    {% endfor %}
-    </ul>
   </form>
   {% if search_performed %}
     <h2>Search Results</h2>

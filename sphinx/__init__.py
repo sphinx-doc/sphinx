@@ -3,7 +3,7 @@
     Sphinx
     ~~~~~~
 
-    The Python documentation toolchain.
+    The Sphinx documentation toolchain.
 
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
@@ -14,8 +14,8 @@ import getopt
 from os import path
 from cStringIO import StringIO
 
-from .builder import builders
-from .util.console import nocolor
+from sphinx.builder import builders
+from sphinx.util.console import nocolor
 
 __version__ = '$Revision: 5369 $'
 
@@ -31,7 +31,6 @@ options: -b <builder> -- builder to use (one of %s)
          -E        -- don't use a saved environment, always read all files
          -d <path> -- path for the cached environment and doctree files
                       (default outdir/.doctrees)
-         -O <option[=value]> -- give option to to the builder (-O help for list)
          -D <setting=value> -- override a setting in sourcedir/conf.py
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
@@ -44,7 +43,7 @@ modi:
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:O:D:NEqP')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:D:NEqP')
         srcdirname = path.abspath(args[0])
         if not path.isdir(srcdirname):
             print >>sys.stderr, 'Error: Cannot find source directory.'
@@ -70,9 +69,8 @@ def main(argv):
         return 1
 
     builder = all_files = None
-    opt_help = freshenv = use_pdb = False
+    freshenv = use_pdb = False
     status = sys.stdout
-    options = {}
     confoverrides = {}
     doctreedir = path.join(outdirname, '.doctrees')
     for opt, val in opts:
@@ -88,18 +86,6 @@ def main(argv):
             all_files = True
         elif opt == '-d':
             doctreedir = val
-        elif opt == '-O':
-            if val == 'help':
-                opt_help = True
-                continue
-            if '=' in val:
-                key, val = val.split('=')
-                try:
-                    val = int(val)
-                except: pass
-            else:
-                key, val = val, True
-            options[key] = val
         elif opt == '-D':
             key, val = val.split('=')
             try:
@@ -125,14 +111,8 @@ def main(argv):
 
     builderobj = builders[builder]
 
-    if opt_help:
-        print 'Options recognized by the %s builder:' % builder
-        for optname, description in builderobj.option_spec.iteritems():
-            print ' * %s: %s' % (optname, description)
-        return 0
-
     try:
-        builderobj = builderobj(srcdirname, outdirname, doctreedir, options,
+        builderobj = builderobj(srcdirname, outdirname, doctreedir,
                                 status_stream=status,
                                 warning_stream=sys.stderr,
                                 confoverrides=confoverrides,
@@ -146,7 +126,8 @@ def main(argv):
     except:
         if not use_pdb:
             raise
-        import pdb
+        import pdb, traceback
+        traceback.print_exc()
         pdb.post_mortem(sys.exc_info()[2])
 
 

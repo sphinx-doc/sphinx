@@ -3,6 +3,8 @@
     sphinx.addnodes
     ~~~~~~~~~~~~~~~
 
+    Additional docutils nodes.
+
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """

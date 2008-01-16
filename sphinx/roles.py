@@ -14,7 +14,7 @@ import re
 from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
-from . import addnodes
+from sphinx import addnodes
 
 ws_re = re.compile(r'\s+')
 
@@ -128,7 +128,10 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     if typ == 'term':
         pnode['reftarget'] = ws_re.sub(' ', text).lower()
     elif typ == 'option':
-        pnode['reftarget'] = text[1:] if text[0] in '-/' else text
+        if text[0] in '-/':
+            pnode['reftarget'] = text[1:]
+        else:
+            pnode['reftarget'] = text
     else:
         pnode['reftarget'] = ws_re.sub('', text)
     pnode['modname'] = env.currmodule

@@ -9,9 +9,9 @@
     :license: BSD.
 """
 
+import sys
 import cgi
 import parser
-from collections import defaultdict
 
 try:
     import pygments
@@ -42,7 +42,7 @@ else:
             Number: '#208050',
         })
 
-    lexers = defaultdict(TextLexer,
+    lexers = dict(
         none = TextLexer(),
         python = PythonLexer(),
         pycon = PythonConsoleLexer(),
@@ -71,8 +71,12 @@ def highlight_block(source, lang, dest='html'):
         else:
             # maybe Python -- try parsing it
             try:
-                parser.suite('from __future__ import with_statement\n' +
-                             source + '\n')
+                # if we're using 2.5, use the with statement
+                if sys.version_info >= (2, 5):
+                    parser.suite('from __future__ import with_statement\n' +
+                                 source + '\n')
+                else:
+                    parser.suite(source + '\n')
             except (SyntaxError, UnicodeEncodeError):
                 return unhighlighted()
             else:

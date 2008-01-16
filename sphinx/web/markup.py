@@ -42,7 +42,7 @@ import cgi
 import re
 from urlparse import urlparse
 
-from ..highlighting import highlight_block
+from sphinx.highlighting import highlight_block
 
 
 inline_formatting = {
@@ -212,7 +212,7 @@ class MarkupParser(object):
                 elif protocol == 'javascript':
                     href = href[11:]
                 paragraph.append('<a href="%s"%s>%s</a>' % (cgi.escape(href),
-                                 ' rel="nofollow"' if nofollow else '',
+                                 nofollow and ' rel="nofollow"' or '',
                                  cgi.escape(caption)))
             elif token == 'code_block':
                 result.append(highlight_block(data, 'python'))

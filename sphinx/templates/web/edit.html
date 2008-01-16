@@ -22,9 +22,10 @@
   <h1 id="suggest-changes-for-this-page">Suggest changes for this page</h1>
 {% if not rendered %}
   <p>Here you can edit the source of &#8220;{{ doctitle|striptags }}&#8221; and
-    submit the results as a patch to the Python documentation team.  If you want
-    to know more about reST, the markup language used, read
-    <a href="{{ pathto('documenting/index.rst') }}">Documenting Python</a>.</p>
+    submit the results as a patch to the {{ project }} documentation team.
+    {# XXX Python specific #}
+    If you want to know more about reST, the markup language used, read
+    <a href="{{ pathto('documenting/index') }}">Documenting Python</a>.</p>
 {% endif %}
   <form action="{{ submiturl }}" method="post">
     <div id="suggest-changes-box">

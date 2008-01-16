@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Python documentation web application configuration file
+# Sphinx documentation web application configuration file
 #
 
 # Where the server listens.

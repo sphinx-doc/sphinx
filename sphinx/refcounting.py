@@ -9,8 +9,6 @@
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """
-from __future__ import with_statement
-
 
 class RCEntry:
     def __init__(self, name):
@@ -24,7 +22,8 @@ class Refcounts(dict):
     @classmethod
     def fromfile(cls, filename):
         d = cls()
-        with open(filename, 'r') as fp:
+        fp = open(filename, 'r')
+        try:
             for line in fp:
                 line = line.strip()
                 if line[:1] in ("", "#"):
@@ -49,4 +48,6 @@ class Refcounts(dict):
                 else:
                     entry.result_type = type
                     entry.result_refs = refcount
+        finally:
+            fp.close()
         return d

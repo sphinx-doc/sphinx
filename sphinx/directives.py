@@ -8,7 +8,6 @@
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import re
 import string
@@ -19,7 +18,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 from docutils.parsers.rst.directives import admonitions
 
-from . import addnodes
+from sphinx import addnodes
 
 # ------ index markup --------------------------------------------------------------
 
@@ -142,7 +141,7 @@ def parse_py_signature(signode, sig, desctype, env):
         else:
             fullname = env.currclass + '.' + name
     else:
-        fullname = classname + name if classname else name
+        fullname = classname and classname + name or name
 
     if classname:
         signode += addnodes.desc_classname(classname, classname)
@@ -285,7 +284,7 @@ def add_refcount_annotation(env, node, name):
     if entry.result_refs is None:
         rc += "Always NULL."
     else:
-        rc += ("New" if entry.result_refs else "Borrowed") + " reference."
+        rc += (entry.result_refs and "New" or "Borrowed") + " reference."
     node += addnodes.refcount(rc, rc)
 
 
@@ -347,7 +346,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         # only add target and index entry if this is the first description of the
         # function name in this desc block
         if not noindex and name not in names:
-            fullname = (env.currmodule + '.' if env.currmodule else '') + name
+            fullname = (env.currmodule and env.currmodule + '.' or '') + name
             # note target
             if fullname not in state.document.ids:
                 signode['names'].append(fullname)
@@ -612,8 +611,9 @@ def literalinclude_directive(name, arguments, options, content, lineno,
     fn = path.normpath(path.join(source_dir, fn))
 
     try:
-        with open(fn) as f:
-            text = f.read()
+        f = open(fn)
+        text = f.read()
+        f.close()
     except (IOError, OSError):
         retnode = state.document.reporter.warning(
             'Include file %r not found or reading it failed' % arguments[0], line=lineno)

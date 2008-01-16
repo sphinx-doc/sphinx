@@ -63,7 +63,7 @@ def restart_with_reloader():
 
 def run_with_reloader(main_func, extra_watch):
     """
-    Run the given function in an independent python interpreter.
+    Run the given function in an independent Python interpreter.
     """
     if os.environ.get('RUN_MAIN') == 'true':
         thread.start_new_thread(main_func, ())

@@ -8,22 +8,21 @@
     :copyright: 2007-2008 by Georg Brandl.
     :license: BSD.
 """
-from __future__ import with_statement
 
 import re
 from os import path
 
-from ..util import relative_uri
-from .._jinja import Environment, FileSystemLoader
+from sphinx.util import relative_uri
+from sphinx._jinja import Environment, FileSystemLoader
 
 
 def get_target_uri(source_filename):
-    """Get the web-URI for a given reST file name."""
-    if source_filename == 'index.rst':
+    """Get the web-URI for a given reST file name (without extension)."""
+    if source_filename == 'index':
         return ''
-    if source_filename.endswith('/index.rst'):
-        return source_filename[:-9] # up to /
-    return source_filename[:-4] + '/'
+    if source_filename.endswith('/index'):
+        return source_filename[:-5] # up to /
+    return source_filename + '/'
 
 
 # ------------------------------------------------------------------------------

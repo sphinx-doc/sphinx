@@ -9,9 +9,9 @@
     :license: BSD.
 """
 
-from .util import render_template
-from .wsgiutil import Response, RedirectResponse, NotFound
-from .database import Comment
+from sphinx.web.util import render_template
+from sphinx.web.wsgiutil import Response, RedirectResponse, NotFound
+from sphinx.web.database import Comment
 
 
 class AdminPanel(object):

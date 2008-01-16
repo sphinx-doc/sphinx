@@ -10,11 +10,10 @@
     :copyright: 2007-2008 by Armin Ronacher.
     :license: BSD.
 """
-from __future__ import with_statement
+
 from os import path
 from hashlib import sha1
 from random import choice, randrange
-from collections import defaultdict
 
 
 def gen_password(length=8, add_numbers=True, mix_case=True,
@@ -56,17 +55,19 @@ class UserDatabase(object):
     def __init__(self, filename):
         self.filename = filename
         self.users = {}
-        self.privileges = defaultdict(set)
+        self.privileges = {}
         if path.exists(filename):
-            with file(filename) as f:
+            f = open(filename)
+            try:
                 for line in f:
                     line = line.strip()
                     if line and line[0] != '#':
                         parts = line.split(':')
                         self.users[parts[0]] = parts[1]
-                        self.privileges[parts[0]].update(x for x in
-                                                         parts[2].split(',')
-                                                         if x)
+                        self.privileges.setdefault(parts[0], set()).update(
+                            x for x in parts[2].split(',') if x)
+            finally:
+                f.close()
 
     def set_password(self, user, password):
         """Encode the password for a user (also adds users)."""
@@ -84,7 +85,10 @@ class UserDatabase(object):
             self.users[user] == sha1('%s|%s' % (user, password)).hexdigest()
 
     def save(self):
-        with file(self.filename, 'w') as f:
+        f = open(self.filename, 'w')
+        try:
             for username, password in self.users.iteritems():
                 privileges = ','.join(self.privileges.get(username, ()))
                 f.write('%s:%s:%s\n' % (username, password, privileges))
+        finally:
+            f.close()

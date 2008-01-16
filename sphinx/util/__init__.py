@@ -77,14 +77,6 @@ def get_matching_files(dirname, pattern, exclude=()):
             yield canonical_path(qualified_name)
 
 
-def get_category(filename):
-    """Get the "category" part of a RST filename."""
-    parts = filename.split(SEP, 1)
-    if len(parts) < 2:
-        return
-    return parts[0]
-
-
 def shorten_result(text='', keywords=[], maxlen=240, fuzz=60):
     if not text:
         text = ''

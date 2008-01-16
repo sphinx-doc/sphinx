@@ -3,7 +3,7 @@
   <h1>Moderate Comments</h1>
   <p>
     From here you can delete and edit comments. If you want to be
-    informed about new comments you can use the <a href="{{ pathto('index.rst')
+    informed about new comments you can use the <a href="{{ pathto('index')
     }}?feed=recent_comments">feed</a> provided.
   </p>
   <form action="" method="post">
@@ -71,7 +71,7 @@
           <th colspan="4" class="recent_comments">
             <a href="{{ pathto('@admin/moderate_comments/recent_comments/', true)
               }}">Recent Comments</a>
-            <span class="meta">(<a href="{{ pathto('index.rst')
+            <span class="meta">(<a href="{{ pathto('index')
               }}?feed=recent_comments">feed</a>)</span>
           </th>
         </tr>

@@ -11,7 +11,7 @@
 
 import re
 
-from .wsgiutil import RedirectResponse, NotFound
+from sphinx.web.wsgiutil import RedirectResponse, NotFound
 
 
 _module_re = re.compile(r'module-(.*)\.html')
@@ -78,7 +78,7 @@ def handle_html_url(req, url):
         # tutorial
         elif url[:4] == 'tut/':
             try:
-                node = int(url[8:].partition('.html')[0])
+                node = int(url[8:].split('.html')[0])
             except ValueError:
                 pass
             else:
