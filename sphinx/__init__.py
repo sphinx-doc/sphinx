@@ -54,6 +54,7 @@ def init_builder(buildername, srcdirname, outdirname, doctreedir,
                            status_stream=status, warning_stream=warning,
                            events=events, config=config, freshenv=freshenv)
     events.emit('builder-created', builder)
+    return builder
 
 
 def usage(argv, msg=None):
