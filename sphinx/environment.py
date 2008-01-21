@@ -57,7 +57,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 14
+ENV_VERSION = 15
 
 
 def walk_depth(node, depth, maxdepth):
