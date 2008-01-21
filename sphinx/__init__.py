@@ -9,15 +9,51 @@
     :license: BSD.
 """
 
+import os
 import sys
 import getopt
 from os import path
 from cStringIO import StringIO
 
+from sphinx.config import Config, ConfigError
 from sphinx.builder import builders
+from sphinx.extension import EventManager
 from sphinx.util.console import nocolor
 
-__version__ = '$Revision: 5369 $'
+__version__ = '$Revision: 5369 $'[11:-2]
+
+
+def init_builder(buildername, srcdirname, outdirname, doctreedir,
+                 confoverrides, status, warning=sys.stderr, freshenv=False):
+    # read config
+    config = Config(srcdirname, 'conf.py')
+    if confoverrides:
+        for key, val in confoverrides.items():
+            setattr(config, key, val)
+
+    # extensibility
+    events = EventManager()
+    for extension in config.extensions:
+        try:
+            mod = __import__(extension, None, None, ['setup'])
+        except ImportError, err:
+            raise ConfigError('Could not import extension %s' % module, err)
+        if hasattr(mod, 'setup'):
+            mod.setup(events, builders)
+
+    if buildername not in builders:
+        print >>warning, 'Builder name %s not registered' % buildername
+        return None
+
+    if buildername is None:
+        print >>status, 'No builder selected, using default: html'
+        buildername = 'html'
+
+    builderclass = builders[buildername]
+    builder = builderclass(srcdirname, outdirname, doctreedir,
+                           status_stream=status, warning_stream=warning,
+                           events=events, config=config, freshenv=freshenv)
+    events.emit('builder-created', builder)
 
 
 def usage(argv, msg=None):
@@ -42,6 +78,10 @@ modi:
 
 
 def main(argv):
+    if not sys.stdout.isatty() or sys.platform == 'win32':
+        # Windows' poor cmd box doesn't understand ANSI sequences
+        nocolor()
+
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:d:D:NEqP')
         srcdirname = path.abspath(args[0])
@@ -68,17 +108,14 @@ def main(argv):
     if err:
         return 1
 
-    builder = all_files = None
+    buildername = all_files = None
     freshenv = use_pdb = False
     status = sys.stdout
     confoverrides = {}
     doctreedir = path.join(outdirname, '.doctrees')
     for opt, val in opts:
         if opt == '-b':
-            if val not in builders:
-                usage(argv, 'Invalid builder value specified.')
-                return 1
-            builder = val
+            buildername = val
         elif opt == '-a':
             if filenames:
                 usage(argv, 'Cannot combine -a option and filenames.')
@@ -101,28 +138,18 @@ def main(argv):
         elif opt == '-P':
             use_pdb = True
 
-    if not sys.stdout.isatty() or sys.platform == 'win32':
-        # Windows' cmd box doesn't understand ANSI sequences
-        nocolor()
-
-    if builder is None:
-        print >>status, 'No builder selected, using default: html'
-        builder = 'html'
-
-    builderobj = builders[builder]
+    builder = init_builder(buildername, srcdirname, outdirname, doctreedir,
+                           confoverrides, status, sys.stderr, freshenv)
+    if not builder:
+        return 1
 
     try:
-        builderobj = builderobj(srcdirname, outdirname, doctreedir,
-                                status_stream=status,
-                                warning_stream=sys.stderr,
-                                confoverrides=confoverrides,
-                                freshenv=freshenv)
         if all_files:
-            builderobj.build_all()
+            builder.build_all()
         elif filenames:
-            builderobj.build_specific(filenames)
+            builder.build_specific(filenames)
         else:
-            builderobj.build_update()
+            builder.build_update()
     except:
         if not use_pdb:
             raise

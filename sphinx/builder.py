@@ -12,7 +12,6 @@
 import os
 import sys
 import time
-import types
 import codecs
 import shutil
 import cPickle as pickle
@@ -31,8 +30,9 @@ from sphinx import addnodes
 from sphinx.util import (get_matching_files, attrdict, status_iterator,
                          ensuredir, relative_uri, os_path, SEP)
 from sphinx.htmlhelp import build_hhx
+from sphinx.extension import DummyEventManager, import_object
 from sphinx.patchlevel import get_version_info, get_sys_version_info
-from sphinx.htmlwriter import HTMLWriter
+from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import pygments, highlight_block, get_stylesheet
@@ -45,25 +45,13 @@ from sphinx import directives
 ENV_PICKLE_FILENAME = 'environment.pickle'
 LAST_BUILD_FILENAME = 'last_build'
 
-# Helper objects
-
-class relpath_to(object):
-    def __init__(self, builder, filename):
-        self.baseuri = builder.get_target_uri(filename)
-        self.builder = builder
-    def __call__(self, otheruri, resource=False):
-        if not resource:
-            otheruri = self.builder.get_target_uri(otheruri + '.rst')
-        return relative_uri(self.baseuri, otheruri)
-
-
 class Builder(object):
     """
     Builds target formats from the reST sources.
     """
 
     def __init__(self, srcdirname, outdirname, doctreedirname,
-                 confoverrides=None, env=None, freshenv=False,
+                 config, env=None, freshenv=False, events=None,
                  status_stream=None, warning_stream=None):
         self.srcdir = srcdirname
         self.outdir = outdirname
@@ -75,35 +63,11 @@ class Builder(object):
         self.status_stream = status_stream or sys.stdout
         self.warning_stream = warning_stream or sys.stderr
 
-        # probably set in load_env()
+        self.config = config
+        # if None, this is set in load_env()
         self.env = env
 
-        self.config = {}
-        olddir = os.getcwd()
-        try:
-            os.chdir(srcdirname)
-            execfile(path.join(srcdirname, 'conf.py'), self.config)
-        finally:
-            os.chdir(olddir)
-        # remove potentially pickling-problematic values
-        del self.config['__builtins__']
-        for key, val in self.config.items():
-            if isinstance(val, types.ModuleType):
-                del self.config[key]
-        if confoverrides:
-            self.config.update(confoverrides)
-        # replace version info if '<auto>'
-        if self.config['version'] == '<auto>' or self.config['release'] == '<auto>':
-            try:
-                version, release = get_version_info(srcdirname)
-            except (IOError, OSError):
-                version, release = get_sys_version_info()
-                self.warn('Can\'t get version info from Include/patchlevel.h, '
-                          'using version of this interpreter (%s).' % release)
-            if self.config['version'] == '<auto>':
-                self.config['version'] = version
-            if self.config['release'] == '<auto>':
-                self.config['release'] = release
+        self.events = events or DummyEventManager()
 
         self.init()
 
@@ -124,12 +88,34 @@ class Builder(object):
         """Load necessary templates and perform initialization."""
         raise NotImplementedError
 
+    def init_templates(self):
+        """Call if you need Jinja templates in the builder."""
+        # lazily import this, maybe other builders won't need it
+        from sphinx._jinja import Environment, SphinxFileSystemLoader
+
+        # load templates
+        self.templates = {}
+        templates_path = [path.join(path.dirname(__file__), 'templates')]
+        templates_path.extend(self.config.templates_path)
+        self.jinja_env = Environment(loader=SphinxFileSystemLoader(templates_path),
+                                     # disable traceback, more likely that something
+                                     # in the application is broken than in the templates
+                                     friendly_traceback=False)
+
+    def get_template(self, name):
+        if name in self.templates:
+            return self.templates[name]
+        template = self.templates[name] = self.jinja_env.get_template(name)
+        return template
+
     def get_target_uri(self, source_filename, typ=None):
         """Return the target URI for a source filename."""
         raise NotImplementedError
 
     def get_relative_uri(self, from_, to, typ=None):
-        """Return a relative URI between two source filenames."""
+        """Return a relative URI between two source filenames.
+           May raise environment.NoUri if there's no way to return a
+           sensible URI."""
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
@@ -196,7 +182,9 @@ class Builder(object):
         warnings = []
         self.env.set_warnfunc(warnings.append)
         self.msg('reading, updating environment:', nonl=1)
-        iterator = self.env.update(self.config)
+        iterator = self.env.update(
+            self.config,
+            hook=lambda doctree: self.events.emit('doctree-read', doctree))
         self.msg(iterator.next(), nonl=1, nobold=1)
         for filename in iterator:
             if not updated_filenames:
@@ -274,25 +262,14 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self):
         """Load templates."""
-        # lazily import this, maybe other builders won't need it
-        from sphinx._jinja import Environment, SphinxFileSystemLoader
-
-        # load templates
-        self.templates = {}
-        templates_path = path.join(path.dirname(__file__), 'templates')
-        self.jinja_env = Environment(loader=SphinxFileSystemLoader([templates_path]),
-                                     # disable traceback, more likely that something
-                                     # in the application is broken than in the templates
-                                     friendly_traceback=False)
-        # pre-load built-in templates
-        for fname in os.listdir(templates_path):
-            if fname.endswith('.html'):
-                self.templates[fname] = self.jinja_env.get_template(fname)
-
-    def get_template(self, name):
-        if name in self.templates:
-            return self.templates[name]
-        return self.jinja_env.get_template(name)
+        self.init_templates()
+        if self.config.html_translator_class:
+            self.translator_class = import_object(self.config.html_translator_class,
+                                                  'html_translator_class setting')
+        elif self.config.html_use_smartypants:
+            self.translator_class = SmartyPantsHTMLTranslator
+        else:
+            self.translator_class = HTMLTranslator
 
     def render_partial(self, node):
         """Utility: Render a lone doctree node."""
@@ -317,17 +294,17 @@ class StandaloneHTMLBuilder(Builder):
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        lufmt = self.config.get('html_last_updated_fmt')
+        lufmt = self.config.html_last_updated_fmt
         if lufmt:
             self.last_updated = time.strftime(lufmt)
         else:
             self.last_updated = None
 
         self.globalcontext = dict(
-            project = self.config.get('project', 'Python'),
-            copyright = self.config.get('copyright', ''),
-            release = self.config['release'],
-            version = self.config['version'],
+            project = self.config.project,
+            copyright = self.config.copyright,
+            release = self.config.release,
+            version = self.config.version,
             last_updated = self.last_updated,
             builder = self.name,
             parents = [],
@@ -336,6 +313,7 @@ class StandaloneHTMLBuilder(Builder):
         )
 
     def write_file(self, filename, doctree):
+        pagename = filename[:-4]
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -366,7 +344,7 @@ class StandaloneHTMLBuilder(Builder):
         else:
             title = ''
         self.globalcontext['titles'][filename] = title
-        sourcename = filename[:-4] + '.txt'
+        sourcename = pagename + '.txt'
         context = dict(
             title = title,
             sourcename = sourcename,
@@ -379,8 +357,8 @@ class StandaloneHTMLBuilder(Builder):
             next = next,
         )
 
-        self.index_file(filename, doctree, title)
-        self.handle_page(filename[:-4], context)
+        self.index_page(pagename, doctree, title)
+        self.handle_page(pagename, context)
 
     def finish(self):
         self.msg('writing additional files...')
@@ -446,12 +424,12 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page('search', {}, 'search.html')
 
         # additional pages from conf.py
-        for pagename, template in self.config.get('html_additional_pages', {}).items():
+        for pagename, template in self.config.html_additional_pages.items():
             template = path.join(self.srcdir, template)
             self.handle_page(pagename, {}, template)
 
         # the index page
-        indextemplate = self.config.get('html_index')
+        indextemplate = self.config.html_index
         if indextemplate:
             indextemplate = path.join(self.srcdir, indextemplate)
         self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
@@ -480,7 +458,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_files(self):
         for filename in get_matching_files(
-            self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
+            self.srcdir, '*.rst', exclude=set(self.config.unused_files)):
             try:
                 rstname = path.join(self.outdir, os_path(filename))
                 targetmtime = path.getmtime(rstname[:-4] + '.html')
@@ -504,21 +482,26 @@ class StandaloneHTMLBuilder(Builder):
         # delete all entries for files that will be rebuilt
         self.indexer.prune([fn[:-4] for fn in set(self.env.all_files) - set(filenames)])
 
-    def index_file(self, filename, doctree, title):
+    def index_page(self, pagename, doctree, title):
         # only index pages with title
         if self.indexer is not None and title:
-            self.indexer.feed(self.get_target_uri(filename)[:-5], # strip '.html'
-                              title, doctree)
+            self.indexer.feed(pagename, title, doctree)
 
-    def handle_page(self, pagename, context, templatename='page.html'):
+    def handle_page(self, pagename, addctx, templatename='page.html'):
         ctx = self.globalcontext.copy()
         ctx['current_page_name'] = pagename
-        ctx['pathto'] = relpath_to(self, self.get_target_uri(pagename+'.rst'))
+
+        def pathto(otheruri, resource=False,
+                   baseuri=self.get_target_uri(pagename+'.rst')):
+            if not resource:
+                otheruri = self.get_target_uri(otheruri+'.rst')
+            return relative_uri(baseuri, otheruri)
+        ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name+'.rst' in self.env.all_files
-        sidebarfile = self.config.get('html_sidebars', {}).get(pagename)
+        sidebarfile = self.config.html_sidebars.get(pagename)
         if sidebarfile:
             ctx['customsidebar'] = path.join(self.srcdir, sidebarfile)
-        ctx.update(context)
+        ctx.update(addctx)
 
         output = self.get_template(templatename).render(ctx)
         outfilename = path.join(self.outdir, os_path(pagename) + '.html')
@@ -531,14 +514,14 @@ class StandaloneHTMLBuilder(Builder):
                 f.close()
         except (IOError, OSError), err:
             self.warn("Error writing file %s: %s" % (outfilename, err))
-        if self.copysource and context.get('sourcename'):
+        if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
             shutil.copyfile(path.join(self.srcdir, os_path(pagename+'.rst')),
-                            path.join(self.outdir, os_path(context['sourcename'])))
+                            path.join(self.outdir, os_path(ctx['sourcename'])))
 
     def handle_finish(self):
         self.msg('dumping search index...')
-        self.indexer.prune([self.get_target_uri(fn)[:-5] for fn in self.env.all_files])
+        self.indexer.prune([fn[:-4] for fn in self.env.all_files])
         f = open(path.join(self.outdir, 'searchindex.json'), 'w')
         try:
             self.indexer.dump(f, 'json')
@@ -558,7 +541,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
 
     def get_outdated_files(self):
         for filename in get_matching_files(
-            self.srcdir, '*.rst', exclude=set(self.config.get('unused_files', ()))):
+            self.srcdir, '*.rst', exclude=set(self.config.unused_files)):
             try:
                 targetmtime = path.getmtime(
                     path.join(self.outdir, os_path(filename)[:-4] + '.fpickle'))
@@ -587,14 +570,14 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         # delete all entries for files that will be rebuilt
         self.indexer.prune(set(self.env.all_files) - set(filenames))
 
-    def index_file(self, filename, doctree, title):
+    def index_page(self, pagename, doctree, title):
         # only index pages with title
         if self.indexer is not None and title:
-            self.indexer.feed(filename, title, doctree)
+            self.indexer.feed(pagename+'.rst', title, doctree)
 
     def handle_page(self, pagename, context, templatename='page.html'):
         context['current_page_name'] = pagename
-        sidebarfile = self.config.get('html_sidebars', {}).get(pagename, '')
+        sidebarfile = self.confightml_sidebars.get(pagename, '')
         if sidebarfile:
             context['customsidebar'] = path.join(self.srcdir, sidebarfile)
         outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
@@ -654,7 +637,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     copysource = False
 
     def handle_finish(self):
-        build_hhx(self, self.outdir, self.config.get('htmlhelp_basename', 'pydoc'))
+        build_hhx(self, self.outdir, self.config.htmlhelp_basename)
 
 
 class LaTeXBuilder(Builder):
@@ -665,13 +648,12 @@ class LaTeXBuilder(Builder):
 
     def init(self):
         self.filenames = []
-        self.document_data = map(list, self.config.get('latex_documents', ()))
+        self.document_data = map(list, self.config.latex_documents)
 
         # assign subdirs to titles
         self.titles = []
         for entry in self.document_data:
             # replace version with real version
-            entry[0] = entry[0].replace('<auto>', self.config['version'])
             sourcename = entry[0]
             if sourcename.endswith('/index.rst'):
                 sourcename = sourcename[:-9]
@@ -693,7 +675,7 @@ class LaTeXBuilder(Builder):
     def write(self, *ignored):
         # first, assemble the "appendix" docs that are in every PDF
         appendices = []
-        for fname in self.config.get('latex_appendices', []):
+        for fname in self.config.latex_appendices:
             appendices.append(self.env.get_doctree(fname))
 
         docwriter = LaTeXWriter(self)
@@ -780,15 +762,10 @@ class ChangesBuilder(Builder):
     name = 'changes'
 
     def init(self):
-        from sphinx._jinja import Environment, FileSystemLoader
-        templates_path = path.join(path.dirname(__file__), 'templates')
-        jinja_env = Environment(loader=SphinxFileSystemLoader([templates_path]),
-                                # disable traceback, more likely that something in the
-                                # application is broken than in the templates
-                                friendly_traceback=False)
-        self.ftemplate = jinja_env.get_template('changes/frameset.html')
-        self.vtemplate = jinja_env.get_template('changes/versionchanges.html')
-        self.stemplate = jinja_env.get_template('changes/rstsource.html')
+        self.init_templates()
+        self.ftemplate = self.get_template('changes/frameset.html')
+        self.vtemplate = self.get_template('changes/versionchanges.html')
+        self.stemplate = self.get_template('changes/rstsource.html')
 
     def get_outdated_files(self):
         return self.outdir
@@ -800,13 +777,13 @@ class ChangesBuilder(Builder):
     }
 
     def write(self, *ignored):
-        ver = self.config['version']
+        version = self.config.version
         libchanges = {}
         apichanges = []
         otherchanges = {}
         self.msg('writing summary file...')
         for type, filename, lineno, module, descname, content in \
-                self.env.versionchanges[ver]:
+                self.env.versionchanges[version]:
             ttext = self.typemap[type]
             context = content.replace('\n', ' ')
             if descname and filename.startswith('c-api'):
@@ -836,8 +813,8 @@ class ChangesBuilder(Builder):
                     (entry, filename, lineno))
 
         ctx = {
-            'project': self.config.get('project', 'Python'),
-            'version': ver,
+            'project': self.config.project,
+            'version': version,
             'libchanges': sorted(libchanges.iteritems()),
             'apichanges': sorted(apichanges),
             'otherchanges': sorted(otherchanges.iteritems()),
@@ -853,9 +830,9 @@ class ChangesBuilder(Builder):
         finally:
             f.close()
 
-        hltext = ['.. versionadded:: %s' % ver,
-                  '.. versionchanged:: %s' % ver,
-                  '.. deprecated:: %s' % ver]
+        hltext = ['.. versionadded:: %s' % version,
+                  '.. versionchanged:: %s' % version,
+                  '.. deprecated:: %s' % version]
 
         def hl(no, line):
             line = '<a name="L%s"> </a>' % no + escape(line)
@@ -881,11 +858,11 @@ class ChangesBuilder(Builder):
         shutil.copyfile(path.join(path.dirname(__file__), 'style', 'default.css'),
                         path.join(self.outdir, 'default.css'))
 
-    def hl(self, text, ver):
+    def hl(self, text, version):
         text = escape(text)
         for directive in ['versionchanged', 'versionadded', 'deprecated']:
-            text = text.replace('.. %s:: %s' % (directive, ver),
-                                '<b>.. %s:: %s</b>' % (directive, ver))
+            text = text.replace('.. %s:: %s' % (directive, version),
+                                '<b>.. %s:: %s</b>' % (directive, version))
         return text
 
     def finish(self):

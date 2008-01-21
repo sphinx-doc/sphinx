@@ -109,7 +109,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         if text.endswith('()'):
             # remove parentheses
             text = text[:-2]
-        if env.config.get('add_function_parentheses', True):
+        if env.config.add_function_parentheses:
             # add them back to all occurrences if configured
             text += '()'
     # if the first character is a bang, don't cross-reference at all

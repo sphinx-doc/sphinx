@@ -22,6 +22,7 @@ try:
     import hashlib
     md5 = hashlib.md5
 except:
+    # 2.4 compatibility
     import md5
     md5 = md5.new
 
@@ -102,10 +103,10 @@ class DefaultSubstitutions(Transform):
         for ref in self.document.traverse(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
-                text = config.get(refname, '')
+                text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = time.strftime(config.get('today_fmt', '%B %d, %Y'))
+                    text = time.strftime(config.today_fmt)
                 ref.replace_self(nodes.Text(text, text))
 
 
@@ -186,7 +187,7 @@ class BuildEnvironment:
     def __init__(self, srcdir, doctreedir):
         self.doctreedir = doctreedir
         self.srcdir = srcdir
-        self.config = {}
+        self.config = None
 
         # refcount data if present
         self.refcounts = {}
@@ -203,6 +204,7 @@ class BuildEnvironment:
 
         # Build times -- to determine changed files
         # Also use this as an inventory of all existing and built filenames.
+        # All "filenames" here are /-separated and relative and include '.rst'.
         self.all_files = {}         # filename -> (mtime, md5sum) at the time of build
 
         # File metadata
@@ -279,7 +281,7 @@ class BuildEnvironment:
         Return (added, changed, removed) iterables.
         """
         all_source_files = list(get_matching_files(
-            self.srcdir, '*.rst', exclude=set(config.get('unused_files', ()))))
+            self.srcdir, '*.rst', exclude=set(config.unused_files)))
 
         # clear all files no longer present
         removed = set(self.all_files) - set(all_source_files)
@@ -312,27 +314,26 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    # If one of these config values changes, all files need to be re-read.
-    influential_config_values = [
-        'version', 'release', 'today', 'today_fmt', 'unused_files',
-        'project', 'refcount_file', 'add_function_parentheses', 'add_module_names'
-    ]
-
-    def update(self, config):
-        """
-        (Re-)read all files new or changed since last update.
-        Yields a summary and then filenames as it processes them.
-        Store all environment filenames in the canonical format
-        (ie using SEP as a separator in place of os.path.sep).
-        """
+    def update(self, config, hook=None):
+        """(Re-)read all files new or changed since last update.  Yields a summary
+        and then filenames as it processes them.  Store all environment filenames
+        in the canonical format (ie using SEP as a separator in place of
+        os.path.sep)."""
         config_changed = False
-        for val in self.influential_config_values:
-            if self.config.get(val) != config.get(val):
-                msg = '[config changed] '
-                config_changed = True
-                break
+        if self.config is None:
+            msg = '[new config] '
+            config_changed = True
         else:
-            msg = ''
+            # check if a config value was changed that affects how doctrees are read
+            for key, descr in config.config_values.iteritems():
+                if not descr[1]:
+                    continue
+                if self.config[key] != config[key]:
+                    msg = '[config changed] '
+                    config_changed = True
+                    break
+            else:
+                msg = ''
         added, changed, removed = self.get_outdated_files(config, config_changed)
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
@@ -341,9 +342,9 @@ class BuildEnvironment:
         self.config = config
 
         # read the refcounts file
-        if self.config.get('refcount_file'):
+        if self.config.refcount_file:
             self.refcounts = Refcounts.fromfile(
-                path.join(self.srcdir, self.config['refcount_file']))
+                path.join(self.srcdir, self.config.refcount_file))
 
         # clear all files no longer present
         for filename in removed:
@@ -354,9 +355,12 @@ class BuildEnvironment:
             yield filename
             self.read_file(filename)
 
+        if 'contents.rst' not in self.all_files:
+            self._warnfunc('no master file contents.rst found')
+
     # --------- SINGLE FILE BUILDING -------------------------------------------
 
-    def read_file(self, filename, src_path=None, save_parsed=True):
+    def read_file(self, filename, src_path=None, save_parsed=True, hook=None):
         """Parse a file and add/update inventory entries for the doctree.
         If srcpath is given, read from a different source file."""
         # remove all inventory entries for that file
@@ -381,6 +385,10 @@ class BuildEnvironment:
         finally:
             f.close()
         self.all_files[filename] = (path.getmtime(src_path), md5sum)
+
+        # run post-read hook
+        if hook:
+            hook(doctree)
 
         # make it picklable
         doctree.reporter = None

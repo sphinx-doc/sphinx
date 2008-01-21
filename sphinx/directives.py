@@ -147,7 +147,7 @@ def parse_py_signature(signode, sig, desctype, env):
         signode += addnodes.desc_classname(classname, classname)
     # exceptions are a special case, since they are documented in the
     # 'exceptions' module.
-    elif env.config.get('add_module_names', True) and \
+    elif env.config.add_module_names and \
            env.currmodule and env.currmodule != 'exceptions':
         nodetext = env.currmodule + '.'
         signode += addnodes.desc_classname(nodetext, nodetext)

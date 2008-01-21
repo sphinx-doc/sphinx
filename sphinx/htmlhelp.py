@@ -129,8 +129,8 @@ def build_hhx(builder, outdir, outname):
     f = open(path.join(outdir, outname+'.hhp'), 'w')
     try:
         f.write(project_template % {'outname': outname,
-                                    'version': builder.config['version'],
-                                    'project': builder.config['project']})
+                                    'version': builder.config.version,
+                                    'project': builder.config.project})
         if not outdir.endswith(os.sep):
             outdir += os.sep
         olen = len(outdir)
