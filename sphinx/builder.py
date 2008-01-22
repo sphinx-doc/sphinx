@@ -31,7 +31,6 @@ from sphinx.util import (get_matching_files, attrdict, status_iterator,
                          ensuredir, relative_uri, os_path, SEP)
 from sphinx.htmlhelp import build_hhx
 from sphinx.extension import DummyEventManager, import_object
-from sphinx.patchlevel import get_version_info, get_sys_version_info
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
