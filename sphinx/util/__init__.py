@@ -51,15 +51,6 @@ def ensuredir(path):
             raise
 
 
-def status_iterator(iterable, colorfunc=lambda x: x, stream=sys.stdout):
-    """Print out each item before yielding it."""
-    for item in iterable:
-        print >>stream, colorfunc(item),
-        stream.flush()
-        yield item
-    print >>stream
-
-
 def get_matching_files(dirname, pattern, exclude=()):
     """Get all files matching a pattern in a directory, recursively."""
     # dirname is a normalized absolute path.

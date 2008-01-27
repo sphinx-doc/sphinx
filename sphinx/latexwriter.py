@@ -14,9 +14,8 @@
 
 import re
 import time
-import string
 
-from docutils import frontend, nodes, languages, writers, utils
+from docutils import nodes, writers
 
 from sphinx import addnodes
 from sphinx import highlighting

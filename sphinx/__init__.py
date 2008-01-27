@@ -15,46 +15,10 @@ import getopt
 from os import path
 from cStringIO import StringIO
 
-from sphinx.config import Config, ConfigError
-from sphinx.builder import builders
-from sphinx.extension import EventManager
+from sphinx.application import Application
 from sphinx.util.console import nocolor
 
 __version__ = '$Revision: 5369 $'[11:-2]
-
-
-def init_builder(buildername, srcdirname, outdirname, doctreedir,
-                 confoverrides, status, warning=sys.stderr, freshenv=False):
-    # read config
-    config = Config(srcdirname, 'conf.py')
-    if confoverrides:
-        for key, val in confoverrides.items():
-            setattr(config, key, val)
-
-    # extensibility
-    events = EventManager()
-    for extension in config.extensions:
-        try:
-            mod = __import__(extension, None, None, ['setup'])
-        except ImportError, err:
-            raise ConfigError('Could not import extension %s' % module, err)
-        if hasattr(mod, 'setup'):
-            mod.setup(events, builders)
-
-    if buildername not in builders:
-        print >>warning, 'Builder name %s not registered' % buildername
-        return None
-
-    if buildername is None:
-        print >>status, 'No builder selected, using default: html'
-        buildername = 'html'
-
-    builderclass = builders[buildername]
-    builder = builderclass(srcdirname, outdirname, doctreedir,
-                           status_stream=status, warning_stream=warning,
-                           events=events, config=config, freshenv=freshenv)
-    events.emit('builder-created', builder)
-    return builder
 
 
 def usage(argv, msg=None):
@@ -63,7 +27,7 @@ def usage(argv, msg=None):
         print >>sys.stderr
     print >>sys.stderr, """\
 usage: %s [options] sourcedir outdir [filenames...]"
-options: -b <builder> -- builder to use (one of %s)
+options: -b <builder> -- builder to use; default is html
          -a        -- write all files; default is to only write new and changed files
          -E        -- don't use a saved environment, always read all files
          -d <path> -- path for the cached environment and doctree files
@@ -75,7 +39,7 @@ options: -b <builder> -- builder to use (one of %s)
 modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
-* with filenames, write these.""" % (argv[0], ', '.join(builders))
+* with filenames, write these.""" % (argv[0],)
 
 
 def main(argv):
@@ -85,15 +49,15 @@ def main(argv):
 
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:d:D:NEqP')
-        srcdirname = path.abspath(args[0])
-        if not path.isdir(srcdirname):
+        srcdir = path.abspath(args[0])
+        if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory.'
             return 1
-        if not path.isfile(path.join(srcdirname, 'conf.py')):
+        if not path.isfile(path.join(srcdir, 'conf.py')):
             print >>sys.stderr, 'Error: Source directory doesn\'t contain conf.py file.'
             return 1
-        outdirname = path.abspath(args[1])
-        if not path.isdir(outdirname):
+        outdir = path.abspath(args[1])
+        if not path.isdir(outdir):
             print >>sys.stderr, 'Error: Cannot find output directory.'
             return 1
     except (IndexError, getopt.error):
@@ -113,7 +77,7 @@ def main(argv):
     freshenv = use_pdb = False
     status = sys.stdout
     confoverrides = {}
-    doctreedir = path.join(outdirname, '.doctrees')
+    doctreedir = path.join(outdir, '.doctrees')
     for opt, val in opts:
         if opt == '-b':
             buildername = val
@@ -139,18 +103,18 @@ def main(argv):
         elif opt == '-P':
             use_pdb = True
 
-    builder = init_builder(buildername, srcdirname, outdirname, doctreedir,
-                           confoverrides, status, sys.stderr, freshenv)
-    if not builder:
+    app = Application(srcdir, outdir, doctreedir, buildername,
+                      confoverrides, status, sys.stderr, freshenv)
+    if not app.builder:
         return 1
 
     try:
         if all_files:
-            builder.build_all()
+            app.builder.build_all()
         elif filenames:
-            builder.build_specific(filenames)
+            app.builder.build_specific(filenames)
         else:
-            builder.build_update()
+            app.builder.build_update()
     except:
         if not use_pdb:
             raise

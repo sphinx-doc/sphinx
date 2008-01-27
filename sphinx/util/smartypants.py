@@ -151,7 +151,7 @@ closing_single_quotes_regex_2 = re.compile(r"""
                 (\s | s\b)
                 """ % (close_class,), re.VERBOSE)
 
-def educateQuotes(str):
+def educateQuotes(s):
     """
     Parameter:  String.
 
@@ -163,35 +163,33 @@ def educateQuotes(str):
 
     # Special case if the very first character is a quote
     # followed by punctuation at a non-word-break. Close the quotes by brute force:
-    str = single_quote_start_re.sub("&#8217;", str)
-    str = double_quote_start_re.sub("&#8221;", str)
+    s = single_quote_start_re.sub("&#8217;", s)
+    s = double_quote_start_re.sub("&#8221;", s)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
-    str = double_quote_sets_re.sub("&#8220;&#8216;", str)
-    str = single_quote_sets_re.sub("&#8216;&#8220;", str)
+    s = double_quote_sets_re.sub("&#8220;&#8216;", s)
+    s = single_quote_sets_re.sub("&#8216;&#8220;", s)
 
     # Special case for decade abbreviations (the '80s):
-    str = decade_abbr_re.sub("&#8217;", str)
+    s = decade_abbr_re.sub("&#8217;", s)
 
-    str = opening_single_quotes_regex.sub(r"\1&#8216;", str)
-    str = closing_single_quotes_regex.sub(r"\1&#8217;", str)
-    str = closing_single_quotes_regex_2.sub(r"\1&#8217;\2", str)
+    s = opening_single_quotes_regex.sub(r"\1&#8216;", s)
+    s = closing_single_quotes_regex.sub(r"\1&#8217;", s)
+    s = closing_single_quotes_regex_2.sub(r"\1&#8217;\2", s)
 
     # Any remaining single quotes should be opening ones:
-    str = str.replace("'", "&#8216;")
+    s = s.replace("'", "&#8216;")
 
-    str = opening_double_quotes_regex.sub(r"\1&#8220;", str)
-    str = closing_double_quotes_regex.sub(r"&#8221;", str)
-    str = closing_double_quotes_regex_2.sub(r"\1&#8221;", str)
+    s = opening_double_quotes_regex.sub(r"\1&#8220;", s)
+    s = closing_double_quotes_regex.sub(r"&#8221;", s)
+    s = closing_double_quotes_regex_2.sub(r"\1&#8221;", s)
 
     # Any remaining quotes should be opening ones.
-    str = str.replace('"', "&#8220;")
-
-    return str
+    return s.replace('"', "&#8220;")
 
 
-def educateBackticks(str):
+def educateBackticks(s):
     """
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
@@ -199,10 +197,10 @@ def educateBackticks(str):
     Example input:  ``Isn't this fun?''
     Example output: &#8220;Isn't this fun?&#8221;
     """
-    return str.replace("``", "&#8220;").replace("''", "&#8221;")
+    return s.replace("``", "&#8220;").replace("''", "&#8221;")
 
 
-def educateSingleBackticks(str):
+def educateSingleBackticks(s):
     """
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
@@ -211,10 +209,10 @@ def educateSingleBackticks(str):
     Example input:  `Isn't this fun?'
     Example output: &#8216;Isn&#8217;t this fun?&#8217;
     """
-    return str.replace('`', "&#8216;").replace("'", "&#8217;")
+    return s.replace('`', "&#8216;").replace("'", "&#8217;")
 
 
-def educateDashesOldSchool(str):
+def educateDashesOldSchool(s):
     """
     Parameter:  String.
 
@@ -222,10 +220,10 @@ def educateDashesOldSchool(str):
         an en-dash HTML entity, and each "---" translated to
         an em-dash HTML entity.
     """
-    return str.replace('---', "&#8212;").replace('--', "&#8211;")
+    return s.replace('---', "&#8212;").replace('--', "&#8211;")
 
 
-def educateDashesOldSchoolInverted(str):
+def educateDashesOldSchoolInverted(s):
     """
     Parameter:  String.
 
@@ -240,11 +238,11 @@ def educateDashesOldSchoolInverted(str):
         the shortcut should be shorter to type. (Thanks to Aaron
         Swartz for the idea.)
     """
-    return str.replace('---', "&#8211;").replace('--', "&#8212;")
+    return s.replace('---', "&#8211;").replace('--', "&#8212;")
 
 
 
-def educateEllipses(str):
+def educateEllipses(s):
     """
     Parameter:  String.
     Returns:    The string, with each instance of "..." translated to
@@ -253,7 +251,7 @@ def educateEllipses(str):
     Example input:  Huh...?
     Example output: Huh&#8230;?
     """
-    return str.replace('...', "&#8230;").replace('. . .', "&#8230;")
+    return s.replace('...', "&#8230;").replace('. . .', "&#8230;")
 
 
 __author__ = "Chad Miller <smartypantspy@chad.org>"

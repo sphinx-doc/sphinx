@@ -15,7 +15,7 @@ import posixpath
 from os import path
 
 from docutils import nodes
-from docutils.parsers.rst import directives, roles
+from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import admonitions
 
 from sphinx import addnodes
@@ -273,21 +273,6 @@ def parse_option_desc(signode, sig):
     return optname
 
 
-def add_refcount_annotation(env, node, name):
-    """Add a reference count annotation. Return None."""
-    entry = env.refcounts.get(name)
-    if not entry:
-        return
-    elif entry.result_type not in ("PyObject*", "PyVarObject*"):
-        return
-    rc = 'Return value: '
-    if entry.result_refs is None:
-        rc += "Always NULL."
-    else:
-        rc += (entry.result_refs and "New" or "Borrowed") + " reference."
-    node += addnodes.refcount(rc, rc)
-
-
 def desc_directive(desctype, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     env = state.document.settings.env
@@ -361,8 +346,6 @@ def desc_directive(desctype, arguments, options, content, lineno,
                                  fullname, fullname)
 
     subnode = addnodes.desc_content()
-    if desctype == 'cfunction':
-        add_refcount_annotation(env, subnode, name)
     # needed for automatic qualification of members
     clsname_set = False
     if desctype == 'class' and names:
@@ -407,8 +390,8 @@ desctypes = [
     'describe',
 ]
 
-for name in desctypes:
-    directives.register_directive(name, desc_directive)
+for _name in desctypes:
+    directives.register_directive(_name, desc_directive)
 
 
 # ------ versionadded/versionchanged -----------------------------------------------

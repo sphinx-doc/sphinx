@@ -44,7 +44,6 @@ Body.enum.converters['loweralpha'] = \
 
 from sphinx import addnodes
 from sphinx.util import get_matching_files, os_path, SEP
-from sphinx.refcounting import Refcounts
 
 default_settings = {
     'embed_stylesheet': False,
@@ -128,7 +127,7 @@ class MoveModuleTargets(Transform):
 
 class MyStandaloneReader(standalone.Reader):
     """
-    Add our own Substitutions transform.
+    Add our own transforms.
     """
     def get_transforms(self):
         tf = standalone.Reader.get_transforms(self)
@@ -188,9 +187,6 @@ class BuildEnvironment:
         self.doctreedir = doctreedir
         self.srcdir = srcdir
         self.config = None
-
-        # refcount data if present
-        self.refcounts = {}
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -314,7 +310,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def update(self, config, hook=None):
+    def update(self, config, app=None):
         """(Re-)read all files new or changed since last update.  Yields a summary
         and then filenames as it processes them.  Store all environment filenames
         in the canonical format (ie using SEP as a separator in place of
@@ -341,11 +337,6 @@ class BuildEnvironment:
 
         self.config = config
 
-        # read the refcounts file
-        if self.config.refcount_file:
-            self.refcounts = Refcounts.fromfile(
-                path.join(self.srcdir, self.config.refcount_file))
-
         # clear all files no longer present
         for filename in removed:
             self.clear_file(filename)
@@ -353,14 +344,14 @@ class BuildEnvironment:
         # read all new and changed files
         for filename in added + changed:
             yield filename
-            self.read_file(filename)
+            self.read_file(filename, app=app)
 
         if 'contents.rst' not in self.all_files:
             self._warnfunc('no master file contents.rst found')
 
     # --------- SINGLE FILE BUILDING -------------------------------------------
 
-    def read_file(self, filename, src_path=None, save_parsed=True, hook=None):
+    def read_file(self, filename, src_path=None, save_parsed=True, app=None):
         """Parse a file and add/update inventory entries for the doctree.
         If srcpath is given, read from a different source file."""
         # remove all inventory entries for that file
@@ -386,9 +377,8 @@ class BuildEnvironment:
             f.close()
         self.all_files[filename] = (path.getmtime(src_path), md5sum)
 
-        # run post-read hook
-        if hook:
-            hook(doctree)
+        if app:
+            app.emit('doctree-read', doctree)
 
         # make it picklable
         doctree.reporter = None
@@ -590,7 +580,7 @@ class BuildEnvironment:
             for includefile in includefiles:
                 try:
                     toc = self.tocs[includefile].deepcopy()
-                except KeyError, err:
+                except KeyError:
                     # this is raised if the included file does not exist
                     self._warnfunc('%s: toctree contains ref to nonexisting '
                                    'file %r' % (filename, includefile))
@@ -621,6 +611,9 @@ class BuildEnvironment:
 
         return doctree
 
+
+    descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr',
+                           'meth', 'cfunc', 'cdata', 'ctype', 'cmacro'))
 
     def resolve_references(self, doctree, docfilename, builder):
         for node in doctree.traverse(addnodes.pending_xref):
@@ -702,7 +695,7 @@ class BuildEnvironment:
                             (platform and '(%s) ' % platform),
                             synopsis, (deprecated and ' (deprecated)' or ''))
                         newnode.append(contnode)
-                else:
+                elif typ in self.descroles:
                     # "descrefs"
                     modname = node['modname']
                     clsname = node['classname']
@@ -720,10 +713,15 @@ class BuildEnvironment:
                                 builder.get_relative_uri(docfilename, desc[0])
                                 + '#' + name)
                         newnode.append(contnode)
+                else:
+                    raise RuntimeError('unknown xfileref node encountered: %s' % node)
             except NoUri:
                 newnode = contnode
             if newnode:
                 node.replace_self(newnode)
+
+        # allow custom references to be resolved
+        builder.app.emit('doctree-resolved', doctree, docfilename)
 
     def create_index(self, builder, _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         """Create the real index from the collected index entries."""

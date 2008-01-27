@@ -29,9 +29,6 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
     def astext(self):
         return '[' + nodes.TextElement.astext(self) + ']'
 
-# refcount annotation
-class refcount(nodes.emphasis): pass
-
 # \versionadded, \versionchanged, \deprecated
 class versionmodified(nodes.Admonition, nodes.TextElement): pass
 

@@ -10,27 +10,8 @@
 """
 
 import os
-import sys
 import types
 from os import path
-
-
-class ConfigError(Exception):
-    """Raised if something's wrong with the configuration."""
-
-    def __init__(self, message, orig_exc=None):
-        self.message = message
-        self.orig_exc = orig_exc
-
-    def __repr__(self):
-        if self.orig_exc:
-            return 'ConfigError(%r, %r)' % (self.message, self.orig_exc)
-        return 'ConfigError(%r)' % self.message
-
-    def __str__(self):
-        if self.orig_exc:
-            return '%s (exception: %s)' % (self.message, self.orig_exc)
-        return self.message
 
 
 class Config(object):
@@ -53,7 +34,6 @@ class Config(object):
 
         # general reading options
         unused_files = ([], True),
-        refcount_file = ('', True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
 
@@ -77,6 +57,7 @@ class Config(object):
     )
 
     def __init__(self, dirname, filename):
+        self.values = self.config_values.copy()
         config = {}
         olddir = os.getcwd()
         try:
@@ -90,14 +71,10 @@ class Config(object):
                 del config[key]
         self.__dict__.update(config)
 
-    def __getattr__(self, name):
-        if name in self.config_values:
-            defval = self.config_values[name][0]
-            setattr(self, name, defval)
-            return defval
-        if name[0:1] == '_':
-            return object.__getattr__(self, name)
-        raise AttributeError('no configuration value named %r' % name)
+    def init_defaults(self):
+        for val in self.values:
+            if val not in self.__dict__:
+                self.__dict__[val] = self.values[val][0]
 
     def __getitem__(self, name):
         return getattr(self, name)

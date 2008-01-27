@@ -10,12 +10,10 @@
 """
 
 import os
-import sys
 import time
 import codecs
 import shutil
 import cPickle as pickle
-import cStringIO as StringIO
 from os import path
 from cgi import escape
 
@@ -23,18 +21,16 @@ from docutils import nodes
 from docutils.io import StringOutput, FileOutput, DocTreeInput
 from docutils.core import publish_parts
 from docutils.utils import new_document
-from docutils.readers import doctree
 from docutils.frontend import OptionParser
+from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes
-from sphinx.util import (get_matching_files, attrdict, status_iterator,
-                         ensuredir, relative_uri, os_path, SEP)
+from sphinx.util import (get_matching_files, ensuredir, relative_uri, os_path, SEP)
 from sphinx.htmlhelp import build_hhx
-from sphinx.extension import DummyEventManager, import_object
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
-from sphinx.highlighting import pygments, highlight_block, get_stylesheet
+from sphinx.highlighting import pygments, get_stylesheet
 from sphinx.util.console import bold, purple, green
 
 # side effect: registers roles and directives
@@ -49,39 +45,25 @@ class Builder(object):
     Builds target formats from the reST sources.
     """
 
-    def __init__(self, srcdirname, outdirname, doctreedirname,
-                 config, env=None, freshenv=False, events=None,
-                 status_stream=None, warning_stream=None):
-        self.srcdir = srcdirname
-        self.outdir = outdirname
-        self.doctreedir = doctreedirname
-        if not path.isdir(doctreedirname):
-            os.mkdir(doctreedirname)
-        self.freshenv = freshenv
+    def __init__(self, app, env=None, freshenv=False):
+        self.srcdir = app.srcdir
+        self.outdir = app.outdir
+        self.doctreedir = app.doctreedir
+        if not path.isdir(self.doctreedir):
+            os.mkdir(self.doctreedir)
 
-        self.status_stream = status_stream or sys.stdout
-        self.warning_stream = warning_stream or sys.stderr
+        self.app = app
+        self.warn = app.warn
+        self.info = app.info
+        self.config = app.config
 
-        self.config = config
         # if None, this is set in load_env()
         self.env = env
-
-        self.events = events or DummyEventManager()
+        self.freshenv = freshenv
 
         self.init()
 
     # helper methods
-
-    def msg(self, message='', nonl=False, nobold=False):
-        if not nobold: message = bold(message)
-        if nonl:
-            print >>self.status_stream, message,
-        else:
-            print >>self.status_stream, message
-        self.status_stream.flush()
-
-    def warn(self, message):
-        print >>self.warning_stream, 'WARNING:', message
 
     def init(self):
         """Load necessary templates and perform initialization."""
@@ -122,6 +104,17 @@ class Builder(object):
         """Return a list of output files that are outdated."""
         raise NotImplementedError
 
+    def status_iterator(self, iterable, summary, colorfunc):
+        l = -1
+        for item in iterable:
+            if l == -1:
+                self.info(bold(summary), nonl=1)
+                l = 0
+            self.info(colorfunc(item) + ' ', nonl=1)
+            yield item
+        if l == 0:
+            self.info()
+
     # build methods
 
     def load_env(self):
@@ -131,12 +124,12 @@ class Builder(object):
             return
         if not self.freshenv:
             try:
-                self.msg('trying to load pickled env...', nonl=True)
+                self.info(bold('trying to load pickled env... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-                self.msg('done', nobold=True)
+                self.info('done')
             except Exception, err:
-                self.msg('failed: %s' % err, nobold=True)
+                self.info('failed: %s' % err)
                 self.env = BuildEnvironment(self.srcdir, self.doctreedir)
         else:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir)
@@ -161,7 +154,7 @@ class Builder(object):
         self.load_env()
         to_build = self.get_outdated_files()
         if not to_build:
-            self.msg('no target files are out of date, exiting.')
+            self.info(bold('no target files are out of date, exiting.'))
             return
         if isinstance(to_build, str):
             self.build([], to_build)
@@ -173,36 +166,32 @@ class Builder(object):
 
     def build(self, filenames, summary=None):
         if summary:
-            self.msg('building [%s]:' % self.name, nonl=1)
-            self.msg(summary, nobold=1)
+            self.info(bold('building [%s]: ' % self.name), nonl=1)
+            self.info(summary)
 
         updated_filenames = []
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(warnings.append)
-        self.msg('reading, updating environment:', nonl=1)
-        iterator = self.env.update(
-            self.config,
-            hook=lambda doctree: self.events.emit('doctree-read', doctree))
-        self.msg(iterator.next(), nonl=1, nobold=1)
-        for filename in iterator:
-            if not updated_filenames:
-                self.msg('')
+        self.info(bold('updating environment: '), nonl=1)
+        iterator = self.env.update(self.config, self.app)
+        # the first item in the iterator is a summary message
+        self.info(iterator.next())
+        for filename in self.status_iterator(iterator, 'reading... ', purple):
             updated_filenames.append(filename)
-            self.msg(purple(filename), nonl=1, nobold=1)
-        self.msg()
+            # nothing further to do, the environment has already done the reading
         for warning in warnings:
             self.warn(warning)
         self.env.set_warnfunc(self.warn)
 
         if updated_filenames:
             # save the environment
-            self.msg('pickling the env...', nonl=True)
+            self.info(bold('pickling the env... '), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-            self.msg('done', nobold=True)
+            self.info('done')
 
             # global actions
-            self.msg('checking consistency...')
+            self.info(bold('checking consistency...'))
             self.env.check_consistency()
 
         # another indirection to support methods which don't build files
@@ -210,9 +199,9 @@ class Builder(object):
         self.write(filenames, updated_filenames)
 
         # finish (write style files etc.)
-        self.msg('finishing...')
+        self.info(bold('finishing... '))
         self.finish()
-        self.msg('done!')
+        self.info(bold('build succeeded.'))
 
     def write(self, build_filenames, updated_filenames):
         if build_filenames is None: # build_all
@@ -225,16 +214,15 @@ class Builder(object):
                 filenames.add(tocfilename)
         filenames.add('contents.rst')
 
-        self.msg('creating index...')
+        self.info(bold('creating index...'))
         self.env.create_index(self)
         self.prepare_writing(filenames)
 
         # write target files
         warnings = []
         self.env.set_warnfunc(warnings.append)
-        self.msg('writing output...')
-        for filename in status_iterator(sorted(filenames), green,
-                                        stream=self.status_stream):
+        for filename in self.status_iterator(sorted(filenames),
+                                             'writing output... ', green):
             doctree = self.env.get_and_resolve_doctree(filename, self)
             self.write_file(filename, doctree)
         for warning in warnings:
@@ -263,8 +251,8 @@ class StandaloneHTMLBuilder(Builder):
         """Load templates."""
         self.init_templates()
         if self.config.html_translator_class:
-            self.translator_class = import_object(self.config.html_translator_class,
-                                                  'html_translator_class setting')
+            self.translator_class = self.app.import_object(
+                self.config.html_translator_class, 'html_translator_class setting')
         elif self.config.html_use_smartypants:
             self.translator_class = SmartyPantsHTMLTranslator
         else:
@@ -277,7 +265,7 @@ class StandaloneHTMLBuilder(Builder):
         return publish_parts(
             doc,
             source_class=DocTreeInput,
-            reader=doctree.Reader(),
+            reader=DoctreeReader(),
             writer=HTMLWriter(self),
             settings_overrides={'output_encoding': 'unicode'}
         )
@@ -316,7 +304,7 @@ class StandaloneHTMLBuilder(Builder):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
-        output = self.docwriter.write(doctree, destination)
+        self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
 
         prev = next = None
@@ -360,14 +348,14 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(pagename, context)
 
     def finish(self):
-        self.msg('writing additional files...')
+        self.info(bold('writing additional files...'))
 
         # the global general index
 
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
         indexcounts = []
-        for key, entries in self.env.index:
+        for _, entries in self.env.index:
             indexcounts.append(sum(1 + len(subitems) for _, (_, subitems) in entries))
 
         genindexcontext = dict(
@@ -434,7 +422,7 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
 
         # copy style files
-        self.msg('copying style files...')
+        self.info(bold('copying style files...'))
         styledirname = path.join(path.dirname(__file__), 'style')
         ensuredir(path.join(self.outdir, 'style'))
         for filename in os.listdir(styledirname):
@@ -519,7 +507,7 @@ class StandaloneHTMLBuilder(Builder):
                             path.join(self.outdir, os_path(ctx['sourcename'])))
 
     def handle_finish(self):
-        self.msg('dumping search index...')
+        self.info(bold('dumping search index...'))
         self.indexer.prune([fn[:-4] for fn in self.env.all_files])
         f = open(path.join(self.outdir, 'searchindex.json'), 'w')
         try:
@@ -576,7 +564,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
 
     def handle_page(self, pagename, context, templatename='page.html'):
         context['current_page_name'] = pagename
-        sidebarfile = self.confightml_sidebars.get(pagename, '')
+        sidebarfile = self.config.html_sidebars.get(pagename, '')
         if sidebarfile:
             context['customsidebar'] = path.join(self.srcdir, sidebarfile)
         outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
@@ -603,7 +591,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
 
-        self.msg('dumping search index...')
+        self.info(bold('dumping search index...'))
         self.indexer.prune(self.env.all_files)
         f = open(path.join(self.outdir, 'searchindex.pickle'), 'wb')
         try:
@@ -698,7 +686,7 @@ class LaTeXBuilder(Builder):
             doctree.settings.author = author
             doctree.settings.filename = sourcename
             doctree.settings.docclass = docclass
-            output = docwriter.write(doctree, destination)
+            docwriter.write(doctree, destination)
             print "done"
 
     def assemble_doctree(self, indexfile, appendices):
@@ -746,7 +734,7 @@ class LaTeXBuilder(Builder):
         return largetree
 
     def finish(self):
-        self.msg('copying TeX support files...')
+        self.info(bold('copying TeX support files...'))
         styledirname = path.join(path.dirname(__file__), 'texinputs')
         for filename in os.listdir(styledirname):
             if not filename.startswith('.'):
@@ -780,7 +768,7 @@ class ChangesBuilder(Builder):
         libchanges = {}
         apichanges = []
         otherchanges = {}
-        self.msg('writing summary file...')
+        self.info(bold('writing summary file...'))
         for type, filename, lineno, module, descname, content in \
                 self.env.versionchanges[version]:
             ttext = self.typemap[type]
@@ -841,7 +829,7 @@ class ChangesBuilder(Builder):
                     break
             return line
 
-        self.msg('copying source files...')
+        self.info(bold('copying source files...'))
         for filename in self.env.all_files:
             f = open(path.join(self.srcdir, os_path(filename)))
             lines = f.readlines()
@@ -868,7 +856,7 @@ class ChangesBuilder(Builder):
         pass
 
 
-builders = {
+builtin_builders = {
     'html': StandaloneHTMLBuilder,
     'web': WebHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,

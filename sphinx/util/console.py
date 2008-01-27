@@ -11,6 +11,30 @@
 
 codes = {}
 
+def get_terminal_width():
+    """Borrowed from the py lib."""
+    try:
+        import os, termios, fcntl, struct
+        call = fcntl.ioctl(0, termios.TIOCGWINSZ, "\000"*8)
+        height, width = struct.unpack("hhhh", call)[:2]
+        terminal_width = width
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except:
+        # FALLBACK
+        terminal_width = int(os.environ.get('COLUMNS', 80))-1
+    return terminal_width
+
+_tw = get_terminal_width()
+
+def print_and_backspace(text, func):
+    if not codes:
+        # if no coloring, don't output fancy backspaces
+        func(text)
+    else:
+        func(text.ljust(_tw) + _tw * "\b")
+
+
 def nocolor():
     codes.clear()
 
@@ -31,8 +55,8 @@ _attrs = {
     'blink':     '05m',
 }
 
-for name, value in _attrs.items():
-    codes[name] = '\x1b[' + value
+for _name, _value in _attrs.items():
+    codes[_name] = '\x1b[' + _value
 
 _colors = [
     ('black',     'darkgray'),
@@ -49,5 +73,5 @@ for i, (dark, light) in enumerate(_colors):
     codes[dark] = '\x1b[%im' % (i+30)
     codes[light] = '\x1b[%i;01m' % (i+30)
 
-for name in codes:
-    create_color_func(name)
+for _name in codes:
+    create_color_func(_name)
