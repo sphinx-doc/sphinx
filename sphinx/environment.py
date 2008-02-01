@@ -43,7 +43,7 @@ Body.enum.converters['loweralpha'] = \
     Body.enum.converters['upperroman'] = lambda x: None
 
 from sphinx import addnodes
-from sphinx.util import get_matching_files, os_path, SEP
+from sphinx.util import get_matching_docs, SEP
 
 default_settings = {
     'embed_stylesheet': False,
@@ -56,7 +56,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 15
+ENV_VERSION = 16
 
 
 def walk_depth(node, depth, maxdepth):
@@ -79,8 +79,11 @@ default_substitutions = set([
 
 
 class RedirStream(object):
-    def __init__(self, write):
-        self.write = write
+    def __init__(self, writefunc):
+        self.writefunc = writefunc
+    def write(self, text):
+        if text.strip():
+            self.writefunc(text)
 
 
 class NoUri(Exception):
@@ -183,10 +186,10 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, srcdir, doctreedir):
+    def __init__(self, srcdir, doctreedir, config):
         self.doctreedir = doctreedir
         self.srcdir = srcdir
-        self.config = None
+        self.config = config
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -198,41 +201,42 @@ class BuildEnvironment:
         # this is to invalidate old pickles
         self.version = ENV_VERSION
 
-        # Build times -- to determine changed files
-        # Also use this as an inventory of all existing and built filenames.
-        # All "filenames" here are /-separated and relative and include '.rst'.
-        self.all_files = {}         # filename -> (mtime, md5sum) at the time of build
+        # All "docnames" here are /-separated and relative and exclude the source suffix.
+
+        self.found_docs = set()     # contains all existing docnames
+        self.all_docs = {}          # docname -> (mtime, md5sum) at the time of build
+                                    # contains all built docnames
 
         # File metadata
-        self.metadata = {}          # filename -> dict of metadata items
+        self.metadata = {}          # docname -> dict of metadata items
 
         # TOC inventory
-        self.titles = {}            # filename -> title node
-        self.tocs = {}              # filename -> table of contents nodetree
-        self.toc_num_entries = {}   # filename -> number of real entries
+        self.titles = {}            # docname -> title node
+        self.tocs = {}              # docname -> table of contents nodetree
+        self.toc_num_entries = {}   # docname -> number of real entries
                                     # used to determine when to show the TOC in a sidebar
                                     # (don't show if it's only one item)
-        self.toctree_relations = {} # filename -> ["parent", "previous", "next"] filename
+        self.toctree_relations = {} # docname -> ["parent", "previous", "next"] docname
                                     # for navigating in the toctree
-        self.files_to_rebuild = {}  # filename -> set of files (containing its TOCs)
+        self.files_to_rebuild = {}  # docname -> set of files (containing its TOCs)
                                     # to rebuild too
 
         # X-ref target inventory
-        self.descrefs = {}          # fullname -> filename, desctype
-        self.filemodules = {}       # filename -> [modules]
-        self.modules = {}           # modname -> filename, synopsis, platform, deprecated
-        self.labels = {}            # labelname -> filename, labelid, sectionname
-        self.reftargets = {}        # (type, name) -> filename, labelid
+        self.descrefs = {}          # fullname -> docname, desctype
+        self.filemodules = {}       # docname -> [modules]
+        self.modules = {}           # modname -> docname, synopsis, platform, deprecated
+        self.labels = {}            # labelname -> docname, labelid, sectionname
+        self.reftargets = {}        # (type, name) -> docname, labelid
                                     # where type is term, token, option, envvar
 
         # Other inventories
-        self.indexentries = {}      # filename -> list of
+        self.indexentries = {}      # docname -> list of
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of
-                                    # (type, filename, lineno, module, descname, content)
+                                    # (type, docname, lineno, module, descname, content)
 
         # These are set while parsing a file
-        self.filename = None        # current file name
+        self.docname = None         # current document name
         self.currmodule = None      # current module name
         self.currclass = None       # current class name
         self.currdesc = None        # current descref name
@@ -241,78 +245,95 @@ class BuildEnvironment:
 
     def set_warnfunc(self, func):
         self._warnfunc = func
-        self.settings['warnfunc'] = func
+        self.settings['warning_stream'] = RedirStream(func)
 
-    def clear_file(self, filename):
+    def warn(self, docname, msg):
+        if docname:
+            self._warnfunc(self.doc2path(docname) + ':: ' + msg)
+        else:
+            self._warnfunc('GLOBAL:: ' + msg)
+
+    def clear_doc(self, docname):
         """Remove all traces of a source file in the inventory."""
-        if filename in self.all_files:
-            self.all_files.pop(filename, None)
-            self.metadata.pop(filename, None)
-            self.titles.pop(filename, None)
-            self.tocs.pop(filename, None)
-            self.toc_num_entries.pop(filename, None)
+        if docname in self.all_docs:
+            self.all_docs.pop(docname, None)
+            self.metadata.pop(docname, None)
+            self.titles.pop(docname, None)
+            self.tocs.pop(docname, None)
+            self.toc_num_entries.pop(docname, None)
 
             for subfn, fnset in self.files_to_rebuild.iteritems():
-                fnset.discard(filename)
+                fnset.discard(docname)
             for fullname, (fn, _) in self.descrefs.items():
-                if fn == filename:
+                if fn == docname:
                     del self.descrefs[fullname]
-            self.filemodules.pop(filename, None)
+            self.filemodules.pop(docname, None)
             for modname, (fn, _, _, _) in self.modules.items():
-                if fn == filename:
+                if fn == docname:
                     del self.modules[modname]
             for labelname, (fn, _, _) in self.labels.items():
-                if fn == filename:
+                if fn == docname:
                     del self.labels[labelname]
             for key, (fn, _) in self.reftargets.items():
-                if fn == filename:
+                if fn == docname:
                     del self.reftargets[key]
-            self.indexentries.pop(filename, None)
+            self.indexentries.pop(docname, None)
             for version, changes in self.versionchanges.items():
-                new = [change for change in changes if change[1] != filename]
+                new = [change for change in changes if change[1] != docname]
                 changes[:] = new
+
+    def doc2path(self, docname, base=True, suffix=None):
+        """
+        Return the filename for the document name.
+        If base is True, return absolute path under self.srcdir.
+        If base is None, return relative path to self.srcdir.
+        If base is a path string, return absolute path under that.
+        If suffix is not None, add it instead of config.source_suffix.
+        """
+        suffix = suffix or self.config.source_suffix
+        if base is True:
+            return path.join(self.srcdir, docname.replace(SEP, path.sep)) + suffix
+        elif base is None:
+            return docname.replace(SEP, path.sep) + suffix
+        else:
+            return path.join(base, docname.replace(SEP, path.sep)) + suffix
 
     def get_outdated_files(self, config, config_changed):
         """
-        Return (added, changed, removed) iterables.
+        Return (added, changed, removed) sets.
         """
-        all_source_files = list(get_matching_files(
-            self.srcdir, '*.rst', exclude=set(config.unused_files)))
+        self.found_docs = set(get_matching_docs(self.srcdir, config.source_suffix,
+                                                exclude=set(config.unused_files)))
 
         # clear all files no longer present
-        removed = set(self.all_files) - set(all_source_files)
+        removed = set(self.all_docs) - self.found_docs
 
-        added = []
-        changed = []
+        added = set()
+        changed = set()
 
         if config_changed:
             # config values affect e.g. substitutions
-            added = all_source_files
+            added = self.found_docs
         else:
-            for filename in all_source_files:
-                if filename not in self.all_files:
-                    added.append(filename)
+            for docname in self.found_docs:
+                if docname not in self.all_docs:
+                    added.add(docname)
                 else:
                     # if the doctree file is not there, rebuild
-                    if not path.isfile(path.join(self.doctreedir,
-                                                 os_path(filename)[:-3] + 'doctree')):
-                        changed.append(filename)
+                    if not path.isfile(self.doc2path(docname, self.doctreedir, '.doctree')):
+                        changed.add(docname)
                         continue
-                    mtime, md5sum = self.all_files[filename]
-                    newmtime = path.getmtime(path.join(self.srcdir, os_path(filename)))
+                    mtime, md5sum = self.all_docs[docname]
+                    newmtime = path.getmtime(self.doc2path(docname))
                     if newmtime == mtime:
                         continue
-                    # check the MD5
-                    #with file(path.join(self.srcdir, filename), 'rb') as f:
-                    #    newmd5sum = md5(f.read()).digest()
-                    #if newmd5sum != md5sum:
-                    changed.append(filename)
+                    changed.add(docname)
 
         return added, changed, removed
 
     def update(self, config, app=None):
         """(Re-)read all files new or changed since last update.  Yields a summary
-        and then filenames as it processes them.  Store all environment filenames
+        and then docnames as it processes them.  Store all environment docnames
         in the canonical format (ie using SEP as a separator in place of
         os.path.sep)."""
         config_changed = False
@@ -338,36 +359,36 @@ class BuildEnvironment:
         self.config = config
 
         # clear all files no longer present
-        for filename in removed:
-            self.clear_file(filename)
+        for docname in removed:
+            self.clear_doc(docname)
 
         # read all new and changed files
-        for filename in added + changed:
-            yield filename
-            self.read_file(filename, app=app)
+        for docname in sorted(added | changed):
+            yield docname
+            self.read_doc(docname, app=app)
 
-        if 'contents.rst' not in self.all_files:
-            self._warnfunc('no master file contents.rst found')
+        if config.master_doc not in self.all_docs:
+            self.warn(None, 'no master file %s found' % self.doc2path(config.master_doc))
 
     # --------- SINGLE FILE BUILDING -------------------------------------------
 
-    def read_file(self, filename, src_path=None, save_parsed=True, app=None):
+    def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
         """Parse a file and add/update inventory entries for the doctree.
         If srcpath is given, read from a different source file."""
         # remove all inventory entries for that file
-        self.clear_file(filename)
+        self.clear_doc(docname)
 
         if src_path is None:
-            src_path = path.join(self.srcdir, os_path(filename))
+            src_path = self.doc2path(docname)
 
-        self.filename = filename
+        self.docname = docname
         doctree = publish_doctree(None, src_path, FileInput,
                                   settings_overrides=self.settings,
                                   reader=MyStandaloneReader())
-        self.process_metadata(filename, doctree)
-        self.create_title_from(filename, doctree)
-        self.note_labels_from(filename, doctree)
-        self.build_toc_from(filename, doctree)
+        self.process_metadata(docname, doctree)
+        self.create_title_from(docname, doctree)
+        self.note_labels_from(docname, doctree)
+        self.build_toc_from(docname, doctree)
 
         # calculate the MD5 of the file at time of build
         f = open(src_path, 'rb')
@@ -375,7 +396,7 @@ class BuildEnvironment:
             md5sum = md5(f.read()).digest()
         finally:
             f.close()
-        self.all_files[filename] = (path.getmtime(src_path), md5sum)
+        self.all_docs[docname] = (path.getmtime(src_path), md5sum)
 
         if app:
             app.emit('doctree-read', doctree)
@@ -383,11 +404,11 @@ class BuildEnvironment:
         # make it picklable
         doctree.reporter = None
         doctree.transformer = None
+        doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.warnfunc = None
 
         # cleanup
-        self.filename = None
+        self.docname = None
         self.currmodule = None
         self.currclass = None
         self.indexnum = 0
@@ -395,8 +416,7 @@ class BuildEnvironment:
 
         if save_parsed:
             # save the parsed doctree
-            doctree_filename = path.join(self.doctreedir,
-                                         os_path(filename)[:-3] + 'doctree')
+            doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
             dirname = path.dirname(doctree_filename)
             if not path.isdir(dirname):
                 os.makedirs(dirname)
@@ -408,11 +428,11 @@ class BuildEnvironment:
         else:
             return doctree
 
-    def process_metadata(self, filename, doctree):
+    def process_metadata(self, docname, doctree):
         """
         Process the docinfo part of the doctree as metadata.
         """
-        self.metadata[filename] = md = {}
+        self.metadata[docname] = md = {}
         docinfo = doctree[0]
         if docinfo.__class__ is not nodes.docinfo:
             # nothing to see here
@@ -426,7 +446,7 @@ class BuildEnvironment:
                 md[name.astext()] = body.astext()
         del doctree[0]
 
-    def create_title_from(self, filename, document):
+    def create_title_from(self, docname, document):
         """
         Add a title node to the document (just copy the first section title),
         and store that title in the environment.
@@ -436,10 +456,10 @@ class BuildEnvironment:
             visitor = MyContentsFilter(document)
             node[0].walkabout(visitor)
             titlenode += visitor.get_entry_text()
-            self.titles[filename] = titlenode
+            self.titles[docname] = titlenode
             return
 
-    def note_labels_from(self, filename, document):
+    def note_labels_from(self, docname, document):
         for name, explicit in document.nametypes.iteritems():
             if not explicit:
                 continue
@@ -450,27 +470,27 @@ class BuildEnvironment:
                 continue
             sectname = node[0].astext() # node[0] == title node
             if name in self.labels:
-                self._warnfunc('duplicate label %s, ' % name +
-                               'in %s and %s' % (self.labels[name][0], filename))
-            self.labels[name] = filename, labelid, sectname
+                self.warn(docname, 'duplicate label %s, ' % name +
+                          'other instance in %s' % self.doc2path(self.labels[name][0]))
+            self.labels[name] = docname, labelid, sectname
 
-    def note_toctree(self, filename, toctreenode):
+    def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
            file relations from it."""
         includefiles = toctreenode['includefiles']
         includefiles_len = len(includefiles)
         for i, includefile in enumerate(includefiles):
             # the "previous" file for the first toctree item is the parent
-            previous = i > 0 and includefiles[i-1] or filename
+            previous = i > 0 and includefiles[i-1] or docname
             # the "next" file for the last toctree item is the parent again
-            next = i < includefiles_len-1 and includefiles[i+1] or filename
-            self.toctree_relations[includefile] = [filename, previous, next]
+            next = i < includefiles_len-1 and includefiles[i+1] or docname
+            self.toctree_relations[includefile] = [docname, previous, next]
             # note that if the included file is rebuilt, this one must be
             # too (since the TOC of the included file could have changed)
-            self.files_to_rebuild.setdefault(includefile, set()).add(filename)
+            self.files_to_rebuild.setdefault(includefile, set()).add(docname)
 
 
-    def build_toc_from(self, filename, document):
+    def build_toc_from(self, docname, document):
         """Build a TOC from the doctree and store it in the inventory."""
         numentries = [0] # nonlocal again...
 
@@ -483,7 +503,7 @@ class BuildEnvironment:
                     item = subnode.copy()
                     entries.append(item)
                     # do the inventory stuff
-                    self.note_toctree(filename, subnode)
+                    self.note_toctree(docname, subnode)
                     continue
                 if not isinstance(subnode, nodes.section):
                     continue
@@ -500,7 +520,7 @@ class BuildEnvironment:
                 else:
                     anchorname = '#' + subnode['ids'][0]
                 numentries[0] += 1
-                reference = nodes.reference('', '', refuri=filename,
+                reference = nodes.reference('', '', refuri=docname,
                                             anchorname=anchorname,
                                             *nodetext)
                 para = addnodes.compact_paragraph('', '', reference)
@@ -512,64 +532,66 @@ class BuildEnvironment:
             return []
         toc = build_toc(document)
         if toc:
-            self.tocs[filename] = toc
+            self.tocs[docname] = toc
         else:
-            self.tocs[filename] = nodes.bullet_list('')
-        self.toc_num_entries[filename] = numentries[0]
+            self.tocs[docname] = nodes.bullet_list('')
+        self.toc_num_entries[docname] = numentries[0]
 
-    def get_toc_for(self, filename):
+    def get_toc_for(self, docname):
         """Return a TOC nodetree -- for use on the same page only!"""
-        toc = self.tocs[filename].deepcopy()
+        toc = self.tocs[docname].deepcopy()
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname']
         return toc
 
     # -------
-    # these are called from docutils directives and therefore use self.filename
+    # these are called from docutils directives and therefore use self.docname
     #
     def note_descref(self, fullname, desctype):
         if fullname in self.descrefs:
-            self._warnfunc('duplicate canonical description name %s, ' % fullname +
-                           'in %s and %s' % (self.descrefs[fullname][0], self.filename))
-        self.descrefs[fullname] = (self.filename, desctype)
+            self.warn(self.docname,
+                      'duplicate canonical description name %s, ' % fullname +
+                      'other instance in %s' % self.doc2path(self.descrefs[fullname][0]))
+        self.descrefs[fullname] = (self.docname, desctype)
 
     def note_module(self, modname, synopsis, platform, deprecated):
-        self.modules[modname] = (self.filename, synopsis, platform, deprecated)
-        self.filemodules.setdefault(self.filename, []).append(modname)
+        self.modules[modname] = (self.docname, synopsis, platform, deprecated)
+        self.filemodules.setdefault(self.docname, []).append(modname)
 
     def note_reftarget(self, type, name, labelid):
-        self.reftargets[type, name] = (self.filename, labelid)
+        self.reftargets[type, name] = (self.docname, labelid)
 
     def note_index_entry(self, type, string, targetid, aliasname):
-        self.indexentries.setdefault(self.filename, []).append(
+        self.indexentries.setdefault(self.docname, []).append(
             (type, string, targetid, aliasname))
 
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
-            (type, self.filename, lineno, self.currmodule, self.currdesc, node.astext()))
+            (type, self.docname, lineno, self.currmodule, self.currdesc, node.astext()))
     # -------
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
-    def get_doctree(self, filename):
+    def get_doctree(self, docname):
         """Read the doctree for a file from the pickle and return it."""
-        doctree_filename = path.join(self.doctreedir, os_path(filename)[:-3] + 'doctree')
+        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
         f = open(doctree_filename, 'rb')
         try:
             doctree = pickle.load(f)
         finally:
             f.close()
-        doctree.reporter = Reporter(filename, 2, 4, stream=RedirStream(self._warnfunc))
+        doctree.reporter = Reporter(self.doc2path(docname), 2, 4,
+                                    stream=RedirStream(self._warnfunc))
         return doctree
 
-    def get_and_resolve_doctree(self, filename, builder, doctree=None):
+    def get_and_resolve_doctree(self, docname, builder, doctree=None):
         """Read the doctree from the pickle, resolve cross-references and
            toctrees and return it."""
         if doctree is None:
-            doctree = self.get_doctree(filename)
+            doctree = self.get_doctree(docname)
 
         # resolve all pending cross-references
-        self.resolve_references(doctree, filename, builder)
+        self.resolve_references(doctree, docname, builder)
 
         # now, resolve all toctree nodes
         def _entries_from_toctree(toctreenode):
@@ -582,8 +604,8 @@ class BuildEnvironment:
                     toc = self.tocs[includefile].deepcopy()
                 except KeyError:
                     # this is raised if the included file does not exist
-                    self._warnfunc('%s: toctree contains ref to nonexisting '
-                                   'file %r' % (filename, includefile))
+                    self.warn(docname, 'toctree contains ref to nonexisting '
+                              'file %r' % includefile)
                 else:
                     for toctreenode in toc.traverse(addnodes.toctree):
                         toctreenode.parent.replace_self(
@@ -607,7 +629,7 @@ class BuildEnvironment:
             if node.hasattr('anchorname'):
                 # a TOC reference
                 node['refuri'] = builder.get_relative_uri(
-                    filename, node['refuri']) + node['anchorname']
+                    docname, node['refuri']) + node['anchorname']
 
         return doctree
 
@@ -615,7 +637,7 @@ class BuildEnvironment:
     descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr',
                            'meth', 'cfunc', 'cdata', 'ctype', 'cmacro'))
 
-    def resolve_references(self, doctree, docfilename, builder):
+    def resolve_references(self, doctree, fromdocname, builder):
         for node in doctree.traverse(addnodes.pending_xref):
             contnode = node[0].deepcopy()
             newnode = None
@@ -627,70 +649,69 @@ class BuildEnvironment:
                 if typ == 'ref':
                     # reference to the named label; the final node will contain the
                     # section name after the label
-                    filename, labelid, sectname = self.labels.get(target, ('','',''))
-                    if not filename:
+                    docname, labelid, sectname = self.labels.get(target, ('','',''))
+                    if not docname:
                         newnode = doctree.reporter.system_message(
                             2, 'undefined label: %s' % target)
-                        self._warnfunc('%s: undefined label: %s' % (docfilename, target))
+                        #self.warn(fromdocname, 'undefined label: %s' % target)
                     else:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)
-                        if filename == docfilename:
+                        if docname == fromdocname:
                             newnode['refid'] = labelid
                         else:
                             # set more info in contnode in case the following call
                             # raises NoUri, the builder will have to resolve these
                             contnode = addnodes.pending_xref('')
-                            contnode['reffilename'] = filename
+                            contnode['refdocname'] = docname
                             contnode['refsectname'] = sectname
                             newnode['refuri'] = builder.get_relative_uri(
-                                docfilename, filename) + '#' + labelid
+                                fromdocname, docname) + '#' + labelid
                         newnode.append(innernode)
                 elif typ == 'keyword':
                     # keywords are referenced by named labels
-                    filename, labelid, _ = self.labels.get(target, ('','',''))
-                    if not filename:
-                        self._warnfunc('%s: unknown keyword: %s' % (docfilename, target))
+                    docname, labelid, _ = self.labels.get(target, ('','',''))
+                    if not docname:
+                        self.warn(fromdocname, 'unknown keyword: %s' % target)
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
-                        if filename == docfilename:
+                        if docname == fromdocname:
                             newnode['refid'] = labelid
                         else:
                             newnode['refuri'] = builder.get_relative_uri(
-                                docfilename, filename) + '#' + labelid
+                                fromdocname, docname) + '#' + labelid
                         newnode.append(contnode)
                 elif typ in ('token', 'term', 'envvar', 'option'):
-                    filename, labelid = self.reftargets.get((typ, target), ('', ''))
-                    if not filename:
+                    docname, labelid = self.reftargets.get((typ, target), ('', ''))
+                    if not docname:
                         if typ == 'term':
-                            self._warnfunc('%s: term not in glossary: %s' %
-                                           (docfilename, target))
+                            self.warn(fromdocname, 'term not in glossary: %s' % target)
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
-                        if filename == docfilename:
+                        if docname == fromdocname:
                             newnode['refid'] = labelid
                         else:
                             newnode['refuri'] = builder.get_relative_uri(
-                                docfilename, filename, typ) + '#' + labelid
+                                fromdocname, docname, typ) + '#' + labelid
                         newnode.append(contnode)
                 elif typ == 'mod':
-                    filename, synopsis, platform, deprecated = \
+                    docname, synopsis, platform, deprecated = \
                         self.modules.get(target, ('','','', ''))
                     # just link to an anchor if there are multiple modules in one file
                     # because the anchor is generally below the heading which is ugly
                     # but can't be helped easily
                     anchor = ''
-                    if not filename or filename == docfilename:
+                    if not docname or docname == fromdocname:
                         # don't link to self
                         newnode = contnode
                     else:
-                        if len(self.filemodules[filename]) > 1:
+                        if len(self.filemodules[docname]) > 1:
                             anchor = '#' + 'module-' + target
                         newnode = nodes.reference('', '')
                         newnode['refuri'] = (
-                            builder.get_relative_uri(docfilename, filename) + anchor)
+                            builder.get_relative_uri(fromdocname, docname) + anchor)
                         newnode['reftitle'] = '%s%s%s' % (
                             (platform and '(%s) ' % platform),
                             synopsis, (deprecated and ' (deprecated)' or ''))
@@ -706,11 +727,11 @@ class BuildEnvironment:
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
-                        if desc[0] == docfilename:
+                        if desc[0] == fromdocname:
                             newnode['refid'] = name
                         else:
                             newnode['refuri'] = (
-                                builder.get_relative_uri(docfilename, desc[0])
+                                builder.get_relative_uri(fromdocname, desc[0])
                                 + '#' + name)
                         newnode.append(contnode)
                 else:
@@ -721,7 +742,7 @@ class BuildEnvironment:
                 node.replace_self(newnode)
 
         # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, docfilename)
+        builder.app.emit('doctree-resolved', doctree, fromdocname)
 
     def create_index(self, builder, _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         """Create the real index from the collected index entries."""
@@ -735,7 +756,7 @@ class BuildEnvironment:
                 add_entry(subword, '', dic=entry[1])
             else:
                 try:
-                    entry[0].append(builder.get_relative_uri('genindex.rst', fn)
+                    entry[0].append(builder.get_relative_uri('genindex', fn)
                                     + '#' + tid)
                 except NoUri:
                     pass
@@ -766,7 +787,7 @@ class BuildEnvironment:
                     add_entry(string, 'built-in function')
                     add_entry('built-in function', string)
                 else:
-                    self._warnfunc("unknown index entry type %r in %s" % (type, fn))
+                    self.warn(fn, "unknown index entry type %r" % type)
 
         newlist = new.items()
         newlist.sort(key=lambda t: t[0].lower())
@@ -815,12 +836,12 @@ class BuildEnvironment:
     def check_consistency(self):
         """Do consistency checks."""
 
-        for filename in self.all_files:
-            if filename not in self.toctree_relations:
-                if filename == 'contents.rst':
+        for docname in self.all_docs:
+            if docname not in self.toctree_relations:
+                if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
                     continue
-                self._warnfunc('%s isn\'t included in any toctree' % filename)
+                self.warn(docname, 'document isn\'t included in any toctree')
 
     # --------- QUERYING -------------------------------------------------------
 
@@ -879,26 +900,26 @@ class BuildEnvironment:
         Keywords searched are: first modules, then descrefs.
 
         Returns: None if nothing found
-                 (type, filename, anchorname) if exact match found
-                 list of (quality, type, filename, anchorname, description) if fuzzy
+                 (type, docname, anchorname) if exact match found
+                 list of (quality, type, docname, anchorname, description) if fuzzy
         """
 
         if keyword in self.modules:
-            filename, title, system, deprecated = self.modules[keyword]
-            return 'module', filename, 'module-' + keyword
+            docname, title, system, deprecated = self.modules[keyword]
+            return 'module', docname, 'module-' + keyword
         if keyword in self.descrefs:
-            filename, ref_type = self.descrefs[keyword]
-            return ref_type, filename, keyword
+            docname, ref_type = self.descrefs[keyword]
+            return ref_type, docname, keyword
         # special cases
         if '.' not in keyword:
             # exceptions are documented in the exceptions module
             if 'exceptions.'+keyword in self.descrefs:
-                filename, ref_type = self.descrefs['exceptions.'+keyword]
-                return ref_type, filename, 'exceptions.'+keyword
+                docname, ref_type = self.descrefs['exceptions.'+keyword]
+                return ref_type, docname, 'exceptions.'+keyword
             # special methods are documented as object methods
             if 'object.'+keyword in self.descrefs:
-                filename, ref_type = self.descrefs['object.'+keyword]
-                return ref_type, filename, 'object.'+keyword
+                docname, ref_type = self.descrefs['object.'+keyword]
+                return ref_type, docname, 'object.'+keyword
 
         if avoid_fuzzy:
             return
@@ -919,7 +940,7 @@ class BuildEnvironment:
                 yield '.'.join(parts[idx:])
 
         result = []
-        for type, filename, title, desc in possibilities():
+        for type, docname, title, desc in possibilities():
             best_res = 0
             for part in dotsearch(title):
                 s.set_seq1(part)
@@ -929,16 +950,6 @@ class BuildEnvironment:
                    s.ratio() > best_res:
                     best_res = s.ratio()
             if best_res:
-                result.append((best_res, type, filename, title, desc))
+                result.append((best_res, type, docname, title, desc))
 
         return heapq.nlargest(n, result)
-
-    def get_real_filename(self, filename):
-        """
-        Pass this function a filename without .rst extension to get the real
-        filename. This also resolves the special `index.rst` files. If the file
-        does not exist the return value will be `None`.
-        """
-        for rstname in filename + '.rst', filename + SEP + 'index.rst':
-            if rstname in self.all_files:
-                return rstname

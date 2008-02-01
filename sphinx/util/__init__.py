@@ -22,11 +22,8 @@ from os import path
 # hangover from more *nix-oriented origins.
 SEP = "/"
 
-def canonical_path(ospath):
-    return ospath.replace(os.path.sep, SEP)
-
-def os_path(canpath):
-    return canpath.replace(SEP, os.path.sep)
+def os_path(canonicalpath):
+    return canonicalpath.replace(SEP, os.path.sep)
 
 
 def relative_uri(base, to):
@@ -51,8 +48,12 @@ def ensuredir(path):
             raise
 
 
-def get_matching_files(dirname, pattern, exclude=()):
-    """Get all files matching a pattern in a directory, recursively."""
+def get_matching_docs(dirname, suffix, exclude=()):
+    """
+    Get all file names (without suffix) matching a suffix in a
+    directory, recursively.
+    """
+    pattern = '*' + suffix
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
     dirlen = len(dirname) + 1    # exclude slash
@@ -65,7 +66,7 @@ def get_matching_files(dirname, pattern, exclude=()):
             qualified_name = path.join(root[dirlen:], sfile)
             if qualified_name in exclude:
                 continue
-            yield canonical_path(qualified_name)
+            yield qualified_name[:-len(suffix)].replace(os.path.sep, SEP)
 
 
 def shorten_result(text='', keywords=[], maxlen=240, fuzz=60):

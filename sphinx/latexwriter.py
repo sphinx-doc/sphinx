@@ -100,7 +100,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         'pointsize': builder.config.latex_font_size,
                         'preamble': builder.config.latex_preamble,
                         'author': document.settings.author,
-                        'filename': document.settings.filename,
+                        'docname': document.settings.docname,
                         'title': None, # is determined later
                         'release': builder.config.release,
                         'date': date,
@@ -200,7 +200,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # the environment already handles this
             raise nodes.SkipNode
         elif self.this_is_the_title:
-            if len(node.children) != 1 and not isinstance(node.children[0], Text):
+            if len(node.children) != 1 and not isinstance(node.children[0], nodes.Text):
                 self.builder.warn('document title is not a single Text node')
             self.options['title'] = node.astext()
             self.this_is_the_title = 0
@@ -730,6 +730,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.encode(node.astext()))
     def depart_Text(self, node):
         pass
+
+    def visit_system_message(self, node):
+        pass
+    def depart_system_message(self, node):
+        self.body.append('\n')
 
     def unknown_visit(self, node):
         raise NotImplementedError("Unknown node: " + node.__class__.__name__)

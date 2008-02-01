@@ -33,6 +33,8 @@ class Config(object):
         extensions = ([], True),
 
         # general reading options
+        master_doc = ('contents', True),
+        source_suffix = ('.rst', True),
         unused_files = ([], True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
@@ -44,6 +46,7 @@ class Config(object):
         html_index = ('', False),
         html_sidebars = ({}, False),
         html_additional_pages = ({}, False),
+        html_copy_source = (True, False),
 
         # HTML help options
         htmlhelp_basename = ('pydoc', False),

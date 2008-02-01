@@ -539,15 +539,28 @@ directives.register_directive('moduleauthor', author_directive)
 def toctree_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     env = state.document.settings.env
-    dirname = posixpath.dirname(env.filename)
+    suffix = env.config.source_suffix
+    dirname = posixpath.dirname(env.docname)
 
+    ret = []
     subnode = addnodes.toctree()
-    includefiles = filter(None, content)
-    # absolutize filenames
-    includefiles = [posixpath.normpath(posixpath.join(dirname, x)) for x in includefiles]
+    includefiles = []
+    for docname in content:
+        if not docname:
+            continue
+        # absolutize filenames, remove suffixes
+        if docname.endswith(suffix):
+            docname = docname[:-len(suffix)]
+        docname = posixpath.normpath(posixpath.join(dirname, docname))
+        if docname not in env.found_docs:
+            ret.append(state.document.reporter.warning(
+                'toctree references unknown document %s' % docname, line=lineno))
+        else:
+            includefiles.append(docname)
     subnode['includefiles'] = includefiles
     subnode['maxdepth'] = options.get('maxdepth', -1)
-    return [subnode]
+    ret.append(subnode)
+    return ret
 
 toctree_directive.content = 1
 toctree_directive.options = {'maxdepth': int}

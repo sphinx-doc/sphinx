@@ -225,7 +225,7 @@ class DocumentationApplication(object):
         builder = MockBuilder()
         builder.config = env2.config
         writer = HTMLWriter(builder)
-        doctree = env2.read_file(page_id+'.rst', pathname, save_parsed=False)
+        doctree = env2.read_doc(page_id, pathname, save_parsed=False)
         doctree = env2.get_and_resolve_doctree(page_id+'.rst', builder, doctree)
         doctree.settings = OptionParser(defaults=env2.settings,
                                         components=(writer,)).get_default_values()

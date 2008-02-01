@@ -42,9 +42,9 @@ class ExtensionError(Exception):
 
 # List of all known events. Maps name to arguments description.
 events = {
-    'builder-inited': 'builder instance',
+    'builder-inited': '',
     'doctree-read' : 'the doctree before being pickled',
-    'doctree-resolved' : 'the doctree, the filename, the builder',
+    'doctree-resolved' : 'the doctree, the docname',
 }
 
 class Application(object):

@@ -34,7 +34,7 @@ def ifconfig_directive(name, arguments, options, content, lineno,
     return [node]
 
 
-def process_ifconfig_nodes(app, doctree, docfilename):
+def process_ifconfig_nodes(app, doctree, docname):
     ns = app.config.__dict__.copy()
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):

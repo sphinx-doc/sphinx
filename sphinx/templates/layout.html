@@ -106,7 +106,7 @@
               <li><a href="{{ pathto('@edit/' + sourcename)|e }}">Suggest Change</a></li>
               <li><a href="{{ pathto('@source/' + sourcename)|e }}">Show Source</a></li>
             {% elif builder == 'html' %}
-              <li><a href="{{ pathto(sourcename, true)|e }}">Show Source</a></li>
+              <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}">Show Source</a></li>
             {% endif %}
             </ul>
           {% endif %}

@@ -149,7 +149,7 @@ def build_hhx(builder, outdir, outname):
         f.write('<LI> ' + object_sitemap % ('Main page', 'index.html'))
         f.write('<LI> ' + object_sitemap % ('Global Module Index', 'modindex.html'))
         # the TOC
-        toc = builder.env.get_and_resolve_doctree('contents.rst', builder)
+        toc = builder.env.get_and_resolve_doctree(builder.config.master_doc, builder)
         def write_toc(node, ullevel=0):
             if isinstance(node, nodes.list_item):
                 f.write('<LI> ')

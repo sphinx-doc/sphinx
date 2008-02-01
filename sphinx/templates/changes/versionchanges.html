@@ -1,6 +1,6 @@
 {% macro entries changes %}
-<ul>{% for entry, filename, lineno in changes %}
-<li><a href="rst/{{ filename }}.html#L{{ lineno-10 }}" target="src">{{ entry }}</a></li>
+<ul>{% for entry, docname, lineno in changes %}
+<li><a href="rst/{{ docname }}.html#L{{ lineno-10 }}" target="src">{{ entry }}</a></li>
 {% endfor %}</ul>
 {% endmacro -%}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"

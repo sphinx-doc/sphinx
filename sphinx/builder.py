@@ -27,13 +27,13 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes
-from sphinx.util import (get_matching_files, ensuredir, relative_uri, os_path, SEP)
+from sphinx.util import (get_matching_docs, ensuredir, relative_uri, SEP, os_path)
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import pygments, get_stylesheet
-from sphinx.util.console import bold, purple, green, red, darkgreen
+from sphinx.util.console import bold, purple, red, darkgreen
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -64,6 +64,7 @@ class Builder(object):
         self.freshenv = freshenv
 
         self.init()
+        self.load_env()
 
     # helper methods
 
@@ -91,8 +92,11 @@ class Builder(object):
         template = self.templates[name] = self.jinja_env.get_template(name)
         return template
 
-    def get_target_uri(self, source_filename, typ=None):
-        """Return the target URI for a source filename."""
+    def get_target_uri(self, docname, typ=None):
+        """
+        Return the target URI for a document name (typ can be used to qualify
+        the link characteristic for individual builders).
+        """
         raise NotImplementedError
 
     def get_relative_uri(self, from_, to, typ=None):
@@ -102,7 +106,7 @@ class Builder(object):
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
-    def get_outdated_files(self):
+    def get_outdated_docs(self):
         """Return a list of output files that are outdated."""
         raise NotImplementedError
 
@@ -132,29 +136,33 @@ class Builder(object):
                 self.info('done')
             except Exception, err:
                 self.info('failed: %s' % err)
-                self.env = BuildEnvironment(self.srcdir, self.doctreedir)
+                self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
         else:
-            self.env = BuildEnvironment(self.srcdir, self.doctreedir)
+            self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+        self.env.set_warnfunc(self.warn)
 
     def build_all(self):
         """Build all source files."""
-        self.load_env()
         self.build(None, summary='all source files')
 
-    def build_specific(self, source_filenames):
+    def build_specific(self, filenames):
         """Only rebuild as much as needed for changes in the source_filenames."""
         # bring the filenames to the canonical format, that is,
-        # relative to the source directory.
+        # relative to the source directory and without source_suffix.
         dirlen = len(self.srcdir) + 1
-        to_write = [path.abspath(filename)[dirlen:] for filename in source_filenames]
-        self.load_env()
+        to_write = []
+        suffix = self.config.source_suffix
+        for filename in filenames:
+            filename = path.abspath(filename)[dirlen:]
+            if filename.endswith(suffix):
+                filename = filename[:-len(suffix)]
+            to_write.append(filename)
         self.build(to_write,
                    summary='%d source files given on command line' % len(to_write))
 
     def build_update(self):
         """Only rebuild files changed or added since last build."""
-        self.load_env()
-        to_build = self.get_outdated_files()
+        to_build = self.get_outdated_docs()
         if not to_build:
             self.info(bold('no target files are out of date, exiting.'))
             return
@@ -166,12 +174,12 @@ class Builder(object):
                        summary='targets for %d source files that are '
                        'out of date' % len(to_build))
 
-    def build(self, filenames, summary=None):
+    def build(self, docnames, summary=None):
         if summary:
             self.info(bold('building [%s]: ' % self.name), nonl=1)
             self.info(summary)
 
-        updated_filenames = []
+        updated_docnames = []
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(warnings.append)
@@ -179,14 +187,15 @@ class Builder(object):
         iterator = self.env.update(self.config, self.app)
         # the first item in the iterator is a summary message
         self.info(iterator.next())
-        for filename in self.status_iterator(iterator, 'reading... ', purple):
-            updated_filenames.append(filename)
+        for docname in self.status_iterator(iterator, 'reading... ', purple):
+            updated_docnames.append(docname)
             # nothing further to do, the environment has already done the reading
         for warning in warnings:
-            self.warn(warning)
+            if warning.strip():
+                self.warn(warning)
         self.env.set_warnfunc(self.warn)
 
-        if updated_filenames:
+        if updated_docnames:
             # save the environment
             self.info(bold('pickling the env... '), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
@@ -198,43 +207,44 @@ class Builder(object):
 
         # another indirection to support methods which don't build files
         # individually
-        self.write(filenames, updated_filenames)
+        self.write(docnames, updated_docnames)
 
         # finish (write style files etc.)
         self.info(bold('finishing... '))
         self.finish()
         self.info(bold('build succeeded.'))
 
-    def write(self, build_filenames, updated_filenames):
-        if build_filenames is None: # build_all
-            build_filenames = self.env.all_files
-        filenames = set(build_filenames) | set(updated_filenames)
+    def write(self, build_docnames, updated_docnames):
+        if build_docnames is None: # build_all
+            build_docnames = self.env.all_docs
+        docnames = set(build_docnames) | set(updated_docnames)
 
         # add all toctree-containing files that may have changed
-        for filename in list(filenames):
-            for tocfilename in self.env.files_to_rebuild.get(filename, []):
-                filenames.add(tocfilename)
-        filenames.add('contents.rst')
+        for docname in list(docnames):
+            for tocdocname in self.env.files_to_rebuild.get(docname, []):
+                docnames.add(tocdocname)
+        docnames.add(self.config.master_doc)
 
         self.info(bold('creating index...'))
         self.env.create_index(self)
-        self.prepare_writing(filenames)
+        self.prepare_writing(docnames)
 
         # write target files
         warnings = []
         self.env.set_warnfunc(warnings.append)
-        for filename in self.status_iterator(sorted(filenames),
-                                             'writing output... ', green):
-            doctree = self.env.get_and_resolve_doctree(filename, self)
-            self.write_file(filename, doctree)
+        for docname in self.status_iterator(sorted(docnames),
+                                            'writing output... ', darkgreen):
+            doctree = self.env.get_and_resolve_doctree(docname, self)
+            self.write_doc(docname, doctree)
         for warning in warnings:
-            self.warn(warning)
+            if warning.strip():
+                self.warn(warning)
         self.env.set_warnfunc(self.warn)
 
-    def prepare_writing(self, filenames):
+    def prepare_writing(self, docnames):
         raise NotImplementedError
 
-    def write_file(self, filename, doctree):
+    def write_doc(self, docname, doctree):
         raise NotImplementedError
 
     def finish(self):
@@ -252,6 +262,9 @@ class StandaloneHTMLBuilder(Builder):
     def init(self):
         """Load templates."""
         self.init_templates()
+        self.init_translator_class()
+
+    def init_translator_class(self):
         if self.config.html_translator_class:
             self.translator_class = self.app.import_object(
                 self.config.html_translator_class, 'html_translator_class setting')
@@ -272,10 +285,10 @@ class StandaloneHTMLBuilder(Builder):
             settings_overrides={'output_encoding': 'unicode'}
         )
 
-    def prepare_writing(self, filenames):
+    def prepare_writing(self, docnames):
         from sphinx.search import IndexBuilder
         self.indexer = IndexBuilder()
-        self.load_indexer(filenames)
+        self.load_indexer(docnames)
         self.docwriter = HTMLWriter(self)
         self.docsettings = OptionParser(
             defaults=self.env.settings,
@@ -301,8 +314,7 @@ class StandaloneHTMLBuilder(Builder):
             len = len, # the built-in
         )
 
-    def write_file(self, filename, doctree):
-        pagename = filename[:-4]
+    def write_doc(self, docname, doctree):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -311,43 +323,43 @@ class StandaloneHTMLBuilder(Builder):
 
         prev = next = None
         parents = []
-        related = self.env.toctree_relations.get(filename)
+        related = self.env.toctree_relations.get(docname)
         if related:
-            prev = {'link': self.get_relative_uri(filename, related[1]),
+            prev = {'link': self.get_relative_uri(docname, related[1]),
                     'title': self.render_partial(self.env.titles[related[1]])['title']}
-            next = {'link': self.get_relative_uri(filename, related[2]),
+            next = {'link': self.get_relative_uri(docname, related[2]),
                     'title': self.render_partial(self.env.titles[related[2]])['title']}
         while related:
             parents.append(
-                {'link': self.get_relative_uri(filename, related[0]),
+                {'link': self.get_relative_uri(docname, related[0]),
                  'title': self.render_partial(self.env.titles[related[0]])['title']})
             related = self.env.toctree_relations.get(related[0])
         if parents:
-            parents.pop() # remove link to "contents.rst"; we have a generic
+            parents.pop() # remove link to the master file; we have a generic
                           # "back to index" link already
         parents.reverse()
 
-        title = self.env.titles.get(filename)
+        title = self.env.titles.get(docname)
         if title:
             title = self.render_partial(title)['title']
         else:
             title = ''
-        self.globalcontext['titles'][filename] = title
-        sourcename = pagename + '.txt'
-        context = dict(
+        self.globalcontext['titles'][docname] = title
+        sourcename = self.config.html_copy_source and docname + '.txt' or ''
+        ctx = dict(
             title = title,
             sourcename = sourcename,
             body = self.docwriter.parts['fragment'],
-            toc = self.render_partial(self.env.get_toc_for(filename))['fragment'],
+            toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
             # only display a TOC if there's more than one item to show
-            display_toc = (self.env.toc_num_entries[filename] > 1),
+            display_toc = (self.env.toc_num_entries[docname] > 1),
             parents = parents,
             prev = prev,
             next = next,
         )
 
-        self.index_page(pagename, doctree, title)
-        self.handle_page(pagename, context)
+        self.index_page(docname, doctree, title)
+        self.handle_page(docname, ctx)
 
     def finish(self):
         self.info(bold('writing additional files...'))
@@ -369,7 +381,7 @@ class StandaloneHTMLBuilder(Builder):
         # the global module index
 
         # the sorted list of all modules, for the global module index
-        modules = sorted(((mn, (self.get_relative_uri('modindex.rst', fn) +
+        modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
                                 '#module-' + mn, sy, pl, dep))
                           for (mn, (fn, sy, pl, dep)) in self.env.modules.iteritems()),
                          key=lambda x: x[0].lower())
@@ -442,24 +454,25 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the Web builder
 
-    def get_target_uri(self, source_filename, typ=None):
-        return source_filename[:-4] + '.html'
+    def get_target_uri(self, docname, typ=None):
+        return docname + '.html'
 
-    def get_outdated_files(self):
-        for filename in get_matching_files(
-            self.srcdir, '*.rst', exclude=set(self.config.unused_files)):
+    def get_outdated_docs(self):
+        for docname in get_matching_docs(
+            self.srcdir, self.config.source_suffix,
+            exclude=set(self.config.unused_files)):
+            targetname = self.env.doc2path(docname, self.outdir, '.html')
             try:
-                rstname = path.join(self.outdir, os_path(filename))
-                targetmtime = path.getmtime(rstname[:-4] + '.html')
+                targetmtime = path.getmtime(targetname)
             except:
                 targetmtime = 0
-            if filename not in self.env.all_files:
-                yield filename
-            elif path.getmtime(path.join(self.srcdir, os_path(filename))) > targetmtime:
-                yield filename
+            if docname not in self.env.all_docs:
+                yield docname
+            elif path.getmtime(self.env.doc2path(docname)) > targetmtime:
+                yield docname
 
 
-    def load_indexer(self, filenames):
+    def load_indexer(self, docnames):
         try:
             f = open(path.join(self.outdir, 'searchindex.json'), 'r')
             try:
@@ -469,7 +482,7 @@ class StandaloneHTMLBuilder(Builder):
         except (IOError, OSError):
             pass
         # delete all entries for files that will be rebuilt
-        self.indexer.prune([fn[:-4] for fn in set(self.env.all_files) - set(filenames)])
+        self.indexer.prune(set(self.env.all_docs) - set(docnames))
 
     def index_page(self, pagename, doctree, title):
         # only index pages with title
@@ -481,12 +494,12 @@ class StandaloneHTMLBuilder(Builder):
         ctx['current_page_name'] = pagename
 
         def pathto(otheruri, resource=False,
-                   baseuri=self.get_target_uri(pagename+'.rst')):
+                   baseuri=self.get_target_uri(pagename)):
             if not resource:
-                otheruri = self.get_target_uri(otheruri+'.rst')
+                otheruri = self.get_target_uri(otheruri)
             return relative_uri(baseuri, otheruri)
         ctx['pathto'] = pathto
-        ctx['hasdoc'] = lambda name: name+'.rst' in self.env.all_files
+        ctx['hasdoc'] = lambda name: name in self.env.all_docs
         sidebarfile = self.config.html_sidebars.get(pagename)
         if sidebarfile:
             ctx['customsidebar'] = path.join(self.srcdir, sidebarfile)
@@ -505,12 +518,13 @@ class StandaloneHTMLBuilder(Builder):
             self.warn("Error writing file %s: %s" % (outfilename, err))
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
-            shutil.copyfile(path.join(self.srcdir, os_path(pagename+'.rst')),
-                            path.join(self.outdir, os_path(ctx['sourcename'])))
+            source_name = path.join(self.outdir, '_sources', os_path(ctx['sourcename']))
+            ensuredir(path.dirname(source_name))
+            shutil.copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
         self.info(bold('dumping search index...'))
-        self.indexer.prune([fn[:-4] for fn in self.env.all_files])
+        self.indexer.prune(self.env.all_docs)
         f = open(path.join(self.outdir, 'searchindex.json'), 'w')
         try:
             self.indexer.dump(f, 'json')
@@ -525,29 +539,28 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
     name = 'web'
 
     def init(self):
-        # Nothing to do here.
-        pass
+        self.init_translator_class()
 
-    def get_outdated_files(self):
-        for filename in get_matching_files(
-            self.srcdir, '*.rst', exclude=set(self.config.unused_files)):
+    def get_outdated_docs(self):
+        for docname in get_matching_docs(
+            self.srcdir, self.config.source_suffix,
+            exclude=set(self.config.unused_files)):
+            targetname = self.env.doc2path(docname, self.outdir, '.fpickle')
             try:
-                targetmtime = path.getmtime(
-                    path.join(self.outdir, os_path(filename)[:-4] + '.fpickle'))
+                targetmtime = path.getmtime(targetname)
             except:
                 targetmtime = 0
-            if path.getmtime(path.join(self.srcdir,
-                                       os_path(filename))) > targetmtime:
-                yield filename
+            if path.getmtime(self.env.doc2path(docname)) > targetmtime:
+                yield docname
 
-    def get_target_uri(self, source_filename, typ=None):
-        if source_filename == 'index.rst':
+    def get_target_uri(self, docname, typ=None):
+        if docname == 'index':
             return ''
-        if source_filename.endswith(SEP+'index.rst'):
-            return source_filename[:-9] # up to sep
-        return source_filename[:-4] + SEP
+        if docname.endswith(SEP + 'index'):
+            return docname[:-5] # up to sep
+        return docname + SEP
 
-    def load_indexer(self, filenames):
+    def load_indexer(self, docnames):
         try:
             f = open(path.join(self.outdir, 'searchindex.pickle'), 'r')
             try:
@@ -557,32 +570,32 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         except (IOError, OSError):
             pass
         # delete all entries for files that will be rebuilt
-        self.indexer.prune(set(self.env.all_files) - set(filenames))
+        self.indexer.prune(set(self.env.all_docs) - set(docnames))
 
     def index_page(self, pagename, doctree, title):
         # only index pages with title
         if self.indexer is not None and title:
-            self.indexer.feed(pagename+'.rst', title, doctree)
+            self.indexer.feed(pagename, title, doctree)
 
-    def handle_page(self, pagename, context, templatename='page.html'):
-        context['current_page_name'] = pagename
+    def handle_page(self, pagename, ctx, templatename='page.html'):
+        ctx['current_page_name'] = pagename
         sidebarfile = self.config.html_sidebars.get(pagename, '')
         if sidebarfile:
-            context['customsidebar'] = path.join(self.srcdir, sidebarfile)
+            ctx['customsidebar'] = path.join(self.srcdir, sidebarfile)
         outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
-            pickle.dump(context, f, 2)
+            pickle.dump(ctx, f, 2)
         finally:
             f.close()
 
         # if there is a source file, copy the source file for the "show source" link
-        if context.get('sourcename'):
+        if ctx.get('sourcename'):
             source_name = path.join(self.outdir, 'sources',
-                                    os_path(context['sourcename']))
+                                    os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            shutil.copyfile(path.join(self.srcdir, os_path(pagename)+'.rst'), source_name)
+            shutil.copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
         # dump the global context
@@ -594,7 +607,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
             f.close()
 
         self.info(bold('dumping search index...'))
-        self.indexer.prune(self.env.all_files)
+        self.indexer.prune(self.env.all_docs)
         f = open(path.join(self.outdir, 'searchindex.pickle'), 'wb')
         try:
             self.indexer.dump(f, 'pickle')
@@ -636,30 +649,40 @@ class LaTeXBuilder(Builder):
     name = 'latex'
 
     def init(self):
-        self.filenames = []
-        self.document_data = map(list, self.config.latex_documents)
+        self.docnames = []
+        self.document_data = []
 
-        # assign subdirs to titles
-        self.titles = []
-        for entry in self.document_data:
-            # replace version with real version
-            sourcename = entry[0]
-            if sourcename.endswith('/index.rst'):
-                sourcename = sourcename[:-9]
-            self.titles.append((sourcename, entry[2]))
-
-    def get_outdated_files(self):
+    def get_outdated_docs(self):
         return 'all documents' # for now
 
-    def get_target_uri(self, source_filename, typ=None):
+    def get_target_uri(self, docname, typ=None):
         if typ == 'token':
             # token references are always inside production lists and must be
             # replaced by \token{} in LaTeX
             return '@token'
-        if source_filename not in self.filenames:
+        if docname not in self.docnames:
             raise NoUri
         else:
             return ''
+
+    def init_document_data(self):
+        preliminary_document_data = map(list, self.config.latex_documents)
+        if not preliminary_document_data:
+            self.warn('No "latex_documents" config value found; no documents '
+                      'will be written.')
+            return
+        # assign subdirs to titles
+        self.titles = []
+        for entry in preliminary_document_data:
+            docname = entry[0]
+            if docname not in self.env.all_docs:
+                self.warn('"latex_documents" config value references unknown '
+                          'document %s' % docname)
+                continue
+            self.document_data.append(entry)
+            if docname.endswith(SEP+'index'):
+                docname = docname[:-5]
+            self.titles.append((docname, entry[2]))
 
     def write(self, *ignored):
         # first, assemble the "appendix" docs that are in every PDF
@@ -672,43 +695,40 @@ class LaTeXBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,)).get_default_values()
 
-        if not self.document_data:
-            self.warn('No "latex_documents" config setting found; no documents '
-                      'will be written.')
+        self.init_document_data()
 
-        for sourcename, targetname, title, author, docclass in self.document_data:
+        for docname, targetname, title, author, docclass in self.document_data:
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(
-                sourcename, appendices=(docclass == 'manual') and appendices or [])
+                docname, appendices=(docclass == 'manual') and appendices or [])
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
-            doctree.settings.filename = sourcename
+            doctree.settings.docname = docname
             doctree.settings.docclass = docclass
             docwriter.write(doctree, destination)
             self.info("done")
 
     def assemble_doctree(self, indexfile, appendices):
-        self.filenames = set([indexfile, 'glossary.rst', 'about.rst',
-                              'license.rst', 'copyright.rst'])
-        self.info(green(indexfile) + " ", nonl=1)
-        def process_tree(filename, tree):
+        self.docnames = set([indexfile] + appendices)
+        self.info(darkgreen(indexfile) + " ", nonl=1)
+        def process_tree(docname, tree):
             tree = tree.deepcopy()
             for toctreenode in tree.traverse(addnodes.toctree):
                 newnodes = []
                 includefiles = map(str, toctreenode['includefiles'])
                 for includefile in includefiles:
                     try:
-                        self.info(green(includefile) + " ", nonl=1)
+                        self.info(darkgreen(includefile) + " ", nonl=1)
                         subtree = process_tree(includefile,
                                                self.env.get_doctree(includefile))
-                        self.filenames.add(includefile)
+                        self.docnames.add(includefile)
                     except:
                         self.warn('%s: toctree contains ref to nonexisting file %r' %
-                                  (filename, includefile))
+                                  (docname, includefile))
                     else:
                         newnodes.extend(subtree.children)
                 toctreenode.parent.replace(toctreenode, newnodes)
@@ -721,11 +741,11 @@ class LaTeXBuilder(Builder):
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
         for pendingnode in largetree.traverse(addnodes.pending_xref):
-            filename = pendingnode['reffilename']
+            docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
             newnodes = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
-                if filename.startswith(subdir):
+                if docname.startswith(subdir):
                     newnodes.append(nodes.Text(' (in ', ' (in '))
                     newnodes.append(nodes.emphasis(title, title))
                     newnodes.append(nodes.Text(')', ')'))
@@ -756,7 +776,7 @@ class ChangesBuilder(Builder):
         self.vtemplate = self.get_template('changes/versionchanges.html')
         self.stemplate = self.get_template('changes/rstsource.html')
 
-    def get_outdated_files(self):
+    def get_outdated_docs(self):
         return self.outdir
 
     typemap = {
@@ -771,18 +791,18 @@ class ChangesBuilder(Builder):
         apichanges = []
         otherchanges = {}
         self.info(bold('writing summary file...'))
-        for type, filename, lineno, module, descname, content in \
+        for type, docname, lineno, module, descname, content in \
                 self.env.versionchanges[version]:
             ttext = self.typemap[type]
             context = content.replace('\n', ' ')
-            if descname and filename.startswith('c-api'):
+            if descname and docname.startswith('c-api'):
                 if not descname:
                     continue
                 if context:
                     entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
                 else:
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
-                apichanges.append((entry, filename, lineno))
+                apichanges.append((entry, docname, lineno))
             elif descname or module:
                 if not module:
                     module = 'Builtins'
@@ -792,14 +812,14 @@ class ChangesBuilder(Builder):
                     entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
                 else:
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
-                libchanges.setdefault(module, []).append((entry, filename, lineno))
+                libchanges.setdefault(module, []).append((entry, docname, lineno))
             else:
                 if not context:
                     continue
                 entry = '<i>%s:</i> %s' % (ttext.capitalize(), context)
-                title = self.env.titles[filename].astext()
-                otherchanges.setdefault((filename, title), []).append(
-                    (entry, filename, lineno))
+                title = self.env.titles[docname].astext()
+                otherchanges.setdefault((docname, title), []).append(
+                    (entry, docname, lineno))
 
         ctx = {
             'project': self.config.project,
@@ -832,15 +852,15 @@ class ChangesBuilder(Builder):
             return line
 
         self.info(bold('copying source files...'))
-        for filename in self.env.all_files:
-            f = open(path.join(self.srcdir, os_path(filename)))
+        for docname in self.env.all_docs:
+            f = open(self.env.doc2path(docname))
             lines = f.readlines()
-            targetfn = path.join(self.outdir, 'rst', os_path(filename)) + '.html'
+            targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
             f = codecs.open(targetfn, 'w', 'utf8')
             try:
                 text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
-                ctx = {'filename': filename, 'text': text}
+                ctx = {'filename': self.env.doc2path(docname, None), 'text': text}
                 f.write(self.stemplate.render(ctx))
             finally:
                 f.close()
@@ -873,25 +893,25 @@ class CheckExternalLinksBuilder(Builder):
         # create output file
         open(path.join(self.outdir, 'output.txt'), 'w').close()
 
-    def get_target_uri(self, source_filename, typ=None):
+    def get_target_uri(self, docname, typ=None):
         return ''
 
-    def get_outdated_files(self):
-        return self.env.all_files
+    def get_outdated_docs(self):
+        return self.env.all_docs
 
-    def prepare_writing(self, filenames):
+    def prepare_writing(self, docnames):
         return
 
-    def write_file(self, filename, doctree):
+    def write_doc(self, docname, doctree):
         self.info()
         for node in doctree.traverse(nodes.reference):
             try:
-                self.check(node, filename)
+                self.check(node, docname)
             except KeyError:
                 continue
         return
 
-    def check(self, node, filename):
+    def check(self, node, docname):
         uri = node['refuri']
 
         if '#' in uri:
@@ -920,23 +940,24 @@ class CheckExternalLinksBuilder(Builder):
             elif r == 2:
                 self.info(' - ' + red('broken: ') + s)
                 self.broken[uri] = (r, s)
-                self.write_entry('broken', filename, lineno, uri + ': ' + s)
+                self.write_entry('broken', docname, lineno, uri + ': ' + s)
             else:
                 self.info(' - ' + purple('redirected') + ' to ' + s)
                 self.redirected[uri] = (r, s)
-                self.write_entry('redirected', filename, lineno, uri + ' to ' + s)
+                self.write_entry('redirected', docname, lineno, uri + ' to ' + s)
 
         elif len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
             return
         else:
             self.info(uri + ' - ' + red('malformed!'))
-            self.write_entry('malformed', filename, lineno, uri)
+            self.write_entry('malformed', docname, lineno, uri)
 
         return
 
-    def write_entry(self, what, filename, line, uri):
+    def write_entry(self, what, docname, line, uri):
         output = open(path.join(self.outdir, 'output.txt'), 'a')
-        output.write("%s:%s [%s] %s\n" % (filename, line, what, uri))
+        output.write("%s:%s [%s] %s\n" % (self.env.doc2path(docname, None),
+                                          line, what, uri))
         output.close()
 
     def resolve(self, uri):
