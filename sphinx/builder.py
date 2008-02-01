@@ -5,7 +5,7 @@
 
     Builder classes for different output formats.
 
-    :copyright: 2007-2008 by Georg Brandl.
+    :copyright: 2007-2008 by Georg Brandl, Thomas Lamb.
     :license: BSD.
 """
 
@@ -13,9 +13,11 @@ import os
 import time
 import codecs
 import shutil
+import socket
 import cPickle as pickle
 from os import path
 from cgi import escape
+from urllib2 import urlopen, HTTPError
 
 from docutils import nodes
 from docutils.io import StringOutput, FileOutput, DocTreeInput
@@ -31,7 +33,7 @@ from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTransla
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import pygments, get_stylesheet
-from sphinx.util.console import bold, purple, green
+from sphinx.util.console import bold, purple, green, red, darkgreen
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -678,21 +680,21 @@ class LaTeXBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            print "processing", targetname + "...",
+            self.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(
                 sourcename, appendices=(docclass == 'manual') and appendices or [])
-            print "writing...",
+            self.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
             doctree.settings.filename = sourcename
             doctree.settings.docclass = docclass
             docwriter.write(doctree, destination)
-            print "done"
+            self.info("done")
 
     def assemble_doctree(self, indexfile, appendices):
         self.filenames = set([indexfile, 'glossary.rst', 'about.rst',
                               'license.rst', 'copyright.rst'])
-        print green(indexfile),
+        self.info(green(indexfile) + " ", nonl=1)
         def process_tree(filename, tree):
             tree = tree.deepcopy()
             for toctreenode in tree.traverse(addnodes.toctree):
@@ -700,7 +702,7 @@ class LaTeXBuilder(Builder):
                 includefiles = map(str, toctreenode['includefiles'])
                 for includefile in includefiles:
                     try:
-                        print green(includefile),
+                        self.info(green(includefile) + " ", nonl=1)
                         subtree = process_tree(includefile,
                                                self.env.get_doctree(includefile))
                         self.filenames.add(includefile)
@@ -713,8 +715,8 @@ class LaTeXBuilder(Builder):
             return tree
         largetree = process_tree(indexfile, self.env.get_doctree(indexfile))
         largetree.extend(appendices)
-        print
-        print "resolving references..."
+        self.info()
+        self.info("resolving references...")
         self.env.resolve_references(largetree, indexfile, self)
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
@@ -856,10 +858,114 @@ class ChangesBuilder(Builder):
         pass
 
 
+class CheckExternalLinksBuilder(Builder):
+    """
+    Checks for broken external links.
+    """
+    name = 'linkcheck'
+
+    def init(self):
+        self.good = set()
+        self.broken = {}
+        self.redirected = {}
+        # set a timeout for non-responding servers
+        socket.setdefaulttimeout(5.0)
+        # create output file
+        open(path.join(self.outdir, 'output.txt'), 'w').close()
+
+    def get_target_uri(self, source_filename, typ=None):
+        return ''
+
+    def get_outdated_files(self):
+        return self.env.all_files
+
+    def prepare_writing(self, filenames):
+        return
+
+    def write_file(self, filename, doctree):
+        self.info()
+        for node in doctree.traverse(nodes.reference):
+            try:
+                self.check(node, filename)
+            except KeyError:
+                continue
+        return
+
+    def check(self, node, filename):
+        uri = node['refuri']
+
+        if '#' in uri:
+            uri = uri.split('#')[0]
+
+        if uri in self.good:
+            return
+
+        if uri[0:5] == 'http:' or uri[0:6] == 'https:':
+            self.info(uri, nonl=1)
+            lineno = None
+            while lineno is None and node:
+                node = node.parent
+                lineno = node.line
+
+            if uri in self.broken:
+                (r, s) = self.broken[uri]
+            elif uri in self.redirected:
+                (r, s) = self.redirected[uri]
+            else:
+                (r, s) = self.resolve(uri)
+
+            if r == 0:
+                self.info(' - ' + darkgreen('working'))
+                self.good.add(uri)
+            elif r == 2:
+                self.info(' - ' + red('broken: ') + s)
+                self.broken[uri] = (r, s)
+                self.write_entry('broken', filename, lineno, uri + ': ' + s)
+            else:
+                self.info(' - ' + purple('redirected') + ' to ' + s)
+                self.redirected[uri] = (r, s)
+                self.write_entry('redirected', filename, lineno, uri + ' to ' + s)
+
+        elif len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
+            return
+        else:
+            self.info(uri + ' - ' + red('malformed!'))
+            self.write_entry('malformed', filename, lineno, uri)
+
+        return
+
+    def write_entry(self, what, filename, line, uri):
+        output = open(path.join(self.outdir, 'output.txt'), 'a')
+        output.write("%s:%s [%s] %s\n" % (filename, line, what, uri))
+        output.close()
+
+    def resolve(self, uri):
+        try:
+            f = urlopen(uri)
+            f.close()
+        except HTTPError, err:
+            if err.code == 403 and uri.startwith('http://en.wikipedia.org/'):
+                # Wikipedia blocks requests from urllib User-Agent
+                return 0
+            return (2, str(err))
+        except Exception, err:
+            return (2, str(err))
+        if f.url.rstrip('/') == uri.rstrip('/'):
+            return (0, 0)
+        else:
+            return (1, f.url)
+
+    def finish(self):
+        return
+
+
+
+
 builtin_builders = {
     'html': StandaloneHTMLBuilder,
     'web': WebHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
     'latex': LaTeXBuilder,
     'changes': ChangesBuilder,
+    'linkcheck': CheckExternalLinksBuilder,
 }
