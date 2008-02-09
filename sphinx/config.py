@@ -35,7 +35,7 @@ class Config(object):
         # general reading options
         master_doc = ('contents', True),
         source_suffix = ('.rst', True),
-        unused_files = ([], True),
+        unused_docs = ([], True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
 

@@ -63,10 +63,11 @@ def get_matching_docs(dirname, suffix, exclude=()):
         for sfile in files:
             if not fnmatch.fnmatch(sfile, pattern):
                 continue
-            qualified_name = path.join(root[dirlen:], sfile)
+            qualified_name = path.join(root[dirlen:], sfile[:-len(suffix)])
+            qualified_name = qualified_name.replace(os.path.sep, SEP)
             if qualified_name in exclude:
                 continue
-            yield qualified_name[:-len(suffix)].replace(os.path.sep, SEP)
+            yield qualified_name
 
 
 def shorten_result(text='', keywords=[], maxlen=240, fuzz=60):

@@ -23,7 +23,7 @@ except ImportError:
     DebuggedApplication = lambda x, y: x
 
 
-def main(argv):
+def main(argv=sys.argv):
     opts, args = getopt.getopt(argv[1:], "dhf:")
     opts = dict(opts)
     if len(args) != 1 or '-h' in opts:

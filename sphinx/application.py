@@ -17,8 +17,10 @@ import sys
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
+import sphinx
 from sphinx.config import Config
 from sphinx.builder import builtin_builders
+from sphinx.util.console import bold
 
 
 class ExtensionError(Exception):
@@ -62,6 +64,7 @@ class Application(object):
 
         self._status = status
         self._warning = warning
+        self._warncount = 0
 
         # read config
         self.config = Config(srcdir, 'conf.py')
@@ -84,11 +87,14 @@ class Application(object):
             print >>warning, 'Builder name %s not registered' % buildername
             return
 
+        self.info(bold('Sphinx v%s, building %s' % (sphinx.__version__, buildername)))
+
         builderclass = self.builderclasses[buildername]
         self.builder = builderclass(self, freshenv=freshenv)
         self.emit('builder-inited')
 
     def warn(self, message):
+        self._warncount += 1
         self._warning.write('WARNING: %s\n' % message)
 
     def info(self, message='', nonl=False):

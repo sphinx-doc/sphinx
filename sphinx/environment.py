@@ -303,7 +303,7 @@ class BuildEnvironment:
         Return (added, changed, removed) sets.
         """
         self.found_docs = set(get_matching_docs(self.srcdir, config.source_suffix,
-                                                exclude=set(config.unused_files)))
+                                                exclude=set(config.unused_docs)))
 
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
@@ -368,7 +368,7 @@ class BuildEnvironment:
             self.read_doc(docname, app=app)
 
         if config.master_doc not in self.all_docs:
-            self.warn(None, 'no master file %s found' % self.doc2path(config.master_doc))
+            self.warn(None, 'master file %s not found' % self.doc2path(config.master_doc))
 
     # --------- SINGLE FILE BUILDING -------------------------------------------
 

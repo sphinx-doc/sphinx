@@ -42,7 +42,7 @@ modi:
 * with filenames, write these.""" % (argv[0],)
 
 
-def main(argv):
+def main(argv=sys.argv):
     if not sys.stdout.isatty() or sys.platform == 'win32':
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()

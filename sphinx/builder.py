@@ -135,7 +135,10 @@ class Builder(object):
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.info('done')
             except Exception, err:
-                self.info('failed: %s' % err)
+                if type(err) is IOError and err.errno == 2:
+                    self.info('not found')
+                else:
+                    self.info('failed: %s' % err)
                 self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
         else:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
@@ -212,7 +215,10 @@ class Builder(object):
         # finish (write style files etc.)
         self.info(bold('finishing... '))
         self.finish()
-        self.info(bold('build succeeded.'))
+        if self.app._warncount:
+            self.info(bold('build succeeded, %s warnings.' % self.app._warncount))
+        else:
+            self.info(bold('build succeeded.'))
 
     def write(self, build_docnames, updated_docnames):
         if build_docnames is None: # build_all
@@ -234,8 +240,11 @@ class Builder(object):
         self.env.set_warnfunc(warnings.append)
         for docname in self.status_iterator(sorted(docnames),
                                             'writing output... ', darkgreen):
-            doctree = self.env.get_and_resolve_doctree(docname, self)
-            self.write_doc(docname, doctree)
+            try:
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.write_doc(docname, doctree)
+            except Exception, err:
+                warnings.append('%s:: doctree not found!' % docname)
         for warning in warnings:
             if warning.strip():
                 self.warn(warning)
@@ -460,7 +469,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_outdated_docs(self):
         for docname in get_matching_docs(
             self.srcdir, self.config.source_suffix,
-            exclude=set(self.config.unused_files)):
+            exclude=set(self.config.unused_docs)):
             targetname = self.env.doc2path(docname, self.outdir, '.html')
             try:
                 targetmtime = path.getmtime(targetname)
@@ -544,7 +553,7 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
     def get_outdated_docs(self):
         for docname in get_matching_docs(
             self.srcdir, self.config.source_suffix,
-            exclude=set(self.config.unused_files)):
+            exclude=set(self.config.unused_docs)):
             targetname = self.env.doc2path(docname, self.outdir, '.fpickle')
             try:
                 targetmtime = path.getmtime(targetname)
