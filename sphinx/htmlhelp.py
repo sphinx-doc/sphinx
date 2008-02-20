@@ -117,7 +117,7 @@ was  will  with
 
 
 def build_hhx(builder, outdir, outname):
-    builder.msg('dumping stopword list...')
+    builder.info('dumping stopword list...')
     f = open(path.join(outdir, outname+'.stp'), 'w')
     try:
         for word in sorted(stopwords):
@@ -125,7 +125,7 @@ def build_hhx(builder, outdir, outname):
     finally:
         f.close()
 
-    builder.msg('writing project file...')
+    builder.info('writing project file...')
     f = open(path.join(outdir, outname+'.hhp'), 'w')
     try:
         f.write(project_template % {'outname': outname,
@@ -141,7 +141,7 @@ def build_hhx(builder, outdir, outname):
     finally:
         f.close()
 
-    builder.msg('writing TOC file...')
+    builder.info('writing TOC file...')
     f = open(path.join(outdir, outname+'.hhc'), 'w')
     try:
         f.write(contents_header)
@@ -177,7 +177,7 @@ def build_hhx(builder, outdir, outname):
     finally:
         f.close()
 
-    builder.msg('writing index file...')
+    builder.info('writing index file...')
     f = open(path.join(outdir, outname+'.hhk'), 'w')
     try:
         f.write('<UL>\n')
