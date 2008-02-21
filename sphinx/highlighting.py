@@ -70,13 +70,23 @@ def highlight_block(source, lang, dest='html'):
             lexer = lexers['pycon']
         else:
             # maybe Python -- try parsing it
+            src = source + '\n'
+
+            # Replace "..." by a special mark, 
+            # which is also a valid python expression
+            mark = "__highlighting__ellipsis__"
+            src = src.replace("...", mark)
+
+            # lines beginning with "..." are probably placeholders for suite
+            import re
+            src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
+
+            # if we're using 2.5, use the with statement
+            if sys.version_info >= (2, 5):
+                src = 'from __future__ import with_statement\n' + src
+
             try:
-                # if we're using 2.5, use the with statement
-                if sys.version_info >= (2, 5):
-                    parser.suite('from __future__ import with_statement\n' +
-                                 source + '\n')
-                else:
-                    parser.suite(source + '\n')
+                parser.suite(src)
             except (SyntaxError, UnicodeEncodeError):
                 return unhighlighted()
             else:
