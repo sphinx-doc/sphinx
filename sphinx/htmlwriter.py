@@ -12,6 +12,7 @@
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
+from sphinx.highlighting import PygmentsBridge
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 
@@ -45,6 +46,7 @@ class HTMLTranslator(BaseTranslator):
 
     def __init__(self, builder, *args, **kwds):
         BaseTranslator.__init__(self, *args, **kwds)
+        self.highlighter = PygmentsBridge('html', builder.config.pygments_style)
         self.no_smarty = 0
         self.builder = builder
         self.highlightlang = 'python'
@@ -173,8 +175,8 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_literal_block(self, node):
-        from sphinx.highlighting import highlight_block
-        self.body.append(highlight_block(node.rawsource, self.highlightlang))
+        self.body.append(self.highlighter.highlight_block(node.rawsource,
+                                                          self.highlightlang))
         raise nodes.SkipNode
 
     # overwritten

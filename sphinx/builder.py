@@ -32,7 +32,7 @@ from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
-from sphinx.highlighting import pygments, get_stylesheet
+from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, purple, red, darkgreen
 
 # side effect: registers roles and directives
@@ -212,7 +212,7 @@ class Builder(object):
         # individually
         self.write(docnames, updated_docnames)
 
-        # finish (write style files etc.)
+        # finish (write static files etc.)
         self.info(bold('finishing... '))
         self.finish()
         if self.app._warncount:
@@ -242,9 +242,9 @@ class Builder(object):
                                             'writing output... ', darkgreen):
             try:
                 doctree = self.env.get_and_resolve_doctree(docname, self)
-                self.write_doc(docname, doctree)
             except Exception, err:
                 warnings.append('%s:: doctree not found!' % docname)
+            self.write_doc(docname, doctree)
         for warning in warnings:
             if warning.strip():
                 self.warn(warning)
@@ -317,6 +317,7 @@ class StandaloneHTMLBuilder(Builder):
             release = self.config.release,
             version = self.config.version,
             last_updated = self.last_updated,
+            style = self.config.html_style,
             builder = self.name,
             parents = [],
             titles = {},
@@ -442,20 +443,21 @@ class StandaloneHTMLBuilder(Builder):
         indextemplate = self.config.html_index
         if indextemplate:
             indextemplate = path.join(self.srcdir, indextemplate)
-        self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
+            self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
 
-        # copy style files
-        self.info(bold('copying style files...'))
-        styledirname = path.join(path.dirname(__file__), 'style')
-        ensuredir(path.join(self.outdir, 'style'))
-        for filename in os.listdir(styledirname):
-            if not filename.startswith('.'):
-                shutil.copyfile(path.join(styledirname, filename),
-                                path.join(self.outdir, 'style', filename))
+        # copy static files
+        self.info(bold('copying static files...'))
+        ensuredir(path.join(self.outdir, 'static'))
+        staticdirnames = path.join(path.dirname(__file__), 'static') + \
+                         self.config.static_path
+        for staticdirname in staticdirnames:
+            for filename in os.listdir(staticdirname):
+                if not filename.startswith('.'):
+                    shutil.copyfile(path.join(staticdirname, filename),
+                                    path.join(self.outdir, 'static', filename))
         # add pygments style file
-        f = open(path.join(self.outdir, 'style', 'pygments.css'), 'w')
-        if pygments:
-            f.write(get_stylesheet())
+        f = open(path.join(self.outdir, 'static', 'pygments.css'), 'w')
+        f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())
         f.close()
 
         # dump the search index
@@ -766,10 +768,10 @@ class LaTeXBuilder(Builder):
 
     def finish(self):
         self.info(bold('copying TeX support files...'))
-        styledirname = path.join(path.dirname(__file__), 'texinputs')
-        for filename in os.listdir(styledirname):
+        staticdirname = path.join(path.dirname(__file__), 'texinputs')
+        for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
-                shutil.copyfile(path.join(styledirname, filename),
+                shutil.copyfile(path.join(staticdirname, filename),
                                 path.join(self.outdir, filename))
 
 
@@ -873,7 +875,7 @@ class ChangesBuilder(Builder):
                 f.write(self.stemplate.render(ctx))
             finally:
                 f.close()
-        shutil.copyfile(path.join(path.dirname(__file__), 'style', 'default.css'),
+        shutil.copyfile(path.join(path.dirname(__file__), 'static', 'default.css'),
                         path.join(self.outdir, 'default.css'))
 
     def hl(self, text, version):
@@ -918,7 +920,6 @@ class CheckExternalLinksBuilder(Builder):
                 self.check(node, docname)
             except KeyError:
                 continue
-        return
 
     def check(self, node, docname):
         uri = node['refuri']

@@ -49,7 +49,7 @@ events = {
     'doctree-resolved' : 'the doctree, the docname',
 }
 
-class Application(object):
+class Sphinx(object):
 
     def __init__(self, srcdir, outdir, doctreedir, buildername,
                  confoverrides, status, warning=sys.stderr, freshenv=False):
@@ -177,9 +177,10 @@ class Application(object):
     def add_node(self, node):
         nodes._add_node_class_names([node.__name__])
 
-    def add_directive(self, name, cls, content, arguments):
+    def add_directive(self, name, cls, content, arguments, **options):
         cls.content = content
         cls.arguments = arguments
+        cls.options = options
         directives.register_directive(name, cls)
 
     def add_role(self, name, role):

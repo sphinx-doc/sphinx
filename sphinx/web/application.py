@@ -821,6 +821,6 @@ def setup_app(config, check_superuser=False):
     if check_superuser:
         _check_superuser(app)
     app = SharedDataMiddleware(app, {
-        '/style':   path.join(config['data_root_path'], 'style')
+        '/static':   path.join(config['data_root_path'], 'static')
     })
     return app

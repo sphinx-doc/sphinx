@@ -9,7 +9,7 @@
     :license: BSD.
 """
 
-import sys, os, time
+import sys, os, time, shutil
 from os import path
 
 from sphinx.util.console import darkgreen, purple, bold, red, nocolor
@@ -27,7 +27,7 @@ QUICKSTART_CONF = '''\
 # that aren't pickleable (module imports are okay, they're removed automatically).
 #
 # All configuration values have a default value; values that are commented out
-# show the default value as assigned to them.
+# serve to show the default value.
 
 import sys
 
@@ -42,7 +42,7 @@ import sys
 #extensions = []
 
 # Add any paths that contain templates here, relative to this directory.
-#templates_path = []
+templates_path = ['%(dot)stemplates']
 
 # The suffix of source filenames.
 source_suffix = '%(suffix)s'
@@ -78,9 +78,22 @@ today_fmt = '%%B %%d, %%Y'
 # unit titles (such as .. function::).
 #add_module_names = True
 
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = 'sphinx'
+
 
 # Options for HTML output
 # -----------------------
+
+# The style sheet to use for HTML and HTML Help pages. A file of that name
+# must exist either in Sphinx' static/ path, or in one of the custom paths
+# given in html_static_path.
+html_style = 'default.css'
+
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
+html_static_path = ['%(dot)sstatic']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -139,6 +152,9 @@ def suffix(x):
     """Please enter a file suffix, e.g. '.rst' or '.txt'."""
     return x[0:1] == '.' and len(x) > 1
 
+def ok(x):
+    return True
+
 
 def do_prompt(d, key, text, default=None, validator=nonempty):
     while True:
@@ -193,6 +209,12 @@ One document is special in that it is considered the top node of the
 of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.'''
     do_prompt(d, 'master', 'Name of your master document (without suffix)', 'index')
+    print '''
+Inside the "src" directory, two directories will be created; ".templates"
+for custom HTML templates and ".static" for custom stylesheets and other
+static files. Since the leading dot may be inconvenient for Windows users,
+you can enter another prefix (such as "_") to replace the dot.'''
+    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '.', ok)
 
     d['year'] = time.strftime('%Y')
     d['now'] = time.asctime()
@@ -205,6 +227,11 @@ document is a custom template, you can also set this to another filename.'''
     f.close()
 
     masterfile = path.join(d['path'], 'src', d['master'] + d['suffix'])
+
+    templatedir = path.join(d['path'], 'src', d['dot'] + 'templates')
+    os.mkdir(templatedir)
+    staticdir = path.join(d['path'], 'src', d['dot'] + 'static')
+    os.mkdir(staticdir)
 
     print
     print bold('Finished: An initial directory structure has been created.')

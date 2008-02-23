@@ -11,6 +11,7 @@
 
 import sys
 import cgi
+import re
 import parser
 
 try:
@@ -21,15 +22,16 @@ try:
     from pygments.formatters import HtmlFormatter, LatexFormatter
     from pygments.filters import ErrorToken
     from pygments.style import Style
+    from pygments.styles import get_style_by_name
     from pygments.styles.friendly import FriendlyStyle
     from pygments.token import Generic, Comment, Number
 except ImportError:
     pygments = None
 else:
-    class PythonDocStyle(Style):
+    class SphinxStyle(Style):
         """
-        Like friendly, but a bit darker to enhance contrast on
-        the green background.
+        Like friendly, but a bit darker to enhance contrast on the green
+        background.
         """
 
         background_color = '#eeffcc'
@@ -52,52 +54,63 @@ else:
     for _lexer in lexers.values():
         _lexer.add_filter('raiseonerror')
 
-    hfmter = HtmlFormatter(style=PythonDocStyle)
-    lfmter = LatexFormatter(style=PythonDocStyle)
 
-
-def highlight_block(source, lang, dest='html'):
-    def unhighlighted():
-        if dest == 'html':
-            return '<pre>' + cgi.escape(source) + '</pre>\n'
+class PygmentsBridge(object):
+    def __init__(self, dest='html', stylename='sphinx'):
+        if not pygments:
+            return
+        self.dest = dest
+        if stylename == 'sphinx':
+            style = SphinxStyle
         else:
-            return highlight(source, lexers['none'], lfmter)
-    if not pygments:
-        return unhighlighted()
-    if lang == 'python':
-        if source.startswith('>>>'):
-            # interactive session
-            lexer = lexers['pycon']
-        else:
-            # maybe Python -- try parsing it
-            src = source + '\n'
+            style = get_style_by_name(stylename)
+        self.hfmter = HtmlFormatter(style=style)
+        self.lfmter = LatexFormatter(style=style)
 
-            # Replace "..." by a special mark, 
-            # which is also a valid python expression
-            mark = "__highlighting__ellipsis__"
-            src = src.replace("...", mark)
-
-            # lines beginning with "..." are probably placeholders for suite
-            import re
-            src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
-
-            # if we're using 2.5, use the with statement
-            if sys.version_info >= (2, 5):
-                src = 'from __future__ import with_statement\n' + src
-
-            try:
-                parser.suite(src)
-            except (SyntaxError, UnicodeEncodeError):
-                return unhighlighted()
+    def highlight_block(self, source, lang):
+        def unhighlighted():
+            if self.dest == 'html':
+                return '<pre>' + cgi.escape(source) + '</pre>\n'
             else:
-                lexer = lexers['python']
-    else:
-        lexer = lexers[lang]
-    try:
-        return highlight(source, lexer, dest == 'html' and hfmter or lfmter)
-    except ErrorToken:
-        # this is most probably not Python, so let it pass unhighlighted
-        return unhighlighted()
+                return highlight(source, lexers['none'], lfmter)
+        if not pygments:
+            return unhighlighted()
+        if lang == 'python':
+            if source.startswith('>>>'):
+                # interactive session
+                lexer = lexers['pycon']
+            else:
+                # maybe Python -- try parsing it
+                src = source + '\n'
 
-def get_stylesheet(dest='html'):
-    return (dest == 'html' and hfmter or lfmter).get_style_defs()
+                # Replace "..." by a special mark, which is also a valid python expression
+                # (Note, the highlighter gets the original source, this is only done
+                #  to allow "..." in code and still highlight it as Python code.)
+                mark = "__highlighting__ellipsis__"
+                src = src.replace("...", mark)
+
+                # lines beginning with "..." are probably placeholders for suite
+                src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
+
+                # if we're using 2.5, use the with statement
+                if sys.version_info >= (2, 5):
+                    src = 'from __future__ import with_statement\n' + src
+
+                try:
+                    parser.suite(src)
+                except (SyntaxError, UnicodeEncodeError):
+                    return unhighlighted()
+                else:
+                    lexer = lexers['python']
+        else:
+            lexer = lexers[lang]
+        try:
+            return highlight(source, lexer, self.dest == 'html' and self.hfmter or self.lfmter)
+        except ErrorToken:
+            # this is most probably not the selected language, so let it pass unhighlighted
+            return unhighlighted()
+
+    def get_stylesheet(self):
+        if not pygments:
+            return ''
+        return (self.dest == 'html' and self.hfmter or self.lfmter).get_style_defs()

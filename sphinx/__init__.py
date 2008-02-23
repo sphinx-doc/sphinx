@@ -15,7 +15,7 @@ import getopt
 from os import path
 from cStringIO import StringIO
 
-from sphinx.application import Application
+from sphinx.application import Sphinx
 from sphinx.util.console import nocolor
 
 __version__ = '$Revision: 5369 $'[11:-2]
@@ -103,8 +103,8 @@ def main(argv=sys.argv):
         elif opt == '-P':
             use_pdb = True
 
-    app = Application(srcdir, outdir, doctreedir, buildername,
-                      confoverrides, status, sys.stderr, freshenv)
+    app = Sphinx(srcdir, outdir, doctreedir, buildername,
+                 confoverrides, status, sys.stderr, freshenv)
     if not app.builder:
         return 1
 

@@ -779,16 +779,11 @@ form.comment textarea {
 
 /* :::: PRINT :::: */
 @media print {
-    div.documentwrapper {
-        width: 100%;
-    }
-
-	div.document, 
-	div.documentwrapper, 
-	div.bodywrapper, 
-	div.body {
+    div.document, 
+    div.documentwrapper, 
+    div.bodywrapper {
         margin: 0;
-		width : 100%;
+        width : 100%;
     }
 
     div.sidebar,

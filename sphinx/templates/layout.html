@@ -1,9 +1,13 @@
-{% if builder != 'htmlhelp' %}{% set titlesuffix = " &mdash; " + project + " Documentation" %}{% endif -%}
+{% block doctype -%}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
   "http://www.w3.org/TR/html4/loose.dtd">
+{% endblock -%}
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    {%- if builder != 'htmlhelp' %}
+      {%- set titlesuffix = " &mdash; " + project + " Documentation" %}
+    {%- endif %}
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
     {%- if builder == 'web' %}
     <link rel="stylesheet" href="{{ pathto('index') }}?do=stylesheet{%
@@ -12,8 +16,8 @@
     <link rel="alternate" type="{{ type|e(true) }}" title="{{ title|e(true) }}" href="{{ link|e(true) }}">
     {%- endfor %}
     {%- else %}
-    <link rel="stylesheet" href="{{ pathto('style/default.css', 1) }}" type="text/css">
-    <link rel="stylesheet" href="{{ pathto('style/pygments.css', 1) }}" type="text/css">
+    <link rel="stylesheet" href="{{ pathto('static/' + style, 1) }}" type="text/css">
+    <link rel="stylesheet" href="{{ pathto('static/pygments.css', 1) }}" type="text/css">
     {%- endif %}
     {%- if builder != 'htmlhelp' %}
     <script type="text/javascript">
@@ -22,10 +26,11 @@
         VERSION:    '{{ release }}'
       };
     </script>
-    <script type="text/javascript" src="{{ pathto('style/jquery.js', 1) }}"></script>
-    <script type="text/javascript" src="{{ pathto('style/interface.js', 1) }}"></script>
-    <script type="text/javascript" src="{{ pathto('style/doctools.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('static/jquery.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('static/interface.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('static/doctools.js', 1) }}"></script>
     {%- endif %}
+{%- block rellinks %}
     {%- if hasdoc('about') %}
     <link rel="author" title="About these documents" href="{{ pathto('about') }}">
     {%- endif %}
@@ -45,10 +50,13 @@
     {%- if prev %}
     <link rel="prev" title="{{ prev.title|striptags }}" href="{{ prev.link|e }}">
     {%- endif %}
-    {% block head %}{% endblock %}
+{%- endblock %}
+{%- block extrahead %}{% endblock %}
   </head>
   <body>
-{% filter capture('relbar') %}
+
+{%- filter capture('relbar') %}
+{%- block relbar %}
     <div class="related">
       <h3>Navigation</h3>
       <ul>
@@ -70,7 +78,9 @@
         {%- endfor %}
       </ul>
     </div>
-{% endfilter %}
+{%- endblock %}
+{%- endfilter %}
+
     <div class="document">
       <div class="documentwrapper">
       {%- if builder != 'htmlhelp' %}
@@ -83,6 +93,8 @@
         </div>
       {%- endif %}
       </div>
+
+{%- block sidebar %}
       {%- if builder != 'htmlhelp' %}
       <div class="sidebar">
         <div class="sidebarwrapper">
@@ -128,9 +140,13 @@
         </div>
       </div>
       {%- endif %}
+{%- endblock %}
       <div class="clearer"></div>
     </div>
+{%- block bottomrelbar %}
 {{ relbar }}
+{%- endblock %}
+{%- block footer %}
     <div class="footer">
     {%- if hasdoc('copyright') %}
       &copy; <a href="{{ pathto('copyright') }}">Copyright</a> {{ copyright }}.
@@ -141,5 +157,6 @@
       Last updated on {{ last_updated }}.
     {%- endif %}
     </div>
+{%- endblock %}
   </body>
 </html>

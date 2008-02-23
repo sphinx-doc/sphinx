@@ -19,6 +19,9 @@ class Config(object):
 
     # the values are: (default, needs fresh doctrees if changed)
 
+    # If you add a value here, don't forget to include it in the
+    # quickstart.py file template as well!
+
     config_values = dict(
         # general substitutions
         project = ('Python', True),
@@ -38,8 +41,11 @@ class Config(object):
         unused_docs = ([], True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
+        pygments_style = ('sphinx', False),
 
         # HTML options
+        html_style = ('default.css', False),
+        html_static_path = ([], False),
         html_last_updated_fmt = ('%b %d, %Y', False),
         html_use_smartypants = (True, False),
         html_translator_class = (None, False),
