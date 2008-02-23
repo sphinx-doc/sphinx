@@ -12,6 +12,7 @@
 import os
 import sys
 import fnmatch
+import traceback
 from os import path
 
 
@@ -106,3 +107,8 @@ class attrdict(dict):
         self[key] = val
     def __delattr__(self, key):
         del self[key]
+
+
+def fmt_ex(ex):
+    """Format a single line with an exception description."""
+    return traceback.format_exception_only(ex.__class__, ex)[-1].strip()
