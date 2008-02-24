@@ -448,7 +448,7 @@ class StandaloneHTMLBuilder(Builder):
         # copy static files
         self.info(bold('copying static files...'))
         ensuredir(path.join(self.outdir, 'static'))
-        staticdirnames = path.join(path.dirname(__file__), 'static') + \
+        staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
                          self.config.html_static_path
         for staticdirname in staticdirnames:
             for filename in os.listdir(staticdirname):
