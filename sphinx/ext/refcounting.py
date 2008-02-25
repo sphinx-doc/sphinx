@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.addons.refcounting
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.ext.refcounting
+    ~~~~~~~~~~~~~~~~~~~~~~
 
     Supports reference count annotations for C API functions.  Based on
     refcount.py and anno-api.py in the old Python documentation tools.

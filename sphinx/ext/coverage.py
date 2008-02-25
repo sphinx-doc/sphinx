@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.addons.coverage
-    ~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.ext.coverage
+    ~~~~~~~~~~~~~~~~~~~
 
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.

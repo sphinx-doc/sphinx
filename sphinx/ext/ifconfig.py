@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.addons.ifconfig
-    ~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.ext.ifconfig
+    ~~~~~~~~~~~~~~~~~~~
 
     Provides the ``ifconfig`` directive that allows to write documentation
     that is included depending on configuration variables.
