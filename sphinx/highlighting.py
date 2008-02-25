@@ -55,6 +55,16 @@ else:
         _lexer.add_filter('raiseonerror')
 
 
+
+def escape_tex(text):
+    return text.replace('@', '\x00').    \
+                replace('[', '\x01').    \
+                replace(']', '\x02').    \
+                replace('\x00', '@at[]').\
+                replace('\x01', '@lb[]').\
+                replace('\x02', '@rb[]')
+
+
 class PygmentsBridge(object):
     def __init__(self, dest='html', stylename='sphinx'):
         if not pygments:
@@ -72,7 +82,8 @@ class PygmentsBridge(object):
             if self.dest == 'html':
                 return '<pre>' + cgi.escape(source) + '</pre>\n'
             else:
-                return highlight(source, lexers['none'], lfmter)
+                return '\\begin{Verbatim}[commandchars=@\\[\\]]\n' + \
+                       escape_tex(source) + '\\end{Verbatim}\n'
         if not pygments:
             return unhighlighted()
         if lang == 'python':
