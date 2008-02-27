@@ -164,10 +164,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_topic(self, node):
-        self.body.append('\\begin{center}\\setlength{\\fboxsep}{5pt}'
-                         '\\fbox{\\begin{minipage}{0.95\\textwidth}\n')
+        self.body.append('\\setbox0\\vbox{\n'
+                         '\\begin{minipage}{0.95\\textwidth}\n')
     def depart_topic(self, node):
-        self.body.append('\end{minipage}}\\end{center}\n')
+        self.body.append('\\end{minipage}}\n'
+                         '\\begin{center}\\setlength{\\fboxsep}{5pt}'
+                         '\\shadowbox{\\box0}\\end{center}\n')
     visit_sidebar = visit_topic
     depart_sidebar = depart_topic
 
@@ -572,6 +574,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                                self.encode(string)))
             else:
                 self.builder.warn('unknown index entry type %s found' % type)
+        raise nodes.SkipNode
+
+    def visit_raw(self, node):
+        if 'latex' in node.get('format', '').split():
+            self.body.append(r'%s' % node.astext())
         raise nodes.SkipNode
 
     def visit_reference(self, node):
