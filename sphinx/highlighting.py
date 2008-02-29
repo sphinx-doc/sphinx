@@ -67,9 +67,9 @@ def escape_tex(text):
 
 class PygmentsBridge(object):
     def __init__(self, dest='html', stylename='sphinx'):
+        self.dest = dest
         if not pygments:
             return
-        self.dest = dest
         if stylename == 'sphinx':
             style = SphinxStyle
         else:

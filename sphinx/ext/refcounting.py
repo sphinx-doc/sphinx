@@ -6,6 +6,9 @@
     Supports reference count annotations for C API functions.  Based on
     refcount.py and anno-api.py in the old Python documentation tools.
 
+    Usage: Set the `refcount_file` config value to the path to the reference
+    count data file.
+
     :copyright: 2008 by Georg Brandl.
     :license: BSD.
 """
