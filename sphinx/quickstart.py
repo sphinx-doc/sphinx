@@ -140,13 +140,52 @@ htmlhelp_basename = '%(project)sdoc'
 #latex_appendices = []
 '''
 
+
+MASTER_FILE = '''\
+.. %(project)s documentation master file, created by sphinx-quickstart.py on %(now)s.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to %(project)s's documentation!
+===========%(underline)s=================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+'''
+
+def mkdir_p(dir):
+    if path.isdir(dir):
+        return
+    os.makedirs(dir)
+
+
 def is_path(x):
-    """Please enter an existing path name."""
-    return path.isdir(x)
+    """Please enter a valid path name."""
+    return path.isdir(x) or not path.exists(x)
 
 def nonempty(x):
     """Please enter some text."""
     return len(x)
+
+def choice(*l):
+    def val(x):
+        return x in l
+    val.__doc__ = 'Please enter one of %s.' % ', '.join(l)
+    return val
+
+def boolean(x):
+    """Please enter either 'y' or 'n'."""
+    return x.upper() in ('Y', 'YES', 'N', 'NO')
 
 def suffix(x):
     """Please enter a file suffix, e.g. '.rst' or '.txt'."""
@@ -184,9 +223,21 @@ Please enter values for the following settings (just press Enter to
 accept a default value, if one is given in brackets).'''
 
     print '''
-This tool will create "src" and "build" folders in this path, which
-must be an existing directory.'''
+Enter the root path for documentation.'''
     do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
+    print '''
+You have two options for placing the build directory for Sphinx output.
+Either, you use a directory ".build" within the root path, or you separate
+"source" and "build" directories within the root path.'''
+    do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
+              boolean)
+    print '''
+Inside the root directory, two more directories will be created; ".templates"
+for custom HTML templates and ".static" for custom stylesheets and other
+static files. Since the leading dot may be inconvenient for Windows users,
+you can enter another prefix (such as "_") to replace the dot.'''
+    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '.', ok)
+
     print '''
 The project name will occur in several places in the built documentation.'''
     do_prompt(d, 'project', 'Project name')
@@ -208,36 +259,41 @@ One document is special in that it is considered the top node of the
 "contents tree", that is, it is the root of the hierarchical structure
 of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.'''
-    do_prompt(d, 'master', 'Name of your master document (without suffix)', 'index')
-    print '''
-Inside the "src" directory, two directories will be created; ".templates"
-for custom HTML templates and ".static" for custom stylesheets and other
-static files. Since the leading dot may be inconvenient for Windows users,
-you can enter another prefix (such as "_") to replace the dot.'''
-    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '.', ok)
+    do_prompt(d, 'master', 'Name of your master document (without suffix)',
+              'index')
 
     d['year'] = time.strftime('%Y')
     d['now'] = time.asctime()
+    d['underline'] = len(d['project']) * '='
 
-    os.mkdir(path.join(d['path'], 'src'))
-    os.mkdir(path.join(d['path'], 'build'))
+    if not path.isdir(d['path']):
+        mkdir_p(d['path'])
 
-    f = open(path.join(d['path'], 'src', 'conf.py'), 'w')
+    separate = d['sep'].upper() in ('Y', 'YES')
+    srcdir = separate and path.join(d['path'], 'source') or d['path']
+
+    mkdir_p(srcdir)
+    if separate:
+        mkdir_p(path.join(d['path'], 'build'))
+    else:
+        mkdir_p(path.join(srcdir, d['dot'] + 'build'))
+    mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
+    mkdir_p(path.join(srcdir, d['dot'] + 'static'))
+
+    f = open(path.join(srcdir, 'conf.py'), 'w')
     f.write(QUICKSTART_CONF % d)
     f.close()
 
-    masterfile = path.join(d['path'], 'src', d['master'] + d['suffix'])
-
-    templatedir = path.join(d['path'], 'src', d['dot'] + 'templates')
-    os.mkdir(templatedir)
-    staticdir = path.join(d['path'], 'src', d['dot'] + 'static')
-    os.mkdir(staticdir)
+    masterfile = path.join(srcdir, d['master'] + d['suffix'])
+    f = open(masterfile, 'w')
+    f.write(MASTER_FILE % d)
+    f.close()
 
     print
     print bold('Finished: An initial directory structure has been created.')
     print '''
-You should now create your master file %s and other documentation
-sources. Use the sphinx-build.py script to build the docs.
+You should now populate your master file %s and create other documentation
+source files. Use the sphinx-build.py script to build the docs.
 ''' % (masterfile)
 
 

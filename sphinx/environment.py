@@ -243,6 +243,11 @@ class BuildEnvironment:
         self.index_num = 0          # autonumber for index targets
         self.gloss_entries = set()  # existing definition labels
 
+        # Some magically present labels
+        self.labels['genindex'] = ('genindex', '', 'Index')
+        self.labels['modindex'] = ('modindex', '', 'Module Index')
+        self.labels['search']   = ('search', '', 'Search Page')
+
     def set_warnfunc(self, func):
         self._warnfunc = func
         self.settings['warning_stream'] = RedirStream(func)
@@ -614,15 +619,18 @@ class BuildEnvironment:
                     entries.append(toc)
             if entries:
                 return addnodes.compact_paragraph('', '', *entries)
-            return []
+            return None
 
         for toctreenode in doctree.traverse(addnodes.toctree):
             maxdepth = toctreenode.get('maxdepth', -1)
             newnode = _entries_from_toctree(toctreenode)
-            # prune the tree to maxdepth
-            if maxdepth > 0:
-                walk_depth(newnode, 1, maxdepth)
-            toctreenode.replace_self(newnode)
+            if newnode is not None:
+                # prune the tree to maxdepth
+                if maxdepth > 0:
+                    walk_depth(newnode, 1, maxdepth)
+                toctreenode.replace_self(newnode)
+            else:
+                toctreenode.replace_self([])
 
         # set the target paths in the toctrees (they are not known
         # at TOC generation time)
@@ -667,7 +675,9 @@ class BuildEnvironment:
                             contnode['refdocname'] = docname
                             contnode['refsectname'] = sectname
                             newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname) + '#' + labelid
+                                fromdocname, docname)
+                            if labelid:
+                                newnode['refuri'] += '#' + labelid
                         newnode.append(innernode)
                 elif typ == 'keyword':
                     # keywords are referenced by named labels

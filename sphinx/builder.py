@@ -244,6 +244,7 @@ class Builder(object):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
             except Exception, err:
                 warnings.append('%s:: doctree not found!' % docname)
+                continue
             self.write_doc(docname, doctree)
         for warning in warnings:
             if warning.strip():
