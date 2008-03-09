@@ -102,7 +102,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         'preamble': builder.config.latex_preamble,
                         'author': document.settings.author,
                         'docname': document.settings.docname,
-                        'title': None, # is determined later
+                        # if empty, the title is set to the first section title
+                        'title': document.settings.title,
                         'release': builder.config.release,
                         'date': date,
                         }
@@ -208,7 +209,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif self.this_is_the_title:
             if len(node.children) != 1 and not isinstance(node.children[0], nodes.Text):
                 self.builder.warn('document title is not a single Text node')
-            self.options['title'] = node.astext()
+            if not self.options['title']:
+                self.options['title'] = node.astext()
             self.this_is_the_title = 0
             raise nodes.SkipNode
         elif isinstance(node.parent, nodes.section):

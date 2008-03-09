@@ -717,6 +717,7 @@ class LaTeXBuilder(Builder):
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
+            doctree.settings.title = title
             doctree.settings.docname = docname
             doctree.settings.docclass = docclass
             docwriter.write(doctree, destination)
