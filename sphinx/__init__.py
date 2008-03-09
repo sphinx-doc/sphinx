@@ -18,7 +18,7 @@ from cStringIO import StringIO
 from sphinx.application import Sphinx
 from sphinx.util.console import nocolor
 
-__version__ = '$Revision: 5369 $'[11:-2]
+__version__ = '$Revision$'[11:-2]
 
 
 def usage(argv, msg=None):
