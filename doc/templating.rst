@@ -1,0 +1,4 @@
+.. _templating:
+
+Templating
+==========

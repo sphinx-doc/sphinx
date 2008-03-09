@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% block body %}
+  <h1>Welcome</h1>
+
+  <p>
+    Sphinx is a tool that makes it easy to create intelligent and beautiful
+    documentation for Python projects, written by Georg Brandl.  It was
+    originally created to translate <a href="http://docs.python.org/dev/">the
+    new Python documentation</a>, but has now been cleaned up in the hope that
+    it will be useful to many other projects.  (Of course, this site is also
+    created from reStructuredText sources using Sphinx!)
+  </p>
+  <p>
+    Although it is still under constant development, the following features are
+    already present, work fine and can be seen &#8220;in action&#8221; in the
+    Python docs:
+  </p>
+  <ul>
+    <li><b>Output formats:</b> HTML (including Windows HTML Help) and LaTeX, for
+    printable PDF versions</li>
+    <li><b>Extensive cross-references:</b> semantic markup and automatic links
+    for functions, classes, glossary terms and similar pieces of information</li>
+    <li><b>Hierarchical structure:</b> easy definition of a document tree, with
+    automatic links to siblings, parents and children</li>
+    <li><b>Automatic indices:</b> general index as well as a module index</li>
+    <li><b>Code handling:</b> automatic highlighting using the <a
+    href="http://pygments.org">Pygments</a> highlighter</li>
+  </ul>
+  <p>
+    Sphinx uses <a href="http://docutils.sf.net/rst.html">reStructuredText</a>
+    as its markup language, and many of its strengths come from the power and
+    straightforwardness of reStructuredText and its parsing and translating
+    suite, the <a href="http://docutils.sf.net/">Docutils</a>.
+  </p>
+
+  <h2>Documentation</h2>
+  <table class="contentstable" align="center" style="margin-left: 30px"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Contents</a><br>
+         <span class="linkdescr">for a complete overview</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("search") }}">Search page</a><br>
+         <span class="linkdescr">search the documentation</span></p>
+    </td><td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">General Index</a><br>
+         <span class="linkdescr">all functions, classes, terms</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("modindex") }}">Module Index</a><br>
+         <span class="linkdescr">quick access to all documented modules</span></p>
+    </td></tr>
+  </table>
+
+  <h2>Get Sphinx</h2>
+  <p>
+    Sphinx is available as an <a
+    href="http://peak.telecommunity.com/DevCenter/EasyInstall">easy-install</a>able
+    package on the <a href="http://pypi.python.org/pypi/Sphinx">Python Package
+    Index</a>.
+  </p>
+  
+{% endblock %}
