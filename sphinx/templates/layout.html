@@ -55,6 +55,7 @@
   </head>
   <body>
 
+{%- block beforerelbar %}{% endblock %}
 {%- filter capture('relbar') %}
 {%- block relbar %}
     <div class="related">
@@ -80,6 +81,7 @@
     </div>
 {%- endblock %}
 {%- endfilter %}
+{%- block afterrelbar %}{% endblock %}
 
     <div class="document">
       <div class="documentwrapper">
@@ -94,6 +96,7 @@
       {%- endif %}
       </div>
 
+{%- block beforesidebar %}{% endblock %}
 {%- block sidebar %}
       {%- if builder != 'htmlhelp' %}
       <div class="sidebar">
@@ -141,11 +144,13 @@
       </div>
       {%- endif %}
 {%- endblock %}
+{%- block aftersidebar %}{% endblock %}
       <div class="clearer"></div>
     </div>
 {%- block bottomrelbar %}
 {{ relbar }}
 {%- endblock %}
+{%- block beforefooter %}
 {%- block footer %}
     <div class="footer">
     {%- if hasdoc('copyright') %}
@@ -158,5 +163,6 @@
     {%- endif %}
     </div>
 {%- endblock %}
+{%- block afterfooter %}
   </body>
 </html>
