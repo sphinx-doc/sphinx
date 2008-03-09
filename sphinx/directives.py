@@ -10,6 +10,7 @@
 """
 
 import re
+import sys
 import string
 import posixpath
 from os import path
@@ -613,15 +614,42 @@ centered_directive.arguments = (1, 0, 1)
 directives.register_directive('centered', centered_directive)
 
 
-# ------ highlightlanguage directive ------------------------------------------------
+# ------ highlight directive --------------------------------------------------------
 
 def highlightlang_directive(name, arguments, options, content, lineno,
                             content_offset, block_text, state, state_machine):
-    return [addnodes.highlightlang(lang=arguments[0].strip())]
+    if 'linenothreshold' in options:
+        try:
+            linenothreshold = int(options['linenothreshold'])
+        except Exception:
+            linenothreshold = 10
+    else:
+        linenothreshold = sys.maxint
+    return [addnodes.highlightlang(lang=arguments[0].strip(),
+                                   linenothreshold=linenothreshold)]
 
 highlightlang_directive.content = 0
 highlightlang_directive.arguments = (1, 0, 0)
-directives.register_directive('highlightlang', highlightlang_directive)
+highlightlang_directive.options = {'linenothreshold': directives.unchanged}
+directives.register_directive('highlight', highlightlang_directive)
+directives.register_directive('highlightlang', highlightlang_directive) # old name
+
+
+# ------ code-block directive -------------------------------------------------------
+
+def codeblock_directive(name, arguments, options, content, lineno,
+                        content_offset, block_text, state, state_machine):
+    code = u'\n'.join(content)
+    literal = nodes.literal_block(code, code)
+    literal['language'] = arguments[0]
+    literal['linenos'] = 'linenos' in options
+    return [literal]
+
+codeblock_directive.content = 1
+codeblock_directive.arguments = (1, 0, 0)
+codeblock_directive.options = {'linenos': directives.flag}
+directives.register_directive('code-block', codeblock_directive)
+directives.register_directive('sourcecode', codeblock_directive)
 
 
 # ------ literalinclude directive ---------------------------------------------------

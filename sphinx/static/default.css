@@ -704,6 +704,21 @@ pre {
     border-right: none;
 }
 
+td.linenos pre {
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    color: #aaa;
+}
+
+table.highlighttable {
+    margin-left: 0.5em;
+}
+
+table.highlighttable td {
+    padding: 0 0.5em 0 0.5em;
+}
+
 tt {
     background-color: #ecf0f3;
     padding: 0 1px 0 1px;

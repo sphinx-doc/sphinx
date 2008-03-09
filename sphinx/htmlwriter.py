@@ -9,6 +9,8 @@
     :license: BSD.
 """
 
+import sys
+
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
@@ -50,6 +52,7 @@ class HTMLTranslator(BaseTranslator):
         self.no_smarty = 0
         self.builder = builder
         self.highlightlang = 'python'
+        self.highlightlinenothreshold = sys.maxint
         self.language.labels['warning'] = 'Caveat'
 
     def visit_desc(self, node):
@@ -175,8 +178,13 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_literal_block(self, node):
-        self.body.append(self.highlighter.highlight_block(node.rawsource,
-                                                          self.highlightlang))
+        lang = self.highlightlang
+        linenos = node.rawsource.count('\n') >= self.highlightlinenothreshold - 1
+        if node.has_key('language'):
+            # code-block directives
+            lang = node['language']
+            linenos = node['linenos']
+        self.body.append(self.highlighter.highlight_block(node.rawsource, lang, linenos))
         raise nodes.SkipNode
 
     # overwritten
@@ -224,6 +232,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_highlightlang(self, node):
         self.highlightlang = node['lang']
+        self.highlightlinenothreshold = node['linenothreshold']
     def depart_highlightlang(self, node):
         pass
 

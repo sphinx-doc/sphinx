@@ -19,8 +19,10 @@ try:
     from pygments import highlight
     from pygments.lexers import PythonLexer, PythonConsoleLexer, CLexer, \
          TextLexer, RstLexer
+    from pygments.lexers import get_lexer_by_name
     from pygments.formatters import HtmlFormatter, LatexFormatter
     from pygments.filters import ErrorToken
+    from pygments.util import ClassNotFound
     from pygments.style import Style
     from pygments.styles import get_style_by_name
     from pygments.styles.friendly import FriendlyStyle
@@ -74,10 +76,12 @@ class PygmentsBridge(object):
             style = SphinxStyle
         else:
             style = get_style_by_name(stylename)
-        self.hfmter = HtmlFormatter(style=style)
-        self.lfmter = LatexFormatter(style=style)
+        self.hfmter = {False: HtmlFormatter(style=style),
+                       True: HtmlFormatter(style=style, linenos=True)}
+        self.lfmter = {False: LatexFormatter(style=style),
+                       True: LatexFormatter(style=style, linenos=True)}
 
-    def highlight_block(self, source, lang):
+    def highlight_block(self, source, lang, linenos=False):
         def unhighlighted():
             if self.dest == 'html':
                 return '<pre>' + cgi.escape(source) + '</pre>\n'
@@ -114,9 +118,14 @@ class PygmentsBridge(object):
                 else:
                     lexer = lexers['python']
         else:
-            lexer = lexers[lang]
+            if lang in lexers:
+                lexer = lexers[lang]
+            else:
+                lexer = lexers[lang] = get_lexer_by_name(lang)
+                lexer.add_filter('raiseonerror')
         try:
-            return highlight(source, lexer, self.dest == 'html' and self.hfmter or self.lfmter)
+            fmter = (self.dest == 'html' and self.hfmter or self.lfmter)[bool(linenos)]
+            return highlight(source, lexer, fmter)
         except ErrorToken:
             # this is most probably not the selected language, so let it pass unhighlighted
             return unhighlighted()
@@ -124,4 +133,4 @@ class PygmentsBridge(object):
     def get_stylesheet(self):
         if not pygments:
             return ''
-        return (self.dest == 'html' and self.hfmter or self.lfmter).get_style_defs()
+        return (self.dest == 'html' and self.hfmter or self.lfmter)[0].get_style_defs()

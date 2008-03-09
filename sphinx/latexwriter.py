@@ -13,6 +13,7 @@
 """
 
 import re
+import sys
 import time
 
 from docutils import nodes, writers
@@ -76,7 +77,7 @@ class TableSpec:
 
 class Desc:
     def __init__(self, node):
-        self.env = LaTeXTranslator.desc_map[node['desctype']]
+        self.env = LaTeXTranslator.desc_map.get(node['desctype'], 'describe')
         self.ni = node['noindex']
         self.type = self.cls = self.name = self.params = ''
         self.count = 0
@@ -109,6 +110,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.context = []
         self.descstack = []
         self.highlightlang = 'python'
+        self.highlightlinenothreshold = sys.maxint
         self.written_ids = set()
         if docclass == 'manual':
             self.top_sectionlevel = 0
@@ -141,6 +143,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_highlightlang(self, node):
         self.highlightlang = node['lang']
+        self.highlightlinenothreshold = node['linenothreshold']
         raise nodes.SkipNode
 
     def visit_comment(self, node):
@@ -239,8 +242,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'cvar': 'cvardesc',
 
         'describe': 'describe',
-        'cmdoption': 'describe',
-        'envvar': 'describe',
+        # and all others are 'describe' too
     }
 
     def visit_desc(self, node):
@@ -646,8 +648,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_literal_block(self, node):
         self.verbatim = ''
     def depart_literal_block(self, node):
-        hlcode = self.highlighter.highlight_block(self.verbatim.rstrip('\n'),
-                                                  self.highlightlang)
+        code = self.verbatim.rstrip('\n')
+        lang = self.highlightlang
+        linenos = code.count('\n') >= self.highlightlinenothreshold - 1
+        if node.has_key('language'):
+            # code-block directives
+            lang = node['language']
+            linenos = node['linenos']
+        hlcode = self.highlighter.highlight_block(code, lang, linenos)
         # workaround for Unicode issue
         hlcode = hlcode.replace(u'€', u'@texteuro[]')
         # workaround for Pygments bug
