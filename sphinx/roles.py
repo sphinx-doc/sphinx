@@ -120,12 +120,21 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             rawtext, text, classes=['xref'])], []
     pnode = addnodes.pending_xref(rawtext)
     pnode['reftype'] = typ
-    # if the first character is a dot, search more specific namespaces first
-    # else search builtins first
-    if text[0:1] == '.' and \
-       typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
-        text = text[1:]
-        pnode['refspecific'] = True
+    innertext = text
+    # special actions for Python object cross-references
+    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
+        # if the first character is a dot, search more specific namespaces first
+        # else search builtins first
+        if text[0:1] == '.':
+            text = text[1:]
+            pnode['refspecific'] = True
+        # if the first character is a tilde, don't display the module/class parts
+        # of the contents
+        if text[0:1] == '~':
+            text = text[1:]
+            dot = text.rfind('.')
+            if dot != -1:
+                innertext = text[dot+1:]
     if typ == 'term':
         pnode['reftarget'] = ws_re.sub(' ', text).lower()
     elif typ == 'ref':
@@ -152,7 +161,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         pnode['reftarget'] = ws_re.sub('', text)
     pnode['modname'] = env.currmodule
     pnode['classname'] = env.currclass
-    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, text, classes=['xref'])
+    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, innertext, classes=['xref'])
     return [pnode], []
 
 
