@@ -44,6 +44,7 @@ Body.enum.converters['loweralpha'] = \
 
 from sphinx import addnodes
 from sphinx.util import get_matching_docs, SEP
+from sphinx.directives import additional_xref_types
 
 default_settings = {
     'embed_stylesheet': False,
@@ -56,7 +57,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 16
+ENV_VERSION = 17
 
 
 def walk_depth(node, depth, maxdepth):
@@ -226,6 +227,7 @@ class BuildEnvironment:
         self.filemodules = {}       # docname -> [modules]
         self.modules = {}           # modname -> docname, synopsis, platform, deprecated
         self.labels = {}            # labelname -> docname, labelid, sectionname
+        self.anonlabels = {}        # labelname -> docname, labelid
         self.reftargets = {}        # (type, name) -> docname, labelid
                                     # where type is term, token, option, envvar
 
@@ -471,13 +473,19 @@ class BuildEnvironment:
                 continue
             labelid = document.nameids[name]
             node = document.ids[labelid]
-            if not isinstance(node, nodes.section):
-                # e.g. desc-signatures
+            if name.isdigit() or node.has_key('refuri') or \
+                   node.tagname.startswith('desc_'):
+                # ignore footnote labels, labels automatically generated from a
+                # link and description units
                 continue
-            sectname = node[0].astext() # node[0] == title node
             if name in self.labels:
                 self.warn(docname, 'duplicate label %s, ' % name +
                           'other instance in %s' % self.doc2path(self.labels[name][0]))
+            self.anonlabels[name] = docname, labelid
+            if not isinstance(node, nodes.section):
+                # anonymous-only labels
+                continue
+            sectname = node[0].astext() # node[0] == title node
             self.labels[name] = docname, labelid, sectname
 
     def note_toctree(self, docname, toctreenode):
@@ -654,23 +662,37 @@ class BuildEnvironment:
             typ = node['reftype']
             target = node['reftarget']
 
+            reftarget_roles = set(('token', 'term', 'option'))
+            # add all custom xref types too
+            reftarget_roles.update(i[0] for i in additional_xref_types.values())
+
             try:
                 if typ == 'ref':
-                    # reference to the named label; the final node will contain the
-                    # section name after the label
-                    docname, labelid, sectname = self.labels.get(target, ('','',''))
-                    if not docname:
-                        newnode = doctree.reporter.system_message(
-                            2, 'undefined label: %s' % target)
-                        #self.warn(fromdocname, 'undefined label: %s' % target)
+                    if node['refcaption']:
+                        # reference to anonymous label; the reference uses the supplied
+                        # link caption
+                        docname, labelid = self.anonlabels.get(target, ('',''))
+                        sectname = node.astext()
+                        if not docname:
+                            newnode = doctree.reporter.system_message(
+                                2, 'undefined label: %s' % target)
                     else:
+                        # reference to the named label; the final node will contain the
+                        # section name after the label
+                        docname, labelid, sectname = self.labels.get(target, ('','',''))
+                        if not docname:
+                            newnode = doctree.reporter.system_message(
+                                2, 'undefined label: %s -- if you don\'t ' % target +
+                                'give a link caption the label must precede a section '
+                                'header.')
+                    if docname:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)
                         if docname == fromdocname:
                             newnode['refid'] = labelid
                         else:
-                            # set more info in contnode in case the following call
-                            # raises NoUri, the builder will have to resolve these
+                            # set more info in contnode in case the get_relative_uri call
+                            # raises NoUri, the builder will then have to resolve these
                             contnode = addnodes.pending_xref('')
                             contnode['refdocname'] = docname
                             contnode['refsectname'] = sectname
@@ -693,7 +715,7 @@ class BuildEnvironment:
                             newnode['refuri'] = builder.get_relative_uri(
                                 fromdocname, docname) + '#' + labelid
                         newnode.append(contnode)
-                elif typ in ('token', 'term', 'envvar', 'option'):
+                elif typ in reftarget_roles:
                     docname, labelid = self.reftargets.get((typ, target), ('', ''))
                     if not docname:
                         if typ == 'term':

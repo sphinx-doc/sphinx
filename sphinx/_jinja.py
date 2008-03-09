@@ -25,12 +25,19 @@ class SphinxFileSystemLoader(BaseLoader):
     paths, or from an absolute path.
     """
 
-    def __init__(self, paths):
-        self.searchpaths = map(path.abspath, paths)
+    def __init__(self, basepath, extpaths):
+        self.basepath = path.abspath(basepath)
+        self.extpaths = map(path.abspath, extpaths)
+        self.searchpaths = self.extpaths + [self.basepath]
 
     def get_source(self, environment, name, parent):
         name = name.replace('/', path.sep)
-        if path.isabs(name):
+        if name.startswith('!'):
+            name = name[1:]
+            if not path.exists(path.join(self.basepath, name)):
+                raise TemplateNotFound(name)
+            filename = path.join(self.basepath, name)
+        elif path.isabs(name):
             if not path.exists(name):
                 raise TemplateNotFound(name)
             filename = name

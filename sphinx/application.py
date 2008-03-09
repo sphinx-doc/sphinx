@@ -18,8 +18,10 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 import sphinx
+from sphinx.roles import xfileref_role
 from sphinx.config import Config
 from sphinx.builder import builtin_builders
+from sphinx.directives import desc_directive, additional_xref_types
 from sphinx.util.console import bold
 
 
@@ -185,3 +187,9 @@ class Sphinx(object):
 
     def add_role(self, name, role):
         roles.register_canonical_role(name, role)
+
+    def add_description_unit(self, directivename, rolename, indexdesc='',
+                             parse_node=None):
+        additional_xref_types[directivename] = (rolename, indexdesc, parse_node)
+        directives.register_directive(directivename, desc_directive)
+        roles.register_canonical_role(rolename, xfileref_role)

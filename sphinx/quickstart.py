@@ -78,6 +78,10 @@ today_fmt = '%%B %%d, %%Y'
 # unit titles (such as .. function::).
 #add_module_names = True
 
+# If true, sectionauthor and moduleauthor directives will be shown in the
+# output. They are ignored by default.
+#show_authors = False
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
@@ -103,14 +107,14 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 # typographically correct entities.
 #html_use_smartypants = True
 
-# Content template for the index page, filename relative to this file.
+# Content template for the index page.
 #html_index = ''
 
-# Custom sidebar templates, maps page names to filenames relative to this file.
+# Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
-# filenames relative to this file.
+# template names.
 #html_additional_pages = {}
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.

@@ -64,11 +64,24 @@ tt.descname {
 
 tt.descclassname {
     background-color: transparent;
+    border: 0;
 }
 
-tt.xref, a tt {
+tt.xref {
     background-color: transparent;
     font-weight: bold;
+    border: 0;
+}
+
+a tt {
+    background-color: transparent;
+    font-weight: bold;
+    border: 0;
+    color: #CA7900;
+}
+
+a tt:hover {
+    color: #2491CF;
 }
 
 dl {
@@ -99,19 +112,10 @@ dt:target,
     background-color: #fbe54e;
 }
 
-/*
-dt {
-    margin-top: 0.8em;
+dl.glossary dt {
+    font-weight: bold;
+    font-size: 1.1em;
 }
-
-dd p.first {
-    margin-top: 0;
-}
-
-dd p.last {
-    margin-bottom: 0;
-}
-*/
 
 pre {
     line-height: 120%;
@@ -120,10 +124,6 @@ pre {
 pre a {
     color: inherit;
     text-decoration: underline;
-}
-
-div.syntax {
-    background-color: transparent;
 }
 
 div.document {
@@ -224,6 +224,10 @@ div.bodywrapper {
     margin: 0 240px 0 0;
     padding: 0.5em 20px 20px 20px;
     border-right: 1px solid #ccc;
+}
+
+div.body a {
+    text-decoration: underline;
 }
 
 div.sidebar {
@@ -446,4 +450,51 @@ dt:hover > a.headerlink {
 a.headerlink:hover {
     background-color: #ccc;
     color: white!important;
+}
+
+table.indextable td {
+    text-align: left;
+    vertical-align: top;
+}
+
+table.indextable dl, table.indextable dd {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+table.indextable tr.pcap {
+    height: 10px;
+}
+
+table.indextable tr.cap {
+    margin-top: 10px;
+    background-color: #f2f2f2;
+}
+
+img.toggler {
+    margin-right: 3px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+form.pfform {
+    margin: 10px 0 20px 0;
+}
+
+table.contentstable {
+    width: 90%;
+}
+
+table.contentstable p.biglink {
+    line-height: 150%;
+}
+
+a.biglink {
+    font-size: 1.3em;
+}
+
+span.linkdescr {
+    font-style: italic;
+    padding-top: 5px;
+    font-size: 90%;
 }

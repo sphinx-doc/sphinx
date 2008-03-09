@@ -79,10 +79,9 @@ class Builder(object):
 
         # load templates
         self.templates = {}
-        templates_path = [path.join(path.dirname(__file__), 'templates')]
-        templates_path.extend(self.config.templates_path)
-        templates_path.reverse()
-        self.jinja_env = Environment(loader=SphinxFileSystemLoader(templates_path),
+        base_templates_path = path.join(path.dirname(__file__), 'templates')
+        loader = SphinxFileSystemLoader(base_templates_path, self.config.templates_path)
+        self.jinja_env = Environment(loader=loader,
                                      # disable traceback, more likely that something
                                      # in the application is broken than in the templates
                                      friendly_traceback=False)
@@ -438,13 +437,11 @@ class StandaloneHTMLBuilder(Builder):
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            template = path.join(self.srcdir, template)
             self.handle_page(pagename, {}, template)
 
         # the index page
         indextemplate = self.config.html_index
         if indextemplate:
-            indextemplate = path.join(self.srcdir, indextemplate)
             self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
 
         # copy static files
@@ -515,7 +512,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         sidebarfile = self.config.html_sidebars.get(pagename)
         if sidebarfile:
-            ctx['customsidebar'] = path.join(self.srcdir, sidebarfile)
+            ctx['customsidebar'] = sidebarfile
         ctx.update(addctx)
 
         output = self.get_template(templatename).render(ctx)

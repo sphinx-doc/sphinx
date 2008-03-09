@@ -17,6 +17,7 @@ from docutils.parsers.rst import roles
 from sphinx import addnodes
 
 ws_re = re.compile(r'\s+')
+caption_ref_re = re.compile(r'^([^<]+?)\s*<(.+)>$')
 
 generic_docroles = {
     'command' : nodes.strong,
@@ -127,6 +128,21 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         pnode['refspecific'] = True
     if typ == 'term':
         pnode['reftarget'] = ws_re.sub(' ', text).lower()
+    elif typ == 'ref':
+        brace = text.find('<')
+        if brace != -1:
+            pnode['refcaption'] = True
+            m = caption_ref_re.match(text)
+            if not m:
+                # fallback
+                pnode['reftarget'] = text[brace+1:]
+                text = text[:brace]
+            else:
+                pnode['reftarget'] = m.group(2)
+                text = m.group(1)
+        else:
+            pnode['refcaption'] = False
+            pnode['reftarget'] = ws_re.sub('', text)
     elif typ == 'option':
         if text[0] in '-/':
             pnode['reftarget'] = text[1:]

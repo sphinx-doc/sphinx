@@ -20,7 +20,7 @@ class Config(object):
     # the values are: (default, needs fresh doctrees if changed)
 
     # If you add a value here, don't forget to include it in the
-    # quickstart.py file template as well!
+    # quickstart.py file template as well as in the docs!
 
     config_values = dict(
         # general substitutions
@@ -41,6 +41,7 @@ class Config(object):
         unused_docs = ([], True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
+        show_authors = (False, True),
         pygments_style = ('sphinx', False),
 
         # HTML options

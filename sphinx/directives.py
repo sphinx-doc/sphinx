@@ -310,21 +310,30 @@ def desc_directive(desctype, arguments, options, content, lineno,
                                          targetname, targetname)
                     env.note_reftarget('option', optname, targetname)
                 continue
-            elif desctype == 'envvar':
+            elif desctype == 'describe':
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
-                if not noindex:
-                    targetname = 'envvar-' + sig
-                    signode['ids'].append(targetname)
-                    state.document.note_explicit_target(signode)
-                    env.note_index_entry('pair', 'environment variable; %s' % sig,
-                                         targetname, targetname)
-                    env.note_reftarget('envvar', sig, targetname)
                 continue
             else:
-                # for "describe": use generic fallback
-                raise ValueError
+                # another registered generic x-ref directive
+                rolename, indextext, parse_node = additional_xref_types[desctype]
+                if parse_node:
+                    parse_node(sig, signode)
+                else:
+                    signode.clear()
+                    signode += addnodes.desc_name(sig, sig)
+                if not noindex:
+                    targetname = '%s-%s' % (rolename, sig)
+                    signode['ids'].append(targetname)
+                    state.document.note_explicit_target(signode)
+                    if indextext:
+                        env.note_index_entry('pair', '%s; %s' % (indextext, sig),
+                                             targetname, targetname)
+                    env.note_reftarget(rolename, sig, targetname)
+                # don't use object indexing below
+                continue
         except ValueError, err:
+            # signature parsing failed
             signode.clear()
             signode += addnodes.desc_name(sig, sig)
             continue             # we don't want an index entry here
@@ -384,14 +393,21 @@ desctypes = [
     'cvar',
     # the odd one
     'opcode',
-    # the generic ones
-    'cmdoption', # for command line options
-    'envvar', # for environment variables
+    # for command line options
+    'cmdoption',
+    # the generic one
     'describe',
+    'envvar',
 ]
 
 for _name in desctypes:
     directives.register_directive(_name, desc_directive)
+
+# Generic cross-reference types; they can be registered in the application
+additional_xref_types = {
+    # directive name: (role name, index text)
+    'envvar': ('envvar', 'environment variable', None),
+}
 
 
 # ------ versionadded/versionchanged -----------------------------------------------
@@ -526,8 +542,23 @@ directives.register_directive('module', module_directive)
 
 def author_directive(name, arguments, options, content, lineno,
                      content_offset, block_text, state, state_machine):
-    # The author directives aren't included in the built document
-    return []
+    # Show authors only if the show_authors option is on
+    env = state.document.settings.env
+    if not env.config.show_authors:
+        return []
+    para = nodes.paragraph()
+    emph = nodes.emphasis()
+    para += emph
+    if name == 'sectionauthor':
+        text = 'Section author: '
+    elif name == 'moduleauthor':
+        text = 'Module author: '
+    else:
+        text = 'Author: '
+    emph += nodes.Text(text, text)
+    inodes, messages = state.inline_text(arguments[0], lineno)
+    emph.extend(inodes)
+    return [para] + messages
 
 author_directive.arguments = (1, 0, 1)
 directives.register_directive('sectionauthor', author_directive)
