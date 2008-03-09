@@ -81,6 +81,7 @@ class Builder(object):
         self.templates = {}
         templates_path = [path.join(path.dirname(__file__), 'templates')]
         templates_path.extend(self.config.templates_path)
+        templates_path.reverse()
         self.jinja_env = Environment(loader=SphinxFileSystemLoader(templates_path),
                                      # disable traceback, more likely that something
                                      # in the application is broken than in the templates
