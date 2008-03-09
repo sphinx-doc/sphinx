@@ -44,7 +44,7 @@ class ExtensionError(Exception):
         return self.message
 
 
-# List of all known events. Maps name to arguments description.
+# List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
     'doctree-read' : 'the doctree before being pickled',
@@ -67,6 +67,8 @@ class Sphinx(object):
         self._status = status
         self._warning = warning
         self._warncount = 0
+
+        self._events = events.copy()
 
         # read config
         self.config = Config(srcdir, 'conf.py')
@@ -137,7 +139,7 @@ class Sphinx(object):
 
     def _validate_event(self, event):
         event = intern(event)
-        if event not in events:
+        if event not in self._events:
             raise ExtensionError('Unknown event name: %s' % event)
 
     def connect(self, event, callback):
@@ -173,17 +175,22 @@ class Sphinx(object):
 
     def add_config_value(self, name, default, rebuild_env):
         if name in self.config.values:
-            raise ExtensionError('Config value %r already present')
+            raise ExtensionError('Config value %r already present' % name)
         self.config.values[name] = (default, rebuild_env)
+
+    def add_event(self, name):
+        if name in self._events:
+            raise ExtensionError('Event %r already present' % name)
+        self._events[name] = ''
 
     def add_node(self, node):
         nodes._add_node_class_names([node.__name__])
 
-    def add_directive(self, name, cls, content, arguments, **options):
-        cls.content = content
-        cls.arguments = arguments
-        cls.options = options
-        directives.register_directive(name, cls)
+    def add_directive(self, name, func, content, arguments, **options):
+        func.content = content
+        func.arguments = arguments
+        func.options = options
+        directives.register_directive(name, func)
 
     def add_role(self, name, role):
         roles.register_canonical_role(name, role)

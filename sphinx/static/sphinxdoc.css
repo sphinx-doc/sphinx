@@ -264,13 +264,10 @@ div.sidebar h4, div.sidebar h3 {
 
 div.sidebar ul {
     padding-left: 1.5em;
+    margin-top: 7px;
     list-style: none;
     padding: 0;
-    line-height: 110%;
-}
-
-div.sidebar ul li {
-    margin-bottom: 7px;
+    line-height: 130%;
 }
 
 div.sidebar ul ul {
@@ -448,7 +445,7 @@ a.headerlink {
     font-size: 1em;
     margin-left: 6px;
     padding: 0 4px 0 4px;
-    text-decoration: none;
+    text-decoration: none!important;
     visibility: hidden;
 }
 

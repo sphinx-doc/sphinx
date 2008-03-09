@@ -73,10 +73,13 @@
           <li class="right"><a href="{{ pathto('settings') }}"
                                title="Customize your viewing settings" accesskey="S">settings</a> |</li>
         {%- endif %}
-        <li><a href="{{ pathto('index') }}">{{ project }} v{{ release }} Documentation</a> &raquo;</li>
+        {%- block rootrellink %}
+        <li><a href="{{ pathto('index') }}">{{ project }} v{{ release }} documentation</a> &raquo;</li>
+        {%- endblock %}
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a> &raquo;</li>
         {%- endfor %}
+        {%- block relbaritems %}{% endblock %}
       </ul>
     </div>
 {%- endblock %}

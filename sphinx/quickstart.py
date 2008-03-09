@@ -138,7 +138,7 @@ htmlhelp_basename = '%(project)sdoc'
 #latex_documents = []
 
 # Additional stuff for the LaTeX preamble.
-#latex_preamble = '
+#latex_preamble = ''
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
