@@ -80,7 +80,9 @@ class Builder(object):
         # load templates
         self.templates = {}
         base_templates_path = path.join(path.dirname(__file__), 'templates')
-        loader = SphinxFileSystemLoader(base_templates_path, self.config.templates_path)
+        ext_templates_path = [path.join(self.srcdir, dir)
+                              for dir in self.config.templates_path]
+        loader = SphinxFileSystemLoader(base_templates_path, ext_templates_path)
         self.jinja_env = Environment(loader=loader,
                                      # disable traceback, more likely that something
                                      # in the application is broken than in the templates

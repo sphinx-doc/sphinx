@@ -278,9 +278,10 @@ document is a custom template, you can also set this to another filename.'''
 
     mkdir_p(srcdir)
     if separate:
-        mkdir_p(path.join(d['path'], 'build'))
+        builddir = path.join(d['path'], 'build')
     else:
-        mkdir_p(path.join(srcdir, d['dot'] + 'build'))
+        builddir = path.join(srcdir, d['dot'] + 'build')
+    mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
@@ -297,8 +298,10 @@ document is a custom template, you can also set this to another filename.'''
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
-source files. Use the sphinx-build.py script to build the docs.
-''' % (masterfile)
+source files. Use the sphinx-build.py script to build the docs, like so:
+
+   sphinx-build.py -b <builder> %s %s
+''' % (masterfile, srcdir, builddir)
 
 
 def main(argv=sys.argv):
