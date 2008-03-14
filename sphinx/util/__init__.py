@@ -112,3 +112,11 @@ class attrdict(dict):
 def fmt_ex(ex):
     """Format a single line with an exception description."""
     return traceback.format_exception_only(ex.__class__, ex)[-1].strip()
+
+
+def rpartition(s, t):
+    """Similar to str.rpartition from 2.5."""
+    i = s.rfind(t)
+    if i != -1:
+        return s[:i], s[i+len(t):]
+    return '', s

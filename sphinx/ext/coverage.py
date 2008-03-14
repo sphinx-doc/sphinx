@@ -36,9 +36,6 @@ def compile_regex_list(name, exps, warnfunc):
 
 
 class CoverageBuilder(Builder):
-    """
-    Checks the completeness of Python's C-API documentation.
-    """
 
     name = 'coverage'
 
@@ -237,10 +234,10 @@ class CoverageBuilder(Builder):
 
 def setup(app):
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_c_path', [], False)
-    app.add_config_value('coverage_c_regexes', [], False)
     app.add_config_value('coverage_ignore_modules', [], False)
     app.add_config_value('coverage_ignore_functions', [], False)
     app.add_config_value('coverage_ignore_classes', [], False)
-    app.add_config_value('coverage_ignore_c_items', [], False)
+    app.add_config_value('coverage_c_path', [], False)
+    app.add_config_value('coverage_c_regexes', {}, False)
+    app.add_config_value('coverage_ignore_c_items', {}, False)
 
