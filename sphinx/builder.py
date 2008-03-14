@@ -979,7 +979,7 @@ class CheckExternalLinksBuilder(Builder):
         except HTTPError, err:
             if err.code == 403 and uri.startswith('http://en.wikipedia.org/'):
                 # Wikipedia blocks requests from urllib User-Agent
-                return 0
+                return (0, 0)
             return (2, str(err))
         except Exception, err:
             return (2, str(err))
