@@ -977,7 +977,7 @@ class CheckExternalLinksBuilder(Builder):
             f = urlopen(uri)
             f.close()
         except HTTPError, err:
-            if err.code == 403 and uri.startwith('http://en.wikipedia.org/'):
+            if err.code == 403 and uri.startswith('http://en.wikipedia.org/'):
                 # Wikipedia blocks requests from urllib User-Agent
                 return 0
             return (2, str(err))
