@@ -21,7 +21,7 @@ sys.path.append('.')
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
-extensions = ['ext']
+extensions = ['ext', 'sphinx.ext.autodoc']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -123,3 +123,5 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
+
+automodule_skip_lines = 4
