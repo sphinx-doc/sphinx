@@ -187,6 +187,9 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.highlighter.highlight_block(node.rawsource, lang, linenos))
         raise nodes.SkipNode
 
+    def visit_doctest_block(self, node):
+        self.visit_literal_block(node)
+
     # overwritten
     def visit_literal(self, node):
         if len(node.children) == 1 and \
