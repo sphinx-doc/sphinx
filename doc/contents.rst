@@ -9,7 +9,7 @@ Sphinx documentation contents
    intro.rst
    concepts.rst
    rest.rst
-   markup.rst
+   markup/index.rst
    builders.rst
    config.rst
    templating.rst

@@ -1,0 +1,311 @@
+.. highlight:: rest
+
+Inline markup
+-------------
+
+As said before, Sphinx uses interpreted text roles to insert semantic markup in
+documents.
+
+Variable names are an exception, they should be marked simply with ``*var*``.
+
+For all other roles, you have to write ``:rolename:`content```.
+
+.. note::
+
+   For all cross-referencing roles, if you prefix the content with ``!``, no
+   reference/hyperlink will be created.
+
+The following roles refer to objects in modules and are possibly hyperlinked if
+a matching identifier is found:
+
+.. role:: mod
+
+   The name of a module; a dotted name may be used.  This should also be used for
+   package names.
+
+.. role:: func
+
+   The name of a Python function; dotted names may be used.  The role text
+   should include trailing parentheses to enhance readability.  The parentheses
+   are stripped when searching for identifiers.
+
+.. role:: data
+
+   The name of a module-level variable.
+
+.. role:: const
+
+   The name of a "defined" constant.  This may be a C-language ``#define``
+   or a Python variable that is not intended to be changed.
+
+.. role:: class
+
+   A class name; a dotted name may be used.
+
+.. role:: meth
+
+   The name of a method of an object.  The role text should include the type
+   name, method name and the trailing parentheses.  A dotted name may be used.
+
+.. role:: attr
+
+   The name of a data attribute of an object.
+
+.. role:: exc
+
+   The name of an exception. A dotted name may be used.
+
+The name enclosed in this markup can include a module name and/or a class name.
+For example, ``:func:`filter``` could refer to a function named ``filter`` in
+the current module, or the built-in function of that name.  In contrast,
+``:func:`foo.filter``` clearly refers to the ``filter`` function in the ``foo``
+module.
+
+Normally, names in these roles are searched first without any further
+qualification, then with the current module name prepended, then with the
+current module and class name (if any) prepended.  If you prefix the name with a
+dot, this order is reversed.  For example, in the documentation of the
+:mod:`codecs` module, ``:func:`open``` always refers to the built-in function,
+while ``:func:`.open``` refers to :func:`codecs.open`.
+
+A similar heuristic is used to determine whether the name is an attribute of
+the currently documented class.
+
+The following roles create cross-references to C-language constructs if they
+are defined in the API documentation:
+
+.. role:: cdata
+
+   The name of a C-language variable.
+
+.. role:: cfunc
+
+   The name of a C-language function. Should include trailing parentheses.
+
+.. role:: cmacro
+
+   The name of a "simple" C macro, as defined above.
+
+.. role:: ctype
+
+   The name of a C-language type.
+
+
+The following roles do possibly create a cross-reference, but do not refer
+to objects:
+
+.. role:: token
+
+   The name of a grammar token (used in the reference manual to create links
+   between production displays).
+
+.. role:: keyword
+
+   The name of a keyword in Python.  This creates a link to a reference label
+   with that name, if it exists.
+
+
+The following role creates a cross-reference to the term in the glossary:
+
+.. role:: term
+
+   Reference to a term in the glossary.  The glossary is created using the
+   ``glossary`` directive containing a definition list with terms and
+   definitions.  It does not have to be in the same file as the ``term`` markup,
+   for example the Python docs have one global glossary in the ``glossary.rst``
+   file.
+
+   If you use a term that's not explained in a glossary, you'll get a warning
+   during build.
+
+---------
+
+The following roles don't do anything special except formatting the text
+in a different style:
+
+.. role:: command
+
+   The name of an OS-level command, such as ``rm``.
+
+.. role:: dfn
+
+   Mark the defining instance of a term in the text.  (No index entries are
+   generated.)
+
+.. role:: envvar
+
+   An environment variable.  Index entries are generated.
+
+.. role:: file
+
+   The name of a file or directory.  Within the contents, you can use curly
+   braces to indicate a "variable" part, for example::
+
+      ... is installed in :file:`/usr/lib/python2.{x}/site-packages` ...
+
+   In the built documentation, the ``x`` will be displayed differently to
+   indicate that it is to be replaced by the Python minor version.
+
+.. role:: guilabel
+
+   Labels presented as part of an interactive user interface should be marked
+   using ``guilabel``.  This includes labels from text-based interfaces such as
+   those created using :mod:`curses` or other text-based libraries.  Any label
+   used in the interface should be marked with this role, including button
+   labels, window titles, field names, menu and menu selection names, and even
+   values in selection lists.
+
+.. role:: kbd
+
+   Mark a sequence of keystrokes.  What form the key sequence takes may depend
+   on platform- or application-specific conventions.  When there are no relevant
+   conventions, the names of modifier keys should be spelled out, to improve
+   accessibility for new users and non-native speakers.  For example, an
+   *xemacs* key sequence may be marked like ``:kbd:`C-x C-f```, but without
+   reference to a specific application or platform, the same sequence should be
+   marked as ``:kbd:`Control-x Control-f```.
+
+.. role:: mailheader
+
+   The name of an RFC 822-style mail header.  This markup does not imply that
+   the header is being used in an email message, but can be used to refer to any
+   header of the same "style."  This is also used for headers defined by the
+   various MIME specifications.  The header name should be entered in the same
+   way it would normally be found in practice, with the camel-casing conventions
+   being preferred where there is more than one common usage. For example:
+   ``:mailheader:`Content-Type```.
+
+.. role:: makevar
+
+   The name of a :command:`make` variable.
+
+.. role:: manpage
+
+   A reference to a Unix manual page including the section,
+   e.g. ``:manpage:`ls(1)```.
+
+.. role:: menuselection
+
+   Menu selections should be marked using the ``menuselection`` role.  This is
+   used to mark a complete sequence of menu selections, including selecting
+   submenus and choosing a specific operation, or any subsequence of such a
+   sequence.  The names of individual selections should be separated by
+   ``-->``.
+
+   For example, to mark the selection "Start > Programs", use this markup::
+
+      :menuselection:`Start --> Programs`
+
+   When including a selection that includes some trailing indicator, such as the
+   ellipsis some operating systems use to indicate that the command opens a
+   dialog, the indicator should be omitted from the selection name.
+
+.. role:: mimetype
+
+   The name of a MIME type, or a component of a MIME type (the major or minor
+   portion, taken alone).
+
+.. role:: newsgroup
+
+   The name of a Usenet newsgroup.
+
+.. role:: option
+
+   A command-line option to an executable program.  The leading hyphen(s) must
+   be included.
+
+.. role:: program
+
+   The name of an executable program.  This may differ from the file name for
+   the executable for some platforms.  In particular, the ``.exe`` (or other)
+   extension should be omitted for Windows programs.
+
+.. role:: regexp
+
+   A regular expression. Quotes should not be included.
+
+.. role:: samp
+
+   A piece of literal text, such as code.  Within the contents, you can use
+   curly braces to indicate a "variable" part, as in ``:file:``.
+
+   If you don't need the "variable part" indication, use the standard
+   ````code```` instead.   
+
+.. role:: var
+
+   A Python or C variable or parameter name.
+
+
+The following roles generate external links:
+
+.. role:: pep
+
+   A reference to a Python Enhancement Proposal.  This generates appropriate
+   index entries. The text "PEP *number*\ " is generated; in the HTML output,
+   this text is a hyperlink to an online copy of the specified PEP.
+
+.. role:: rfc
+
+   A reference to an Internet Request for Comments.  This generates appropriate
+   index entries. The text "RFC *number*\ " is generated; in the HTML output,
+   this text is a hyperlink to an online copy of the specified RFC.
+
+
+Note that there are no special roles for including hyperlinks as you can use
+the standard reST markup for that purpose.
+
+
+Substitutions
+-------------
+
+The documentation system provides three substitutions that are defined by default.
+They are set in the build configuration file.
+
+.. describe:: |release|
+
+   Replaced by the project release the documentation refers to.  This is meant
+   to be the full version string including alpha/beta/release candidate tags,
+   e.g. ``2.5.2b3``.  Set by :confval:`release`.
+
+.. describe:: |version|
+
+   Replaced by the project version the documentation refers to. This is meant to
+   consist only of the major and minor version parts, e.g. ``2.5``, even for
+   version 2.5.1.  Set by :confval:`version`.
+
+.. describe:: |today|
+
+   Replaced by either today's date, or the date set in the build configuration
+   file.  Normally has the format ``April 14, 2007``.  Set by
+   :confval:`today_fmt` and :confval:`today`.
+
+
+.. _doc-ref-role:
+
+Cross-linking markup
+--------------------
+
+To support cross-referencing to arbitrary sections in the documentation, the
+standard reST labels used.  Of course, for this to work label names must be
+unique throughout the entire documentation.  There are two ways in which you can
+refer to labels:
+
+* If you place a label directly before a section title, you can reference to it
+  with ``:ref:`label-name```.  Example::
+
+     .. _my-reference-label:
+
+     Section to cross-reference
+     --------------------------
+
+     This is the text of the section.
+
+     It refers to the section itself, see :ref:`my-reference-label`.
+
+  The ``:ref:`` role would then generate a link to the section, with the link
+  title being "Section to cross-reference".
+
+* Labels that aren't placed before a section title can still be referenced to,
+  but you must give the link an explicit title, using this syntax: ``:ref:`Link
+  title <label-name>```.
