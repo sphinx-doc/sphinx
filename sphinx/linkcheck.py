@@ -100,8 +100,8 @@ class CheckExternalLinksBuilder(Builder):
 
     def write_entry(self, what, docname, line, uri):
         output = open(path.join(self.outdir, 'output.txt'), 'a')
-        output.write("%s:%s [%s] %s\n" % (self.env.doc2path(docname, None),
-                                          line, what, uri))
+        output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
+                                           line, what, uri))
         output.close()
 
     def resolve(self, uri):
