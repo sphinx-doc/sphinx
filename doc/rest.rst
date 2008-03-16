@@ -141,7 +141,7 @@ Internal links
 ^^^^^^^^^^^^^^
 
 Internal linking is done via a special reST role, see the section on specific
-markup, :ref:`doc-ref-role`.
+markup, :ref:`ref-role`.
 
 
 Sections

@@ -166,6 +166,8 @@ The following role creates a cross-reference to the term in the glossary:
    during build.
 
 
+.. _ref-role:
+
 Cross-referencing arbitrary locations
 -------------------------------------
 
