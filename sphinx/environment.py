@@ -705,7 +705,7 @@ class BuildEnvironment:
                     # keywords are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
-                        self.warn(fromdocname, 'unknown keyword: %s' % target)
+                        #self.warn(fromdocname, 'unknown keyword: %s' % target)
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
@@ -766,6 +766,7 @@ class BuildEnvironment:
                             newnode['refuri'] = (
                                 builder.get_relative_uri(fromdocname, desc[0])
                                 + '#' + name)
+                        newnode['reftitle'] = name
                         newnode.append(contnode)
                 else:
                     raise RuntimeError('unknown xfileref node encountered: %s' % node)
