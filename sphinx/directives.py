@@ -677,8 +677,14 @@ def literalinclude_directive(name, arguments, options, content, lineno,
     else:
         retnode = nodes.literal_block(text, text, source=fn)
         retnode.line = 1
+        if options.get('language', ''):
+            retnode['language'] = options['language']
+        if 'linenos' in options:
+            retnode['linenos'] = True
     return [retnode]
 
+literalinclude_directive.options = {'linenos': directives.flag,
+                                    'language': directives.unchanged}
 literalinclude_directive.content = 0
 literalinclude_directive.arguments = (1, 0, 0)
 directives.register_directive('literalinclude', literalinclude_directive)

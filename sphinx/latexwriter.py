@@ -656,6 +656,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.has_key('language'):
             # code-block directives
             lang = node['language']
+        if node.has_key('linenos'):
             linenos = node['linenos']
         hlcode = self.highlighter.highlight_block(code, lang, linenos)
         # workaround for Unicode issue

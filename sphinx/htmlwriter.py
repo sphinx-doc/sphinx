@@ -183,6 +183,7 @@ class HTMLTranslator(BaseTranslator):
         if node.has_key('language'):
             # code-block directives
             lang = node['language']
+        if node.has_key('linenos'):
             linenos = node['linenos']
         self.body.append(self.highlighter.highlight_block(node.rawsource, lang, linenos))
         raise nodes.SkipNode
