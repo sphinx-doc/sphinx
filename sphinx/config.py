@@ -68,11 +68,11 @@ class Config(object):
 
     def __init__(self, dirname, filename):
         self.values = self.config_values.copy()
-        config = {}
+        config = {'__file__': path.join(dirname, filename)}
         olddir = os.getcwd()
         try:
             os.chdir(dirname)
-            execfile(path.join(dirname, filename), config)
+            execfile(config['__file__'], config)
         finally:
             os.chdir(olddir)
         # remove potentially pickling-problematic values

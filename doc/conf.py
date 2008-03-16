@@ -11,10 +11,10 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys
+import sys, os
 
 # If your extensions are in another directory, add it here.
-sys.path.append('.')
+sys.path.append(os.path.dirname(__file__))
 
 # General configuration
 # ---------------------
