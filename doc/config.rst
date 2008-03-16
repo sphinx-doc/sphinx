@@ -119,6 +119,8 @@ General configuration
    style.
 
 
+.. _html-options:
+
 Options for HTML output
 -----------------------
 
@@ -174,6 +176,8 @@ that use Sphinx' HTMLWriter class.
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
+
+.. _latex-options:
 
 Options for LaTeX output
 ------------------------

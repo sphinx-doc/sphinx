@@ -3,6 +3,9 @@
 Showing code examples
 ---------------------
 
+.. index:: pair: code; examples
+           single: sourcecode
+
 Examples of Python source code or interactive sessions are represented using
 standard reST literal blocks.  They are started by a ``::`` at the end of the
 preceding paragraph and delimited by indentation.
@@ -78,14 +81,24 @@ on line numbers for the individual block::
 Includes
 ^^^^^^^^
 
-Longer displays of verbatim text may be included by storing the example text in
-an external file containing only plain text.  The file may be included using the
-``literalinclude`` directive. [1]_ For example, to include the Python source file
-:file:`example.py`, use::
+.. directive:: .. literalinclude:: filename
 
-   .. literalinclude:: example.py
+   Longer displays of verbatim text may be included by storing the example text in
+   an external file containing only plain text.  The file may be included using the
+   ``literalinclude`` directive. [1]_ For example, to include the Python source file
+   :file:`example.py`, use::
 
-The file name is relative to the current file's path.
+      .. literalinclude:: example.py
+
+   The file name is relative to the current file's path.
+
+   The directive also supports the ``linenos`` flag option to switch on line
+   numbers, and a ``language`` option to select a language different from the
+   current file's standard language.  Example with options::
+    
+      .. literalinclude:: example.rb
+         :language: ruby
+         :linenos:
 
 
 .. rubric:: Footnotes

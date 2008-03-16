@@ -1,5 +1,3 @@
-.. XXX missing: glossary
-
 Sphinx Markup Constructs
 ========================
 
@@ -8,8 +6,8 @@ markup.  This section contains the reference material for these facilities.
 
 .. toctree::
 
-   infounits.rst
-   para.rst
-   code.rst
-   inline.rst
-   misc.rst
+   desc
+   para
+   code
+   inline
+   misc

@@ -17,7 +17,8 @@ where an extension can register a hook and run specialized code.
 
 .. toctree::
 
-   ext/api.rst
+   ext/appapi
+   ext/builderapi
 
 
 Builtin Sphinx extensions
@@ -28,8 +29,8 @@ These extensions are built in and can be activated by respective entries in the
 
 .. toctree::
 
-   ext/autodoc.rst
-   ext/doctest.rst
-   ext/refcounting.rst
-   ext/ifconfig.rst
-   ext/coverage.rst
+   ext/autodoc
+   ext/doctest
+   ext/refcounting
+   ext/ifconfig
+   ext/coverage

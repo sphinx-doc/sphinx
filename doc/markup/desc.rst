@@ -20,7 +20,7 @@ file might start like this::
 As you can see, the module-specific markup consists of two directives, the
 ``module`` directive and the ``moduleauthor`` directive.
 
-.. directive:: module
+.. directive:: .. module:: name
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
@@ -38,7 +38,7 @@ As you can see, the module-specific markup consists of two directives, the
    The ``deprecated`` option can be given (with no value) to mark a module as
    deprecated; it will be designated as such in various locations then.
 
-.. directive:: moduleauthor
+.. directive:: .. moduleauthor:: name <email>
 
    The ``moduleauthor`` directive, which can appear multiple times, names the
    authors of the module code, just like ``sectionauthor`` names the author(s)
@@ -53,7 +53,7 @@ As you can see, the module-specific markup consists of two directives, the
    in overview files.
 
 
-Information units
+Description units
 -----------------
 
 There are a number of directives used to describe specific features provided by
@@ -78,7 +78,7 @@ index entries more informative.
 
 The directives are:
 
-.. directive:: cfunction
+.. directive:: .. cfunction:: type name(signature)
 
    Describes a C function. The signature should be given as in C, e.g.::
 
@@ -90,7 +90,7 @@ The directives are:
    Note that you don't have to backslash-escape asterisks in the signature,
    as it is not parsed by the reST inliner.
 
-.. directive:: cmember
+.. directive:: .. cmember:: type name
 
    Describes a C struct member. Example signature::
 
@@ -100,7 +100,7 @@ The directives are:
    the value should be interpreted, and whether the value can be changed.
    References to structure members in text should use the ``member`` role.
 
-.. directive:: cmacro
+.. directive:: .. cmacro:: name
 
    Describes a "simple" C macro.  Simple macros are macros which are used
    for code expansion, but which do not take arguments so cannot be described as
@@ -108,29 +108,29 @@ The directives are:
    of its use in the Python documentation include :cmacro:`PyObject_HEAD` and
    :cmacro:`Py_BEGIN_ALLOW_THREADS`.
 
-.. directive:: ctype
+.. directive:: .. ctype:: name
 
    Describes a C type. The signature should just be the type name.
 
-.. directive:: cvar
+.. directive:: .. cvar:: type name
 
    Describes a global C variable.  The signature should include the type, such
    as::
 
       .. cvar:: PyObject* PyClass_Type
 
-.. directive:: data
+.. directive:: .. data:: name
 
    Describes global data in a module, including both variables and values used
    as "defined constants."  Class and object attributes are not documented
    using this environment.
 
-.. directive:: exception
+.. directive:: .. exception:: name
 
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
 
-.. directive:: function
+.. directive:: .. function:: name(signature)
 
    Describes a module-level function.  The signature should include the
    parameters, enclosing optional parameters in brackets.  Default values can be
@@ -148,29 +148,29 @@ The directives are:
    are modified), side effects, and possible exceptions.  A small example may be
    provided.
 
-.. directive:: class
+.. directive:: .. class:: name[(signature)]
 
    Describes a class.  The signature can include parentheses with parameters
    which will be shown as the constructor arguments.
 
-.. directive:: attribute
+.. directive:: .. attribute:: name
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
    changed directly.
 
-.. directive:: method
+.. directive:: .. method:: name(signature)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
    described for ``function``.
 
-.. directive:: opcode
+.. directive:: .. opcode:: name
 
    Describes a Python bytecode instruction (this is not very useful for projects
    other than Python itself).
 
-.. directive:: cmdoption
+.. directive:: .. cmdoption:: name args
 
    Describes a command line option or switch.  Option argument names should be
    enclosed in angle brackets.  Example::
@@ -179,14 +179,14 @@ The directives are:
 
          Run a module as a script.
 
-.. directive:: envvar
+.. directive:: .. envvar:: name
 
    Describes an environment variable that the documented code uses or defines.
 
 
 There is also a generic version of these directives:
 
-.. directive:: describe
+.. directive:: .. describe:: text
 
    This directive produces the same formatting as the specific ones explained
    above but does not create index entries or cross-referencing targets.  It is

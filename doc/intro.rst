@@ -33,8 +33,6 @@ it asks you.  Just run ::
 
 and answer the questions.
 
-.. XXX environment
-
 
 Running a build
 ---------------

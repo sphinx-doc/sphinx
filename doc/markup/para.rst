@@ -3,6 +3,9 @@
 Paragraph-level markup
 ----------------------
 
+.. index:: note, warning
+           pair: changes; in version
+
 These directives create short paragraphs and can be used inside information
 units as well as normal text:
 
@@ -27,7 +30,7 @@ units as well as normal text:
    appropriate punctuation. This differs from ``note`` in that it is recommended
    over ``note`` for information regarding security.
 
-.. directive:: versionadded
+.. directive:: .. versionadded:: version
 
    This directive documents the version of the project which added the described
    feature to the library or C API. When this applies to an entire module, it
@@ -44,7 +47,7 @@ units as well as normal text:
    Note that there must be no blank line between the directive head and the
    explanation; this is to make these blocks visually continuous in the markup.
 
-.. directive:: versionchanged
+.. directive:: .. versionchanged:: version
 
    Similar to ``versionadded``, but describes when and what changed in the named
    feature in some way (new parameters, changed side effects, etc.).
@@ -71,7 +74,7 @@ units as well as normal text:
          `GNU tar manual, Basic Tar Format <http://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
-.. directive:: rubric
+.. directive:: .. rubric:: title
 
    This directive creates a paragraph heading that is not used to create a
    table of contents node.  It is currently used for the "Footnotes" caption.
@@ -104,44 +107,69 @@ However, there is also an explicit directive available, to make the index more
 comprehensive and enable index entries in documents where information is not
 mainly contained in information units, such as the language reference.
 
-The directive is ``index`` and contains one or more index entries.  Each entry
-consists of a type and a value, separated by a colon.
+.. directive:: .. index:: <entries>
 
-For example::
+   This directive contains one or more index entries.  Each entry consists of a
+   type and a value, separated by a colon.
 
-   .. index::
-      single: execution; context
-      module: __main__
-      module: sys
-      triple: module; search; path
+   For example::
 
-This directive contains five entries, which will be converted to entries in the
-generated index which link to the exact location of the index statement (or, in
-case of offline media, the corresponding page number).
+      .. index::
+         single: execution; context
+         module: __main__
+         module: sys
+         triple: module; search; path
 
-The possible entry types are:
+   This directive contains five entries, which will be converted to entries in the
+   generated index which link to the exact location of the index statement (or, in
+   case of offline media, the corresponding page number).
 
-single
-   Creates a single index entry.  Can be made a subentry by separating the
-   subentry text with a semicolon (this notation is also used below to describe
-   what entries are created).
-pair
-   ``pair: loop; statement`` is a shortcut that creates two index entries,
-   namely ``loop; statement`` and ``statement; loop``.
-triple
-   Likewise, ``triple: module; search; path`` is a shortcut that creates three
-   index entries, which are ``module; search path``, ``search; path, module`` and
-   ``path; module search``.
-module, keyword, operator, object, exception, statement, builtin
-   These all create two index entries.  For example, ``module: hashlib`` creates
-   the entries ``module; hashlib`` and ``hashlib; module``.
+   The possible entry types are:
 
-For index directives containing only "single" entries, there is a shorthand
-notation::
+   single
+      Creates a single index entry.  Can be made a subentry by separating the
+      subentry text with a semicolon (this notation is also used below to describe
+      what entries are created).
+   pair
+      ``pair: loop; statement`` is a shortcut that creates two index entries,
+      namely ``loop; statement`` and ``statement; loop``.
+   triple
+      Likewise, ``triple: module; search; path`` is a shortcut that creates three
+      index entries, which are ``module; search path``, ``search; path, module`` and
+      ``path; module search``.
+   module, keyword, operator, object, exception, statement, builtin
+      These all create two index entries.  For example, ``module: hashlib`` creates
+      the entries ``module; hashlib`` and ``hashlib; module``.
 
-   .. index:: BNF, grammar, syntax, notation
+   For index directives containing only "single" entries, there is a shorthand
+   notation::
 
-This creates four index entries.
+      .. index:: BNF, grammar, syntax, notation
+
+   This creates four index entries.
+
+
+Glossary
+--------
+
+.. directive:: glossary
+
+   This directive must contain a reST definition list with terms and
+   definitions.  The definitions will then be referencable with the :role:`term`
+   role.  Example::
+
+      .. glossary::
+
+         documentation root
+            The directory which contains the documentation's :file:`conf.py` file and
+            is therefore seen as one Sphinx project.
+
+         environment
+            A structure where information about all documents under the root is saved,
+            and used for cross-referencing.  The environment is pickled after the
+            parsing stage, so that successive runs only need to read and parse new and
+            changed documents.
+
 
 
 Grammar production displays
@@ -169,7 +197,6 @@ the definition of the symbol.  There is this directive:
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.
-
 
 .. XXX describe optional first parameter 
 

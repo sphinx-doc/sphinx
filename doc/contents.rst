@@ -6,16 +6,16 @@ Sphinx documentation contents
 .. toctree::
    :maxdepth: 1
 
-   intro.rst
-   concepts.rst
-   rest.rst
-   markup/index.rst
-   builders.rst
-   config.rst
-   templating.rst
-   extensions.rst
+   intro
+   concepts
+   rest
+   markup/index
+   builders
+   config
+   templating
+   extensions
    
-   glossary.rst
+   glossary
 
 
 Indices and tables
