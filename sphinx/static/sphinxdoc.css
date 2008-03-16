@@ -101,7 +101,6 @@ a tt:hover {
 
 dl {
     margin-bottom: 15px;
-    clear: both;
 }
 
 dd p {
@@ -148,49 +147,14 @@ div.document {
     background-repeat: repeat-x;
 }
 
+/*
 div.documentwrapper {
-    float: left;
     width: 100%;
 }
+*/
 
 div.clearer {
     clear: both;
-}
-
-div.header {
-    background-image: url(header.png);
-    height: 100px;
-}
-
-div.header h1 {
-    float: right;
-    position: absolute;
-    margin: -30px 0 0 585px;
-    height: 180px;
-    width: 180px;
-}
-
-div.header h1 a {
-    display: block;
-    background-image: url(werkzeug.png);
-    background-repeat: no-repeat;
-    height: 180px;
-    width: 180px;
-    text-decoration: none;
-    color: white!important;
-}
-
-div.header span {
-    display: none;
-}
-
-div.header p {
-    background-image: url(header_invert.png);
-    margin: 0;
-    padding: 10px;
-    height: 80px;
-    color: white;
-    display: none;
 }
 
 div.related h3 {
@@ -250,7 +214,8 @@ div.sidebar {
     padding: 0.5em 15px 15px 0;
     width: 210px;
     float: right;
-    margin-left: -100%;
+    text-align: left;
+/*    margin-left: -100%; */
 }
 
 div.sidebar h4, div.sidebar h3 {
