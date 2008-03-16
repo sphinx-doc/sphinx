@@ -10,7 +10,6 @@
     :license: BSD.
 """
 
-import os
 import re
 import glob
 import inspect

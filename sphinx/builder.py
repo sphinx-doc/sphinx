@@ -31,7 +31,7 @@ from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTransla
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import PygmentsBridge
-from sphinx.util.console import bold, purple, red, darkgreen
+from sphinx.util.console import bold, purple, darkgreen
 
 # side effect: registers roles and directives
 from sphinx import roles

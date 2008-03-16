@@ -19,7 +19,6 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
-from sphinx import addnodes
 from sphinx.util import rpartition
 
 try:

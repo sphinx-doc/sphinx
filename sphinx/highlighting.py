@@ -22,7 +22,6 @@ try:
     from pygments.lexers import get_lexer_by_name
     from pygments.formatters import HtmlFormatter, LatexFormatter
     from pygments.filters import ErrorToken
-    from pygments.util import ClassNotFound
     from pygments.style import Style
     from pygments.styles import get_style_by_name
     from pygments.styles.friendly import FriendlyStyle

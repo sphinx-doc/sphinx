@@ -16,7 +16,7 @@ from urllib2 import build_opener, HTTPError
 from docutils import nodes
 
 from sphinx.builder import Builder
-from sphinx.util.console import bold, purple, red, darkgreen
+from sphinx.util.console import purple, red, darkgreen
 
 # create an opener that will simulate a browser user-agent
 opener = build_opener()

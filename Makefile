@@ -22,7 +22,7 @@ clean-patchfiles:
 	find . -name '*.rej' -exec rm -f {} +
 
 pylint:
-	@pylint --rcfile utils/pylintrc sphinx converter
+	@pylint --rcfile utils/pylintrc sphinx
 
 reindent:
 	@$(PYTHON) utils/reindent.py -r -B .

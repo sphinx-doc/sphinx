@@ -9,10 +9,10 @@
     :license: BSD.
 """
 
-import sys, os, time, shutil
+import sys, os, time
 from os import path
 
-from sphinx.util.console import darkgreen, purple, bold, red, nocolor
+from sphinx.util.console import purple, bold, red, nocolor
 
 
 QUICKSTART_CONF = '''\
