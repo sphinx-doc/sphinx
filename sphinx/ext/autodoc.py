@@ -52,19 +52,19 @@ def generate_rst(what, name, members, undoc, add_content,
         objpath = []
     elif what in ('class', 'exception', 'function'):
         mod, obj = rpartition(name, '.')
-        if not mod:
+        if not mod and hasattr(env, 'autodoc_current_module'):
             mod = env.autodoc_current_module
         if not mod:
             mod = env.currmodule
         objpath = [obj]
     else:
         mod_cls, obj = rpartition(name, '.')
-        if not mod_cls:
+        if not mod_cls and hasattr(env, 'autodoc_current_class'):
             mod_cls = env.autodoc_current_class
         if not mod_cls:
             mod_cls = env.currclass
         mod, cls = rpartition(mod_cls, '.')
-        if not mod:
+        if not mod and hasattr(env, 'autodoc_current_module'):
             mod = env.autodoc_current_module
         if not mod:
             mod = env.currmodule
