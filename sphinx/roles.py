@@ -37,9 +37,9 @@ for rolename, nodeclass in generic_docroles.iteritems():
     roles.register_generic_role(rolename, nodeclass)
 
 
-def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
-    text = utils.unescape(text)
+    text = utils.unescape(etext)
     targetid = 'index-%s' % env.index_num
     env.index_num += 1
     indexnode = addnodes.index()
@@ -52,11 +52,9 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         indexnode['entries'] = [('single', text, targetid, text),
                                 ('single', 'environment variable; %s' % text,
                                  targetid, text)]
-        pnode = addnodes.pending_xref(rawtext)
-        pnode['reftype'] = 'envvar'
-        pnode['reftarget'] = text
-        pnode += nodes.strong(text, text, classes=['xref'])
-        return [indexnode, targetnode, pnode], []
+        xref_nodes = xfileref_role(typ, rawtext, etext, lineno, inliner,
+                                   options, content)[0]
+        return [indexnode, targetnode] + xref_nodes, []
     elif typ == 'pep':
         env.note_index_entry('single', 'Python Enhancement Proposals!PEP %s' % text,
                              targetid, 'PEP %s' % text)
@@ -100,6 +98,7 @@ innernodetypes = {
     'ref': nodes.emphasis,
     'term': nodes.emphasis,
     'token': nodes.strong,
+    'envvar': nodes.strong,
     'option': addnodes.literal_emphasis,
 }
 
@@ -118,9 +117,9 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         text = text[1:]
         return [innernodetypes.get(typ, nodes.literal)(
             rawtext, text, classes=['xref'])], []
-    pnode = addnodes.pending_xref(rawtext)
-    pnode['reftype'] = typ
-    innertext = text
+    # we want a cross-reference, create the reference node
+    pnode = addnodes.pending_xref(rawtext, reftype=typ, refcaption=False,
+                                  modname=env.currmodule, classname=env.currclass)
     # special actions for Python object cross-references
     if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
         # if the first character is a dot, search more specific namespaces first
@@ -130,37 +129,38 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             pnode['refspecific'] = True
         # if the first character is a tilde, don't display the module/class parts
         # of the contents
-        if text[0:1] == '~':
+        elif text[0:1] == '~':
             text = text[1:]
             dot = text.rfind('.')
             if dot != -1:
                 innertext = text[dot+1:]
-    if typ == 'term':
-        pnode['reftarget'] = ws_re.sub(' ', text).lower()
-    elif typ == 'ref':
-        brace = text.find('<')
-        if brace != -1:
-            pnode['refcaption'] = True
-            m = caption_ref_re.match(text)
-            if not m:
-                # fallback
-                pnode['reftarget'] = text[brace+1:]
-                text = text[:brace]
-            else:
-                pnode['reftarget'] = m.group(2)
-                text = m.group(1)
+    innertext = text
+    # look if explicit title and target are given
+    brace = text.find('<')
+    if brace != -1:
+        pnode['refcaption'] = True
+        m = caption_ref_re.match(text)
+        if m:
+            target = m.group(2)
+            innertext = m.group(1)
         else:
-            pnode['refcaption'] = False
-            pnode['reftarget'] = ws_re.sub('', text)
+            # fallback: everything after '<' is the target
+            target = text[brace+1:]
+            innertext = text[:brace]
+    # else, generate target from title
+    elif typ == 'term':
+        # normalize whitespace in definition terms (if the term reference is
+        # broken over a line, a newline will be in text)
+        target = ws_re.sub(' ', text).lower()
     elif typ == 'option':
+        # strip option marker from target
         if text[0] in '-/':
-            pnode['reftarget'] = text[1:]
+            target = text[1:]
         else:
-            pnode['reftarget'] = text
+            target = text
     else:
-        pnode['reftarget'] = ws_re.sub('', text)
-    pnode['modname'] = env.currmodule
-    pnode['classname'] = env.currclass
+        target = ws_re.sub('', text)
+    pnode['reftarget'] = target
     pnode += innernodetypes.get(typ, nodes.literal)(rawtext, innertext, classes=['xref'])
     return [pnode], []
 
