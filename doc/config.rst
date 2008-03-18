@@ -194,10 +194,21 @@ These options influence LaTeX output.
 
 .. confval:: latex_documents
 
-   Grouping the document tree into LaTeX files. List of tuples (source start
-   file, target name, title, author, document class [howto/manual]).
+   This value determines how to group the document tree into LaTeX source files.
+   It must be a list of tuples ``(startdocname, targetname, title, author,
+   documentclass)``, where the items are:
 
-   XXX expand.
+   * *startdocname*: document name that is the "root" of the LaTeX file.  All
+     documents referenced by it in TOC trees will be included in the LaTeX file
+     too.  (If you want only one LaTeX file, use your :confval:`master_doc`
+     here.)
+   * *targetname*: file name of the LaTeX file in the output directory.
+   * *title*: LaTeX document title.  Can be empty to use the title of the
+     *startdoc*.
+   * *author*: Author for the LaTeX document.
+   * *documentclass*: Must be one of ``'manual'`` or ``'howto'``.  Only "manual"
+     documents will get appendices.  Also, howtos will have a simpler title
+     page.
 
 .. confval:: latex_appendices
 

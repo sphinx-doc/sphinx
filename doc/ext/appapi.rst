@@ -1,3 +1,5 @@
+.. highlight:: rest
+
 Extension API
 =============
 
@@ -32,20 +34,50 @@ the following public API:
 .. method:: Application.add_directive(name, cls, content, arguments, **options)
 
    Register a Docutils directive.  *name* must be the prospective directive
-   name, *func* the directive function (see the Docutils documentation - XXX
-   ref) for details about the signature and return value.  *content*,
-   *arguments* and *options* are set as attributes on the function and determine
-   whether the directive has content, arguments and options, respectively.  For
-   their exact meaning, please consult the Docutils documentation.
+   name, *func* the directive function for details about the signature and
+   return value.  *content*, *arguments* and *options* are set as attributes on
+   the function and determine whether the directive has content, arguments and
+   options, respectively.  For their exact meaning, please consult the Docutils
+   documentation.
+
+   .. XXX once we target docutils 0.5, update this
    
 .. method:: Application.add_role(name, role)
 
    Register a Docutils role.  *name* must be the role name that occurs in the
-   source, *role* the role function (see the Docutils documentation on details).
+   source, *role* the role function (see the `Docutils documentation
+   <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ on details).
 
 .. method:: Application.add_description_unit(directivename, rolename, indexdesc='', parse_node=None)
 
-   XXX
+   This method is a very convenient way to add a new type of information that
+   can be cross-referenced.  It will do this:
+
+   * Create a new directive (called *directivename*) for a :term:`description
+     unit`.  It will automatically add index entries if *indexdesc* is nonempty.
+   * Create a new role (called *rolename*) to cross-reference to these
+     description units.
+   * If you provide *parse_node*, it must be a function that takes a string and
+     a docutils node, and it must populate the node with children parsed from
+     the string.  See the :file:`ext.py` file in the source for this
+     documentation for details.
+
+   For example, if you have this call in a custom Sphinx extension::
+
+      app.add_description_unit('directive', 'dir', 'directive')
+
+   you can use this markup in your documents::
+
+      .. directive:: function
+
+         Document a function.
+
+      <...>
+
+      See also the :dir:`function` directive.
+
+   For the role content, you have the same options as for standard Sphinx roles
+   (see :ref:`xref-syntax`).
 
 .. method:: Application.connect(event, callback)
 

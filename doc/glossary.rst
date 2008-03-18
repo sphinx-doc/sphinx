@@ -15,7 +15,9 @@ Glossary
       See :ref:`builders` for an overview over Sphinx' built-in builders.
 
    description unit
-      XXX
+      The basic building block of Sphinx documentation.  Every "description
+      directive" (e.g. :dir:`function` or :dir:`describe`) creates such a unit;
+      and most units can be cross-referenced to.
 
    documentation root
       The directory which contains the documentation's :file:`conf.py` file and

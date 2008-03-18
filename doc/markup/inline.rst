@@ -15,6 +15,8 @@ For all other roles, you have to write ``:rolename:`content```.
    free to use it for anything you like. 
 
 
+.. _xref-syntax:
+
 Cross-referencing syntax
 ------------------------
 
