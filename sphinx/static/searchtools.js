@@ -295,8 +295,8 @@ var Search = {
 
                 // prepare search
                 var filenames = data[0];
-                var titles = data[2]
-                    var words = data[3];
+                var titles = data[1]
+                var words = data[2];
                 var fileMap = {};
                 var files = null;
 
@@ -323,6 +323,7 @@ var Search = {
                 // areas and if the don't contain excluded words
                 var results = [];
                 for (var file in fileMap) {
+                    var valid = true;
 
                     // check if all requirements are matched
                     if (fileMap[file].length != searchwords.length) {
@@ -364,7 +365,7 @@ var Search = {
                         var listItem = $('<li style="display:none"></li>');
                         listItem.append($('<a/>').attr('href', item[0] + '.html' +
                                                        highlightstring).html(item[1]));
-                        $.get(item[0] + '.txt', function(data) {
+                        $.get('_sources/' + item[0] + '.txt', function(data) {
                                 listItem.append($.makeSearchSummary(data, searchwords, hlwords));
                                 output.append(listItem);
                                 listItem.slideDown(10, function() {
