@@ -56,7 +56,6 @@ class Builder(object):
         self.warn = app.warn
         self.info = app.info
         self.config = app.config
-        1/0
 
         # if None, this is set in load_env()
         self.env = env
