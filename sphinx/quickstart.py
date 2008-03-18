@@ -117,6 +117,9 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 # template names.
 #html_additional_pages = {}
 
+# If false, no module index is generated.
+#html_use_modindex = True
+
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True
 
@@ -142,6 +145,9 @@ htmlhelp_basename = '%(project)sdoc'
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
+
+# If false, no module index is generated.
+#latex_use_modindex = True
 '''
 
 MASTER_FILE = '''\

@@ -167,6 +167,10 @@ that use Sphinx' HTMLWriter class.
    Additional templates that should be rendered to HTML pages, must be a
    dictionary that maps document names to template names.
 
+.. confval:: html_use_modindex
+
+   If true, add a module index to the HTML documents.   Default is ``True``.
+
 .. confval:: html_copy_source
 
    If true, the reST sources are included in the HTML build as
@@ -217,3 +221,7 @@ These options influence LaTeX output.
 .. confval:: latex_preamble
 
    Additional LaTeX markup for the preamble.
+
+.. confval:: latex_use_modindex
+
+   If true, add a module index to LaTeX documents.   Default is ``True``.

@@ -53,6 +53,7 @@ class Config(object):
         html_index = ('', False),
         html_sidebars = ({}, False),
         html_additional_pages = ({}, False),
+        html_use_modindex = (True, False),
         html_copy_source = (True, False),
 
         # HTML help options
@@ -64,6 +65,7 @@ class Config(object):
         latex_documents = ([], False),
         latex_preamble = ('', False),
         latex_appendices = ([], False),
+        latex_use_modindex = (True, False),
     )
 
     def __init__(self, dirname, filename):

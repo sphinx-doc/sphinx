@@ -315,6 +315,7 @@ class StandaloneHTMLBuilder(Builder):
             version = self.config.version,
             last_updated = self.last_updated,
             style = self.config.html_style,
+            use_modindex = self.config.html_use_modindex,
             builder = self.name,
             parents = [],
             titles = {},
@@ -387,46 +388,47 @@ class StandaloneHTMLBuilder(Builder):
 
         # the global module index
 
-        # the sorted list of all modules, for the global module index
-        modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
-                                '#module-' + mn, sy, pl, dep))
-                          for (mn, (fn, sy, pl, dep)) in self.env.modules.iteritems()),
-                         key=lambda x: x[0].lower())
-        # collect all platforms
-        platforms = set()
-        # sort out collapsable modules
-        modindexentries = []
-        pmn = ''
-        cg = 0 # collapse group
-        fl = '' # first letter
-        for mn, (fn, sy, pl, dep) in modules:
-            pl = pl and pl.split(', ') or []
-            platforms.update(pl)
-            if fl != mn[0].lower() and mn[0] != '_':
-                modindexentries.append(['', False, 0, False,
-                                        mn[0].upper(), '', [], False])
-            tn = mn.split('.')[0]
-            if tn != mn:
-                # submodule
-                if pmn == tn:
-                    # first submodule - make parent collapsable
-                    modindexentries[-1][1] = True
-                elif not pmn.startswith(tn):
-                    # submodule without parent in list, add dummy entry
+        if self.config.html_use_modindex:
+            # the sorted list of all modules, for the global module index
+            modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
+                                    '#module-' + mn, sy, pl, dep))
+                              for (mn, (fn, sy, pl, dep)) in self.env.modules.iteritems()),
+                             key=lambda x: x[0].lower())
+            # collect all platforms
+            platforms = set()
+            # sort out collapsable modules
+            modindexentries = []
+            pmn = ''
+            cg = 0 # collapse group
+            fl = '' # first letter
+            for mn, (fn, sy, pl, dep) in modules:
+                pl = pl and pl.split(', ') or []
+                platforms.update(pl)
+                if fl != mn[0].lower() and mn[0] != '_':
+                    modindexentries.append(['', False, 0, False,
+                                            mn[0].upper(), '', [], False])
+                tn = mn.split('.')[0]
+                if tn != mn:
+                    # submodule
+                    if pmn == tn:
+                        # first submodule - make parent collapsable
+                        modindexentries[-1][1] = True
+                    elif not pmn.startswith(tn):
+                        # submodule without parent in list, add dummy entry
+                        cg += 1
+                        modindexentries.append([tn, True, cg, False, '', '', [], False])
+                else:
                     cg += 1
-                    modindexentries.append([tn, True, cg, False, '', '', [], False])
-            else:
-                cg += 1
-            modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl, dep])
-            pmn = mn
-            fl = mn[0].lower()
-        platforms = sorted(platforms)
+                modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl, dep])
+                pmn = mn
+                fl = mn[0].lower()
+            platforms = sorted(platforms)
 
-        modindexcontext = dict(
-            modindexentries = modindexentries,
-            platforms = platforms,
-        )
-        self.handle_page('modindex', modindexcontext, 'modindex.html')
+            modindexcontext = dict(
+                modindexentries = modindexentries,
+                platforms = platforms,
+            )
+            self.handle_page('modindex', modindexcontext, 'modindex.html')
 
         # the search page
         self.handle_page('search', {}, 'search.html')
