@@ -12,6 +12,7 @@
 import os
 import sys
 import fnmatch
+import tempfile
 import traceback
 from os import path
 
@@ -120,3 +121,27 @@ def rpartition(s, t):
     if i != -1:
         return s[:i], s[i+len(t):]
     return '', s
+
+
+def format_exception_cut_frames(x=1):
+    """
+    Format an exception with traceback, but only the last x frames.
+    """
+    typ, val, tb = sys.exc_info()
+    #res = ['Traceback (most recent call last):\n']
+    res = []
+    tbres = traceback.format_tb(tb)
+    res += tbres[-x:]
+    res += traceback.format_exception_only(typ, val)
+    return ''.join(res)
+
+
+def save_traceback():
+    """
+    Save the current exception's traceback in a temporary file.
+    """
+    exc = traceback.format_exc()
+    fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
+    os.write(fd, exc)
+    os.close(fd)
+    return path

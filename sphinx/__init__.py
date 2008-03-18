@@ -12,11 +12,15 @@
 import os
 import sys
 import getopt
+import traceback
 from os import path
 from cStringIO import StringIO
 
+from docutils.utils import SystemMessage
+
+from sphinx.util import format_exception_cut_frames, save_traceback
 from sphinx.application import Sphinx
-from sphinx.util.console import nocolor
+from sphinx.util.console import darkred, nocolor
 
 __revision__ = '$Revision$'
 __version__ = '0.1.' + __revision__[11:-2]
@@ -27,8 +31,9 @@ def usage(argv, msg=None):
         print >>sys.stderr, msg
         print >>sys.stderr
     print >>sys.stderr, """\
-usage: %s [options] sourcedir outdir [filenames...]"
-options: -b <builder> -- builder to use; default is html
+Sphinx v%s
+Usage: %s [options] sourcedir outdir [filenames...]"
+Options: -b <builder> -- builder to use; default is html
          -a        -- write all files; default is to only write new and changed files
          -E        -- don't use a saved environment, always read all files
          -d <path> -- path for the cached environment and doctree files
@@ -37,10 +42,10 @@ options: -b <builder> -- builder to use; default is html
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
          -P        -- run Pdb on exception
-modi:
+Modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
-* with filenames, write these.""" % (argv[0],)
+* with filenames, write these.""" % (__version__, argv[0])
 
 
 def main(argv=sys.argv):
@@ -104,24 +109,43 @@ def main(argv=sys.argv):
         elif opt == '-P':
             use_pdb = True
 
-    app = Sphinx(srcdir, outdir, doctreedir, buildername,
-                 confoverrides, status, sys.stderr, freshenv)
-    if not app.builder:
-        return 1
-
     try:
+        app = Sphinx(srcdir, outdir, doctreedir, buildername,
+                     confoverrides, status, sys.stderr, freshenv)
+        if not app.builder:
+            return 1
+
         if all_files:
             app.builder.build_all()
         elif filenames:
             app.builder.build_specific(filenames)
         else:
             app.builder.build_update()
+    except Exception, err:
+        if use_pdb:
+            import pdb
+            print >>sys.stderr, darkred('Exception occurred while building, '
+                                        'starting debugger:')
+            traceback.print_exc()
+            pdb.post_mortem(sys.exc_info()[2])
+        else:
+            if isinstance(err, SystemMessage):
+                print >>sys.stderr, darkred('reST markup error:')
+                print >>sys.stderr, str(err)
+            else:
+                print >>sys.stderr, darkred('Exception occurred:')
+                print >>sys.stderr, format_exception_cut_frames().rstrip()
+                tbpath = save_traceback()
+                print >>sys.stderr, darkred('The full traceback has been saved '
+                                            'in %s, if you want to report the '
+                                            'issue to the author.' % tbpath)
+                print >>sys.stderr, ('Please also report this if it was a user '
+                                     'error, so that a better error message '
+                                     'can be provided next time.')
+                print >>sys.stderr, 'Send reports to georg@python.org. Thanks!'
     except:
-        if not use_pdb:
-            raise
-        import pdb, traceback
-        traceback.print_exc()
-        pdb.post_mortem(sys.exc_info()[2])
+        # catches BaseExceptions in 2.5 -- SystemExit, KeyboardInterrupt
+        pass
 
 
 if __name__ == '__main__':

@@ -56,6 +56,7 @@ class Builder(object):
         self.warn = app.warn
         self.info = app.info
         self.config = app.config
+        1/0
 
         # if None, this is set in load_env()
         self.env = env
@@ -240,11 +241,7 @@ class Builder(object):
         self.env.set_warnfunc(warnings.append)
         for docname in self.status_iterator(sorted(docnames),
                                             'writing output... ', darkgreen):
-            try:
-                doctree = self.env.get_and_resolve_doctree(docname, self)
-            except Exception, err:
-                warnings.append('%s:: doctree not found!' % docname)
-                continue
+            doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc(docname, doctree)
         for warning in warnings:
             if warning.strip():
