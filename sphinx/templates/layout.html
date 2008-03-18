@@ -3,6 +3,33 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
   "http://www.w3.org/TR/html4/loose.dtd">
 {%- endblock %}
+{%- macro relbar %}
+{# this macro needs to stay in layout.html due to it containing blocks #}
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px"><a href="{{ pathto('genindex') }}" title="General Index" accesskey="I">index</a></li>
+        <li class="right"><a href="{{ pathto('modindex') }}" title="Global Module Index" accesskey="M">modules</a> |</li>
+        {%- if next %}
+          <li class="right"><a href="{{ next.link|e }}" title="{{ next.title|striptags }}" accesskey="N">next</a> |</li>
+        {%- endif %}
+        {%- if prev %}
+          <li class="right"><a href="{{ prev.link|e }}" title="{{ prev.title|striptags }}" accesskey="P">previous</a> |</li>
+        {%- endif %}
+        {%- if builder == 'web' %}
+          <li class="right"><a href="{{ pathto('settings') }}"
+                               title="Customize your viewing settings" accesskey="S">settings</a> |</li>
+        {%- endif %}
+        {%- block rootrellink %}
+        <li><a href="{{ pathto('index') }}">{{ project }} v{{ release }} documentation</a> &raquo;</li>
+        {%- endblock %}
+        {%- for parent in parents %}
+          <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a> &raquo;</li>
+        {%- endfor %}
+        {%- block relbaritems %}{% endblock %}
+      </ul>
+    </div>
+{%- endmacro %}
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
