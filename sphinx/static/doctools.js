@@ -259,7 +259,7 @@ var Documentation = {
       this.resizeHandle = $('<div class="resizehandle"></div>').appendTo(this.root);
 
       this.root.Draggable({
-        handle:       this.title[0],
+        handle:       this.title[0]
       });
 
       this.root.css({

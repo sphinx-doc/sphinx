@@ -144,7 +144,6 @@ htmlhelp_basename = '%(project)sdoc'
 #latex_appendices = []
 '''
 
-
 MASTER_FILE = '''\
 .. %(project)s documentation master file, created by sphinx-quickstart.py on %(now)s.
    You can adapt this file completely to your liking, but it should at least
@@ -166,6 +165,76 @@ Indices and tables
 * :ref:`search`
 
 '''
+
+MAKEFILE = '''\
+# Makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS   =
+SPHINXBUILD  = sphinx-build.py
+PAPER        =
+
+ALLSPHINXOPTS = -d %(rbuilddir)s/doctrees -D latex_paper_size=$(PAPER) \\
+                $(SPHINXOPTS) %(rsrcdir)s
+
+.PHONY: help clean html web htmlhelp latex changes linkcheck
+
+help:
+	@echo "Please use \\`make <target>' where <target> is one of"
+	@echo "  html      to make standalone HTML files"
+	@echo "  web       to make files usable by Sphinx.web"
+	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	@echo "  changes   to make an overview over all changed/added/deprecated items"
+	@echo "  linkcheck to check all external links for integrity"
+
+clean:
+	-rm -rf %(rbuilddir)s/*
+
+html:
+	mkdir -p %(rbuilddir)s/html %(rbuilddir)s/doctrees
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) %(rbuilddir)s/html
+	@echo
+	@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
+
+web:
+	mkdir -p %(rbuilddir)s/web %(rbuilddir)s/doctrees
+	$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) %(rbuilddir)s/web
+	@echo
+	@echo "Build finished; now you can run"
+	@echo "  python -m sphinx.web %(rbuilddir)s/web"
+	@echo "to start the server."
+
+htmlhelp:
+	mkdir -p %(rbuilddir)s/htmlhelp %(rbuilddir)s/doctrees
+	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) %(rbuilddir)s/htmlhelp
+	@echo
+	@echo "Build finished; now you can run HTML Help Workshop with the" \\
+	      ".hhp project file in %(rbuilddir)s/htmlhelp."
+
+latex:
+	mkdir -p %(rbuilddir)s/latex %(rbuilddir)s/doctrees
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
+	@echo
+	@echo "Build finished; the LaTeX files are in %(rbuilddir)s/latex."
+	@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
+	      "run these through (pdf)latex."
+
+changes:
+	mkdir -p %(rbuilddir)s/changes %(rbuilddir)s/doctrees
+	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) %(rbuilddir)s/changes
+	@echo
+	@echo "The overview file is in %(rbuilddir)s/changes."
+
+linkcheck:
+	mkdir -p %(rbuilddir)s/linkcheck %(rbuilddir)s/doctrees
+	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) %(rbuilddir)s/linkcheck
+	@echo
+	@echo "Link check complete; look for any errors in the above output " \\
+	      "or in %(rbuilddir)s/linkcheck/output.txt."
+'''
+
 
 def mkdir_p(dir):
     if path.isdir(dir):
@@ -265,6 +334,12 @@ of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.'''
     do_prompt(d, 'master', 'Name of your master document (without suffix)',
               'index')
+    print '''
+If you are under Unix, a Makefile can be generated for you so that you
+only have to run e.g. `make html' instead of invoking sphinx-build.py
+directly.'''
+    do_prompt(d, 'makefile', 'Create Makefile? (y/n)',
+              os.name == 'posix' and 'y' or 'n', boolean)
 
     d['year'] = time.strftime('%Y')
     d['now'] = time.asctime()
@@ -294,14 +369,23 @@ document is a custom template, you can also set this to another filename.'''
     f.write(MASTER_FILE % d)
     f.close()
 
+    if d['makefile']:
+        d['rsrcdir'] = separate and 'source' or '.'
+        d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
+        f = open(path.join(d['path'], 'Makefile'), 'w')
+        f.write(MAKEFILE % d)
+        f.close()
+
     print
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
 source files. Use the sphinx-build.py script to build the docs, like so:
-
+''' % masterfile + (d['makefile'] and '''
+   make <builder>
+''' or '''
    sphinx-build.py -b <builder> %s %s
-''' % (masterfile, srcdir, builddir)
+''' % (srcdir, builddir))
 
 
 def main(argv=sys.argv):
