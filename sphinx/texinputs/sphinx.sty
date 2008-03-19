@@ -685,6 +685,15 @@
     \classline{#1}{#2}
 }{\end{fulllineitems}}
 
+\newcommand{\classlineni}[2]{
+  \py@sigline{\strong{class }\bfcode{#1}}{#2}}
+\newenvironment{classdescni}[2]{
+  % Using \renewcommand doesn't work for this, for unknown reasons:
+  \global\def\py@thisclass{#1}
+  \begin{fulllineitems}
+    \classlineni{#1}{#2}
+}{\end{fulllineitems}}
+
 % \begin{classdesc*}{name}
 \newenvironment{classdesc*}[1]{
   % Using \renewcommand doesn't work for this, for unknown reasons:

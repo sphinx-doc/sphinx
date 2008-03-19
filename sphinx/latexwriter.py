@@ -656,9 +656,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         hlcode = self.highlighter.highlight_block(code, lang, linenos)
         # workaround for Unicode issue
         hlcode = hlcode.replace(u'€', u'@texteuro[]')
-        # workaround for Pygments bug
-        hlcode = hlcode.replace('\n\\end{Verbatim}', '\\end{Verbatim}')
-        self.body.append('\n' + hlcode)
+        # get consistent trailer
+        hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
+        hlcode = hlcode.rstrip() + '\n'
+        self.body.append('\n' + hlcode + '\\end{Verbatim}\n')
         self.verbatim = None
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
