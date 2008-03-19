@@ -66,6 +66,13 @@ def escape_tex(text):
                 replace('\x02', '@rb[]')
 
 
+parsing_exceptions = (SyntaxError, UnicodeEncodeError)
+if sys.version_info < (2, 5):
+    # Python <= 2.4 raises MemoryError when parsing an
+    # invalid encoding cookie
+    parsing_exceptions += MemoryError,
+
+
 class PygmentsBridge(object):
     def __init__(self, dest='html', stylename='sphinx'):
         self.dest = dest
@@ -112,7 +119,7 @@ class PygmentsBridge(object):
 
                 try:
                     parser.suite(src)
-                except (SyntaxError, UnicodeEncodeError):
+                except parsing_exceptions:
                     return unhighlighted()
                 else:
                     lexer = lexers['python']
