@@ -121,6 +121,11 @@ def main(argv=sys.argv):
             app.builder.build_specific(filenames)
         else:
             app.builder.build_update()
+    except KeyboardInterrupt:
+        # catches BaseExceptions in 2.5 -- SystemExit, KeyboardInterrupt
+        return 1
+    except SystemExit:
+        return 0
     except Exception, err:
         if use_pdb:
             import pdb
@@ -143,9 +148,7 @@ def main(argv=sys.argv):
                                      'error, so that a better error message '
                                      'can be provided next time.')
                 print >>sys.stderr, 'Send reports to georg@python.org. Thanks!'
-    except:
-        # catches BaseExceptions in 2.5 -- SystemExit, KeyboardInterrupt
-        pass
+            return 1
 
 
 if __name__ == '__main__':
