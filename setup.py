@@ -7,7 +7,8 @@ from setuptools import setup, Feature
 
 long_desc = '''
 Sphinx is a tool that makes it easy to create intelligent and beautiful
-documentation for Python projects, written by Georg Brandl.
+documentation for Python projects (or other documents consisting of
+multiple reStructuredText sources), written by Georg Brandl.
 It was originally created to translate the new Python documentation,
 but has now been cleaned up in the hope that it will be useful to many
 other projects.
@@ -17,7 +18,7 @@ come from the power and straightforwardness of reStructuredText and its
 parsing and translating suite, the Docutils.
 
 Although it is still under constant development, the following features
-are already present, work fine and can be seen “in action” in the Python docs:
+are already present, work fine and can be seen "in action" in the Python docs:
 
 * Output formats: HTML (including Windows HTML Help) and LaTeX,
   for printable PDF versions
