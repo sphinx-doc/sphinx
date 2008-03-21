@@ -1,5 +1,151 @@
+.. highlight:: rest
+
 :mod:`sphinx.ext.doctest` -- Test snippets in the documentation
 ===============================================================
 
 .. module:: sphinx.ext.doctest
    :synopsis: Test snippets in the documentation.
+
+.. index:: pair: automatic; testing
+           single: doctest
+           pair: testing; snippets
+
+
+This extension allows you to test snippets in the documentation in a natural
+way.  It works by collecting specially-marked up code blocks and running them as
+doctest tests.
+
+Within one document, test code is partitioned in *groups*, where each group
+consists of:
+
+* zero or more *setup code* blocks (e.g. importing the module to test)
+* one or more *test* blocks
+
+When building the docs with the ``doctest`` builder, groups are collected for
+each document and run one after the other, first executing setup code blocks,
+then the test blocks in the order they appear in the file.
+
+There are two kinds of test blocks:
+
+* *doctest-style* blocks mimic interactive sessions by interleaving Python code
+  (including the interpreter prompt) and output.
+
+* *code-output-style* blocks consist of an ordinary piece of Python code, and
+  optionally, a piece of output for that code.
+
+The doctest extension provides four directives.  The *group* argument is
+interpreted as follows: if it is empty, the block is assigned to the group named
+``default``.  If it is ``*``, the block is assigned to all groups (including the
+``default`` group).  Otherwise, it must be a comma-separated list of group
+names.
+
+.. directive:: .. testsetup:: [group]
+
+   A setup code block.  This code is not shown in the output for other builders,
+   but executed before the doctests of the group(s) it belongs to.
+
+.. directive:: .. doctest:: [group]
+
+   A doctest-style code block.  You can use standard :mod:`doctest` flags for
+   controlling how actual output is compared with what you give as output.  By
+   default, these options are enabled: ``ELLIPSIS`` (allowing you to put
+   ellipses in the expected output that match anything in the actual output),
+   ``IGNORE_EXCEPTION_DETAIL`` (not comparing tracebacks),
+   ``DONT_ACCEPT_TRUE_FOR_1`` (by default, doctest accepts "True" in the output
+   where "1" is given -- this is a relic of pre-Python 2.2 times).
+
+.. directive:: .. testcode:: [group]
+
+   A code block for a code-output-style test.
+
+.. directive:: .. testoutput:: [group]
+
+   The corresponding output for the last :dir:`testcode` block.
+
+   This directive supports two options:
+
+   * ``hide``, a flag option, hides the output block in other builders.  By
+     default it is shown as a literal block without highlighting.
+
+   * ``options``, a string option, can be used to give doctest flags
+     (comma-separated) just like in normal doctest blocks.
+
+   Example::
+
+      .. testoutput::
+         :hide:
+         :options: -ELLIPSIS, +NORMALIZE_WHITESPACE
+
+         Output text.
+
+
+The following is an example for the usage of the directives.  The test via
+:dir:`doctest` and the test via :dir:`testcode` and :dir:`testoutput` are
+completely equivalent. ::
+
+   The parrot module
+   =================
+
+   .. testsetup:: *
+
+      import parrot
+
+   The parrot module is a module about parrots.
+
+   Doctest example:
+
+   .. doctest::
+
+      >>> parrot.voom(3000)
+      This parrot wouldn't voom if you put 3000 volts through it!
+
+   Test-Output example:
+
+   .. testcode:: 
+
+      parrot.voom(3000)
+
+   This would output:
+
+   .. testoutput::
+
+      This parrot wouldn't voom if you put 3000 volts through it!
+
+
+There are also these config values for customizing the doctest extension:
+
+.. confval:: doctest_path
+
+   A list of directories that will be added to :data:`sys.path` when the doctest
+   builder is used.  (Make sure it contains absolute paths.)
+
+.. confval:: doctest_test_doctest_blocks
+
+   If ``True`` (the default), standard reST doctest blocks will be tested too.
+   They will be assigned to a group named ``doctest_block``.
+
+   reST doctest blocks are simply doctests put into a paragraph of their own,
+   like so::
+
+      Some documentation text.
+
+      >>> print 1
+      1
+
+      Some more documentation text.
+
+   If this value is true, the above snippet is interpreted by the doctest
+   builder exactly like the following::
+
+      Some documentation text.
+
+      .. doctest:: doctest_block
+
+         >>> print 1
+         1
+
+      Some more documentation text.      
+
+   This feature makes it easy for you to test doctests in docstrings included
+   with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a
+   special directive.

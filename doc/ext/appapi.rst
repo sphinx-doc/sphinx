@@ -8,12 +8,12 @@ This function is called at initialization time with one argument, the
 application object representing the Sphinx process.  This application object has
 the following public API:
 
-.. method:: Application.add_builder(builder)
+.. method:: Sphinx.add_builder(builder)
 
    Register a new builder.  *builder* must be a class that inherits from
    :class:`~sphinx.builder.Builder`.
 
-.. method:: Application.add_config_value(name, default, rebuild_env)
+.. method:: Sphinx.add_config_value(name, default, rebuild_env)
 
    Register a configuration value.  This is necessary for Sphinx to recognize
    new values and set default values accordingly.  The *name* should be prefixed
@@ -22,16 +22,16 @@ the following public API:
    in the setting only takes effect when a document is parsed -- this means that
    the whole environment must be rebuilt.
 
-.. method:: Application.add_event(name)
+.. method:: Sphinx.add_event(name)
 
    Register an event called *name*.
 
-.. method:: Application.add_node(node)
+.. method:: Sphinx.add_node(node)
 
    Register a Docutils node class.  This is necessary for Docutils internals.
    It may also be used in the future to validate nodes in the parsed documents.
 
-.. method:: Application.add_directive(name, cls, content, arguments, **options)
+.. method:: Sphinx.add_directive(name, cls, content, arguments, **options)
 
    Register a Docutils directive.  *name* must be the prospective directive
    name, *func* the directive function for details about the signature and
@@ -42,13 +42,13 @@ the following public API:
 
    .. XXX once we target docutils 0.5, update this
    
-.. method:: Application.add_role(name, role)
+.. method:: Sphinx.add_role(name, role)
 
    Register a Docutils role.  *name* must be the role name that occurs in the
    source, *role* the role function (see the `Docutils documentation
    <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ on details).
 
-.. method:: Application.add_description_unit(directivename, rolename, indexdesc='', parse_node=None)
+.. method:: Sphinx.add_description_unit(directivename, rolename, indexdesc='', parse_node=None)
 
    This method is a very convenient way to add a new type of information that
    can be cross-referenced.  It will do this:
@@ -59,8 +59,9 @@ the following public API:
      description units.
    * If you provide *parse_node*, it must be a function that takes a string and
      a docutils node, and it must populate the node with children parsed from
-     the string.  See the :file:`ext.py` file in the source for this
-     documentation for details.
+     the string.  It must then return the name of the item to be used in
+     cross-referencing and index entries.  See the :file:`ext.py` file in the
+     source for this documentation for an example.
 
    For example, if you have this call in a custom Sphinx extension::
 
@@ -79,7 +80,7 @@ the following public API:
    For the role content, you have the same options as for standard Sphinx roles
    (see :ref:`xref-syntax`).
 
-.. method:: Application.connect(event, callback)
+.. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on
    available core events and the arguments of callback functions, please see
@@ -88,11 +89,11 @@ the following public API:
    The method returns a "listener ID" that can be used as an argument to
    :meth:`disconnect`.
 
-.. method:: Application.disconnect(listener_id)
+.. method:: Sphinx.disconnect(listener_id)
 
    Unregister callback *listener_id*.
 
-.. method:: Application.emit(event, *arguments)
+.. method:: Sphinx.emit(event, *arguments)
 
    Emit *event* and pass *arguments* to the callback functions.  Do not emit
    core Sphinx events in extensions!

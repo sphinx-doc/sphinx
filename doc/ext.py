@@ -13,23 +13,25 @@ from sphinx import addnodes
 
 dir_sig_re = re.compile(r'\.\. ([^:]+)::(.*)$')
 
-def parse_directive(sig, signode):
+def parse_directive(env, sig, signode):
     if not sig.startswith('.'):
         sig = '.. %s::' % sig
         signode += addnodes.desc_name(sig, sig)
-        return
+        return sig
     m = dir_sig_re.match(sig)
     if not m:
         signode += addnodes.desc_name(sig, sig)
-        return
+        return sig
     name, args = m.groups()
-    name = '.. %s::' % name
-    signode += addnodes.desc_name(name, name)
+    dec_name = '.. %s::' % name
+    signode += addnodes.desc_name(dec_name, dec_name)
     signode += addnodes.desc_classname(args, args)
+    return name
 
 
-def parse_role(sig, signode):
+def parse_role(env, sig, signode):
     signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
+    return sig
 
 
 def setup(app):
