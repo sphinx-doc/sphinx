@@ -42,7 +42,7 @@ setup(
     description='Python documentation generator',
     long_description=long_desc,
     zip_safe=False,
-    lassifiers=[
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Environment :: Web Environment',
