@@ -12,6 +12,10 @@ It was originally created to translate the new Python documentation,
 but has now been cleaned up in the hope that it will be useful to many
 other projects.
 
+Sphinx uses reStructuredText as its markup language, and many of its strengths
+come from the power and straightforwardness of reStructuredText and its
+parsing and translating suite, the Docutils.
+
 Although it is still under constant development, the following features
 are already present, work fine and can be seen “in action” in the Python docs:
 
@@ -23,10 +27,8 @@ are already present, work fine and can be seen “in action” in the Python doc
   links to siblings, parents and children
 * Automatic indices: general index as well as a module index
 * Code handling: automatic highlighting using the Pygments highlighter
-
-Sphinx uses reStructuredText as its markup language, and many of its strengths
-come from the power and straightforwardness of reStructuredText and its
-parsing and translating suite, the Docutils.
+* Various extensions are available, e.g. for automatic testing of snippets
+  and inclusion of appropriately formatted docstrings.
 '''
 
 setup(
@@ -41,7 +43,7 @@ setup(
     long_description=long_desc,
     zip_safe=False,
     lassifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
