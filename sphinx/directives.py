@@ -321,18 +321,20 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 # another registered generic x-ref directive
                 rolename, indextext, parse_node = additional_xref_types[desctype]
                 if parse_node:
-                    parse_node(sig, signode)
+                    fullname = parse_node(sig, signode)
                 else:
                     signode.clear()
                     signode += addnodes.desc_name(sig, sig)
+                    fullname = sig
                 if not noindex:
-                    targetname = '%s-%s' % (rolename, sig)
+                    targetname = '%s-%s' % (rolename, fullname)
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
                     if indextext:
-                        env.note_index_entry('pair', '%s; %s' % (indextext, sig),
+                        env.note_index_entry('pair',
+                                             '%s; %s' % (indextext, fullname),
                                              targetname, targetname)
-                    env.note_reftarget(rolename, sig, targetname)
+                    env.note_reftarget(rolename, fullname, targetname)
                 # don't use object indexing below
                 continue
         except ValueError, err:

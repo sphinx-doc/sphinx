@@ -120,8 +120,9 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # we want a cross-reference, create the reference node
     pnode = addnodes.pending_xref(rawtext, reftype=typ, refcaption=False,
                                   modname=env.currmodule, classname=env.currclass)
+    innertext = text
     # special actions for Python object cross-references
-    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth'):
+    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod'):
         # if the first character is a dot, search more specific namespaces first
         # else search builtins first
         if text[0:1] == '.':
@@ -134,7 +135,6 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             dot = text.rfind('.')
             if dot != -1:
                 innertext = text[dot+1:]
-    innertext = text
     # look if explicit title and target are given
     brace = text.find('<')
     if brace != -1:
