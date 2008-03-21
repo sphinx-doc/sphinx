@@ -185,7 +185,8 @@ class HTMLTranslator(BaseTranslator):
             lang = node['language']
         if node.has_key('linenos'):
             linenos = node['linenos']
-        self.body.append(self.highlighter.highlight_block(node.rawsource, lang, linenos))
+        self.body.append(self.highlighter.highlight_block(node.rawsource,
+                                                          lang, linenos))
         raise nodes.SkipNode
 
     def visit_doctest_block(self, node):
