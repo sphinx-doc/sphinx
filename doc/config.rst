@@ -37,7 +37,18 @@ General configuration
    extensions coming with Sphinx (named ``sphinx.addons.*``) or custom ones.
 
    Note that you can extend :data:`sys.path` within the conf file if your
-   extensions live in another directory.
+   extensions live in another directory -- but make sure you use absolute
+   paths.  If your extension path is relative to the documentation root, use
+   :func:`os.path.abspath` like so::
+
+      import sys, os
+
+      sys.path.append(os.path.abspath('sphinxext'))
+
+      extensions = ['extname']
+
+   That way, you can load an extension called ``extname`` from the documentation
+   root's subdirectory ``sphinxext``.
 
 .. confval:: templates_path
 
