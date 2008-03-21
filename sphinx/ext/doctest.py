@@ -180,6 +180,8 @@ Doctest summary
        self.setup_failures, s(self.setup_failures)))
         self.outfile.close()
 
+        sys.path[0:0] = self.config.doctest_path
+
     def write_doc(self, docname, doctree):
         groups = {}
         add_to_all_groups = []
@@ -201,7 +203,7 @@ Doctest summary
             code = TestCode(node.astext(),
                             type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
-            node_groups = node.get('groups', ['default'])
+            node_groups = node.get('groups', ['doctest_block'])
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue
@@ -277,4 +279,3 @@ def setup(app):
     # this config value adds to sys.path
     app.add_config_value('doctest_path', [], False)
     app.add_config_value('doctest_test_doctest_blocks', True, False)
-
