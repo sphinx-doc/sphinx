@@ -100,7 +100,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         'release': builder.config.release,
                         'date': date,
                         }
-        self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge(
+            'latex', builder.config.pygments_style)
         self.context = []
         self.descstack = []
         self.highlightlang = 'python'

@@ -104,7 +104,7 @@ class PygmentsBridge(object):
                 # maybe Python -- try parsing it
                 src = source + '\n'
 
-                # Replace "..." by a special mark, which is also a valid python expression
+                # Replace "..." by a mark which is also a valid python expression
                 # (Note, the highlighter gets the original source, this is only done
                 #  to allow "..." in code and still highlight it as Python code.)
                 mark = "__highlighting__ellipsis__"
@@ -133,7 +133,8 @@ class PygmentsBridge(object):
             fmter = (self.dest == 'html' and self.hfmter or self.lfmter)[bool(linenos)]
             return highlight(source, lexer, fmter)
         except ErrorToken:
-            # this is most probably not the selected language, so let it pass unhighlighted
+            # this is most probably not the selected language,
+            # so let it pass unhighlighted
             return unhighlighted()
 
     def get_stylesheet(self):

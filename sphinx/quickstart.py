@@ -187,58 +187,58 @@ ALLSPHINXOPTS = -d %(rbuilddir)s/doctrees -D latex_paper_size=$(PAPER) \\
 .PHONY: help clean html web htmlhelp latex changes linkcheck
 
 help:
-	@echo "Please use \\`make <target>' where <target> is one of"
-	@echo "  html      to make standalone HTML files"
-	@echo "  web       to make files usable by Sphinx.web"
-	@echo "  htmlhelp  to make HTML files and a HTML help project"
-	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-	@echo "  changes   to make an overview over all changed/added/deprecated items"
-	@echo "  linkcheck to check all external links for integrity"
+\t@echo "Please use \\`make <target>' where <target> is one of"
+\t@echo "  html      to make standalone HTML files"
+\t@echo "  web       to make files usable by Sphinx.web"
+\t@echo "  htmlhelp  to make HTML files and a HTML help project"
+\t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+\t@echo "  changes   to make an overview over all changed/added/deprecated items"
+\t@echo "  linkcheck to check all external links for integrity"
 
 clean:
-	-rm -rf %(rbuilddir)s/*
+\t-rm -rf %(rbuilddir)s/*
 
 html:
-	mkdir -p %(rbuilddir)s/html %(rbuilddir)s/doctrees
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) %(rbuilddir)s/html
-	@echo
-	@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
+\tmkdir -p %(rbuilddir)s/html %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) %(rbuilddir)s/html
+\t@echo
+\t@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
 
 web:
-	mkdir -p %(rbuilddir)s/web %(rbuilddir)s/doctrees
-	$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) %(rbuilddir)s/web
-	@echo
-	@echo "Build finished; now you can run"
-	@echo "  python -m sphinx.web %(rbuilddir)s/web"
-	@echo "to start the server."
+\tmkdir -p %(rbuilddir)s/web %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) %(rbuilddir)s/web
+\t@echo
+\t@echo "Build finished; now you can run"
+\t@echo "  python -m sphinx.web %(rbuilddir)s/web"
+\t@echo "to start the server."
 
 htmlhelp:
-	mkdir -p %(rbuilddir)s/htmlhelp %(rbuilddir)s/doctrees
-	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) %(rbuilddir)s/htmlhelp
-	@echo
-	@echo "Build finished; now you can run HTML Help Workshop with the" \\
-	      ".hhp project file in %(rbuilddir)s/htmlhelp."
+\tmkdir -p %(rbuilddir)s/htmlhelp %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) %(rbuilddir)s/htmlhelp
+\t@echo
+\t@echo "Build finished; now you can run HTML Help Workshop with the" \\
+\t      ".hhp project file in %(rbuilddir)s/htmlhelp."
 
 latex:
-	mkdir -p %(rbuilddir)s/latex %(rbuilddir)s/doctrees
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
-	@echo
-	@echo "Build finished; the LaTeX files are in %(rbuilddir)s/latex."
-	@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
-	      "run these through (pdf)latex."
+\tmkdir -p %(rbuilddir)s/latex %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
+\t@echo
+\t@echo "Build finished; the LaTeX files are in %(rbuilddir)s/latex."
+\t@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
+\t      "run these through (pdf)latex."
 
 changes:
-	mkdir -p %(rbuilddir)s/changes %(rbuilddir)s/doctrees
-	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) %(rbuilddir)s/changes
-	@echo
-	@echo "The overview file is in %(rbuilddir)s/changes."
+\tmkdir -p %(rbuilddir)s/changes %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) %(rbuilddir)s/changes
+\t@echo
+\t@echo "The overview file is in %(rbuilddir)s/changes."
 
 linkcheck:
-	mkdir -p %(rbuilddir)s/linkcheck %(rbuilddir)s/doctrees
-	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) %(rbuilddir)s/linkcheck
-	@echo
-	@echo "Link check complete; look for any errors in the above output " \\
-	      "or in %(rbuilddir)s/linkcheck/output.txt."
+\tmkdir -p %(rbuilddir)s/linkcheck %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) %(rbuilddir)s/linkcheck
+\t@echo
+\t@echo "Link check complete; look for any errors in the above output " \\
+\t      "or in %(rbuilddir)s/linkcheck/output.txt."
 '''
 
 

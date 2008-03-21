@@ -139,7 +139,7 @@ def check_fileheader(fn, lines):
         yield 0, "no correct copyright info"
 
 
-@checker('.py', '.html', '.js')
+@checker('.py', '.html')
 def check_whitespace_and_spelling(fn, lines):
     for lno, line in enumerate(lines):
         if "\t" in line:

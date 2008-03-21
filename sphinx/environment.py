@@ -327,7 +327,8 @@ class BuildEnvironment:
                     added.add(docname)
                 else:
                     # if the doctree file is not there, rebuild
-                    if not path.isfile(self.doc2path(docname, self.doctreedir, '.doctree')):
+                    if not path.isfile(self.doc2path(docname, self.doctreedir,
+                                                     '.doctree')):
                         changed.add(docname)
                         continue
                     mtime, md5sum = self.all_docs[docname]
@@ -376,7 +377,8 @@ class BuildEnvironment:
             self.read_doc(docname, app=app)
 
         if config.master_doc not in self.all_docs:
-            self.warn(None, 'master file %s not found' % self.doc2path(config.master_doc))
+            self.warn(None, 'master file %s not found' %
+                      self.doc2path(config.master_doc))
 
     # --------- SINGLE FILE BUILDING -------------------------------------------
 

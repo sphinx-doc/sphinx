@@ -392,7 +392,8 @@ class StandaloneHTMLBuilder(Builder):
             # the sorted list of all modules, for the global module index
             modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
                                     '#module-' + mn, sy, pl, dep))
-                              for (mn, (fn, sy, pl, dep)) in self.env.modules.iteritems()),
+                              for (mn, (fn, sy, pl, dep)) in
+                              self.env.modules.iteritems()),
                              key=lambda x: x[0].lower())
             # collect all platforms
             platforms = set()
