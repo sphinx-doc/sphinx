@@ -15,8 +15,8 @@ dir_sig_re = re.compile(r'\.\. ([^:]+)::(.*)$')
 
 def parse_directive(env, sig, signode):
     if not sig.startswith('.'):
-        sig = '.. %s::' % sig
-        signode += addnodes.desc_name(sig, sig)
+        dec_sig = '.. %s::' % sig
+        signode += addnodes.desc_name(dec_sig, dec_sig)
         return sig
     m = dir_sig_re.match(sig)
     if not m:
