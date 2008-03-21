@@ -66,3 +66,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``linkcheck``.
 
+
+Built-in Sphinx extensions that offer more builders are:
+
+* :mod:`~sphinx.ext.doctest`
+* :mod:`~sphinx.ext.coverage`

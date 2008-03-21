@@ -1,6 +1,8 @@
 Writing new builders
 ====================
 
+XXX to be expanded.
+
 .. class:: sphinx.builder.Builder
 
    This is the base class for all builders.
