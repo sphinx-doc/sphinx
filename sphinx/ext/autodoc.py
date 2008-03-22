@@ -28,10 +28,15 @@ except NameError:
 
 
 def prepare_docstring(s):
-    """Convert a docstring into lines of parseable reST."""
+    """
+    Convert a docstring into lines of parseable reST.  Return it as a list of
+    lines usable for inserting into a docutils ViewList (used as argument
+    of nested_parse().)  An empty line is added to act as a separator between
+    this docstring and following content.
+    """
     if not s or s.isspace():
         return ['']
-    nl = s.rstrip().find('\n')
+    nl = s.expandtabs().rstrip().find('\n')
     if nl == -1:
         # Only one line...
         return [s.strip(), '']

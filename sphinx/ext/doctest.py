@@ -10,6 +10,7 @@
     :license: BSD.
 """
 
+import re
 import sys
 import time
 import StringIO
@@ -23,6 +24,8 @@ from docutils.parsers.rst import directives
 from sphinx.builder import Builder
 from sphinx.util.console import bold
 
+blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
+
 
 # set up the necessary directives
 
@@ -31,17 +34,23 @@ def test_directive(name, arguments, options, content, lineno,
     # use ordinary docutils nodes for test code: they get special attributes
     # so that our builder recognizes them, and the other builders are happy.
     code = '\n'.join(content)
+    test = None
+    if name == 'doctest' and '<BLANKLINE>' in code:
+        # convert <BLANKLINE>s to ordinary blank lines for presentation
+        test = code
+        code = blankline_re.sub('', code)
     nodetype = nodes.literal_block
     if name == 'testsetup' or 'hide' in options:
         nodetype = nodes.comment
-    node = nodetype(code, code)
-    node.line = lineno
     if arguments:
         groups = [x.strip() for x in arguments[0].split(',')]
     else:
         groups = ['default']
-    node['testnodetype'] = name
-    node['groups'] = groups
+    node = nodetype(code, code, testnodetype=name, groups=groups)
+    node.line = lineno
+    if test is not None:
+        # only save if it differs from code
+        node['test'] = test
     if name == 'testoutput':
         # don't try to highlight output
         node['language'] = 'none'
@@ -215,7 +224,7 @@ Doctest summary
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                         and node.has_key('testnodetype')
         for node in doctree.traverse(condition):
-            code = TestCode(node.astext(),
+            code = TestCode(node.has_key('test') and node['test'] or node.astext(),
                             type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
             node_groups = node.get('groups', ['default'])
@@ -281,7 +290,9 @@ Doctest summary
                 self.type = 'single' # ordinary doctests
             else:
                 output = code[1] and code[1].code or ''
-                options = code[1] and code[1].options or None
+                options = code[1] and code[1].options or {}
+                # disable <BLANKLINE> processing as it is not needed
+                options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 example = doctest.Example(code[0].code, output,
                                           lineno=code[0].lineno,
                                           options=options)

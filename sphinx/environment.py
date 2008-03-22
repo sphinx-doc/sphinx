@@ -129,6 +129,31 @@ class MoveModuleTargets(Transform):
                 node.parent.remove(node)
 
 
+class HandleCodeBlocks(Transform):
+    """
+    Move doctest blocks out of blockquotes and connect adjacent code blocks.
+    """
+    default_priority = 210
+
+    def apply(self):
+        for node in self.document.traverse(nodes.block_quote):
+            if len(node.children) == 1 and isinstance(node.children[0],
+                                                      nodes.doctest_block):
+                node.replace_self(node.children[0])
+        for node in self.document.traverse(nodes.literal_block):
+            if not node.parent:
+                continue
+            idx = node.parent.index(node)
+            try:
+                while isinstance(node.parent[idx+1], nodes.literal_block):
+                    node.children[0] += '\n' + node.parent[idx+1].children[0]
+                    import pdb; pdb.set_trace()
+                    node.parent[idx+1].parent = None
+                    del node.parent[idx+1]
+            except IndexError:
+                continue
+
+
 class MyStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
@@ -136,7 +161,7 @@ class MyStandaloneReader(standalone.Reader):
     def get_transforms(self):
         tf = standalone.Reader.get_transforms(self)
         return tf + [DefaultSubstitutions, MoveModuleTargets,
-                     FilterMessages]
+                     FilterMessages, HandleCodeBlocks]
 
 
 class MyContentsFilter(ContentsFilter):

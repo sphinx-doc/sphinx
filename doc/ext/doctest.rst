@@ -65,6 +65,10 @@ names.
      explicit flags per example, with doctest comments, but they will show up in
      other builders too.)
 
+   Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
+   signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
+   when building presentation output (HTML, LaTeX etc.).
+
 
 .. directive:: .. testcode:: [group]
 

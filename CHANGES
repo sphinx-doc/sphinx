@@ -4,6 +4,12 @@ Changes in trunk
 * sphinx.ext.doctest: Make the group in which doctest blocks are
   placed selectable, and default to ``'default'``.
 
+* sphinx.ext.doctest: Replace <BLANKLINE> in doctest blocks by
+  real blank lines for presentation output.
+
+* sphinx.environment: Move doctest_blocks out of block_quotes to
+  support indented doctest blocks.
+
 
 Release 0.1.61611
 =================
