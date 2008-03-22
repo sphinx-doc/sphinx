@@ -1,0 +1,11 @@
+Changes in trunk
+================
+
+* sphinx.ext.doctest: Make the group in which doctest blocks are
+  placed selectable, and default to ``'default'``.
+
+
+Release 0.1.61611
+=================
+
+First public release.
