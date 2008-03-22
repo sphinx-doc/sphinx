@@ -69,6 +69,14 @@ names.
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
    when building presentation output (HTML, LaTeX etc.).
 
+   Also, you can give inline doctest options, like in doctest::
+
+      >>> datetime.date.now()   # doctest: +SKIP
+      datetime.date(2008, 1, 1)
+
+   They will be respected when the test is run, but stripped from presentation
+   output.
+
 
 .. directive:: .. testcode:: [group]
 
@@ -178,4 +186,6 @@ There are also these config values for customizing the doctest extension:
    special directive.
 
    Note though that you can't have blank lines in reST doctest blocks.  They
-   will be interpreted as one block ending and another one starting.
+   will be interpreted as one block ending and another one starting.  Also,
+   removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
+   :dir:`doctest` blocks.

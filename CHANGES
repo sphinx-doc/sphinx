@@ -5,7 +5,8 @@ Changes in trunk
   placed selectable, and default to ``'default'``.
 
 * sphinx.ext.doctest: Replace <BLANKLINE> in doctest blocks by
-  real blank lines for presentation output.
+  real blank lines for presentation output, and remove doctest
+  options given inline.
 
 * sphinx.environment: Move doctest_blocks out of block_quotes to
   support indented doctest blocks.

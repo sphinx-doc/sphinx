@@ -25,7 +25,7 @@ from sphinx.builder import Builder
 from sphinx.util.console import bold
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
-
+doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 # set up the necessary directives
 
@@ -35,10 +35,15 @@ def test_directive(name, arguments, options, content, lineno,
     # so that our builder recognizes them, and the other builders are happy.
     code = '\n'.join(content)
     test = None
-    if name == 'doctest' and '<BLANKLINE>' in code:
-        # convert <BLANKLINE>s to ordinary blank lines for presentation
-        test = code
-        code = blankline_re.sub('', code)
+    if name == 'doctest':
+        if '<BLANKLINE>' in code:
+            # convert <BLANKLINE>s to ordinary blank lines for presentation
+            test = code
+            code = blankline_re.sub('', code)
+        if doctestopt_re.search(code):
+            if not test:
+                test = code
+            code = doctestopt_re.sub('', code)
     nodetype = nodes.literal_block
     if name == 'testsetup' or 'hide' in options:
         nodetype = nodes.comment
