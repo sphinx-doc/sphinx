@@ -157,12 +157,12 @@ There are also these config values for customizing the doctest extension:
    recognizes it from the leading ``>>>``.  Also, no additional indentation is
    necessary, though it doesn't hurt.)
 
-   If this value is true, the above snippet is interpreted by the doctest
-   builder exactly like the following::
+   If this value is left at its default value, the above snippet is interpreted
+   by the doctest builder exactly like the following::
 
       Some documentation text.
 
-      .. doctest:: doctest_block
+      .. doctest::
 
          >>> print 1
          1
@@ -172,3 +172,6 @@ There are also these config values for customizing the doctest extension:
    This feature makes it easy for you to test doctests in docstrings included
    with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a
    special directive.
+
+   Note though that you can't have blank lines in reST doctest blocks.  They
+   will be interpreted as one block ending and another one starting.
