@@ -8,7 +8,7 @@ formats, automatically producing cross-references, indices etc.
 The focus is on hand-written documentation, rather than auto-generated API docs.
 Though there is limited support for that kind of docs as well (which is intended
 to be freely mixed with hand-written content), if you need pure API docs have a
-look at `Epydoc <http://epydoc.sf.net/>`, which also understands reST.
+look at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
 
 .. XXX web app
 
