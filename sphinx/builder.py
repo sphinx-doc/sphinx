@@ -45,6 +45,9 @@ class Builder(object):
     Builds target formats from the reST sources.
     """
 
+    # builder's name, for the -b command line options
+    name = ''
+
     def __init__(self, app, env=None, freshenv=False):
         self.srcdir = app.srcdir
         self.outdir = app.outdir
@@ -231,8 +234,6 @@ class Builder(object):
                 docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
-        self.info(bold('creating index...'))
-        self.env.create_index(self)
         self.prepare_writing(docnames)
 
         # write target files
@@ -293,6 +294,10 @@ class StandaloneHTMLBuilder(Builder):
 
     def prepare_writing(self, docnames):
         from sphinx.search import IndexBuilder
+
+        self.info(bold('creating index...'))
+        self.env.create_index(self)
+
         self.indexer = IndexBuilder()
         self.load_indexer(docnames)
         self.docwriter = HTMLWriter(self)
