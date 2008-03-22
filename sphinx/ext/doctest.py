@@ -21,6 +21,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.builder import Builder
+from sphinx.util.console import bold
 
 
 # set up the necessary directives
@@ -31,8 +32,7 @@ def test_directive(name, arguments, options, content, lineno,
     # so that our builder recognizes them, and the other builders are happy.
     code = '\n'.join(content)
     nodetype = nodes.literal_block
-    if name == 'testsetup' or \
-       (name == 'testoutput' and 'hide' in options):
+    if name == 'testsetup' or 'hide' in options:
         nodetype = nodes.comment
     node = nodetype(code, code)
     node.line = lineno
@@ -46,7 +46,7 @@ def test_directive(name, arguments, options, content, lineno,
         # don't try to highlight output
         node['language'] = 'none'
     node['options'] = {}
-    if name == 'testoutput' and 'options' in options:
+    if name in ('doctest', 'testoutput') and 'options' in options:
         # parse doctest-like output comparison flags
         option_strings = options['options'].replace(',', ' ').split()
         for option in option_strings:
@@ -98,8 +98,8 @@ class TestGroup(object):
             raise RuntimeError('invalid TestCode type')
 
     def __repr__(self):
-        return 'TestGroup(name=%r, setup=%r, code=%r)' % (
-            self.name, self.setup, self.code)
+        return 'TestGroup(name=%r, setup=%r, tests=%r)' % (
+            self.name, self.setup, self.tests)
 
 
 class TestCode(object):
@@ -162,9 +162,6 @@ Results of doctest builder run on %s
     def get_outdated_docs(self):
         return self.env.all_docs
 
-    def prepare_writing(self, docnames):
-        return
-
     def finish(self):
         # write executive summary
         def s(v):
@@ -182,14 +179,23 @@ Doctest summary
 
         sys.path[0:0] = self.config.doctest_path
 
-    def write_doc(self, docname, doctree):
+    def write(self, build_docnames, updated_docnames):
+        if build_docnames is None:
+            build_docnames = self.env.all_docs
+
+        self.info(bold('running tests...'))
+        for docname in build_docnames:
+            # no need to resolve the doctree
+            doctree = self.env.get_doctree(docname)
+            self.test_doc(docname, doctree)
+
+    def test_doc(self, docname, doctree):
         groups = {}
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False,
                                                 optionflags=self.opt)
         self.test_runner = SphinxDocTestRunner(verbose=False,
                                                optionflags=self.opt)
-        self.info()
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
                 return (isinstance(node, (nodes.literal_block, nodes.comment))
@@ -217,8 +223,7 @@ Doctest summary
         if not groups:
             return
 
-        self.outfile.write('\nDocument: %s\n----------%s\n' %
-                           (docname, '-'*len(docname)))
+        self._out('\nDocument: %s\n----------%s\n' % (docname, '-'*len(docname)))
         for group in groups.itervalues():
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code
@@ -255,6 +260,11 @@ Doctest summary
                     self._out('WARNING: no examples in doctest block at '
                               + filename + ', line %s' % code[0].lineno)
                     continue
+                for example in test.examples:
+                    # apply directive's comparison options
+                    new_opt = code[0].options.copy()
+                    new_opt.update(example.options)
+                    example.options = new_opt
             else:
                 output = code[1] and code[1].code or ''
                 options = code[1] and code[1].options or None
@@ -271,8 +281,10 @@ Doctest summary
 
 def setup(app):
     app.add_directive('testsetup', testsetup_directive, 1, (0, 1, 1))
-    app.add_directive('doctest', doctest_directive, 1, (0, 1, 1))
-    app.add_directive('testcode', testcode_directive, 1, (0, 1, 1))
+    app.add_directive('doctest', doctest_directive, 1, (0, 1, 1),
+                      hide=directives.flag, options=directives.unchanged)
+    app.add_directive('testcode', testcode_directive, 1, (0, 1, 1),
+                      hide=directives.flag)
     app.add_directive('testoutput', testoutput_directive, 1, (0, 1, 1),
                       hide=directives.flag, options=directives.unchanged)
     app.add_builder(DocTestBuilder)
