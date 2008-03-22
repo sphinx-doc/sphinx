@@ -139,6 +139,15 @@ class DocTestBuilder(Builder):
         self.opt = doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | \
                    doctest.IGNORE_EXCEPTION_DETAIL
 
+        # HACK HACK HACK
+        # doctest compiles its snippets with type 'single'. That is nice
+        # for doctest examples but unusable for multi-statement code such
+        # as setup code -- to be able to use doctest error reporting with
+        # that code nevertheless, we monkey-patch the "compile" it uses.
+        doctest.compile = self.compile
+
+        self.type = 'single'
+
         self.total_failures = 0
         self.total_tries = 0
         self.setup_failures = 0
@@ -235,6 +244,9 @@ Doctest summary
             self.total_failures += res_f
             self.total_tries += res_t
 
+    def compile(self, code, name, type, flags, dont_inherit):
+        return compile(code, name, self.type, flags, dont_inherit)
+
     def test_group(self, group, filename):
         ns = {}
         examples = []
@@ -247,6 +259,7 @@ Doctest summary
                                             filename, 0, None)
             setup_doctest.globs = ns
             old_f = self.setup_runner.failures
+            self.type = 'exec' # the snippet may contain multiple statements
             self.setup_runner.run(setup_doctest, out=self._out,
                                   clear_globs=False)
             if self.setup_runner.failures > old_f:
@@ -265,6 +278,7 @@ Doctest summary
                     new_opt = code[0].options.copy()
                     new_opt.update(example.options)
                     example.options = new_opt
+                self.type = 'single' # ordinary doctests
             else:
                 output = code[1] and code[1].code or ''
                 options = code[1] and code[1].options or None
@@ -273,6 +287,7 @@ Doctest summary
                                           options=options)
                 test = doctest.DocTest([example], {}, group.name,
                                        filename, code[0].lineno, None)
+                self.type = 'exec' # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
             # also don't clear the globs namespace after running the doctest
