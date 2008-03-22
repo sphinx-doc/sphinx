@@ -44,6 +44,7 @@ names.
    A setup code block.  This code is not shown in the output for other builders,
    but executed before the doctests of the group(s) it belongs to.
 
+
 .. directive:: .. doctest:: [group]
 
    A doctest-style code block.  You can use standard :mod:`doctest` flags for
@@ -54,9 +55,26 @@ names.
    ``DONT_ACCEPT_TRUE_FOR_1`` (by default, doctest accepts "True" in the output
    where "1" is given -- this is a relic of pre-Python 2.2 times).
 
+   This directive supports two options:
+
+   * ``hide``, a flag option, hides the doctest block in other builders.  By
+     default it is shown as a highlighted doctest block.
+
+   * ``options``, a string option, can be used to give a comma-separated list of
+     doctest flags that apply to each example in the tests.  (You still can give
+     explicit flags per example, with doctest comments, but they will show up in
+     other builders too.)
+
+
 .. directive:: .. testcode:: [group]
 
    A code block for a code-output-style test.
+
+   This directive supports one option:
+
+   * ``hide``, a flag option, hides the code block in other builders.  By
+     default it is shown as a highlighted code block.
+
 
 .. directive:: .. testoutput:: [group]
 
@@ -121,8 +139,9 @@ There are also these config values for customizing the doctest extension:
 
 .. confval:: doctest_test_doctest_blocks
 
-   If ``True`` (the default), standard reST doctest blocks will be tested too.
-   They will be assigned to a group named ``doctest_block``.
+   If this is a nonempty string (the default is ``'default'``), standard reST
+   doctest blocks will be tested too.  They will be assigned to the group name
+   given.
 
    reST doctest blocks are simply doctests put into a paragraph of their own,
    like so::
@@ -133,6 +152,10 @@ There are also these config values for customizing the doctest extension:
       1
 
       Some more documentation text.
+
+   (Note that no special ``::`` is needed to introduce the block; docutils
+   recognizes it from the leading ``>>>``.  Also, no additional indentation is
+   necessary, though it doesn't hurt.)
 
    If this value is true, the above snippet is interpreted by the doctest
    builder exactly like the following::

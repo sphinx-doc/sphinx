@@ -218,7 +218,7 @@ Doctest summary
             code = TestCode(node.astext(),
                             type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
-            node_groups = node.get('groups', ['doctest_block'])
+            node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue
@@ -305,4 +305,4 @@ def setup(app):
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
     app.add_config_value('doctest_path', [], False)
-    app.add_config_value('doctest_test_doctest_blocks', True, False)
+    app.add_config_value('doctest_test_doctest_blocks', 'default', False)
