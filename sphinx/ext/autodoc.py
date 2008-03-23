@@ -192,9 +192,20 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     warnings, result = generate_rst(what, name, members, undoc, content,
                                     state.document, lineno)
 
-    node = nodes.paragraph()
-    state.nested_parse(result, content_offset, node)
-    return warnings + [node]
+    if dirname == 'automodule':
+        node = nodes.section()
+        # hack around title style bookkeeping
+        surrounding_title_styles = state.memo.title_styles
+        surrounding_section_level = state.memo.section_level
+        state.memo.title_styles = []
+        state.memo.section_level = 0
+        state.nested_parse(result, content_offset, node, match_titles=1)
+        state.memo.title_styles = surrounding_title_styles
+        state.memo.section_level = surrounding_section_level
+    else:
+        node = nodes.paragraph()
+        state.nested_parse(result, content_offset, node)
+    return warnings + node.children
 
 def auto_directive(*args, **kwds):
     return _auto_directive(*args, **kwds)
