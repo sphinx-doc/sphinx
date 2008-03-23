@@ -149,7 +149,7 @@ class Builder(object):
 
     def build_all(self):
         """Build all source files."""
-        self.build(None, summary='all source files')
+        self.build(None, summary='all source files', method='all')
 
     def build_specific(self, filenames):
         """Only rebuild as much as needed for changes in the source_filenames."""
@@ -162,14 +162,17 @@ class Builder(object):
             filename = path.abspath(filename)[dirlen:]
             if filename.endswith(suffix):
                 filename = filename[:-len(suffix)]
+            filename = filename.replace(os.path.sep, SEP)
             to_write.append(filename)
-        self.build(to_write,
-                   summary='%d source files given on command line' % len(to_write))
+        self.build(to_write, method='specific',
+                   summary='%d source files given on command '
+                   'line' % len(to_write))
 
     def build_update(self):
         """Only rebuild files changed or added since last build."""
         to_build = self.get_outdated_docs()
-        if not to_build:
+        if not to_build and self.env.all_docs:
+            # if there is nothing in all_docs, it's a fresh env
             self.info(bold('no target files are out of date, exiting.'))
             return
         if isinstance(to_build, str):
@@ -180,7 +183,7 @@ class Builder(object):
                        summary='targets for %d source files that are '
                        'out of date' % len(to_build))
 
-    def build(self, docnames, summary=None):
+    def build(self, docnames, summary=None, method='update'):
         if summary:
             self.info(bold('building [%s]: ' % self.name), nonl=1)
             self.info(summary)
@@ -213,7 +216,7 @@ class Builder(object):
 
         # another indirection to support methods which don't build files
         # individually
-        self.write(docnames, updated_docnames)
+        self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
         self.info(bold('finishing... '))
@@ -223,10 +226,13 @@ class Builder(object):
         else:
             self.info(bold('build succeeded.'))
 
-    def write(self, build_docnames, updated_docnames):
-        if build_docnames is None: # build_all
+    def write(self, build_docnames, updated_docnames, method='update'):
+        if build_docnames is None:
+            # build_all
             build_docnames = self.env.all_docs
-        docnames = set(build_docnames) | set(updated_docnames)
+        if method == 'update':
+            # build updated ones as well
+            docnames = set(build_docnames) | set(updated_docnames)
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):

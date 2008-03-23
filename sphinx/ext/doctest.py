@@ -202,7 +202,7 @@ Doctest summary
 
         sys.path[0:0] = self.config.doctest_path
 
-    def write(self, build_docnames, updated_docnames):
+    def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None:
             build_docnames = self.env.all_docs
 
