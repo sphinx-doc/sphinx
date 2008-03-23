@@ -30,14 +30,14 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``htmlhelp``. 
 
-.. class:: WebHTMLBuilder
+.. class:: PickleHTMLBuilder
 
    This builder produces a directory with pickle files containing mostly HTML
    fragments and TOC information, for use of a web application (or custom
    postprocessing tool) that doesn't use the standard HTML templates.
 
    It also is the format used by the Sphinx Web application.  Its name is
-   ``web``.
+   ``pickle``.  (The old name ``web`` still works as well.)
 
 .. class:: LaTeXBuilder
 

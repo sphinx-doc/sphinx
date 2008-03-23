@@ -14,6 +14,8 @@ Changes in trunk
 * sphinx.highlighting: Generate correct markup for LaTeX Verbatim
   environment escapes even if Pygments is not installed.
 
+* sphinx.builder: The WebHTMLBuilder is now called PickleHTMLBuilder.
+
 
 Release 0.1.61798 (Mar 23, 2008)
 ================================
