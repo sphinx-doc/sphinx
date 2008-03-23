@@ -1,3 +1,9 @@
+Changes in trunk
+================
+
+* sphinx.quickstart: Really don't create a makefile if the user
+  doesn't want one.
+
 Release 0.1.61798 (Mar 23, 2008)
 ================================
 

@@ -375,7 +375,8 @@ directly.'''
     f.write(MASTER_FILE % d)
     f.close()
 
-    if d['makefile']:
+    create_makefile = d['makefile'].upper() in ('Y', 'YES')
+    if create_makefile:
         d['rsrcdir'] = separate and 'source' or '.'
         d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
         f = open(path.join(d['path'], 'Makefile'), 'w')
@@ -387,7 +388,7 @@ directly.'''
     print '''
 You should now populate your master file %s and create other documentation
 source files. Use the sphinx-build.py script to build the docs, like so:
-''' % masterfile + (d['makefile'] and '''
+''' % masterfile + (create_makefile and '''
    make <builder>
 ''' or '''
    sphinx-build.py -b <builder> %s %s
