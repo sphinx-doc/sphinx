@@ -4,6 +4,7 @@ Global TODO
 Sphinx
 ******
 
+- option for compact module index
 - HTML section numbers?
 - split the general index?
 - add OpenSearch
