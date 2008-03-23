@@ -17,8 +17,8 @@ Reading the docs
 After installing::
 
    cd doc
-   sphinx-build.py . .build
-   browser .build/index.html
+   sphinx-build . _build/html
+   browser _build/index.html
 
 Or read them online at <http://sphinx.pocoo.org/>.
 

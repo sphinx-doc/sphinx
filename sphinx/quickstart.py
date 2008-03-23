@@ -19,7 +19,7 @@ QUICKSTART_CONF = '''\
 # -*- coding: utf-8 -*-
 #
 # %(project)s documentation build configuration file, created by
-# sphinx-quickstart.py on %(now)s.
+# sphinx-quickstart on %(now)s.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -151,7 +151,7 @@ htmlhelp_basename = '%(project)sdoc'
 '''
 
 MASTER_FILE = '''\
-.. %(project)s documentation master file, created by sphinx-quickstart.py on %(now)s.
+.. %(project)s documentation master file, created by sphinx-quickstart on %(now)s.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -178,7 +178,7 @@ MAKEFILE = '''\
 
 # You can set these variables from the command line.
 SPHINXOPTS   =
-SPHINXBUILD  = sphinx-build.py
+SPHINXBUILD  = sphinx-build
 PAPER        =
 
 ALLSPHINXOPTS = -d %(rbuilddir)s/doctrees -D latex_paper_size=$(PAPER) \\
@@ -342,7 +342,7 @@ document is a custom template, you can also set this to another filename.'''
               'index')
     print '''
 If you are under Unix, a Makefile can be generated for you so that you
-only have to run e.g. `make html' instead of invoking sphinx-build.py
+only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
     do_prompt(d, 'makefile', 'Create Makefile? (y/n)',
               os.name == 'posix' and 'y' or 'n', boolean)
@@ -387,11 +387,11 @@ directly.'''
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
-source files. Use the sphinx-build.py script to build the docs, like so:
+source files. Use the sphinx-build script to build the docs, like so:
 ''' % masterfile + (create_makefile and '''
    make <builder>
 ''' or '''
-   sphinx-build.py -b <builder> %s %s
+   sphinx-build -b <builder> %s %s
 ''' % (srcdir, builddir))
 
 

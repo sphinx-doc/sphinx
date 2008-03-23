@@ -10,7 +10,7 @@ These are the built-in Sphinx builders.  More builders can be added by
 :ref:`extensions <extensions>`.
 
 The builder's "name" must be given to the **-b** command-line option of
-:program:`sphinx-build.py` to select a builder.
+:program:`sphinx-build` to select a builder.
 
 
 .. class:: StandaloneHTMLBuilder

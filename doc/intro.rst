@@ -31,11 +31,11 @@ The root directory of a documentation collection is called the
 :dfn:`documentation root`.  There's nothing special about it; it just needs to
 contain the Sphinx configuration file, :file:`conf.py`.
 
-Sphinx comes with a script called :program:`sphinx-quickstart.py` that sets up a
+Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
 documentation root and creates a default :file:`conf.py` from a few questions
 it asks you.  Just run ::
 
-   $ sphinx-quickstart.py
+   $ sphinx-quickstart
 
 and answer the questions.
 
@@ -43,17 +43,17 @@ and answer the questions.
 Running a build
 ---------------
 
-A build is started with the :program:`sphinx-build.py` script.  It is called
+A build is started with the :program:`sphinx-build` script.  It is called
 like this::
 
-     $ sphinx-build.py -b latex sourcedir builddir
+     $ sphinx-build -b latex sourcedir builddir
 
 where *sourcedir* is the :term:`documentation root`, and *builddir* is the
 directory in which you want to place the built documentation (it must be an
 existing directory).  The :option:`-b` option selects a builder; in this example
 Sphinx will build LaTeX files.
 
-The :program:`sphinx-build.py` script has several more options:
+The :program:`sphinx-build` script has several more options:
 
 **-a**
    If given, always write all output files.  The default is to only write output
