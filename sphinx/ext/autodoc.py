@@ -11,9 +11,11 @@
     :license: BSD.
 """
 
+import re
 import types
 import inspect
 import textwrap
+import linecache
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -25,6 +27,9 @@ try:
     base_exception = BaseException
 except NameError:
     base_exception = Exception
+
+_charset_re = re.compile(r'coding[:=]\s*([-\w.]+)')
+_module_charsets = {}
 
 
 def prepare_docstring(s):
@@ -44,6 +49,24 @@ def prepare_docstring(s):
     firstline = s[:nl].strip()
     otherlines = textwrap.dedent(s[nl+1:])
     return [firstline] + otherlines.splitlines() + ['']
+
+
+def get_module_charset(module):
+    """Return the charset of the given module."""
+    if module in _module_charsets:
+        return _module_charsets[module]
+    filename = __import__(module, None, None, ['']).__file__
+    if filename[-4:] in ('.pyc', '.pyo'):
+        filename = filename[:-1]
+    for line in [linecache.getline(filename, x) for x in (1, 2)]:
+        match = _charset_re.search(line)
+        if match is not None:
+            charset = match.group(1)
+            break
+    else:
+        charset = 'ascii'
+    _module_charsets[module] = charset
+    return charset
 
 
 def generate_rst(what, name, members, undoc, add_content,
@@ -120,6 +143,12 @@ def generate_rst(what, name, members, undoc, add_content,
     if what == 'module' and env.config.automodule_skip_lines:
         docstring = '\n'.join(docstring.splitlines()
                               [env.config.automodule_skip_lines:])
+
+    # get the encoding of the docstring
+    module = getattr(todoc, '__module__', None)
+    if module is not None:
+        docstring = docstring.decode(get_module_charset(module))
+
     docstring = prepare_docstring(docstring)
     for i, line in enumerate(docstring):
         result.append(indent + line, '<docstring of %s>' % name, i)
