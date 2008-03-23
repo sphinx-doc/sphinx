@@ -11,8 +11,11 @@ Changes in trunk
 * sphinx.environment: Move doctest_blocks out of block_quotes to
   support indented doctest blocks.
 
-* sphinx.ext.autodoc: Render .. automodule:: docstrings in a setion
+* sphinx.ext.autodoc: Render .. automodule:: docstrings in a section
   node, so that module docstrings can contain proper sectioning.
+
+* sphinx.ext.autodoc: Use the module's encoding for decoding
+  docstrings, rather than requiring ASCII.
 
 
 Release 0.1.61611 (Mar 21, 2008)
