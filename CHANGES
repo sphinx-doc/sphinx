@@ -8,7 +8,7 @@ Changes in trunk
   and distutils scripts.  Only install via entry points.
 
 * sphinx.builder: Don't recognize the HTML builder's copied source
-  files (under _sources) as input files if the source suffix is
+  files (under ``_sources``) as input files if the source suffix is
   ``.txt``.
 
 * sphinx.highlighting: Generate correct markup for LaTeX Verbatim
@@ -28,15 +28,16 @@ Release 0.1.61798 (Mar 23, 2008)
 * sphinx.ext.doctest: Make the group in which doctest blocks are
   placed selectable, and default to ``'default'``.
 
-* sphinx.ext.doctest: Replace <BLANKLINE> in doctest blocks by
+* sphinx.ext.doctest: Replace ``<BLANKLINE>`` in doctest blocks by
   real blank lines for presentation output, and remove doctest
   options given inline.
 
 * sphinx.environment: Move doctest_blocks out of block_quotes to
   support indented doctest blocks.
 
-* sphinx.ext.autodoc: Render .. automodule:: docstrings in a section
-  node, so that module docstrings can contain proper sectioning.
+* sphinx.ext.autodoc: Render ``.. automodule::`` docstrings in a
+  section node, so that module docstrings can contain proper
+  sectioning.
 
 * sphinx.ext.autodoc: Use the module's encoding for decoding
   docstrings, rather than requiring ASCII.
