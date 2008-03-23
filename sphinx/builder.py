@@ -233,6 +233,8 @@ class Builder(object):
         if method == 'update':
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
+        else:
+            docnames = set(build_docnames)
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
