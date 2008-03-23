@@ -475,7 +475,7 @@ class StandaloneHTMLBuilder(Builder):
         # dump the search index
         self.handle_finish()
 
-    # --------- these are overwritten by the Web builder
+    # --------- these are overwritten by the Pickle builder
 
     def get_target_uri(self, docname, typ=None):
         return docname + '.html'
@@ -483,7 +483,8 @@ class StandaloneHTMLBuilder(Builder):
     def get_outdated_docs(self):
         for docname in get_matching_docs(
             self.srcdir, self.config.source_suffix,
-            exclude=set(self.config.unused_docs)):
+            exclude=set(self.config.unused_docs),
+            prune=['_sources']):
             targetname = self.env.doc2path(docname, self.outdir, '.html')
             try:
                 targetmtime = path.getmtime(targetname)
@@ -555,11 +556,11 @@ class StandaloneHTMLBuilder(Builder):
             f.close()
 
 
-class WebHTMLBuilder(StandaloneHTMLBuilder):
+class PickleHTMLBuilder(StandaloneHTMLBuilder):
     """
-    Builds HTML docs usable with the web-based doc server.
+    Builds HTML docs without rendering templates.
     """
-    name = 'web'
+    name = 'pickle'
 
     def init(self):
         self.init_translator_class()
@@ -567,7 +568,8 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
     def get_outdated_docs(self):
         for docname in get_matching_docs(
             self.srcdir, self.config.source_suffix,
-            exclude=set(self.config.unused_docs)):
+            exclude=set(self.config.unused_docs),
+            prune=['_sources']):
             targetname = self.env.doc2path(docname, self.outdir, '.fpickle')
             try:
                 targetmtime = path.getmtime(targetname)
@@ -613,7 +615,8 @@ class WebHTMLBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
 
-        # if there is a source file, copy the source file for the "show source" link
+        # if there is a source file, copy the source file for the
+        # "show source" link
         if ctx.get('sourcename'):
             source_name = path.join(self.outdir, 'sources',
                                     os_path(ctx['sourcename']))
@@ -901,12 +904,16 @@ class ChangesBuilder(Builder):
     def finish(self):
         pass
 
+# compatibility alias
+WebHTMLBuilder = PickleHTMLBuilder
+
 
 from sphinx.linkcheck import CheckExternalLinksBuilder
 
 builtin_builders = {
     'html': StandaloneHTMLBuilder,
-    'web': WebHTMLBuilder,
+    'pickle': PickleHTMLBuilder,
+    'web': PickleHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
     'latex': LaTeXBuilder,
     'changes': ChangesBuilder,

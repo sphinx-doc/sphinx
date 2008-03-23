@@ -323,7 +323,8 @@ class BuildEnvironment:
         Return (added, changed, removed) sets.
         """
         self.found_docs = set(get_matching_docs(self.srcdir, config.source_suffix,
-                                                exclude=set(config.unused_docs)))
+                                                exclude=set(config.unused_docs),
+                                                prune=['_sources']))
 
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs

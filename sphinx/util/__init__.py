@@ -50,7 +50,7 @@ def ensuredir(path):
             raise
 
 
-def get_matching_docs(dirname, suffix, exclude=()):
+def get_matching_docs(dirname, suffix, exclude=(), prune=()):
     """
     Get all file names (without suffix) matching a suffix in a
     directory, recursively.
@@ -62,6 +62,9 @@ def get_matching_docs(dirname, suffix, exclude=()):
     for root, dirs, files in os.walk(dirname):
         dirs.sort()
         files.sort()
+        for prunedir in prune:
+            if prunedir in dirs:
+                dirs.remove(prunedir)
         for sfile in files:
             if not fnmatch.fnmatch(sfile, pattern):
                 continue

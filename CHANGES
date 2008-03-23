@@ -4,6 +4,14 @@ Changes in trunk
 * sphinx.quickstart: Really don't create a makefile if the user
   doesn't want one.
 
+* setup: Don't install scripts twice, via setuptools entry points
+  and distutils scripts.  Only install via entry points.
+
+* sphinx.builder: Don't recognize the HTML builder's copied source
+  files (under _sources) as input files if the source suffix is
+  ``.txt``.
+
+
 Release 0.1.61798 (Mar 23, 2008)
 ================================
 
