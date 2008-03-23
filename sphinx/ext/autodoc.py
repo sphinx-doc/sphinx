@@ -140,13 +140,13 @@ def generate_rst(what, name, members, undoc, add_content,
         indent += '   '
 
     # add docstring content
-    if what == 'module' and env.config.automodule_skip_lines:
+    if what == 'module' and env.config.automodule_skip_lines and docstring:
         docstring = '\n'.join(docstring.splitlines()
                               [env.config.automodule_skip_lines:])
 
     # get the encoding of the docstring
     module = getattr(todoc, '__module__', None)
-    if module is not None:
+    if module is not None and docstring is not None:
         docstring = docstring.decode(get_module_charset(module))
 
     docstring = prepare_docstring(docstring)

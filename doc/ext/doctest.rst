@@ -77,7 +77,7 @@ names.
    They will be respected when the test is run, but stripped from presentation
    output.
 
-   .. versionadded:: 0.2
+   .. versionadded:: 0.1.61798
       Removal of ``<BLANKLINE>`` and inline options in presentation output.
 
 

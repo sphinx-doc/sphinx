@@ -1,5 +1,7 @@
-Changes in trunk
-================
+Release 0.1.61798 (Mar 23, 2008)
+================================
+
+* sphinx: Work with docutils SVN snapshots as well as 0.4.
 
 * sphinx.ext.doctest: Make the group in which doctest blocks are
   placed selectable, and default to ``'default'``.

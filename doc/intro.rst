@@ -17,8 +17,8 @@ Prerequisites
 
 Sphinx needs at least **Python 2.4** to run.  If you like to have source code
 highlighting support, you must also install the Pygments_ library, which you can
-do via setuptools' easy_install.  Also, you need docutils version 0.4 (not some
-SVN trunk snapshot, because of incompatible API changes).
+do via setuptools' easy_install.  Sphinx should work with docutils version 0.4
+or some (not broken) SVN trunk snapshot.
 
 .. _reStructuredText: http://docutils.sf.net/rst.html
 .. _Pygments: http://pygments.org

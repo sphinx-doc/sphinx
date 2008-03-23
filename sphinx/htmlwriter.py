@@ -31,8 +31,10 @@ class HTMLWriter(Writer):
         self.output = visitor.astext()
         for attr in ('head_prefix', 'stylesheet', 'head', 'body_prefix',
                      'body_pre_docinfo', 'docinfo', 'body', 'fragment',
-                     'body_suffix'):
-            setattr(self, attr, getattr(visitor, attr))
+                     'body_suffix', 'meta', 'title', 'subtitle', 'header',
+                     'footer', 'html_prolog', 'html_head', 'html_title',
+                     'html_subtitle', 'html_body', ):
+            setattr(self, attr, getattr(visitor, attr, None))
 
 
 version_text = {
@@ -150,7 +152,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node, name=''):
-        self.body.append(self.start_tag_with_title(
+        self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name and name != 'seealso':
             node.insert(0, nodes.title(name, self.language.labels[name]))
@@ -161,8 +163,8 @@ class HTMLTranslator(BaseTranslator):
     def depart_seealso(self, node):
         self.depart_admonition(node)
 
-    # overwritten
-    def visit_title(self, node, move_ids=1):
+    # overwritten (args/kwds due to docutils 0.4/0.5 incompatibility)
+    def visit_title(self, node, *args, **kwds):
         # if we have a section we do our own processing in order
         # to have ids in the hN-tags and not in additional a-tags
         if isinstance(node.parent, nodes.section):
@@ -174,7 +176,7 @@ class HTMLTranslator(BaseTranslator):
             self.body.append(self.starttag(node, 'h%d' % h_level, '', **attrs))
             self.context.append('</h%d>\n' % h_level)
         else:
-            BaseTranslator.visit_title(self, node, move_ids)
+            BaseTranslator.visit_title(self, node, *args, **kwds)
 
     # overwritten
     def visit_literal_block(self, node):
@@ -263,6 +265,18 @@ class HTMLTranslator(BaseTranslator):
         pass
     def depart_module(self, node):
         pass
+
+    # docutils 0.5 compatibility
+    def visit_note(self, node):
+        self.visit_admonition(node, 'note')
+    def depart_note(self, node):
+        self.depart_admonition(node)
+
+    # docutils 0.5 compatibility
+    def visit_warning(self, node):
+        self.visit_admonition(node, 'warning')
+    def depart_warning(self, node):
+        self.depart_admonition(node)
 
     # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):

@@ -17,9 +17,9 @@ from os import path
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import admonitions
 
 from sphinx import addnodes
+from sphinx.util.compat import make_admonition
 
 # ------ index markup --------------------------------------------------------------
 
@@ -446,7 +446,7 @@ directives.register_directive('versionchanged', version_directive)
 
 def seealso_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
-    rv = admonitions.make_admonition(
+    rv = make_admonition(
         addnodes.seealso, name, ['See also'], options, content,
         lineno, content_offset, block_text, state, state_machine)
     return rv

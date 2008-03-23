@@ -65,5 +65,5 @@ setup(
             'sphinx-quickstart = sphinx.quickstart:main'
         ]
     },
-    install_requires=['Pygments>=0.8', 'docutils==0.4']
+    install_requires=['Pygments>=0.8', 'docutils>=0.4']
 )
