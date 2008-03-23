@@ -16,6 +16,9 @@ Changes in trunk
 
 * sphinx.builder: The WebHTMLBuilder is now called PickleHTMLBuilder.
 
+* sphinx.htmlwriter: Make parsed-literal blocks work as expected,
+  not highlighting them via Pygments.
+
 
 Release 0.1.61798 (Mar 23, 2008)
 ================================

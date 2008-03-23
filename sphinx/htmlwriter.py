@@ -180,6 +180,9 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_literal_block(self, node):
+        if node.rawsource != node.astext():
+            # most probably a parsed-literal block -- don't highlight
+            return BaseTranslator.visit_literal_block(self, node)
         lang = self.highlightlang
         linenos = node.rawsource.count('\n') >= self.highlightlinenothreshold - 1
         if node.has_key('language'):
