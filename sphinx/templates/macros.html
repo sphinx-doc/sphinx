@@ -29,8 +29,7 @@
           {% if customsidebar %}
           {{ rendertemplate(customsidebar) }}
           {% endif %}
-          {% if current_page_name != "search" and builder == 'web' %}
-          {# HTML builder search is disabled for now #}
+          {% if current_page_name != "search" %}
             <h3>{{ builder == 'web' and 'Keyword' or 'Quick' }} search</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
               <input type="text" name="q" size="18"> <input type="submit" value="Go">
