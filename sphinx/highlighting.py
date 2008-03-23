@@ -65,6 +65,13 @@ def escape_tex(text):
                 replace('\x01', '@lb[]').\
                 replace('\x02', '@rb[]')
 
+# used if Pygments is not available
+_LATEX_STYLES = r'''
+\newcommand\at{@}
+\newcommand\lb{[}
+\newcommand\rb{]}
+'''
+
 
 parsing_exceptions = (SyntaxError, UnicodeEncodeError)
 if sys.version_info < (2, 5):
@@ -139,5 +146,9 @@ class PygmentsBridge(object):
 
     def get_stylesheet(self):
         if not pygments:
+            if self.dest == 'latex':
+                return _LATEX_STYLES
+            # no HTML styles needed
             return ''
-        return (self.dest == 'html' and self.hfmter or self.lfmter)[0].get_style_defs()
+        fmter = (self.dest == 'html' and self.hfmter or self.lfmter)[0]
+        return fmter.get_style_defs()

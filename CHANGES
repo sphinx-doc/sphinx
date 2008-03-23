@@ -11,6 +11,9 @@ Changes in trunk
   files (under _sources) as input files if the source suffix is
   ``.txt``.
 
+* sphinx.highlighting: Generate correct markup for LaTeX Verbatim
+  environment escapes even if Pygments is not installed.
+
 
 Release 0.1.61798 (Mar 23, 2008)
 ================================
