@@ -19,6 +19,8 @@ Changes in trunk
 * sphinx.htmlwriter: Make parsed-literal blocks work as expected,
   not highlighting them via Pygments.
 
+* sphinx.environment: Don't error out on reading an empty source file.
+
 
 Release 0.1.61798 (Mar 23, 2008)
 ================================

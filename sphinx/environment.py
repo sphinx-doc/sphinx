@@ -457,7 +457,11 @@ class BuildEnvironment:
         Process the docinfo part of the doctree as metadata.
         """
         self.metadata[docname] = md = {}
-        docinfo = doctree[0]
+        try:
+            docinfo = doctree[0]
+        except IndexError:
+            # probably an empty document
+            return
         if docinfo.__class__ is not nodes.docinfo:
             # nothing to see here
             return
