@@ -4,6 +4,12 @@ Changes in trunk
 * sphinx.environment: Take dependent files into account when collecting
   the set of outdated sources.
 
+* sphinx.directives: Record files included with ``.. literalinclude::``
+  as dependencies.
+
+* sphinx.ext.autodoc: Record files from which docstrings are included
+  as dependencies.
+
 
 Release 0.1.61843 (Mar 24, 2008)
 ================================

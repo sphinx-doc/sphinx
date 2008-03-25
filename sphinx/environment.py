@@ -361,6 +361,7 @@ class BuildEnvironment:
                 # finally, check the mtime of dependencies
                 for dep in self.dependencies.get(docname, ()):
                     try:
+                        # this will do the right thing when dep is absolute too
                         deppath = path.join(self.srcdir, dep)
                         if not path.isfile(deppath):
                             changed.add(docname)
@@ -639,6 +640,7 @@ class BuildEnvironment:
 
     def note_dependency(self, filename):
         basename = path.dirname(self.doc2path(self.docname, base=None))
+        # this will do the right thing when filename is absolute too
         filename = path.join(basename, filename)
         self.dependencies.setdefault(self.docname, set()).add(filename)
     # -------

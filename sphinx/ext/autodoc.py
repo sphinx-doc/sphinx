@@ -69,8 +69,8 @@ def get_module_charset(module):
     return charset
 
 
-def generate_rst(what, name, members, undoc, add_content,
-                 document, lineno, indent=''):
+def generate_rst(what, name, members, undoc, add_content, document, lineno,
+                 indent='', filename_set=None):
     env = document.settings.env
 
     # find out what to import
@@ -101,6 +101,11 @@ def generate_rst(what, name, members, undoc, add_content,
 
     try:
         todoc = module = __import__(mod, None, None, ['foo'])
+        if filename_set is not None and hasattr(module, '__file__') and module.__file__:
+            modfile = module.__file__
+            if modfile.lower().endswith('.pyc') or modfile.lower().endswith('.pyo'):
+                modfile = modfile[:-1]
+            filename_set.add(modfile)
         for part in objpath:
             todoc = getattr(todoc, part)
         if hasattr(todoc, '__module__'):
@@ -218,8 +223,14 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     members = options.get('members', [])
     undoc = 'undoc-members' in options
 
+    filename_set = set()
     warnings, result = generate_rst(what, name, members, undoc, content,
-                                    state.document, lineno)
+                                    state.document, lineno, filename_set=filename_set)
+
+    # record all filenames as dependencies -- this will at least partially make
+    # automatic invalidation possible
+    for fn in filename_set:
+        state.document.settings.env.note_dependency(fn)
 
     if dirname == 'automodule':
         node = nodes.section()
