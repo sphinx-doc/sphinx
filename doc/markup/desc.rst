@@ -26,6 +26,8 @@ As you can see, the module-specific markup consists of two directives, the
    submodule, in which case the name should be fully qualified, including the
    package name).
 
+   This directive will also cause an entry in the global module index.
+
    The ``platform`` option, if present, is a comma-separated list of the
    platforms on which the module is available (if it is available on all
    platforms, the option should be omitted).  The keys are short identifiers;
@@ -37,6 +39,7 @@ As you can see, the module-specific markup consists of two directives, the
 
    The ``deprecated`` option can be given (with no value) to mark a module as
    deprecated; it will be designated as such in various locations then.
+
 
 .. directive:: .. moduleauthor:: name <email>
 
@@ -52,6 +55,8 @@ As you can see, the module-specific markup consists of two directives, the
    meaningful since that value will be inserted in the table-of-contents trees
    in overview files.
 
+
+.. _desc-units:
 
 Description units
 -----------------

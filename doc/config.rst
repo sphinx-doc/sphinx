@@ -166,17 +166,38 @@ that use Sphinx' HTMLWriter class.
 
    Content template for the index page, filename relative to this file.  If this
    is not the empty string, the "index" document will not be created from a
-   reStructuredText file but from this template.
+   reStructuredText file but from the ``index.html`` template.  The template you
+   specify in this value will be included in the ``index.html``, together with
+   a list of tables.
+
+   If you want to completely override the resulting ``index`` document, set this
+   to some nonempty value and override the ``index.html`` template.
 
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
-   template names.
+   template names.  Example::
+
+      html_sidebars = {
+         'using/windows': 'windowssidebar.html'
+      }
+
+   This will render the template ``windowssidebar.html`` within the sidebar of
+   the given document.
 
 .. confval:: html_additional_pages
 
    Additional templates that should be rendered to HTML pages, must be a
    dictionary that maps document names to template names.
+
+   Example::
+   
+      html_additional_pages = {
+          'download': 'customdownload.html',
+      }
+
+   This will render the template ``customdownload.html`` as the page
+   ``download.html``.
 
 .. confval:: html_use_modindex
 
