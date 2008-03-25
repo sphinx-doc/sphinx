@@ -10,6 +10,9 @@ Changes in trunk
 * sphinx.ext.autodoc: Record files from which docstrings are included
   as dependencies.
 
+* sphinx.builder: Handle unavailability of TOC relations (previous/
+  next chapter) more gracefully in the HTML builder.
+
 
 Release 0.1.61843 (Mar 24, 2008)
 ================================

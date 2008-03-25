@@ -347,22 +347,33 @@ class StandaloneHTMLBuilder(Builder):
         prev = next = None
         parents = []
         related = self.env.toctree_relations.get(docname)
+        titles = self.env.titles
         if related:
-            prev = {'link': self.get_relative_uri(docname, related[1]),
-                    'title': self.render_partial(self.env.titles[related[1]])['title']}
-            next = {'link': self.get_relative_uri(docname, related[2]),
-                    'title': self.render_partial(self.env.titles[related[2]])['title']}
+            try:
+                prev = {'link': self.get_relative_uri(docname, related[1]),
+                        'title': self.render_partial(titles[related[1]])['title']}
+            except KeyError:
+                # the relation is (somehow) not in the TOC tree, handle that gracefully
+                prev = None
+            try:
+                next = {'link': self.get_relative_uri(docname, related[2]),
+                        'title': self.render_partial(titles[related[2]])['title']}
+            except KeyError:
+                next = None
         while related:
-            parents.append(
-                {'link': self.get_relative_uri(docname, related[0]),
-                 'title': self.render_partial(self.env.titles[related[0]])['title']})
+            try:
+                parents.append(
+                    {'link': self.get_relative_uri(docname, related[0]),
+                     'title': self.render_partial(titles[related[0]])['title']})
+            except KeyError:
+                pass
             related = self.env.toctree_relations.get(related[0])
         if parents:
             parents.pop() # remove link to the master file; we have a generic
                           # "back to index" link already
         parents.reverse()
 
-        title = self.env.titles.get(docname)
+        title = titles.get(docname)
         if title:
             title = self.render_partial(title)['title']
         else:
