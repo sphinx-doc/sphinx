@@ -13,6 +13,9 @@ Changes in trunk
 * sphinx.builder: Handle unavailability of TOC relations (previous/
   next chapter) more gracefully in the HTML builder.
 
+* setup: On Python 2.4, don't egg-depend on docutils if a docutils is
+  already installed -- else it will be overwritten.
+
 
 Release 0.1.61843 (Mar 24, 2008)
 ================================
