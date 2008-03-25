@@ -191,6 +191,7 @@ c_funcptr_sig_re = re.compile(
         (\( [^()]+ \)) \s* # name in parentheses
         \( (.*) \) $       # arguments
     ''', re.VERBOSE)
+c_funcptr_name_re = re.compile(r'^\(\s*\*\s*(.*?)\s*\)$')
 
 # RE to split at word boundaries
 wsplit_re = re.compile(r'(\W+)')
@@ -224,6 +225,10 @@ def parse_c_signature(signode, sig, desctype):
     signode += addnodes.desc_type("", "")
     parse_c_type(signode[-1], rettype)
     signode += addnodes.desc_name(name, name)
+    # clean up parentheses from canonical name
+    m = c_funcptr_name_re.match(name)
+    if m:
+        name = m.group(1)
     if not arglist:
         if desctype == 'cfunction':
             # for functions, add an empty parameter list
