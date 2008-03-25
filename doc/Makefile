@@ -29,12 +29,12 @@ html:
 	@echo
 	@echo "Build finished. The HTML pages are in _build/html."
 
-web:
-	mkdir -p _build/web _build/doctrees
-	$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) _build/web
+pickle:
+	mkdir -p _build/pickle _build/doctrees
+	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) _build/pickle
 	@echo
 	@echo "Build finished; now you can run"
-	@echo "  python -m sphinx.web _build/web"
+	@echo "  python -m sphinx.web _build/pickle"
 	@echo "to start the server."
 
 htmlhelp:
