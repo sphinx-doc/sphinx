@@ -664,10 +664,10 @@ def literalinclude_directive(name, arguments, options, content, lineno,
     if not state.document.settings.file_insertion_enabled:
         return [state.document.reporter.warning('File insertion disabled', line=lineno)]
     env = state.document.settings.env
-    fn = arguments[0]
+    rel_fn = arguments[0]
     source_dir = path.dirname(path.abspath(state_machine.input_lines.source(
         lineno - state_machine.input_offset - 1)))
-    fn = path.normpath(path.join(source_dir, fn))
+    fn = path.normpath(path.join(source_dir, rel_fn))
 
     try:
         f = open(fn)
@@ -683,6 +683,7 @@ def literalinclude_directive(name, arguments, options, content, lineno,
             retnode['language'] = options['language']
         if 'linenos' in options:
             retnode['linenos'] = True
+        state.document.settings.env.note_dependency(rel_fn)
     return [retnode]
 
 literalinclude_directive.options = {'linenos': directives.flag,

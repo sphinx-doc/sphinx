@@ -183,7 +183,7 @@ Results of doctest builder run on %s
         return ''
 
     def get_outdated_docs(self):
-        return self.env.all_docs
+        return self.env.found_docs
 
     def finish(self):
         # write executive summary
@@ -204,7 +204,7 @@ Doctest summary
 
     def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None:
-            build_docnames = self.env.all_docs
+            build_docnames = sorted(self.env.all_docs)
 
         self.info(bold('running tests...'))
         for docname in build_docnames:

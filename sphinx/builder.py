@@ -127,8 +127,7 @@ class Builder(object):
     # build methods
 
     def load_env(self):
-        """Set up the build environment. Return True if a pickled file could be
-           successfully loaded, False if a new environment had to be created."""
+        """Set up the build environment."""
         if self.env:
             return
         if not self.freshenv:
@@ -143,8 +142,10 @@ class Builder(object):
                 else:
                     self.info('failed: %s' % err)
                 self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+                self.env.find_files(self.config)
         else:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+            self.env.find_files(self.config)
         self.env.set_warnfunc(self.warn)
 
     def build_all(self):
@@ -171,10 +172,6 @@ class Builder(object):
     def build_update(self):
         """Only rebuild files changed or added since last build."""
         to_build = self.get_outdated_docs()
-        if not to_build and self.env.all_docs:
-            # if there is nothing in all_docs, it's a fresh env
-            self.info(bold('no target files are out of date, exiting.'))
-            return
         if isinstance(to_build, str):
             self.build([], to_build)
         else:
@@ -213,6 +210,10 @@ class Builder(object):
             # global actions
             self.info(bold('checking consistency...'))
             self.env.check_consistency()
+        else:
+            if not docnames:
+                self.info(bold('no targets are out of date.'))
+                return
 
         # another indirection to support methods which don't build files
         # individually
@@ -222,14 +223,15 @@ class Builder(object):
         self.info(bold('finishing... '))
         self.finish()
         if self.app._warncount:
-            self.info(bold('build succeeded, %s warnings.' % self.app._warncount))
+            self.info(bold('build succeeded, %s warning%s.' %
+                           (self.app._warncount, self.app._warncount != 1 and 's' or '')))
         else:
             self.info(bold('build succeeded.'))
 
     def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None:
             # build_all
-            build_docnames = self.env.all_docs
+            build_docnames = self.env.found_docs
         if method == 'update':
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
@@ -383,7 +385,7 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx)
 
     def finish(self):
-        self.info(bold('writing additional files...'))
+        self.info(bold('writing additional files...'), nonl=1)
 
         # the global general index
 
@@ -397,6 +399,7 @@ class StandaloneHTMLBuilder(Builder):
             genindexentries = self.env.index,
             genindexcounts = indexcounts,
         )
+        self.info(' genindex', nonl=1)
         self.handle_page('genindex', genindexcontext, 'genindex.html')
 
         # the global module index
@@ -442,21 +445,26 @@ class StandaloneHTMLBuilder(Builder):
                 modindexentries = modindexentries,
                 platforms = platforms,
             )
+            self.info(' modindex', nonl=1)
             self.handle_page('modindex', modindexcontext, 'modindex.html')
 
         # the search page
+        self.info(' search', nonl=1)
         self.handle_page('search', {}, 'search.html')
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
+            self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         # the index page
         indextemplate = self.config.html_index
         if indextemplate:
+            self.info(' index', nonl=1)
             self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
 
         # copy static files
+        self.info()
         self.info(bold('copying static files...'))
         ensuredir(path.join(self.outdir, 'static'))
         staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
@@ -481,10 +489,7 @@ class StandaloneHTMLBuilder(Builder):
         return docname + '.html'
 
     def get_outdated_docs(self):
-        for docname in get_matching_docs(
-            self.srcdir, self.config.source_suffix,
-            exclude=set(self.config.unused_docs),
-            prune=['_sources']):
+        for docname in self.env.found_docs:
             targetname = self.env.doc2path(docname, self.outdir, '.html')
             try:
                 targetmtime = path.getmtime(targetname)
@@ -566,10 +571,7 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         self.init_translator_class()
 
     def get_outdated_docs(self):
-        for docname in get_matching_docs(
-            self.srcdir, self.config.source_suffix,
-            exclude=set(self.config.unused_docs),
-            prune=['_sources']):
+        for docname in self.env.found_docs:
             targetname = self.env.doc2path(docname, self.outdir, '.fpickle')
             try:
                 targetmtime = path.getmtime(targetname)

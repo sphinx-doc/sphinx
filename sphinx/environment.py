@@ -57,7 +57,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 18
+ENV_VERSION = 19
 
 
 def walk_depth(node, depth, maxdepth):
@@ -218,8 +218,10 @@ class BuildEnvironment:
         # All "docnames" here are /-separated and relative and exclude the source suffix.
 
         self.found_docs = set()     # contains all existing docnames
-        self.all_docs = {}          # docname -> (mtime, md5sum) at the time of build
+        self.all_docs = {}          # docname -> mtime at the time of build
                                     # contains all built docnames
+        self.dependencies = {}      # docname -> set of dependent file names, relative to
+                                    # documentation root
 
         # File metadata
         self.metadata = {}          # docname -> dict of metadata items
@@ -278,6 +280,7 @@ class BuildEnvironment:
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.metadata.pop(docname, None)
+            self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
             self.tocs.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
@@ -318,14 +321,18 @@ class BuildEnvironment:
         else:
             return path.join(base, docname.replace(SEP, path.sep)) + suffix
 
-    def get_outdated_files(self, config, config_changed):
+    def find_files(self, config):
         """
-        Return (added, changed, removed) sets.
+        Find all source files in the source dir and put them in self.found_docs.
         """
         self.found_docs = set(get_matching_docs(self.srcdir, config.source_suffix,
                                                 exclude=set(config.unused_docs),
                                                 prune=['_sources']))
 
+    def get_outdated_files(self, config_changed):
+        """
+        Return (added, changed, removed) sets.
+        """
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
 
@@ -339,17 +346,28 @@ class BuildEnvironment:
             for docname in self.found_docs:
                 if docname not in self.all_docs:
                     added.add(docname)
-                else:
-                    # if the doctree file is not there, rebuild
-                    if not path.isfile(self.doc2path(docname, self.doctreedir,
-                                                     '.doctree')):
-                        changed.add(docname)
-                        continue
-                    mtime, md5sum = self.all_docs[docname]
-                    newmtime = path.getmtime(self.doc2path(docname))
-                    if newmtime == mtime:
-                        continue
+                    continue
+                # if the doctree file is not there, rebuild
+                if not path.isfile(self.doc2path(docname, self.doctreedir,
+                                                 '.doctree')):
                     changed.add(docname)
+                    continue
+                # check the mtime of the document
+                mtime = self.all_docs[docname]
+                newmtime = path.getmtime(self.doc2path(docname))
+                if newmtime > mtime:
+                    changed.add(docname)
+                    continue
+                # finally, check the mtime of dependencies
+                for dep in self.dependencies.get(docname, ()):
+                    deppath = path.join(self.srcdir, dep)
+                    if not path.isfile(deppath):
+                        changed.add(docname)
+                        break
+                    depmtime = path.getmtime(deppath)
+                    if depmtime > mtime:
+                        changed.add(docname)
+                        break
 
         return added, changed, removed
 
@@ -369,12 +387,14 @@ class BuildEnvironment:
                     continue
                 if not hasattr(self.config, key) or \
                    self.config[key] != config[key]:
+
                     msg = '[config changed] '
                     config_changed = True
                     break
             else:
                 msg = ''
-        added, changed, removed = self.get_outdated_files(config, config_changed)
+        self.find_files(config)
+        added, changed, removed = self.get_outdated_files(config_changed)
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
         yield msg
@@ -409,18 +429,14 @@ class BuildEnvironment:
         doctree = publish_doctree(None, src_path, FileInput,
                                   settings_overrides=self.settings,
                                   reader=MyStandaloneReader())
+        self.process_dependencies(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_labels_from(docname, doctree)
         self.build_toc_from(docname, doctree)
 
-        # calculate the MD5 of the file at time of build
-        f = open(src_path, 'rb')
-        try:
-            md5sum = md5(f.read()).digest()
-        finally:
-            f.close()
-        self.all_docs[docname] = (path.getmtime(src_path), md5sum)
+        # store time of reading, used to find outdated files
+        self.all_docs[docname] = time.time()
 
         if app:
             app.emit('doctree-read', doctree)
@@ -430,6 +446,7 @@ class BuildEnvironment:
         doctree.transformer = None
         doctree.settings.warning_stream = None
         doctree.settings.env = None
+        doctree.settings.record_dependencies = None
 
         # cleanup
         self.docname = None
@@ -451,6 +468,18 @@ class BuildEnvironment:
                 f.close()
         else:
             return doctree
+
+    def process_dependencies(self, docname, doctree):
+        """
+        Process docutils-generated dependency info.
+        """
+        deps = doctree.settings.record_dependencies
+        if not deps:
+            return
+        basename = path.dirname(self.doc2path(docname, base=None))
+        for dep in deps.list:
+            dep = path.join(basename, dep)
+            self.dependencies.setdefault(docname, set()).add(dep)
 
     def process_metadata(self, docname, doctree):
         """
@@ -602,6 +631,11 @@ class BuildEnvironment:
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
             (type, self.docname, lineno, self.currmodule, self.currdesc, node.astext()))
+
+    def note_dependency(self, filename):
+        basename = path.dirname(self.doc2path(self.docname, base=None))
+        filename = path.join(basename, filename)
+        self.dependencies.setdefault(self.docname, set()).add(filename)
     # -------
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------

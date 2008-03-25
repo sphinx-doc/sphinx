@@ -42,7 +42,7 @@ class CheckExternalLinksBuilder(Builder):
         return ''
 
     def get_outdated_docs(self):
-        return self.env.all_docs
+        return self.env.found_docs
 
     def prepare_writing(self, docnames):
         return

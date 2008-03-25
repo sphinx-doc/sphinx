@@ -1,3 +1,10 @@
+Changes in trunk
+================
+
+* sphinx.environment: Take dependent files into account when collecting
+  the set of outdated sources.
+
+
 Release 0.1.61843 (Mar 24, 2008)
 ================================
 
