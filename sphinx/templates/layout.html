@@ -46,8 +46,8 @@
     <link rel="alternate" type="{{ type|e(true) }}" title="{{ title|e(true) }}" href="{{ link|e(true) }}">
     {%- endfor %}
     {%- else %}
-    <link rel="stylesheet" href="{{ pathto('static/' + style, 1) }}" type="text/css">
-    <link rel="stylesheet" href="{{ pathto('static/pygments.css', 1) }}" type="text/css">
+    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css">
+    <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css">
     {%- endif %}
     {%- if builder != 'htmlhelp' %}
     <script type="text/javascript">
@@ -56,9 +56,9 @@
         VERSION:    '{{ release }}'
       };
     </script>
-    <script type="text/javascript" src="{{ pathto('static/jquery.js', 1) }}"></script>
-    <script type="text/javascript" src="{{ pathto('static/interface.js', 1) }}"></script>
-    <script type="text/javascript" src="{{ pathto('static/doctools.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('_static/jquery.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('_static/interface.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('_static/doctools.js', 1) }}"></script>
     {%- endif %}
 {%- block rellinks %}
     {%- if hasdoc('about') %}

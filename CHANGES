@@ -4,6 +4,9 @@ Changes in trunk
 * sphinx.htmlwriter, sphinx.latexwriter: Support the ``.. image::``
   directive by copying image files to the output directory.
 
+* sphinx.builder: Consistently name "special" HTML output directories
+  with a leading underscore; this means ``_sources`` and ``_static``.
+
 * sphinx.environment: Take dependent files into account when collecting
   the set of outdated sources.
 

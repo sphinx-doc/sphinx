@@ -496,7 +496,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # copy static files
         self.info(bold('copying static files...'))
-        ensuredir(path.join(self.outdir, 'static'))
+        ensuredir(path.join(self.outdir, '_static'))
         staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
                          [path.join(self.srcdir, spath)
                           for spath in self.config.html_static_path]
@@ -504,9 +504,9 @@ class StandaloneHTMLBuilder(Builder):
             for filename in os.listdir(staticdirname):
                 if not filename.startswith('.'):
                     shutil.copyfile(path.join(staticdirname, filename),
-                                    path.join(self.outdir, 'static', filename))
+                                    path.join(self.outdir, '_static', filename))
         # add pygments style file
-        f = open(path.join(self.outdir, 'static', 'pygments.css'), 'w')
+        f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
         f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())
         f.close()
 
@@ -514,7 +514,10 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_finish()
 
     def get_outdated_docs(self):
-        template_mtime = max(mtimes_of_files(self.templates_path, '.html'))
+        if self.templates_path:
+            template_mtime = max(mtimes_of_files(self.templates_path, '.html'))
+        else:
+            template_mtime = 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -603,6 +606,8 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         self.init_translator_class()
+        # no templates used, but get_outdated_docs() needs this attribute
+        self.templates_path = []
 
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':
@@ -627,7 +632,7 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         # if there is a source file, copy the source file for the
         # "show source" link
         if ctx.get('sourcename'):
-            source_name = path.join(self.outdir, 'sources',
+            source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             shutil.copyfile(self.env.doc2path(pagename), source_name)
