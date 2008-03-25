@@ -360,12 +360,17 @@ class BuildEnvironment:
                     continue
                 # finally, check the mtime of dependencies
                 for dep in self.dependencies.get(docname, ()):
-                    deppath = path.join(self.srcdir, dep)
-                    if not path.isfile(deppath):
-                        changed.add(docname)
-                        break
-                    depmtime = path.getmtime(deppath)
-                    if depmtime > mtime:
+                    try:
+                        deppath = path.join(self.srcdir, dep)
+                        if not path.isfile(deppath):
+                            changed.add(docname)
+                            break
+                        depmtime = path.getmtime(deppath)
+                        if depmtime > mtime:
+                            changed.add(docname)
+                            break
+                    except EnvironmentError:
+                        # give it another chance
                         changed.add(docname)
                         break
 
