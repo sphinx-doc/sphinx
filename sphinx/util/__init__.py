@@ -54,6 +54,8 @@ def get_matching_docs(dirname, suffix, exclude=(), prune=()):
     """
     Get all file names (without suffix) matching a suffix in a
     directory, recursively.
+
+    Exclude files in *exclude*, prune directories in *prune*.
     """
     pattern = '*' + suffix
     # dirname is a normalized absolute path.
@@ -73,6 +75,17 @@ def get_matching_docs(dirname, suffix, exclude=(), prune=()):
             if qualified_name in exclude:
                 continue
             yield qualified_name
+
+
+def mtimes_of_files(dirnames, suffix):
+    for dirname in dirnames:
+        for root, dirs, files in os.walk(dirname):
+            for sfile in files:
+                if sfile.endswith(suffix):
+                    try:
+                        yield path.getmtime(path.join(root, sfile))
+                    except EnvironmentError:
+                        pass
 
 
 def shorten_result(text='', keywords=[], maxlen=240, fuzz=60):

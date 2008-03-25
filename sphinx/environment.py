@@ -55,9 +55,9 @@ default_settings = {
     'sectsubtitle_xform': False,
 }
 
-# This is increased every time a new environment attribute is added
-# to properly invalidate pickle files.
-ENV_VERSION = 20
+# This is increased every time an environment attribute is added
+# or changed to properly invalidate pickle files.
+ENV_VERSION = 21
 
 
 def walk_depth(node, depth, maxdepth):
@@ -251,7 +251,7 @@ class BuildEnvironment:
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of
                                     # (type, docname, lineno, module, descname, content)
-        self.images = {}            # absolute path -> unique filename
+        self.images = {}            # absolute path -> (docnames, unique filename)
 
         # These are set while parsing a file
         self.docname = None         # current document name
@@ -287,13 +287,14 @@ class BuildEnvironment:
             self.titles.pop(docname, None)
             self.tocs.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
+            self.filemodules.pop(docname, None)
+            self.indexentries.pop(docname, None)
 
             for subfn, fnset in self.files_to_rebuild.iteritems():
                 fnset.discard(docname)
             for fullname, (fn, _) in self.descrefs.items():
                 if fn == docname:
                     del self.descrefs[fullname]
-            self.filemodules.pop(docname, None)
             for modname, (fn, _, _, _) in self.modules.items():
                 if fn == docname:
                     del self.modules[modname]
@@ -303,10 +304,13 @@ class BuildEnvironment:
             for key, (fn, _) in self.reftargets.items():
                 if fn == docname:
                     del self.reftargets[key]
-            self.indexentries.pop(docname, None)
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
+            for fullpath, (docs, _) in self.images.items():
+                docs.discard(docname)
+                if not docs:
+                    del self.images[fullpath]
 
     def doc2path(self, docname, base=True, suffix=None):
         """
@@ -501,6 +505,7 @@ class BuildEnvironment:
         """
         Process and rewrite image URIs.
         """
+        existing_names = set(v[1] for v in self.images.itervalues())
         docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(nodes.image):
             imguri = node['uri']
@@ -513,15 +518,16 @@ class BuildEnvironment:
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
                     self.warn(docname, 'Image file not readable: %s' % imguri, node.line)
                 if imgpath in self.images:
+                    self.images[imgpath][0].add(docname)
                     continue
-                names = set(self.images.values())
                 uniquename = path.basename(imgpath)
                 base, ext = path.splitext(uniquename)
                 i = 0
-                while uniquename in names:
+                while uniquename in existing_names:
                     i += 1
                     uniquename = '%s%s%s' % (base, i, ext)
-                self.images[imgpath] = uniquename
+                self.images[imgpath] = (set([docname]), uniquename)
+                existing_names.add(uniquename)
 
     def process_metadata(self, docname, doctree):
         """

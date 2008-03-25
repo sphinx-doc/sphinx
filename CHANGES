@@ -13,6 +13,8 @@ Changes in trunk
 * sphinx.ext.autodoc: Record files from which docstrings are included
   as dependencies.
 
+* sphinx.builder: Rebuild all HTML files in case of a template change.
+
 * sphinx.builder: Handle unavailability of TOC relations (previous/
   next chapter) more gracefully in the HTML builder.
 

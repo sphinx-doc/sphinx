@@ -25,7 +25,8 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes
-from sphinx.util import (get_matching_docs, ensuredir, relative_uri, SEP, os_path)
+from sphinx.util import (get_matching_docs, mtimes_of_files,
+                         ensuredir, relative_uri, SEP, os_path)
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
@@ -83,6 +84,7 @@ class Builder(object):
         base_templates_path = path.join(path.dirname(__file__), 'templates')
         ext_templates_path = [path.join(self.srcdir, dir)
                               for dir in self.config.templates_path]
+        self.templates_path = [base_templates_path] + ext_templates_path
         loader = SphinxFileSystemLoader(base_templates_path, ext_templates_path)
         self.jinja_env = Environment(loader=loader,
                                      # disable traceback, more likely that something
@@ -277,8 +279,9 @@ class StandaloneHTMLBuilder(Builder):
     Builds standalone HTML docs.
     """
     name = 'html'
-
     copysource = True
+    out_suffix = '.html'
+    indexer_format = 'json'
 
     def init(self):
         """Load templates."""
@@ -485,7 +488,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.env.images:
             self.info(bold('copying images...'), nonl=1)
             ensuredir(path.join(self.outdir, '_images'))
-            for src, dest in self.env.images.iteritems():
+            for src, (_, dest) in self.env.images.iteritems():
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, '_images', dest))
@@ -510,29 +513,26 @@ class StandaloneHTMLBuilder(Builder):
         # dump the search index
         self.handle_finish()
 
-    # --------- these are overwritten by the Pickle builder
-
-    def get_target_uri(self, docname, typ=None):
-        return docname + '.html'
-
     def get_outdated_docs(self):
+        template_mtime = max(mtimes_of_files(self.templates_path, '.html'))
         for docname in self.env.found_docs:
-            targetname = self.env.doc2path(docname, self.outdir, '.html')
-            try:
-                targetmtime = path.getmtime(targetname)
-            except:
-                targetmtime = 0
             if docname not in self.env.all_docs:
                 yield docname
-            elif path.getmtime(self.env.doc2path(docname)) > targetmtime:
+                continue
+            targetname = self.env.doc2path(docname, self.outdir, self.out_suffix)
+            try:
+                targetmtime = path.getmtime(targetname)
+            except Exception:
+                targetmtime = 0
+            srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
+            if srcmtime > targetmtime:
                 yield docname
-
 
     def load_indexer(self, docnames):
         try:
-            f = open(path.join(self.outdir, 'searchindex.json'), 'r')
+            f = open(path.join(self.outdir, 'searchindex.'+self.indexer_format), 'r')
             try:
-                self.indexer.load(f, 'json')
+                self.indexer.load(f, self.indexer_format)
             finally:
                 f.close()
         except (IOError, OSError):
@@ -544,6 +544,11 @@ class StandaloneHTMLBuilder(Builder):
         # only index pages with title
         if self.indexer is not None and title:
             self.indexer.feed(pagename, title, doctree)
+
+    # --------- these are overwritten by the Pickle builder
+
+    def get_target_uri(self, docname, typ=None):
+        return docname + '.html'
 
     def handle_page(self, pagename, addctx, templatename='page.html'):
         ctx = self.globalcontext.copy()
@@ -593,19 +598,11 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
     Builds HTML docs without rendering templates.
     """
     name = 'pickle'
+    out_suffix = '.fpickle'
+    indexer_format = 'pickle'
 
     def init(self):
         self.init_translator_class()
-
-    def get_outdated_docs(self):
-        for docname in self.env.found_docs:
-            targetname = self.env.doc2path(docname, self.outdir, '.fpickle')
-            try:
-                targetmtime = path.getmtime(targetname)
-            except:
-                targetmtime = 0
-            if path.getmtime(self.env.doc2path(docname)) > targetmtime:
-                yield docname
 
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':
@@ -613,23 +610,6 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         if docname.endswith(SEP + 'index'):
             return docname[:-5] # up to sep
         return docname + SEP
-
-    def load_indexer(self, docnames):
-        try:
-            f = open(path.join(self.outdir, 'searchindex.pickle'), 'r')
-            try:
-                self.indexer.load(f, 'pickle')
-            finally:
-                f.close()
-        except (IOError, OSError):
-            pass
-        # delete all entries for files that will be rebuilt
-        self.indexer.prune(set(self.env.all_docs) - set(docnames))
-
-    def index_page(self, pagename, doctree, title):
-        # only index pages with title
-        if self.indexer is not None and title:
-            self.indexer.feed(pagename, title, doctree)
 
     def handle_page(self, pagename, ctx, templatename='page.html'):
         ctx['current_page_name'] = pagename
@@ -815,7 +795,7 @@ class LaTeXBuilder(Builder):
         # copy image files
         if self.env.images:
             self.info(bold('copying images...'), nonl=1)
-            for src, dest in self.env.images.iteritems():
+            for src, (_, dest) in self.env.images.iteritems():
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))

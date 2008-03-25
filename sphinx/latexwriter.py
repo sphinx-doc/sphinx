@@ -547,7 +547,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pre.reverse()
         self.body.extend(pre)
         # XXX: for now, don't fiddle around with graphics formats
-        uri = self.builder.env.images.get(node['uri'], node['uri'])
+        if node['uri'] in self.builder.env.images:
+            uri = self.builder.env.images[node['uri']][1]
+        else:
+            uri = node['uri']
         self.body.append('\\includegraphics%s{%s}' % (include_graphics_options, uri))
         self.body.extend(post)
     def depart_image(self, node):

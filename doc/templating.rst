@@ -12,7 +12,7 @@ The most important concept in Jinja is :dfn:`template inheritance`, which means
 that you can overwrite only specific blocks within a template, customizing it
 while also keeping the changes at a minimum.
 
-Inheritance is done via two directives, ``extends`` and ``block``.
+Inheritance is done via two (Jinja) directives, ``extends`` and ``block``.
 
 .. template path
    blocks
