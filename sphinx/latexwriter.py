@@ -40,6 +40,15 @@ FOOTER = r'''
 \end{document}
 '''
 
+GRAPHICX = r'''
+%% Check if we are compiling under latex or pdflatex.
+\ifx\pdftexversion\undefined
+  \usepackage{graphicx}
+\else
+  \usepackage[pdftex]{graphicx}
+\fi
+'''
+
 
 class LaTeXWriter(writers.Writer):
 
@@ -118,11 +127,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
+        self.need_graphicx = 0
 
     def astext(self):
         return (HEADER % self.options) + \
                (self.options['modindex'] and '\\makemodindex\n' or '') + \
-               self.highlighter.get_stylesheet() + '\n\n' + \
+               self.highlighter.get_stylesheet() + \
+               (self.need_graphicx and GRAPHICX or '') + \
+               '\n\n' + \
                u''.join(self.body) + \
                (self.options['modindex'] and '\\printmodindex\n' or '') + \
                (FOOTER % self.options)
@@ -496,6 +508,49 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.has_key('platform'):
             self.body.append('\\platform{%s}' % self.encode(node['platform']))
     def depart_module(self, node):
+        pass
+
+    def visit_image(self, node):
+        self.need_graphicx = 1
+        attrs = node.attributes
+        pre = []                        # in reverse order
+        post = []
+        include_graphics_options = ""
+        inline = isinstance(node.parent, nodes.TextElement)
+        if attrs.has_key('scale'):
+            # Could also be done with ``scale`` option to
+            # ``\includegraphics``; doing it this way for consistency.
+            pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
+            post.append('}')
+        if attrs.has_key('width'):
+            include_graphics_options = '[width=%s]' % attrs['width']
+        if attrs.has_key('align'):
+            align_prepost = {
+                # By default latex aligns the top of an image.
+                (1, 'top'): ('', ''),
+                (1, 'middle'): ('\\raisebox{-0.5\\height}{', '}'),
+                (1, 'bottom'): ('\\raisebox{-\\height}{', '}'),
+                (0, 'center'): ('{\\hfill', '\\hfill}'),
+                # These 2 don't exactly do the right thing.  The image should
+                # be floated alongside the paragraph.  See
+                # http://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
+                (0, 'left'): ('{', '\\hfill}'),
+                (0, 'right'): ('{\\hfill', '}'),}
+            try:
+                pre.append(align_prepost[inline, attrs['align']][0])
+                post.append(align_prepost[inline, attrs['align']][1])
+            except KeyError:
+                pass
+        if not inline:
+            pre.append('\n')
+            post.append('\n')
+        pre.reverse()
+        self.body.extend(pre)
+        # XXX: for now, don't fiddle around with graphics formats
+        uri = self.builder.env.images.get(node['uri'], node['uri'])
+        self.body.append('\\includegraphics%s{%s}' % (include_graphics_options, uri))
+        self.body.extend(post)
+    def depart_image(self, node):
         pass
 
     def visit_note(self, node):

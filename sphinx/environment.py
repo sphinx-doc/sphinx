@@ -57,7 +57,7 @@ default_settings = {
 
 # This is increased every time a new environment attribute is added
 # to properly invalidate pickle files.
-ENV_VERSION = 19
+ENV_VERSION = 20
 
 
 def walk_depth(node, depth, maxdepth):
@@ -251,6 +251,7 @@ class BuildEnvironment:
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of
                                     # (type, docname, lineno, module, descname, content)
+        self.images = {}            # absolute path -> unique filename
 
         # These are set while parsing a file
         self.docname = None         # current document name
@@ -269,9 +270,11 @@ class BuildEnvironment:
         self._warnfunc = func
         self.settings['warning_stream'] = RedirStream(func)
 
-    def warn(self, docname, msg):
+    def warn(self, docname, msg, lineno=None):
         if docname:
-            self._warnfunc(self.doc2path(docname) + ':: ' + msg)
+            if lineno is None:
+                lineno = ''
+            self._warnfunc('%s:%s: %s' % (self.doc2path(docname), lineno, msg))
         else:
             self._warnfunc('GLOBAL:: ' + msg)
 
@@ -420,6 +423,12 @@ class BuildEnvironment:
             self.warn(None, 'master file %s not found' %
                       self.doc2path(config.master_doc))
 
+        # remove all non-existing images from inventory
+        for imgsrc in self.images.keys():
+            if not os.access(path.join(self.srcdir, imgsrc), os.R_OK):
+                del self.images[imgsrc]
+
+
     # --------- SINGLE FILE BUILDING -------------------------------------------
 
     def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
@@ -436,6 +445,7 @@ class BuildEnvironment:
                                   settings_overrides=self.settings,
                                   reader=MyStandaloneReader())
         self.process_dependencies(docname, doctree)
+        self.process_images(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_labels_from(docname, doctree)
@@ -482,10 +492,36 @@ class BuildEnvironment:
         deps = doctree.settings.record_dependencies
         if not deps:
             return
-        basename = path.dirname(self.doc2path(docname, base=None))
+        docdir = path.dirname(self.doc2path(docname, base=None))
         for dep in deps.list:
-            dep = path.join(basename, dep)
+            dep = path.join(docdir, dep)
             self.dependencies.setdefault(docname, set()).add(dep)
+
+    def process_images(self, docname, doctree):
+        """
+        Process and rewrite image URIs.
+        """
+        docdir = path.dirname(self.doc2path(docname, base=None))
+        for node in doctree.traverse(nodes.image):
+            imguri = node['uri']
+            if imguri.find('://') != -1:
+                self.warn(docname, 'Nonlocal image URI found: %s' % imguri, node.line)
+            else:
+                imgpath = path.normpath(path.join(docdir, imguri))
+                node['uri'] = imgpath
+                self.dependencies.setdefault(docname, set()).add(imgpath)
+                if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
+                    self.warn(docname, 'Image file not readable: %s' % imguri, node.line)
+                if imgpath in self.images:
+                    continue
+                names = set(self.images.values())
+                uniquename = path.basename(imgpath)
+                base, ext = path.splitext(uniquename)
+                i = 0
+                while uniquename in names:
+                    i += 1
+                    uniquename = '%s%s%s' % (base, i, ext)
+                self.images[imgpath] = uniquename
 
     def process_metadata(self, docname, doctree):
         """
@@ -527,6 +563,8 @@ class BuildEnvironment:
             if not explicit:
                 continue
             labelid = document.nameids[name]
+            if labelid is None:
+                continue
             node = document.ids[labelid]
             if name.isdigit() or node.has_key('refuri') or \
                    node.tagname.startswith('desc_'):
@@ -535,7 +573,8 @@ class BuildEnvironment:
                 continue
             if name in self.labels:
                 self.warn(docname, 'duplicate label %s, ' % name +
-                          'other instance in %s' % self.doc2path(self.labels[name][0]))
+                          'other instance in %s' % self.doc2path(self.labels[name][0]),
+                          node.line)
             self.anonlabels[name] = docname, labelid
             if not isinstance(node, nodes.section):
                 # anonymous-only labels
@@ -616,11 +655,12 @@ class BuildEnvironment:
     # -------
     # these are called from docutils directives and therefore use self.docname
     #
-    def note_descref(self, fullname, desctype):
+    def note_descref(self, fullname, desctype, line):
         if fullname in self.descrefs:
             self.warn(self.docname,
                       'duplicate canonical description name %s, ' % fullname +
-                      'other instance in %s' % self.doc2path(self.descrefs[fullname][0]))
+                      'other instance in %s' % self.doc2path(self.descrefs[fullname][0]),
+                      line)
         self.descrefs[fullname] = (self.docname, desctype)
 
     def note_module(self, modname, synopsis, platform, deprecated):
@@ -780,7 +820,8 @@ class BuildEnvironment:
                     docname, labelid = self.reftargets.get((typ, target), ('', ''))
                     if not docname:
                         if typ == 'term':
-                            self.warn(fromdocname, 'term not in glossary: %s' % target)
+                            self.warn(fromdocname, 'term not in glossary: %s' % target,
+                                      node.line)
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')

@@ -352,7 +352,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 signode['ids'].append(fullname)
                 signode['first'] = (not names)
                 state.document.note_explicit_target(signode)
-                env.note_descref(fullname, desctype)
+                env.note_descref(fullname, desctype, lineno)
             names.append(name)
 
             env.note_index_entry('single',

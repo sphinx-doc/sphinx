@@ -10,6 +10,7 @@
 """
 
 import sys
+from os import path
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
@@ -245,6 +246,15 @@ class HTMLTranslator(BaseTranslator):
         self.highlightlinenothreshold = node['linenothreshold']
     def depart_highlightlang(self, node):
         pass
+
+    # overwritten
+    def visit_image(self, node):
+        olduri = node['uri']
+        # rewrite the URI if the environment knows about it
+        if olduri in self.builder.env.images:
+            node['uri'] = path.join(self.builder.imgpath,
+                                    self.builder.env.images[olduri])
+        BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):
         # this only happens when formatting a toc from env.tocs -- in this

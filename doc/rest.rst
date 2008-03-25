@@ -205,6 +205,19 @@ The directive content follows after a blank line and is indented relative to the
 directive start.
 
 
+Images
+------
+
+reST supports an image directive, used like so::
+
+   .. image:: filename
+      (options)
+
+When used within Sphinx, the ``filename`` given must be relative to the source
+file, and Sphinx will automatically copy image files over to a subdirectory of
+the output directory on building.
+
+
 Footnotes
 ---------
 

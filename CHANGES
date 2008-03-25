@@ -1,6 +1,9 @@
 Changes in trunk
 ================
 
+* sphinx.htmlwriter, sphinx.latexwriter: Support the ``.. image::``
+  directive by copying image files to the output directory.
+
 * sphinx.environment: Take dependent files into account when collecting
   the set of outdated sources.
 

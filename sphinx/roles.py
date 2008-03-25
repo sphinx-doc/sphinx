@@ -120,6 +120,8 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # we want a cross-reference, create the reference node
     pnode = addnodes.pending_xref(rawtext, reftype=typ, refcaption=False,
                                   modname=env.currmodule, classname=env.currclass)
+    # we may need the line number for warnings
+    pnode.line = lineno
     innertext = text
     # special actions for Python object cross-references
     if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod'):

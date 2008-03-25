@@ -75,7 +75,7 @@ class Builder(object):
 
     def init_templates(self):
         """Call if you need Jinja templates in the builder."""
-        # lazily import this, maybe other builders won't need it
+        # lazily import this, other builders won't need it
         from sphinx._jinja import Environment, SphinxFileSystemLoader
 
         # load templates
@@ -103,14 +103,18 @@ class Builder(object):
         raise NotImplementedError
 
     def get_relative_uri(self, from_, to, typ=None):
-        """Return a relative URI between two source filenames.
-           May raise environment.NoUri if there's no way to return a
-           sensible URI."""
+        """
+        Return a relative URI between two source filenames. May raise environment.NoUri
+        if there's no way to return a sensible URI.
+        """
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
     def get_outdated_docs(self):
-        """Return a list of output files that are outdated."""
+        """
+        Return an iterable of output files that are outdated, or a string describing
+        what an update build will build.
+        """
         raise NotImplementedError
 
     def status_iterator(self, iterable, summary, colorfunc):
@@ -173,7 +177,7 @@ class Builder(object):
         """Only rebuild files changed or added since last build."""
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
-            self.build([], to_build)
+            self.build(['__all__'], to_build)
         else:
             to_build = list(to_build)
             self.build(to_build,
@@ -211,7 +215,7 @@ class Builder(object):
             self.info(bold('checking consistency...'))
             self.env.check_consistency()
         else:
-            if not docnames:
+            if method == 'update' and not docnames:
                 self.info(bold('no targets are out of date.'))
                 return
 
@@ -341,6 +345,7 @@ class StandaloneHTMLBuilder(Builder):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
 
@@ -474,8 +479,19 @@ class StandaloneHTMLBuilder(Builder):
             self.info(' index', nonl=1)
             self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
 
-        # copy static files
         self.info()
+
+        # copy image files
+        if self.env.images:
+            self.info(bold('copying images...'), nonl=1)
+            ensuredir(path.join(self.outdir, '_images'))
+            for src, dest in self.env.images.iteritems():
+                self.info(' '+src, nonl=1)
+                shutil.copyfile(path.join(self.srcdir, src),
+                                path.join(self.outdir, '_images', dest))
+            self.info()
+
+        # copy static files
         self.info(bold('copying static files...'))
         ensuredir(path.join(self.outdir, 'static'))
         staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
@@ -796,6 +812,15 @@ class LaTeXBuilder(Builder):
         return largetree
 
     def finish(self):
+        # copy image files
+        if self.env.images:
+            self.info(bold('copying images...'), nonl=1)
+            for src, dest in self.env.images.iteritems():
+                self.info(' '+src, nonl=1)
+                shutil.copyfile(path.join(self.srcdir, src),
+                                path.join(self.outdir, dest))
+            self.info()
+
         self.info(bold('copying TeX support files...'))
         staticdirname = path.join(path.dirname(__file__), 'texinputs')
         for filename in os.listdir(staticdirname):
