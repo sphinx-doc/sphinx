@@ -1,3 +1,5 @@
+.. _writing-builders:
+
 Writing new builders
 ====================
 

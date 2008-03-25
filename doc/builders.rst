@@ -34,10 +34,12 @@ The builder's "name" must be given to the **-b** command-line option of
 
    This builder produces a directory with pickle files containing mostly HTML
    fragments and TOC information, for use of a web application (or custom
-   postprocessing tool) that doesn't use the standard HTML templates.
+   postprocessing tool) that doesn't use the standard HTML templates.  It also
+   is the format used by the Sphinx Web application.
 
-   It also is the format used by the Sphinx Web application.  Its name is
-   ``pickle``.  (The old name ``web`` still works as well.)
+   See :ref:`pickle-details` for details about the output format.
+
+   Its name is ``pickle``.  (The old name ``web`` still works as well.)
 
 .. class:: LaTeXBuilder
 
@@ -71,3 +73,76 @@ Built-in Sphinx extensions that offer more builders are:
 
 * :mod:`~sphinx.ext.doctest`
 * :mod:`~sphinx.ext.coverage`
+
+
+.. _pickle-details:
+
+Pickle builder details
+----------------------
+
+The builder outputs one pickle file per source file, and a few special files.
+It also copies the reST source files in the directory ``_sources`` under the
+output directory.
+
+The files per source file have the extensions ``.fpickle``, and are arranged in
+directories just as the source files are.  They unpickle to a dictionary with
+these keys:
+
+``body``
+   The HTML "body" (that is, the HTML rendering of the source file), as rendered
+   by the HTML translator.
+
+``title``
+   The title of the document, as HTML (may contain markup).
+
+``toc``
+   The table of contents for the file, rendered as an HTML ``<ul>``.
+
+``display_toc``
+   A boolean that is ``True`` if the ``toc`` contains more than one entry.
+
+``current_page_name``
+   The document name of the current file.
+
+``parents``, ``prev`` and ``next``
+   Information about related chapters in the TOC tree.  Each relation is a
+   dictionary with the keys ``link`` (HREF for the relation) and ``title``
+   (title of the related document, as HTML).  ``parents`` is a list of
+   relations, while ``prev`` and ``next`` are a single relation.
+
+``sourcename``
+   The name of the source file under ``_sources``.
+
+The special files are located in the root output directory.  They are:
+
+``environment.pickle``
+   The build environment.  (XXX add important environment properties)
+
+``globalcontext.pickle``
+   A pickled dict with these keys:
+
+   ``project``, ``copyright``, ``release``, ``version``
+      The same values as given in the configuration file.
+
+   ``style``, ``use_modindex``
+      :confval:`html_style` and :confval:`html_use_modindex`, respectively.
+
+   ``last_updated``
+      Date of last build.
+
+   ``builder``
+      Name of the used builder, in the case of pickles this is always
+      ``'pickle'``.
+
+   ``titles``
+      A dictionary of all documents' titles, as HTML strings.
+
+``searchindex.pickle``
+   An index that can be used for searching the documentation.  It is a pickled
+   list with these entries:
+
+   * A list of indexed docnames.
+   * A list of document titles, as HTML strings, in the same order as the first
+     list.
+   * A dict mapping word roots (processed by an English-language stemmer) to a
+     list of integers, which are indices into the first list.
