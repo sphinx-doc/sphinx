@@ -28,6 +28,8 @@ tar: all-$(FMT)
 bz2: tar-$(FMT)
 	bzip2 -9 -k $(ARCHIVEPREFIX)docs-$(FMT).tar
 
+# The number of LaTeX runs is quite conservative, but I don't expect it
+# to get run often, so the little extra time won't hurt.
 %.dvi: %.tex
 	latex $<
 	latex $<
@@ -46,5 +48,9 @@ bz2: tar-$(FMT)
 	pdflatex $<
 	pdflatex $<
 
-.PHONY: all all-pdf all-dvi all-ps
+clean:
+	rm -f *.pdf *.dvi *.ps
+	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg
+
+.PHONY: all all-pdf all-dvi all-ps clean
 

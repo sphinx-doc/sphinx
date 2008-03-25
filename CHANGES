@@ -21,6 +21,10 @@ Changes in trunk
 * sphinx.builder: Handle unavailability of TOC relations (previous/
   next chapter) more gracefully in the HTML builder.
 
+* sphinx.latexwriter: Include fncychap.sty which doesn't seem to be
+  very common in TeX distributions.  Add a ``clean`` target in the
+  latex Makefile.
+
 * setup: On Python 2.4, don't egg-depend on docutils if a docutils is
   already installed -- else it will be overwritten.
 
@@ -75,4 +79,4 @@ Release 0.1.61798 (Mar 23, 2008)
 Release 0.1.61611 (Mar 21, 2008)
 ================================
 
-First public release.
+* First public release.
