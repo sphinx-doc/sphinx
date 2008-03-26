@@ -184,7 +184,7 @@ PAPER         =
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)
+ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html web htmlhelp latex changes linkcheck
 
