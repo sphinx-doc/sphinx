@@ -1,3 +1,9 @@
+Release 0.1.61950 (Mar 26, 2008)
+================================
+
+* sphinx.quickstart: Fix format string for Makefile.
+
+
 Release 0.1.61945 (Mar 26, 2008)
 ================================
 
