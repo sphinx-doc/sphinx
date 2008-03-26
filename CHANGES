@@ -23,7 +23,8 @@ Changes in trunk
 
 * sphinx.latexwriter: Include fncychap.sty which doesn't seem to be
   very common in TeX distributions.  Add a ``clean`` target in the
-  latex Makefile.
+  latex Makefile.  Really pass the correct paper and size options
+  to the LaTeX document class.
 
 * setup: On Python 2.4, don't egg-depend on docutils if a docutils is
   already installed -- else it will be overwritten.

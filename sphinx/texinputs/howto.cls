@@ -3,14 +3,13 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{howto}
-             [1998/02/25 Document class (Python HOWTO)]
+\ProvidesClass{howto}[1998/02/25 Document class (Python HOWTO)]
 
 \RequirePackage{fancybox}
 
-% Change the options here to get a different set of basic options,  This
-% is where to add things like "a4paper" or "10pt".
-%
+% Pass all given class options to the parent class.
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+\ProcessOptions\relax
 \LoadClass[twoside]{article}
 
 \setcounter{secnumdepth}{1}
@@ -26,7 +25,7 @@
 % implement, and is used to put the chapter and section information in 
 % the footers.
 %
-\RequirePackage{fancyhdr}\typeout{Using fancier footers than usual.}
+\RequirePackage{fancyhdr}
 
 
 % Required package:
@@ -41,11 +40,11 @@
 \RequirePackage{makeidx}
 
 
-% support for module synopsis sections:
+% Support for module synopsis sections:
 \newcommand{\py@ModSynopsisFilename}{\jobname.syn}
 
 
-% need to do one of these....
+% Need to do one of these....
 \newcommand{\py@doHorizontalRule}{\rule{\textwidth}{1pt}}
 
 

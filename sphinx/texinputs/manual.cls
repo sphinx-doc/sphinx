@@ -3,14 +3,13 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{manual}
-             [1998/03/03 Document class (Python manual)]
+\ProvidesClass{manual}[1998/03/03 Document class (Python manual)]
 
 \RequirePackage{fancybox}
 
-% Change the options here to get a different set of basic options, but only
-% if you have to.
-%
+% Pass all given class options to the parent class.
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
+\ProcessOptions\relax
 \LoadClass[twoside,openright]{report}
 
 \setcounter{secnumdepth}{2}
@@ -26,21 +25,20 @@
 % implement, and is used to put the chapter and section information in 
 % the footers.
 %
-\RequirePackage{fancyhdr}\typeout{Using fancier footers than usual.}
-
+\RequirePackage{fancyhdr}
 
 % Required packages:
 %
 % The "fncychap" package is used to get the nice chapter headers.  The
-% .sty file is distributed with Python, so you should not need to disable
+% .sty file is distributed with Sphinx, so you should not need to disable
 % it.  You'd also end up with a mixed page style; uglier than stock LaTeX!
 %
-\RequirePackage[Bjarne]{fncychap}\typeout{Using fancy chapter headings.}
+\RequirePackage[Bjarne]{fncychap}
 % Do horizontal rules it this way to match:
 \newcommand{\py@doHorizontalRule}{\mghrulefill{\RW}}
-%
-%
-% This gives us all the Python-specific markup that we really want.
+
+
+% This gives us all the Sphinx-specific markup that we really want.
 % This should come last.  Do not change this.
 %
 \RequirePackage{sphinx}
@@ -50,7 +48,7 @@
 \RequirePackage{makeidx}
 
 
-% support for module synopsis sections:
+% Support for module synopsis sections:
 \newcommand{\py@ModSynopsisFilename}{\jobname\thechapter.syn}
 \let\py@OldChapter=\chapter
 \renewcommand{\chapter}{
