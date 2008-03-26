@@ -49,7 +49,7 @@ class CoverageBuilder(Builder):
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
-                warnfunc('invalid regex %r in coverage_c_regexes' % exp)
+                self.warn('invalid regex %r in coverage_c_regexes' % exp)
 
         self.c_ignorexps = {}
         for (name, exps) in self.config.coverage_ignore_c_items.iteritems():

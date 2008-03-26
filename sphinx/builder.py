@@ -25,8 +25,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes
-from sphinx.util import (get_matching_docs, mtimes_of_files,
-                         ensuredir, relative_uri, SEP, os_path)
+from sphinx.util import mtimes_of_files, ensuredir, relative_uri, SEP, os_path
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
@@ -230,7 +229,8 @@ class Builder(object):
         self.finish()
         if self.app._warncount:
             self.info(bold('build succeeded, %s warning%s.' %
-                           (self.app._warncount, self.app._warncount != 1 and 's' or '')))
+                           (self.app._warncount,
+                            self.app._warncount != 1 and 's' or '')))
         else:
             self.info(bold('build succeeded.'))
 
