@@ -4,6 +4,8 @@ Global TODO
 Sphinx
 ******
 
+- autoattribute in autodoc
+- range and object options for literalinclude
 - option for compact module index
 - HTML section numbers?
 - split the general index?
