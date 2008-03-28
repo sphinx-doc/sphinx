@@ -1,3 +1,11 @@
+Changes in trunk
+================
+
+* sphinx.application: Support a new method, ``add_crossref_type``.
+  It works like ``add_description_unit`` but the directive will only
+  create a target and no output.
+
+
 Release 0.1.61950 (Mar 26, 2008)
 ================================
 

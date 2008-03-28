@@ -21,6 +21,8 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.util.compat import make_admonition
 
+ws_re = re.compile(r'\s+')
+
 # ------ index markup --------------------------------------------------------------
 
 entrytypes = [
@@ -324,20 +326,26 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 continue
             else:
                 # another registered generic x-ref directive
-                rolename, indextext, parse_node = additional_xref_types[desctype]
+                rolename, indextemplate, parse_node = additional_xref_types[desctype]
                 if parse_node:
                     fullname = parse_node(env, sig, signode)
                 else:
                     signode.clear()
                     signode += addnodes.desc_name(sig, sig)
-                    fullname = sig
+                    # normalize whitespace like xfileref_role does
+                    fullname = ws_re.sub('', sig)
                 if not noindex:
                     targetname = '%s-%s' % (rolename, fullname)
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
-                    if indextext:
-                        env.note_index_entry('pair',
-                                             '%s; %s' % (indextext, fullname),
+                    if indextemplate:
+                        indexentry = indextemplate % (fullname,)
+                        indextype = 'single'
+                        colon = indexentry.find(':')
+                        if colon != -1:
+                            indextype = indexentry[:colon].strip()
+                            indexentry = indexentry[colon+1:].strip()
+                        env.note_index_entry(indextype, indexentry,
                                              targetname, targetname)
                     env.note_reftarget(rolename, fullname, targetname)
                 # don't use object indexing below
@@ -413,11 +421,39 @@ desctypes = [
 for _name in desctypes:
     directives.register_directive(_name, desc_directive)
 
-# Generic cross-reference types; they can be registered in the application
+# Generic cross-reference types; they can be registered in the application;
+# the directives are either desc_directive or target_directive
 additional_xref_types = {
-    # directive name: (role name, index text)
+    # directive name: (role name, index text, function to parse the desc node)
     'envvar': ('envvar', 'environment variable', None),
 }
+
+
+# ------ target --------------------------------------------------------------------
+
+def target_directive(targettype, arguments, options, content, lineno,
+                     content_offset, block_text, state, state_machine):
+    """Generic target for user-defined cross-reference types."""
+    env = state.document.settings.env
+    rolename, indextemplate, _ = additional_xref_types[targettype]
+    # normalize whitespace in fullname like xfileref_role does
+    fullname = ws_re.sub('', arguments[0].strip())
+    targetname = '%s-%s' % (rolename, fullname)
+    node = nodes.target('', '', ids=[targetname])
+    state.document.note_explicit_target(node)
+    if indextemplate:
+        indexentry = indextemplate % (fullname,)
+        indextype = 'single'
+        colon = indexentry.find(':')
+        if colon != -1:
+            indextype = indexentry[:colon].strip()
+            indexentry = indexentry[colon+1:].strip()
+        env.note_index_entry(indextype, indexentry, targetname, targetname)
+    env.note_reftarget(rolename, fullname, targetname)
+    return [node]
+
+target_directive.content = 0
+target_directive.arguments = (1, 0, 1)
 
 
 # ------ versionadded/versionchanged -----------------------------------------------

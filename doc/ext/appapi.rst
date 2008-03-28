@@ -48,13 +48,15 @@ the following public API:
    source, *role* the role function (see the `Docutils documentation
    <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ on details).
 
-.. method:: Sphinx.add_description_unit(directivename, rolename, indexdesc='', parse_node=None)
+.. method:: Sphinx.add_description_unit(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None)
 
    This method is a very convenient way to add a new type of information that
    can be cross-referenced.  It will do this:
 
    * Create a new directive (called *directivename*) for a :term:`description
-     unit`.  It will automatically add index entries if *indexdesc* is nonempty.
+     unit`.  It will automatically add index entries if *indextemplate* is
+     nonempty; if given, it must contain exactly one instance of ``%s``.  See
+     the example below for how the template will be interpreted.
    * Create a new role (called *rolename*) to cross-reference to these
      description units.
    * If you provide *parse_node*, it must be a function that takes a string and
@@ -65,7 +67,7 @@ the following public API:
 
    For example, if you have this call in a custom Sphinx extension::
 
-      app.add_description_unit('directive', 'dir', 'directive')
+      app.add_description_unit('directive', 'dir', 'pair: %s; directive')
 
    you can use this markup in your documents::
 
@@ -77,8 +79,43 @@ the following public API:
 
       See also the :dir:`function` directive.
 
+   For the directive, an index entry will be generated as if you had prepended ::
+
+      .. index:: pair: function; directive
+
+   The reference node will be of class ``literal`` (so it will be rendered in a
+   proportional font, as appropriate for code) unless you give the *ref_nodeclass*
+   argument, which must be a docutils node class (most useful are
+   ``docutils.nodes.emphasis`` or ``docutils.nodes.strong`` -- you can also use
+   ``docutils.nodes.generated`` if you want no further text decoration).
+
    For the role content, you have the same options as for standard Sphinx roles
    (see :ref:`xref-syntax`).
+
+.. method:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None)
+
+   This method is very similar to :meth:`add_description_unit` except that the
+   directive it generates must be empty, and will produce no output.
+
+   That means that you can add semantic targets to your sources, and refer to
+   them using custom roles instead of generic ones (like :role:`ref`).  Example
+   call::
+
+      app.add_crossref_type('topic', 'topic', 'single: %s', docutils.nodes.emphasis)
+
+   Example usage::
+
+      .. topic:: application API
+
+      The application API
+      -------------------
+
+      <...>
+
+      See also :topic:`this section <application API>`.
+
+   (Of course, the element following the ``topic`` directive needn't be a
+   section.)
 
 .. method:: Sphinx.connect(event, callback)
 
