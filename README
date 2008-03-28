@@ -17,6 +17,7 @@ Reading the docs
 After installing::
 
    cd doc
+   mkdir -p _build/html
    sphinx-build . _build/html
    browser _build/index.html
 
