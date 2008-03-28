@@ -35,6 +35,6 @@ def parse_role(env, sig, signode):
 
 
 def setup(app):
-    app.add_description_unit('directive', 'dir', 'directive', parse_directive)
-    app.add_description_unit('role', 'role', 'role', parse_role)
-    app.add_description_unit('confval', 'confval', 'configuration value')
+    app.add_description_unit('directive', 'dir', 'pair: %s; directive', parse_directive)
+    app.add_description_unit('role', 'role', 'pair: %s; role', parse_role)
+    app.add_description_unit('confval', 'confval', 'pair: %s; configuration value')
