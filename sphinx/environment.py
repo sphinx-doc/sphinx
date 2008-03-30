@@ -60,18 +60,6 @@ default_settings = {
 ENV_VERSION = 21
 
 
-def walk_depth(node, depth, maxdepth):
-    """Utility: Cut a TOC at a specified depth."""
-    for subnode in node.children[:]:
-        if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
-            walk_depth(subnode, depth, maxdepth)
-        elif isinstance(subnode, nodes.bullet_list):
-            if depth > maxdepth:
-                subnode.parent.replace(subnode, [])
-            else:
-                walk_depth(subnode, depth+1, maxdepth)
-
-
 default_substitutions = set([
     'version',
     'release',
@@ -736,13 +724,33 @@ class BuildEnvironment:
                 return addnodes.compact_paragraph('', '', *entries)
             return None
 
+        def _walk_depth(node, depth, maxdepth, titleoverrides):
+            """Utility: Cut a TOC at a specified depth."""
+            for subnode in node.children[:]:
+                if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
+                    _walk_depth(subnode, depth, maxdepth, titleoverrides)
+                elif isinstance(subnode, nodes.bullet_list):
+                    if depth > maxdepth:
+                        subnode.parent.replace(subnode, [])
+                    else:
+                        _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
+
         for toctreenode in doctree.traverse(addnodes.toctree):
             maxdepth = toctreenode.get('maxdepth', -1)
+            titleoverrides = toctreenode.get('includetitles', {})
             newnode = _entries_from_toctree(toctreenode)
             if newnode is not None:
-                # prune the tree to maxdepth
+                # prune the tree to maxdepth and replace titles
                 if maxdepth > 0:
-                    walk_depth(newnode, 1, maxdepth)
+                    _walk_depth(newnode, 1, maxdepth, titleoverrides)
+                # replace titles, if needed
+                if titleoverrides:
+                    for refnode in newnode.traverse(nodes.reference):
+                        if refnode.get('anchorname', None):
+                            continue
+                        if refnode['refuri'] in titleoverrides:
+                            newtitle = titleoverrides[refnode['refuri']]
+                            refnode.children = [nodes.Text(newtitle)]
                 toctreenode.replace_self(newnode)
             else:
                 toctreenode.replace_self([])

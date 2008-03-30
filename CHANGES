@@ -5,6 +5,9 @@ Changes in trunk
   It works like ``add_description_unit`` but the directive will only
   create a target and no output.
 
+* sphinx.directives: Allow giving a different title to documents
+  in the toctree.
+
 
 Release 0.1.61950 (Mar 26, 2008)
 ================================

@@ -4,10 +4,10 @@ Sphinx documentation contents
 =============================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    intro
-   concepts
+   Konzepte <concepts>
    rest
    markup/index
    builders

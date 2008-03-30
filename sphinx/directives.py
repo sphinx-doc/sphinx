@@ -19,6 +19,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.roles import caption_ref_re
 from sphinx.util.compat import make_admonition
 
 ws_re = re.compile(r'\s+')
@@ -622,9 +623,15 @@ def toctree_directive(name, arguments, options, content, lineno,
     ret = []
     subnode = addnodes.toctree()
     includefiles = []
+    includetitles = {}
     for docname in content:
         if not docname:
             continue
+        # look for explicit titles and documents ("Some Title <document>").
+        m = caption_ref_re.match(docname)
+        if m:
+            docname = m.group(2)
+            includetitles[docname] = m.group(1)    
         # absolutize filenames, remove suffixes
         if docname.endswith(suffix):
             docname = docname[:-len(suffix)]
@@ -635,6 +642,7 @@ def toctree_directive(name, arguments, options, content, lineno,
         else:
             includefiles.append(docname)
     subnode['includefiles'] = includefiles
+    subnode['includetitles'] = includetitles
     subnode['maxdepth'] = options.get('maxdepth', -1)
     ret.append(subnode)
     return ret

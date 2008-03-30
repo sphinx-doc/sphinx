@@ -55,10 +55,25 @@ tables of contents.  The ``toctree`` directive is the central element.
      ``strings`` and so forth, and it knows that they are children of the shown
      document, the library index.  From this information it generates "next
      chapter", "previous chapter" and "parent chapter" links.
-
+     
+   Document titles in the :dir:`toctree` will be automatically read from the
+   title of the referenced document. If that isn't what you want, you can give
+   the specify an explicit title and target using a similar syntax to reST
+   hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
+   looks like::
+   
+       .. toctree::
+          
+          intro
+          All about strings <strings>
+          datatypes
+          
+   The second line above will link to the ``strings`` document, but will use the
+   title "All about strings" instead of the title of the ``strings`` document.
+          
    In the end, all documents under the :term:`documentation root` must occur in
-   one ``toctree`` directive; Sphinx will emit a warning if it finds a file that
-   is not included, because that means that this file will not be reachable
+   some ``toctree`` directive; Sphinx will emit a warning if it finds a file
+   that is not included, because that means that this file will not be reachable
    through standard navigation.  Use :confval:`unused_documents` to explicitly
    exclude documents from this check.
 
