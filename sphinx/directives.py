@@ -426,7 +426,7 @@ for _name in desctypes:
 # the directives are either desc_directive or target_directive
 additional_xref_types = {
     # directive name: (role name, index text, function to parse the desc node)
-    'envvar': ('envvar', 'environment variable', None),
+    'envvar': ('envvar', 'environment variable; %s', None),
 }
 
 
