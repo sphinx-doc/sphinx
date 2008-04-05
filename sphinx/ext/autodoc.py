@@ -41,7 +41,8 @@ def prepare_docstring(s):
     """
     if not s or s.isspace():
         return ['']
-    nl = s.expandtabs().rstrip().find('\n')
+    s = s.expandtabs()
+    nl = s.rstrip().find('\n')
     if nl == -1:
         # Only one line...
         return [s.strip(), '']
