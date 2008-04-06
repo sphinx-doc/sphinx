@@ -527,10 +527,15 @@ class StandaloneHTMLBuilder(Builder):
                 targetmtime = path.getmtime(targetname)
             except Exception:
                 targetmtime = 0
-            srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
-            if srcmtime > targetmtime:
-                yield docname
-
+            try:
+                srcmtime = max(path.getmtime(self.env.doc2path(docname)),
+                               template_mtime)
+                if srcmtime > targetmtime:
+                    yield docname
+            except EnvironmentError:
+                # source doesn't exist anymore
+                pass
+                
     def load_indexer(self, docnames):
         try:
             f = open(path.join(self.outdir, 'searchindex.'+self.indexer_format), 'r')
