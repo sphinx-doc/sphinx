@@ -703,7 +703,7 @@ class BuildEnvironment:
         self.resolve_references(doctree, docname, builder)
 
         # now, resolve all toctree nodes
-        def _entries_from_toctree(toctreenode):
+        def _entries_from_toctree(toctreenode, separate=False):
             """Return TOC entries for a toctree node."""
             includefiles = map(str, toctreenode['includefiles'])
 
@@ -716,13 +716,18 @@ class BuildEnvironment:
                     self.warn(docname, 'toctree contains ref to nonexisting '
                               'file %r' % includefile)
                 else:
+                    # resolve all sub-toctrees
                     for toctreenode in toc.traverse(addnodes.toctree):
-                        toctreenode.parent.replace_self(
-                            _entries_from_toctree(toctreenode))
-                    entries.append(toc)
-            if entries:
-                return addnodes.compact_paragraph('', '', *entries)
-            return []
+                        i = toctreenode.parent.index(toctreenode) + 1
+                        for item in _entries_from_toctree(toctreenode):
+                            toctreenode.parent.insert(i, item)
+                            i += 1
+                        toctreenode.parent.remove(toctreenode)
+                    if separate:
+                        entries.append(toc)
+                    else:
+                        entries.extend(toc.children)
+            return entries
 
         def _walk_depth(node, depth, maxdepth, titleoverrides):
             """Utility: Cut a TOC at a specified depth."""
@@ -738,8 +743,9 @@ class BuildEnvironment:
         for toctreenode in doctree.traverse(addnodes.toctree):
             maxdepth = toctreenode.get('maxdepth', -1)
             titleoverrides = toctreenode.get('includetitles', {})
-            newnode = _entries_from_toctree(toctreenode)
-            if newnode is not None:
+            tocentries = _entries_from_toctree(toctreenode, separate=True)
+            if tocentries:
+                newnode = addnodes.compact_paragraph('', '', *tocentries)
                 # prune the tree to maxdepth and replace titles
                 if maxdepth > 0:
                     _walk_depth(newnode, 1, maxdepth, titleoverrides)

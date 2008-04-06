@@ -7,7 +7,7 @@ Sphinx documentation contents
    :maxdepth: 2
 
    intro
-   Konzepte <concepts>
+   concepts
    rest
    markup/index
    builders
