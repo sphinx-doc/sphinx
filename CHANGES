@@ -16,6 +16,8 @@ Changes in trunk
 * sphinx.config: The config file itself can be an extension (if it
   provides a setup() function).
 
+* sphinx.htmlwriter: Don't use os.path for joining image HREFs.
+
 
 Release 0.1.61950 (Mar 26, 2008)
 ================================

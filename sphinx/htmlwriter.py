@@ -10,7 +10,7 @@
 """
 
 import sys
-from os import path
+import posixpath
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
@@ -252,8 +252,8 @@ class HTMLTranslator(BaseTranslator):
         olduri = node['uri']
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.env.images:
-            node['uri'] = path.join(self.builder.imgpath,
-                                    self.builder.env.images[olduri][1])
+            node['uri'] = posixpath.join(self.builder.imgpath,
+                                         self.builder.env.images[olduri][1])
         BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):
