@@ -120,9 +120,18 @@ mainly contained in information units, such as the language reference.
          module: sys
          triple: module; search; path
 
+      The execution context
+      ---------------------
+
+      ...
+
    This directive contains five entries, which will be converted to entries in the
    generated index which link to the exact location of the index statement (or, in
    case of offline media, the corresponding page number).
+
+   Since index directives generate cross-reference targets at their location in
+   the source, it makes sense to put them *before* the thing they refer to --
+   e.g. a heading, as in the example above.
 
    The possible entry types are:
 
