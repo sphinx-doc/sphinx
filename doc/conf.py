@@ -11,17 +11,17 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os
+import sys, os, re
 
 # If your extensions are in another directory, add it here.
-sys.path.append(os.path.dirname(__file__))
+#sys.path.append(os.path.dirname(__file__))
 
 # General configuration
 # ---------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
-extensions = ['ext', 'sphinx.ext.autodoc', 'sphinx.ext.doctest']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -125,3 +125,37 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
 #latex_appendices = []
 
 automodule_skip_lines = 4
+
+
+# Extension interface
+# -------------------
+
+from sphinx import addnodes
+
+dir_sig_re = re.compile(r'\.\. ([^:]+)::(.*)$')
+
+def parse_directive(env, sig, signode):
+    if not sig.startswith('.'):
+        dec_sig = '.. %s::' % sig
+        signode += addnodes.desc_name(dec_sig, dec_sig)
+        return sig
+    m = dir_sig_re.match(sig)
+    if not m:
+        signode += addnodes.desc_name(sig, sig)
+        return sig
+    name, args = m.groups()
+    dec_name = '.. %s::' % name
+    signode += addnodes.desc_name(dec_name, dec_name)
+    signode += addnodes.desc_classname(args, args)
+    return name
+
+
+def parse_role(env, sig, signode):
+    signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
+    return sig
+
+
+def setup(app):
+    app.add_description_unit('directive', 'dir', 'pair: %s; directive', parse_directive)
+    app.add_description_unit('role', 'role', 'pair: %s; role', parse_role)
+    app.add_description_unit('confval', 'confval', 'pair: %s; configuration value')

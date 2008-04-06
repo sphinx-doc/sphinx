@@ -79,6 +79,9 @@ class Sphinx(object):
         # load all extension modules
         for extension in getattr(self.config, 'extensions', ()):
             self.setup_extension(extension)
+        # the config file itself can be an extension
+        if hasattr(self.config, 'setup'):
+            self.config.setup(self)
 
         # this must happen after loading extension modules, since they
         # can add custom config values

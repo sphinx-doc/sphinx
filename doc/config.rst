@@ -50,6 +50,9 @@ General configuration
    That way, you can load an extension called ``extname`` from the documentation
    root's subdirectory ``sphinxext``.
 
+   The configuration file itself can be an extension; for that, you only need to
+   provide a :func:`setup` function in it.
+
 .. confval:: templates_path
 
    A list of paths that contain extra templates (or templates that overwrite

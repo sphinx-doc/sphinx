@@ -10,7 +10,6 @@
 """
 
 import os
-import types
 from os import path
 
 
@@ -77,10 +76,6 @@ class Config(object):
             execfile(config['__file__'], config)
         finally:
             os.chdir(olddir)
-        # remove potentially pickling-problematic values
-        for key, val in config.items():
-            if key.startswith('_') or isinstance(val, types.ModuleType):
-                del config[key]
         self.__dict__.update(config)
 
     def init_defaults(self):
@@ -90,6 +85,12 @@ class Config(object):
 
     def __getitem__(self, name):
         return getattr(self, name)
+
+    def __setitem__(self, name, value):
+        setattr(self, name, value)
+
+    def __delitem__(self, name):
+        delattr(self, name)
 
     def __contains__(self, name):
         return hasattr(self, name)

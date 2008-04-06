@@ -13,6 +13,9 @@ Changes in trunk
 * sphinx.builder, sphinx.environment: Gracefully handle some exception
   cases.
 
+* sphinx.config: The config file itself can be an extension (if it
+  provides a setup() function).
+
 
 Release 0.1.61950 (Mar 26, 2008)
 ================================

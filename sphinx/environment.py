@@ -13,6 +13,7 @@ import re
 import os
 import time
 import heapq
+import types
 import difflib
 import itertools
 import cPickle as pickle
@@ -179,6 +180,12 @@ class BuildEnvironment:
         warnfunc = self._warnfunc
         self.set_warnfunc(None)
         picklefile = open(filename, 'wb')
+        # remove potentially pickling-problematic values from config
+        for key, val in vars(self.config).items():
+            if key.startswith('_') or \
+                   isinstance(val, types.ModuleType) or \
+                   isinstance(val, types.FunctionType):
+                del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:

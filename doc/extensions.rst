@@ -15,6 +15,9 @@ reStructuredText roles and directives, extending the markup.  And finally, there
 are so-called "hook points" at strategic places throughout the build process,
 where an extension can register a hook and run specialized code.
 
+The configuration file itself can be an extension, see the :confval:`extensions`
+configuration value docs.
+
 .. toctree::
 
    ext/appapi
