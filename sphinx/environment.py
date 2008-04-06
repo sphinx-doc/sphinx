@@ -722,7 +722,7 @@ class BuildEnvironment:
                     entries.append(toc)
             if entries:
                 return addnodes.compact_paragraph('', '', *entries)
-            return None
+            return []
 
         def _walk_depth(node, depth, maxdepth, titleoverrides):
             """Utility: Cut a TOC at a specified depth."""
