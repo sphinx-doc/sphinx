@@ -150,18 +150,19 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             target = text[brace+1:]
             innertext = text[:brace]
     # else, generate target from title
-    elif typ == 'term':
+    else:
+        target = text
+    # some special cases
+    if typ == 'option' and text[0] in '-/':
+        # strip option marker from target
+        target = target[1:]
+    if typ == 'term':
         # normalize whitespace in definition terms (if the term reference is
         # broken over a line, a newline will be in text)
-        target = ws_re.sub(' ', text).lower()
-    elif typ == 'option':
-        # strip option marker from target
-        if text[0] in '-/':
-            target = text[1:]
-        else:
-            target = text
+        target = ws_re.sub(' ', target).lower()
     else:
-        target = ws_re.sub('', text)
+        # remove all whitespace to avoid referencing problems
+        target = ws_re.sub('', target)
     pnode['reftarget'] = target
     pnode += innernodetypes.get(typ, nodes.literal)(rawtext, innertext, classes=['xref'])
     return [pnode], []

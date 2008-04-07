@@ -272,16 +272,24 @@ def parse_opcode_signature(signode, sig):
     return opname.strip()
 
 
-option_desc_re = re.compile(r'([-/])([-_a-zA-Z0-9]+)(\s*.*)')
+option_desc_re = re.compile(r'(/|-|--)([-_a-zA-Z0-9]+)(\s*.*?)(?=,|$)')
 
 def parse_option_desc(signode, sig):
     """Transform an option description into RST nodes."""
-    m = option_desc_re.match(sig)
-    if m is None: raise ValueError
-    prefix, optname, args = m.groups()
-    signode += addnodes.desc_name(prefix+optname, prefix+optname)
-    signode += addnodes.desc_classname(args, args)
-    return optname
+    count = 0
+    firstname = ''
+    for m in option_desc_re.finditer(sig):
+        prefix, optname, args = m.groups()
+        if count:
+            signode += addnodes.desc_classname(', ', ', ')
+        signode += addnodes.desc_name(prefix+optname, prefix+optname)
+        signode += addnodes.desc_classname(args, args)
+        if not count:
+            firstname = optname
+        count += 1
+    if not firstname:
+        raise ValueError
+    return firstname
 
 
 def desc_directive(desctype, arguments, options, content, lineno,

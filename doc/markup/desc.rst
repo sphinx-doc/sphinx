@@ -175,14 +175,18 @@ The directives are:
    Describes a Python bytecode instruction (this is not very useful for projects
    other than Python itself).
 
-.. directive:: .. cmdoption:: name args
+.. directive:: .. cmdoption:: name args, name args, ...
 
    Describes a command line option or switch.  Option argument names should be
    enclosed in angle brackets.  Example::
 
-      .. cmdoption:: -m <module>
+      .. cmdoption:: -m <module>, --module <module>
 
          Run a module as a script.
+
+   The directive will create a cross-reference target named after the *first*
+   option, referencable by :role:`option` (in the example case, you'd use
+   something like ``:option:`-m```).
 
 .. directive:: .. envvar:: name
 

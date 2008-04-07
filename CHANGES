@@ -10,6 +10,11 @@ Changes in trunk
 * sphinx.directives: Allow giving a different title to documents
   in the toctree.
 
+* sphinx.directives: Allow giving multiple options in a ``cmdoption``
+  directive.
+
+* sphinx.roles: Fix referencing glossary terms with explicit targets.
+
 * sphinx.builder, sphinx.environment: Gracefully handle some exception
   cases.
 
