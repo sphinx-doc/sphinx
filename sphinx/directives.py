@@ -646,7 +646,7 @@ def toctree_directive(name, arguments, options, content, lineno,
         docname = posixpath.normpath(posixpath.join(dirname, docname))
         if docname not in env.found_docs:
             ret.append(state.document.reporter.warning(
-                'toctree references unknown document %s' % docname, line=lineno))
+                'toctree references unknown document %r' % docname, line=lineno))
         else:
             includefiles.append(docname)
     subnode['includefiles'] = includefiles
