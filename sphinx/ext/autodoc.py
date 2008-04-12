@@ -71,7 +71,7 @@ def get_module_charset(module):
 
 
 def generate_rst(what, name, members, undoc, add_content, document, lineno,
-                 indent='', filename_set=None):
+                 indent='', filename_set=None, check_module=False):
     env = document.settings.env
 
     # find out what to import
@@ -109,9 +109,11 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
             filename_set.add(modfile)
         for part in objpath:
             todoc = getattr(todoc, part)
-        if hasattr(todoc, '__module__'):
-            if todoc.__module__ != mod:
-                return [], result
+        if check_module:
+            # only checking __module__ for members not given explicitly
+            if hasattr(todoc, '__module__'):
+                if todoc.__module__ != mod:
+                    return [], result
         docstring = todoc.__doc__
     except (ImportError, AttributeError):
         warning = document.reporter.warning(
@@ -174,7 +176,12 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
     warnings = []
     # add members, if possible
     _all = members == ['__all__']
+    members_check_module = False
     if _all:
+        if what == 'module':
+            # for implicit module members, check __module__ to avoid documenting
+            # imported objects
+            members_check_module = True
         all_members = sorted(inspect.getmembers(todoc))
     else:
         all_members = [(mname, getattr(todoc, mname)) for mname in members]
@@ -206,7 +213,8 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
                 continue
         full_membername = name + '.' + membername
         subwarn, subres = generate_rst(memberwhat, full_membername, ['__all__'],
-                                       undoc, None, document, lineno, indent)
+                                       undoc, None, document, lineno, indent,
+                                       check_module=members_check_module)
         warnings.extend(subwarn)
         result.extend(subres)
 
