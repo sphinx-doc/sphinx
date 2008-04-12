@@ -140,12 +140,16 @@ def parse_py_signature(signode, sig, desctype, env):
     if env.currclass:
         if classname and classname.startswith(env.currclass):
             fullname = classname + name
+            # class name is given again in the signature
             classname = classname[len(env.currclass):].lstrip('.')
             add_module = False
         elif classname:
+            # class name is given in the signature, but different
             fullname = env.currclass + '.' + classname + name
         else:
+            # class name is not given in the signature
             fullname = env.currclass + '.' + name
+            add_module = False
     else:
         fullname = classname and classname + name or name
 
@@ -384,7 +388,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     subnode = addnodes.desc_content()
     # needed for automatic qualification of members
     clsname_set = False
-    if desctype == 'class' and names:
+    if desctype in ('class', 'exception') and names:
         env.currclass = names[0]
         clsname_set = True
     elif desctype in ('method', 'attribute') and clsname and not env.currclass:

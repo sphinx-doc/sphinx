@@ -125,6 +125,10 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
     try:
         if what == 'class':
             args = inspect.formatargspec(*inspect.getargspec(todoc.__init__))
+            if args[1:7] == 'self, ':
+                args = '(' + args[7:]
+            elif args == '(self)':
+                args = '()'
         elif what in ('function', 'method'):
             args = inspect.formatargspec(*inspect.getargspec(todoc))
             if what == 'method':

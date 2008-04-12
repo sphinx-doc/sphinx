@@ -6,7 +6,7 @@ Changes in trunk
   create a target and no output.
 
 * sphinx.ext.autodoc: Don't check ``__module__`` for explicitly given
-  members.
+  members.  Remove "self" in class constructor argument list.
 
 * sphinx.environment: Don't swallow TOC entries when resolving subtrees.
 
@@ -15,6 +15,9 @@ Changes in trunk
 
 * sphinx.directives: Allow giving multiple options in a ``cmdoption``
   directive.
+
+* sphinx.directives: Fix display of class members without explicit
+  class name given.
 
 * sphinx.roles: Fix referencing glossary terms with explicit targets.
 
