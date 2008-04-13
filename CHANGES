@@ -1,41 +1,48 @@
 Changes in trunk
 ================
 
-* sphinx.application: Support a new method, ``add_crossref_type``.
-  It works like ``add_description_unit`` but the directive will only
-  create a target and no output.
+New features added
+------------------
 
-* sphinx.application: Support a new method, ``add_transform``.
-  It takes a standard docutils ``Transform`` subclass which is then
-  applied by Sphinx' reader on parsing reST document trees.
+* Extension API (Application object):
 
-* sphinx.directives: New directive, ``currentmodule``.  It can be used
-  to indicate the module name of the following documented things without
-  creating index entries.
+  - Support a new method, ``add_crossref_type``.  It works like
+    ``add_description_unit`` but the directive will only create a target
+    and no output.
+  - Support a new method, ``add_transform``.  It takes a standard docutils
+    ``Transform`` subclass which is then applied by Sphinx' reader on
+    parsing reST document trees.
+  - Add support for other template engines than Jinja, by adding an
+    abstraction called a "template bridge".  This class handles rendering
+    of templates and can be changed using the new configuration value
+    "template_bridge".
+  - The config file itself can be an extension (if it provides a ``setup()``
+    function).
+
+* Markup:
+
+  - New directive, ``currentmodule``.  It can be used to indicate the module
+    name of the following documented things without creating index entries.
+  - Allow giving a different title to documents in the toctree.
+  - Allow giving multiple options in a ``cmdoption`` directive.
+  - Fix display of class members without explicit class name given.
+
+Thanks to Jacob Kaplan-Moss, Talin and Sebastian Wiesner for suggestions.
+
+Bugs fixed
+----------
 
 * sphinx.ext.autodoc: Don't check ``__module__`` for explicitly given
   members.  Remove "self" in class constructor argument list.
 
-* sphinx.environment: Don't swallow TOC entries when resolving subtrees.
-
-* sphinx.directives: Allow giving a different title to documents
-  in the toctree.
-
-* sphinx.directives: Allow giving multiple options in a ``cmdoption``
-  directive.
-
-* sphinx.directives: Fix display of class members without explicit
-  class name given.
+* sphinx.htmlwriter: Don't use os.path for joining image HREFs.
 
 * sphinx.roles: Fix referencing glossary terms with explicit targets.
 
-* sphinx.builder, sphinx.environment: Gracefully handle some exception
+* sphinx.environment: Don't swallow TOC entries when resolving subtrees.
+
+* sphinx.builder, sphinx.environment: Gracefully handle some user error
   cases.
-
-* sphinx.config: The config file itself can be an extension (if it
-  provides a setup() function).
-
-* sphinx.htmlwriter: Don't use os.path for joining image HREFs.
 
 
 Release 0.1.61950 (Mar 26, 2008)

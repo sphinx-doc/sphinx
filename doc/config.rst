@@ -132,6 +132,14 @@ General configuration
    ``'sphinx'``, which is a builtin style designed to match Sphinx' default
    style.
 
+.. confval:: template_bridge
+
+   A string with the fully-qualified (that is, including the module name) name
+   of a callable (or simply a class) that returns an instance of
+   :class:`~sphinx.application.TemplateBridge`.  This instance is then used to
+   render HTML documents, and possibly the output of other builders (currently
+   the changes builder).
+
 
 .. _html-options:
 
@@ -210,6 +218,13 @@ that use Sphinx' HTMLWriter class.
 
    If true, the reST sources are included in the HTML build as
    :file:`_sources/{name}`.
+
+.. confval:: html_translator_class
+
+   A string with the fully-qualified (that is, including the module name) name
+   of a HTML Translator class, that is, a subclass of Sphinx'
+   :class:`~sphinx.htmlwriter.HTMLTranslator`, that is used to translate
+   document trees to HTML.  Default is ``None`` (use the builtin translator).
 
 .. confval:: htmlhelp_basename
 

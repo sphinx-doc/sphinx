@@ -13,7 +13,8 @@ import sys
 import codecs
 from os import path
 
-sys.path.insert(0, path.dirname(__file__))
+from sphinx.util import mtimes_of_files
+from sphinx.application import TemplateBridge
 
 from jinja import Environment
 from jinja.loaders import BaseLoader
@@ -53,3 +54,27 @@ class SphinxFileSystemLoader(BaseLoader):
             return f.read()
         finally:
             f.close()
+
+
+class BuiltinTemplates(TemplateBridge):
+    def init(self, builder):
+        self.templates = {}
+        base_templates_path = path.join(path.dirname(__file__), 'templates')
+        ext_templates_path = [path.join(builder.srcdir, dir)
+                              for dir in builder.config.templates_path]
+        self.templates_path = [base_templates_path] + ext_templates_path
+        loader = SphinxFileSystemLoader(base_templates_path, ext_templates_path)
+        self.jinja_env = Environment(loader=loader,
+                                     # disable traceback, more likely that something
+                                     # in the application is broken than in the templates
+                                     friendly_traceback=False)
+
+    def newest_template_mtime(self):
+        return max(mtimes_of_files(self.templates_path, '.html'))
+
+    def render(self, template, context):
+        if template in self.templates:
+            return self.templates[template].render(context)
+        templateobj = self.templates[template] = \
+                      self.jinja_env.get_template(template)
+        return templateobj.render(context)

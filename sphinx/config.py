@@ -42,6 +42,7 @@ class Config(object):
         add_module_names = (True, True),
         show_authors = (False, True),
         pygments_style = ('sphinx', False),
+        template_bridge = (None, False),
 
         # HTML options
         html_style = ('default.css', False),

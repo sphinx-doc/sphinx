@@ -217,3 +217,32 @@ class Sphinx(object):
 
     def add_transform(self, transform):
         SphinxStandaloneReader.transforms.append(transform)
+
+
+class TemplateBridge(object):
+    """
+    
+    """
+
+    def init(self, builder):
+        """
+        Called by the builder to initialize the template system.  *builder*
+        is the builder object; you'll probably want to look at the value of
+        ``builder.config.templates_path``.
+        """
+        raise NotImplementedError('must be implemented in subclasses')
+
+    def newest_template_mtime(self):
+        """
+        Called by the builder to determine if output files are outdated
+        because of template changes.  Return the mtime of the newest template
+        file that was changed.  The default implementation returns ``0``.
+        """
+        return 0
+
+    def render(self, template, context):
+        """
+        Called by the builder to render a *template* with a specified
+        context (a Python dictionary).
+        """
+        raise NotImplementedError('must be implemented in subclasses')

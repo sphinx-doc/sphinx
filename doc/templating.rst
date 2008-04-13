@@ -14,6 +14,10 @@ Do I need to use Sphinx' templates to produce HTML?
 
 No.  You have several other options:
 
+* You can write a :class:`~sphinx.application.TemplateBridge` subclass that
+  calls your template engine of choice, and set the :confval:`template_bridge`
+  configuration value accordingly.
+
 * You can :ref:`write a custom builder <writing-builders>` that derives from
   :class:`~sphinx.builder.StandaloneHTMLBuilder` and calls your template engine
   of choice.
@@ -36,4 +40,6 @@ Inheritance is done via two (Jinja) directives, ``extends`` and ``block``.
    blocks
    extends !template
 
-XXX continue this
+   template names for other template engines
+
+.. XXX continue this

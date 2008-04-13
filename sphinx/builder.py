@@ -74,27 +74,14 @@ class Builder(object):
         raise NotImplementedError
 
     def init_templates(self):
-        """Call if you need Jinja templates in the builder."""
-        # lazily import this, other builders won't need it
-        from sphinx._jinja import Environment, SphinxFileSystemLoader
-
-        # load templates
-        self.templates = {}
-        base_templates_path = path.join(path.dirname(__file__), 'templates')
-        ext_templates_path = [path.join(self.srcdir, dir)
-                              for dir in self.config.templates_path]
-        self.templates_path = [base_templates_path] + ext_templates_path
-        loader = SphinxFileSystemLoader(base_templates_path, ext_templates_path)
-        self.jinja_env = Environment(loader=loader,
-                                     # disable traceback, more likely that something
-                                     # in the application is broken than in the templates
-                                     friendly_traceback=False)
-
-    def get_template(self, name):
-        if name in self.templates:
-            return self.templates[name]
-        template = self.templates[name] = self.jinja_env.get_template(name)
-        return template
+        # Call this from init() if you need templates.
+        if self.config.template_bridge:
+            self.templates = self.app.import_object(
+                self.config.template_bridge, 'template_bridge setting')()
+        else:
+            from sphinx._jinja import BuiltinTemplates
+            self.templates = BuiltinTemplates()
+        self.templates.init(self)
 
     def get_target_uri(self, docname, typ=None):
         """
@@ -514,8 +501,8 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_finish()
 
     def get_outdated_docs(self):
-        if self.templates_path:
-            template_mtime = max(mtimes_of_files(self.templates_path, '.html'))
+        if self.templates:
+            template_mtime = self.templates.newest_template_mtime()
         else:
             template_mtime = 0
         for docname in self.env.found_docs:
@@ -535,7 +522,7 @@ class StandaloneHTMLBuilder(Builder):
             except EnvironmentError:
                 # source doesn't exist anymore
                 pass
-                
+
     def load_indexer(self, docnames):
         try:
             f = open(path.join(self.outdir, 'searchindex.'+self.indexer_format), 'r')
@@ -574,7 +561,7 @@ class StandaloneHTMLBuilder(Builder):
             ctx['customsidebar'] = sidebarfile
         ctx.update(addctx)
 
-        output = self.get_template(templatename).render(ctx)
+        output = self.templates.render(templatename, ctx)
         outfilename = path.join(self.outdir, os_path(pagename) + '.html')
         ensuredir(path.dirname(outfilename)) # normally different from self.outdir
         try:
@@ -611,8 +598,7 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         self.init_translator_class()
-        # no templates used, but get_outdated_docs() needs this attribute
-        self.templates_path = []
+        self.templates = None   # no template bridge necessary
 
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':
@@ -827,9 +813,6 @@ class ChangesBuilder(Builder):
 
     def init(self):
         self.init_templates()
-        self.ftemplate = self.get_template('changes/frameset.html')
-        self.vtemplate = self.get_template('changes/versionchanges.html')
-        self.stemplate = self.get_template('changes/rstsource.html')
 
     def get_outdated_docs(self):
         return self.outdir
@@ -885,12 +868,12 @@ class ChangesBuilder(Builder):
         }
         f = open(path.join(self.outdir, 'index.html'), 'w')
         try:
-            f.write(self.ftemplate.render(ctx))
+            f.write(self.templates.render('changes/frameset.html', ctx))
         finally:
             f.close()
         f = open(path.join(self.outdir, 'changes.html'), 'w')
         try:
-            f.write(self.vtemplate.render(ctx))
+            f.write(self.templates.render('changes/versionchanges.html', ctx))
         finally:
             f.close()
 
@@ -916,7 +899,7 @@ class ChangesBuilder(Builder):
             try:
                 text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
                 ctx = {'filename': self.env.doc2path(docname, None), 'text': text}
-                f.write(self.stemplate.render(ctx))
+                f.write(self.templates.render('changes/rstsource.html', ctx))
             finally:
                 f.close()
         shutil.copyfile(path.join(path.dirname(__file__), 'static', 'default.css'),

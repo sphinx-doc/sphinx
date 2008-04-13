@@ -3,6 +3,8 @@
 Extension API
 =============
 
+.. currentmodule:: sphinx.application
+
 Each Sphinx extension is a Python module with at least a :func:`setup` function.
 This function is called at initialization time with one argument, the
 application object representing the Sphinx process.  This application object has
@@ -169,3 +171,11 @@ Event name             Emitted when                        Arguments
                        references and TOCs have been
                        inserted
 ====================== =================================== =========
+
+.. _template-bridge:
+
+The template bridge
+-------------------
+
+.. autoclass:: TemplateBridge
+   :members:
