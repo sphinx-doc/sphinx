@@ -77,6 +77,13 @@ directive.
 
             Boil the noodle *time* minutes.
 
+   .. note::
+
+      In an :dir:`automodule` directive with the ``members`` option set, only
+      module members whose ``__module__`` attribute is equal to the module name
+      as given to ``automodule`` will be documented.  This is to prevent
+      documentation of imported classes or functions.
+
 
 .. directive:: autofunction
                automethod
