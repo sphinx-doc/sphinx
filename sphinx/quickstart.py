@@ -29,10 +29,12 @@ QUICKSTART_CONF = '''\
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys
+import sys, os
 
-# If your extensions are in another directory, add it here.
-#sys.path.append('some/directory')
+# If your extensions are in another directory, add it here. If the directory
+# is relative to the documentation root, use os.path.abspath to make it
+# absolute, like shown here.
+#sys.path.append(os.path.abspath('some/directory'))
 
 # General configuration
 # ---------------------
