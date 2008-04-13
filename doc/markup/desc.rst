@@ -4,9 +4,8 @@ Module-specific markup
 ----------------------
 
 The markup described in this section is used to provide information about a
-module being documented.  Each module should be documented in its own file.
-Normally this markup appears after the title heading of that file; a typical
-file might start like this::
+module being documented.  Normally this markup appears after a title heading; a
+typical module section might start like this::
 
    :mod:`parrot` -- Dead parrot access
    ===================================
@@ -17,14 +16,14 @@ file might start like this::
    .. moduleauthor:: Eric Cleese <eric@python.invalid>
    .. moduleauthor:: John Idle <john@python.invalid>
 
-As you can see, the module-specific markup consists of two directives, the
-``module`` directive and the ``moduleauthor`` directive.
+
+The directives you can use for module are:
 
 .. directive:: .. module:: name
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
-   package name).
+   package name).  It does not create content (like e.g. :dir:`class` does).
 
    This directive will also cause an entry in the global module index.
 
@@ -39,6 +38,16 @@ As you can see, the module-specific markup consists of two directives, the
 
    The ``deprecated`` option can be given (with no value) to mark a module as
    deprecated; it will be designated as such in various locations then.
+
+
+.. directive:: .. currentmodule:: name
+
+   This directive tells Sphinx that the classes, functions etc. documented from
+   here are in the given module (like :dir:`module`), but it will not create
+   index entries, an entry in the Global Module Index, or a link target for
+   :role:`mod`.  This is helpful in situations where documentation for things in
+   a module is spread over multiple files or sections -- one location has the
+   :dir:`module` directive, the others only :dir:`currentmodule`.
 
 
 .. directive:: .. moduleauthor:: name <email>

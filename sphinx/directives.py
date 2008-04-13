@@ -599,6 +599,19 @@ module_directive.options = {'platform': lambda x: x,
 directives.register_directive('module', module_directive)
 
 
+def currentmodule_directive(name, arguments, options, content, lineno,
+                            content_offset, block_text, state, state_machine):
+    # This directive is just to tell people that we're documenting
+    # stuff in module foo, but links to module foo won't lead here.
+    env = state.document.settings.env
+    modname = arguments[0].strip()
+    env.currmodule = modname
+    return []
+
+currentmodule_directive.arguments = (1, 0, 0)
+directives.register_directive('currentmodule', currentmodule_directive)
+
+
 def author_directive(name, arguments, options, content, lineno,
                      content_offset, block_text, state, state_machine):
     # Show authors only if the show_authors option is on

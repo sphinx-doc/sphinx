@@ -9,6 +9,10 @@ Changes in trunk
   It takes a standard docutils ``Transform`` subclass which is then
   applied by Sphinx' reader on parsing reST document trees.
 
+* sphinx.directives: New directive, ``currentmodule``.  It can be used
+  to indicate the module name of the following documented things without
+  creating index entries.
+
 * sphinx.ext.autodoc: Don't check ``__module__`` for explicitly given
   members.  Remove "self" in class constructor argument list.
 
