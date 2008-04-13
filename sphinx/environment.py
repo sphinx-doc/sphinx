@@ -131,17 +131,18 @@ class HandleCodeBlocks(Transform):
                 node.replace_self(node.children[0])
 
 
-class MyStandaloneReader(standalone.Reader):
+class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
+    transforms = [DefaultSubstitutions, MoveModuleTargets,
+                  FilterMessages, HandleCodeBlocks]
     def get_transforms(self):
         tf = standalone.Reader.get_transforms(self)
-        return tf + [DefaultSubstitutions, MoveModuleTargets,
-                     FilterMessages, HandleCodeBlocks]
+        return tf + self.transforms
 
 
-class MyContentsFilter(ContentsFilter):
+class SphinxContentsFilter(ContentsFilter):
     """
     Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
@@ -156,10 +157,6 @@ class BuildEnvironment:
     The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
-
-    Not all doctrees are stored in the environment, only those of files
-    containing a "toctree" directive, because they have to change if sections
-    are edited in other files. This keeps the environment size moderate.
     """
 
     # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
@@ -428,11 +425,13 @@ class BuildEnvironment:
                 del self.images[imgsrc]
 
 
-    # --------- SINGLE FILE BUILDING -------------------------------------------
+    # --------- SINGLE FILE READING --------------------------------------------
 
     def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
-        """Parse a file and add/update inventory entries for the doctree.
-        If srcpath is given, read from a different source file."""
+        """
+        Parse a file and add/update inventory entries for the doctree.
+        If srcpath is given, read from a different source file.
+        """
         # remove all inventory entries for that file
         self.clear_doc(docname)
 
@@ -442,7 +441,7 @@ class BuildEnvironment:
         self.docname = docname
         doctree = publish_doctree(None, src_path, FileInput,
                                   settings_overrides=self.settings,
-                                  reader=MyStandaloneReader())
+                                  reader=SphinxStandaloneReader())
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
         self.process_metadata(docname, doctree)
@@ -553,7 +552,7 @@ class BuildEnvironment:
         """
         for node in document.traverse(nodes.section):
             titlenode = nodes.title()
-            visitor = MyContentsFilter(document)
+            visitor = SphinxContentsFilter(document)
             node[0].walkabout(visitor)
             titlenode += visitor.get_entry_text()
             self.titles[docname] = titlenode
@@ -619,7 +618,7 @@ class BuildEnvironment:
                 title = subnode[0]
                 # copy the contents of the section title, but without references
                 # and unnecessary stuff
-                visitor = MyContentsFilter(document)
+                visitor = SphinxContentsFilter(document)
                 title.walkabout(visitor)
                 nodetext = visitor.get_entry_text()
                 if not numentries[0]:

@@ -117,6 +117,11 @@ the following public API:
    (Of course, the element following the ``topic`` directive needn't be a
    section.)
 
+.. method:: Sphinx.add_transform(transform)
+
+   Add the standard docutils :class:`Transform` subclass *transform* to the list
+   of transforms that are applied after Sphinx parses a reST document.
+
 .. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on

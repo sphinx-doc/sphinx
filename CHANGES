@@ -5,6 +5,10 @@ Changes in trunk
   It works like ``add_description_unit`` but the directive will only
   create a target and no output.
 
+* sphinx.application: Support a new method, ``add_transform``.
+  It takes a standard docutils ``Transform`` subclass which is then
+  applied by Sphinx' reader on parsing reST document trees.
+
 * sphinx.ext.autodoc: Don't check ``__module__`` for explicitly given
   members.  Remove "self" in class constructor argument list.
 

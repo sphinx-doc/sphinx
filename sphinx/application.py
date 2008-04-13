@@ -22,6 +22,7 @@ from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
 from sphinx.builder import builtin_builders
 from sphinx.directives import desc_directive, target_directive, additional_xref_types
+from sphinx.environment import SphinxStandaloneReader
 from sphinx.util.console import bold
 
 
@@ -213,3 +214,6 @@ class Sphinx(object):
         roles.register_canonical_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass
+
+    def add_transform(self, transform):
+        SphinxStandaloneReader.transforms.append(transform)
