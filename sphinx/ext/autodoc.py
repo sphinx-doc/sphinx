@@ -100,6 +100,13 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
 
     result = ViewList()
 
+    if mod is None:
+        warning = document.reporter.warning(
+            'don\'t know which module to import for documenting '
+            '%r (try placing a "module" directive in the document, '
+            'or giving an explicit module name)' % name, line=lineno)
+        return [warning], result
+
     try:
         todoc = module = __import__(mod, None, None, ['foo'])
         if filename_set is not None and hasattr(module, '__file__') and module.__file__:
