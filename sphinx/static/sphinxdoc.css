@@ -56,7 +56,6 @@ cite, code, tt {
     font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
     font-size: 0.95em;
     letter-spacing: 0.01em;
-    font-style: normal;
 }
 
 hr {
@@ -312,20 +311,6 @@ div.pagination {
     padding-top: 0.5em;
     border-top: 1px solid black;
     text-align: center;
-}
-
-p.noshell em {
-    color: #3ca8e7;
-    text-decoration: underline;
-    font-style: normal;
-}
-
-p.noshell:hover, div.nutshell {
-    background-color: white;
-}
-
-p.noshell {
-    cursor: pointer;
 }
 
 div.sidebar ul.toc {
