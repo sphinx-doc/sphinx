@@ -23,7 +23,7 @@
                                title="Customize your viewing settings" accesskey="S">settings</a> |</li>
         {%- endif %}
         {%- block rootrellink %}
-        <li><a href="{{ pathto('index') }}">{{ project }} v{{ release }} documentation</a> &raquo;</li>
+        <li><a href="{{ pathto('index') }}">{{ docstitle }}</a> &raquo;</li>
         {%- endblock %}
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a> &raquo;</li>
@@ -36,7 +36,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     {%- if builder != 'htmlhelp' %}
-      {%- set titlesuffix = " &mdash; " + project + " Documentation" %}
+      {%- set titlesuffix = " &mdash; " + docstitle %}
     {%- endif %}
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
     {%- if builder == 'web' %}
@@ -70,7 +70,7 @@
     {%- if hasdoc('copyright') %}
     <link rel="copyright" title="Copyright" href="{{ pathto('copyright') }}">
     {%- endif %}
-    <link rel="top" title="{{ project }} Documentation" href="{{ pathto('index') }}">
+    <link rel="top" title="{{ docstitle }}" href="{{ pathto('index') }}">
     {%- if parents %}
     <link rel="up" title="{{ parents[-1].title|striptags }}" href="{{ parents[-1].link|e }}">
     {%- endif %}

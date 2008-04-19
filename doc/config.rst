@@ -149,6 +149,14 @@ Options for HTML output
 These options influence HTML as well as HTML Help output, and other builders
 that use Sphinx' HTMLWriter class.
 
+.. confval:: html_title
+
+   The "title" for HTML documentation generated with Sphinx' own templates.
+   This is appended to the ``<title>`` tag of individual pages, and used in the
+   navigation bar as the "topmost" element.  It defaults to :samp:`'{<project>}
+   v{<revision>} documentation'`, where the placeholders are replaced by the
+   config values of the same name.
+
 .. confval:: html_style
 
    The style sheet to use for HTML pages.  A file of that name must exist either
@@ -172,17 +180,6 @@ that use Sphinx' HTMLWriter class.
 
    If true, *SmartyPants* will be used to convert quotes and dashes to
    typographically correct entities.  Default: ``True``.
-
-.. confval:: html_index
-
-   Content template for the index page, filename relative to this file.  If this
-   is not the empty string, the "index" document will not be created from a
-   reStructuredText file but from the ``index.html`` template.  The template you
-   specify in this value will be included in the ``index.html``, together with
-   a list of tables.
-
-   If you want to completely override the resulting ``index`` document, set this
-   to some nonempty value and override the ``index.html`` template.
 
 .. confval:: html_sidebars
 
@@ -209,6 +206,19 @@ that use Sphinx' HTMLWriter class.
 
    This will render the template ``customdownload.html`` as the page
    ``download.html``.
+
+   .. note::
+
+      Earlier versions of Sphinx had a value called :confval:`html_index` which
+      was a clumsy way of controlling the content of the "index" document.  If
+      you used this feature, migrate it by adding an ``'index'`` key to this
+      setting, with your custom template as the value, and in your custom
+      template, use ::
+      
+         {% extend "defindex.html" %}
+         {% block tables %}
+         ... old template content ...
+         {% endblock %}
 
 .. confval:: html_use_modindex
 

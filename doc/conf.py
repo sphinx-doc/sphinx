@@ -95,7 +95,7 @@ html_sidebars = {'index': 'indexsidebar.html'}
 
 # Additional templates that should be rendered to pages, maps page names to
 # templates.
-#html_additional_pages = {}
+html_additional_pages = {'index': 'index.html'}
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True

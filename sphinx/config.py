@@ -45,12 +45,12 @@ class Config(object):
         template_bridge = (None, False),
 
         # HTML options
+        html_title = (None, False),
         html_style = ('default.css', False),
         html_static_path = ([], False),
         html_last_updated_fmt = ('%b %d, %Y', False),
         html_use_smartypants = (True, False),
         html_translator_class = (None, False),
-        html_index = ('', False),
         html_sidebars = ({}, False),
         html_additional_pages = ({}, False),
         html_use_modindex = (True, False),

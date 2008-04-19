@@ -109,6 +109,3 @@ The special document names (and pages generated for them) are:
   Though only few such names are currently used by Sphinx, you should not create
   documents or document-containing directories with such names.  (Using ``_`` as
   a prefix for a custom template directory is fine.)
-
-``index`` is a special name, too, if the :confval:`html_index` config value is
-nonempty.

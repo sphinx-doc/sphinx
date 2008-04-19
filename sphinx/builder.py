@@ -317,12 +317,17 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
+        docstitle = self.config.html_title or \
+                    '%s v%s documentation' % (self.config.project,
+                                              self.config.release)
+
         self.globalcontext = dict(
             project = self.config.project,
-            copyright = self.config.copyright,
             release = self.config.release,
             version = self.config.version,
             last_updated = self.last_updated,
+            docstitle = docstitle,
+            copyright = self.config.copyright,
             style = self.config.html_style,
             use_modindex = self.config.html_use_modindex,
             builder = self.name,
@@ -462,12 +467,6 @@ class StandaloneHTMLBuilder(Builder):
         for pagename, template in self.config.html_additional_pages.items():
             self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
-
-        # the index page
-        indextemplate = self.config.html_index
-        if indextemplate:
-            self.info(' index', nonl=1)
-            self.handle_page('index', {'indextemplate': indextemplate}, 'index.html')
 
         self.info()
 
@@ -859,9 +858,14 @@ class ChangesBuilder(Builder):
                 otherchanges.setdefault((docname, title), []).append(
                     (entry, docname, lineno))
 
+        docstitle = self.config.html_title or \
+                    '%s v%s documentation' % (self.config.project,
+                                              self.config.release)
+
         ctx = {
             'project': self.config.project,
             'version': version,
+            'docstitle': docstitle,
             'libchanges': sorted(libchanges.iteritems()),
             'apichanges': sorted(apichanges),
             'otherchanges': sorted(otherchanges.iteritems()),

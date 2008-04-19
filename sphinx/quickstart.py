@@ -96,6 +96,10 @@ pygments_style = 'sphinx'
 # given in html_static_path.
 html_style = 'default.css'
 
+# The name for this set of Sphinx documents.  If None, it defaults to
+# "<project> v<release> documentation".
+#html_title = None
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -108,9 +112,6 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
 #html_use_smartypants = True
-
-# Content template for the index page.
-#html_index = ''
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

@@ -1,6 +1,29 @@
 Changes in trunk
 ================
 
+Incompatible changes
+--------------------
+
+* Jinja, the template engine used for the default HTML templates, is now
+  no longer shipped with Sphinx.  If it is not installed automatically for
+  you (it is now listed as a dependency in ``setup.py``), install it manually
+  from PyPI.  This will also be needed if you're using Sphinx from a SVN
+  checkout; in that case please also remove the ``sphinx/jinja`` directory
+  that may be left over from old revisions.
+
+* The clumsy handling of the ``index.html`` template was removed.  The config
+  value ``html_index`` is gone, and ``html_additional_pages`` should be used
+  instead.  If you need it, the old ``index.html`` template is still there,
+  called ``defindex.html``, and you can port your html_index template, using
+  Jinja inheritance, by changing your template::
+
+     {% extends "defindex.html" %}
+     {% block tables %}
+     ... old html_index template content ...
+     {% endblock %}
+
+  and putting ``'index': name of your template`` in ``html_additional_pages``.
+
 New features added
 ------------------
 
@@ -26,6 +49,16 @@ New features added
   - Allow giving a different title to documents in the toctree.
   - Allow giving multiple options in a ``cmdoption`` directive.
   - Fix display of class members without explicit class name given.
+
+* Templates:
+
+  - ``index.html`` renamed to ``defindex.html``, see above.
+  - There's a new config value, ``html_title``, that controls the overall
+    "title" of the set of Sphinx docs.  It is used instead everywhere instead of
+    "Projectname vX.Y documentation" now.
+  - All references to "documentation" in the templates have been removed, so
+    that it is now easier to use Sphinx for non-documentation documents with
+    the default templates.
 
 Thanks to Jacob Kaplan-Moss, Talin and Sebastian Wiesner for suggestions.
 

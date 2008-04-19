@@ -1,17 +1,15 @@
 {% extends "layout.html" %}
 {% set title = 'Overview' %}
-{% set page_links = [
-  (pathto('@rss/recent'), 'application/rss+xml', 'Recent Comments')
-] %}
 {% block body %}
-  <h1>{{ project }} Documentation</h1>
+  <h1>{{ docstitle }}</h1>
   <p>
-    Welcome! This is the documentation for {{ project }}
-    {{ release }}{% if last_updated %}, last updated {{ last_updated }}{% endif %}.
+    Welcome! This is
+    {% block description %}the documentation for {{ project }}
+    {{ release }}{% if last_updated %}, last updated {{ last_updated }}{% endif %}{% endblock %}.
   </p>
-  {% if indextemplate %}
-  {{ rendertemplate(indextemplate) }}
-  {% else %}
+  {% block beforetables %}
+  {% endblock %}
+  {% block tables %}
   <p><strong>Indices and tables:</strong></p>
   <table class="contentstable" align="center"><tr>
     <td width="50%">
@@ -26,5 +24,7 @@
          <span class="linkdescr">all functions, classes, terms</span></p>
     </td></tr>
   </table>
-  {% endif %}
+  {% endblock %}
+  {% block aftertables %}
+  {% endblock %}
 {% endblock %}
