@@ -57,8 +57,9 @@ a matching identifier is found:
 .. role:: func
 
    The name of a Python function; dotted names may be used.  The role text
-   should include trailing parentheses to enhance readability.  The parentheses
-   are stripped when searching for identifiers.
+   needs not include trailing parentheses to enhance readability; they will be
+   added automatically by Sphinx if the :confval:`add_function_parentheses`
+   config value is true (the default).
 
 .. role:: data
 
@@ -76,7 +77,8 @@ a matching identifier is found:
 .. role:: meth
 
    The name of a method of an object.  The role text should include the type
-   name, method name and the trailing parentheses.  A dotted name may be used.
+   name and the method name; if it occurs within the description of a type,
+   the type name can be omitted.  A dotted name may be used.
 
 .. role:: attr
 
