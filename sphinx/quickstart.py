@@ -188,12 +188,12 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html web htmlhelp latex changes linkcheck
+.PHONY: help clean html web pickle htmlhelp latex changes linkcheck
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
 \t@echo "  html      to make standalone HTML files"
-\t@echo "  web       to make files usable by Sphinx.web"
+\t@echo "  pickle    to make pickle files (usable by e.g. sphinx-web)"
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  changes   to make an overview over all changed/added/deprecated items"
@@ -208,13 +208,15 @@ html:
 \t@echo
 \t@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
 
-web:
-\tmkdir -p %(rbuilddir)s/web %(rbuilddir)s/doctrees
-\t$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) %(rbuilddir)s/web
+pickle:
+\tmkdir -p %(rbuilddir)s/pickle %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) %(rbuilddir)s/pickle
 \t@echo
-\t@echo "Build finished; now you can run"
-\t@echo "  python -m sphinx.web %(rbuilddir)s/web"
-\t@echo "to start the server."
+\t@echo "Build finished; now you can process the pickle files or run"
+\t@echo "  sphinx-web %(rbuilddir)s/pickle"
+\t@echo "to start the sphinx-web server."
+
+web: pickle
 
 htmlhelp:
 \tmkdir -p %(rbuilddir)s/htmlhelp %(rbuilddir)s/doctrees
