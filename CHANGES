@@ -59,6 +59,8 @@ New features added
   - All references to "documentation" in the templates have been removed, so
     that it is now easier to use Sphinx for non-documentation documents with
     the default templates.
+  - Templates now have an XHTML doctype, to be consistent with docutils'
+    HTML output.
 
 Thanks to Jacob Kaplan-Moss, Talin and Sebastian Wiesner for suggestions.
 
