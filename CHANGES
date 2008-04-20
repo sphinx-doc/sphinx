@@ -70,6 +70,8 @@ Bugs fixed
 
 * sphinx.htmlwriter: Don't use os.path for joining image HREFs.
 
+* sphinx.latexwriter: Implement option lists.
+
 * sphinx.roles: Fix referencing glossary terms with explicit targets.
 
 * sphinx.environment: Don't swallow TOC entries when resolving subtrees.
