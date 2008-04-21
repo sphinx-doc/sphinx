@@ -78,6 +78,8 @@ Bugs fixed
 
 * sphinx.environment: Don't swallow TOC entries when resolving subtrees.
 
+* sphinx.quickstart: Create a sensible default latex_documents setting.
+
 * sphinx.builder, sphinx.environment: Gracefully handle some user error
   cases.
 
