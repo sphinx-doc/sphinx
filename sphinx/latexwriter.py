@@ -808,6 +808,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_description(self, node):
         pass
 
+    def visit_substitution_definition(self, node):
+        raise nodes.SkipNode
+
     # text handling
 
     replacements = [
