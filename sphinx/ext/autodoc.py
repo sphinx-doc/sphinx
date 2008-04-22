@@ -102,8 +102,8 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
 
     if mod is None:
         warning = document.reporter.warning(
-            'don\'t know which module to import for documenting '
-            '%r (try placing a "module" directive in the document, '
+            'don\'t know which module to import for documenting %r '
+            '(try placing a "module" or "currentmodule" directive in the document, '
             'or giving an explicit module name)' % name, line=lineno)
         return [warning], result
 

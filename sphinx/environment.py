@@ -181,7 +181,8 @@ class BuildEnvironment:
         for key, val in vars(self.config).items():
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
-                   isinstance(val, types.FunctionType):
+                   isinstance(val, types.FunctionType) or \
+                   isinstance(val, (type, types.ClassType)):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
