@@ -165,6 +165,10 @@ Python documentation, this convention is used which you may follow:
 * ``^``, for subsubsections
 * ``"``, for paragraphs
 
+Of course, you are free to use your own marker characters (see the reST
+documentation), and use a deeper nesting level, but keep in mind that most
+target formats (HTML, LaTeX) have a limited supported nesting depth.
+
 
 Explicit Markup
 ---------------
