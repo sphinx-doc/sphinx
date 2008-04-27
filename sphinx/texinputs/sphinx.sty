@@ -15,16 +15,20 @@
 \RequirePackage{titlesec}
 
 \RequirePackage{color}
-\definecolor{py@InnerLinkColor}{rgb}{0.208,0.374,0.486}
-\definecolor{py@OuterLinkColor}{rgb}{0.216,0.439,0.388}
+\definecolor{InnerLinkColor}{rgb}{0.208,0.374,0.486}
+\definecolor{OuterLinkColor}{rgb}{0.216,0.439,0.388}
+% Define these colors to something not white if you want to have colored
+% background and border for code examples.
+\definecolor{VerbatimColor}{rgb}{1,1,1}
+\definecolor{VerbatimBorderColor}{rgb}{1,1,1}
 
 \RequirePackage[colorlinks,
 		breaklinks,
-		linkcolor=py@InnerLinkColor,
-		filecolor=py@OuterLinkColor,
-		menucolor=py@OuterLinkColor,
-		pagecolor=py@OuterLinkColor,
-		urlcolor=py@OuterLinkColor,
+		linkcolor=InnerLinkColor,
+		filecolor=OuterLinkColor,
+		menucolor=OuterLinkColor,
+		pagecolor=OuterLinkColor,
+		urlcolor=OuterLinkColor,
 	       ]{hyperref}
 
 \RequirePackage{framed}
@@ -234,8 +238,52 @@
 
 \newcommand{\py@modulebadkey}{{--just-some-junk--}}
 
-%%  Lots of index-entry generation support.
+% Redefine the Verbatim environment to allow border and background colors.
+%
+\let\py@OldVerbatim=\Verbatim
+\let\py@OldEndVerbatim=\endVerbatim
 
+% Play with vpsace to be able to keep the indentation.
+\newlength\distancetoright
+\newlength\leftsidespace
+\def\mycolorbox#1{%
+  \setlength\leftsidespace{\@totalleftmargin}%
+  \setlength\distancetoright{\textwidth}%
+  \advance\distancetoright -\@totalleftmargin %
+  \noindent\hspace*{\@totalleftmargin}%
+  \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
+  \begin{minipage}{\distancetoright}%
+    \smallskip%
+    \noindent\hspace*{-\leftsidespace}%
+    #1
+  \end{minipage}%
+  }%
+}
+\def\FrameCommand{\mycolorbox}
+
+\renewcommand{\Verbatim}[1][1]{%
+  % The list environement is needed to control perfectly the vertical
+  % space.
+  \list{}{%
+  \setlength\parskip{0pt}%
+  \setlength\itemsep{0ex}%
+  \setlength\topsep{0ex}%
+  \setlength\partopsep{0pt}%
+  \setlength\leftmargin{0pt}%
+  }%
+  \item\MakeFramed {\FrameRestore}%
+     \small%
+    \py@OldVerbatim[#1]%
+}
+\renewcommand{\endVerbatim}{%
+    \py@OldEndVerbatim%
+  \endMakeFramed%
+  \endlist%
+}
+
+
+% Lots of index-entry generation support.
+%
 % Command to wrap around stuff that refers to function / module /
 % attribute names  in the index.  Default behavior: like \code{}.  To
 % just keep the index entries in the roman font, uncomment the second
