@@ -24,6 +24,9 @@ Incompatible changes
 
   and putting ``'index': name of your template`` in ``html_additional_pages``.
 
+* In the layout template, redundant ``block``\s were removed; you should use
+  Jinja's standard ``{{ super() }}`` mechanism instead.
+
 New features added
 ------------------
 
@@ -82,6 +85,8 @@ Bugs fixed
 
 * sphinx.builder, sphinx.environment: Gracefully handle some user error
   cases.
+
+* sphinx.util: Follow symbolic links when searching for documents.
 
 
 Release 0.1.61950 (Mar 26, 2008)

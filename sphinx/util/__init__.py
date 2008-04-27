@@ -50,6 +50,30 @@ def ensuredir(path):
             raise
 
 
+def walk(top, topdown=True, followlinks=False):
+    """
+    Backport of os.walk from 2.6, where the followlinks argument was added.
+    """
+    names = os.listdir(top)
+
+    dirs, nondirs = [], []
+    for name in names:
+        if path.isdir(path.join(top, name)):
+            dirs.append(name)
+        else:
+            nondirs.append(name)
+
+    if topdown:
+        yield top, dirs, nondirs
+    for name in dirs:
+        fullpath = path.join(top, name)
+        if followlinks or not path.islink(fullpath):
+            for x in walk(fullpath, topdown, followlinks):
+                yield x
+    if not topdown:
+        yield top, dirs, nondirs
+
+
 def get_matching_docs(dirname, suffix, exclude=(), prune=()):
     """
     Get all file names (without suffix) matching a suffix in a
@@ -61,7 +85,7 @@ def get_matching_docs(dirname, suffix, exclude=(), prune=()):
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
     dirlen = len(dirname) + 1    # exclude slash
-    for root, dirs, files in os.walk(dirname):
+    for root, dirs, files in walk(dirname, followlinks=True):
         dirs.sort()
         files.sort()
         for prunedir in prune:
