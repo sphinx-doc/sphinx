@@ -126,6 +126,10 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True
 
+# If true, an OpenSearch description file will be output, and all pages will
+# contain a <link> tag referring to it.
+#html_use_opensearch = False
+
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%(project)sdoc'
 

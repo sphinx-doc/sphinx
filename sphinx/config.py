@@ -55,6 +55,7 @@ class Config(object):
         html_additional_pages = ({}, False),
         html_use_modindex = (True, False),
         html_copy_source = (True, False),
+        html_use_opensearch = (False, False),
 
         # HTML help options
         htmlhelp_basename = ('pydoc', False),

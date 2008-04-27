@@ -227,7 +227,13 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_copy_source
 
    If true, the reST sources are included in the HTML build as
-   :file:`_sources/{name}`.
+   :file:`_sources/{name}`.  The default is ``True``.
+
+.. confval:: html_use_opensearch
+
+   If true, an `OpenSearch <http://opensearch.org>` description file will be
+   output, and all pages will contain a ``<link>`` tag referring to it.
+   The default is ``False``.
 
 .. confval:: html_translator_class
 

@@ -64,8 +64,11 @@ New features added
     the default templates.
   - Templates now have an XHTML doctype, to be consistent with docutils'
     HTML output.
+  - You can now create an OpenSearch description file with the
+    ``html_use_opensearch`` config value.
 
-Thanks to Jacob Kaplan-Moss, Talin and Sebastian Wiesner for suggestions.
+Thanks to Jacob Kaplan-Moss, Talin, Jeroen Ruigrok van der Werven and
+Sebastian Wiesner for suggestions.
 
 Bugs fixed
 ----------

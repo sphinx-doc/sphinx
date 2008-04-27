@@ -330,6 +330,7 @@ class StandaloneHTMLBuilder(Builder):
             copyright = self.config.copyright,
             style = self.config.html_style,
             use_modindex = self.config.html_use_modindex,
+            use_opensearch = self.config.html_use_opensearch,
             builder = self.name,
             parents = [],
             titles = {},
@@ -468,6 +469,11 @@ class StandaloneHTMLBuilder(Builder):
             self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
+        if self.config.html_use_opensearch:
+            self.info(' opensearch', nonl=1)
+            fn = path.join(self.outdir, '_static', 'opensearch.xml')
+            self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
+
         self.info()
 
         # copy image files
@@ -544,7 +550,8 @@ class StandaloneHTMLBuilder(Builder):
     def get_target_uri(self, docname, typ=None):
         return docname + '.html'
 
-    def handle_page(self, pagename, addctx, templatename='page.html'):
+    def handle_page(self, pagename, addctx, templatename='page.html',
+                    outfilename=None):
         ctx = self.globalcontext.copy()
         ctx['current_page_name'] = pagename
 
@@ -561,7 +568,8 @@ class StandaloneHTMLBuilder(Builder):
         ctx.update(addctx)
 
         output = self.templates.render(templatename, ctx)
-        outfilename = path.join(self.outdir, os_path(pagename) + '.html')
+        if not outfilename:
+            outfilename = path.join(self.outdir, os_path(pagename) + '.html')
         ensuredir(path.dirname(outfilename)) # normally different from self.outdir
         try:
             f = codecs.open(outfilename, 'w', 'utf-8')
@@ -606,12 +614,14 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
             return docname[:-5] # up to sep
         return docname + SEP
 
-    def handle_page(self, pagename, ctx, templatename='page.html'):
+    def handle_page(self, pagename, ctx, templatename='page.html',
+                    outfilename=None):
         ctx['current_page_name'] = pagename
         sidebarfile = self.config.html_sidebars.get(pagename, '')
         if sidebarfile:
             ctx['customsidebar'] = path.join(self.srcdir, sidebarfile)
-        outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
+        if not outfilename:
+            outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
