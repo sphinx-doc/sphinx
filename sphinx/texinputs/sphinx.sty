@@ -1012,6 +1012,13 @@
   }
 }
 
+% Redefine description environment so that it is usable inside fulllineitems.
+%
+\renewcommand{\description}{%
+  \list{}{\labelwidth\z@%
+          \itemindent-\leftmargin%
+	  \labelsep5pt%
+          \let\makelabel=\descriptionlabel}}
 
 % Definition lists; requested by AMK for HOWTO documents.  Probably useful
 % elsewhere as well, so keep in in the general style support.
