@@ -190,7 +190,7 @@ def parse_py_signature(signode, sig, desctype, env):
 
 c_sig_re = re.compile(
     r'''^([^(]*?)          # return type
-        (\w+)  \s*         # thing name
+        ([\w:]+)  \s*      # thing name (colon allowed for C++ class names)
         (?: \((.*)\) )? $  # optionally arguments
     ''', re.VERBOSE)
 c_funcptr_sig_re = re.compile(
@@ -220,7 +220,7 @@ def parse_c_type(node, ctype):
             node += tnode
 
 def parse_c_signature(signode, sig, desctype):
-    """Transform a C-language signature into RST nodes."""
+    """Transform a C (or C++) signature into RST nodes."""
     # first try the function pointer signature regex, it's more specific
     m = c_funcptr_sig_re.match(sig)
     if m is None:
@@ -276,7 +276,8 @@ def parse_opcode_signature(signode, sig):
     return opname.strip()
 
 
-option_desc_re = re.compile(r'(/|-|--)([-_a-zA-Z0-9]+)(\s*.*?)(?=,|$)')
+option_desc_re = re.compile(
+    r'(/|-|--)([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
 
 def parse_option_desc(signode, sig):
     """Transform an option description into RST nodes."""
