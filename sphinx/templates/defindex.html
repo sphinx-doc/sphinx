@@ -7,8 +7,6 @@
     {% block description %}the documentation for {{ project }}
     {{ release }}{% if last_updated %}, last updated {{ last_updated }}{% endif %}{% endblock %}.
   </p>
-  {% block beforetables %}
-  {% endblock %}
   {% block tables %}
   <p><strong>Indices and tables:</strong></p>
   <table class="contentstable" align="center"><tr>
@@ -24,7 +22,5 @@
          <span class="linkdescr">all functions, classes, terms</span></p>
     </td></tr>
   </table>
-  {% endblock %}
-  {% block aftertables %}
   {% endblock %}
 {% endblock %}

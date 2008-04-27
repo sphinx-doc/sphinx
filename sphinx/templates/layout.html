@@ -1,8 +1,10 @@
-{%- include "macros.html" %}
 {%- block doctype -%}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 {%- endblock %}
+{%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
+{%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
+{%- include "macros.html" %}
 {%- macro relbar %}
 {# this macro needs to stay in layout.html due to it containing blocks #}
     <div class="related">
@@ -10,23 +12,23 @@
       <ul>
         <li class="right" style="margin-right: 10px"><a href="{{ pathto('genindex') }}" title="General Index" accesskey="I">index</a></li>
         {%- if use_modindex %}
-        <li class="right"><a href="{{ pathto('modindex') }}" title="Global Module Index" accesskey="M">modules</a> |</li>
+        <li class="right"><a href="{{ pathto('modindex') }}" title="Global Module Index" accesskey="M">modules</a>{{ reldelim2 }}</li>
         {%- endif %}
         {%- if next %}
-          <li class="right"><a href="{{ next.link|e }}" title="{{ next.title|striptags }}" accesskey="N">next</a> |</li>
+          <li class="right"><a href="{{ next.link|e }}" title="{{ next.title|striptags }}" accesskey="N">next</a>{{ reldelim2 }}</li>
         {%- endif %}
         {%- if prev %}
-          <li class="right"><a href="{{ prev.link|e }}" title="{{ prev.title|striptags }}" accesskey="P">previous</a> |</li>
+          <li class="right"><a href="{{ prev.link|e }}" title="{{ prev.title|striptags }}" accesskey="P">previous</a>{{ reldelim2 }}</li>
         {%- endif %}
         {%- if builder == 'web' %}
           <li class="right"><a href="{{ pathto('settings') }}"
                                title="Customize your viewing settings" accesskey="S">settings</a> |</li>
         {%- endif %}
         {%- block rootrellink %}
-        <li><a href="{{ pathto('index') }}">{{ docstitle }}</a> &raquo;</li>
+        <li><a href="{{ pathto('index') }}">{{ docstitle }}</a>{{ reldelim1 }}</li>
         {%- endblock %}
         {%- for parent in parents %}
-          <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a> &raquo;</li>
+          <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a>{{ reldelim1 }}</li>
         {%- endfor %}
         {%- block relbaritems %}{% endblock %}
       </ul>
@@ -85,15 +87,11 @@
   </head>
   <body>
 
-{%- block beforerelbar %}{% endblock %}
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
-{%- block afterrelbar %}{% endblock %}
 
-{%- block beforesidebar1 %}{% endblock %}
 {%- block sidebar1 %}{# possible location for sidebar #}{% endblock %}
-{%- block aftersidebar1 %}{% endblock %}
 
-{%- block beforedocument %}{% endblock %}
+{%- block document %}
     <div class="document">
       <div class="documentwrapper">
       {%- if builder != 'htmlhelp' %}
@@ -106,17 +104,14 @@
         </div>
       {%- endif %}
       </div>
-{%- block afterdocument %}{% endblock %}
+{%- endblock %}
 
-{%- block beforesidebar2 %}{% endblock %}
 {%- block sidebar2 %}{{ sidebar() }}{% endblock %}
-{%- block aftersidebar2 %}{% endblock %}
       <div class="clearer"></div>
     </div>
 
 {%- block relbar2 %}{{ relbar() }}{% endblock %}
 
-{%- block beforefooter %}{% endblock %}
 {%- block footer %}
     <div class="footer">
     {%- if hasdoc('copyright') %}
@@ -129,6 +124,5 @@
     {%- endif %}
     </div>
 {%- endblock %}
-{%- block afterfooter %}{% endblock %}
   </body>
 </html>

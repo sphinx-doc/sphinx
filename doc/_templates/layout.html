@@ -5,10 +5,11 @@
         <li><a href="{{ pathto('contents') }}">Documentation </a> &raquo;</li>
 {% endblock %}
 
-{% block beforerelbar %}
+{% block relbar1 %}
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
 <img src="{{ pathto("_static/sphinx.png", 1) }}">
 </div>
+{{ super() }}
 {% endblock %}
 
 {# put the sidebar before the body #}
