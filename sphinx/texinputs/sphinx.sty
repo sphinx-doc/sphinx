@@ -6,26 +6,40 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}
-             [2007/12/30 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2007/12/30 LaTeX package (Sphinx markup)]
 
 \RequirePackage{textcomp}
 \RequirePackage{longtable}
 \RequirePackage{times}
 \RequirePackage{fancyvrb}
-\renewcommand{\sfdefault}{cmbr}
+\RequirePackage{titlesec}
+
+\RequirePackage{color}
+\definecolor{py@InnerLinkColor}{rgb}{0.208,0.374,0.486}
+\definecolor{py@OuterLinkColor}{rgb}{0.216,0.439,0.388}
+
+\RequirePackage[colorlinks,
+		breaklinks,
+		linkcolor=py@InnerLinkColor,
+		filecolor=py@OuterLinkColor,
+		menucolor=py@OuterLinkColor,
+		pagecolor=py@OuterLinkColor,
+		urlcolor=py@OuterLinkColor,
+	       ]{hyperref}
+
+\RequirePackage{framed}
+
+\ifx\pdftexversion\undefined
+  \RequirePackage{graphicx}
+\else
+  \RequirePackage[pdftex]{graphicx}
+\fi
 
 % Uncomment these two lines to ignore the paper size and make the page 
 % size more like a typical published manual.
 %\renewcommand{\paperheight}{9in}
 %\renewcommand{\paperwidth}{8.5in}   % typical squarish manual
 %\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
-
-% These packages can be used to add marginal annotations which indicate
-% index entries and labels; useful for reviewing this messy documentation!
-%
-%\RequirePackage{showkeys}
-%\RequirePackage{showidx}
 
 % If we ever want to indent paragraphs, this needs to be changed.
 % This is used inside the macros defined here instead of coding
@@ -40,11 +54,15 @@
 
 \newif\ifpdf\pdffalse
 \ifx\pdfoutput\undefined\else\ifcase\pdfoutput
+  \let\py@NormalColor\relax
+  \let\py@TitleColor\relax
 \else
   \pdftrue
   \input{pdfcolor}
   \let\py@LinkColor=\NavyBlue
   \let\py@NormalColor=\Black
+  \definecolor{MyDarkBlue}{rgb}{0.126,0.263,0.361}
+  \def\py@TitleColor{\color{MyDarkBlue}}
   \pdfcompresslevel=9
   \pdfpagewidth=\paperwidth    % page width of PDF output
   \pdfpageheight=\paperheight  % page height of PDF output
@@ -152,7 +170,7 @@
 \pagenumbering{roman}           % ToC & chapters
 
 % Use this to set the font family for headers and other decor:
-\newcommand{\py@HeaderFamily}{\sffamily}
+\newcommand{\py@HeaderFamily}{\sffamily\bfseries}
 
 % Set up abstract ways to get the normal and smaller font sizes that
 % work even in footnote context.
@@ -206,72 +224,15 @@
   }
 }
 
-% This sets up the {verbatim} environment to be indented and a minipage,
-% and to have all the other mostly nice properties that we want for
-% code samples.
-
-\let\py@OldVerbatim=\verbatim
-\let\py@OldEndVerbatim=\endverbatim
-\RequirePackage{verbatim}
-\let\py@OldVerbatimInput=\verbatiminput
-
-% Variable used by begin code command
-\newlength{\py@codewidth}
-
-\renewcommand{\verbatim}{%
-  \setlength{\parindent}{1cm}%
-  % Calculate the text width for the minipage:
-  \setlength{\py@codewidth}{\linewidth}%
-  \addtolength{\py@codewidth}{-\parindent}%
-  %
-  \par\indent%
-  \begin{minipage}[t]{\py@codewidth}%
-    \small%
-    \py@OldVerbatim%
-}
-\renewcommand{\endverbatim}{%
-    \py@OldEndVerbatim%
-  \end{minipage}%
-}
-\renewcommand{\verbatiminput}[1]{%
-  {\setlength{\parindent}{1cm}%
-   % Calculate the text width for the minipage:
-   \setlength{\py@codewidth}{\linewidth}%
-   \addtolength{\py@codewidth}{-\parindent}%
-   %
-   \small%
-   \begin{list}{}{\setlength{\leftmargin}{1cm}}
-     \item%
-     \py@OldVerbatimInput{#1}%
-   \end{list}
-  }%
-}
-
-% This does a similar thing for the {alltt} environment:
-\RequirePackage{alltt}
-\let\py@OldAllTT=\alltt
-\let\py@OldEndAllTT=\endalltt
-
-\renewcommand{\alltt}{%
-  \setlength{\parindent}{1cm}%
-  % Calculate the text width for the minipage:
-  \setlength{\py@codewidth}{\linewidth}%
-  \addtolength{\py@codewidth}{-\parindent}%
-  \let\e=\textbackslash%
-  %
-  \par\indent%
-  \begin{minipage}[t]{\py@codewidth}%
-    \small%
-    \py@OldAllTT%
-}
-\renewcommand{\endalltt}{%
-    \py@OldEndAllTT%
-  \end{minipage}%
-}
-
+% Some custom font markup commands.
+%
+\newcommand{\strong}[1]{{\bf #1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\bfcode}[1]{\code{\bfseries#1}}
+\newcommand{\samp}[1]{`\code{#1}'}
+\newcommand{\email}[1]{{\py@smallsize\textsf{#1}}}
 
 \newcommand{\py@modulebadkey}{{--just-some-junk--}}
-
 
 %%  Lots of index-entry generation support.
 
@@ -331,7 +292,6 @@
 % Add the defining entry for a module
 \newcommand{\py@modindex}[2]{%
   \renewcommand{\py@thismodule}{#1}
-  \setindexsubitem{(in module #1)}%
   \index{#1@{\py@idxcode{#1}} (#2module)|textbf}%
   \ifpy@UseModuleIndex%
     \@ifundefined{py@modplat@\py@thismodulekey}{
@@ -340,39 +300,6 @@
         \emph{(\py@platformof[\py@thismodulekey]{})}}}{\thepage}}%
     }
   \fi%
-}
-
-% *** XXX *** THE NEXT FOUR MACROS ARE NOW OBSOLETE !!! ***
-
-% built-in & Python modules in the main distribution
-\newcommand{\bimodindex}[1]{\py@modindex{#1}{built-in }%
-  \typeout{*** MACRO bimodindex IS OBSOLETE -- USE declaremodule INSTEAD!}}
-\newcommand{\stmodindex}[1]{\py@modindex{#1}{standard }%
-  \typeout{*** MACRO stmodindex IS OBSOLETE -- USE declaremodule INSTEAD!}}
-
-% Python & extension modules outside the main distribution
-\newcommand{\modindex}[1]{\py@modindex{#1}{}%
-  \typeout{*** MACRO modindex IS OBSOLETE -- USE declaremodule INSTEAD!}}
-\newcommand{\exmodindex}[1]{\py@modindex{#1}{extension }%
-  \typeout{*** MACRO exmodindex IS OBSOLETE -- USE declaremodule INSTEAD!}}
-
-% Additional string for an index entry
-\newif\ifpy@usingsubitem\py@usingsubitemfalse
-\newcommand{\py@indexsubitem}{}
-\newcommand{\setindexsubitem}[1]{\renewcommand{\py@indexsubitem}{ #1}%
-                                 \py@usingsubitemtrue}
-\newcommand{\ttindex}[1]{%
-  \ifpy@usingsubitem
-    \index{#1@{\py@idxcode{#1}}\py@indexsubitem}%
-  \else%
-    \index{#1@{\py@idxcode{#1}}}%
-  \fi%
-}
-\newcommand{\withsubitem}[2]{%
-  \begingroup%
-    \def\ttindex##1{\index{##1@{\py@idxcode{##1}} #1}}%
-    #2%
-  \endgroup%
 }
 
 
@@ -509,7 +436,6 @@
 
 
 \newcommand{\py@reset}{
-  \py@usingsubitemfalse
   \py@ProcessModSynopsis
   \renewcommand{\py@thisclass}{}
   \renewcommand{\py@thismodule}{}
@@ -519,27 +445,14 @@
 
 % Augment the sectioning commands used to get our own font family in place,
 % and reset some internal data items:
-\renewcommand{\section}{\py@reset%
-                        \@startsection{section}{1}{\z@}%
-                                    {-3.5ex \@plus -1ex \@minus -.2ex}%
-                                    {2.3ex \@plus.2ex}%
-                                    {\reset@font\Large\py@HeaderFamily}}
-\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
-                                    {-3.25ex\@plus -1ex \@minus -.2ex}%
-                                    {1.5ex \@plus .2ex}%
-                                    {\reset@font\large\py@HeaderFamily}}
-\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{\z@}%
-                                    {-3.25ex\@plus -1ex \@minus -.2ex}%
-                                    {1.5ex \@plus .2ex}%
-                                    {\reset@font\normalsize\py@HeaderFamily}}
-\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\z@}%
-                                    {3.25ex \@plus1ex \@minus.2ex}%
-                                    {-1em}%
-                                    {\reset@font\normalsize\py@HeaderFamily}}
-\renewcommand{\subparagraph}{\@startsection{subparagraph}{5}{\parindent}%
-                                    {3.25ex \@plus1ex \@minus .2ex}%
-                                    {-1em}%
-                                    {\reset@font\normalsize\py@HeaderFamily}}
+\titleformat{\section}{\Large\py@HeaderFamily\py@TitleColor}%
+{\thesection}{-1em}{\py@reset}{\py@NormalColor}
+\titleformat{\subsection}{\large\py@HeaderFamily\py@TitleColor}%
+{\thesubsection}{0.5em}{}{\py@NormalColor}
+\titleformat{\subsubsection}{\py@HeaderFamily\py@TitleColor}%
+{\thesubsubsection}{0.5em}{}{\py@NormalColor}
+\titleformat{\paragraph}{\large\py@HeaderFamily\py@TitleColor}%
+{}{0em}{}{\py@NormalColor}
 
 
 % Now for a lot of semantically-loaded environments that do a ton of magical
@@ -591,6 +504,10 @@
 % something else.
 \newcommand{\py@unspecified}{...}
 
+\newcommand{\py@varvars}[1]{{%
+    {\let\unspecified=\py@unspecified%
+      \let\moreargs=\py@moreargs%
+      \emph{#1}}}}
 
 \newlength{\py@argswidth}
 \newcommand{\py@sigparams}[1]{%
@@ -807,7 +724,7 @@
 % -- {var} may be {}
 \newenvironment{opcodedesc}[2]{
   \begin{fulllineitems}
-    \item[\bfcode{#1}\quad\var{#2}]
+    \item[\bfcode{#1}\quad\emph{#2}]
 }{\end{fulllineitems}}
 
 % generic description ----------------------------------------------------
@@ -818,116 +735,6 @@
   \begin{fulllineitems}
     \descline{#1}
 }{\end{fulllineitems}}
-
-\newcommand{\nodename}[1]{\label{#1}}
-
-% For these commands, use \command{} to get the typography right, not 
-% {\command}.  This works better with the texinfo translation.
-\newcommand{\ABC}{{\sc abc}}
-\newcommand{\UNIX}{{\sc Unix}}
-\newcommand{\POSIX}{POSIX}
-\newcommand{\ASCII}{{\sc ascii}}
-\newcommand{\Cpp}{C\protect\raisebox{.18ex}{++}}
-\newcommand{\C}{C}
-\newcommand{\EOF}{{\sc eof}}
-\newcommand{\NULL}{\constant{NULL}}
-\newcommand{\infinity}{\ensuremath{\infty}}
-\newcommand{\plusminus}{\ensuremath{\pm}}
-
-% \guilabel{Start}
-\newcommand{\guilabel}[1]{\textsf{#1}}
-% \menuselection{Start \sub Programs \sub Python}
-\newcommand{\menuselection}[1]{\guilabel{{\def\sub{ \ensuremath{>} }#1}}}
-
-% Also for consistency: spell Python "Python", not "python"!
-
-\newcommand{\code}[1]{\texttt{#1}}
-
-\newcommand{\bfcode}[1]{\code{\bfseries#1}} % bold-faced code font
-\newcommand{\csimplemacro}[1]{\code{#1}}
-\newcommand{\kbd}[1]{\code{#1}}
-\newcommand{\samp}[1]{`\code{#1}'}
-\newcommand{\var}[1]{%
-  \ifmmode%
-    \hbox{\py@defaultsize\textrm{\textit{#1\/}}}%
-  \else%
-    \py@defaultsize\textrm{\textit{#1\/}}%
-  \fi%
-}
-\renewcommand{\emph}[1]{{\em #1}}
-\newcommand{\dfn}[1]{\emph{#1}}
-\newcommand{\strong}[1]{{\bf #1}}
-% let's experiment with a new font:
-\newcommand{\file}[1]{`\filenq{#1}'}
-\newcommand{\filenq}[1]{{\py@smallsize\textsf{\let\e=\textbackslash#1}}}
-
-\newcommand{\email}[1]{{\py@smallsize\textsf{#1}}}
-\newcommand{\newsgroup}[1]{{\py@smallsize\textsf{#1}}}
-
-\newcommand{\py@varvars}[1]{{%
-  {\let\unspecified=\py@unspecified%
-   \let\moreargs=\py@moreargs%
-   \var{#1}}}}
-
-% These should be used for all references to identifiers which are
-% used to refer to instances of specific language constructs.  See the
-% names for specific semantic assignments.
-%
-% For now, don't do anything really fancy with them; just use them as
-% logical markup.  This might change in the future.
-%
-\newcommand{\module}[1]{\texttt{#1}}
-\newcommand{\keyword}[1]{\texttt{#1}}
-\newcommand{\exception}[1]{\texttt{#1}}
-\newcommand{\class}[1]{\texttt{#1}}
-\newcommand{\function}[1]{\texttt{#1}}
-\newcommand{\member}[1]{\texttt{#1}}
-\newcommand{\method}[1]{\texttt{#1}}
-
-\newcommand{\pytype}[1]{#1}             % built-in Python type
-
-\newcommand{\cfunction}[1]{\texttt{#1}}
-\newcommand{\ctype}[1]{\texttt{#1}}     % C struct or typedef name
-\newcommand{\cdata}[1]{\texttt{#1}}     % C variable, typically global
-
-\newcommand{\mailheader}[1]{{\py@smallsize\textsf{#1:}}}
-\newcommand{\mimetype}[1]{{\py@smallsize\textsf{#1}}}
-% The \! is a "negative thin space" in math mode.
-\newcommand{\regexp}[1]{%
-  {\tiny$^{^\lceil}\!\!$%
-   {\py@defaultsize\code{#1}}%
-   $\!\rfloor\!$%
-  }}
-\newcommand{\envvar}[1]{%
-  #1%
-  \index{#1}%
-  \index{environment variables!{#1}}%
-}
-\newcommand{\makevar}[1]{#1}            % variable in a Makefile
-\newcommand{\character}[1]{\samp{#1}}
-
-% constants defined in Python modules or C headers, not language constants:
-\newcommand{\constant}[1]{\code{#1}}    % manifest constant, not syntactic
-
-\newcommand{\manpage}[2]{{\emph{#1}(#2)}}
-\newcommand{\pep}[1]{PEP #1\index{Python Enhancement Proposals!PEP #1}}
-\newcommand{\rfc}[1]{RFC #1\index{RFC!RFC #1}}
-\newcommand{\program}[1]{\strong{#1}}
-\newcommand{\programopt}[1]{\strong{#1}}
-% Note that \longprogramopt provides the '--'!
-\newcommand{\longprogramopt}[1]{\strong{-{}-#1}}
-
-% cited titles:  \citetitle{Title of Work}
-%       online:  \citetitle[url-to-resource]{Title of Work}
-\ifpdf
-  \newcommand{\citetitle}[2][\py@modulebadkey]{%
-    \ifx\py@modulebadkey#1\emph{#2}\else\ulink{\emph{#2}}{#1}\fi%
-  }
-\else
-  \newcommand{\citetitle}[2][URL]{\emph{#2}}
-\fi
-
-
 
 % This version is being checked in for the historical record; it shows
 % how I've managed to get some aspects of this to work.  It will not
@@ -1107,111 +914,16 @@
   \end{center}%
 }
 
-% Cross-referencing (AMK, new impl. FLD)
-% Sample usage:
-%  \begin{seealso}
-%    \seemodule{rand}{Uniform random number generator.}; % Module xref
-%    \seetext{\emph{Encyclopedia Britannica}}.           % Ref to a book
-% 
-%    % A funky case: module name contains '_'; have to supply an optional key
-%    \seemodule[copyreg]{copy_reg}{Interface constructor registration for
-%                                  \module{pickle}.}
-%  \end{seealso}
-%
-% Note that the last parameter for \seemodule and \seetext should be complete
-% sentences and be terminated with the proper punctuation.
-
-\ifpdf
-  \newcommand{\py@seemodule}[3][\py@modulebadkey]{%
-    \par%
-    \ifx\py@modulebadkey#1\def\py@modulekey{#2}\else\def\py@modulekey{#1}\fi%
-    \begin{fulllineitems}
-      \item[\py@linkToName{label-module-\py@modulekey}{Module \module{#2}}
-            (section \ref{module-\py@modulekey}):]
-      #3
-    \end{fulllineitems}
-  }
-\else
-  \newcommand{\py@seemodule}[3][\py@modulebadkey]{%
-    \par%
-    \ifx\py@modulebadkey#1\def\py@modulekey{#2}\else\def\py@modulekey{#1}\fi%
-    \begin{fulllineitems}
-      \item[Module \module{#2} (section \ref{module-\py@modulekey}):]
-      #3
-    \end{fulllineitems}
-  }
-\fi
-
-% \seelink{url}{link text}{why it's interesting}
-\newcommand{\py@seelink}[3]{%
-  \par
-  \begin{fulllineitems}
-    \item[\ulink{#2}{#1}]
-    #3
-  \end{fulllineitems}
-}
-% \seetitle[url]{title}{why it's interesting}
-\newcommand{\py@seetitle}[3][\py@modulebadkey]{%
-  \par
-  \begin{fulllineitems}
-    \item[\citetitle{#2}]
-    \ifx\py@modulebadkey#1\else
-      \item[{\small{(\url{#1})}}]
-    \fi
-    #3
-  \end{fulllineitems}
-}
-% \seepep{number}{title}{why it's interesting}
-\newcommand{\py@seepep}[3]{%
-  \par%
-  \begin{fulllineitems}
-    \item[\pep{#1}, ``\emph{#2}'']
-    #3
-  \end{fulllineitems}
-}
-% \seerfc{number}{title}{why it's interesting}
-\newcommand{\py@seerfc}[3]{%
-  \par%
-  \begin{fulllineitems}
-    \item[\rfc{#1}, ``\emph{#2}'']
-    #3
-  \end{fulllineitems}
-}
-% \seeurl{url}{why it's interesting}
-\newcommand{\py@seeurl}[2]{%
-  \par%
-  \begin{fulllineitems}
-    \item[\url{#1}]
-    #2
-  \end{fulllineitems}
-}
-
-\newenvironment{seealso*}{
-  \par
-  \def\seetext##1{\par{##1}}
-  \let\seemodule=\py@seemodule
-  \let\seepep=\py@seepep
-  \let\seerfc=\py@seerfc
-  \let\seetitle=\py@seetitle
-  \let\seeurl=\py@seeurl
-  \let\seelink=\py@seelink
-}{\par}
+% See-also environment
 \newenvironment{seealso}{
   \par
   \strong{See Also:}
   \par
-  \def\seetext##1{\par{##1}}
-  \let\seemodule=\py@seemodule
-  \let\seepep=\py@seepep
-  \let\seerfc=\py@seerfc
-  \let\seetitle=\py@seetitle
-  \let\seeurl=\py@seeurl
-  \let\seelink=\py@seelink
 }{\par}
 
-% Allow the Python release number to be specified independently of the
+% Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
-% release to specify the Python release that is documented.
+% release to specify the release that is documented.
 %
 \newcommand{\py@release}{}
 \newcommand{\version}{}
@@ -1232,9 +944,6 @@
 %
 \newcommand{\py@authoraddress}{}
 \newcommand{\authoraddress}[1]{\renewcommand{\py@authoraddress}{#1}}
-\let\developersaddress=\authoraddress
-\let\developer=\author
-\let\developers=\author
 
 % This sets up the fancy chapter headings that make the documents look
 % at least a little better than the usual LaTeX output.
@@ -1293,3 +1002,22 @@
    \leftmargin#1}
  \raggedright}
 {\end{list}}
+
+% Redefine includgraphics for avoiding images larger than the screen size
+% If the size is not specified.
+\let\py@Oldincludegraphics\includegraphics
+
+\newbox\image@box%
+\newdimen\image@width%
+\renewcommand\includegraphics[2][\@empty]{%
+  \ifx#1\@empty%
+    \setbox\image@box=\hbox{\py@Oldincludegraphics{#2}}%
+    \image@width\wd\image@box%
+    \ifdim \image@width>\linewidth%
+      \setbox\image@box=\hbox{\py@Oldincludegraphics[width=\linewidth]{#2}}%
+    \fi%
+    \box\image@box%
+  \else%
+    \py@Oldincludegraphics[#1]{#2}%
+  \fi%
+}

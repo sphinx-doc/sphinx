@@ -75,7 +75,9 @@ Bugs fixed
 
 * sphinx.htmlwriter: Don't use os.path for joining image HREFs.
 
-* sphinx.latexwriter: Implement option lists.
+* sphinx.latexwriter: Implement option lists.  Also, some other changes
+  were made to ``sphinx.sty`` in order to enhance compatibility and
+  remove old unused stuff.  Thanks to Gael Varoquaux for that!
 
 * sphinx.roles: Fix referencing glossary terms with explicit targets.
 
