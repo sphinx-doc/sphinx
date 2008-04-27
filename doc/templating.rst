@@ -122,7 +122,7 @@ The following blocks exist in the ``layout`` template:
         {% block sidebar1 %}{{ sidebar() }}{% endblock %}
         {% block sidebar2 %}{% endblock %}
 
-    (The `sidebar2` location for the sidebar is needed by the ``sphinxdoc.css`
+    (The `sidebar2` location for the sidebar is needed by the ``sphinxdoc.css``
     stylesheet, for example.)
 
 `footer`
