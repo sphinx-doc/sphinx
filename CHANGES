@@ -25,7 +25,8 @@ Incompatible changes
   and putting ``'index': name of your template`` in ``html_additional_pages``.
 
 * In the layout template, redundant ``block``\s were removed; you should use
-  Jinja's standard ``{{ super() }}`` mechanism instead.
+  Jinja's standard ``{{ super() }}`` mechanism instead, as explained in the
+  (newly written) templating docs.
 
 New features added
 ------------------
@@ -53,7 +54,7 @@ New features added
   - Allow giving multiple options in a ``cmdoption`` directive.
   - Fix display of class members without explicit class name given.
 
-* Templates:
+* Templates (HTML output):
 
   - ``index.html`` renamed to ``defindex.html``, see above.
   - There's a new config value, ``html_title``, that controls the overall
@@ -66,9 +67,21 @@ New features added
     HTML output.
   - You can now create an OpenSearch description file with the
     ``html_use_opensearch`` config value.
+  - You can now quickly include a logo in the sidebar, using the ``html_logo``
+    config value.
+  - There are new blocks in the sidebar, so that you can easily insert content
+    into the sidebar.
 
-Thanks to Jacob Kaplan-Moss, Talin, Jeroen Ruigrok van der Werven and
-Sebastian Wiesner for suggestions.
+* LaTeX output:
+
+  - The ``sphinx.sty`` package was cleaned of unused stuff.
+  - You can include a logo in the title page with the ``latex_logo`` config
+    value.
+  - You can define the link colors and a border and background color for
+    verbatim environments.
+
+Thanks to Jacob Kaplan-Moss, Talin, Jeroen Ruigrok van der Werven and Sebastian
+Wiesner for suggestions.
 
 Bugs fixed
 ----------

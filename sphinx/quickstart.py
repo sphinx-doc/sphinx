@@ -100,6 +100,10 @@ html_style = 'default.css'
 # "<project> v<release> documentation".
 #html_title = None
 
+# The name of an image file (within the static path) to place at the top of
+# the sidebar.
+#html_logo = None
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -148,6 +152,10 @@ htmlhelp_basename = '%(project)sdoc'
 latex_documents = [
   ('%(master)s', '%(project)s.tex', '%(project)s Documentation', '%(author)s', 'manual'),
 ]
+
+# The name of an image file (relative to this directory) to place at the top of
+# the title page.
+#latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''

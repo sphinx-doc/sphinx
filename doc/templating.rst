@@ -125,6 +125,20 @@ The following blocks exist in the ``layout`` template:
     (The `sidebar2` location for the sidebar is needed by the ``sphinxdoc.css``
     stylesheet, for example.)
 
+`sidebarlogo`
+    The logo location within the sidebar.  Override this if you want to place
+    some content at the top of the sidebar.
+
+`sidebartoc`
+    The table of contents within the sidebar.
+
+`sidebarrel`
+    The relation links (previous, next document) within the sidebar.
+
+`sidebarsearch`
+    The search box within the sidebar.  Override this if you want to place some
+    content at the bottom of the sidebar.
+
 `footer`
     The block for the footer div.  If you want a custom footer or markup before
     or after it, override this one.

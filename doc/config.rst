@@ -163,6 +163,12 @@ that use Sphinx' HTMLWriter class.
    in Sphinx' :file:`static/` path, or in one of the custom paths given in
    :confval:`html_static_path`.  Default is ``'default.css'``.
 
+.. confval:: html_logo
+
+   If given, this must be the name of an image file (within the static path, see
+   below) that is the logo of the docs.  It is placed at the top of the sidebar;
+   its width should therefore not exceed 200 pixels.  Default: ``None``.
+
 .. confval:: html_static_path
 
    A list of paths that contain custom static files (such as style sheets or
@@ -279,6 +285,12 @@ These options influence LaTeX output.
    * *documentclass*: Must be one of ``'manual'`` or ``'howto'``.  Only "manual"
      documents will get appendices.  Also, howtos will have a simpler title
      page.
+
+.. confval:: latex_logo
+
+   If given, this must be the name of an image file (relative to the
+   documentation root) that is the logo of the docs.  It is placed at the top of
+   the title page.  Default: ``None``.
 
 .. confval:: latex_appendices
 

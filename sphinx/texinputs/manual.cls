@@ -79,6 +79,7 @@
       \endgroup
     \fi
     \begin{flushright}%
+      \sphinxlogo%
       {\rm\Huge\py@HeaderFamily \@title \par}%
       {\em\LARGE\py@HeaderFamily \py@release\releaseinfo \par}
       \vfill

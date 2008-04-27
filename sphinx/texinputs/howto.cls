@@ -66,6 +66,7 @@
     \endgroup
   \fi
   \begin{flushright}
+    \sphinxlogo%
     {\rm\Huge\py@HeaderFamily \@title} \par
     {\em\large\py@HeaderFamily \py@release\releaseinfo} \par
     \vspace{25pt}

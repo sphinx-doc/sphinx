@@ -320,20 +320,23 @@ class StandaloneHTMLBuilder(Builder):
         docstitle = self.config.html_title or \
                     '%s v%s documentation' % (self.config.project,
                                               self.config.release)
+        logo = self.config.html_logo and \
+               path.basename(self.config.html_logo) or ''
 
         self.globalcontext = dict(
             project = self.config.project,
             release = self.config.release,
             version = self.config.version,
             last_updated = self.last_updated,
-            docstitle = docstitle,
             copyright = self.config.copyright,
             style = self.config.html_style,
             use_modindex = self.config.html_use_modindex,
             use_opensearch = self.config.html_use_opensearch,
+            docstitle = docstitle,
             builder = self.name,
             parents = [],
             titles = {},
+            logo = logo,
             len = len, # the built-in
         )
 
@@ -484,6 +487,12 @@ class StandaloneHTMLBuilder(Builder):
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, '_images', dest))
+            # the logo is handled differently
+            if self.config.html_logo:
+                logobase = path.basename(self.config.html_logo)
+                self.info(' '+logobase, nonl=1)
+                shutil.copyfile(path.join(self.srcdir, self.config.html_logo),
+                                path.join(self.outdir, '_static', logobase))
             self.info()
 
         # copy static files
@@ -805,6 +814,13 @@ class LaTeXBuilder(Builder):
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))
             self.info()
+
+        # the logo is handled differently
+        if self.config.latex_logo:
+            logobase = path.basename(self.config.latex_logo)
+            self.info(' '+logobase, nonl=1)
+            shutil.copyfile(path.join(self.srcdir, self.config.latex_logo),
+                            path.join(self.outdir, logobase))
 
         self.info(bold('copying TeX support files...'))
         staticdirname = path.join(path.dirname(__file__), 'texinputs')

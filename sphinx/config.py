@@ -47,6 +47,7 @@ class Config(object):
         # HTML options
         html_title = (None, False),
         html_style = ('default.css', False),
+        html_logo = (None, False),
         html_static_path = ([], False),
         html_last_updated_fmt = ('%b %d, %Y', False),
         html_use_smartypants = (True, False),
@@ -64,6 +65,7 @@ class Config(object):
         latex_paper_size = ('letter', False),
         latex_font_size = ('10pt', False),
         latex_documents = ([], False),
+        latex_logo = (None, False),
         latex_preamble = ('', False),
         latex_appendices = ([], False),
         latex_use_modindex = (True, False),

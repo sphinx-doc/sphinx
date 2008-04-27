@@ -120,6 +120,8 @@ htmlhelp_basename = 'Sphinxdoc'
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual')]
 
+latex_logo = '_static/sphinx.png'
+
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
 
