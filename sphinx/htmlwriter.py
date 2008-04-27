@@ -351,8 +351,11 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         finally:
             self.no_smarty -= 1
 
-    def encode(self, text):
-        text = HTMLTranslator.encode(self, text)
-        if self.no_smarty <= 0:
-            text = sphinx_smarty_pants(text)
-        return text
+    def visit_Text(self, node):
+        text = node.astext()
+        encoded = self.encode(text)
+        if self.in_mailto and self.settings.cloak_email_addresses:
+            encoded = self.cloak_email(encoded)
+        elif self.no_smarty <= 0:
+            encoded = sphinx_smarty_pants(encoded)
+        self.body.append(encoded)

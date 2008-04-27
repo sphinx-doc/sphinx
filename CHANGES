@@ -91,6 +91,8 @@ Bugs fixed
 
 * sphinx.htmlwriter: Don't use os.path for joining image HREFs.
 
+* sphinx.htmlwriter: Don't use SmartyPants for HTML attribute values.
+
 * sphinx.latexwriter: Implement option lists.  Also, some other changes
   were made to ``sphinx.sty`` in order to enhance compatibility and
   remove old unused stuff.  Thanks to Gael Varoquaux for that!
