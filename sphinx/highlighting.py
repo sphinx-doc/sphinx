@@ -87,8 +87,10 @@ class PygmentsBridge(object):
             return
         if stylename == 'sphinx':
             style = SphinxStyle
-        else:
+        elif isinstance(stylename, basestring):
             style = get_style_by_name(stylename)
+        else:
+            style = stylename
         self.hfmter = {False: HtmlFormatter(style=style),
                        True: HtmlFormatter(style=style, linenos=True)}
         self.lfmter = {False: LatexFormatter(style=style),
