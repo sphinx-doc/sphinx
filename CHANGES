@@ -1,3 +1,13 @@
+Release 0.3 (TBA)
+=================
+
+New features added
+------------------
+
+* If the `pygments_style` contains a dot it's treated as import path and
+  used as style class.
+
+
 Release 0.2 (Apr 27, 2008)
 ==========================
 
