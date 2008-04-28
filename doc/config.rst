@@ -130,7 +130,7 @@ General configuration
 
    The style name to use for Pygments highlighting of source code.  Default is
    ``'sphinx'``, which is a builtin style designed to match Sphinx' default
-   style.  If it's a fully-qualifier name of a custom Pygments style class this
+   style.  If it's a fully-qualified name of a custom Pygments style class this
    is then used as custom style.
 
 .. confval:: template_bridge
