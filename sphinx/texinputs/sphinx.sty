@@ -15,6 +15,8 @@
 \RequirePackage{titlesec}
 
 \RequirePackage{color}
+% Define these colors to your liking in the preamble.
+\definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
 \definecolor{InnerLinkColor}{rgb}{0.208,0.374,0.486}
 \definecolor{OuterLinkColor}{rgb}{0.216,0.439,0.388}
 % Define these colors to something not white if you want to have colored
@@ -65,8 +67,7 @@
   \input{pdfcolor}
   \let\py@LinkColor=\NavyBlue
   \let\py@NormalColor=\Black
-  \definecolor{MyDarkBlue}{rgb}{0.126,0.263,0.361}
-  \def\py@TitleColor{\color{MyDarkBlue}}
+  \def\py@TitleColor{\color{TitleColor}}
   \pdfcompresslevel=9
   \pdfpagewidth=\paperwidth    % page width of PDF output
   \pdfpageheight=\paperheight  % page height of PDF output
@@ -103,7 +104,7 @@
   % this style file.
   \newcommand{\py@linkToName}[2]{%
     \py@pdfstartlink attr{/Border [0 0 0]} goto name{#1}%
-      \py@LinkColor#2\py@NormalColor%
+      \color{InnerLinkColor}#2\py@NormalColor%
     \pdfendlink%
   }
   % Compute the padded page number separately since we end up with a pair of
