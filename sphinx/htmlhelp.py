@@ -147,7 +147,8 @@ def build_hhx(builder, outdir, outname):
         f.write(contents_header)
         # special books
         f.write('<LI> ' + object_sitemap % ('Main page', 'index.html'))
-        f.write('<LI> ' + object_sitemap % ('Global Module Index', 'modindex.html'))
+        if builder.config.html_use_modindex:
+            f.write('<LI> ' + object_sitemap % ('Global Module Index', 'modindex.html'))
         # the TOC
         toc = builder.env.get_and_resolve_doctree(builder.config.master_doc, builder)
         def write_toc(node, ullevel=0):
