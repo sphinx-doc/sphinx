@@ -38,6 +38,7 @@ class Config(object):
         master_doc = ('contents', True),
         source_suffix = ('.rst', True),
         unused_docs = ([], True),
+        exclude_dirs = ([], True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
         show_authors = (False, True),

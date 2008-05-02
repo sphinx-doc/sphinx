@@ -325,9 +325,10 @@ class BuildEnvironment:
         """
         Find all source files in the source dir and put them in self.found_docs.
         """
-        self.found_docs = set(get_matching_docs(self.srcdir, config.source_suffix,
-                                                exclude=set(config.unused_docs),
-                                                prune=['_sources']))
+        exclude_dirs = [d.replace(SEP, path.sep) for d in config.exclude_dirs]
+        self.found_docs = set(get_matching_docs(
+            self.srcdir, config.source_suffix, exclude_docs=set(config.unused_docs),
+            exclude_dirs=exclude_dirs, prune_dirs=['_sources']))
 
     def get_outdated_files(self, config_changed):
         """

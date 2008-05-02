@@ -57,11 +57,6 @@ General configuration
    The configuration file itself can be an extension; for that, you only need to
    provide a :func:`setup` function in it.
 
-.. confval:: templates_path
-
-   A list of paths that contain extra templates (or templates that overwrite
-   builtin templates).
-
 .. confval:: source_suffix
 
    The file name extension of source files.  Only files with this suffix will be
@@ -113,6 +108,35 @@ General configuration
    toctree.  Use this setting to suppress the warning that is normally emitted
    in that case.
 
+.. confval:: exclude_dirs
+
+   A list of directory names, relative to the source directory, that are to be
+   excluded from the search for source files.
+
+   .. versionadded:: 0.2.1
+
+.. confval:: pygments_style
+
+   The style name to use for Pygments highlighting of source code.  Default is
+   ``'sphinx'``, which is a builtin style designed to match Sphinx' default
+   style.
+
+   .. versionchanged:: 0.2.1
+      If the value is a fully-qualified name of a custom Pygments style class,
+      this is then used as custom style.
+
+.. confval:: templates_path
+
+   A list of paths that contain extra templates (or templates that overwrite
+   builtin templates).
+
+.. confval:: template_bridge
+
+   A string with the fully-qualified name of a callable (or simply a class) that
+   returns an instance of :class:`~sphinx.application.TemplateBridge`.  This
+   instance is then used to render HTML documents, and possibly the output of
+   other builders (currently the changes builder).
+
 .. confval:: add_function_parentheses
 
    A boolean that decides whether parentheses are appended to function and
@@ -129,23 +153,6 @@ General configuration
 
    A boolean that decides whether :dir:`moduleauthor` and :dir:`sectionauthor`
    directives produce any output in the built files.
-
-.. confval:: pygments_style
-
-   The style name to use for Pygments highlighting of source code.  Default is
-   ``'sphinx'``, which is a builtin style designed to match Sphinx' default
-   style.
-
-   .. versionchanged:: 0.2.1
-      If the value is a fully-qualified name of a custom Pygments style class,
-      this is then used as custom style.
-
-.. confval:: template_bridge
-
-   A string with the fully-qualified name of a callable (or simply a class) that
-   returns an instance of :class:`~sphinx.application.TemplateBridge`.  This
-   instance is then used to render HTML documents, and possibly the output of
-   other builders (currently the changes builder).
 
 
 .. _html-options:
