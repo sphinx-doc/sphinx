@@ -10,6 +10,10 @@ New features added
 * A new config value, `exclude_dirs`, can be used to exclude whole
   directories from the search for source files.
 
+* The configuration directory (containing ``conf.py``) can now be set
+  independently from the source directory.  For that, a new command-line
+  option ``-c`` has been added.
+
 Bugs fixed
 ----------
 
