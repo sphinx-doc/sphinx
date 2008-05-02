@@ -626,9 +626,9 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None):
         ctx['current_page_name'] = pagename
-        sidebarfile = self.config.html_sidebars.get(pagename, '')
+        sidebarfile = self.config.html_sidebars.get(pagename)
         if sidebarfile:
-            ctx['customsidebar'] = path.join(self.srcdir, sidebarfile)
+            ctx['customsidebar'] = sidebarfile
         if not outfilename:
             outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
         ensuredir(path.dirname(outfilename))
