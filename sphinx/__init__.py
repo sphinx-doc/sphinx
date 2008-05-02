@@ -16,10 +16,7 @@ import traceback
 from os import path
 from cStringIO import StringIO
 
-from docutils.utils import SystemMessage
-
 from sphinx.util import format_exception_cut_frames, save_traceback
-from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor
 
 __revision__ = '$Revision$'
@@ -37,8 +34,10 @@ Options: -b <builder> -- builder to use; default is html
          -a        -- write all files; default is to only write new and changed files
          -E        -- don't use a saved environment, always read all files
          -d <path> -- path for the cached environment and doctree files
-                      (default outdir/.doctrees)
-         -D <setting=value> -- override a setting in sourcedir/conf.py
+                      (default: outdir/.doctrees)
+         -c <path> -- path where configuration file (conf.py) is located
+                      (default: same as sourcedir)
+         -D <setting=value> -- override a setting in configuration
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
          -P        -- run Pdb on exception
@@ -49,17 +48,23 @@ Modi:
 
 
 def main(argv=sys.argv):
+    # delay-import these to be able to get sphinx.__version__ from setup.py
+    # even without docutils installed
+    from sphinx.application import Sphinx
+    from docutils.utils import SystemMessage
+
     if not sys.stdout.isatty() or sys.platform == 'win32':
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:D:NEqP')
-        srcdir = path.abspath(args[0])
+        opts, args = getopt.getopt(argv[1:], 'ab:d:c:D:NEqP')
+        srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory.'
             return 1
-        if not path.isfile(path.join(srcdir, 'conf.py')):
+        if not path.isfile(path.join(srcdir, 'conf.py')) and \
+               '-c' not in (opt[0] for opt in opts):
             print >>sys.stderr, 'Error: Source directory doesn\'t contain conf.py file.'
             return 1
         outdir = path.abspath(args[1])
@@ -94,6 +99,12 @@ def main(argv=sys.argv):
             all_files = True
         elif opt == '-d':
             doctreedir = val
+        elif opt == '-c':
+            confdir = path.abspath(val)
+            if not path.isfile(path.join(confdir, 'conf.py')):
+                print >>sys.stderr, \
+                      'Error: Configuration directory doesn\'t contain conf.py file.'
+                return 1
         elif opt == '-D':
             key, val = val.split('=')
             try:
@@ -110,7 +121,7 @@ def main(argv=sys.argv):
             use_pdb = True
 
     try:
-        app = Sphinx(srcdir, outdir, doctreedir, buildername,
+        app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, sys.stderr, freshenv)
         if not app.builder:
             return 1

@@ -60,7 +60,7 @@ class BuiltinTemplates(TemplateBridge):
     def init(self, builder):
         self.templates = {}
         base_templates_path = path.join(path.dirname(__file__), 'templates')
-        ext_templates_path = [path.join(builder.srcdir, dir)
+        ext_templates_path = [path.join(builder.confdir, dir)
                               for dir in builder.config.templates_path]
         self.templates_path = [base_templates_path] + ext_templates_path
         loader = SphinxFileSystemLoader(base_templates_path, ext_templates_path)

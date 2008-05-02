@@ -169,16 +169,15 @@ Glossary
 
       .. glossary::
 
-         documentation root
-            The directory which contains the documentation's :file:`conf.py` file and
-            is therefore seen as one Sphinx project.
-
          environment
             A structure where information about all documents under the root is saved,
             and used for cross-referencing.  The environment is pickled after the
             parsing stage, so that successive runs only need to read and parse new and
             changed documents.
 
+         source directory
+            The directory which, including its subdirectories, contains all source
+            files for one Sphinx project.
 
 
 Grammar production displays

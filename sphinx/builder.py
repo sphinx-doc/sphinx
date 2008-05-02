@@ -50,6 +50,7 @@ class Builder(object):
 
     def __init__(self, app, env=None, freshenv=False):
         self.srcdir = app.srcdir
+        self.confdir = app.confdir
         self.outdir = app.outdir
         self.doctreedir = app.doctreedir
         if not path.isdir(self.doctreedir):
@@ -487,19 +488,13 @@ class StandaloneHTMLBuilder(Builder):
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, '_images', dest))
-            # the logo is handled differently
-            if self.config.html_logo:
-                logobase = path.basename(self.config.html_logo)
-                self.info(' '+logobase, nonl=1)
-                shutil.copyfile(path.join(self.srcdir, self.config.html_logo),
-                                path.join(self.outdir, '_static', logobase))
             self.info()
 
         # copy static files
         self.info(bold('copying static files...'))
         ensuredir(path.join(self.outdir, '_static'))
         staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
-                         [path.join(self.srcdir, spath)
+                         [path.join(self.confdir, spath)
                           for spath in self.config.html_static_path]
         for staticdirname in staticdirnames:
             for filename in os.listdir(staticdirname):
@@ -819,7 +814,7 @@ class LaTeXBuilder(Builder):
         if self.config.latex_logo:
             logobase = path.basename(self.config.latex_logo)
             self.info(' '+logobase, nonl=1)
-            shutil.copyfile(path.join(self.srcdir, self.config.latex_logo),
+            shutil.copyfile(path.join(self.confdir, self.config.latex_logo),
                             path.join(self.outdir, logobase))
 
         self.info(bold('copying TeX support files...'))

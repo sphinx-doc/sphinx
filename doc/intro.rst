@@ -31,16 +31,20 @@ or some (not broken) SVN trunk snapshot.
 .. _Pygments: http://pygments.org
 
 
-Setting up a documentation root
--------------------------------
+Setting up the documentation sources
+------------------------------------
 
-The root directory of a documentation collection is called the
-:dfn:`documentation root`.  There's nothing special about it; it just needs to
-contain the Sphinx configuration file, :file:`conf.py`.
+The root directory of a documentation collection is called the :dfn:`source
+directory`.  Normally, this directory also contains the Sphinx configuration
+file :file:`conf.py`, but that file can also live in another directory, the
+:dfn:`configuration directory`.
+
+.. versionadded:: 0.2.1
+   Support for a different configuration directory.
 
 Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
-documentation root and creates a default :file:`conf.py` from a few questions
-it asks you.  Just run ::
+source directory and creates a default :file:`conf.py` from a few questions it
+asks you.  Just run ::
 
    $ sphinx-quickstart
 
@@ -55,7 +59,7 @@ like this::
 
      $ sphinx-build -b latex sourcedir builddir
 
-where *sourcedir* is the :term:`documentation root`, and *builddir* is the
+where *sourcedir* is the :term:`source directory`, and *builddir* is the
 directory in which you want to place the built documentation (it must be an
 existing directory).  The :option:`-b` option selects a builder; in this example
 Sphinx will build LaTeX files.
@@ -78,6 +82,15 @@ The :program:`sphinx-build` script has several more options:
    Normally, these files are put in a directory called :file:`.doctrees` under
    the build directory; with this option you can select a different cache
    directory (the doctrees can be shared between all builders).
+
+**-c** *path*
+   Don't look for the :file:`conf.py` in the source directory, but use the given
+   configuration directory instead.  Note that various other files and paths
+   given by configuration values are expected to be relative to the
+   configuration directory, so they will have to be present at this location
+   too.
+
+   .. versionadded:: 0.2.1
 
 **-D** *setting=value*
    Override a configuration value set in the :file:`conf.py` file.  (The value

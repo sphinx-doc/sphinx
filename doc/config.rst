@@ -6,30 +6,32 @@ The build configuration file
 .. module:: conf
    :synopsis: Build configuration file.
 
-The :term:`documentation root` must contain a file named :file:`conf.py`.  This
-file (containing Python code) is called the "build configuration file" and
+The :term:`configuration directory` must contain a file named :file:`conf.py`.
+This file (containing Python code) is called the "build configuration file" and
 contains all configuration needed to customize Sphinx input and output behavior.
 
 The configuration file if executed as Python code at build time (using
-:func:`execfile`, and with the current directory set to the documentation root),
-and therefore can execute arbitrarily complex code.  Sphinx then reads simple
-names from the file's namespace as its configuration.
+:func:`execfile`, and with the current directory set to its containing
+directory), and therefore can execute arbitrarily complex code.  Sphinx then
+reads simple names from the file's namespace as its configuration.
 
-Some conventions are important to keep in mind here: Relative paths are always
-used relative to the documentation root, and document names must always be given
-without file name extension.
+Important points to note:
 
-The term "fully-qualified name" refers to a string that names an importable
-Python object inside a module; for example, the FQN ``"sphinx.builder.Builder"``
-means the ``Builder`` class in the ``sphinx.builder`` module.
+* If not otherwise documented, values must be strings, and their default is the
+  empty string.
 
-The contents of the namespace are pickled (so that Sphinx can find out when
-configuration changes), so it may not contain unpickleable values -- delete them
-from the namespace with ``del`` if appropriate.  Modules are removed
-automatically, so you don't need to ``del`` your imports after use.
+* The term "fully-qualified name" refers to a string that names an importable
+  Python object inside a module; for example, the FQN
+  ``"sphinx.builder.Builder"`` means the ``Builder`` class in the
+  ``sphinx.builder`` module.
 
-The configuration values can be separated in several groups.  If not otherwise
-documented, values must be strings, and their default is the empty string.
+* Remember that document names use ``/`` as the path separator and don't contain
+  the file name extension.
+
+* The contents of the config namespace are pickled (so that Sphinx can find out
+  when configuration changes), so it may not contain unpickleable values --
+  delete them from the namespace with ``del`` if appropriate.  Modules are
+  removed automatically, so you don't need to ``del`` your imports after use.
 
 
 General configuration
@@ -41,9 +43,9 @@ General configuration
    extensions coming with Sphinx (named ``sphinx.addons.*``) or custom ones.
 
    Note that you can extend :data:`sys.path` within the conf file if your
-   extensions live in another directory -- but make sure you use absolute
-   paths.  If your extension path is relative to the documentation root, use
-   :func:`os.path.abspath` like so::
+   extensions live in another directory -- but make sure you use absolute paths.
+   If your extension path is relative to the :term:`configuration directory`,
+   use :func:`os.path.abspath` like so::
 
       import sys, os
 
@@ -51,8 +53,8 @@ General configuration
 
       extensions = ['extname']
 
-   That way, you can load an extension called ``extname`` from the documentation
-   root's subdirectory ``sphinxext``.
+   That way, you can load an extension called ``extname`` from the subdirectory
+   ``sphinxext``.
 
    The configuration file itself can be an extension; for that, you only need to
    provide a :func:`setup` function in it.
@@ -128,7 +130,8 @@ General configuration
 .. confval:: templates_path
 
    A list of paths that contain extra templates (or templates that overwrite
-   builtin templates).
+   builtin templates).  Relative paths are taken as relative to the
+   configuration directory.
 
 .. confval:: template_bridge
 
@@ -186,8 +189,9 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_static_path
 
    A list of paths that contain custom static files (such as style sheets or
-   script files).  They are copied to the output directory after the builtin
-   static files, so a file named :file:`default.css` will overwrite the builtin
+   script files).  Relative paths are taken as relative to the configuration
+   directory.  They are copied to the output directory after the builtin static
+   files, so a file named :file:`default.css` will overwrite the builtin
    :file:`default.css`.
 
 .. confval:: html_last_updated_fmt
@@ -303,8 +307,8 @@ These options influence LaTeX output.
 .. confval:: latex_logo
 
    If given, this must be the name of an image file (relative to the
-   documentation root) that is the logo of the docs.  It is placed at the top of
-   the title page.  Default: ``None``.
+   configuration directory) that is the logo of the docs.  It is placed at the
+   top of the title page.  Default: ``None``.
 
 .. confval:: latex_appendices
 

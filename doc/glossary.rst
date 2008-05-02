@@ -14,17 +14,22 @@ Glossary
 
       See :ref:`builders` for an overview over Sphinx' built-in builders.
 
+   configuration directory
+      The directory containing :file:`conf.py`.  By default, this is the same as
+      the :term:`source directory`, but can be set differently with the **-c**
+      command-line option.
+
    description unit
       The basic building block of Sphinx documentation.  Every "description
       directive" (e.g. :dir:`function` or :dir:`describe`) creates such a unit;
       and most units can be cross-referenced to.
-
-   documentation root
-      The directory which contains the documentation's :file:`conf.py` file and
-      is therefore seen as one Sphinx project.
 
    environment
       A structure where information about all documents under the root is saved,
       and used for cross-referencing.  The environment is pickled after the
       parsing stage, so that successive runs only need to read and parse new and
       changed documents.
+
+   source directory
+      The directory which, including its subdirectories, contains all source
+      files for one Sphinx project.

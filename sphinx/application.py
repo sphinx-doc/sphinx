@@ -54,7 +54,7 @@ events = {
 
 class Sphinx(object):
 
-    def __init__(self, srcdir, outdir, doctreedir, buildername,
+    def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides, status, warning=sys.stderr, freshenv=False):
         self.next_listener_id = 0
         self._listeners = {}
@@ -62,6 +62,7 @@ class Sphinx(object):
         self.builder = None
 
         self.srcdir = srcdir
+        self.confdir = confdir
         self.outdir = outdir
         self.doctreedir = doctreedir
 
@@ -72,7 +73,7 @@ class Sphinx(object):
         self._events = events.copy()
 
         # read config
-        self.config = Config(srcdir, 'conf.py')
+        self.config = Config(confdir, 'conf.py')
         if confoverrides:
             for key, val in confoverrides.items():
                 setattr(self.config, key, val)

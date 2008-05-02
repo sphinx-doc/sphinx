@@ -11,10 +11,10 @@ Document names
 Since the reST source files can have different extensions (some people like
 ``.txt``, some like ``.rst`` -- the extension can be configured with
 :confval:`source_suffix`) and different OSes have different path separators,
-Sphinx abstracts them: all "document names" are relative to the
-:term:`documentation root`, the extension is stripped, and path separators are
-converted to slashes.  All values, parameters and suchlike referring to
-"documents" expect such a document name.
+Sphinx abstracts them: all "document names" are relative to the :term:`source
+directory`, the extension is stripped, and path separators are converted to
+slashes.  All values, parameters and suchlike referring to "documents" expect
+such a document name.
 
 
 The TOC tree
@@ -71,11 +71,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    The second line above will link to the ``strings`` document, but will use the
    title "All about strings" instead of the title of the ``strings`` document.
           
-   In the end, all documents under the :term:`documentation root` must occur in
-   some ``toctree`` directive; Sphinx will emit a warning if it finds a file
-   that is not included, because that means that this file will not be reachable
-   through standard navigation.  Use :confval:`unused_documents` to explicitly
-   exclude documents from this check.
+   In the end, all documents in the :term:`source directory` (or subdirectories)
+   must occur in some ``toctree`` directive; Sphinx will emit a warning if it
+   finds a file that is not included, because that means that this file will not
+   be reachable through standard navigation.  Use :confval:`unused_documents` to
+   explicitly exclude documents from this check, and :confval:`exclude_dirs` to
+   exclude whole directories.
 
    The "master document" (selected by :confval:`master_doc`) is the "root" of
    the TOC tree hierarchy.  It can be used as the documentation's main page, or
