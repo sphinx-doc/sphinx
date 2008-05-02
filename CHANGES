@@ -6,6 +6,7 @@ New features added
 
 * If the `pygments_style` config value contains a dot it's treated as the
   import path of a custom Pygments style class.
+* autodoc detects descriptors properly now
 
 * A new config value, `exclude_dirs`, can be used to exclude whole
   directories from the search for source files.

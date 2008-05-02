@@ -32,6 +32,14 @@ _charset_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 _module_charsets = {}
 
 
+def isdescriptor(x):
+    """Check if the object is some kind of descriptor."""
+    for item in '__get__', '__set__', '__delete__':
+        if callable(getattr(x, item, None)):
+            return True
+    return False
+
+
 def prepare_docstring(s):
     """
     Convert a docstring into lines of parseable reST.  Return it as a list of
@@ -217,7 +225,7 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
         else:
             if callable(member):
                 memberwhat = 'method'
-            elif isinstance(member, property):
+            elif isdescriptor(member):
                 memberwhat = 'attribute'
             else:
                 # XXX: todo -- attribute docs
