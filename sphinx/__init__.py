@@ -23,7 +23,7 @@ from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor
 
 __revision__ = '$Revision$'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 def usage(argv, msg=None):

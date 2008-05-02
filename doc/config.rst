@@ -15,9 +15,13 @@ The configuration file if executed as Python code at build time (using
 and therefore can execute arbitrarily complex code.  Sphinx then reads simple
 names from the file's namespace as its configuration.
 
-Two conventions are important to keep in mind here: Relative paths are always
+Some conventions are important to keep in mind here: Relative paths are always
 used relative to the documentation root, and document names must always be given
 without file name extension.
+
+The term "fully-qualified name" refers to a string that names an importable
+Python object inside a module; for example, the FQN ``"sphinx.builder.Builder"``
+means the ``Builder`` class in the ``sphinx.builder`` module.
 
 The contents of the namespace are pickled (so that Sphinx can find out when
 configuration changes), so it may not contain unpickleable values -- delete them
@@ -130,16 +134,18 @@ General configuration
 
    The style name to use for Pygments highlighting of source code.  Default is
    ``'sphinx'``, which is a builtin style designed to match Sphinx' default
-   style.  If it's a fully-qualified name of a custom Pygments style class this
-   is then used as custom style.
+   style.
+
+   .. versionchanged:: 0.2.1
+      If the value is a fully-qualified name of a custom Pygments style class,
+      this is then used as custom style.
 
 .. confval:: template_bridge
 
-   A string with the fully-qualified (that is, including the module name) name
-   of a callable (or simply a class) that returns an instance of
-   :class:`~sphinx.application.TemplateBridge`.  This instance is then used to
-   render HTML documents, and possibly the output of other builders (currently
-   the changes builder).
+   A string with the fully-qualified name of a callable (or simply a class) that
+   returns an instance of :class:`~sphinx.application.TemplateBridge`.  This
+   instance is then used to render HTML documents, and possibly the output of
+   other builders (currently the changes builder).
 
 
 .. _html-options:
@@ -244,10 +250,10 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_translator_class
 
-   A string with the fully-qualified (that is, including the module name) name
-   of a HTML Translator class, that is, a subclass of Sphinx'
-   :class:`~sphinx.htmlwriter.HTMLTranslator`, that is used to translate
-   document trees to HTML.  Default is ``None`` (use the builtin translator).
+   A string with the fully-qualified name of a HTML Translator class, that is, a
+   subclass of Sphinx' :class:`~sphinx.htmlwriter.HTMLTranslator`, that is used
+   to translate document trees to HTML.  Default is ``None`` (use the builtin
+   translator).
 
 .. confval:: htmlhelp_basename
 
