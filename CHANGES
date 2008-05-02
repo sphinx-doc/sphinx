@@ -14,7 +14,8 @@ Bugs fixed
 ----------
 
 * sphinx.htmlwriter: Correctly write the TOC file for any structure of the
-  master document.
+  master document.  Also encode non-ASCII characters as entities in TOC
+  and index file.
 
 
 Release 0.2 (Apr 27, 2008)

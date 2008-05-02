@@ -158,8 +158,8 @@ def build_hhx(builder, outdir, outname):
                 for subnode in node:
                     write_toc(subnode, ullevel)
             elif isinstance(node, nodes.reference):
-                f.write(object_sitemap % (cgi.escape(node.astext()),
-                                          node['refuri']))
+                item = object_sitemap % (cgi.escape(node.astext()), node['refuri'])
+                f.write(item.encode('ascii', 'xmlcharrefreplace'))
             elif isinstance(node, nodes.bullet_list):
                 if ullevel != 0:
                     f.write('<UL>\n')
@@ -185,7 +185,8 @@ def build_hhx(builder, outdir, outname):
         def write_index(title, refs, subitems):
             if refs:
                 f.write('<LI> ')
-                f.write(object_sitemap % (cgi.escape(title), refs[0]))
+                item = object_sitemap % (cgi.escape(title), refs[0])
+                f.write(item.encode('ascii', 'xmlcharrefreplace'))
                 for ref in refs[1:]:
                     f.write(object_sitemap % ('[Link]', ref))
             if subitems:
