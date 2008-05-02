@@ -1,11 +1,17 @@
-Release 0.3 (TBA)
-=================
+Changes in trunk
+================
 
 New features added
 ------------------
 
-* If the `pygments_style` contains a dot it's treated as import path and
-  used as style class.
+* If the `pygments_style` config value contains a dot it's treated as the
+  import path of a custom Pygments style class.
+
+Bugs fixed
+----------
+
+* sphinx.htmlwriter: Correctly write the TOC file for any structure of the
+  master document.
 
 
 Release 0.2 (Apr 27, 2008)

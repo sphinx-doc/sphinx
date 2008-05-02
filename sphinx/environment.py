@@ -700,7 +700,7 @@ class BuildEnvironment:
                                     stream=RedirStream(self._warnfunc))
         return doctree
 
-    def get_and_resolve_doctree(self, docname, builder, doctree=None):
+    def get_and_resolve_doctree(self, docname, builder, doctree=None, prune_toctrees=True):
         """Read the doctree from the pickle, resolve cross-references and
            toctrees and return it."""
         if doctree is None:
@@ -753,8 +753,9 @@ class BuildEnvironment:
             tocentries = _entries_from_toctree(toctreenode, separate=True)
             if tocentries:
                 newnode = addnodes.compact_paragraph('', '', *tocentries)
+                newnode['toctree'] = True
                 # prune the tree to maxdepth and replace titles
-                if maxdepth > 0:
+                if maxdepth > 0 and prune_toctrees:
                     _walk_depth(newnode, 1, maxdepth, titleoverrides)
                 # replace titles, if needed
                 if titleoverrides:

@@ -150,7 +150,8 @@ def build_hhx(builder, outdir, outname):
         if builder.config.html_use_modindex:
             f.write('<LI> ' + object_sitemap % ('Global Module Index', 'modindex.html'))
         # the TOC
-        toc = builder.env.get_and_resolve_doctree(builder.config.master_doc, builder)
+        tocdoc = builder.env.get_and_resolve_doctree(builder.config.master_doc, builder,
+                                                     prune_toctrees=False)
         def write_toc(node, ullevel=0):
             if isinstance(node, nodes.list_item):
                 f.write('<LI> ')
@@ -169,11 +170,10 @@ def build_hhx(builder, outdir, outname):
             elif isinstance(node, addnodes.compact_paragraph):
                 for subnode in node:
                     write_toc(subnode, ullevel)
-            elif isinstance(node, nodes.section):
-                write_toc(node[1], ullevel)
-            elif isinstance(node, nodes.document):
-                write_toc(node[0], ullevel)
-        write_toc(toc)
+        istoctree = lambda node: isinstance(node, addnodes.compact_paragraph) and \
+                    node.has_key('toctree')
+        for node in tocdoc.traverse(istoctree):
+            write_toc(node)
         f.write(contents_footer)
     finally:
         f.close()
