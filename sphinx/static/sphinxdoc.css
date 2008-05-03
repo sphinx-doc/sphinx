@@ -195,12 +195,11 @@ div.related ul li a:hover {
 
 div.body {
     margin: 0;
-    padding: 0;
+    padding: 0.5em 20px 20px 20px;
 }
 
 div.bodywrapper {
     margin: 0 240px 0 0;
-    padding: 0.5em 20px 20px 20px;
     border-right: 1px solid #ccc;
 }
 
