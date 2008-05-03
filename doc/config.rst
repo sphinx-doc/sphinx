@@ -310,6 +310,13 @@ These options influence LaTeX output.
    configuration directory) that is the logo of the docs.  It is placed at the
    top of the title page.  Default: ``None``.
 
+.. confval:: latex_use_parts
+
+   If true, the topmost sectioning unit is parts, else it is chapters.  Default:
+   ``False``.
+
+   .. versionadded:: 0.2.1
+
 .. confval:: latex_appendices
 
    Documents to append as an appendix to all manuals.

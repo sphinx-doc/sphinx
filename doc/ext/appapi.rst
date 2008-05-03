@@ -159,6 +159,8 @@ Sphinx core events
 
 These events are known to the core:
 
+.. tabularcolumns:: |l|L|L|
+
 ====================== =================================== =========
 Event name             Emitted when                        Arguments
 ====================== =================================== =========

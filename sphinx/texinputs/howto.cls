@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{howto}[1998/02/25 Document class (Python HOWTO)]
+\ProvidesClass{howto}[2008/05/01 Document class (Sphinx HOWTO)]
 
 \RequirePackage{fancybox}
 
@@ -12,44 +12,34 @@
 \ProcessOptions\relax
 \LoadClass[twoside]{article}
 
-\setcounter{secnumdepth}{1}
 
-% Optional packages:
+% Set some sane defaults for section numbering depth and TOC depth.  You can
+% reset these counter in your preamble.
 %
-% If processing of these documents fails at your TeX installation,
-% these may be commented out (independently) to make things work.
-% These are both supplied with the current version of the teTeX
-% distribution.
-%
-% The "fancyhdr" package makes nicer page footers reasonable to
-% implement, and is used to put the chapter and section information in 
-% the footers.
+\setcounter{secnumdepth}{2}
+
+
+% The "fancyhdr" package makes nicer page footers reasonable to implement, and
+% is used to put the chapter and section information in the footers.
 %
 \RequirePackage{fancyhdr}
 
-
-% Required package:
-%
-% This gives us all the Python-specific markup that we really want.
-% This should come last.  Do not change this.
+% This gives us all the Python-specific markup that we really want.  This should
+% come last.  Do not change this.
 %
 \RequirePackage{sphinx}
 
-% This comes after python.sty because it otherwise defines its own
-% "seealso" command.
+% This comes after python.sty because it otherwise defines its own "seealso"
+% command.
+%
 \RequirePackage{makeidx}
-
-
-% Support for module synopsis sections:
-\newcommand{\py@ModSynopsisFilename}{\jobname.syn}
-
 
 % Need to do one of these....
 \newcommand{\py@doHorizontalRule}{\rule{\textwidth}{1pt}}
 
 
-% Change the title page to look a bit better, and fit in with the
-% fncychap ``Bjarne'' style a bit better.
+% Change the title page to look a bit better, and fit in with the fncychap
+% ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{
   \py@doHorizontalRule
@@ -90,16 +80,16 @@
   \endgroup
   \py@doHorizontalRule
   \vspace{12pt}
-  \py@doing@page@targetstrue
 }  
 
-% Fix the theindex environment to add an entry to the Table of
-% Contents; this is much nicer than just having to jump to the end of
-% the book and flip around, especially with multiple indexes.
+% Fix the theindex environment to add an entry to the Table of Contents; this is
+% much nicer than just having to jump to the end of the book and flip around,
+% especially with multiple indexes.
 %
 \let\py@OldTheindex=\theindex
 \renewcommand{\theindex}{
   \clearpage
+  \phantomsection
   \py@OldTheindex
   \addcontentsline{toc}{section}{\indexname}
 }
@@ -108,6 +98,5 @@
   \pagestyle{plain}}{
   \pagestyle{normal}}		% start this way; change for
 \pagenumbering{arabic}		% ToC & chapters
-\setcounter{secnumdepth}{2}
 
 \thispagestyle{empty}

@@ -72,12 +72,14 @@ class LaTeXWriter(writers.Writer):
 
 # Helper classes
 
-class TableSpec:
+class Table(object):
     def __init__(self):
-        self.columnCount = 0
-        self.firstRow = 1
+        self.col = 0
+        self.colcount = 0
+        self.had_head = False
 
-class Desc:
+
+class Desc(object):
     def __init__(self, node):
         self.env = LaTeXTranslator.desc_map.get(node['desctype'], 'describe')
         self.ni = node['noindex']
@@ -86,7 +88,7 @@ class Desc:
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
-    sectionnames = ["chapter", "chapter", "section", "subsection",
+    sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
 
     def __init__(self, document, builder):
@@ -118,13 +120,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'latex', builder.config.pygments_style)
         self.context = []
         self.descstack = []
+        self.table = None
+        self.next_table_colspec = None
         self.highlightlang = 'python'
         self.highlightlinenothreshold = sys.maxint
         self.written_ids = set()
         if docclass == 'manual':
-            self.top_sectionlevel = 0
+            if builder.config.latex_use_parts:
+                self.top_sectionlevel = -1
+            else:
+                self.top_sectionlevel = 0
         else:
             self.top_sectionlevel = 1
+        self.next_section_target = None
         # flags
         self.verbatim = None
         self.in_title = 0
@@ -141,19 +149,30 @@ class LaTeXTranslator(nodes.NodeVisitor):
                (self.need_graphicx and GRAPHICX or '') + \
                '\n\n' + \
                u''.join(self.body) + \
-               (self.options['modindex'] and '\\printmodindex\n' or '') + \
+               (self.options['modindex'] and
+                '\\renewcommand{\\indexname}{Module Index}'
+                '\\printmodindex'
+                '\\renewcommand{\\indexname}{Index}\n' or '') + \
                (FOOTER % self.options)
 
     def visit_document(self, node):
         if self.first_document == 1:
+            # the first document is all the regular content ...
             self.body.append('\\begin{document}\n\\maketitle\n\\tableofcontents\n')
             self.first_document = 0
         elif self.first_document == 0:
+            # ... and all others are the appendices
             self.body.append('\n\\appendix\n')
             self.first_document = -1
         self.sectionlevel = self.top_sectionlevel
     def depart_document(self, node):
         pass
+
+    def visit_start_of_file(self, node):
+        # This marks the begin of a new file; therefore the current module and
+        # class must be reset
+        self.body.append('\n\\resetcurrentobjects\n')
+        raise nodes.SkipNode
 
     def visit_highlightlang(self, node):
         self.highlightlang = node['lang']
@@ -167,11 +186,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.this_is_the_title:
             self.sectionlevel += 1
         self.body.append('\n\n')
-        if node.get('ids'):
-            for id in node['ids']:
-                if id not in self.written_ids:
-                    self.body.append(r'\hypertarget{%s}{}' % id)
-                    self.written_ids.add(id)
+        if self.next_section_target:
+            self.body.append(r'\hypertarget{%s}{}' % self.next_section_target)
+            self.next_section_target = None
+        #if node.get('ids'):
+        #    for id in node['ids']:
+        #        if id not in self.written_ids:
+        #            self.body.append(r'\hypertarget{%s}{}' % id)
+        #            self.written_ids.add(id)
     def depart_section(self, node):
         self.sectionlevel -= 1
 
@@ -355,75 +377,64 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_label(self, node):
         raise nodes.SkipNode
 
+    def visit_tabular_col_spec(self, node):
+        self.next_table_colspec = node['spec']
+        raise nodes.SkipNode
+
     def visit_table(self, node):
-        self.tableSpec = TableSpec()
+        if self.table:
+            raise NotImplementedError('Nested tables are not supported.')
+        self.table = Table()
+        self.body.append('\n\\begin{tabulary}{\\textwidth}')
     def depart_table(self, node):
-        self.tableSpec = None
+        self.body.append('\\end{tabulary}\n\n')
+        self.table = None
 
     def visit_colspec(self, node):
-        pass
+        self.table.colcount += 1
     def depart_colspec(self, node):
         pass
 
     def visit_tgroup(self, node):
-        columnCount = int(node.get('cols', 0))
-        self.tableSpec.columnCount = columnCount
-        if columnCount == 2:
-            self.body.append('\\begin{tableii}{l|l}{textrm}')
-        elif columnCount == 3:
-            self.body.append('\\begin{tableiii}{l|l|l}{textrm}')
-        elif columnCount == 4:
-            self.body.append('\\begin{tableiv}{l|l|l|l}{textrm}')
-        elif columnCount == 5:
-            self.body.append('\\begin{tablev}{l|l|l|l|l}{textrm}')
-        else:
-            self.builder.warn('table with too many columns, ignoring')
-            raise nodes.SkipNode
+        pass
     def depart_tgroup(self, node):
-        if self.tableSpec.columnCount == 2:
-            self.body.append('\n\\end{tableii}\n\n')
-        elif self.tableSpec.columnCount == 3:
-            self.body.append('\n\\end{tableiii}\n\n')
-        elif self.tableSpec.columnCount == 4:
-            self.body.append('\n\\end{tableiv}\n\n')
-        elif self.tableSpec.columnCount == 5:
-            self.body.append('\n\\end{tablev}\n\n')
+        pass
 
     def visit_thead(self, node):
-        pass
+        if self.next_table_colspec:
+            self.body.append('{%s}\n' % self.next_table_colspec)
+        else:
+            self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
+        self.next_table_colspec = None
+        self.body.append('\\hline\n')
+        self.table.had_head = True
     def depart_thead(self, node):
-        pass
+        self.body.append('\\hline\n')
 
     def visit_tbody(self, node):
-        pass
+        if not self.table.had_head:
+            self.visit_thead(node)
     def depart_tbody(self, node):
-        pass
+        self.body.append('\\hline\n')
 
     def visit_row(self, node):
-        if not self.tableSpec.firstRow:
-            if self.tableSpec.columnCount == 2:
-                self.body.append('\n\\lineii')
-            elif self.tableSpec.columnCount == 3:
-                self.body.append('\n\\lineiii')
-            elif self.tableSpec.columnCount == 4:
-                self.body.append('\n\\lineiv')
-            elif self.tableSpec.columnCount == 5:
-                self.body.append('\n\\linev')
+        self.table.col = 0
     def depart_row(self, node):
-        if self.tableSpec.firstRow:
-            self.tableSpec.firstRow = 0
+        self.body.append('\\\\\n')
 
     def visit_entry(self, node):
-        if self.tableSpec.firstRow:
-            self.body.append('{%s}' % self.encode(node.astext().strip(' ')))
-            raise nodes.SkipNode
+        if node.has_key('morerows') or node.has_key('morecols'):
+            raise NotImplementedError('Column or row spanning cells are not implemented.')
+        if self.table.col > 0:
+            self.body.append(' & ')
+        self.table.col += 1
+        if isinstance(node.parent.parent, nodes.thead):
+            self.body.append('\\textbf{')
+            self.context.append('}')
         else:
-            self.body.append('{')
+            self.context.append('')
     def depart_entry(self, node):
-        if self.tableSpec.firstRow:
-            pass
-        else:
-            self.body.append('}')
+        self.body.append(self.context.pop()) # header
 
     def visit_acks(self, node):
         # this is a list in the source, but should be rendered as a
@@ -591,25 +602,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # indexing uses standard LaTeX index markup, so the targets
             # will be generated differently
             if not id.startswith('index-'):
-                self.body.append(r'\hypertarget{%s}{' % id)
-                return '}'
-            return ''
+                self.body.append(r'\hypertarget{%s}{}' % id)
 
-        if not (node.has_key('refuri') or node.has_key('refid')
-                or node.has_key('refname')):
-            ctx = ''
-            for id in node['ids']:
-                if id not in self.written_ids:
-                    self.written_ids.add(id)
-                    ctx += add_target(id)
-            self.context.append(ctx)
-        elif node.has_key('refid') and node['refid'] not in self.written_ids:
-            self.context.append(add_target(node['refid']))
+        if node.has_key('refid') and node['refid'] not in self.written_ids:
+            parindex = node.parent.index(node)
+            try:
+                next = node.parent[parindex+1]
+                if isinstance(next, nodes.section):
+                    self.next_section_target = node['refid']
+                    return
+            except IndexError:
+                pass
+            add_target(node['refid'])
             self.written_ids.add(node['refid'])
-        else:
-            self.context.append('')
     def depart_target(self, node):
-        self.body.append(self.context.pop())
+        pass
 
     indextype_map = {
         'module': 'refmodindex',

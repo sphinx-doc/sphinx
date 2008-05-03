@@ -6,20 +6,20 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2007/12/30 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2008/05/01 LaTeX package (Sphinx markup)]
 
 \RequirePackage{textcomp}
-\RequirePackage{longtable}
 \RequirePackage{times}
 \RequirePackage{fancyvrb}
 \RequirePackage{titlesec}
+\RequirePackage{tabulary}
 
 \RequirePackage{color}
-% Define these colors to your liking in the preamble.
+% Redefine these colors to your liking in the preamble.
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
 \definecolor{InnerLinkColor}{rgb}{0.208,0.374,0.486}
 \definecolor{OuterLinkColor}{rgb}{0.216,0.439,0.388}
-% Define these colors to something not white if you want to have colored
+% Redefine these colors to something not white if you want to have colored
 % background and border for code examples.
 \definecolor{VerbatimColor}{rgb}{1,1,1}
 \definecolor{VerbatimBorderColor}{rgb}{1,1,1}
@@ -47,17 +47,7 @@
 %\renewcommand{\paperwidth}{8.5in}   % typical squarish manual
 %\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
 
-% If we ever want to indent paragraphs, this needs to be changed.
-% This is used inside the macros defined here instead of coding
-% \noindent directly.
-\let\py@parindent=\noindent
-
-% for PDF output, use maximal compression & a lot of other stuff
-% (test for PDF recommended by Tanmoy Bhattacharya <tanmoy@qcd.lanl.gov>)
-%
-\newif\ifpy@doing@page@targets
-\py@doing@page@targetsfalse
-
+% for PDF output, use maximal compression
 \newif\ifpdf\pdffalse
 \ifx\pdfoutput\undefined\else\ifcase\pdfoutput
   \let\py@NormalColor\relax
@@ -65,85 +55,9 @@
 \else
   \pdftrue
   \input{pdfcolor}
-  \let\py@LinkColor=\NavyBlue
   \let\py@NormalColor=\Black
   \def\py@TitleColor{\color{TitleColor}}
   \pdfcompresslevel=9
-  \pdfpagewidth=\paperwidth    % page width of PDF output
-  \pdfpageheight=\paperheight  % page height of PDF output
-  %
-  % Pad the number with '0' to 3 digits wide so no page name is a prefix
-  % of any other.
-  %
-  \newcommand{\py@targetno}[1]{\ifnum#1<100 0\fi\ifnum#1<10 0\fi#1}
-  \newcommand{\py@pageno}{\py@targetno\thepage}
-  %
-  % This definition allows the entries in the page-view of the ToC to be
-  % active links.  Some work, some don't.
-  %
-  \let\py@OldContentsline=\contentsline
-  %
-  % Backward compatibility hack: pdfTeX 0.13 defined \pdfannotlink,
-  % but it changed to \pdfstartlink in 0.14.  This let's us use either
-  % version and still get useful behavior.
-  %
-  \@ifundefined{pdfstartlink}{
-    \let\pdfstartlink=\pdfannotlink
-  }{}
-  %
-  % The \py@parindent here is a hack -- we're forcing pdfTeX into
-  % horizontal mode since \pdfstartlink requires that.
-  \def\py@pdfstartlink{%
-    \ifvmode\py@parindent\fi%
-    \pdfstartlink%
-  }
-  %
-  % Macro that takes two args: the name to link to and the content of
-  % the link.  This takes care of the PDF magic, getting the colors
-  % the same for each link, and avoids having lots of garbage all over 
-  % this style file.
-  \newcommand{\py@linkToName}[2]{%
-    \py@pdfstartlink attr{/Border [0 0 0]} goto name{#1}%
-      \color{InnerLinkColor}#2\py@NormalColor%
-    \pdfendlink%
-  }
-  % Compute the padded page number separately since we end up with a pair of
-  % \relax tokens; this gets the right string computed and works.
-  \renewcommand{\contentsline}[3]{%
-    \def\my@pageno{\py@targetno{#3}}%
-    \py@OldContentsline{#1}{\py@linkToName{page\my@pageno}{#2}}{#3}%
-  }
-  \AtEndDocument{
-    \def\_{\string_}
-    \InputIfFileExists{\jobname.bkm}{\pdfcatalog{/PageMode /UseOutlines}}{}
-  }
-  \newcommand{\py@target}[1]{%
-    \ifpy@doing@page@targets%
-      {\pdfdest name{#1} xyz}%
-    \fi%
-  }
-  \let\py@OldLabel=\label
-  \renewcommand{\label}[1]{%
-    \py@OldLabel{#1}%
-    \py@target{label-#1}%
-  }
-  % This stuff adds a page# destination to every PDF page, where # is three
-  % digits wide, padded with leading zeros.  This doesn't really help with
-  % the frontmatter, but does fine with the body.
-  %
-  % This is *heavily* based on the hyperref package.
-  %
-  \def\@begindvi{%
-    \unvbox \@begindvibox
-    \@hyperfixhead
-  }
-  \def\@hyperfixhead{%
-   \let\H@old@thehead\@thehead
-       \global\def\@foo{\py@target{page\py@pageno}}%
-     \expandafter\ifx\expandafter\@empty\H@old@thehead
-       \def\H@old@thehead{\hfil}\fi
-    \def\@thehead{\@foo\relax\H@old@thehead}%
-  }
 \fi\fi
 
 % Increase printable page size (copied from fullpage.sty)
@@ -341,36 +255,30 @@
 % Add the defining entry for a module
 \newcommand{\py@modindex}[2]{%
   \renewcommand{\py@thismodule}{#1}
-  \index{#1@{\py@idxcode{#1}} (#2module)|textbf}%
+  \index{#1@{\py@idxcode{#1}} (#2module)}%
   \ifpy@UseModuleIndex%
     \@ifundefined{py@modplat@\py@thismodulekey}{
-      \write\modindexfile{\protect\indexentry{#1@{\texttt{#1}}}{\thepage}}%
-    }{\write\modindexfile{\protect\indexentry{#1@{\texttt{#1} %
-        \emph{(\py@platformof[\py@thismodulekey]{})}}}{\thepage}}%
+      \write\modindexfile{\protect\indexentry{#1@{\texttt{#1}}|hyperpage}{\thepage}}%
+    }{\write\modindexfile{\protect\indexentry{#1@{\texttt{#1 }%
+        \emph{(\platformof{#1})}}|hyperpage}{\thepage}}%
     }
   \fi%
 }
 
-
-% Module synopsis processing -----------------------------------------------
-%
+% "Current" keys
 \newcommand{\py@thisclass}{}
 \newcommand{\py@thismodule}{}
 \newcommand{\py@thismodulekey}{}
 \newcommand{\py@thismoduletype}{}
 
+% Module index types
 \newcommand{\py@standardIndexModule}[1]{\py@modindex{#1}{standard }}
 \newcommand{\py@builtinIndexModule}[1]{\py@modindex{#1}{built-in }}
 \newcommand{\py@extensionIndexModule}[1]{\py@modindex{#1}{extension }}
 \newcommand{\py@IndexModule}[1]{\py@modindex{#1}{}}
 
-\newif\ifpy@HaveModSynopsis       \py@HaveModSynopsisfalse
-\newif\ifpy@ModSynopsisFileIsOpen \py@ModSynopsisFileIsOpenfalse
-\newif\ifpy@HaveModPlatform       \py@HaveModPlatformfalse
-
 % \declaremodule[key]{type}{name}
 \newcommand{\declaremodule}[3][\py@modulebadkey]{
-  \py@openModSynopsisFile
   \renewcommand{\py@thismoduletype}{#2}
   \ifx\py@modulebadkey#1
     \renewcommand{\py@thismodulekey}{#3}
@@ -383,9 +291,16 @@
   }{%
     \csname py@#2IndexModule\endcsname{#3}%
   }
-  \label{module-\py@thismodulekey}
+  %\label{module-\py@thismodulekey}
 }
+
+% Record module platforms for the Module Index
 \newif\ifpy@ModPlatformFileIsOpen \py@ModPlatformFileIsOpenfalse
+\long\def\py@writeModPlatformFile#1{%
+  \protected@write\py@ModPlatformFile%
+    {\let\label\@gobble \let\index\@gobble \let\glossary\@gobble}%
+    {\string#1}%
+}
 \newcommand{\py@ModPlatformFilename}{\jobname.pla}
 \newcommand{\platform}[1]{
   \ifpy@ModPlatformFileIsOpen\else
@@ -393,15 +308,12 @@
     \openout\py@ModPlatformFile=\py@ModPlatformFilename
     \py@ModPlatformFileIsOpentrue
   \fi
+  \py@writeModPlatformFile{\py@defplatform{\py@thismodulekey}{#1}}
 }
+\newcommand{\py@defplatform}[2]{\expandafter\def\csname py@modplat@#1\endcsname{#2}}
+\newcommand{\platformof}[1]{\csname py@modplat@#1\endcsname}
+
 \InputIfFileExists{\jobname.pla}{}{}
-\newcommand{\py@platformof}[2][\py@modulebadkey]{%
-  \ifx\py@modulebadkey#1 \def\py@key{#2}%
-  \else \def\py@key{#1}%
-  \fi%
-  \csname py@modplat@\py@key\endcsname%
-}
-\newcommand{\ignorePlatformAnnotation}[1]{}
 
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
@@ -409,83 +321,11 @@
 % \sectionauthor{name}{email}
 \newcommand{\sectionauthor}[2]{}
 
+% Ignore module synopsis.
+\newcommand{\modulesynopsis}[1]{}
 
-\newcommand{\py@defsynopsis}{Module has no synopsis.}
-\newcommand{\py@modulesynopsis}{\py@defsynopsis}
-\newcommand{\modulesynopsis}[1]{
-  \py@HaveModSynopsistrue
-  \renewcommand{\py@modulesynopsis}{#1}
-}
-
-% define the file
-\newwrite\py@ModSynopsisFile
-
-% hacked from \addtocontents from latex.ltx:
-\long\def\py@writeModSynopsisFile#1{%
-  \protected@write\py@ModSynopsisFile%
-      {\let\label\@gobble \let\index\@gobble \let\glossary\@gobble}%
-      {\string#1}%
-}
-\newcommand{\py@closeModSynopsisFile}{
-  \ifpy@ModSynopsisFileIsOpen
-    \closeout\py@ModSynopsisFile
-    \py@ModSynopsisFileIsOpenfalse
-  \fi
-}
-\newcommand{\py@openModSynopsisFile}{
-  \ifpy@ModSynopsisFileIsOpen\else
-    \openout\py@ModSynopsisFile=\py@ModSynopsisFilename
-    \py@ModSynopsisFileIsOpentrue
-  \fi
-}
-
-\newcommand{\py@ProcessModSynopsis}{
-  \ifpy@HaveModSynopsis
-    \py@writeModSynopsisFile{\modulesynopsis%
-      {\py@thismodulekey}{\py@thismodule}%
-      {\py@thismoduletype}{\py@modulesynopsis}}%
-    \py@HaveModSynopsisfalse
-  \fi
-  \renewcommand{\py@modulesynopsis}{\py@defsynopsis}
-}
-\AtEndDocument{\py@ProcessModSynopsis\py@closeModSynopsisFile}
-
-
-\long\def\py@writeModPlatformFile#1{%
-  \protected@write\py@ModPlatformFile%
-    {\let\label\@gobble \let\index\@gobble \let\glossary\@gobble}%
-    {\string#1}%
-}
-
-
-\newcommand{\localmoduletable}{
-  \IfFileExists{\py@ModSynopsisFilename}{
-    \begin{synopsistable}
-      \input{\py@ModSynopsisFilename}
-    \end{synopsistable}
-  }{}
-}
-
-\ifpdf
-  \newcommand{\py@ModSynopsisSummary}[4]{%
-    \py@linkToName{label-module-#1}{\bfcode{#2}} & #4\\
-  }
-\else
-  \newcommand{\py@ModSynopsisSummary}[4]{\bfcode{#2} & #4\\}
-\fi
-\newenvironment{synopsistable}{
-  % key, name, type, synopsis
-  \let\modulesynopsis=\py@ModSynopsisSummary
-  \begin{tabular}{ll}
-}{
-  \end{tabular}
-}
-%
-% --------------------------------------------------------------------------
-
-
-\newcommand{\py@reset}{
-  \py@ProcessModSynopsis
+% Reset "current" objects.
+\newcommand{\resetcurrentobjects}{
   \renewcommand{\py@thisclass}{}
   \renewcommand{\py@thismodule}{}
   \renewcommand{\py@thismodulekey}{}
@@ -495,7 +335,7 @@
 % Augment the sectioning commands used to get our own font family in place,
 % and reset some internal data items:
 \titleformat{\section}{\Large\py@HeaderFamily\py@TitleColor}%
-{\thesection}{-1em}{\py@reset}{\py@NormalColor}
+{\thesection}{0.5em}{}{\py@NormalColor}
 \titleformat{\subsection}{\large\py@HeaderFamily\py@TitleColor}%
 {\thesubsection}{0.5em}{}{\py@NormalColor}
 \titleformat{\subsubsection}{\py@HeaderFamily\py@TitleColor}%
@@ -880,88 +720,6 @@
   \fi%
 }
 
-
-% Tables.
-%
-\newenvironment{tableii}[4]{%
-  \begin{center}%
-    \def\lineii##1##2{\csname#2\endcsname{##1}&##2\\}%
-    \begin{tabular}{#1}\strong{#3}&\strong{#4} \\* \hline%
-}{%
-    \end{tabular}%
-  \end{center}%
-}
-
-\newenvironment{longtableii}[4]{%
-  \begin{center}%
-    \def\lineii##1##2{\csname#2\endcsname{##1}&##2\\}%
-    \begin{longtable}[c]{#1}\strong{#3}&\strong{#4} \\* \hline\endhead%
-}{%
-    \end{longtable}%
-  \end{center}%
-}
-
-\newenvironment{tableiii}[5]{%
-  \begin{center}%
-    \def\lineiii##1##2##3{\csname#2\endcsname{##1}&##2&##3\\}%
-    \begin{tabular}{#1}\strong{#3}&\strong{#4}&\strong{#5} \\%
-      \hline%
-}{%
-    \end{tabular}%
-  \end{center}%
-}
-
-\newenvironment{longtableiii}[5]{%
-  \begin{center}%
-    \def\lineiii##1##2##3{\csname#2\endcsname{##1}&##2&##3\\}%
-    \begin{longtable}[c]{#1}\strong{#3}&\strong{#4}&\strong{#5} \\%
-      \hline\endhead%
-}{%
-    \end{longtable}%
-  \end{center}%
-}
-
-\newenvironment{tableiv}[6]{%
-  \begin{center}%
-    \def\lineiv##1##2##3##4{\csname#2\endcsname{##1}&##2&##3&##4\\}%
-    \begin{tabular}{#1}\strong{#3}&\strong{#4}&\strong{#5}&\strong{#6} \\%
-      \hline%
-}{%
-    \end{tabular}%
-  \end{center}%
-}
-
-\newenvironment{longtableiv}[6]{%
-  \begin{center}%
-    \def\lineiv##1##2##3##4{\csname#2\endcsname{##1}&##2&##3&##4\\}%
-    \begin{longtable}[c]{#1}\strong{#3}&\strong{#4}&\strong{#5}&\strong{#6}%
-      \\%
-      \hline\endhead%
-}{%
-    \end{longtable}%
-  \end{center}%
-}
-
-\newenvironment{tablev}[7]{%
-  \begin{center}%
-    \def\linev##1##2##3##4##5{\csname#2\endcsname{##1}&##2&##3&##4&##5\\}%
-    \begin{tabular}{#1}\strong{#3}&\strong{#4}&\strong{#5}&\strong{#6}&\strong{#7} \\%
-      \hline%
-}{%
-    \end{tabular}%
-  \end{center}%
-}
-
-\newenvironment{longtablev}[7]{%
-  \begin{center}%
-    \def\linev##1##2##3##4##5{\csname#2\endcsname{##1}&##2&##3&##4&##5\\}%
-    \begin{longtable}[c]{#1}\strong{#3}&\strong{#4}&\strong{#5}&\strong{#6}&\strong{#7}%
-      \\%
-      \hline\endhead%
-}{%
-    \end{longtable}%
-  \end{center}%
-}
 
 % See-also environment
 \newenvironment{seealso}{

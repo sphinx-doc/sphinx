@@ -69,6 +69,7 @@ class Config(object):
         latex_logo = (None, False),
         latex_preamble = ('', False),
         latex_appendices = ([], False),
+        latex_use_parts = (False, False),
         latex_use_modindex = (True, False),
     )
 

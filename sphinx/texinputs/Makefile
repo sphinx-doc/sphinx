@@ -50,7 +50,7 @@ bz2: tar-$(FMT)
 
 clean:
 	rm -f *.pdf *.dvi *.ps
-	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg
+	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla
 
 .PHONY: all all-pdf all-dvi all-ps clean
 

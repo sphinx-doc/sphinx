@@ -264,6 +264,9 @@ class HTMLTranslator(BaseTranslator):
     def visit_index(self, node):
         raise nodes.SkipNode
 
+    def visit_tabular_col_spec(self, node):
+        raise nodes.SkipNode
+
     def visit_glossary(self, node):
         pass
     def depart_glossary(self, node):

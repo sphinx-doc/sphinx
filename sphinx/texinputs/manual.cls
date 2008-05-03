@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{manual}[1998/03/03 Document class (Python manual)]
+\ProvidesClass{manual}[2008/05/01 Document class (Sphinx manual)]
 
 \RequirePackage{fancybox}
 
@@ -12,54 +12,38 @@
 \ProcessOptions\relax
 \LoadClass[twoside,openright]{report}
 
-\setcounter{secnumdepth}{2}
 
-% Optional packages:
+% Set some sane defaults for section numbering depth and TOC depth.  You can
+% reset these counter in your preamble.
 %
-% If processing of these documents fails at your TeX installation,
-% these may be commented out (independently) to make things work.
-% These are both supplied with the current version of the teTeX
-% distribution.
-%
-% The "fancyhdr" package makes nicer page footers reasonable to
-% implement, and is used to put the chapter and section information in 
-% the footers.
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+
+% The "fancyhdr" package makes nicer page footers reasonable to implement, and
+% is used to put the chapter and section information in the footers.
 %
 \RequirePackage{fancyhdr}
 
-% Required packages:
-%
-% The "fncychap" package is used to get the nice chapter headers.  The
-% .sty file is distributed with Sphinx, so you should not need to disable
-% it.  You'd also end up with a mixed page style; uglier than stock LaTeX!
+% The "fncychap" package is used to get the nice chapter headers.
 %
 \RequirePackage[Bjarne]{fncychap}
 % Do horizontal rules it this way to match:
 \newcommand{\py@doHorizontalRule}{\mghrulefill{\RW}}
 
-
-% This gives us all the Sphinx-specific markup that we really want.
-% This should come last.  Do not change this.
+% This gives us all the Sphinx-specific markup that we really want.  This should
+% come last.  Do not change this.
 %
 \RequirePackage{sphinx}
 
-% This comes after sphinx.sty because it otherwise defines its own
-% "seealso" command.
+% This comes after sphinx.sty because it otherwise defines its own "seealso"
+% command.
+%
 \RequirePackage{makeidx}
 
 
-% Support for module synopsis sections:
-\newcommand{\py@ModSynopsisFilename}{\jobname\thechapter.syn}
-\let\py@OldChapter=\chapter
-\renewcommand{\chapter}{
-  \py@ProcessModSynopsis
-  \py@closeModSynopsisFile
-  \py@OldChapter
-}
-
-
-% Change the title page to look a bit better, and fit in with the
-% fncychap ``Bjarne'' style a bit better.
+% Change the title page to look a bit better, and fit in with the fncychap
+% ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
   \begin{titlepage}%
@@ -99,8 +83,8 @@
 }
 
 
-% Catch the end of the {abstract} environment, but here make sure the
-% abstract is followed by a blank page if the 'openright' option is used.
+% Catch the end of the {abstract} environment, but here make sure the abstract
+% is followed by a blank page if the 'openright' option is used.
 %
 \let\py@OldEndAbstract=\endabstract
 \renewcommand{\endabstract}{
@@ -113,10 +97,10 @@
   \py@OldEndAbstract
 }
 
-% This wraps the \tableofcontents macro with all the magic to get the
-% spacing right and have the right number of pages if the 'openright'
-% option has been used.  This eliminates a fair amount of crud in the
-% individual document files.
+
+% This wraps the \tableofcontents macro with all the magic to get the spacing
+% right and have the right number of pages if the 'openright' option has been
+% used.  This eliminates a fair amount of crud in the individual document files.
 %
 \let\py@OldTableofcontents=\tableofcontents
 \renewcommand{\tableofcontents}{%
@@ -136,23 +120,24 @@
   }%
   \pagenumbering{arabic}%
   \@ifundefined{fancyhf}{}{\pagestyle{normal}}%
-  \py@doing@page@targetstrue%
 }
+
+
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.
 %
 \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.6em}}
 \renewcommand*\l@subsection{\@dottedtocline{2}{4.1em}{3.5em}}
-\setcounter{tocdepth}{1}
 
 
-% Fix the theindex environment to add an entry to the Table of
-% Contents; this is much nicer than just having to jump to the end of
-% the book and flip around, especially with multiple indexes.
+% Fix the theindex environment to add an entry to the Table of Contents; this is
+% much nicer than just having to jump to the end of the book and flip around,
+% especially with multiple indexes.
 %
 \let\py@OldTheindex=\theindex
 \renewcommand{\theindex}{
   \cleardoublepage
+  \phantomsection
   \py@OldTheindex
   \addcontentsline{toc}{chapter}{\indexname}
 }

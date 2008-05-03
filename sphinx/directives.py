@@ -815,3 +815,18 @@ def acks_directive(name, arguments, options, content, lineno,
 acks_directive.content = 1
 acks_directive.arguments = (0, 0, 0)
 directives.register_directive('acks', acks_directive)
+
+
+# ------ tabularcolumns directive ---------------------------------------------------
+
+def tabularcolumns_directive(name, arguments, options, content, lineno,
+                             content_offset, block_text, state, state_machine):
+    # support giving explicit tabulary column definition to latex
+    node = addnodes.tabular_col_spec()
+    node['spec'] = arguments[0]
+    return [node]
+
+tabularcolumns_directive.content = 0
+tabularcolumns_directive.arguments = (1, 0, 1)
+directives.register_directive('tabularcolumns', tabularcolumns_directive)
+

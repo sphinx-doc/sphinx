@@ -39,3 +39,40 @@ Meta-information markup
    keep track of contributions), but you can set the configuration value
    :confval:`show_authors` to True to make them produce a paragraph in the
    output.
+
+
+Tables
+------
+
+Use standard reStructuredText tables.  They work fine in HTML output, however
+there are some gotchas when using tables in LaTeX: the column width is hard to
+determine correctly automatically.  For this reason, the following directive
+exists:
+
+.. directive:: .. tabularcolumns:: column spec
+
+   This directive gives a "column spec" for the next table occurring in the
+   source file.  The spec is the second argument to the LaTeX ``tabulary``
+   package's environment (which Sphinx uses to translate tables).  It can have
+   values like ::
+
+      |l|l|l|
+
+   which means three left-adjusted, nonbreaking columns.  For columns with
+   longer text that should automatically be broken, use either the standard
+   ``p{width}`` construct, or tabulary's automatic specifiers:
+
+   +-----+------------------------------------------+
+   |``L``| ragged-left column with automatic width  |
+   +-----+------------------------------------------+
+   |``R``| ragged-right column with automatic width |
+   +-----+------------------------------------------+
+   |``C``| centered column with automatic width     |
+   +-----+------------------------------------------+
+   |``J``| justified column with automatic width    |
+   +-----+------------------------------------------+
+
+   The automatic width is determined by rendering the content in the table, and
+   scaling them according to their share of the total width.
+
+   .. versionadded:: 0.2.1

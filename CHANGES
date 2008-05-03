@@ -15,12 +15,20 @@ New features added
   independently from the source directory.  For that, a new command-line
   option ``-c`` has been added.
 
+* A new directive ``tabularcolumns`` can be used to give a tabular column
+  specification for LaTeX output.  Tables now use the ``tabulary`` package.
+
+* A new config value, `latex_use_parts`, can be used to enable parts in LaTeX
+  documents.
+
 Bugs fixed
 ----------
 
 * sphinx.htmlwriter: Correctly write the TOC file for any structure of the
   master document.  Also encode non-ASCII characters as entities in TOC
   and index file.
+
+* Lots of little fixes to the LaTeX output and style.
 
 
 Release 0.2 (Apr 27, 2008)

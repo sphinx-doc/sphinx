@@ -775,6 +775,7 @@ class LaTeXBuilder(Builder):
                         self.warn('%s: toctree contains ref to nonexisting file %r' %
                                   (docname, includefile))
                     else:
+                        newnodes.append(addnodes.start_of_file())
                         newnodes.extend(subtree.children)
                 toctreenode.parent.replace(toctreenode, newnodes)
             return tree
@@ -813,7 +814,6 @@ class LaTeXBuilder(Builder):
         # the logo is handled differently
         if self.config.latex_logo:
             logobase = path.basename(self.config.latex_logo)
-            self.info(' '+logobase, nonl=1)
             shutil.copyfile(path.join(self.confdir, self.config.latex_logo),
                             path.join(self.outdir, logobase))
 
