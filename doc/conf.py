@@ -101,7 +101,7 @@ html_additional_pages = {'index': 'index.html'}
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True
 
-html_use_opensearch = True
+html_use_opensearch = 'http://sphinx.pocoo.org'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Sphinxdoc'
