@@ -324,6 +324,9 @@ class StandaloneHTMLBuilder(Builder):
         logo = self.config.html_logo and \
                path.basename(self.config.html_logo) or ''
 
+        if not isinstance(self.config.html_use_opensearch, basestring):
+            self.warn('html_use_opensearch config value must now be a string')
+
         self.globalcontext = dict(
             project = self.config.project,
             release = self.config.release,
