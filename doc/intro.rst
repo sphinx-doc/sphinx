@@ -12,13 +12,6 @@ look at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
 
 .. XXX web app
 
-.. note::
-
-   While Sphinx' version is still *0.1.revision*, no mention will be made in the
-   docs if a feature is added or changed.  The :ref:`Changelog <changes>` is the
-   only source of version annotations.
-
-
 Prerequisites
 -------------
 
