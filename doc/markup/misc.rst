@@ -75,4 +75,6 @@ exists:
    The automatic width is determined by rendering the content in the table, and
    scaling them according to their share of the total width.
 
+   By default, Sphinx uses a table layout with ``L`` for every column.
+
    .. versionadded:: 0.2.1

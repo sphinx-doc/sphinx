@@ -30,6 +30,9 @@ Bugs fixed
 
 * Lots of little fixes to the LaTeX output and style.
 
+* Fix OpenSearch template and make template URL absolute.  The
+  `html_use_opensearch` config value now must give the base URL.
+
 
 Release 0.2 (Apr 27, 2008)
 ==========================

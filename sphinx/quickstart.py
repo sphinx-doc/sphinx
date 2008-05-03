@@ -135,8 +135,9 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 #html_copy_source = True
 
 # If true, an OpenSearch description file will be output, and all pages will
-# contain a <link> tag referring to it.
-#html_use_opensearch = False
+# contain a <link> tag referring to it.  The value of this option must be the
+# base URL from which the finished HTML is served.
+#html_use_opensearch = ''
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%(project)sdoc'
