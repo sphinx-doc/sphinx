@@ -135,9 +135,10 @@ def build_hhx(builder, outdir, outname):
             outdir += os.sep
         olen = len(outdir)
         for root, dirs, files in os.walk(outdir):
+            staticdir = (root == path.join(outdir, '_static'))
             for fn in files:
-                if fn.endswith('.html') or fn.endswith('.css') or fn.endswith('.js'):
-                    print >>f, path.join(root, fn)[olen:].replace('/', '\\')
+                if (staticdir and not fn.endswith('.js')) or fn.endswith('.html'):
+                    print >>f, path.join(root, fn)[olen:].replace(os.sep, '\\')
     finally:
         f.close()
 

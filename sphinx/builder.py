@@ -468,15 +468,16 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('modindex', modindexcontext, 'modindex.html')
 
         # the search page
-        self.info(' search', nonl=1)
-        self.handle_page('search', {}, 'search.html')
+        if self.name != 'htmlhelp':
+            self.info(' search', nonl=1)
+            self.handle_page('search', {}, 'search.html')
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
             self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
-        if self.config.html_use_opensearch:
+        if self.config.html_use_opensearch and self.name != 'htmlhelp':
             self.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
