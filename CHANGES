@@ -33,6 +33,8 @@ Bugs fixed
 * Fix OpenSearch template and make template URL absolute.  The
   `html_use_opensearch` config value now must give the base URL.
 
+* Some unused files are now stripped from the HTML help file build.
+
 
 Release 0.2 (Apr 27, 2008)
 ==========================
