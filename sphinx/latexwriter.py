@@ -129,11 +129,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.written_ids = set()
         if docclass == 'manual':
             if builder.config.latex_use_parts:
-                self.top_sectionlevel = -1
-            else:
                 self.top_sectionlevel = 0
+            else:
+                self.top_sectionlevel = 1
         else:
-            self.top_sectionlevel = 1
+            self.top_sectionlevel = 2
         self.next_section_target = None
         # flags
         self.verbatim = None
@@ -166,7 +166,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # ... and all others are the appendices
             self.body.append('\n\\appendix\n')
             self.first_document = -1
-        self.sectionlevel = self.top_sectionlevel
+        # "- 1" because the level is increased before the title is visited
+        self.sectionlevel = self.top_sectionlevel - 1
     def depart_document(self, node):
         pass
 
@@ -197,7 +198,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         #            self.body.append(r'\hypertarget{%s}{}' % id)
         #            self.written_ids.add(id)
     def depart_section(self, node):
-        self.sectionlevel -= 1
+        self.sectionlevel = max(self.sectionlevel - 1, self.top_sectionlevel - 1)
 
     def visit_problematic(self, node):
         self.body.append(r'{\color{red}\bfseries{}')
