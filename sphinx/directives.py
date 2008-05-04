@@ -19,6 +19,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.util import patfilter
 from sphinx.roles import caption_ref_re
 from sphinx.util.compat import make_admonition
 
@@ -650,28 +651,46 @@ def toctree_directive(name, arguments, options, content, lineno,
     env = state.document.settings.env
     suffix = env.config.source_suffix
     dirname = posixpath.dirname(env.docname)
+    glob = 'glob' in options
 
     ret = []
     subnode = addnodes.toctree()
     includefiles = []
     includetitles = {}
-    for docname in content:
-        if not docname:
+    all_docnames = env.found_docs.copy()
+    # don't add the currently visited file in catch-all patterns
+    all_docnames.remove(env.docname)
+    for entry in content:
+        if not entry:
             continue
-        # look for explicit titles and documents ("Some Title <document>").
-        m = caption_ref_re.match(docname)
-        if m:
-            docname = m.group(2)
-            includetitles[docname] = m.group(1)
-        # absolutize filenames, remove suffixes
-        if docname.endswith(suffix):
-            docname = docname[:-len(suffix)]
-        docname = posixpath.normpath(posixpath.join(dirname, docname))
-        if docname not in env.found_docs:
-            ret.append(state.document.reporter.warning(
-                'toctree references unknown document %r' % docname, line=lineno))
+        if not glob:
+            # look for explicit titles and documents ("Some Title <document>").
+            m = caption_ref_re.match(entry)
+            if m:
+                docname = m.group(2)
+                includetitles[docname] = m.group(1)
+            else:
+                docname = entry
+            # remove suffixes (backwards compatibility)
+            if docname.endswith(suffix):
+                docname = docname[:-len(suffix)]
+            # absolutize filenames
+            docname = posixpath.normpath(posixpath.join(dirname, docname))
+            if docname not in env.found_docs:
+                ret.append(state.document.reporter.warning(
+                    'toctree references unknown document %r' % docname, line=lineno))
+            else:
+                includefiles.append(docname)
         else:
-            includefiles.append(docname)
+            patname = posixpath.normpath(posixpath.join(dirname, entry))
+            docnames = sorted(patfilter(all_docnames, patname))
+            for docname in docnames:
+                all_docnames.remove(docname) # don't include it again
+                includefiles.append(docname)
+            if not docnames:
+                ret.append(state.document.reporter.warning(
+                    'toctree glob pattern %r didn\'t match any documents' % entry,
+                    line=lineno))
     subnode['includefiles'] = includefiles
     subnode['includetitles'] = includetitles
     subnode['maxdepth'] = options.get('maxdepth', -1)
@@ -679,7 +698,7 @@ def toctree_directive(name, arguments, options, content, lineno,
     return ret
 
 toctree_directive.content = 1
-toctree_directive.options = {'maxdepth': int}
+toctree_directive.options = {'maxdepth': int, 'glob': directives.flag}
 directives.register_directive('toctree', toctree_directive)
 
 

@@ -4,9 +4,11 @@ Changes in trunk
 New features added
 ------------------
 
+* The ``toctree`` directive now supports a ``glob`` option that allows
+  glob-style entries in the content.
+
 * If the `pygments_style` config value contains a dot it's treated as the
   import path of a custom Pygments style class.
-* autodoc detects descriptors properly now
 
 * A new config value, `exclude_dirs`, can be used to exclude whole
   directories from the search for source files.
@@ -35,6 +37,8 @@ Bugs fixed
   master document.  Also encode non-ASCII characters as entities in TOC
   and index file.  Remove two remaining instances of hard-coded
   "documentation".
+
+* sphinx.ext.autodoc: descriptors are detected properly now.
 
 * Lots of little fixes to the LaTeX output and style.
 

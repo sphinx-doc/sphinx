@@ -70,17 +70,35 @@ tables of contents.  The ``toctree`` directive is the central element.
           
    The second line above will link to the ``strings`` document, but will use the
    title "All about strings" instead of the title of the ``strings`` document.
+
+   You can use "globbing" in toctree directives, by giving the ``glob`` flag
+   option.  All entries are then matched against the list of available
+   documents, and matches are inserted into the list alphabetically.  Example::
+
+      .. toctree::
+         :glob:
+
+         intro*
+         recipe/*
+         *
+
+   This includes first all documents whose names start with ``intro``, then all
+   documents in the ``recipe`` folder, then all remaining documents (except the
+   one containing the directive, of course.) [#]_
           
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
    finds a file that is not included, because that means that this file will not
    be reachable through standard navigation.  Use :confval:`unused_documents` to
-   explicitly exclude documents from this check, and :confval:`exclude_dirs` to
+   explicitly exclude documents from building, and :confval:`exclude_dirs` to
    exclude whole directories.
 
    The "master document" (selected by :confval:`master_doc`) is the "root" of
    the TOC tree hierarchy.  It can be used as the documentation's main page, or
    as a "full table of contents" if you don't give a ``maxdepth`` option.
+
+   .. versionchanged:: 0.2.1
+      Added "globbing" option.
 
 
 Special names
@@ -110,3 +128,11 @@ The special document names (and pages generated for them) are:
   Though only few such names are currently used by Sphinx, you should not create
   documents or document-containing directories with such names.  (Using ``_`` as
   a prefix for a custom template directory is fine.)
+
+
+.. rubric:: Footnotes
+
+.. [#] A note on available globbing syntax: you can use the standard shell
+       constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
+       these all don't match slashes.  A double star ``**`` can be used to match
+       any sequence of characters *including* slashes.

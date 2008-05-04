@@ -242,6 +242,10 @@ p {
     margin: 0.8em 0 0.5em 0;
 }
 
+p.rubric {
+    font-weight: bold;
+}
+
 h1 {
     margin: 0;
     padding: 0.7em 0 0.3em 0;

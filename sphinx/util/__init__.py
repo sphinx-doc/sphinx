@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import sys
 import fnmatch
 import tempfile
@@ -158,7 +159,7 @@ def fmt_ex(ex):
 
 
 def rpartition(s, t):
-    """Similar to str.rpartition from 2.5."""
+    """Similar to str.rpartition from 2.5, but doesn't return the separator."""
     i = s.rfind(t)
     if i != -1:
         return s[:i], s[i+len(t):]
@@ -187,3 +188,64 @@ def save_traceback():
     os.write(fd, exc)
     os.close(fd)
     return path
+
+
+def _translate_pattern(pat):
+    """
+    Translate a shell-style glob pattern to a regular expression.
+
+    Adapted from the fnmatch module, but enhanced so that single stars don't
+    match slashes.
+    """
+    i, n = 0, len(pat)
+    res = ''
+    while i < n:
+        c = pat[i]
+        i += 1
+        if c == '*':
+            if i < n and pat[i] == '*':
+                # double star matches slashes too
+                i += 1
+                res = res + '.*'
+            else:
+                # single star doesn't match slashes
+                res = res + '[^/]*'
+        elif c == '?':
+            # question mark doesn't match slashes too
+            res = res + '[^/]'
+        elif c == '[':
+            j = i
+            if j < n and pat[j] == '!':
+                j += 1
+            if j < n and pat[j] == ']':
+                j += 1
+            while j < n and pat[j] != ']':
+                j += 1
+            if j >= n:
+                res = res + '\\['
+            else:
+                stuff = pat[i:j].replace('\\', '\\\\')
+                i = j + 1
+                if stuff[0] == '!':
+                    # negative pattern mustn't match slashes too
+                    stuff = '^/' + stuff[1:]
+                elif stuff[0] == '^':
+                    stuff = '\\' + stuff
+                res = '%s[%s]' % (res, stuff)
+        else:
+            res += re.escape(c)
+    return res + '$'
+
+
+_pat_cache = {}
+
+def patfilter(names, pat):
+    """
+    Return the subset of the list NAMES that match PAT.
+    Adapted from fnmatch module.
+    """
+    result = []
+    if not pat in _pat_cache:
+        _pat_cache[pat] = re.compile(_translate_pattern(pat))
+    match = _pat_cache[pat].match
+    return filter(match, names)
