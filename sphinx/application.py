@@ -226,11 +226,6 @@ class TemplateBridge(object):
     that renders templates given a template name and a context.
     """
 
-    def __init__(self):
-        """
-        Initialize the class.
-        """
-
     def init(self, builder):
         """
         Called by the builder to initialize the template system.  *builder*

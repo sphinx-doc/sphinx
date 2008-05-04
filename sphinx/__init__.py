@@ -109,7 +109,8 @@ def main(argv=sys.argv):
             key, val = val.split('=')
             try:
                 val = int(val)
-            except: pass
+            except ValueError:
+                pass
             confoverrides[key] = val
         elif opt == '-N':
             nocolor()
@@ -158,7 +159,8 @@ def main(argv=sys.argv):
                 print >>sys.stderr, ('Please also report this if it was a user '
                                      'error, so that a better error message '
                                      'can be provided next time.')
-                print >>sys.stderr, 'Send reports to sphinx-dev@googlegroups.com. Thanks!'
+                print >>sys.stderr, ('Send reports to sphinx-dev@googlegroups.com. '
+                                     'Thanks!')
             return 1
 
 

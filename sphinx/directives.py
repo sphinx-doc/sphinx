@@ -77,7 +77,7 @@ def desc_index_text(desctype, currmodule, name):
     elif desctype == 'method':
         try:
             clsname, methname = name.rsplit('.', 1)
-        except:
+        except ValueError:
             if currmodule:
                 return '%s() (in module %s)' % (name, currmodule)
             else:
@@ -89,7 +89,7 @@ def desc_index_text(desctype, currmodule, name):
     elif desctype == 'attribute':
         try:
             clsname, attrname = name.rsplit('.', 1)
-        except:
+        except ValueError:
             if currmodule:
                 return '%s (in module %s)' % (name, currmodule)
             else:
@@ -133,7 +133,8 @@ def parse_py_signature(signode, sig, desctype, env):
     * it is added to the full name (return value) if not present
     """
     m = py_sig_re.match(sig)
-    if m is None: raise ValueError
+    if m is None:
+        raise ValueError
     classname, name, arglist = m.groups()
 
     add_module = True
@@ -177,14 +178,17 @@ def parse_py_signature(signode, sig, desctype, env):
             stack[-1] += opt
             stack.append(opt)
         elif token == ']':
-            try: stack.pop()
-            except IndexError: raise ValueError
+            try:
+                stack.pop()
+            except IndexError:
+                raise ValueError
         elif not token or token == ',' or token.isspace():
             pass
         else:
             token = token.strip()
             stack[-1] += addnodes.desc_parameter(token, token)
-    if len(stack) != 1: raise ValueError
+    if len(stack) != 1:
+        raise ValueError
     return fullname, classname
 
 
@@ -267,7 +271,8 @@ opcode_sig_re = re.compile(r'(\w+(?:\+\d)?)\s*\((.*)\)')
 def parse_opcode_signature(signode, sig):
     """Transform an opcode signature into RST nodes."""
     m = opcode_sig_re.match(sig)
-    if m is None: raise ValueError
+    if m is None:
+        raise ValueError
     opname, arglist = m.groups()
     signode += addnodes.desc_name(opname, opname)
     paramlist = addnodes.desc_parameterlist()
@@ -657,7 +662,7 @@ def toctree_directive(name, arguments, options, content, lineno,
         m = caption_ref_re.match(docname)
         if m:
             docname = m.group(2)
-            includetitles[docname] = m.group(1)    
+            includetitles[docname] = m.group(1)
         # absolutize filenames, remove suffixes
         if docname.endswith(suffix):
             docname = docname[:-len(suffix)]

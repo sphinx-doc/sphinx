@@ -8,7 +8,6 @@ all: clean-pyc check
 
 check:
 	@$(PYTHON) utils/check_sources.py -i sphinx/style/jquery.js sphinx
-	@$(PYTHON) utils/check_sources.py converter
 
 clean: clean-pyc clean-patchfiles
 

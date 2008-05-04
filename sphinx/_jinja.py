@@ -9,7 +9,6 @@
     :license: BSD.
 """
 
-import sys
 import codecs
 from os import path
 

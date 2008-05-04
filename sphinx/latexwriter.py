@@ -326,7 +326,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             try:
                 type, container = d.type.rsplit(' ', 1)
                 container = container.rstrip('.')
-            except:
+            except ValueError:
                 container = ''
                 type = d.type
             t2 = "{%s}{%s}{%s}" % (container, type, d.name)
@@ -454,7 +454,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_entry(self, node):
         if node.has_key('morerows') or node.has_key('morecols'):
-            raise NotImplementedError('Column or row spanning cells are not implemented.')
+            raise NotImplementedError('Column or row spanning cells are '
+                                      'not implemented.')
         if self.table.col > 0:
             self.body.append(' & ')
         self.table.col += 1

@@ -22,7 +22,7 @@ from string import uppercase
 try:
     import hashlib
     md5 = hashlib.md5
-except:
+except ImportError:
     # 2.4 compatibility
     import md5
     md5 = md5.new
@@ -701,7 +701,8 @@ class BuildEnvironment:
                                     stream=RedirStream(self._warnfunc))
         return doctree
 
-    def get_and_resolve_doctree(self, docname, builder, doctree=None, prune_toctrees=True):
+    def get_and_resolve_doctree(self, docname, builder, doctree=None,
+                                prune_toctrees=True):
         """Read the doctree from the pickle, resolve cross-references and
            toctrees and return it."""
         if doctree is None:
@@ -932,7 +933,7 @@ class BuildEnvironment:
                 if type == 'single':
                     try:
                         entry, subentry = string.split(';', 1)
-                    except:
+                    except ValueError:
                         entry, subentry = string, ''
                     add_entry(entry.strip(), subentry.strip())
                 elif type == 'pair':

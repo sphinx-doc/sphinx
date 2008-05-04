@@ -25,7 +25,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes
-from sphinx.util import mtimes_of_files, ensuredir, relative_uri, SEP, os_path
+from sphinx.util import ensuredir, relative_uri, SEP, os_path
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.latexwriter import LaTeXWriter
@@ -775,7 +775,7 @@ class LaTeXBuilder(Builder):
                         subtree = process_tree(includefile,
                                                self.env.get_doctree(includefile))
                         self.docnames.add(includefile)
-                    except:
+                    except Exception:
                         self.warn('%s: toctree contains ref to nonexisting file %r' %
                                   (docname, includefile))
                     else:

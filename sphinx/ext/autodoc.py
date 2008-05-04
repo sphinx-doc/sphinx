@@ -155,7 +155,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
                     args = '()'
         else:
             args = ''
-    except:
+    except Exception:
         args = ''
     if len(objpath) == 2:
         qualname = '%s.%s' % (cls, obj)
