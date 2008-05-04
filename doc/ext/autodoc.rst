@@ -63,6 +63,10 @@ directive.
    Members without docstrings will be left out, unless you give the
    ``undoc-members`` flag option.
 
+   .. versionadded:: 0.2.1
+      For classes and exceptions, members inherited from base classes will be
+      left out, unless you give the ``inherited-members`` flag option.
+
    The "auto" directives can also contain content of their own, it will be
    inserted into the resulting non-auto directive source after the docstring
    (but before any automatic member documentation).

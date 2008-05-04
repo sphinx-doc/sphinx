@@ -78,8 +78,8 @@ def get_module_charset(module):
     return charset
 
 
-def generate_rst(what, name, members, undoc, add_content, document, lineno,
-                 indent='', filename_set=None, check_module=False):
+def generate_rst(what, name, members, inherited, undoc, add_content, document,
+                 lineno, indent='', filename_set=None, check_module=False):
     env = document.settings.env
 
     # find out what to import
@@ -162,7 +162,7 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
     result.append(indent + '.. %s:: %s%s' % (what, qualname, args), '<autodoc>')
     result.append('', '<autodoc>')
 
-    # the module directive doesn't like content
+    # the module directive doesn't want content
     if what != 'module':
         indent += '   '
 
@@ -201,7 +201,14 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
             # for implicit module members, check __module__ to avoid documenting
             # imported objects
             members_check_module = True
-        all_members = sorted(inspect.getmembers(todoc))
+            all_members = inspect.getmembers(todoc)
+        else:
+            if inherited:
+                # getmembers() uses dir() which pulls in members from all base classes
+                all_members = inspect.getmembers(todoc)
+            else:
+                # __dict__ contains only the members directly defined in the class
+                all_members = sorted(todoc.__dict__.iteritems())
     else:
         all_members = [(mname, getattr(todoc, mname)) for mname in members]
     for (membername, member) in all_members:
@@ -232,8 +239,8 @@ def generate_rst(what, name, members, undoc, add_content, document, lineno,
                 continue
         full_membername = name + '.' + membername
         subwarn, subres = generate_rst(memberwhat, full_membername, ['__all__'],
-                                       undoc, None, document, lineno, indent,
-                                       check_module=members_check_module)
+                                       inherited, undoc, None, document, lineno,
+                                       indent, check_module=members_check_module)
         warnings.extend(subwarn)
         result.extend(subres)
 
@@ -249,10 +256,14 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     what = dirname[4:]
     name = arguments[0]
     members = options.get('members', [])
+    inherited = 'inherited-members' in options
+    if inherited and not members:
+        # :inherited-members: implies :members:
+        members = ['__all__']
     undoc = 'undoc-members' in options
 
     filename_set = set()
-    warnings, result = generate_rst(what, name, members, undoc, content,
+    warnings, result = generate_rst(what, name, members, inherited, undoc, content,
                                     state.document, lineno, filename_set=filename_set)
 
     # record all filenames as dependencies -- this will at least partially make
@@ -289,13 +300,15 @@ def members_directive(arg):
 
 
 def setup(app):
-    options = {'members': members_directive, 'undoc-members': directives.flag}
+    mod_options = {'members': members_directive, 'undoc-members': directives.flag}
+    cls_options = {'members': members_directive, 'undoc-members': directives.flag,
+                   'inherited-members': directives.flag}
     app.add_directive('automodule', auto_directive_withmembers,
-                      1, (1, 0, 1), **options)
+                      1, (1, 0, 1), **mod_options)
     app.add_directive('autoclass', auto_directive_withmembers,
-                      1, (1, 0, 1), **options)
+                      1, (1, 0, 1), **cls_options)
     app.add_directive('autoexception', auto_directive_withmembers,
-                      1, (1, 0, 1), **options)
+                      1, (1, 0, 1), **cls_options)
     app.add_directive('autofunction', auto_directive, 1, (1, 0, 1))
     app.add_directive('automethod', auto_directive, 1, (1, 0, 1))
     app.add_directive('autoattribute', auto_directive, 1, (1, 0, 1))
