@@ -63,10 +63,10 @@ Full text search stop list file=%(outname)s.stp
 Full-text search=Yes
 Index file=%(outname)s.hhk
 Language=0x409
-Title=%(project)s %(version)s Documentation
+Title=%(title)s
 
 [WINDOWS]
-%(outname)s="%(project)s %(version)s Documentation","%(outname)s.hhc","%(outname)s.hhk",\
+%(outname)s="%(title)s","%(outname)s.hhc","%(outname)s.hhk",\
 "index.html","index.html",,,,,0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0
 
 [FILES]
@@ -129,6 +129,7 @@ def build_hhx(builder, outdir, outname):
     f = open(path.join(outdir, outname+'.hhp'), 'w')
     try:
         f.write(project_template % {'outname': outname,
+                                    'title': builder.config.html_title,
                                     'version': builder.config.version,
                                     'project': builder.config.project})
         if not outdir.endswith(os.sep):

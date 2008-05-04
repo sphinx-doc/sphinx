@@ -26,7 +26,8 @@ Bugs fixed
 
 * sphinx.htmlwriter: Correctly write the TOC file for any structure of the
   master document.  Also encode non-ASCII characters as entities in TOC
-  and index file.
+  and index file.  Remove two remaining instances of hard-coded
+  "documentation".
 
 * Lots of little fixes to the LaTeX output and style.
 
