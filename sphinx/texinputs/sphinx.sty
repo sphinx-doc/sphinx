@@ -95,11 +95,11 @@
 % work even in footnote context.
 \newif\ifpy@infootnote \py@infootnotefalse
 \let\py@oldmakefntext\@makefntext
-\def\@makefntext#1{%
-  \bgroup%
+\renewcommand{\@makefntext}[1]{%
+  \begingroup%
     \py@infootnotetrue
     \py@oldmakefntext{#1}%
-  \egroup%
+  \endgroup%
 }
 \def\py@defaultsize{%
   \ifpy@infootnote\footnotesize\else\normalsize\fi%

@@ -17,6 +17,7 @@ New features added
 
 * A new directive ``tabularcolumns`` can be used to give a tabular column
   specification for LaTeX output.  Tables now use the ``tabulary`` package.
+  Literal blocks can now be placed in tables, with several caveats.
 
 * A new config value, `latex_use_parts`, can be used to enable parts in LaTeX
   documents.
