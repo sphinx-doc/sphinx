@@ -30,6 +30,9 @@ New features added
 * A new config value, `autoclass_content`, selects if the docstring of the
   class' ``__init__`` method is added to the directive's body.
 
+* Support for C++ class names (in the style ``Class::Function``) in C function
+  descriptions.
+
 Bugs fixed
 ----------
 

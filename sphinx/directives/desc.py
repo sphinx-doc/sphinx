@@ -154,12 +154,14 @@ def parse_py_signature(signode, sig, desctype, env):
 c_sig_re = re.compile(
     r'''^([^(]*?)          # return type
         ([\w:]+)  \s*      # thing name (colon allowed for C++ class names)
-        (?: \((.*)\) )? $  # optionally arguments
+        (?: \((.*)\) )?    # optionally arguments
+        (\s+const)? $      # const specifier
     ''', re.VERBOSE)
 c_funcptr_sig_re = re.compile(
     r'''^([^(]+?)          # return type
         (\( [^()]+ \)) \s* # name in parentheses
-        \( (.*) \) $       # arguments
+        \( (.*) \)         # arguments
+        (\s+const)? $      # const specifier
     ''', re.VERBOSE)
 c_funcptr_name_re = re.compile(r'^\(\s*\*\s*(.*?)\s*\)$')
 
@@ -190,11 +192,18 @@ def parse_c_signature(signode, sig, desctype):
         m = c_sig_re.match(sig)
     if m is None:
         raise ValueError('no match')
-    rettype, name, arglist = m.groups()
+    rettype, name, arglist, const = m.groups()
 
     signode += addnodes.desc_type("", "")
     parse_c_type(signode[-1], rettype)
-    signode += addnodes.desc_name(name, name)
+    try:
+        classname, funcname = name.split('::', 1)
+        classname += '::'
+        signode += addnodes.desc_classname(classname, classname)
+        signode += addnodes.desc_name(funcname, funcname)
+        # name (the full name) is still both parts
+    except ValueError:
+        signode += addnodes.desc_name(name, name)
     # clean up parentheses from canonical name
     m = c_funcptr_name_re.match(name)
     if m:
@@ -222,6 +231,8 @@ def parse_c_signature(signode, sig, desctype):
             param += nodes.emphasis(' '+argname, ' '+argname)
         paramlist += param
     signode += paramlist
+    if const:
+        signode += addnodes.desc_classname(const, const)
     return name
 
 

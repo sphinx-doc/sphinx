@@ -88,6 +88,7 @@ class Desc(object):
         self.ni = node['noindex']
         self.type = self.cls = self.name = self.params = ''
         self.count = 0
+        self.name = ''
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
@@ -321,6 +322,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 t2 = "{%s}" % d.name
         elif d.env == 'cfuncdesc':
+            if d.cls:
+                # C++ class names
+                d.name = '%s::%s' % (d.cls, d.name)
             t2 = "{%s}{%s}{%s}" % (d.type, d.name, d.params)
         elif d.env == 'cmemberdesc':
             try:
@@ -341,19 +345,35 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(t1 + t2)
 
     def visit_desc_type(self, node):
-        self.descstack[-1].type = self.encode(node.astext().strip())
+        d = self.descstack[-1]
+        if d.env == 'describe':
+            d.name += self.encode(node.astext())
+        else:
+            self.descstack[-1].type = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
     def visit_desc_name(self, node):
-        self.descstack[-1].name = self.encode(node.astext().strip())
+        d = self.descstack[-1]
+        if d.env == 'describe':
+            d.name += self.encode(node.astext())
+        else:
+            self.descstack[-1].name = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
     def visit_desc_classname(self, node):
-        self.descstack[-1].cls = self.encode(node.astext().strip())
+        d = self.descstack[-1]
+        if d.env == 'describe':
+            d.name += self.encode(node.astext())
+        else:
+            self.descstack[-1].cls = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
     def visit_desc_parameterlist(self, node):
-        self.descstack[-1].params = self.encode(node.astext().strip())
+        d = self.descstack[-1]
+        if d.env == 'describe':
+            d.name += self.encode(node.astext())
+        else:
+            self.descstack[-1].params = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
     def visit_refcount(self, node):
@@ -362,7 +382,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append("}\\\\")
 
     def visit_desc_content(self, node):
-        pass
+        if node.children and isinstance(node.children[0], addnodes.desc):
+            # avoid empty desc environment which causes a formatting bug
+            self.body.append('~')
     def depart_desc_content(self, node):
         pass
 
