@@ -97,7 +97,7 @@ directive.
    used for automatic member documentation.
 
 
-There's also one new config value that you can set:
+There are also new config values that you can set:
 
 .. confval:: automodule_skip_lines
 
@@ -107,3 +107,20 @@ There's also one new config value that you can set:
    docstring, which would then interfere with your sectioning, or automatic
    fields with version control tags, that you don't want to put in the generated
    documentation.
+
+.. confval:: autoclass_content
+
+   This value selects what content will be inserted into the main body of an
+   :dir:`autoclass` directive.  The possible values are:
+
+   ``"class"``
+      Only the class' docstring is inserted.  This is the default.  You can
+      still document ``__init__`` as a separate method using :dir:`automethod`
+      or the ``members`` option to :dir:`autoclass`.
+   ``"both"``
+      Both the class' and the ``__init__`` method's docstring are concatenated
+      and inserted.
+   ``"init"``
+      Only the ``__init__`` method's docstring is inserted.
+
+   .. versionadded:: 0.2.1

@@ -107,6 +107,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         objpath = [cls, obj]
 
     result = ViewList()
+    docstrings = []
 
     if mod is None:
         warning = document.reporter.warning(
@@ -129,7 +130,8 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             if hasattr(todoc, '__module__'):
                 if todoc.__module__ != mod:
                     return [], result
-        docstring = todoc.__doc__
+        if getattr(todoc, '__doc__', None):
+            docstrings.append(todoc.__doc__)
     except (ImportError, AttributeError):
         warning = document.reporter.warning(
             'autodoc can\'t import/find %s %r, check your spelling '
@@ -167,18 +169,35 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         indent += '   '
 
     # add docstring content
-    if what == 'module' and env.config.automodule_skip_lines and docstring:
-        docstring = '\n'.join(docstring.splitlines()
-                              [env.config.automodule_skip_lines:])
+    if what == 'module' and env.config.automodule_skip_lines and docstrings[0]:
+        docstrings[0] = '\n'.join(docstring.splitlines()
+                                  [env.config.automodule_skip_lines:])
+
+    # for classes, what the "docstring" is can be controlled via an option
+    if what in ('class', 'exception'):
+        content = env.config.autoclass_content
+        if content in ('both', 'init'):
+            initdocstring = getattr(todoc, '__init__', None).__doc__
+            # for new-style classes, no __init__ means default __init__
+            if initdocstring == object.__init__.__doc__:
+                initdocstring = None
+            if initdocstring:
+                if content == 'init':
+                    docstrings = [initdocstring]
+                else:
+                    docstrings.append('\n\n' + initdocstring)
+        # the default is only the class docstring
 
     # get the encoding of the docstring
     module = getattr(todoc, '__module__', None)
-    if module is not None and docstring is not None:
-        docstring = docstring.decode(get_module_charset(module))
+    if module is not None:
+        charset = get_module_charset(module)
+        docstrings = [docstring.decode(charset) for docstring in docstrings]
 
-    docstring = prepare_docstring(docstring)
-    for i, line in enumerate(docstring):
-        result.append(indent + line, '<docstring of %s>' % name, i)
+    for docstring in docstrings:
+        docstring = prepare_docstring(docstring)
+        for i, line in enumerate(docstring):
+            result.append(indent + line, '<docstring of %s>' % name, i)
 
     # add source content, if present
     if add_content:
@@ -313,3 +332,4 @@ def setup(app):
     app.add_directive('automethod', auto_directive, 1, (1, 0, 1))
     app.add_directive('autoattribute', auto_directive, 1, (1, 0, 1))
     app.add_config_value('automodule_skip_lines', 0, True)
+    app.add_config_value('autoclass_content', 'class', True)

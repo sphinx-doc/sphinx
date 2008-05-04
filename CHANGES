@@ -22,6 +22,12 @@ New features added
 * A new config value, `latex_use_parts`, can be used to enable parts in LaTeX
   documents.
 
+* Autodoc now skips inherited members for classes, unless you give the
+  new ``inherited-members`` option.
+
+* A new config value, `autoclass_content`, selects if the docstring of the
+  class' ``__init__`` method is added to the directive's body.
+
 Bugs fixed
 ----------
 
