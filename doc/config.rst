@@ -293,7 +293,7 @@ These options influence LaTeX output.
 
    This value determines how to group the document tree into LaTeX source files.
    It must be a list of tuples ``(startdocname, targetname, title, author,
-   documentclass)``, where the items are:
+   documentclass, toctree_only)``, where the items are:
 
    * *startdocname*: document name that is the "root" of the LaTeX file.  All
      documents referenced by it in TOC trees will be included in the LaTeX file
@@ -306,6 +306,13 @@ These options influence LaTeX output.
    * *documentclass*: Must be one of ``'manual'`` or ``'howto'``.  Only "manual"
      documents will get appendices.  Also, howtos will have a simpler title
      page.
+   * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
+     document itself is not included in the output, only the documents
+     referenced by it via TOC trees.  With this option, you can put extra stuff
+     in the master document that shows up in the HTML, but not the LaTeX output.
+
+   .. versionadded:: 0.3
+      The 6th item ``toctree_only``.  Tuples with 5 items are still accepted.
 
 .. confval:: latex_logo
 

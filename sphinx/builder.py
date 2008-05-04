@@ -745,13 +745,17 @@ class LaTeXBuilder(Builder):
 
         self.init_document_data()
 
-        for docname, targetname, title, author, docclass in self.document_data:
+        for entry in self.document_data:
+            docname, targetname, title, author, docclass = entry[:5]
+            toctree_only = False
+            if len(entry) > 5:
+                toctree_only = entry[5]
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
-            doctree = self.assemble_doctree(
-                docname, appendices=(docclass == 'manual') and appendices or [])
+            doctree = self.assemble_doctree(docname, toctree_only,
+                appendices=(docclass == 'manual') and appendices or [])
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
@@ -761,7 +765,7 @@ class LaTeXBuilder(Builder):
             docwriter.write(doctree, destination)
             self.info("done")
 
-    def assemble_doctree(self, indexfile, appendices):
+    def assemble_doctree(self, indexfile, toctree_only, appendices):
         self.docnames = set([indexfile] + appendices)
         self.info(darkgreen(indexfile) + " ", nonl=1)
         def process_tree(docname, tree):
@@ -783,7 +787,17 @@ class LaTeXBuilder(Builder):
                         newnodes.extend(subtree.children)
                 toctreenode.parent.replace(toctreenode, newnodes)
             return tree
-        largetree = process_tree(indexfile, self.env.get_doctree(indexfile))
+        tree = self.env.get_doctree(indexfile)
+        if toctree_only:
+            # extract toctree nodes from the tree and put them in a fresh document
+            new_tree = new_document('<latex output>')
+            new_sect = nodes.section()
+            new_sect += nodes.title('<temp>', '<temp>')
+            new_tree += new_sect
+            for node in tree.traverse(addnodes.toctree):
+                new_sect += node
+            tree = new_tree
+        largetree = process_tree(indexfile, tree)
         largetree.extend(appendices)
         self.info()
         self.info("resolving references...")

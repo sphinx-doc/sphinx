@@ -33,6 +33,10 @@ New features added
 * Support for C++ class names (in the style ``Class::Function``) in C function
   descriptions.
 
+* Support for a ``toctree_only`` item in items for the ``latex_documents``
+  config value.  This only includes the documents referenced by TOC trees in the
+  output, not the rest of the file containing the directive.
+
 Bugs fixed
 ----------
 
