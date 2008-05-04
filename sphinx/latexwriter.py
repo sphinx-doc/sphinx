@@ -310,9 +310,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif d.env in ('datadesc', 'classdesc*', 'excdesc', 'csimplemacrodesc'):
             t2 = "{%s}" % (d.name)
         elif d.env == 'methoddesc':
-            t2 = "[%s]{%s}{%s}" % (d.cls, d.name, d.params)
+            if d.cls:
+                t2 = "[%s]{%s}{%s}" % (d.cls, d.name, d.params)
+            else:
+                t2 = "{%s}{%s}" % (d.name, d.params)
         elif d.env == 'memberdesc':
-            t2 = "[%s]{%s}" % (d.cls, d.name)
+            if d.cls:
+                t2 = "[%s]{%s}" % (d.cls, d.name)
+            else:
+                t2 = "{%s}" % d.name
         elif d.env == 'cfuncdesc':
             t2 = "{%s}{%s}{%s}" % (d.type, d.name, d.params)
         elif d.env == 'cmemberdesc':

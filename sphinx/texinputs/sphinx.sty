@@ -270,6 +270,7 @@
 \newcommand{\py@thismodule}{}
 \newcommand{\py@thismodulekey}{}
 \newcommand{\py@thismoduletype}{}
+\newcommand{\py@emptymodule}{}
 
 % Module index types
 \newcommand{\py@standardIndexModule}[1]{\py@modindex{#1}{standard }}
@@ -465,7 +466,11 @@
 % \begin{funcdesc}{name}{args}
 \newcommand{\funcline}[2]{%
   \funclineni{#1}{#2}%
-  \index{#1@{\py@idxcode{#1()}} (in module \py@thismodule)}}
+  \ifx\py@thismodule\py@emptymodule%
+  \index{#1@{\py@idxcode{#1()}}}%
+  \else%
+  \index{#1@{\py@idxcode{#1()}} (in module \py@thismodule)}%
+  \fi}
 \newenvironment{funcdesc}[2]{
   \begin{fulllineitems}
     \funcline{#1}{#2}
@@ -483,7 +488,11 @@
 % \begin{classdesc}{name}{constructor args}
 \newcommand{\classline}[2]{
   \py@sigline{\strong{class }\bfcode{#1}}{#2}%
-  \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}}
+  \ifx\py@thismodule\py@emptymodule%
+  \index{#1@{\py@idxcode{#1}} (class)}%
+  \else%
+  \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}%
+  \fi}
 \newenvironment{classdesc}[2]{
   % Using \renewcommand doesn't work for this, for unknown reasons:
   \global\def\py@thisclass{#1}
@@ -506,7 +515,11 @@
   \global\def\py@thisclass{#1}
   \begin{fulllineitems}
     \item[\strong{class }\code{\bfcode{#1}}%
-      \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}]
+      \ifx\py@thismodule\py@emptymodule%
+      \index{#1@{\py@idxcode{#1}} (class)}%
+      \else%
+      \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}%
+      \fi]
 }{\end{fulllineitems}}
 
 % \begin{excclassdesc}{name}{constructor args}
@@ -516,7 +529,11 @@
   \global\def\py@thisclass{#1}
   \begin{fulllineitems}
     \py@sigline{\strong{exception }\bfcode{#1}}{#2}%
-    \index{#1@{\py@idxcode{#1}} (exception in \py@thismodule)}
+    \ifx\py@thismodule\py@emptymodule%
+    \index{#1@{\py@idxcode{#1}} (exception)}%
+    \else%
+    \index{#1@{\py@idxcode{#1}} (exception in \py@thismodule)}%
+    \fi
 }{\end{fulllineitems}}
 
 % There is no corresponding {excclassdesc*} environment.  To describe
@@ -589,13 +606,21 @@
 \newenvironment{excdesc}[1]{
   \begin{fulllineitems}
     \item[\strong{exception }\bfcode{#1}%
-          \index{#1@{\py@idxcode{#1}} (exception in \py@thismodule)}]
+          \ifx\py@thismodule\py@emptymodule%
+          \index{#1@{\py@idxcode{#1}} (exception)}%
+          \else%
+          \index{#1@{\py@idxcode{#1}} (exception in \py@thismodule)}%
+          \fi]
 }{\end{fulllineitems}}
 
 % Module data or constants: ----------------------------------------------
 % \begin{datadesc}{name}
 \newcommand{\dataline}[1]{%
-  \datalineni{#1}\index{#1@{\py@idxcode{#1}} (data in \py@thismodule)}}
+  \datalineni{#1}\ifx\py@thismodule\py@emptymodule%
+    \index{#1@{\py@idxcode{#1}} (data)}%
+    \else%
+    \index{#1@{\py@idxcode{#1}} (data in \py@thismodule)}%
+    \fi}
 \newenvironment{datadesc}[1]{
   \begin{fulllineitems}
     \dataline{#1}
