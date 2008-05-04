@@ -76,7 +76,9 @@ class Table(object):
     def __init__(self):
         self.col = 0
         self.colcount = 0
+        self.colspec = None
         self.had_head = False
+        self.has_verbatim = False
 
 
 class Desc(object):
@@ -385,10 +387,32 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table:
             raise NotImplementedError('Nested tables are not supported.')
         self.table = Table()
-        self.body.append('\n\\begin{tabulary}{\\textwidth}')
+        self.tablebody = []
+        # Redirect body output until table is finished.
+        self._body = self.body
+        self.body = self.tablebody
     def depart_table(self, node):
-        self.body.append('\\end{tabulary}\n\n')
+        self.body = self._body
+        if self.table.has_verbatim:
+            self.body.append('\n\\begin{tabular}')
+        else:
+            self.body.append('\n\\begin{tabulary}{\\textwidth}')
+        if self.table.colspec:
+            self.body.append(self.table.colspec)
+        else:
+            if self.table.has_verbatim:
+                colwidth = 0.95 / self.table.colcount
+                colspec = ('p{%.3f\\textwidth}|' % colwidth) * self.table.colcount
+                self.body.append('{|' + colspec + '}\n')
+            else:
+                self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
+        self.body.extend(self.tablebody)
+        if self.table.has_verbatim:
+            self.body.append('\\end{tabular}\n\n')
+        else:
+            self.body.append('\\end{tabulary}\n\n')
         self.table = None
+        self.tablebody = None
 
     def visit_colspec(self, node):
         self.table.colcount += 1
@@ -402,9 +426,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_thead(self, node):
         if self.next_table_colspec:
-            self.body.append('{%s}\n' % self.next_table_colspec)
-        else:
-            self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
+            self.table.colspec = '{%s}\n' % self.next_table_colspec
         self.next_table_colspec = None
         self.body.append('\\hline\n')
         self.table.had_head = True
@@ -727,10 +749,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         hlcode = self.highlighter.highlight_block(code, lang, linenos)
         # workaround for Unicode issue
         hlcode = hlcode.replace(u'€', u'@texteuro[]')
+        # must use original Verbatim environment and "tabular" environment
+        if self.table:
+            hlcode = hlcode.replace('\\begin{Verbatim}',
+                                    '\\begin{OriginalVerbatim}')
+            self.table.has_verbatim = True
         # get consistent trailer
         hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
         hlcode = hlcode.rstrip() + '\n'
-        self.body.append('\n' + hlcode + '\\end{Verbatim}\n')
+        self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
+                         (self.table and 'Original' or ''))
         self.verbatim = None
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block

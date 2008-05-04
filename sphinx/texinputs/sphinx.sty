@@ -154,9 +154,9 @@
 \newcommand{\py@modulebadkey}{{--just-some-junk--}}
 
 % Redefine the Verbatim environment to allow border and background colors.
-%
-\let\py@OldVerbatim=\Verbatim
-\let\py@OldEndVerbatim=\endVerbatim
+% The original environment is still used for verbatims within tables.
+\let\OriginalVerbatim=\Verbatim
+\let\endOriginalVerbatim=\endVerbatim
 
 % Play with vpsace to be able to keep the indentation.
 \newlength\distancetoright
@@ -188,10 +188,10 @@
   }%
   \item\MakeFramed {\FrameRestore}%
      \small%
-    \py@OldVerbatim[#1]%
+    \OriginalVerbatim[#1]%
 }
 \renewcommand{\endVerbatim}{%
-    \py@OldEndVerbatim%
+    \endOriginalVerbatim%
   \endMakeFramed%
   \endlist%
 }
