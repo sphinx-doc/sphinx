@@ -189,6 +189,48 @@ def educateQuotes(s):
     return s.replace('"', "&#8220;")
 
 
+def educateQuotesLatex(s):
+    """
+    Parameter:  String.
+
+    Returns:    The string, with double quotes corrected to LaTeX quotes.
+
+    Example input:  "Isn't this fun?"
+    Example output: ``Isn't this fun?'';
+    """
+
+    # Special case if the very first character is a quote
+    # followed by punctuation at a non-word-break. Close the quotes by brute force:
+    s = single_quote_start_re.sub("\x04", s)
+    s = double_quote_start_re.sub("\x02", s)
+
+    # Special case for double sets of quotes, e.g.:
+    #   <p>He said, "'Quoted' words in a larger quote."</p>
+    s = double_quote_sets_re.sub("\x01\x03", s)
+    s = single_quote_sets_re.sub("\x03\x01", s)
+
+    # Special case for decade abbreviations (the '80s):
+    s = decade_abbr_re.sub("\x04", s)
+
+    s = opening_single_quotes_regex.sub("\\1\x03", s)
+    s = closing_single_quotes_regex.sub("\\1\x04", s)
+    s = closing_single_quotes_regex_2.sub("\\1\x04\\2", s)
+
+    # Any remaining single quotes should be opening ones:
+    s = s.replace("'", "\x03")
+
+    s = opening_double_quotes_regex.sub("\\1\x01", s)
+    s = closing_double_quotes_regex.sub("\x02", s)
+    s = closing_double_quotes_regex_2.sub("\\1\x02", s)
+
+    # Any remaining quotes should be opening ones.
+    s = s.replace('"', "\x01")
+
+    # Finally, replace all helpers with quotes.
+    return s.replace("\x01", "``").replace("\x02", "''").\
+           replace("\x03", "`").replace("\x04", "'")
+
+
 def educateBackticks(s):
     """
     Parameter:  String.
