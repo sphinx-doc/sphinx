@@ -77,7 +77,7 @@ exists:
 
    By default, Sphinx uses a table layout with ``L`` for every column.
 
-   .. versionadded:: 0.2.1
+   .. versionadded:: 0.3
 
 .. warning::
 

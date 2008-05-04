@@ -107,7 +107,7 @@ tables of contents.  The ``toctree`` directive is the central element.
    the TOC tree hierarchy.  It can be used as the documentation's main page, or
    as a "full table of contents" if you don't give a ``maxdepth`` option.
 
-   .. versionchanged:: 0.2.1
+   .. versionchanged:: 0.3
       Added "globbing" option.
 
 

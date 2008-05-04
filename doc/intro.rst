@@ -32,7 +32,7 @@ directory`.  Normally, this directory also contains the Sphinx configuration
 file :file:`conf.py`, but that file can also live in another directory, the
 :dfn:`configuration directory`.
 
-.. versionadded:: 0.2.1
+.. versionadded:: 0.3
    Support for a different configuration directory.
 
 Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
@@ -83,7 +83,7 @@ The :program:`sphinx-build` script has several more options:
    configuration directory, so they will have to be present at this location
    too.
 
-   .. versionadded:: 0.2.1
+   .. versionadded:: 0.3
 
 **-D** *setting=value*
    Override a configuration value set in the :file:`conf.py` file.  (The value

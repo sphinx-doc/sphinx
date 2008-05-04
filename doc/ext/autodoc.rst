@@ -63,7 +63,7 @@ directive.
    Members without docstrings will be left out, unless you give the
    ``undoc-members`` flag option.
 
-   .. versionadded:: 0.2.1
+   .. versionadded:: 0.3
       For classes and exceptions, members inherited from base classes will be
       left out, unless you give the ``inherited-members`` flag option.
 
@@ -123,4 +123,4 @@ There are also new config values that you can set:
    ``"init"``
       Only the ``__init__`` method's docstring is inserted.
 
-   .. versionadded:: 0.2.1
+   .. versionadded:: 0.3

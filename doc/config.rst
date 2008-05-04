@@ -115,7 +115,7 @@ General configuration
    A list of directory names, relative to the source directory, that are to be
    excluded from the search for source files.
 
-   .. versionadded:: 0.2.1
+   .. versionadded:: 0.3
 
 .. confval:: pygments_style
 
@@ -123,7 +123,7 @@ General configuration
    ``'sphinx'``, which is a builtin style designed to match Sphinx' default
    style.
 
-   .. versionchanged:: 0.2.1
+   .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
       this is then used as custom style.
 
@@ -318,7 +318,7 @@ These options influence LaTeX output.
    If true, the topmost sectioning unit is parts, else it is chapters.  Default:
    ``False``.
 
-   .. versionadded:: 0.2.1
+   .. versionadded:: 0.3
 
 .. confval:: latex_appendices
 
