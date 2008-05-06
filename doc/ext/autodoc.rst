@@ -67,6 +67,17 @@ directive.
       For classes and exceptions, members inherited from base classes will be
       left out, unless you give the ``inherited-members`` flag option.
 
+   .. versionadded:: 0.4
+      It's possible to override the signature for callable members (functions,
+      methods, classes) with the regular syntax that will override the signature
+      gained from instropection::
+
+          .. autoclass:: Noodle(type)
+
+              .. automethod:: eat(persona)
+
+      This is useful if the signature from the method is hidden by a decorator.
+
    The "auto" directives can also contain content of their own, it will be
    inserted into the resulting non-auto directive source after the docstring
    (but before any automatic member documentation).

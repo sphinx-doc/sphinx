@@ -7,6 +7,9 @@ New features added
 * A new config value, `html_file_suffix`, can be used to set the HTML file
   suffix to e.g. ``.xhtml``.
 
+* the `autodoc` extension accepts signatures for functions, methods and
+  classes now that override the signature from the python code.
+
 
 Release 0.3 (May 6, 2008)
 =========================

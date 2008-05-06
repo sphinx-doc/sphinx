@@ -22,6 +22,7 @@ from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
 from sphinx.util import rpartition
+from sphinx.directives.desc import py_sig_re
 
 try:
     base_exception = BaseException
@@ -82,19 +83,29 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
                  lineno, indent='', filename_set=None, check_module=False):
     env = document.settings.env
 
+    # parse the definition
+    try:
+        mod, obj, signature = py_sig_re.match(name).groups()
+    except:
+        warning = document.reporter.warning(
+            'invalid definition for %r (%s)' % (what, name), line=lineno)
+        return [warning], ViewList()
+    basename = (mod or '') + obj
+    if mod:
+        mod = mod.rstrip('.')
+
     # find out what to import
     if what == 'module':
-        mod = obj = name
+        mod = basename
         objpath = []
     elif what in ('class', 'exception', 'function'):
-        mod, obj = rpartition(name, '.')
         if not mod and hasattr(env, 'autodoc_current_module'):
             mod = env.autodoc_current_module
         if not mod:
             mod = env.currmodule
         objpath = [obj]
     else:
-        mod_cls, obj = rpartition(name, '.')
+        mod_cls = mod
         if not mod_cls and hasattr(env, 'autodoc_current_class'):
             mod_cls = env.autodoc_current_class
         if not mod_cls:
@@ -106,8 +117,10 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             mod = env.currmodule
         objpath = [cls, obj]
 
+    qualname = '.'.join(objpath) or mod
     result = ViewList()
     docstrings = []
+    warnings = []
 
     if mod is None:
         warning = document.reporter.warning(
@@ -139,28 +152,27 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         return [warning], result
 
     # add directive header
-    try:
-        if what == 'class':
-            args = inspect.formatargspec(*inspect.getargspec(todoc.__init__))
-            if args[1:7] == 'self, ':
-                args = '(' + args[7:]
-            elif args == '(self)':
-                args = '()'
-        elif what in ('function', 'method'):
-            args = inspect.formatargspec(*inspect.getargspec(todoc))
-            if what == 'method':
+    if signature is not None:
+        args = '(%s)' % signature
+    else:
+        try:
+            if what == 'class':
+                args = inspect.formatargspec(*inspect.getargspec(todoc.__init__))
                 if args[1:7] == 'self, ':
                     args = '(' + args[7:]
                 elif args == '(self)':
                     args = '()'
-        else:
+            elif what in ('function', 'method'):
+                args = inspect.formatargspec(*inspect.getargspec(todoc))
+                if what == 'method':
+                    if args[1:7] == 'self, ':
+                        args = '(' + args[7:]
+                    elif args == '(self)':
+                        args = '()'
+            else:
+                args = ''
+        except Exception:
             args = ''
-    except Exception:
-        args = ''
-    if len(objpath) == 2:
-        qualname = '%s.%s' % (cls, obj)
-    else:
-        qualname = obj
     result.append(indent + '.. %s:: %s%s' % (what, qualname, args), '<autodoc>')
     result.append('', '<autodoc>')
 
@@ -211,7 +223,6 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     if objpath:
         env.autodoc_current_class = objpath[0]
 
-    warnings = []
     # add members, if possible
     _all = members == ['__all__']
     members_check_module = False
@@ -256,7 +267,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             else:
                 # XXX: todo -- attribute docs
                 continue
-        full_membername = name + '.' + membername
+        full_membername = basename + '.' + membername
         subwarn, subres = generate_rst(memberwhat, full_membername, ['__all__'],
                                        inherited, undoc, None, document, lineno,
                                        indent, check_module=members_check_module)
