@@ -275,7 +275,7 @@ class StandaloneHTMLBuilder(Builder):
         """Load templates."""
         self.init_templates()
         self.init_translator_class()
-        if self.config.html_out_suffix:
+        if self.config.html_file_suffix:
             self.out_suffix = self.config.html_file_suffix
 
     def init_translator_class(self):
