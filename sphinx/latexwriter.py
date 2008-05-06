@@ -88,7 +88,6 @@ class Desc(object):
         self.ni = node['noindex']
         self.type = self.cls = self.name = self.params = ''
         self.count = 0
-        self.name = ''
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
@@ -294,7 +293,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append("\\end{%s%s}\n" % (d.env, d.ni and 'ni' or ''))
 
     def visit_desc_signature(self, node):
-        pass
+        d = self.descstack[-1]
+        # reset these for every signature
+        d.type = d.cls = d.name = d.params = ''
     def depart_desc_signature(self, node):
         d = self.descstack[-1]
         d.cls = d.cls.rstrip('.')

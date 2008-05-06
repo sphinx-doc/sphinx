@@ -11,6 +11,11 @@ New features added
   classes now that override the signature got via introspection from
   Python code.
 
+Bugs fixed
+----------
+
+* Fix the LaTeX output of description units with multiple signatures.
+
 
 Release 0.3 (May 6, 2008)
 =========================
