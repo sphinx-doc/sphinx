@@ -625,15 +625,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_image(self, node):
         pass
 
-    def visit_note(self, node):
-        self.body.append('\n\\begin{notice}[note]')
-    def depart_note(self, node):
+    def _make_visit_admonition(name):
+        def visit_admonition(self, node):
+            self.body.append('\n\\begin{notice}[%s]' % name)
+        return visit_admonition
+    def depart_admonition(self, node):
         self.body.append('\\end{notice}\n')
 
-    def visit_warning(self, node):
-        self.body.append('\n\\begin{notice}[warning]')
-    def depart_warning(self, node):
-        self.body.append('\\end{notice}\n')
+    visit_attention = _make_visit_admonition('attention')
+    depart_attention = depart_admonition
+    visit_caution = _make_visit_admonition('caution')
+    depart_caution = depart_admonition
+    visit_danger = _make_visit_admonition('danger')
+    depart_danger = depart_admonition
+    visit_error = _make_visit_admonition('error')
+    depart_error = depart_admonition
+    visit_hint = _make_visit_admonition('hint')
+    depart_hint = depart_admonition
+    visit_important = _make_visit_admonition('important')
+    depart_important = depart_admonition
+    visit_note = _make_visit_admonition('note')
+    depart_note = depart_admonition
+    visit_tip = _make_visit_admonition('tip')
+    depart_tip = depart_admonition
+    visit_warning = _make_visit_admonition('warning')
+    depart_warning = depart_admonition
 
     def visit_versionmodified(self, node):
         self.body.append('\\%s' % node['type'])

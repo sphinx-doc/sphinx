@@ -671,6 +671,8 @@
   \end{tabular}
 }
 
+% Notices / Admonitions
+%
 \newlength{\py@noticelength}
 
 \newcommand{\py@heavybox}{
@@ -689,15 +691,37 @@
   \fbox{\TheSbox}
 }
 
-% a 'note' is as plain as it gets:
+% Some are quite plain:
 \newcommand{\py@noticelabel@note}{Note:}
 \newcommand{\py@noticestart@note}{}
 \newcommand{\py@noticeend@note}{}
+\newcommand{\py@noticelabel@hint}{Hint:}
+\newcommand{\py@noticestart@hint}{}
+\newcommand{\py@noticeend@hint}{}
+\newcommand{\py@noticelabel@important}{Important:}
+\newcommand{\py@noticestart@important}{}
+\newcommand{\py@noticeend@important}{}
+\newcommand{\py@noticelabel@tip}{Tip:}
+\newcommand{\py@noticestart@tip}{}
+\newcommand{\py@noticeend@tip}{}
 
-% a 'warning' gets more visible distinction:
+% Others gets more visible distinction:
 \newcommand{\py@noticelabel@warning}{Warning:}
 \newcommand{\py@noticestart@warning}{\py@heavybox}
 \newcommand{\py@noticeend@warning}{\py@endheavybox}
+\newcommand{\py@noticelabel@caution}{Caution:}
+\newcommand{\py@noticestart@caution}{\py@heavybox}
+\newcommand{\py@noticeend@caution}{\py@endheavybox}
+\newcommand{\py@noticelabel@attention}{Attention:}
+\newcommand{\py@noticestart@attention}{\py@heavybox}
+\newcommand{\py@noticeend@attention}{\py@endheavybox}
+\newcommand{\py@noticelabel@danger}{Danger:}
+\newcommand{\py@noticestart@danger}{\py@heavybox}
+\newcommand{\py@noticeend@danger}{\py@endheavybox}
+\newcommand{\py@noticelabel@error}{Error:}
+\newcommand{\py@noticestart@error}{\py@heavybox}
+\newcommand{\py@noticeend@error}{\py@endheavybox}
+
 
 \newenvironment{notice}[1][note]{
   \def\py@noticetype{#1}

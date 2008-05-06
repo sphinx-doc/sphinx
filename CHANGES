@@ -47,6 +47,9 @@ Bugs fixed
 
 * sphinx.ext.autodoc: descriptors are detected properly now.
 
+* sphinx.latexwriter: implement all reST admonitions, not just ``note``
+  and ``warning``.
+
 * Lots of little fixes to the LaTeX output and style.
 
 * Fix OpenSearch template and make template URL absolute.  The
