@@ -88,15 +88,20 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         mod, obj, signature = py_sig_re.match(name).groups()
     except:
         warning = document.reporter.warning(
-            'invalid definition for %r (%s)' % (what, name), line=lineno)
+            'invalid signature for auto%s (%r)' % (what, name), line=lineno)
         return [warning], ViewList()
     basename = (mod or '') + obj
     if mod:
         mod = mod.rstrip('.')
 
+    warnings = []
+
     # find out what to import
     if what == 'module':
         mod = basename
+        if signature:
+            warnings.append(document.reporter.warning(
+                'ignoring arguments for automodule %s' % mod, line=lineno))
         objpath = []
     elif what in ('class', 'exception', 'function'):
         if not mod and hasattr(env, 'autodoc_current_module'):
@@ -120,15 +125,15 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     qualname = '.'.join(objpath) or mod
     result = ViewList()
     docstrings = []
-    warnings = []
 
     if mod is None:
-        warning = document.reporter.warning(
-            'don\'t know which module to import for documenting %r '
+        warnings.append(document.reporter.warning(
+            'don\'t know which module to import for autodocumenting %r '
             '(try placing a "module" or "currentmodule" directive in the document, '
-            'or giving an explicit module name)' % name, line=lineno)
-        return [warning], result
+            'or giving an explicit module name)' % basename, line=lineno))
+        return warnings, result
 
+    # import module and get docstring of object to document
     try:
         todoc = module = __import__(mod, None, None, ['foo'])
         if filename_set is not None and hasattr(module, '__file__') and module.__file__:
@@ -142,14 +147,14 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             # only checking __module__ for members not given explicitly
             if hasattr(todoc, '__module__'):
                 if todoc.__module__ != mod:
-                    return [], result
+                    return warnings, result
         if getattr(todoc, '__doc__', None):
             docstrings.append(todoc.__doc__)
     except (ImportError, AttributeError):
-        warning = document.reporter.warning(
+        warnings.append(document.reporter.warning(
             'autodoc can\'t import/find %s %r, check your spelling '
-            'and sys.path' % (what, str(name)), line=lineno)
-        return [warning], result
+            'and sys.path' % (what, str(basename)), line=lineno))
+        return warnings, result
 
     # add directive header
     if signature is not None:
@@ -176,11 +181,11 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     result.append(indent + '.. %s:: %s%s' % (what, qualname, args), '<autodoc>')
     result.append('', '<autodoc>')
 
-    # the module directive doesn't want content
+    # the module directive doesn't have content
     if what != 'module':
         indent += '   '
 
-    # add docstring content
+    # skip some lines in module docstrings if configured
     if what == 'module' and env.config.automodule_skip_lines and docstrings[0]:
         docstrings[0] = '\n'.join(docstring.splitlines()
                                   [env.config.automodule_skip_lines:])
@@ -206,10 +211,11 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         charset = get_module_charset(module)
         docstrings = [docstring.decode(charset) for docstring in docstrings]
 
+    # add docstring content
     for docstring in docstrings:
         docstring = prepare_docstring(docstring)
         for i, line in enumerate(docstring):
-            result.append(indent + line, '<docstring of %s>' % name, i)
+            result.append(indent + line, '<docstring of %s>' % basename, i)
 
     # add source content, if present
     if add_content:
@@ -217,8 +223,9 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             result.append(indent + line, src[0], src[1])
 
     if not members or what in ('function', 'method', 'attribute'):
-        return [], result
+        return warnings, result
 
+    # set current namespace for finding members
     env.autodoc_current_module = mod
     if objpath:
         env.autodoc_current_class = objpath[0]

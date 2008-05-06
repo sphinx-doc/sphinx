@@ -70,13 +70,15 @@ directive.
    .. versionadded:: 0.4
       It's possible to override the signature for callable members (functions,
       methods, classes) with the regular syntax that will override the signature
-      gained from instropection::
+      gained from instropection:
+      
+   ::
 
-          .. autoclass:: Noodle(type)
+      .. autoclass:: Noodle(type)
 
-              .. automethod:: eat(persona)
+         .. automethod:: eat(persona)
 
-      This is useful if the signature from the method is hidden by a decorator.
+   This is useful if the signature from the method is hidden by a decorator.
 
    The "auto" directives can also contain content of their own, it will be
    inserted into the resulting non-auto directive source after the docstring
