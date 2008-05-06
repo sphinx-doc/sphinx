@@ -275,6 +275,8 @@ class StandaloneHTMLBuilder(Builder):
         """Load templates."""
         self.init_templates()
         self.init_translator_class()
+        if self.config.html_out_suffix:
+            self.out_suffix = self.config.html_file_suffix
 
     def init_translator_class(self):
         if self.config.html_translator_class:
@@ -556,7 +558,7 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the Pickle builder
 
     def get_target_uri(self, docname, typ=None):
-        return docname + '.html'
+        return docname + self.out_suffix
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None):
@@ -577,7 +579,7 @@ class StandaloneHTMLBuilder(Builder):
 
         output = self.templates.render(templatename, ctx)
         if not outfilename:
-            outfilename = path.join(self.outdir, os_path(pagename) + '.html')
+            outfilename = path.join(self.outdir, os_path(pagename) + self.out_suffix)
         ensuredir(path.dirname(outfilename)) # normally different from self.outdir
         try:
             f = codecs.open(outfilename, 'w', 'utf-8')
@@ -629,7 +631,7 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         if sidebarfile:
             ctx['customsidebar'] = sidebarfile
         if not outfilename:
-            outfilename = path.join(self.outdir, os_path(pagename) + '.fpickle')
+            outfilename = path.join(self.outdir, os_path(pagename) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
@@ -685,6 +687,11 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     # don't copy the reST source
     copysource = False
+
+    def init(self):
+        StandaloneHTMLBuilder.init(self)
+        # the output files for HTML help must be .html only
+        self.out_suffix = '.html'
 
     def handle_finish(self):
         build_hhx(self, self.outdir, self.config.htmlhelp_basename)

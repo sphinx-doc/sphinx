@@ -58,8 +58,9 @@ class Config(object):
         html_use_modindex = (True, False),
         html_copy_source = (True, False),
         html_use_opensearch = ('', False),
+        html_file_suffix = (None, False),
 
-        # HTML help options
+        # HTML help only options
         htmlhelp_basename = ('pydoc', False),
 
         # LaTeX options

@@ -262,6 +262,13 @@ that use Sphinx' HTMLWriter class.
    served (without trailing slash), e.g. ``"http://docs.python.org"``.  The
    default is ``''``.
 
+.. confval:: html_file_suffix
+
+   If nonempty, this is the file name suffix for generated HTML files.  The
+   default is ``".html"``.
+
+   .. versionadded:: 0.4
+
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a

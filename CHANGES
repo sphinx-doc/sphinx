@@ -1,3 +1,13 @@
+Changes in trunk
+================
+
+New features added
+------------------
+
+* A new config value, `html_file_suffix`, can be used to set the HTML file
+  suffix to e.g. ``.xhtml``.
+
+
 Release 0.3 (May 6, 2008)
 =========================
 

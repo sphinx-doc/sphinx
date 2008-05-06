@@ -139,6 +139,9 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 # base URL from which the finished HTML is served.
 #html_use_opensearch = ''
 
+# If nonempty, this is the file name suffix for HTML files (e.g. ".xhtml").
+#html_file_suffix = ''
+
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%(project)sdoc'
 
