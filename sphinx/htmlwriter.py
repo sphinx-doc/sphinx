@@ -56,7 +56,6 @@ class HTMLTranslator(BaseTranslator):
         self.builder = builder
         self.highlightlang = 'python'
         self.highlightlinenothreshold = sys.maxint
-        self.language.labels['warning'] = 'Caveat'
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['desctype']))
