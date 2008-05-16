@@ -626,6 +626,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_image(self, node):
         pass
 
+    def visit_figure(self, node):
+        self.body.append('\\begin{figure}\n')
+    def depart_figure(self, node):
+        self.body.append('\\end{figure}\n')
+
+    def visit_caption(self, node):
+        self.body.append('\\caption{')
+    def depart_caption(self, node):
+        self.body.append('}')
+
     def _make_visit_admonition(name):
         def visit_admonition(self, node):
             self.body.append('\n\\begin{notice}[%s]' % name)

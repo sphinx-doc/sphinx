@@ -16,6 +16,8 @@ Bugs fixed
 
 * Fix the LaTeX output of description units with multiple signatures.
 
+* Handle the figure directive in LaTeX output.
+
 
 Release 0.3 (May 6, 2008)
 =========================
