@@ -29,6 +29,7 @@ class ifconfig(nodes.Element): pass
 def ifconfig_directive(name, arguments, options, content, lineno,
                        content_offset, block_text, state, state_machine):
     node = ifconfig()
+    node.line = lineno
     node['expr'] = arguments[0]
     state.nested_parse(content, content_offset, node)
     return [node]
@@ -38,10 +39,21 @@ def process_ifconfig_nodes(app, doctree, docname):
     ns = app.config.__dict__.copy()
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):
-        if not eval(node['expr'], ns):
-            node.replace_self([])
+        try:
+            res = eval(node['expr'], ns)
+        except Exception, err:
+            # handle exceptions in a clean fashion
+            from traceback import format_exception_only
+            msg = ''.join(format_exception_only(err.__class__, err))
+            newnode = doctree.reporter.error('Exception occured in '
+                                             'ifconfig expression: \n%s' %
+                                             msg, base_node=node)
+            node.replace_self(newnode)
         else:
-            node.replace_self(node.children)
+            if not res:
+                node.replace_self([])
+            else:
+                node.replace_self(node.children)
 
 
 def setup(app):
