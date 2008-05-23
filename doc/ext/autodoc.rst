@@ -61,17 +61,31 @@ directive.
    will document exactly the specified members.
 
    Members without docstrings will be left out, unless you give the
-   ``undoc-members`` flag option.
+   ``undoc-members`` flag option::
+
+      .. autoclass:: Noodle
+         :members:
+         :undoc-members:
 
    .. versionadded:: 0.3
       For classes and exceptions, members inherited from base classes will be
-      left out, unless you give the ``inherited-members`` flag option.
+      left out, unless you give the ``inherited-members`` flag option, in
+      addition to ``members``:
+
+   ::
+
+      .. autoclass:: Noodle
+         :members:
+         :inherited-members:
+
+   This can be combined with ``undoc-members`` to document *all* available
+   members of the class or module.
 
    .. versionadded:: 0.4
       It's possible to override the signature for callable members (functions,
       methods, classes) with the regular syntax that will override the signature
       gained from instropection:
-      
+
    ::
 
       .. autoclass:: Noodle(type)
