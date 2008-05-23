@@ -249,3 +249,9 @@ def patfilter(names, pat):
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     match = _pat_cache[pat].match
     return filter(match, names)
+
+
+no_fn_re = r'[:/\\?*%|"\'<>. \t]'
+
+def make_filename(string):
+    return no_fn_re.sub('', string)

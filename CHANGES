@@ -20,6 +20,8 @@ Bugs fixed
 
 * Fix determination of the title in HTML help output.
 
+* Handle project names containing spaces.
+
 
 Release 0.3 (May 6, 2008)
 =========================

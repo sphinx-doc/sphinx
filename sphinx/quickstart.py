@@ -12,6 +12,7 @@
 import sys, os, time
 from os import path
 
+from sphinx.util import make_filename
 from sphinx.util.console import purple, bold, red, nocolor
 
 
@@ -143,7 +144,7 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%(project)sdoc'
+htmlhelp_basename = '%(project_fn)sdoc'
 
 
 # Options for LaTeX output
@@ -158,7 +159,7 @@ htmlhelp_basename = '%(project)sdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('%(master)s', '%(project)s.tex', '%(project)s Documentation', '%(author)s', 'manual'),
+  ('%(master)s', '%(project_fn)s.tex', '%(project)s Documentation', '%(author)s', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -380,6 +381,7 @@ directly.'''
     do_prompt(d, 'makefile', 'Create Makefile? (y/n)',
               os.name == 'posix' and 'y' or 'n', boolean)
 
+    d['project_fn'] = make_filename(d['project'])
     d['year'] = time.strftime('%Y')
     d['now'] = time.asctime()
     d['underline'] = len(d['project']) * '='
