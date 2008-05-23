@@ -1,8 +1,8 @@
 /**
- * Sphinx Doc Design -- Sticky Sidebar Overrides
+ * Sphinx Doc Design -- Sticky sidebar Overrides
  */
 
-div.sidebar {
+div.sphinxsidebar {
     top: 30px;
     left: 0px;
     position: fixed;

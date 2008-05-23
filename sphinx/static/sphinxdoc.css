@@ -207,7 +207,7 @@ div.body a {
     text-decoration: underline;
 }
 
-div.sidebar {
+div.sphinxsidebar {
     margin: 0;
     padding: 0.5em 15px 15px 0;
     width: 210px;
@@ -216,7 +216,7 @@ div.sidebar {
 /*    margin-left: -100%; */
 }
 
-div.sidebar h4, div.sidebar h3 {
+div.sphinxsidebar h4, div.sphinxsidebar h3 {
     margin: 1em 0 0.5em 0;
     font-size: 0.9em;
     padding: 0.1em 0 0.1em 0.5em;
@@ -225,7 +225,7 @@ div.sidebar h4, div.sidebar h3 {
     background-color: #AFC1C4;
 }
 
-div.sidebar ul {
+div.sphinxsidebar ul {
     padding-left: 1.5em;
     margin-top: 7px;
     list-style: none;
@@ -233,7 +233,7 @@ div.sidebar ul {
     line-height: 130%;
 }
 
-div.sidebar ul ul {
+div.sphinxsidebar ul ul {
     list-style: square;
     margin-left: 20px;
 }
@@ -316,29 +316,29 @@ div.pagination {
     text-align: center;
 }
 
-div.sidebar ul.toc {
+div.sphinxsidebar ul.toc {
     margin: 1em 0 1em 0;
     padding: 0 0 0 0.5em;
     list-style: none;
 }
 
-div.sidebar ul.toc li {
+div.sphinxsidebar ul.toc li {
     margin: 0.5em 0 0.5em 0;
     font-size: 0.9em;
     line-height: 130%;
 }
 
-div.sidebar ul.toc li p {
+div.sphinxsidebar ul.toc li p {
     margin: 0;
     padding: 0;
 }
 
-div.sidebar ul.toc ul {
+div.sphinxsidebar ul.toc ul {
     margin: 0.2em 0 0.2em 0;
     padding: 0 0 0 1.8em;
 }
 
-div.sidebar ul.toc ul li {
+div.sphinxsidebar ul.toc ul li {
     padding: 0;
 }
 

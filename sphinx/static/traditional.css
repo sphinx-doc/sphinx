@@ -24,13 +24,13 @@ div.body {
     padding: 0 20px 30px 20px;
 }
 
-div.sidebarwrapper {
+div.sphinxsidebarwrapper {
     border: 1px solid #99ccff;
     padding: 10px;
     margin: 10px 15px 10px 0;
 }
 
-div.sidebar {
+div.sphinxsidebar {
     float: right;
     margin-left: -100%;
     width: 230px;
@@ -78,30 +78,30 @@ div.related li.right {
 }
 
 /* ::: SIDEBAR :::: */
-div.sidebar h3 {
+div.sphinxsidebar h3 {
     margin: 0;
 }
 
-div.sidebar h4 {
+div.sphinxsidebar h4 {
     margin: 5px 0 0 0;
 }
 
-div.sidebar p.topless {
+div.sphinxsidebar p.topless {
     margin: 5px 10px 10px 10px;
 }
 
-div.sidebar ul {
+div.sphinxsidebar ul {
     margin: 10px;
     margin-left: 15px;
     padding: 0;
 }
 
-div.sidebar ul ul {
+div.sphinxsidebar ul ul {
     margin-top: 0;
     margin-bottom: 0;
 }
 
-div.sidebar form {
+div.sphinxsidebar form {
     margin-top: 10px;
 }
 
@@ -350,7 +350,7 @@ div#suggest-changes-box textarea {
 
 
 /* :::: PREVIEW :::: */
-div.preview { 
+div.preview {
     background-image: url(style/preview.png);
     padding: 0 20px 20px 20px;
     margin-bottom: 30px;
@@ -690,7 +690,7 @@ form.comment textarea {
         margin: 0;
     }
 
-    div.sidebar,
+    div.sphinxsidebar,
     div.related,
     div.footer,
     div#comments div.new-comment-box,

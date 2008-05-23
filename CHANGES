@@ -22,6 +22,11 @@ Bugs fixed
 
 * Handle project names containing spaces.
 
+* Don't write SSI-like comments in HTML output.
+
+* Rename the "sidebar" class to "sphinxsidebar" in order to stay different
+  from reST sidebars.
+
 
 Release 0.3 (May 6, 2008)
 =========================
