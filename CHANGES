@@ -30,6 +30,9 @@ Bugs fixed
 * Rename the "sidebar" class to "sphinxsidebar" in order to stay different
   from reST sidebars.
 
+* Use a binary TOC in HTML help generation to fix issues links without
+  explicit anchors.
+
 
 Release 0.3 (May 6, 2008)
 =========================

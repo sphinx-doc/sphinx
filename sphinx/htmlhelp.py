@@ -54,6 +54,7 @@ from sphinx import addnodes
 
 project_template = '''\
 [OPTIONS]
+Binary TOC=Yes
 Compiled file=%(outname)s.chm
 Contents file=%(outname)s.hhc
 Default Window=%(outname)s
