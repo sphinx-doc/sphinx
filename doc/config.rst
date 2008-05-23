@@ -197,7 +197,7 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_last_updated_fmt
 
    If this is not the empty string, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.  Default is 
+   at every page bottom, using the given :func:`strftime` format.  Default is
    ``'%b %d, %Y'``.
 
 .. confval:: html_use_smartypants
@@ -223,7 +223,7 @@ that use Sphinx' HTMLWriter class.
    dictionary that maps document names to template names.
 
    Example::
-   
+
       html_additional_pages = {
           'download': 'customdownload.html',
       }
@@ -238,7 +238,7 @@ that use Sphinx' HTMLWriter class.
       you used this feature, migrate it by adding an ``'index'`` key to this
       setting, with your custom template as the value, and in your custom
       template, use ::
-      
+
          {% extend "defindex.html" %}
          {% block tables %}
          ... old template content ...
@@ -247,6 +247,12 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_use_modindex
 
    If true, add a module index to the HTML documents.   Default is ``True``.
+
+.. confval:: html_use_index
+
+   If true, add an index to the HTML documents.  Default is ``True``.
+
+   .. versionadded:: 0.5
 
 .. confval:: html_copy_source
 

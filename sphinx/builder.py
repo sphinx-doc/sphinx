@@ -337,6 +337,7 @@ class StandaloneHTMLBuilder(Builder):
             copyright = self.config.copyright,
             style = self.config.html_style,
             use_modindex = self.config.html_use_modindex,
+            use_index = self.config.html_use_index,
             use_opensearch = self.config.html_use_opensearch,
             docstitle = docstitle,
             builder = self.name,
@@ -410,18 +411,20 @@ class StandaloneHTMLBuilder(Builder):
 
         # the global general index
 
-        # the total count of lines for each index letter, used to distribute
-        # the entries into two columns
-        indexcounts = []
-        for _, entries in self.env.index:
-            indexcounts.append(sum(1 + len(subitems) for _, (_, subitems) in entries))
+        if self.config.html_use_index:
+            # the total count of lines for each index letter, used to distribute
+            # the entries into two columns
+            indexcounts = []
+            for _, entries in self.env.index:
+                indexcounts.append(sum(1 + len(subitems)
+                                       for _, (_, subitems) in entries))
 
-        genindexcontext = dict(
-            genindexentries = self.env.index,
-            genindexcounts = indexcounts,
-        )
-        self.info(' genindex', nonl=1)
-        self.handle_page('genindex', genindexcontext, 'genindex.html')
+            genindexcontext = dict(
+                genindexentries = self.env.index,
+                genindexcounts = indexcounts,
+            )
+            self.info(' genindex', nonl=1)
+            self.handle_page('genindex', genindexcontext, 'genindex.html')
 
         # the global module index
 

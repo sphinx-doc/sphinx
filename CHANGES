@@ -11,6 +11,9 @@ New features added
   classes now that override the signature got via introspection from
   Python code.
 
+* The new config value `html_use_index` can be used to switch index
+  generation in HTML documents off.
+
 Bugs fixed
 ----------
 

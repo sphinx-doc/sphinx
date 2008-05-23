@@ -8,7 +8,9 @@
     <div class="related">
       <h3>Navigation</h3>
       <ul>
+        {%- if use_index %}
         <li class="right" style="margin-right: 10px"><a href="{{ pathto('genindex') }}" title="General Index" accesskey="I">index</a></li>
+        {%- endif %}
         {%- if use_modindex %}
         <li class="right"><a href="{{ pathto('modindex') }}" title="Global Module Index" accesskey="M">modules</a>{{ reldelim2 }}</li>
         {%- endif %}
