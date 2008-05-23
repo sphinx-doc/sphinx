@@ -128,8 +128,9 @@ def build_hhx(builder, outdir, outname):
     builder.info('writing project file...')
     f = open(path.join(outdir, outname+'.hhp'), 'w')
     try:
-        f.write(project_template % {'outname': outname,
-                                    'title': builder.config.html_title,
+        title = builder.config.html_title or \
+            '%s v%s documentation' % (builder.config.project, builder.config.release)
+        f.write(project_template % {'outname': outname, 'title': title,
                                     'version': builder.config.version,
                                     'project': builder.config.project})
         if not outdir.endswith(os.sep):
@@ -160,7 +161,8 @@ def build_hhx(builder, outdir, outname):
                 for subnode in node:
                     write_toc(subnode, ullevel)
             elif isinstance(node, nodes.reference):
-                item = object_sitemap % (cgi.escape(node.astext()), node['refuri'])
+                link = node['refuri']
+                item = object_sitemap % (cgi.escape(node.astext()), link)
                 f.write(item.encode('ascii', 'xmlcharrefreplace'))
             elif isinstance(node, nodes.bullet_list):
                 if ullevel != 0:
