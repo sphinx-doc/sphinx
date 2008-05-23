@@ -16,6 +16,10 @@ directory`, the extension is stripped, and path separators are converted to
 slashes.  All values, parameters and suchlike referring to "documents" expect
 such a document name.
 
+.. function:: test()
+
+refer to :func:`test func <test>`.
+
 
 The TOC tree
 ------------

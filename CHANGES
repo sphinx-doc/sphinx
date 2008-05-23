@@ -18,6 +18,8 @@ Bugs fixed
 
 * Handle the figure directive in LaTeX output.
 
+* Fix determination of the title in HTML help output.
+
 
 Release 0.3 (May 6, 2008)
 =========================
