@@ -167,6 +167,23 @@ The directives are:
    Describes a class.  The signature can include parentheses with parameters
    which will be shown as the constructor arguments.
 
+   Methods and attributes belonging to the class should be placed in this
+   directive's body.  If they are placed outside, the supplied name should
+   contain the class name so that cross-references still work.  Example::
+
+      .. class:: Foo
+         .. method:: quux()
+
+      -- or --
+
+      .. class:: Bar
+
+      .. method:: Bar.quux()
+
+   .. versionadded:: 0.4
+      The standard reST directive ``class`` is now provided by Sphinx under
+      the name ``cssclass``.
+
 .. directive:: .. attribute:: name
 
    Describes an object data attribute.  The description should include

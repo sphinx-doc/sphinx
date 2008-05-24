@@ -353,3 +353,19 @@ def tabularcolumns_directive(name, arguments, options, content, lineno,
 tabularcolumns_directive.content = 0
 tabularcolumns_directive.arguments = (1, 0, 1)
 directives.register_directive('tabularcolumns', tabularcolumns_directive)
+
+
+# register the standard rst class directive under a different name
+
+try:
+    # docutils 0.4
+    from docutils.parsers.rst.directives.misc import class_directive
+    directives.register_directive('cssclass', class_directive)
+except ImportError:
+    try:
+        # docutils 0.5
+        from docutils.parsers.rst.directives.misc import Class
+        directives.register_directive('cssclass', Class)
+    except ImportError:
+        # whatever :)
+        pass
