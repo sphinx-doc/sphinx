@@ -14,6 +14,9 @@ New features added
 * The new config value `html_use_index` can be used to switch index
   generation in HTML documents off.
 
+* The new `exclude_trees` config option can be used to exclude whole
+  subtrees from the search for source files.
+
 Bugs fixed
 ----------
 

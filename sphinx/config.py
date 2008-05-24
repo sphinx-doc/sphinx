@@ -39,6 +39,7 @@ class Config(object):
         source_suffix = ('.rst', True),
         unused_docs = ([], True),
         exclude_dirs = ([], True),
+        exclude_trees = ([], True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
         show_authors = (False, True),

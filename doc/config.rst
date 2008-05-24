@@ -117,6 +117,14 @@ General configuration
 
    .. versionadded:: 0.3
 
+.. confval:: exclude_trees
+
+   A list of directory names, relative to the source directory, that are to be
+   recursively exlucded from the search for source files, that is, their
+   subdirectories won't be searched too.
+
+   .. versionadded:: 0.4
+
 .. confval:: pygments_style
 
    The style name to use for Pygments highlighting of source code.  Default is
@@ -252,7 +260,7 @@ that use Sphinx' HTMLWriter class.
 
    If true, add an index to the HTML documents.  Default is ``True``.
 
-   .. versionadded:: 0.5
+   .. versionadded:: 0.4
 
 .. confval:: html_copy_source
 

@@ -75,12 +75,14 @@ def walk(top, topdown=True, followlinks=False):
         yield top, dirs, nondirs
 
 
-def get_matching_docs(dirname, suffix, exclude_docs=(), exclude_dirs=(), prune_dirs=()):
+def get_matching_docs(dirname, suffix, exclude_docs=(), exclude_dirs=(),
+                      exclude_trees=(), exclude_dirnames=()):
     """
     Get all file names (without suffix) matching a suffix in a
     directory, recursively.
 
-    Exclude files in *exclude*, prune directories in *prune*.
+    Exclude docs in *exclude_docs*, exclude dirs in *exclude_dirs*,
+    prune dirs in *exclude_trees*, prune dirnames in *exclude_dirnames*.
     """
     pattern = '*' + suffix
     # dirname is a normalized absolute path.
@@ -89,9 +91,12 @@ def get_matching_docs(dirname, suffix, exclude_docs=(), exclude_dirs=(), prune_d
     for root, dirs, files in walk(dirname, followlinks=True):
         if root[dirlen:] in exclude_dirs:
             continue
+        if root[dirlen:] in exclude_trees:
+            del dirs[:]
+            continue
         dirs.sort()
         files.sort()
-        for prunedir in prune_dirs:
+        for prunedir in exclude_dirnames:
             if prunedir in dirs:
                 dirs.remove(prunedir)
         for sfile in files:
