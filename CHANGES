@@ -33,6 +33,8 @@ Bugs fixed
 * Use a binary TOC in HTML help generation to fix issues links without
   explicit anchors.
 
+* Fix behavior of references to functions/methods with an explicit title.
+
 
 Release 0.3 (May 6, 2008)
 =========================

@@ -102,9 +102,7 @@ innernodetypes = {
     'option': addnodes.literal_emphasis,
 }
 
-def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    env = inliner.document.settings.env
-    text = utils.unescape(text)
+def _fix_parens(typ, text, env):
     if typ in ('func', 'meth', 'cfunc'):
         if text.endswith('()'):
             # remove parentheses
@@ -112,9 +110,14 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         if env.config.add_function_parentheses:
             # add them back to all occurrences if configured
             text += '()'
+    return text
+
+def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    env = inliner.document.settings.env
+    text = utils.unescape(text)
     # if the first character is a bang, don't cross-reference at all
     if text[0:1] == '!':
-        text = text[1:]
+        text = _fix_parens(typ, text[1:], env)
         return [innernodetypes.get(typ, nodes.literal)(
             rawtext, text, classes=['xref'])], []
     # we want a cross-reference, create the reference node
@@ -122,49 +125,55 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
                                   modname=env.currmodule, classname=env.currclass)
     # we may need the line number for warnings
     pnode.line = lineno
-    innertext = text
-    # special actions for Python object cross-references
-    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod'):
-        # if the first character is a dot, search more specific namespaces first
-        # else search builtins first
-        if text[0:1] == '.':
-            text = text[1:]
-            pnode['refspecific'] = True
-        # if the first character is a tilde, don't display the module/class parts
-        # of the contents
-        elif text[0:1] == '~':
-            text = text[1:]
-            dot = text.rfind('.')
-            if dot != -1:
-                innertext = text[dot+1:]
-    # look if explicit title and target are given
+    # the link title may differ from the target, but by default they are the same
+    title = target = text
+    titleistarget = True
+    # look if explicit title and target are given with `foo <bar>` syntax
     brace = text.find('<')
     if brace != -1:
+        titleistarget = False
         pnode['refcaption'] = True
         m = caption_ref_re.match(text)
         if m:
             target = m.group(2)
-            innertext = m.group(1)
+            title = m.group(1)
         else:
             # fallback: everything after '<' is the target
             target = text[brace+1:]
-            innertext = text[:brace]
-    # else, generate target from title
-    else:
-        target = text
-    # some special cases
-    if typ == 'option' and text[0] in '-/':
+            title = text[:brace]
+    # special target  for Python object cross-references
+    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod'):
+        # fix-up parentheses in link title
+        if titleistarget:
+            title = _fix_parens(typ, title.lstrip('.~'), env)
+        # remove parentheses from the target too
+        if target.endswith('()'):
+            target = target[:-2]
+        # if the first character is a dot, search more specific namespaces first
+        # else search builtins first
+        if target[0:1] == '.':
+            target = target[1:]
+            pnode['refspecific'] = True
+        # if the first character is a tilde, don't display the module/class parts
+        # of the contents
+        elif target[0:1] == '~':
+            target = target[1:]
+            dot = target.rfind('.')
+            if dot != -1:
+                title = target[dot+1:]
+    # some other special cases for the target
+    elif typ == 'option' and target[0] in '-/':
         # strip option marker from target
         target = target[1:]
-    if typ == 'term':
+    elif typ == 'term':
         # normalize whitespace in definition terms (if the term reference is
-        # broken over a line, a newline will be in text)
+        # broken over a line, a newline will be in target)
         target = ws_re.sub(' ', target).lower()
     else:
         # remove all whitespace to avoid referencing problems
         target = ws_re.sub('', target)
     pnode['reftarget'] = target
-    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, innertext, classes=['xref'])
+    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, title, classes=['xref'])
     return [pnode], []
 
 
