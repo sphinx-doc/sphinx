@@ -123,6 +123,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'latex', builder.config.pygments_style)
         self.context = []
         self.descstack = []
+        self.bibitems = []
         self.table = None
         self.next_table_colspec = None
         self.highlightlang = 'python'
@@ -170,7 +171,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
     def depart_document(self, node):
-        pass
+        if self.bibitems:
+            widest_label = ""
+            for bi in self.bibitems:
+                if len(widest_label) < len(bi[0]):
+                    widest_label = bi[0]
+            self.body.append('\n\\begin{thebibliography}{%s}\n' % widest_label)
+            for bi in self.bibitems:
+                # cite_key: underscores must not be escaped
+                cite_key = bi[0].replace(r"\_", "_")
+                self.body.append('\\bibitem[%s]{%s}{%s}\n' % (bi[0], cite_key, bi[1]))
+            self.body.append('\\end{thebibliography}\n')
+            self.bibitems = []
 
     def visit_start_of_file(self, node):
         # This marks the begin of a new file; therefore the current module and
@@ -777,6 +789,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_title_reference(self, node):
         self.body.append(r'\emph{')
     def depart_title_reference(self, node):
+        self.body.append('}')
+
+    def visit_citation(self, node):
+        # TODO maybe use cite bibitems
+        self.context.append(len(self.body))
+    def depart_citation(self, node):
+        size = self.context.pop()
+        label = self.body[size]
+        text = ''.join(self.body[size+1:])
+        del self.body[size:]
+        self.bibitems.append([label, text])
+
+    def visit_citation_reference(self, node):
+        self.body.append('\\cite{')
+    def depart_citation_reference(self, node):
         self.body.append('}')
 
     def visit_literal(self, node):

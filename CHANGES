@@ -40,6 +40,8 @@ Bugs fixed
 
 * Fix behavior of references to functions/methods with an explicit title.
 
+* Support citation nodes in LaTeX writer.
+
 
 Release 0.3 (May 6, 2008)
 =========================
