@@ -145,7 +145,16 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod'):
         # fix-up parentheses in link title
         if titleistarget:
-            title = _fix_parens(typ, title.lstrip('.~'), env)
+            title = title.lstrip('.')   # only has a meaning for the target
+            target = target.lstrip('~') # only has a meaning for the title
+            title = _fix_parens(typ, title, env)
+            # if the first character is a tilde, don't display the module/class
+            # parts of the contents
+            if title[0:1] == '~':
+                title = title[1:]
+                dot = title.rfind('.')
+                if dot != -1:
+                    title = title[dot+1:]
         # remove parentheses from the target too
         if target.endswith('()'):
             target = target[:-2]
@@ -154,13 +163,6 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         if target[0:1] == '.':
             target = target[1:]
             pnode['refspecific'] = True
-        # if the first character is a tilde, don't display the module/class parts
-        # of the contents
-        elif target[0:1] == '~':
-            target = target[1:]
-            dot = target.rfind('.')
-            if dot != -1:
-                title = target[dot+1:]
     # some other special cases for the target
     elif typ == 'option' and target[0] in '-/':
         # strip option marker from target
