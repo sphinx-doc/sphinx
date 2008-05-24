@@ -320,9 +320,6 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        docstitle = self.config.html_title or \
-                    '%s v%s documentation' % (self.config.project,
-                                              self.config.release)
         logo = self.config.html_logo and \
                path.basename(self.config.html_logo) or ''
 
@@ -339,7 +336,9 @@ class StandaloneHTMLBuilder(Builder):
             use_modindex = self.config.html_use_modindex,
             use_index = self.config.html_use_index,
             use_opensearch = self.config.html_use_opensearch,
-            docstitle = docstitle,
+            docstitle = self.config.html_title,
+            shorttitle = self.config.html_short_title,
+            show_sphinx = self.config.html_show_sphinx,
             builder = self.name,
             parents = [],
             titles = {},
@@ -913,17 +912,15 @@ class ChangesBuilder(Builder):
                 otherchanges.setdefault((docname, title), []).append(
                     (entry, docname, lineno))
 
-        docstitle = self.config.html_title or \
-                    '%s v%s documentation' % (self.config.project,
-                                              self.config.release)
-
         ctx = {
             'project': self.config.project,
             'version': version,
-            'docstitle': docstitle,
+            'docstitle': self.config.html_title,
+            'shorttitle': self.config.html_short_title,
             'libchanges': sorted(libchanges.iteritems()),
             'apichanges': sorted(apichanges),
             'otherchanges': sorted(otherchanges.iteritems()),
+            'show_sphinx': self.config.html_show_sphinx,
         }
         f = open(path.join(self.outdir, 'index.html'), 'w')
         try:

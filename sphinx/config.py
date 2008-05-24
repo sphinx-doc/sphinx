@@ -47,7 +47,10 @@ class Config(object):
         template_bridge = (None, False),
 
         # HTML options
-        html_title = (None, False),
+        html_title = (lambda self: '%s v%s documentation' %
+                                   (self.project, self.release),
+                      False),
+        html_short_title = (lambda self: self.html_title, False),
         html_style = ('default.css', False),
         html_logo = (None, False),
         html_static_path = ([], False),
@@ -61,6 +64,7 @@ class Config(object):
         html_copy_source = (True, False),
         html_use_opensearch = ('', False),
         html_file_suffix = (None, False),
+        html_show_sphinx = (True, False),
 
         # HTML help only options
         htmlhelp_basename = ('pydoc', False),
@@ -77,7 +81,7 @@ class Config(object):
     )
 
     def __init__(self, dirname, filename):
-        self.values = self.config_values.copy()
+        self.valuenames = set(self.config_values.keys())
         config = {'__file__': path.join(dirname, filename)}
         olddir = os.getcwd()
         try:
@@ -85,12 +89,20 @@ class Config(object):
             execfile(config['__file__'], config)
         finally:
             os.chdir(olddir)
-        self.__dict__.update(config)
+        for name in config:
+            if name in self.valuenames:
+                self.__dict__[name] = config[name]
+        self.setup = config.get('setup', None)
 
-    def init_defaults(self):
-        for val in self.values:
-            if val not in self.__dict__:
-                self.__dict__[val] = self.values[val][0]
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError(name)
+        if name not in self.valuenames:
+            raise AttributeError('No such config value: %s' % name)
+        default = self.config_values[name][0]
+        if callable(default):
+            return default(self)
+        return default
 
     def __getitem__(self, name):
         return getattr(self, name)
@@ -102,4 +114,4 @@ class Config(object):
         delattr(self, name)
 
     def __contains__(self, name):
-        return hasattr(self, name)
+        return name in self.valuenames

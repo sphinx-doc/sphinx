@@ -19,6 +19,15 @@ New features added
 
 * The directories in the `html_static_path` can now contain subdirectories.
 
+* The new config value `html_short_title` can be used to set a shorter
+  title for the documentation which is then used in the navigation bar.
+
+* The new config value `html_show_sphinx` can be used to control whether
+  a link to Sphinx is added to the HTML footer.
+
+* Defaults for configuration values can now be callables, which allows
+  dynamic defaults.
+
 Bugs fixed
 ----------
 
@@ -40,7 +49,7 @@ Bugs fixed
 
 * Fix behavior of references to functions/methods with an explicit title.
 
-* Support citation nodes in LaTeX writer.
+* Support citation nodes in LaTeX writer.M v7
 
 
 Release 0.3 (May 6, 2008)

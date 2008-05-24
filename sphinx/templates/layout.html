@@ -25,7 +25,7 @@
                                title="Customize your viewing settings" accesskey="S">settings</a> |</li>
         {%- endif %}
         {%- block rootrellink %}
-        <li><a href="{{ pathto('index') }}">{{ docstitle }}</a>{{ reldelim1 }}</li>
+        <li><a href="{{ pathto('index') }}">{{ shorttitle }}</a>{{ reldelim1 }}</li>
         {%- endblock %}
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a>{{ reldelim1 }}</li>
@@ -184,6 +184,9 @@
     {%- endif %}
     {%- if last_updated %}
       Last updated on {{ last_updated }}.
+    {%- endif %}
+    {%- if show_sphinx %}
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
     {%- endif %}
     </div>
 {%- endblock %}

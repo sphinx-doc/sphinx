@@ -24,6 +24,11 @@ the following public API:
    in the setting only takes effect when a document is parsed -- this means that
    the whole environment must be rebuilt.
 
+   .. versionchanged:: 0.4
+      If the *default* value is a callable, it will be called with the config
+      object as its argument in order to get the default value.  This can be
+      used to implement config values whose default depends on other values.
+
 .. method:: Sphinx.add_event(name)
 
    Register an event called *name*.
@@ -43,7 +48,7 @@ the following public API:
    documentation.
 
    .. XXX once we target docutils 0.5, update this
-   
+
 .. method:: Sphinx.add_role(name, role)
 
    Register a Docutils role.  *name* must be the role name that occurs in the

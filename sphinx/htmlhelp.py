@@ -129,9 +129,8 @@ def build_hhx(builder, outdir, outname):
     builder.info('writing project file...')
     f = open(path.join(outdir, outname+'.hhp'), 'w')
     try:
-        title = builder.config.html_title or \
-            '%s v%s documentation' % (builder.config.project, builder.config.release)
-        f.write(project_template % {'outname': outname, 'title': title,
+        f.write(project_template % {'outname': outname,
+                                    'title': builder.config.html_title,
                                     'version': builder.config.version,
                                     'project': builder.config.project})
         if not outdir.endswith(os.sep):
@@ -150,7 +149,8 @@ def build_hhx(builder, outdir, outname):
     try:
         f.write(contents_header)
         # special books
-        f.write('<LI> ' + object_sitemap % ('Main page', 'index.html'))
+        f.write('<LI> ' + object_sitemap % (builder.config.html_short_title,
+                                            'index.html'))
         if builder.config.html_use_modindex:
             f.write('<LI> ' + object_sitemap % ('Global Module Index', 'modindex.html'))
         # the TOC

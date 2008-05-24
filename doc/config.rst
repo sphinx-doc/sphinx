@@ -182,6 +182,14 @@ that use Sphinx' HTMLWriter class.
    v{<revision>} documentation'`, where the placeholders are replaced by the
    config values of the same name.
 
+.. confval:: html_short_title
+
+   A shorter "title" for the HTML docs.  This is used in for links in the header
+   and in the HTML Help docs.  If not given, it defaults to the value of
+   :confval:`html_title`.
+
+   .. versionadded:: 0.4
+
 .. confval:: html_style
 
    The style sheet to use for HTML pages.  A file of that name must exist either
@@ -292,6 +300,13 @@ that use Sphinx' HTMLWriter class.
    subclass of Sphinx' :class:`~sphinx.htmlwriter.HTMLTranslator`, that is used
    to translate document trees to HTML.  Default is ``None`` (use the builtin
    translator).
+
+.. confval:: html_show_sphinx
+
+   If true, "Created using Sphinx" is shown in the HTML footer.  Default is
+   ``True``.
+
+   .. versionadded:: 0.4
 
 .. confval:: htmlhelp_basename
 

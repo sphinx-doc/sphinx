@@ -79,15 +79,11 @@ class Sphinx(object):
                 setattr(self.config, key, val)
 
         # load all extension modules
-        for extension in getattr(self.config, 'extensions', ()):
+        for extension in self.config.extensions:
             self.setup_extension(extension)
         # the config file itself can be an extension
-        if hasattr(self.config, 'setup'):
+        if self.config.setup:
             self.config.setup(self)
-
-        # this must happen after loading extension modules, since they
-        # can add custom config values
-        self.config.init_defaults()
 
         if buildername is None:
             print >>status, 'No builder selected, using default: html'
@@ -179,9 +175,10 @@ class Sphinx(object):
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild_env):
-        if name in self.config.values:
+        if name in self.config.valuenames:
             raise ExtensionError('Config value %r already present' % name)
-        self.config.values[name] = (default, rebuild_env)
+        self.config.valuenames.add(name)
+        self.config.__class__.config_values[name] = (default, rebuild_env)
 
     def add_event(self, name):
         if name in self._events:
