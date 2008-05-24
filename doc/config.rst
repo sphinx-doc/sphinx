@@ -202,6 +202,9 @@ that use Sphinx' HTMLWriter class.
    files, so a file named :file:`default.css` will overwrite the builtin
    :file:`default.css`.
 
+   .. versionchanged:: 0.4
+      The paths in :confval:`html_static_path` can now contain subdirectories.
+
 .. confval:: html_last_updated_fmt
 
    If this is not the empty string, a 'Last updated on:' timestamp is inserted

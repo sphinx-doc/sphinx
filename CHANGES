@@ -17,6 +17,8 @@ New features added
 * The new `exclude_trees` config option can be used to exclude whole
   subtrees from the search for source files.
 
+* The directories in the `html_static_path` can now contain subdirectories.
+
 Bugs fixed
 ----------
 

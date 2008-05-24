@@ -507,8 +507,14 @@ class StandaloneHTMLBuilder(Builder):
                           for spath in self.config.html_static_path]
         for staticdirname in staticdirnames:
             for filename in os.listdir(staticdirname):
-                if not filename.startswith('.'):
-                    shutil.copyfile(path.join(staticdirname, filename),
+                if filename.startswith('.'):
+                    continue
+                fullname = path.join(staticdirname, filename)
+                if path.isfile(fullname):
+                    shutil.copyfile(fullname,
+                                    path.join(self.outdir, '_static', filename))
+                elif path.isdir(fullname):
+                    shutil.copytree(fullname,
                                     path.join(self.outdir, '_static', filename))
         # add pygments style file
         f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
