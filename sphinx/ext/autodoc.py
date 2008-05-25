@@ -126,6 +126,11 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     result = ViewList()
     docstrings = []
 
+    # make sure that the view list starts with an empty line.  This is
+    # necessary for some situations where another directive preprocesses
+    # rst and no starting newline is present
+    result.append('', '')
+
     if mod is None:
         warnings.append(document.reporter.warning(
             'don\'t know which module to import for autodocumenting %r '
