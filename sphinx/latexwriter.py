@@ -421,6 +421,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_label(self, node):
+        if isinstance(node.parent, nodes.citation):
+            self.bibitems[-1][0] = node.astext()
         raise nodes.SkipNode
 
     def visit_tabular_col_spec(self, node):
@@ -802,18 +804,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # TODO maybe use cite bibitems
+        self.bibitems.append(['', ''])
         self.context.append(len(self.body))
     def depart_citation(self, node):
         size = self.context.pop()
-        label = self.body[size]
-        text = ''.join(self.body[size+1:])
+        text = ''.join(self.body[size:])
         del self.body[size:]
-        self.bibitems.append([label, text])
+        self.bibitems[-1][1] = text
 
     def visit_citation_reference(self, node):
-        self.body.append('\\cite{')
-    def depart_citation_reference(self, node):
-        self.body.append('}')
+        citeid = node.astext()
+        self.body.append('\\cite{%s}' % citeid)
+        raise nodes.SkipNode
 
     def visit_literal(self, node):
         content = self.encode(node.astext().strip())
