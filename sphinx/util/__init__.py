@@ -256,7 +256,7 @@ def patfilter(names, pat):
     return filter(match, names)
 
 
-no_fn_re = r'[:/\\?*%|"\'<>. \t]'
+no_fn_re = re.compile(r'[:/\\?*%|"\'<>. \t]')
 
 def make_filename(string):
     return no_fn_re.sub('', string)
