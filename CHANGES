@@ -1,4 +1,4 @@
-Changes in trunk
+MaOChanges in trunk
 ================
 
 New features added
@@ -34,6 +34,8 @@ Bugs fixed
 * Fix the LaTeX output of description units with multiple signatures.
 
 * Handle the figure directive in LaTeX output.
+
+* Handle raw admonitions in LaTeX output.
 
 * Fix determination of the title in HTML help output.
 

@@ -267,11 +267,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(node.parent, nodes.section):
             self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
             self.context.append('}\n')
-        elif isinstance(node.parent, (nodes.topic, nodes.sidebar)):
+        elif isinstance(node.parent, (nodes.topic, nodes.sidebar, nodes.admonition)):
             self.body.append(r'\textbf{')
             self.context.append('}\n\n\medskip\n\n')
         else:
-            self.builder.warn('encountered title node not in section, topic or sidebar')
+            self.builder.warn('encountered title node not in section, topic, admonition'
+                              ' or sidebar')
             self.body.append('\\textbf{')
             self.context.append('}')
         self.in_title = 1
@@ -627,12 +628,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             pre.append('\n')
             post.append('\n')
         pre.reverse()
-        self.body.extend(pre)
-        # XXX: for now, don't fiddle around with graphics formats
         if node['uri'] in self.builder.env.images:
             uri = self.builder.env.images[node['uri']][1]
         else:
             uri = node['uri']
+        if uri.find('://') != -1:
+            # ignore remote images
+            return
+        self.body.extend(pre)
+        # XXX: for now, don't fiddle around with graphics formats
         self.body.append('\\includegraphics%s{%s}' % (include_graphics_options, uri))
         self.body.extend(post)
     def depart_image(self, node):
@@ -648,31 +652,36 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_caption(self, node):
         self.body.append('}')
 
+    def visit_admonition(self, node):
+        self.body.append('\n\\begin{quote}')
+    def depart_admonition(self, node):
+        self.body.append('\\end{quote}\n')
+
     def _make_visit_admonition(name):
         def visit_admonition(self, node):
             self.body.append('\n\\begin{notice}[%s]' % name)
         return visit_admonition
-    def depart_admonition(self, node):
+    def _depart_named_admonition(self, node):
         self.body.append('\\end{notice}\n')
 
     visit_attention = _make_visit_admonition('attention')
-    depart_attention = depart_admonition
+    depart_attention = _depart_named_admonition
     visit_caution = _make_visit_admonition('caution')
-    depart_caution = depart_admonition
+    depart_caution = _depart_named_admonition
     visit_danger = _make_visit_admonition('danger')
-    depart_danger = depart_admonition
+    depart_danger = _depart_named_admonition
     visit_error = _make_visit_admonition('error')
-    depart_error = depart_admonition
+    depart_error = _depart_named_admonition
     visit_hint = _make_visit_admonition('hint')
-    depart_hint = depart_admonition
+    depart_hint = _depart_named_admonition
     visit_important = _make_visit_admonition('important')
-    depart_important = depart_admonition
+    depart_important = _depart_named_admonition
     visit_note = _make_visit_admonition('note')
-    depart_note = depart_admonition
+    depart_note = _depart_named_admonition
     visit_tip = _make_visit_admonition('tip')
-    depart_tip = depart_admonition
+    depart_tip = _depart_named_admonition
     visit_warning = _make_visit_admonition('warning')
-    depart_warning = depart_admonition
+    depart_warning = _depart_named_admonition
 
     def visit_versionmodified(self, node):
         self.body.append('\\%s' % node['type'])
@@ -761,7 +770,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\grammartoken{')
             self.context.append('}')
         else:
-            self.builder.warn('malformed reference target found: %s' % uri)
+            self.builder.warn('unusable reference target found: %s' % uri)
             self.context.append('')
     def depart_reference(self, node):
         self.body.append(self.context.pop())
