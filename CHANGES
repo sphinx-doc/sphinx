@@ -33,8 +33,8 @@ New features added
 
 * Add document metadata to the values in the default template context.
 
-* Let the "previous" and "next" to more logical documents, so that always
-  selecting "next" lets you visit every document in the tree.
+* Let the "previous" and "next" to more logical documents, so that by
+  following "next" links you can traverse the entire TOC tree.
 
 Bugs fixed
 ----------
