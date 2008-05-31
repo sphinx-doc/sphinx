@@ -184,6 +184,7 @@ def build_hhx(builder, outdir, outname):
         f.close()
 
     builder.info('writing index file...')
+    index = builder.env.create_index(builder)
     f = open(path.join(outdir, outname+'.hhk'), 'w')
     try:
         f.write('<UL>\n')
@@ -199,7 +200,7 @@ def build_hhx(builder, outdir, outname):
                 for subitem in subitems:
                     write_index(subitem[0], subitem[1], [])
                 f.write('</UL>')
-        for (key, group) in builder.env.index:
+        for (key, group) in index:
             for title, (refs, subitems) in group:
                 write_index(title, refs, subitems)
         f.write('</UL>\n')

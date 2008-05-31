@@ -15,10 +15,10 @@ import time
 import heapq
 import types
 import difflib
-import itertools
 import cPickle as pickle
 from os import path
 from string import uppercase
+from itertools import izip, groupby
 try:
     import hashlib
     md5 = hashlib.md5
@@ -58,7 +58,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 21
+ENV_VERSION = 22
 
 
 default_substitutions = set([
@@ -225,8 +225,7 @@ class BuildEnvironment:
         self.toc_num_entries = {}   # docname -> number of real entries
                                     # used to determine when to show the TOC in a sidebar
                                     # (don't show if it's only one item)
-        self.toctree_relations = {} # docname -> ["parent", "previous", "next"] docname
-                                    # for navigating in the toctree
+        self.toctree_includes = {}  # docname -> list of toctree includefiles
         self.files_to_rebuild = {}  # docname -> set of files (containing its TOCs)
                                     # to rebuild too
 
@@ -280,11 +279,14 @@ class BuildEnvironment:
             self.titles.pop(docname, None)
             self.tocs.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
+            self.toctree_includes.pop(docname, None)
             self.filemodules.pop(docname, None)
             self.indexentries.pop(docname, None)
 
-            for subfn, fnset in self.files_to_rebuild.iteritems():
+            for subfn, fnset in self.files_to_rebuild.items():
                 fnset.discard(docname)
+                if not fnset:
+                    del self.files_to_rebuild[subfn]
             for fullname, (fn, _) in self.descrefs.items():
                 if fn == docname:
                     del self.descrefs[fullname]
@@ -590,17 +592,11 @@ class BuildEnvironment:
         """Note a TOC tree directive in a document and gather information about
            file relations from it."""
         includefiles = toctreenode['includefiles']
-        includefiles_len = len(includefiles)
-        for i, includefile in enumerate(includefiles):
-            # the "previous" file for the first toctree item is the parent
-            previous = i > 0 and includefiles[i-1] or docname
-            # the "next" file for the last toctree item is the parent again
-            next = i < includefiles_len-1 and includefiles[i+1] or docname
-            self.toctree_relations[includefile] = [docname, previous, next]
+        for includefile in includefiles:
             # note that if the included file is rebuilt, this one must be
             # too (since the TOC of the included file could have changed)
             self.files_to_rebuild.setdefault(includefile, set()).add(docname)
-
+        self.toctree_includes.setdefault(docname, []).extend(includefiles)
 
     def build_toc_from(self, docname, document):
         """Build a TOC from the doctree and store it in the inventory."""
@@ -998,14 +994,49 @@ class BuildEnvironment:
             else:
                 # get all other symbols under one heading
                 return 'Symbols'
-        self.index = [(key, list(group)) for (key, group) in
-                      itertools.groupby(newlist, keyfunc)]
+        return [(key, list(group)) for (key, group) in groupby(newlist, keyfunc)]
+
+    def collect_relations(self):
+        relations = {}
+        getinc = self.toctree_includes.get
+        def collect(parents, docname, previous, next):
+            includes = getinc(docname)
+            # previous
+            if not previous:
+                previous = parents[0][0]
+            else:
+                while 1:
+                    previncs = getinc(previous)
+                    if previncs:
+                        previous = previncs[-1]
+                    else:
+                        break
+            # next
+            if includes:
+                next = includes[0]
+            elif next:
+                pass
+            else:
+                for parname, parindex in parents:
+                    parincs = getinc(parname)
+                    if parincs and parindex + 1 < len(parincs):
+                        next = parincs[parindex+1]
+                        break
+                # else it will stay None
+            # same for children
+            if includes:
+                for subindex, args in enumerate(izip(includes, [None] + includes,
+                                                     includes[1:] + [None])):
+                    collect([(docname, subindex)] + parents, *args)
+            relations[docname] = [parents[0][0], previous, next]
+        collect([(None, 0)], self.config.master_doc, None, None)
+        return relations
 
     def check_consistency(self):
         """Do consistency checks."""
 
         for docname in self.all_docs:
-            if docname not in self.toctree_relations:
+            if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
                     continue

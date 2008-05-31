@@ -302,9 +302,6 @@ class StandaloneHTMLBuilder(Builder):
     def prepare_writing(self, docnames):
         from sphinx.search import IndexBuilder
 
-        self.info(bold('creating index...'))
-        self.env.create_index(self)
-
         self.indexer = IndexBuilder()
         self.load_indexer(docnames)
         self.docwriter = HTMLWriter(self)
@@ -325,6 +322,8 @@ class StandaloneHTMLBuilder(Builder):
 
         if not isinstance(self.config.html_use_opensearch, basestring):
             self.warn('html_use_opensearch config value must now be a string')
+
+        self.relations = self.env.collect_relations()
 
         self.globalcontext = dict(
             project = self.config.project,
@@ -350,28 +349,29 @@ class StandaloneHTMLBuilder(Builder):
         # find out relations
         prev = next = None
         parents = []
-        related = self.env.toctree_relations.get(docname)
+        related = self.relations.get(docname)
         titles = self.env.titles
-        if related:
+        if related and related[1]:
             try:
                 prev = {'link': self.get_relative_uri(docname, related[1]),
                         'title': self.render_partial(titles[related[1]])['title']}
             except KeyError:
                 # the relation is (somehow) not in the TOC tree, handle that gracefully
                 prev = None
+        if related and related[2]:
             try:
                 next = {'link': self.get_relative_uri(docname, related[2]),
                         'title': self.render_partial(titles[related[2]])['title']}
             except KeyError:
                 next = None
-        while related:
+        while related and related[0]:
             try:
                 parents.append(
                     {'link': self.get_relative_uri(docname, related[0]),
                      'title': self.render_partial(titles[related[0]])['title']})
             except KeyError:
                 pass
-            related = self.env.toctree_relations.get(related[0])
+            related = self.relations.get(related[0])
         if parents:
             parents.pop() # remove link to the master file; we have a generic
                           # "back to index" link already
@@ -420,13 +420,14 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_use_index:
             # the total count of lines for each index letter, used to distribute
             # the entries into two columns
+            genindex = self.env.create_index(self)
             indexcounts = []
-            for _, entries in self.env.index:
+            for _, entries in genindex:
                 indexcounts.append(sum(1 + len(subitems)
                                        for _, (_, subitems) in entries))
 
             genindexcontext = dict(
-                genindexentries = self.env.index,
+                genindexentries = genindex,
                 genindexcounts = indexcounts,
             )
             self.info(' genindex', nonl=1)
