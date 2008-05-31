@@ -49,7 +49,8 @@ class ExtensionError(Exception):
 events = {
     'builder-inited': '',
     'doctree-read' : 'the doctree before being pickled',
-    'doctree-resolved' : 'the doctree, the docname',
+    'doctree-resolved' : 'doctree, docname',
+    'html-page-context': 'pagename, context, doctree or None',
 }
 
 class Sphinx(object):

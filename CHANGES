@@ -28,6 +28,11 @@ New features added
 * Defaults for configuration values can now be callables, which allows
   dynamic defaults.
 
+* The new ``html-page-context`` event can be used to include custom values
+  into the context used when rendering an HTML template.
+
+* Add document metadata to the values in the default template context.
+
 Bugs fixed
 ----------
 

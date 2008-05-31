@@ -162,7 +162,25 @@ def parse_role(env, sig, signode):
     return sig
 
 
+event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
+
+def parse_event(env, sig, signode):
+    m = event_sig_re.match(sig)
+    if not m:
+        signode += addnodes.desc_name(sig, sig)
+        return sig
+    name, args = m.groups()
+    signode += addnodes.desc_name(name, name)
+    plist = addnodes.desc_parameterlist()
+    for arg in args.split(','):
+        arg = arg.strip()
+        plist += addnodes.desc_parameter(arg, arg)
+    signode += plist
+    return name
+
+
 def setup(app):
     app.add_description_unit('directive', 'dir', 'pair: %s; directive', parse_directive)
     app.add_description_unit('role', 'role', 'pair: %s; role', parse_role)
     app.add_description_unit('confval', 'confval', 'pair: %s; configuration value')
+    app.add_description_unit('event', 'event', 'pair: %s; event', parse_event)

@@ -341,19 +341,13 @@ class StandaloneHTMLBuilder(Builder):
             show_sphinx = self.config.html_show_sphinx,
             builder = self.name,
             parents = [],
-            titles = {},
             logo = logo,
             len = len, # the built-in
         )
 
-    def write_doc(self, docname, doctree):
-        destination = StringOutput(encoding='utf-8')
-        doctree.settings = self.docsettings
-
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
-        self.docwriter.write(doctree, destination)
-        self.docwriter.assemble_parts()
-
+    def get_doc_context(self, docname, body):
+        """Collect items for the template context of a page."""
+        # find out relations
         prev = next = None
         parents = []
         related = self.env.toctree_relations.get(docname)
@@ -383,27 +377,40 @@ class StandaloneHTMLBuilder(Builder):
                           # "back to index" link already
         parents.reverse()
 
+        # title rendered as HTML
         title = titles.get(docname)
-        if title:
-            title = self.render_partial(title)['title']
-        else:
-            title = ''
-        self.globalcontext['titles'][docname] = title
+        title = title and self.render_partial(title)['title'] or ''
+        # the name for the copied source
         sourcename = self.config.html_copy_source and docname + '.txt' or ''
-        ctx = dict(
-            title = title,
-            sourcename = sourcename,
-            body = self.docwriter.parts['fragment'],
-            toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
-            # only display a TOC if there's more than one item to show
-            display_toc = (self.env.toc_num_entries[docname] > 1),
+
+        # metadata for the document
+        meta = self.env.metadata.get(docname)
+
+        return dict(
             parents = parents,
             prev = prev,
             next = next,
+            title = title,
+            meta = meta,
+            body = body,
+            sourcename = sourcename,
+            toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
+            # only display a TOC if there's more than one item to show
+            display_toc = (self.env.toc_num_entries[docname] > 1),
         )
 
-        self.index_page(docname, doctree, title)
-        self.handle_page(docname, ctx)
+    def write_doc(self, docname, doctree):
+        destination = StringOutput(encoding='utf-8')
+        doctree.settings = self.docsettings
+
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.docwriter.write(doctree, destination)
+        self.docwriter.assemble_parts()
+        body = self.docwriter.parts['fragment']
+
+        ctx = self.get_doc_context(docname, body)
+        self.index_page(docname, doctree, ctx.get('title', ''))
+        self.handle_page(docname, ctx, event_arg=doctree)
 
     def finish(self):
         self.info(bold('writing additional files...'), nonl=1)
@@ -569,9 +576,10 @@ class StandaloneHTMLBuilder(Builder):
         return docname + self.out_suffix
 
     def handle_page(self, pagename, addctx, templatename='page.html',
-                    outfilename=None):
+                    outfilename=None, event_arg=None):
         ctx = self.globalcontext.copy()
-        ctx['current_page_name'] = pagename
+        # current_page_name is backwards compatibility
+        ctx['pagename'] = ctx['current_page_name'] = pagename
 
         def pathto(otheruri, resource=False,
                    baseuri=self.get_target_uri(pagename)):
@@ -580,10 +588,10 @@ class StandaloneHTMLBuilder(Builder):
             return relative_uri(baseuri, otheruri)
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
-        sidebarfile = self.config.html_sidebars.get(pagename)
-        if sidebarfile:
-            ctx['customsidebar'] = sidebarfile
+        ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
         ctx.update(addctx)
+
+        self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)
 
         output = self.templates.render(templatename, ctx)
         if not outfilename:

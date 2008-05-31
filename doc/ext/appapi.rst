@@ -162,22 +162,43 @@ package.
 Sphinx core events
 ------------------
 
-These events are known to the core:
+These events are known to the core.  The arguments showed are given to the
+registered event handlers.
 
-.. tabularcolumns:: |l|L|L|
+.. event:: builder-inited ()
 
-====================== =================================== =========
-Event name             Emitted when                        Arguments
-====================== =================================== =========
-``'builder-inited'``   the builder object has been created -none-
-``'doctree-read'``     a doctree has been parsed and read  *doctree*
-                       by the environment, and is about to
-                       be pickled
-``'doctree-resolved'`` a doctree has been "resolved" by    *doctree*, *docname*
-                       the environment, that is, all
-                       references and TOCs have been
-                       inserted
-====================== =================================== =========
+   Emitted the builder object has been created.
+
+.. event:: doctree-read (doctree)
+
+   Emitted when a doctree has been parsed and read by the environment, and is
+   about to be pickled.
+
+.. event:: doctree-resolved (doctree, docname)
+
+   Emitted when a doctree has been "resolved" by the environment, that is, all
+   references and TOCs have been inserted.
+
+.. event:: page-context (pagename, templatename, context, doctree)
+
+   Emitted when the HTML builder has created a context dictionary to render a
+   template with -- this can be used to add custom elements to the context.
+
+   The *pagename* argument is the canonical name of the page being rendered,
+   that is, without ``.html`` suffix and using slashes as path separators.  The
+   *templatename* is the name of the template to render, this will be
+   ``'page.html'`` for all pages from reST documents.
+
+   The *context* argument is a dictionary of values that are given to the
+   template engine to render the page and can be modified to include custom
+   values.  Keys must be strings.
+
+   The *doctree* argument will be a doctree when the page is created from a reST
+   documents; it will be ``None`` when the page is created from an HTML template
+   alone.
+
+   .. versionadded:: 0.4
+
 
 .. _template-bridge:
 

@@ -75,7 +75,7 @@
           {{ rendertemplate(customsidebar) }}
           {%- endif %}
           {%- block sidebarsearch %}
-          {%- if current_page_name != "search" %}
+          {%- if pagename != "search" %}
             <h3>{{ builder == 'web' and 'Keyword' or 'Quick' }} search</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
               <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
