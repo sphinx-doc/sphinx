@@ -184,6 +184,10 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         except Exception:
             args = ''
     result.append(indent + '.. %s:: %s%s' % (what, qualname, args), '<autodoc>')
+    if what != 'module':
+        # Be explicit about the module, this is necessary since .. class:: doesn't
+        # support a prepended module name
+        result.append(indent + '   :module: %s' % mod, '<autodoc>')
     result.append('', '<autodoc>')
 
     # the module directive doesn't have content

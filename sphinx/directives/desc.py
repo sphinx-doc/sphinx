@@ -20,41 +20,41 @@ ws_re = re.compile(r'\s+')
 
 # ------ information units ---------------------------------------------------------
 
-def desc_index_text(desctype, currmodule, name):
+def desc_index_text(desctype, module, name):
     if desctype == 'function':
-        if not currmodule:
+        if not module:
             return '%s() (built-in function)' % name
-        return '%s() (in module %s)' % (name, currmodule)
+        return '%s() (in module %s)' % (name, module)
     elif desctype == 'data':
-        if not currmodule:
+        if not module:
             return '%s (built-in variable)' % name
-        return '%s (in module %s)' % (name, currmodule)
+        return '%s (in module %s)' % (name, module)
     elif desctype == 'class':
-        return '%s (class in %s)' % (name, currmodule)
+        return '%s (class in %s)' % (name, module)
     elif desctype == 'exception':
         return name
     elif desctype == 'method':
         try:
             clsname, methname = name.rsplit('.', 1)
         except ValueError:
-            if currmodule:
-                return '%s() (in module %s)' % (name, currmodule)
+            if module:
+                return '%s() (in module %s)' % (name, module)
             else:
                 return '%s()' % name
-        if currmodule:
-            return '%s() (%s.%s method)' % (methname, currmodule, clsname)
+        if module:
+            return '%s() (%s.%s method)' % (methname, module, clsname)
         else:
             return '%s() (%s method)' % (methname, clsname)
     elif desctype == 'attribute':
         try:
             clsname, attrname = name.rsplit('.', 1)
         except ValueError:
-            if currmodule:
-                return '%s (in module %s)' % (name, currmodule)
+            if module:
+                return '%s (in module %s)' % (name, module)
             else:
                 return name
-        if currmodule:
-            return '%s (%s.%s attribute)' % (attrname, currmodule, clsname)
+        if module:
+            return '%s (%s.%s attribute)' % (attrname, module, clsname)
         else:
             return '%s (%s attribute)' % (attrname, clsname)
     elif desctype == 'opcode':
@@ -82,7 +82,7 @@ py_sig_re = re.compile(r'''^([\w.]*\.)?        # class names
 
 py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
 
-def parse_py_signature(signode, sig, desctype, env):
+def parse_py_signature(signode, sig, desctype, module, env):
     """
     Transform a python signature into RST nodes.
     Return (fully qualified name of the thing, classname if any).
@@ -118,8 +118,8 @@ def parse_py_signature(signode, sig, desctype, env):
     # exceptions are a special case, since they are documented in the
     # 'exceptions' module.
     elif add_module and env.config.add_module_names and \
-           env.currmodule and env.currmodule != 'exceptions':
-        nodetext = env.currmodule + '.'
+           module and module != 'exceptions':
+        nodetext = module + '.'
         signode += addnodes.desc_classname(nodetext, nodetext)
 
     signode += addnodes.desc_name(name, name)
@@ -284,6 +284,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     signatures = map(lambda s: s.strip().replace('\\', ''), arguments[0].split('\n'))
     names = []
     clsname = None
+    module = options.get('module', env.currmodule)
     for i, sig in enumerate(signatures):
         # add a signature node for each signature in the current unit
         # and add a reference target for it
@@ -294,7 +295,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         try:
             if desctype in ('function', 'data', 'class', 'exception',
                             'method', 'attribute'):
-                name, clsname = parse_py_signature(signode, sig, desctype, env)
+                name, clsname = parse_py_signature(signode, sig, desctype, module, env)
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'opcode':
@@ -347,7 +348,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         # only add target and index entry if this is the first description of the
         # function name in this desc block
         if not noindex and name not in names:
-            fullname = (env.currmodule and env.currmodule + '.' or '') + name
+            fullname = (module and module + '.' or '') + name
             # note target
             if fullname not in state.document.ids:
                 signode['names'].append(fullname)
@@ -358,7 +359,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
             names.append(name)
 
             env.note_index_entry('single',
-                                 desc_index_text(desctype, env.currmodule, name),
+                                 desc_index_text(desctype, module, name),
                                  fullname, fullname)
 
     subnode = addnodes.desc_content()
@@ -382,7 +383,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
 
 desc_directive.content = 1
 desc_directive.arguments = (1, 0, 1)
-desc_directive.options = {'noindex': directives.flag}
+desc_directive.options = {'noindex': directives.flag,
+                          'module': directives.unchanged}
 
 desctypes = [
     # the Python ones

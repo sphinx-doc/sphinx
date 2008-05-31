@@ -61,6 +61,9 @@ Bugs fixed
 * Provide the standard "class" directive as "cssclass"; else it is
   shadowed by the Sphinx-defined directive.
 
+* Fix the handling of explicit module names given to autoclass directives.
+  They now show up with the correct module name in the generated docs.
+
 
 Release 0.3 (May 6, 2008)
 =========================
