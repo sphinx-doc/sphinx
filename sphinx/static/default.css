@@ -566,6 +566,10 @@ ul.fakelist {
     padding: 0;
 }
 
+.first {
+    margin-top: 0 !important;
+}
+
 /* "Footnotes" heading */
 p.rubric {
     margin-top: 30px;
