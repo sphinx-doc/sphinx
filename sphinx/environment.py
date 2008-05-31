@@ -51,6 +51,7 @@ default_settings = {
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'http://www.python.org/dev/peps/',
+    'rfc_base_url': 'http://rfc.net/',
     'input_encoding': 'utf-8',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
