@@ -28,6 +28,7 @@ from sphinx import addnodes
 from sphinx.util import ensuredir, relative_uri, SEP, os_path
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
+from sphinx.textwriter import TextWriter
 from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import PygmentsBridge
@@ -223,7 +224,7 @@ class Builder(object):
             self.info(bold('build succeeded.'))
 
     def write(self, build_docnames, updated_docnames, method='update'):
-        if build_docnames is None:
+        if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
         if method == 'update':
@@ -980,6 +981,56 @@ class ChangesBuilder(Builder):
     def finish(self):
         pass
 
+
+class TextBuilder(Builder):
+    name = 'text'
+    out_suffix = '.txt'
+
+    def init(self):
+        pass
+
+    def get_outdated_docs(self):
+        for docname in self.env.found_docs:
+            if docname not in self.env.all_docs:
+                yield docname
+                continue
+            targetname = self.env.doc2path(docname, self.outdir, self.out_suffix)
+            try:
+                targetmtime = path.getmtime(targetname)
+            except Exception:
+                targetmtime = 0
+            try:
+                srcmtime = path.getmtime(self.env.doc2path(docname))
+                if srcmtime > targetmtime:
+                    yield docname
+            except EnvironmentError:
+                # source doesn't exist anymore
+                pass
+
+    def get_target_uri(self, docname, typ=None):
+        return ''
+
+    def prepare_writing(self, docnames):
+        self.writer = TextWriter(self)
+
+    def write_doc(self, docname, doctree):
+        destination = StringOutput(encoding='utf-8')
+        self.writer.write(doctree, destination)
+        outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
+        ensuredir(path.dirname(outfilename)) # normally different from self.outdir
+        try:
+            f = codecs.open(outfilename, 'w', 'utf-8')
+            try:
+                f.write(self.writer.output)
+            finally:
+                f.close()
+        except (IOError, OSError), err:
+            self.warn("Error writing file %s: %s" % (outfilename, err))
+
+    def finish(self):
+        pass
+
+
 # compatibility alias
 WebHTMLBuilder = PickleHTMLBuilder
 
@@ -992,6 +1043,7 @@ builtin_builders = {
     'web': PickleHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
     'latex': LaTeXBuilder,
+    'text': TextBuilder,
     'changes': ChangesBuilder,
     'linkcheck': CheckExternalLinksBuilder,
 }

@@ -51,6 +51,16 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``latex``.
 
+.. class:: TextBuilder
+
+   This builder produces a text file for each reST file -- this is almost the
+   same as the reST source, but with much of the markup stripped for better
+   readability.
+
+   Its name is ``text``.
+
+   .. versionadded:: 0.4
+   
 .. class:: ChangesBuilder
 
    This builder produces an HTML overview of all :dir:`versionadded`,

@@ -1004,8 +1004,12 @@ class BuildEnvironment:
             includes = getinc(docname)
             # previous
             if not previous:
+                # if no previous sibling, go to parent
                 previous = parents[0][0]
             else:
+                # else, go to previous sibling, or if it has children, to
+                # the last of its children, or if that has children, to the
+                # last of those, and so forth
                 while 1:
                     previncs = getinc(previous)
                     if previncs:
@@ -1014,10 +1018,14 @@ class BuildEnvironment:
                         break
             # next
             if includes:
+                # if it has children, go to first of them
                 next = includes[0]
             elif next:
+                # else, if next sibling, go to it
                 pass
             else:
+                # else, go to the next sibling of the parent, if present,
+                # else the grandparent's sibling, if present, and so forth
                 for parname, parindex in parents:
                     parincs = getinc(parname)
                     if parincs and parindex + 1 < len(parincs):

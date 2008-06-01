@@ -993,6 +993,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_Text(self, node):
         pass
 
+    def visit_comment(self, node):
+        raise nodes.SkipNode
+
     def visit_system_message(self, node):
         pass
     def depart_system_message(self, node):
