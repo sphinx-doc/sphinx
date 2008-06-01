@@ -107,7 +107,7 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def status_iterator(self, iterable, summary, colorfunc):
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen):
         l = -1
         for item in iterable:
             if l == -1:
