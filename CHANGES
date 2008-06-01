@@ -36,6 +36,8 @@ New features added
 * Let the "previous" and "next" to more logical documents, so that by
   following "next" links you can traverse the entire TOC tree.
 
+* Added TextBuilder to create plain-text output.
+
 Bugs fixed
 ----------
 
