@@ -305,7 +305,10 @@ class TextTranslator(nodes.NodeVisitor):
                 cells = []
                 for i, cell in enumerate(line):
                     par = textwrap.wrap(cell, width=colwidths[i])
-                    maxwidth = max(map(len, par)) if par else 0
+                    if par:
+                        maxwidth = max(map(len, par)) 
+                    else:
+                        maxwidth = 0
                     realwidths[i] = max(realwidths[i], maxwidth)
                     cells.append(par)
                 fmted_rows.append(cells)
