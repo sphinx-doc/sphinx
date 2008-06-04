@@ -397,9 +397,7 @@ class BuildEnvironment:
             for key, descr in config.config_values.iteritems():
                 if not descr[1]:
                     continue
-                if not hasattr(self.config, key) or \
-                   self.config[key] != config[key]:
-
+                if self.config[key] != config[key]:
                     msg = '[config changed] '
                     config_changed = True
                     break

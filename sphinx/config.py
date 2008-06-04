@@ -30,11 +30,7 @@ class Config(object):
         today = ('', True),
         today_fmt = ('%B %d, %Y', True),
 
-        # extensibility
-        templates_path = ([], False),
-        extensions = ([], True),
-
-        # general reading options
+        # general options
         master_doc = ('contents', True),
         source_suffix = ('.rst', True),
         unused_docs = ([], True),
@@ -44,6 +40,7 @@ class Config(object):
         add_module_names = (True, True),
         show_authors = (False, True),
         pygments_style = ('sphinx', False),
+        templates_path = ([], False),
         template_bridge = (None, False),
 
         # HTML options
@@ -80,8 +77,8 @@ class Config(object):
         latex_use_modindex = (True, False),
     )
 
-    def __init__(self, dirname, filename):
-        self.valuenames = set(self.config_values.keys())
+    def __init__(self, dirname, filename, overrides):
+        self.overrides = overrides
         config = {'__file__': path.join(dirname, filename)}
         olddir = os.getcwd()
         try:
@@ -89,15 +86,24 @@ class Config(object):
             execfile(config['__file__'], config)
         finally:
             os.chdir(olddir)
-        for name in config:
-            if name in self.valuenames:
-                self.__dict__[name] = config[name]
+        self._raw_config = config
+        # these two must be preinitialized because extensions can add their
+        # own config values
         self.setup = config.get('setup', None)
+        self.extensions = config.get('extensions', [])
+
+    def init_values(self):
+        config = self._raw_config
+        config.update(self.overrides)
+        for name in self._raw_config:
+            if name in self.config_values:
+                self.__dict__[name] = config[name]
+        del self._raw_config
 
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError(name)
-        if name not in self.valuenames:
+        if name not in self.config_values:
             raise AttributeError('No such config value: %s' % name)
         default = self.config_values[name][0]
         if callable(default):
@@ -114,4 +120,4 @@ class Config(object):
         delattr(self, name)
 
     def __contains__(self, name):
-        return name in self.valuenames
+        return name in self.config_values

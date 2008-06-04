@@ -74,10 +74,7 @@ class Sphinx(object):
         self._events = events.copy()
 
         # read config
-        self.config = Config(confdir, 'conf.py')
-        if confoverrides:
-            for key, val in confoverrides.items():
-                setattr(self.config, key, val)
+        self.config = Config(confdir, 'conf.py', confoverrides)
 
         # load all extension modules
         for extension in self.config.extensions:
@@ -85,6 +82,9 @@ class Sphinx(object):
         # the config file itself can be an extension
         if self.config.setup:
             self.config.setup(self)
+
+        # now that we know all config values, collect them from conf.py
+        self.config.init_values()
 
         if buildername is None:
             print >>status, 'No builder selected, using default: html'
@@ -176,10 +176,9 @@ class Sphinx(object):
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild_env):
-        if name in self.config.valuenames:
+        if name in self.config.config_values:
             raise ExtensionError('Config value %r already present' % name)
-        self.config.valuenames.add(name)
-        self.config.__class__.config_values[name] = (default, rebuild_env)
+        self.config.config_values[name] = (default, rebuild_env)
 
     def add_event(self, name):
         if name in self._events:
