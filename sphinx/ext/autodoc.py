@@ -218,7 +218,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     module = getattr(todoc, '__module__', None)
     if module is not None:
         charset = get_module_charset(module)
-        docstrings = [docstring.decode(charset) for docstring in docstrings]
+        docstrings = [isinstance(d, str) and d.decode(charset) or d for d in docstrings]
 
     # add docstring content
     for docstring in docstrings:

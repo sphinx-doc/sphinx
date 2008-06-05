@@ -69,6 +69,8 @@ Bugs fixed
 * Fix the handling of explicit module names given to autoclass directives.
   They now show up with the correct module name in the generated docs.
 
+* Enable autodoc to process Unicode docstrings.
+
 
 Release 0.3 (May 6, 2008)
 =========================
