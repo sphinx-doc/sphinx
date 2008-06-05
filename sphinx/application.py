@@ -53,6 +53,8 @@ events = {
     'html-page-context': 'pagename, context, doctree or None',
 }
 
+CONFIG_FILENAME = 'conf.py'
+
 class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
@@ -74,7 +76,7 @@ class Sphinx(object):
         self._events = events.copy()
 
         # read config
-        self.config = Config(confdir, 'conf.py', confoverrides)
+        self.config = Config(confdir, CONFIG_FILENAME, confoverrides)
 
         # load all extension modules
         for extension in self.config.extensions:
@@ -176,9 +178,9 @@ class Sphinx(object):
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild_env):
-        if name in self.config.config_values:
+        if name in self.config.values:
             raise ExtensionError('Config value %r already present' % name)
-        self.config.config_values[name] = (default, rebuild_env)
+        self.config.values[name] = (default, rebuild_env)
 
     def add_event(self, name):
         if name in self._events:

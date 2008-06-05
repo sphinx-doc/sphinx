@@ -163,12 +163,13 @@ class BuildEnvironment:
     # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
 
     @staticmethod
-    def frompickle(filename):
+    def frompickle(config, filename):
         picklefile = open(filename, 'rb')
         try:
             env = pickle.load(picklefile)
         finally:
             picklefile.close()
+        env.config.values = config.values
         if env.version != ENV_VERSION:
             raise IOError('env version not current')
         return env
@@ -177,6 +178,8 @@ class BuildEnvironment:
         # remove unpicklable attributes
         warnfunc = self._warnfunc
         self.set_warnfunc(None)
+        values = self.config.values
+        del self.config.values
         picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in vars(self.config).items():
@@ -189,7 +192,8 @@ class BuildEnvironment:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:
             picklefile.close()
-        # reset stream
+        # reset attributes
+        self.config.values = values
         self.set_warnfunc(warnfunc)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------

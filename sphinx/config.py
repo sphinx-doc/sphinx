@@ -79,6 +79,7 @@ class Config(object):
 
     def __init__(self, dirname, filename, overrides):
         self.overrides = overrides
+        self.values = Config.config_values.copy()
         config = {'__file__': path.join(dirname, filename)}
         olddir = os.getcwd()
         try:
@@ -95,17 +96,17 @@ class Config(object):
     def init_values(self):
         config = self._raw_config
         config.update(self.overrides)
-        for name in self._raw_config:
-            if name in self.config_values:
+        for name in config:
+            if name in self.values:
                 self.__dict__[name] = config[name]
         del self._raw_config
 
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError(name)
-        if name not in self.config_values:
+        if name not in self.values:
             raise AttributeError('No such config value: %s' % name)
-        default = self.config_values[name][0]
+        default = self.values[name][0]
         if callable(default):
             return default(self)
         return default
@@ -120,4 +121,4 @@ class Config(object):
         delattr(self, name)
 
     def __contains__(self, name):
-        return name in self.config_values
+        return name in self.values

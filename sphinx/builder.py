@@ -127,7 +127,7 @@ class Builder(object):
         if not self.freshenv:
             try:
                 self.info(bold('trying to load pickled env... '), nonl=True)
-                self.env = BuildEnvironment.frompickle(
+                self.env = BuildEnvironment.frompickle(self.config,
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.info('done')
             except Exception, err:

@@ -25,3 +25,6 @@ pylint:
 
 reindent:
 	@$(PYTHON) utils/reindent.py -r -B .
+
+test:
+	@cd tests; $(PYTHON) run.py
