@@ -698,6 +698,7 @@ class BuildEnvironment:
             doctree = pickle.load(f)
         finally:
             f.close()
+        doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 4,
                                     stream=RedirStream(self._warnfunc))
         return doctree
