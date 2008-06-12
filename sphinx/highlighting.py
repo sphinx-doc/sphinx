@@ -94,8 +94,9 @@ class PygmentsBridge(object):
             style = get_style_by_name(stylename)
         self.hfmter = {False: HtmlFormatter(style=style),
                        True: HtmlFormatter(style=style, linenos=True)}
-        self.lfmter = {False: LatexFormatter(style=style),
-                       True: LatexFormatter(style=style, linenos=True)}
+        self.lfmter = {False: LatexFormatter(style=style, commandprefix='PYG'),
+                       True: LatexFormatter(style=style, linenos=True,
+                                            commandprefix='PYG')}
 
     def highlight_block(self, source, lang, linenos=False):
         def unhighlighted():
