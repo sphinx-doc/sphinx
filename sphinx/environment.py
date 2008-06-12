@@ -605,7 +605,12 @@ class BuildEnvironment:
         """Build a TOC from the doctree and store it in the inventory."""
         numentries = [0] # nonlocal again...
 
-        def build_toc(node):
+        try:
+            maxdepth = int(self.metadata[docname].get('tocdepth', 0))
+        except ValueError:
+            maxdepth = 0
+
+        def build_toc(node, depth=1):
             entries = []
             for subnode in node:
                 if isinstance(subnode, addnodes.toctree):
@@ -636,7 +641,8 @@ class BuildEnvironment:
                                             *nodetext)
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
-                item += build_toc(subnode)
+                if maxdepth == 0 or depth < maxdepth:
+                    item += build_toc(subnode, depth+1)
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
@@ -749,7 +755,7 @@ class BuildEnvironment:
                     else:
                         _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
 
-       def _entries_from_toctree(toctreenode, separate=False):
+        def _entries_from_toctree(toctreenode, separate=False):
             """Return TOC entries for a toctree node."""
             includefiles = map(str, toctreenode['includefiles'])
 

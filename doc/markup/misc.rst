@@ -16,7 +16,12 @@ normal documents can be used to record the author, date of publication and
 other metadata.  In Sphinx, the docinfo is used as metadata, too, but not
 displayed in the output.
 
-At the moment, only one metadata field is recognized:
+At the moment, these metadata fields are recognized:
+
+``tocdepth``
+   The maximum depth for a table of contents of this file.
+
+   .. versionadded:: 0.4
 
 ``nocomments``
    If set, the web application won't display a comment form for a page generated

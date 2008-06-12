@@ -38,6 +38,9 @@ New features added
 
 * Added TextBuilder to create plain-text output.
 
+* ``tocdepth`` can be given as a file-wide metadata entry, and specifies
+  the maximum depth of a TOC of this file.
+
 Bugs fixed
 ----------
 
