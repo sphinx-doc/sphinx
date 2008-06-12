@@ -703,6 +703,7 @@ class BuildEnvironment:
                                     stream=RedirStream(self._warnfunc))
         return doctree
 
+
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True):
         """Read the doctree from the pickle, resolve cross-references and
@@ -714,7 +715,41 @@ class BuildEnvironment:
         self.resolve_references(doctree, docname, builder)
 
         # now, resolve all toctree nodes
-        def _entries_from_toctree(toctreenode, separate=False):
+        for toctreenode in doctree.traverse(addnodes.toctree):
+            result = self.resolve_toctree(docname, builder, toctreenode,
+                                          prune=prune_toctrees)
+            if result is None:
+                toctreenode.replace_self([])
+            else:
+                toctreenode.replace_self(result)
+
+        return doctree
+
+    def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
+                        titles_only=False):
+        """
+        Resolve a *toctree* node into individual bullet lists with titles
+        as items, returning None (if no containing titles are found) or
+        a new node.
+
+        If *prune* is True, the tree is pruned to *maxdepth*, or if that is 0,
+        to the value of the *maxdepth* option on the *toctree* node.
+        If *titles_only* is True, only toplevel document titles will be in the
+        resulting tree.
+        """
+
+        def _walk_depth(node, depth, maxdepth, titleoverrides):
+            """Utility: Cut a TOC at a specified depth."""
+            for subnode in node.children[:]:
+                if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
+                    _walk_depth(subnode, depth, maxdepth, titleoverrides)
+                elif isinstance(subnode, nodes.bullet_list):
+                    if depth > maxdepth:
+                        subnode.parent.replace(subnode, [])
+                    else:
+                        _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
+
+       def _entries_from_toctree(toctreenode, separate=False):
             """Return TOC entries for a toctree node."""
             includefiles = map(str, toctreenode['includefiles'])
 
@@ -727,6 +762,15 @@ class BuildEnvironment:
                     self.warn(docname, 'toctree contains ref to nonexisting '
                               'file %r' % includefile)
                 else:
+                    # if titles_only is given, only keep the main title and
+                    # sub-toctrees
+                    if titles_only:
+                        # delete everything but the toplevel title(s) and toctrees
+                        for toplevel in toc:
+                            # nodes with length 1 don't have any children anyway
+                            if len(toplevel) > 1:
+                                subtoctrees = toplevel.traverse(addnodes.toctree)
+                                toplevel[1][:] = subtoctrees
                     # resolve all sub-toctrees
                     for toctreenode in toc.traverse(addnodes.toctree):
                         i = toctreenode.parent.index(toctreenode) + 1
@@ -740,49 +784,28 @@ class BuildEnvironment:
                         entries.extend(toc.children)
             return entries
 
-        def _walk_depth(node, depth, maxdepth, titleoverrides):
-            """Utility: Cut a TOC at a specified depth."""
-            for subnode in node.children[:]:
-                if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
-                    _walk_depth(subnode, depth, maxdepth, titleoverrides)
-                elif isinstance(subnode, nodes.bullet_list):
-                    if depth > maxdepth:
-                        subnode.parent.replace(subnode, [])
-                    else:
-                        _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
+        maxdepth = maxdepth or toctree.get('maxdepth', -1)
+        titleoverrides = toctree.get('includetitles', {})
 
-        for toctreenode in doctree.traverse(addnodes.toctree):
-            maxdepth = toctreenode.get('maxdepth', -1)
-            titleoverrides = toctreenode.get('includetitles', {})
-            tocentries = _entries_from_toctree(toctreenode, separate=True)
-            if tocentries:
-                newnode = addnodes.compact_paragraph('', '', *tocentries)
-                newnode['toctree'] = True
-                # prune the tree to maxdepth and replace titles
-                if maxdepth > 0 and prune_toctrees:
-                    _walk_depth(newnode, 1, maxdepth, titleoverrides)
-                # replace titles, if needed
-                if titleoverrides:
-                    for refnode in newnode.traverse(nodes.reference):
-                        if refnode.get('anchorname', None):
-                            continue
-                        if refnode['refuri'] in titleoverrides:
-                            newtitle = titleoverrides[refnode['refuri']]
-                            refnode.children = [nodes.Text(newtitle)]
-                toctreenode.replace_self(newnode)
-            else:
-                toctreenode.replace_self([])
+        tocentries = _entries_from_toctree(toctree, separate=True)
+        if not tocentries:
+            return None
 
-        # set the target paths in the toctrees (they are not known
-        # at TOC generation time)
-        for node in doctree.traverse(nodes.reference):
-            if node.hasattr('anchorname'):
-                # a TOC reference
-                node['refuri'] = builder.get_relative_uri(
-                    docname, node['refuri']) + node['anchorname']
-
-        return doctree
-
+        newnode = addnodes.compact_paragraph('', '', *tocentries)
+        newnode['toctree'] = True
+        # prune the tree to maxdepth and replace titles
+        if maxdepth > 0 and prune:
+            _walk_depth(newnode, 1, maxdepth, titleoverrides)
+        # replace titles, if needed, and set the target paths in the
+        # toctrees (they are not known at TOC generation time)
+        for refnode in newnode.traverse(nodes.reference):
+            refnode['refuri'] = builder.get_relative_uri(
+                docname, refnode['refuri']) + refnode['anchorname']
+            if titleoverrides and not refnode['anchorname'] \
+                   and refnode['refuri'] in titleoverrides:
+                newtitle = titleoverrides[refnode['refuri']]
+                refnode.children = [nodes.Text(newtitle)]
+        return newnode
 
     descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr',
                            'meth', 'cfunc', 'cdata', 'ctype', 'cmacro'))
