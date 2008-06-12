@@ -874,7 +874,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_line(self, node):
         pass
     def depart_line(self, node):
-        pass
+        self.body.append('~\\\\\n')
 
     def visit_block_quote(self, node):
         # If the block quote contains a single object and that object
