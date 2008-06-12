@@ -556,6 +556,10 @@ div.body p, div.body dd, div.body li {
     line-height: 130%;
 }
 
+div.body p.caption {
+    text-align: inherit;
+}
+
 div.body td {
     text-align: left;
 }
