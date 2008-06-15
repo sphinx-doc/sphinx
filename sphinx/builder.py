@@ -62,6 +62,9 @@ class Builder(object):
         self.info = app.info
         self.config = app.config
 
+        # images that need to be copied over (source -> dest)
+        self.images = {}
+
         # if None, this is set in load_env()
         self.env = env
         self.freshenv = freshenv
@@ -117,6 +120,28 @@ class Builder(object):
             yield item
         if l == 0:
             self.info()
+
+    supported_image_types = []
+
+    def post_process_images(self, doctree):
+        """
+        Pick the best candidate for all image URIs.
+        """
+        for node in doctree.traverse(nodes.image):
+            uri = node['candidates'].get('*', None)
+            if not uri:
+                for imgtype in self.supported_image_types:
+                    uri = node['candidates'].get(imgtype, None)
+                    if uri:
+                        node['uri'] = uri
+                        break
+                else:
+                    self.warn('%s:%s: %s' %
+                              (node.source, node.lineno,
+                               'No matching candidate for uri: %(uri)s' % node))
+                    continue
+            if uri in self.env.images:
+                self.images[uri] = self.env.images[uri][1]
 
     # build methods
 
@@ -271,6 +296,8 @@ class StandaloneHTMLBuilder(Builder):
     copysource = True
     out_suffix = '.html'
     indexer_format = 'json'
+    supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
+                             'image/jpeg']
 
     def init(self):
         """Load templates."""
@@ -323,7 +350,7 @@ class StandaloneHTMLBuilder(Builder):
 
         favicon = self.config.html_favicon and \
                   path.basename(self.config.html_favicon) or ''
-        if os.path.splitext(favicon)[1] != '.ico':
+        if favicon and os.path.splitext(favicon)[1] != '.ico':
             self.warn('html_favicon is not an .ico file')
 
         if not isinstance(self.config.html_use_opensearch, basestring):
@@ -407,6 +434,7 @@ class StandaloneHTMLBuilder(Builder):
         )
 
     def write_doc(self, docname, doctree):
+        self.post_process_images(doctree)
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -504,10 +532,10 @@ class StandaloneHTMLBuilder(Builder):
         self.info()
 
         # copy image files
-        if self.env.images:
+        if self.images:
             self.info(bold('copying images...'), nonl=1)
             ensuredir(path.join(self.outdir, '_images'))
-            for src, (_, dest) in self.env.images.iteritems():
+            for src, dest in self.images.iteritems():
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, '_images', dest))
@@ -636,6 +664,8 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
     name = 'pickle'
     out_suffix = '.fpickle'
     indexer_format = 'pickle'
+    supported_image_types = ('image/svg+xml', 'image/png', 'image/gif',
+                             'image/jpeg')
 
     def init(self):
         self.init_translator_class()
@@ -711,6 +741,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     # don't copy the reST source
     copysource = False
+    supported_image_types = ['image/png', 'image/gif', 'image/jpeg']
 
     def init(self):
         StandaloneHTMLBuilder.init(self)
@@ -726,6 +757,8 @@ class LaTeXBuilder(Builder):
     Builds LaTeX output to create PDF.
     """
     name = 'latex'
+    supported_image_types = ['application/pdf', 'image/png', 'image/gif',
+                             'image/jpeg']
 
     def init(self):
         self.docnames = []
@@ -787,6 +820,7 @@ class LaTeXBuilder(Builder):
             self.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(docname, toctree_only,
                 appendices=(docclass == 'manual') and appendices or [])
+            self.post_process_images(doctree)
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
@@ -852,9 +886,9 @@ class LaTeXBuilder(Builder):
 
     def finish(self):
         # copy image files
-        if self.env.images:
+        if self.images:
             self.info(bold('copying images...'), nonl=1)
-            for src, (_, dest) in self.env.images.iteritems():
+            for src, dest in self.images.iteritems():
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))

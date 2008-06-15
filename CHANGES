@@ -38,6 +38,9 @@ New features added
   - The directories in the `html_static_path` can now contain
     subdirectories.
 
+* The image directive now supports specifying the extension as ``.*``,
+  which makes the builder select the one that matches best.
+
 * The new config value `exclude_trees` can be used to exclude whole
   subtrees from the search for source files.
 

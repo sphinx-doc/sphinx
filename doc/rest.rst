@@ -72,7 +72,7 @@ or roman numerals, such as ::
 
    A. First item
    B. Second item
-   
+
 
 Nested lists are possible, but be aware that they must be separated from the
 parent list items by blank lines::
@@ -214,12 +214,27 @@ Images
 
 reST supports an image directive, used like so::
 
-   .. image:: filename
+   .. image:: gnu.png
       (options)
 
-When used within Sphinx, the ``filename`` given must be relative to the source
-file, and Sphinx will automatically copy image files over to a subdirectory of
-the output directory on building.
+When used within Sphinx, the file name given (here ``gnu.png``) must be relative
+to the source file, and Sphinx will automatically copy image files over to a
+subdirectory of the output directory on building (e.g. the ``_static`` directory
+for HTML output.)
+
+Sphinx extends the standard docutils behavior by allowing an asterisk for the
+extension::
+
+   .. image:: gnu.*
+
+Sphinx then searches for all images matching the provided pattern and determines
+their type.  Each builder then chooses the best image out of these candidates.
+For instance, if the file name ``gnu.*`` was given and two files :file:`gnu.pdf`
+and :file:`gnu.png` existed in the source tree, the LaTeX builder would choose
+the former, while the HTML builder would prefer the latter.
+
+.. versionchanged:: 0.4
+   Added the support for file names ending in an asterisk.
 
 
 Footnotes

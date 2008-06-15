@@ -250,9 +250,9 @@ class HTMLTranslator(BaseTranslator):
     def visit_image(self, node):
         olduri = node['uri']
         # rewrite the URI if the environment knows about it
-        if olduri in self.builder.env.images:
+        if olduri in self.builder.images:
             node['uri'] = posixpath.join(self.builder.imgpath,
-                                         self.builder.env.images[olduri][1])
+                                         self.builder.images[olduri])
         BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):

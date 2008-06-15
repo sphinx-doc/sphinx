@@ -14,9 +14,11 @@ import os
 import time
 import heapq
 import types
+import imghdr
 import difflib
 import cPickle as pickle
 from os import path
+from glob import glob
 from string import uppercase
 from itertools import izip, groupby
 try:
@@ -511,25 +513,43 @@ class BuildEnvironment:
         existing_names = set(v[1] for v in self.images.itervalues())
         docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(nodes.image):
+            # Map the mimetype to the corresponding image.  The writer may
+            # choose the best image from these candidates.  The special key * is
+            # set if there is only single candiate to be used by a writer.
+            node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.find('://') != -1:
                 self.warn(docname, 'Nonlocal image URI found: %s' % imguri, node.line)
+                candidates['*'] = imguri
+                continue
+            imgpath = path.normpath(path.join(docdir, imguri))
+            if imgpath.endswith(os.extsep + '*'):
+                for filename in glob(imgpath):
+                    basename, ext = os.path.splitext(filename)
+                    if ext == '.pdf':
+                        candidates['application/pdf'] = filename
+                    elif ext == '.svg':
+                        candidates['image/svg+xml'] = filename
+                    else:
+                        imgtype = imghdr.what(filename)
+                        if imgtype:
+                            candidates['image/' + imgtype] = filename
             else:
-                imgpath = path.normpath(path.join(docdir, imguri))
-                node['uri'] = imgpath
-                self.dependencies.setdefault(docname, set()).add(imgpath)
-                if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    self.warn(docname, 'Image file not readable: %s' % imguri, node.line)
-                if imgpath in self.images:
-                    self.images[imgpath][0].add(docname)
+                candidates['*'] = imgpath
+            for img in candidates.itervalues():
+                self.dependencies.setdefault(docname, set()).add(img)
+                if not os.access(path.join(self.srcdir, img), os.R_OK):
+                    self.warn(docname, 'Image file not readable: %s' % img, node.line)
+                if img in self.images:
+                    self.images[img][0].add(docname)
                     continue
-                uniquename = path.basename(imgpath)
+                uniquename = path.basename(img)
                 base, ext = path.splitext(uniquename)
                 i = 0
                 while uniquename in existing_names:
                     i += 1
                     uniquename = '%s%s%s' % (base, i, ext)
-                self.images[imgpath] = (set([docname]), uniquename)
+                self.images[img] = (set([docname]), uniquename)
                 existing_names.add(uniquename)
 
     def process_metadata(self, docname, doctree):

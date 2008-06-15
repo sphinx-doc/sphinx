@@ -630,8 +630,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             pre.append('\n')
             post.append('\n')
         pre.reverse()
-        if node['uri'] in self.builder.env.images:
-            uri = self.builder.env.images[node['uri']][1]
+        if node['uri'] in self.builder.images:
+            uri = self.builder.images[node['uri']]
         else:
             uri = node['uri']
         if uri.find('://') != -1:
