@@ -42,7 +42,8 @@ New features added
   which makes the builder select the one that matches best.
 
 * The new config value `exclude_trees` can be used to exclude whole
-  subtrees from the search for source files.
+  subtrees from the search for source files.  Thanks to Sebastian
+  Wiesner.
 
 * Defaults for configuration values can now be callables, which allows
   dynamic defaults.
@@ -57,6 +58,9 @@ New features added
 
 Bugs fixed
 ----------
+
+* Correctly report the source location for docstrings included with
+  autodoc.
 
 * Fix the LaTeX output of description units with multiple signatures.
 
