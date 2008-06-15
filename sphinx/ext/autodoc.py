@@ -62,7 +62,7 @@ def prepare_docstring(s):
 
 
 def get_module_charset(module):
-    """Return the charset of the given module."""
+    """Return the charset of the given module (cached in _module_charsets)."""
     if module in _module_charsets:
         return _module_charsets[module]
     filename = __import__(module, None, None, ['']).__file__
@@ -79,131 +79,20 @@ def get_module_charset(module):
     return charset
 
 
-def generate_rst(what, name, members, inherited, undoc, add_content, document,
-                 lineno, indent='', filename_set=None, check_module=False):
-    env = document.settings.env
-
-    # parse the definition
-    try:
-        mod, obj, signature = py_sig_re.match(name).groups()
-    except:
-        warning = document.reporter.warning(
-            'invalid signature for auto%s (%r)' % (what, name), line=lineno)
-        return [warning], ViewList()
-    basename = (mod or '') + obj
-    if mod:
-        mod = mod.rstrip('.')
-
-    warnings = []
-
-    # find out what to import
-    if what == 'module':
-        mod = basename
-        if signature:
-            warnings.append(document.reporter.warning(
-                'ignoring arguments for automodule %s' % mod, line=lineno))
-        objpath = []
-    elif what in ('class', 'exception', 'function'):
-        if not mod and hasattr(env, 'autodoc_current_module'):
-            mod = env.autodoc_current_module
-        if not mod:
-            mod = env.currmodule
-        objpath = [obj]
-    else:
-        mod_cls = mod
-        if not mod_cls and hasattr(env, 'autodoc_current_class'):
-            mod_cls = env.autodoc_current_class
-        if not mod_cls:
-            mod_cls = env.currclass
-        mod, cls = rpartition(mod_cls, '.')
-        if not mod and hasattr(env, 'autodoc_current_module'):
-            mod = env.autodoc_current_module
-        if not mod:
-            mod = env.currmodule
-        objpath = [cls, obj]
-
-    qualname = '.'.join(objpath) or mod
-    result = ViewList()
+def get_doc(what, obj, env):
+    """Format and yield lines of the docstring(s) for the object."""
     docstrings = []
-
-    # make sure that the view list starts with an empty line.  This is
-    # necessary for some situations where another directive preprocesses
-    # rst and no starting newline is present
-    result.append('', '')
-
-    if mod is None:
-        warnings.append(document.reporter.warning(
-            'don\'t know which module to import for autodocumenting %r '
-            '(try placing a "module" or "currentmodule" directive in the document, '
-            'or giving an explicit module name)' % basename, line=lineno))
-        return warnings, result
-
-    # import module and get docstring of object to document
-    try:
-        todoc = module = __import__(mod, None, None, ['foo'])
-        if filename_set is not None and hasattr(module, '__file__') and module.__file__:
-            modfile = module.__file__
-            if modfile.lower().endswith('.pyc') or modfile.lower().endswith('.pyo'):
-                modfile = modfile[:-1]
-            filename_set.add(modfile)
-        for part in objpath:
-            todoc = getattr(todoc, part)
-        if check_module:
-            # only checking __module__ for members not given explicitly
-            if hasattr(todoc, '__module__'):
-                if todoc.__module__ != mod:
-                    return warnings, result
-        if getattr(todoc, '__doc__', None):
-            docstrings.append(todoc.__doc__)
-    except (ImportError, AttributeError):
-        warnings.append(document.reporter.warning(
-            'autodoc can\'t import/find %s %r, check your spelling '
-            'and sys.path' % (what, str(basename)), line=lineno))
-        return warnings, result
-
-    # add directive header
-    if signature is not None:
-        args = '(%s)' % signature
-    else:
-        try:
-            if what == 'class':
-                args = inspect.formatargspec(*inspect.getargspec(todoc.__init__))
-                if args[1:7] == 'self, ':
-                    args = '(' + args[7:]
-                elif args == '(self)':
-                    args = '()'
-            elif what in ('function', 'method'):
-                args = inspect.formatargspec(*inspect.getargspec(todoc))
-                if what == 'method':
-                    if args[1:7] == 'self, ':
-                        args = '(' + args[7:]
-                    elif args == '(self)':
-                        args = '()'
-            else:
-                args = ''
-        except Exception:
-            args = ''
-    result.append(indent + '.. %s:: %s%s' % (what, qualname, args), '<autodoc>')
-    if what != 'module':
-        # Be explicit about the module, this is necessary since .. class:: doesn't
-        # support a prepended module name
-        result.append(indent + '   :module: %s' % mod, '<autodoc>')
-    result.append('', '<autodoc>')
-
-    # the module directive doesn't have content
-    if what != 'module':
-        indent += '   '
-
+    if getattr(obj, '__doc__', None):
+        docstrings.append(obj.__doc__)
     # skip some lines in module docstrings if configured
-    if what == 'module' and env.config.automodule_skip_lines and docstrings[0]:
+    if what == 'module' and env.config.automodule_skip_lines and docstrings:
         docstrings[0] = '\n'.join(docstring.splitlines()
                                   [env.config.automodule_skip_lines:])
-
     # for classes, what the "docstring" is can be controlled via an option
     if what in ('class', 'exception'):
         content = env.config.autoclass_content
         if content in ('both', 'init'):
-            initdocstring = getattr(todoc, '__init__', None).__doc__
+            initdocstring = getattr(obj, '__init__', None).__doc__
             # for new-style classes, no __init__ means default __init__
             if initdocstring == object.__init__.__doc__:
                 initdocstring = None
@@ -214,23 +103,170 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
                     docstrings.append('\n\n' + initdocstring)
         # the default is only the class docstring
 
-    # get the encoding of the docstring
-    module = getattr(todoc, '__module__', None)
+    # decode the docstrings using the module's source encoding
+    charset = None
+    module = getattr(obj, '__module__', None)
     if module is not None:
         charset = get_module_charset(module)
-        docstrings = [isinstance(d, str) and d.decode(charset) or d for d in docstrings]
 
-    # add docstring content
     for docstring in docstrings:
-        docstring = prepare_docstring(docstring)
-        for i, line in enumerate(docstring):
-            result.append(indent + line, '<docstring of %s>' % basename, i)
+        if isinstance(docstring, str) and charset:
+            docstring = docstring.decode(charset)
+        for line in prepare_docstring(docstring):
+            yield line
+
+
+def format_signature(what, obj):
+    """Return the signature of the object, formatted for display."""
+    if what not in ('class', 'method', 'function'):
+        return ''
+    remove_self = what in ('class', 'method')
+    if what == 'class':
+        # for classes, the relevant signature is the __init__ method's
+        obj = getattr(obj, '__init__', None)
+        # classes without __init__ method?
+        if obj is None or obj is object.__init__:
+            return ''
+    argspec = inspect.getargspec(obj)
+    if remove_self and argspec[0][0:1] == ['self']:
+        del argspec[0][0]
+    return inspect.formatargspec(*argspec)
+
+
+def generate_rst(what, name, members, inherited, undoc, add_content, document,
+                 lineno, indent='', filename_set=None, check_module=False):
+    env = document.settings.env
+
+    # first, parse the definition -- auto directives for classes and functions
+    # can contain a signature which is then used instead of an autogenerated one
+    try:
+        path, base, signature = py_sig_re.match(name).groups()
+    except:
+        warning = document.reporter.warning(
+            'invalid signature for auto%s (%r)' % (what, name), line=lineno)
+        return [warning], ViewList()
+    # fullname is the fully qualified name, base the name after the last dot
+    fullname = (path or '') + base
+    # path is the name up to the last dot
+    path = path and path.rstrip('.')
+
+    warnings = []
+
+    # determine what module to import -- mod is the module name, objpath the
+    # path of names to get via getattr
+    mod = None
+    if what == 'module':
+        mod = fullname
+        if signature:
+            warnings.append(document.reporter.warning(
+                'ignoring arguments for automodule %s' % mod, line=lineno))
+        objpath = []
+    elif what in ('class', 'exception', 'function'):
+        if path:
+            mod = path
+        else:
+            # if documenting a toplevel object without explicit module, it can
+            # be contained in another auto directive ...
+            if hasattr(env, 'autodoc_current_module'):
+                mod = env.autodoc_current_module
+            # ... or in the scope of a module directive
+            if not mod:
+                mod = env.currmodule
+        objpath = [base]
+    else:
+        if path:
+            mod_cls = path
+        else:
+            # if documenting a class-level object without path, there must be a
+            # current class, either from a parent auto directive ...
+            if hasattr(env, 'autodoc_current_class'):
+                mod_cls = env.autodoc_current_class
+            # ... or from a class directive
+            if not mod_cls:
+                mod_cls = env.currclass
+        mod, cls = rpartition(mod_cls, '.')
+        # if the module name is still missing, get it like above
+        if not mod and hasattr(env, 'autodoc_current_module'):
+            mod = env.autodoc_current_module
+        if not mod:
+            mod = env.currmodule
+        objpath = [cls, base]
+
+    # by this time, a module *must* be determined
+    if mod is None:
+        warnings.append(document.reporter.warning(
+            'don\'t know which module to import for autodocumenting %r '
+            '(try placing a "module" or "currentmodule" directive in the document, '
+            'or giving an explicit module name)' % fullname, line=lineno))
+        return warnings, result
+
+    # the name to put into the generated directive -- doesn't contain the module
+    name_in_directive = '.'.join(objpath) or mod
+
+    # make sure that the view list starts with an empty line.  This is
+    # necessary for some situations where another directive preprocesses
+    # reST and no starting newline is present
+    result = ViewList()
+    result.append('', '')
+
+    # now, import the module and get docstring(s) of object to document
+    try:
+        todoc = module = __import__(mod, None, None, ['foo'])
+        if filename_set is not None and hasattr(module, '__file__') and module.__file__:
+            modfile = module.__file__
+            if modfile.lower().endswith('.pyc') or modfile.lower().endswith('.pyo'):
+                modfile = modfile[:-1]
+            filename_set.add(modfile)
+        for part in objpath:
+            todoc = getattr(todoc, part)
+    except (ImportError, AttributeError):
+        warnings.append(document.reporter.warning(
+            'autodoc can\'t import/find %s %r, check your spelling '
+            'and sys.path' % (what, str(fullname)), line=lineno))
+        return warnings, result
+
+    # check __module__ of object if wanted (for members not given explicitly)
+    if check_module:
+        if hasattr(todoc, '__module__'):
+            if todoc.__module__ != mod:
+                return warnings, result
+
+    # format the object's signature, if any
+    if signature is not None:
+        # signature given explicitly -- the parentheses were stripped by the regex
+        args = '(%s)' % signature
+    else:
+        try:
+            args = format_signature(what, todoc)
+        except Exception, err:
+            warnings.append(document.reporter.warning(
+                'error while formatting signature for %s: %s' %
+                (fullname, err), line=lineno))
+            args = ''
+
+    # now, create the directive header
+    result.append(indent + '.. %s:: %s%s' % (what, name_in_directive, args),
+                  '<autodoc>')
+    if what != 'module':
+        # Be explicit about the module, this is necessary since .. class:: doesn't
+        # support a prepended module name
+        result.append(indent + '   :module: %s' % mod, '<autodoc>')
+    result.append('', '<autodoc>')
+
+    # the module directive doesn't have content
+    if what != 'module':
+        indent += '   '
+
+    # add content from docstrings
+    for i, line in enumerate(get_doc(what, todoc, env)):
+        result.append(indent + line, '<docstring of %s>' % fullname, i)
 
     # add source content, if present
     if add_content:
         for line, src in zip(add_content.data, add_content.items):
             result.append(indent + line, src[0], src[1])
 
+    # document members?
     if not members or what in ('function', 'method', 'attribute'):
         return warnings, result
 
@@ -243,6 +279,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     _all = members == ['__all__']
     members_check_module = False
     if _all:
+        # unqualified :members: given
         if what == 'module':
             # for implicit module members, check __module__ to avoid documenting
             # imported objects
@@ -258,8 +295,10 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     else:
         all_members = [(mname, getattr(todoc, mname)) for mname in members]
     for (membername, member) in all_members:
+        # ignore members whose name starts with _ by default
         if _all and membername.startswith('_'):
             continue
+        # ignore undocumented members if :undoc-members: is not given
         doc = getattr(member, '__doc__', None)
         if not undoc and not doc:
             continue
@@ -283,7 +322,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             else:
                 # XXX: todo -- attribute docs
                 continue
-        full_membername = basename + '.' + membername
+        full_membername = fullname + '.' + membername
         subwarn, subres = generate_rst(memberwhat, full_membername, ['__all__'],
                                        inherited, undoc, None, document, lineno,
                                        indent, check_module=members_check_module)
@@ -296,10 +335,9 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     return warnings, result
 
 
-
 def _auto_directive(dirname, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
-    what = dirname[4:]
+    what = dirname[4:]  # strip "auto"
     name = arguments[0]
     members = options.get('members', [])
     inherited = 'inherited-members' in options
