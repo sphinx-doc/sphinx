@@ -4,42 +4,53 @@ Changes in trunk
 New features added
 ------------------
 
-* A new config value, `html_file_suffix`, can be used to set the HTML file
-  suffix to e.g. ``.xhtml``.
+* ``tocdepth`` can be given as a file-wide metadata entry, and
+  specifies the maximum depth of a TOC of this file.
 
-* The `autodoc` extension accepts signatures for functions, methods and
-  classes now that override the signature got via introspection from
-  Python code.
+* HTML output:
 
-* The new config value `html_use_index` can be used to switch index
-  generation in HTML documents off.
+  - The "previous" and "next" links have a more logical structure, so
+    that by following "next" links you can traverse the entire TOC
+    tree.
 
-* The new `exclude_trees` config option can be used to exclude whole
+  - The new event `html-page-context` can be used to include custom
+    values into the context used when rendering an HTML template.
+
+  - Document metadata is now in the default template context, under
+    the name `metadata`.
+
+  - The new config value `html_favicon` can be used to set a favicon
+    for the HTML output.  Thanks to Sebastian Wiesner.
+
+  - The new config value `html_use_index` can be used to switch index
+    generation in HTML documents off.
+
+  - The new config value `html_short_title` can be used to set a
+    shorter title for the documentation which is then used in the
+    navigation bar.
+
+  - The new config value `html_show_sphinx` can be used to control
+    whether a link to Sphinx is added to the HTML footer.
+
+  - The new config value `html_file_suffix` can be used to set the
+    HTML file suffix to e.g. ``.xhtml``.
+
+  - The directories in the `html_static_path` can now contain
+    subdirectories.
+
+* The new config value `exclude_trees` can be used to exclude whole
   subtrees from the search for source files.
-
-* The directories in the `html_static_path` can now contain subdirectories.
-
-* The new config value `html_short_title` can be used to set a shorter
-  title for the documentation which is then used in the navigation bar.
-
-* The new config value `html_show_sphinx` can be used to control whether
-  a link to Sphinx is added to the HTML footer.
 
 * Defaults for configuration values can now be callables, which allows
   dynamic defaults.
 
-* The new ``html-page-context`` event can be used to include custom values
-  into the context used when rendering an HTML template.
+* The new TextBuilder creates plain-text output.
 
-* Add document metadata to the values in the default template context.
-
-* Let the "previous" and "next" to more logical documents, so that by
-  following "next" links you can traverse the entire TOC tree.
-
-* Added TextBuilder to create plain-text output.
-
-* ``tocdepth`` can be given as a file-wide metadata entry, and specifies
-  the maximum depth of a TOC of this file.
+* Extensions:
+    
+  - The `autodoc` extension accepts signatures for functions, methods
+    and classes now that override the signature got via introspection
+    from Python code.
 
 Bugs fixed
 ----------

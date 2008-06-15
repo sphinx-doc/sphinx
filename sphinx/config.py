@@ -50,6 +50,7 @@ class Config(object):
         html_short_title = (lambda self: self.html_title, False),
         html_style = ('default.css', False),
         html_logo = (None, False),
+        html_favicon = (None, False),
         html_static_path = ([], False),
         html_last_updated_fmt = ('%b %d, %Y', False),
         html_use_smartypants = (True, False),

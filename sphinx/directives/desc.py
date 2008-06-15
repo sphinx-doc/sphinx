@@ -445,3 +445,6 @@ def target_directive(targettype, arguments, options, content, lineno,
 
 target_directive.content = 0
 target_directive.arguments = (1, 0, 1)
+
+# note, the target directive is not registered here, it is used by the application
+# when registering additional xref types
