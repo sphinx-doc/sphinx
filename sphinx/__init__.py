@@ -141,8 +141,6 @@ def main(argv=sys.argv):
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         return 1
-    except SystemExit:
-        return 0
     except Exception, err:
         if use_pdb:
             import pdb
