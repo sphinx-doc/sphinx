@@ -381,7 +381,8 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
                                        inherited, undoc, None, document, lineno,
                                        indent, check_module=members_check_module)
         warnings.extend(subwarn)
-        result.extend(subres)
+        if subres is not None:
+            result.extend(subres)
 
     env.autodoc_current_module = None
     env.autodoc_current_class = None
