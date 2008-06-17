@@ -358,6 +358,12 @@ class StandaloneHTMLBuilder(Builder):
 
         self.relations = self.env.collect_relations()
 
+        rellinks = []
+        if self.config.html_use_index:
+            rellinks.append(('genindex', 'General Index', 'I', 'index'))
+        if self.config.html_use_modindex:
+            rellinks.append(('modindex', 'Global Module Index', 'M', 'modules'))
+
         self.globalcontext = dict(
             project = self.config.project,
             release = self.config.release,
@@ -365,12 +371,11 @@ class StandaloneHTMLBuilder(Builder):
             last_updated = self.last_updated,
             copyright = self.config.copyright,
             style = self.config.html_style,
-            use_modindex = self.config.html_use_modindex,
-            use_index = self.config.html_use_index,
             use_opensearch = self.config.html_use_opensearch,
             docstitle = self.config.html_title,
             shorttitle = self.config.html_short_title,
             show_sphinx = self.config.html_show_sphinx,
+            rellinks = rellinks,
             builder = self.name,
             parents = [],
             logo = logo,
@@ -383,21 +388,24 @@ class StandaloneHTMLBuilder(Builder):
         # find out relations
         prev = next = None
         parents = []
+        rellinks = self.globalcontext['rellinks'][:]
         related = self.relations.get(docname)
         titles = self.env.titles
-        if related and related[1]:
-            try:
-                prev = {'link': self.get_relative_uri(docname, related[1]),
-                        'title': self.render_partial(titles[related[1]])['title']}
-            except KeyError:
-                # the relation is (somehow) not in the TOC tree, handle that gracefully
-                prev = None
         if related and related[2]:
             try:
                 next = {'link': self.get_relative_uri(docname, related[2]),
                         'title': self.render_partial(titles[related[2]])['title']}
+                rellinks.append((related[2], next['title'], 'N', 'next'))
             except KeyError:
                 next = None
+        if related and related[1]:
+            try:
+                prev = {'link': self.get_relative_uri(docname, related[1]),
+                        'title': self.render_partial(titles[related[1]])['title']}
+                rellinks.append((related[1], prev['title'], 'P', 'previous'))
+            except KeyError:
+                # the relation is (somehow) not in the TOC tree, handle that gracefully
+                prev = None
         while related and related[0]:
             try:
                 parents.append(
@@ -427,6 +435,7 @@ class StandaloneHTMLBuilder(Builder):
             title = title,
             meta = meta,
             body = body,
+            rellinks = rellinks,
             sourcename = sourcename,
             toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
             # only display a TOC if there's more than one item to show
