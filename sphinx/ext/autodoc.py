@@ -134,7 +134,7 @@ def get_doc(what, obj, env):
         docstrings.append(obj.__doc__)
     # skip some lines in module docstrings if configured
     if what == 'module' and env.config.automodule_skip_lines and docstrings:
-        docstrings[0] = '\n'.join(docstring.splitlines()
+        docstrings[0] = '\n'.join(docstrings[0].splitlines()
                                   [env.config.automodule_skip_lines:])
     # for classes, what the "docstring" is can be controlled via an option
     if what in ('class', 'exception'):
