@@ -151,7 +151,7 @@ def main(argv=sys.argv):
         else:
             if isinstance(err, SystemMessage):
                 print >>sys.stderr, darkred('reST markup error:')
-                print >>sys.stderr, str(err)
+                print >>sys.stderr, err.args[0].encode('ascii', 'backslashreplace')
             else:
                 print >>sys.stderr, darkred('Exception occurred:')
                 print >>sys.stderr, format_exception_cut_frames().rstrip()
