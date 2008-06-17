@@ -865,16 +865,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
         * inline markup is supported.
         * serif typeface
         """
-        self.body.append('\\begin{flushleft}\n')
+        self.body.append('{\\raggedright{}')
         self.literal_whitespace = 1
     def depart_line_block(self, node):
         self.literal_whitespace = 0
-        self.body.append('\n\\end{flushleft}\n')
+        # remove the last \\
+        del self.body[-1]
+        self.body.append('}\n')
 
     def visit_line(self, node):
-        pass
+        self._line_start = len(self.body)
     def depart_line(self, node):
-        self.body.append('~\\\\\n')
+        if self._line_start == len(self.body):
+            # no output in this line -- add a nonbreaking space, else the
+            # \\ command will give an error
+            self.body.append('~')
+        self.body.append('\\\\\n')
 
     def visit_block_quote(self, node):
         # If the block quote contains a single object and that object

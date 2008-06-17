@@ -100,6 +100,9 @@ Bugs fixed
 
 * Enable autodoc to process Unicode docstrings.
 
+* The LaTeX writer now translates line blocks with ``\raggedright``,
+  which plays nicer with tables.
+
 
 Release 0.3 (May 6, 2008)
 =========================
