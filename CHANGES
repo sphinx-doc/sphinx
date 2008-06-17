@@ -46,11 +46,11 @@ New features added
     subdirectories.
 
 * The image directive now supports specifying the extension as ``.*``,
-  which makes the builder select the one that matches best.
+  which makes the builder select the one that matches best.  Thanks to
+  Sebastian Wiesner.
 
 * The new config value `exclude_trees` can be used to exclude whole
-  subtrees from the search for source files.  Thanks to Sebastian
-  Wiesner.
+  subtrees from the search for source files.
 
 * Defaults for configuration values can now be callables, which allows
   dynamic defaults.
