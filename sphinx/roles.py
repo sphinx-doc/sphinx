@@ -39,6 +39,8 @@ for rolename, nodeclass in generic_docroles.iteritems():
 
 def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
+    if not typ:
+        typ = env.config.default_role
     text = utils.unescape(etext)
     targetid = 'index-%s' % env.index_num
     env.index_num += 1
@@ -114,6 +116,8 @@ def _fix_parens(typ, text, env):
 
 def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
+    if not typ:
+        typ = env.config.default_role
     text = utils.unescape(text)
     # if the first character is a bang, don't cross-reference at all
     if text[0:1] == '!':
@@ -142,7 +146,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             target = text[brace+1:]
             title = text[:brace]
     # special target  for Python object cross-references
-    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod'):
+    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod', 'obj'):
         # fix-up parentheses in link title
         if titleistarget:
             title = title.lstrip('.')   # only has a meaning for the target
@@ -209,7 +213,7 @@ specific_docroles = {
     'const': xfileref_role,
     'attr': xfileref_role,
     'meth': xfileref_role,
-
+    'obj': xfileref_role,
     'cfunc' : xfileref_role,
     'cdata' : xfileref_role,
     'ctype' : xfileref_role,

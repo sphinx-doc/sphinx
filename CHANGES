@@ -7,6 +7,9 @@ New features added
 * ``tocdepth`` can be given as a file-wide metadata entry, and
   specifies the maximum depth of a TOC of this file.
 
+* The new config value `default_role` can be used to select the
+  default role for all documents.
+  
 * HTML output:
 
   - The "previous" and "next" links have a more logical structure, so

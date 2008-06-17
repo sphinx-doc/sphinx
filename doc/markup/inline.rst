@@ -88,6 +88,13 @@ a matching identifier is found:
 
    The name of an exception. A dotted name may be used.
 
+.. role:: obj
+
+   The name of an object of unspecified type.  Useful e.g. as the
+   :confval:`default_role`.
+
+   .. versionadded:: 0.4
+
 The name enclosed in this markup can include a module name and/or a class name.
 For example, ``:func:`filter``` could refer to a function named ``filter`` in
 the current module, or the built-in function of that name.  In contrast,

@@ -1,9 +1,7 @@
-Global TODO
+Sphinx TODO
 ===========
 
-Sphinx
-******
-
+- remove redundant <ul>s in tocs
 - autoattribute in autodoc
 - range and object options for literalinclude
 - option for compact module index

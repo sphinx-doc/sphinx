@@ -78,6 +78,9 @@ today_fmt = '%%B %%d, %%Y'
 # for source files.
 #exclude_dirs = []
 
+# The reST default role (used for this markup: `text`) to use for all documents.
+#default_role = None
+
 # If true, '()' will be appended to :func: etc. cross-reference text.
 #add_function_parentheses = True
 

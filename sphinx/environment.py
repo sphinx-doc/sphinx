@@ -34,6 +34,8 @@ from docutils.io import FileInput
 from docutils.core import publish_doctree
 from docutils.utils import Reporter
 from docutils.readers import standalone
+from docutils.parsers.rst import roles
+from docutils.parsers.rst.languages import en as english
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import FilterMessages
@@ -69,6 +71,8 @@ default_substitutions = set([
     'release',
     'today',
 ])
+
+dummy_reporter = Reporter('', 4, 4)
 
 
 class RedirStream(object):
@@ -449,6 +453,14 @@ class BuildEnvironment:
         if src_path is None:
             src_path = self.doc2path(docname)
 
+        if self.config.default_role:
+            role_fn, messages = roles.role(self.config.default_role, english,
+                                           0, dummy_reporter)
+            if role_fn:
+                roles._roles[''] = role_fn
+            else:
+                self.warn(docname, 'default role %s not found' %
+                          self.config.default_role)
         self.docname = docname
         doctree = publish_doctree(None, src_path, FileInput,
                                   settings_overrides=self.settings,
@@ -834,7 +846,7 @@ class BuildEnvironment:
         return newnode
 
     descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr',
-                           'meth', 'cfunc', 'cdata', 'ctype', 'cmacro'))
+                           'meth', 'cfunc', 'cdata', 'ctype', 'cmacro', 'obj'))
 
     def resolve_references(self, doctree, fromdocname, builder):
         for node in doctree.traverse(addnodes.pending_xref):
