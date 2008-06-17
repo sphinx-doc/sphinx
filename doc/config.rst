@@ -28,6 +28,11 @@ Important points to note:
 * Remember that document names use ``/`` as the path separator and don't contain
   the file name extension.
 
+* Since :file:`conf.py` is read as a Python file, the usual rules apply for
+  encodings and Unicode support: declare the encoding using an encoding cookie
+  (a comment like ``# -*- coding: utf-8 -*-``) and use Unicode string literals
+  when you include non-ASCII characters in configuration values.
+
 * The contents of the config namespace are pickled (so that Sphinx can find out
   when configuration changes), so it may not contain unpickleable values --
   delete them from the namespace with ``del`` if appropriate.  Modules are
@@ -377,11 +382,14 @@ These options influence LaTeX output.
 
 .. confval:: latex_appendices
 
-   Documents to append as an appendix to all manuals.
+   A list of document names to append as an appendix to all manuals.
 
 .. confval:: latex_preamble
 
    Additional LaTeX markup for the preamble.
+
+   Keep in mind that backslashes must be doubled in Python string literals to
+   avoid interpretation as escape sequences.
 
 .. confval:: latex_use_modindex
 
