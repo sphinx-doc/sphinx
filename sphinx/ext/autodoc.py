@@ -154,8 +154,16 @@ def get_doc(what, obj, env):
         charset = get_module_charset(module)
 
     for docstring in docstrings:
-        if isinstance(docstring, str) and charset:
-            docstring = docstring.decode(charset)
+        if isinstance(docstring, str):
+            if charset:
+                docstring = docstring.decode(charset)
+            else:
+                try:
+                    # try decoding with utf-8, should only work for real UTF-8
+                    docstring = docstring.decode('utf-8')
+                except UnicodeError:
+                    # last resort -- can't fail
+                    docstring = docstring.decode('latin1')
         for line in prepare_docstring(docstring):
             yield line
 
@@ -178,7 +186,7 @@ def format_signature(what, obj):
 
 
 def generate_rst(what, name, members, inherited, undoc, add_content, document,
-                 lineno, indent='', filename_set=None, check_module=False):
+                 lineno, indent=u'', filename_set=None, check_module=False):
     env = document.settings.env
 
     result = None
@@ -291,20 +299,20 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
     # necessary for some situations where another directive preprocesses
     # reST and no starting newline is present
     result = ViewList()
-    result.append('', '')
+    result.append(u'', '')
 
     # now, create the directive header
-    result.append(indent + '.. %s:: %s%s' % (what, name_in_directive, args),
+    result.append(indent + u'.. %s:: %s%s' % (what, name_in_directive, args),
                   '<autodoc>')
     if what != 'module':
         # Be explicit about the module, this is necessary since .. class:: doesn't
         # support a prepended module name
-        result.append(indent + '   :module: %s' % mod, '<autodoc>')
-    result.append('', '<autodoc>')
+        result.append(indent + u'   :module: %s' % mod, '<autodoc>')
+    result.append(u'', '<autodoc>')
 
     # the module directive doesn't have content
     if what != 'module':
-        indent += '   '
+        indent += u'   '
 
     if modfile:
         sourcename = '%s:docstring of %s' % (modfile, fullname)
