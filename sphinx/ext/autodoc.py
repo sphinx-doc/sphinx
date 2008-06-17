@@ -33,6 +33,10 @@ _charset_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 _module_charsets = {}
 
 
+class Options(object):
+    pass
+
+
 class AutodocReporter(object):
     """
     A reporter replacement that assigns the correct source name
@@ -185,8 +189,8 @@ def format_signature(what, obj):
     return inspect.formatargspec(*argspec)
 
 
-def generate_rst(what, name, members, inherited, undoc, add_content, document,
-                 lineno, indent=u'', filename_set=None, check_module=False):
+def generate_rst(what, name, members, options, add_content, document, lineno,
+                 indent=u'', filename_set=None, check_module=False):
     env = document.settings.env
 
     result = None
@@ -310,6 +314,14 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
         result.append(indent + u'   :module: %s' % mod, '<autodoc>')
     result.append(u'', '<autodoc>')
 
+    if options.show_inheritance and what in ('class', 'exception'):
+        if len(todoc.__bases__):
+            bases = [b.__module__ == '__builtin__' and
+                     u':class:`%s`' % b.__name__ or
+                     u':class:`%s.%s`' % (b.__module__, b.__name__)
+                     for b in todoc.__bases__]
+            result.append(indent + u'   Bases: %s' % ', '.join(bases), '<autodoc>')
+
     # the module directive doesn't have content
     if what != 'module':
         indent += u'   '
@@ -348,7 +360,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             members_check_module = True
             all_members = inspect.getmembers(todoc)
         else:
-            if inherited:
+            if options.inherited:
                 # getmembers() uses dir() which pulls in members from all base classes
                 all_members = inspect.getmembers(todoc)
             else:
@@ -362,7 +374,7 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
             continue
         # ignore undocumented members if :undoc-members: is not given
         doc = getattr(member, '__doc__', None)
-        if not undoc and not doc:
+        if not options.undoc and not doc:
             continue
         if what == 'module':
             if isinstance(member, types.FunctionType):
@@ -386,8 +398,8 @@ def generate_rst(what, name, members, inherited, undoc, add_content, document,
                 continue
         full_membername = fullname + '.' + membername
         subwarn, subres = generate_rst(memberwhat, full_membername, ['__all__'],
-                                       inherited, undoc, None, document, lineno,
-                                       indent, check_module=members_check_module)
+                                       options, None, document, lineno, indent,
+                                       check_module=members_check_module)
         warnings.extend(subwarn)
         if subres is not None:
             result.extend(subres)
@@ -402,16 +414,18 @@ def _auto_directive(dirname, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
     what = dirname[4:]  # strip "auto"
     name = arguments[0]
+    genopt = Options()
     members = options.get('members', [])
-    inherited = 'inherited-members' in options
-    if inherited and not members:
+    genopt.inherited = 'inherited-members' in options
+    if genopt.inherited and not members:
         # :inherited-members: implies :members:
         members = ['__all__']
-    undoc = 'undoc-members' in options
+    genopt.undoc = 'undoc-members' in options
+    genopt.show_inheritance = 'show-inheritance' in options
 
     filename_set = set()
-    warnings, result = generate_rst(what, name, members, inherited, undoc, content,
-                                    state.document, lineno, filename_set=filename_set)
+    warnings, result = generate_rst(what, name, members, genopt, content, state.document,
+                                    lineno, filename_set=filename_set)
     if result is None:
         return warnings
 
@@ -455,7 +469,8 @@ def members_directive(arg):
 def setup(app):
     mod_options = {'members': members_directive, 'undoc-members': directives.flag}
     cls_options = {'members': members_directive, 'undoc-members': directives.flag,
-                   'inherited-members': directives.flag}
+                   'inherited-members': directives.flag,
+                   'show-inheritance': directives.flag}
     app.add_directive('automodule', auto_directive_withmembers,
                       1, (1, 0, 1), **mod_options)
     app.add_directive('autoclass', auto_directive_withmembers,

@@ -60,6 +60,10 @@ New features added
     and classes now that override the signature got via introspection
     from Python code.
 
+  - The `autodoc` extension now offers a ``show-inheritance`` option
+    for autoclass that inserts a list of bases after the signature.
+
+
 Bugs fixed
 ----------
 

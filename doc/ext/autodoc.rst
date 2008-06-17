@@ -46,54 +46,6 @@ directive.
 
          Noodle's docstring.
 
-   If you want to automatically document members, there's a ``members``
-   option::
-
-      .. autoclass:: Noodle
-         :members:
-
-   will document all non-private member functions and properties (that is, those
-   whose name doesn't start with ``_``), while ::
-
-      .. autoclass:: Noodle
-         :members: eat, slurp
-
-   will document exactly the specified members.
-
-   Members without docstrings will be left out, unless you give the
-   ``undoc-members`` flag option::
-
-      .. autoclass:: Noodle
-         :members:
-         :undoc-members:
-
-   .. versionadded:: 0.3
-      For classes and exceptions, members inherited from base classes will be
-      left out, unless you give the ``inherited-members`` flag option, in
-      addition to ``members``:
-
-   ::
-
-      .. autoclass:: Noodle
-         :members:
-         :inherited-members:
-
-   This can be combined with ``undoc-members`` to document *all* available
-   members of the class or module.
-
-   .. versionadded:: 0.4
-      It's possible to override the signature for callable members (functions,
-      methods, classes) with the regular syntax that will override the signature
-      gained from instropection:
-
-   ::
-
-      .. autoclass:: Noodle(type)
-
-         .. automethod:: eat(persona)
-
-   This is useful if the signature from the method is hidden by a decorator.
-
    The "auto" directives can also contain content of their own, it will be
    inserted into the resulting non-auto directive source after the docstring
    (but before any automatic member documentation).
@@ -107,6 +59,60 @@ directive.
          .. method:: boil(time=10)
 
             Boil the noodle *time* minutes.
+
+   **Options and advanced usage**
+         
+   * If you want to automatically document members, there's a ``members``
+     option::
+
+        .. autoclass:: Noodle
+           :members:
+
+     will document all non-private member functions and properties (that is,
+     those whose name doesn't start with ``_``), while ::
+
+        .. autoclass:: Noodle
+           :members: eat, slurp
+
+     will document exactly the specified members.
+
+   * Members without docstrings will be left out, unless you give the
+     ``undoc-members`` flag option::
+
+        .. autoclass:: Noodle
+           :members:
+           :undoc-members:
+
+   * For classes and exceptions, members inherited from base classes will be
+     left out, unless you give the ``inherited-members`` flag option, in
+     addition to ``members``::
+
+        .. autoclass:: Noodle
+           :members:
+           :inherited-members:
+
+     This can be combined with ``undoc-members`` to document *all* available
+     members of the class or module.
+
+     .. versionadded:: 0.3
+
+   * It's possible to override the signature for callable members (functions,
+     methods, classes) with the regular syntax that will override the signature
+     gained from instropection::
+
+        .. autoclass:: Noodle(type)
+
+           .. automethod:: eat(persona)
+
+     This is useful if the signature from the method is hidden by a decorator.
+
+     .. versionadded:: 0.4
+
+   * The :dir:`autoclass` and :dir:`autoexception` directives also support a
+     flag option called ``show-inheritance``.  When given, a list of base
+     classes will be inserted just below the class signature.
+
+     .. versionadded:: 0.4
 
    .. note::
 
