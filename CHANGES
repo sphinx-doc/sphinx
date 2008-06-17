@@ -25,6 +25,10 @@ New features added
   - The new config value `html_use_index` can be used to switch index
     generation in HTML documents off.
 
+  - The new config value `html_split_index` can be used to create
+    separate index pages for each letter, to be used when the complete
+    index is too large for one page.
+
   - The new config value `html_short_title` can be used to set a
     shorter title for the documentation which is then used in the
     navigation bar.

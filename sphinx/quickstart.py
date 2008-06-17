@@ -143,6 +143,9 @@ html_last_updated_fmt = '%%b %%d, %%Y'
 # If false, no index is generated.
 #html_use_index = True
 
+# If true, the index is split into individual pages for each letter.
+#html_split_index = False
+
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True
 

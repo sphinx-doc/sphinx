@@ -287,6 +287,13 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 0.4
 
+.. confval:: html_split_index
+
+   If true, the index is generated twice: once as a single page with all the
+   entries, and once as one page per starting letter.  Default is ``False``.
+
+   .. versionadded:: 0.4
+   
 .. confval:: html_copy_source
 
    If true, the reST sources are included in the HTML build as

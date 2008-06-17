@@ -5,7 +5,7 @@
 
     Builder classes for different output formats.
 
-    :copyright: 2007-2008 by Georg Brandl.
+    :copyright: 2007-2008 by Georg Brandl, Sebastian Wiesner.
     :license: BSD.
 """
 
@@ -464,9 +464,19 @@ class StandaloneHTMLBuilder(Builder):
             genindexcontext = dict(
                 genindexentries = genindex,
                 genindexcounts = indexcounts,
+                split_index = self.config.html_split_index,
             )
             self.info(' genindex', nonl=1)
-            self.handle_page('genindex', genindexcontext, 'genindex.html')
+
+            if self.config.html_split_index:
+                self.handle_page('genindex', genindexcontext, 'genindex-split.html')
+                self.handle_page('genindex-all', genindexcontext, 'genindex.html')
+                for (key, entries), count in zip(genindex, indexcounts):
+                    ctx = {'key': key, 'entries': entries, 'count': count,
+                           'genindexentries': genindex}
+                    self.handle_page('genindex-' + key, ctx, 'genindex-single.html')
+            else:
+                self.handle_page('genindex', genindexcontext, 'genindex.html')
 
         # the global module index
 
@@ -481,6 +491,7 @@ class StandaloneHTMLBuilder(Builder):
             platforms = set()
             # sort out collapsable modules
             modindexentries = []
+            letters = []
             pmn = ''
             cg = 0 # collapse group
             fl = '' # first letter
@@ -488,8 +499,10 @@ class StandaloneHTMLBuilder(Builder):
                 pl = pl and pl.split(', ') or []
                 platforms.update(pl)
                 if fl != mn[0].lower() and mn[0] != '_':
+                    # heading
                     modindexentries.append(['', False, 0, False,
                                             mn[0].upper(), '', [], False])
+                    letters.append(mn[0].upper())
                 tn = mn.split('.')[0]
                 if tn != mn:
                     # submodule
@@ -510,6 +523,7 @@ class StandaloneHTMLBuilder(Builder):
             modindexcontext = dict(
                 modindexentries = modindexentries,
                 platforms = platforms,
+                letters = letters,
             )
             self.info(' modindex', nonl=1)
             self.handle_page('modindex', modindexcontext, 'modindex.html')

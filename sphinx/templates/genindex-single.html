@@ -2,19 +2,11 @@
 {% set title = 'Index' %}
 {% block body %}
 
-   <h1 id="index">Index</h1>
+   <h1 id="index">Index &ndash; {{ key }}</h1>
 
-   {% for key, dummy in genindexentries -%}
-   <a href="#{{ key }}"><strong>{{ key }}</strong></a> {% if not loop.last %}| {% endif %}
-   {%- endfor %}
-
-   <hr />
-
-   {% for key, entries in genindexentries %}
-<h2 id="{{ key }}">{{ key }}</h2>
 <table width="100%" class="indextable"><tr><td width="33%" valign="top">
 <dl>
-{%- set breakat = genindexcounts[loop.index0] // 2 %}
+{%- set breakat = count // 2 %}
 {%- set numcols = 1 %}
 {%- set numitems = 0 %}
 {% for entryname, (links, subitems) in entries %}
@@ -39,12 +31,10 @@
 {%- endif -%}
 {%- endfor %}
 </dl></td></tr></table>
-{% endfor %}
 
 {% endblock %}
 
 {% block sidebarrel %}
-{% if split_index %}
    <h4>Index</h4>
    <p>{% for key, dummy in genindexentries -%}
    <a href="{{ pathto('genindex-' + key) }}"><strong>{{ key }}</strong></a>
@@ -52,5 +42,4 @@
    {%- endfor %}</p>
 
    <p><a href="{{ pathto('genindex-all') }}"><strong>Full index on one page</strong></a></p>
-{% endif %} 
 {% endblock %}
