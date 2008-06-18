@@ -57,6 +57,9 @@ New features added
 
 * The new TextBuilder creates plain-text output.
 
+* Python 3-style signatures, giving a return annotation via ``->``,
+  are now supported.
+
 * Extensions:
     
   - The `autodoc` extension accepts signatures for functions, methods

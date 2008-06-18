@@ -75,10 +75,12 @@ def desc_index_text(desctype, module, name):
 
 # ------ functions to parse a Python or C signature and create desc_* nodes.
 
-py_sig_re = re.compile(r'''^([\w.]*\.)?        # class names
-                           (\w+)  \s*          # thing name
-                           (?: \((.*)\) )? $   # optionally arguments
-                        ''', re.VERBOSE)
+py_sig_re = re.compile(
+    r'''^ ([\w.]*\.)?            # class name(s)
+          (\w+)  \s*             # thing name
+          (?: \((.*)\)           # optional arguments
+          (\s* -> \s* .*)? )? $  # optional return annotation
+          ''', re.VERBOSE)
 
 py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
 
@@ -94,7 +96,7 @@ def parse_py_signature(signode, sig, desctype, module, env):
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
-    classname, name, arglist = m.groups()
+    classname, name, arglist, retann = m.groups()
 
     if env.currclass:
         add_module = False
@@ -148,6 +150,9 @@ def parse_py_signature(signode, sig, desctype, module, env):
             stack[-1] += addnodes.desc_parameter(token, token)
     if len(stack) != 1:
         raise ValueError
+    if retann:
+        retann = u' \N{RIGHTWARDS ARROW} ' + retann.strip()[2:]
+        signode += addnodes.desc_type(retann, retann)
     return fullname, classname
 
 

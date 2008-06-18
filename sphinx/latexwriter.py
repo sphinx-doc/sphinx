@@ -979,6 +979,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         (u">", ur"\textgreater{}"),
         (u"^", ur"\textasciicircum{}"),
         (u"\x00", ur"\textbackslash{}"),
+        (u"\N{RIGHTWARDS ARROW}", ur"$\rightarrow$"),
     ]
 
     def encode(self, text):
