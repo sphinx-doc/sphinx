@@ -15,12 +15,20 @@ from docutils import nodes
 class index(nodes.Invisible, nodes.Inline, nodes.TextElement): pass
 
 # description units (classdesc, funcdesc etc.)
+
+# parent node for signature and content
 class desc(nodes.Admonition, nodes.Element): pass
-class desc_content(nodes.General, nodes.Element): pass
-class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement): pass
-class desc_classname(nodes.Part, nodes.Inline, nodes.TextElement): pass
+
+# additional name parts (module name, class name)
+class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement): pass
+# compatibility alias
+desc_classname = desc_addname
+# return type (C), object type (Python)
 class desc_type(nodes.Part, nodes.Inline, nodes.TextElement): pass
+# main name of object
 class desc_name(nodes.Part, nodes.Inline, nodes.TextElement): pass
+# argument list
+class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement): pass
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.TextElement):
     child_text_separator = ', '
 class desc_parameter(nodes.Part, nodes.Inline, nodes.TextElement): pass
@@ -28,6 +36,9 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
     child_text_separator = ', '
     def astext(self):
         return '[' + nodes.TextElement.astext(self) + ']'
+
+# node for content
+class desc_content(nodes.General, nodes.Element): pass
 
 # \versionadded, \versionchanged, \deprecated
 class versionmodified(nodes.Admonition, nodes.TextElement): pass
@@ -75,7 +86,7 @@ class tabular_col_spec(nodes.Element): pass
 # make them known to docutils. this is needed, because the HTML writer
 # will choke at some point if these are not added
 nodes._add_node_class_names("""index desc desc_content desc_signature desc_type
-      desc_classname desc_name desc_parameterlist desc_parameter desc_optional
+      desc_addname desc_name desc_parameterlist desc_parameter desc_optional
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis
       glossary acks module start_of_file tabular_col_spec""".split())

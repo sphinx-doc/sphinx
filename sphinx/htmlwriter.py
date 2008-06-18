@@ -76,13 +76,12 @@ class HTMLTranslator(BaseTranslator):
                              u'title="Permalink to this definition">\u00B6</a>')
         self.body.append('</dt>\n')
 
-    def visit_desc_classname(self, node):
+    def visit_desc_addname(self, node):
         self.body.append(self.starttag(node, 'tt', '', CLASS='descclassname'))
-    def depart_desc_classname(self, node):
+    def depart_desc_addname(self, node):
         self.body.append('</tt>')
 
     def visit_desc_type(self, node):
-        # return type of C functions -- nothing to do here
         pass
     def depart_desc_type(self, node):
         pass

@@ -96,31 +96,31 @@ def parse_py_signature(signode, sig, desctype, module, env):
         raise ValueError
     classname, name, arglist = m.groups()
 
-    add_module = True
     if env.currclass:
+        add_module = False
         if classname and classname.startswith(env.currclass):
             fullname = classname + name
             # class name is given again in the signature
             classname = classname[len(env.currclass):].lstrip('.')
-            add_module = False
         elif classname:
             # class name is given in the signature, but different
+            # (shouldn't happen)
             fullname = env.currclass + '.' + classname + name
         else:
             # class name is not given in the signature
             fullname = env.currclass + '.' + name
-            add_module = False
     else:
+        add_module = True
         fullname = classname and classname + name or name
 
     if classname:
-        signode += addnodes.desc_classname(classname, classname)
+        signode += addnodes.desc_addname(classname, classname)
     # exceptions are a special case, since they are documented in the
     # 'exceptions' module.
     elif add_module and env.config.add_module_names and \
            module and module != 'exceptions':
         nodetext = module + '.'
-        signode += addnodes.desc_classname(nodetext, nodetext)
+        signode += addnodes.desc_addname(nodetext, nodetext)
 
     signode += addnodes.desc_name(name, name)
     if not arglist:
@@ -199,7 +199,7 @@ def parse_c_signature(signode, sig, desctype):
     try:
         classname, funcname = name.split('::', 1)
         classname += '::'
-        signode += addnodes.desc_classname(classname, classname)
+        signode += addnodes.desc_addname(classname, classname)
         signode += addnodes.desc_name(funcname, funcname)
         # name (the full name) is still both parts
     except ValueError:
@@ -232,7 +232,7 @@ def parse_c_signature(signode, sig, desctype):
         paramlist += param
     signode += paramlist
     if const:
-        signode += addnodes.desc_classname(const, const)
+        signode += addnodes.desc_addname(const, const)
     return name
 
 
@@ -261,9 +261,9 @@ def parse_option_desc(signode, sig):
     for m in option_desc_re.finditer(sig):
         prefix, optname, args = m.groups()
         if count:
-            signode += addnodes.desc_classname(', ', ', ')
+            signode += addnodes.desc_addname(', ', ', ')
         signode += addnodes.desc_name(prefix+optname, prefix+optname)
-        signode += addnodes.desc_classname(args, args)
+        signode += addnodes.desc_addname(args, args)
         if not count:
             firstname = optname
         count += 1

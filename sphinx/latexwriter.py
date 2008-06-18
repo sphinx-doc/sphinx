@@ -374,7 +374,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.descstack[-1].name = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
-    def visit_desc_classname(self, node):
+    def visit_desc_addname(self, node):
         d = self.descstack[-1]
         if d.env == 'describe':
             d.name += self.encode(node.astext())

@@ -169,9 +169,9 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_desc_name(self, node):
         pass
 
-    def visit_desc_classname(self, node):
+    def visit_desc_addname(self, node):
         pass
-    def depart_desc_classname(self, node):
+    def depart_desc_addname(self, node):
         pass
 
     def visit_desc_type(self, node):
@@ -306,7 +306,7 @@ class TextTranslator(nodes.NodeVisitor):
                 for i, cell in enumerate(line):
                     par = textwrap.wrap(cell, width=colwidths[i])
                     if par:
-                        maxwidth = max(map(len, par)) 
+                        maxwidth = max(map(len, par))
                     else:
                         maxwidth = 0
                     realwidths[i] = max(realwidths[i], maxwidth)
