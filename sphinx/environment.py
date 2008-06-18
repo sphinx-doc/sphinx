@@ -63,7 +63,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 23
+ENV_VERSION = 24
 
 
 default_substitutions = set([
@@ -535,6 +535,7 @@ class BuildEnvironment:
                 candidates['*'] = imguri
                 continue
             imgpath = path.normpath(path.join(docdir, imguri))
+            node['uri'] = imgpath
             if imgpath.endswith(os.extsep + '*'):
                 for filename in glob(imgpath):
                     basename, ext = os.path.splitext(filename)
@@ -543,7 +544,11 @@ class BuildEnvironment:
                     elif ext == '.svg':
                         candidates['image/svg+xml'] = filename
                     else:
-                        imgtype = imghdr.what(filename)
+                        f = open(filename, 'rb')
+                        try:
+                            imgtype = imghdr.what(f)
+                        finally:
+                            f.close()
                         if imgtype:
                             candidates['image/' + imgtype] = filename
             else:

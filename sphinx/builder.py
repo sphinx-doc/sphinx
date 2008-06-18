@@ -128,20 +128,19 @@ class Builder(object):
         Pick the best candidate for all image URIs.
         """
         for node in doctree.traverse(nodes.image):
-            uri = node['candidates'].get('*', None)
-            if not uri:
+            if '*' not in node['candidates']:
                 for imgtype in self.supported_image_types:
-                    uri = node['candidates'].get(imgtype, None)
-                    if uri:
-                        node['uri'] = uri
+                    candidate = node['candidates'].get(imgtype, None)
+                    if candidate:
                         break
                 else:
-                    self.warn('%s:%s: %s' %
-                              (node.source, node.lineno,
-                               'No matching candidate for uri: %(uri)s' % node))
+                    self.warn('%s:%s: no matching candidate for image URI %r' %
+                              (node.source, node.lineno, node['uri']))
                     continue
-            if uri in self.env.images:
-                self.images[uri] = self.env.images[uri][1]
+                node['uri'] = candidate
+            else:
+                candidate = node['uri']
+            self.images[candidate] = self.env.images[candidate][1]
 
     # build methods
 
