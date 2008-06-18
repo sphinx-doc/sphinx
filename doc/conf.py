@@ -153,7 +153,7 @@ def parse_directive(env, sig, signode):
     name, args = m.groups()
     dec_name = '.. %s::' % name
     signode += addnodes.desc_name(dec_name, dec_name)
-    signode += addnodes.desc_classname(args, args)
+    signode += addnodes.desc_addname(args, args)
     return name
 
 
