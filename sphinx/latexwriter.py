@@ -587,9 +587,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_module(self, node):
         modname = node['modname']
-        self.body.append('\\declaremodule[%s]{}{%s}' % (modname.replace('_', ''),
-                                                        self.encode(modname)))
-        self.body.append('\\modulesynopsis{%s}' % self.encode(node['synopsis']))
+        self.body.append('\n\\declaremodule[%s]{}{%s}' % (modname.replace('_', ''),
+                                                          self.encode(modname)))
+        self.body.append('\n\\modulesynopsis{%s}' % self.encode(node['synopsis']))
         if node.has_key('platform'):
             self.body.append('\\platform{%s}' % self.encode(node['platform']))
     def depart_module(self, node):
