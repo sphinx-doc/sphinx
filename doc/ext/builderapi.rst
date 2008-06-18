@@ -5,7 +5,9 @@ Writing new builders
 
 XXX to be expanded.
 
-.. class:: sphinx.builder.Builder
+.. currentmodule:: sphinx.builder
+
+.. class:: Builder
 
    This is the base class for all builders.
 
