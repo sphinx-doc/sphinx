@@ -9,7 +9,10 @@ New features added
 
 * The new config value `default_role` can be used to select the
   default role for all documents.
-  
+
+* Sphinx now interprets field lists with fields like ``:param foo:``
+  in description units.
+
 * HTML output:
 
   - The "previous" and "next" links have a more logical structure, so

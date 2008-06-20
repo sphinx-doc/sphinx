@@ -73,6 +73,90 @@ def desc_index_text(desctype, module, name):
         raise ValueError("unhandled descenv: %s" % desctype)
 
 
+# ------ make field lists (like :param foo:) in desc bodies prettier
+
+doc_fields_with_arg = {
+    'param': 'param',
+    'parameter': 'param',
+    'arg': 'param',
+    'argument': 'param',
+    'keyword': 'param',
+    'kwarg': 'param',
+    'kwparam': 'param',
+    'type': 'type',
+    'raises': 'Raises',
+    'raise': 'Raises',
+    'exception': 'Raises',
+    'except': 'Raises',
+    'var': 'Variable',
+    'ivar': 'Variable',
+    'cvar': 'Variable',
+}
+
+doc_fields_without_arg = {
+    'returns': 'Returns',
+    'return': 'Returns',
+    'rtype': 'Return type',
+}
+
+def handle_doc_fields(node):
+    # don't traverse, only handle field lists that are immediate children
+    for child in node.children:
+        if not isinstance(child, nodes.field_list):
+            continue
+        params = None
+        param_nodes = {}
+        param_types = {}
+        new_list = nodes.field_list()
+        for field in child:
+            fname, fbody = field
+            try:
+                typ, obj = fname.astext().split(None, 1)
+                typ = doc_fields_with_arg[typ]
+                if len(fbody.children) == 1 and \
+                   isinstance(fbody.children[0], nodes.paragraph):
+                    children = fbody.children[0].children
+                else:
+                    children = fbody.children
+                if typ == 'param':
+                    if not params:
+                        pfield = nodes.field()
+                        pfield += nodes.field_name('Parameters', 'Parameters')
+                        pfield += nodes.field_body()
+                        params = nodes.bullet_list()
+                        pfield[1] += params
+                        new_list += pfield
+                    dlitem = nodes.list_item()
+                    dlpar = nodes.paragraph()
+                    dlpar += nodes.emphasis(obj, obj)
+                    dlpar += nodes.Text(' -- ', ' -- ')
+                    dlpar += children
+                    param_nodes[obj] = dlpar
+                    dlitem += dlpar
+                    params += dlitem
+                elif typ == 'type':
+                    param_types[obj] = fbody.astext()
+                else:
+                    nfield = nodes.field()
+                    nfield += nodes.field_name(typ, typ)
+                    nfield += nodes.field_body()
+                    nfield[1] += children
+                    new_list += nfield
+            except (KeyError, ValueError):
+                fnametext = fname.astext()
+                try:
+                    typ = doc_fields_without_arg[fnametext]
+                except KeyError:
+                    # at least capitalize the field name
+                    typ = fnametext.capitalize()
+                fname[0] = nodes.Text(typ)
+                new_list += field
+        for param, type in param_types.iteritems():
+            if param in param_nodes:
+                param_nodes[param].insert(1, nodes.Text(' (%s)' % type))
+        child.replace_self(new_list)
+
+
 # ------ functions to parse a Python or C signature and create desc_* nodes.
 
 py_sig_re = re.compile(
@@ -380,6 +464,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     if names:
         env.currdesc = names[0]
     state.nested_parse(content, content_offset, subnode)
+    handle_doc_fields(subnode)
     if clsname_set:
         env.currclass = None
     env.currdesc = None
