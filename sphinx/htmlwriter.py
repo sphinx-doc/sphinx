@@ -310,6 +310,9 @@ class HTMLTranslator(BaseTranslator):
                              u'title="Permalink to this headline">\u00B6</a>')
         BaseTranslator.depart_title(self, node)
 
+    def unknown_visit(self, node):
+        raise NotImplementedError("Unknown node: " + node.__class__.__name__)
+
 
 class SmartyPantsHTMLTranslator(HTMLTranslator):
     """

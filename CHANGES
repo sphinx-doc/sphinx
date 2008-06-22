@@ -101,7 +101,7 @@ Bugs fixed
 
 * Fix behavior of references to functions/methods with an explicit title.
 
-* Support citation nodes in LaTeX writer.
+* Support citation, subscript and superscript nodes in LaTeX writer.
 
 * Provide the standard "class" directive as "cssclass"; else it is
   shadowed by the Sphinx-defined directive.

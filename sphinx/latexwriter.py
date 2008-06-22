@@ -595,12 +595,26 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_module(self, node):
         pass
 
+    def latex_image_length(self, width_str):
+        match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
+        if not match:
+            # fallback
+            return width_str
+        res = width_str
+        amount, unit = match.groups()[:2]
+        if unit == "px":
+            # LaTeX does not know pixels but points
+            res = "%spt" % amount
+        elif unit == "%":
+            res = "%.3f\\linewidth" % (float(amount) / 100.0)
+        return res
+
     def visit_image(self, node):
         self.need_graphicx = 1
         attrs = node.attributes
         pre = []                        # in reverse order
         post = []
-        include_graphics_options = ""
+        include_graphics_options = []
         inline = isinstance(node.parent, nodes.TextElement)
         if attrs.has_key('scale'):
             # Could also be done with ``scale`` option to
@@ -608,7 +622,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
             post.append('}')
         if attrs.has_key('width'):
-            include_graphics_options = '[width=%s]' % attrs['width']
+            include_graphics_options.append('width=%s' % (
+                            self.latex_image_length(attrs['width']), ))
+        if attrs.has_key('height'):
+            include_graphics_options.append('height=%s' % (
+                            self.latex_image_length(attrs['height']), ))
         if attrs.has_key('align'):
             align_prepost = {
                 # By default latex aligns the top of an image.
@@ -625,7 +643,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 pre.append(align_prepost[inline, attrs['align']][0])
                 post.append(align_prepost[inline, attrs['align']][1])
             except KeyError:
-                pass
+                pass                    # XXX complain here?
         if not inline:
             pre.append('\n')
             post.append('\n')
@@ -638,20 +656,37 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # ignore remote images
             return
         self.body.extend(pre)
-        # XXX: for now, don't fiddle around with graphics formats
-        self.body.append('\\includegraphics%s{%s}' % (include_graphics_options, uri))
+        options = ''
+        if include_graphics_options:
+            options = '[%s]' % ','.join(include_graphics_options)
+        self.body.append('\\includegraphics%s{%s}' % (options, uri))
         self.body.extend(post)
     def depart_image(self, node):
         pass
 
     def visit_figure(self, node):
-        self.body.append('\\begin{figure}\n')
+        if (not node.attributes.has_key('align') or
+            node.attributes['align'] == 'center'):
+            # centering does not add vertical space like center.
+            align = '\n\\centering'
+            align_end = ''
+        else:
+            # TODO non vertical space for other alignments.
+            align = '\\begin{flush%s}' % node.attributes['align']
+            align_end = '\\end{flush%s}' % node.attributes['align']
+        self.body.append('\\begin{figure}[htbp]%s\n' % align)
+        self.context.append('%s\\end{figure}\n' % align_end)
     def depart_figure(self, node):
-        self.body.append('\\end{figure}\n')
+        self.body.append(self.context.pop())
 
     def visit_caption(self, node):
         self.body.append('\\caption{')
     def depart_caption(self, node):
+        self.body.append('}')
+
+    def visit_legend(self, node):
+        self.body.append('{\\small ')
+    def depart_legend(self, node):
         self.body.append('}')
 
     def visit_admonition(self, node):
@@ -721,6 +756,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_target(self, node):
         pass
 
+    def visit_attribution(self, node):
+        self.body.append('\n\\begin{flushright}\n')
+        self.body.append('---')
+    def depart_attribution(self, node):
+        self.body.append('\n\\end{flushright}\n')
+
     indextype_map = {
         'module': 'refmodindex',
         'keyword': 'kwindex',
@@ -751,7 +792,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_raw(self, node):
         if 'latex' in node.get('format', '').split():
-            self.body.append(r'%s' % node.astext())
+            self.body.append(node.astext())
         raise nodes.SkipNode
 
     def visit_reference(self, node):
@@ -948,8 +989,41 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_description(self, node):
         pass
 
+    def visit_superscript(self, node):
+        self.body.append('$^{\\text{')
+    def depart_superscript(self, node):
+        self.body.append('}}$')
+
+    def visit_subscript(self, node):
+        self.body.append('$_{\\text{')
+    def depart_subscript(self, node):
+        self.body.append('}}$')
+
     def visit_substitution_definition(self, node):
         raise nodes.SkipNode
+
+    def visit_substitution_reference(self, node):
+        raise nodes.SkipNode
+
+    def visit_generated(self, node):
+        pass
+    def depart_generated(self, node):
+        pass
+
+    def visit_compound(self, node):
+        pass
+    def depart_compound(self, node):
+        pass
+
+    def visit_container(self, node):
+        pass
+    def depart_container(self, node):
+        pass
+
+    def visit_decoration(self, node):
+        pass
+    def depart_decoration(self, node):
+        pass
 
     # text handling
 
