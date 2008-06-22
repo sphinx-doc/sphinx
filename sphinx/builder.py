@@ -574,12 +574,12 @@ class StandaloneHTMLBuilder(Builder):
                 if filename.startswith('.'):
                     continue
                 fullname = path.join(staticdirname, filename)
+                targetname = path.join(self.outdir, '_static', filename)
                 if path.isfile(fullname):
-                    shutil.copyfile(fullname,
-                                    path.join(self.outdir, '_static', filename))
+                    shutil.copyfile(fullname, targetname)
                 elif path.isdir(fullname):
-                    shutil.copytree(fullname,
-                                    path.join(self.outdir, '_static', filename))
+                    shutil.rmtree(targetname)
+                    shutil.copytree(fullname, targetname)
         # add pygments style file
         f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
         f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())

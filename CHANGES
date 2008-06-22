@@ -114,6 +114,8 @@ Bugs fixed
 * The LaTeX writer now translates line blocks with ``\raggedright``,
   which plays nicer with tables.
 
+* Fix bug with directories in the HTML builder static path.
+
 
 Release 0.3 (May 6, 2008)
 =========================
