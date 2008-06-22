@@ -48,6 +48,9 @@ New features added
   - The directories in the `html_static_path` can now contain
     subdirectories.
 
+  - The module index now isn't collapsed if the number of submodules
+    is larger than the number of toplevel modules.
+
 * The image directive now supports specifying the extension as ``.*``,
   which makes the builder select the one that matches best.  Thanks to
   Sebastian Wiesner.

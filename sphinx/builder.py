@@ -535,13 +535,13 @@ class StandaloneHTMLBuilder(Builder):
             # apply heuristics when to collapse modindex at page load:
             # only collapse if number of toplevel modules is larger than
             # number of submodules
-            collapse = len(modules) - num_toplevels > num_toplevels
+            collapse = len(modules) - num_toplevels < num_toplevels
 
             modindexcontext = dict(
                 modindexentries = modindexentries,
                 platforms = platforms,
                 letters = letters,
-                collapse = collapse,
+                collapse_modindex = collapse,
             )
             self.info(' modindex', nonl=1)
             self.handle_page('modindex', modindexcontext, 'modindex.html')
