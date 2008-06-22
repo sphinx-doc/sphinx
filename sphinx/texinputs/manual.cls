@@ -77,6 +77,7 @@
     \end{flushright}%\par
     \@thanks
   \end{titlepage}%
+  \cleardoublepage%
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
