@@ -483,7 +483,7 @@ def setup(app):
                       1, (1, 0, 1), **cls_options)
     app.add_directive('autoexception', auto_directive_withmembers,
                       1, (1, 0, 1), **cls_options)
-    app.add_directive('autofunction', auto_directive, 1, (1, 0, 1)
+    app.add_directive('autofunction', auto_directive, 1, (1, 0, 1),
                       noindex=directives.flag)
     app.add_directive('automethod', auto_directive, 1, (1, 0, 1),
                       noindex=directives.flag)
