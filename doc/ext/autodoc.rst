@@ -148,6 +148,10 @@ There are also new config values that you can set:
    fields with version control tags, that you don't want to put in the generated
    documentation.
 
+   .. deprecated:: 0.4
+      Use the more versatile docstring processing provided by
+      :event:`autodoc-process-docstring`.
+
 .. confval:: autoclass_content
 
    This value selects what content will be inserted into the main body of an
@@ -164,3 +168,36 @@ There are also new config values that you can set:
       Only the ``__init__`` method's docstring is inserted.
 
    .. versionadded:: 0.3
+
+
+Docstring preprocessing
+-----------------------
+
+.. versionadded:: 0.4
+
+autodoc provides the following additional event:
+
+.. event:: autodoc-process-docstring (app, what, name, obj, options, lines)
+
+   Emitted when autodoc has read and processed a docstring.  *lines* is a list
+   of strings -- the lines of the processed docstring -- that the event handler
+   can modify **in place** to change what Sphinx puts into the output.
+
+   :param app: the Sphinx application object
+   :param what: the type of the object which the docstring belongs to (one of
+      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
+      ``"attribute"``)
+   :param name: the fully qualified name of the object
+   :param obj: the object itself
+   :param options: the options given to the directive: an object with attributes
+      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
+      ``noindex`` that are true if the flag option of same name was given to the
+      auto directive
+   :param lines: the lines of the docstring, see above
+
+
+The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
+needed docstring processing:
+
+.. autofunction:: cut_lines
+.. autofunction:: between

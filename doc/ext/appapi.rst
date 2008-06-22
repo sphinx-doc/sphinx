@@ -162,24 +162,24 @@ package.
 Sphinx core events
 ------------------
 
-These events are known to the core.  The arguments showed are given to the
+These events are known to the core.  The arguments shown are given to the
 registered event handlers.
 
-.. event:: builder-inited ()
+.. event:: builder-inited (app)
 
    Emitted the builder object has been created.
 
-.. event:: doctree-read (doctree)
+.. event:: doctree-read (app, doctree)
 
    Emitted when a doctree has been parsed and read by the environment, and is
    about to be pickled.
 
-.. event:: doctree-resolved (doctree, docname)
+.. event:: doctree-resolved (app, doctree, docname)
 
    Emitted when a doctree has been "resolved" by the environment, that is, all
    references and TOCs have been inserted.
 
-.. event:: page-context (pagename, templatename, context, doctree)
+.. event:: page-context (app, pagename, templatename, context, doctree)
 
    Emitted when the HTML builder has created a context dictionary to render a
    template with -- this can be used to add custom elements to the context.

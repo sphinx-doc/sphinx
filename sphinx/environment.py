@@ -209,6 +209,9 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.config = config
 
+        # the application object; only set while update() runs
+        self.app = None
+
         # the docutils settings for building
         self.settings = default_settings.copy()
         self.settings['env'] = self
@@ -420,6 +423,7 @@ class BuildEnvironment:
         yield msg
 
         self.config = config
+        self.app = app
 
         # clear all files no longer present
         for docname in removed:
@@ -433,6 +437,8 @@ class BuildEnvironment:
         if config.master_doc not in self.all_docs:
             self.warn(None, 'master file %s not found' %
                       self.doc2path(config.master_doc))
+
+        self.app = None
 
         # remove all non-existing images from inventory
         for imgsrc in self.images.keys():

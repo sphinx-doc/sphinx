@@ -131,8 +131,6 @@ latex_logo = '_static/sphinx.png'
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
 
-automodule_skip_lines = 4
-
 
 # Extension interface
 # -------------------
@@ -180,6 +178,8 @@ def parse_event(env, sig, signode):
 
 
 def setup(app):
+    from sphinx.ext.autodoc import cut_lines
+    app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.add_description_unit('directive', 'dir', 'pair: %s; directive', parse_directive)
     app.add_description_unit('role', 'role', 'pair: %s; role', parse_role)
     app.add_description_unit('confval', 'confval', 'pair: %s; configuration value')

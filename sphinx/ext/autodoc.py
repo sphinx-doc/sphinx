@@ -78,6 +78,51 @@ class AutodocReporter(object):
         return self.system_message(4, *args, **kwargs)
 
 
+# Some useful event listener factories for autodoc-process-docstring.
+
+def cut_lines(pre, post=0, what=None):
+    """
+    Return a listener that removes the first *pre* and last *post*
+    lines of every docstring.  If *what* is a sequence of strings,
+    only docstrings of a type in *what* will be processed.
+
+    Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
+
+       from sphinx.ext.autodoc import cut_lines
+       app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
+
+    This can (and should) be used in place of :confval:`automodule_skip_lines`.
+    """
+    def process(app, what_, name, obj, options, lines):
+        if what and what_ not in what:
+            return
+        del lines[:pre]
+        if post:
+            del lines[-post:]
+    return process
+
+def between(marker, what=None):
+    """
+    Return a listener that only keeps lines between the first two lines that
+    match the *marker* regular expression.  If *what* is a sequence of strings,
+    only docstrings of a type in *what* will be processed.
+    """
+    marker_re = re.compile(marker)
+    def process(app, what_, name, obj, options, lines):
+        if what and what_ not in what:
+            return
+        seen = 0
+        for i, line in enumerate(lines[:]):
+            if marker_re.match(line):
+                if not seen:
+                    del lines[:i+1]
+                    seen = i+1
+                else:
+                    del lines[i-seen:]
+                    break
+    return process
+
+
 def isdescriptor(x):
     """Check if the object is some kind of descriptor."""
     for item in '__get__', '__set__', '__delete__':
@@ -127,7 +172,7 @@ def get_module_charset(module):
     return charset
 
 
-def get_doc(what, obj, env):
+def get_doc(what, name, obj, options, env):
     """Format and yield lines of the docstring(s) for the object."""
     docstrings = []
     if getattr(obj, '__doc__', None):
@@ -168,7 +213,12 @@ def get_doc(what, obj, env):
                 except UnicodeError:
                     # last resort -- can't fail
                     docstring = docstring.decode('latin1')
-        for line in prepare_docstring(docstring):
+        docstringlines = prepare_docstring(docstring)
+        if env.app:
+            # let extensions preprocess docstrings
+            env.app.emit('autodoc-process-docstring',
+                         what, name, obj, options, docstringlines)
+        for line in docstringlines:
             yield line
 
 
@@ -336,7 +386,7 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
         sourcename = 'docstring of %s' % fullname
 
     # add content from docstrings
-    for i, line in enumerate(get_doc(what, todoc, env)):
+    for i, line in enumerate(get_doc(what, fullname, todoc, options, env)):
         result.append(indent + line, sourcename, i)
 
     # add source content, if present
@@ -364,7 +414,7 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
             members_check_module = True
             all_members = inspect.getmembers(todoc)
         else:
-            if options.inherited:
+            if options.inherited_members:
                 # getmembers() uses dir() which pulls in members from all base classes
                 all_members = inspect.getmembers(todoc)
             else:
@@ -378,7 +428,7 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
             continue
         # ignore undocumented members if :undoc-members: is not given
         doc = getattr(member, '__doc__', None)
-        if not options.undoc and not doc:
+        if not options.undoc_members and not doc:
             continue
         if what == 'module':
             if isinstance(member, types.FunctionType):
@@ -420,11 +470,11 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     name = arguments[0]
     genopt = Options()
     members = options.get('members', [])
-    genopt.inherited = 'inherited-members' in options
-    if genopt.inherited and not members:
+    genopt.inherited_members = 'inherited-members' in options
+    if genopt.inherited_members and not members:
         # :inherited-members: implies :members:
         members = ['__all__']
-    genopt.undoc = 'undoc-members' in options
+    genopt.undoc_members = 'undoc-members' in options
     genopt.show_inheritance = 'show-inheritance' in options
     genopt.noindex = 'noindex' in options
 
@@ -465,16 +515,16 @@ def auto_directive_withmembers(*args, **kwds):
     return _auto_directive(*args, **kwds)
 
 
-def members_directive(arg):
+def members_option(arg):
     if arg is None:
         return ['__all__']
     return [x.strip() for x in arg.split(',')]
 
 
 def setup(app):
-    mod_options = {'members': members_directive, 'undoc-members': directives.flag,
+    mod_options = {'members': members_option, 'undoc-members': directives.flag,
                    'noindex': directives.flag}
-    cls_options = {'members': members_directive, 'undoc-members': directives.flag,
+    cls_options = {'members': members_option, 'undoc-members': directives.flag,
                    'noindex': directives.flag, 'inherited-members': directives.flag,
                    'show-inheritance': directives.flag}
     app.add_directive('automodule', auto_directive_withmembers,
@@ -489,5 +539,7 @@ def setup(app):
                       noindex=directives.flag)
     app.add_directive('autoattribute', auto_directive, 1, (1, 0, 1),
                       noindex=directives.flag)
+    # deprecated: remove in some future version.
     app.add_config_value('automodule_skip_lines', 0, True)
     app.add_config_value('autoclass_content', 'class', True)
+    app.add_event('autodoc-process-docstring')

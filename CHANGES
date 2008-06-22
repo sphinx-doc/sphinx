@@ -67,6 +67,10 @@ New features added
   are now supported.
 
 * Extensions:
+
+  - The autodoc extension now offers a much more flexible way to
+    manipulate docstrings before including them into the output, via
+    the new `autodoc-process-docstring` event.
     
   - The `autodoc` extension accepts signatures for functions, methods
     and classes now that override the signature got via introspection
