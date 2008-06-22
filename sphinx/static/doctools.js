@@ -154,7 +154,7 @@ var Documentation = {
    * init the modindex toggle buttons
    */
   initModIndex : function() {
-    $('img.toggler').click(function() {
+    var togglers = $('img.toggler').click(function() {
       var src = $(this).attr('src');
       var idnum = $(this).attr('id').substr(7);
       console.log($('tr.cg-' + idnum).toggle());
@@ -162,7 +162,10 @@ var Documentation = {
         $(this).attr('src', src.substr(0, src.length-9) + 'plus.png');
       else
         $(this).attr('src', src.substr(0, src.length-8) + 'minus.png');
-    }).css('display', '').click();
+    }).css('display', '');
+    if (DOCUMENTATION_OPTIONS.COLLAPSE_MODINDEX) {
+        togglers.click();
+    }
   },
 
   /**

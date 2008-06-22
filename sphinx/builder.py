@@ -501,6 +501,8 @@ class StandaloneHTMLBuilder(Builder):
             modindexentries = []
             letters = []
             pmn = ''
+            num_toplevels = 0
+            num_collapsables = 0
             cg = 0 # collapse group
             fl = '' # first letter
             for mn, (fn, sy, pl, dep) in modules:
@@ -517,21 +519,29 @@ class StandaloneHTMLBuilder(Builder):
                     if pmn == tn:
                         # first submodule - make parent collapsable
                         modindexentries[-1][1] = True
+                        num_collapsables += 1
                     elif not pmn.startswith(tn):
                         # submodule without parent in list, add dummy entry
                         cg += 1
                         modindexentries.append([tn, True, cg, False, '', '', [], False])
                 else:
+                    num_toplevels += 1
                     cg += 1
                 modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl, dep])
                 pmn = mn
                 fl = mn[0].lower()
             platforms = sorted(platforms)
 
+            # apply heuristics when to collapse modindex at page load:
+            # only collapse if number of toplevel modules is larger than
+            # number of submodules
+            collapse = len(modules) - num_toplevels > num_toplevels
+
             modindexcontext = dict(
                 modindexentries = modindexentries,
                 platforms = platforms,
                 letters = letters,
+                collapse = collapse,
             )
             self.info(' modindex', nonl=1)
             self.handle_page('modindex', modindexcontext, 'modindex.html')

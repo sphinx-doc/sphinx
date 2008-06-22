@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% set title = 'Global Module Index' %}
+{% block extrahead %}
+{% if collapse_modindex %}
+    <script type="text/javascript">
+      DOCUMENTATION_OPTIONS.COLLAPSE_MODINDEX = true;
+    </script>
+{% endif %}
+{% endblock %}
 {% block body %}
 
    <h1 id="global-module-index">Global Module Index</h1>
