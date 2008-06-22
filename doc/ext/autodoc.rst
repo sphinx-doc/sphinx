@@ -114,6 +114,13 @@ directive.
 
      .. versionadded:: 0.4
 
+   * All autodoc directives support the ``noindex`` flag option that has the
+     same effect as for standard :dir:`function` etc. directives: no index
+     entries are generated for the documented object (and all autodocumented
+     members).
+
+     .. versionadded:: 0.4
+
    .. note::
 
       In an :dir:`automodule` directive with the ``members`` option set, only

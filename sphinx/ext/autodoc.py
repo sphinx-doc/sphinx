@@ -314,6 +314,8 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
         # Be explicit about the module, this is necessary since .. class:: doesn't
         # support a prepended module name
         result.append(indent + u'   :module: %s' % mod, '<autodoc>')
+    if options.noindex:
+        result.append(indent + u'   :noindex:', '<autodoc>')
     result.append(u'', '<autodoc>')
 
     if options.show_inheritance and what in ('class', 'exception'):
@@ -424,6 +426,7 @@ def _auto_directive(dirname, arguments, options, content, lineno,
         members = ['__all__']
     genopt.undoc = 'undoc-members' in options
     genopt.show_inheritance = 'show-inheritance' in options
+    genopt.noindex = 'noindex' in options
 
     filename_set = set()
     warnings, result = generate_rst(what, name, members, genopt, content, state.document,
@@ -469,9 +472,10 @@ def members_directive(arg):
 
 
 def setup(app):
-    mod_options = {'members': members_directive, 'undoc-members': directives.flag}
+    mod_options = {'members': members_directive, 'undoc-members': directives.flag,
+                   'noindex': directives.flag}
     cls_options = {'members': members_directive, 'undoc-members': directives.flag,
-                   'inherited-members': directives.flag,
+                   'noindex': directives.flag, 'inherited-members': directives.flag,
                    'show-inheritance': directives.flag}
     app.add_directive('automodule', auto_directive_withmembers,
                       1, (1, 0, 1), **mod_options)
@@ -479,8 +483,11 @@ def setup(app):
                       1, (1, 0, 1), **cls_options)
     app.add_directive('autoexception', auto_directive_withmembers,
                       1, (1, 0, 1), **cls_options)
-    app.add_directive('autofunction', auto_directive, 1, (1, 0, 1))
-    app.add_directive('automethod', auto_directive, 1, (1, 0, 1))
-    app.add_directive('autoattribute', auto_directive, 1, (1, 0, 1))
+    app.add_directive('autofunction', auto_directive, 1, (1, 0, 1)
+                      noindex=directives.flag)
+    app.add_directive('automethod', auto_directive, 1, (1, 0, 1),
+                      noindex=directives.flag)
+    app.add_directive('autoattribute', auto_directive, 1, (1, 0, 1),
+                      noindex=directives.flag)
     app.add_config_value('automodule_skip_lines', 0, True)
     app.add_config_value('autoclass_content', 'class', True)
