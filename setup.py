@@ -79,11 +79,10 @@ setup(
     packages=['sphinx'],
     include_package_data=True,
     # replaced by the entry points
-    #scripts=['sphinx-build.py', 'sphinx-web.py', 'sphinx-quickstart.py'],
+    #scripts=['sphinx-build.py', 'sphinx-quickstart.py'],
     entry_points={
         'console_scripts': [
             'sphinx-build = sphinx:main',
-            'sphinx-web = sphinx.web:main',
             'sphinx-quickstart = sphinx.quickstart:main'
         ]
     },
