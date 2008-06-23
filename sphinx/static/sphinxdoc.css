@@ -98,6 +98,15 @@ a tt:hover {
     color: #2491CF;
 }
 
+.field-list ul {
+    margin: 0;
+    padding-left: 1em;
+}
+
+.field-list p {
+    margin: 0;
+}
+
 dl {
     margin-bottom: 15px;
 }

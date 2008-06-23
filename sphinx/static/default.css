@@ -570,6 +570,10 @@ ul.fakelist {
     padding: 0;
 }
 
+.field-list ul {
+    padding-left: 1em;
+}
+
 .first {
     margin-top: 0 !important;
 }
@@ -663,6 +667,15 @@ table.field-list td, table.field-list th {
 
 table.footnote td, table.footnote th {
     border: 0 !important;
+}
+
+.field-list ul {
+    margin: 0;
+    padding-left: 1em;
+}
+
+.field-list p {
+    margin: 0;
 }
 
 dl {
