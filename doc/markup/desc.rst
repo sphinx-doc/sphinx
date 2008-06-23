@@ -199,6 +199,12 @@ The directives are:
    parameter.  The description should include similar information to that
    described for ``function``.  See also :ref:`signatures`.
 
+.. directive:: .. staticmethod:: name(signature)
+
+   Like :dir:`method`, but indicates that the method is a static method.
+
+   .. versionadded:: 0.4
+   
 .. directive:: .. opcode:: name
 
    Describes a Python bytecode instruction (this is not very useful for projects

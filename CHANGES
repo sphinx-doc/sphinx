@@ -13,6 +13,9 @@ New features added
 * Sphinx now interprets field lists with fields like ``:param foo:``
   in description units.
 
+* The new `staticmethod` directive can be used to mark methods as
+  static methods.
+  
 * HTML output:
 
   - The "previous" and "next" links have a more logical structure, so

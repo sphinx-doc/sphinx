@@ -572,6 +572,35 @@
     \methodlineni{#2}{#3}
 }{\end{fulllineitems}}
 
+% static method ----------------------------------------------------------
+% \begin{staticmethoddesc}[classname]{methodname}{args}
+\newcommand{\staticmethodline}[3][\@undefined]{
+  \staticmethodlineni{#2}{#3}
+  \ifx\@undefined#1\relax
+    \index{#2@{\py@idxcode{#2()}} (\py@thisclass\ static method)}
+  \else
+    \index{#2@{\py@idxcode{#2()}} (#1 static method)}
+  \fi
+}
+\newenvironment{staticmethoddesc}[3][\@undefined]{
+  \begin{fulllineitems}
+    \ifx\@undefined#1\relax
+      \staticmethodline{#2}{#3}
+    \else
+      \def\py@thisclass{#1}
+      \staticmethodline{#2}{#3}
+    \fi
+}{\end{fulllineitems}}
+
+% similar to {staticmethoddesc}, but doesn't add to the index
+% (never actually uses the optional argument)
+\newcommand{\staticmethodlineni}[3][\py@classbadkey]{%
+  \py@sigline{static \bfcode{#2}}{#3}}
+\newenvironment{staticmethoddescni}[3][\py@classbadkey]{
+  \begin{fulllineitems}
+    \staticmethodlineni{#2}{#3}
+}{\end{fulllineitems}}
+
 % object data attribute --------------------------------------------------
 % \begin{memberdesc}[classname]{membername}
 \newcommand{\memberline}[2][\py@classbadkey]{%

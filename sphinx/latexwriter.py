@@ -86,7 +86,7 @@ class Desc(object):
     def __init__(self, node):
         self.env = LaTeXTranslator.desc_map.get(node['desctype'], 'describe')
         self.ni = node['noindex']
-        self.type = self.cls = self.name = self.params = ''
+        self.type = self.cls = self.name = self.params = self.annotation = ''
         self.count = 0
 
 
@@ -284,6 +284,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'function' : 'funcdesc',
         'class': 'classdesc',
         'method': 'methoddesc',
+        'staticmethod': 'staticmethoddesc',
         'exception': 'excdesc',
         'data': 'datadesc',
         'attribute': 'memberdesc',
@@ -325,7 +326,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             t2 = "{%s}{%s}" % (d.name, d.params)
         elif d.env in ('datadesc', 'classdesc*', 'excdesc', 'csimplemacrodesc'):
             t2 = "{%s}" % (d.name)
-        elif d.env == 'methoddesc':
+        elif d.env in ('methoddesc', 'staticmethoddesc'):
             if d.cls:
                 t2 = "[%s]{%s}{%s}" % (d.cls, d.name, d.params)
             else:
@@ -388,6 +389,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             d.name += self.encode(node.astext())
         else:
             self.descstack[-1].params = self.encode(node.astext().strip())
+        raise nodes.SkipNode
+
+    def visit_desc_annotation(self, node):
+        d = self.descstack[-1]
+        if d.env == 'describe':
+            d.name += self.encode(node.astext())
+        else:
+            self.descstack[-1].annotation = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
     def visit_refcount(self, node):

@@ -23,7 +23,7 @@ class desc(nodes.Admonition, nodes.Element): pass
 class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement): pass
 # compatibility alias
 desc_classname = desc_addname
-# return type (C), object type (Python)
+# return type (C); object type, e.g. -> annotation (Python)
 class desc_type(nodes.Part, nodes.Inline, nodes.TextElement): pass
 # main name of object
 class desc_name(nodes.Part, nodes.Inline, nodes.TextElement): pass
@@ -36,6 +36,8 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
     child_text_separator = ', '
     def astext(self):
         return '[' + nodes.TextElement.astext(self) + ']'
+# annotation (not Python 3-style annotations)
+class desc_annotation(nodes.Part, nodes.Inline, nodes.TextElement): pass
 
 # node for content
 class desc_content(nodes.General, nodes.Element): pass

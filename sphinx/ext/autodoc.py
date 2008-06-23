@@ -254,7 +254,6 @@ def format_signature(what, obj):
 def generate_rst(what, name, members, options, add_content, document, lineno,
                  indent=u'', filename_set=None, check_module=False):
     env = document.settings.env
-    is_static = False
 
     result = None
 

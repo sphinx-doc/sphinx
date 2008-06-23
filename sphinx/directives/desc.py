@@ -45,6 +45,18 @@ def desc_index_text(desctype, module, name):
             return '%s() (%s.%s method)' % (methname, module, clsname)
         else:
             return '%s() (%s method)' % (methname, clsname)
+    elif desctype == 'staticmethod':
+        try:
+            clsname, methname = name.rsplit('.', 1)
+        except ValueError:
+            if module:
+                return '%s() (in module %s)' % (name, module)
+            else:
+                return '%s()' % name
+        if module:
+            return '%s() (%s.%s static method)' % (methname, module, clsname)
+        else:
+            return '%s() (%s static method)' % (methname, clsname)
     elif desctype == 'attribute':
         try:
             clsname, attrname = name.rsplit('.', 1)
@@ -91,6 +103,8 @@ doc_fields_with_arg = {
     'var': 'Variable',
     'ivar': 'Variable',
     'cvar': 'Variable',
+    'returns': 'Returns',
+    'return': 'Returns',
 }
 
 doc_fields_without_arg = {
@@ -140,7 +154,7 @@ def handle_doc_fields(node):
                     nfield = nodes.field()
                     nfield += nodes.field_name(typ, typ)
                     nfield += nodes.field_body()
-                    nfield[1] += children
+                    nfield[1] += fbody.children
                     new_list += nfield
             except (KeyError, ValueError):
                 fnametext = fname.astext()
@@ -199,6 +213,9 @@ def parse_py_signature(signode, sig, desctype, module, env):
         add_module = True
         fullname = classname and classname + name or name
 
+    if desctype == 'staticmethod':
+        signode += addnodes.desc_annotation('static ', 'static ')
+
     if classname:
         signode += addnodes.desc_addname(classname, classname)
     # exceptions are a special case, since they are documented in the
@@ -210,7 +227,7 @@ def parse_py_signature(signode, sig, desctype, module, env):
 
     signode += addnodes.desc_name(name, name)
     if not arglist:
-        if desctype in ('function', 'method'):
+        if desctype in ('function', 'method', 'staticmethod'):
             # for callables, add an empty parameter list
             signode += addnodes.desc_parameterlist()
         return fullname, classname
@@ -383,7 +400,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         node.append(signode)
         try:
             if desctype in ('function', 'data', 'class', 'exception',
-                            'method', 'attribute'):
+                            'method', 'staticmethod', 'attribute'):
                 name, clsname = parse_py_signature(signode, sig, desctype, module, env)
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
@@ -457,7 +474,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
     if desctype in ('class', 'exception') and names:
         env.currclass = names[0]
         clsname_set = True
-    elif desctype in ('method', 'attribute') and clsname and not env.currclass:
+    elif desctype in ('method', 'staticmethod', 'attribute') and \
+             clsname and not env.currclass:
         env.currclass = clsname.strip('.')
         clsname_set = True
     # needed for association of version{added,changed} directives
@@ -482,6 +500,7 @@ desctypes = [
     'data',
     'class',
     'method',
+    'staticmethod',
     'attribute',
     'exception',
     # the C ones

@@ -113,6 +113,11 @@ class HTMLTranslator(BaseTranslator):
     def depart_desc_optional(self, node):
         self.body.append('<span class="optional">]</span>')
 
+    def visit_desc_annotation(self, node):
+        self.body.append(self.starttag(node, 'em', CLASS='property'))
+    def depart_desc_annotation(self, node):
+        self.body.append('</em>')
+
     def visit_desc_content(self, node):
         self.body.append(self.starttag(node, 'dd', ''))
     def depart_desc_content(self, node):
