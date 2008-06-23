@@ -17,6 +17,7 @@ Sphinx documentation contents
    
    glossary
    changes
+   examples
 
 
 Indices and tables

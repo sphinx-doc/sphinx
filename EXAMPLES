@@ -1,0 +1,26 @@
+Projects using Sphinx
+=====================
+
+This is an (incomplete) list of projects that use Sphinx or are
+experimenting with using it for their documentation.  If you like
+to be included, please mail to sphinx-dev@googlegroups.com.
+
+* Sphinx: http://sphinx.pocoo.org/
+* Python: http://docs.python.org/dev/
+* NumPy: http://mentat.za.net/numpy/refguide/
+* Pylons: http://bel-epa.com/pylonsdocs/
+* Jinja: http://jinja.pocoo.org/2/documentation/
+* F2py: http://www.f2py.org/html/
+* Paver: http://www.blueskyonmars.com/projects/paver/
+* Satchmo: http://www.satchmoproject.com/docs/svn/
+* PyEphem: http://rhodesmill.org/pyephem/
+* Paste: http://pythonpaste.org/script/
+* Calibre: http://calibre.kovidgoyal.net/user_manual/
+* PyUblas: http://tiker.net/doc/pyublas/
+* Py on Windows: http://timgolden.me.uk/python-on-windows/
+* Zope 3: e.g. http://docs.carduner.net/z3c-tutorial/
+* Grok (upcoming)
+* Django (upcoming)
+* Matplotlib (upcoming)
+* TurboGears (upcoming)
+
