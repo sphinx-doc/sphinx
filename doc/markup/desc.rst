@@ -148,7 +148,7 @@ The directives are:
 
    Describes a module-level function.  The signature should include the
    parameters, enclosing optional parameters in brackets.  Default values can be
-   given if it enhances clarity.  For example::
+   given if it enhances clarity; see :ref:`signatures`.  For example::
 
       .. function:: Timer.repeat([repeat=3[, number=1000000]])
 
@@ -165,7 +165,8 @@ The directives are:
 .. directive:: .. class:: name[(signature)]
 
    Describes a class.  The signature can include parentheses with parameters
-   which will be shown as the constructor arguments.
+   which will be shown as the constructor arguments.  See also
+   :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
    directive's body.  If they are placed outside, the supplied name should
@@ -179,6 +180,8 @@ The directives are:
       .. class:: Bar
 
       .. method:: Bar.quux()
+
+   The first way is the preferred one.
 
    .. versionadded:: 0.4
       The standard reST directive ``class`` is now provided by Sphinx under
@@ -194,7 +197,7 @@ The directives are:
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
-   described for ``function``.
+   described for ``function``.  See also :ref:`signatures`.
 
 .. directive:: .. opcode:: name
 
@@ -230,3 +233,77 @@ There is also a generic version of these directives:
       .. describe:: opcode
 
          Describes a Python bytecode instruction.
+
+Extensions may add more directives like that, using the
+:func:`~sphinx.application.Sphinx.add_description_unit` method.
+
+
+.. _signatures:
+
+Signatures
+~~~~~~~~~~
+
+Signatures of functions, methods and class constructors can be given like they
+would be written in Python, with the exception that optional parameters can be
+indicated by brackets::
+
+   .. function:: compile(source[, filename[, symbol]])
+
+It is customary to put the opening bracket before the comma.  In addition to
+this "nested" bracket style, a "flat" style can also be used, due to the fact
+that most optional parameters can be given independently::
+
+   .. function:: compile(source[, filename, symbol])
+
+Default values for optional arguments can be given (but if they contain commas,
+they will confuse the signature parser).  Python 3-style argument annotations
+can also be given as well as return type annotations::
+
+   .. function:: compile(source : string[, filename, symbol]) -> ast object
+
+
+Info field lists
+~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.4
+
+Inside description unit directives, reST field lists with these fields are
+recognized and formatted nicely:
+
+* ``param``, ``parameter``, ``arg``, ``argument``, ``key``, ``keyword``:
+  Description of a parameter.
+* ``type``: Type of a parameter.
+* ``raises``, ``raise``, ``except``, ``exception``: That (and when) a specific
+  exception is raised.
+* ``var``, ``ivar``, ``cvar``: Description of a variable.
+* ``returns``, ``return``: Description of the return value.
+* ``rtype``: Return type.
+
+The field names must consist of one of these keywords and an argument (except
+for ``returns`` and ``rtype``, which do not need an argument).  This is best
+explained by an example::
+
+   .. function:: format_exception(etype, value, tb[, limit=None])
+
+      Format the exception with a traceback.
+   
+      :param object: exception type
+      :param value: exception value
+      :param tb: traceback object
+      :param limit: maximum number of stack frames to show
+      :type limit: integer or None
+      :rtype: list of strings
+
+This will render like this:
+
+   .. function:: format_exception(etype, value, tb[, limit=None])
+      :noindex:
+
+      Format the exception with a traceback.
+
+      :param object: exception type
+      :param value: exception value
+      :param tb: traceback object
+      :param limit: maximum number of stack frames to show
+      :type limit: integer or None
+      :rtype: list of strings
