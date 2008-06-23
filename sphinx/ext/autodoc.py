@@ -16,6 +16,7 @@ import types
 import inspect
 import textwrap
 import linecache
+from types import FunctionType, BuiltinMethodType, MethodType
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -35,6 +36,17 @@ _module_charsets = {}
 
 class Options(object):
     pass
+
+
+def is_static_method(obj):
+    """Check if the object given is a static method."""
+    if isinstance(obj, (FunctionType, classmethod)):
+        return True
+    elif isinstance(obj, BuiltinMethodType):
+        return obj.__self__ is not None
+    elif isinstance(obj, MethodType):
+        return obj.im_self is not None
+    return False
 
 
 class AutodocReporter(object):
@@ -226,7 +238,6 @@ def format_signature(what, obj):
     """Return the signature of the object, formatted for display."""
     if what not in ('class', 'method', 'function'):
         return ''
-    remove_self = what in ('class', 'method')
     if what == 'class':
         # for classes, the relevant signature is the __init__ method's
         obj = getattr(obj, '__init__', None)
@@ -234,7 +245,8 @@ def format_signature(what, obj):
         if obj is None or obj is object.__init__:
             return ''
     argspec = inspect.getargspec(obj)
-    if remove_self and argspec[0][0:1] == ['self']:
+    if what in ('class', 'method') and argspec[0] and \
+       argspec[0][0] in ('cls', 'self'):
         del argspec[0][0]
     return inspect.formatargspec(*argspec)
 
@@ -242,6 +254,7 @@ def format_signature(what, obj):
 def generate_rst(what, name, members, options, add_content, document, lineno,
                  indent=u'', filename_set=None, check_module=False):
     env = document.settings.env
+    is_static = False
 
     result = None
 
@@ -358,7 +371,9 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
     result.append(u'', '')
 
     # now, create the directive header
-    result.append(indent + u'.. %s:: %s%s' % (what, name_in_directive, args),
+    directive = (what == 'method' and is_static_method(todoc)) \
+                and 'staticmethod' or what
+    result.append(indent + u'.. %s:: %s%s' % (directive, name_in_directive, args),
                   '<autodoc>')
     if what != 'module':
         # Be explicit about the module, this is necessary since .. class:: doesn't
