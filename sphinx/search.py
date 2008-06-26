@@ -9,7 +9,7 @@
     :license: BSD.
 """
 import re
-import pickle
+import cPickle as pickle
 
 from docutils.nodes import Text, NodeVisitor
 

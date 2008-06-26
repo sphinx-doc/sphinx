@@ -34,8 +34,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    This builder produces a directory with pickle files containing mostly HTML
    fragments and TOC information, for use of a web application (or custom
-   postprocessing tool) that doesn't use the standard HTML templates.  It also
-   is the format used by the Sphinx Web application.
+   postprocessing tool) that doesn't use the standard HTML templates.
 
    See :ref:`serialization-details` for details about the output format.
 
@@ -43,6 +42,21 @@ The builder's "name" must be given to the **-b** command-line option of
 
    The file suffix is ``.fpickle``.  The global context is called
    ``globalcontext.pickle``, the search index ``searchindex.pickle``.
+
+.. class:: JSONHTMLBuilder
+
+   This builder produces a directory with JSON files containing mostly HTML
+   fragments and TOC information, for use of a web application (or custom
+   postprocessing tool) that doesn't use the standard HTML templates.
+
+   See :ref:`serialization-details` for details about the output format.
+
+   Its name is ``json``.
+
+   The file suffix is ``.fjson``.  The global context is called
+   ``globalcontext.json``, the search index ``searchindex.json``.
+
+   .. versionadded:: 0.5
 
 .. class:: LaTeXBuilder
 
@@ -70,17 +84,19 @@ The builder's "name" must be given to the **-b** command-line option of
    (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
    HTML documentation.  The pickle builder is a subclass of it.
 
-   A concreate subclass of this builder serializing to JSON could look like
-   this::
+   A concreate subclass of this builder serializing to the `PHP serialization`_
+   format could look like this::
 
-        import simplejson
+        import phpserialize
 
-        classs JSONBuilder(SerializingHTMLBuilder):
-            name = 'json'
-            implementation = simplejson
-            out_suffix = '.fjson'
-            globalcontext_filename = 'globalcontext.json'
-            searchindex_filename = 'searchindex.json'
+        classs PHPSerializedBuilder(SerializingHTMLBuilder):
+            name = 'phpserialized'
+            implementation = phpserialize
+            out_suffix = '.file.phpdump'
+            globalcontext_filename = 'globalcontext.phpdump'
+            searchindex_filename = 'searchindex.phpdump'
+
+   .. _PHP serialization: http://pypi.python.org/pypi/phpserialize
 
    .. attribute:: implementation
     

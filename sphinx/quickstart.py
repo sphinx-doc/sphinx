@@ -238,7 +238,8 @@ ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
 \t@echo "  html      to make standalone HTML files"
-\t@echo "  pickle    to make pickle files (usable by e.g. sphinx-web)"
+\t@echo "  pickle    to make pickle files"
+\t@echo "  json      to make JSON files"
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  changes   to make an overview over all changed/added/deprecated items"
@@ -260,6 +261,12 @@ pickle:
 \t@echo "Build finished; now you can process the pickle files."
 
 web: pickle
+
+json:
+\tmkdir -p %(rbuilddir)s/json %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) %(rbuilddir)s/json
+\t@echo
+\t@echo "Build finished; now you can process the JSON files."
 
 htmlhelp:
 \tmkdir -p %(rbuilddir)s/htmlhelp %(rbuilddir)s/doctrees

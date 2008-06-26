@@ -25,7 +25,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes
-from sphinx.util import ensuredir, relative_uri, SEP, os_path
+from sphinx.util import ensuredir, relative_uri, SEP, os_path, json
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.textwriter import TextWriter
@@ -294,7 +294,7 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     copysource = True
     out_suffix = '.html'
-    indexer_format = 'json'
+    indexer_format = json
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
     searchindex_filename = 'searchindex.json'
@@ -379,8 +379,7 @@ class StandaloneHTMLBuilder(Builder):
             builder = self.name,
             parents = [],
             logo = logo,
-            favicon = favicon,
-            len = len, # the built-in
+            favicon = favicon
         )
 
     def get_doc_context(self, docname, body):
@@ -624,12 +623,14 @@ class StandaloneHTMLBuilder(Builder):
 
     def load_indexer(self, docnames):
         try:
-            f = open(path.join(self.outdir, self.searchindex_filename), 'r')
+            f = open(path.join(self.outdir, self.searchindex_filename), 'rb')
             try:
                 self.indexer.load(f, self.indexer_format)
             finally:
                 f.close()
-        except (IOError, OSError):
+        except (IOError, OSError, NotImplementedError):
+            # we catch NotImplementedError here because if no simplejson
+            # is installed the searchindex can't be loaded
             pass
         # delete all entries for files that will be rebuilt
         self.indexer.prune(set(self.env.all_docs) - set(docnames))
@@ -683,9 +684,9 @@ class StandaloneHTMLBuilder(Builder):
     def handle_finish(self):
         self.info(bold('dumping search index...'))
         self.indexer.prune(self.env.all_docs)
-        f = open(path.join(self.outdir, 'searchindex.json'), 'w')
+        f = open(path.join(self.outdir, self.searchindex_filename), 'wb')
         try:
-            self.indexer.dump(f, 'json')
+            self.indexer.dump(f, self.indexer_format)
         finally:
             f.close()
 
@@ -702,15 +703,15 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     #: the filename for the global context file
     globalcontext_filename = None
 
-    #: If set to `None` the indexer uses the serialization implementation
-    indexer_format = None
-
     supported_image_types = ('image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg')
 
     def init(self):
         self.init_translator_class()
         self.templates = None   # no template bridge necessary
+
+    indexer_format = property(lambda x: x.implementation, doc='''
+        Alias the indexer format to the serilization implementation''')
 
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':
@@ -754,13 +755,8 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
 
-        self.info(bold('dumping search index...'))
-        self.indexer.prune(self.env.all_docs)
-        f = open(path.join(self.outdir, self.searchindex_filename), 'wb')
-        try:
-            self.indexer.dump(f, self.indexer_format or self.implementation)
-        finally:
-            f.close()
+        # super here to dump the search index
+        StandaloneHTMLBuilder.handle_finish(self)
 
         # copy the environment file from the doctree dir to the output dir
         # as needed by the web app
@@ -773,11 +769,25 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
 
 
 class PickleHTMLBuilder(SerializingHTMLBuilder):
+    """
+    A Builder that dumps the generated HTML into pickle files.
+    """
     implementation = pickle
     name = 'pickle'
     out_suffix = '.fpickle'
     globalcontext_filename = 'globalcontext.pickle'
     searchindex_filename = 'searchindex.pickle'
+
+
+class JSONHTMLBuilder(SerializingHTMLBuilder):
+    """
+    A builder that dumps the generated HTML into JSON files.
+    """
+    implementation = json
+    name = 'json'
+    out_suffix = '.fjson'
+    globalcontext_filename = 'globalcontext.json'
+    searchindex_filename = 'searchindex.json'
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
@@ -1128,6 +1138,7 @@ from sphinx.linkcheck import CheckExternalLinksBuilder
 builtin_builders = {
     'html': StandaloneHTMLBuilder,
     'pickle': PickleHTMLBuilder,
+    'json': JSONHTMLBuilder,
     'web': PickleHTMLBuilder,
     'htmlhelp': HTMLHelpBuilder,
     'latex': LaTeXBuilder,
