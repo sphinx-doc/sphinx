@@ -711,13 +711,16 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         return docname + SEP
 
     def handle_page(self, pagename, ctx, templatename='page.html',
-                    outfilename=None):
+                    outfilename=None, event_arg=None):
         ctx['current_page_name'] = pagename
         sidebarfile = self.config.html_sidebars.get(pagename)
         if sidebarfile:
             ctx['customsidebar'] = sidebarfile
         if not outfilename:
             outfilename = path.join(self.outdir, os_path(pagename) + self.out_suffix)
+
+        self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)
+
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
@@ -758,10 +761,6 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         # touch 'last build' file, used by the web application to determine
         # when to reload its environment and clear the cache
         open(path.join(self.outdir, LAST_BUILD_FILENAME), 'w').close()
-        # copy configuration file if not present
-        if not path.isfile(path.join(self.outdir, 'webconf.py')):
-            shutil.copyfile(path.join(path.dirname(__file__), 'web', 'webconf.py'),
-                            path.join(self.outdir, 'webconf.py'))
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):

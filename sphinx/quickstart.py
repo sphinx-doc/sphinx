@@ -257,9 +257,7 @@ pickle:
 \tmkdir -p %(rbuilddir)s/pickle %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) %(rbuilddir)s/pickle
 \t@echo
-\t@echo "Build finished; now you can process the pickle files or run"
-\t@echo "  sphinx-web %(rbuilddir)s/pickle"
-\t@echo "to start the sphinx-web server."
+\t@echo "Build finished; now you can process the pickle files."
 
 web: pickle
 
