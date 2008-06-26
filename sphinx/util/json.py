@@ -76,3 +76,14 @@ def load_json(s):
     d = {'null': None, 'true': True, 'false': False}
     s = STRING.sub(r'u\1', s)
     return eval(s, d)
+
+
+# serializer interface
+dumps = dump_json
+loads = load_json
+
+def dump(obj, f):
+    f.write(dumps(obj))
+
+def load(f):
+    return loads(f.read())

@@ -37,9 +37,12 @@ The builder's "name" must be given to the **-b** command-line option of
    postprocessing tool) that doesn't use the standard HTML templates.  It also
    is the format used by the Sphinx Web application.
 
-   See :ref:`pickle-details` for details about the output format.
+   See :ref:`serialization-details` for details about the output format.
 
    Its name is ``pickle``.  (The old name ``web`` still works as well.)
+
+   The file suffix is ``.fpickle``.  The global context is called
+   ``globalcontext.pickle``, the search index ``searchindex.pickle``.
 
 .. class:: LaTeXBuilder
 
@@ -60,6 +63,51 @@ The builder's "name" must be given to the **-b** command-line option of
    Its name is ``text``.
 
    .. versionadded:: 0.4
+
+.. class:: SerializingHTMLBuilder
+
+   This builder uses a module that implements the Python serialization API
+   (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
+   HTML documentation.  The pickle builder is a subclass of it.
+
+   A concreate subclass of this builder serializing to JSON could look like
+   this::
+
+        import simplejson
+
+        classs JSONBuilder(SerializingHTMLBuilder):
+            name = 'json'
+            implementation = simplejson
+            out_suffix = '.fjson'
+            globalcontext_filename = 'globalcontext.json'
+            searchindex_filename = 'searchindex.json'
+
+   .. attribute:: implementation
+    
+      A module that implements `dump()`, `load()`, `dumps()` and `loads()`
+      functions that conform to the functions with the same names from the
+      pickle module.  Known modules implementing this interface are
+      `simplejson` (or `json` in Python 2.6), `phpserialize`, `plistlib`,
+      and others.
+
+   .. attribute:: out_suffix
+
+      The suffix for all regular files.
+
+   .. attribute:: globalcontext_filename
+
+      The filename for the file that contains the "global context".  This
+      is a dict with some general configuration values such as the name
+      of the project.
+
+   .. attribute:: searchindex_filename
+
+      The filename for the search index Sphinx generates.
+
+
+   See :ref:`serialization-details` for details about the output format.
+
+   .. versionadded:: 0.5
    
 .. class:: ChangesBuilder
 
@@ -85,18 +133,22 @@ Built-in Sphinx extensions that offer more builders are:
 * :mod:`~sphinx.ext.coverage`
 
 
-.. _pickle-details:
+.. _serialization-details:
 
-Pickle builder details
-----------------------
+Serialization builder details
+-----------------------------
 
-The builder outputs one pickle file per source file, and a few special files.
-It also copies the reST source files in the directory ``_sources`` under the
-output directory.
+All serialization builders outputs one file per source file and a few special
+files.  They also copy the reST source files in the directory ``_sources``
+under the output directory.
 
-The files per source file have the extensions ``.fpickle``, and are arranged in
-directories just as the source files are.  They unpickle to a dictionary with
-these keys:
+The :class:`PickleHTMLBuilder` is a builtin subclass that implements the pickle
+serialization interface.
+
+The files per source file have the extensions of
+:attr:`~SerializingHTMLBuilder.out_suffix`, and are arranged in directories
+just as the source files are.  They unserialize to a dictionary (or dictionary
+like structure) with these keys:
 
 ``body``
    The HTML "body" (that is, the HTML rendering of the source file), as rendered
@@ -125,10 +177,7 @@ these keys:
 
 The special files are located in the root output directory.  They are:
 
-``environment.pickle``
-   The build environment.  (XXX add important environment properties)
-
-``globalcontext.pickle``
+:attr:`SerializingHTMLBuilder.globalcontext_filename`
    A pickled dict with these keys:
 
    ``project``, ``copyright``, ``release``, ``version``
@@ -147,7 +196,7 @@ The special files are located in the root output directory.  They are:
    ``titles``
       A dictionary of all documents' titles, as HTML strings.
 
-``searchindex.pickle``
+:attr:`SerializingHTMLBuilder.searchindex_filename`
    An index that can be used for searching the documentation.  It is a pickled
    list with these entries:
 
@@ -156,3 +205,11 @@ The special files are located in the root output directory.  They are:
      list.
    * A dict mapping word roots (processed by an English-language stemmer) to a
      list of integers, which are indices into the first list.
+
+``environment.pickle``
+   The build environment.  This is always a pickle file, independent of the
+   builder and a copy of the environment that was used when the builder was
+   started.  (XXX: document common members)
+
+   Unlike the other pickle files this pickle file requires that the sphinx
+   module is available on unpickling.

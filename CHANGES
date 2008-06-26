@@ -1,3 +1,15 @@
+Release 0.5 (in development)
+============================
+
+New features added
+------------------
+
+* `SerializingHTMLBuilder` was added as new abstract builder that can
+  be subclassed to serialize build HTML in a specific format.  The
+  `PickleHTMLBuilder` is a concrete subclass of it that uses pickle as
+  serialization implementation.
+
+
 Release 0.4 (Jun 23, 2008)
 ==========================
 

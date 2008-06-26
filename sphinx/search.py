@@ -14,7 +14,7 @@ import pickle
 from docutils.nodes import Text, NodeVisitor
 
 from sphinx.util.stemmer import PorterStemmer
-from sphinx.util.json import dump_json, load_json
+from sphinx.util import json
 
 
 word_re = re.compile(r'\w+(?u)')
@@ -50,8 +50,8 @@ class IndexBuilder(object):
     passed to the `feed` method.
     """
     formats = {
-        'json':     (dump_json, load_json),
-        'pickle':   (pickle.dumps, pickle.loads),
+        'json':     json,
+        'pickle':   pickle
     }
 
     def __init__(self):
@@ -63,7 +63,9 @@ class IndexBuilder(object):
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
-        frozen = self.formats[format][1](stream.read())
+        if isinstance(format, basestring):
+            format = self.formats[format]
+        frozen = format.load(stream)
         index2fn = frozen[0]
         self._titles = dict(zip(frozen[0], frozen[1]))
         self._mapping = dict((k, set(index2fn[i] for i in v))
@@ -71,7 +73,9 @@ class IndexBuilder(object):
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
-        stream.write(self.formats[format][0](self.freeze()))
+        if isinstance(format, basestring):
+            format = self.formats[format]
+        format.dump(self.freeze(), stream)
 
     def freeze(self):
         """

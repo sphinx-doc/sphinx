@@ -297,6 +297,7 @@ class StandaloneHTMLBuilder(Builder):
     indexer_format = 'json'
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
+    searchindex_filename = 'searchindex.json'
 
     def init(self):
         """Load templates."""
@@ -623,7 +624,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def load_indexer(self, docnames):
         try:
-            f = open(path.join(self.outdir, 'searchindex.'+self.indexer_format), 'r')
+            f = open(path.join(self.outdir, self.searchindex_filename), 'r')
             try:
                 self.indexer.load(f, self.indexer_format)
             finally:
@@ -638,7 +639,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             self.indexer.feed(pagename, title, doctree)
 
-    # --------- these are overwritten by the Pickle builder
+    # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
         return docname + self.out_suffix
@@ -689,13 +690,21 @@ class StandaloneHTMLBuilder(Builder):
             f.close()
 
 
-class PickleHTMLBuilder(StandaloneHTMLBuilder):
+class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     """
-    Builds HTML docs without rendering templates.
+    An abstract builder that serializes the HTML generated.
     """
-    name = 'pickle'
-    out_suffix = '.fpickle'
-    indexer_format = 'pickle'
+    #: the serializing implementation to use.  Set this to a module that
+    #: implements a `dump`, `load`, `dumps` and `loads` functions
+    #: (pickle, simplejson etc.)
+    implementation = None
+
+    #: the filename for the global context file
+    globalcontext_filename = None
+
+    #: If set to `None` the indexer uses the serialization implementation
+    indexer_format = None
+
     supported_image_types = ('image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg')
 
@@ -724,7 +733,7 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
-            pickle.dump(ctx, f, 2)
+            self.implementation.dump(ctx, f, 2)
         finally:
             f.close()
 
@@ -738,18 +747,18 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         # dump the global context
-        outfilename = path.join(self.outdir, 'globalcontext.pickle')
+        outfilename = path.join(self.outdir, self.globalcontext_filename)
         f = open(outfilename, 'wb')
         try:
-            pickle.dump(self.globalcontext, f, 2)
+            self.implementation.dump(self.globalcontext, f, 2)
         finally:
             f.close()
 
         self.info(bold('dumping search index...'))
         self.indexer.prune(self.env.all_docs)
-        f = open(path.join(self.outdir, 'searchindex.pickle'), 'wb')
+        f = open(path.join(self.outdir, self.searchindex_filename), 'wb')
         try:
-            self.indexer.dump(f, 'pickle')
+            self.indexer.dump(f, self.indexer_format or self.implementation)
         finally:
             f.close()
 
@@ -761,6 +770,14 @@ class PickleHTMLBuilder(StandaloneHTMLBuilder):
         # touch 'last build' file, used by the web application to determine
         # when to reload its environment and clear the cache
         open(path.join(self.outdir, LAST_BUILD_FILENAME), 'w').close()
+
+
+class PickleHTMLBuilder(SerializingHTMLBuilder):
+    implementation = pickle
+    name = 'pickle'
+    out_suffix = '.fpickle'
+    globalcontext_filename = 'globalcontext.pickle'
+    searchindex_filename = 'searchindex.pickle'
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
