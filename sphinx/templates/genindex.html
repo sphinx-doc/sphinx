@@ -32,7 +32,7 @@
     {%- endfor %}
   </dl></dd>
   {%- endif -%}
-{%- set numitems = numitems + 1 + subitems|length -%}
+{%- set numitems = numitems + 1 + (subitems|length) -%}
 {%- if numcols < 2 and numitems > breakat -%}
 {%- set numcols = numcols+1 -%}
 </dl></td><td width="33%" valign="top"><dl>
