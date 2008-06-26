@@ -89,7 +89,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
         import phpserialize
 
-        classs PHPSerializedBuilder(SerializingHTMLBuilder):
+        class PHPSerializedBuilder(SerializingHTMLBuilder):
             name = 'phpserialized'
             implementation = phpserialize
             out_suffix = '.file.phpdump'
