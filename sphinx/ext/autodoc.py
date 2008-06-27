@@ -242,7 +242,8 @@ def format_signature(what, obj):
         # for classes, the relevant signature is the __init__ method's
         obj = getattr(obj, '__init__', None)
         # classes without __init__ method?
-        if obj is None or obj is object.__init__:
+        if obj is None or obj is object.__init__ or not \
+           (inspect.ismethod(obj) or inspect.isfunction(obj)):
             return ''
     argspec = inspect.getargspec(obj)
     if what in ('class', 'method') and argspec[0] and \
