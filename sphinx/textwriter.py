@@ -571,6 +571,16 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_literal(self, node):
         self.add_text('``')
 
+    def visit_subscript(self, node):
+        self.add_text('_')
+    def depart_subscript(self, node):
+        pass
+
+    def visit_superscript(self, node):
+        self.add_text('^')
+    def depart_superscript(self, node):
+        pass
+
     def visit_footnote_reference(self, node):
         self.add_text('[%s]' % node.astext())
         raise nodes.SkipNode
