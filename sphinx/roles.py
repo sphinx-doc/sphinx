@@ -175,6 +175,9 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         # normalize whitespace in definition terms (if the term reference is
         # broken over a line, a newline will be in target)
         target = ws_re.sub(' ', target).lower()
+    elif typ == 'ref':
+        # reST label names are always lowercased
+        target = ws_re.sub('', target).lower()
     else:
         # remove all whitespace to avoid referencing problems
         target = ws_re.sub('', target)

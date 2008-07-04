@@ -136,6 +136,17 @@ directive.
    These work exactly like :dir:`autoclass` etc., but do not offer the options
    used for automatic member documentation.
 
+   .. note::
+
+      If you document decorated functions or methods, keep in mind that autodoc
+      retrieves its docstrings by importing the module and inspecting the
+      ``__doc__`` attribute of the given function or method.  That means that if
+      a decorator replaces the decorated function with another, it must copy the
+      original ``__doc__`` to the new function.
+
+      From Python 2.5, :func:`functools.wraps` can be used to create
+      well-behaved decorating functions.
+
 
 There are also new config values that you can set:
 

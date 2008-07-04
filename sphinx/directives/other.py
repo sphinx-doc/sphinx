@@ -117,7 +117,10 @@ def currentmodule_directive(name, arguments, options, content, lineno,
     # stuff in module foo, but links to module foo won't lead here.
     env = state.document.settings.env
     modname = arguments[0].strip()
-    env.currmodule = modname
+    if modname == 'None':
+        env.currmodule = None
+    else:
+        env.currmodule = modname
     return []
 
 currentmodule_directive.arguments = (1, 0, 0)
