@@ -285,17 +285,54 @@ class HTMLTranslator(BaseTranslator):
     def depart_module(self, node):
         pass
 
-    # docutils 0.5 compatibility
+    # these are all for docutils 0.5 compatibility
+
     def visit_note(self, node):
         self.visit_admonition(node, 'note')
     def depart_note(self, node):
         self.depart_admonition(node)
 
-    # docutils 0.5 compatibility
     def visit_warning(self, node):
         self.visit_admonition(node, 'warning')
     def depart_warning(self, node):
         self.depart_admonition(node)
+
+    def visit_attention(self, node):
+        self.visit_admonition(node, 'attention')
+
+    def depart_attention(self, node):
+        self.depart_admonition()
+
+    def visit_caution(self, node):
+        self.visit_admonition(node, 'caution')
+    def depart_caution(self, node):
+        self.depart_admonition()
+
+    def visit_danger(self, node):
+        self.visit_admonition(node, 'danger')
+    def depart_danger(self, node):
+        self.depart_admonition()
+
+    def visit_error(self, node):
+        self.visit_admonition(node, 'error')
+    def depart_error(self, node):
+        self.depart_admonition()
+
+    def visit_hint(self, node):
+        self.visit_admonition(node, 'hint')
+    def depart_hint(self, node):
+        self.depart_admonition()
+
+    def visit_important(self, node):
+        self.visit_admonition(node, 'important')
+    def depart_important(self, node):
+        self.depart_admonition()
+
+    def visit_tip(self, node):
+        self.visit_admonition(node, 'tip')
+    def depart_tip(self, node):
+        self.depart_admonition()
+
 
     # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):

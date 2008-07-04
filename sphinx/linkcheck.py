@@ -64,12 +64,13 @@ class CheckExternalLinksBuilder(Builder):
         if uri in self.good:
             return
 
+        lineno = None
+        while lineno is None and node:
+            node = node.parent
+            lineno = node.line
+
         if uri[0:5] == 'http:' or uri[0:6] == 'https:':
             self.info(uri, nonl=1)
-            lineno = None
-            while lineno is None and node:
-                node = node.parent
-                lineno = node.line
 
             if uri in self.broken:
                 (r, s) = self.broken[uri]

@@ -215,9 +215,13 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_logo
 
-   If given, this must be the name of an image file (within the static path, see
-   below) that is the logo of the docs.  It is placed at the top of the sidebar;
-   its width should therefore not exceed 200 pixels.  Default: ``None``.
+   If given, this must be the name of an image file that is the logo of the
+   docs.  It is placed at the top of the sidebar; its width should therefore not
+   exceed 200 pixels.  Default: ``None``.
+
+   .. versionadded:: 0.4.1
+      The image file will be copied to the ``_static`` directory of the output
+      HTML, so an already existing file with that name will be overwritten.
 
 .. confval:: html_favicon
 

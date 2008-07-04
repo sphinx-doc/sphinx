@@ -419,8 +419,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_rubric(self, node):
         if len(node.children) == 1 and node.children[0].astext() == 'Footnotes':
             raise nodes.SkipNode
-        self.builder.warn('encountered rubric node not used for footnotes, '
-                          'content will be lost')
+        self.body.append('\\paragraph{')
+        self.context.append('}\n')
+    def depart_rubric(self, node):
+        self.body.append(self.context.pop())
 
     def visit_footnote(self, node):
         # XXX not optimal, footnotes are at section end

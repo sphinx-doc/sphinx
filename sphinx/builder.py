@@ -128,6 +128,9 @@ class Builder(object):
         Pick the best candidate for all image URIs.
         """
         for node in doctree.traverse(nodes.image):
+            if '?' in node['candidates']:
+                # don't rewrite nonlocal image URIs
+                continue
             if '*' not in node['candidates']:
                 for imgtype in self.supported_image_types:
                     candidate = node['candidates'].get(imgtype, None)
@@ -590,6 +593,11 @@ class StandaloneHTMLBuilder(Builder):
                 elif path.isdir(fullname):
                     shutil.rmtree(targetname)
                     shutil.copytree(fullname, targetname)
+        # copy logo file (handled differently)
+        if self.config.html_logo:
+            logobase = path.basename(self.config.html_logo)
+            shutil.copyfile(path.join(self.confdir, self.config.html_logo),
+                            path.join(self.outdir, '_static', logobase))
         # add pygments style file
         f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
         f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())

@@ -534,11 +534,12 @@ class BuildEnvironment:
             # Map the mimetype to the corresponding image.  The writer may
             # choose the best image from these candidates.  The special key * is
             # set if there is only single candiate to be used by a writer.
+            # The special key ? is set for nonlocal URIs.
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.find('://') != -1:
                 self.warn(docname, 'Nonlocal image URI found: %s' % imguri, node.line)
-                candidates['*'] = imguri
+                candidates['?'] = imguri
                 continue
             imgpath = path.normpath(path.join(docdir, imguri))
             node['uri'] = imgpath

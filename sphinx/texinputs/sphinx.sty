@@ -261,7 +261,7 @@
     \@ifundefined{py@modplat@\py@thismodulekey}{
       \write\modindexfile{\protect\indexentry{#1@{\texttt{#1}}|hyperpage}{\thepage}}%
     }{\write\modindexfile{\protect\indexentry{#1@{\texttt{#1 }%
-        \emph{(\platformof{#1})}}|hyperpage}{\thepage}}%
+        \emph{(\platformof{\py@thismodulekey})}}|hyperpage}{\thepage}}%
     }
   \fi%
 }

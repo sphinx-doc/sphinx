@@ -77,7 +77,14 @@ units as well as normal text:
 .. directive:: .. rubric:: title
 
    This directive creates a paragraph heading that is not used to create a
-   table of contents node.  It is currently used for the "Footnotes" caption.
+   table of contents node.
+   
+   .. note::
+      
+      If the *title* of the rubric is "Footnotes", this rubric is ignored by
+      the LaTeX writer, since it is assumed to only contain footnote
+      definitions and therefore would create an empty heading.
+
 
 .. directive:: centered
 
