@@ -113,25 +113,33 @@ def cut_lines(pre, post=0, what=None):
             del lines[-post:]
     return process
 
-def between(marker, what=None):
+def between(marker, what=None, keepempty=False):
     """
-    Return a listener that only keeps lines between the first two lines that
-    match the *marker* regular expression.  If *what* is a sequence of strings,
-    only docstrings of a type in *what* will be processed.
+    Return a listener that only keeps lines between lines that match the
+    *marker* regular expression.  If no line matches, the resulting docstring
+    would be empty, so no change will be made unless *keepempty* is true.
+
+    If *what* is a sequence of strings, only docstrings of a type in *what* will
+    be processed.
     """
     marker_re = re.compile(marker)
     def process(app, what_, name, obj, options, lines):
         if what and what_ not in what:
             return
-        seen = 0
-        for i, line in enumerate(lines[:]):
+        deleted = 0
+        delete = True
+        orig_lines = lines[:]
+        for i, line in enumerate(orig_lines):
+            if delete:
+                lines.pop(i - deleted)
+                deleted += 1
             if marker_re.match(line):
-                if not seen:
-                    del lines[:i+1]
-                    seen = i+1
-                else:
-                    del lines[i-seen:]
-                    break
+                delete = not delete
+                if delete:
+                    lines.pop(i - deleted)
+                    deleted += 1
+        if not lines and not keepempty:
+            lines[:] = orig_lines
     return process
 
 
@@ -526,7 +534,10 @@ def _auto_directive(dirname, arguments, options, content, lineno,
 def auto_directive(*args, **kwds):
     return _auto_directive(*args, **kwds)
 
-def auto_directive_withmembers(*args, **kwds):
+def automodule_directive(*args, **kwds):
+    return _auto_directive(*args, **kwds)
+
+def autoclass_directive(*args, **kwds):
     return _auto_directive(*args, **kwds)
 
 
@@ -542,11 +553,11 @@ def setup(app):
     cls_options = {'members': members_option, 'undoc-members': directives.flag,
                    'noindex': directives.flag, 'inherited-members': directives.flag,
                    'show-inheritance': directives.flag}
-    app.add_directive('automodule', auto_directive_withmembers,
+    app.add_directive('automodule', automodule_directive,
                       1, (1, 0, 1), **mod_options)
-    app.add_directive('autoclass', auto_directive_withmembers,
+    app.add_directive('autoclass', autoclass_directive,
                       1, (1, 0, 1), **cls_options)
-    app.add_directive('autoexception', auto_directive_withmembers,
+    app.add_directive('autoexception', autoclass_directive,
                       1, (1, 0, 1), **cls_options)
     app.add_directive('autofunction', auto_directive, 1, (1, 0, 1),
                       noindex=directives.flag)

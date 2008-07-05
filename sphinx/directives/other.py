@@ -83,6 +83,7 @@ def module_directive(name, arguments, options, content, lineno,
                      content_offset, block_text, state, state_machine):
     env = state.document.settings.env
     modname = arguments[0].strip()
+    noindex = 'noindex' in options
     env.currmodule = modname
     env.note_module(modname, options.get('synopsis', ''),
                     options.get('platform', ''),
@@ -100,13 +101,15 @@ def module_directive(name, arguments, options, content, lineno,
         node += nodes.Text(options['platform'], options['platform'])
         ret.append(node)
     # the synopsis isn't printed; in fact, it is only used in the modindex currently
-    env.note_index_entry('single', '%s (module)' % modname, 'module-' + modname,
-                         modname)
+    if not noindex:
+        env.note_index_entry('single', '%s (module)' % modname,
+                             'module-' + modname, modname)
     return ret
 
 module_directive.arguments = (1, 0, 0)
 module_directive.options = {'platform': lambda x: x,
                             'synopsis': lambda x: x,
+                            'noindex': directives.flag,
                             'deprecated': directives.flag}
 directives.register_directive('module', module_directive)
 

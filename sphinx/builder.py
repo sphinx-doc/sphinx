@@ -138,7 +138,7 @@ class Builder(object):
                         break
                 else:
                     self.warn('%s:%s: no matching candidate for image URI %r' %
-                              (node.source, node.lineno, node['uri']))
+                              (node.source, getattr(node, 'lineno', ''), node['uri']))
                     continue
                 node['uri'] = candidate
             else:
