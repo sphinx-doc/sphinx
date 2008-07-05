@@ -14,7 +14,7 @@
 
 
 % Set some sane defaults for section numbering depth and TOC depth.  You can
-% reset these counter in your preamble.
+% reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{1}

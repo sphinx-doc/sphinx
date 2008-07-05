@@ -151,8 +151,9 @@ def handle_doc_fields(node):
                 elif typ == 'type':
                     param_types[obj] = fbody.astext()
                 else:
+                    fieldname = typ + ' ' + obj
                     nfield = nodes.field()
-                    nfield += nodes.field_name(typ, typ)
+                    nfield += nodes.field_name(fieldname, fieldname)
                     nfield += nodes.field_body()
                     nfield[1] += fbody.children
                     new_list += nfield

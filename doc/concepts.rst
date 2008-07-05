@@ -33,7 +33,7 @@ tables of contents.  The ``toctree`` directive is the central element.
    individual TOCs (including "sub-TOC trees") of the documents given in the
    directive body (whose path is relative to the document the directive occurs
    in).  A numeric ``maxdepth`` option may be given to indicate the depth of the
-   tree; by default, all levels are included.
+   tree; by default, all levels are included. [#]_
 
    Consider this example (taken from the Python docs' library reference index)::
 
@@ -131,6 +131,12 @@ The special document names (and pages generated for them) are:
 
 
 .. rubric:: Footnotes
+
+.. [#] The ``maxdepth`` option does not apply to the LaTeX writer, where the
+       whole table of contents will always be presented at the begin of the
+       document, and its depth is controlled by the ``tocdepth`` counter, which
+       you can reset in your :confval:`latex_preamble` config value using
+       e.g. ``\setcounter{tocdepth}{2}``.
 
 .. [#] A note on available globbing syntax: you can use the standard shell
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that

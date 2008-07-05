@@ -393,7 +393,7 @@ var Search = {
                 }
                 displayNextItem();
             });
-    },
+    }
 
 }
 
