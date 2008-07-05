@@ -13,6 +13,38 @@ New features added
   dumps the generated HTML into JSON files for further processing.
 
 
+Release 0.4.1 (Jul 5, 2008)
+===========================
+
+* Added sub-/superscript node handling to TextBuilder.
+
+* Label names in references are now case-insensitive, since reST
+  label names are always lowercased.
+
+* Fix linkcheck builder crash for malformed URLs.
+
+* Add compatibility for admonitions and docutils 0.5.
+
+* Remove the silly restriction on "rubric" in the LaTeX writer: you
+  can now write arbitrary "rubric" directives, and only those with
+  a title of "Footnotes" will be ignored.
+
+* Copy the HTML logo to the output ``_static`` directory.
+
+* Fix LaTeX code for modules with underscores in names and platforms.
+
+* Fix a crash with nonlocal image URIs.
+
+* Allow the usage of :noindex: in ``automodule`` directives, as
+  documented.
+
+* Fix the ``delete()`` docstring processor function in autodoc.
+
+* Fix warning message for nonexisting images.
+
+* Fix JavaScript search in Internet Explorer.
+
+
 Release 0.4 (Jun 23, 2008)
 ==========================
 
