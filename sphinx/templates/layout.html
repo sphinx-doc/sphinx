@@ -102,9 +102,10 @@
     {%- if builder != 'htmlhelp' %}
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-          URL_ROOT:   '{{ pathto("", 1) }}',
-          VERSION:    '{{ release }}',
-          COLLAPSE_MODINDEX: false
+          URL_ROOT:    '{{ pathto("", 1) }}',
+          VERSION:     '{{ release }}',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '{{ file_suffix }}'
       };
     </script>
     <script type="text/javascript" src="{{ pathto('_static/jquery.js', 1) }}"></script>

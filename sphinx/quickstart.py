@@ -42,7 +42,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-#extensions = []
+extensions = [%(extensions)s]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['%(dot)stemplates']
@@ -397,6 +397,12 @@ document is a custom template, you can also set this to another filename.'''
     do_prompt(d, 'master', 'Name of your master document (without suffix)',
               'index')
     print '''
+Please indicate if you want to use one of the following Sphinx extensions:'''
+    do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
+              'from modules (y/n)', 'n', boolean)
+    do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
+              'in doctest blocks (y/n)', 'n', boolean)
+    print '''
 If you are under Unix, a Makefile can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
@@ -407,6 +413,9 @@ directly.'''
     d['year'] = time.strftime('%Y')
     d['now'] = time.asctime()
     d['underline'] = len(d['project']) * '='
+    d['extensions'] = ', '.join(
+        repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest')
+        if d['ext_' + name].upper() in ('Y', 'YES'))
 
     if not path.isdir(d['path']):
         mkdir_p(d['path'])

@@ -363,8 +363,10 @@ var Search = {
                     if (results.length) {
                         var item = results.pop();
                         var listItem = $('<li style="display:none"></li>');
-                        listItem.append($('<a/>').attr('href', item[0] + '.html' +
-                                                       highlightstring).html(item[1]));
+                        listItem.append($('<a/>').attr(
+                            'href',
+                            item[0] + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
+                            highlightstring).html(item[1]));
                         $.get('_sources/' + item[0] + '.txt', function(data) {
                                 listItem.append($.makeSearchSummary(data, searchwords, hlwords));
                                 output.append(listItem);

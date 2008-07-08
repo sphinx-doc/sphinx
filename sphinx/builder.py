@@ -378,6 +378,7 @@ class StandaloneHTMLBuilder(Builder):
             docstitle = self.config.html_title,
             shorttitle = self.config.html_short_title,
             show_sphinx = self.config.html_show_sphinx,
+            file_suffix = self.config.html_file_suffix,
             rellinks = rellinks,
             builder = self.name,
             parents = [],

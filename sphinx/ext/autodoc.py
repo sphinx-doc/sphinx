@@ -560,7 +560,8 @@ def members_option(arg):
 
 def setup(app):
     mod_options = {'members': members_option, 'undoc-members': directives.flag,
-                   'noindex': directives.flag, 'synopsis': lambda x: x,
+                   'noindex': directives.flag, 'inherited-members': directives.flag,
+                   'show-inheritance': directives.flag, 'synopsis': lambda x: x,
                    'platform': lambda x: x, 'deprecated': directives.flag}
     cls_options = {'members': members_option, 'undoc-members': directives.flag,
                    'noindex': directives.flag, 'inherited-members': directives.flag,
