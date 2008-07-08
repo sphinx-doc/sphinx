@@ -383,7 +383,15 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
                 and 'staticmethod' or what
     result.append(indent + u'.. %s:: %s%s' % (directive, name_in_directive, args),
                   '<autodoc>')
-    if what != 'module':
+    if what == 'module':
+        # Add some module-specific options
+        if options.synopsis:
+            result.append(indent + u'   :synopsis: ' + options.synopsis, '<autodoc>')
+        if options.platform:
+            result.append(indent + u'   :platform: ' + options.platform, '<autodoc>')
+        if options.deprecated:
+            result.append(indent + u'   :deprecated:', '<autodoc>')
+    else:
         # Be explicit about the module, this is necessary since .. class:: doesn't
         # support a prepended module name
         result.append(indent + u'   :module: %s' % mod, '<autodoc>')
@@ -500,6 +508,9 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     genopt.undoc_members = 'undoc-members' in options
     genopt.show_inheritance = 'show-inheritance' in options
     genopt.noindex = 'noindex' in options
+    genopt.synopsis = options.get('synopsis', '')
+    genopt.platform = options.get('platform', '')
+    genopt.deprecated = 'deprecated' in options
 
     filename_set = set()
     warnings, result = generate_rst(what, name, members, genopt, content, state.document,
@@ -549,7 +560,8 @@ def members_option(arg):
 
 def setup(app):
     mod_options = {'members': members_option, 'undoc-members': directives.flag,
-                   'noindex': directives.flag}
+                   'noindex': directives.flag, 'synopsis': lambda x: x,
+                   'platform': lambda x: x, 'deprecated': directives.flag}
     cls_options = {'members': members_option, 'undoc-members': directives.flag,
                    'noindex': directives.flag, 'inherited-members': directives.flag,
                    'show-inheritance': directives.flag}

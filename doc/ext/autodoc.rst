@@ -121,6 +121,11 @@ directive.
 
      .. versionadded:: 0.4
 
+   * :dir:`automodule` also recognizes the ``synopsis``, ``platform`` and
+     ``deprecated`` options that the standard :dir:`module` directive supports.
+
+     .. versionadded:: 0.5
+
    .. note::
 
       In an :dir:`automodule` directive with the ``members`` option set, only

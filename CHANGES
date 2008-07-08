@@ -12,6 +12,9 @@ New features added
 * `JSONHTMLBuilder` was added that similarily to `PickleHTMLBuilder`
   dumps the generated HTML into JSON files for further processing.
 
+* The `automodule` directive now supports the ``synopsis``,
+  ``deprecated`` and ``platform`` options.
+
 
 Release 0.4.1 (Jul 5, 2008)
 ===========================
