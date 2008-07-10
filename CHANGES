@@ -15,6 +15,10 @@ New features added
 * The `automodule` directive now supports the ``synopsis``,
   ``deprecated`` and ``platform`` options.
 
+* The HTML builders have two additional attributes now that can be used
+  to disable the anchor-link creation after headlines and definition
+  links.  EXPERIMENTAL
+
 
 Release 0.4.1 (Jul 5, 2008)
 ===========================

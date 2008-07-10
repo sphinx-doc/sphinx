@@ -301,6 +301,8 @@ class StandaloneHTMLBuilder(Builder):
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
     searchindex_filename = 'searchindex.json'
+    add_header_links = True
+    add_definition_links = True
 
     def init(self):
         """Load templates."""
@@ -809,6 +811,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     # don't copy the reST source
     copysource = False
     supported_image_types = ['image/png', 'image/gif', 'image/jpeg']
+
+    # don't add links
+    add_header_links = False
+    add_definition_links = False
 
     def init(self):
         StandaloneHTMLBuilder.init(self)

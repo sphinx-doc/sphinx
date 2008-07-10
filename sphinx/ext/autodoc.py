@@ -12,6 +12,7 @@
 """
 
 import re
+import sys
 import types
 import inspect
 import textwrap
@@ -158,17 +159,25 @@ def prepare_docstring(s):
     of nested_parse().)  An empty line is added to act as a separator between
     this docstring and following content.
     """
-    if not s or s.isspace():
-        return ['']
-    s = s.expandtabs()
-    nl = s.rstrip().find('\n')
-    if nl == -1:
-        # Only one line...
-        return [s.strip(), '']
-    # The first line may be indented differently...
-    firstline = s[:nl].strip()
-    otherlines = textwrap.dedent(s[nl+1:])
-    return [firstline] + otherlines.splitlines() + ['']
+    lines = s.expandtabs().splitlines()
+    # Find minimum indentation of any non-blank lines after first line.
+    margin = sys.maxint
+    for line in lines[1:]:
+        content = len(line.lstrip())
+        if content:
+            indent = len(line) - content
+            margin = min(margin, indent)
+    # Remove indentation.
+    if lines:
+        lines[0] = lines[0].lstrip()
+    if margin < sys.maxint:
+        for i in range(1, len(lines)): lines[i] = lines[i][margin:]
+    # Remove any trailing or leading blank lines.
+    while lines and not lines[-1]:
+        lines.pop()
+    while lines and not lines[0]:
+        lines.pop(0)
+    return lines
 
 
 def get_module_charset(module):
@@ -441,8 +450,8 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
         # unqualified :members: given
         if what == 'module':
             # for implicit module members, check __module__ to avoid documenting
-            # imported objects
-            members_check_module = True
+            # imported objects if __all__ is not defined
+            members_check_module = not hasattr(todoc, '__all__')
             all_members = inspect.getmembers(todoc)
         else:
             if options.inherited_members:

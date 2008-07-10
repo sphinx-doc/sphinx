@@ -71,7 +71,7 @@ class HTMLTranslator(BaseTranslator):
         if node.parent['desctype'] in ('class', 'exception'):
             self.body.append('%s ' % node.parent['desctype'])
     def depart_desc_signature(self, node):
-        if node['ids'] and self.builder.name != 'htmlhelp':
+        if node['ids'] and self.builder.add_definition_links:
             self.body.append(u'<a class="headerlink" href="#%s" ' % node['ids'][0] +
                              u'title="Permalink to this definition">\u00B6</a>')
         self.body.append('</dt>\n')
@@ -342,7 +342,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_title(self, node):
         close_tag = self.context[-1]
-        if self.builder.name != 'htmlhelp' and \
+        if self.builder.add_header_links and \
                (close_tag.startswith('</h') or
                 close_tag.startswith('</a></h')) and \
                node.parent.hasattr('ids') and node.parent['ids']:
