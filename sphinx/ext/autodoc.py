@@ -172,11 +172,12 @@ def prepare_docstring(s):
         lines[0] = lines[0].lstrip()
     if margin < sys.maxint:
         for i in range(1, len(lines)): lines[i] = lines[i][margin:]
-    # Remove any trailing or leading blank lines.
-    while lines and not lines[-1]:
-        lines.pop()
+    # Remove any leading blank lines.
     while lines and not lines[0]:
         lines.pop(0)
+    # make sure there is an empty line at the end
+    if lines and lines[-1]:
+        lines.append('')
     return lines
 
 
