@@ -38,6 +38,9 @@ def print_and_backspace(text, func):
 def nocolor():
     codes.clear()
 
+def coloron():
+    codes.update(_orig_codes)
+
 def colorize(name, text):
     return codes.get(name, '') + text + codes.get('reset', '')
 
@@ -72,6 +75,8 @@ _colors = [
 for i, (dark, light) in enumerate(_colors):
     codes[dark] = '\x1b[%im' % (i+30)
     codes[light] = '\x1b[%i;01m' % (i+30)
+
+_orig_codes = codes.copy()
 
 for _name in codes:
     create_color_func(_name)

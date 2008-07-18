@@ -29,7 +29,7 @@ def usage(argv, msg=None):
         print >>sys.stderr
     print >>sys.stderr, """\
 Sphinx v%s
-Usage: %s [options] sourcedir outdir [filenames...]"
+Usage: %s [options] sourcedir outdir [filenames...]
 Options: -b <builder> -- builder to use; default is html
          -a        -- write all files; default is to only write new and changed files
          -E        -- don't use a saved environment, always read all files

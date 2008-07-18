@@ -2,7 +2,7 @@ PYTHON ?= python
 
 export PYTHONPATH = $(shell echo "$$PYTHONPATH"):./sphinx
 
-.PHONY: all check clean clean-pyc pylint reindent testserver
+.PHONY: all check clean clean-pyc clean-patchfiles pylint reindent test
 
 all: clean-pyc check
 

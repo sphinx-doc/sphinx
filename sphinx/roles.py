@@ -195,17 +195,17 @@ _litvar_re = re.compile('{([^}]+)}')
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
-    retnodes = []
     pos = 0
+    retnode = nodes.literal(role=typ)
     for m in _litvar_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]
-            retnodes.append(nodes.literal(txt, txt))
-        retnodes.append(nodes.emphasis('', '', nodes.literal(m.group(1), m.group(1))))
+            retnode += nodes.Text(txt, txt)
+        retnode += nodes.emphasis(m.group(1), m.group(1))
         pos = m.end()
     if pos < len(text):
-        retnodes.append(nodes.literal(text[pos:], text[pos:]))
-    return retnodes, []
+        retnode += nodes.Text(text[pos:], text[pos:])
+    return [retnode], []
 
 
 specific_docroles = {

@@ -5,7 +5,7 @@
    <h1 id="index">Index</h1>
 
    <p>Index pages by letter:</p>
-     
+
    <p>{% for key, dummy in genindexentries -%}
    <a href="{{ pathto('genindex-' + key) }}"><strong>{{ key }}</strong></a>
      {% if not loop.last %}| {% endif %}
@@ -25,5 +25,5 @@
    {%- endfor %}</p>
 
    <p><a href="{{ pathto('genindex-all') }}"><strong>Full index on one page</strong></a></p>
-{% endif %} 
+{% endif %}
 {% endblock %}

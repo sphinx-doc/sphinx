@@ -7,7 +7,7 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: 2006-2007 by Georg Brandl.
+    :copyright: 2006-2008 by Georg Brandl.
     :license: GNU GPL, see LICENSE for more details.
 """
 
@@ -57,15 +57,17 @@ def check_style_and_encoding(fn, lines):
     for lno, line in enumerate(lines):
         if len(line) > 90:
             yield lno+1, "line too long"
+        if lno < 2:
+            co = coding_re.search(line)
+            if co:
+                encoding = co.group(1)
+        if line.strip().startswith('#'):
+            continue
         m = not_ix_re.search(line)
         if m:
             yield lno+1, '"' + m.group() + '"'
         if is_const_re.search(line):
             yield lno+1, 'using == None/True/False'
-        if lno < 2:
-            co = coding_re.search(line)
-            if co:
-                encoding = co.group(1)
         try:
             line.decode(encoding)
         except UnicodeDecodeError, err:

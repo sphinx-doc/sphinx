@@ -873,7 +873,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         content = self.encode(node.astext().strip())
         if self.in_title:
             self.body.append(r'\texttt{%s}' % content)
-        elif re.search('[ \t\n]', content):
+        elif node.has_key('role') and node['role'] == 'samp':
             self.body.append(r'\samp{%s}' % content)
         else:
             self.body.append(r'\code{%s}' % content)

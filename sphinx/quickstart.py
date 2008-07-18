@@ -16,6 +16,8 @@ from sphinx.util import make_filename
 from sphinx.util.console import purple, bold, red, nocolor
 
 
+PROMPT_PREFIX = '> '
+
 QUICKSTART_CONF = '''\
 # -*- coding: utf-8 -*-
 #
@@ -176,7 +178,8 @@ htmlhelp_basename = '%(project_fn)sdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('%(master)s', '%(project_fn)s.tex', '%(project)s Documentation', '%(author)s', 'manual'),
+  ('%(master)s', '%(project_fn)s.tex', '%(project)s Documentation',
+   '%(author)s', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -231,7 +234,8 @@ PAPER         =
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
+ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) \
+$(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html web pickle htmlhelp latex changes linkcheck
 
@@ -333,9 +337,9 @@ def ok(x):
 def do_prompt(d, key, text, default=None, validator=nonempty):
     while True:
         if default:
-            prompt = purple('> %s [%s]: ' % (text, default))
+            prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
         else:
-            prompt = purple('> ' + text + ': ')
+            prompt = purple(PROMPT_PREFIX + text + ': ')
         x = raw_input(prompt)
         if default and not x:
             x = default
@@ -364,7 +368,7 @@ Enter the root path for documentation.'''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory ".build" within the root path, or you separate
 "source" and "build" directories within the root path.'''
-    do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
+    do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
               boolean)
     print '''
 Inside the root directory, two more directories will be created; ".templates"
@@ -399,14 +403,14 @@ document is a custom template, you can also set this to another filename.'''
     print '''
 Please indicate if you want to use one of the following Sphinx extensions:'''
     do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
-              'from modules (y/n)', 'n', boolean)
+              'from modules (y/N)', 'n', boolean)
     do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
-              'in doctest blocks (y/n)', 'n', boolean)
+              'in doctest blocks (y/N)', 'n', boolean)
     print '''
 If you are under Unix, a Makefile can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
-    do_prompt(d, 'makefile', 'Create Makefile? (y/n)',
+    do_prompt(d, 'makefile', 'Create Makefile? (Y/n)',
               os.name == 'posix' and 'y' or 'n', boolean)
 
     d['project_fn'] = make_filename(d['project'])

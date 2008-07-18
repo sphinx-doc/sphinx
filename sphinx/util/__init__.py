@@ -250,7 +250,7 @@ def patfilter(names, pat):
     Adapted from fnmatch module.
     """
     result = []
-    if not pat in _pat_cache:
+    if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     match = _pat_cache[pat].match
     return filter(match, names)

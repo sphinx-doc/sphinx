@@ -19,7 +19,7 @@ from path import path
 __all__ = [
     'raises', 'raises_msg',
     'ErrorOutput', 'TestApp',
-    'with_tempdir', 'write_file',
+    'path', 'with_tempdir', 'write_file',
 ]
 
 

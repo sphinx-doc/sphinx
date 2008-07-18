@@ -211,7 +211,7 @@ class Builder(object):
         warnings = []
         self.env.set_warnfunc(warnings.append)
         self.info(bold('updating environment: '), nonl=1)
-        iterator = self.env.update(self.config, self.app)
+        iterator = self.env.update(self.config, self.srcdir, self.doctreedir, self.app)
         # the first item in the iterator is a summary message
         self.info(iterator.next())
         for docname in self.status_iterator(iterator, 'reading... ', purple):

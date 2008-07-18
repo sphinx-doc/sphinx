@@ -355,10 +355,11 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
             modfile = None  # e.g. for builtin and C modules
         for part in objpath:
             todoc = getattr(todoc, part)
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError), err:
         warnings.append(document.reporter.warning(
-            'autodoc can\'t import/find %s %r, check your spelling '
-            'and sys.path' % (what, str(fullname)), line=lineno))
+            'autodoc can\'t import/find %s %r, it reported error: "%s",'
+            'please check your spelling and sys.path' %
+            (what, str(fullname), err), line=lineno))
         return warnings, result
 
     # check __module__ of object if wanted (for members not given explicitly)
@@ -416,6 +417,7 @@ def generate_rst(what, name, members, options, add_content, document, lineno,
                      u':class:`%s.%s`' % (b.__module__, b.__name__)
                      for b in todoc.__bases__]
             result.append(indent + u'   Bases: %s' % ', '.join(bases), '<autodoc>')
+            result.append(u'', '<autodoc>')
 
     # the module directive doesn't have content
     if what != 'module':

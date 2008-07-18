@@ -396,7 +396,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def update(self, config, app=None):
+    def update(self, config, srcdir, doctreedir, app=None):
         """(Re-)read all files new or changed since last update.  Yields a summary
         and then docnames as it processes them.  Store all environment docnames
         in the canonical format (ie using SEP as a separator in place of
@@ -416,6 +416,9 @@ class BuildEnvironment:
                     break
             else:
                 msg = ''
+        # the source and doctree directories may have been relocated
+        self.srcdir = srcdir
+        self.doctreedir = doctreedir
         self.find_files(config)
         added, changed, removed = self.get_outdated_files(config_changed)
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
@@ -807,10 +810,15 @@ class BuildEnvironment:
             for includefile in includefiles:
                 try:
                     toc = self.tocs[includefile].deepcopy()
+                    if not toc.children:
+                        # empty toc means: no titles will show up in the toctree
+                        self.warn(docname, 'toctree contains reference to document '
+                                  '%r that doesn\'t have a title: no link will be '
+                                  'generated' % includefile)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    self.warn(docname, 'toctree contains ref to nonexisting '
-                              'file %r' % includefile)
+                    self.warn(docname, 'toctree contains reference to nonexisting '
+                              'document %r' % includefile)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
