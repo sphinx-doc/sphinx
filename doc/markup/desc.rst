@@ -205,11 +205,6 @@ The directives are:
 
    .. versionadded:: 0.4
    
-.. directive:: .. opcode:: name
-
-   Describes a Python bytecode instruction (this is not very useful for projects
-   other than Python itself).
-
 .. directive:: .. cmdoption:: name args, name args, ...
 
    Describes a command line option or switch.  Option argument names should be

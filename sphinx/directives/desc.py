@@ -69,8 +69,6 @@ def desc_index_text(desctype, module, name):
             return '%s (%s.%s attribute)' % (attrname, module, clsname)
         else:
             return '%s (%s attribute)' % (attrname, clsname)
-    elif desctype == 'opcode':
-        return '%s (opcode)' % name
     elif desctype == 'cfunction':
         return '%s (C function)' % name
     elif desctype == 'cmember':
@@ -343,21 +341,6 @@ def parse_c_signature(signode, sig, desctype):
     return name
 
 
-opcode_sig_re = re.compile(r'(\w+(?:\+\d)?)\s*\((.*)\)')
-
-def parse_opcode_signature(signode, sig):
-    """Transform an opcode signature into RST nodes."""
-    m = opcode_sig_re.match(sig)
-    if m is None:
-        raise ValueError
-    opname, arglist = m.groups()
-    signode += addnodes.desc_name(opname, opname)
-    paramlist = addnodes.desc_parameterlist()
-    signode += paramlist
-    paramlist += addnodes.desc_parameter(arglist, arglist)
-    return opname.strip()
-
-
 option_desc_re = re.compile(
     r'(/|-|--)([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
 
@@ -405,8 +388,6 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 name, clsname = parse_py_signature(signode, sig, desctype, module, env)
             elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
-            elif desctype == 'opcode':
-                name = parse_opcode_signature(signode, sig)
             elif desctype == 'cmdoption':
                 optname = parse_option_desc(signode, sig)
                 if not noindex:
@@ -510,8 +491,6 @@ desctypes = [
     'cmacro',
     'ctype',
     'cvar',
-    # the odd one
-    'opcode',
     # for command line options
     'cmdoption',
     # the generic one
