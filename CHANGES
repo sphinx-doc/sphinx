@@ -4,6 +4,11 @@ Release 0.5 (in development)
 New features added
 ------------------
 
+* Added a distutils command `build_sphinx`: When Sphinx is installed,
+  you can call ``python setup.py build_sphinx`` for projects that
+  have Sphinx documentation, which will build the docs and place them
+  in the standard distutils build directory.
+
 * `SerializingHTMLBuilder` was added as new abstract builder that can
   be subclassed to serialize build HTML in a specific format.  The
   `PickleHTMLBuilder` is a concrete subclass of it that uses pickle as

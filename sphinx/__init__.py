@@ -134,7 +134,6 @@ def main(argv=sys.argv):
         else:
             app.builder.build_update()
     except KeyboardInterrupt:
-        # catches BaseExceptions in 2.5 -- SystemExit, KeyboardInterrupt
         if use_pdb:
             import pdb
             print >>sys.stderr, darkred('Interrupted while building, starting debugger:')
