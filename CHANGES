@@ -24,6 +24,9 @@ New features added
   to disable the anchor-link creation after headlines and definition
   links.  EXPERIMENTAL
 
+* sphinx.doc.autodoc has a new event ``autodoc-process-signature`` that
+  allows tuning function signature introspection.
+
 
 Release 0.4.2 (Jul 29, 2008)
 ============================

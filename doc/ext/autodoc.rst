@@ -189,11 +189,11 @@ There are also new config values that you can set:
 Docstring preprocessing
 -----------------------
 
-.. versionadded:: 0.4
-
-autodoc provides the following additional event:
+autodoc provides the following additional events:
 
 .. event:: autodoc-process-docstring (app, what, name, obj, options, lines)
+
+   .. versionadded:: 0.4
 
    Emitted when autodoc has read and processed a docstring.  *lines* is a list
    of strings -- the lines of the processed docstring -- that the event handler
@@ -211,9 +211,32 @@ autodoc provides the following additional event:
       auto directive
    :param lines: the lines of the docstring, see above
 
+.. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
+
+   .. versionadded:: 0.5
+
+   Emitted when autodoc has formatted a signature for an object. The event
+   handler can return a new tuple ``(signature, return_annotation)`` to change
+   what Sphinx puts into the output.
+
+   :param app: the Sphinx application object
+   :param what: the type of the object which the docstring belongs to (one of
+      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
+      ``"attribute"``)
+   :param name: the fully qualified name of the object
+   :param obj: the object itself
+   :param options: the options given to the directive: an object with attributes
+      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
+      ``noindex`` that are true if the flag option of same name was given to the
+      auto directive
+   :param signature: function signature, as a string of the form
+      ``"(parameter_1, parameter_2)"``, or ``None`` if introspection didn't succeed
+      and signature wasn't specified in the directive.
+   :param return_annotation: function return annotation as a string of the form
+      ``" -> annotation"``, or ``None`` if there is no return annotation
 
 The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
-needed docstring processing:
+needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. autofunction:: cut_lines
 .. autofunction:: between

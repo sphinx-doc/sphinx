@@ -320,27 +320,49 @@ class RstGenerator(object):
                 mod = self.env.currmodule
             return fullname, mod, [cls, base], args, retann
 
-    def format_signature(self, what, obj, args, retann):
+    def format_signature(self, what, name, obj, args, retann):
         """
         Return the signature of the object, formatted for display.
         """
         if what not in ('class', 'method', 'function'):
             return ''
+
+        err = None
         if args is not None:
             # signature given explicitly
-            return '(%s)%s' % (args, retann or '')
-        if what == 'class':
-            # for classes, the relevant signature is the __init__ method's
-            obj = getattr(obj, '__init__', None)
-            # classes without __init__ method?
-            if obj is None or obj is object.__init__ or not \
-               (inspect.ismethod(obj) or inspect.isfunction(obj)):
-                return ''
-        argspec = inspect.getargspec(obj)
-        if what in ('class', 'method') and argspec[0] and \
-           argspec[0][0] in ('cls', 'self'):
-            del argspec[0][0]
-        return inspect.formatargspec(*argspec)
+            args = "(%s)" % args
+        else:
+            # try to introspect the signature
+            try:
+                if what == 'class':
+                    # for classes, the relevant signature is the __init__ method's
+                    obj = getattr(obj, '__init__', None)
+                    # classes without __init__ method?
+                    if obj is None or obj is object.__init__ or not \
+                       (inspect.ismethod(obj) or inspect.isfunction(obj)):
+                        return ''
+                argspec = inspect.getargspec(obj)
+                if what in ('class', 'method') and argspec[0] and \
+                   argspec[0][0] in ('cls', 'self'):
+                    del argspec[0][0]
+                args = inspect.formatargspec(*argspec)
+            except Exception, e:
+                args = None
+                err = e
+
+        results = self.env.app.emit('autodoc-process-signature',
+                                    what, name, obj, self.options, args, retann)
+        for result in results:
+            if result:
+                args, retann = result
+
+        if args is not None:
+            return '%s%s' % (args, retann or '')
+        elif err:
+            # re-raise the error for perusal of the handler in generate()
+            raise RuntimeError(err)
+        else:
+            return ''
 
     def generate(self, what, name, members, add_content, indent=u'', check_module=False):
         """
@@ -383,7 +405,7 @@ class RstGenerator(object):
 
         # format the object's signature, if any
         try:
-            sig = self.format_signature(what, todoc, args, retann)
+            sig = self.format_signature(what, name, todoc, args, retann)
         except Exception, err:
             self.warn('error while formatting signature for %s: %s' %
                       (fullname, err))
@@ -596,3 +618,4 @@ def setup(app):
     app.add_config_value('automodule_skip_lines', 0, True)
     app.add_config_value('autoclass_content', 'class', True)
     app.add_event('autodoc-process-docstring')
+    app.add_event('autodoc-process-signature')

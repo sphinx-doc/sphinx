@@ -3,7 +3,7 @@ import ez_setup
 ez_setup.use_setuptools()
 
 import sys
-from setuptools import setup, Feature
+from setuptools import setup
 
 import sphinx
 
