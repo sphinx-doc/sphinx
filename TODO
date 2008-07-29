@@ -1,6 +1,7 @@
 Sphinx TODO
 ===========
 
+- literal search mode
 - specify node visit functions when adding nodes to app
 - allow extensions to add static files
 - decide which static files to include
