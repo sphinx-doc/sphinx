@@ -7,7 +7,7 @@
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
-    :copyright: 2008 by Georg Brandl.
+    :copyright: 2008 by Georg Brandl, Pauli Virtanen.
     :license: BSD.
 """
 
