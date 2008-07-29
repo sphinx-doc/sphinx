@@ -25,6 +25,36 @@ New features added
   links.  EXPERIMENTAL
 
 
+Release 0.4.2 (Jul 29, 2008)
+============================
+
+* Fix rendering of the ``samp`` role in HTML.
+
+* Fix a bug with LaTeX links to headings leading to a wrong page.
+
+* Reread documents with globbed toctrees when source files are
+  added or removed.
+
+* Add a missing parameter to PickleHTMLBuilder.handle_page().
+
+* Put inheritance info always on its own line.
+
+* Don't automatically enclose code with whitespace in it in quotes;
+  only do this for the ``samp`` role.
+
+* autodoc now emits a more precise error message when a module
+  can't be imported or an attribute can't be found.
+
+* The JavaScript search now uses the correct file name suffix when
+  referring to found items.
+
+* The automodule directive now accepts the ``inherited-members``
+  and ``show-inheritance`` options again.
+
+* You can now rebuild the docs normally after relocating the source
+  and/or doctree directory.
+
+
 Release 0.4.1 (Jul 5, 2008)
 ===========================
 
