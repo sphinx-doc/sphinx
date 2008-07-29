@@ -20,7 +20,7 @@ from sphinx.util import format_exception_cut_frames, save_traceback
 from sphinx.util.console import darkred, nocolor
 
 __revision__ = '$Revision$'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 def usage(argv, msg=None):

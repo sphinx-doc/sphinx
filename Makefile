@@ -27,4 +27,4 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -B .
 
 test:
-	@cd tests; $(PYTHON) run.py
+	@cd tests; $(PYTHON) run.py -d

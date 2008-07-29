@@ -43,6 +43,7 @@ def test_core_config():
     # "contains" gives True both for set and unset values
     assert 'project' in cfg
     assert 'html_title' in cfg
+    assert 'nonexisting_value' not in cfg
 
     # invalid values
     raises(AttributeError, getattr, cfg, '_value')

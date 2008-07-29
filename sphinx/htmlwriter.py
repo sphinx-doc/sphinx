@@ -56,6 +56,7 @@ class HTMLTranslator(BaseTranslator):
         self.builder = builder
         self.highlightlang = 'python'
         self.highlightlinenothreshold = sys.maxint
+        self.protect_literal_text = 0
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['desctype']))
@@ -206,7 +207,11 @@ class HTMLTranslator(BaseTranslator):
         if len(node.children) == 1 and \
                node.children[0] in ('None', 'True', 'False'):
             node['classes'].append('xref')
-        BaseTranslator.visit_literal(self, node)
+        self.body.append(self.starttag(node, 'tt', '', CLASS='docutils literal'))
+        self.protect_literal_text += 1
+    def depart_literal(self, node):
+        self.protect_literal_text -= 1
+        self.body.append('</tt>')
 
     def visit_productionlist(self, node):
         self.body.append(self.starttag(node, 'pre'))
@@ -285,6 +290,33 @@ class HTMLTranslator(BaseTranslator):
     def depart_module(self, node):
         pass
 
+    def bulk_text_processor(self, text):
+        return text
+
+    # overwritten
+    def visit_Text(self, node):
+        text = node.astext()
+        encoded = self.encode(text)
+        if self.protect_literal_text:
+            # moved here from base class's visit_literal to support
+            # more formatting in literal nodes
+            for token in self.words_and_spaces.findall(encoded):
+                if token.strip():
+                    # protect literal text from line wrapping
+                    self.body.append('<span class="pre">%s</span>' % token)
+                elif token in ' \n':
+                    # allow breaks at whitespace
+                    self.body.append(token)
+                else:
+                    # protect runs of multiple spaces; the last one can wrap
+                    self.body.append('&nbsp;' * (len(token)-1) + ' ')
+        else:
+            if self.in_mailto and self.settings.cloak_email_addresses:
+                encoded = self.cloak_email(encoded)
+            else:
+                encoded = self.bulk_text_processor(encoded)
+            self.body.append(encoded)
+
     # these are all for docutils 0.5 compatibility
 
     def visit_note(self, node):
@@ -332,7 +364,6 @@ class HTMLTranslator(BaseTranslator):
         self.visit_admonition(node, 'tip')
     def depart_tip(self, node):
         self.depart_admonition()
-
 
     # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):
@@ -397,11 +428,7 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         finally:
             self.no_smarty -= 1
 
-    def visit_Text(self, node):
-        text = node.astext()
-        encoded = self.encode(text)
-        if self.in_mailto and self.settings.cloak_email_addresses:
-            encoded = self.cloak_email(encoded)
-        elif self.no_smarty <= 0:
-            encoded = sphinx_smarty_pants(encoded)
-        self.body.append(encoded)
+    def bulk_text_processor(self, text):
+        if self.no_smarty <= 0:
+            return sphinx_smarty_pants(text)
+        return text

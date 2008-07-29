@@ -336,14 +336,14 @@
 
 % Augment the sectioning commands used to get our own font family in place,
 % and reset some internal data items:
-\titleformat{\section}{\Large\py@HeaderFamily\py@TitleColor}%
-{\thesection}{0.5em}{}{\py@NormalColor}
-\titleformat{\subsection}{\large\py@HeaderFamily\py@TitleColor}%
-{\thesubsection}{0.5em}{}{\py@NormalColor}
-\titleformat{\subsubsection}{\py@HeaderFamily\py@TitleColor}%
-{\thesubsubsection}{0.5em}{}{\py@NormalColor}
-\titleformat{\paragraph}{\large\py@HeaderFamily\py@TitleColor}%
-{}{0em}{}{\py@NormalColor}
+\titleformat{\section}{\Large\py@HeaderFamily}%
+            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subsection}{\large\py@HeaderFamily}%
+            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subsubsection}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\paragraph}{\large\py@HeaderFamily}%
+            {\py@TitleColor}{0em}{\py@TitleColor}{\py@NormalColor}
 
 
 % Now for a lot of semantically-loaded environments that do a ton of magical

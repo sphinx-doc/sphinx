@@ -69,6 +69,7 @@ def toctree_directive(name, arguments, options, content, lineno,
     subnode['includefiles'] = includefiles
     subnode['includetitles'] = includetitles
     subnode['maxdepth'] = options.get('maxdepth', -1)
+    subnode['glob'] = glob
     ret.append(subnode)
     return ret
 

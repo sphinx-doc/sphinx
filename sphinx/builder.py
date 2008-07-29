@@ -737,6 +737,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         sidebarfile = self.config.html_sidebars.get(pagename)
         if sidebarfile:
             ctx['customsidebar'] = sidebarfile
+
         if not outfilename:
             outfilename = path.join(self.outdir, os_path(pagename) + self.out_suffix)
 

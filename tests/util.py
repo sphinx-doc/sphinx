@@ -17,10 +17,14 @@ from path import path
 
 
 __all__ = [
+    'test_root',
     'raises', 'raises_msg',
     'ErrorOutput', 'TestApp',
     'path', 'with_tempdir', 'write_file',
 ]
+
+
+test_root = path(__file__).parent.joinpath('root').abspath()
 
 
 def _excstr(exc):
@@ -79,7 +83,7 @@ class TestApp(application.Sphinx):
         application.CONFIG_FILENAME = confname
 
         if srcdir is None:
-            srcdir = path(__file__).parent.joinpath('root').abspath()
+            srcdir = test_root
         else:
             srcdir = path(srcdir)
         if confdir is None:

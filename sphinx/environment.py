@@ -63,7 +63,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 24
+ENV_VERSION = 25
 
 
 default_substitutions = set([
@@ -242,6 +242,7 @@ class BuildEnvironment:
         self.toctree_includes = {}  # docname -> list of toctree includefiles
         self.files_to_rebuild = {}  # docname -> set of files (containing its TOCs)
                                     # to rebuild too
+        self.glob_toctrees = set()  # docnames that have :glob: toctrees
 
         # X-ref target inventory
         self.descrefs = {}          # fullname -> docname, desctype
@@ -296,6 +297,7 @@ class BuildEnvironment:
             self.toctree_includes.pop(docname, None)
             self.filemodules.pop(docname, None)
             self.indexentries.pop(docname, None)
+            self.glob_toctrees.discard(docname)
 
             for subfn, fnset in self.files_to_rebuild.items():
                 fnset.discard(docname)
@@ -420,7 +422,14 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.doctreedir = doctreedir
         self.find_files(config)
+
         added, changed, removed = self.get_outdated_files(config_changed)
+
+        # if files were added or removed, all documents with globbed toctrees
+        # must be reread
+        if added or removed:
+            changed.update(self.glob_toctrees)
+
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
         yield msg
@@ -641,6 +650,8 @@ class BuildEnvironment:
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
            file relations from it."""
+        if toctreenode['glob']:
+            self.glob_toctrees.add(docname)
         includefiles = toctreenode['includefiles']
         for includefile in includefiles:
             # note that if the included file is rebuilt, this one must be
