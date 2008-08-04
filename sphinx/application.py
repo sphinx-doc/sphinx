@@ -48,8 +48,10 @@ class ExtensionError(Exception):
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
-    'doctree-read' : 'the doctree before being pickled',
-    'doctree-resolved' : 'doctree, docname',
+    'doctree-read': 'the doctree before being pickled',
+    'missing-reference': 'env, node, contnode',
+    'doctree-resolved': 'doctree, docname',
+    'env-updated': 'env',
     'html-page-context': 'pagename, context, doctree or None',
 }
 
