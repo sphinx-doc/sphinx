@@ -305,12 +305,13 @@ class RstGenerator(object):
             if path:
                 mod_cls = path.rstrip('.')
             else:
+                mod_cls = None
                 # if documenting a class-level object without path, there must be a
                 # current class, either from a parent auto directive ...
                 if hasattr(self.env, 'autodoc_current_class'):
                     mod_cls = self.env.autodoc_current_class
                 # ... or from a class directive
-                else:
+                if mod_cls is None:
                     mod_cls = self.env.currclass
             mod, cls = rpartition(mod_cls, '.')
             # if the module name is still missing, get it like above
