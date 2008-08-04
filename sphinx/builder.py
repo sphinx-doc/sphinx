@@ -11,6 +11,7 @@
 
 import os
 import time
+import gzip
 import codecs
 import shutil
 import cPickle as pickle
@@ -40,6 +41,8 @@ from sphinx import directives
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 LAST_BUILD_FILENAME = 'last_build'
+INVENTORY_FILENAME = 'inventory.txt.gz'
+
 
 class Builder(object):
     """
@@ -153,7 +156,7 @@ class Builder(object):
             return
         if not self.freshenv:
             try:
-                self.info(bold('trying to load pickled env... '), nonl=True)
+                self.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(self.config,
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.info('done')
@@ -214,7 +217,7 @@ class Builder(object):
         iterator = self.env.update(self.config, self.srcdir, self.doctreedir, self.app)
         # the first item in the iterator is a summary message
         self.info(iterator.next())
-        for docname in self.status_iterator(iterator, 'reading... ', purple):
+        for docname in self.status_iterator(iterator, 'reading sources... ', purple):
             updated_docnames.append(docname)
             # nothing further to do, the environment has already done the reading
         for warning in warnings:
@@ -224,13 +227,14 @@ class Builder(object):
 
         if updated_docnames:
             # save the environment
-            self.info(bold('pickling the env... '), nonl=True)
+            self.info(bold('pickling environment... '), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
             self.info('done')
 
             # global actions
-            self.info(bold('checking consistency...'))
+            self.info(bold('checking consistency... '), nonl=True)
             self.env.check_consistency()
+            self.info('done')
         else:
             if method == 'update' and not docnames:
                 self.info(bold('no targets are out of date.'))
@@ -241,7 +245,6 @@ class Builder(object):
         self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
-        self.info(bold('finishing... '))
         self.finish()
         if self.app._warncount:
             self.info(bold('build succeeded, %s warning%s.' %
@@ -266,7 +269,9 @@ class Builder(object):
                 docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
+        self.info(bold('preparing documents... '), nonl=True)
         self.prepare_writing(docnames)
+        self.info('done')
 
         # write target files
         warnings = []
@@ -571,7 +576,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # copy image files
         if self.images:
-            self.info(bold('copying images...'), nonl=1)
+            self.info(bold('copying images...'), nonl=True)
             ensuredir(path.join(self.outdir, '_images'))
             for src, dest in self.images.iteritems():
                 self.info(' '+src, nonl=1)
@@ -580,7 +585,7 @@ class StandaloneHTMLBuilder(Builder):
             self.info()
 
         # copy static files
-        self.info(bold('copying static files...'))
+        self.info(bold('copying static files... '), nonl=True)
         ensuredir(path.join(self.outdir, '_static'))
         staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
                          [path.join(self.confdir, spath)
@@ -605,6 +610,7 @@ class StandaloneHTMLBuilder(Builder):
         f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
         f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())
         f.close()
+        self.info('done')
 
         # dump the search index
         self.handle_finish()
@@ -693,13 +699,25 @@ class StandaloneHTMLBuilder(Builder):
             shutil.copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
-        self.info(bold('dumping search index...'))
+        self.info(bold('dumping search index... '), nonl=True)
         self.indexer.prune(self.env.all_docs)
         f = open(path.join(self.outdir, self.searchindex_filename), 'wb')
         try:
             self.indexer.dump(f, self.indexer_format)
         finally:
             f.close()
+        self.info('done')
+
+        self.info(bold('dumping object inventory... '), nonl=True)
+        f = gzip.open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
+        try:
+            for modname, info in self.env.modules.iteritems():
+                f.write('%s mod %s\n' % (modname, self.get_target_uri(info[0])))
+            for refname, (docname, desctype) in self.env.descrefs.iteritems():
+                f.write('%s %s %s\n' % (refname, desctype, self.get_target_uri(docname)))
+        finally:
+            f.close()
+        self.info('done')
 
 
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):
@@ -974,12 +992,13 @@ class LaTeXBuilder(Builder):
             shutil.copyfile(path.join(self.confdir, self.config.latex_logo),
                             path.join(self.outdir, logobase))
 
-        self.info(bold('copying TeX support files...'))
+        self.info(bold('copying TeX support files... '), nonl=True)
         staticdirname = path.join(path.dirname(__file__), 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
                 shutil.copyfile(path.join(staticdirname, filename),
                                 path.join(self.outdir, filename))
+        self.info('done')
 
 
 class ChangesBuilder(Builder):

@@ -350,11 +350,10 @@ class RstGenerator(object):
                 args = None
                 err = e
 
-        results = self.env.app.emit('autodoc-process-signature',
-                                    what, name, obj, self.options, args, retann)
-        for result in results:
-            if result:
-                args, retann = result
+        result = self.env.app.emit_firstresult('autodoc-process-signature', what,
+                                               name, obj, self.options, args, retann)
+        if result:
+            args, retann = result
 
         if args is not None:
             return '%s%s' % (args, retann or '')

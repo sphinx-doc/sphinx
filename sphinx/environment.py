@@ -457,6 +457,9 @@ class BuildEnvironment:
             if not os.access(path.join(self.srcdir, imgsrc), os.R_OK):
                 del self.images[imgsrc]
 
+        if app:
+            app.emit('env-updated', self)
+
 
     # --------- SINGLE FILE READING --------------------------------------------
 
@@ -880,16 +883,16 @@ class BuildEnvironment:
                            'meth', 'cfunc', 'cdata', 'ctype', 'cmacro', 'obj'))
 
     def resolve_references(self, doctree, fromdocname, builder):
+        reftarget_roles = set(('token', 'term', 'option'))
+        # add all custom xref types too
+        reftarget_roles.update(i[0] for i in additional_xref_types.values())
+
         for node in doctree.traverse(addnodes.pending_xref):
             contnode = node[0].deepcopy()
             newnode = None
 
             typ = node['reftype']
             target = node['reftarget']
-
-            reftarget_roles = set(('token', 'term', 'option'))
-            # add all custom xref types too
-            reftarget_roles.update(i[0] for i in additional_xref_types.values())
 
             try:
                 if typ == 'ref':
@@ -962,7 +965,12 @@ class BuildEnvironment:
                     # because the anchor is generally below the heading which is ugly
                     # but can't be helped easily
                     anchor = ''
-                    if not docname or docname == fromdocname:
+                    if not docname:
+                        newnode = builder.app.emit_firstresult('missing-reference',
+                                                               self, node, contnode)
+                        if not newnode:
+                            newnode = contnode
+                    elif docname == fromdocname:
                         # don't link to self
                         newnode = contnode
                     else:
@@ -983,7 +991,10 @@ class BuildEnvironment:
                     name, desc = self.find_desc(modname, clsname,
                                                 target, typ, searchorder)
                     if not desc:
-                        newnode = contnode
+                        newnode = builder.app.emit_firstresult('missing-reference',
+                                                               self, node, contnode)
+                        if not newnode:
+                            newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
                         if desc[0] == fromdocname:

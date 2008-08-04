@@ -167,6 +167,12 @@ class Sphinx(object):
                 result.append(callback(self, *args))
         return result
 
+    def emit_firstresult(self, event, *args):
+        for result in self.emit(event, *args):
+            if result is not None:
+                return result
+        return None
+
     # registering addon parts
 
     def add_builder(self, builder):

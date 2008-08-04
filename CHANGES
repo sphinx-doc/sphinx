@@ -27,6 +27,8 @@ New features added
 * sphinx.doc.autodoc has a new event ``autodoc-process-signature`` that
   allows tuning function signature introspection.
 
+* Added new events: ``env-updated`` and ``missing-reference``.
+
 
 Release 0.4.2 (Jul 29, 2008)
 ============================

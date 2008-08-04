@@ -144,8 +144,17 @@ the following public API:
 
 .. method:: Sphinx.emit(event, *arguments)
 
-   Emit *event* and pass *arguments* to the callback functions.  Do not emit
-   core Sphinx events in extensions!
+   Emit *event* and pass *arguments* to the callback functions.  Return the
+   return values of all callbacks as a list.  Do not emit core Sphinx events
+   in extensions!
+
+.. method:: Sphinx.emit_firstresult(event, *arguments)
+
+   Emit *event* and pass *arguments* to the callback functions.  Return the
+   result of the first callback that doesn't return ``None`` (and don't call
+   the rest of the callbacks).
+
+   .. versionadded:: 0.5
 
 
 .. exception:: ExtensionError
@@ -167,18 +176,43 @@ registered event handlers.
 
 .. event:: builder-inited (app)
 
-   Emitted the builder object has been created.
+   Emitted when the builder object has been created.  It is available as
+   ``app.builder``.
 
 .. event:: doctree-read (app, doctree)
 
    Emitted when a doctree has been parsed and read by the environment, and is
-   about to be pickled.
+   about to be pickled.  The *doctree* can be modified in-place.
 
+.. event:: missing-reference (app, env, node, contnode)
+
+   Emitted when a cross-reference to a Python module or object cannot be
+   resolved.  If the event handler can resolve the reference, it should return a
+   new docutils node to be inserted in the document tree in place of the node
+   *node*.  Usually this node is a :class:`reference` node containing *contnode*
+   as a child.
+
+   :param env: The build environment (``app.builder.env``).
+   :param node: The :class:`pending_xref` node to be resolved.  Its attributes
+      ``reftype``, ``reftarget``, ``modname`` and ``classname`` attributes
+      determine the type and target of the reference.
+   :param contnode: The node that carries the text and formatting inside the
+      future reference and should be a child of the returned reference node.
+
+   .. versionadded:: 0.5
+   
 .. event:: doctree-resolved (app, doctree, docname)
 
    Emitted when a doctree has been "resolved" by the environment, that is, all
-   references and TOCs have been inserted.
+   references have been resolved and TOCs have been inserted.
 
+.. event:: env-updated (app, env)
+
+   Emitted when the :meth:`update` method of the build environment has
+   completed, that is, the environment and all doctrees are now up-to-date.
+
+   .. versionadded:: 0.5
+   
 .. event:: page-context (app, pagename, templatename, context, doctree)
 
    Emitted when the HTML builder has created a context dictionary to render a
