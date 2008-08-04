@@ -310,7 +310,7 @@ class RstGenerator(object):
                 if hasattr(self.env, 'autodoc_current_class'):
                     mod_cls = self.env.autodoc_current_class
                 # ... or from a class directive
-                if not mod_cls:
+                else:
                     mod_cls = self.env.currclass
             mod, cls = rpartition(mod_cls, '.')
             # if the module name is still missing, get it like above
