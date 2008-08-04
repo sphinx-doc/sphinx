@@ -202,6 +202,12 @@ latex_documents = [
 #latex_use_modindex = True
 '''
 
+INTERSPHINX_CONFIG = '''
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'http://docs.python.org/dev': None}
+'''
+
 MASTER_FILE = '''\
 .. %(project)s documentation master file, created by sphinx-quickstart on %(now)s.
    You can adapt this file completely to your liking, but it should at least
@@ -418,6 +424,8 @@ Please indicate if you want to use one of the following Sphinx extensions:'''
               'from modules (y/N)', 'n', boolean)
     do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
               'in doctest blocks (y/N)', 'n', boolean)
+    do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx documentation '
+              'of different projects (y/N)', 'n', boolean)
     print '''
 If you are under Unix, a Makefile can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
@@ -429,7 +437,7 @@ directly.'''
     d['now'] = time.asctime()
     d['underline'] = len(d['project']) * '='
     d['extensions'] = ', '.join(
-        repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest')
+        repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest', 'intersphinx')
         if d['ext_' + name].upper() in ('Y', 'YES'))
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['project_doc'] = d['project'] + ' Documentation'
@@ -449,8 +457,12 @@ directly.'''
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
+    conf_text = QUICKSTART_CONF % d
+    if d['ext_intersphinx'].upper() in ('Y', 'YES'):
+        conf_text += INTERSPHINX_CONFIG
+
     f = open(path.join(srcdir, 'conf.py'), 'w')
-    f.write((QUICKSTART_CONF % d).encode('utf-8'))
+    f.write(conf_text.encode('utf-8'))
     f.close()
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
