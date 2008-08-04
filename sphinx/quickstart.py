@@ -12,8 +12,10 @@
 import sys, os, time
 from os import path
 
+TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
+
 from sphinx.util import make_filename
-from sphinx.util.console import purple, bold, red, nocolor
+from sphinx.util.console import purple, bold, red, turquoise, nocolor
 
 
 PROMPT_PREFIX = '> '
@@ -56,8 +58,8 @@ source_suffix = '%(suffix)s'
 master_doc = '%(master)s'
 
 # General substitutions.
-project = %(project)r
-copyright = '%(year)s, %(author)s'
+project = u'%(project)s'
+copyright = u'%(copyright)s'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -178,8 +180,8 @@ htmlhelp_basename = '%(project_fn)sdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('%(master)s', '%(project_fn)s.tex', '%(project)s Documentation',
-   '%(author)s', 'manual'),
+  ('%(master)s', '%(project_fn)s.tex', u'%(project_doc)s',
+   u'%(author)s', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -343,8 +345,18 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
         x = raw_input(prompt)
         if default and not x:
             x = default
+        if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
+            if TERM_ENCODING:
+                x = x.decode(TERM_ENCODING)
+            else:
+                print turquoise('* Note: non-ASCII characters entered and terminal '
+                                'encoding unknown -- assuming UTF-8 or Latin-1.')
+                try:
+                    x = x.decode('utf-8')
+                except UnicodeDecodeError:
+                    x = x.decode('latin1')
         if validator and not validator(x):
-            print red(" * " + validator.__doc__)
+            print red('* ' + validator.__doc__)
             continue
         break
     d[key] = x
@@ -414,12 +426,13 @@ directly.'''
               os.name == 'posix' and 'y' or 'n', boolean)
 
     d['project_fn'] = make_filename(d['project'])
-    d['year'] = time.strftime('%Y')
     d['now'] = time.asctime()
     d['underline'] = len(d['project']) * '='
     d['extensions'] = ', '.join(
         repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest')
         if d['ext_' + name].upper() in ('Y', 'YES'))
+    d['copyright'] = time.strftime('%Y') + ', ' + d['author']
+    d['project_doc'] = d['project'] + ' Documentation'
 
     if not path.isdir(d['path']):
         mkdir_p(d['path'])
@@ -437,12 +450,12 @@ directly.'''
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
     f = open(path.join(srcdir, 'conf.py'), 'w')
-    f.write(QUICKSTART_CONF % d)
+    f.write((QUICKSTART_CONF % d).encode('utf-8'))
     f.close()
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
     f = open(masterfile, 'w')
-    f.write(MASTER_FILE % d)
+    f.write((MASTER_FILE % d).encode('utf-8'))
     f.close()
 
     create_makefile = d['makefile'].upper() in ('Y', 'YES')
@@ -450,7 +463,7 @@ directly.'''
         d['rsrcdir'] = separate and 'source' or '.'
         d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
         f = open(path.join(d['path'], 'Makefile'), 'w')
-        f.write(MAKEFILE % d)
+        f.write((MAKEFILE % d).encode('utf-8'))
         f.close()
 
     print

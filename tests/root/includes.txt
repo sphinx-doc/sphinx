@@ -1,0 +1,16 @@
+Test file and literal inclusion
+===============================
+
+.. include:: subdir/include.inc
+
+.. literalinclude:: literal.inc
+   :language: python
+
+.. should give a warning
+.. literalinclude:: wrongenc.inc
+
+.. should succeed
+.. literalinclude:: wrongenc.inc
+   :encoding: latin-1
+.. include:: wrongenc.inc
+   :encoding: latin-1

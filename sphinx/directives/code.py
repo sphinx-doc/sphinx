@@ -8,6 +8,7 @@
 """
 
 import sys
+import codecs
 from os import path
 
 from docutils import nodes
@@ -67,13 +68,19 @@ def literalinclude_directive(name, arguments, options, content, lineno,
         lineno - state_machine.input_offset - 1)))
     fn = path.normpath(path.join(source_dir, rel_fn))
 
+    encoding = options.get('encoding', 'utf-8')
     try:
-        f = open(fn)
+        f = codecs.open(fn, 'r', encoding)
         text = f.read()
         f.close()
     except (IOError, OSError):
         retnode = state.document.reporter.warning(
             'Include file %r not found or reading it failed' % arguments[0], line=lineno)
+    except UnicodeError:
+        retnode = state.document.reporter.warning(
+            'Encoding %r used for reading included file %r seems to '
+            'be wrong, try giving an :encoding: option' %
+            (encoding, arguments[0]))
     else:
         retnode = nodes.literal_block(text, text, source=fn)
         retnode.line = 1
@@ -85,7 +92,8 @@ def literalinclude_directive(name, arguments, options, content, lineno,
     return [retnode]
 
 literalinclude_directive.options = {'linenos': directives.flag,
-                                    'language': directives.unchanged}
+                                    'language': directives.unchanged,
+                                    'encoding': directives.encoding}
 literalinclude_directive.content = 0
 literalinclude_directive.arguments = (1, 0, 0)
 directives.register_directive('literalinclude', literalinclude_directive)

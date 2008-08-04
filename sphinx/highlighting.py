@@ -128,6 +128,13 @@ class PygmentsBridge(object):
                 if sys.version_info >= (2, 5):
                     src = 'from __future__ import with_statement\n' + src
 
+                if isinstance(src, unicode):
+                    # Non-ASCII chars will only occur in string literals
+                    # and comments.  If we wanted to give them to the parser
+                    # correctly, we'd have to find out the correct source
+                    # encoding.  Since it may not even be given in a snippet,
+                    # just replace all non-ASCII characters.
+                    src = src.encode('ascii', 'replace')
                 try:
                     parser.suite(src)
                 except parsing_exceptions:

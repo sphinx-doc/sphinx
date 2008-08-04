@@ -38,6 +38,7 @@ def mock_raw_input(answers, needanswer=False):
 
 def teardown_module():
     qs.raw_input = __builtin__.raw_input
+    qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
 
@@ -108,10 +109,10 @@ def test_quickstart_all_answers(tempdir):
         'Root path': tempdir,
         'Separate source and build': 'y',
         'Name prefix for templates': '_',
-        'Project name': 'Sphinx Test',
-        'Author name': 'Georg Brandl',
-        'Project version': '0.1',
-        'Project release': '0.1.1',
+        'Project name': 'STASI\xe2\x84\xa2',
+        'Author name': 'Wolfgang Sch\xc3\xa4uble',
+        'Project version': '2.0',
+        'Project release': '2.0.1',
         'Source file suffix': '.txt',
         'Name of your master document': 'contents',
         'autodoc': 'y',
@@ -119,6 +120,7 @@ def test_quickstart_all_answers(tempdir):
         'Create Makefile': 'no',
     }
     qs.raw_input = mock_raw_input(answers, needanswer=True)
+    qs.TERM_ENCODING = 'utf-8'
     qs.inner_main([])
 
     conffile = tempdir / 'source' / 'conf.py'
@@ -129,14 +131,14 @@ def test_quickstart_all_answers(tempdir):
     assert ns['templates_path'] == ['_templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['master_doc'] == 'contents'
-    assert ns['project'] == 'Sphinx Test'
-    assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
-    assert ns['version'] == '0.1'
-    assert ns['release'] == '0.1.1'
+    assert ns['project'] == u'STASI™'
+    assert ns['copyright'] == u'%s, Wolfgang Schäuble' % time.strftime('%Y')
+    assert ns['version'] == '2.0'
+    assert ns['release'] == '2.0.1'
     assert ns['html_static_path'] == ['_static']
     assert ns['latex_documents'] == [
-        ('contents', 'SphinxTest.tex', 'Sphinx Test Documentation',
-         'Georg Brandl', 'manual')]
+        ('contents', 'STASI.tex', u'STASI™ Documentation',
+         u'Wolfgang Schäuble', 'manual')]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '_static').isdir()

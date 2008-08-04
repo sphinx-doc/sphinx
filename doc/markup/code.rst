@@ -100,6 +100,15 @@ Includes
          :language: ruby
          :linenos:
 
+   Include files are assumed to be encoded in UTF-8.  If the file has a different
+   encoding, you can specify it with the ``encoding`` option::
+
+      .. literalinclude:: example.py
+         :encoding: latin-1
+
+   .. versionadded:: 0.4.3
+      The ``encoding`` option.
+
 
 .. rubric:: Footnotes
 

@@ -8,19 +8,26 @@
 """
 
 import sys
+import os
 import StringIO
 import tempfile
+import shutil
+
+from functools import wraps
 
 from sphinx import application, builder
 
 from path import path
 
+from nose import tools
+
 
 __all__ = [
     'test_root',
     'raises', 'raises_msg',
-    'ErrorOutput', 'TestApp',
+    'ListOutput', 'TestApp', 'with_testapp',
     'path', 'with_tempdir', 'write_file',
+    'sprint',
 ]
 
 
@@ -59,15 +66,19 @@ def raises_msg(exc, msg, func, *args, **kwds):
                              (func.__name__, _excstr(exc)))
 
 
-class ErrorOutput(object):
+class ListOutput(object):
     """
-    File-like object that raises :exc:`AssertionError` on ``write()``.
+    File-like object that collects written text in a list.
     """
     def __init__(self, name):
         self.name = name
+        self.content = []
+
+    def reset(self):
+        del self.content[:]
 
     def write(self, text):
-        assert False, 'tried to write %r to %s' % (text, self.name)
+        self.content.append(text)
 
 
 class TestApp(application.Sphinx):
@@ -84,26 +95,62 @@ class TestApp(application.Sphinx):
 
         if srcdir is None:
             srcdir = test_root
+        if srcdir == '(temp)':
+            tempdir = path(tempfile.mkdtemp()) / 'root'
+            test_root.copytree(tempdir)
+            srcdir = tempdir
         else:
             srcdir = path(srcdir)
+        self.builddir = srcdir.joinpath('_build')
+        if not self.builddir.isdir():
+            self.builddir.makedirs()
+            self.made_builddir = True
+        else:
+            self.made_builddir = False
         if confdir is None:
             confdir = srcdir
         if outdir is None:
-            outdir = srcdir.joinpath('_build', buildername)
+            outdir = srcdir.joinpath(self.builddir, buildername)
+            if not outdir.isdir():
+                outdir.makedirs()
         if doctreedir is None:
-            doctreedir = srcdir.joinpath(srcdir, '_build', 'doctrees')
+            doctreedir = srcdir.joinpath(srcdir, self.builddir, 'doctrees')
         if confoverrides is None:
             confoverrides = {}
         if status is None:
             status = StringIO.StringIO()
         if warning is None:
-            warning = ErrorOutput('stderr')
+            warning = ListOutput('stderr')
         if freshenv is None:
             freshenv = True
 
         application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                     buildername, confoverrides, status, warning,
                                     freshenv)
+
+    def cleanup(self):
+        trees = [self.outdir, self.doctreedir]
+        #f self.made_builddir:
+        #    trees.append(self.builddir)
+        #for tree in trees:
+        #    shutil.rmtree(tree, True)
+
+
+def with_testapp(*args, **kwargs):
+    """
+    Make a TestApp with args and kwargs, pass it to the test and clean up
+    properly.
+    """
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            app = TestApp(*args, **kwargs)
+            try:
+                func(app, *args2, **kwargs2)
+            finally:
+                app.cleanup()
+        return deco
+    return generator
 
 
 def with_tempdir(func):
@@ -119,3 +166,7 @@ def write_file(name, contents):
     f = open(str(name), 'wb')
     f.write(contents)
     f.close()
+
+
+def sprint(*args):
+    sys.stderr.write(' '.join(map(str, args)) + '\n')

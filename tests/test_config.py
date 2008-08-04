@@ -15,9 +15,9 @@ from util import *
 from sphinx.application import ExtensionError
 
 
-def test_core_config():
-    overrides = {'master_doc': 'master', 'nonexisting_value': 'True'}
-    cfg = TestApp(confoverrides=overrides).config
+@with_testapp(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True'})
+def test_core_config(app):
+    cfg = app.config
 
     # simple values
     assert 'project' in cfg.__dict__
@@ -61,8 +61,8 @@ def test_core_config():
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-def test_extension_values():
-    app = TestApp()
+@with_testapp()
+def test_extension_values(app):
     cfg = app.config
 
     # default value

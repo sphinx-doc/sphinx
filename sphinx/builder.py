@@ -145,6 +145,9 @@ class Builder(object):
                 node['uri'] = candidate
             else:
                 candidate = node['uri']
+            if candidate not in self.env.images:
+                # non-existing URI; let it alone
+                continue
             self.images[candidate] = self.env.images[candidate][1]
 
     # build methods

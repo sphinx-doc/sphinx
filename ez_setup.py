@@ -14,8 +14,8 @@ the appropriate options to ``use_setuptools()``.
 This file can also be run as a script to install or upgrade setuptools.
 """
 import sys
-DEFAULT_VERSION = "0.6c5"
-DEFAULT_URL     = "http://cheeseshop.python.org/packages/%s/s/setuptools/" % sys.version[:3]
+DEFAULT_VERSION = "0.6c8"
+DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 
 md5_data = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
@@ -39,6 +39,15 @@ md5_data = {
     'setuptools-0.6c5-py2.3.egg': 'ee9fd80965da04f2f3e6b3576e9d8167',
     'setuptools-0.6c5-py2.4.egg': 'afe2adf1c01701ee841761f5bcd8aa64',
     'setuptools-0.6c5-py2.5.egg': 'a8d3f61494ccaa8714dfed37bccd3d5d',
+    'setuptools-0.6c6-py2.3.egg': '35686b78116a668847237b69d549ec20',
+    'setuptools-0.6c6-py2.4.egg': '3c56af57be3225019260a644430065ab',
+    'setuptools-0.6c6-py2.5.egg': 'b2f8a7520709a5b34f80946de5f02f53',
+    'setuptools-0.6c7-py2.3.egg': '209fdf9adc3a615e5115b725658e13e2',
+    'setuptools-0.6c7-py2.4.egg': '5a8f954807d46a0fb67cf1f26c55a82e',
+    'setuptools-0.6c7-py2.5.egg': '45d2ad28f9750e7434111fde831e8372',
+    'setuptools-0.6c8-py2.3.egg': '50759d29b349db8cfd807ba8303f1902',
+    'setuptools-0.6c8-py2.4.egg': 'cba38d74f7d483c06e9daa6070cce6de',
+    'setuptools-0.6c8-py2.5.egg': '1721747ee329dc150590a58b3e1ac95b',
 }
 
 import sys, os
@@ -71,31 +80,31 @@ def use_setuptools(
     this routine will print a message to ``sys.stderr`` and raise SystemExit in
     an attempt to abort the calling script.
     """
-    try:
-        import setuptools
-        if setuptools.__version__ == '0.0.1':
-            print >>sys.stderr, (
-            "You have an obsolete version of setuptools installed.  Please\n"
-            "remove it from your system entirely before rerunning this script."
-            )
-            sys.exit(2)
-    except ImportError:
+    was_imported = 'pkg_resources' in sys.modules or 'setuptools' in sys.modules
+    def do_download():
         egg = download_setuptools(version, download_base, to_dir, download_delay)
         sys.path.insert(0, egg)
         import setuptools; setuptools.bootstrap_install_from = egg
-
-    import pkg_resources
     try:
-        pkg_resources.require("setuptools>="+version)
-
+        import pkg_resources
+    except ImportError:
+        return do_download()       
+    try:
+        pkg_resources.require("setuptools>="+version); return
     except pkg_resources.VersionConflict, e:
-        # XXX could we install in a subprocess here?
-        print >>sys.stderr, (
+        if was_imported:
+            print >>sys.stderr, (
             "The required version of setuptools (>=%s) is not available, and\n"
             "can't be installed while this script is running. Please install\n"
-            " a more recent version first.\n\n(Currently using %r)"
-        ) % (version, e.args[0])
-        sys.exit(2)
+            " a more recent version first, using 'easy_install -U setuptools'."
+            "\n\n(Currently using %r)"
+            ) % (version, e.args[0])
+            sys.exit(2)
+        else:
+            del pkg_resources, sys.modules['pkg_resources']    # reload ok
+            return do_download()
+    except pkg_resources.DistributionNotFound:
+        return do_download()
 
 def download_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
@@ -144,9 +153,43 @@ and place it in this directory before rerunning this script.)
             if dst: dst.close()
     return os.path.realpath(saveto)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
-
     try:
         import setuptools
     except ImportError:
@@ -161,8 +204,11 @@ def main(argv, version=DEFAULT_VERSION):
                 os.unlink(egg)
     else:
         if setuptools.__version__ == '0.0.1':
-            # tell the user to uninstall obsolete version
-            use_setuptools(version)
+            print >>sys.stderr, (
+            "You have an obsolete version of setuptools installed.  Please\n"
+            "remove it from your system entirely before rerunning this script."
+            )
+            sys.exit(2)
 
     req = "setuptools>="+version
     import pkg_resources
@@ -182,8 +228,6 @@ def main(argv, version=DEFAULT_VERSION):
         else:
             print "Setuptools version",version,"or greater has been installed."
             print '(Run "ez_setup.py -U setuptools" to reinstall or upgrade.)'
-
-
 
 def update_md5(filenames):
     """Update our built-in md5 registry"""
@@ -221,3 +265,8 @@ if __name__=='__main__':
         update_md5(sys.argv[2:])
     else:
         main(sys.argv[1:])
+
+
+
+
+

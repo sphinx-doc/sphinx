@@ -27,4 +27,4 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -B .
 
 test:
-	@cd tests; $(PYTHON) run.py -d
+	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)

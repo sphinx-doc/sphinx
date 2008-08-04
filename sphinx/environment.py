@@ -559,12 +559,12 @@ class BuildEnvironment:
             imgpath = path.normpath(path.join(docdir, imguri))
             node['uri'] = imgpath
             if imgpath.endswith(os.extsep + '*'):
-                for filename in glob(imgpath):
-                    basename, ext = os.path.splitext(filename)
-                    if ext == '.pdf':
-                        candidates['application/pdf'] = filename
-                    elif ext == '.svg':
-                        candidates['image/svg+xml'] = filename
+                for filename in glob(path.join(self.srcdir, imgpath)):
+                    dir, base = path.split(filename)
+                    if base.lower().endswith('.pdf'):
+                        candidates['application/pdf'] = path.join(docdir, base)
+                    elif base.lower().endswith('.svg'):
+                        candidates['image/svg+xml'] = path.join(docdir, base)
                     else:
                         f = open(filename, 'rb')
                         try:
@@ -572,23 +572,23 @@ class BuildEnvironment:
                         finally:
                             f.close()
                         if imgtype:
-                            candidates['image/' + imgtype] = filename
+                            candidates['image/' + imgtype] = path.join(docdir, base)
             else:
                 candidates['*'] = imgpath
-            for img in candidates.itervalues():
-                self.dependencies.setdefault(docname, set()).add(img)
-                if not os.access(path.join(self.srcdir, img), os.R_OK):
-                    self.warn(docname, 'Image file not readable: %s' % img, node.line)
-                if img in self.images:
-                    self.images[img][0].add(docname)
+            for imgpath in candidates.itervalues():
+                self.dependencies.setdefault(docname, set()).add(imgpath)
+                if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
+                    self.warn(docname, 'Image file not readable: %s' % imgpath, node.line)
+                if imgpath in self.images:
+                    self.images[imgpath][0].add(docname)
                     continue
-                uniquename = path.basename(img)
+                uniquename = path.basename(imgpath)
                 base, ext = path.splitext(uniquename)
                 i = 0
                 while uniquename in existing_names:
                     i += 1
                     uniquename = '%s%s%s' % (base, i, ext)
-                self.images[img] = (set([docname]), uniquename)
+                self.images[imgpath] = (set([docname]), uniquename)
                 existing_names.add(uniquename)
 
     def process_metadata(self, docname, doctree):

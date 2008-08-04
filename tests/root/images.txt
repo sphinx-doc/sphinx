@@ -1,0 +1,20 @@
+Sphinx image handling
+=====================
+
+.. first, a simple test with direct filename
+.. image:: img.png
+
+.. a non-existing image with direct filename
+.. image:: foo.png
+
+.. an image with path name (relative to this directory!)
+.. image:: subdir/img.png
+
+.. an image with unspecified extension
+.. image:: img.*
+
+.. a non-existing image with .*
+.. image:: foo.*
+
+.. a non-local image URI
+.. image:: http://www.python.org/logo.png
