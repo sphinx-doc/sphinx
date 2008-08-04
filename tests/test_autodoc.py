@@ -14,7 +14,7 @@ from util import *
 
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import RstGenerator
+from sphinx.ext.autodoc import RstGenerator, cut_lines, between
 
 
 def setup_module():
@@ -222,6 +222,30 @@ def test_get_doc():
     assert getdocl('class', 'bar', D) == ['Init docstring', '', '42']
 
 
+def test_docstring_processing_functions():
+    lid = app.connect('autodoc-process-docstring', cut_lines(1, 1, ['function']))
+    def f():
+        """
+        first line
+        second line
+        third line
+        """
+    assert list(gen.get_doc('function', 'f', f)) == ['second line', '']
+    app.disconnect(lid)
+
+    lid = app.connect('autodoc-process-docstring', between('---', ['function']))
+    def f():
+        """
+        first line
+        ---
+        second line
+        ---
+        third line
+        """
+    assert list(gen.get_doc('function', 'f', f)) == ['second line', '']
+    app.disconnect(lid)
+
+
 def test_generate():
     def assert_warns(warn_str, *args):
         gen.generate(*args)
@@ -246,6 +270,7 @@ def test_generate():
         gen.generate(*args)
         assert len(gen.warnings) == 0, gen.warnings
         assert item in gen.result
+        print '\n'.join(gen.result)
         del gen.result[:]
 
     # no module found?
@@ -303,6 +328,10 @@ def test_generate():
     assert_result_contains('   :noindex:', 'module', 'test_autodoc', [], None)
     assert_result_contains('   :noindex:', 'class', 'Base', [], None)
 
+    # okay, now let's get serious about mixing Python and C signature stuff
+    assert_result_contains('.. class:: CustomDict', 'class', 'CustomDict',
+                           ['__all__'], None)
+
 
 # --- generate fodder ------------
 
@@ -329,3 +358,6 @@ class Class(Base):
     @property
     def prop(self):
         """Property."""
+
+class CustomDict(dict):
+    """Docstring."""

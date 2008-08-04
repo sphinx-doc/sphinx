@@ -159,7 +159,7 @@ class Sphinx(object):
         return listener_id
 
     def disconnect(self, listener_id):
-        for event in self._listeners:
+        for event in self._listeners.itervalues():
             event.pop(listener_id, None)
 
     def emit(self, event, *args):

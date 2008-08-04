@@ -111,7 +111,13 @@ def cut_lines(pre, post=0, what=None):
             return
         del lines[:pre]
         if post:
+            # remove one trailing blank line.
+            if lines and not lines[-1]:
+                lines.pop(-1)
             del lines[-post:]
+        # make sure there is a blank line at the end
+        if lines and lines[-1]:
+            lines.append('')
     return process
 
 def between(marker, what=None, keepempty=False):
@@ -141,6 +147,9 @@ def between(marker, what=None, keepempty=False):
                     deleted += 1
         if not lines and not keepempty:
             lines[:] = orig_lines
+        # make sure there is a blank line at the end
+        if lines and lines[-1]:
+            lines.append('')
     return process
 
 
@@ -340,10 +349,14 @@ class RstGenerator(object):
                 if what == 'class':
                     # for classes, the relevant signature is the __init__ method's
                     obj = getattr(obj, '__init__', None)
-                    # classes without __init__ method?
+                    # classes without __init__ method, default __init__ or
+                    # __init__ written in C?
                     if obj is None or obj is object.__init__ or not \
                        (inspect.ismethod(obj) or inspect.isfunction(obj)):
                         getargs = False
+                elif inspect.isbuiltin(obj) or inspect.ismethoddescriptor(obj):
+                    # can never get arguments of a C function or method
+                    getargs = False
                 if getargs:
                     argspec = inspect.getargspec(obj)
                     if what in ('class', 'method') and argspec[0] and \
