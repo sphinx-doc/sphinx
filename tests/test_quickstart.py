@@ -117,6 +117,7 @@ def test_quickstart_all_answers(tempdir):
         'Name of your master document': 'contents',
         'autodoc': 'y',
         'doctest': 'yes',
+        'intersphinx': 'no',
         'Create Makefile': 'no',
     }
     qs.raw_input = mock_raw_input(answers, needanswer=True)

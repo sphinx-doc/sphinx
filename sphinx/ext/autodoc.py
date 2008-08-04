@@ -284,7 +284,7 @@ class RstGenerator(object):
         if what == 'module':
             if args or retann:
                 self.warn('ignoring signature arguments and return annotation '
-                          'for automodule %s' % mod)
+                          'for automodule %s' % fullname)
             return fullname, fullname, [], None, None
 
         elif what in ('class', 'exception', 'function'):
@@ -335,18 +335,21 @@ class RstGenerator(object):
         else:
             # try to introspect the signature
             try:
+                args = None
+                getargs = True
                 if what == 'class':
                     # for classes, the relevant signature is the __init__ method's
                     obj = getattr(obj, '__init__', None)
                     # classes without __init__ method?
                     if obj is None or obj is object.__init__ or not \
                        (inspect.ismethod(obj) or inspect.isfunction(obj)):
-                        return ''
-                argspec = inspect.getargspec(obj)
-                if what in ('class', 'method') and argspec[0] and \
-                   argspec[0][0] in ('cls', 'self'):
-                    del argspec[0][0]
-                args = inspect.formatargspec(*argspec)
+                        getargs = False
+                if getargs:
+                    argspec = inspect.getargspec(obj)
+                    if what in ('class', 'method') and argspec[0] and \
+                           argspec[0][0] in ('cls', 'self'):
+                        del argspec[0][0]
+                    args = inspect.formatargspec(*argspec)
             except Exception, e:
                 args = None
                 err = e
@@ -392,7 +395,7 @@ class RstGenerator(object):
             for part in objpath:
                 todoc = getattr(todoc, part)
         except (ImportError, AttributeError), err:
-            self.warn('autodoc can\'t import/find %s %r, it reported error: "%s",'
+            self.warn('autodoc can\'t import/find %s %r, it reported error: "%s", '
                       'please check your spelling and sys.path' %
                       (what, str(fullname), err))
             return

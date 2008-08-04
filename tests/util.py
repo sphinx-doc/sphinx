@@ -24,7 +24,7 @@ from nose import tools
 
 __all__ = [
     'test_root',
-    'raises', 'raises_msg',
+    'raises', 'raises_msg', 'Struct',
     'ListOutput', 'TestApp', 'with_testapp',
     'path', 'with_tempdir', 'write_file',
     'sprint',
@@ -64,6 +64,11 @@ def raises_msg(exc, msg, func, *args, **kwds):
     else:
         raise AssertionError('%s did not raise %s' %
                              (func.__name__, _excstr(exc)))
+
+
+class Struct(object):
+    def __init__(self, **kwds):
+        self.__dict__.update(kwds)
 
 
 class ListOutput(object):
