@@ -11,7 +11,6 @@
 
 import os
 import time
-import gzip
 import codecs
 import shutil
 import cPickle as pickle
@@ -41,7 +40,7 @@ from sphinx import directives
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 LAST_BUILD_FILENAME = 'last_build'
-INVENTORY_FILENAME = 'inventory.txt.gz'
+INVENTORY_FILENAME = 'inventory.txt'
 
 
 class Builder(object):
@@ -709,8 +708,11 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
         self.info(bold('dumping object inventory... '), nonl=True)
-        f = gzip.open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
+        f = open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
         try:
+            f.write('# Sphinx inventory version 1\n')
+            f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
+            f.write('# Version: %s\n' % self.config.version)
             for modname, info in self.env.modules.iteritems():
                 f.write('%s mod %s\n' % (modname, self.get_target_uri(info[0])))
             for refname, (docname, desctype) in self.env.descrefs.iteritems():
