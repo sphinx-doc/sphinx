@@ -135,10 +135,10 @@ class TestApp(application.Sphinx):
 
     def cleanup(self):
         trees = [self.outdir, self.doctreedir]
-        #f self.made_builddir:
-        #    trees.append(self.builddir)
-        #for tree in trees:
-        #    shutil.rmtree(tree, True)
+        if self.made_builddir:
+            trees.append(self.builddir)
+        for tree in trees:
+            shutil.rmtree(tree, True)
 
 
 def with_testapp(*args, **kwargs):

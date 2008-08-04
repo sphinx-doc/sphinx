@@ -98,7 +98,7 @@ def main(argv=sys.argv):
                 return 1
             all_files = True
         elif opt == '-d':
-            doctreedir = val
+            doctreedir = path.abspath(val)
         elif opt == '-c':
             confdir = path.abspath(val)
             if not path.isfile(path.join(confdir, 'conf.py')):

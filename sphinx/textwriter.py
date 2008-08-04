@@ -350,6 +350,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_image(self, node):
         self.add_text('[image]')
+        raise nodes.SkipNode
 
     def visit_transition(self, node):
         indent = sum(self.stateindent)

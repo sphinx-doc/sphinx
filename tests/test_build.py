@@ -10,11 +10,12 @@
 """
 
 import os
+import difflib
 import htmlentitydefs
 from StringIO import StringIO
-from etree13 import ElementTree as ET
 
 from util import *
+from etree13 import ElementTree as ET
 
 from sphinx.builder import StandaloneHTMLBuilder, LaTeXBuilder
 
@@ -66,14 +67,17 @@ class NslessParser(ET.XMLParser):
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
-    assert html_warnings == HTML_WARNINGS % {'root': app.srcdir}
+    html_warnings_exp = HTML_WARNINGS % {'root': app.srcdir}
+    assert html_warnings == html_warnings_exp, 'Warnings don\'t match:\n' + \
+           '\n'.join(difflib.ndiff(html_warnings_exp.splitlines(),
+                                   html_warnings.splitlines()))
 
     if not ET:
         return
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
-        etree = ET.parse(app.outdir / fname, parser)
+        etree = ET.parse(os.path.join(app.outdir, fname), parser)
         for path, text in paths.iteritems():
             nodes = list(etree.findall(path))
             assert nodes != []
@@ -92,4 +96,22 @@ def test_html(app):
 def test_latex(app):
     app.builder.build_all()
     latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
-    assert latex_warnings == LATEX_WARNINGS % {'root': app.srcdir}
+    latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
+    assert latex_warnings == latex_warnings_exp, 'Warnings don\'t match:\n' + \
+           '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
+                                   latex_warnings.splitlines()))
+
+
+# just let the remaining ones run for now
+
+@with_testapp(buildername='linkcheck')
+def test_linkcheck(app):
+    app.builder.build_all()
+
+@with_testapp(buildername='text')
+def test_text(app):
+    app.builder.build_all()
+
+@with_testapp(buildername='changes')
+def test_changes(app):
+    app.builder.build_all()

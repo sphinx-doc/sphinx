@@ -1030,6 +1030,9 @@ class ChangesBuilder(Builder):
         libchanges = {}
         apichanges = []
         otherchanges = {}
+        if version not in self.env.versionchanges:
+            self.info(bold('no changes in this version.'))
+            return
         self.info(bold('writing summary file...'))
         for type, docname, lineno, module, descname, content in \
                 self.env.versionchanges[version]:
