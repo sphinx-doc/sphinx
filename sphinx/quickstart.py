@@ -80,7 +80,7 @@ today_fmt = '%%B %%d, %%Y'
 
 # List of directories, relative to source directories, that shouldn't be searched
 # for source files.
-#exclude_dirs = []
+exclude_trees = [%(exclude_trees)s]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -451,8 +451,10 @@ directly.'''
     mkdir_p(srcdir)
     if separate:
         builddir = path.join(d['path'], 'build')
+        d['exclude_trees'] = ''
     else:
         builddir = path.join(srcdir, d['dot'] + 'build')
+        d['exclude_trees'] = repr(d['dot'] + 'build')
     mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))

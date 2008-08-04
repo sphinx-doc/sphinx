@@ -94,32 +94,34 @@ class TestApp(application.Sphinx):
 
     def __init__(self, srcdir=None, confdir=None, outdir=None, doctreedir=None,
                  buildername='html', confoverrides=None, status=None, warning=None,
-                 freshenv=None, confname='conf.py'):
+                 freshenv=None, confname='conf.py', cleanenv=False):
 
         application.CONFIG_FILENAME = confname
+
+        self.cleanup_trees = []
 
         if srcdir is None:
             srcdir = test_root
         if srcdir == '(temp)':
-            tempdir = path(tempfile.mkdtemp()) / 'root'
-            test_root.copytree(tempdir)
-            srcdir = tempdir
+            tempdir = path(tempfile.mkdtemp())
+            self.cleanup_trees.append(tempdir)
+            temproot = tempdir / 'root'
+            test_root.copytree(temproot)
+            srcdir = temproot
         else:
             srcdir = path(srcdir)
         self.builddir = srcdir.joinpath('_build')
-        if not self.builddir.isdir():
-            self.builddir.makedirs()
-            self.made_builddir = True
-        else:
-            self.made_builddir = False
         if confdir is None:
             confdir = srcdir
         if outdir is None:
             outdir = srcdir.joinpath(self.builddir, buildername)
             if not outdir.isdir():
                 outdir.makedirs()
+            self.cleanup_trees.insert(0, outdir)
         if doctreedir is None:
             doctreedir = srcdir.joinpath(srcdir, self.builddir, 'doctrees')
+            if cleanenv:
+                self.cleanup_trees.insert(0, doctreedir)
         if confoverrides is None:
             confoverrides = {}
         if status is None:
@@ -127,17 +129,14 @@ class TestApp(application.Sphinx):
         if warning is None:
             warning = ListOutput('stderr')
         if freshenv is None:
-            freshenv = True
+            freshenv = False
 
         application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                     buildername, confoverrides, status, warning,
                                     freshenv)
 
-    def cleanup(self):
-        trees = [self.outdir, self.doctreedir]
-        if self.made_builddir:
-            trees.append(self.builddir)
-        for tree in trees:
+    def cleanup(self, doctrees=False):
+        for tree in self.cleanup_trees:
             shutil.rmtree(tree, True)
 
 

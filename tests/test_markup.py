@@ -22,7 +22,7 @@ from sphinx.latexwriter import LaTeXWriter, LaTeXTranslator
 
 def setup_module():
     global app, settings, parser
-    app = TestApp()
+    app = TestApp(cleanenv=True)
     optparser = frontend.OptionParser(components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
     settings.env = app.builder.env

@@ -578,7 +578,8 @@ class BuildEnvironment:
             for imgpath in candidates.itervalues():
                 self.dependencies.setdefault(docname, set()).add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    self.warn(docname, 'Image file not readable: %s' % imgpath, node.line)
+                    self.warn(docname, 'Image file not readable: %s' % imgpath,
+                              node.line)
                 if imgpath in self.images:
                     self.images[imgpath][0].add(docname)
                     continue

@@ -13,7 +13,6 @@
 """
 
 import sys
-from os import path
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -67,10 +66,10 @@ class Sphinx(object):
         self.builderclasses = builtin_builders.copy()
         self.builder = None
 
-        self.srcdir = path.abspath(srcdir)
-        self.confdir = path.abspath(confdir)
-        self.outdir = path.abspath(outdir)
-        self.doctreedir = path.abspath(doctreedir)
+        self.srcdir = srcdir
+        self.confdir = confdir
+        self.outdir = outdir
+        self.doctreedir = doctreedir
 
         self._status = status
         self._warning = warning
@@ -90,13 +89,6 @@ class Sphinx(object):
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
-
-        # if the output and/or doctree dirs are within the source dir, except
-        # them from being searched for source files
-        if self.outdir.startswith(self.srcdir):
-            self.config.exclude_trees += [self.outdir[len(self.srcdir)+1:]]
-        if self.doctreedir.startswith(self.srcdir):
-            self.config.exclude_trees += [self.doctreedir[len(self.srcdir)+1:]]
 
         if buildername is None:
             print >>status, 'No builder selected, using default: html'

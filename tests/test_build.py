@@ -112,6 +112,6 @@ def test_linkcheck(app):
 def test_text(app):
     app.builder.build_all()
 
-@with_testapp(buildername='changes')
+@with_testapp(buildername='changes', cleanenv=True)
 def test_changes(app):
     app.builder.build_all()
