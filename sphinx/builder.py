@@ -24,7 +24,7 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
-from sphinx import addnodes
+from sphinx import addnodes, __version__
 from sphinx.util import ensuredir, relative_uri, SEP, os_path, json
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
@@ -384,12 +384,13 @@ class StandaloneHTMLBuilder(Builder):
             docstitle = self.config.html_title,
             shorttitle = self.config.html_short_title,
             show_sphinx = self.config.html_show_sphinx,
-            file_suffix = self.config.html_file_suffix,
+            file_suffix = self.out_suffix,
+            sphinx_version = __version__,
             rellinks = rellinks,
             builder = self.name,
             parents = [],
             logo = logo,
-            favicon = favicon
+            favicon = favicon,
         )
 
     def get_doc_context(self, docname, body):
