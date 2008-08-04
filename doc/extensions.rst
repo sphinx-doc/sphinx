@@ -34,6 +34,7 @@ These extensions are built in and can be activated by respective entries in the
 
    ext/autodoc
    ext/doctest
+   ext/intersphinx
    ext/refcounting
    ext/ifconfig
    ext/coverage

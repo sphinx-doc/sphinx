@@ -40,7 +40,7 @@ from sphinx import directives
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 LAST_BUILD_FILENAME = 'last_build'
-INVENTORY_FILENAME = 'inventory.txt'
+INVENTORY_FILENAME = 'objects.inv'
 
 
 class Builder(object):
