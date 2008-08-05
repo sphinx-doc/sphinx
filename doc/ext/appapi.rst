@@ -33,10 +33,31 @@ the following public API:
 
    Register an event called *name*.
 
-.. method:: Sphinx.add_node(node)
+.. method:: Sphinx.add_node(node, **kwds)
 
    Register a Docutils node class.  This is necessary for Docutils internals.
    It may also be used in the future to validate nodes in the parsed documents.
+
+   Node visitor functions for the Sphinx HTML, LaTeX and text writers can be
+   given as keyword arguments: the keyword must be one or more of ``'html'``,
+   ``'latex'``, ``'text'``, the value a 2-tuple of ``(visit, depart)`` methods.
+   ``depart`` can be ``None`` if the ``visit`` function raises
+   :exc:`docutils.nodes.SkipNode`.  Example::
+
+      class math(docutils.nodes.Element)
+   
+      def visit_math_html(self, node):
+          self.body.append(self.starttag(node, 'math'))
+      def depart_math_html(self, node):
+          self.body.append('</math>')
+   
+      app.add_node(math, html=(visit_math_html, depart_math_html))
+
+   Obviously, translators for which you don't specify visitor methods will choke
+   on the node when encountered in a document to translate.
+
+   .. versionchanged:: 0.5
+      Added the support for keyword arguments giving visit functions.
 
 .. method:: Sphinx.add_directive(name, cls, content, arguments, **options)
 

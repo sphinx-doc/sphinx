@@ -195,8 +195,26 @@ class Sphinx(object):
             raise ExtensionError('Event %r already present' % name)
         self._events[name] = ''
 
-    def add_node(self, node):
+    def add_node(self, node, **kwds):
         nodes._add_node_class_names([node.__name__])
+        for key, val in kwds.iteritems():
+            try:
+                visit, depart = val
+            except ValueError:
+                raise ExtensionError('Value for key %r must be a (visit, depart) '
+                                     'function tuple' % key)
+            if key == 'html':
+                from sphinx.htmlwriter import HTMLTranslator as translator
+            elif key == 'latex':
+                from sphinx.latexwriter import LaTeXTranslator as translator
+            elif key == 'text':
+                from sphinx.textwriter import TextTranslator as translator
+            else:
+                # ignore invalid keys for compatibility
+                continue
+            setattr(translator, 'visit_'+node.__name__, visit)
+            if depart:
+                setattr(translator, 'depart_'+node.__name__, depart)
 
     def add_directive(self, name, func, content, arguments, **options):
         func.content = content

@@ -26,7 +26,11 @@ New features added
 
 * The HTML builders have two additional attributes now that can be used
   to disable the anchor-link creation after headlines and definition
-  links.  EXPERIMENTAL
+  links.
+
+* ``Sphinx.add_node()`` now takes optional visitor methods for the HTML,
+  LaTeX and text translators; this prevents having to manually patch
+  the classes.
 
 * sphinx.doc.autodoc has a new event ``autodoc-process-signature`` that
   allows tuning function signature introspection.
