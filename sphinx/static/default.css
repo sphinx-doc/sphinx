@@ -814,6 +814,14 @@ form.comment textarea {
     border: 3px solid red;
 }
 
+div.math {
+    text-align: center;
+}
+
+span.eqno {
+    float: right;
+}
+
 /* :::: PRINT :::: */
 @media print {
     div.document,

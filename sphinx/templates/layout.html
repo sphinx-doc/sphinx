@@ -108,9 +108,9 @@
           FILE_SUFFIX: '{{ file_suffix }}'
       };
     </script>
-    <script type="text/javascript" src="{{ pathto('_static/jquery.js', 1) }}"></script>
-    <script type="text/javascript" src="{{ pathto('_static/interface.js', 1) }}"></script>
-    <script type="text/javascript" src="{{ pathto('_static/doctools.js', 1) }}"></script>
+    {%- for scriptfile in script_files %}
+    <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
+    {%- endfor %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
           title="Search within {{ docstitle }}"

@@ -13,29 +13,34 @@ New features added
   have Sphinx documentation, which will build the docs and place them
   in the standard distutils build directory.
 
-* `SerializingHTMLBuilder` was added as new abstract builder that can
-  be subclassed to serialize build HTML in a specific format.  The
-  `PickleHTMLBuilder` is a concrete subclass of it that uses pickle as
-  serialization implementation.
+* ``SerializingHTMLBuilder`` was added as new abstract builder that
+  can be subclassed to serialize build HTML in a specific format.
+  The ``PickleHTMLBuilder`` is a concrete subclass of it that uses
+  pickle as serialization implementation.
 
-* `JSONHTMLBuilder` was added that similarily to `PickleHTMLBuilder`
-  dumps the generated HTML into JSON files for further processing.
+* ``JSONHTMLBuilder`` was added as another ``SerializingHTMLBuilder``
+  subclass that dumps the generated HTML into JSON files for further
+  processing.
 
 * The `automodule` directive now supports the ``synopsis``,
   ``deprecated`` and ``platform`` options.
 
-* The HTML builders have two additional attributes now that can be used
-  to disable the anchor-link creation after headlines and definition
-  links.
+* The HTML builders have two additional attributes now that can be
+  used to disable the anchor-link creation after headlines and
+  definition links.
 
-* ``Sphinx.add_node()`` now takes optional visitor methods for the HTML,
-  LaTeX and text translators; this prevents having to manually patch
-  the classes.
+* sphinx.doc.autodoc has a new event ``autodoc-process-signature``
+  that allows tuning function signature introspection.
 
-* sphinx.doc.autodoc has a new event ``autodoc-process-signature`` that
-  allows tuning function signature introspection.
+* ``Sphinx.add_node()`` now takes optional visitor methods for the
+  HTML, LaTeX and text translators; this prevents having to manually
+  patch the classes.
 
-* Added new events: ``env-updated`` and ``missing-reference``.
+* Added ``Sphinx.add_javascript()`` that adds scripts to load in the
+  default HTML template.
+
+* Added new events: ``env-updated``, ``missing-reference``,
+  ``build-finished``.
 
 
 Release 0.4.2 (Jul 29, 2008)

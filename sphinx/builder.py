@@ -305,6 +305,7 @@ class StandaloneHTMLBuilder(Builder):
     copysource = True
     out_suffix = '.html'
     indexer_format = json
+    script_files = ['_static/jquery.js', '_static/doctools.js']
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
     searchindex_filename = 'searchindex.json'
@@ -388,6 +389,7 @@ class StandaloneHTMLBuilder(Builder):
             shorttitle = self.config.html_short_title,
             show_sphinx = self.config.html_show_sphinx,
             file_suffix = self.out_suffix,
+            script_files = self.script_files,
             sphinx_version = __version__,
             rellinks = rellinks,
             builder = self.name,

@@ -150,6 +150,14 @@ the following public API:
    Add the standard docutils :class:`Transform` subclass *transform* to the list
    of transforms that are applied after Sphinx parses a reST document.
 
+.. method:: Sphinx.add_javascript(filename)
+
+   Add *filename* to the list of JavaScript files that the default HTML template
+   will include.  The filename must be relative to the HTML static path, see
+   :confval:`the docs for the config value <html_static_path>`.
+
+   .. versionadded:: 0.5
+   
 .. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on
@@ -254,6 +262,17 @@ registered event handlers.
 
    .. versionadded:: 0.4
 
+.. event:: build-finished (app, exception)
+
+   Emitted when a build has finished, before Sphinx exits, usually used for
+   cleanup.  This event is emitted even when the build process raised an
+   exception, given as the *exception* argument.  The exception is reraised in
+   the application after the event handlers have run.  If the build process
+   raised no exception, *exception* will be ``None``.  This allows to customize
+   cleanup actions depending on the exception status.
+
+   .. versionadded:: 0.5
+   
 
 .. _template-bridge:
 

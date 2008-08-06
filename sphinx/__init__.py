@@ -50,7 +50,7 @@ Modi:
 def main(argv=sys.argv):
     # delay-import these to be able to get sphinx.__version__ from setup.py
     # even without docutils installed
-    from sphinx.application import Sphinx
+    from sphinx.application import Sphinx, SphinxError
     from docutils.utils import SystemMessage
 
     if not sys.stdout.isatty() or sys.platform == 'win32':
@@ -124,15 +124,7 @@ def main(argv=sys.argv):
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, sys.stderr, freshenv)
-        if not app.builder:
-            return 1
-
-        if all_files:
-            app.builder.build_all()
-        elif filenames:
-            app.builder.build_specific(filenames)
-        else:
-            app.builder.build_update()
+        app.build(all_files, filenames)
     except KeyboardInterrupt:
         if use_pdb:
             import pdb
@@ -151,6 +143,9 @@ def main(argv=sys.argv):
             if isinstance(err, SystemMessage):
                 print >>sys.stderr, darkred('reST markup error:')
                 print >>sys.stderr, err.args[0].encode('ascii', 'backslashreplace')
+            elif isinstance(err, SphinxError):
+                print >>sys.stderr, darkred('%s:' % err.category)
+                print >>sys.stderr, err
             else:
                 print >>sys.stderr, darkred('Exception occurred:')
                 print >>sys.stderr, format_exception_cut_frames().rstrip()

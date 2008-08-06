@@ -13,6 +13,7 @@
 """
 
 import sys
+import posixpath
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -20,14 +21,22 @@ from docutils.parsers.rst import directives, roles
 import sphinx
 from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
-from sphinx.builder import builtin_builders
+from sphinx.builder import builtin_builders, StandaloneHTMLBuilder
 from sphinx.directives import desc_directive, target_directive, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
 from sphinx.util.console import bold
 
 
-class ExtensionError(Exception):
+class SphinxError(Exception):
+    """
+    Base class for Sphinx errors that are shown to the user in a nicer
+    way than normal exceptions.
+    """
+    category = 'Sphinx error'
+
+class ExtensionError(SphinxError):
     """Raised if something's wrong with the configuration."""
+    category = 'Extension error'
 
     def __init__(self, message, orig_exc=None):
         self.message = message
@@ -53,6 +62,7 @@ events = {
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
     'html-page-context': 'pagename, context, doctree or None',
+    'build-finished': 'exception',
 }
 
 CONFIG_FILENAME = 'conf.py'
@@ -94,14 +104,27 @@ class Sphinx(object):
             print >>status, 'No builder selected, using default: html'
             buildername = 'html'
         if buildername not in self.builderclasses:
-            print >>warning, 'Builder name %s not registered' % buildername
-            return
+            raise SphinxError('Builder name %s not registered' % buildername)
 
         self.info(bold('Sphinx v%s, building %s' % (sphinx.__version__, buildername)))
 
         builderclass = self.builderclasses[buildername]
         self.builder = builderclass(self, freshenv=freshenv)
         self.emit('builder-inited')
+
+    def build(self, all_files, filenames):
+        try:
+            if all_files:
+                self.builder.build_all()
+            elif filenames:
+                self.builder.build_specific(filenames)
+            else:
+                self.builder.build_update()
+        except Exception, err:
+            self.emit('build-finished', err)
+            raise
+        else:
+            self.emit('build-finished', None)
 
     def warn(self, message):
         self._warncount += 1
@@ -243,6 +266,10 @@ class Sphinx(object):
 
     def add_transform(self, transform):
         SphinxStandaloneReader.transforms.append(transform)
+
+    def add_javascript(self, filename):
+        StandaloneHTMLBuilder.script_files.append(
+            posixpath.join('_static', filename))
 
 
 class TemplateBridge(object):
