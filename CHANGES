@@ -4,6 +4,9 @@ Release 0.5 (in development)
 New features added
 ------------------
 
+* The new extensions ``sphinx.ext.jsmath`` and ``sphinx.ext.pngmath``
+  provide math support for both HTML and LaTeX builders.
+
 * The new extension ``sphinx.ext.intersphinx`` half-automatically
   creates links to Sphinx documentation of Python objects in other
   projects.
