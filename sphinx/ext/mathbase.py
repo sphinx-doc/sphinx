@@ -67,8 +67,8 @@ def latex_visit_math(self, node):
     raise nodes.SkipNode
 
 def latex_visit_displaymath(self, node):
-    self.body.append(wrap_displaymath(node['latex'],
-                                      node['docname'] + '-' + node['label']))
+    label = node['label'] and node['docname'] + '-' + node['label'] or None
+    self.body.append(wrap_displaymath(node['latex'], label))
     raise nodes.SkipNode
 
 def latex_visit_eqref(self, node):
@@ -87,7 +87,7 @@ def text_visit_displaymath(self, node):
     raise nodes.SkipNode
 
 def text_visit_eqref(self, node):
-    self.add_text(node['label'])
+    self.add_text(node['target'])
     raise nodes.SkipNode
 
 

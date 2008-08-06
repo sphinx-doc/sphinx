@@ -63,7 +63,7 @@ further translation is necessary when building LaTeX output.
    to be issued.  See :role:`eqref` for an example.  The numbering style depends
    on the output format.
 
-.. role:: eqref
+.. role:: eq
 
    Role for cross-referencing equations via their label.  This currently works
    only within the same document.  Example::
@@ -71,7 +71,7 @@ further translation is necessary when building LaTeX output.
       .. math:: e^{i\pi} + 1 = 0
          :label: euler
 
-      Euler's identity, equation :eqref:`euler`, was elected one of the most
+      Euler's identity, equation :eq:`euler`, was elected one of the most
       beautiful mathematical formulas.
    
 
