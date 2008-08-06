@@ -221,10 +221,9 @@ class HTMLTranslator(BaseTranslator):
         maxlen = max(len(name) for name in names)
         for production in node:
             if production['tokenname']:
+                lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.starttag(production, 'strong', ''))
-                self.body.append(production['tokenname'].ljust(maxlen) +
-                                 '</strong> ::= ')
-                lastname = production['tokenname']
+                self.body.append(lastname + '</strong> ::= ')
             else:
                 self.body.append('%s     ' % (' '*len(lastname)))
             production.walkabout(self)

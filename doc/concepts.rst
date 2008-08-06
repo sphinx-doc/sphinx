@@ -13,30 +13,8 @@ Since the reST source files can have different extensions (some people like
 :confval:`source_suffix`) and different OSes have different path separators,
 Sphinx abstracts them: all "document names" are relative to the :term:`source
 directory`, the extension is stripped, and path separators are converted to
-slashes :eq:`abc`.  All values, parameters and suchlike referring to "documents" expect
-such a document :math:`name\sqrt{3}`.
-
-.. math::
-   :label: abc
-
-   3x+4y \sqrt{4}
-   
-   x+y \\
-   z+z
-
-.. math:: a+b
-
-   c + d & = 5 \\
-   & = 6
-
-.. math:: 5x + 6
-
-.. math::
-   :label: def
-
-   test
-
-See :eq:`def`.
+slashes.  All values, parameters and suchlike referring to "documents" expect
+such a document name.
 
 
 The TOC tree

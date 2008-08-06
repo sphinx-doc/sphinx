@@ -12,6 +12,7 @@ Contents:
 
    images
    includes
+   markup
 
 Indices and tables
 ==================

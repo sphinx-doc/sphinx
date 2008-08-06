@@ -88,11 +88,9 @@ units as well as normal text:
 
 .. directive:: centered
 
-   This directive creates a centered boldfaced paragraph.  Use it as follows::
+   This directive creates a centered boldfaced line of text.  Use it as follows::
 
-      .. centered::
-
-         Paragraph contents.
+      .. centered:: LICENSE AGREEMENT
 
 
 Table-of-contents markup

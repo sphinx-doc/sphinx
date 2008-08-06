@@ -604,7 +604,8 @@ class StandaloneHTMLBuilder(Builder):
                 if path.isfile(fullname):
                     shutil.copyfile(fullname, targetname)
                 elif path.isdir(fullname):
-                    shutil.rmtree(targetname)
+                    if path.exists(targetname):
+                        shutil.rmtree(targetname)
                     shutil.copytree(fullname, targetname)
         # copy logo file (handled differently)
         if self.config.html_logo:
