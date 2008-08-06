@@ -18,14 +18,14 @@ Admonitions
 
    Warning text.
 
-.. tip:
+.. tip::
    Tip text.
 
 
 Tables
 ------
 
-.. tabularcolumns:: |L|L|R|
+.. tabularcolumns:: |L|p{5cm}|R|
 
 +----+----------------+----+
 | 1  | * Block elems  |  x |
@@ -42,7 +42,7 @@ Version markup
    Some funny **stuff**.
 
 .. versionchanged:: 0.5
-   Even more funny stuff. [#]_
+   Even more funny stuff.
 
 .. deprecated:: 0.4
    Boring stuff.
@@ -50,6 +50,8 @@ Version markup
 
 Misc stuff
 ----------
+
+Stuff [#]_
 
 .. seealso::
 

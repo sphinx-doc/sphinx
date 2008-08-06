@@ -13,11 +13,13 @@ import os
 import difflib
 import htmlentitydefs
 from StringIO import StringIO
+from subprocess import Popen, PIPE
 
 from util import *
 from etree13 import ElementTree as ET
 
 from sphinx.builder import StandaloneHTMLBuilder, LaTeXBuilder
+from sphinx.latexwriter import LaTeXTranslator
 
 
 html_warnfile = StringIO()
@@ -94,6 +96,7 @@ def test_html(app):
 
 @with_testapp(buildername='latex', warning=latex_warnfile)
 def test_latex(app):
+    LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
     latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
     latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
@@ -101,6 +104,23 @@ def test_latex(app):
            '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
                                    latex_warnings.splitlines()))
 
+    # now, try to run latex over it
+    cwd = os.getcwd()
+    os.chdir(app.outdir)
+    try:
+        try:
+            p = Popen(['pdflatex', '--interaction=nonstopmode', 'SphinxTests.tex'],
+                      stdout=PIPE, stderr=PIPE)
+        except OSError, err:
+            pass  # most likely pdflatex was not found
+        else:
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                print stdout
+                del app.cleanup_trees[:]
+                assert False, 'latex exited with error'
+    finally:
+        os.chdir(cwd)
 
 # just let the remaining ones run for now
 

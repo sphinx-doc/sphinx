@@ -97,6 +97,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
 
+    ignore_missing_images = False
+
     def __init__(self, document, builder):
         nodes.NodeVisitor.__init__(self, document)
         self.builder = builder
@@ -665,6 +667,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node['uri'] in self.builder.images:
             uri = self.builder.images[node['uri']]
         else:
+            # missing image!
+            if self.ignore_missing_images:
+                return
             uri = node['uri']
         if uri.find('://') != -1:
             # ignore remote images
