@@ -19,7 +19,7 @@
   <dd><dl>
     {%- for subentryname, subentrylinks in subitems %}
     <dt><a href="{{ subentrylinks[0] }}">{{ subentryname|e }}</a>
-    {%- for link in subentrylinks[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
+    {%- for link in subentrylinks[1:] %}, <a href="{{ link }}">[{{ loop.index }}]</a>{% endfor -%}
     </dt>
     {%- endfor %}
   </dl></dd>
