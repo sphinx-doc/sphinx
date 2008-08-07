@@ -383,6 +383,7 @@ class StandaloneHTMLBuilder(Builder):
             version = self.config.version,
             last_updated = self.last_updated,
             copyright = self.config.copyright,
+            master_doc = self.config.master_doc,
             style = self.config.html_style,
             use_opensearch = self.config.html_use_opensearch,
             docstitle = self.config.html_title,

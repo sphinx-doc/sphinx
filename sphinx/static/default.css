@@ -101,6 +101,10 @@ div.sphinxsidebar h3 {
     padding: 0;
 }
 
+div.sphinxsidebar h3 a {
+    color: white;
+}
+
 div.sphinxsidebar h4 {
     font-family: 'Trebuchet MS', sans-serif;
     color: white;

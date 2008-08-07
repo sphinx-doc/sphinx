@@ -238,6 +238,10 @@ div.sphinxsidebar h4, div.sphinxsidebar h3 {
     background-color: #AFC1C4;
 }
 
+div.sphinxsidebar h3 a {
+    color: white;
+}
+
 div.sphinxsidebar ul {
     padding-left: 1.5em;
     margin-top: 7px;
@@ -277,7 +281,7 @@ h3 {
     font-size: 1.2em;
 }
 
-h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
     color: black!important;
 }
 
