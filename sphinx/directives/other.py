@@ -314,6 +314,11 @@ def glossary_directive(name, arguments, options, content, lineno,
             li[0]['ids'].append(new_id)
             state.document.settings.env.note_reftarget('term', termtext.lower(),
                                                        new_id)
+            # add an index entry too
+            indexnode = addnodes.index()
+            indexnode['entries'] = [('single', termtext, new_id, termtext)]
+            env.note_index_entry('single', termtext, new_id, termtext)
+            li.insert(0, indexnode)
     return [node]
 
 glossary_directive.content = 1

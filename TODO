@@ -2,11 +2,10 @@ Sphinx TODO
 ===========
 
 - RSS generation
+- extension autodoc directives
 - files for downloading
 - specify node visit functions when adding nodes to app
-- allow extensions to add static files
 - decide which static files to include
-- verbose option
 - remove redundant <ul>s in tocs
 - autoattribute in autodoc
 - section, range and object options for literalinclude
@@ -14,6 +13,5 @@ Sphinx TODO
 - option for compact module index
 - HTML section numbers?
 - "seealso" links to external examples, see http://svn.python.org/projects/sandbox/trunk/seealso/ and http://effbot.org/zone/idea-seealso.htm
-- "often used" combo box in sidebar
-- source file cross-references?
+- source file cross-references (codelinks extension)
 

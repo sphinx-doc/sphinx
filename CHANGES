@@ -35,6 +35,8 @@ New features added
 * sphinx.doc.autodoc has a new event ``autodoc-process-signature``
   that allows tuning function signature introspection.
 
+* Glossary entries are now automatically added to the index.
+
 * ``Sphinx.add_node()`` now takes optional visitor methods for the
   HTML, LaTeX and text translators; this prevents having to manually
   patch the classes.
