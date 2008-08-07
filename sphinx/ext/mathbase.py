@@ -53,6 +53,7 @@ def math_directive(name, arguments, options, content, lineno,
     node = displaymath()
     node['latex'] = latex
     node['label'] = options.get('label', None)
+    node['nowrap'] = 'nowrap' in options
     node['docname'] = state.document.settings.env.docname
     ret = [node]
     if node['label']:
@@ -67,8 +68,11 @@ def latex_visit_math(self, node):
     raise nodes.SkipNode
 
 def latex_visit_displaymath(self, node):
-    label = node['label'] and node['docname'] + '-' + node['label'] or None
-    self.body.append(wrap_displaymath(node['latex'], label))
+    if node['nowrap']:
+        self.body.append(node['latex'])
+    else:
+        label = node['label'] and node['docname'] + '-' + node['label'] or None
+        self.body.append(wrap_displaymath(node['latex'], label))
     raise nodes.SkipNode
 
 def latex_visit_eqref(self, node):
@@ -131,5 +135,5 @@ def setup(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_role('math', math_role)
     app.add_role('eq', eq_role)
     app.add_directive('math', math_directive, 1, (0, 1, 1),
-                      label=directives.unchanged)
+                      label=directives.unchanged, nowrap=directives.flag)
     app.connect('doctree-resolved', number_equations)

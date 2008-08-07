@@ -10,6 +10,7 @@
 """
 
 import re
+import shlex
 import shutil
 import tempfile
 import posixpath
@@ -95,10 +96,9 @@ def render_math(self, math):
     tf.write(latex)
     tf.close()
 
-    ltx_args = [self.builder.config.pngmath_latex,
-                '--interaction=nonstopmode',
-                '--output-directory=' + tempdir,
-                'math.tex']
+    ltx_args = shlex.split(self.builder.config.pngmath_latex)
+    ltx_args += ['--interaction=nonstopmode', '--output-directory=' + tempdir,
+                 'math.tex']
     try:
         p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
     except OSError, err:
@@ -116,8 +116,8 @@ def render_math(self, math):
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
-    dvipng_args = [self.builder.config.pngmath_dvipng, '-o', outfn,
-                   '-bg', 'Transparent', '-T', 'tight', '-z9']
+    dvipng_args = shlex.split(self.builder.config.pngmath_dvipng)
+    dvipng_args += ['-o', outfn, '-T', 'tight', '-z9']
     # add custom ones from config value
     dvipng_args.extend(self.builder.config.pngmath_dvipng_args)
     if use_preview:
@@ -167,7 +167,10 @@ def html_visit_math(self, node):
     raise nodes.SkipNode
 
 def html_visit_displaymath(self, node):
-    latex = wrap_displaymath(node['latex'], None)
+    if node['nowrap']:
+        latex = node['latex']
+    else:
+        latex = wrap_displaymath(node['latex'], None)
     fname, depth = render_math(self, latex)
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')

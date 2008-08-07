@@ -63,6 +63,18 @@ further translation is necessary when building LaTeX output.
    to be issued.  See :role:`eqref` for an example.  The numbering style depends
    on the output format.
 
+   There is also an option ``nowrap`` that prevents any wrapping of the given
+   math in a math environment.  When you give this option, you must make sure
+   yourself that the math is properly set up.  For example::
+
+      .. math::
+         :nowrap:
+
+         \begin{eqnarray}
+            y    & = & ax^2 + bx + c \\
+            f(x) & = & x^2 + 2xy + y^2
+         \end{eqnarray}
+
 .. role:: eq
 
    Role for cross-referencing equations via their label.  This currently works
@@ -92,6 +104,9 @@ There are various config values you can set to influence how the images are buil
    The command name with which to invoke LaTeX.  The default is ``'latex'``; you
    may need to set this to a full path if ``latex`` not in the executable search
    path.
+
+   This string is split into words with :func:`shlex.split`, so that you can
+   include arguments as well if needed.
 
    Since this setting is not portable from system to system, it is normally not
    useful to set it in ``conf.py``; rather, giving it on the
