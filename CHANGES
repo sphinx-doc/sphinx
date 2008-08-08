@@ -14,6 +14,7 @@ New features added
 * Added support for internationalization in generated text with the
   ``language`` and ``locale_dirs`` config values.  Many thanks to
   Horst Gutmann, who also contributed German as the first language.
+  Czech translation was provided by Pavel Kosina.
   
 * Added a distutils command `build_sphinx`: When Sphinx is installed,
   you can call ``python setup.py build_sphinx`` for projects that

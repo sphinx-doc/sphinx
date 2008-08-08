@@ -106,8 +106,9 @@ General configuration
 
    Currently supported languages are:
 
-   * ``en`` -- English
+   * ``cs`` -- Czech
    * ``de`` -- German
+   * ``en`` -- English
 
 .. confval:: locale_dirs
 

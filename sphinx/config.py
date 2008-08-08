@@ -30,7 +30,7 @@ class Config(object):
         today = ('', True),
         today_fmt = (None, True),  # the real default is locale-dependent
 
-        language = ('en', True),
+        language = (None, True),
         locale_dirs = ([], True),
 
         master_doc = ('contents', True),

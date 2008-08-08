@@ -71,10 +71,10 @@ class TranslatorEnvironment(Environment):
             self.trans = translator
 
         def gettext(self, string):
-            return self.trans.gettext(string)
+            return self.trans.ugettext(string)
 
         def ngettext(self, singular, plural, n):
-            return senf.trans.ngettext(singular, plural, n)
+            return senf.trans.ungettext(singular, plural, n)
 
     def __init__(self, *args, **kwargs):
         self.translator = kwargs['translator']

@@ -183,7 +183,7 @@ class Builder(object):
                 self.info('locale not available')
         if self.translator is None:
             self.translator = gettext.NullTranslations()
-        self.translator.install()
+        self.translator.install(unicode=True)
 
     def load_env(self):
         """Set up the build environment."""
