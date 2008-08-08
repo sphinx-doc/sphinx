@@ -3,7 +3,8 @@ Projects using Sphinx
 
 This is an (incomplete) list of projects that use Sphinx or are
 experimenting with using it for their documentation.  If you like
-to be included, please mail to sphinx-dev@googlegroups.com.
+to be included, please mail to `the Google group
+<http://groups.google.com/group/sphinx-dev>`_.
 
 * Sphinx: http://sphinx.pocoo.org/
 * Python: http://docs.python.org/dev/
