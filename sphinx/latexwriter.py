@@ -107,7 +107,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         paper = builder.config.latex_paper_size + 'paper'
         if paper == 'paper': # e.g. command line "-D latex_paper_size="
             paper = 'letterpaper'
-        date = time.strftime(builder.config.today_fmt)
+        date = time.strftime(builder.config.today_fmt or _('%B %d, %Y'))
         logo = (builder.config.latex_logo and
                 "\\includegraphics{%s}\\par" % path.basename(builder.config.latex_logo)
                 or '')

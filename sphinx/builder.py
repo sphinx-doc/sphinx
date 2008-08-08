@@ -5,7 +5,7 @@
 
     Builder classes for different output formats.
 
-    :copyright: 2007-2008 by Georg Brandl, Sebastian Wiesner.
+    :copyright: 2007-2008 by Georg Brandl, Sebastian Wiesner, Horst Gutmann.
     :license: BSD.
 """
 
@@ -13,6 +13,7 @@ import os
 import time
 import codecs
 import shutil
+import gettext
 import cPickle as pickle
 from os import path
 from cgi import escape
@@ -63,6 +64,8 @@ class Builder(object):
         self.warn = app.warn
         self.info = app.info
         self.config = app.config
+
+        self.load_i18n()
 
         # images that need to be copied over (source -> dest)
         self.images = {}
@@ -151,6 +154,36 @@ class Builder(object):
             self.images[candidate] = self.env.images[candidate][1]
 
     # build methods
+
+    def load_i18n(self):
+        """
+        Load translated strings from the configured localedirs if
+        enabled in the configuration.
+        """
+        self.translator = None
+        if self.config.language is not None:
+            self.info(bold('loading translations [%s]... ' % self.config.language),
+                      nonl=True)
+            locale_dirs = [path.join(path.dirname(__file__), 'locale')] + \
+                          [path.join(self.srcdir, x) for x in self.config.locale_dirs]
+            for dir_ in locale_dirs:
+                try:
+                    trans = gettext.translation('sphinx', localedir=dir_,
+                            languages=[self.config.language])
+                    if self.translator is None:
+                        self.translator = trans
+                    else:
+                        self.translator._catalog.update(trans.catalog)
+                except Exception:
+                    # Language couldn't be found in the specified path
+                    pass
+            if self.translator is not None:
+                self.info('ok')
+            else:
+                self.info('selected locale not available' % self.config.language)
+        if self.translator is None:
+            self.translator = gettext.NullTranslations()
+        self.translator.install()
 
     def load_env(self):
         """Set up the build environment."""
@@ -353,8 +386,8 @@ class StandaloneHTMLBuilder(Builder):
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
         lufmt = self.config.html_last_updated_fmt
-        if lufmt:
-            self.last_updated = time.strftime(lufmt)
+        if lufmt is not None:
+            self.last_updated = time.strftime(lufmt or _('%b %d, %Y'))
         else:
             self.last_updated = None
 
@@ -373,9 +406,9 @@ class StandaloneHTMLBuilder(Builder):
 
         rellinks = []
         if self.config.html_use_index:
-            rellinks.append(('genindex', 'General Index', 'I', 'index'))
+            rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         if self.config.html_use_modindex:
-            rellinks.append(('modindex', 'Global Module Index', 'M', 'modules'))
+            rellinks.append(('modindex', _('Global Module Index'), 'M', _('modules')))
 
         self.globalcontext = dict(
             project = self.config.project,
@@ -411,14 +444,14 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 next = {'link': self.get_relative_uri(docname, related[2]),
                         'title': self.render_partial(titles[related[2]])['title']}
-                rellinks.append((related[2], next['title'], 'N', 'next'))
+                rellinks.append((related[2], next['title'], 'N', _('next')))
             except KeyError:
                 next = None
         if related and related[1]:
             try:
                 prev = {'link': self.get_relative_uri(docname, related[1]),
                         'title': self.render_partial(titles[related[1]])['title']}
-                rellinks.append((related[1], prev['title'], 'P', 'previous'))
+                rellinks.append((related[1], prev['title'], 'P', _('previous')))
             except KeyError:
                 # the relation is (somehow) not in the TOC tree, handle that gracefully
                 prev = None

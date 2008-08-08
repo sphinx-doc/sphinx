@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
-{% set title = 'Index' %}
+{% set title = _('Index') %}
 {% block body %}
 
-   <h1 id="index">Index &ndash; {{ key }}</h1>
+   <h1 id="index">{% trans key=key %}Index &ndash; {{ key }}{% endtrans %}</h1>
 
 <table width="100%" class="indextable"><tr><td width="33%" valign="top">
 <dl>
@@ -11,7 +11,7 @@
 {%- set numitems = 0 %}
 {% for entryname, (links, subitems) in entries %}
 <dt>{%- if links -%}<a href="{{ links[0] }}">{{ entryname|e }}</a>
-  {%- for link in links[1:] %}, <a href="{{ link }}">[Link]</a>{% endfor -%}
+  {%- for link in links[1:] %}, <a href="{{ link }}">[{{ loop.index }}]</a>{% endfor -%}
   {%- else -%}
 {{ entryname|e }}
   {%- endif -%}</dt>
@@ -41,5 +41,5 @@
      {% if not loop.last %}| {% endif %}
    {%- endfor %}</p>
 
-   <p><a href="{{ pathto('genindex-all') }}"><strong>Full index on one page</strong></a></p>
+   <p><a href="{{ pathto('genindex-all') }}"><strong>{{ _('Full index on one page') }}</strong></a></p>
 {% endblock %}

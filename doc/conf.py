@@ -19,6 +19,8 @@ import sys, os, re
 # General configuration
 # ---------------------
 
+language = 'de'
+
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
@@ -49,7 +51,7 @@ release = version
 # non-false value, then it is used:
 #today = ''
 # Else, today_fmt is used as the format for a strftime call.
-today_fmt = '%B %d, %Y'
+#today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
 #unused_docs = []

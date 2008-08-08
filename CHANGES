@@ -11,6 +11,10 @@ New features added
   creates links to Sphinx documentation of Python objects in other
   projects.
 
+* Added support for internationalization in generated text with the
+  ``language`` and ``locale_dirs`` config values.  Many thanks to
+  Horst Gutmann, who also contributed German as the first language.
+  
 * Added a distutils command `build_sphinx`: When Sphinx is installed,
   you can call ``python setup.py build_sphinx`` for projects that
   have Sphinx documentation, which will build the docs and place them

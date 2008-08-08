@@ -22,15 +22,17 @@ class Config(object):
     # quickstart.py file template as well as in the docs!
 
     config_values = dict(
-        # general substitutions
+        # general options
         project = ('Python', True),
         copyright = ('', False),
         version = ('', True),
         release = ('', True),
         today = ('', True),
-        today_fmt = ('%B %d, %Y', True),
+        today_fmt = (None, True),  # the real default is locale-dependent
 
-        # general options
+        language = ('en', True),
+        locale_dirs = ([], True),
+
         master_doc = ('contents', True),
         source_suffix = ('.rst', True),
         unused_docs = ([], True),
@@ -53,7 +55,7 @@ class Config(object):
         html_logo = (None, False),
         html_favicon = (None, False),
         html_static_path = ([], False),
-        html_last_updated_fmt = ('%b %d, %Y', False),
+        html_last_updated_fmt = (None, False),  # the real default is locale-dependent
         html_use_smartypants = (True, False),
         html_translator_class = (None, False),
         html_sidebars = ({}, False),

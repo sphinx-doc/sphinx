@@ -105,7 +105,7 @@ class DefaultSubstitutions(Transform):
                 text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = time.strftime(config.today_fmt)
+                    text = time.strftime(config.today_fmt or _('%B %d, %Y'))
                 ref.replace_self(nodes.Text(text, text))
 
 

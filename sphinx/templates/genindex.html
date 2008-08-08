@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
-{% set title = 'Index' %}
+{% set title = _('Index') %}
 {% block body %}
 
-   <h1 id="index">Index</h1>
+   <h1 id="index">{{ _('Index') }}</h1>
 
    {% for key, dummy in genindexentries -%}
    <a href="#{{ key }}"><strong>{{ key }}</strong></a> {% if not loop.last %}| {% endif %}
@@ -45,12 +45,12 @@
 
 {% block sidebarrel %}
 {% if split_index %}
-   <h4>Index</h4>
+   <h4>{{ _('Index') }}</h4>
    <p>{% for key, dummy in genindexentries -%}
    <a href="{{ pathto('genindex-' + key) }}"><strong>{{ key }}</strong></a>
      {% if not loop.last %}| {% endif %}
    {%- endfor %}</p>
 
-   <p><a href="{{ pathto('genindex-all') }}"><strong>Full index on one page</strong></a></p>
+   <p><a href="{{ pathto('genindex-all') }}"><strong>{{ _('Full index on one page') }}</strong></a></p>
 {% endif %}
 {% endblock %}
