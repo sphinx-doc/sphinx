@@ -178,9 +178,9 @@ class Builder(object):
                     # Language couldn't be found in the specified path
                     pass
             if self.translator is not None:
-                self.info('ok')
+                self.info('done')
             else:
-                self.info('selected locale not available' % self.config.language)
+                self.info('locale not available')
         if self.translator is None:
             self.translator = gettext.NullTranslations()
         self.translator.install()
