@@ -514,3 +514,7 @@ div.math {
 span.eqno {
     float: right;
 }
+
+img.logo {
+    border: 0;
+}

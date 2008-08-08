@@ -826,6 +826,10 @@ span.eqno {
     float: right;
 }
 
+img.logo {
+    border: 0;
+}
+
 /* :::: PRINT :::: */
 @media print {
     div.document,
