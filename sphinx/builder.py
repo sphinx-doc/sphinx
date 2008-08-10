@@ -26,7 +26,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes, locale, __version__
-from sphinx.util import ensuredir, relative_uri, SEP, os_path, json
+from sphinx.util import ensuredir, relative_uri, SEP, os_path, json, texescape
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.textwriter import TextWriter
@@ -899,6 +899,7 @@ class LaTeXBuilder(Builder):
     def init(self):
         self.docnames = []
         self.document_data = []
+        texescape.init()
 
     def get_outdated_docs(self):
         return 'all documents' # for now

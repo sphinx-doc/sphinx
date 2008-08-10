@@ -182,10 +182,12 @@ The following role creates a cross-reference to the term in the glossary:
 Cross-referencing arbitrary locations
 -------------------------------------
 
-To support cross-referencing to arbitrary locations in the documentation, the
-standard reST labels used.  Of course, for this to work label names must be
-unique throughout the entire documentation.  There are two ways in which you can
-refer to labels:
+.. index:: pair: ref; role
+
+To support cross-referencing to arbitrary locations in any document, the
+standard reST labels are used.  For this to work label names must be unique
+throughout the entire documentation.  There are two ways in which you can refer
+to labels:
 
 * If you place a label directly before a section title, you can reference to it
   with ``:ref:`label-name```.  Example::
@@ -200,12 +202,17 @@ refer to labels:
      It refers to the section itself, see :ref:`my-reference-label`.
 
   The ``:ref:`` role would then generate a link to the section, with the link
-  title being "Section to cross-reference".
+  title being "Section to cross-reference".  This works just as well when
+  section and reference are in different source files.
 
 * Labels that aren't placed before a section title can still be referenced to,
   but you must give the link an explicit title, using this syntax: ``:ref:`Link
   title <label-name>```.
 
+Using :role:`ref` is advised over standard reStructuredText links to sections
+(like ```Section title`_``) because it works across files, when section headings
+are changed, and for all builders that support cross-references.
+  
 
 Other semantic markup
 ---------------------

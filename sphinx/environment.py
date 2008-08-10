@@ -418,6 +418,11 @@ class BuildEnvironment:
                     break
             else:
                 msg = ''
+            # this value is not covered by the above loop because it is handled
+            # specially by the config class
+            if self.config.extensions != config.extensions:
+                msg = '[extensions changed] '
+                config_changed = True
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir

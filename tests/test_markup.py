@@ -63,10 +63,14 @@ def verify_re(rst, html_expected, latex_expected):
         latex_translator.first_document = -1 # don't write \begin{document}
         document.walkabout(latex_translator)
         latex_translated = ''.join(latex_translator.body).strip()
-        assert re.match(latex_expected, latex_translated), 'from ' + rst
+        assert re.match(latex_expected, latex_translated), 'from ' + repr(rst)
 
 def verify(rst, html_expected, latex_expected):
-    verify_re(rst, re.escape(html_expected) + '$', re.escape(latex_expected) + '$')
+    if html_expected:
+        html_expected = re.escape(html_expected) + '$'
+    if latex_expected:
+        latex_expected = re.escape(latex_expected) + '$'
+    verify_re(rst, html_expected, latex_expected)
 
 
 def test_inline():
@@ -85,7 +89,7 @@ def test_inline():
     # interpolation of arrows in menuselection
     verify(':menuselection:`a --> b`',
            u'<p><em>a \N{TRIANGULAR BULLET} b</em></p>',
-           '\\emph{a $\\rightarrow$ b}')
+           '\\emph{a \\(\\rightarrow\\) b}')
 
     # non-interpolation of dashes in option role
     verify_re(':option:`--with-option`',
@@ -99,3 +103,12 @@ def test_inline():
            '<p><tt class="docutils literal"><span class="pre">'
            '&quot;John&quot;</span></tt></p>',
            '\\code{"John"}')
+
+def test_latex_escaping():
+    # correct escaping in normal mode
+    verify(u'Γ\\\\∞$', None, ur'\(\Gamma\)\textbackslash{}\(\infty\)\$')
+    # in verbatim code fragments
+    verify(u'::\n\n @Γ\\∞$[]', None,
+           u'\\begin{Verbatim}[commandchars=@\\[\\]]\n'
+           u'@at[]@(@Gamma@)\\@(@infty@)@$@lb[]@rb[]\n'
+           u'\\end{Verbatim}')

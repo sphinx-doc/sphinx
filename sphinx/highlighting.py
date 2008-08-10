@@ -14,6 +14,8 @@ import cgi
 import re
 import parser
 
+from sphinx.util.texescape import tex_hl_escape_map
+
 try:
     import pygments
     from pygments import highlight
@@ -56,14 +58,9 @@ else:
         _lexer.add_filter('raiseonerror')
 
 
-
-def escape_tex(text):
-    return text.replace('@', '\x00').    \
-                replace('[', '\x01').    \
-                replace(']', '\x02').    \
-                replace('\x00', '@at[]').\
-                replace('\x01', '@lb[]').\
-                replace('\x02', '@rb[]')
+escape_hl_chars = {ord(u'@'): u'@at[]',
+                   ord(u'['): u'@lb[]',
+                   ord(u']'): u'@rb[]'}
 
 # used if Pygments is not available
 _LATEX_STYLES = r'''
@@ -98,15 +95,20 @@ class PygmentsBridge(object):
                        True: LatexFormatter(style=style, linenos=True,
                                             commandprefix='PYG')}
 
+    def unhighlighted(self, source):
+        if self.dest == 'html':
+            return '<pre>' + cgi.escape(source) + '</pre>\n'
+        else:
+            # first, escape highlighting characters like Pygments does
+            source = source.translate(escape_hl_chars)
+            # then, escape all characters nonrepresentable in LaTeX
+            source = source.translate(tex_hl_escape_map)
+            return '\\begin{Verbatim}[commandchars=@\\[\\]]\n' + \
+                   source + '\\end{Verbatim}\n'
+
     def highlight_block(self, source, lang, linenos=False):
-        def unhighlighted():
-            if self.dest == 'html':
-                return '<pre>' + cgi.escape(source) + '</pre>\n'
-            else:
-                return '\\begin{Verbatim}[commandchars=@\\[\\]]\n' + \
-                       escape_tex(source) + '\\end{Verbatim}\n'
         if not pygments:
-            return unhighlighted()
+            return self.unhighlighted(source)
         if lang == 'python':
             if source.startswith('>>>'):
                 # interactive session
@@ -138,7 +140,7 @@ class PygmentsBridge(object):
                 try:
                     parser.suite(src)
                 except parsing_exceptions:
-                    return unhighlighted()
+                    return self.unhighlighted(source)
                 else:
                     lexer = lexers['python']
         else:
@@ -148,12 +150,15 @@ class PygmentsBridge(object):
                 lexer = lexers[lang] = get_lexer_by_name(lang)
                 lexer.add_filter('raiseonerror')
         try:
-            fmter = (self.dest == 'html' and self.hfmter or self.lfmter)[bool(linenos)]
-            return highlight(source, lexer, fmter)
+            if self.dest == 'html':
+                return highlight(source, lexer, self.hfmter[bool(linenos)])
+            else:
+                hlsource = highlight(source, lexer, self.lfmter[bool(linenos)])
+                return hlsource.translate(tex_hl_escape_map)
         except ErrorToken:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
-            return unhighlighted()
+            return self.unhighlighted(source)
 
     def get_stylesheet(self):
         if not pygments:

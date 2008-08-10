@@ -4,7 +4,7 @@ export PYTHONPATH = $(shell echo "$$PYTHONPATH"):./sphinx
 
 .PHONY: all check clean clean-pyc clean-patchfiles pylint reindent test
 
-all: clean-pyc check
+all: clean-pyc check test
 
 check:
 	@$(PYTHON) utils/check_sources.py -i sphinx/style/jquery.js sphinx
