@@ -45,6 +45,7 @@ class Config(object):
         pygments_style = ('sphinx', False),
         templates_path = ([], False),
         template_bridge = (None, False),
+        keep_warnings = (False, True),
 
         # HTML options
         html_title = (lambda self: '%s v%s documentation' %

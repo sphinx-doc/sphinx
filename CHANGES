@@ -22,6 +22,10 @@ New features added
   have Sphinx documentation, which will build the docs and place them
   in the standard distutils build directory.
 
+* "System Message" warnings are now automatically removed from the
+  built documentation, and only written to stderr.  If you want the
+  old behavior, set the new config value ``keep_warnings`` to True.
+
 * ``SerializingHTMLBuilder`` was added as new abstract builder that
   can be subclassed to serialize build HTML in a specific format.
   The ``PickleHTMLBuilder`` is a concrete subclass of it that uses

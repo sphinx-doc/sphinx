@@ -74,6 +74,79 @@ General configuration
    The document name of the "master" document, that is, the document that
    contains the root :dir:`toctree` directive.  Default is ``'contents'``.
 
+.. confval:: unused_docs
+
+   A list of document names that are present, but not currently included in the
+   toctree.  Use this setting to suppress the warning that is normally emitted
+   in that case.
+
+.. confval:: exclude_dirs
+
+   A list of directory names, relative to the source directory, that are to be
+   excluded from the search for source files.
+
+   .. versionadded:: 0.3
+
+.. confval:: exclude_trees
+
+   A list of directory names, relative to the source directory, that are to be
+   recursively exlucded from the search for source files, that is, their
+   subdirectories won't be searched too.
+
+   .. versionadded:: 0.4
+
+.. confval:: locale_dirs
+
+   .. versionadded:: 0.5
+
+   Directories in which to search for additional Sphinx message catalogs (see
+   :confval:`language`), relative to the source directory.  The directories on
+   this path are searched by the standard :mod:`gettext` module for a domain of
+   ``sphinx``; so if you add the directory :file:`./locale` to this settting,
+   the message catalogs must be in
+   :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
+
+   The default is ``[]``.
+
+.. confval:: templates_path
+
+   A list of paths that contain extra templates (or templates that overwrite
+   builtin templates).  Relative paths are taken as relative to the
+   configuration directory.
+
+.. confval:: template_bridge
+
+   A string with the fully-qualified name of a callable (or simply a class) that
+   returns an instance of :class:`~sphinx.application.TemplateBridge`.  This
+   instance is then used to render HTML documents, and possibly the output of
+   other builders (currently the changes builder).
+
+.. confval:: default_role
+
+   The name of a reST role (builtin or Sphinx extension) to use as the default
+   role, that is, for text marked up ```like this```.  This can be set to
+   ``'obj'`` to make ```filter``` a cross-reference to the function "filter".
+   The default is ``None``, which doesn't reassign the default role.
+
+   The default role can always be set within individual documents using the
+   standard reST :dir:`default-role` directive.
+
+   .. versionadded:: 0.4
+
+.. confval:: keep_warnings
+
+   If true, keep warnings as "system message" paragraphs in the built documents.
+   Regardless of this setting, warnings are always written to the standard error
+   stream when ``sphinx-build`` is run.
+
+   The default is ``False``, the pre-0.5 behavior was to always keep them.
+
+   .. versionadded:: 0.5
+
+
+Project information
+-------------------
+   
 .. confval:: project
 
    The documented project's name.
@@ -112,18 +185,6 @@ General configuration
    * ``en`` -- English
    * ``fr`` -- French
 
-.. confval:: locale_dirs
-
-   .. versionadded:: 0.5
-
-   Additional directories to search for Sphinx message catalogs, relative to the
-   source directory.  The directories on this path are searched by the standard
-   :mod:`gettext` module for a domain of ``sphinx``; so if you add the directory
-   :file:`./locale` to this settting, the message catalogs must be in
-   :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
-
-   The default is ``[]``.
-   
 .. confval:: today
              today_fmt
 
@@ -138,27 +199,6 @@ General configuration
    %Y'`` (or, if translation is enabled with :confval:`language`, am equivalent
    %format for the selected locale).
 
-.. confval:: unused_docs
-
-   A list of document names that are present, but not currently included in the
-   toctree.  Use this setting to suppress the warning that is normally emitted
-   in that case.
-
-.. confval:: exclude_dirs
-
-   A list of directory names, relative to the source directory, that are to be
-   excluded from the search for source files.
-
-   .. versionadded:: 0.3
-
-.. confval:: exclude_trees
-
-   A list of directory names, relative to the source directory, that are to be
-   recursively exlucded from the search for source files, that is, their
-   subdirectories won't be searched too.
-
-   .. versionadded:: 0.4
-
 .. confval:: pygments_style
 
    The style name to use for Pygments highlighting of source code.  Default is
@@ -168,31 +208,6 @@ General configuration
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
       this is then used as custom style.
-
-.. confval:: templates_path
-
-   A list of paths that contain extra templates (or templates that overwrite
-   builtin templates).  Relative paths are taken as relative to the
-   configuration directory.
-
-.. confval:: template_bridge
-
-   A string with the fully-qualified name of a callable (or simply a class) that
-   returns an instance of :class:`~sphinx.application.TemplateBridge`.  This
-   instance is then used to render HTML documents, and possibly the output of
-   other builders (currently the changes builder).
-
-.. confval:: default_role
-
-   The name of a reST role (builtin or Sphinx extension) to use as the default
-   role, that is, for text marked up ```like this```.  This can be set to
-   ``'obj'`` to make ```filter``` a cross-reference to the function "filter".
-   The default is ``None``, which doesn't reassign the default role.
-
-   The default role can always be set within individual documents using the
-   standard reST :dir:`default-role` directive.
-
-   .. versionadded:: 0.4
 
 .. confval:: add_function_parentheses
 

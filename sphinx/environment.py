@@ -142,8 +142,7 @@ class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [DefaultSubstitutions, MoveModuleTargets,
-                  FilterMessages, HandleCodeBlocks]
+    transforms = [DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks]
     def get_transforms(self):
         tf = standalone.Reader.get_transforms(self)
         return tf + self.transforms
@@ -491,6 +490,7 @@ class BuildEnvironment:
         doctree = publish_doctree(None, src_path, FileInput,
                                   settings_overrides=self.settings,
                                   reader=SphinxStandaloneReader())
+        self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
         self.process_metadata(docname, doctree)
@@ -531,6 +531,15 @@ class BuildEnvironment:
                 f.close()
         else:
             return doctree
+
+    def filter_messages(self, doctree):
+        """
+        Filter system messages from a doctree.
+        """
+        filterlevel = self.config.keep_warnings and 2 or 5
+        for node in doctree.traverse(nodes.system_message):
+            if node['level'] < filterlevel:
+                node.replace_self([])
 
     def process_dependencies(self, docname, doctree):
         """
