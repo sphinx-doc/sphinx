@@ -639,6 +639,8 @@ class StandaloneHTMLBuilder(Builder):
                 if path.isfile(fullname):
                     shutil.copyfile(fullname, targetname)
                 elif path.isdir(fullname):
+                    if filename in self.config.exclude_dirnames:
+                        continue
                     if path.exists(targetname):
                         shutil.rmtree(targetname)
                     shutil.copytree(fullname, targetname)

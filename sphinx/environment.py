@@ -347,7 +347,7 @@ class BuildEnvironment:
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_docs=set(config.unused_docs),
             exclude_dirs=exclude_dirs, exclude_trees=exclude_trees,
-            exclude_dirnames=['_sources']))
+            exclude_dirnames=['_sources'] + config.exclude_dirnames))
 
     def get_outdated_files(self, config_changed):
         """

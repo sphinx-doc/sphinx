@@ -47,6 +47,9 @@ New features added
 
 * Glossary entries are now automatically added to the index.
 
+* Added ``exclude_dirnames`` config value that can be used to exclude
+  e.g. CVS directories from source file search.
+
 * ``Sphinx.add_node()`` now takes optional visitor methods for the
   HTML, LaTeX and text translators; this prevents having to manually
   patch the classes.

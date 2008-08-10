@@ -80,20 +80,32 @@ General configuration
    toctree.  Use this setting to suppress the warning that is normally emitted
    in that case.
 
+.. confval:: exclude_trees
+
+   A list of directory paths, relative to the source directory, that are to be
+   recursively excluded from the search for source files, that is, their
+   subdirectories won't be searched too.  The default is ``[]``.
+
+   .. versionadded:: 0.4
+
+.. confval:: exclude_dirnames
+
+   A list of directory names that are to be excluded from any recursive
+   operation Sphinx performs (e.g. searching for source files or copying static
+   files).  This is useful, for example, to exclude version-control-specific
+   directories like ``'CVS'``.  The default is ``[]``.
+
+   .. versionadded:: 0.5
+
 .. confval:: exclude_dirs
 
    A list of directory names, relative to the source directory, that are to be
    excluded from the search for source files.
 
-   .. versionadded:: 0.3
-
-.. confval:: exclude_trees
-
-   A list of directory names, relative to the source directory, that are to be
-   recursively exlucded from the search for source files, that is, their
-   subdirectories won't be searched too.
-
-   .. versionadded:: 0.4
+   .. deprecated:: 0.5
+      This does not take subdirs of the excluded directories into account.  Use
+      :confval:`exclude_trees` or :confval:`exclude_dirs`, which match the
+      expectations.
 
 .. confval:: locale_dirs
 
