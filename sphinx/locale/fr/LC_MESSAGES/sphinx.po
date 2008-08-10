@@ -1,16 +1,15 @@
 # French translations for Sphinx.
 # Copyright (C) 2008 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+# David Larlet <larlet@gmail.com>, 2008.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Report-Msgid-Bugs-To: larlet@gmail.com\n"
 "POT-Creation-Date: 2008-08-08 12:39+0000\n"
 "PO-Revision-Date: 2008-08-10 12:01+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: David Larlet <larlet@gmail.com>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
@@ -51,12 +50,12 @@ msgstr "précédent"
 
 #: sphinx/builder.py:1089
 msgid "Builtins"
-msgstr ""
+msgstr "Fonctions de base"
 
 #: sphinx/builder.py:1091
 #, fuzzy
 msgid "Module level"
-msgstr "modules"
+msgstr "Modules"
 
 #: sphinx/environment.py:108 sphinx/latexwriter.py:114
 #, python-format
@@ -65,15 +64,15 @@ msgstr "%d %B %Y"
 
 #: sphinx/htmlwriter.py:73
 msgid "Permalink to this definition"
-msgstr ""
+msgstr "Lien permanent vers cette définition"
 
 #: sphinx/htmlwriter.py:379
 msgid "Permalink to this headline"
-msgstr ""
+msgstr "Lien permanent vers ce titre"
 
 #: sphinx/latexwriter.py:128
 msgid "Release"
-msgstr ""
+msgstr "Release"
 
 #: sphinx/latexwriter.py:171
 #, fuzzy
@@ -90,236 +89,235 @@ msgstr "Index"
 #: sphinx/roles.py:52 sphinx/roles.py:55 sphinx/directives/desc.py:519
 #, python-format
 msgid "environment variable; %s"
-msgstr ""
+msgstr "variable d'environnement; %s"
 
 #: sphinx/roles.py:61 sphinx/roles.py:64
 #, python-format
 msgid "Python Enhancement Proposals!PEP %s"
-msgstr ""
+msgstr "Python Enhancement Proposals!PEP %s"
 
 #: sphinx/textwriter.py:151
 #, python-format
 msgid "Platform: %s"
-msgstr ""
+msgstr "Plateforme: %s"
 
 #: sphinx/textwriter.py:353
 msgid "[image]"
-msgstr ""
+msgstr "[image]"
 
 #: sphinx/directives/desc.py:26
 #, python-format
 msgid "%s() (built-in function)"
-msgstr ""
+msgstr "%s() (fonction de base)"
 
 #: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
 #: sphinx/directives/desc.py:53
 #, python-format
 msgid "%s() (in module %s)"
-msgstr ""
+msgstr "%s() (dans le module %s)"
 
 #: sphinx/directives/desc.py:30
 #, python-format
 msgid "%s (built-in variable)"
-msgstr ""
+msgstr "%s (variable de base)"
 
 #: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
 #, python-format
 msgid "%s (in module %s)"
-msgstr ""
+msgstr "%s (dans le module %s)"
 
 #: sphinx/directives/desc.py:33
 #, python-format
 msgid "%s (class in %s)"
-msgstr ""
+msgstr "%s (classe dans %s)"
 
 #: sphinx/directives/desc.py:45
 #, python-format
 msgid "%s() (%s.%s method)"
-msgstr ""
+msgstr "%s() (méthode %s.%s)"
 
 #: sphinx/directives/desc.py:47
 #, python-format
 msgid "%s() (%s method)"
-msgstr ""
+msgstr "%s() (méthode %s)"
 
 #: sphinx/directives/desc.py:57
 #, python-format
 msgid "%s() (%s.%s static method)"
-msgstr ""
+msgstr "%s() (méthode statique %s.%s)"
 
 #: sphinx/directives/desc.py:59
 #, python-format
 msgid "%s() (%s static method)"
-msgstr ""
+msgstr "%s() (méthode statique %s)"
 
 #: sphinx/directives/desc.py:69
 #, python-format
 msgid "%s (%s.%s attribute)"
-msgstr ""
+msgstr "%s (attribut %s.%s)"
 
 #: sphinx/directives/desc.py:71
 #, python-format
 msgid "%s (%s attribute)"
-msgstr ""
+msgstr "%s (attribut %s)"
 
 #: sphinx/directives/desc.py:73
 #, python-format
 msgid "%s (C function)"
-msgstr ""
+msgstr "%s (fonction C)"
 
 #: sphinx/directives/desc.py:75
 #, python-format
 msgid "%s (C member)"
-msgstr ""
+msgstr "%s (membre C)"
 
 #: sphinx/directives/desc.py:77
 #, python-format
 msgid "%s (C macro)"
-msgstr ""
+msgstr "%s (macro C)"
 
 #: sphinx/directives/desc.py:79
 #, python-format
 msgid "%s (C type)"
-msgstr ""
+msgstr "%s (type C)"
 
 #: sphinx/directives/desc.py:81
 #, python-format
 msgid "%s (C variable)"
-msgstr ""
+msgstr "%s (variable C)"
 
 #: sphinx/directives/desc.py:99
 msgid "Raises"
-msgstr ""
+msgstr "Lève"
 
 #: sphinx/directives/desc.py:103
 msgid "Variable"
-msgstr ""
+msgstr "Variable"
 
 #: sphinx/directives/desc.py:106
 msgid "Returns"
-msgstr ""
+msgstr "Retourne"
 
 #: sphinx/directives/desc.py:113
 msgid "Return type"
-msgstr ""
+msgstr "Type retourné"
 
 #: sphinx/directives/desc.py:140
 msgid "Parameters"
-msgstr ""
+msgstr "Paramètres"
 
 #: sphinx/directives/desc.py:402 sphinx/directives/desc.py:404
 #, python-format
 msgid "command line option; %s"
-msgstr ""
+msgstr "option de ligne de commande; %s"
 
 #: sphinx/directives/other.py:102
 msgid "Platforms: "
-msgstr ""
+msgstr "Plateformes : "
 
 #: sphinx/directives/other.py:107
 #, fuzzy, python-format
 msgid "%s (module)"
-msgstr "modules"
+msgstr "%s (module)"
 
 #: sphinx/directives/other.py:148
 msgid "Section author: "
-msgstr ""
+msgstr "Auteur de la section : "
 
 #: sphinx/directives/other.py:150
 msgid "Module author: "
-msgstr ""
+msgstr "Auteur du module : "
 
 #: sphinx/directives/other.py:152
 msgid "Author: "
-msgstr ""
+msgstr "Auteur : "
 
 #: sphinx/directives/other.py:238
 msgid "See also"
-msgstr ""
+msgstr "Voir aussi"
 
 #: sphinx/locale/__init__.py:15
 msgid "Attention"
-msgstr ""
+msgstr "Attention"
 
 #: sphinx/locale/__init__.py:16
 msgid "Caution"
-msgstr ""
+msgstr "Prudence"
 
 #: sphinx/locale/__init__.py:17
 msgid "Danger"
-msgstr ""
+msgstr "Danger"
 
 #: sphinx/locale/__init__.py:18
 msgid "Error"
-msgstr ""
+msgstr "Erreur"
 
 #: sphinx/locale/__init__.py:19
 msgid "Hint"
-msgstr ""
+msgstr "Indice"
 
 #: sphinx/locale/__init__.py:20
 msgid "Important"
-msgstr ""
+msgstr "Important"
 
 #: sphinx/locale/__init__.py:21
 msgid "Note"
-msgstr ""
+msgstr "Note"
 
 #: sphinx/locale/__init__.py:22
 msgid "See Also"
-msgstr ""
+msgstr "Voir aussi"
 
 #: sphinx/locale/__init__.py:23
 msgid "Tip"
-msgstr ""
+msgstr "Astuce"
 
 #: sphinx/locale/__init__.py:24
 msgid "Warning"
-msgstr ""
+msgstr "Warning"
 
 #: sphinx/locale/__init__.py:28
 #, python-format
 msgid "New in version %s"
-msgstr ""
+msgstr "Introduit dans la version %s"
 
 #: sphinx/locale/__init__.py:29
 #, python-format
 msgid "Changed in version %s"
-msgstr ""
+msgstr "Modifié dans la version %s"
 
 #: sphinx/locale/__init__.py:30
 #, python-format
 msgid "Deprecated since version %s"
-msgstr ""
+msgstr "Obsolète depuis la version %s"
 
 #: sphinx/locale/__init__.py:34
-#, fuzzy
 msgid "module"
-msgstr "modules"
+msgstr "module"
 
 #: sphinx/locale/__init__.py:35
 msgid "keyword"
-msgstr ""
+msgstr "mot-clé"
 
 #: sphinx/locale/__init__.py:36
 msgid "operator"
-msgstr ""
+msgstr "opérateur"
 
 #: sphinx/locale/__init__.py:37
 msgid "object"
-msgstr ""
+msgstr "objet"
 
 #: sphinx/locale/__init__.py:38
 msgid "exception"
-msgstr ""
+msgstr "exception"
 
 #: sphinx/locale/__init__.py:39
 msgid "statement"
-msgstr ""
+msgstr "état"
 
 #: sphinx/locale/__init__.py:40
 msgid "built-in function"
-msgstr ""
+msgstr "fonction de base"
 
 #: sphinx/templates/defindex.html:2
 msgid "Overview"
@@ -327,7 +325,7 @@ msgstr "Résumé"
 
 #: sphinx/templates/defindex.html:11
 msgid "Indices and tables:"
-msgstr "Indices et tables:"
+msgstr "Indices et tables :"
 
 #: sphinx/templates/defindex.html:14
 msgid "Complete Table of Contents"
@@ -402,7 +400,7 @@ msgstr "Cette page"
 
 #: sphinx/templates/layout.html:59
 msgid "Suggest Change"
-msgstr ""
+msgstr "Suggérer une modification"
 
 #: sphinx/templates/layout.html:60 sphinx/templates/layout.html:62
 msgid "Show Source"
@@ -555,7 +553,4 @@ msgstr "Modifications de l'API C"
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "Autres modifications"
-
-#~ msgid "Link"
-#~ msgstr "Lien"
 
