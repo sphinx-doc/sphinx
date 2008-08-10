@@ -110,6 +110,7 @@ General configuration
    * ``cs`` -- Czech
    * ``de`` -- German
    * ``en`` -- English
+   * ``fr`` -- French
 
 .. confval:: locale_dirs
 
