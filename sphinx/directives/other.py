@@ -16,6 +16,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.util import patfilter
 from sphinx.roles import caption_ref_re
+from sphinx.locale import pairindextypes
 from sphinx.util.compat import make_admonition
 
 
@@ -98,13 +99,16 @@ def module_directive(name, arguments, options, content, lineno,
     if 'platform' in options:
         modulenode['platform'] = options['platform']
         node = nodes.paragraph()
-        node += nodes.emphasis('Platforms: ', 'Platforms: ')
+        node += nodes.emphasis('', _('Platforms: '))
         node += nodes.Text(options['platform'], options['platform'])
         ret.append(node)
     # the synopsis isn't printed; in fact, it is only used in the modindex currently
     if not noindex:
-        env.note_index_entry('single', '%s (module)' % modname,
-                             'module-' + modname, modname)
+        indextext = _('%s (module)') % modname
+        env.note_index_entry('single', indextext, 'module-' + modname, modname)
+        inode = addnodes.index(entries=[('single', indextext,
+                                         'module-' + modname, modname)])
+        ret.insert(0, inode)
     return ret
 
 module_directive.arguments = (1, 0, 0)
@@ -141,11 +145,11 @@ def author_directive(name, arguments, options, content, lineno,
     emph = nodes.emphasis()
     para += emph
     if name == 'sectionauthor':
-        text = 'Section author: '
+        text = _('Section author: ')
     elif name == 'moduleauthor':
-        text = 'Module author: '
+        text = _('Module author: ')
     else:
-        text = 'Author: '
+        text = _('Author: ')
     emph += nodes.Text(text, text)
     inodes, messages = state.inline_text(arguments[0], lineno)
     emph.extend(inodes)
@@ -158,9 +162,8 @@ directives.register_directive('moduleauthor', author_directive)
 
 # ------ index markup --------------------------------------------------------------
 
-entrytypes = [
-    'single', 'pair', 'triple', 'module', 'keyword', 'operator',
-    'object', 'exception', 'statement', 'builtin',
+indextypes = [
+    'single', 'pair', 'triple',
 ]
 
 def index_directive(name, arguments, options, content, lineno,
@@ -175,17 +178,26 @@ def index_directive(name, arguments, options, content, lineno,
     indexnode['entries'] = ne = []
     for entry in arguments:
         entry = entry.strip()
-        for type in entrytypes:
+        for type in pairindextypes:
             if entry.startswith(type+':'):
                 value = entry[len(type)+1:].strip()
+                value = pairindextypes[type] + '; ' + value
                 env.note_index_entry(type, value, targetid, value)
                 ne.append((type, value, targetid, value))
                 break
-        # shorthand notation for single entries
         else:
-            for value in entry.split(','):
-                env.note_index_entry('single', value.strip(), targetid, value.strip())
-                ne.append(('single', value.strip(), targetid, value.strip()))
+            for type in indextypes:
+                if entry.startswith(type+':'):
+                    value = entry[len(type)+1:].strip()
+                    env.note_index_entry(type, value, targetid, value)
+                    ne.append((type, value, targetid, value))
+                    break
+            # shorthand notation for single entries
+            else:
+                for value in entry.split(','):
+                    env.note_index_entry('single', value.strip(),
+                                         targetid, value.strip())
+                    ne.append(('single', value.strip(), targetid, value.strip()))
     return [indexnode, targetnode]
 
 index_directive.arguments = (1, 0, 1)
@@ -223,7 +235,7 @@ directives.register_directive('versionchanged', version_directive)
 def seealso_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     rv = make_admonition(
-        addnodes.seealso, name, ['See also'], options, content,
+        addnodes.seealso, name, [_('See also')], options, content,
         lineno, content_offset, block_text, state, state_machine)
     return rv
 
@@ -292,7 +304,7 @@ directives.register_directive('productionlist', productionlist_directive)
 
 def glossary_directive(name, arguments, options, content, lineno,
                        content_offset, block_text, state, state_machine):
-    """Glossary with cross-reference targets for :dfn: roles."""
+    """Glossary with cross-reference targets for :term: roles."""
     env = state.document.settings.env
     node = addnodes.glossary()
     state.nested_parse(content, content_offset, node)

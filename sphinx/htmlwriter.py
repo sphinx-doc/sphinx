@@ -15,6 +15,7 @@ import posixpath
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
+from sphinx.locale import admonitionlabels, versionlabels
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.smartypants import sphinx_smarty_pants
 
@@ -37,12 +38,6 @@ class HTMLWriter(Writer):
                      'html_subtitle', 'html_body', ):
             setattr(self, attr, getattr(visitor, attr, None))
 
-
-version_text = {
-    'deprecated': 'Deprecated in version %s',
-    'versionchanged': 'Changed in version %s',
-    'versionadded': 'New in version %s',
-}
 
 class HTMLTranslator(BaseTranslator):
     """
@@ -74,7 +69,8 @@ class HTMLTranslator(BaseTranslator):
     def depart_desc_signature(self, node):
         if node['ids'] and self.builder.add_definition_links:
             self.body.append(u'<a class="headerlink" href="#%s" ' % node['ids'][0] +
-                             u'title="Permalink to this definition">\u00B6</a>')
+                             u'title="%s">\u00B6</a>' %
+                             _('Permalink to this definition'))
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
@@ -131,7 +127,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_versionmodified(self, node):
         self.body.append(self.starttag(node, 'p'))
-        text = version_text[node['type']] % node['version']
+        text = versionlabels[node['type']] % node['version']
         if len(node):
             text += ': '
         else:
@@ -160,7 +156,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name and name != 'seealso':
-            node.insert(0, nodes.title(name, self.language.labels[name]))
+            node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
 
     def visit_seealso(self, node):
@@ -379,11 +375,12 @@ class HTMLTranslator(BaseTranslator):
             aname = node.parent['ids'][0]
             # add permalink anchor
             self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
-                             u'title="Permalink to this headline">\u00B6</a>')
+                             u'title="%s">\u00B6</a>' %
+                             _('Permalink to this headline'))
         BaseTranslator.depart_title(self, node)
 
     def unknown_visit(self, node):
-        raise NotImplementedError("Unknown node: " + node.__class__.__name__)
+        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
 
 class SmartyPantsHTMLTranslator(HTMLTranslator):

@@ -198,15 +198,8 @@
 }
 
 
-% Lots of index-entry generation support.
+% Index-entry generation support.
 %
-% Command to wrap around stuff that refers to function / module /
-% attribute names  in the index.  Default behavior: like \code{}.  To
-% just keep the index entries in the roman font, uncomment the second
-% definition; it matches O'Reilly style more.
-%
-\newcommand{\py@idxcode}[1]{\texttt{#1}}
-%\renewcommand{\py@idxcode}[1]{#1}
 
 % Command to generate two index entries (using subentries)
 \newcommand{\indexii}[2]{\index{#1!#2}\index{#2!#1}}
@@ -221,23 +214,6 @@
 \index{#3!#4, #1 #2}
 \index{#4!#1 #2 #3}
 }
-
-% Command to generate a reference to a function, statement, keyword,
-% operator.
-\newcommand{\kwindex}[1]{\indexii{keyword}{#1@{\py@idxcode{#1}}}}
-\newcommand{\stindex}[1]{\indexii{statement}{#1@{\py@idxcode{#1}}}}
-\newcommand{\opindex}[1]{\indexii{operator}{#1@{\py@idxcode{#1}}}}
-\newcommand{\exindex}[1]{\indexii{exception}{#1@{\py@idxcode{#1}}}}
-\newcommand{\obindex}[1]{\indexii{object}{#1}}
-\newcommand{\bifuncindex}[1]{%
-  \index{#1@{\py@idxcode{#1()}} (built-in function)}}
-
-% Add an index entry for a module
-\newcommand{\py@refmodule}[2]{\index{#1@{\py@idxcode{#1}} (#2module)}}
-\newcommand{\refmodindex}[1]{\py@refmodule{#1}{}}
-\newcommand{\refbimodindex}[1]{\py@refmodule{#1}{built-in }}
-\newcommand{\refexmodindex}[1]{\py@refmodule{#1}{extension }}
-\newcommand{\refstmodindex}[1]{\py@refmodule{#1}{standard }}
 
 % support for the module index
 \newif\ifpy@UseModuleIndex
@@ -256,7 +232,6 @@
 % Add the defining entry for a module
 \newcommand{\py@modindex}[2]{%
   \renewcommand{\py@thismodule}{#1}
-  \index{#1@{\py@idxcode{#1}} (#2module)}%
   \ifpy@UseModuleIndex%
     \@ifundefined{py@modplat@\py@thismodulekey}{
       \write\modindexfile{\protect\indexentry{#1@{\texttt{#1}}|hyperpage}{\thepage}}%
@@ -273,12 +248,6 @@
 \newcommand{\py@thismoduletype}{}
 \newcommand{\py@emptymodule}{}
 
-% Module index types
-\newcommand{\py@standardIndexModule}[1]{\py@modindex{#1}{standard }}
-\newcommand{\py@builtinIndexModule}[1]{\py@modindex{#1}{built-in }}
-\newcommand{\py@extensionIndexModule}[1]{\py@modindex{#1}{extension }}
-\newcommand{\py@IndexModule}[1]{\py@modindex{#1}{}}
-
 % \declaremodule[key]{type}{name}
 \newcommand{\declaremodule}[3][\py@modulebadkey]{
   \renewcommand{\py@thismoduletype}{#2}
@@ -287,12 +256,7 @@
   \else
     \renewcommand{\py@thismodulekey}{#1}
   \fi
-  \@ifundefined{py@#2IndexModule}{%
-    \typeout{*** MACRO declaremodule called with unknown module type: `#2'}
-    \py@IndexModule{#3}%
-  }{%
-    \csname py@#2IndexModule\endcsname{#3}%
-  }
+  \py@modindex{#3}{}
   %\label{module-\py@thismodulekey}
 }
 
@@ -415,40 +379,30 @@
 % tools/anno-api.py; it pulls the value from the refcounts database.
 \newcommand{\cfuncline}[3]{
   \py@sigline{\code{#1 \bfcode{#2}}}{#3}%
-  \index{#2@{\py@idxcode{#2()}}}
 }
-\newenvironment{cfuncdesc}[4][\py@badkey]{
+\newenvironment{cfuncdesc}[3]{
   \begin{fulllineitems}
-    \cfuncline{#2}{#3}{#4}
-    \ifx\@undefined#1\relax\else%
-      \emph{Return value: \textbf{#1}.}\\
-    \fi
+    \cfuncline{#1}{#2}{#3}
 }{\end{fulllineitems}}
 
 % C variables ------------------------------------------------------------
 % \begin{cvardesc}{type}{name}
 \newenvironment{cvardesc}[2]{
   \begin{fulllineitems}
-    \item[\code{#1 \bfcode{#2}}\index{#2@{\py@idxcode{#2}}}]
+    \item[\code{#1 \bfcode{#2}}]
 }{\end{fulllineitems}}
 
 % C data types -----------------------------------------------------------
 % \begin{ctypedesc}[index name]{typedef name}
 \newenvironment{ctypedesc}[2][\py@badkey]{
   \begin{fulllineitems}
-    \item[\bfcode{#2}%
-    \ifx\@undefined#1\relax%
-      \index{#2@{\py@idxcode{#2}} (C type)}
-    \else%
-      \index{#2@{\py@idxcode{#1}} (C type)}
-    \fi]
+    \item[\bfcode{#2}]
 }{\end{fulllineitems}}
 
 % C type fields ----------------------------------------------------------
 % \begin{cmemberdesc}{container type}{ctype}{membername}
 \newcommand{\cmemberline}[3]{
   \item[\code{#2 \bfcode{#3}}]
-  \index{#3@{\py@idxcode{#3}} (#1 member)}
 }
 \newenvironment{cmemberdesc}[3]{
   \begin{fulllineitems}
@@ -460,18 +414,13 @@
 % -- "simple" because it has no args; NOT for constant definitions!
 \newenvironment{csimplemacrodesc}[1]{
   \begin{fulllineitems}
-    \item[\bfcode{#1}\index{#1@{\py@idxcode{#1}} (macro)}]
+    \item[\bfcode{#1}]
 }{\end{fulllineitems}}
 
 % simple functions (not methods) -----------------------------------------
 % \begin{funcdesc}{name}{args}
 \newcommand{\funcline}[2]{%
-  \funclineni{#1}{#2}%
-  \ifx\py@thismodule\py@emptymodule%
-  \index{#1@{\py@idxcode{#1()}}}%
-  \else%
-  \index{#1@{\py@idxcode{#1()}} (in module \py@thismodule)}%
-  \fi}
+  \funclineni{#1}{#2}}
 \newenvironment{funcdesc}[2]{
   \begin{fulllineitems}
     \funcline{#1}{#2}
@@ -488,12 +437,7 @@
 % classes ----------------------------------------------------------------
 % \begin{classdesc}{name}{constructor args}
 \newcommand{\classline}[2]{
-  \py@sigline{\strong{class }\bfcode{#1}}{#2}%
-  \ifx\py@thismodule\py@emptymodule%
-  \index{#1@{\py@idxcode{#1}} (class)}%
-  \else%
-  \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}%
-  \fi}
+  \py@sigline{\strong{class }\bfcode{#1}}{#2}}
 \newenvironment{classdesc}[2]{
   % Using \renewcommand doesn't work for this, for unknown reasons:
   \global\def\py@thisclass{#1}
@@ -515,12 +459,7 @@
   % Using \renewcommand doesn't work for this, for unknown reasons:
   \global\def\py@thisclass{#1}
   \begin{fulllineitems}
-    \item[\strong{class }\code{\bfcode{#1}}%
-      \ifx\py@thismodule\py@emptymodule%
-      \index{#1@{\py@idxcode{#1}} (class)}%
-      \else%
-      \index{#1@{\py@idxcode{#1}} (class in \py@thismodule)}%
-      \fi]
+    \item[\strong{class }\code{\bfcode{#1}}]
 }{\end{fulllineitems}}
 
 % \begin{excclassdesc}{name}{constructor args}
@@ -530,11 +469,6 @@
   \global\def\py@thisclass{#1}
   \begin{fulllineitems}
     \py@sigline{\strong{exception }\bfcode{#1}}{#2}%
-    \ifx\py@thismodule\py@emptymodule%
-    \index{#1@{\py@idxcode{#1}} (exception)}%
-    \else%
-    \index{#1@{\py@idxcode{#1}} (exception in \py@thismodule)}%
-    \fi
 }{\end{fulllineitems}}
 
 % There is no corresponding {excclassdesc*} environment.  To describe
@@ -547,11 +481,6 @@
 % \begin{methoddesc}[classname]{methodname}{args}
 \newcommand{\methodline}[3][\@undefined]{
   \methodlineni{#2}{#3}
-  \ifx\@undefined#1\relax
-    \index{#2@{\py@idxcode{#2()}} (\py@thisclass\ method)}
-  \else
-    \index{#2@{\py@idxcode{#2()}} (#1 method)}
-  \fi
 }
 \newenvironment{methoddesc}[3][\@undefined]{
   \begin{fulllineitems}
@@ -576,11 +505,6 @@
 % \begin{staticmethoddesc}[classname]{methodname}{args}
 \newcommand{\staticmethodline}[3][\@undefined]{
   \staticmethodlineni{#2}{#3}
-  \ifx\@undefined#1\relax
-    \index{#2@{\py@idxcode{#2()}} (\py@thisclass\ static method)}
-  \else
-    \index{#2@{\py@idxcode{#2()}} (#1 static method)}
-  \fi
 }
 \newenvironment{staticmethoddesc}[3][\@undefined]{
   \begin{fulllineitems}
@@ -606,10 +530,8 @@
 \newcommand{\memberline}[2][\py@classbadkey]{%
   \ifx\@undefined#1\relax
     \memberlineni{#2}
-    \index{#2@{\py@idxcode{#2}} (\py@thisclass\ attribute)}
   \else
     \memberlineni{#2}
-    \index{#2@{\py@idxcode{#2}} (#1 attribute)}
   \fi
 }
 \newenvironment{memberdesc}[2][\py@classbadkey]{
@@ -635,22 +557,13 @@
 %  -- for constructor information, use excclassdesc instead
 \newenvironment{excdesc}[1]{
   \begin{fulllineitems}
-    \item[\strong{exception }\bfcode{#1}%
-          \ifx\py@thismodule\py@emptymodule%
-          \index{#1@{\py@idxcode{#1}} (exception)}%
-          \else%
-          \index{#1@{\py@idxcode{#1}} (exception in \py@thismodule)}%
-          \fi]
+    \item[\strong{exception }\bfcode{#1}]
 }{\end{fulllineitems}}
 
 % Module data or constants: ----------------------------------------------
 % \begin{datadesc}{name}
 \newcommand{\dataline}[1]{%
-  \datalineni{#1}\ifx\py@thismodule\py@emptymodule%
-    \index{#1@{\py@idxcode{#1}} (data)}%
-    \else%
-    \index{#1@{\py@idxcode{#1}} (data in \py@thismodule)}%
-    \fi}
+  \datalineni{#1}}
 \newenvironment{datadesc}[1]{
   \begin{fulllineitems}
     \dataline{#1}
@@ -722,90 +635,32 @@
 }
 
 % Some are quite plain:
-\newcommand{\py@noticelabel@note}{Note:}
 \newcommand{\py@noticestart@note}{}
 \newcommand{\py@noticeend@note}{}
-\newcommand{\py@noticelabel@hint}{Hint:}
 \newcommand{\py@noticestart@hint}{}
 \newcommand{\py@noticeend@hint}{}
-\newcommand{\py@noticelabel@important}{Important:}
 \newcommand{\py@noticestart@important}{}
 \newcommand{\py@noticeend@important}{}
-\newcommand{\py@noticelabel@tip}{Tip:}
 \newcommand{\py@noticestart@tip}{}
 \newcommand{\py@noticeend@tip}{}
 
 % Others gets more visible distinction:
-\newcommand{\py@noticelabel@warning}{Warning:}
 \newcommand{\py@noticestart@warning}{\py@heavybox}
 \newcommand{\py@noticeend@warning}{\py@endheavybox}
-\newcommand{\py@noticelabel@caution}{Caution:}
 \newcommand{\py@noticestart@caution}{\py@heavybox}
 \newcommand{\py@noticeend@caution}{\py@endheavybox}
-\newcommand{\py@noticelabel@attention}{Attention:}
 \newcommand{\py@noticestart@attention}{\py@heavybox}
 \newcommand{\py@noticeend@attention}{\py@endheavybox}
-\newcommand{\py@noticelabel@danger}{Danger:}
 \newcommand{\py@noticestart@danger}{\py@heavybox}
 \newcommand{\py@noticeend@danger}{\py@endheavybox}
-\newcommand{\py@noticelabel@error}{Error:}
 \newcommand{\py@noticestart@error}{\py@heavybox}
 \newcommand{\py@noticeend@error}{\py@endheavybox}
 
-
-\newenvironment{notice}[1][note]{
+\newenvironment{notice}[2]{
   \def\py@noticetype{#1}
   \csname py@noticestart@#1\endcsname
-  \par\strong{\csname py@noticelabel@#1\endcsname}
+  \par\strong{#2}
 }{\csname py@noticeend@\py@noticetype\endcsname}
-\newcommand{\note}[1]{\strong{\py@noticelabel@note} #1}
-\newcommand{\warning}[1]{\strong{\py@noticelabel@warning} #1}
-
-% Deprecation stuff.
-% Should be extended to allow an index / list of deprecated stuff.  But
-% there's a lot of stuff that needs to be done to make that automatable.
-%
-% First parameter is the release number that deprecates the feature, the
-% second is the action the should be taken by users of the feature.
-%
-% Example:
-%  \deprecated{1.5.1}{Use \method{frobnicate()} instead.}
-%
-\newcommand{\deprecated}[2]{%
-  \strong{Deprecated since release #1.}  #2\par}
-
-% New stuff.
-% This should be used to mark things which have been added to the
-% development tree but that aren't in the release, but are documented.
-% This allows release of documentation that already includes updated
-% descriptions.  Place at end of descriptor environment.
-%
-% Example:
-%  \versionadded{1.5.2}
-%  \versionchanged[short explanation]{2.0}
-%
-\newcommand{\versionadded}[2][\py@badkey]{%
-  \ifx\@undefined#1\relax%
-    {  New in version #2.  }%
-  \else%
-    {  New in version #2:\ #1  }%
-  \fi%
-}
-\newcommand{\versionchanged}[2][\py@badkey]{%
-  \ifx\@undefined#1\relax%
-    {  Changed in version #2.  }%
-  \else%
-    {  Changed in version #2:\ #1  }%
-  \fi%
-}
-
-
-% See-also environment
-\newenvironment{seealso}{
-  \par
-  \strong{See Also:}
-  \par
-}{\par}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and

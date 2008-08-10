@@ -189,7 +189,7 @@ def educateQuotes(s):
     return s.replace('"', "&#8220;")
 
 
-def educateQuotesLatex(s):
+def educateQuotesLatex(s, dquotes=("``", "''")):
     """
     Parameter:  String.
 
@@ -227,7 +227,7 @@ def educateQuotesLatex(s):
     s = s.replace('"', "\x01")
 
     # Finally, replace all helpers with quotes.
-    return s.replace("\x01", "``").replace("\x02", "''").\
+    return s.replace("\x01", dquotes[0]).replace("\x02", dquotes[1]).\
            replace("\x03", "`").replace("\x04", "'")
 
 

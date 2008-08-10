@@ -1051,13 +1051,6 @@ class BuildEnvironment:
                     add_entry(first, second+' '+third)
                     add_entry(second, third+', '+first)
                     add_entry(third, first+' '+second)
-                elif type in ('module', 'keyword', 'operator', 'object',
-                              'exception', 'statement'):
-                    add_entry(string, type)
-                    add_entry(type, string)
-                elif type == 'builtin':
-                    add_entry(string, 'built-in function')
-                    add_entry('built-in function', string)
                 else:
                     self.warn(fn, "unknown index entry type %r" % type)
 

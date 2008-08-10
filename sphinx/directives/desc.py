@@ -23,14 +23,14 @@ ws_re = re.compile(r'\s+')
 def desc_index_text(desctype, module, name):
     if desctype == 'function':
         if not module:
-            return '%s() (built-in function)' % name
-        return '%s() (in module %s)' % (name, module)
+            return _('%s() (built-in function)') % name
+        return _('%s() (in module %s)') % (name, module)
     elif desctype == 'data':
         if not module:
-            return '%s (built-in variable)' % name
-        return '%s (in module %s)' % (name, module)
+            return _('%s (built-in variable)') % name
+        return _('%s (in module %s)') % (name, module)
     elif desctype == 'class':
-        return '%s (class in %s)' % (name, module)
+        return _('%s (class in %s)') % (name, module)
     elif desctype == 'exception':
         return name
     elif desctype == 'method':
@@ -38,78 +38,82 @@ def desc_index_text(desctype, module, name):
             clsname, methname = name.rsplit('.', 1)
         except ValueError:
             if module:
-                return '%s() (in module %s)' % (name, module)
+                return _('%s() (in module %s)') % (name, module)
             else:
                 return '%s()' % name
         if module:
-            return '%s() (%s.%s method)' % (methname, module, clsname)
+            return _('%s() (%s.%s method)') % (methname, module, clsname)
         else:
-            return '%s() (%s method)' % (methname, clsname)
+            return _('%s() (%s method)') % (methname, clsname)
     elif desctype == 'staticmethod':
         try:
             clsname, methname = name.rsplit('.', 1)
         except ValueError:
             if module:
-                return '%s() (in module %s)' % (name, module)
+                return _('%s() (in module %s)') % (name, module)
             else:
                 return '%s()' % name
         if module:
-            return '%s() (%s.%s static method)' % (methname, module, clsname)
+            return _('%s() (%s.%s static method)') % (methname, module, clsname)
         else:
-            return '%s() (%s static method)' % (methname, clsname)
+            return _('%s() (%s static method)') % (methname, clsname)
     elif desctype == 'attribute':
         try:
             clsname, attrname = name.rsplit('.', 1)
         except ValueError:
             if module:
-                return '%s (in module %s)' % (name, module)
+                return _('%s (in module %s)') % (name, module)
             else:
                 return name
         if module:
-            return '%s (%s.%s attribute)' % (attrname, module, clsname)
+            return _('%s (%s.%s attribute)') % (attrname, module, clsname)
         else:
-            return '%s (%s attribute)' % (attrname, clsname)
+            return _('%s (%s attribute)') % (attrname, clsname)
     elif desctype == 'cfunction':
-        return '%s (C function)' % name
+        return _('%s (C function)') % name
     elif desctype == 'cmember':
-        return '%s (C member)' % name
+        return _('%s (C member)') % name
     elif desctype == 'cmacro':
-        return '%s (C macro)' % name
+        return _('%s (C macro)') % name
     elif desctype == 'ctype':
-        return '%s (C type)' % name
+        return _('%s (C type)') % name
     elif desctype == 'cvar':
-        return '%s (C variable)' % name
+        return _('%s (C variable)') % name
     else:
-        raise ValueError("unhandled descenv: %s" % desctype)
+        raise ValueError('unhandled descenv: %s' % desctype)
 
 
 # ------ make field lists (like :param foo:) in desc bodies prettier
 
+_ = lambda x: x  # make gettext extraction in constants possible
+
 doc_fields_with_arg = {
-    'param': 'param',
-    'parameter': 'param',
-    'arg': 'param',
-    'argument': 'param',
-    'keyword': 'param',
-    'kwarg': 'param',
-    'kwparam': 'param',
-    'type': 'type',
-    'raises': 'Raises',
+    'param': '%param',
+    'parameter': '%param',
+    'arg': '%param',
+    'argument': '%param',
+    'keyword': '%param',
+    'kwarg': '%param',
+    'kwparam': '%param',
+    'type': '%type',
+    'raises': _('Raises'),
     'raise': 'Raises',
     'exception': 'Raises',
     'except': 'Raises',
-    'var': 'Variable',
+    'var': _('Variable'),
     'ivar': 'Variable',
     'cvar': 'Variable',
-    'returns': 'Returns',
+    'returns': _('Returns'),
     'return': 'Returns',
 }
 
 doc_fields_without_arg = {
     'returns': 'Returns',
     'return': 'Returns',
-    'rtype': 'Return type',
+    'rtype': _('Return type'),
 }
+
+del _
 
 def handle_doc_fields(node):
     # don't traverse, only handle field lists that are immediate children
@@ -124,16 +128,16 @@ def handle_doc_fields(node):
             fname, fbody = field
             try:
                 typ, obj = fname.astext().split(None, 1)
-                typ = doc_fields_with_arg[typ]
+                typ = _(doc_fields_with_arg[typ])
                 if len(fbody.children) == 1 and \
                    isinstance(fbody.children[0], nodes.paragraph):
                     children = fbody.children[0].children
                 else:
                     children = fbody.children
-                if typ == 'param':
+                if typ == '%param':
                     if not params:
                         pfield = nodes.field()
-                        pfield += nodes.field_name('Parameters', 'Parameters')
+                        pfield += nodes.field_name('', _('Parameters'))
                         pfield += nodes.field_body()
                         params = nodes.bullet_list()
                         pfield[1] += params
@@ -141,12 +145,12 @@ def handle_doc_fields(node):
                     dlitem = nodes.list_item()
                     dlpar = nodes.paragraph()
                     dlpar += nodes.emphasis(obj, obj)
-                    dlpar += nodes.Text(' -- ', ' -- ')
+                    dlpar += nodes.Text('', ' -- ')
                     dlpar += children
                     param_nodes[obj] = dlpar
                     dlitem += dlpar
                     params += dlitem
-                elif typ == 'type':
+                elif typ == '%type':
                     param_types[obj] = fbody.astext()
                 else:
                     fieldname = typ + ' ' + obj
@@ -158,7 +162,7 @@ def handle_doc_fields(node):
             except (KeyError, ValueError):
                 fnametext = fname.astext()
                 try:
-                    typ = doc_fields_without_arg[fnametext]
+                    typ = _(doc_fields_without_arg[fnametext])
                 except KeyError:
                     # at least capitalize the field name
                     typ = fnametext.capitalize()
@@ -299,7 +303,7 @@ def parse_c_signature(signode, sig, desctype):
         raise ValueError('no match')
     rettype, name, arglist, const = m.groups()
 
-    signode += addnodes.desc_type("", "")
+    signode += addnodes.desc_type('', '')
     parse_c_type(signode[-1], rettype)
     try:
         classname, funcname = name.split('::', 1)
@@ -365,6 +369,7 @@ def parse_option_desc(signode, sig):
 def desc_directive(desctype, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     env = state.document.settings.env
+    inode = addnodes.index(entries=[])
     node = addnodes.desc()
     node['desctype'] = desctype
 
@@ -394,8 +399,10 @@ def desc_directive(desctype, arguments, options, content, lineno,
                     targetname = 'cmdoption-' + optname
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
-                    env.note_index_entry('pair', 'command line option; %s' % sig,
+                    env.note_index_entry('pair', _('command line option; %s') % sig,
                                          targetname, targetname)
+                    inode['entries'].append(('pair', _('command line option; %s') % sig,
+                                             targetname, targetname))
                     env.note_reftarget('option', optname, targetname)
                 continue
             elif desctype == 'describe':
@@ -417,7 +424,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
                     if indextemplate:
-                        indexentry = indextemplate % (fullname,)
+                        indexentry = _(indextemplate) % (fullname,)
                         indextype = 'single'
                         colon = indexentry.find(':')
                         if colon != -1:
@@ -425,6 +432,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
                             indexentry = indexentry[colon+1:].strip()
                         env.note_index_entry(indextype, indexentry,
                                              targetname, targetname)
+                        inode['entries'].append((indextype, indexentry,
+                                                 targetname, targetname))
                     env.note_reftarget(rolename, fullname, targetname)
                 # don't use object indexing below
                 continue
@@ -446,9 +455,9 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 env.note_descref(fullname, desctype, lineno)
             names.append(name)
 
-            env.note_index_entry('single',
-                                 desc_index_text(desctype, module, name),
-                                 fullname, fullname)
+            indextext = desc_index_text(desctype, module, name)
+            env.note_index_entry('single', indextext, fullname, fullname)
+            inode['entries'].append(('single', indextext, fullname, fullname))
 
     subnode = addnodes.desc_content()
     # needed for automatic qualification of members
@@ -469,7 +478,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
         env.currclass = None
     env.currdesc = None
     node.append(subnode)
-    return [node]
+    return [inode, node]
 
 desc_directive.content = 1
 desc_directive.arguments = (1, 0, 1)
@@ -501,12 +510,16 @@ desctypes = [
 for _name in desctypes:
     directives.register_directive(_name, desc_directive)
 
+_ = lambda x: x
+
 # Generic cross-reference types; they can be registered in the application;
 # the directives are either desc_directive or target_directive
 additional_xref_types = {
     # directive name: (role name, index text, function to parse the desc node)
-    'envvar': ('envvar', 'environment variable; %s', None),
+    'envvar': ('envvar', _('environment variable; %s'), None),
 }
+
+del _
 
 
 # ------ target --------------------------------------------------------------------
@@ -521,6 +534,7 @@ def target_directive(targettype, arguments, options, content, lineno,
     targetname = '%s-%s' % (rolename, fullname)
     node = nodes.target('', '', ids=[targetname])
     state.document.note_explicit_target(node)
+    ret = [node]
     if indextemplate:
         indexentry = indextemplate % (fullname,)
         indextype = 'single'
@@ -529,8 +543,10 @@ def target_directive(targettype, arguments, options, content, lineno,
             indextype = indexentry[:colon].strip()
             indexentry = indexentry[colon+1:].strip()
         env.note_index_entry(indextype, indexentry, targetname, targetname)
+        inode = addnodes.index(entries=[(indextype, indexentry, targetname, targetname)])
+        ret.insert(0, inode)
     env.note_reftarget(rolename, fullname, targetname)
-    return [node]
+    return ret
 
 target_directive.content = 0
 target_directive.arguments = (1, 0, 1)

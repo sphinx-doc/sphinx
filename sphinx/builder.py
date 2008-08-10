@@ -25,7 +25,7 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
-from sphinx import addnodes, __version__
+from sphinx import addnodes, locale, __version__
 from sphinx.util import ensuredir, relative_uri, SEP, os_path, json
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
@@ -184,6 +184,7 @@ class Builder(object):
         if self.translator is None:
             self.translator = gettext.NullTranslations()
         self.translator.install(unicode=True)
+        locale.init()  # translate common labels
 
     def load_env(self):
         """Set up the build environment."""
@@ -1085,9 +1086,9 @@ class ChangesBuilder(Builder):
                 apichanges.append((entry, docname, lineno))
             elif descname or module:
                 if not module:
-                    module = 'Builtins'
+                    module = _('Builtins')
                 if not descname:
-                    descname = 'Module level'
+                    descname = _('Module level')
                 if context:
                     entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
                 else:

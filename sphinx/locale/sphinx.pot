@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2008-08-08 12:39+0000\n"
+"POT-Creation-Date: 2008-08-10 11:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,39 +17,304 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/builder.py:390
+#: sphinx/builder.py:391
 #, python-format
 msgid "%b %d, %Y"
 msgstr ""
 
-#: sphinx/builder.py:409 sphinx/templates/defindex.html:21
+#: sphinx/builder.py:410 sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr ""
 
-#: sphinx/builder.py:409
+#: sphinx/builder.py:410
 msgid "index"
 msgstr ""
 
-#: sphinx/builder.py:411 sphinx/templates/defindex.html:19
-#: sphinx/templates/modindex.html:2 sphinx/templates/modindex.html:12
+#: sphinx/builder.py:412 sphinx/htmlhelp.py:155
+#: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
+#: sphinx/templates/modindex.html:12
 msgid "Global Module Index"
 msgstr ""
 
-#: sphinx/builder.py:411
+#: sphinx/builder.py:412
 msgid "modules"
 msgstr ""
 
-#: sphinx/builder.py:447
+#: sphinx/builder.py:448
 msgid "next"
 msgstr ""
 
-#: sphinx/builder.py:454
+#: sphinx/builder.py:455
 msgid "previous"
 msgstr ""
 
-#: sphinx/environment.py:108 sphinx/latexwriter.py:110
+#: sphinx/builder.py:1089
+msgid "Builtins"
+msgstr ""
+
+#: sphinx/builder.py:1091
+msgid "Module level"
+msgstr ""
+
+#: sphinx/environment.py:108 sphinx/latexwriter.py:114
 #, python-format
 msgid "%B %d, %Y"
+msgstr ""
+
+#: sphinx/htmlwriter.py:73
+msgid "Permalink to this definition"
+msgstr ""
+
+#: sphinx/htmlwriter.py:379
+msgid "Permalink to this headline"
+msgstr ""
+
+#: sphinx/latexwriter.py:128
+msgid "Release"
+msgstr ""
+
+#: sphinx/latexwriter.py:171
+msgid "Module index"
+msgstr ""
+
+#: sphinx/latexwriter.py:173 sphinx/templates/genindex-single.html:2
+#: sphinx/templates/genindex-split.html:2
+#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+msgid "Index"
+msgstr ""
+
+#: sphinx/roles.py:52 sphinx/roles.py:55 sphinx/directives/desc.py:519
+#, python-format
+msgid "environment variable; %s"
+msgstr ""
+
+#: sphinx/roles.py:61 sphinx/roles.py:64
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr ""
+
+#: sphinx/textwriter.py:151
+#, python-format
+msgid "Platform: %s"
+msgstr ""
+
+#: sphinx/textwriter.py:353
+msgid "[image]"
+msgstr ""
+
+#: sphinx/directives/desc.py:26
+#, python-format
+msgid "%s() (built-in function)"
+msgstr ""
+
+#: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
+#: sphinx/directives/desc.py:53
+#, python-format
+msgid "%s() (in module %s)"
+msgstr ""
+
+#: sphinx/directives/desc.py:30
+#, python-format
+msgid "%s (built-in variable)"
+msgstr ""
+
+#: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
+#, python-format
+msgid "%s (in module %s)"
+msgstr ""
+
+#: sphinx/directives/desc.py:33
+#, python-format
+msgid "%s (class in %s)"
+msgstr ""
+
+#: sphinx/directives/desc.py:45
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr ""
+
+#: sphinx/directives/desc.py:47
+#, python-format
+msgid "%s() (%s method)"
+msgstr ""
+
+#: sphinx/directives/desc.py:57
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr ""
+
+#: sphinx/directives/desc.py:59
+#, python-format
+msgid "%s() (%s static method)"
+msgstr ""
+
+#: sphinx/directives/desc.py:69
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr ""
+
+#: sphinx/directives/desc.py:71
+#, python-format
+msgid "%s (%s attribute)"
+msgstr ""
+
+#: sphinx/directives/desc.py:73
+#, python-format
+msgid "%s (C function)"
+msgstr ""
+
+#: sphinx/directives/desc.py:75
+#, python-format
+msgid "%s (C member)"
+msgstr ""
+
+#: sphinx/directives/desc.py:77
+#, python-format
+msgid "%s (C macro)"
+msgstr ""
+
+#: sphinx/directives/desc.py:79
+#, python-format
+msgid "%s (C type)"
+msgstr ""
+
+#: sphinx/directives/desc.py:81
+#, python-format
+msgid "%s (C variable)"
+msgstr ""
+
+#: sphinx/directives/desc.py:99
+msgid "Raises"
+msgstr ""
+
+#: sphinx/directives/desc.py:103
+msgid "Variable"
+msgstr ""
+
+#: sphinx/directives/desc.py:106
+msgid "Returns"
+msgstr ""
+
+#: sphinx/directives/desc.py:113
+msgid "Return type"
+msgstr ""
+
+#: sphinx/directives/desc.py:140
+msgid "Parameters"
+msgstr ""
+
+#: sphinx/directives/desc.py:402 sphinx/directives/desc.py:404
+#, python-format
+msgid "command line option; %s"
+msgstr ""
+
+#: sphinx/directives/other.py:102
+msgid "Platforms: "
+msgstr ""
+
+#: sphinx/directives/other.py:107
+#, python-format
+msgid "%s (module)"
+msgstr ""
+
+#: sphinx/directives/other.py:148
+msgid "Section author: "
+msgstr ""
+
+#: sphinx/directives/other.py:150
+msgid "Module author: "
+msgstr ""
+
+#: sphinx/directives/other.py:152
+msgid "Author: "
+msgstr ""
+
+#: sphinx/directives/other.py:238
+msgid "See also"
+msgstr ""
+
+#: sphinx/locale/__init__.py:15
+msgid "Attention"
+msgstr ""
+
+#: sphinx/locale/__init__.py:16
+msgid "Caution"
+msgstr ""
+
+#: sphinx/locale/__init__.py:17
+msgid "Danger"
+msgstr ""
+
+#: sphinx/locale/__init__.py:18
+msgid "Error"
+msgstr ""
+
+#: sphinx/locale/__init__.py:19
+msgid "Hint"
+msgstr ""
+
+#: sphinx/locale/__init__.py:20
+msgid "Important"
+msgstr ""
+
+#: sphinx/locale/__init__.py:21
+msgid "Note"
+msgstr ""
+
+#: sphinx/locale/__init__.py:22
+msgid "See Also"
+msgstr ""
+
+#: sphinx/locale/__init__.py:23
+msgid "Tip"
+msgstr ""
+
+#: sphinx/locale/__init__.py:24
+msgid "Warning"
+msgstr ""
+
+#: sphinx/locale/__init__.py:28
+#, python-format
+msgid "New in version %s"
+msgstr ""
+
+#: sphinx/locale/__init__.py:29
+#, python-format
+msgid "Changed in version %s"
+msgstr ""
+
+#: sphinx/locale/__init__.py:30
+#, python-format
+msgid "Deprecated since version %s"
+msgstr ""
+
+#: sphinx/locale/__init__.py:34
+msgid "module"
+msgstr ""
+
+#: sphinx/locale/__init__.py:35
+msgid "keyword"
+msgstr ""
+
+#: sphinx/locale/__init__.py:36
+msgid "operator"
+msgstr ""
+
+#: sphinx/locale/__init__.py:37
+msgid "object"
+msgstr ""
+
+#: sphinx/locale/__init__.py:38
+msgid "exception"
+msgstr ""
+
+#: sphinx/locale/__init__.py:39
+msgid "statement"
+msgstr ""
+
+#: sphinx/locale/__init__.py:40
+msgid "built-in function"
 msgstr ""
 
 #: sphinx/templates/defindex.html:2
@@ -84,20 +349,9 @@ msgstr ""
 msgid "all functions, classes, terms"
 msgstr ""
 
-#: sphinx/templates/genindex-single.html:2
-#: sphinx/templates/genindex-split.html:2
-#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
-#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
-msgid "Index"
-msgstr ""
-
 #: sphinx/templates/genindex-single.html:5
 #, python-format
 msgid "Index &ndash; %(key)s"
-msgstr ""
-
-#: sphinx/templates/genindex-single.html:14
-msgid "Link"
 msgstr ""
 
 #: sphinx/templates/genindex-single.html:44

@@ -152,7 +152,8 @@ def build_hhx(builder, outdir, outname):
         f.write('<LI> ' + object_sitemap % (builder.config.html_short_title,
                                             'index.html'))
         if builder.config.html_use_modindex:
-            f.write('<LI> ' + object_sitemap % ('Global Module Index', 'modindex.html'))
+            f.write('<LI> ' + object_sitemap % (_('Global Module Index'),
+                                                'modindex.html'))
         # the TOC
         tocdoc = builder.env.get_and_resolve_doctree(builder.config.master_doc, builder,
                                                      prune_toctrees=False)
