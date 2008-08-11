@@ -48,9 +48,6 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
     targetnode = nodes.target('', '', ids=[targetid])
     inliner.document.note_explicit_target(targetnode)
     if typ == 'envvar':
-        env.note_index_entry('single', text, targetid, text)
-        env.note_index_entry('single', _('environment variable; %s') % text,
-                             targetid, text)
         indexnode['entries'] = [('single', text, targetid, text),
                                 ('single', _('environment variable; %s') % text,
                                  targetid, text)]
@@ -58,8 +55,6 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
                                    options, content)[0]
         return [indexnode, targetnode] + xref_nodes, []
     elif typ == 'pep':
-        env.note_index_entry('single', _('Python Enhancement Proposals!PEP %s') % text,
-                             targetid, 'PEP %s' % text)
         indexnode['entries'] = [('single',
                                  _('Python Enhancement Proposals!PEP %s') % text,
                                  targetid, 'PEP %s' % text)]
@@ -75,8 +70,6 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        env.note_index_entry('single', 'RFC; RFC %s' % text,
-                             targetid, 'RFC %s' % text)
         indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
                                  targetid, 'RFC %s' % text)]
         try:

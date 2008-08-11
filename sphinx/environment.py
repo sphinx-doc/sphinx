@@ -496,6 +496,7 @@ class BuildEnvironment:
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_labels_from(docname, doctree)
+        self.note_indexentries_from(docname, doctree)
         self.build_toc_from(docname, doctree)
 
         # store time of reading, used to find outdated files
@@ -665,6 +666,11 @@ class BuildEnvironment:
             sectname = node[0].astext() # node[0] == title node
             self.labels[name] = docname, labelid, sectname
 
+    def note_indexentries_from(self, docname, document):
+        entries = self.indexentries[docname] = []
+        for node in document.traverse(addnodes.index):
+            entries.extend(node['entries'])
+
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
            file relations from it."""
@@ -754,10 +760,6 @@ class BuildEnvironment:
 
     def note_reftarget(self, type, name, labelid):
         self.reftargets[type, name] = (self.docname, labelid)
-
-    def note_index_entry(self, type, string, targetid, aliasname):
-        self.indexentries.setdefault(self.docname, []).append(
-            (type, string, targetid, aliasname))
 
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(

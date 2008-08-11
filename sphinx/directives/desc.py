@@ -399,8 +399,6 @@ def desc_directive(desctype, arguments, options, content, lineno,
                     targetname = 'cmdoption-' + optname
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
-                    env.note_index_entry('pair', _('command line option; %s') % sig,
-                                         targetname, targetname)
                     inode['entries'].append(('pair', _('command line option; %s') % sig,
                                              targetname, targetname))
                     env.note_reftarget('option', optname, targetname)
@@ -430,8 +428,6 @@ def desc_directive(desctype, arguments, options, content, lineno,
                         if colon != -1:
                             indextype = indexentry[:colon].strip()
                             indexentry = indexentry[colon+1:].strip()
-                        env.note_index_entry(indextype, indexentry,
-                                             targetname, targetname)
                         inode['entries'].append((indextype, indexentry,
                                                  targetname, targetname))
                     env.note_reftarget(rolename, fullname, targetname)
@@ -456,7 +452,6 @@ def desc_directive(desctype, arguments, options, content, lineno,
             names.append(name)
 
             indextext = desc_index_text(desctype, module, name)
-            env.note_index_entry('single', indextext, fullname, fullname)
             inode['entries'].append(('single', indextext, fullname, fullname))
 
     subnode = addnodes.desc_content()
@@ -542,7 +537,6 @@ def target_directive(targettype, arguments, options, content, lineno,
         if colon != -1:
             indextype = indexentry[:colon].strip()
             indexentry = indexentry[colon+1:].strip()
-        env.note_index_entry(indextype, indexentry, targetname, targetname)
         inode = addnodes.index(entries=[(indextype, indexentry, targetname, targetname)])
         ret.insert(0, inode)
     env.note_reftarget(rolename, fullname, targetname)

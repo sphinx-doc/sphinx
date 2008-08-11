@@ -105,7 +105,6 @@ def module_directive(name, arguments, options, content, lineno,
     # the synopsis isn't printed; in fact, it is only used in the modindex currently
     if not noindex:
         indextext = _('%s (module)') % modname
-        env.note_index_entry('single', indextext, 'module-' + modname, modname)
         inode = addnodes.index(entries=[('single', indextext,
                                          'module-' + modname, modname)])
         ret.insert(0, inode)
@@ -182,21 +181,17 @@ def index_directive(name, arguments, options, content, lineno,
             if entry.startswith(type+':'):
                 value = entry[len(type)+1:].strip()
                 value = pairindextypes[type] + '; ' + value
-                env.note_index_entry(type, value, targetid, value)
                 ne.append((type, value, targetid, value))
                 break
         else:
             for type in indextypes:
                 if entry.startswith(type+':'):
                     value = entry[len(type)+1:].strip()
-                    env.note_index_entry(type, value, targetid, value)
                     ne.append((type, value, targetid, value))
                     break
             # shorthand notation for single entries
             else:
                 for value in entry.split(','):
-                    env.note_index_entry('single', value.strip(),
-                                         targetid, value.strip())
                     ne.append(('single', value.strip(), targetid, value.strip()))
     return [indexnode, targetnode]
 
@@ -329,7 +324,6 @@ def glossary_directive(name, arguments, options, content, lineno,
             # add an index entry too
             indexnode = addnodes.index()
             indexnode['entries'] = [('single', termtext, new_id, termtext)]
-            env.note_index_entry('single', termtext, new_id, termtext)
             li.insert(0, indexnode)
     return [node]
 
