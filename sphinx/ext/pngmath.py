@@ -112,7 +112,8 @@ def render_math(self, math):
         return relfn, None
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('latex exited with error:\n' + stdout)
+        raise MathExtError('latex exited with error:\n[stderr]\n%s\n[stdout]\n%s'
+                           % (stderr, stdout))
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
@@ -137,8 +138,8 @@ def render_math(self, math):
         return relfn, None
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('dvipng exited with error:\n[stdout]\n%s\n[stderr]%s'
-                           % (stdout, stderr))
+        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n[stdout]\n%s'
+                           % (stderr, stdout))
     depth = None
     if use_preview:
         for line in stdout.splitlines():
