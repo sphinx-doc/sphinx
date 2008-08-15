@@ -104,7 +104,7 @@ General configuration
 
    .. deprecated:: 0.5
       This does not take subdirs of the excluded directories into account.  Use
-      :confval:`exclude_trees` or :confval:`exclude_dirs`, which match the
+      :confval:`exclude_trees` or :confval:`exclude_dirnames`, which match the
       expectations.
 
 .. confval:: locale_dirs
