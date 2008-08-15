@@ -45,6 +45,8 @@ New features added
 * sphinx.doc.autodoc has a new event ``autodoc-process-signature``
   that allows tuning function signature introspection.
 
+* Respect __all__ when autodocumenting module members.
+
 * Glossary entries are now automatically added to the index.
 
 * Added ``exclude_dirnames`` config value that can be used to exclude

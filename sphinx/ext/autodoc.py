@@ -498,10 +498,14 @@ class RstGenerator(object):
         if _all:
             # unqualified :members: given
             if what == 'module':
-                # for implicit module members, check __module__ to avoid documenting
-                # imported objects if __all__ is not defined
-                members_check_module = not hasattr(todoc, '__all__')
-                all_members = inspect.getmembers(todoc)
+                if hasattr(todoc, '__all__'):
+                    members_check_module = False
+                    all_members = inspect.getmembers(todoc, lambda x: x in todoc.__all__)
+                else:
+                    # for implicit module members, check __module__ to avoid
+                    # documenting imported objects
+                    members_check_module = True
+                    all_members = inspect.getmembers(todoc)
             else:
                 if self.options.inherited_members:
                     # getmembers() uses dir() which pulls in members from all
