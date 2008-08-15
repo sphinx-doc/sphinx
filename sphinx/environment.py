@@ -540,7 +540,7 @@ class BuildEnvironment:
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
-                node.replace_self([])
+                node.parent.remove(node)
 
     def process_dependencies(self, docname, doctree):
         """
