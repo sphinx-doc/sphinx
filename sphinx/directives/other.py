@@ -181,7 +181,7 @@ def index_directive(name, arguments, options, content, lineno,
             if entry.startswith(type+':'):
                 value = entry[len(type)+1:].strip()
                 value = pairindextypes[type] + '; ' + value
-                ne.append((type, value, targetid, value))
+                ne.append(('pair', value, targetid, value))
                 break
         else:
             for type in indextypes:
