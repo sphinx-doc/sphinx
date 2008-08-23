@@ -25,7 +25,7 @@ from nose import tools
 __all__ = [
     'test_root',
     'raises', 'raises_msg', 'Struct',
-    'ListOutput', 'TestApp', 'with_testapp',
+    'ListOutput', 'TestApp', 'with_app',
     'path', 'with_tempdir', 'write_file',
     'sprint',
 ]
@@ -60,7 +60,7 @@ def raises_msg(exc, msg, func, *args, **kwds):
     try:
         func(*args, **kwds)
     except exc, err:
-        assert msg in str(err)
+        assert msg in str(err), "\"%s\" not in \"%s\"" % (msg, err)
     else:
         raise AssertionError('%s did not raise %s' %
                              (func.__name__, _excstr(exc)))
@@ -140,7 +140,7 @@ class TestApp(application.Sphinx):
             shutil.rmtree(tree, True)
 
 
-def with_testapp(*args, **kwargs):
+def with_app(*args, **kwargs):
     """
     Make a TestApp with args and kwargs, pass it to the test and clean up
     properly.

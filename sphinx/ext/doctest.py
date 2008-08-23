@@ -285,7 +285,7 @@ Doctest summary
                                           group.name, filename, code[0].lineno)
                 if not test.examples:
                     self._out('WARNING: no examples in doctest block at '
-                              + filename + ', line %s' % code[0].lineno)
+                              + filename + ', line %s\n' % code[0].lineno)
                     continue
                 for example in test.examples:
                     # apply directive's comparison options

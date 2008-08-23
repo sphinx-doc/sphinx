@@ -3,14 +3,17 @@ Introduction
 
 This is the documentation for the Sphinx documentation builder.  Sphinx is a
 tool that translates a set of reStructuredText_ source files into various output
-formats, automatically producing cross-references, indices etc.
+formats, automatically producing cross-references, indices etc.  That is, if
+you have a directory containing a bunch of reST-formatted documents (and
+possibly subdirectories of docs in there as well), Sphinx can generate a
+nicely-organized arrangement of HTML files (in some other directory) for easy
+browsing and navigation.  But from the same source, it can also generate a
+LaTeX file that you can compile into a PDF version of the documents.
 
 The focus is on hand-written documentation, rather than auto-generated API docs.
 Though there is limited support for that kind of docs as well (which is intended
 to be freely mixed with hand-written content), if you need pure API docs have a
 look at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
-
-.. XXX web app
 
 Prerequisites
 -------------

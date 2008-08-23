@@ -65,7 +65,7 @@ class NslessParser(ET.XMLParser):
             return name
 
 
-@with_testapp(buildername='html', warning=html_warnfile)
+@with_app(buildername='html', warning=html_warnfile)
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
@@ -94,7 +94,7 @@ def test_html(app):
                                'path %s in %s' % (text, path, fname))
 
 
-@with_testapp(buildername='latex', warning=latex_warnfile)
+@with_app(buildername='latex', warning=latex_warnfile)
 def test_latex(app):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
@@ -124,14 +124,14 @@ def test_latex(app):
 
 # just let the remaining ones run for now
 
-@with_testapp(buildername='linkcheck')
+@with_app(buildername='linkcheck')
 def test_linkcheck(app):
     app.builder.build_all()
 
-@with_testapp(buildername='text')
+@with_app(buildername='text')
 def test_text(app):
     app.builder.build_all()
 
-@with_testapp(buildername='changes', cleanenv=True)
+@with_app(buildername='changes', cleanenv=True)
 def test_changes(app):
     app.builder.build_all()
