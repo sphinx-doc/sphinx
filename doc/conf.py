@@ -41,7 +41,7 @@ copyright = '2008, Georg Brandl'
 #
 # The short X.Y version.
 import sphinx
-version = sphinx.__version__
+version = sphinx.__released__
 # The full version, including alpha/beta/rc tags.
 release = version
 

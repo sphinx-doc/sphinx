@@ -61,6 +61,17 @@
   \pdfcompresslevel=9
 \fi\fi
 
+% Detect if we're using XeLaTeX
+\IfFileExists{ifxetex.sty}{%
+  \RequirePackage{ifxetex}
+}{% not using xelatex
+  \newif\ifxetex\xetexfalse
+}
+\ifxetex
+  \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
+  \def\py@TitleColor{\color{TitleColor}}
+\fi
+
 % Increase printable page size (copied from fullpage.sty)
 \topmargin 0pt
 \advance \topmargin by -\headheight
