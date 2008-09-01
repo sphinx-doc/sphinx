@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% set title = _('Global Module Index') %}
 {% block extrahead %}
-{% if collapse_modindex %}
+{% if builder != 'htmlhelp' and collapse_modindex %}
     <script type="text/javascript">
       DOCUMENTATION_OPTIONS.COLLAPSE_MODINDEX = true;
     </script>
