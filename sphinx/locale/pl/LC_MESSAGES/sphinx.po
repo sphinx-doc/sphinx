@@ -1,0 +1,555 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2008-08-10 11:43+0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Michał Kandulski <Michal.Kandulski@poczta.onet.pl>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Basepath: c:\\Python25\\Lib\\site-packages\\Sphinx-0.5dev_20080905-py2.5.egg\n"
+
+#: sphinx/builder.py:391
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%b %d %Y"
+
+#: sphinx/builder.py:410
+#: sphinx/templates/defindex.html:21
+msgid "General Index"
+msgstr "Indeks ogólny"
+
+#: sphinx/builder.py:410
+msgid "index"
+msgstr "indeks"
+
+#: sphinx/builder.py:412
+#: sphinx/htmlhelp.py:155
+#: sphinx/templates/defindex.html:19
+#: sphinx/templates/modindex.html:2
+#: sphinx/templates/modindex.html:12
+msgid "Global Module Index"
+msgstr "Indeks modułów"
+
+#: sphinx/builder.py:412
+msgid "modules"
+msgstr "moduły"
+
+#: sphinx/builder.py:448
+msgid "next"
+msgstr "dalej"
+
+#: sphinx/builder.py:455
+msgid "previous"
+msgstr "wstecz"
+
+#: sphinx/builder.py:1089
+msgid "Builtins"
+msgstr "Wbudowane"
+
+#: sphinx/builder.py:1091
+msgid "Module level"
+msgstr "Poziom modułu"
+
+#: sphinx/environment.py:108
+#: sphinx/latexwriter.py:114
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%B %d %Y"
+
+#: sphinx/htmlwriter.py:73
+msgid "Permalink to this definition"
+msgstr "Stały odnośnik do tej definicji"
+
+#: sphinx/htmlwriter.py:379
+msgid "Permalink to this headline"
+msgstr "Stały odnośnik do tego nagłówka"
+
+#: sphinx/latexwriter.py:128
+msgid "Release"
+msgstr "Wydanie"
+
+#: sphinx/latexwriter.py:171
+msgid "Module index"
+msgstr "Indeks modułów"
+
+#: sphinx/latexwriter.py:173
+#: sphinx/templates/genindex-single.html:2
+#: sphinx/templates/genindex-split.html:2
+#: sphinx/templates/genindex-split.html:5
+#: sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5
+#: sphinx/templates/genindex.html:48
+msgid "Index"
+msgstr "Indeks"
+
+#: sphinx/roles.py:52
+#: sphinx/roles.py:55
+#: sphinx/directives/desc.py:519
+#, python-format
+msgid "environment variable; %s"
+msgstr "zmienna środowiskowa; %s"
+
+#: sphinx/roles.py:61
+#: sphinx/roles.py:64
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr "Python Enhancement Proposals!PEP %s"
+
+#: sphinx/textwriter.py:151
+#, python-format
+msgid "Platform: %s"
+msgstr "Platforma: %s"
+
+#: sphinx/textwriter.py:353
+msgid "[image]"
+msgstr "[image]"
+
+#: sphinx/directives/desc.py:26
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (funkcja wbudowana)"
+
+#: sphinx/directives/desc.py:27
+#: sphinx/directives/desc.py:41
+#: sphinx/directives/desc.py:53
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (w module %s)"
+
+#: sphinx/directives/desc.py:30
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (zmienna wbudowana)"
+
+#: sphinx/directives/desc.py:31
+#: sphinx/directives/desc.py:65
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (w module %s)"
+
+#: sphinx/directives/desc.py:33
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (w klasie %s)"
+
+#: sphinx/directives/desc.py:45
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s metoda)"
+
+#: sphinx/directives/desc.py:47
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s metoda)"
+
+#: sphinx/directives/desc.py:57
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s statyczna metoda)"
+
+#: sphinx/directives/desc.py:59
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s statyczna metoda)"
+
+#: sphinx/directives/desc.py:69
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s atrybut)"
+
+#: sphinx/directives/desc.py:71
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s atrybut)"
+
+#: sphinx/directives/desc.py:73
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (funkcja C)"
+
+#: sphinx/directives/desc.py:75
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (pole C)"
+
+#: sphinx/directives/desc.py:77
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (makro C)"
+
+#: sphinx/directives/desc.py:79
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (typ C)"
+
+#: sphinx/directives/desc.py:81
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (zmienna C)"
+
+#: sphinx/directives/desc.py:99
+msgid "Raises"
+msgstr "Wyrzuca"
+
+#: sphinx/directives/desc.py:103
+msgid "Variable"
+msgstr "Zmienna"
+
+#: sphinx/directives/desc.py:106
+msgid "Returns"
+msgstr "Zwraca"
+
+#: sphinx/directives/desc.py:113
+msgid "Return type"
+msgstr "Typ zwracany"
+
+#: sphinx/directives/desc.py:140
+msgid "Parameters"
+msgstr "Parametry"
+
+#: sphinx/directives/desc.py:402
+#: sphinx/directives/desc.py:404
+#, python-format
+msgid "command line option; %s"
+msgstr "opcja linii komend; %s"
+
+#: sphinx/directives/other.py:102
+msgid "Platforms: "
+msgstr "Platformy: "
+
+#: sphinx/directives/other.py:107
+#, python-format
+msgid "%s (module)"
+msgstr "%s (moduł)"
+
+#: sphinx/directives/other.py:148
+msgid "Section author: "
+msgstr "Autor rozdziału: "
+
+#: sphinx/directives/other.py:150
+msgid "Module author: "
+msgstr "Autor modułu: "
+
+#: sphinx/directives/other.py:152
+msgid "Author: "
+msgstr "Autor: "
+
+#: sphinx/directives/other.py:238
+msgid "See also"
+msgstr "Zobacz także"
+
+#: sphinx/locale/__init__.py:15
+msgid "Attention"
+msgstr "Uwaga"
+
+#: sphinx/locale/__init__.py:16
+msgid "Caution"
+msgstr "Ostrożnie"
+
+#: sphinx/locale/__init__.py:17
+msgid "Danger"
+msgstr "Niebezpieczeństwo"
+
+#: sphinx/locale/__init__.py:18
+msgid "Error"
+msgstr "Błąd"
+
+#: sphinx/locale/__init__.py:19
+msgid "Hint"
+msgstr "Podpowiedź"
+
+#: sphinx/locale/__init__.py:20
+msgid "Important"
+msgstr "Ważne"
+
+#: sphinx/locale/__init__.py:21
+msgid "Note"
+msgstr "Uwaga"
+
+#: sphinx/locale/__init__.py:22
+msgid "See Also"
+msgstr "Zobacz także"
+
+#: sphinx/locale/__init__.py:23
+msgid "Tip"
+msgstr "Wskazówka"
+
+#: sphinx/locale/__init__.py:24
+msgid "Warning"
+msgstr "Ostrzeżenie"
+
+#: sphinx/locale/__init__.py:28
+#, python-format
+msgid "New in version %s"
+msgstr "Nowe w wersji %s"
+
+#: sphinx/locale/__init__.py:29
+#, python-format
+msgid "Changed in version %s"
+msgstr "Zmienione w wersji %s"
+
+#: sphinx/locale/__init__.py:30
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Niezalecane od wersji %s"
+
+#: sphinx/locale/__init__.py:34
+msgid "module"
+msgstr "moduł"
+
+#: sphinx/locale/__init__.py:35
+msgid "keyword"
+msgstr "słowo kluczowe"
+
+#: sphinx/locale/__init__.py:36
+msgid "operator"
+msgstr "operator"
+
+#: sphinx/locale/__init__.py:37
+msgid "object"
+msgstr "obiekt"
+
+#: sphinx/locale/__init__.py:38
+msgid "exception"
+msgstr "wyjątek"
+
+#: sphinx/locale/__init__.py:39
+msgid "statement"
+msgstr "instrukcja"
+
+#: sphinx/locale/__init__.py:40
+msgid "built-in function"
+msgstr "funkcja wbudowana"
+
+#: sphinx/templates/defindex.html:2
+msgid "Overview"
+msgstr "Przegląd"
+
+#: sphinx/templates/defindex.html:11
+msgid "Indices and tables:"
+msgstr "Indeksy i tablice:"
+
+#: sphinx/templates/defindex.html:14
+msgid "Complete Table of Contents"
+msgstr "Kompletny spis treści"
+
+#: sphinx/templates/defindex.html:15
+msgid "lists all sections and subsections"
+msgstr "wymień wszystkie rozdziały i podrozdziały"
+
+#: sphinx/templates/defindex.html:16
+msgid "Search page"
+msgstr "Szukanie"
+
+#: sphinx/templates/defindex.html:17
+msgid "search this documentation"
+msgstr "wyszukaj w dokumentacji"
+
+#: sphinx/templates/defindex.html:20
+msgid "quick access to all modules"
+msgstr "szybki dostęp do wszystkich modułów"
+
+#: sphinx/templates/defindex.html:22
+msgid "all functions, classes, terms"
+msgstr "wszystkie funkcje, klasy, terminy"
+
+#: sphinx/templates/genindex-single.html:5
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "Indeks &ndash; %(key)s"
+
+#: sphinx/templates/genindex-single.html:44
+#: sphinx/templates/genindex-split.html:14
+#: sphinx/templates/genindex-split.html:27
+#: sphinx/templates/genindex.html:54
+msgid "Full index on one page"
+msgstr "Cały indeks na jednej stronie"
+
+#: sphinx/templates/genindex-split.html:7
+msgid "Index pages by letter"
+msgstr "Strony indeksu alfabetycznie"
+
+#: sphinx/templates/genindex-split.html:15
+msgid "can be huge"
+msgstr "może być ogromny"
+
+#: sphinx/templates/layout.html:9
+msgid "Navigation"
+msgstr "Nawigacja"
+
+#: sphinx/templates/layout.html:40
+msgid "Table Of Contents"
+msgstr "Spis treści"
+
+#: sphinx/templates/layout.html:46
+msgid "Previous topic"
+msgstr "Poprzedni temat"
+
+#: sphinx/templates/layout.html:47
+msgid "previous chapter"
+msgstr "poprzedni rozdział"
+
+#: sphinx/templates/layout.html:50
+msgid "Next topic"
+msgstr "Następny temat"
+
+#: sphinx/templates/layout.html:51
+msgid "next chapter"
+msgstr "następny rozdział"
+
+#: sphinx/templates/layout.html:55
+msgid "This Page"
+msgstr "Ta strona"
+
+#: sphinx/templates/layout.html:59
+msgid "Suggest Change"
+msgstr "Zasugeruj zmianę"
+
+#: sphinx/templates/layout.html:60
+#: sphinx/templates/layout.html:62
+msgid "Show Source"
+msgstr "Pokaż źródło"
+
+#: sphinx/templates/layout.html:71
+msgid "Quick search"
+msgstr "Szybkie wyszukiwanie"
+
+#: sphinx/templates/layout.html:71
+msgid "Keyword search"
+msgstr "Szukanie wg słowa kluczowego"
+
+#: sphinx/templates/layout.html:73
+msgid "Go"
+msgstr "Szukaj"
+
+#: sphinx/templates/layout.html:78
+msgid "Enter a module, class or function name."
+msgstr "Wprowadź nazwę modułu, klasy lub funkcji."
+
+#: sphinx/templates/layout.html:118
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Szukaj pośród %(docstitle)s"
+
+#: sphinx/templates/layout.html:127
+msgid "About these documents"
+msgstr "O tych dokumentach"
+
+#: sphinx/templates/layout.html:129
+msgid "Global table of contents"
+msgstr "Globalny spis treści"
+
+#: sphinx/templates/layout.html:130
+msgid "Global index"
+msgstr "Globalny indeks"
+
+#: sphinx/templates/layout.html:131
+#: sphinx/templates/search.html:2
+#: sphinx/templates/search.html:5
+msgid "Search"
+msgstr "Szukaj"
+
+#: sphinx/templates/layout.html:133
+msgid "Copyright"
+msgstr "Copyright"
+
+#: sphinx/templates/layout.html:178
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+
+#: sphinx/templates/layout.html:180
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; Copyright %(copyright)s."
+
+#: sphinx/templates/layout.html:183
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Ostatnia modyfikacja %(last_updated)s."
+
+#: sphinx/templates/layout.html:186
+#, python-format
+msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "Utworzone przy pomocy <a href=\"http://sphinx.pocoo.org/\">Sphinx</a>'a %(sphinx_version)s."
+
+#: sphinx/templates/modindex.html:14
+msgid "Most popular modules:"
+msgstr "Najbardziej popularne moduły:"
+
+#: sphinx/templates/modindex.html:23
+msgid "Show modules only available on these platforms"
+msgstr "Pokaż moduły dostępne tylko na tych platformach"
+
+#: sphinx/templates/modindex.html:55
+msgid "Deprecated"
+msgstr "Niezalecane"
+
+#: sphinx/templates/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Przeszukaj %(docstitle)s"
+
+#: sphinx/templates/page.html:8
+msgid "<strong>Note:</strong> You requested an out-of-date URL from this server. We've tried to redirect you to the new location of this page, but it may not be the right one."
+msgstr "<strong>Uwaga:</strong> You requested an out-of-date URL from this server. We've tried to redirect you to the new location of this page, but it may not be the right one.Zażądałeś przedawnionego URL'a z tego serwera. Nastąpiła próba przekierowania do nowej lokalizacji, ale może ona być niewłaściwa"
+
+#: sphinx/templates/search.html:7
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing less words won't appear in the result list."
+msgstr ""
+"Stąd możesz przeszukać dokumentację. Wprowadź szukane\n"
+"    słowa w poniższym okienku i kliknij \"Szukaj\". Zwróć uwagę, że\n"
+"    funkcja szukająca będzie automatycznie szukała wszystkich słów. Strony\n"
+"    nie zawierające wszystkich słów nie znajdą się na wynikowej liście."
+
+#: sphinx/templates/search.html:14
+msgid "search"
+msgstr "Szukaj"
+
+#: sphinx/templates/search.html:18
+msgid "Search Results"
+msgstr "Wyniki wyszukiwania"
+
+#: sphinx/templates/search.html:20
+msgid "Your search did not match any results."
+msgstr "Nie znaleziono żadnych pasujących stron."
+
+#: sphinx/templates/changes/frameset.html:5
+#: sphinx/templates/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "Zmiany w wesji %(version)s &mdash; %(docstitle)s"
+
+#: sphinx/templates/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/templates/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Automatycznie wygenerowana lista zmian w wersji %(version)s"
+
+#: sphinx/templates/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Zmiany w bibliotekach"
+
+#: sphinx/templates/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "Zmiany w C API"
+
+#: sphinx/templates/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Inne zmiany"
+
+
