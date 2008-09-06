@@ -5,6 +5,7 @@ ez_setup.use_setuptools()
 import os
 import sys
 from setuptools import setup
+from distutils import log
 
 import sphinx
 
@@ -63,14 +64,16 @@ cmdclass = {}
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
-    from simplejson import dump
-    from distutils import log
+    try:
+        from simplejson import dump
+    except ImportError:
+        from json import dump
 except ImportError:
     class compile_catalog_plusjs(compile_catalog):
         def run(self):
             compile_catalog.run(self)
-            log.warning('simplejson or babel is not available; not writing '
-                        'JavaScript translation files.')
+            log.warn('simplejson/json or babel is not available; not writing '
+                     'JavaScript translation files.')
 else:
     class compile_catalog_plusjs(compile_catalog):
         """
