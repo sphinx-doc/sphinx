@@ -2,6 +2,7 @@
 import ez_setup
 ez_setup.use_setuptools()
 
+import os
 import sys
 from setuptools import setup
 
@@ -53,6 +54,102 @@ if sys.version_info < (2, 5):
     else:
         del requires[-1]
 
+
+# Provide a "compile_catalog" command that also creates the translated
+# JavaScript files if Babel is available.
+
+cmdclass = {}
+
+try:
+    from babel.messages.pofile import read_po
+    from babel.messages.frontend import compile_catalog
+    from simplejson import dump
+    from distutils import log
+except ImportError:
+    class compile_catalog_plusjs(compile_catalog):
+        def run(self):
+            compile_catalog.run(self)
+            log.warning('simplejson or babel is not available; not writing '
+                        'JavaScript translation files.')
+else:
+    class compile_catalog_plusjs(compile_catalog):
+        """
+        An extended command that writes all message strings that occur in
+        JavaScript files to a JavaScript file along with the .mo file.
+
+        Unfortunately, babel's setup command isn't built very extensible, so
+        most of the run() code is duplicated here.
+        """
+
+        def run(self):
+            compile_catalog.run(self)
+
+            po_files = []
+            js_files = []
+
+            if not self.input_file:
+                if self.locale:
+                    po_files.append((self.locale,
+                                     os.path.join(self.directory, self.locale,
+                                                  'LC_MESSAGES',
+                                                  self.domain + '.po')))
+                    js_files.append(os.path.join(self.directory, self.locale,
+                                                 'LC_MESSAGES',
+                                                 self.domain + '.js'))
+                else:
+                    for locale in os.listdir(self.directory):
+                        po_file = os.path.join(self.directory, locale,
+                                               'LC_MESSAGES', self.domain + '.po')
+                        if os.path.exists(po_file):
+                            po_files.append((locale, po_file))
+                            js_files.append(os.path.join(self.directory, locale,
+                                                         'LC_MESSAGES',
+                                                         self.domain + '.js'))
+            else:
+                po_files.append((self.locale, self.input_file))
+                if self.output_file:
+                    js_files.append(self.output_file)
+                else:
+                    js_files.append(os.path.join(self.directory, self.locale,
+                                                 'LC_MESSAGES',
+                                                 self.domain + '.js'))
+
+            for js_file, (locale, po_file) in zip(js_files, po_files):
+                infile = open(po_file, 'r')
+                try:
+                    catalog = read_po(infile, locale)
+                finally:
+                    infile.close()
+
+                if catalog.fuzzy and not self.use_fuzzy:
+                    continue
+
+                log.info('writing JavaScript strings in catalog %r to %r',
+                         po_file, js_file)
+
+                jscatalog = {}
+                for message in catalog:
+                    if any(x[0].endswith('.js') for x in message.locations):
+                        msgid = message.id
+                        if isinstance(msgid, (list, tuple)):
+                            msgid = msgid[0]
+                        jscatalog[msgid] = message.string
+
+                outfile = open(js_file, 'wb')
+                try:
+                    outfile.write('Documentation.addTranslations(');
+                    dump(dict(
+                        messages=jscatalog,
+                        plural_expr=catalog.plural_expr,
+                        locale=str(catalog.locale)
+                        ), outfile)
+                    outfile.write(');')
+                finally:
+                    outfile.close()
+
+cmdclass['compile_catalog'] = compile_catalog_plusjs
+
+
 setup(
     name='Sphinx',
     version=sphinx.__version__,
@@ -78,8 +175,6 @@ setup(
     platforms='any',
     packages=['sphinx'],
     include_package_data=True,
-    # replaced by the entry points
-    #scripts=['sphinx-build.py', 'sphinx-quickstart.py'],
     entry_points={
         'console_scripts': [
             'sphinx-build = sphinx:main',
@@ -90,4 +185,5 @@ setup(
         ],
     },
     install_requires=requires,
+    cmdclass=cmdclass,
 )

@@ -21,7 +21,7 @@ from sphinx.util.console import darkred, nocolor
 
 __revision__ = '$Revision$'
 __version__ = '0.5'
-__released__ = '0.5'
+__released__ = '0.5 (SVN)'
 
 
 def usage(argv, msg=None):

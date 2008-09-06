@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-07 21:40+0200\n"
-"PO-Revision-Date: 2008-08-10 12:01+0000\n"
+"PO-Revision-Date: 2008-09-06 19:13+0200\n"
 "Last-Translator: Horst Gutmann <zerok@zerokspot.com>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -31,7 +31,7 @@ msgstr "Index"
 
 #: sphinx/builder.py:412 sphinx/htmlhelp.py:155
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
-#: sphinx/templates/modindex.html:12
+#: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr "Globaler Modulindex"
 
@@ -47,48 +47,48 @@ msgstr "weiter"
 msgid "previous"
 msgstr "zurück"
 
-#: sphinx/builder.py:1089
+#: sphinx/builder.py:1092
 msgid "Builtins"
 msgstr "Builtins"
 
-#: sphinx/builder.py:1091
+#: sphinx/builder.py:1094
 msgid "Module level"
 msgstr "Modulebene"
 
-#: sphinx/environment.py:108 sphinx/latexwriter.py:114
+#: sphinx/environment.py:108 sphinx/latexwriter.py:129
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d. %m. %Y"
 
-#: sphinx/htmlwriter.py:73
+#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:143
 msgid "Permalink to this definition"
 msgstr "Permalink zu dieser Definition"
 
-#: sphinx/htmlwriter.py:379
+#: sphinx/htmlwriter.py:379 sphinx/static/doctools.js:136
 msgid "Permalink to this headline"
 msgstr "Permalink zu dieser Überschrift"
 
-#: sphinx/latexwriter.py:128
+#: sphinx/latexwriter.py:143
 msgid "Release"
 msgstr "Release"
 
-#: sphinx/latexwriter.py:171
+#: sphinx/latexwriter.py:188
 msgid "Module index"
 msgstr "Modulindex"
 
-#: sphinx/latexwriter.py:173 sphinx/templates/genindex-single.html:2
+#: sphinx/latexwriter.py:190 sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
 #: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
 msgid "Index"
 msgstr "Stichwortverzeichnis"
 
-#: sphinx/roles.py:52 sphinx/roles.py:55 sphinx/directives/desc.py:519
+#: sphinx/roles.py:52 sphinx/directives/desc.py:514
 #, python-format
 msgid "environment variable; %s"
 msgstr "Umgebungsvariable; %s"
 
-#: sphinx/roles.py:61 sphinx/roles.py:64
+#: sphinx/roles.py:59
 #, python-format
 msgid "Python Enhancement Proposals!PEP %s"
 msgstr "Python Enhancement Proposals!PEP %s"
@@ -203,7 +203,7 @@ msgstr "Rückgabetyp"
 msgid "Parameters"
 msgstr "Parameter"
 
-#: sphinx/directives/desc.py:402 sphinx/directives/desc.py:404
+#: sphinx/directives/desc.py:402
 #, python-format
 msgid "command line option; %s"
 msgstr "Kommandozeilenoption; %s"
@@ -217,19 +217,19 @@ msgstr "Plattformen: "
 msgid "%s (module)"
 msgstr "%s (Modul)"
 
-#: sphinx/directives/other.py:148
+#: sphinx/directives/other.py:147
 msgid "Section author: "
 msgstr "Autor des Abschnitts: "
 
-#: sphinx/directives/other.py:150
+#: sphinx/directives/other.py:149
 msgid "Module author: "
 msgstr "Autor des Moduls: "
 
-#: sphinx/directives/other.py:152
+#: sphinx/directives/other.py:151
 msgid "Author: "
 msgstr "Autor: "
 
-#: sphinx/directives/other.py:238
+#: sphinx/directives/other.py:233
 msgid "See also"
 msgstr "Siehe auch"
 
@@ -315,6 +315,34 @@ msgstr "Statement"
 #: sphinx/locale/__init__.py:40
 msgid "built-in function"
 msgstr "eingebaute Funktion"
+
+#: sphinx/static/doctools.js:172
+msgid "Hide Search Matches"
+msgstr "Suchergebnisse ausblenden"
+
+#: sphinx/static/searchtools.js:242
+#, fuzzy
+msgid "Searching"
+msgstr "Suchen..."
+
+#: sphinx/static/searchtools.js:246
+msgid "Getting search index..."
+msgstr "Suchindex wird geladen..."
+
+#: sphinx/static/searchtools.js:384 sphinx/templates/search.html:18
+msgid "Search Results"
+msgstr "Suchergebnisse"
+
+#: sphinx/static/searchtools.js:386
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr "Es wurden keine Dokumente gefunden. Haben Sie alle Suchworte richtig geschrieben und genügend Kategorien ausgewählt?"
+
+#: sphinx/static/searchtools.js:389
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "Suche beendet, %s Seite(n) mit Ergebnissen wurden gefunden."
 
 #: sphinx/templates/defindex.html:2
 msgid "Overview"
@@ -469,15 +497,15 @@ msgstr ""
 "Mit <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s "
 "erstellt."
 
-#: sphinx/templates/modindex.html:14
+#: sphinx/templates/modindex.html:15
 msgid "Most popular modules:"
 msgstr "Beliebteste Module:"
 
-#: sphinx/templates/modindex.html:23
+#: sphinx/templates/modindex.html:24
 msgid "Show modules only available on these platforms"
 msgstr "Zeige nur Module, die auf diesen Plattformen verfügbar sind"
 
-#: sphinx/templates/modindex.html:55
+#: sphinx/templates/modindex.html:56
 msgid "Deprecated"
 msgstr "Veraltet"
 
@@ -512,10 +540,6 @@ msgstr ""
 #: sphinx/templates/search.html:14
 msgid "search"
 msgstr "suchen"
-
-#: sphinx/templates/search.html:18
-msgid "Search Results"
-msgstr "Suchergebnisse"
 
 #: sphinx/templates/search.html:20
 msgid "Your search did not match any results."

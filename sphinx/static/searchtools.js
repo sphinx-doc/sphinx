@@ -239,11 +239,11 @@ var Search = {
     performSearch : function(query) {
         // create the required interface elements
         var out = $('#search-results');
-        var title = $('<h2>Searching</h2>').appendTo(out);
+        var title = $('<h2>' + _('Searching') + '</h2>').appendTo(out);
         var dots = $('<span></span>').appendTo(title);
         var status = $('<p style="display: none"></p>').appendTo(out);
         var output = $('<ul class="search"/>').appendTo(out);
-        $('#search-progress').text('Getting search index...')
+        $('#search-progress').text(_('Getting search index...'));
 
         // spawn a background runner for updating the dots
         // until the search has finished
@@ -381,17 +381,12 @@ var Search = {
                     // search finished, update title and status message
                     else {
                         pulseStatus = -1;
-                        title.text('Search Results');
+                        title.text(_('Search Results'));
                         if (!resultCount) {
-                            status.text('Your search did not match any documents. ' +
-                                        'Please make sure that all words are spelled ' +
-                                        'correctly and that you\'ve selected enough ' +
-                                        'categories.');
+                            status.text(_('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.'));
                         }
                         else {
-                            status.text('Search finished, found ' + resultCount +
-                                        ' page' + (resultCount != 1 ? 's' : '') +
-                                        ' matching the search query.');
+                            status.text(_('Search finished, found %s page(s) matching the search query.').replace('%s', resultCount));
                         }
                         status.fadeIn(500);
                     }

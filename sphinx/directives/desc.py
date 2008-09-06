@@ -523,7 +523,7 @@ def target_directive(targettype, arguments, options, content, lineno,
                      content_offset, block_text, state, state_machine):
     """Generic target for user-defined cross-reference types."""
     env = state.document.settings.env
-    rolename, indextemplate, _ = additional_xref_types[targettype]
+    rolename, indextemplate, foo = additional_xref_types[targettype]
     # normalize whitespace in fullname like xfileref_role does
     fullname = ws_re.sub('', arguments[0].strip())
     targetname = '%s-%s' % (rolename, fullname)

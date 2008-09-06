@@ -339,12 +339,14 @@ class StandaloneHTMLBuilder(Builder):
     copysource = True
     out_suffix = '.html'
     indexer_format = json
-    script_files = ['_static/jquery.js', '_static/doctools.js']
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
     searchindex_filename = 'searchindex.json'
     add_header_links = True
     add_definition_links = True
+
+    # This is a class attribute because it is mutated by Sphinx.add_javascript.
+    script_files = ['_static/jquery.js', '_static/doctools.js']
 
     def init(self):
         """Load templates."""
@@ -352,6 +354,12 @@ class StandaloneHTMLBuilder(Builder):
         self.init_translator_class()
         if self.config.html_file_suffix:
             self.out_suffix = self.config.html_file_suffix
+
+        if self.config.language is not None:
+            jsfile = path.join(path.dirname(__file__), 'locale', self.config.language,
+                               'LC_MESSAGES', 'sphinx.js')
+            if path.isfile(jsfile):
+                self.script_files.append('_static/translations.js')
 
     def init_translator_class(self):
         if self.config.html_translator_class:
@@ -644,6 +652,13 @@ class StandaloneHTMLBuilder(Builder):
                     if path.exists(targetname):
                         shutil.rmtree(targetname)
                     shutil.copytree(fullname, targetname)
+        # add translations JavaScript file
+        if self.config.language is not None:
+            jsfile = path.join(path.dirname(__file__), 'locale', self.config.language,
+                               'LC_MESSAGES', 'sphinx.js')
+            if path.isfile(jsfile):
+                shutil.copyfile(jsfile, path.join(self.outdir, '_static',
+                                                  'translations.js'))
         # copy logo file (handled differently)
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)

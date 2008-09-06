@@ -102,6 +102,34 @@ var Documentation = {
   },
 
   /**
+   * i18n support
+   */
+  TRANSLATIONS : {},
+  PLURAL_EXPR : function(n) { return n == 1 ? 0 : 1; },
+  LOCALE : 'unknown',
+
+  gettext : function(string) {
+    var translated = Documentation.TRANSLATIONS[string];
+    if (typeof translated == 'undefined')
+      return string;
+    return (typeof translated == 'string') ? translated : translated[0];
+  },
+
+  ngettext : function(singular, plural, n) {
+    var translated = Documentation.TRANSLATIONS[singular];
+    if (typeof translated == 'undefined')
+      return (n == 1) ? singular : plural;
+    return translated[Documentation.PLURALEXPR(n)];
+  },
+
+  addTranslations : function(catalog) {
+    for (var key in catalog.messages)
+      this.TRANSLATIONS[key] = catalog.messages[key];
+    this.PLURAL_EXPR = new Function('n', 'return +(' + catalog.plural_expr + ')');
+    this.LOCALE = catalog.locale;
+  },
+
+  /**
    * add context elements like header anchor links
    */
   addContextElements : function() {
@@ -109,14 +137,14 @@ var Documentation = {
       $('h' + i + '[@id]').each(function() {
         $('<a class="headerlink">\u00B6</a>').
         attr('href', '#' + this.id).
-        attr('title', 'Permalink to this headline').
+        attr('title', _('Permalink to this headline')).
         appendTo(this);
       });
     }
     $('dt[@id]').each(function() {
       $('<a class="headerlink">\u00B6</a>').
       attr('href', '#' + this.id).
-      attr('title', 'Permalink to this definition').
+      attr('title', _('Permalink to this definition')).
       appendTo(this);
     });
   },
@@ -145,7 +173,7 @@ var Documentation = {
         });
       }, 10);
       $('<li class="highlight-link"><a href="javascript:Documentation.' +
-        'hideSearchWords()">Hide Search Matches</a></li>')
+        'hideSearchWords()">' + _('Hide Search Matches') + '</a></li>')
           .appendTo($('.sidebar .this-page-menu'));
     }
   },
@@ -346,6 +374,8 @@ var Documentation = {
   })()
 };
 
+// quick alias for translations
+_ = Documentation.gettext;
 
 $(document).ready(function() {
   Documentation.init();
