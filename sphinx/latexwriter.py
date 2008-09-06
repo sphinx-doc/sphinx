@@ -226,9 +226,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.highlightlinenothreshold = node['linenothreshold']
         raise nodes.SkipNode
 
-    def visit_comment(self, node):
-        raise nodes.SkipNode
-
     def visit_section(self, node):
         if not self.this_is_the_title:
             self.sectionlevel += 1

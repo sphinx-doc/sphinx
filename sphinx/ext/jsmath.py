@@ -13,7 +13,7 @@
 from docutils import nodes
 
 from sphinx.application import ExtensionError
-from sphinx.ext.mathbase import setup as mathbase_setup, wrap_displaymath
+from sphinx.ext.mathbase import setup as mathbase_setup
 
 
 def html_visit_math(self, node):

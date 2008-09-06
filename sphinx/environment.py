@@ -38,7 +38,6 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
-from docutils.transforms.universal import FilterMessages
 
 # monkey-patch reST parser to disable alphabetic and roman enumerated lists
 from docutils.parsers.rst.states import Body
@@ -516,7 +515,6 @@ class BuildEnvironment:
         self.docname = None
         self.currmodule = None
         self.currclass = None
-        self.indexnum = 0
         self.gloss_entries = set()
 
         if save_parsed:
