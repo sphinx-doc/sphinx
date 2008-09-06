@@ -1,13 +1,23 @@
 <h3>Download</h3>
+{% if version.endswith('(SVN)') %}
+<p>This documentation is for version <b>{{ version }}</b>, which is
+  not released yet.</p>
+<p>You can check it out from
+  <a href="http://svn.python.org/projects/doctools">Subversion</a> or look for
+  released versions in the <a href="http://pypi.python.org/pypi/Sphinx">Python
+    Package Index</a>.</p>
+{% else %}
 <p>Current version: <b>{{ version }}</b></p>
 <p>Get Sphinx from the <a href="http://pypi.python.org/pypi/Sphinx">Python Package
 Index</a>, or install it with:</p>
 <pre>easy_install Sphinx</pre>
+{% endif %}
 
 <h3>Questions? Suggestions?</h3>
 
 <p>Join the <a href="http://groups.google.com/group/sphinx-dev">Google group</a>:</p>
-<form action="http://groups.google.com/group/sphinx-dev/boxsubscribe" style="padding-left: 1em">
+<form action="http://groups.google.com/group/sphinx-dev/boxsubscribe"
+      style="padding-left: 1em">
   <input type="text" name="email" value="your@email"/>
   <input type="submit" name="sub" value="Subscribe" />
 </form>
