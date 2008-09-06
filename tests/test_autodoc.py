@@ -268,9 +268,9 @@ def test_generate():
 
     def assert_result_contains(item, *args):
         gen.generate(*args)
+        print '\n'.join(gen.result)
         assert len(gen.warnings) == 0, gen.warnings
         assert item in gen.result
-        print '\n'.join(gen.result)
         del gen.result[:]
 
     # no module found?
@@ -322,6 +322,16 @@ def test_generate():
     assert_result_contains('   :deprecated:', 'module', 'test_autodoc', [], None)
     options.platform = 'Platform'
     assert_result_contains('   :platform: Platform', 'module', 'test_autodoc', [], None)
+    # test if __all__ is respected for modules
+    assert_result_contains('.. class:: Class', 'module', 'test_autodoc',
+                           ['__all__'], None)
+    try:
+        assert_result_contains('.. exception:: CustomEx', 'module', 'test_autodoc',
+                               ['__all__'], None)
+    except AssertionError:
+        pass
+    else:
+        assert False, 'documented CustomEx which is not in __all__'
 
     # test noindex flag
     options.noindex = True
@@ -334,6 +344,8 @@ def test_generate():
 
 
 # --- generate fodder ------------
+
+__all__ = ['Class']
 
 class CustomEx(Exception):
     """My custom exception."""

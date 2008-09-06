@@ -499,7 +499,14 @@ class RstGenerator(object):
             if what == 'module':
                 if hasattr(todoc, '__all__'):
                     members_check_module = False
-                    all_members = inspect.getmembers(todoc, lambda x: x in todoc.__all__)
+                    all_members = []
+                    for mname in todoc.__all__:
+                        try:
+                            all_members.append((mname, getattr(todoc, mname)))
+                        except AttributeError:
+                            self.warn('missing attribute mentioned in __all__: '
+                                      'module %s, attribute %s' %
+                                      (todoc.__name__, mname))
                 else:
                     # for implicit module members, check __module__ to avoid
                     # documenting imported objects
