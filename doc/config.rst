@@ -196,6 +196,7 @@ Project information
    * ``de`` -- German
    * ``en`` -- English
    * ``fr`` -- French
+   * ``pl`` -- Polish
 
 .. confval:: today
              today_fmt
