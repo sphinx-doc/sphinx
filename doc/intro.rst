@@ -15,6 +15,25 @@ Though there is limited support for that kind of docs as well (which is intended
 to be freely mixed with hand-written content), if you need pure API docs have a
 look at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
 
+
+Conversion from other systems
+-----------------------------
+
+This section is intended to collect helpful hints for those wanting to migrate
+to reStructuredText/Sphinx from other documentation systems.
+
+* Gerard Flanagan has written a script to convert pure HTML to reST; it can be
+  found at `Launchpad
+  <http://bazaar.launchpad.net/~grflanagan/python-rattlebag/trunk/annotate/head:/src/html2rest.py>`_.
+
+* For converting the old Python docs to Sphinx, a converter was written which
+  can be found at `the Python SVN repository
+  <http://svn.python.org/projects/doctools/converter>`_.  It contains generic
+  code to convert Python-doc-style LaTeX markup to Sphinx reST, but also code
+  specific to the layout of the Python docs which needs to be removed in order
+  to be useful for other docs.
+
+
 Prerequisites
 -------------
 
