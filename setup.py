@@ -59,6 +59,8 @@ if sys.version_info < (2, 5):
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
 
+cmdclass = {}
+
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
