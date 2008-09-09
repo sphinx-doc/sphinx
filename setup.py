@@ -59,8 +59,6 @@ if sys.version_info < (2, 5):
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
 
-cmdclass = {}
-
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
@@ -69,11 +67,7 @@ try:
     except ImportError:
         from json import dump
 except ImportError:
-    class compile_catalog_plusjs(compile_catalog):
-        def run(self):
-            compile_catalog.run(self)
-            log.warn('simplejson/json or babel is not available; not writing '
-                     'JavaScript translation files.')
+    pass
 else:
     class compile_catalog_plusjs(compile_catalog):
         """
@@ -150,7 +144,7 @@ else:
                 finally:
                     outfile.close()
 
-cmdclass['compile_catalog'] = compile_catalog_plusjs
+    cmdclass['compile_catalog'] = compile_catalog_plusjs
 
 
 setup(
