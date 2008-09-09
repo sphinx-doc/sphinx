@@ -164,20 +164,16 @@ class HTMLTranslator(BaseTranslator):
     def depart_seealso(self, node):
         self.depart_admonition(node)
 
-    # overwritten (args/kwds due to docutils 0.4/0.5 incompatibility)
-    def visit_title(self, node, *args, **kwds):
-        # if we have a section we do our own processing in order
-        # to have ids in the hN-tags and not in additional a-tags
-        if isinstance(node.parent, nodes.section):
-            h_level = self.section_level + self.initial_header_level - 1
-            if node.parent.get('ids'):
-                attrs = {'ids': node.parent['ids']}
-            else:
-                attrs = {}
-            self.body.append(self.starttag(node, 'h%d' % h_level, '', **attrs))
-            self.context.append('</h%d>\n' % h_level)
-        else:
-            BaseTranslator.visit_title(self, node, *args, **kwds)
+    # overwritten for docutils 0.4
+    if hasattr(BaseTranslator, 'start_tag_with_title'):
+        def visit_section(self, node):
+            # the 0.5 version, to get the id attribute in the <div> tag
+            self.section_level += 1
+            self.body.append(self.starttag(node, 'div', CLASS='section'))
+
+        def visit_title(self, node):
+            # don't move the id attribute inside the <h> tag
+            BaseTranslator.visit_title(self, node, move_ids=0)
 
     # overwritten
     def visit_literal_block(self, node):
