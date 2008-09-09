@@ -44,6 +44,7 @@ class Config(object):
         add_module_names = (True, True),
         show_authors = (False, True),
         pygments_style = ('sphinx', False),
+        highlight_language = ('python', False),
         templates_path = ([], False),
         template_bridge = (None, False),
         keep_warnings = (False, True),

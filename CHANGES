@@ -27,6 +27,10 @@ New features added
   built documentation, and only written to stderr.  If you want the
   old behavior, set the new config value ``keep_warnings`` to True.
 
+* The new config value ``highlight_language`` set a global default
+  for highlighting.  When ``'python3'`` is selected, console output
+  blocks are recognized like for ``'python'``.
+
 * ``SerializingHTMLBuilder`` was added as new abstract builder that
   can be subclassed to serialize build HTML in a specific format.
   The ``PickleHTMLBuilder`` is a concrete subclass of it that uses

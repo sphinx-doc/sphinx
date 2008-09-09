@@ -49,7 +49,7 @@ class HTMLTranslator(BaseTranslator):
         self.highlighter = PygmentsBridge('html', builder.config.pygments_style)
         self.no_smarty = 0
         self.builder = builder
-        self.highlightlang = 'python'
+        self.highlightlang = builder.config.highlight_language
         self.highlightlinenothreshold = sys.maxint
         self.protect_literal_text = 0
 

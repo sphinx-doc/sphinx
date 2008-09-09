@@ -1,5 +1,7 @@
 .. highlight:: rest
 
+.. _code-examples:
+
 Showing code examples
 ---------------------
 
@@ -23,7 +25,9 @@ Syntax highlighting is done with `Pygments <http://pygments.org>`_ (if it's
 installed) and handled in a smart way:
 
 * There is a "highlighting language" for each source file.  Per default, this is
-  ``'python'`` as the majority of files will have to highlight Python snippets.
+  ``'python'`` as the majority of files will have to highlight Python snippets,
+  but the doc-wide default can be set with the :confval:`highlight_language`
+  config value.
 
 * Within Python highlighting mode, interactive sessions are recognized
   automatically and highlighted appropriately.
@@ -48,7 +52,7 @@ installed) and handled in a smart way:
 * The valid values for the highlighting language are:
 
   * ``none`` (no highlighting)
-  * ``python`` (the default)
+  * ``python`` (the default when :confval:`highlight_language` isn't set)
   * ``rest``
   * ``c``
   * ... and any other lexer name that Pygments supports.

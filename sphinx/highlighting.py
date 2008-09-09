@@ -51,6 +51,9 @@ else:
         none = TextLexer(),
         python = PythonLexer(),
         pycon = PythonConsoleLexer(),
+        # the python3 option exists as of Pygments 0.12, but it doesn't
+        # do any harm in previous versions
+        pycon3 = PythonConsoleLexer(python3=True),
         rest = RstLexer(),
         c = CLexer(),
     )
@@ -106,43 +109,54 @@ class PygmentsBridge(object):
             return '\\begin{Verbatim}[commandchars=@\\[\\]]\n' + \
                    source + '\\end{Verbatim}\n'
 
+    def try_parse(self, src):
+        # Make sure it ends in a newline
+        src += '\n'
+
+        # Replace "..." by a mark which is also a valid python expression
+        # (Note, the highlighter gets the original source, this is only done
+        #  to allow "..." in code and still highlight it as Python code.)
+        mark = "__highlighting__ellipsis__"
+        src = src.replace("...", mark)
+
+        # lines beginning with "..." are probably placeholders for suite
+        src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
+
+        # if we're using 2.5, use the with statement
+        if sys.version_info >= (2, 5):
+            src = 'from __future__ import with_statement\n' + src
+
+        if isinstance(src, unicode):
+            # Non-ASCII chars will only occur in string literals
+            # and comments.  If we wanted to give them to the parser
+            # correctly, we'd have to find out the correct source
+            # encoding.  Since it may not even be given in a snippet,
+            # just replace all non-ASCII characters.
+            src = src.encode('ascii', 'replace')
+
+        try:
+            parser.suite(src)
+        except parsing_exceptions:
+            return False
+        else:
+            return True
+
     def highlight_block(self, source, lang, linenos=False):
         if not pygments:
             return self.unhighlighted(source)
-        if lang == 'python':
+        if lang in ('py', 'python'):
             if source.startswith('>>>'):
                 # interactive session
                 lexer = lexers['pycon']
             else:
                 # maybe Python -- try parsing it
-                src = source + '\n'
-
-                # Replace "..." by a mark which is also a valid python expression
-                # (Note, the highlighter gets the original source, this is only done
-                #  to allow "..." in code and still highlight it as Python code.)
-                mark = "__highlighting__ellipsis__"
-                src = src.replace("...", mark)
-
-                # lines beginning with "..." are probably placeholders for suite
-                src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
-
-                # if we're using 2.5, use the with statement
-                if sys.version_info >= (2, 5):
-                    src = 'from __future__ import with_statement\n' + src
-
-                if isinstance(src, unicode):
-                    # Non-ASCII chars will only occur in string literals
-                    # and comments.  If we wanted to give them to the parser
-                    # correctly, we'd have to find out the correct source
-                    # encoding.  Since it may not even be given in a snippet,
-                    # just replace all non-ASCII characters.
-                    src = src.encode('ascii', 'replace')
-                try:
-                    parser.suite(src)
-                except parsing_exceptions:
-                    return self.unhighlighted(source)
-                else:
+                if self.try_parse(source):
                     lexer = lexers['python']
+                else:
+                    return self.unhighlighted(source)
+        elif lang in ('python3', 'py3') and source.startswith('>>>'):
+            # for py3, recognize interactive sessions, but do not try parsing...
+            lexer = lexers['pycon3']
         else:
             if lang in lexers:
                 lexer = lexers[lang]

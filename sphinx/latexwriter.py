@@ -157,7 +157,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.bibitems = []
         self.table = None
         self.next_table_colspec = None
-        self.highlightlang = 'python'
+        self.highlightlang = builder.config.highlight_language
         self.highlightlinenothreshold = sys.maxint
         self.written_ids = set()
         if docclass == 'manual':
