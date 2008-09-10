@@ -34,6 +34,7 @@ from sphinx.latexwriter import LaTeXWriter
 from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, purple, darkgreen
+from sphinx.search import js_index
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -338,10 +339,10 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     copysource = True
     out_suffix = '.html'
-    indexer_format = json
+    indexer_format = js_index
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
-    searchindex_filename = 'searchindex.json'
+    searchindex_filename = 'searchindex.js'
     add_header_links = True
     add_definition_links = True
 

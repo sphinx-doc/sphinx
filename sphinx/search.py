@@ -10,6 +10,7 @@
 """
 import re
 import cPickle as pickle
+from cStringIO import StringIO
 
 from docutils.nodes import Text, NodeVisitor
 
@@ -18,6 +19,37 @@ from sphinx.util import json
 
 
 word_re = re.compile(r'\w+(?u)')
+
+
+class _JavaScriptIndex(object):
+    """
+    The search index as javascript file that calls a function
+    on the documentation search object to register the index.
+    This serializing system does not support chaining because
+    simplejson (which it depends on) doesn't support it either.
+    """
+
+    PREFIX = 'Search.setIndex('
+    SUFFIX = ')'
+
+    def dumps(self, data):
+        return self.PREFIX + json.dumps(data) + self.SUFFIX
+
+    def loads(self, s):
+        data = s[len(self.PREFIX):-len(self.SUFFIX)]
+        if not data or not s.startswith(self.PREFIX) or not \
+           s.endswith(self.SUFFIX):
+            raise ValueError('invalid data')
+        return json.loads(data)
+
+    def dump(self, data, f):
+        f.write(self.dumps(data))
+
+    def load(self, f):
+        return self.loads(f.read())
+
+
+js_index = _JavaScriptIndex()
 
 
 class Stemmer(PorterStemmer):
