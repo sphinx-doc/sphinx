@@ -59,6 +59,7 @@ class Stemmer(PorterStemmer):
     """
 
     def stem(self, word):
+        word = word.lower()
         return PorterStemmer.stem(self, word, 0, len(word) - 1)
 
 
@@ -139,9 +140,17 @@ class IndexBuilder(object):
 
         visitor = WordCollector(doctree)
         doctree.walk(visitor)
-        for word in word_re.findall(title) + visitor.found_words:
-            self._mapping.setdefault(self._stemmer.stem(word.lower()),
-                                     set()).add(filename)
+
+        def add_term(word, prefix=''):
+            word = self._stemmer.stem(word)
+            self._mapping.setdefault(prefix + word, set()).add(filename)
+
+        for word in word_re.findall(title):
+            add_term(word)
+            add_term(word, 'T')
+
+        for word in visitor.found_words:
+            add_term(word)
 
 
 class SearchFrontend(object):
@@ -177,6 +186,6 @@ class SearchFrontend(object):
                 word = word[1:]
             else:
                 storage = required
-            storage.add(self._stemmer.stem(word.lower()))
+            storage.add(self._stemmer.stem(word))
 
         return self.query(required, excluded)

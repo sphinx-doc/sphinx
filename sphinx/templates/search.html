@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% set title = _('Search') %}
-{% set script_files = script_files + ['_static/searchtools.js', 'searchindex.js'] %}
+{% set script_files = script_files + ['_static/searchtools.js'] %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   <p>
@@ -31,4 +31,8 @@
     </ul>
   {% endif %}
   </div>
+{% endblock %}
+{% block footer %}
+  {{ super() }}
+  <script type="text/javascript" src="searchindex.js"></script>
 {% endblock %}
