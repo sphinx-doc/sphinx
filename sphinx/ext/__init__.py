@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.addons
-    ~~~~~~~~~~~~~
+    sphinx.ext
+    ~~~~~~~~~~
 
     Contains Sphinx features not activated by default.
 

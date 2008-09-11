@@ -11,7 +11,7 @@
 
     Uses the basestring encode function from simplejson.
 
-    :copyright: Copyright 2008 by Armin Ronacher, Bob Ippolito.
+    :copyright: 2008 by Armin Ronacher, Bob Ippolito.
     :license: BSD.
 """
 import re

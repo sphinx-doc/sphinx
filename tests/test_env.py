@@ -61,7 +61,8 @@ def test_images():
     latexbuilder = LaTeXBuilder(app, env)
     latexbuilder.post_process_images(tree)
     assert "no matching candidate for image URI u'foo.*'" in app._warning.content[-1]
-    assert set(latexbuilder.images.keys()) == set(['subdir/img.png', 'img.png', 'img.pdf'])
+    assert set(latexbuilder.images.keys()) == set(['subdir/img.png',
+                                                   'img.png', 'img.pdf'])
     assert set(latexbuilder.images.values()) == set(['img.pdf', 'img.png', 'img1.png'])
 
 def test_second_update():

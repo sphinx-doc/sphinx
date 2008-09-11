@@ -5,7 +5,7 @@
 
     This module imports JSON functions from various locations.
 
-    :copyright: Copyright 2008 by Armin Ronacher.
+    :copyright: 2008 by Armin Ronacher.
     :license: BSD.
 """
 

@@ -149,7 +149,8 @@ htmlhelp_basename = 'SphinxTestsdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation', 'Georg Brandl', 'manual'),
+  ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+   'Georg Brandl', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
