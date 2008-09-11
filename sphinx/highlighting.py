@@ -61,15 +61,15 @@ else:
         _lexer.add_filter('raiseonerror')
 
 
-escape_hl_chars = {ord(u'@'): u'@at[]',
-                   ord(u'['): u'@lb[]',
-                   ord(u']'): u'@rb[]'}
+escape_hl_chars = {ord(u'@'): u'@PYat[]',
+                   ord(u'['): u'@PYlb[]',
+                   ord(u']'): u'@PYrb[]'}
 
 # used if Pygments is not available
 _LATEX_STYLES = r'''
-\newcommand\at{@}
-\newcommand\lb{[}
-\newcommand\rb{]}
+\newcommand\PYat{@}
+\newcommand\PYlb{[}
+\newcommand\PYrb{]}
 '''
 
 
