@@ -185,7 +185,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                '\n\n' + \
                u''.join(self.body) + \
                (self.options['modindex'] and
-                ('\\renewcommand{\\indexname}{%s}' % _('Module index') +
+                ('\\renewcommand{\\indexname}{%s}' % _('Module Index') +
                 '\\printmodindex' +
                 '\\renewcommand{\\indexname}{%s}\n' % _('Index')) or '') + \
                (FOOTER % self.options)

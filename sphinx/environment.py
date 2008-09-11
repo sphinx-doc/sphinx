@@ -267,9 +267,9 @@ class BuildEnvironment:
         self.gloss_entries = set()  # existing definition labels
 
         # Some magically present labels
-        self.labels['genindex'] = ('genindex', '', 'Index')
-        self.labels['modindex'] = ('modindex', '', 'Module Index')
-        self.labels['search']   = ('search', '', 'Search Page')
+        self.labels['genindex'] = ('genindex', '', _('Index'))
+        self.labels['modindex'] = ('modindex', '', _('Module Index'))
+        self.labels['search']   = ('search', '', _('Search Page'))
 
     def set_warnfunc(self, func):
         self._warnfunc = func

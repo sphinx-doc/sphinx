@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2008-09-06 19:09+0200\n"
+"POT-Creation-Date: 2008-09-11 23:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,71 +17,76 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/builder.py:391
+#: sphinx/builder.py:400
 #, python-format
 msgid "%b %d, %Y"
 msgstr ""
 
-#: sphinx/builder.py:410 sphinx/templates/defindex.html:21
+#: sphinx/builder.py:419 sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr ""
 
-#: sphinx/builder.py:410
+#: sphinx/builder.py:419
 msgid "index"
 msgstr ""
 
-#: sphinx/builder.py:412 sphinx/htmlhelp.py:155
+#: sphinx/builder.py:421 sphinx/htmlhelp.py:155
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr ""
 
-#: sphinx/builder.py:412
+#: sphinx/builder.py:421
 msgid "modules"
 msgstr ""
 
-#: sphinx/builder.py:448
+#: sphinx/builder.py:457
 msgid "next"
 msgstr ""
 
-#: sphinx/builder.py:455
+#: sphinx/builder.py:464
 msgid "previous"
 msgstr ""
 
-#: sphinx/builder.py:1092
+#: sphinx/builder.py:1108
 msgid "Builtins"
 msgstr ""
 
-#: sphinx/builder.py:1094
+#: sphinx/builder.py:1110
 msgid "Module level"
 msgstr ""
 
-#: sphinx/environment.py:108 sphinx/latexwriter.py:129
+#: sphinx/environment.py:107 sphinx/latexwriter.py:129
 #, python-format
 msgid "%B %d, %Y"
 msgstr ""
 
-#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:143
+#: sphinx/environment.py:270 sphinx/latexwriter.py:190
+#: sphinx/templates/genindex-single.html:2
+#: sphinx/templates/genindex-split.html:2
+#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+msgid "Index"
+msgstr ""
+
+#: sphinx/environment.py:271 sphinx/latexwriter.py:188
+msgid "Module Index"
+msgstr ""
+
+#: sphinx/environment.py:272 sphinx/templates/defindex.html:16
+msgid "Search Page"
+msgstr ""
+
+#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:145
 msgid "Permalink to this definition"
 msgstr ""
 
-#: sphinx/htmlwriter.py:379 sphinx/static/doctools.js:136
+#: sphinx/htmlwriter.py:375 sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr ""
 
 #: sphinx/latexwriter.py:143
 msgid "Release"
-msgstr ""
-
-#: sphinx/latexwriter.py:188
-msgid "Module index"
-msgstr ""
-
-#: sphinx/latexwriter.py:190 sphinx/templates/genindex-single.html:2
-#: sphinx/templates/genindex-split.html:2
-#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
-#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
-msgid "Index"
 msgstr ""
 
 #: sphinx/roles.py:52 sphinx/directives/desc.py:514
@@ -317,29 +322,29 @@ msgstr ""
 msgid "built-in function"
 msgstr ""
 
-#: sphinx/static/doctools.js:172
+#: sphinx/static/doctools.js:174
 msgid "Hide Search Matches"
 msgstr ""
 
-#: sphinx/static/searchtools.js:242
+#: sphinx/static/searchtools.js:274
 msgid "Searching"
 msgstr ""
 
-#: sphinx/static/searchtools.js:246
-msgid "Getting search index..."
+#: sphinx/static/searchtools.js:279
+msgid "Preparing search..."
 msgstr ""
 
-#: sphinx/static/searchtools.js:384 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:401 sphinx/templates/search.html:18
 msgid "Search Results"
 msgstr ""
 
-#: sphinx/static/searchtools.js:386
+#: sphinx/static/searchtools.js:403
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
 
-#: sphinx/static/searchtools.js:389
+#: sphinx/static/searchtools.js:405
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
@@ -358,10 +363,6 @@ msgstr ""
 
 #: sphinx/templates/defindex.html:15
 msgid "lists all sections and subsections"
-msgstr ""
-
-#: sphinx/templates/defindex.html:16
-msgid "Search page"
 msgstr ""
 
 #: sphinx/templates/defindex.html:17
