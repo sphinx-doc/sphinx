@@ -31,22 +31,22 @@ bz2: tar-$(FMT)
 # The number of LaTeX runs is quite conservative, but I don't expect it
 # to get run often, so the little extra time won't hurt.
 %.dvi: %.tex
-	latex $<
-	latex $<
-	latex $<
-	-makeindex -s python.ist $(basename $<).idx
-	-makeindex -s python.ist $(basename mod$<).idx
-	latex $<
-	latex $<
+	latex '$<'
+	latex '$<'
+	latex '$<'
+	-makeindex -s python.ist $(basename '$<').idx
+	-makeindex -s python.ist $(basename 'mod$<').idx
+	latex '$<'
+	latex '$<'
 
 %.pdf: %.tex
-	pdflatex $<
-	pdflatex $<
-	pdflatex $<
-	-makeindex -s python.ist $(basename $<).idx
-	-makeindex -s python.ist $(basename mod$<).idx
-	pdflatex $<
-	pdflatex $<
+	pdflatex '$<'
+	pdflatex '$<'
+	pdflatex '$<'
+	-makeindex -s python.ist $(basename '$<').idx
+	-makeindex -s python.ist $(basename 'mod$<').idx
+	pdflatex '$<'
+	pdflatex '$<'
 
 clean:
 	rm -f *.pdf *.dvi *.ps
