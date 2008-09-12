@@ -10,6 +10,7 @@ to be included, please mail to `the Google group
 * Python: http://docs.python.org/dev/
 * NumPy: http://mentat.za.net/numpy/refguide/
 * Pylons: http://bel-epa.com/pylonsdocs/
+* Django: http://docs.djangoproject.com/
 * Jinja: http://jinja.pocoo.org/2/documentation/
 * F2py: http://www.f2py.org/html/
 * Paver: http://www.blueskyonmars.com/projects/paver/
@@ -26,6 +27,5 @@ to be included, please mail to `the Google group
 * GeoDjango: http://geodjango.org/docs/
 * Mixin.com: http://dev.mixin.com/
 * Grok (upcoming)
-* Django (upcoming)
 * Matplotlib (upcoming)
 * TurboGears (upcoming)
