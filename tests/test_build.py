@@ -49,6 +49,11 @@ HTML_XPATH = {
         ".//pre/span[@class='s']": u'üöä',
         ".//pre": u'Max Strauß',
     },
+    'autodoc.html': {
+        ".//dt[@id='test_autodoc.Class']": '',
+        ".//dt[@id='test_autodoc.function']/em": '**kwds',
+        ".//dd": 'Return spam.',
+    },
 }
 
 class NslessParser(ET.XMLParser):

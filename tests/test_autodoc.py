@@ -373,3 +373,9 @@ class Class(Base):
 
 class CustomDict(dict):
     """Docstring."""
+
+def function(foo, *args, **kwds):
+    """
+    Return spam.
+    """
+    pass

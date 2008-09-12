@@ -5,7 +5,6 @@ Sphinx TODO
 - RSS generation
 - extension autodoc directives
 - files for downloading
-- specify node visit functions when adding nodes to app
 - decide which static files to include
 - remove redundant <ul>s in tocs
 - autoattribute in autodoc
