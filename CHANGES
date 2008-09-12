@@ -31,6 +31,10 @@ New features added
   for highlighting.  When ``'python3'`` is selected, console output
   blocks are recognized like for ``'python'``.
 
+* The new config value ``latex_elements`` allows to override all
+  LaTeX snippets that Sphinx puts into the generated .tex file by
+  default.
+
 * ``SerializingHTMLBuilder`` was added as new abstract builder that
   can be subclassed to serialize build HTML in a specific format.
   The ``PickleHTMLBuilder`` is a concrete subclass of it that uses
