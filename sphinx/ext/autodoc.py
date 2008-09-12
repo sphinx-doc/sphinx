@@ -194,7 +194,7 @@ def get_module_charset(module):
     if module in _module_charsets:
         return _module_charsets[module]
     try:
-        filename = __import__(module, None, None, ['']).__file__
+        filename = __import__(module, None, None, ['foo']).__file__
     except (ImportError, AttributeError):
         return None
     if filename[-4:].lower() in ('.pyc', '.pyo'):
