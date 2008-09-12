@@ -1,17 +1,6 @@
 Sphinx TODO
 ===========
 
-- Global citations
-- RSS generation
-- extension autodoc directives
-- files for downloading
-- decide which static files to include
-- remove redundant <ul>s in tocs
-- autoattribute in autodoc
-- section, range and object options for literalinclude
-- literal search mode
-- option for compact module index
-- HTML section numbers?
-- "seealso" links to external examples, see http://svn.python.org/projects/sandbox/trunk/seealso/ and http://effbot.org/zone/idea-seealso.htm
-- source file cross-references (codelinks extension)
+All todo items are now tracked as issues in the Sphinx issue tracker at
+<http://code.google.com/p/sphinx/issues/list>.
 
