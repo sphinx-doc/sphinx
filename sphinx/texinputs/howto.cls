@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{howto}[2008/05/01 Document class (Sphinx HOWTO)]
+\ProvidesClass{howto}[2008/09/12 Document class (Sphinx HOWTO)]
 
 \RequirePackage{fancybox}
 
@@ -12,17 +12,10 @@
 \ProcessOptions\relax
 \LoadClass[twoside]{article}
 
-
 % Set some sane defaults for section numbering depth and TOC depth.  You can
 % reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
-
-
-% The "fancyhdr" package makes nicer page footers reasonable to implement, and
-% is used to put the chapter and section information in the footers.
-%
-\RequirePackage{fancyhdr}
 
 % This gives us all the Python-specific markup that we really want.  This should
 % come last.  Do not change this.
@@ -34,15 +27,12 @@
 %
 \RequirePackage{makeidx}
 
-% Need to do one of these....
-\newcommand{\py@doHorizontalRule}{\rule{\textwidth}{1pt}}
-
 
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{
-  \py@doHorizontalRule
+  \rule{\textwidth}{1pt}
   \ifpdf
     \begingroup
     % This \def is required to deal with multi-line authors; it
@@ -78,7 +68,7 @@
     \parskip = 0mm
     \py@OldTableofcontents
   \endgroup
-  \py@doHorizontalRule
+  \rule{\textwidth}{1pt}
   \vspace{12pt}
 }  
 

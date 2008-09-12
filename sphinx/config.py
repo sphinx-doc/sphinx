@@ -75,14 +75,18 @@ class Config(object):
         htmlhelp_basename = ('pydoc', False),
 
         # LaTeX options
-        latex_paper_size = ('letter', False),
-        latex_font_size = ('10pt', False),
         latex_documents = ([], False),
         latex_logo = (None, False),
-        latex_preamble = ('', False),
         latex_appendices = ([], False),
         latex_use_parts = (False, False),
         latex_use_modindex = (True, False),
+        # paper_size and font_size are still separate values
+        # so that you can give them easily on the command line
+        latex_paper_size = ('letter', False),
+        latex_font_size = ('10pt', False),
+        latex_elements = ({}, False),
+        # now deprecated - use latex_elements
+        latex_preamble = ('', False),
     )
 
     def __init__(self, dirname, filename, overrides):

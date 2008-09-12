@@ -422,14 +422,6 @@ Options for LaTeX output
 
 These options influence LaTeX output.
 
-.. confval:: latex_paper_size
-
-   The output paper size (``'letter'`` or ``'a4'``).  Default is ``'letter'``.
-
-.. confval:: latex_font_size
-
-   The font size ('10pt', '11pt' or '12pt'). Default is ``'10pt'``.
-
 .. confval:: latex_documents
 
    This value determines how to group the document tree into LaTeX source files.
@@ -472,13 +464,91 @@ These options influence LaTeX output.
 
    A list of document names to append as an appendix to all manuals.
 
-.. confval:: latex_preamble
+.. confval:: latex_use_modindex
 
-   Additional LaTeX markup for the preamble.
+   If true, add a module index to LaTeX documents.   Default is ``True``.
+
+.. confval:: latex_elements
+
+   .. versionadded:: 0.5
+
+   A dictionary that contains LaTeX snippets that override those Sphinx usually
+   puts into the generated ``.tex`` files.
 
    Keep in mind that backslashes must be doubled in Python string literals to
    avoid interpretation as escape sequences.
 
-.. confval:: latex_use_modindex
+   * Keys that you may want to override include:
+     
+     ``'papersize'``
+        Paper size option of the document class (``'a4paper'`` or
+        ``'letterpaper'``), default ``'letterpaper'``.
+     ``'pointsize'``
+        Point size option of the document class (``'10pt'``, ``'11pt'`` or
+        ``'12pt'``), default ``'10pt'``.
+     ``'babel'``
+        "babel" package inclusion, default ``'\\usepackage{babel}'``.
+     ``'fontpkg'``
+        Font package inclusion, default ``'\\usepackage{times}'`` (which uses
+        Times and Helvetica).  You can set this to ``''`` to use the Computer
+        Modern fonts.
+     ``'fncychap'``
+        Inclusion of the "fncychap" package (which makes fancy chapter titles),
+        default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation,
+        ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
+        the "Bjarne" style uses numbers spelled out in English).  Other
+        "fncychap" styles you can try include "Lenny", "Glenn", "Conny" and
+        "Rejne".  You can also set this to ``''`` to disable fncychap.
+     ``'preamble'``
+        Additional preamble content, default empty.
+     
+   * Keys that don't need be overridden unless in special cases are:
+     
+     ``'inputenc'``
+        "inputenc" package inclusion, default ``'\\usepackage[utf8]{inputenc}'``.
+     ``'fontenc'``
+        "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+     ``'maketitle'``
+        "maketitle" call, default ``'\\maketitle'``.  Override if you want to
+        generate a differently-styled title page.
+     ``'tableofcontents'``
+        "tableofcontents" call, default ``'\\tableofcontents'``.  Override if you
+        want to generate a different table of contents or put content between the
+        title page and the TOC.
+     
+   * Keys that are set by other options and therefore should not be overridden are:
+     
+     ``'docclass'``
+     ``'classoptions'``
+     ``'title'``
+     ``'date'``
+     ``'release'``
+     ``'author'``
+     ``'logo'``
+     ``'releasename'``
+     ``'makeindex'``
+     ``'makemodindex'``
+     ``'shorthandoff'``
+     ``'printmodindex'``
+     ``'printindex'``
+   
+.. confval:: latex_preamble
 
-   If true, add a module index to LaTeX documents.   Default is ``True``.
+   Additional LaTeX markup for the preamble.
+
+   .. deprecated:: 0.5
+      Use the ``'preamble'`` key in the :confval:`latex_elements` value.
+
+.. confval:: latex_paper_size
+
+   The output paper size (``'letter'`` or ``'a4'``).  Default is ``'letter'``.
+
+   .. deprecated:: 0.5
+      Use the ``'papersize'`` key in the :confval:`latex_elements` value.
+
+.. confval:: latex_font_size
+
+   The font size ('10pt', '11pt' or '12pt'). Default is ``'10pt'``.
+
+   .. deprecated:: 0.5
+      Use the ``'pointsize'`` key in the :confval:`latex_elements` value.

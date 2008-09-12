@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{manual}[2008/05/01 Document class (Sphinx manual)]
+\ProvidesClass{manual}[2008/09/12 Document class (Sphinx manual)]
 
 \RequirePackage{fancybox}
 
@@ -12,24 +12,11 @@
 \ProcessOptions\relax
 \LoadClass[twoside,openright]{report}
 
-
 % Set some sane defaults for section numbering depth and TOC depth.  You can
 % reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{1}
-
-
-% The "fancyhdr" package makes nicer page footers reasonable to implement, and
-% is used to put the chapter and section information in the footers.
-%
-\RequirePackage{fancyhdr}
-
-% The "fncychap" package is used to get the nice chapter headers.
-%
-\RequirePackage[Bjarne]{fncychap}
-% Do horizontal rules it this way to match:
-\newcommand{\py@doHorizontalRule}{\mghrulefill{\RW}}
 
 % This gives us all the Sphinx-specific markup that we really want.  This should
 % come last.  Do not change this.
@@ -49,7 +36,7 @@
   \begin{titlepage}%
     \let\footnotesize\small
     \let\footnoterule\relax
-    \py@doHorizontalRule%
+    \rule{\textwidth}{1pt}%
     \ifpdf
       \begingroup
       % This \def is required to deal with multi-line authors; it

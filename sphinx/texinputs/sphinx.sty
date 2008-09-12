@@ -9,8 +9,8 @@
 \ProvidesPackage{sphinx}[2008/05/01 LaTeX package (Sphinx markup)]
 
 \RequirePackage{textcomp}
-\RequirePackage{times}
 \RequirePackage{fancyvrb}
+\RequirePackage{fancyhdr}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
 \RequirePackage{amsmath} % for \text
@@ -36,17 +36,18 @@
 
 \RequirePackage{framed}
 
-\ifx\pdftexversion\undefined
-  \RequirePackage{graphicx}
-\else
-  \RequirePackage[pdftex]{graphicx}
-\fi
-
 % Uncomment these two lines to ignore the paper size and make the page 
 % size more like a typical published manual.
 %\renewcommand{\paperheight}{9in}
 %\renewcommand{\paperwidth}{8.5in}   % typical squarish manual
 %\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
+
+% For graphicx, check if we are compiling under latex or pdflatex.
+\ifx\pdftexversion\undefined
+  \usepackage{graphicx}
+\else
+  \usepackage[pdftex]{graphicx}
+\fi
 
 % for PDF output, use maximal compression
 \newif\ifpdf\pdffalse

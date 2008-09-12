@@ -61,15 +61,15 @@ else:
         _lexer.add_filter('raiseonerror')
 
 
-escape_hl_chars = {ord(u'@'): u'@PYat[]',
-                   ord(u'['): u'@PYlb[]',
-                   ord(u']'): u'@PYrb[]'}
+escape_hl_chars = {ord(u'@'): u'@PYGZat[]',
+                   ord(u'['): u'@PYGZlb[]',
+                   ord(u']'): u'@PYGZrb[]'}
 
 # used if Pygments is not available
 _LATEX_STYLES = r'''
-\newcommand\PYat{@}
-\newcommand\PYlb{[}
-\newcommand\PYrb{]}
+\newcommand\PYGZat{@}
+\newcommand\PYGZlb{[}
+\newcommand\PYGZrb{]}
 '''
 
 
@@ -180,5 +180,11 @@ class PygmentsBridge(object):
                 return _LATEX_STYLES
             # no HTML styles needed
             return ''
-        fmter = (self.dest == 'html' and self.hfmter or self.lfmter)[0]
-        return fmter.get_style_defs()
+        if self.dest == 'html':
+            return self.hfmter[0].get_style_defs()
+        else:
+            styledefs = self.lfmter[0].get_style_defs()
+            # workaround for Pygments < 0.12
+            if styledefs.startswith('\\newcommand\\at{@}'):
+                styledefs += _LATEX_STYLES
+            return styledefs
