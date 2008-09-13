@@ -1,0 +1,7 @@
+Autodoc tests
+=============
+
+.. automodule:: test_autodoc
+   :members:
+
+.. autofunction:: function
