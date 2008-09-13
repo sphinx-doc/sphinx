@@ -23,7 +23,7 @@ sys.path.append(os.path.abspath('.'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['ext', 'sphinx.ext.autodoc', 'sphinx.ext.jsmath']
+extensions = ['ext', 'sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.coverage']
 jsmath_path = 'dummy.js'
 
 # Add any paths that contain templates here, relative to this directory.
@@ -171,6 +171,9 @@ latex_documents = [
 #latex_use_modindex = True
 
 value_from_conf_py = 84
+
+coverage_c_path = ['special/*.h']
+coverage_c_regexes = {'cfunction': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
 
 def setup(app):

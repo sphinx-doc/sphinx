@@ -73,10 +73,9 @@ class CoverageBuilder(Builder):
         self.build_py_coverage()
         self.write_py_coverage()
 
-        if self.c_sourcefiles:
-            self.c_undoc = {}
-            self.build_c_coverage()
-            self.write_c_coverage()
+        self.c_undoc = {}
+        self.build_c_coverage()
+        self.write_c_coverage()
 
     def build_c_coverage(self):
         # Fetch all the info from the header files
@@ -216,8 +215,9 @@ class CoverageBuilder(Builder):
                                 op.writelines('   - %s\n' % x for x in methods)
                         op.write('\n')
 
-            write_header(op, 'Modules that failed to import')
-            op.writelines(' * %s -- %s\n' % x for x in failed)
+            if failed:
+                write_header(op, 'Modules that failed to import')
+                op.writelines(' * %s -- %s\n' % x for x in failed)
         finally:
             op.close()
 
