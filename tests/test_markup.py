@@ -110,5 +110,5 @@ def test_latex_escaping():
     # in verbatim code fragments
     verify(u'::\n\n @Γ\\∞$[]', None,
            u'\\begin{Verbatim}[commandchars=@\\[\\]]\n'
-           u'@at[]@(@Gamma@)\\@(@infty@)@$@lb[]@rb[]\n'
+           u'@PYGZat[]@(@Gamma@)\\@(@infty@)@$@PYGZlb[]@PYGZrb[]\n'
            u'\\end{Verbatim}')
