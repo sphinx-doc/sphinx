@@ -66,6 +66,9 @@ New features added
   HTML, LaTeX and text translators; this prevents having to manually
   patch the classes.
 
+* Exposed Pygments' lexer guessing as a highlight "language"
+  ``guess``.
+
 * Added ``Sphinx.add_javascript()`` that adds scripts to load in the
   default HTML template.
 

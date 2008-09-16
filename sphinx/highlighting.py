@@ -21,7 +21,7 @@ try:
     from pygments import highlight
     from pygments.lexers import PythonLexer, PythonConsoleLexer, CLexer, \
          TextLexer, RstLexer
-    from pygments.lexers import get_lexer_by_name
+    from pygments.lexers import get_lexer_by_name, guess_lexer
     from pygments.formatters import HtmlFormatter, LatexFormatter
     from pygments.filters import ErrorToken
     from pygments.style import Style
@@ -157,6 +157,11 @@ class PygmentsBridge(object):
         elif lang in ('python3', 'py3') and source.startswith('>>>'):
             # for py3, recognize interactive sessions, but do not try parsing...
             lexer = lexers['pycon3']
+        elif lang == 'guess':
+            try:
+                lexer = guess_lexer(source)
+            except Exception:
+                return self.unhighlighted(source)
         else:
             if lang in lexers:
                 lexer = lexers[lang]
