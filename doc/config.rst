@@ -501,20 +501,27 @@ These options influence LaTeX output.
         "Rejne".  You can also set this to ``''`` to disable fncychap.
      ``'preamble'``
         Additional preamble content, default empty.
+     ``'footer'```
+        Additional footer content (before the indices), default empty.
      
    * Keys that don't need be overridden unless in special cases are:
      
      ``'inputenc'``
-        "inputenc" package inclusion, default ``'\\usepackage[utf8]{inputenc}'``.
+        "inputenc" package inclusion, default
+        ``'\\usepackage[utf8]{inputenc}'``.
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
      ``'maketitle'``
         "maketitle" call, default ``'\\maketitle'``.  Override if you want to
         generate a differently-styled title page.
      ``'tableofcontents'``
-        "tableofcontents" call, default ``'\\tableofcontents'``.  Override if you
-        want to generate a different table of contents or put content between the
-        title page and the TOC.
+        "tableofcontents" call, default ``'\\tableofcontents'``.  Override if
+        you want to generate a different table of contents or put content
+        between the title page and the TOC.
+     ``'printindex'``
+        "printindex" call, the last thing in the file, default
+        ``'\\printindex'``.  Override if you want to generate the index
+        differently or append some content after the index.
      
    * Keys that are set by other options and therefore should not be overridden are:
      
@@ -530,7 +537,6 @@ These options influence LaTeX output.
      ``'makemodindex'``
      ``'shorthandoff'``
      ``'printmodindex'``
-     ``'printindex'``
    
 .. confval:: latex_preamble
 

@@ -53,6 +53,7 @@ BEGIN_DOC = r'''
 '''
 
 FOOTER = r'''
+%(footer)s
 \renewcommand{\indexname}{%(modindexname)s}
 %(printmodindex)s
 \renewcommand{\indexname}{%(indexname)s}
@@ -138,6 +139,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'shorthandoff':    '',
         'maketitle':       '\\maketitle',
         'tableofcontents': '\\tableofcontents',
+        'footer':          '',
         'printmodindex':   '\\printmodindex',
         'printindex':      '\\printindex',
     }
