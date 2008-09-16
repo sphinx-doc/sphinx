@@ -1,0 +1,580 @@
+# Japanese translations for Sphinx.
+# Copyright (C) 2008 ORGANIZATION
+# This file is distributed under the same license as the Sphinx project.
+# Yasushi Masuda <whosaysni@gmail.com>, 2008.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx 0.5\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2008-09-11 23:58+0200\n"
+"PO-Revision-Date: 2008-09-17 12:00:00+0900\n"
+"Last-Translator: Yasushi MASUDA <whosaysni@gmail.com>\n"
+"Language-Team: ja <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.3\n"
+
+#: sphinx/builder.py:400
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%Y 年 %m 月 %d 日"
+
+#: sphinx/builder.py:419 sphinx/templates/defindex.html:21
+msgid "General Index"
+msgstr "総合索引"
+
+#: sphinx/builder.py:419
+msgid "index"
+msgstr "索引"
+
+
+#: sphinx/builder.py:421 sphinx/htmlhelp.py:155
+#: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
+#: sphinx/templates/modindex.html:13
+msgid "Global Module Index"
+msgstr "モジュール総索引"
+
+#: sphinx/builder.py:421
+msgid "modules"
+msgstr "モジュール"
+
+#: sphinx/builder.py:457
+msgid "next"
+msgstr "次へ"
+
+#: sphinx/builder.py:464
+msgid "previous"
+msgstr "前へ"
+
+#: sphinx/builder.py:1108
+msgid "Builtins"
+msgstr "組み込み"
+
+#: sphinx/builder.py:1110
+msgid "Module level"
+msgstr "モジュールレベル"
+
+
+#: sphinx/environment.py:107 sphinx/latexwriter.py:129
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%Y 年 %m 月 %d 日"
+
+#: sphinx/environment.py:270 sphinx/latexwriter.py:190
+#: sphinx/templates/genindex-single.html:2
+#: sphinx/templates/genindex-split.html:2
+#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+msgid "Index"
+msgstr "索引"
+
+#: sphinx/environment.py:271 sphinx/latexwriter.py:188
+msgid "Module Index"
+msgstr "モジュール索引"
+
+#: sphinx/environment.py:272 sphinx/templates/defindex.html:16
+msgid "Search Page"
+msgstr "検索ページ"
+
+#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:145
+msgid "Permalink to this definition"
+msgstr "この定義へのパーマリンク"
+
+#: sphinx/htmlwriter.py:375 sphinx/static/doctools.js:139
+msgid "Permalink to this headline"
+msgstr "このヘッドラインへのパーマリンク"
+
+#: sphinx/latexwriter.py:143
+msgid "Release"
+msgstr "リリース"
+
+#: sphinx/roles.py:52 sphinx/directives/desc.py:514
+#, python-format
+msgid "environment variable; %s"
+msgstr "環境変数; %s"
+
+#: sphinx/roles.py:59
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr "Python Enhancement Proposals!PEP %s"
+
+#: sphinx/textwriter.py:151
+#, python-format
+msgid "Platform: %s"
+msgstr "プラットフォーム: %s"
+
+#: sphinx/textwriter.py:353
+msgid "[image]"
+msgstr "[画像]"
+
+#: sphinx/directives/desc.py:26
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (組み込み関数)"
+
+#: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
+#: sphinx/directives/desc.py:53
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (%s モジュール)"
+
+#: sphinx/directives/desc.py:30
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (組み込み変数)"
+
+#: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (%s モジュール)"
+
+#: sphinx/directives/desc.py:33
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (%s のクラス)"
+
+#: sphinx/directives/desc.py:45
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s のメソッド)"
+
+#: sphinx/directives/desc.py:47
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s のメソッド)"
+
+#: sphinx/directives/desc.py:57
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s の静的メソッド)"
+
+#: sphinx/directives/desc.py:59
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s の静的メソッド)"
+
+#: sphinx/directives/desc.py:69
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s の属性)"
+
+#: sphinx/directives/desc.py:71
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s の属性)"
+
+#: sphinx/directives/desc.py:73
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (C の関数)"
+
+#: sphinx/directives/desc.py:75
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (C のメンバ変数)"
+
+#: sphinx/directives/desc.py:77
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (C のマクロ)"
+
+#: sphinx/directives/desc.py:79
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (C のデータ型)"
+
+#: sphinx/directives/desc.py:81
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (C の変数)"
+
+#: sphinx/directives/desc.py:99
+msgid "Raises"
+msgstr "例外"
+
+#: sphinx/directives/desc.py:103
+msgid "Variable"
+msgstr "変数"
+
+#: sphinx/directives/desc.py:106
+msgid "Returns"
+msgstr "戻り値"
+
+#: sphinx/directives/desc.py:113
+msgid "Return type"
+msgstr "戻り値の型"
+
+#: sphinx/directives/desc.py:140
+msgid "Parameters"
+msgstr "パラメタ"
+
+#: sphinx/directives/desc.py:402
+#, python-format
+msgid "command line option; %s"
+msgstr "コマンドラインオプション; %s"
+
+#: sphinx/directives/other.py:102
+msgid "Platforms: "
+msgstr "プラットフォーム: "
+
+#: sphinx/directives/other.py:107
+#, python-format
+msgid "%s (module)"
+msgstr "%s (モジュール)"
+
+#: sphinx/directives/other.py:147
+msgid "Section author: "
+msgstr "この節の作者: "
+
+#: sphinx/directives/other.py:149
+msgid "Module author: "
+msgstr "モジュールの作者: "
+
+#: sphinx/directives/other.py:151
+msgid "Author: "
+msgstr "作者: "
+
+#: sphinx/directives/other.py:233
+msgid "See also"
+msgstr "参考"
+
+#: sphinx/locale/__init__.py:15
+msgid "Attention"
+msgstr "注意"
+
+#: sphinx/locale/__init__.py:16
+msgid "Caution"
+msgstr "ご用心"
+
+#: sphinx/locale/__init__.py:17
+msgid "Danger"
+msgstr "危険"
+
+#: sphinx/locale/__init__.py:18
+msgid "Error"
+msgstr "エラー"
+
+#: sphinx/locale/__init__.py:19
+msgid "Hint"
+msgstr "ヒント"
+
+#: sphinx/locale/__init__.py:20
+msgid "Important"
+msgstr "重要"
+
+#: sphinx/locale/__init__.py:21
+msgid "Note"
+msgstr "ノート"
+
+#: sphinx/locale/__init__.py:22
+msgid "See Also"
+msgstr "参考"
+
+#: sphinx/locale/__init__.py:23
+msgid "Tip"
+msgstr "ちなみに"
+
+#: sphinx/locale/__init__.py:24
+msgid "Warning"
+msgstr "警告"
+
+#: sphinx/locale/__init__.py:28
+#, python-format
+msgid "New in version %s"
+msgstr "バージョン %s で追加"
+
+#: sphinx/locale/__init__.py:29
+#, python-format
+msgid "Changed in version %s"
+msgstr "バージョン %s で変更"
+
+#: sphinx/locale/__init__.py:30
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "バージョン %s で撤廃"
+
+#: sphinx/locale/__init__.py:34
+msgid "module"
+msgstr "モジュール"
+
+#: sphinx/locale/__init__.py:35
+msgid "keyword"
+msgstr "キーワード"
+
+#: sphinx/locale/__init__.py:36
+msgid "operator"
+msgstr "演算子"
+
+#: sphinx/locale/__init__.py:37
+msgid "object"
+msgstr "オブジェクト"
+
+#: sphinx/locale/__init__.py:38
+msgid "exception"
+msgstr "例外"
+
+#: sphinx/locale/__init__.py:39
+msgid "statement"
+msgstr "文"
+
+#: sphinx/locale/__init__.py:40
+msgid "built-in function"
+msgstr "組み込み関数"
+
+#: sphinx/static/doctools.js:174
+msgid "Hide Search Matches"
+msgstr "検索結果を隠す"
+
+#: sphinx/static/searchtools.js:274
+msgid "Searching"
+msgstr "検索中"
+
+#: sphinx/static/searchtools.js:279
+msgid "Preparing search..."
+msgstr "検索の準備中..."
+
+#: sphinx/static/searchtools.js:401 sphinx/templates/search.html:18
+msgid "Search Results"
+msgstr "検索結果"
+
+#: sphinx/static/searchtools.js:403
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr ""
+"検索条件に一致するドキュメントはありませんでした。検索したい言葉を"
+"正しいつづりで入力しているか確認してください。また、正しいカテゴリ"
+"の検索を行っているか確認してください。"
+
+#: sphinx/static/searchtools.js:405
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "検索が終了し、条件に一致するページが %s 個みつかりました。"
+
+#: sphinx/templates/defindex.html:2
+msgid "Overview"
+msgstr "概要"
+
+#: sphinx/templates/defindex.html:11
+msgid "Indices and tables:"
+msgstr "索引と表一覧:"
+
+#: sphinx/templates/defindex.html:14
+msgid "Complete Table of Contents"
+msgstr "総合目次"
+
+#: sphinx/templates/defindex.html:15
+msgid "lists all sections and subsections"
+msgstr "章／節一覧"
+
+#: sphinx/templates/defindex.html:17
+msgid "search this documentation"
+msgstr "ドキュメントを検索"
+
+#: sphinx/templates/defindex.html:20
+msgid "quick access to all modules"
+msgstr "全モジュール早見表"
+
+#: sphinx/templates/defindex.html:22
+msgid "all functions, classes, terms"
+msgstr "関数、クラスおよび用語総覧"
+
+#: sphinx/templates/genindex-single.html:5
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "索引 &ndash; %(key)s"
+
+#: sphinx/templates/genindex-single.html:44
+#: sphinx/templates/genindex-split.html:14
+#: sphinx/templates/genindex-split.html:27 sphinx/templates/genindex.html:54
+msgid "Full index on one page"
+msgstr "総索引"
+
+#: sphinx/templates/genindex-split.html:7
+msgid "Index pages by letter"
+msgstr "頭文字別索引"
+
+#: sphinx/templates/genindex-split.html:15
+msgid "can be huge"
+msgstr "大きい場合があるので注意"
+
+#: sphinx/templates/layout.html:9
+msgid "Navigation"
+msgstr "ナビゲーション"
+
+#: sphinx/templates/layout.html:40
+msgid "Table Of Contents"
+msgstr "目次"
+
+#: sphinx/templates/layout.html:46
+msgid "Previous topic"
+msgstr "前のトピックへ"
+
+#: sphinx/templates/layout.html:47
+msgid "previous chapter"
+msgstr "前の章へ"
+
+#: sphinx/templates/layout.html:50
+msgid "Next topic"
+msgstr "次のトピックへ"
+
+#: sphinx/templates/layout.html:51
+msgid "next chapter"
+msgstr "次の章へ"
+
+#: sphinx/templates/layout.html:55
+msgid "This Page"
+msgstr "このページ"
+
+#: sphinx/templates/layout.html:59
+msgid "Suggest Change"
+msgstr "変更のサジェスト"
+
+#: sphinx/templates/layout.html:60 sphinx/templates/layout.html:62
+msgid "Show Source"
+msgstr "ソースコードを表示"
+
+#: sphinx/templates/layout.html:71
+msgid "Quick search"
+msgstr "クイック検索"
+
+#: sphinx/templates/layout.html:71
+msgid "Keyword search"
+msgstr "キーワード検索"
+
+#: sphinx/templates/layout.html:73
+msgid "Go"
+msgstr "検索"
+
+#: sphinx/templates/layout.html:78
+msgid "Enter a module, class or function name."
+msgstr "モジュール、クラス、または関数名を入力してください"
+
+#: sphinx/templates/layout.html:118
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "%(docstitle)s 内を検索"
+
+#: sphinx/templates/layout.html:127
+msgid "About these documents"
+msgstr "このドキュメントについて"
+
+#: sphinx/templates/layout.html:129
+msgid "Global table of contents"
+msgstr "総目次"
+
+#: sphinx/templates/layout.html:130
+msgid "Global index"
+msgstr "総合索引"
+
+#: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
+#: sphinx/templates/search.html:5
+msgid "Search"
+msgstr "検索"
+
+#: sphinx/templates/layout.html:133
+msgid "Copyright"
+msgstr "著作権"
+
+#: sphinx/templates/layout.html:178
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+
+#: sphinx/templates/layout.html:180
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; Copyright %(copyright)s."
+
+#: sphinx/templates/layout.html:183
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "最終更新: %(last_updated)s"
+
+#: sphinx/templates/layout.html:186
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+"このドキュメントは <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s で生成しました。"
+
+#: sphinx/templates/modindex.html:15
+msgid "Most popular modules:"
+msgstr "よく参照されているモジュール:"
+
+#: sphinx/templates/modindex.html:24
+msgid "Show modules only available on these platforms"
+msgstr "このプラットフォームで利用可能なモジュールだけを表示する"
+
+#: sphinx/templates/modindex.html:56
+msgid "Deprecated"
+msgstr "撤廃"
+
+#: sphinx/templates/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "%(docstitle)s 内を検索"
+
+#: sphinx/templates/page.html:8
+msgid ""
+"<strong>Note:</strong> You requested an out-of-date URL from this server."
+" We've tried to redirect you to the new location of this page, but it may"
+" not be the right one."
+msgstr ""
+"<strong>注意:</strong> あなたが表示しようとしているのは古い URL です。"
+"このページに対応する新しい URL へのリダイレクトを試みますが、"
+"適切なリダイレクト先でないかもしれないので注意してください。"
+
+#: sphinx/templates/search.html:7
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing less words won't appear in the result list."
+msgstr ""
+"このページからドキュメントを検索できます。キーワードを下のボックスに入力"
+"して、「検索」をクリックしてください。入力された全てのキーワードを含む"
+"ページが検索されます。一部のキーワードしか含まないページは検索結果に"
+"表示されないので注意してください。"
+
+#: sphinx/templates/search.html:14
+msgid "search"
+msgstr "検索"
+
+#: sphinx/templates/search.html:20
+msgid "Your search did not match any results."
+msgstr "検索条件に一致する項目がありませんでした。"
+
+#: sphinx/templates/changes/frameset.html:5
+#: sphinx/templates/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "バージョン %(version)s の変更点 &mdash; %(docstitle)s"
+
+#: sphinx/templates/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/templates/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "バージョン %(version)s の変更点（このリストは自動生成されています）"
+
+#: sphinx/templates/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "ライブラリに関する変更"
+
+#: sphinx/templates/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "C API に関する変更"
+
+#: sphinx/templates/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "その多の変更"
+
