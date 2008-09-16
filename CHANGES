@@ -16,7 +16,8 @@ New features added
   Horst Gutmann, who also contributed German as the first language.
   A Czech translation was provided by Pavel Kosina.  A French
   translation was provided by David Larlet.  A Polish translation
-  was provided by Michał Kandulski.
+  was provided by Michał Kandulski.  A Japanese translation was
+  provided by Yasushi Masuda.
   
 * Added a distutils command `build_sphinx`: When Sphinx is installed,
   you can call ``python setup.py build_sphinx`` for projects that
