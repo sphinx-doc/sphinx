@@ -22,10 +22,10 @@ zip: all-$(FMT)
 tar: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)
 	cp $(ALLPDF) $(ARCHIVEPREFIX)docs-$(FMT)
-	tar cf $(ARCHIVEPREFIX)docs-$(FMT).tar
+	tar cf $(ARCHIVEPREFIX)docs-$(FMT).tar $(ARCHIVEPREFIX)docs-$(FMT)
 	rm -r $(ARCHIVEPREFIX)docs-$(FMT)
 
-bz2: tar-$(FMT)
+bz2: tar
 	bzip2 -9 -k $(ARCHIVEPREFIX)docs-$(FMT).tar
 
 # The number of LaTeX runs is quite conservative, but I don't expect it
