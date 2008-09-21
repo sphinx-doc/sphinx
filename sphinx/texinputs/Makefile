@@ -11,7 +11,7 @@ all: $(ALLPDF)
 all-pdf: $(ALLPDF)
 all-dvi: $(ALLDVI)
 all-ps: all-dvi
-	for f in *.dvi; do dvips $f; done
+	for f in *.dvi; do dvips $$f; done
 
 zip: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)
