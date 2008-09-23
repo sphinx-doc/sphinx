@@ -87,7 +87,8 @@ class IndexBuilder(object):
         'pickle':   pickle
     }
 
-    def __init__(self):
+    def __init__(self, env):
+        self.env = env
         self._stemmer = Stemmer()
         # filename -> title
         self._titles = {}
@@ -110,19 +111,28 @@ class IndexBuilder(object):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
+    def get_keyword_map(self):
+        """Return a dict of all keywords."""
+        rv = {}
+        for kw, (ref, _, _, _) in self.env.modules.iteritems():
+            rv[kw] = (ref, 'module', 'module-' + kw)
+        for kw, (ref, ref_type) in self.env.descrefs.iteritems():
+            rv[kw] = (ref, ref_type, kw)
+        return rv
+
     def freeze(self):
-        """
-        Create a useable data structure. You can pass this output
-        to the `SearchFrontend` to search the index.
-        """
-        fns, titles = self._titles.keys(), self._titles.values()
-        fn2index = dict((f, i) for (i, f) in enumerate(fns))
-        return [
-            fns,
-            titles,
-            dict((k, [fn2index[fn] for fn in v])
-                 for (k, v) in self._mapping.iteritems()),
-        ]
+        """Create a useable data structure for serializing."""
+        filenames = self._titles.keys()
+        titles = self._titles.values()
+        fn2index = dict((f, i) for (i, f) in enumerate(filenames))
+        return dict(
+            filenames=filenames,
+            titles=titles,
+            terms=dict((k, [fn2index[fn] for fn in v])
+                       for (k, v) in self._mapping.iteritems()),
+            keywords=dict((k, (fn2index[v[0]],) + v[1:]) for k, v in
+                          self.get_keyword_map().iteritems())
+        )
 
     def prune(self, filenames):
         """Remove data for all filenames not in the list."""
@@ -147,45 +157,6 @@ class IndexBuilder(object):
 
         for word in word_re.findall(title):
             add_term(word)
-            add_term(word, 'T')
 
         for word in visitor.found_words:
             add_term(word)
-
-
-class SearchFrontend(object):
-    """
-    This class acts as a frontend for the search index. It can search
-    a searchindex as provided by `IndexBuilder`.
-    """
-
-    def __init__(self, index):
-        self.filenames, self.titles, self.words = index
-        self._stemmer = Stemmer()
-
-    def query(self, required, excluded):
-        file_map = {}
-        for word in required:
-            if word not in self.words:
-                break
-            for fid in self.words[word]:
-                file_map.setdefault(fid, set()).add(word)
-
-        return sorted(((self.filenames[fid], self.titles[fid])
-            for fid, words in file_map.iteritems()
-            if len(words) == len(required) and not
-               any(fid in self.words.get(word, ()) for word in excluded)
-        ), key=lambda x: x[1].lower())
-
-    def search(self, searchstring):
-        required = set()
-        excluded = set()
-        for word in searchstring.split():
-            if word.startswith('-'):
-                storage = excluded
-                word = word[1:]
-            else:
-                storage = required
-            storage.add(self._stemmer.stem(word))
-
-        return self.query(required, excluded)

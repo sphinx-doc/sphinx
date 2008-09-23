@@ -294,6 +294,7 @@ var Search = {
     var excluded = [];
     var hlwords = [];
     var tmp = query.split(/\s+/);
+    var keyword = (tmp.length == 1) ? tmp[0] : null;
     for (var i = 0; i < tmp.length; i++) {
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
@@ -317,12 +318,21 @@ var Search = {
     console.info('excluded: ', excluded);
 
     // prepare search
-    var filenames = this._index[0];
-    var titles = this._index[1];
-    var words = this._index[2];
+    var filenames = this._index.filenames;
+    var titles = this._index.titles;
+    var words = this._index.terms;
     var fileMap = {};
     var files = null;
+    var results = [];
+    var regularResults = [];
     $('#search-progress').empty();
+
+    // lookup the keyword
+    if (keyword != null) {
+      var match = this._index.keywords[keyword];
+      if (match)
+        results.push([filenames[match[0]], titles[match[0]], match[2]]);
+    }
 
     // perform the search on the required words
     for (var i = 0; i < searchwords.length; i++) {
@@ -342,7 +352,6 @@ var Search = {
 
     // now check if the files are in the correct
     // areas and if the don't contain excluded words
-    var results = [];
     for (var file in fileMap) {
       var valid = true;
 
@@ -362,19 +371,22 @@ var Search = {
       // if we have still a valid result we can add it
       // to the result list
       if (valid)
-        results.push([filenames[file], titles[file]]);
+        results.push([filenames[file], titles[file], null]);
     }
 
     // delete unused variables in order to not waste
     // memory until list is retrieved completely
     delete filenames, titles, words;
 
-    // now sort the results by title
-    results.sort(function(a, b) {
+    // now sort the regular results by title
+    regularResults.sort(function(a, b) {
       var left = a[1].toLowerCase();
       var right = b[1].toLowerCase();
       return (left > right) ? -1 : ((left < right) ? 1 : 0);
     });
+
+    // combine both
+    results = results.concat(regularResults);
 
     // print the results
     var resultCount = results.length;
@@ -386,7 +398,8 @@ var Search = {
         listItem.append($('<a/>').attr(
           'href',
           item[0] + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
-          highlightstring).html(item[1]));
+          highlightstring +
+          (item[2] ? '#' + item[2] : '')).html(item[1]));
         $.get('_sources/' + item[0] + '.txt', function(data) {
           listItem.append($.makeSearchSummary(data, searchwords, hlwords));
           Search.output.append(listItem);

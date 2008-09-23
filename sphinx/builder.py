@@ -386,7 +386,7 @@ class StandaloneHTMLBuilder(Builder):
     def prepare_writing(self, docnames):
         from sphinx.search import IndexBuilder
 
-        self.indexer = IndexBuilder()
+        self.indexer = IndexBuilder(self.env)
         self.load_indexer(docnames)
         self.docwriter = HTMLWriter(self)
         self.docsettings = OptionParser(
