@@ -20,6 +20,17 @@ from sphinx.util import json
 
 word_re = re.compile(r'\w+(?u)')
 
+stopwords = set("""
+a  and  are  as  at
+be  but  by
+for
+if  in  into  is  it
+near  no  not
+of  on  or
+such
+that  the  their  then  there  these  they  this  to
+was  will  with
+""".split())
 
 class _JavaScriptIndex(object):
     """
@@ -165,8 +176,10 @@ class IndexBuilder(object):
         visitor = WordCollector(doctree)
         doctree.walk(visitor)
 
-        def add_term(word, prefix=''):
-            word = self._stemmer.stem(word)
+        def add_term(word, prefix='', stem=self._stemmer.stem):
+            word = stem(word)
+            if len(word) < 3 or word in stopwords or word.isdigit():
+                return
             self._mapping.setdefault(prefix + word, set()).add(filename)
 
         for word in word_re.findall(title):
