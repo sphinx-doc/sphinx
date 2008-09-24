@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.util.json
-    ~~~~~~~~~~~~~~~~
+    sphinx.util.jsdump
+    ~~~~~~~~~~~~~~~~~~
 
-    This module implements a simple JSON serializer if simplejson is
-    unavailable.
-
-    This is not fully JSON compliant but enough for the searchindex.
-    And the generated files are smaller than the simplejson ones.
-
+    This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson.
 
     :copyright: 2008 by Armin Ronacher, Bob Ippolito, Georg Brandl.

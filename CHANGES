@@ -4,82 +4,97 @@ Release 0.5 (in development)
 New features added
 ------------------
 
-* The JavaScript search now searches for objects before searching
-  in the full text.
+* HTML output and templates:
 
-* The new extensions ``sphinx.ext.jsmath`` and ``sphinx.ext.pngmath``
-  provide math support for both HTML and LaTeX builders.
+  - Incompatible change: The "root" relation link (top left in the
+    relbar) now points to the ``master_doc`` by default, no longer to a
+    document called "index".  The old behavior, while useful in some
+    situations, was somewhat unexpected.
 
-* The new extension ``sphinx.ext.intersphinx`` half-automatically
-  creates links to Sphinx documentation of Python objects in other
-  projects.
+  - The JavaScript search now searches for objects before searching in
+    the full text.
 
-* Added support for internationalization in generated text with the
-  ``language`` and ``locale_dirs`` config values.  Many thanks to
-  Horst Gutmann, who also contributed German as the first language.
-  A Czech translation was provided by Pavel Kosina.  A French
-  translation was provided by David Larlet.  A Polish translation
-  was provided by Michał Kandulski.  A Japanese translation was
-  provided by Yasushi Masuda.
+  - ``SerializingHTMLBuilder`` was added as new abstract builder that
+    can be subclassed to serialize build HTML in a specific format.  The
+    ``PickleHTMLBuilder`` is a concrete subclass of it that uses pickle
+    as serialization implementation.
   
-* Added a distutils command `build_sphinx`: When Sphinx is installed,
-  you can call ``python setup.py build_sphinx`` for projects that
-  have Sphinx documentation, which will build the docs and place them
-  in the standard distutils build directory.
+  - ``JSONHTMLBuilder`` was added as another ``SerializingHTMLBuilder``
+    subclass that dumps the generated HTML into JSON files for further
+    processing.
 
-* "System Message" warnings are now automatically removed from the
-  built documentation, and only written to stderr.  If you want the
-  old behavior, set the new config value ``keep_warnings`` to True.
+  - The ``rellinks`` block in the layout template is now called
+    ``linktags`` to avoid confusion with the relbar links.
 
-* The new config value ``highlight_language`` set a global default
-  for highlighting.  When ``'python3'`` is selected, console output
-  blocks are recognized like for ``'python'``.
+  - The HTML builders have two additional attributes now that can be
+    used to disable the anchor-link creation after headlines and
+    definition links.
 
-* The new config value ``latex_elements`` allows to override all
-  LaTeX snippets that Sphinx puts into the generated .tex file by
-  default.
+* New and changed config values:
+    
+  - Added support for internationalization in generated text with the
+    ``language`` and ``locale_dirs`` config values.  Many thanks to
+    language contributors:
 
-* ``SerializingHTMLBuilder`` was added as new abstract builder that
-  can be subclassed to serialize build HTML in a specific format.
-  The ``PickleHTMLBuilder`` is a concrete subclass of it that uses
-  pickle as serialization implementation.
+    * Horst Gutmann -- German
+    * Pavel Kosina -- Czech
+    * David Larlet -- French
+    * Michał Kandulski -- Polish
+    * Yasushi Masuda -- Japanese
 
-* ``JSONHTMLBuilder`` was added as another ``SerializingHTMLBuilder``
-  subclass that dumps the generated HTML into JSON files for further
-  processing.
+  - The new config value ``highlight_language`` set a global default for
+    highlighting.  When ``'python3'`` is selected, console output blocks
+    are recognized like for ``'python'``.
 
-* The `automodule` directive now supports the ``synopsis``,
-  ``deprecated`` and ``platform`` options.
+  - Exposed Pygments' lexer guessing as a highlight "language" ``guess``.
 
-* The HTML builders have two additional attributes now that can be
-  used to disable the anchor-link creation after headlines and
-  definition links.
+  - The new config value ``latex_elements`` allows to override all LaTeX
+    snippets that Sphinx puts into the generated .tex file by default.
 
-* sphinx.doc.autodoc has a new event ``autodoc-process-signature``
-  that allows tuning function signature introspection.
+  - Added ``exclude_dirnames`` config value that can be used to exclude
+    e.g. CVS directories from source file search.
 
-* Respect __all__ when autodocumenting module members.
+* Extensions:
 
-* Glossary entries are now automatically added to the index.
+  - The new extensions ``sphinx.ext.jsmath`` and ``sphinx.ext.pngmath``
+    provide math support for both HTML and LaTeX builders.
 
-* Added ``exclude_dirnames`` config value that can be used to exclude
-  e.g. CVS directories from source file search.
+  - The new extension ``sphinx.ext.intersphinx`` half-automatically
+    creates links to Sphinx documentation of Python objects in other
+    projects.
 
-* ``Sphinx.add_node()`` now takes optional visitor methods for the
-  HTML, LaTeX and text translators; this prevents having to manually
-  patch the classes.
+  - sphinx.doc.autodoc has a new event ``autodoc-process-signature``
+    that allows tuning function signature introspection.
 
-* Exposed Pygments' lexer guessing as a highlight "language"
-  ``guess``.
+  - Respect __all__ when autodocumenting module members.
 
-* Added ``Sphinx.add_javascript()`` that adds scripts to load in the
-  default HTML template.
+  - The `automodule` directive now supports the ``synopsis``,
+    ``deprecated`` and ``platform`` options.
 
-* Added new events: ``env-updated``, ``missing-reference``,
-  ``build-finished``.
+* Extension API:
 
-* The ``rellinks`` block in the layout template is now called
-  ``linktags`` to avoid confusion with the relbar links.
+  - ``Sphinx.add_node()`` now takes optional visitor methods for the
+    HTML, LaTeX and text translators; this prevents having to manually
+    patch the classes.
+
+  - Added ``Sphinx.add_javascript()`` that adds scripts to load in the
+    default HTML template.
+
+  - Added new events: ``env-updated``, ``missing-reference``,
+    ``build-finished``.
+
+* Other changes:
+    
+  - Added a distutils command `build_sphinx`: When Sphinx is installed,
+    you can call ``python setup.py build_sphinx`` for projects that have
+    Sphinx documentation, which will build the docs and place them in
+    the standard distutils build directory.
+
+  - "System Message" warnings are now automatically removed from the
+    built documentation, and only written to stderr.  If you want the
+    old behavior, set the new config value ``keep_warnings`` to True.
+
+  - Glossary entries are now automatically added to the index.
 
 
 Release 0.4.2 (Jul 29, 2008)
@@ -161,7 +176,7 @@ New features added
 
 * The new `staticmethod` directive can be used to mark methods as
   static methods.
-  
+
 * HTML output:
 
   - The "previous" and "next" links have a more logical structure, so
@@ -220,7 +235,7 @@ New features added
   - The autodoc extension now offers a much more flexible way to
     manipulate docstrings before including them into the output, via
     the new `autodoc-process-docstring` event.
-    
+
   - The `autodoc` extension accepts signatures for functions, methods
     and classes now that override the signature got via introspection
     from Python code.
