@@ -15,7 +15,7 @@ from cStringIO import StringIO
 from docutils.nodes import Text, NodeVisitor
 
 from sphinx.util.stemmer import PorterStemmer
-from sphinx.util import json
+from sphinx.util import json, rpartition
 
 
 word_re = re.compile(r'\w+(?u)')
@@ -107,7 +107,7 @@ class IndexBuilder(object):
         # stemmed word -> set(filenames)
         self._mapping = {}
         # desctypes -> index
-        self._desctypes = {'module': 0}
+        self._desctypes = {}
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -129,19 +129,24 @@ class IndexBuilder(object):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
-    def get_keyword_map(self):
-        """Return a dict of all keywords."""
+    def get_modules(self, fn2index):
+        rv = {}
+        for name, (doc, _, _, _) in self.env.modules.iteritems():
+            rv[name] = fn2index[doc]
+        return rv
+
+    def get_descrefs(self, fn2index):
         rv = {}
         dt = self._desctypes
-        for kw, (ref, _, _, _) in self.env.modules.iteritems():
-            rv[kw] = (ref, 0)
-        for kw, (ref, ref_type) in self.env.descrefs.iteritems():
+        for fullname, (doc, desctype) in self.env.descrefs.iteritems():
+            prefix, name = rpartition(fullname, '.')
+            pdict = rv.setdefault(prefix, {})
             try:
-                i = dt[ref_type]
+                i = dt[desctype]
             except KeyError:
                 i = len(dt)
-                dt[ref_type] = i
-            rv[kw] = (ref, i)
+                dt[desctype] = i
+            pdict[name] = (fn2index[doc], i)
         return rv
 
     def freeze(self):
@@ -154,8 +159,8 @@ class IndexBuilder(object):
             titles=titles,
             terms=dict((k, [fn2index[fn] for fn in v])
                        for (k, v) in self._mapping.iteritems()),
-            keywords=dict((k, (fn2index[v[0]],) + v[1:]) for k, v in
-                          self.get_keyword_map().iteritems()),
+            descrefs=self.get_descrefs(fn2index),
+            modules=self.get_modules(fn2index),
             desctypes=dict((v, k) for (k, v) in self._desctypes.items()),
         )
 

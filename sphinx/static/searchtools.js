@@ -294,7 +294,7 @@ var Search = {
     var excluded = [];
     var hlwords = [];
     var tmp = query.split(/\s+/);
-    var keyword = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
+    var object = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
     for (var i = 0; i < tmp.length; i++) {
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
@@ -321,28 +321,38 @@ var Search = {
     var filenames = this._index.filenames;
     var titles = this._index.titles;
     var words = this._index.terms;
-    var keywords = this._index.keywords;
+    var descrefs = this._index.descrefs;
+    var modules = this._index.modules;
     var desctypes = this._index.desctypes;
     var fileMap = {};
     var files = null;
-    var keywordResults = [];
+    var objectResults = [];
     var regularResults = [];
     $('#search-progress').empty();
 
-    // lookup as keyword
-    if (keyword != null) {
-      for (var kw in keywords) {
-        if (kw.toLowerCase().indexOf(keyword, kw.lastIndexOf('.')) > -1) {
-          match = keywords[kw];
-          descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
-          anchor = '#' + (match[1] == 0 ? 'module-' + kw : kw);
-          keywordResults.push([filenames[match[0]], kw, anchor, descr]);
+    // lookup as object
+    if (object != null) {
+      for (var module in modules) {
+        if (module.indexOf(object) > -1) {
+          fn = modules[module];
+          descr = _('module, in ') + titles[fn];
+          objectResults.push([filenames[fn], module, '#module-'+module, descr]);
+        }
+      }
+      for (var prefix in descrefs) {
+        for (var name in descrefs[prefix]) {
+          if (name.toLowerCase().indexOf(object) > -1) {
+            match = descrefs[prefix][name];
+            fullname = prefix + '.' + name;
+            descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
+            objectResults.push([filenames[match[0]], fullname, '#'+fullname, descr]);
+          }
         }
       }
     }
 
-    // sort descending by keyword
-    keywordResults.sort(function(a, b) {
+    // sort results descending
+    objectResults.sort(function(a, b) {
       return (a[1] > b[1]) ? -1 : ((a[1] < b[1]) ? 1 : 0);
     });
 
@@ -398,7 +408,7 @@ var Search = {
     });
 
     // combine both
-    var results = regularResults.concat(keywordResults);
+    var results = regularResults.concat(objectResults);
 
     // print the results
     var resultCount = results.length;
