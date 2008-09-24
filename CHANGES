@@ -4,6 +4,9 @@ Release 0.5 (in development)
 New features added
 ------------------
 
+* The JavaScript search now searches for objects before searching
+  in the full text.
+
 * The new extensions ``sphinx.ext.jsmath`` and ``sphinx.ext.pngmath``
   provide math support for both HTML and LaTeX builders.
 
