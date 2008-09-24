@@ -123,14 +123,14 @@ class IndexBuilder(object):
         rv = {}
         dt = self._desctypes
         for kw, (ref, _, _, _) in self.env.modules.iteritems():
-            rv[kw] = (ref, 0, 'module-' + kw)
+            rv[kw] = (ref, 0)
         for kw, (ref, ref_type) in self.env.descrefs.iteritems():
             try:
                 i = dt[ref_type]
             except KeyError:
                 i = len(dt)
                 dt[ref_type] = i
-            rv[kw] = (ref, i, kw)
+            rv[kw] = (ref, i)
         return rv
 
     def freeze(self):

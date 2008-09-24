@@ -329,13 +329,14 @@ var Search = {
     var regularResults = [];
     $('#search-progress').empty();
 
-    // lookup the keyword
+    // lookup as keyword
     if (keyword != null) {
       for (var kw in keywords) {
         if (kw.toLowerCase().indexOf(keyword, kw.lastIndexOf('.')) > -1) {
           match = keywords[kw];
           descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
-          keywordResults.push([filenames[match[0]], kw, match[2], descr]);
+          anchor = '#' + (match[1] == 0 ? 'module-' + kw : kw);
+          keywordResults.push([filenames[match[0]], kw, anchor, descr]);
         }
       }
     }
@@ -382,7 +383,7 @@ var Search = {
       // if we have still a valid result we can add it
       // to the result list
       if (valid)
-        regularResults.push([filenames[file], titles[file], null, null]);
+        regularResults.push([filenames[file], titles[file], '', null]);
     }
 
     // delete unused variables in order to not waste
@@ -409,8 +410,7 @@ var Search = {
         listItem.append($('<a/>').attr(
           'href',
           item[0] + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
-          highlightstring +
-          (item[2] ? '#' + item[2] : '')).html(item[1]));
+          highlightstring + item[2]).html(item[1]));
         if (item[3]) {
           listItem.append($('<span> (' + item[3] + ')</span>'));
           Search.output.append(listItem);
