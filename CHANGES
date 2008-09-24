@@ -107,6 +107,8 @@ New features added
   - In quickstart, if the selected root path already contains a Sphinx
     project, complain and abort.
 
+  - Added ``cmember`` role for consistency.
+
 
 Release 0.4.2 (Jul 29, 2008)
 ============================

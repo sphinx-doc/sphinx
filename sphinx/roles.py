@@ -212,6 +212,7 @@ specific_docroles = {
     'meth': xfileref_role,
     'obj': xfileref_role,
     'cfunc' : xfileref_role,
+    'cmember': xfileref_role,
     'cdata' : xfileref_role,
     'ctype' : xfileref_role,
     'cmacro' : xfileref_role,

@@ -902,8 +902,8 @@ class BuildEnvironment:
                 refnode.children = [nodes.Text(newtitle)]
         return newnode
 
-    descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr',
-                           'meth', 'cfunc', 'cdata', 'ctype', 'cmacro', 'obj'))
+    descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr', 'obj',
+                           'meth', 'cfunc', 'cmember', 'cdata', 'ctype', 'cmacro'))
 
     def resolve_references(self, doctree, fromdocname, builder):
         reftarget_roles = set(('token', 'term', 'option'))
