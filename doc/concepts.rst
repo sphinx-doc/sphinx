@@ -129,11 +129,6 @@ The special document names (and pages generated for them) are:
   documents or document-containing directories with such names.  (Using ``_`` as
   a prefix for a custom template directory is fine.)
 
-.. toctree::
-
-   x
-
-note [#]_.
 
 .. rubric:: Footnotes
 
@@ -147,5 +142,3 @@ note [#]_.
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to match
        any sequence of characters *including* slashes.
-
-.. [#] 3rd note.

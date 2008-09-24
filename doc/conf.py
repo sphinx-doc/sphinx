@@ -126,7 +126,9 @@ latex_logo = '_static/sphinx.png'
 #latex_use_parts = True
 
 # Additional stuff for the LaTeX preamble.
-#latex_preamble = ''
+latex_elements = {
+    'fontpkg': '\\usepackage{palatino}'
+}
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
