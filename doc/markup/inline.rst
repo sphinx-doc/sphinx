@@ -205,6 +205,17 @@ to labels:
   title being "Section to cross-reference".  This works just as well when
   section and reference are in different source files.
 
+  Automatic labels also work with figures: given ::
+
+     .. _my-figure:
+
+     .. figure:: whatever
+
+        Figure caption
+
+  a reference ``:ref:`my-figure``` would insert a reference to the figure with
+  link text "Figure caption".
+
 * Labels that aren't placed before a section title can still be referenced to,
   but you must give the link an explicit title, using this syntax: ``:ref:`Link
   title <label-name>```.

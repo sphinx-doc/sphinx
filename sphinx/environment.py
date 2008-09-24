@@ -658,10 +658,18 @@ class BuildEnvironment:
                           'other instance in %s' % self.doc2path(self.labels[name][0]),
                           node.line)
             self.anonlabels[name] = docname, labelid
-            if not isinstance(node, nodes.section):
+            if node.tagname == 'section':
+                sectname = node[0].astext() # node[0] == title node
+            elif node.tagname == 'figure':
+                for n in node:
+                    if n.tagname == 'caption':
+                        sectname = n.astext()
+                        break
+                else:
+                    continue
+            else:
                 # anonymous-only labels
                 continue
-            sectname = node[0].astext() # node[0] == title node
             self.labels[name] = docname, labelid, sectname
 
     def note_indexentries_from(self, docname, document):

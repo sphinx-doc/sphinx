@@ -9,7 +9,8 @@ New features added
   - Incompatible change: The "root" relation link (top left in the
     relbar) now points to the ``master_doc`` by default, no longer to a
     document called "index".  The old behavior, while useful in some
-    situations, was somewhat unexpected.
+    situations, was somewhat unexpected.  Override the "rootrellink"
+    block in the template to customize where it refers to.
 
   - The JavaScript search now searches for objects before searching in
     the full text.
@@ -95,6 +96,9 @@ New features added
     old behavior, set the new config value ``keep_warnings`` to True.
 
   - Glossary entries are now automatically added to the index.
+
+  - Figures with captions can now be referred to like section titles,
+    using the ``:ref:`` role without an explicit link text.
 
 
 Release 0.4.2 (Jul 29, 2008)
