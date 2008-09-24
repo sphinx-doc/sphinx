@@ -698,18 +698,19 @@ class StandaloneHTMLBuilder(Builder):
                 pass
 
     def load_indexer(self, docnames):
+        keep = set(self.env.all_docs) - set(docnames)
         try:
             f = open(path.join(self.outdir, self.searchindex_filename), 'rb')
             try:
                 self.indexer.load(f, self.indexer_format)
             finally:
                 f.close()
-        except (IOError, OSError, NotImplementedError, ValueError):
-            # we catch NotImplementedError here because if no simplejson
-            # is installed the searchindex can't be loaded
-            pass
+        except (IOError, OSError, ValueError):
+            if keep:
+                self.warn("search index couldn't be loaded, but not all documents "
+                          "will be built: the index will be incomplete.")
         # delete all entries for files that will be rebuilt
-        self.indexer.prune(set(self.env.all_docs) - set(docnames))
+        self.indexer.prune(keep)
 
     def index_page(self, pagename, doctree, title):
         # only index pages with title
