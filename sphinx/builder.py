@@ -26,7 +26,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes, locale, __version__
-from sphinx.util import ensuredir, relative_uri, SEP, os_path, json, texescape
+from sphinx.util import ensuredir, relative_uri, SEP, os_path, texescape
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.textwriter import TextWriter
@@ -35,6 +35,14 @@ from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, purple, darkgreen
 from sphinx.search import js_index
+
+try:
+    import json
+except ImportError:
+    try:
+        import ssimplejson as json
+    except ImportError:
+        json = None
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -802,9 +810,6 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.init_translator_class()
         self.templates = None   # no template bridge necessary
 
-    indexer_format = property(lambda x: x.implementation, doc='''
-        Alias the indexer format to the serilization implementation''')
-
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':
             return ''
@@ -866,6 +871,7 @@ class PickleHTMLBuilder(SerializingHTMLBuilder):
     A Builder that dumps the generated HTML into pickle files.
     """
     implementation = pickle
+    indexer_format = pickle
     name = 'pickle'
     out_suffix = '.fpickle'
     globalcontext_filename = 'globalcontext.pickle'
@@ -877,10 +883,19 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     A builder that dumps the generated HTML into JSON files.
     """
     implementation = json
+    indexer_format = json
     name = 'json'
     out_suffix = '.fjson'
     globalcontext_filename = 'globalcontext.json'
     searchindex_filename = 'searchindex.json'
+
+    def init(self):
+        if json is None:
+            from sphinx.application import SphinxError
+            raise SphinxError('The module simplejson (or json in Python >= 2.6) '
+                              'is not available. The JSONHTMLBuilder builder '
+                              'will not work.')
+        SerializingHTMLBuilder.init(self)
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):

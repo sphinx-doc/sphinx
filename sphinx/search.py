@@ -15,7 +15,7 @@ from cStringIO import StringIO
 from docutils.nodes import Text, NodeVisitor
 
 from sphinx.util.stemmer import PorterStemmer
-from sphinx.util import json, rpartition
+from sphinx.util import jsdump, rpartition
 
 
 word_re = re.compile(r'\w+(?u)')
@@ -37,22 +37,20 @@ class _JavaScriptIndex(object):
     """
     The search index as javascript file that calls a function
     on the documentation search object to register the index.
-    This serializing system does not support chaining because
-    simplejson (which it depends on) doesn't support it either.
     """
 
     PREFIX = 'Search.setIndex('
     SUFFIX = ')'
 
     def dumps(self, data):
-        return self.PREFIX + json.dumps(data) + self.SUFFIX
+        return self.PREFIX + jsdump.dumps(data) + self.SUFFIX
 
     def loads(self, s):
         data = s[len(self.PREFIX):-len(self.SUFFIX)]
         if not data or not s.startswith(self.PREFIX) or not \
            s.endswith(self.SUFFIX):
             raise ValueError('invalid data')
-        return json.loads(data)
+        return jsdump.loads(data)
 
     def dump(self, data, f):
         f.write(self.dumps(data))
@@ -95,7 +93,7 @@ class IndexBuilder(object):
     passed to the `feed` method.
     """
     formats = {
-        'json':     json,
+        'jsdump':   jsdump,
         'pickle':   pickle
     }
 
