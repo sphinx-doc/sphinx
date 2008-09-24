@@ -32,6 +32,7 @@ that  the  their  then  there  these  they  this  to
 was  will  with
 """.split())
 
+
 class _JavaScriptIndex(object):
     """
     The search index as javascript file that calls a function
@@ -44,8 +45,7 @@ class _JavaScriptIndex(object):
     SUFFIX = ')'
 
     def dumps(self, data):
-        return self.PREFIX + json.dumps(data, separators=(',', ':')) \
-               + self.SUFFIX
+        return self.PREFIX + json.dumps(data) + self.SUFFIX
 
     def loads(self, s):
         data = s[len(self.PREFIX):-len(self.SUFFIX)]
@@ -119,8 +119,12 @@ class IndexBuilder(object):
             raise ValueError('old format')
         index2fn = frozen['filenames']
         self._titles = dict(zip(index2fn, frozen['titles']))
-        self._mapping = dict((k, set(index2fn[i] for i in v))
-                             for (k, v) in frozen['terms'].iteritems())
+        self._mapping = {}
+        for k, v in frozen['terms'].iteritems():
+            if isinstance(v, int):
+                self._mapping[k] = set([index2fn[v]])
+            else:
+                self._mapping[k] = set(index2fn[i] for i in v)
         # no need to load keywords/desctypes
 
     def dump(self, stream, format):
@@ -149,6 +153,16 @@ class IndexBuilder(object):
             pdict[name] = (fn2index[doc], i)
         return rv
 
+    def get_terms(self, fn2index):
+        rv = {}
+        for k, v in self._mapping.iteritems():
+            if len(v) == 1:
+                fn, = v
+                rv[k] = fn2index[fn]
+            else:
+                rv[k] = [fn2index[fn] for fn in v]
+        return rv
+
     def freeze(self):
         """Create a usable data structure for serializing."""
         filenames = self._titles.keys()
@@ -157,8 +171,7 @@ class IndexBuilder(object):
         return dict(
             filenames=filenames,
             titles=titles,
-            terms=dict((k, [fn2index[fn] for fn in v])
-                       for (k, v) in self._mapping.iteritems()),
+            terms=self.get_terms(fn2index),
             descrefs=self.get_descrefs(fn2index),
             modules=self.get_modules(fn2index),
             desctypes=dict((v, k) for (k, v) in self._desctypes.items()),

@@ -20,6 +20,7 @@ import re
 _str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re  = re.compile(r'\d+')
 _name_re = re.compile(r'[a-zA-Z]\w*')
+_nameonly_re = re.compile(r'[a-zA-Z]\w*$')
 
 # escape \, ", control characters and everything outside ASCII
 ESCAPE_ASCII = re.compile(r'([\\"]|[^\ -~])')
@@ -78,7 +79,7 @@ def dumps(obj, key=False):
     if key:
         if not isinstance(obj, basestring):
             obj = str(obj)
-        if _name_re.match(obj) and obj not in reswords:
+        if _nameonly_re.match(obj) and obj not in reswords:
             return obj  # return it as a bare word
         else:
             return encode_string(obj)
