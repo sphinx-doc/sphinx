@@ -85,12 +85,11 @@ New features added
     ``build-finished``.
 
 * Other changes:
-    
-  - Added a distutils command `build_sphinx`: When Sphinx is installed,
-    you can call ``python setup.py build_sphinx`` for projects that have
-    Sphinx documentation, which will build the docs and place them in
-    the standard distutils build directory.
 
+  - Footnotes are now properly handled in the LaTeX builder: they appear
+    at the location of the footnote reference in text, not at the end of
+    a section.  Thanks to Andrew McNamara for the initial patch.
+    
   - "System Message" warnings are now automatically removed from the
     built documentation, and only written to stderr.  If you want the
     old behavior, set the new config value ``keep_warnings`` to True.
@@ -99,6 +98,11 @@ New features added
 
   - Figures with captions can now be referred to like section titles,
     using the ``:ref:`` role without an explicit link text.
+
+  - Added a distutils command `build_sphinx`: When Sphinx is installed,
+    you can call ``python setup.py build_sphinx`` for projects that have
+    Sphinx documentation, which will build the docs and place them in
+    the standard distutils build directory.
 
   - In quickstart, if the selected root path already contains a Sphinx
     project, complain and abort.

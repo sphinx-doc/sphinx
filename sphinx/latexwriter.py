@@ -195,6 +195,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.highlightlang = builder.config.highlight_language
         self.highlightlinenothreshold = sys.maxint
         self.written_ids = set()
+        self.footnotestack = []
         if self.elements['docclass'] == 'manual':
             if builder.config.latex_use_parts:
                 self.top_sectionlevel = 0
@@ -216,6 +217,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 u''.join(self.body) + FOOTER % self.elements)
 
     def visit_document(self, node):
+        self.footnotestack.append(self.collect_footnotes(node))
         if self.first_document == 1:
             # the first document is all the regular content ...
             self.body.append(BEGIN_DOC % self.elements)
@@ -244,7 +246,28 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # This marks the begin of a new file; therefore the current module and
         # class must be reset
         self.body.append('\n\\resetcurrentobjects\n')
-        raise nodes.SkipNode
+        # and also, new footnotes
+        self.footnotestack.append(self.collect_footnotes(node))
+
+    def collect_footnotes(self, node):
+        fnotes = {}
+        def footnotes_under(n):
+            if isinstance(n, nodes.footnote):
+                yield n
+            else:
+                for c in n.children:
+                    if isinstance(c, addnodes.start_of_file):
+                        continue
+                    for k in footnotes_under(c):
+                        yield k
+        for fn in footnotes_under(node):
+            num = fn.children[0].astext().strip()
+            fnotes[num] = fn
+            fn.parent.remove(fn)
+        return fnotes
+
+    def depart_start_of_file(self, node):
+        self.footnotestack.pop()
 
     def visit_highlightlang(self, node):
         self.highlightlang = node['lang']
@@ -478,11 +501,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(self.context.pop())
 
     def visit_footnote(self, node):
-        # XXX not optimal, footnotes are at section end
-        num = node.children[0].astext().strip()
-        self.body.append('\\footnotetext[%s]{' % num)
+        pass
     def depart_footnote(self, node):
-        self.body.append('}')
+        pass
 
     def visit_label(self, node):
         if isinstance(node.parent, nodes.citation):
@@ -918,8 +939,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_footnote_reference(self, node):
-        self.body.append('\\footnotemark[%s]' % node.astext())
-        raise nodes.SkipNode
+        num = node.astext().strip()
+        try:
+            fn = self.footnotestack[-1][num]
+        except (KeyError, IndexError):
+            raise nodes.SkipNode
+        self.body.append('\\footnote{')
+        fn.walkabout(self)
+        raise nodes.SkipChildren
+    def depart_footnote_reference(self, node):
+        self.body.append('}')
 
     def visit_literal_block(self, node):
         self.verbatim = ''

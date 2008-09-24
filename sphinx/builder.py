@@ -1019,8 +1019,9 @@ class LaTeXBuilder(Builder):
                         self.warn('%s: toctree contains ref to nonexisting file %r' %
                                   (docname, includefile))
                     else:
-                        newnodes.append(addnodes.start_of_file())
-                        newnodes.extend(subtree.children)
+                        sof = addnodes.start_of_file()
+                        sof.children = subtree.children
+                        newnodes.append(sof)
                 toctreenode.parent.replace(toctreenode, newnodes)
             return tree
         tree = self.env.get_doctree(indexfile)
@@ -1046,7 +1047,7 @@ class LaTeXBuilder(Builder):
             newnodes = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(' (in ', ' (in '))
+                    newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
                     newnodes.append(nodes.emphasis(title, title))
                     newnodes.append(nodes.Text(')', ')'))
                     break
