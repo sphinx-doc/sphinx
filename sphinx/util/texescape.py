@@ -20,6 +20,7 @@ tex_replacements = [
     (u'}', ur'\}'),
     (u'[', ur'{[}'),
     (u']', ur'{]}'),
+    (u'`', ur'{}`'),
     (u'\\',ur'\textbackslash{}'),
     (u'~', ur'\textasciitilde{}'),
     (u'<', ur'\textless{}'),
