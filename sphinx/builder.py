@@ -704,7 +704,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.indexer.load(f, self.indexer_format)
             finally:
                 f.close()
-        except (IOError, OSError, NotImplementedError):
+        except (IOError, OSError, NotImplementedError, ValueError):
             # we catch NotImplementedError here because if no simplejson
             # is installed the searchindex can't be loaded
             pass

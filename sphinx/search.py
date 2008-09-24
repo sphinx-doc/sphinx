@@ -100,10 +100,13 @@ class IndexBuilder(object):
         if isinstance(format, basestring):
             format = self.formats[format]
         frozen = format.load(stream)
-        index2fn = frozen[0]
-        self._titles = dict(zip(frozen[0], frozen[1]))
+        # if an old index is present, we treat it as not existing.
+        if not isinstance(frozen, dict):
+            raise ValueError('old format')
+        index2fn = frozen['filenames']
+        self._titles = dict(zip(frozen['filenames'], frozen['titles']))
         self._mapping = dict((k, set(index2fn[i] for i in v))
-                             for (k, v) in frozen[2].iteritems())
+                             for (k, v) in frozen['terms'].iteritems())
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""

@@ -371,7 +371,7 @@ var Search = {
       // if we have still a valid result we can add it
       // to the result list
       if (valid)
-        results.push([filenames[file], titles[file], null]);
+        regularResults.push([filenames[file], titles[file], null]);
     }
 
     // delete unused variables in order to not waste
@@ -386,7 +386,7 @@ var Search = {
     });
 
     // combine both
-    results = results.concat(regularResults);
+    results = regularResults.concat(results);
 
     // print the results
     var resultCount = results.length;
