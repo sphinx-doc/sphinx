@@ -33,7 +33,8 @@ class _JavaScriptIndex(object):
     SUFFIX = ')'
 
     def dumps(self, data):
-        return self.PREFIX + json.dumps(data) + self.SUFFIX
+        return self.PREFIX + json.dumps(data, separators=(',', ':')) \
+               + self.SUFFIX
 
     def loads(self, s):
         data = s[len(self.PREFIX):-len(self.SUFFIX)]
@@ -94,6 +95,8 @@ class IndexBuilder(object):
         self._titles = {}
         # stemmed word -> set(filenames)
         self._mapping = {}
+        # desctypes -> index
+        self._desctypes = {'module': 0}
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -104,9 +107,10 @@ class IndexBuilder(object):
         if not isinstance(frozen, dict):
             raise ValueError('old format')
         index2fn = frozen['filenames']
-        self._titles = dict(zip(frozen['filenames'], frozen['titles']))
+        self._titles = dict(zip(index2fn, frozen['titles']))
         self._mapping = dict((k, set(index2fn[i] for i in v))
                              for (k, v) in frozen['terms'].iteritems())
+        # no need to load keywords/desctypes
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
@@ -117,14 +121,20 @@ class IndexBuilder(object):
     def get_keyword_map(self):
         """Return a dict of all keywords."""
         rv = {}
+        dt = self._desctypes
         for kw, (ref, _, _, _) in self.env.modules.iteritems():
-            rv[kw] = (ref, 'module', 'module-' + kw)
+            rv[kw] = (ref, 0, 'module-' + kw)
         for kw, (ref, ref_type) in self.env.descrefs.iteritems():
-            rv[kw] = (ref, ref_type, kw)
+            try:
+                i = dt[ref_type]
+            except KeyError:
+                i = len(dt)
+                dt[ref_type] = i
+            rv[kw] = (ref, i, kw)
         return rv
 
     def freeze(self):
-        """Create a useable data structure for serializing."""
+        """Create a usable data structure for serializing."""
         filenames = self._titles.keys()
         titles = self._titles.values()
         fn2index = dict((f, i) for (i, f) in enumerate(filenames))
@@ -134,7 +144,8 @@ class IndexBuilder(object):
             terms=dict((k, [fn2index[fn] for fn in v])
                        for (k, v) in self._mapping.iteritems()),
             keywords=dict((k, (fn2index[v[0]],) + v[1:]) for k, v in
-                          self.get_keyword_map().iteritems())
+                          self.get_keyword_map().iteritems()),
+            desctypes=dict((v, k) for (k, v) in self._desctypes.items()),
         )
 
     def prune(self, filenames):

@@ -294,7 +294,7 @@ var Search = {
     var excluded = [];
     var hlwords = [];
     var tmp = query.split(/\s+/);
-    var keyword = (tmp.length == 1) ? tmp[0] : null;
+    var keyword = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
     for (var i = 0; i < tmp.length; i++) {
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
@@ -321,18 +321,30 @@ var Search = {
     var filenames = this._index.filenames;
     var titles = this._index.titles;
     var words = this._index.terms;
+    var keywords = this._index.keywords;
+    var desctypes = this._index.desctypes;
     var fileMap = {};
     var files = null;
-    var results = [];
+    var keywordResults = [];
     var regularResults = [];
     $('#search-progress').empty();
 
     // lookup the keyword
     if (keyword != null) {
-      var match = this._index.keywords[keyword];
-      if (match)
-        results.push([filenames[match[0]], titles[match[0]], match[2]]);
+      for (var kw in keywords) {
+        if (kw.toLowerCase().indexOf(keyword, kw.lastIndexOf('.')) > -1) {
+          match = keywords[kw];
+          descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
+          keywordResults.push([filenames[match[0]], kw, match[2], descr]);
+        }
+      }
     }
+
+    // sort descending by keyword
+    keywordResults.sort(function(a, b) {
+      return (a[1] > b[1]) ? -1 : ((a[1] < b[1]) ? 1 : 0);
+    });
+
 
     // perform the search on the required words
     for (var i = 0; i < searchwords.length; i++) {
@@ -350,8 +362,7 @@ var Search = {
       }
     }
 
-    // now check if the files are in the correct
-    // areas and if the don't contain excluded words
+    // now check if the files don't contain excluded words
     for (var file in fileMap) {
       var valid = true;
 
@@ -371,14 +382,14 @@ var Search = {
       // if we have still a valid result we can add it
       // to the result list
       if (valid)
-        regularResults.push([filenames[file], titles[file], null]);
+        regularResults.push([filenames[file], titles[file], null, null]);
     }
 
     // delete unused variables in order to not waste
     // memory until list is retrieved completely
     delete filenames, titles, words;
 
-    // now sort the regular results by title
+    // now sort the regular results descending by title
     regularResults.sort(function(a, b) {
       var left = a[1].toLowerCase();
       var right = b[1].toLowerCase();
@@ -386,7 +397,7 @@ var Search = {
     });
 
     // combine both
-    results = regularResults.concat(results);
+    var results = regularResults.concat(keywordResults);
 
     // print the results
     var resultCount = results.length;
@@ -400,13 +411,21 @@ var Search = {
           item[0] + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
           highlightstring +
           (item[2] ? '#' + item[2] : '')).html(item[1]));
-        $.get('_sources/' + item[0] + '.txt', function(data) {
-          listItem.append($.makeSearchSummary(data, searchwords, hlwords));
+        if (item[3]) {
+          listItem.append($('<span> (' + item[3] + ')</span>'));
           Search.output.append(listItem);
-          listItem.slideDown(10, function() {
+          listItem.slideDown(5, function() {
             displayNextItem();
           });
-        });
+        } else {
+          $.get('_sources/' + item[0] + '.txt', function(data) {
+            listItem.append($.makeSearchSummary(data, searchwords, hlwords));
+            Search.output.append(listItem);
+            listItem.slideDown(5, function() {
+              displayNextItem();
+            });
+          });
+        }
       }
       // search finished, update title and status message
       else {
