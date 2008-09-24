@@ -1,10 +1,9 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version:  sphinx\n"
+"Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-10 11:43+0000\n"
-"PO-Revision-Date: 2008-09-08 11:04+0100\n"
+"PO-Revision-Date: 2008-09-16 15:47+0100\n"
 "Last-Translator: Michał Kandulski <Michal.Kandulski@poczta.onet.pl>\n"
 "Language-Team: \n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
@@ -14,55 +13,82 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/builder.py:391
+#: sphinx/builder.py:400
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%b %d %Y"
 
-#: sphinx/builder.py:410 sphinx/templates/defindex.html:21
+#: sphinx/builder.py:419
+#: sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr "Indeks ogólny"
 
-#: sphinx/builder.py:410
+#: sphinx/builder.py:419
 msgid "index"
 msgstr "indeks"
 
-#: sphinx/builder.py:412 sphinx/htmlhelp.py:155
-#: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
+#: sphinx/builder.py:421
+#: sphinx/htmlhelp.py:155
+#: sphinx/templates/defindex.html:19
+#: sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr "Indeks modułów"
 
-#: sphinx/builder.py:412
+#: sphinx/builder.py:421
 msgid "modules"
 msgstr "moduły"
 
-#: sphinx/builder.py:448
+#: sphinx/builder.py:457
 msgid "next"
 msgstr "dalej"
 
-#: sphinx/builder.py:455
+#: sphinx/builder.py:464
 msgid "previous"
 msgstr "wstecz"
 
-#: sphinx/builder.py:1092
+#: sphinx/builder.py:1108
 msgid "Builtins"
 msgstr "Wbudowane"
 
-#: sphinx/builder.py:1094
+#: sphinx/builder.py:1110
 msgid "Module level"
 msgstr "Poziom modułu"
 
-#: sphinx/environment.py:108 sphinx/latexwriter.py:129
+#: sphinx/environment.py:107
+#: sphinx/latexwriter.py:129
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%B %d %Y"
 
-#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:143
+#: sphinx/environment.py:270
+#: sphinx/latexwriter.py:190
+#: sphinx/templates/genindex-single.html:2
+#: sphinx/templates/genindex-split.html:2
+#: sphinx/templates/genindex-split.html:5
+#: sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5
+#: sphinx/templates/genindex.html:48
+msgid "Index"
+msgstr "Indeks"
+
+#: sphinx/environment.py:271
+#: sphinx/latexwriter.py:188
+msgid "Module Index"
+msgstr "Indeks modułów"
+
+#: sphinx/environment.py:272
+#: sphinx/templates/defindex.html:16
+msgid "Search Page"
+msgstr "Wyszukiwanie"
+
+#: sphinx/htmlwriter.py:73
+#: sphinx/static/doctools.js:145
 msgid "Permalink to this definition"
 msgstr "Stały odnośnik do tej definicji"
 
-#: sphinx/htmlwriter.py:379 sphinx/static/doctools.js:136
+#: sphinx/htmlwriter.py:375
+#: sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr "Stały odnośnik do tego nagłówka"
 
@@ -70,18 +96,8 @@ msgstr "Stały odnośnik do tego nagłówka"
 msgid "Release"
 msgstr "Wydanie"
 
-#: sphinx/latexwriter.py:188
-msgid "Module index"
-msgstr "Indeks modułów"
-
-#: sphinx/latexwriter.py:190 sphinx/templates/genindex-single.html:2
-#: sphinx/templates/genindex-split.html:2
-#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
-#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
-msgid "Index"
-msgstr "Indeks"
-
-#: sphinx/roles.py:52 sphinx/directives/desc.py:514
+#: sphinx/roles.py:52
+#: sphinx/directives/desc.py:514
 #, python-format
 msgid "environment variable; %s"
 msgstr "zmienna środowiskowa; %s"
@@ -98,14 +114,15 @@ msgstr "Platforma: %s"
 
 #: sphinx/textwriter.py:353
 msgid "[image]"
-msgstr "[image]"
+msgstr "[obrazek]"
 
 #: sphinx/directives/desc.py:26
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (funkcja wbudowana)"
 
-#: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
+#: sphinx/directives/desc.py:27
+#: sphinx/directives/desc.py:41
 #: sphinx/directives/desc.py:53
 #, python-format
 msgid "%s() (in module %s)"
@@ -116,7 +133,8 @@ msgstr "%s() (w module %s)"
 msgid "%s (built-in variable)"
 msgstr "%s (zmienna wbudowana)"
 
-#: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
+#: sphinx/directives/desc.py:31
+#: sphinx/directives/desc.py:65
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (w module %s)"
@@ -314,24 +332,24 @@ msgstr "instrukcja"
 msgid "built-in function"
 msgstr "funkcja wbudowana"
 
-#: sphinx/static/doctools.js:172
+#: sphinx/static/doctools.js:174
 msgid "Hide Search Matches"
-msgstr "Ukryj wyniki przeszukiwania"
+msgstr "Ukryj wyniki wyszukiwania"
 
-#: sphinx/static/searchtools.js:242
-#, fuzzy
+#: sphinx/static/searchtools.js:274
 msgid "Searching"
-msgstr "Szukanie"
+msgstr "Wyszukiwanie"
 
-#: sphinx/static/searchtools.js:246
-msgid "Getting search index..."
-msgstr "Pobieranie indeksu przeszukiwania..."
+#: sphinx/static/searchtools.js:279
+msgid "Preparing search..."
+msgstr "Przygotowanie wyszukiwania..."
 
-#: sphinx/static/searchtools.js:384 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:401
+#: sphinx/templates/search.html:18
 msgid "Search Results"
 msgstr "Wyniki wyszukiwania"
 
-#: sphinx/static/searchtools.js:386
+#: sphinx/static/searchtools.js:403
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
@@ -340,7 +358,7 @@ msgstr ""
 "wszystkie słowa są poprawnie wpisane i że wybrałeś wystarczającą"
 "liczbę kategorii."
 
-#: sphinx/static/searchtools.js:389
+#: sphinx/static/searchtools.js:405
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Przeszukiwanie zakończone, znaleziono %s pasujących stron."
@@ -361,10 +379,6 @@ msgstr "Kompletny spis treści"
 msgid "lists all sections and subsections"
 msgstr "wymień wszystkie rozdziały i podrozdziały"
 
-#: sphinx/templates/defindex.html:16
-msgid "Search page"
-msgstr "Szukanie"
-
 #: sphinx/templates/defindex.html:17
 msgid "search this documentation"
 msgstr "wyszukaj w dokumentacji"
@@ -384,7 +398,8 @@ msgstr "Indeks &ndash; %(key)s"
 
 #: sphinx/templates/genindex-single.html:44
 #: sphinx/templates/genindex-split.html:14
-#: sphinx/templates/genindex-split.html:27 sphinx/templates/genindex.html:54
+#: sphinx/templates/genindex-split.html:27
+#: sphinx/templates/genindex.html:54
 msgid "Full index on one page"
 msgstr "Cały indeks na jednej stronie"
 
@@ -428,7 +443,8 @@ msgstr "Ta strona"
 msgid "Suggest Change"
 msgstr "Zasugeruj zmianę"
 
-#: sphinx/templates/layout.html:60 sphinx/templates/layout.html:62
+#: sphinx/templates/layout.html:60
+#: sphinx/templates/layout.html:62
 msgid "Show Source"
 msgstr "Pokaż źródło"
 
@@ -465,7 +481,8 @@ msgstr "Globalny spis treści"
 msgid "Global index"
 msgstr "Globalny indeks"
 
-#: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
+#: sphinx/templates/layout.html:131
+#: sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
 msgid "Search"
 msgstr "Szukaj"
@@ -535,8 +552,8 @@ msgstr ""
 "Stąd możesz przeszukać dokumentację. Wprowadź szukane\n"
 "    słowa w poniższym okienku i kliknij \"Szukaj\". Zwróć uwagę, że\n"
 "    funkcja szukająca będzie automatycznie szukała wszystkich słów. "
-"Strony\n"
-"    nie zawierające wszystkich słów nie znajdą się na wynikowej liście."
+"    Strony nie zawierające wszystkich słów nie znajdą się na wynikowej "
+"    liście."
 
 #: sphinx/templates/search.html:14
 msgid "search"
