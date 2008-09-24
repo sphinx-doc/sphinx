@@ -15,7 +15,7 @@
           {%- if not loop.first %}{{ reldelim2 }}{% endif %}</li>
         {%- endfor %}
         {%- block rootrellink %}
-        <li><a href="{{ pathto('index') }}">{{ shorttitle }}</a>{{ reldelim1 }}</li>
+        <li><a href="{{ pathto(master_doc) }}">{{ shorttitle }}</a>{{ reldelim1 }}</li>
         {%- endblock %}
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a>{{ reldelim1 }}</li>
@@ -122,12 +122,11 @@
     <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1) }}"/>
     {%- endif %}
     {%- endif %}
-{%- block rellinks %}
+{%- block linktags %}
     {%- if hasdoc('about') %}
     <link rel="author" title="{{ _('About these documents') }}" href="{{ pathto('about') }}" />
     {%- endif %}
-    <link rel="contents" title="{{ _('Global table of contents') }}" href="{{ pathto('contents') }}" />
-    <link rel="index" title="{{ _('Global index') }}" href="{{ pathto('genindex') }}" />
+    <link rel="index" title="{{ _('Index') }}" href="{{ pathto('genindex') }}" />
     <link rel="search" title="{{ _('Search') }}" href="{{ pathto('search') }}" />
     {%- if hasdoc('copyright') %}
     <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />

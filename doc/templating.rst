@@ -82,7 +82,7 @@ The following blocks exist in the ``layout`` template:
     idea not to change it unless you want to switch to HTML 5 or a different but
     compatible XHTML doctype.
 
-`rellinks`
+`linktags`
     This block adds a couple of ``<link>`` tags to the head section of the
     template.
 
@@ -102,11 +102,11 @@ The following blocks exist in the ``layout`` template:
 
 `rootrellink` / `relbaritems`
     Inside the relbar there are three sections: The `rootrellink`, the links
-    from the documentation and the `relbaritems`.  The `rootrellink` is a block
-    that by default contains a list item pointing to the master document by
-    default, the `relbaritems` is an empty block.  If you override them to add
-    extra links into the bar make sure that they are list items and end with the
-    :data:`reldelim1`.
+    from the documentation and the custom `relbaritems`.  The `rootrellink` is a
+    block that by default contains a list item pointing to the master document
+    by default, the `relbaritems` is an empty block.  If you override them to
+    add extra links into the bar make sure that they are list items and end with
+    the :data:`reldelim1`.
 
 `document`
     The contents of the document itself.

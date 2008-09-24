@@ -78,6 +78,9 @@ New features added
 * Added new events: ``env-updated``, ``missing-reference``,
   ``build-finished``.
 
+* The ``rellinks`` block in the layout template is now called
+  ``linktags`` to avoid confusion with the relbar links.
+
 
 Release 0.4.2 (Jul 29, 2008)
 ============================
