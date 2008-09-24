@@ -29,9 +29,7 @@ to reStructuredText/Sphinx from other documentation systems.
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
   <http://svn.python.org/projects/doctools/converter>`_.  It contains generic
-  code to convert Python-doc-style LaTeX markup to Sphinx reST, but also code
-  specific to the layout of the Python docs which needs to be removed in order
-  to be useful for other docs.
+  code to convert Python-doc-style LaTeX markup to Sphinx reST.
 
 
 Prerequisites
