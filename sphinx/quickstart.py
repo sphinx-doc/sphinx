@@ -387,6 +387,19 @@ accept a default value, if one is given in brackets).'''
     print '''
 Enter the root path for documentation.'''
     do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
+
+    while path.isfile(path.join(d['path'], 'conf.py')) or \
+          path.isfile(path.join(d['path'], 'source', 'conf.py')):
+        print
+        print bold('Error: an existing conf.py has been found in the '
+                   'selected root path.')
+        print 'sphinx-quickstart will not overwrite existing Sphinx projects.'
+        print
+        do_prompt(d, 'path', 'Please enter a new root path (or just Enter to exit)',
+                  '', is_path)
+        if not d['path']:
+            sys.exit(1)
+
     print '''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory ".build" within the root path, or you separate

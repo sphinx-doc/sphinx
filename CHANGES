@@ -100,6 +100,9 @@ New features added
   - Figures with captions can now be referred to like section titles,
     using the ``:ref:`` role without an explicit link text.
 
+  - In quickstart, if the selected root path already contains a Sphinx
+    project, complain and abort.
+
 
 Release 0.4.2 (Jul 29, 2008)
 ============================
