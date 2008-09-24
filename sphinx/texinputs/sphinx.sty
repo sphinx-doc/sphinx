@@ -142,18 +142,6 @@
     \renewcommand{\headrulewidth}{0pt}
     \renewcommand{\footrulewidth}{0.4pt}
   }
-  % Redefine \cleardoublepage so that the blank page between chapters
-  % gets the plain style and not the fancy style.  This is described
-  % in the documentation for the fancyhdr package by Piet von Oostrum.
-  \@ifundefined{chapter}{}{
-    \renewcommand{\cleardoublepage}{
-      \clearpage\if@openright \ifodd\c@page\else
-      \hbox{}
-      \thispagestyle{plain}
-      \newpage
-      \if@twocolumn\hbox{}\newpage\fi\fi\fi
-    }
-  }
 }
 
 % Some custom font markup commands.

@@ -34,8 +34,8 @@ bz2: tar
 	latex '$<'
 	latex '$<'
 	latex '$<'
-	-makeindex -s python.ist $(basename '$<').idx
-	-makeindex -s python.ist $(basename 'mod$<').idx
+	-makeindex -s python.ist '$(basename $<).idx'
+	-makeindex -s python.ist '$(basename mod$<).idx'
 	latex '$<'
 	latex '$<'
 
@@ -43,8 +43,8 @@ bz2: tar
 	pdflatex '$<'
 	pdflatex '$<'
 	pdflatex '$<'
-	-makeindex -s python.ist $(basename '$<').idx
-	-makeindex -s python.ist $(basename 'mod$<').idx
+	-makeindex -s python.ist '$(basename $<).idx'
+	-makeindex -s python.ist '$(basename mod$<).idx'
 	pdflatex '$<'
 	pdflatex '$<'
 
