@@ -13,6 +13,7 @@ to be included, please mail to `the Google group
 * Django: http://docs.djangoproject.com/
 * Jinja: http://jinja.pocoo.org/2/documentation/
 * F2py: http://www.f2py.org/html/
+* zc.async: http://packages.python.org/zc.async/1.5.0/
 * Paver: http://www.blueskyonmars.com/projects/paver/
 * Satchmo: http://www.satchmoproject.com/docs/svn/
 * PyEphem: http://rhodesmill.org/pyephem/
