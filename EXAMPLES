@@ -11,7 +11,10 @@ to be included, please mail to `the Google group
 * NumPy: http://mentat.za.net/numpy/refguide/
 * Pylons: http://bel-epa.com/pylonsdocs/
 * Django: http://docs.djangoproject.com/
+* Grok: http://grok.zope.org/doc/current/
+* TurboGears: http://turbogears.org/2.0/docs/
 * Jinja: http://jinja.pocoo.org/2/documentation/
+* Cython: http://docs.cython.org/
 * F2py: http://www.f2py.org/html/
 * zc.async: http://packages.python.org/zc.async/1.5.0/
 * Paver: http://www.blueskyonmars.com/projects/paver/
@@ -27,6 +30,4 @@ to be included, please mail to `the Google group
 * SymPy: http://docs.sympy.org/
 * GeoDjango: http://geodjango.org/docs/
 * Mixin.com: http://dev.mixin.com/
-* Grok (upcoming)
 * Matplotlib (upcoming)
-* TurboGears (upcoming)
