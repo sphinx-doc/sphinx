@@ -25,7 +25,7 @@
     Release 1: January 2001
 
     :copyright: 2001 by Vivake Gupta <v@nano.com>.
-    :license: Public Domain (?).
+    :license: Public Domain ("can be used free of charge for any purpose").
 """
 
 class PorterStemmer(object):
