@@ -120,6 +120,8 @@ Bugs fixed
 
 * Don't crash on weird casing of role names (like ``:Class:``).
 
+* Only output ANSI colors on color terminals.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================

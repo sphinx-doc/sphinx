@@ -17,7 +17,7 @@ from os import path
 from cStringIO import StringIO
 
 from sphinx.util import format_exception_cut_frames, save_traceback
-from sphinx.util.console import darkred, nocolor
+from sphinx.util.console import darkred, nocolor, color_terminal
 
 __revision__ = '$Revision$'
 __version__ = '0.5'
@@ -54,7 +54,7 @@ def main(argv=sys.argv):
     from sphinx.application import Sphinx, SphinxError
     from docutils.utils import SystemMessage
 
-    if not sys.stdout.isatty() or sys.platform == 'win32':
+    if not sys.stdout.isatty() or sys.platform == 'win32' or not color_terminal():
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 

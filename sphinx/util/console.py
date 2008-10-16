@@ -9,6 +9,8 @@
     :license: BSD.
 """
 
+import os
+
 codes = {}
 
 def get_terminal_width():
@@ -33,6 +35,14 @@ def print_and_backspace(text, func):
         func(text)
     else:
         func(text.ljust(_tw) + _tw * "\b")
+
+def color_terminal():
+    if 'COLORTERM' in os.environ:
+        return True
+    term = os.environ.get('TERM', 'dumb').lower()
+    if 'xterm' in term or 'color' in term:
+        return True
+    return False
 
 
 def nocolor():
