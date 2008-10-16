@@ -49,29 +49,23 @@
   \usepackage[pdftex]{graphicx}
 \fi
 
-% for PDF output, use maximal compression
-\newif\ifpdf\pdffalse
+% for PDF output, use colors and maximal compression
 \ifx\pdfoutput\undefined\else\ifcase\pdfoutput
   \let\py@NormalColor\relax
   \let\py@TitleColor\relax
 \else
-  \pdftrue
   \input{pdfcolor}
-  \let\py@NormalColor=\Black
+  \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
   \pdfcompresslevel=9
 \fi\fi
 
-% Detect if we're using XeLaTeX
-\IfFileExists{ifxetex.sty}{%
-  \RequirePackage{ifxetex}
-}{% not using xelatex
-  \newif\ifxetex\xetexfalse
-}
-\ifxetex
+% XeLaTeX can do colors, too
+\IfFileExists{ifxetex.sty}{\RequirePackage{ifxetex}}{}
+\ifx\ifxetex\undefined\else\ifxetex
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
-\fi
+\fi\fi
 
 % Increase printable page size (copied from fullpage.sty)
 \topmargin 0pt
