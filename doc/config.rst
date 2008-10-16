@@ -67,8 +67,16 @@ General configuration
 .. confval:: source_suffix
 
    The file name extension of source files.  Only files with this suffix will be
-   read as sources.  Default is ``.rst``.
+   read as sources.  Default is ``'.rst'``.
 
+.. confval:: source_encoding
+
+   The encoding of all reST source files.  The recommended encoding, and the
+   default value, is ``'utf-8'``.
+
+   .. versionadded:: 0.5
+      Previously, Sphinx accepted only UTF-8 encoded sources.
+   
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that

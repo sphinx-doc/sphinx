@@ -496,9 +496,14 @@ class BuildEnvironment:
                 return data
 
         self.docname = docname
-        doctree = publish_doctree(None, src_path, SphinxSourceClass,
-                                  settings_overrides=self.settings,
-                                  reader=SphinxStandaloneReader())
+        self.settings['input_encoding'] = self.config.source_encoding
+        try:
+            doctree = publish_doctree(None, src_path, SphinxSourceClass,
+                                      settings_overrides=self.settings,
+                                      reader=SphinxStandaloneReader())
+        except UnicodeError, err:
+            from sphinx.application import SphinxError
+            raise SphinxError(err.message)
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)

@@ -35,6 +35,7 @@ class Config(object):
 
         master_doc = ('contents', True),
         source_suffix = ('.rst', True),
+        source_encoding = ('utf-8', True),
         unused_docs = ([], True),
         exclude_dirs = ([], True),
         exclude_trees = ([], True),

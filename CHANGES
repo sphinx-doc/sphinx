@@ -55,6 +55,8 @@ New features added
   - Added ``exclude_dirnames`` config value that can be used to exclude
     e.g. CVS directories from source file search.
 
+  - Added ``source_encoding`` config value to select input encoding.
+
 * Extensions:
 
   - The new extensions ``sphinx.ext.jsmath`` and ``sphinx.ext.pngmath``
