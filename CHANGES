@@ -116,6 +116,8 @@ Bugs fixed
 
 * Properly escape quotes in HTML help attribute values.
 
+* Fix LaTeX build for some description environments with ``:noindex:``.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================

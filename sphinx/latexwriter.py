@@ -106,7 +106,6 @@ class Table(object):
 class Desc(object):
     def __init__(self, node):
         self.env = LaTeXTranslator.desc_map.get(node['desctype'], 'describe')
-        self.ni = node['noindex']
         self.type = self.cls = self.name = self.params = self.annotation = ''
         self.count = 0
 
@@ -382,7 +381,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.descstack.append(Desc(node))
     def depart_desc(self, node):
         d = self.descstack.pop()
-        self.body.append("\\end{%s%s}\n" % (d.env, d.ni and 'ni' or ''))
+        self.body.append("\\end{%s}\n" % d.env)
 
     def visit_desc_signature(self, node):
         d = self.descstack[-1]
@@ -396,13 +395,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             hyper = ''
         if d.count == 0:
-            t1 = "\n\n%s\\begin{%s%s}" % (hyper, d.env, (d.ni and 'ni' or ''))
+            t1 = "\n\n%s\\begin{%s}" % (hyper, d.env)
         else:
-            t1 = "\n%s\\%sline%s" % (hyper, d.env[:-4], (d.ni and 'ni' or ''))
+            t1 = "\n%s\\%sline" % (hyper, d.env[:-4])
         d.count += 1
         if d.env in ('funcdesc', 'classdesc', 'excclassdesc'):
             t2 = "{%s}{%s}" % (d.name, d.params)
-        elif d.env in ('datadesc', 'classdesc*', 'excdesc', 'csimplemacrodesc'):
+        elif d.env in ('datadesc', 'excdesc', 'csimplemacrodesc'):
             t2 = "{%s}" % (d.name)
         elif d.env in ('methoddesc', 'staticmethoddesc'):
             if d.cls:

@@ -414,18 +414,10 @@
 % simple functions (not methods) -----------------------------------------
 % \begin{funcdesc}{name}{args}
 \newcommand{\funcline}[2]{%
-  \funclineni{#1}{#2}}
+  \py@sigline{\bfcode{#1}}{#2}}
 \newenvironment{funcdesc}[2]{
   \begin{fulllineitems}
     \funcline{#1}{#2}
-}{\end{fulllineitems}}
-
-% similar to {funcdesc}, but doesn't add to the index
-\newcommand{\funclineni}[2]{%
-  \py@sigline{\bfcode{#1}}{#2}}
-\newenvironment{funcdescni}[2]{
-  \begin{fulllineitems}
-    \funclineni{#1}{#2}
 }{\end{fulllineitems}}
 
 % classes ----------------------------------------------------------------
@@ -437,23 +429,6 @@
   \global\def\py@thisclass{#1}
   \begin{fulllineitems}
     \classline{#1}{#2}
-}{\end{fulllineitems}}
-
-\newcommand{\classlineni}[2]{
-  \py@sigline{\strong{class }\bfcode{#1}}{#2}}
-\newenvironment{classdescni}[2]{
-  % Using \renewcommand doesn't work for this, for unknown reasons:
-  \global\def\py@thisclass{#1}
-  \begin{fulllineitems}
-    \classlineni{#1}{#2}
-}{\end{fulllineitems}}
-
-% \begin{classdesc*}{name}
-\newenvironment{classdesc*}[1]{
-  % Using \renewcommand doesn't work for this, for unknown reasons:
-  \global\def\py@thisclass{#1}
-  \begin{fulllineitems}
-    \item[\strong{class }\code{\bfcode{#1}}]
 }{\end{fulllineitems}}
 
 % \begin{excclassdesc}{name}{constructor args}
@@ -474,8 +449,7 @@
 % object method ----------------------------------------------------------
 % \begin{methoddesc}[classname]{methodname}{args}
 \newcommand{\methodline}[3][\@undefined]{
-  \methodlineni{#2}{#3}
-}
+  \py@sigline{\bfcode{#2}}{#3}}
 \newenvironment{methoddesc}[3][\@undefined]{
   \begin{fulllineitems}
     \ifx\@undefined#1\relax
@@ -486,20 +460,10 @@
     \fi
 }{\end{fulllineitems}}
 
-% similar to {methoddesc}, but doesn't add to the index
-% (never actually uses the optional argument)
-\newcommand{\methodlineni}[3][\py@classbadkey]{%
-  \py@sigline{\bfcode{#2}}{#3}}
-\newenvironment{methoddescni}[3][\py@classbadkey]{
-  \begin{fulllineitems}
-    \methodlineni{#2}{#3}
-}{\end{fulllineitems}}
-
 % static method ----------------------------------------------------------
 % \begin{staticmethoddesc}[classname]{methodname}{args}
 \newcommand{\staticmethodline}[3][\@undefined]{
-  \staticmethodlineni{#2}{#3}
-}
+  \py@sigline{static \bfcode{#2}}{#3}}
 \newenvironment{staticmethoddesc}[3][\@undefined]{
   \begin{fulllineitems}
     \ifx\@undefined#1\relax
@@ -510,22 +474,13 @@
     \fi
 }{\end{fulllineitems}}
 
-% similar to {staticmethoddesc}, but doesn't add to the index
-% (never actually uses the optional argument)
-\newcommand{\staticmethodlineni}[3][\py@classbadkey]{%
-  \py@sigline{static \bfcode{#2}}{#3}}
-\newenvironment{staticmethoddescni}[3][\py@classbadkey]{
-  \begin{fulllineitems}
-    \staticmethodlineni{#2}{#3}
-}{\end{fulllineitems}}
-
 % object data attribute --------------------------------------------------
 % \begin{memberdesc}[classname]{membername}
 \newcommand{\memberline}[2][\py@classbadkey]{%
   \ifx\@undefined#1\relax
-    \memberlineni{#2}
+    \item[\bfcode{#2}]
   \else
-    \memberlineni{#2}
+    \item[\bfcode{#2}]
   \fi
 }
 \newenvironment{memberdesc}[2][\py@classbadkey]{
@@ -536,14 +491,6 @@
       \def\py@thisclass{#1}
       \memberline{#2}
     \fi
-}{\end{fulllineitems}}
-
-% similar to {memberdesc}, but doesn't add to the index
-% (never actually uses the optional argument)
-\newcommand{\memberlineni}[2][\py@classbadkey]{\item[\bfcode{#2}]}
-\newenvironment{memberdescni}[2][\py@classbadkey]{
-  \begin{fulllineitems}
-    \memberlineni{#2}
 }{\end{fulllineitems}}
 
 % For exceptions: --------------------------------------------------------
@@ -557,17 +504,10 @@
 % Module data or constants: ----------------------------------------------
 % \begin{datadesc}{name}
 \newcommand{\dataline}[1]{%
-  \datalineni{#1}}
+  \item[\bfcode{#1}]\nopagebreak}
 \newenvironment{datadesc}[1]{
   \begin{fulllineitems}
     \dataline{#1}
-}{\end{fulllineitems}}
-
-% similar to {datadesc}, but doesn't add to the index
-\newcommand{\datalineni}[1]{\item[\bfcode{#1}]\nopagebreak}
-\newenvironment{datadescni}[1]{
-  \begin{fulllineitems}
-    \datalineni{#1}
 }{\end{fulllineitems}}
 
 % bytecode instruction ---------------------------------------------------
