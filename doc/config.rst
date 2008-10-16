@@ -442,8 +442,12 @@ These options influence LaTeX output.
      here.)
    * *targetname*: file name of the LaTeX file in the output directory.
    * *title*: LaTeX document title.  Can be empty to use the title of the
-     *startdoc*.
-   * *author*: Author for the LaTeX document.
+     *startdoc*.  This is inserted as LaTeX markup, so special characters like a
+     backslash or ampersand must be represented by the proper LaTeX commands if
+     they are to be inserted literally.
+   * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
+     for *title* applies.  Use ``\and`` to separate multiple authors, as in:
+     ``'John \and Sarah'``.
    * *documentclass*: Must be one of ``'manual'`` or ``'howto'``.  Only "manual"
      documents will get appendices.  Also, howtos will have a simpler title
      page.

@@ -337,7 +337,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if len(node.children) != 1 and not isinstance(node.children[0], nodes.Text):
                 self.builder.warn('document title is not a single Text node')
             if not self.elements['title']:
-                self.elements['title'] = node.astext()
+                # text needs to be escaped since it is inserted into
+                # the output literally
+                self.elements['title'] = node.astext().translate(tex_escape_map)
             self.this_is_the_title = 0
             raise nodes.SkipNode
         elif isinstance(node.parent, nodes.section):
