@@ -644,6 +644,18 @@ class StandaloneHTMLBuilder(Builder):
         # copy static files
         self.info(bold('copying static files... '), nonl=True)
         ensuredir(path.join(self.outdir, '_static'))
+        # first, create pygments style file
+        f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
+        f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())
+        f.close()
+        # then, copy translations JavaScript file
+        if self.config.language is not None:
+            jsfile = path.join(path.dirname(__file__), 'locale', self.config.language,
+                               'LC_MESSAGES', 'sphinx.js')
+            if path.isfile(jsfile):
+                shutil.copyfile(jsfile, path.join(self.outdir, '_static',
+                                                  'translations.js'))
+        # then, copy over all user-supplied static files
         staticdirnames = [path.join(path.dirname(__file__), 'static')] + \
                          [path.join(self.confdir, spath)
                           for spath in self.config.html_static_path]
@@ -661,22 +673,11 @@ class StandaloneHTMLBuilder(Builder):
                     if path.exists(targetname):
                         shutil.rmtree(targetname)
                     shutil.copytree(fullname, targetname)
-        # add translations JavaScript file
-        if self.config.language is not None:
-            jsfile = path.join(path.dirname(__file__), 'locale', self.config.language,
-                               'LC_MESSAGES', 'sphinx.js')
-            if path.isfile(jsfile):
-                shutil.copyfile(jsfile, path.join(self.outdir, '_static',
-                                                  'translations.js'))
-        # copy logo file (handled differently)
+        # last, copy logo file (handled differently)
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
             shutil.copyfile(path.join(self.confdir, self.config.html_logo),
                             path.join(self.outdir, '_static', logobase))
-        # add pygments style file
-        f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
-        f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())
-        f.close()
         self.info('done')
 
         # dump the search index
