@@ -68,7 +68,7 @@ def literalinclude_directive(name, arguments, options, content, lineno,
         lineno - state_machine.input_offset - 1)))
     fn = path.normpath(path.join(source_dir, rel_fn))
 
-    encoding = options.get('encoding', 'utf-8')
+    encoding = options.get('encoding', env.config.source_encoding)
     try:
         f = codecs.open(fn, 'r', encoding)
         text = f.read()
