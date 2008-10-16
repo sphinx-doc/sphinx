@@ -110,7 +110,7 @@ def test_quickstart_all_answers(tempdir):
         'Separate source and build': 'y',
         'Name prefix for templates': '_',
         'Project name': 'STASI\xe2\x84\xa2',
-        'Author name': 'Wolfgang Sch\xc3\xa4uble',
+        'Author name': 'Wolfgang Sch\xc3\xa4uble & G. Beckstein',
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Source file suffix': '.txt',
@@ -133,13 +133,14 @@ def test_quickstart_all_answers(tempdir):
     assert ns['source_suffix'] == '.txt'
     assert ns['master_doc'] == 'contents'
     assert ns['project'] == u'STASI™'
-    assert ns['copyright'] == u'%s, Wolfgang Schäuble' % time.strftime('%Y')
+    assert ns['copyright'] == u'%s, Wolfgang Schäuble & G. Beckstein' % \
+           time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
     assert ns['html_static_path'] == ['_static']
     assert ns['latex_documents'] == [
         ('contents', 'STASI.tex', u'STASI™ Documentation',
-         u'Wolfgang Schäuble', 'manual')]
+         ur'Wolfgang Schäuble \& G. Beckstein', 'manual')]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '_static').isdir()

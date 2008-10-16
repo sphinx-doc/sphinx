@@ -16,6 +16,7 @@ TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
 from sphinx.util import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, nocolor
+from sphinx.util.texescape import tex_escape_map
 
 
 PROMPT_PREFIX = '> '
@@ -188,8 +189,8 @@ htmlhelp_basename = '%(project_fn)sdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('%(master)s', '%(project_fn)s.tex', u'%(project_doc)s',
-   u'%(author)s', 'manual'),
+  ('%(master)s', '%(project_fn)s.tex', ur'%(project_doc_texescaped)s',
+   ur'%(author_texescaped)s', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -461,7 +462,10 @@ directly.'''
         repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest', 'intersphinx')
         if d['ext_' + name].upper() in ('Y', 'YES'))
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
+    d['author_texescaped'] = unicode(d['author']).translate(tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
+    d['project_doc_texescaped'] = \
+        unicode(d['project'] + ' Documentation').translate(tex_escape_map)
 
     if not path.isdir(d['path']):
         mkdir_p(d['path'])
