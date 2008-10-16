@@ -58,6 +58,7 @@ class ExtensionError(SphinxError):
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
+    'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'missing-reference': 'env, node, contnode',
     'doctree-resolved': 'doctree, docname',

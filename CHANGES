@@ -81,8 +81,8 @@ New features added
   - Added ``Sphinx.add_javascript()`` that adds scripts to load in the
     default HTML template.
 
-  - Added new events: ``env-updated``, ``missing-reference``,
-    ``build-finished``.
+  - Added new events: ``source-read``, ``env-updated``,
+    ``missing-reference``, ``build-finished``.
 
 * Other changes:
 

@@ -485,8 +485,18 @@ class BuildEnvironment:
             else:
                 self.warn(docname, 'default role %s not found' %
                           self.config.default_role)
+
+        class SphinxSourceClass(FileInput):
+            def read(self):
+                data = FileInput.read(self)
+                if app:
+                    arg = [data]
+                    app.emit('source-read', docname, arg)
+                    data = arg[0]
+                return data
+
         self.docname = docname
-        doctree = publish_doctree(None, src_path, FileInput,
+        doctree = publish_doctree(None, src_path, SphinxSourceClass,
                                   settings_overrides=self.settings,
                                   reader=SphinxStandaloneReader())
         self.filter_messages(doctree)

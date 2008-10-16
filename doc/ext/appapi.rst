@@ -208,6 +208,14 @@ registered event handlers.
    Emitted when the builder object has been created.  It is available as
    ``app.builder``.
 
+.. event:: source-read (app, docname, source)
+
+   Emitted when a source file has been read.  The *source* argument is a list
+   whose single element is the contents of the source file.  You can process the
+   contents and replace this item to implement source-level transformations.
+
+   .. versionadded:: 0.5
+   
 .. event:: doctree-read (app, doctree)
 
    Emitted when a doctree has been parsed and read by the environment, and is
