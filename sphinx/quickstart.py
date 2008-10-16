@@ -15,7 +15,7 @@ from os import path
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
 from sphinx.util import make_filename
-from sphinx.util.console import purple, bold, red, turquoise, nocolor
+from sphinx.util.console import purple, bold, red, turquoise, nocolor, color_terminal
 from sphinx.util.texescape import tex_escape_map
 
 
@@ -380,7 +380,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
 def inner_main(args):
     d = {}
 
-    if os.name == 'nt' or not sys.stdout.isatty():
+    if not sys.stdout.isatty() or not color_terminal():
         nocolor()
 
     print bold('Welcome to the Sphinx quickstart utility.')

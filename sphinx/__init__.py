@@ -54,7 +54,7 @@ def main(argv=sys.argv):
     from sphinx.application import Sphinx, SphinxError
     from docutils.utils import SystemMessage
 
-    if not sys.stdout.isatty() or sys.platform == 'win32' or not color_terminal():
+    if not sys.stdout.isatty() or not color_terminal():
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 
