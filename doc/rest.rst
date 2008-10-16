@@ -265,10 +265,8 @@ Source encoding
 
 Since the easiest way to include special characters like em dashes or copyright
 signs in reST is to directly write them as Unicode characters, one has to
-specify an encoding:
-
-All documentation source files must be in UTF-8 encoding, and the HTML
-documents written from them will be in that encoding as well.
+specify an encoding.  Sphinx assumes source files to be encoded in UTF-8 by
+default; you can change this with the :confval:`source_encoding` config value.
 
 
 Gotchas
@@ -278,6 +276,6 @@ There are some problems one commonly runs into while authoring reST documents:
 
 * **Separation of inline markup:** As said above, inline markup spans must be
   separated from the surrounding text by non-word characters, you have to use
-  an escaped space to get around that.
+  a backslash-escaped space to get around that.
 
 .. XXX more?
