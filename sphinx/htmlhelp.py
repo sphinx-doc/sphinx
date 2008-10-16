@@ -164,7 +164,8 @@ def build_hhx(builder, outdir, outname):
                     write_toc(subnode, ullevel)
             elif isinstance(node, nodes.reference):
                 link = node['refuri']
-                item = object_sitemap % (cgi.escape(node.astext()), link)
+                title = cgi.escape(node.astext()).replace('"','&quot;')
+                item = object_sitemap % (title, link)
                 f.write(item.encode('ascii', 'xmlcharrefreplace'))
             elif isinstance(node, nodes.bullet_list):
                 if ullevel != 0:

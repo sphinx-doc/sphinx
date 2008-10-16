@@ -111,6 +111,11 @@ New features added
 
   - Added ``cmember`` role for consistency.
 
+Bugs fixed
+----------
+
+* Properly escape quotes in HTML help attribute values.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================
