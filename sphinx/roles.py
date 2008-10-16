@@ -41,6 +41,8 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
     env = inliner.document.settings.env
     if not typ:
         typ = env.config.default_role
+    else:
+        typ = typ.lower()
     text = utils.unescape(etext)
     targetid = 'index-%s' % env.index_num
     env.index_num += 1
@@ -112,6 +114,8 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
     if not typ:
         typ = env.config.default_role
+    else:
+        typ = typ.lower()
     text = utils.unescape(text)
     # if the first character is a bang, don't cross-reference at all
     if text[0:1] == '!':
@@ -190,7 +194,7 @@ _litvar_re = re.compile('{([^}]+)}')
 def emph_literal_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
     pos = 0
-    retnode = nodes.literal(role=typ)
+    retnode = nodes.literal(role=typ.lower())
     for m in _litvar_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]

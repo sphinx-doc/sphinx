@@ -62,6 +62,8 @@ Stuff [#]_
 
 This is a side note.
 
+This tests :CLASS:`role names in uppercase`.
+
 .. centered:: LICENSE AGREEMENT
 
 .. acks::

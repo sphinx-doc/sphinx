@@ -118,6 +118,8 @@ Bugs fixed
 
 * Fix LaTeX build for some description environments with ``:noindex:``.
 
+* Don't crash on weird casing of role names (like ``:Class:``).
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================
