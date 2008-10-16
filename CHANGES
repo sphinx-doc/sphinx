@@ -112,6 +112,37 @@ New features added
   - Added ``cmember`` role for consistency.
 
 
+Release 0.4.3 (Oct 8, 2008)
+===========================
+
+* Fix a bug in autodoc with directly given autodoc members.
+
+* Fix a bug in autodoc that would import a module twice, once as
+  "module", once as "module.".
+
+* Fix a bug in the HTML writer that created duplicate ``id``
+  attributes for section titles with docutils 0.5.
+
+* Properly call ``super()`` in overridden blocks in templates.
+
+* Add a fix when using XeTeX.
+
+* Unify handling of LaTeX escaping.
+
+* Rebuild everything when the ``extensions`` config value changes.
+
+* Don't try to remove a nonexisting static directory.
+
+* Fix an indentation problem in production lists.
+
+* Fix encoding handling for literal include files: ``literalinclude``
+  now has an ``encoding`` option that defaults to UTF-8.
+
+* Fix the handling of non-ASCII characters entered in quickstart.
+
+* Fix a crash with nonexisting image URIs.
+
+
 Release 0.4.2 (Jul 29, 2008)
 ============================
 
