@@ -9,6 +9,7 @@ to be included, please mail to `the Google group
 * Sphinx: http://sphinx.pocoo.org/
 * Python: http://docs.python.org/dev/
 * NumPy: http://mentat.za.net/numpy/refguide/
+* Matplotlib: http://matplotlib.sourceforge.net/
 * Pylons: http://bel-epa.com/pylonsdocs/
 * Django: http://docs.djangoproject.com/
 * Grok: http://grok.zope.org/doc/current/
@@ -30,4 +31,3 @@ to be included, please mail to `the Google group
 * SymPy: http://docs.sympy.org/
 * GeoDjango: http://geodjango.org/docs/
 * Mixin.com: http://dev.mixin.com/
-* Matplotlib (upcoming)
