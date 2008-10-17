@@ -3,9 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{howto}[2008/09/12 Document class (Sphinx HOWTO)]
-
-\RequirePackage{fancybox}
+\ProvidesClass{howto}[2008/10/18 Document class (Sphinx HOWTO)]
 
 % Pass all given class options to the parent class.
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
@@ -16,17 +14,6 @@
 % reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
-
-% This gives us all the Python-specific markup that we really want.  This should
-% come last.  Do not change this.
-%
-\RequirePackage{sphinx}
-
-% This comes after python.sty because it otherwise defines its own "seealso"
-% command.
-%
-\RequirePackage{makeidx}
-
 
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
@@ -60,7 +47,6 @@
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
-
 
 \let\py@OldTableofcontents=\tableofcontents
 \renewcommand{\tableofcontents}{

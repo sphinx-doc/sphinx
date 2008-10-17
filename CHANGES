@@ -125,6 +125,9 @@ Bugs fixed
 * Update to newest fncychap.sty, to fix problems with non-ASCII
   characters at the start of chapter titles.
 
+* Fix a problem with index generation in LaTeX output, caused by
+  hyperref not being included last.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================

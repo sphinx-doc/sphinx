@@ -3,9 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{manual}[2008/09/12 Document class (Sphinx manual)]
-
-\RequirePackage{fancybox}
+\ProvidesClass{manual}[2008/10/18 Document class (Sphinx manual)]
 
 % Pass all given class options to the parent class.
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
@@ -17,17 +15,6 @@
 %
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{1}
-
-% This gives us all the Sphinx-specific markup that we really want.  This should
-% come last.  Do not change this.
-%
-\RequirePackage{sphinx}
-
-% This comes after sphinx.sty because it otherwise defines its own "seealso"
-% command.
-%
-\RequirePackage{makeidx}
-
 
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
@@ -85,7 +72,6 @@
   \py@OldEndAbstract
 }
 
-
 % This wraps the \tableofcontents macro with all the magic to get the spacing
 % right and have the right number of pages if the 'openright' option has been
 % used.  This eliminates a fair amount of crud in the individual document files.
@@ -110,13 +96,11 @@
   \@ifundefined{fancyhf}{}{\pagestyle{normal}}%
 }
 
-
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.
 %
 \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.6em}}
 \renewcommand*\l@subsection{\@dottedtocline{2}{4.1em}{3.5em}}
-
 
 % Fix the theindex environment to add an entry to the Table of Contents; this is
 % much nicer than just having to jump to the end of the book and flip around,

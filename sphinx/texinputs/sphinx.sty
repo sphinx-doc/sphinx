@@ -11,11 +11,14 @@
 \RequirePackage{textcomp}
 \RequirePackage{fancyvrb}
 \RequirePackage{fancyhdr}
+\RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
 \RequirePackage{amsmath} % for \text
-
+\RequirePackage{makeidx}
+\RequirePackage{framed}
 \RequirePackage{color}
+
 % Redefine these colors to your liking in the preamble.
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
 \definecolor{InnerLinkColor}{rgb}{0.208,0.374,0.486}
@@ -24,17 +27,6 @@
 % background and border for code examples.
 \definecolor{VerbatimColor}{rgb}{1,1,1}
 \definecolor{VerbatimBorderColor}{rgb}{1,1,1}
-
-\RequirePackage[colorlinks,
-		breaklinks,
-		linkcolor=InnerLinkColor,
-		filecolor=OuterLinkColor,
-		menucolor=OuterLinkColor,
-		pagecolor=OuterLinkColor,
-		urlcolor=OuterLinkColor,
-	       ]{hyperref}
-
-\RequirePackage{framed}
 
 % Uncomment these two lines to ignore the paper size and make the page 
 % size more like a typical published manual.
@@ -98,23 +90,6 @@
 % Use this to set the font family for headers and other decor:
 \newcommand{\py@HeaderFamily}{\sffamily\bfseries}
 
-% Set up abstract ways to get the normal and smaller font sizes that
-% work even in footnote context.
-\newif\ifpy@infootnote \py@infootnotefalse
-\let\py@oldmakefntext\@makefntext
-\renewcommand{\@makefntext}[1]{%
-  \begingroup%
-    \py@infootnotetrue
-    \py@oldmakefntext{#1}%
-  \endgroup%
-}
-\def\py@defaultsize{%
-  \ifpy@infootnote\footnotesize\else\normalsize\fi%
-}
-\def\py@smallsize{%
-  \ifpy@infootnote\scriptsize\else\small\fi%
-}
-
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
 \@ifundefined{fancyhf}{}{
   % Use \pagestyle{normal} as the primary pagestyle for text.
@@ -144,7 +119,7 @@
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\bfcode}[1]{\code{\bfseries#1}}
 \newcommand{\samp}[1]{`\code{#1}'}
-\newcommand{\email}[1]{{\py@smallsize\textsf{#1}}}
+\newcommand{\email}[1]{\textsf{#1}}
 
 \newcommand{\py@modulebadkey}{{--just-some-junk--}}
 
@@ -153,7 +128,7 @@
 \let\OriginalVerbatim=\Verbatim
 \let\endOriginalVerbatim=\endVerbatim
 
-% Play with vpsace to be able to keep the indentation.
+% Play with vspace to be able to keep the indentation.
 \newlength\distancetoright
 \newlength\leftsidespace
 \def\mycolorbox#1{%
@@ -703,3 +678,10 @@
     \py@Oldincludegraphics[#1]{#2}%
   \fi%
 }
+
+
+% Include hyperref last.
+\RequirePackage[colorlinks,breaklinks,
+                linkcolor=InnerLinkColor,filecolor=OuterLinkColor,
+                menucolor=OuterLinkColor,pagecolor=OuterLinkColor,
+                urlcolor=OuterLinkColor]{hyperref}
