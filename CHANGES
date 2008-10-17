@@ -122,6 +122,9 @@ Bugs fixed
 
 * Only output ANSI colors on color terminals.
 
+* Update to newest fncychap.sty, to fix problems with non-ASCII
+  characters at the start of chapter titles.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================
