@@ -117,6 +117,8 @@ New features added
 Bugs fixed
 ----------
 
+* Support the "scale" option for images in HTML output.
+
 * Properly escape quotes in HTML help attribute values.
 
 * Fix LaTeX build for some description environments with ``:noindex:``.

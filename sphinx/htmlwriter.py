@@ -11,6 +11,7 @@
 
 import sys
 import posixpath
+import os
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
@@ -19,6 +20,10 @@ from sphinx.locale import admonitionlabels, versionlabels
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.smartypants import sphinx_smarty_pants
 
+try:
+    import Image                        # check for the Python Imaging Library
+except ImportError:
+    Image = None
 
 class HTMLWriter(Writer):
     def __init__(self, builder):
@@ -254,6 +259,23 @@ class HTMLTranslator(BaseTranslator):
         if olduri in self.builder.images:
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
+        
+        if node.has_key('scale'):
+            if Image and not (node.has_key('width')
+                              and node.has_key('height')):
+                try:
+                    im = Image.open(os.path.join(self.builder.srcdir, 
+                                                    olduri))
+                except (IOError, # Source image can't be found or opened
+                        UnicodeError):  # PIL doesn't like Unicode paths.
+                    print olduri
+                    pass
+                else:
+                    if not node.has_key('width'):
+                        node['width'] = str(im.size[0])
+                    if not node.has_key('height'):
+                        node['height'] = str(im.size[1])
+                    del im
         BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):
