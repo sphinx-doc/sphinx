@@ -37,6 +37,7 @@ class HTMLWriter(Writer):
                      'footer', 'html_prolog', 'html_head', 'html_title',
                      'html_subtitle', 'html_body', ):
             setattr(self, attr, getattr(visitor, attr, None))
+        self.clean_meta = ''.join(visitor.meta[2:])
 
 
 class HTMLTranslator(BaseTranslator):

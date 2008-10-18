@@ -15,6 +15,9 @@ New features added
   - The JavaScript search now searches for objects before searching in
     the full text.
 
+  - HTML ``<meta>`` tags via the docutils ``meta`` directive are now
+    supported.
+
   - ``SerializingHTMLBuilder`` was added as new abstract builder that
     can be subclassed to serialize build HTML in a specific format.  The
     ``PickleHTMLBuilder`` is a concrete subclass of it that uses pickle

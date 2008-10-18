@@ -30,12 +30,14 @@ except ImportError:
     md5 = md5.new
 
 from docutils import nodes
-from docutils.io import FileInput
-from docutils.core import publish_doctree
+from docutils.io import FileInput, NullOutput
+from docutils.core import Publisher
 from docutils.utils import Reporter
 from docutils.readers import standalone
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
+from docutils.parsers.rst.directives.html import MetaBody
+from docutils.writers import UnfilteredWriter
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
@@ -142,9 +144,17 @@ class SphinxStandaloneReader(standalone.Reader):
     Add our own transforms.
     """
     transforms = [DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks]
+
     def get_transforms(self):
-        tf = standalone.Reader.get_transforms(self)
-        return tf + self.transforms
+        return standalone.Reader.get_transforms(self) + self.transforms
+
+
+class SphinxDummyWriter(UnfilteredWriter):
+    supported = ('html',)  # needed to keep "meta" nodes
+
+    def translate(self):
+        pass
+
 
 
 class SphinxContentsFilter(ContentsFilter):
@@ -486,6 +496,9 @@ class BuildEnvironment:
                 self.warn(docname, 'default role %s not found' %
                           self.config.default_role)
 
+        self.docname = docname
+        self.settings['input_encoding'] = self.config.source_encoding
+
         class SphinxSourceClass(FileInput):
             def read(self):
                 data = FileInput.read(self)
@@ -495,12 +508,18 @@ class BuildEnvironment:
                     data = arg[0]
                 return data
 
-        self.docname = docname
-        self.settings['input_encoding'] = self.config.source_encoding
+        # publish manually
+        pub = Publisher(reader=SphinxStandaloneReader(),
+                        writer=SphinxDummyWriter(),
+                        source_class=SphinxSourceClass,
+                        destination_class=NullOutput)
+        pub.set_components(None, 'restructuredtext', None)
+        pub.process_programmatic_settings(None, self.settings, None)
+        pub.set_source(None, src_path)
+        pub.set_destination(None, None)
         try:
-            doctree = publish_doctree(None, src_path, SphinxSourceClass,
-                                      settings_overrides=self.settings,
-                                      reader=SphinxStandaloneReader())
+            pub.publish()
+            doctree = pub.document
         except UnicodeError, err:
             from sphinx.application import SphinxError
             raise SphinxError(err.message)
@@ -525,6 +544,9 @@ class BuildEnvironment:
         doctree.settings.warning_stream = None
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
+        for metanode in doctree.traverse(MetaBody.meta):
+            # docutils' meta nodes aren't picklable because the class is nested
+            metanode.__class__ = addnodes.meta
 
         # cleanup
         self.docname = None

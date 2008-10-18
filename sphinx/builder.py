@@ -450,7 +450,7 @@ class StandaloneHTMLBuilder(Builder):
             favicon = favicon,
         )
 
-    def get_doc_context(self, docname, body):
+    def get_doc_context(self, docname, body, metatags):
         """Collect items for the template context of a page."""
         # find out relations
         prev = next = None
@@ -502,6 +502,7 @@ class StandaloneHTMLBuilder(Builder):
             title = title,
             meta = meta,
             body = body,
+            metatags = metatags,
             rellinks = rellinks,
             sourcename = sourcename,
             toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
@@ -518,8 +519,9 @@ class StandaloneHTMLBuilder(Builder):
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
         body = self.docwriter.parts['fragment']
+        metatags = self.docwriter.clean_meta
 
-        ctx = self.get_doc_context(docname, body)
+        ctx = self.get_doc_context(docname, body, metatags)
         self.index_page(docname, doctree, ctx.get('title', ''))
         self.handle_page(docname, ctx, event_arg=doctree)
 

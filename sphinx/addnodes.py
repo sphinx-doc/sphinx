@@ -85,10 +85,13 @@ class start_of_file(nodes.Element): pass
 # tabular column specification, used for the LaTeX writer
 class tabular_col_spec(nodes.Element): pass
 
+# meta directive -- same as docutils' standard meta node, but pickleable
+class meta(nodes.Special, nodes.PreBibliographic, nodes.Element): pass
+
 # make them known to docutils. this is needed, because the HTML writer
 # will choke at some point if these are not added
 nodes._add_node_class_names("""index desc desc_content desc_signature desc_type
       desc_addname desc_name desc_parameterlist desc_parameter desc_optional
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis
-      glossary acks module start_of_file tabular_col_spec""".split())
+      glossary acks module start_of_file tabular_col_spec meta""".split())
