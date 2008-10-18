@@ -58,6 +58,11 @@ HTML_XPATH = {
         ".//meta[@name='author'][@content='Me']": '',
         ".//meta[@name='keywords'][@content='docs, sphinx']": '',
     },
+    'desc.html': {
+        ".//dt[@id='mod.Cls.meth1']": '',
+        ".//dt[@id='errmod.Error']": '',
+        ".//a[@href='#mod.Cls']": '',
+    },
 }
 
 class NslessParser(ET.XMLParser):

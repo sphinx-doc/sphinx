@@ -1,0 +1,60 @@
+Testing description units
+=========================
+
+.. function:: func_without_module(a, b, *c[, d])
+
+   Does something.
+
+.. function:: func_without_body()
+
+.. function:: func_noindex
+   :noindex:
+
+
+.. module:: mod
+   :synopsis: Module synopsis.
+   :platform: UNIX
+
+.. function:: func_in_module
+
+.. class:: Cls
+
+   .. method:: meth1
+
+   .. staticmethod:: meths
+
+   .. attribute:: attr
+
+.. explicit class given
+.. method:: Cls.meth2
+
+.. explicit module given
+.. exception:: Error(arg1, arg2)
+   :module: errmod
+
+.. data:: var
+
+
+.. currentmodule:: None
+
+.. function:: func_without_module2() -> annotation
+
+
+C items
+=======
+
+.. cfunction:: Sphinx_DoSomething()
+
+.. cmember:: SphinxStruct.member
+
+.. cmacro:: SPHINX_USE_PYTHON
+
+.. ctype:: SphinxType
+
+.. cvar:: sphinx_global
+
+
+Testing references
+==================
+
+Referencing :class:`mod.Cls` or :Class:`mod.Cls` should be the same.

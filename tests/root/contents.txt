@@ -13,6 +13,7 @@ Contents:
    images
    includes
    markup
+   desc
    math
    autodoc
 

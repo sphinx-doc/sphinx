@@ -199,6 +199,11 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_desc_optional(self, node):
         self.add_text(']')
 
+    def visit_desc_annotation(self, node):
+        pass
+    def depart_desc_annotation(self, node):
+        pass
+
     def visit_refcount(self, node):
         pass
     def depart_refcount(self, node):

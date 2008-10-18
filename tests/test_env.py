@@ -80,3 +80,24 @@ def test_second_update():
     assert docnames == set(['contents', 'new'])
     assert 'images' not in env.all_docs
     assert 'images' not in env.found_docs
+
+def test_object_inventory():
+    refs = env.descrefs
+
+    assert 'func_without_module' in refs
+    assert refs['func_without_module'] == ('desc', 'function')
+    assert 'func_without_module2' in refs
+    assert 'mod.func_in_module' in refs
+    assert 'mod.Cls' in refs
+    assert 'mod.Cls.meth1' in refs
+    assert 'mod.Cls.meth2' in refs
+    assert 'mod.Cls.meths' in refs
+
+    assert 'mod.Error' not in refs
+    assert 'errmod.Error' in refs
+
+    assert 'func_in_module' not in refs
+    assert 'func_noindex' not in refs
+
+    assert 'mod' in env.modules
+    assert env.modules['mod'] == ('desc', 'Module synopsis.', 'UNIX', False)

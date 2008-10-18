@@ -103,6 +103,11 @@ Index markup
    triple: index; entry; triple
 
 
+Ö... Some strange characters
+----------------------------
+
+Testing öäü...
+
 
 .. rubric:: Footnotes
 
