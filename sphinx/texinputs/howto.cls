@@ -20,7 +20,7 @@
 %
 \renewcommand{\maketitle}{
   \rule{\textwidth}{1pt}
-  \ifpdf
+  \ifsphinxpdfoutput
     \begingroup
     % This \def is required to deal with multi-line authors; it
     % changes \\ to ', ' (comma-space), making it pass muster for

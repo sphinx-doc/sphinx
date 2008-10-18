@@ -42,10 +42,12 @@
 \fi
 
 % for PDF output, use colors and maximal compression
+\newif\ifsphinxpdfoutput\sphinxpdfoutputfalse
 \ifx\pdfoutput\undefined\else\ifcase\pdfoutput
   \let\py@NormalColor\relax
   \let\py@TitleColor\relax
 \else
+  \sphinxpdfoutputtrue
   \input{pdfcolor}
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
