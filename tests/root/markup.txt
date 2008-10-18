@@ -7,6 +7,10 @@ Testing various markup
 
 .. contents:: TOC
 
+.. meta::
+   :author: Me
+   :keywords: docs, sphinx
+
 
 Admonitions
 -----------

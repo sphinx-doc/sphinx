@@ -598,5 +598,9 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_comment(self, node):
         raise nodes.SkipNode
 
+    def visit_meta(self, node):
+        # only valid for HTML
+        raise nodes.SkipNode
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

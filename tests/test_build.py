@@ -54,6 +54,10 @@ HTML_XPATH = {
         ".//dt[@id='test_autodoc.function']/em": '**kwds',
         ".//dd": 'Return spam.',
     },
+    'markup.html': {
+        ".//meta[@name='author'][@content='Me']": '',
+        ".//meta[@name='keywords'][@content='docs, sphinx']": '',
+    },
 }
 
 class NslessParser(ET.XMLParser):
