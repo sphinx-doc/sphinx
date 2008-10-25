@@ -270,6 +270,28 @@ Citation usage is similar to footnote usage, but with a label that is not
 numeric or begins with ``#``.
 
 
+Substitutions
+-------------
+
+reST supports "substitutions", which are pieces of text and/or markup referred
+to in the text by ``|name|``.  They are defined like footnotes with explicit
+markup blocks, like this::
+
+   .. |name| replace:: replacement *text*
+
+See the `reST reference for substitutions
+<http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions>`_
+for details.
+   
+If you want to use some substitutions for all documents, put them into a
+separate file and include it into all documents you want to use them in, using
+the :dir:`include` directive.  Be sure to give the include file a file name
+extension differing from that of other source files, to avoid Sphinx finding it
+as a standalone document.
+
+Sphinx defines some default substitutions, see :ref:`default-substitutions`.
+
+
 Comments
 --------
 

@@ -350,6 +350,7 @@ The following roles generate external links:
 Note that there are no special roles for including hyperlinks as you can use
 the standard reST markup for that purpose.
 
+.. _default-substitutions:
 
 Substitutions
 -------------
