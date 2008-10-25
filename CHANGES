@@ -140,6 +140,8 @@ Bugs fixed
 * Fix a problem with index generation in LaTeX output, caused by
   hyperref not being included last.
 
+* Don't disregard return annotations for functions without any parameters.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================

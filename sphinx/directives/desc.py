@@ -199,6 +199,9 @@ def parse_py_signature(signode, sig, desctype, module, env):
         raise ValueError
     classname, name, arglist, retann = m.groups()
 
+    if retann:
+        retann = u' \N{RIGHTWARDS ARROW} ' + retann.strip()[2:]
+
     if env.currclass:
         add_module = False
         if classname and classname.startswith(env.currclass):
@@ -233,6 +236,8 @@ def parse_py_signature(signode, sig, desctype, module, env):
         if desctype in ('function', 'method', 'staticmethod'):
             # for callables, add an empty parameter list
             signode += addnodes.desc_parameterlist()
+        if retann:
+            signode += addnodes.desc_type(retann, retann)
         return fullname, classname
     signode += addnodes.desc_parameterlist()
 
@@ -255,7 +260,6 @@ def parse_py_signature(signode, sig, desctype, module, env):
     if len(stack) != 1:
         raise ValueError
     if retann:
-        retann = u' \N{RIGHTWARDS ARROW} ' + retann.strip()[2:]
         signode += addnodes.desc_type(retann, retann)
     return fullname, classname
 
