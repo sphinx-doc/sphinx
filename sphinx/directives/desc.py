@@ -20,7 +20,7 @@ ws_re = re.compile(r'\s+')
 
 # ------ information units ---------------------------------------------------------
 
-def desc_index_text(desctype, module, name):
+def desc_index_text(desctype, module, name, add_modules):
     if desctype == 'function':
         if not module:
             return _('%s() (built-in function)') % name
@@ -41,7 +41,7 @@ def desc_index_text(desctype, module, name):
                 return _('%s() (in module %s)') % (name, module)
             else:
                 return '%s()' % name
-        if module:
+        if module and add_modules:
             return _('%s() (%s.%s method)') % (methname, module, clsname)
         else:
             return _('%s() (%s method)') % (methname, clsname)
@@ -53,7 +53,7 @@ def desc_index_text(desctype, module, name):
                 return _('%s() (in module %s)') % (name, module)
             else:
                 return '%s()' % name
-        if module:
+        if module and add_modules:
             return _('%s() (%s.%s static method)') % (methname, module, clsname)
         else:
             return _('%s() (%s static method)') % (methname, clsname)
@@ -65,7 +65,7 @@ def desc_index_text(desctype, module, name):
                 return _('%s (in module %s)') % (name, module)
             else:
                 return name
-        if module:
+        if module and add_modules:
             return _('%s (%s.%s attribute)') % (attrname, module, clsname)
         else:
             return _('%s (%s attribute)') % (attrname, clsname)
@@ -455,7 +455,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 env.note_descref(fullname, desctype, lineno)
             names.append(name)
 
-            indextext = desc_index_text(desctype, module, name)
+            indextext = desc_index_text(desctype, module, name,
+                                        env.config.add_module_names)
             inode['entries'].append(('single', indextext, fullname, fullname))
 
     subnode = addnodes.desc_content()
