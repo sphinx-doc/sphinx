@@ -128,7 +128,7 @@ class MoveModuleTargets(Transform):
 
 class HandleCodeBlocks(Transform):
     """
-    Move doctest blocks out of blockquotes and connect adjacent code blocks.
+    Move doctest blocks out of blockquotes.
     """
     default_priority = 210
 
