@@ -4,6 +4,27 @@ Release 0.5 (in development)
 New features added
 ------------------
 
+* Markup features:
+
+  - Citations are now global: all citation defined in any file can be
+    referenced from any file.  Citations are collected in a bibliography
+    for LaTeX output.
+
+  - Footnotes are now properly handled in the LaTeX builder: they appear
+    at the location of the footnote reference in text, not at the end of
+    a section.  Thanks to Andrew McNamara for the initial patch.
+
+  - "System Message" warnings are now automatically removed from the
+    built documentation, and only written to stderr.  If you want the
+    old behavior, set the new config value ``keep_warnings`` to True.
+
+  - Glossary entries are now automatically added to the index.
+
+  - Figures with captions can now be referred to like section titles,
+    using the ``:ref:`` role without an explicit link text.
+
+  - Added ``cmember`` role for consistency.
+
 * HTML output and templates:
 
   - Incompatible change: The "root" relation link (top left in the
@@ -22,7 +43,7 @@ New features added
     can be subclassed to serialize build HTML in a specific format.  The
     ``PickleHTMLBuilder`` is a concrete subclass of it that uses pickle
     as serialization implementation.
-  
+
   - ``JSONHTMLBuilder`` was added as another ``SerializingHTMLBuilder``
     subclass that dumps the generated HTML into JSON files for further
     processing.
@@ -35,7 +56,7 @@ New features added
     definition links.
 
 * New and changed config values:
-    
+
   - Added support for internationalization in generated text with the
     ``language`` and ``locale_dirs`` config values.  Many thanks to
     language contributors:
@@ -91,19 +112,6 @@ New features added
 
 * Other changes:
 
-  - Footnotes are now properly handled in the LaTeX builder: they appear
-    at the location of the footnote reference in text, not at the end of
-    a section.  Thanks to Andrew McNamara for the initial patch.
-    
-  - "System Message" warnings are now automatically removed from the
-    built documentation, and only written to stderr.  If you want the
-    old behavior, set the new config value ``keep_warnings`` to True.
-
-  - Glossary entries are now automatically added to the index.
-
-  - Figures with captions can now be referred to like section titles,
-    using the ``:ref:`` role without an explicit link text.
-
   - Added a distutils command `build_sphinx`: When Sphinx is installed,
     you can call ``python setup.py build_sphinx`` for projects that have
     Sphinx documentation, which will build the docs and place them in
@@ -111,8 +119,6 @@ New features added
 
   - In quickstart, if the selected root path already contains a Sphinx
     project, complain and abort.
-
-  - Added ``cmember`` role for consistency.
 
 Bugs fixed
 ----------

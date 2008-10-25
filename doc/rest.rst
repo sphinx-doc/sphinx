@@ -240,17 +240,34 @@ the former, while the HTML builder would prefer the latter.
 Footnotes
 ---------
 
-For footnotes, use ``[#]_`` to mark the footnote location, and add the footnote
-body at the bottom of the document after a "Footnotes" rubric heading, like so::
+For footnotes, use ``[#name]_`` to mark the footnote location, and add the
+footnote body at the bottom of the document after a "Footnotes" rubric heading,
+like so::
 
-   Lorem ipsum [#]_ dolor sit amet ... [#]_
+   Lorem ipsum [#f1]_ dolor sit amet ... [#f2]_
 
    .. rubric:: Footnotes
 
-   .. [#] Text of the first footnote.
-   .. [#] Text of the second footnote.
+   .. [#f1] Text of the first footnote.
+   .. [#f2] Text of the second footnote.
 
-You can also explicitly number the footnotes for better context.
+You can also explicitly number the footnotes (``[1]_``) or use auto-numbered
+footnotes without names (``[#]_``).
+
+
+Citations
+---------
+
+Standard reST citations are supported, with the additional feature that they are
+"global", i.e. all citations can be referenced from all files.  Use them like
+so::
+
+   Lorem ipsum [Ref]_ dolor sit amet.
+
+   .. [Ref] Book or article reference, URL or whatever.
+
+Citation usage is similar to footnote usage, but with a label that is not
+numeric or begins with ``#``.
 
 
 Comments

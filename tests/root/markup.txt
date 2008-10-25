@@ -57,6 +57,8 @@ Misc stuff
 
 Stuff [#]_
 
+Reference lookup: [Ref1]_ (defined in another file).
+
 .. seealso::
 
    `Google <http://www.google.com>`_

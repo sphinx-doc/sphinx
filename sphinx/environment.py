@@ -138,12 +138,27 @@ class HandleCodeBlocks(Transform):
                                                       nodes.doctest_block):
                 node.replace_self(node.children[0])
 
+class CitationReferences(Transform):
+    """
+    Handle citation references before the default docutils transform does.
+    """
+    default_priority = 619
+
+    def apply(self):
+        for citnode in self.document.traverse(nodes.citation_reference):
+            cittext = citnode.astext()
+            refnode = addnodes.pending_xref(cittext, reftype='citation',
+                                            reftarget=cittext)
+            refnode += nodes.Text('[' + cittext + ']')
+            citnode.parent.replace(citnode, refnode)
+
 
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks]
+    transforms = [CitationReferences, DefaultSubstitutions, MoveModuleTargets,
+                  HandleCodeBlocks]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -259,7 +274,7 @@ class BuildEnvironment:
         self.labels = {}            # labelname -> docname, labelid, sectionname
         self.anonlabels = {}        # labelname -> docname, labelid
         self.reftargets = {}        # (type, name) -> docname, labelid
-                                    # where type is term, token, option, envvar
+                                    # where type is term, token, option, envvar, citation
 
         # Other inventories
         self.indexentries = {}      # docname -> list of
@@ -530,6 +545,7 @@ class BuildEnvironment:
         self.create_title_from(docname, doctree)
         self.note_labels_from(docname, doctree)
         self.note_indexentries_from(docname, doctree)
+        self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
 
         # store time of reading, used to find outdated files
@@ -713,6 +729,15 @@ class BuildEnvironment:
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
             entries.extend(node['entries'])
+
+    def note_citations_from(self, docname, document):
+        for node in document.traverse(nodes.citation):
+            label = node[0].astext()
+            if ('citation', label) in self.reftargets:
+                self.warn(docname, 'duplicate citation %s, ' % label +
+                          'other instance in %s' % self.doc2path(
+                    self.reftargets['citation', label][0]), node.line)
+            self.reftargets['citation', label] = (docname, node['ids'][0])
 
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
@@ -943,7 +968,7 @@ class BuildEnvironment:
                            'meth', 'cfunc', 'cmember', 'cdata', 'ctype', 'cmacro'))
 
     def resolve_references(self, doctree, fromdocname, builder):
-        reftarget_roles = set(('token', 'term', 'option'))
+        reftarget_roles = set(('token', 'term', 'option', 'citation'))
         # add all custom xref types too
         reftarget_roles.update(i[0] for i in additional_xref_types.values())
 
@@ -1008,6 +1033,9 @@ class BuildEnvironment:
                     if not docname:
                         if typ == 'term':
                             self.warn(fromdocname, 'term not in glossary: %s' % target,
+                                      node.line)
+                        elif typ == 'citation':
+                            self.warn(fromdocname, 'citation not found: %s' % target,
                                       node.line)
                         newnode = contnode
                     else:

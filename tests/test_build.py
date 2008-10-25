@@ -57,11 +57,15 @@ HTML_XPATH = {
     'markup.html': {
         ".//meta[@name='author'][@content='Me']": '',
         ".//meta[@name='keywords'][@content='docs, sphinx']": '',
+        ".//a[@href='contents.html#ref1']": '',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
         ".//dt[@id='errmod.Error']": '',
         ".//a[@href='#mod.Cls']": '',
+    },
+    'contents.html': {
+        ".//td[@class='label']": '[Ref1]',
     },
 }
 

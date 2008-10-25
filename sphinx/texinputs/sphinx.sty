@@ -682,6 +682,26 @@
 }
 
 
+% Fix the index and bibliography environments to add an entry to the Table of
+% Contents; this is much nicer than just having to jump to the end of the book
+% and flip around, especially with multiple indexes.
+%
+\let\py@OldTheindex=\theindex
+\renewcommand{\theindex}{
+  \cleardoublepage
+  \phantomsection
+  \py@OldTheindex
+  \addcontentsline{toc}{chapter}{\indexname}
+}
+
+\let\py@OldThebibliography=\thebibliography
+\renewcommand{\thebibliography}[1]{
+  \cleardoublepage
+  \phantomsection
+  \py@OldThebibliography{1}
+  \addcontentsline{toc}{chapter}{\bibname}
+}
+
 % Include hyperref last.
 \RequirePackage[colorlinks,breaklinks,
                 linkcolor=InnerLinkColor,filecolor=OuterLinkColor,

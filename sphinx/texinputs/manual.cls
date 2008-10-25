@@ -101,15 +101,3 @@
 %
 \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.6em}}
 \renewcommand*\l@subsection{\@dottedtocline{2}{4.1em}{3.5em}}
-
-% Fix the theindex environment to add an entry to the Table of Contents; this is
-% much nicer than just having to jump to the end of the book and flip around,
-% especially with multiple indexes.
-%
-\let\py@OldTheindex=\theindex
-\renewcommand{\theindex}{
-  \cleardoublepage
-  \phantomsection
-  \py@OldTheindex
-  \addcontentsline{toc}{chapter}{\indexname}
-}
