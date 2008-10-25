@@ -67,12 +67,6 @@ autonumbered using a ``#`` sign::
    #. This is a numbered list.
    #. It has two items too.
 
-Note that Sphinx disables the use of enumerated lists introduced by alphabetic
-or roman numerals, such as ::
-
-   A. First item
-   B. Second item
-
 
 Nested lists are possible, but be aware that they must be separated from the
 parent list items by blank lines::

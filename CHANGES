@@ -25,6 +25,9 @@ New features added
 
   - Added ``cmember`` role for consistency.
 
+  - Lists enumerated by letters or roman numerals are now handled like in
+    standard reST.
+
 * HTML output and templates:
 
   - Incompatible change: The "root" relation link (top left in the

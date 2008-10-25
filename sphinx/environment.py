@@ -41,13 +41,6 @@ from docutils.writers import UnfilteredWriter
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
-# monkey-patch reST parser to disable alphabetic and roman enumerated lists
-from docutils.parsers.rst.states import Body
-Body.enum.converters['loweralpha'] = \
-    Body.enum.converters['upperalpha'] = \
-    Body.enum.converters['lowerroman'] = \
-    Body.enum.converters['upperroman'] = lambda x: None
-
 from sphinx import addnodes
 from sphinx.util import get_matching_docs, SEP
 from sphinx.directives import additional_xref_types
