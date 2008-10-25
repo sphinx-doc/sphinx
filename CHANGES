@@ -66,6 +66,7 @@ New features added
     * David Larlet -- French
     * Michał Kandulski -- Polish
     * Yasushi Masuda -- Japanese
+    * Guillem Borrell -- Spanish
 
   - The new config value ``highlight_language`` set a global default for
     highlighting.  When ``'python3'`` is selected, console output blocks
