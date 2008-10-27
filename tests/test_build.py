@@ -93,8 +93,6 @@ def test_html(app):
            '\n'.join(difflib.ndiff(html_warnings_exp.splitlines(),
                                    html_warnings.splitlines()))
 
-    if not ET:
-        return
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
