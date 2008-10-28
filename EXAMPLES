@@ -18,6 +18,8 @@ to be included, please mail to `the Google group
 * Cython: http://docs.cython.org/
 * F2py: http://www.f2py.org/html/
 * zc.async: http://packages.python.org/zc.async/1.5.0/
+* Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
+* Chaco: http://code.enthought.com/projects/chaco/docs/html/
 * Paver: http://www.blueskyonmars.com/projects/paver/
 * Satchmo: http://www.satchmoproject.com/docs/svn/
 * PyEphem: http://rhodesmill.org/pyephem/
