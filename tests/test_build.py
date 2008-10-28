@@ -58,6 +58,7 @@ HTML_XPATH = {
         ".//meta[@name='author'][@content='Me']": '',
         ".//meta[@name='keywords'][@content='docs, sphinx']": '',
         ".//a[@href='contents.html#ref1']": '',
+        ".//div[@id='label']": '',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',

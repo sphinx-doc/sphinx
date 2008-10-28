@@ -11,6 +11,11 @@ Testing various markup
    :author: Me
    :keywords: docs, sphinx
 
+.. _label:
+
+::
+
+   some code
 
 Admonitions
 -----------
