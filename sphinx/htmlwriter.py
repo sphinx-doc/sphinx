@@ -193,8 +193,10 @@ class HTMLTranslator(BaseTranslator):
             lang = node['language']
         if node.has_key('linenos'):
             linenos = node['linenos']
-        self.body.append(self.highlighter.highlight_block(node.rawsource,
-                                                          lang, linenos))
+        highlighted = self.highlighter.highlight_block(node.rawsource, lang, linenos)
+        starttag = self.starttag(node, 'div', suffix='')[:-1]
+        self.body.append(starttag + highlighted[4:]) # skip '<div' and replace by
+                                                     # one possibly containing id attr
         raise nodes.SkipNode
 
     def visit_doctest_block(self, node):
@@ -259,12 +261,12 @@ class HTMLTranslator(BaseTranslator):
         if olduri in self.builder.images:
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
-        
+
         if node.has_key('scale'):
             if Image and not (node.has_key('width')
                               and node.has_key('height')):
                 try:
-                    im = Image.open(os.path.join(self.builder.srcdir, 
+                    im = Image.open(os.path.join(self.builder.srcdir,
                                                     olduri))
                 except (IOError, # Source image can't be found or opened
                         UnicodeError):  # PIL doesn't like Unicode paths.

@@ -145,6 +145,8 @@ Bugs fixed
 
 * Don't disregard return annotations for functions without any parameters.
 
+* Don't throw away labels for code blocks.
+
 
 Release 0.4.3 (Oct 8, 2008)
 ===========================
