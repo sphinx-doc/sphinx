@@ -31,6 +31,41 @@ Admonitions
    Tip text.
 
 
+Body directives
+---------------
+
+.. topic:: Title
+
+   Topic body.
+
+.. sidebar:: Sidebar
+   :subtitle: Sidebar subtitle
+
+   Sidebar body.
+
+.. rubric:: Test rubric
+
+.. epigraph:: Epigraph title
+
+   Epigraph body.
+
+   -- Author
+
+.. highlights:: Highlights
+
+   Highlights body.
+
+.. pull-quote:: Pull-quote
+
+   Pull quote body.
+
+.. compound::
+
+   a
+
+   b
+
+   
 Tables
 ------
 

@@ -358,6 +358,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_title = 0
         self.body.append(self.context.pop())
 
+    def visit_subtitle(self, node):
+        if isinstance(node.parent, nodes.sidebar):
+            self.body.append('~\\\\\n\\textbf{')
+            self.context.append('}\n\\smallskip\n')
+        else:
+            self.context.append('')
+    def depart_subtitle(self, node):
+        self.body.append(self.context.pop())
+
     desc_map = {
         'function' : 'funcdesc',
         'class': 'classdesc',

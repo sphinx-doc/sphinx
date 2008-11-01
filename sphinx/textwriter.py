@@ -126,6 +126,16 @@ class TextTranslator(nodes.NodeVisitor):
         self.add_text(' ]-')
         self.end_state()
 
+    def visit_sidebar(self, node):
+        pass
+    def depart_sidebar(self, node):
+        pass
+
+    def visit_compound(self, node):
+        pass
+    def depart_compound(self, node):
+        pass
+
     def visit_glossary(self, node):
         pass
     def depart_glossary(self, node):
@@ -144,6 +154,16 @@ class TextTranslator(nodes.NodeVisitor):
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)
         self.stateindent.pop()
         self.states[-1].append((0, ['', text, '%s' % (char * len(text)), '']))
+
+    def visit_subtitle(self, node):
+        pass
+    def depart_subtitle(self, node):
+        pass
+
+    def visit_attribution(self, node):
+        self.add_text('-- ')
+    def depart_attribution(self, node):
+        pass
 
     def visit_module(self, node):
         if node.has_key('platform'):
