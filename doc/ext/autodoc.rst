@@ -240,3 +240,31 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. autofunction:: cut_lines
 .. autofunction:: between
+
+
+Skipping members
+----------------
+
+autodoc allows the user to define a custom method for determining whether a
+member should be included in the documentation by using the following event:
+
+.. event:: autodoc-skip-member (app, what, name, obj, skip, options)
+
+   .. versionadded:: 0.5
+
+   Emitted when autodoc has to decide whether a member should be included in the
+   documentation.  The member is excluded if a handler returns ``True``.  It is
+   included if the handler returns ``False``.
+
+   :param app: the Sphinx application object
+   :param what: the type of the object which the docstring belongs to (one of
+      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
+      ``"attribute"``)
+   :param name: the fully qualified name of the object
+   :param obj: the object itself
+   :param skip: a boolean indicating if autodoc will skip this member if the user
+      handler does not override the decision
+   :param options: the options given to the directive: an object with attributes
+      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
+      ``noindex`` that are true if the flag option of same name was given to the
+      auto directive

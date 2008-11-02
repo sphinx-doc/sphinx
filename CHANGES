@@ -94,8 +94,11 @@ New features added
     creates links to Sphinx documentation of Python objects in other
     projects.
 
-  - sphinx.doc.autodoc has a new event ``autodoc-process-signature``
+  - sphinx.ext.autodoc has a new event ``autodoc-process-signature``
     that allows tuning function signature introspection.
+
+  - sphinx.ext.autodoc has a new event ``autodoc-skip-member`` that allows
+    tuning which members are included in the generated content.
 
   - Respect __all__ when autodocumenting module members.
 

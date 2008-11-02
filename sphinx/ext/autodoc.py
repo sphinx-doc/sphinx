@@ -7,7 +7,7 @@
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
-    :copyright: 2008 by Georg Brandl, Pauli Virtanen.
+    :copyright: 2008 by Georg Brandl, Pauli Virtanen, Martin Hans.
     :license: BSD.
 """
 
@@ -526,10 +526,20 @@ class RstGenerator(object):
             # ignore members whose name starts with _ by default
             if _all and membername.startswith('_'):
                 continue
+
             # ignore undocumented members if :undoc-members: is not given
             doc = getattr(member, '__doc__', None)
-            if not self.options.undoc_members and not doc:
+            skip = not self.options.undoc_members and not doc
+            # give the user a chance to decide whether this member should be skipped
+            if self.env.app:
+                # let extensions preprocess docstrings
+                skip_user = self.env.app.emit_firstresult(
+                    'autodoc-skip-member', what, membername, member, skip, self.options)
+                if skip_user is not None:
+                    skip = skip_user
+            if skip:
                 continue
+
             if what == 'module':
                 if isinstance(member, types.FunctionType):
                     memberwhat = 'function'
@@ -645,3 +655,4 @@ def setup(app):
     app.add_config_value('autoclass_content', 'class', True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
+    app.add_event('autodoc-skip-member')
