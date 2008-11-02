@@ -1,1 +1,4 @@
 .*\.pyc
+dist
+Sphinx.egg-info
+doc/_build

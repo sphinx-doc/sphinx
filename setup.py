@@ -4,7 +4,7 @@ ez_setup.use_setuptools()
 
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 from distutils import log
 
 import sphinx
@@ -172,7 +172,7 @@ setup(
         'Topic :: Utilities',
     ],
     platforms='any',
-    packages=['sphinx'],
+    packages=find_packages(),
     include_package_data=True,
     entry_points={
         'console_scripts': [
