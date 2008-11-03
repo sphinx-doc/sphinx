@@ -30,6 +30,8 @@ def desc_index_text(desctype, module, name, add_modules):
             return _('%s (built-in variable)') % name
         return _('%s (in module %s)') % (name, module)
     elif desctype == 'class':
+        if not module:
+            return _('%s (built-in class)') % name
         return _('%s (class in %s)') % (name, module)
     elif desctype == 'exception':
         return name
