@@ -34,6 +34,8 @@ tex_replacements = [
     (u'±', ur'\(\pm\)'),
     (u'→', ur'\(\rightarrow\)'),
     (u'‣', ur'\(\rightarrow\)'),
+    # used to separate -- in options
+    (u'﻿', ur'{}'),
     # map some special Unicode characters to similar ASCII ones
     (u'─', ur'-'),
     (u'⎽', ur'\_'),

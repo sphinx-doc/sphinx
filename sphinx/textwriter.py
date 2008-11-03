@@ -284,6 +284,46 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_label(self, node):
         raise nodes.SkipNode
 
+    # XXX: option list could use some better styling
+
+    def visit_option_list(self, node):
+        pass
+    def depart_option_list(self, node):
+        pass
+
+    def visit_option_list_item(self, node):
+        self.new_state(0)
+    def depart_option_list_item(self, node):
+        self.end_state()
+
+    def visit_option_group(self, node):
+        self._firstoption = True
+    def depart_option_group(self, node):
+        self.add_text('     ')
+
+    def visit_option(self, node):
+        if self._firstoption:
+            self._firstoption = False
+        else:
+            self.add_text(', ')
+    def depart_option(self, node):
+        pass
+
+    def visit_option_string(self, node):
+        pass
+    def depart_option_string(self, node):
+        pass
+
+    def visit_option_argument(self, node):
+        self.add_text(node['delimiter'])
+    def depart_option_argument(self, node):
+        pass
+
+    def visit_description(self, node):
+        pass
+    def depart_description(self, node):
+        pass
+
     def visit_tabular_col_spec(self, node):
         raise nodes.SkipNode
 

@@ -110,6 +110,11 @@ This is a side note.
 
 This tests :CLASS:`role names in uppercase`.
 
+Option list:
+
+-h              help
+--help          also help
+
 .. centered:: LICENSE AGREEMENT
 
 .. acks::

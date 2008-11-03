@@ -447,6 +447,13 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         finally:
             self.no_smarty -= 1
 
+    def visit_option(self, node):
+        self.no_smarty += 1
+        HTMLTranslator.visit_option(self, node)
+    def depart_option(self, node):
+        self.no_smarty -= 1
+        HTMLTranslator.depart_option(self, node)
+
     def bulk_text_processor(self, text):
         if self.no_smarty <= 0:
             return sphinx_smarty_pants(text)

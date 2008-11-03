@@ -59,6 +59,7 @@ HTML_XPATH = {
         ".//meta[@name='keywords'][@content='docs, sphinx']": '',
         ".//a[@href='contents.html#ref1']": '',
         ".//div[@id='label']": '',
+        ".//span[@class='option']": '--help',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',

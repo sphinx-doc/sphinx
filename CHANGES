@@ -130,6 +130,9 @@ New features added
 Bugs fixed
 ----------
 
+* Support option lists in the text writer.  Make sure that dashes
+  introducing long option names are not contracted to en-dashes.
+
 * Support the "scale" option for images in HTML output.
 
 * Properly escape quotes in HTML help attribute values.
