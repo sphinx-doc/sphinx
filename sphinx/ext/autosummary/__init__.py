@@ -214,11 +214,9 @@ def get_autosummary(names, state, no_signatures=False):
 
         real_names[name] = real_name
 
+        title = ""
         qualifier = 'obj'
-        if inspect.ismodule(obj):
-            qualifier = 'mod'
         col1 = ":"+qualifier+":`%s <%s>`" % (name, real_name)
-        
         col2 = title
         append_row(col1, col2)
 
