@@ -147,7 +147,7 @@ def handle_doc_fields(node):
                     dlitem = nodes.list_item()
                     dlpar = nodes.paragraph()
                     dlpar += nodes.emphasis(obj, obj)
-                    dlpar += nodes.Text('', ' -- ')
+                    dlpar += nodes.Text(' -- ', ' -- ')
                     dlpar += children
                     param_nodes[obj] = dlpar
                     dlitem += dlpar
