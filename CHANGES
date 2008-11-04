@@ -28,6 +28,9 @@ New features added
   - Lists enumerated by letters or roman numerals are now handled like in
     standard reST.
 
+  - The ``seealso`` directive can now also be given arguments, as a short
+    form.
+
 * HTML output and templates:
 
   - Incompatible change: The "root" relation link (top left in the
