@@ -109,6 +109,9 @@ The :program:`sphinx-build` script has several more options:
    Override a configuration value set in the :file:`conf.py` file.  (The value
    must be a string value.)
 
+**-A** *name=value*
+   Make the *name* assigned to *value* in the HTML templates.
+
 **-N**
    Do not do colored output.  (On Windows, colored output is disabled in any
    case.)

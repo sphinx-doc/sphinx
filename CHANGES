@@ -124,8 +124,8 @@ New features added
 
   - Added a command-line switch ``-Q``: it will suppress warnings.
 
-  - Added a command-line switch ``-A``: it can be used to give additional
-    values into the HTML templates.
+  - Added a command-line switch ``-A``: it can be used to supply
+    additional values into the HTML templates.
 
   - Added a distutils command `build_sphinx`: When Sphinx is installed,
     you can call ``python setup.py build_sphinx`` for projects that have
