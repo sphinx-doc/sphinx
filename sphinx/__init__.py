@@ -95,7 +95,6 @@ def main(argv=sys.argv):
     for opt, val in opts:
         
         if opt == '-g':
-            print 'in here'
             source_filenames =[srcdir+'/'+f for f in os.listdir(srcdir) if f.endswith('.rst')]
             if val is None:
                 print >>sys.stderr, \

@@ -59,7 +59,6 @@ from docutils import nodes
 import sphinx.addnodes, sphinx.roles, sphinx.builder
 from sphinx.util import patfilter
 
-from docscrape_sphinx import get_doc_object
 import inspect
 
 def setup(app):
@@ -215,30 +214,11 @@ def get_autosummary(names, state, no_signatures=False):
 
         real_names[name] = real_name
 
-        doc = get_doc_object(obj)
-
-        if doc['Summary']:
-            title = " ".join(doc['Summary'])
-        else:
-            title = ""
         qualifier = 'obj'
         if inspect.ismodule(obj):
             qualifier = 'mod'
         col1 = ":"+qualifier+":`%s <%s>`" % (name, real_name)
-        if doc['Signature']:
-            sig = re.sub('^[a-zA-Z_0-9.-]*', '',
-                         doc['Signature'].replace('*', r'\*'))
-            if '=' in sig:
-                # abbreviate optional arguments
-                sig = re.sub(r', ([a-zA-Z0-9_]+)=', r'[, \1=', sig, count=1)
-                sig = re.sub(r'\(([a-zA-Z0-9_]+)=', r'([\1=', sig, count=1)
-                sig = re.sub(r'=[^,)]+,', ',', sig)
-                sig = re.sub(r'=[^,)]+\)$', '])', sig)
-                # shorten long strings
-                sig = re.sub(r'(\[.{16,16}[^,)]*?),.*?\]\)', r'\1, ...])', sig)
-            else:
-                sig = re.sub(r'(\(.{16,16}[^,)]*?),.*?\)', r'\1, ...)', sig)
-            col1 += " " + sig
+        
         col2 = title
         append_row(col1, col2)
 
