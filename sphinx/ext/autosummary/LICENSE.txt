@@ -1,7 +1,5 @@
     The files
     - __init__.py
-    - docscrape.py
-    - doscrape-sphinx.py
     - generate.py
     - templates/module.html
 
