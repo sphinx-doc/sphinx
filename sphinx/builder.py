@@ -425,7 +425,7 @@ class StandaloneHTMLBuilder(Builder):
         rellinks = []
         if self.config.html_use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        if self.config.html_use_modindex:
+        if self.config.html_use_modindex and self.env.modules:
             rellinks.append(('modindex', _('Global Module Index'), 'M', _('modules')))
 
         self.globalcontext = dict(
@@ -559,7 +559,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # the global module index
 
-        if self.config.html_use_modindex:
+        if self.config.html_use_modindex and self.env.modules:
             # the sorted list of all modules, for the global module index
             modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
                                     '#module-' + mn, sy, pl, dep))

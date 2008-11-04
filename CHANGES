@@ -58,6 +58,9 @@ New features added
     used to disable the anchor-link creation after headlines and
     definition links.
 
+  - Only generate a module index if there are some modules in the
+    documentation.
+
 * New and changed config values:
 
   - Added support for internationalization in generated text with the
