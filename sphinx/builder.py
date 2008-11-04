@@ -67,7 +67,7 @@ class Builder(object):
         self.outdir = app.outdir
         self.doctreedir = app.doctreedir
         if not path.isdir(self.doctreedir):
-            os.mkdir(self.doctreedir)
+            os.makedirs(self.doctreedir)
 
         self.app = app
         self.warn = app.warn
