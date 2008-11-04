@@ -114,8 +114,12 @@ The :program:`sphinx-build` script has several more options:
    case.)
 
 **-q**
-   Do not output anything on standard output, only write warnings to standard
-   error.
+   Do not output anything on standard output, only write warnings and errors to
+   standard error.
+
+**-Q**
+   Do not output anything on standard output, also suppress warnings.  Only
+   errors are written to standard error.
 
 **-P**
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an
