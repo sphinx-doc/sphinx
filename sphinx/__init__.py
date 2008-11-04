@@ -42,6 +42,7 @@ Options: -b <builder> -- builder to use; default is html
          -A <name=value>    -- pass a value into the templates, for HTML builder
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
+         -Q        -- no output at all, not even warnings
          -P        -- run Pdb on exception
 Modi:
 * without -a and without filenames, write new and changed files.
@@ -89,6 +90,7 @@ def main(argv=sys.argv):
     buildername = all_files = None
     freshenv = use_pdb = False
     status = sys.stdout
+    warning = sys.stderr
     confoverrides = {}
     htmlcontext = {}
     doctreedir = path.join(outdir, '.doctrees')
@@ -138,13 +140,16 @@ def main(argv=sys.argv):
             freshenv = True
         elif opt == '-q':
             status = StringIO()
+        elif opt == '-Q':
+            status = StringIO()
+            warning = StringIO()
         elif opt == '-P':
             use_pdb = True
     confoverrides['html_context'] = htmlcontext
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
-                     confoverrides, status, sys.stderr, freshenv)
+                     confoverrides, status, warning, freshenv)
         app.build(all_files, filenames)
     except KeyboardInterrupt:
         if use_pdb:
