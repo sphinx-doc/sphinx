@@ -449,6 +449,7 @@ class StandaloneHTMLBuilder(Builder):
             logo = logo,
             favicon = favicon,
         )
+        self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
         """Collect items for the template context of a page."""

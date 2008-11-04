@@ -71,6 +71,7 @@ class Config(object):
         html_use_opensearch = ('', False),
         html_file_suffix = (None, False),
         html_show_sphinx = (True, False),
+        html_context = ({}, False),
 
         # HTML help only options
         htmlhelp_basename = ('pydoc', False),

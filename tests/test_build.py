@@ -67,6 +67,7 @@ HTML_XPATH = {
         ".//a[@href='#mod.Cls']": '',
     },
     'contents.html': {
+        ".//meta[@name='hc'][@content='hcval']": '',
         ".//td[@class='label']": '[Ref1]',
     },
 }

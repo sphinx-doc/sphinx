@@ -39,6 +39,7 @@ Options: -b <builder> -- builder to use; default is html
          -c <path> -- path where configuration file (conf.py) is located
                       (default: same as sourcedir)
          -D <setting=value> -- override a setting in configuration
+         -A <name=value>    -- pass a value into the templates, for HTML builder
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
          -P        -- run Pdb on exception
@@ -59,7 +60,7 @@ def main(argv=sys.argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:c:D:NEqP')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:c:D:A:NEqP')
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory.'
@@ -89,6 +90,7 @@ def main(argv=sys.argv):
     freshenv = use_pdb = False
     status = sys.stdout
     confoverrides = {}
+    htmlcontext = {}
     doctreedir = path.join(outdir, '.doctrees')
     for opt, val in opts:
         if opt == '-b':
@@ -107,12 +109,29 @@ def main(argv=sys.argv):
                       'Error: Configuration directory doesn\'t contain conf.py file.'
                 return 1
         elif opt == '-D':
-            key, val = val.split('=')
+            try:
+                key, val = val.split('=')
+            except ValueError:
+                print >>sys.stderr, \
+                      'Error: -D option argument must be in the form name=value.'
+                return 1
             try:
                 val = int(val)
             except ValueError:
                 pass
             confoverrides[key] = val
+        elif opt == '-A':
+            try:
+                key, val = val.split('=')
+            except ValueError:
+                print >>sys.stderr, \
+                      'Error: -A option argument must be in the form name=value.'
+                return 1
+            try:
+                val = int(val)
+            except ValueError:
+                pass
+            htmlcontext[key] = val
         elif opt == '-N':
             nocolor()
         elif opt == '-E':
@@ -121,6 +140,7 @@ def main(argv=sys.argv):
             status = StringIO()
         elif opt == '-P':
             use_pdb = True
+    confoverrides['html_context'] = htmlcontext
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
