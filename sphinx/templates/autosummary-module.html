@@ -1,0 +1,39 @@
+:mod:`{{name}}`
+===============================================================================================================================================
+
+
+.. automodule:: {{name}}
+
+{% if len_functions > 0 %}
+Functions
+----------
+{% for item in functions %}
+.. autofunction:: {{item}}
+{% endfor %}
+{% endif %}
+
+{% if len_classes > 0 %}
+Classes
+--------
+{% for item in classes %}
+.. autoclass:: {{item}}
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+   
+{% endfor %}
+{% endif %}
+
+{% if len_exceptions > 0 %}
+Exceptions
+------------
+{% for item in exceptions %}
+.. autoclass:: {{item}}
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+   
+{% endfor %}
+{% endif %}

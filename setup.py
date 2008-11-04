@@ -177,7 +177,8 @@ setup(
     entry_points={
         'console_scripts': [
             'sphinx-build = sphinx:main',
-            'sphinx-quickstart = sphinx.quickstart:main'
+            'sphinx-quickstart = sphinx.quickstart:main',
+            'sphinx-autogen = sphinx.scripts.autosummary_generate:main',
         ],
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
