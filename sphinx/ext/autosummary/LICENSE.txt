@@ -2,7 +2,8 @@
     - __init__.py
     - docscrape.py
     - doscrape-sphinx.py
-    - ../scripts/autosummary_generate.py
+    - generate.py
+    - templates/module.html
 
     have the following license:
 

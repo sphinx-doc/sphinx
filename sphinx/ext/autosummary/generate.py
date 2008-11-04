@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-r"""
+"""
 autosummary_generate.py OPTIONS FILES
 
 Generate automatic RST source files for items referred to in
@@ -11,30 +10,29 @@ extracts the docstring of the referred item.
 Example Makefile rule::
 
     generate:
-            ./ext/autosummary_generate.py -o source/generated source/*.rst
+            sphinx-autogen source/*.rst source/generated
 
 """
 import glob, re, inspect, os, optparse
 from sphinx.ext.autosummary import import_by_name
 
 from jinja import Environment, PackageLoader
-env =  Environment(loader=PackageLoader('numpyext', 'templates'))
+env =  Environment(loader=PackageLoader('sphinx.ext.autosummary', 'templates'))
 
 def main():
     p = optparse.OptionParser(__doc__.strip())
-    p.add_option("-o", "--output-dir", action="store", type="string",
-                 dest="output_dir", default=None,
-                 help=("Write all output files to the given directory (instead "
-                       "of writing them as specified in the autosummary:: "
-                       "directives)"))
     options, args = p.parse_args()
-
-    if len(args) == 0:
+    
+    if len(args) <2:
         p.error("wrong number of arguments")
 
+    print 'generating docs from:', args[:-1]
+    generate_autosummary_docs(args[:-1], args[-1])
+    
+def generate_autosummary_docs(source_dir, output_dir):
     # read
     names = {}
-    for name, loc in get_documented(args).items():
+    for name, loc in get_documented(source_dir).items():
         for (filename, sec_title, keyword, toctree) in loc:
             if toctree is not None:
                 path = os.path.join(os.path.dirname(filename), toctree)
@@ -42,8 +40,7 @@ def main():
   
     # write
     for name, path in sorted(names.items()):
-        if options.output_dir is not None:
-            path = options.output_dir
+        path = output_dir
         
         if not os.path.isdir(path):
             os.makedirs(path)

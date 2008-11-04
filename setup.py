@@ -178,7 +178,7 @@ setup(
         'console_scripts': [
             'sphinx-build = sphinx:main',
             'sphinx-quickstart = sphinx.quickstart:main',
-            'sphinx-autogen = sphinx.scripts.autosummary_generate:main',
+            'sphinx-autogen = sphinx.ext.autosummary.generate:main',
         ],
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
