@@ -72,8 +72,8 @@ def main(argv=sys.argv):
             return 1
         outdir = path.abspath(args[1])
         if not path.isdir(outdir):
-            print >>sys.stderr, 'Error: Cannot find output directory.'
-            return 1
+            print >>sys.stderr, 'Making output directory...'
+            os.makedirs(outdir)
     except (IndexError, getopt.error):
         usage(argv)
         return 1
