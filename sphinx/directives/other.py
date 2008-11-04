@@ -229,13 +229,18 @@ directives.register_directive('versionchanged', version_directive)
 
 def seealso_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
-    rv = make_admonition(
+    seealsonode = make_admonition(
         addnodes.seealso, name, [_('See also')], options, content,
         lineno, content_offset, block_text, state, state_machine)
-    return rv
+    if arguments:
+        argnodes, msgs = state.inline_text(arguments[0], lineno)
+        para = nodes.paragraph()
+        para += argnodes
+        seealsonode[1:1] = [para] + msgs
+    return [seealsonode]
 
 seealso_directive.content = 1
-seealso_directive.arguments = (0, 0, 0)
+seealso_directive.arguments = (0, 1, 1)
 directives.register_directive('seealso', seealso_directive)
 
 

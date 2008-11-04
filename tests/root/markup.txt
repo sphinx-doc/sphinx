@@ -99,7 +99,7 @@ Stuff [#]_
 
 Reference lookup: [Ref1]_ (defined in another file).
 
-.. seealso::
+.. seealso:: something, something else, something more
 
    `Google <http://www.google.com>`_
        For everything.

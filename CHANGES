@@ -28,6 +28,9 @@ New features added
   - Lists enumerated by letters or roman numerals are now handled like in
     standard reST.
 
+  - The ``seealso`` directive can now also be given arguments, as a short
+    form.
+
 * HTML output and templates:
 
   - Incompatible change: The "root" relation link (top left in the
@@ -57,6 +60,9 @@ New features added
   - The HTML builders have two additional attributes now that can be
     used to disable the anchor-link creation after headlines and
     definition links.
+
+  - Only generate a module index if there are some modules in the
+    documentation.
 
 * New and changed config values:
 
@@ -118,6 +124,11 @@ New features added
     ``missing-reference``, ``build-finished``.
 
 * Other changes:
+
+  - Added a command-line switch ``-Q``: it will suppress warnings.
+
+  - Added a command-line switch ``-A``: it can be used to supply
+    additional values into the HTML templates.
 
   - Added a distutils command `build_sphinx`: When Sphinx is installed,
     you can call ``python setup.py build_sphinx`` for projects that have

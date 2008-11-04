@@ -74,6 +74,13 @@ units as well as normal text:
          `GNU tar manual, Basic Tar Format <http://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
+   There's also a "short form" allowed that looks like this::
+
+      .. seealso:: modules :mod:`zipfile`, :mod:`tarfile`
+
+   .. versionadded:: 0.5
+      The short form.
+
 .. directive:: .. rubric:: title
 
    This directive creates a paragraph heading that is not used to create a

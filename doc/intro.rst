@@ -109,13 +109,20 @@ The :program:`sphinx-build` script has several more options:
    Override a configuration value set in the :file:`conf.py` file.  (The value
    must be a string value.)
 
+**-A** *name=value*
+   Make the *name* assigned to *value* in the HTML templates.
+
 **-N**
    Do not do colored output.  (On Windows, colored output is disabled in any
    case.)
 
 **-q**
-   Do not output anything on standard output, only write warnings to standard
-   error.
+   Do not output anything on standard output, only write warnings and errors to
+   standard error.
+
+**-Q**
+   Do not output anything on standard output, also suppress warnings.  Only
+   errors are written to standard error.
 
 **-P**
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an

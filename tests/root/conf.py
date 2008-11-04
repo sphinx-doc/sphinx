@@ -133,6 +133,8 @@ html_last_updated_fmt = '%b %d, %Y'
 # If nonempty, this is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = ''
 
+html_context = {'hckey': 'hcval'}
+
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'SphinxTestsdoc'
 
