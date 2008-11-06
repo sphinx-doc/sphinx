@@ -33,5 +33,5 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
             classes = ['admonition-' + nodes.make_id(title_text)]
         admonition_node['classes'] += classes
     state.nested_parse(content, content_offset, admonition_node)
-    return admonition_node
+    return [admonition_node]
 
