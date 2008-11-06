@@ -32,7 +32,7 @@ except ImportError:
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter
+from docutils.utils import Reporter, relative_path
 from docutils.readers import standalone
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
@@ -619,19 +619,22 @@ class BuildEnvironment:
             node['uri'] = imgpath
             if imgpath.endswith(os.extsep + '*'):
                 for filename in glob(path.join(self.srcdir, imgpath)):
-                    dir, base = path.split(filename)
-                    if base.lower().endswith('.pdf'):
-                        candidates['application/pdf'] = path.join(docdir, base)
-                    elif base.lower().endswith('.svg'):
-                        candidates['image/svg+xml'] = path.join(docdir, base)
+                    relname = relative_path(self.srcdir, filename)
+                    if filename.lower().endswith('.pdf'):
+                        candidates['application/pdf'] = path.join(docdir, relname)
+                    elif filename.lower().endswith('.svg'):
+                        candidates['image/svg+xml'] = path.join(docdir, relname)
                     else:
-                        f = open(filename, 'rb')
                         try:
-                            imgtype = imghdr.what(f)
-                        finally:
-                            f.close()
+                            f = open(filename, 'rb')
+                            try:
+                                imgtype = imghdr.what(f)
+                            finally:
+                                f.close()
+                        except (OSError, IOError):
+                            self.warn(docname, 'Image file %s not readable' % filename)
                         if imgtype:
-                            candidates['image/' + imgtype] = path.join(docdir, base)
+                            candidates['image/' + imgtype] = path.join(docdir, relname)
             else:
                 candidates['*'] = imgpath
             for imgpath in candidates.itervalues():

@@ -141,6 +141,8 @@ New features added
 Bugs fixed
 ----------
 
+* Fix the handling of images in different directories.
+
 * Support option lists in the text writer.  Make sure that dashes
   introducing long option names are not contracted to en-dashes.
 
