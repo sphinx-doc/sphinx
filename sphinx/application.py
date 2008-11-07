@@ -108,7 +108,8 @@ class Sphinx(object):
         if buildername not in self.builderclasses:
             raise SphinxError('Builder name %s not registered' % buildername)
 
-        self.info(bold('Sphinx v%s, building %s' % (sphinx.__version__, buildername)))
+        self.info(bold('Sphinx v%s, building %s' % (sphinx.__released_,
+                                                    buildername)))
 
         builderclass = self.builderclasses[buildername]
         self.builder = builderclass(self, freshenv=freshenv)
