@@ -236,7 +236,8 @@ def seealso_directive(name, arguments, options, content, lineno,
         argnodes, msgs = state.inline_text(arguments[0], lineno)
         para = nodes.paragraph()
         para += argnodes
-        ret[0][1:1] = [para] + msgs
+        para += msgs
+        ret[0].insert(1, para)
     return ret
 
 seealso_directive.content = 1

@@ -618,7 +618,7 @@ div.admonition dl {
     margin-bottom: 0;
 }
 
-div.admonition p {
+div.admonition p.admonition-title + p {
     display: inline;
 }
 

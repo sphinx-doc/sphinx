@@ -15,11 +15,11 @@ from docutils import nodes
 # function missing in 0.5 SVN
 def make_admonition(node_class, name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
-    if not content:
-        error = state_machine.reporter.error(
-            'The "%s" admonition is empty; content required.' % (name),
-            nodes.literal_block(block_text, block_text), line=lineno)
-        return [error]
+    #if not content:
+    #    error = state_machine.reporter.error(
+    #        'The "%s" admonition is empty; content required.' % (name),
+    #        nodes.literal_block(block_text, block_text), line=lineno)
+    #    return [error]
     text = '\n'.join(content)
     admonition_node = node_class(text)
     if arguments:
