@@ -1033,7 +1033,7 @@ class LaTeXBuilder(Builder):
             # extract toctree nodes from the tree and put them in a fresh document
             new_tree = new_document('<latex output>')
             new_sect = nodes.section()
-            new_sect += nodes.title('<temp>', '<temp>')
+            new_sect += nodes.title(u'<Set title in conf.py>', u'<Set title in conf.py>')
             new_tree += new_sect
             for node in tree.traverse(addnodes.toctree):
                 new_sect += node
