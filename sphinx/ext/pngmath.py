@@ -14,7 +14,7 @@ import shlex
 import shutil
 import tempfile
 import posixpath
-from os import path
+from os import path, getcwd, chdir
 from subprocess import Popen, PIPE
 try:
     from hashlib import sha1 as sha
@@ -96,20 +96,30 @@ def render_math(self, math):
     tf.write(latex)
     tf.close()
 
+    # build latex command; old versions of latex don't have the
+    # --output-directory option, so we have to manually chdir to the
+    # temp dir to run it.
     ltx_args = shlex.split(self.builder.config.pngmath_latex)
-    ltx_args += ['--interaction=nonstopmode', '--output-directory=' + tempdir,
-                 'math.tex']
+    ltx_args += ['--interaction=nonstopmode', 'math.tex']
+
+    curdir = getcwd()
+    chdir(tempdir)
+
     try:
-        p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
-    except OSError, err:
-        if err.errno != 2:   # No such file or directory
-            raise
-        if not hasattr(self.builder, '_mathpng_warned_latex'):
-            self.builder.warn('LaTeX command %r cannot be run (needed for math '
-                              'display), check the pngmath_latex setting' %
-                              self.builder.config.pngmath_latex)
-            self.builder._mathpng_warned_latex = True
-        return relfn, None
+        try:
+            p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
+        except OSError, err:
+            if err.errno != 2:   # No such file or directory
+                raise
+            if not hasattr(self.builder, '_mathpng_warned_latex'):
+                self.builder.warn('LaTeX command %r cannot be run (needed for math '
+                                  'display), check the pngmath_latex setting' %
+                                  self.builder.config.pngmath_latex)
+                self.builder._mathpng_warned_latex = True
+            return relfn, None
+    finally:
+        chdir(curdir)
+
     stdout, stderr = p.communicate()
     if p.returncode != 0:
         raise MathExtError('latex exited with error:\n[stderr]\n%s\n[stdout]\n%s'
