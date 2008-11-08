@@ -312,4 +312,7 @@ There are some problems one commonly runs into while authoring reST documents:
   separated from the surrounding text by non-word characters, you have to use
   a backslash-escaped space to get around that.
 
+* **No nested inline markup:** Something like ``*see :func:`foo`*`` is not
+  possible.
+  
 .. XXX more?
