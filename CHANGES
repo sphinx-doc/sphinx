@@ -141,6 +141,8 @@ New features added
 Bugs fixed
 ----------
 
+* Fix a problem with module links not being generated in LaTeX output.
+
 * Fix the handling of images in different directories.
 
 * Support option lists in the text writer.  Make sure that dashes

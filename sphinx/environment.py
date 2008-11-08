@@ -1045,10 +1045,6 @@ class BuildEnvironment:
                 elif typ == 'mod':
                     docname, synopsis, platform, deprecated = \
                         self.modules.get(target, ('','','', ''))
-                    # just link to an anchor if there are multiple modules in one file
-                    # because the anchor is generally below the heading which is ugly
-                    # but can't be helped easily
-                    anchor = ''
                     if not docname:
                         newnode = builder.app.emit_firstresult('missing-reference',
                                                                self, node, contnode)
@@ -1058,11 +1054,9 @@ class BuildEnvironment:
                         # don't link to self
                         newnode = contnode
                     else:
-                        if len(self.filemodules[docname]) > 1:
-                            anchor = '#' + 'module-' + target
                         newnode = nodes.reference('', '')
-                        newnode['refuri'] = (
-                            builder.get_relative_uri(fromdocname, docname) + anchor)
+                        newnode['refuri'] = builder.get_relative_uri(
+                            fromdocname, docname) + '#module-' + target
                         newnode['reftitle'] = '%s%s%s' % (
                             (platform and '(%s) ' % platform),
                             synopsis, (deprecated and ' (deprecated)' or ''))
