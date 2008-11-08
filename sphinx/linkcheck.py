@@ -84,20 +84,25 @@ class CheckExternalLinksBuilder(Builder):
                 self.good.add(uri)
             elif r == 2:
                 self.info(' - ' + red('broken: ') + s)
-                self.broken[uri] = (r, s)
                 self.write_entry('broken', docname, lineno, uri + ': ' + s)
+                self.broken[uri] = (r, s)
+                if self.app.quiet:
+                    self.warn('%s:%s: broken link: %s' % (docname, lineno, uri))
             else:
                 self.info(' - ' + purple('redirected') + ' to ' + s)
-                self.redirected[uri] = (r, s)
                 self.write_entry('redirected', docname, lineno, uri + ' to ' + s)
-
+                self.redirected[uri] = (r, s)
         elif len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
             return
         else:
-            self.info(uri + ' - ' + red('malformed!'))
+            self.warn(uri + ' - ' + red('malformed!'))
             self.write_entry('malformed', docname, lineno, uri)
+            if self.app.quiet:
+                self.warn('%s:%s: malformed link: %s' % (docname, lineno, uri))
+            self.app.statuscode = 1
 
-        return
+        if self.broken:
+            self.app.statuscode = 1
 
     def write_entry(self, what, docname, line, uri):
         output = open(path.join(self.outdir, 'output.txt'), 'a')

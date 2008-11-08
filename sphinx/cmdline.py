@@ -14,7 +14,6 @@ import sys
 import getopt
 import traceback
 from os import path
-from cStringIO import StringIO
 
 from docutils.utils import SystemMessage
 
@@ -134,10 +133,10 @@ def main(argv):
         elif opt == '-E':
             freshenv = True
         elif opt == '-q':
-            status = StringIO()
+            status = None
         elif opt == '-Q':
-            status = StringIO()
-            warning = StringIO()
+            status = None
+            warning = None
         elif opt == '-P':
             use_pdb = True
     confoverrides['html_context'] = htmlcontext
@@ -146,6 +145,7 @@ def main(argv):
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv)
         app.build(all_files, filenames)
+        return app.statuscode
     except KeyboardInterrupt:
         if use_pdb:
             import pdb

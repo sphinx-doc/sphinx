@@ -14,6 +14,7 @@
 
 import sys
 import posixpath
+from cStringIO import StringIO
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -83,11 +84,22 @@ class Sphinx(object):
         self.outdir = outdir
         self.doctreedir = doctreedir
 
-        self._status = status
-        self._warning = warning
+        if status is None:
+            self._status = StringIO()
+            self.quiet = True
+        else:
+            self._status = status
+            self.quiet = False
+        if warning is None:
+            self._warning = StringIO()
+        else:
+            self._warning = warning
         self._warncount = 0
 
         self._events = events.copy()
+
+        # status code for command-line application
+        self.statuscode = 0
 
         # read config
         self.config = Config(confdir, CONFIG_FILENAME, confoverrides)
