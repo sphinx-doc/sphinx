@@ -66,7 +66,7 @@ def test_images():
     assert set(latexbuilder.images.keys()) == set(['subdir/img.png', 'subdir/simg.png',
                                                    'img.png', 'img.pdf'])
     assert set(latexbuilder.images.values()) == set(['img.pdf', 'img.png',
-                                                     'img1.png', 'simg.pdf'])
+                                                     'img1.png', 'simg.png'])
 
 def test_second_update():
     # delete, add and "edit" (change saved mtime) some files and update again
