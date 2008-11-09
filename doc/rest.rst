@@ -291,7 +291,17 @@ Comments
 --------
 
 Every explicit markup block which isn't a valid markup construct (like the
-footnotes above) is regarded as a comment.
+footnotes above) is regarded as a comment.  For example::
+
+   .. This is a comment.
+
+You can indent text after a comment start to form multiline comments::
+   
+   ..
+      This whole indented block
+      is a comment.
+
+      Still in the comment.
 
 
 Source encoding
