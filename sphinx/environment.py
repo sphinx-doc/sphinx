@@ -57,7 +57,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 25
+ENV_VERSION = 26
 
 
 default_substitutions = set([
@@ -266,8 +266,9 @@ class BuildEnvironment:
         self.modules = {}           # modname -> docname, synopsis, platform, deprecated
         self.labels = {}            # labelname -> docname, labelid, sectionname
         self.anonlabels = {}        # labelname -> docname, labelid
+        self.progoptions = {}       # (program, name) -> docname, labelid
         self.reftargets = {}        # (type, name) -> docname, labelid
-                                    # where type is term, token, option, envvar, citation
+                                    # where type is term, token, envvar, citation
 
         # Other inventories
         self.indexentries = {}      # docname -> list of
@@ -281,6 +282,7 @@ class BuildEnvironment:
         self.currmodule = None      # current module name
         self.currclass = None       # current class name
         self.currdesc = None        # current descref name
+        self.currprogram = None     # current program name
         self.index_num = 0          # autonumber for index targets
         self.gloss_entries = set()  # existing definition labels
 
@@ -331,6 +333,9 @@ class BuildEnvironment:
             for key, (fn, _) in self.reftargets.items():
                 if fn == docname:
                     del self.reftargets[key]
+            for key, (fn, _) in self.progoptions.items():
+                if fn == docname:
+                    del self.progoptions[key]
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
@@ -826,6 +831,9 @@ class BuildEnvironment:
         self.modules[modname] = (self.docname, synopsis, platform, deprecated)
         self.filemodules.setdefault(self.docname, []).append(modname)
 
+    def note_progoption(self, optname, labelid):
+        self.progoptions[self.currprogram, optname] = (self.docname, labelid)
+
     def note_reftarget(self, type, name, labelid):
         self.reftargets[type, name] = (self.docname, labelid)
 
@@ -968,7 +976,7 @@ class BuildEnvironment:
                            'meth', 'cfunc', 'cmember', 'cdata', 'ctype', 'cmacro'))
 
     def resolve_references(self, doctree, fromdocname, builder):
-        reftarget_roles = set(('token', 'term', 'option', 'citation'))
+        reftarget_roles = set(('token', 'term', 'citation'))
         # add all custom xref types too
         reftarget_roles.update(i[0] for i in additional_xref_types.values())
 
@@ -1019,6 +1027,19 @@ class BuildEnvironment:
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
                         #self.warn(fromdocname, 'unknown keyword: %s' % target)
+                        newnode = contnode
+                    else:
+                        newnode = nodes.reference('', '')
+                        if docname == fromdocname:
+                            newnode['refid'] = labelid
+                        else:
+                            newnode['refuri'] = builder.get_relative_uri(
+                                fromdocname, docname) + '#' + labelid
+                        newnode.append(contnode)
+                elif typ == 'option':
+                    progname = node['refprogram']
+                    docname, labelid = self.progoptions.get((progname, target), ('', ''))
+                    if not docname:
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')

@@ -14,9 +14,8 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.util import patfilter
-from sphinx.roles import caption_ref_re
 from sphinx.locale import pairindextypes
+from sphinx.util import patfilter, ws_re, caption_ref_re
 from sphinx.util.compat import make_admonition
 
 
@@ -157,6 +156,20 @@ def author_directive(name, arguments, options, content, lineno,
 author_directive.arguments = (1, 0, 1)
 directives.register_directive('sectionauthor', author_directive)
 directives.register_directive('moduleauthor', author_directive)
+
+
+def program_directive(name, arguments, options, content, lineno,
+                      content_offset, block_text, state, state_machine):
+    env = state.document.settings.env
+    program = ws_re.sub('-', arguments[0].strip())
+    if program == 'None':
+        env.currprogram = None
+    else:
+        env.currprogram = program
+    return []
+
+program_directive.arguments = (1, 0, 1)
+directives.register_directive('program', program_directive)
 
 
 # ------ index markup --------------------------------------------------------------

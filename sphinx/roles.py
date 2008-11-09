@@ -15,9 +15,8 @@ from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
 from sphinx import addnodes
+from sphinx.util import ws_re, caption_ref_re
 
-ws_re = re.compile(r'\s+')
-caption_ref_re = re.compile(r'^([^<]+?)\s*<(.+)>$')
 
 generic_docroles = {
     'command' : nodes.strong,
@@ -143,7 +142,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             # fallback: everything after '<' is the target
             target = text[brace+1:]
             title = text[:brace]
-    # special target  for Python object cross-references
+    # special target for Python object cross-references
     if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod', 'obj'):
         # fix-up parentheses in link title
         if titleistarget:
@@ -166,9 +165,17 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             target = target[1:]
             pnode['refspecific'] = True
     # some other special cases for the target
-    elif typ == 'option' and target[0] in '-/':
-        # strip option marker from target
-        target = target[1:]
+    elif typ == 'option':
+        program = env.currprogram
+        if titleistarget:
+            if ' ' in title and not (title.startswith('/') or title.startswith('-')):
+                program, target = re.split(' (?=-|--|/)', title, 1)
+                program = ws_re.sub('-', program)
+                target = target.strip()
+        elif ' ' in target:
+            program, target = re.split(' (?=-|--|/)', target, 1)
+            program = ws_re.sub('-', program)
+        pnode['refprogram'] = program
     elif typ == 'term':
         # normalize whitespace in definition terms (if the term reference is
         # broken over a line, a newline will be in target)
@@ -217,21 +224,21 @@ specific_docroles = {
     'obj': xfileref_role,
     'cfunc' : xfileref_role,
     'cmember': xfileref_role,
-    'cdata' : xfileref_role,
-    'ctype' : xfileref_role,
-    'cmacro' : xfileref_role,
+    'cdata': xfileref_role,
+    'ctype': xfileref_role,
+    'cmacro': xfileref_role,
 
-    'mod' : xfileref_role,
+    'mod': xfileref_role,
 
     'keyword': xfileref_role,
     'ref': xfileref_role,
-    'token' : xfileref_role,
+    'token': xfileref_role,
     'term': xfileref_role,
     'option': xfileref_role,
 
-    'menuselection' : menusel_role,
-    'file' : emph_literal_role,
-    'samp' : emph_literal_role,
+    'menuselection': menusel_role,
+    'file': emph_literal_role,
+    'samp': emph_literal_role,
 }
 
 for rolename, func in specific_docroles.iteritems():

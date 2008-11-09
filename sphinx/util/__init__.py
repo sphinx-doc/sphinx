@@ -18,6 +18,11 @@ import traceback
 from os import path
 
 
+# Generally useful regular expressions.
+ws_re = re.compile(r'\s+')
+caption_ref_re = re.compile(r'^([^<]+?)\s*<(.+)>$')
+
+
 # SEP separates path elements in the canonical file names
 #
 # Define SEP as a manifest constant, not so much because we expect it to change

@@ -14,9 +14,8 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.util import ws_re
 
-
-ws_re = re.compile(r'\s+')
 
 # ------ information units ---------------------------------------------------------
 
@@ -352,17 +351,17 @@ def parse_c_signature(signode, sig, desctype):
 
 
 option_desc_re = re.compile(
-    r'(/|-|--)([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
+    r'((?:/|-|--)[-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
 
 def parse_option_desc(signode, sig):
     """Transform an option description into RST nodes."""
     count = 0
     firstname = ''
     for m in option_desc_re.finditer(sig):
-        prefix, optname, args = m.groups()
+        optname, args = m.groups()
         if count:
             signode += addnodes.desc_addname(', ', ', ')
-        signode += addnodes.desc_name(prefix+optname, prefix+optname)
+        signode += addnodes.desc_name(optname, optname)
         signode += addnodes.desc_addname(args, args)
         if not count:
             firstname = optname
@@ -402,12 +401,17 @@ def desc_directive(desctype, arguments, options, content, lineno,
             elif desctype == 'cmdoption':
                 optname = parse_option_desc(signode, sig)
                 if not noindex:
-                    targetname = 'cmdoption-' + optname
+                    targetname = optname.replace('/', '-')
+                    if env.currprogram:
+                        targetname = '-' + env.currprogram + targetname
+                    targetname = 'cmdoption' + targetname
                     signode['ids'].append(targetname)
                     state.document.note_explicit_target(signode)
-                    inode['entries'].append(('pair', _('command line option; %s') % sig,
-                                             targetname, targetname))
-                    env.note_reftarget('option', optname, targetname)
+                    inode['entries'].append(
+                        ('pair', _('%scommand line option; %s') %
+                         ((env.currprogram and env.currprogram + ' ' or ''), sig),
+                         targetname, targetname))
+                    env.note_progoption(optname, targetname)
                 continue
             elif desctype == 'describe':
                 signode.clear()
