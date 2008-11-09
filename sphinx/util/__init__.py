@@ -260,3 +260,14 @@ no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 def make_filename(string):
     return no_fn_re.sub('', string)
+
+
+def nested_parse_with_titles(state, content, node):
+    # hack around title style bookkeeping
+    surrounding_title_styles = state.memo.title_styles
+    surrounding_section_level = state.memo.section_level
+    state.memo.title_styles = []
+    state.memo.section_level = 0
+    state.nested_parse(content, 0, node, match_titles=1)
+    state.memo.title_styles = surrounding_title_styles
+    state.memo.section_level = surrounding_section_level

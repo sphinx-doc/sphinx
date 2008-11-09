@@ -22,7 +22,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
-from sphinx.util import rpartition
+from sphinx.util import rpartition, nested_parse_with_titles
 from sphinx.directives.desc import py_sig_re
 
 try:
@@ -600,14 +600,7 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     state.memo.reporter = AutodocReporter(generator.result, state.memo.reporter)
     if dirname == 'automodule':
         node = nodes.section()
-        # hack around title style bookkeeping
-        surrounding_title_styles = state.memo.title_styles
-        surrounding_section_level = state.memo.section_level
-        state.memo.title_styles = []
-        state.memo.section_level = 0
-        state.nested_parse(generator.result, 0, node, match_titles=1)
-        state.memo.title_styles = surrounding_title_styles
-        state.memo.section_level = surrounding_section_level
+        nested_parse_with_titles(state, generator.result, node)
     else:
         node = nodes.paragraph()
         state.nested_parse(generator.result, 0, node)
