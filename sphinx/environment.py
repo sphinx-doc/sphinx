@@ -460,6 +460,8 @@ class BuildEnvironment:
 
         # clear all files no longer present
         for docname in removed:
+            if app:
+                app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
 
         # read all new and changed files
@@ -490,6 +492,8 @@ class BuildEnvironment:
         If srcpath is given, read from a different source file.
         """
         # remove all inventory entries for that file
+        if app:
+            app.emit('env-purge-doc', self, docname)
         self.clear_doc(docname)
 
         if src_path is None:

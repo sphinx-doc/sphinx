@@ -121,7 +121,7 @@ New features added
     default HTML template.
 
   - Added new events: ``source-read``, ``env-updated``,
-    ``missing-reference``, ``build-finished``.
+    ``env-purge-doc``, ``missing-reference``, ``build-finished``.
 
 * Other changes:
 

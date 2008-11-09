@@ -208,11 +208,28 @@ registered event handlers.
    Emitted when the builder object has been created.  It is available as
    ``app.builder``.
 
+.. event:: env-purge-doc (app, env, docname)
+
+   Emitted when all traces of a source file should be cleaned from the
+   environment, that is, if the source file is removed or before it is freshly
+   read.  This is for extensions that keep their own caches in attributes of the
+   environment.
+
+   For example, there is a cache of all modules on the environment.  When a
+   source file has been changed, the cache's entries for the file are cleared,
+   since the module declarations could have been removed from the file.
+
+   .. versionadded:: 0.5
+   
 .. event:: source-read (app, docname, source)
 
    Emitted when a source file has been read.  The *source* argument is a list
    whose single element is the contents of the source file.  You can process the
    contents and replace this item to implement source-level transformations.
+
+   For example, if you want to use ``$`` signs to delimit inline math, like in
+   LaTeX, you can use a regular expression to replace ``$...$`` by
+   ``:math:`...```.
 
    .. versionadded:: 0.5
    
@@ -241,7 +258,11 @@ registered event handlers.
 .. event:: doctree-resolved (app, doctree, docname)
 
    Emitted when a doctree has been "resolved" by the environment, that is, all
-   references have been resolved and TOCs have been inserted.
+   references have been resolved and TOCs have been inserted.  The *doctree* can
+   be modified in place.
+
+   Here is the place to replace custom nodes that don't have visitor methods in
+   the writers, so that they don't cause errors when the writers encounter them.
 
 .. event:: env-updated (app, env)
 
