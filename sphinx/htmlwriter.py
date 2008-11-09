@@ -194,11 +194,8 @@ class HTMLTranslator(BaseTranslator):
         if node.has_key('linenos'):
             linenos = node['linenos']
         highlighted = self.highlighter.highlight_block(node.rawsource, lang, linenos)
-        starttag = self.starttag(node, 'div', suffix='')
-        if starttag != '<div>':
-            self.body.append(starttag + highlighted + '</div>\n')
-        else:
-            self.body.append(highlighted)
+        starttag = self.starttag(node, 'div', suffix='', CLASS='highlight-%s' % lang)
+        self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
     def visit_doctest_block(self, node):
