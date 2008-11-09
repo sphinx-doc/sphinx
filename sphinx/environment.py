@@ -171,7 +171,8 @@ class SphinxContentsFilter(ContentsFilter):
     within table-of-contents link nodes.
     """
     def visit_pending_xref(self, node):
-        self.parent.append(nodes.literal(node['reftarget'], node['reftarget']))
+        text = node.astext()
+        self.parent.append(nodes.literal(text, text))
         raise nodes.SkipNode
 
 
