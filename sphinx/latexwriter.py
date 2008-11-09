@@ -330,7 +330,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_title(self, node):
-        if isinstance(node.parent, addnodes.seealso):
+        parent = node.parent
+        if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
         elif self.this_is_the_title:
@@ -342,17 +343,20 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.elements['title'] = node.astext().translate(tex_escape_map)
             self.this_is_the_title = 0
             raise nodes.SkipNode
-        elif isinstance(node.parent, nodes.section):
+        elif isinstance(parent, nodes.section):
             self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
             self.context.append('}\n')
-        elif isinstance(node.parent, (nodes.topic, nodes.sidebar, nodes.admonition)):
+        elif isinstance(parent, (nodes.topic, nodes.sidebar)):
             self.body.append(r'\textbf{')
             self.context.append('}\n\n\medskip\n\n')
+        elif isinstance(parent, nodes.Admonition):
+            self.body.append('{')
+            self.context.append('}\n')
         else:
             self.builder.warn('encountered title node not in section, topic, admonition'
                               ' or sidebar')
             self.body.append('\\textbf{')
-            self.context.append('}')
+            self.context.append('}\n')
         self.in_title = 1
     def depart_title(self, node):
         self.in_title = 0
@@ -788,9 +792,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_admonition(self, node):
-        self.body.append('\n\\begin{quote}')
+        self.body.append('\n\\begin{notice}{note}')
     def depart_admonition(self, node):
-        self.body.append('\\end{quote}\n')
+        self.body.append('\\end{notice}\n')
 
     def _make_visit_admonition(name):
         def visit_admonition(self, node):
