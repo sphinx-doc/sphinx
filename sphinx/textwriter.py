@@ -126,11 +126,6 @@ class TextTranslator(nodes.NodeVisitor):
         self.add_text(' ]-')
         self.end_state()
 
-    def visit_sidebar(self, node):
-        pass
-    def depart_sidebar(self, node):
-        pass
-
     def visit_compound(self, node):
         pass
     def depart_compound(self, node):
