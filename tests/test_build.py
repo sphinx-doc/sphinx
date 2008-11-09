@@ -70,6 +70,8 @@ HTML_XPATH = {
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
         ".//td[@class='label']": '[Ref1]',
+        ".//li[@class='toctree-l1']/a": 'Testing various markup',
+        ".//li[@class='toctree-l2']/a": 'Admonitions',
     },
 }
 

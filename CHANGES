@@ -45,6 +45,12 @@ New features added
   - The JavaScript search now searches for objects before searching in
     the full text.
 
+  - TOC tree entries now have CSS classes that make it possible to
+    style them depending on their depth.
+
+  - Highlighted code blocks now have CSS classes that make it possible
+    to style them depending on their language.
+
   - HTML ``<meta>`` tags via the docutils ``meta`` directive are now
     supported.
 

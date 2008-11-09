@@ -902,9 +902,10 @@ class BuildEnvironment:
             """Utility: Cut a TOC at a specified depth."""
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
+                    subnode['classes'].append('toctree-l%d' % (depth-1))
                     _walk_depth(subnode, depth, maxdepth, titleoverrides)
                 elif isinstance(subnode, nodes.bullet_list):
-                    if depth > maxdepth:
+                    if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
                         _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
@@ -958,9 +959,8 @@ class BuildEnvironment:
 
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
-        # prune the tree to maxdepth and replace titles
-        if maxdepth > 0 and prune:
-            _walk_depth(newnode, 1, maxdepth, titleoverrides)
+        # prune the tree to maxdepth and replace titles, also set level classes
+        _walk_depth(newnode, 1, prune and maxdepth or 0, titleoverrides)
         # replace titles, if needed, and set the target paths in the
         # toctrees (they are not known at TOC generation time)
         for refnode in newnode.traverse(nodes.reference):
