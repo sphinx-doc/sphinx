@@ -643,8 +643,6 @@ def setup(app):
                       noindex=directives.flag)
     app.add_directive('autoattribute', auto_directive, 1, (1, 0, 1),
                       noindex=directives.flag)
-    app.add_directive('autoprogram', auto_directive, 1, (1, 0, 1),
-                      noindex=directives.flag)
     # deprecated: remove in some future version.
     app.add_config_value('automodule_skip_lines', 0, True)
     app.add_config_value('autoclass_content', 'class', True)
