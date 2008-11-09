@@ -39,3 +39,4 @@ These extensions are built in and can be activated by respective entries in the
    ext/refcounting
    ext/ifconfig
    ext/coverage
+   ext/todo

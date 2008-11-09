@@ -3,7 +3,7 @@
 Writing new builders
 ====================
 
-XXX to be expanded.
+.. todo:: Expand this.
 
 .. currentmodule:: sphinx.builder
 

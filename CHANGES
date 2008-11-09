@@ -103,6 +103,10 @@ New features added
     creates links to Sphinx documentation of Python objects in other
     projects.
 
+  - The new extension ``sphinx.ext.todo`` allows the insertion of
+    "To do" directives whose visibility in the output can be toggled.
+    It also adds a directive to compile a list of all todo items.
+
   - sphinx.ext.autodoc has a new event ``autodoc-process-signature``
     that allows tuning function signature introspection.
 
