@@ -587,12 +587,27 @@ p.rubric {
     font-weight: bold;
 }
 
+/* Sidebars */
+
+div.sidebar {
+    margin: 0 0 0.5em 1em;
+    border: 1px solid #ddb;
+    padding: 7px 7px 0 7px;
+    background-color: #ffe;
+    width: 40%;
+    float: right;
+}
+
+p.sidebar-title {
+    font-weight: bold;
+}
+
 /* "Topics" */
 
 div.topic {
     background-color: #eee;
     border: 1px solid #ccc;
-    padding: 0 7px 0 7px;
+    padding: 7px 7px 0 7px;
     margin: 10px 0 10px 0;
 }
 

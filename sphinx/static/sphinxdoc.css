@@ -263,6 +263,31 @@ p.rubric {
     font-weight: bold;
 }
 
+div.sidebar {
+    margin: 0 0 0.5em 1em;
+    border: 1px solid #ddb;
+    padding: 7px 7px 0 7px;
+    background-color: #ffe;
+    width: 40%;
+    float: right;
+}
+
+p.sidebar-title {
+    font-weight: bold;
+}
+
+div.topic {
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    padding: 7px 7px 0 7px;
+    margin: 10px 0 10px 0;
+}
+
+p.topic-title {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
 h1 {
     margin: 0;
     padding: 0.7em 0 0.3em 0;
