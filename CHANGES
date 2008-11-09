@@ -31,6 +31,9 @@ New features added
   - The ``seealso`` directive can now also be given arguments, as a short
     form.
 
+  - You can now document several programs and their options with the
+    new ``program`` directive.
+
 * HTML output and templates:
 
   - Incompatible change: The "root" relation link (top left in the
