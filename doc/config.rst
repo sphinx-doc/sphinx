@@ -203,10 +203,11 @@ Project information
    * ``cs`` -- Czech
    * ``de`` -- German
    * ``en`` -- English
-   * ``fr`` -- French
-   * ``pl`` -- Polish
    * ``es`` -- Spanish
+   * ``fr`` -- French
    * ``nl`` -- Dutch
+   * ``pl`` -- Polish
+   * ``zh_TW`` -- Traditional Chinese
 
 .. confval:: today
              today_fmt
