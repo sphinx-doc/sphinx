@@ -15,7 +15,6 @@
 import re
 import sys
 from os import path
-from time import strftime
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
@@ -23,6 +22,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.locale import admonitionlabels, versionlabels
+from sphinx.util import ustrftime
 from sphinx.util.texescape import tex_escape_map
 from sphinx.util.smartypants import educateQuotesLatex
 
@@ -161,7 +161,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
             'title':        document.settings.title,
-            'date':         strftime(builder.config.today_fmt or _('%B %d, %Y')),
+            'date':         ustrftime(builder.config.today_fmt or _('%B %d, %Y')),
             'release':      builder.config.release,
             'author':       document.settings.author,
             'releasename':  _('Release'),
@@ -174,7 +174,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                     path.basename(builder.config.latex_logo)
         if builder.config.language:
             babel = ExtBabel(builder.config.language)
-            self.elements['classoptions'] += ',' + babel.get_language()
+            lang = babel.get_language()
+            if lang:
+                self.elements['classoptions'] += ',' + babel.get_language()
+            else:
+                self.builder.warn('no Babel option known for language %r' %
+                                  builder.config.language)
             self.elements['shorthandoff'] = babel.get_shorthandoff()
             self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
         else:

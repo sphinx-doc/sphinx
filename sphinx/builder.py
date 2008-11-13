@@ -26,7 +26,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import addnodes, locale, __version__
-from sphinx.util import ensuredir, relative_uri, SEP, os_path, texescape
+from sphinx.util import ensuredir, relative_uri, SEP, os_path, texescape, ustrftime
 from sphinx.htmlhelp import build_hhx
 from sphinx.htmlwriter import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
 from sphinx.textwriter import TextWriter
@@ -405,7 +405,7 @@ class StandaloneHTMLBuilder(Builder):
         # typically doesn't include the time of day
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
-            self.last_updated = time.strftime(lufmt or _('%b %d, %Y'))
+            self.last_updated = ustrftime(lufmt or _('%b %d, %Y'))
         else:
             self.last_updated = None
 

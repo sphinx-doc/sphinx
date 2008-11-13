@@ -12,6 +12,7 @@
 import os
 import re
 import sys
+import time
 import fnmatch
 import tempfile
 import traceback
@@ -276,3 +277,8 @@ def nested_parse_with_titles(state, content, node):
     state.nested_parse(content, 0, node, match_titles=1)
     state.memo.title_styles = surrounding_title_styles
     state.memo.section_level = surrounding_section_level
+
+
+def ustrftime(format, *args):
+    # strftime for unicode strings
+    return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')

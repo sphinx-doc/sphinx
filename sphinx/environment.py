@@ -42,7 +42,7 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import get_matching_docs, SEP
+from sphinx.util import get_matching_docs, SEP, ustrftime
 from sphinx.directives import additional_xref_types
 
 default_settings = {
@@ -99,7 +99,7 @@ class DefaultSubstitutions(Transform):
                 text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = time.strftime(config.today_fmt or _('%B %d, %Y'))
+                    text = ustrftime(config.today_fmt or _('%B %d, %Y'))
                 ref.replace_self(nodes.Text(text, text))
 
 
