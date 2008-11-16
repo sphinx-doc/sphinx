@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: larlet@gmail.com\n"
 "POT-Creation-Date: 2008-08-08 12:39+0000\n"
-"PO-Revision-Date: 2008-11-16 11:04+0100\n"
+"PO-Revision-Date: 2008-11-16 11:10+0100\n"
 "Last-Translator: David Larlet <larlet@gmail.com>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -225,7 +225,7 @@ msgstr "Paramètres"
 #: sphinx/directives/desc.py:411
 #, fuzzy, python-format
 msgid "%scommand line option; %s"
-msgstr "option de ligne de commande; %s"
+msgstr "%soption de ligne de commande; %s"
 
 #: sphinx/directives/other.py:101
 msgid "Platforms: "

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-10 11:43+0000\n"
-"PO-Revision-Date: 2008-11-16 11:04+0100\n"
+"PO-Revision-Date: 2008-11-16 11:09+0100\n"
 "Last-Translator: Pavel Kosina <pavel.kosina@gmail.com>\n"
 "Language-Team: Pavel Kosina <pavel.kosina@gmail.com>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
@@ -225,7 +225,7 @@ msgstr "Parametry"
 #: sphinx/directives/desc.py:411
 #, fuzzy, python-format
 msgid "%scommand line option; %s"
-msgstr "parametry příkazového řádku; %s"
+msgstr "%sparametry příkazového řádku; %s"
 
 #: sphinx/directives/other.py:101
 msgid "Platforms: "

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2008-11-16 11:04+0100\n"
+"PO-Revision-Date: 2008-11-16 11:10+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: nl <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -221,7 +221,7 @@ msgstr "Parameters"
 #: sphinx/directives/desc.py:411
 #, fuzzy, python-format
 msgid "%scommand line option; %s"
-msgstr "commandolijn optie; %s"
+msgstr "%scommandolijn optie; %s"
 
 #: sphinx/directives/other.py:101
 msgid "Platforms: "

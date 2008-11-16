@@ -74,12 +74,10 @@ msgid "Index"
 msgstr "Stichwortverzeichnis"
 
 #: sphinx/environment.py:291 sphinx/latexwriter.py:169
-#, fuzzy
 msgid "Module Index"
 msgstr "Modulindex"
 
 #: sphinx/environment.py:292 sphinx/templates/defindex.html:16
-#, fuzzy
 msgid "Search Page"
 msgstr "Suche"
 
@@ -136,9 +134,9 @@ msgid "%s (in module %s)"
 msgstr "%s (in Modul %s)"
 
 #: sphinx/directives/desc.py:33
-#, fuzzy, python-format
+#, python-format
 msgid "%s (built-in class)"
-msgstr "%s (eingebaute Variable)"
+msgstr "%s (eingebaute Klasse)"
 
 #: sphinx/directives/desc.py:34
 #, python-format
@@ -221,9 +219,9 @@ msgid "Parameters"
 msgstr "Parameter"
 
 #: sphinx/directives/desc.py:411
-#, fuzzy, python-format
+#, python-format
 msgid "%scommand line option; %s"
-msgstr "Kommandozeilenoption; %s"
+msgstr "%sKommandozeilenoption; %s"
 
 #: sphinx/directives/other.py:101
 msgid "Platforms: "
@@ -351,19 +349,16 @@ msgid "Hide Search Matches"
 msgstr "Suchergebnisse ausblenden"
 
 #: sphinx/static/searchtools.js:274
-#, fuzzy
 msgid "Searching"
 msgstr "Suchen..."
 
 #: sphinx/static/searchtools.js:279
-#, fuzzy
 msgid "Preparing search..."
-msgstr "Suchindex wird geladen..."
+msgstr "Suche wird vorbereitet..."
 
 #: sphinx/static/searchtools.js:338
-#, fuzzy
 msgid "module, in "
-msgstr "Module"
+msgstr "Modul, in "
 
 #: sphinx/static/searchtools.js:347
 msgid ", in "
