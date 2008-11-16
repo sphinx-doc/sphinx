@@ -4,3 +4,4 @@ build/
 dist/
 Sphinx.egg-info/
 doc/_build/
+TAGS
