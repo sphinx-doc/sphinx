@@ -20,7 +20,7 @@
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a>{{ reldelim1 }}</li>
         {%- endfor %}
-        {%- block relbaritems %}{% endblock %}
+        {%- block relbaritems %} {% endblock %}
       </ul>
     </div>
 {%- endmacro %}
@@ -143,13 +143,13 @@
     <link rel="prev" title="{{ prev.title|striptags }}" href="{{ prev.link|e }}" />
     {%- endif %}
 {%- endblock %}
-{%- block extrahead %}{% endblock %}
+{%- block extrahead %} {% endblock %}
   </head>
   <body>
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
 
-{%- block sidebar1 %}{# possible location for sidebar #}{% endblock %}
+{%- block sidebar1 %} {# possible location for sidebar #} {% endblock %}
 
 {%- block document %}
     <div class="document">
@@ -158,7 +158,7 @@
         <div class="bodywrapper">
       {%- endif %}
           <div class="body">
-            {% block body %}{% endblock %}
+            {% block body %} {% endblock %}
           </div>
       {%- if builder != 'htmlhelp' %}
         </div>

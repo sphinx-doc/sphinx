@@ -156,6 +156,9 @@ New features added
 Bugs fixed
 ----------
 
+* Work around a bug in Jinja that caused "<generator ...>" to be
+  emitted in HTML output.
+
 * Fix a problem with module links not being generated in LaTeX output.
 
 * Fix the handling of images in different directories.
