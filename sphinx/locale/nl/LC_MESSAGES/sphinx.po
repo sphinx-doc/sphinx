@@ -1,4 +1,3 @@
-﻿# Translations template for Sphinx.
 # Copyright (C) 2008 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
@@ -8,235 +7,259 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2008-11-16 11:04+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: nl <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/builder.py:400
+#: sphinx/builder.py:408
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d.%b.%Y"
 
-#: sphinx/builder.py:419 sphinx/templates/defindex.html:21
+#: sphinx/builder.py:427 sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr "Algemene index"
 
-#: sphinx/builder.py:419
+#: sphinx/builder.py:427
 msgid "index"
 msgstr "Index"
 
-#: sphinx/builder.py:421 sphinx/htmlhelp.py:155
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:155
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr "Globale Module-index"
 
-#: sphinx/builder.py:421
+#: sphinx/builder.py:429
 msgid "modules"
 msgstr "modules"
 
-#: sphinx/builder.py:457
+#: sphinx/builder.py:466
 msgid "next"
 msgstr "volgende"
 
-#: sphinx/builder.py:464
+#: sphinx/builder.py:473
 msgid "previous"
 msgstr "vorige"
 
-#: sphinx/builder.py:1108
+#: sphinx/builder.py:1054
+msgid " (in "
+msgstr ""
+
+#: sphinx/builder.py:1129
 msgid "Builtins"
 msgstr "Builtins"
 
-#: sphinx/builder.py:1110
+#: sphinx/builder.py:1131
 msgid "Module level"
 msgstr "Moduleniveau"
 
-#: sphinx/environment.py:107 sphinx/latexwriter.py:129
+#: sphinx/environment.py:102 sphinx/latexwriter.py:164
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d. %B %Y"
 
-#: sphinx/environment.py:270 sphinx/latexwriter.py:190
+#: sphinx/environment.py:290 sphinx/latexwriter.py:170
 #: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
 #: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+#: sphinx/templates/layout.html:130
 msgid "Index"
 msgstr "Index"
 
-#: sphinx/environment.py:271 sphinx/latexwriter.py:188
+#: sphinx/environment.py:291 sphinx/latexwriter.py:169
 msgid "Module Index"
 msgstr "Module-index"
 
-#: sphinx/environment.py:272 sphinx/templates/defindex.html:16
+#: sphinx/environment.py:292 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr "Zoekpagina"
 
-#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:145
+#: sphinx/htmlwriter.py:79 sphinx/static/doctools.js:145
 msgid "Permalink to this definition"
 msgstr "Permanente link naar deze definitie"
 
-#: sphinx/htmlwriter.py:375 sphinx/static/doctools.js:139
+#: sphinx/htmlwriter.py:402 sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr "Permanente link naar deze titel"
 
-#: sphinx/latexwriter.py:143
+#: sphinx/latexwriter.py:167
 msgid "Release"
 msgstr "Release"
 
-#: sphinx/roles.py:52 sphinx/directives/desc.py:514
+#: sphinx/roles.py:53 sphinx/directives/desc.py:525
 #, python-format
 msgid "environment variable; %s"
 msgstr "Omgevingsvariabele; %s"
 
-#: sphinx/roles.py:59
+#: sphinx/roles.py:60
 #, python-format
 msgid "Python Enhancement Proposals!PEP %s"
 msgstr "Python Enhancement Proposals!PEP %s"
 
-#: sphinx/textwriter.py:151
+#: sphinx/textwriter.py:166
 #, python-format
 msgid "Platform: %s"
 msgstr "Platform: %s"
 
-#: sphinx/textwriter.py:353
+#: sphinx/textwriter.py:422
 msgid "[image]"
 msgstr "[afbeelding]"
 
-#: sphinx/directives/desc.py:26
+#: sphinx/directives/desc.py:25
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (geïntegreerde functie)"
 
-#: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
-#: sphinx/directives/desc.py:53
+#: sphinx/directives/desc.py:26 sphinx/directives/desc.py:42
+#: sphinx/directives/desc.py:54
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (in module %s)"
 
-#: sphinx/directives/desc.py:30
+#: sphinx/directives/desc.py:29
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (geïntegreerde variabele)"
 
-#: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
+#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:66
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (in module %s)"
 
 #: sphinx/directives/desc.py:33
+#, fuzzy, python-format
+msgid "%s (built-in class)"
+msgstr "%s (geïntegreerde variabele)"
+
+#: sphinx/directives/desc.py:34
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (klasse in %s)"
 
-#: sphinx/directives/desc.py:45
+#: sphinx/directives/desc.py:46
 #, python-format
 msgid "%s() (%s.%s method)"
 msgstr "%s() (%s.%s methode)"
 
-#: sphinx/directives/desc.py:47
+#: sphinx/directives/desc.py:48
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s methode)"
 
-#: sphinx/directives/desc.py:57
+#: sphinx/directives/desc.py:58
 #, python-format
 msgid "%s() (%s.%s static method)"
 msgstr "%s() (%s.%s statische methode)"
 
-#: sphinx/directives/desc.py:59
+#: sphinx/directives/desc.py:60
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s statische methode)"
 
-#: sphinx/directives/desc.py:69
+#: sphinx/directives/desc.py:70
 #, python-format
 msgid "%s (%s.%s attribute)"
 msgstr "%s (%s.%s attribuut)"
 
-#: sphinx/directives/desc.py:71
+#: sphinx/directives/desc.py:72
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s attribuut)"
 
-#: sphinx/directives/desc.py:73
+#: sphinx/directives/desc.py:74
 #, python-format
 msgid "%s (C function)"
 msgstr "%s (C-functie)"
 
-#: sphinx/directives/desc.py:75
+#: sphinx/directives/desc.py:76
 #, python-format
 msgid "%s (C member)"
 msgstr "%s (C member)"
 
-#: sphinx/directives/desc.py:77
+#: sphinx/directives/desc.py:78
 #, python-format
 msgid "%s (C macro)"
 msgstr "%s (C-macro)"
 
-#: sphinx/directives/desc.py:79
+#: sphinx/directives/desc.py:80
 #, python-format
 msgid "%s (C type)"
 msgstr "%s (C type)"
 
-#: sphinx/directives/desc.py:81
+#: sphinx/directives/desc.py:82
 #, python-format
 msgid "%s (C variable)"
 msgstr "%s (C-variabele)"
 
-#: sphinx/directives/desc.py:99
+#: sphinx/directives/desc.py:100
 msgid "Raises"
 msgstr "Veroorzaakt"
 
-#: sphinx/directives/desc.py:103
+#: sphinx/directives/desc.py:104
 msgid "Variable"
 msgstr "Variabele"
 
-#: sphinx/directives/desc.py:106
+#: sphinx/directives/desc.py:107
 msgid "Returns"
 msgstr "Returns"
 
-#: sphinx/directives/desc.py:113
+#: sphinx/directives/desc.py:114
 msgid "Return type"
 msgstr "Return type"
 
-#: sphinx/directives/desc.py:140
+#: sphinx/directives/desc.py:141
 msgid "Parameters"
 msgstr "Parameters"
 
-#: sphinx/directives/desc.py:402
-#, python-format
-msgid "command line option; %s"
+#: sphinx/directives/desc.py:411
+#, fuzzy, python-format
+msgid "%scommand line option; %s"
 msgstr "commandolijn optie; %s"
 
-#: sphinx/directives/other.py:102
+#: sphinx/directives/other.py:101
 msgid "Platforms: "
 msgstr "Platformen: "
 
-#: sphinx/directives/other.py:107
+#: sphinx/directives/other.py:106
 #, python-format
 msgid "%s (module)"
 msgstr "%s (module)"
 
-#: sphinx/directives/other.py:147
+#: sphinx/directives/other.py:146
 msgid "Section author: "
 msgstr "Auteur van deze sectie: "
 
-#: sphinx/directives/other.py:149
+#: sphinx/directives/other.py:148
 msgid "Module author: "
 msgstr "Auteur van deze module: "
 
-#: sphinx/directives/other.py:151
+#: sphinx/directives/other.py:150
 msgid "Author: "
 msgstr "Auteur: "
 
-#: sphinx/directives/other.py:233
+#: sphinx/directives/other.py:246
 msgid "See also"
 msgstr "Zie ook"
+
+#: sphinx/ext/todo.py:32
+msgid "Todo"
+msgstr ""
+
+#: sphinx/ext/todo.py:78
+#, python-format
+msgid "(The original entry is located in %s, line %d and can be found "
+msgstr ""
+
+#: sphinx/ext/todo.py:84
+msgid "here"
+msgstr ""
 
 #: sphinx/locale/__init__.py:15
 msgid "Attention"
@@ -333,19 +356,28 @@ msgstr "Zoeken"
 msgid "Preparing search..."
 msgstr "Het zoeken wordt voorbereid"
 
-#: sphinx/static/searchtools.js:401 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:338
+#, fuzzy
+msgid "module, in "
+msgstr "module"
+
+#: sphinx/static/searchtools.js:347
+msgid ", in "
+msgstr ""
+
+#: sphinx/static/searchtools.js:447 sphinx/templates/search.html:18
 msgid "Search Results"
 msgstr "Zoekresultaten"
 
-#: sphinx/static/searchtools.js:403
+#: sphinx/static/searchtools.js:449
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
-"Uw zoekopdracht leverde geen resultaten op.  Controleer of alle woorden"
-"correct gespeld zijn en dat u genoeg categoriën hebt geselecteerd."
+"Uw zoekopdracht leverde geen resultaten op.  Controleer of alle "
+"woordencorrect gespeld zijn en dat u genoeg categoriën hebt geselecteerd."
 
-#: sphinx/static/searchtools.js:405
+#: sphinx/static/searchtools.js:451
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Zoeken voltooid, %s pagina(s) gevonden."
@@ -449,22 +481,14 @@ msgstr "Go"
 msgid "Enter a module, class or function name."
 msgstr "Geef de naam van een module, klasse of functie."
 
-#: sphinx/templates/layout.html:118
+#: sphinx/templates/layout.html:119
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "Zoeken in %(docstitle)s"
 
-#: sphinx/templates/layout.html:127
+#: sphinx/templates/layout.html:128
 msgid "About these documents"
 msgstr "Over deze documenten"
-
-#: sphinx/templates/layout.html:129
-msgid "Global table of contents"
-msgstr "Globale inhoudstafel"
-
-#: sphinx/templates/layout.html:130
-msgid "Global index"
-msgstr "Globale index"
 
 #: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
@@ -522,9 +546,9 @@ msgid ""
 " We've tried to redirect you to the new location of this page, but it may"
 " not be the right one."
 msgstr ""
-"<strong>Opgelet:</strong> U heeft een verouderde URL aangevraagd op deze server."
-" Wij hebben probeerd u door te verwijzen naar de nieuwe locatie van deze pagina, "
-" maar dat is misschien niet gelukt."
+"<strong>Opgelet:</strong> U heeft een verouderde URL aangevraagd op deze "
+"server. Wij hebben probeerd u door te verwijzen naar de nieuwe locatie "
+"van deze pagina,  maar dat is misschien niet gelukt."
 
 #: sphinx/templates/search.html:7
 msgid ""
@@ -534,8 +558,10 @@ msgid ""
 "    containing less words won't appear in the result list."
 msgstr ""
 "Hier kan u de documenten doorzoeken.  Geef enkele trefwoorden\n"
-"    in het veld hieronder en klik \"zoeken\".  Merk op dat de zoekfunctie\n"
-"    steeds naar alle woorden zoekt.  Pagina's die minder woorden bevatten\n"
+"    in het veld hieronder en klik \"zoeken\".  Merk op dat de zoekfunctie"
+"\n"
+"    steeds naar alle woorden zoekt.  Pagina's die minder woorden bevatten"
+"\n"
 "    zullen niet tussen de resultaten verschijnen."
 
 #: sphinx/templates/search.html:14
@@ -573,4 +599,10 @@ msgstr "Veranderingen in de C-API"
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "Andere veranderingen"
+
+#~ msgid "Global table of contents"
+#~ msgstr "Globale inhoudstafel"
+
+#~ msgid "Global index"
+#~ msgstr "Globale index"
 

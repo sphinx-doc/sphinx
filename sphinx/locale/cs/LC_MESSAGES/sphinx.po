@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-10 11:43+0000\n"
-"PO-Revision-Date: 2008-09-06 19:10+0200\n"
+"PO-Revision-Date: 2008-11-16 11:04+0100\n"
 "Last-Translator: Pavel Kosina <pavel.kosina@gmail.com>\n"
 "Language-Team: Pavel Kosina <pavel.kosina@gmail.com>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
@@ -18,222 +18,252 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/builder.py:391
+#: sphinx/builder.py:408
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d.%m.%Y"
 
-#: sphinx/builder.py:410 sphinx/templates/defindex.html:21
+#: sphinx/builder.py:427 sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr "Rejstřík indexů"
 
-#: sphinx/builder.py:410
+#: sphinx/builder.py:427
 msgid "index"
 msgstr "index"
 
-#: sphinx/builder.py:412 sphinx/htmlhelp.py:155
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:155
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr "Rejstřík modulů"
 
-#: sphinx/builder.py:412
+#: sphinx/builder.py:429
 msgid "modules"
 msgstr "moduly"
 
-#: sphinx/builder.py:448
+#: sphinx/builder.py:466
 msgid "next"
 msgstr "další"
 
-#: sphinx/builder.py:455
+#: sphinx/builder.py:473
 msgid "previous"
 msgstr "předchozí"
 
-#: sphinx/builder.py:1092
+#: sphinx/builder.py:1054
+msgid " (in "
+msgstr ""
+
+#: sphinx/builder.py:1129
 msgid "Builtins"
 msgstr "Vestavěné funkce"
 
-#: sphinx/builder.py:1094
+#: sphinx/builder.py:1131
 msgid "Module level"
 msgstr "Úroveň modulů"
 
-#: sphinx/environment.py:108 sphinx/latexwriter.py:129
+#: sphinx/environment.py:102 sphinx/latexwriter.py:164
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d.%m.%Y"
 
-#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:143
-msgid "Permalink to this definition"
-msgstr "Trvalý odkaz na tuto definici"
-
-#: sphinx/htmlwriter.py:379 sphinx/static/doctools.js:136
-msgid "Permalink to this headline"
-msgstr "Trvalý odkaz na tento nadpis"
-
-#: sphinx/latexwriter.py:143
-msgid "Release"
-msgstr "Vydání"
-
-#: sphinx/latexwriter.py:188
-msgid "Module index"
-msgstr "Rejstřík modulů"
-
-#: sphinx/latexwriter.py:190 sphinx/templates/genindex-single.html:2
+#: sphinx/environment.py:290 sphinx/latexwriter.py:170
+#: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
 #: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+#: sphinx/templates/layout.html:130
 msgid "Index"
 msgstr "Index"
 
-#: sphinx/roles.py:52 sphinx/directives/desc.py:514
+#: sphinx/environment.py:291 sphinx/latexwriter.py:169
+#, fuzzy
+msgid "Module Index"
+msgstr "Rejstřík modulů"
+
+#: sphinx/environment.py:292 sphinx/templates/defindex.html:16
+#, fuzzy
+msgid "Search Page"
+msgstr "Vyhledávací stránka"
+
+#: sphinx/htmlwriter.py:79 sphinx/static/doctools.js:145
+msgid "Permalink to this definition"
+msgstr "Trvalý odkaz na tuto definici"
+
+#: sphinx/htmlwriter.py:402 sphinx/static/doctools.js:139
+msgid "Permalink to this headline"
+msgstr "Trvalý odkaz na tento nadpis"
+
+#: sphinx/latexwriter.py:167
+msgid "Release"
+msgstr "Vydání"
+
+#: sphinx/roles.py:53 sphinx/directives/desc.py:525
 #, python-format
 msgid "environment variable; %s"
 msgstr "promměná prostředí, %s"
 
-#: sphinx/roles.py:59
+#: sphinx/roles.py:60
 #, python-format
 msgid "Python Enhancement Proposals!PEP %s"
 msgstr "Python Enhancement Proposals!PEP %s"
 
-#: sphinx/textwriter.py:151
+#: sphinx/textwriter.py:166
 #, python-format
 msgid "Platform: %s"
 msgstr "Platforma: %s"
 
-#: sphinx/textwriter.py:353
+#: sphinx/textwriter.py:422
 msgid "[image]"
 msgstr "[obrázek]"
 
-#: sphinx/directives/desc.py:26
+#: sphinx/directives/desc.py:25
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (vestavěná funkce)"
 
-#: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
-#: sphinx/directives/desc.py:53
+#: sphinx/directives/desc.py:26 sphinx/directives/desc.py:42
+#: sphinx/directives/desc.py:54
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (v modulu %s)"
 
-#: sphinx/directives/desc.py:30
+#: sphinx/directives/desc.py:29
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s() (vestavěná proměnná)"
 
-#: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
+#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:66
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s() (v modulu %s)"
 
 #: sphinx/directives/desc.py:33
+#, fuzzy, python-format
+msgid "%s (built-in class)"
+msgstr "%s() (vestavěná proměnná)"
+
+#: sphinx/directives/desc.py:34
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s() (třída v %s)"
 
-#: sphinx/directives/desc.py:45
+#: sphinx/directives/desc.py:46
 #, python-format
 msgid "%s() (%s.%s method)"
 msgstr "%s() (metoda %s.%s)"
 
-#: sphinx/directives/desc.py:47
+#: sphinx/directives/desc.py:48
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (metoda %s)"
 
-#: sphinx/directives/desc.py:57
+#: sphinx/directives/desc.py:58
 #, python-format
 msgid "%s() (%s.%s static method)"
 msgstr "%s() (statická metoda %s.%s)"
 
-#: sphinx/directives/desc.py:59
+#: sphinx/directives/desc.py:60
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (statická metoda %s)"
 
-#: sphinx/directives/desc.py:69
+#: sphinx/directives/desc.py:70
 #, python-format
 msgid "%s (%s.%s attribute)"
 msgstr "%s() (atribut %s.%s)"
 
-#: sphinx/directives/desc.py:71
+#: sphinx/directives/desc.py:72
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s() (atribut %s)"
 
-#: sphinx/directives/desc.py:73
+#: sphinx/directives/desc.py:74
 #, python-format
 msgid "%s (C function)"
 msgstr "%s (C funkce)"
 
-#: sphinx/directives/desc.py:75
+#: sphinx/directives/desc.py:76
 #, python-format
 msgid "%s (C member)"
 msgstr "%s (člen C)"
 
-#: sphinx/directives/desc.py:77
+#: sphinx/directives/desc.py:78
 #, python-format
 msgid "%s (C macro)"
 msgstr "%s (C makro)"
 
-#: sphinx/directives/desc.py:79
+#: sphinx/directives/desc.py:80
 #, python-format
 msgid "%s (C type)"
 msgstr "%s (C typ)"
 
-#: sphinx/directives/desc.py:81
+#: sphinx/directives/desc.py:82
 #, python-format
 msgid "%s (C variable)"
 msgstr "%s (C proměnná)"
 
-#: sphinx/directives/desc.py:99
+#: sphinx/directives/desc.py:100
 msgid "Raises"
 msgstr "Vyvolá"
 
-#: sphinx/directives/desc.py:103
+#: sphinx/directives/desc.py:104
 msgid "Variable"
 msgstr "Proměnná"
 
-#: sphinx/directives/desc.py:106
+#: sphinx/directives/desc.py:107
 msgid "Returns"
 msgstr "Vrací"
 
-#: sphinx/directives/desc.py:113
+#: sphinx/directives/desc.py:114
 msgid "Return type"
 msgstr "Typ navrácené hodnoty"
 
-#: sphinx/directives/desc.py:140
+#: sphinx/directives/desc.py:141
 msgid "Parameters"
 msgstr "Parametry"
 
-#: sphinx/directives/desc.py:402
-#, python-format
-msgid "command line option; %s"
+#: sphinx/directives/desc.py:411
+#, fuzzy, python-format
+msgid "%scommand line option; %s"
 msgstr "parametry příkazového řádku; %s"
 
-#: sphinx/directives/other.py:102
+#: sphinx/directives/other.py:101
 msgid "Platforms: "
 msgstr "Platformy: "
 
-#: sphinx/directives/other.py:107
+#: sphinx/directives/other.py:106
 #, python-format
 msgid "%s (module)"
 msgstr "%s (module)"
 
-#: sphinx/directives/other.py:147
+#: sphinx/directives/other.py:146
 msgid "Section author: "
 msgstr "Autor sekce: "
 
-#: sphinx/directives/other.py:149
+#: sphinx/directives/other.py:148
 msgid "Module author: "
 msgstr "Autor modulu: "
 
-#: sphinx/directives/other.py:151
+#: sphinx/directives/other.py:150
 msgid "Author: "
 msgstr "Autor: "
 
-#: sphinx/directives/other.py:233
+#: sphinx/directives/other.py:246
 msgid "See also"
 msgstr "Viz také"
+
+#: sphinx/ext/todo.py:32
+msgid "Todo"
+msgstr ""
+
+#: sphinx/ext/todo.py:78
+#, python-format
+msgid "(The original entry is located in %s, line %d and can be found "
+msgstr ""
+
+#: sphinx/ext/todo.py:84
+msgid "here"
+msgstr ""
 
 #: sphinx/locale/__init__.py:15
 msgid "Attention"
@@ -318,30 +348,39 @@ msgstr "příkaz"
 msgid "built-in function"
 msgstr "vestavěná funkce"
 
-#: sphinx/static/doctools.js:172
+#: sphinx/static/doctools.js:174
 msgid "Hide Search Matches"
 msgstr ""
 
-#: sphinx/static/searchtools.js:242
+#: sphinx/static/searchtools.js:274
 #, fuzzy
 msgid "Searching"
 msgstr "hledej"
 
-#: sphinx/static/searchtools.js:246
-msgid "Getting search index..."
+#: sphinx/static/searchtools.js:279
+msgid "Preparing search..."
 msgstr ""
 
-#: sphinx/static/searchtools.js:384 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:338
+#, fuzzy
+msgid "module, in "
+msgstr "modul"
+
+#: sphinx/static/searchtools.js:347
+msgid ", in "
+msgstr ""
+
+#: sphinx/static/searchtools.js:447 sphinx/templates/search.html:18
 msgid "Search Results"
 msgstr "Výsledky hledání"
 
-#: sphinx/static/searchtools.js:386
+#: sphinx/static/searchtools.js:449
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
 
-#: sphinx/static/searchtools.js:389
+#: sphinx/static/searchtools.js:451
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
@@ -361,10 +400,6 @@ msgstr "Celkový obsah"
 #: sphinx/templates/defindex.html:15
 msgid "lists all sections and subsections"
 msgstr "seznam všech sekcí a podsekcí"
-
-#: sphinx/templates/defindex.html:16
-msgid "Search page"
-msgstr "Vyhledávací stránka"
 
 #: sphinx/templates/defindex.html:17
 msgid "search this documentation"
@@ -449,22 +484,14 @@ msgstr "hledej"
 msgid "Enter a module, class or function name."
 msgstr "Zadej jméno modulu, třídy nebo funkce."
 
-#: sphinx/templates/layout.html:118
+#: sphinx/templates/layout.html:119
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "Hledání uvnitř %(docstitle)s"
 
-#: sphinx/templates/layout.html:127
+#: sphinx/templates/layout.html:128
 msgid "About these documents"
 msgstr "O těchto dokumentech"
-
-#: sphinx/templates/layout.html:129
-msgid "Global table of contents"
-msgstr "Celkový obsah"
-
-#: sphinx/templates/layout.html:130
-msgid "Global index"
-msgstr "Celkový index"
 
 #: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
@@ -573,4 +600,13 @@ msgstr "Změny API"
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "Ostatní změny"
+
+#~ msgid "Getting search index..."
+#~ msgstr ""
+
+#~ msgid "Global table of contents"
+#~ msgstr "Celkový obsah"
+
+#~ msgid "Global index"
+#~ msgstr "Celkový index"
 

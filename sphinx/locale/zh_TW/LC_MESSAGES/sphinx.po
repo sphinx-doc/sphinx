@@ -1,4 +1,4 @@
-# Translations template for Sphinx.
+# Chinese (Taiwan) translations for Sphinx.
 # Copyright (C) 2008 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # Fred Lin <gasolin@gmail.com>, 2008.
@@ -8,23 +8,21 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-11-09 19:46+0100\n"
-"PO-Revision-Date: 2008-11-13 01:32+0800\n"
+"PO-Revision-Date: 2008-11-16 11:04+0100\n"
 "Last-Translator: Fred Lin <gasolin@gmail.com>\n"
 "Language-Team: tw <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
-"X-Poedit-Language: Chinese\n"
-"X-Poedit-Country: TAIWAN\n"
 
 #: sphinx/builder.py:408
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/builder.py:427
-#: sphinx/templates/defindex.html:21
+#: sphinx/builder.py:427 sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr "總索引"
 
@@ -32,10 +30,8 @@ msgstr "總索引"
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builder.py:429
-#: sphinx/htmlhelp.py:155
-#: sphinx/templates/defindex.html:19
-#: sphinx/templates/modindex.html:2
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:155
+#: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr ""
@@ -64,41 +60,33 @@ msgstr ""
 msgid "Module level"
 msgstr ""
 
-#: sphinx/environment.py:102
-#: sphinx/latexwriter.py:164
+#: sphinx/environment.py:102 sphinx/latexwriter.py:164
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/environment.py:290
-#: sphinx/latexwriter.py:170
+#: sphinx/environment.py:290 sphinx/latexwriter.py:170
 #: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
-#: sphinx/templates/genindex-split.html:5
-#: sphinx/templates/genindex.html:2
-#: sphinx/templates/genindex.html:5
-#: sphinx/templates/genindex.html:48
+#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
 #: sphinx/templates/layout.html:130
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/environment.py:291
-#: sphinx/latexwriter.py:169
+#: sphinx/environment.py:291 sphinx/latexwriter.py:169
 msgid "Module Index"
 msgstr "模組索引"
 
-#: sphinx/environment.py:292
-#: sphinx/templates/defindex.html:16
+#: sphinx/environment.py:292 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr "搜尋頁面"
 
-#: sphinx/htmlwriter.py:79
-#: sphinx/static/doctools.js:145
+#: sphinx/htmlwriter.py:79 sphinx/static/doctools.js:145
 msgid "Permalink to this definition"
 msgstr ""
 
-#: sphinx/htmlwriter.py:402
-#: sphinx/static/doctools.js:139
+#: sphinx/htmlwriter.py:402 sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr ""
 
@@ -106,8 +94,7 @@ msgstr ""
 msgid "Release"
 msgstr "釋出"
 
-#: sphinx/roles.py:53
-#: sphinx/directives/desc.py:525
+#: sphinx/roles.py:53 sphinx/directives/desc.py:525
 #, python-format
 msgid "environment variable; %s"
 msgstr "環境變數; %s"
@@ -131,8 +118,7 @@ msgstr "[圖片]"
 msgid "%s() (built-in function)"
 msgstr "%s() (內建函式)"
 
-#: sphinx/directives/desc.py:26
-#: sphinx/directives/desc.py:42
+#: sphinx/directives/desc.py:26 sphinx/directives/desc.py:42
 #: sphinx/directives/desc.py:54
 #, python-format
 msgid "%s() (in module %s)"
@@ -143,8 +129,7 @@ msgstr "%s() (在 %s 模組中)"
 msgid "%s (built-in variable)"
 msgstr "%s (內建變數)"
 
-#: sphinx/directives/desc.py:30
-#: sphinx/directives/desc.py:66
+#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:66
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s() (在 %s 模組中)"
@@ -380,13 +365,14 @@ msgstr ""
 msgid ", in "
 msgstr ""
 
-#: sphinx/static/searchtools.js:447
-#: sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:447 sphinx/templates/search.html:18
 msgid "Search Results"
 msgstr "搜尋結果"
 
 #: sphinx/static/searchtools.js:449
-msgid "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/static/searchtools.js:451
@@ -429,8 +415,7 @@ msgstr ""
 
 #: sphinx/templates/genindex-single.html:44
 #: sphinx/templates/genindex-split.html:14
-#: sphinx/templates/genindex-split.html:27
-#: sphinx/templates/genindex.html:54
+#: sphinx/templates/genindex-split.html:27 sphinx/templates/genindex.html:54
 msgid "Full index on one page"
 msgstr ""
 
@@ -474,8 +459,7 @@ msgstr "本頁"
 msgid "Suggest Change"
 msgstr ""
 
-#: sphinx/templates/layout.html:60
-#: sphinx/templates/layout.html:62
+#: sphinx/templates/layout.html:60 sphinx/templates/layout.html:62
 msgid "Show Source"
 msgstr "顯示原始碼"
 
@@ -504,8 +488,7 @@ msgstr "在 %(docstitle)s 中搜尋"
 msgid "About these documents"
 msgstr ""
 
-#: sphinx/templates/layout.html:131
-#: sphinx/templates/search.html:2
+#: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
 msgid "Search"
 msgstr "搜尋"
@@ -531,7 +514,9 @@ msgstr "最後更新日期是 %(last_updated)s."
 
 #: sphinx/templates/layout.html:186
 #, python-format
-msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
 msgstr ""
 
 #: sphinx/templates/modindex.html:15
@@ -552,7 +537,10 @@ msgid "Search %(docstitle)s"
 msgstr "搜尋 %(docstitle)s"
 
 #: sphinx/templates/page.html:8
-msgid "<strong>Note:</strong> You requested an out-of-date URL from this server. We've tried to redirect you to the new location of this page, but it may not be the right one."
+msgid ""
+"<strong>Note:</strong> You requested an out-of-date URL from this server."
+" We've tried to redirect you to the new location of this page, but it may"
+" not be the right one."
 msgstr ""
 
 #: sphinx/templates/search.html:7
