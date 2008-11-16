@@ -102,6 +102,7 @@ class Table(object):
         self.colspec = None
         self.had_head = False
         self.has_verbatim = False
+        self.caption = None
 
 
 class Desc(object):
@@ -357,9 +358,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.Admonition):
             self.body.append('{')
             self.context.append('}\n')
+        elif isinstance(parent, nodes.table):
+            self.table.caption = self.encode(node.astext())
+            raise nodes.SkipNode
         else:
-            self.builder.warn('encountered title node not in section, topic, admonition'
-                              ' or sidebar')
+            self.builder.warn('encountered title node not in section, topic, '
+                              'table, admonition or sidebar')
             self.body.append('\\textbf{')
             self.context.append('}\n')
         self.in_title = 1
@@ -544,6 +548,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body = self.tablebody
     def depart_table(self, node):
         self.body = self._body
+        if self.table.caption is not None:
+            self.body.append('\n\\begin{threeparttable}\n'
+                             '\\caption{%s}\n' % self.table.caption)
         if self.table.has_verbatim:
             self.body.append('\n\\begin{tabular}')
         else:
@@ -562,6 +569,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\end{tabular}\n\n')
         else:
             self.body.append('\\end{tabulary}\n\n')
+        if self.table.caption is not None:
+            self.body.append('\\end{threeparttable}\n\n')
         self.table = None
         self.tablebody = None
 

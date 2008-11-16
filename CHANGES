@@ -159,6 +159,8 @@ New features added
 Bugs fixed
 ----------
 
+* Support table captions in LaTeX output.
+
 * Work around a bug in Jinja that caused "<generator ...>" to be
   emitted in HTML output.
 
