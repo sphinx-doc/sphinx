@@ -541,7 +541,8 @@ class RstGenerator(object):
                 continue
 
             if what == 'module':
-                if isinstance(member, types.FunctionType):
+                if isinstance(member, (types.FunctionType,
+                                       types.BuiltinFunctionType)):
                     memberwhat = 'function'
                 elif isinstance(member, types.ClassType) or \
                      isinstance(member, type):
