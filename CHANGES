@@ -159,6 +159,8 @@ New features added
 Bugs fixed
 ----------
 
+* Fix "illegal unit" error when using pixel image widths/heights.
+
 * Support table captions in LaTeX output.
 
 * Work around a bug in Jinja that caused "<generator ...>" to be

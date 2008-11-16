@@ -716,9 +716,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             return width_str
         res = width_str
         amount, unit = match.groups()[:2]
-        if unit == "px":
-            # LaTeX does not know pixels but points
-            res = "%spt" % amount
+        if not unit or unit == "px":
+            # pixels: let LaTeX alone
+            return None
         elif unit == "%":
             res = "%.3f\\linewidth" % (float(amount) / 100.0)
         return res
@@ -735,11 +735,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
             post.append('}')
         if attrs.has_key('width'):
-            include_graphics_options.append('width=%s' % (
-                            self.latex_image_length(attrs['width']), ))
+            w = self.latex_image_length(attrs['width'])
+            if w:
+                include_graphics_options.append('width=%s' % w)
         if attrs.has_key('height'):
-            include_graphics_options.append('height=%s' % (
-                            self.latex_image_length(attrs['height']), ))
+            h = self.latex_image_length(attrs['height'])
+            include_graphics_options.append('height=%s' % h)
         if attrs.has_key('align'):
             align_prepost = {
                 # By default latex aligns the top of an image.

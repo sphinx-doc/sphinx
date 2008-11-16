@@ -217,6 +217,11 @@ to the source file, and Sphinx will automatically copy image files over to a
 subdirectory of the output directory on building (e.g. the ``_static`` directory
 for HTML output.)
 
+Interpretation of image size options (``width`` and ``height``) is as follows:
+if the size has no unit or the unit is pixels, the given size will only be
+respected for output channels that support pixels (i.e. not in LaTeX output).
+Other units (like ``pt`` for points) will be used for HTML and LaTeX output.
+
 Sphinx extends the standard docutils behavior by allowing an asterisk for the
 extension::
 
