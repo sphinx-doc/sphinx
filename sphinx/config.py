@@ -94,13 +94,15 @@ class Config(object):
     def __init__(self, dirname, filename, overrides):
         self.overrides = overrides
         self.values = Config.config_values.copy()
-        config = {'__file__': path.join(dirname, filename)}
-        olddir = os.getcwd()
-        try:
-            os.chdir(dirname)
-            execfile(config['__file__'], config)
-        finally:
-            os.chdir(olddir)
+        config = {}
+        if dirname is not None:
+            config['__file__'] = path.join(dirname, filename)
+            olddir = os.getcwd()
+            try:
+                os.chdir(dirname)
+                execfile(config['__file__'], config)
+            finally:
+                os.chdir(olddir)
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
         # own config values

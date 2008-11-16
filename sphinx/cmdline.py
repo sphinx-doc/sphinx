@@ -37,6 +37,7 @@ Options: -b <builder> -- builder to use; default is html
                       (default: outdir/.doctrees)
          -c <path> -- path where configuration file (conf.py) is located
                       (default: same as sourcedir)
+         -C        -- use no config file at all, only -D options
          -D <setting=value> -- override a setting in configuration
          -A <name=value>    -- pass a value into the templates, for HTML builder
          -N        -- do not do colored output
@@ -55,13 +56,14 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:c:D:A:NEqP')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:c:CD:A:NEqP')
+        allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory.'
             return 1
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
-               '-c' not in (opt[0] for opt in opts):
+               '-c' not in allopts and '-C' not in allopts:
             print >>sys.stderr, 'Error: Source directory doesn\'t contain conf.py file.'
             return 1
         outdir = path.abspath(args[1])
@@ -104,6 +106,8 @@ def main(argv):
                 print >>sys.stderr, \
                       'Error: Configuration directory doesn\'t contain conf.py file.'
                 return 1
+        elif opt == '-C':
+            confdir = None
         elif opt == '-D':
             try:
                 key, val = val.split('=')

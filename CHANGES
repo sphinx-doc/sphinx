@@ -145,6 +145,9 @@ New features added
   - Added a command-line switch ``-A``: it can be used to supply
     additional values into the HTML templates.
 
+  - Added a command-line switch ``-C``: if it is given, no configuration
+    file ``conf.py`` is required.
+
   - Added a distutils command `build_sphinx`: When Sphinx is installed,
     you can call ``python setup.py build_sphinx`` for projects that have
     Sphinx documentation, which will build the docs and place them in

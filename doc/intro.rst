@@ -105,6 +105,11 @@ The :program:`sphinx-build` script has several more options:
 
    .. versionadded:: 0.3
 
+**-C**
+   Don't look for a configuration file; only take options via the ``-D`` option.
+
+   .. versionadded:: 0.5
+   
 **-D** *setting=value*
    Override a configuration value set in the :file:`conf.py` file.  (The value
    must be a string value.)
