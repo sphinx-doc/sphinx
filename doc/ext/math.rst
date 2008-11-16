@@ -129,10 +129,20 @@ There are various config values you can set to influence how the images are buil
 
 .. confval:: pngmath_dvipng_args
 
-   Additional arguments to give to dvipng, as a list.  This is empty by default.
-   Arguments you might want to add here are e.g. ``['-bg', 'Transparent']``,
+   Additional arguments to give to dvipng, as a list.  The default value is
+   ``['-gamma 1.5', '-D 110']`` which makes the image a bit darker and larger
+   then it is by default.
+   
+   An arguments you might want to add here is e.g. ``'-bg Transparent'``,
    which produces PNGs with a transparent background.  This is not enabled by
    default because some Internet Explorer versions don't like transparent PNGs.
+
+   .. note::
+
+      When you "add" an argument, you need to reproduce the default arguments if
+      you want to keep them; that is, like this::
+
+         pngmath_dvipng_args = ['-gamma 1.5', '-D 110', '-bg Transparent']
 
 .. confval:: pngmath_use_preview
 

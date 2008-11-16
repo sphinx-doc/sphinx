@@ -272,6 +272,14 @@ div.sidebar {
     float: right;
 }
 
+div.quotebar {
+    background-color: #f8f8f8;
+    max-width: 250px;
+    float: right;
+    padding: 2px 7px;
+    border: 1px solid #ccc;
+}
+
 p.sidebar-title {
     font-weight: bold;
 }
@@ -530,6 +538,10 @@ ul.search li div.context {
 
 ul.keywordmatches li.goodmatch a {
     font-weight: bold;
+}
+
+img.math {
+    vertical-align: center;
 }
 
 div.math {

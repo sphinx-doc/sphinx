@@ -172,8 +172,8 @@ def cleanup_tempdir(app, exc):
 
 def html_visit_math(self, node):
     fname, depth = render_math(self, '$'+node['latex']+'$')
-    self.body.append('<img src="%s" alt="%s" %s/>' %
-                     (fname, self.encode(node['latex']),
+    self.body.append('<img class="math" src="%s" alt="%s" %s/>' %
+                     (fname, self.encode(node['latex']).strip(),
                       depth and 'style="vertical-align: %dpx" ' % (-depth) or ''))
     raise nodes.SkipNode
 
@@ -188,7 +188,7 @@ def html_visit_displaymath(self, node):
     if node['number']:
         self.body.append('<span class="eqno">(%s)</span>' % node['number'])
     self.body.append('<img src="%s" alt="%s" />\n</div>' %
-                     (fname, self.encode(node['latex'])))
+                     (fname, self.encode(node['latex']).strip()))
     self.body.append('</p>')
     raise nodes.SkipNode
 
@@ -198,6 +198,6 @@ def setup(app):
     app.add_config_value('pngmath_dvipng', 'dvipng', False)
     app.add_config_value('pngmath_latex', 'latex', False)
     app.add_config_value('pngmath_use_preview', False, False)
-    app.add_config_value('pngmath_dvipng_args', [], False)
+    app.add_config_value('pngmath_dvipng_args', ['-gamma 1.5', '-D 110'], False)
     app.add_config_value('pngmath_latex_preamble', '', False)
     app.connect('build-finished', cleanup_tempdir)
