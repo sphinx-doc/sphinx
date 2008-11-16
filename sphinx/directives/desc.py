@@ -108,6 +108,8 @@ doc_fields_with_arg = {
     'return': 'Returns',
 }
 
+doc_fields_with_linked_arg = ('raises', 'raise', 'exception', 'except')
+
 doc_fields_without_arg = {
     'returns': 'Returns',
     'return': 'Returns',
@@ -116,7 +118,7 @@ doc_fields_without_arg = {
 
 del _
 
-def handle_doc_fields(node):
+def handle_doc_fields(node, env):
     # don't traverse, only handle field lists that are immediate children
     for child in node.children:
         if not isinstance(child, nodes.field_list):
@@ -129,13 +131,13 @@ def handle_doc_fields(node):
             fname, fbody = field
             try:
                 typ, obj = fname.astext().split(None, 1)
-                typ = _(doc_fields_with_arg[typ])
+                typdesc = _(doc_fields_with_arg[typ])
                 if len(fbody.children) == 1 and \
                    isinstance(fbody.children[0], nodes.paragraph):
                     children = fbody.children[0].children
                 else:
                     children = fbody.children
-                if typ == '%param':
+                if typdesc == '%param':
                     if not params:
                         pfield = nodes.field()
                         pfield += nodes.field_name('', _('Parameters'))
@@ -151,12 +153,22 @@ def handle_doc_fields(node):
                     param_nodes[obj] = dlpar
                     dlitem += dlpar
                     params += dlitem
-                elif typ == '%type':
+                elif typdesc == '%type':
                     param_types[obj] = fbody.astext()
                 else:
-                    fieldname = typ + ' ' + obj
+                    fieldname = typdesc + ' '
                     nfield = nodes.field()
-                    nfield += nodes.field_name(fieldname, fieldname)
+                    nfieldname = nodes.field_name(fieldname, fieldname)
+                    nfield += nfieldname
+                    node = nfieldname
+                    if typ in doc_fields_with_linked_arg:
+                        node = addnodes.pending_xref(obj, reftype='obj',
+                                                     refcaption=False,
+                                                     reftarget=obj,
+                                                     modname=env.currmodule,
+                                                     classname=env.currclass)
+                        nfieldname += node
+                    node += nodes.Text(obj, obj)
                     nfield += nodes.field_body()
                     nfield[1] += fbody.children
                     new_list += nfield
@@ -479,7 +491,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     if names:
         env.currdesc = names[0]
     state.nested_parse(content, content_offset, subnode)
-    handle_doc_fields(subnode)
+    handle_doc_fields(subnode, env)
     if clsname_set:
         env.currclass = None
     env.currdesc = None
