@@ -40,3 +40,12 @@ These extensions are built in and can be activated by respective entries in the
    ext/ifconfig
    ext/coverage
    ext/todo
+
+
+Third-party extensions
+----------------------
+
+There are several extensions that are not (yet) maintained in the Sphinx
+distribution.  The `Wiki at BitBucket`_ maintains a list of those.
+
+.. _Wiki at BitBucket: http://www.bitbucket.org/birkenfeld/sphinx/wiki/Home
