@@ -501,7 +501,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append("}\\\\")
 
     def visit_desc_content(self, node):
-        if node.children and isinstance(node.children[0], addnodes.desc):
+        if node.children and not isinstance(node.children[0], nodes.paragraph):
             # avoid empty desc environment which causes a formatting bug
             self.body.append('~')
     def depart_desc_content(self, node):
