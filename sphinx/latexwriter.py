@@ -353,7 +353,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.this_is_the_title = 0
             raise nodes.SkipNode
         elif isinstance(parent, nodes.section):
-            self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
+            try:
+                self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
+            except IndexError:
+                from sphinx.application import SphinxError
+                raise SphinxError('too many nesting section levels for LaTeX, '
+                                  'at heading: %s' % node.astext())
             self.context.append('}\n')
         elif isinstance(parent, (nodes.topic, nodes.sidebar)):
             self.body.append(r'\textbf{')
