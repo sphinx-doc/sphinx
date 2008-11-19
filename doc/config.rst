@@ -207,6 +207,7 @@ Project information
    * ``fr`` -- French
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
+   * ``pt_BR`` -- Brazilian Portuguese
    * ``zh_TW`` -- Traditional Chinese
 
 .. confval:: today
