@@ -208,6 +208,7 @@ Project information
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
+   * ``sl`` -- Slovenian
    * ``zh_TW`` -- Traditional Chinese
 
 .. confval:: today

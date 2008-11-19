@@ -88,6 +88,7 @@ New features added
     * Luc Saffre and Peter Bertels -- Dutch
     * Fred Lin -- Traditional Chinese
     * Roger Demetrescu -- Brazilian Portuguese
+    * Rok Garbas -- Slovenian
 
   - The new config value ``highlight_language`` set a global default for
     highlighting.  When ``'python3'`` is selected, console output blocks

@@ -94,6 +94,9 @@ class ExtBabel(Babel):
             return '\\shorthandoff{"}'
         return ''
 
+    _ISO639_TO_BABEL = Babel._ISO639_TO_BABEL.copy()
+    _ISO639_TO_BABEL['sl'] = 'slovene'
+
 
 class Table(object):
     def __init__(self):
