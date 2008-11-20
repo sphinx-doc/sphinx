@@ -177,8 +177,29 @@ def cleanup_tempdir(app, exc):
     except Exception:
         pass
 
+def _html_error(latex, message):
+    html = """
+<div class="system-message">
+  <p class="system-message-title">System Message: WARNING/2</p>
+  <p>Latex error in a math directive</p>
+  <pre class="literal-block">
+  %s
+  </pre>
+  <pre class="literal-block">
+  %s
+  </pre>
+  </p>
+</div>
+""" % (latex, message)
+    print "WARNING:", message
+    return html
+
 def html_visit_math(self, node):
-    fname, depth = render_math(self, '$'+node['latex']+'$')
+    try:
+        fname, depth = render_math(self, '$'+node['latex']+'$')
+    except MathExtError, exc:
+        self.body.append(_html_error(node['latex'], exc))
+        raise nodes.SkipNode
     self.body.append('<img class="math" src="%s" alt="%s" %s/>' %
                      (fname, self.encode(node['latex']).strip(),
                       depth and 'style="vertical-align: %dpx" ' % (-depth) or ''))
@@ -189,7 +210,11 @@ def html_visit_displaymath(self, node):
         latex = node['latex']
     else:
         latex = wrap_displaymath(node['latex'], None)
-    fname, depth = render_math(self, latex)
+    try:
+        fname, depth = render_math(self, latex)
+    except MathExtError, exc:
+        self.body.append(_html_error(node['latex'], exc))
+        raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
