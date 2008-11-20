@@ -4,7 +4,7 @@
 {%- endblock %}
 {%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
-{%- macro relbar %}
+{%- macro relbar() %}
     <div class="related">
       <h3>{{ _('Navigation') }}</h3>
       <ul>
@@ -24,7 +24,7 @@
       </ul>
     </div>
 {%- endmacro %}
-{%- macro sidebar %}
+{%- macro sidebar() %}
       {%- if builder != 'htmlhelp' %}
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
@@ -64,7 +64,7 @@
             </ul>
           {%- endif %}
           {%- if customsidebar %}
-          {{ rendertemplate(customsidebar) }}
+          {% include customsidebar %}
           {%- endif %}
           {%- block sidebarsearch %}
           {%- if pagename != "search" %}
