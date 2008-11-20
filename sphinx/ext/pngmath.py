@@ -75,7 +75,7 @@ def render_math(self, math):
     """
     use_preview = self.builder.config.pngmath_use_preview
 
-    shasum = "%s.png" % sha(math).hexdigest()
+    shasum = "%s.png" % sha(math.encode('utf-8')).hexdigest()
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
     outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
     if path.isfile(outfn):
