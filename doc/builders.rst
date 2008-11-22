@@ -66,6 +66,16 @@ The builder's "name" must be given to the **-b** command-line option of
    configuration values that customize the output of this builder, see the
    chapter :ref:`latex-options` for details.
 
+   .. note::
+
+      The produced LaTeX file uses several LaTeX packages that may not be
+      present in a "minimal" TeX distribution installation.  For TeXLive,
+      the following packages need to be installed:
+
+      * latex-recommended
+      * latex-extra
+      * fonts-recommended
+
    Its name is ``latex``.
 
 .. class:: TextBuilder
