@@ -177,28 +177,14 @@ def cleanup_tempdir(app, exc):
     except Exception:
         pass
 
-def _html_error(latex, message):
-    html = """
-<div class="system-message">
-  <p class="system-message-title">System Message: WARNING/2</p>
-  <p>Latex error in a math directive</p>
-  <pre class="literal-block">
-  %s
-  </pre>
-  <pre class="literal-block">
-  %s
-  </pre>
-  </p>
-</div>
-""" % (latex, message)
-    print "WARNING:", message
-    return html
-
 def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
     except MathExtError, exc:
-        self.body.append(_html_error(node['latex'], exc))
+        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+                                  backrefs=[], source=node['latex'])
+        sm.walkabout(self)
+        self.builder.warn('display latex %r: ' % node['latex'] + str(exc))
         raise nodes.SkipNode
     self.body.append('<img class="math" src="%s" alt="%s" %s/>' %
                      (fname, self.encode(node['latex']).strip(),
@@ -213,7 +199,10 @@ def html_visit_displaymath(self, node):
     try:
         fname, depth = render_math(self, latex)
     except MathExtError, exc:
-        self.body.append(_html_error(node['latex'], exc))
+        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+                                  backrefs=[], source=node['latex'])
+        sm.walkabout(self)
+        self.builder.warn('inline latex %r: ' % node['latex'] + str(exc))
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
