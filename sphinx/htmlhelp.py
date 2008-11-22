@@ -55,6 +55,7 @@ from sphinx import addnodes
 project_template = '''\
 [OPTIONS]
 Binary TOC=Yes
+Binary Index=No
 Compiled file=%(outname)s.chm
 Contents file=%(outname)s.hhc
 Default Window=%(outname)s
@@ -191,12 +192,21 @@ def build_hhx(builder, outdir, outname):
     try:
         f.write('<UL>\n')
         def write_index(title, refs, subitems):
-            if refs:
-                f.write('<LI> ')
-                item = object_sitemap % (cgi.escape(title), refs[0])
+            def write_param(name, value):
+                item = '    <param name="%s" value="%s">\n' % (name, value)
                 f.write(item.encode('ascii', 'xmlcharrefreplace'))
-                for ref in refs[1:]:
-                    f.write(object_sitemap % ('[Link]', ref))
+            title = cgi.escape(title)
+            f.write('<LI> <OBJECT type="text/sitemap">\n')
+            write_param('Keyword', title)
+            if len(refs) == 0:
+                write_param('See Also', title)
+            elif len(refs) == 1:
+                write_param('Local', refs[0])
+            else:
+                for i, ref in enumerate(refs):
+                    write_param('Name', '[%d] %s' % (i, ref)) # XXX: better title?
+                    write_param('Local', ref)
+            f.write('</OBJECT>\n')
             if subitems:
                 f.write('<UL> ')
                 for subitem in subitems:

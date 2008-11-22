@@ -161,6 +161,8 @@ New features added
 Bugs fixed
 ----------
 
+* Fix small problems in HTML help index generation.
+
 * Fix "illegal unit" error when using pixel image widths/heights.
 
 * Support table captions in LaTeX output.
