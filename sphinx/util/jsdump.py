@@ -124,7 +124,10 @@ def loads(x):
             i += 1
         elif c in '}]':
             if key:
-                raise ValueError("unfinished dict")
+                if keys[-1] is not nothing:
+                    raise ValueError("unfinished dict")
+                # empty dict
+                key = False
             oldobj = stack.pop()
             keys.pop()
             if stack:
