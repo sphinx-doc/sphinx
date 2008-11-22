@@ -30,34 +30,6 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``htmlhelp``. 
 
-.. class:: PickleHTMLBuilder
-
-   This builder produces a directory with pickle files containing mostly HTML
-   fragments and TOC information, for use of a web application (or custom
-   postprocessing tool) that doesn't use the standard HTML templates.
-
-   See :ref:`serialization-details` for details about the output format.
-
-   Its name is ``pickle``.  (The old name ``web`` still works as well.)
-
-   The file suffix is ``.fpickle``.  The global context is called
-   ``globalcontext.pickle``, the search index ``searchindex.pickle``.
-
-.. class:: JSONHTMLBuilder
-
-   This builder produces a directory with JSON files containing mostly HTML
-   fragments and TOC information, for use of a web application (or custom
-   postprocessing tool) that doesn't use the standard HTML templates.
-
-   See :ref:`serialization-details` for details about the output format.
-
-   Its name is ``json``.
-
-   The file suffix is ``.fjson``.  The global context is called
-   ``globalcontext.json``, the search index ``searchindex.json``.
-
-   .. versionadded:: 0.5
-
 .. class:: LaTeXBuilder
 
    This builder produces a bunch of LaTeX files in the output directory.  You
@@ -134,7 +106,35 @@ The builder's "name" must be given to the **-b** command-line option of
    See :ref:`serialization-details` for details about the output format.
 
    .. versionadded:: 0.5
-   
+
+.. class:: PickleHTMLBuilder
+
+   This builder produces a directory with pickle files containing mostly HTML
+   fragments and TOC information, for use of a web application (or custom
+   postprocessing tool) that doesn't use the standard HTML templates.
+
+   See :ref:`serialization-details` for details about the output format.
+
+   Its name is ``pickle``.  (The old name ``web`` still works as well.)
+
+   The file suffix is ``.fpickle``.  The global context is called
+   ``globalcontext.pickle``, the search index ``searchindex.pickle``.
+
+.. class:: JSONHTMLBuilder
+
+   This builder produces a directory with JSON files containing mostly HTML
+   fragments and TOC information, for use of a web application (or custom
+   postprocessing tool) that doesn't use the standard HTML templates.
+
+   See :ref:`serialization-details` for details about the output format.
+
+   Its name is ``json``.
+
+   The file suffix is ``.fjson``.  The global context is called
+   ``globalcontext.json``, the search index ``searchindex.json``.
+
+   .. versionadded:: 0.5
+
 .. class:: ChangesBuilder
 
    This builder produces an HTML overview of all :dir:`versionadded`,
