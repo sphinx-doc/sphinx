@@ -13,7 +13,7 @@ import sys
 
 __revision__ = '$Revision$'
 __version__ = '0.5'
-__released__ = '0.5 (hg)'
+__released__ = '0.5'
 
 
 def main(argv=sys.argv):
