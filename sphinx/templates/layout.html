@@ -15,7 +15,7 @@
           {%- if not loop.first %}{{ reldelim2 }}{% endif %}</li>
         {%- endfor %}
         {%- block rootrellink %}
-        <li><a href="{{ pathto(master_doc) }}">{{ shorttitle }}</a>{{ reldelim1 }}</li>
+        <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
         {%- endblock %}
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" accesskey="U">{{ parent.title }}</a>{{ reldelim1 }}</li>
@@ -89,7 +89,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     {{ metatags }}
     {%- if builder != 'htmlhelp' %}
-      {%- set titlesuffix = " &mdash; " + docstitle %}
+      {%- set titlesuffix = " &mdash; " + docstitle|e %}
     {%- endif %}
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
     {%- if builder == 'web' %}
@@ -106,7 +106,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
           URL_ROOT:    '{{ pathto("", 1) }}',
-          VERSION:     '{{ release }}',
+          VERSION:     '{{ release|e }}',
           COLLAPSE_MODINDEX: false,
           FILE_SUFFIX: '{{ file_suffix }}'
       };
@@ -116,7 +116,7 @@
     {%- endfor %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
-          title="{% trans docstitle=docstitle%}Search within {{ docstitle }}{% endtrans %}"
+          title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
     {%- if favicon %}
@@ -132,7 +132,7 @@
     {%- if hasdoc('copyright') %}
     <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
     {%- endif %}
-    <link rel="top" title="{{ docstitle }}" href="{{ pathto('index') }}" />
+    <link rel="top" title="{{ docstitle|e }}" href="{{ pathto('index') }}" />
     {%- if parents %}
     <link rel="up" title="{{ parents[-1].title|striptags }}" href="{{ parents[-1].link|e }}" />
     {%- endif %}
@@ -175,15 +175,15 @@
 {%- block footer %}
     <div class="footer">
     {%- if hasdoc('copyright') %}
-      {% trans path=pathto('copyright'), copyright=copyright %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+      {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
     {%- else %}
-      {% trans copyright=copyright %}&copy; Copyright {{ copyright }}.{% endtrans %}
+      {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}
     {%- endif %}
     {%- if last_updated %}
-      {% trans last_updated %}Last updated on {{ last_updated }}.{% endtrans %}
+      {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
     {%- endif %}
     {%- if show_sphinx %}
-      {% trans sphinx_version=sphinx_version %}Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+      {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
     {%- endif %}
     </div>
 {%- endblock %}
