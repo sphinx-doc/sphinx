@@ -161,6 +161,8 @@ New features added
 Bugs fixed
 ----------
 
+* Escape configuration values placed in HTML templates.
+
 * Fix small problems in HTML help index generation.
 
 * Fix LaTeX output for line blocks in tables.
