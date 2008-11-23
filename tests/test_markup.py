@@ -94,7 +94,7 @@ def test_inline():
     # non-interpolation of dashes in option role
     verify_re(':option:`--with-option`',
               '<p><em( class="xref")?>--with-option</em></p>$',
-              r'\\emph{\\texttt{--with-option}}$')
+              r'\\emph{\\texttt{-{-}with-option}}$')
 
     # verify smarty-pants quotes
     verify('"John"', '<p>&#8220;John&#8221;</p>', "``John''")
