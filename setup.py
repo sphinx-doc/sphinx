@@ -24,7 +24,7 @@ parsing and translating suite, the Docutils.
 Although it is still under constant development, the following features
 are already present, work fine and can be seen "in action" in the Python docs:
 
-* Output formats: HTML (including Windows HTML Help) and LaTeX,
+* Output formats: HTML (including Windows HTML Help), plain text and LaTeX,
   for printable PDF versions
 * Extensive cross-references: semantic markup and automatic links
   for functions, classes, glossary terms and similar pieces of information
