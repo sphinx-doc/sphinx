@@ -49,7 +49,7 @@ def todo_directive(name, arguments, options, content, lineno,
 def todolist_directive(name, arguments, options, content, lineno,
                        content_offset, block_text, state, state_machine):
     # Simply insert an empty todolist node which will be replaced later
-    # when process_todolist is called
+    # when process_todo_nodes is called
     return [todolist('')]
 
 
@@ -118,7 +118,7 @@ def setup(app):
                  text=(visit_todo_node, depart_todo_node))
 
     app.add_directive('todo', todo_directive, 1, (0, 0, 1))
-    app.add_directive('todolist', todolist_directive, 1, (0, 0, 1))
+    app.add_directive('todolist', todolist_directive, 0, (0, 0, 0))
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
 
