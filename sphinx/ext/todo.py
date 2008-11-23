@@ -13,7 +13,6 @@
 """
 
 from docutils import nodes
-from docutils.parsers.rst.directives import admonitions
 
 from sphinx.util.compat import make_admonition
 
