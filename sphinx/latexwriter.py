@@ -1038,7 +1038,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # no output in this line -- add a nonbreaking space, else the
             # \\ command will give an error
             self.body.append('~')
-        self.body.append('\\\\\n')
+        if self.table is not None:
+            self.body.append('\\newline\n')
+        else:
+            self.body.append('\\\\\n')
 
     def visit_block_quote(self, node):
         # If the block quote contains a single object and that object
