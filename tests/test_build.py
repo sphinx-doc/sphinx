@@ -72,6 +72,8 @@ HTML_XPATH = {
         ".//td[@class='label']": '[Ref1]',
         ".//li[@class='toctree-l1']/a": 'Testing various markup',
         ".//li[@class='toctree-l2']/a": 'Admonitions',
+        ".//title": 'Sphinx <Tests>',
+        ".//div[@class='footer']": 'Georg Brandl & Team',
     },
 }
 

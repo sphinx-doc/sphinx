@@ -21,7 +21,7 @@ def test_core_config(app):
 
     # simple values
     assert 'project' in cfg.__dict__
-    assert cfg.project == 'Sphinx Tests'
+    assert cfg.project == 'Sphinx <Tests>'
     assert cfg.templates_path == ['_templates']
 
     # overrides
@@ -34,7 +34,7 @@ def test_core_config(app):
 
     # complex default values
     assert 'html_title' not in cfg.__dict__
-    assert cfg.html_title == 'Sphinx Tests v0.4alpha1 documentation'
+    assert cfg.html_title == 'Sphinx <Tests> v0.4alpha1 documentation'
 
     # complex default values mustn't raise
     for valuename in cfg.config_values:

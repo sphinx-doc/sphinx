@@ -37,8 +37,8 @@ source_suffix = '.txt'
 master_doc = 'contents'
 
 # General substitutions.
-project = 'Sphinx Tests'
-copyright = '2008, Georg Brandl'
+project = 'Sphinx <Tests>'
+copyright = '2008, Georg Brandl & Team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
