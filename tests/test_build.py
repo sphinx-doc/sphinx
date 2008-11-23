@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 import difflib
 import htmlentitydefs
 from StringIO import StringIO
@@ -128,6 +129,32 @@ def test_latex(app):
     assert latex_warnings == latex_warnings_exp, 'Warnings don\'t match:\n' + \
            '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
                                    latex_warnings.splitlines()))
+
+    # only run latex if all needed packages are there
+    def kpsetest(filename):
+        try:
+            p = Popen(['kpsewhich', filename], stdout=PIPE)
+        except OSError, err:
+            # no kpsewhich... either no tex distribution is installed or it is
+            # a "strange" one -- don't bother running latex
+            return None
+        else:
+            p.communicate()
+            if p.returncode != 0:
+                # not found
+                return False
+            # found
+            return True
+
+    if kpsetest('article.sty') is None:
+        print >>sys.stderr, 'info: not running latex, it doesn\'t seem to be installed'
+        return
+    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty', 'amsmath.sty',
+                     'framed.sty', 'color.sty', 'fancyvrb.sty', 'threeparttable.sty']:
+        if not kpsetest(filename):
+            print >>sys.stderr, 'info: not running latex, the %s package doesn\'t ' \
+                  'seem to be installed' % filename
+            return
 
     # now, try to run latex over it
     cwd = os.getcwd()
