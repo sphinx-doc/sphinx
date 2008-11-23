@@ -13,7 +13,11 @@ import StringIO
 import tempfile
 import shutil
 
-from functools import wraps
+try:
+    from functools import wraps
+except ImportError:
+    # functools is new in 2.4
+    wraps = lambda f: (lambda w: w)
 
 from sphinx import application, builder
 
