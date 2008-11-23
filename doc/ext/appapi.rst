@@ -59,7 +59,7 @@ the following public API:
    .. versionchanged:: 0.5
       Added the support for keyword arguments giving visit functions.
 
-.. method:: Sphinx.add_directive(name, cls, content, arguments, **options)
+.. method:: Sphinx.add_directive(name, func, content, arguments, **options)
 
    Register a Docutils directive.  *name* must be the prospective directive
    name, *func* the directive function for details about the signature and
@@ -67,6 +67,16 @@ the following public API:
    the function and determine whether the directive has content, arguments and
    options, respectively.  For their exact meaning, please consult the Docutils
    documentation.
+
+   For example, the (already existing) :dir:`literalinclude` directive would be
+   added like this::
+
+      from docutils.parsers.rst import directives
+      add_directive('literalinclude', literalinclude_directive,
+                    content = 0, arguments = (1, 0, 0),
+                    linenos = directives.flag,
+                    language = direcitves.unchanged,
+                    encoding = directives.encoding)
 
    .. XXX once we target docutils 0.5, update this
 
