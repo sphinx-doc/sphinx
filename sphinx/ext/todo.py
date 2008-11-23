@@ -58,8 +58,6 @@ def process_todo_nodes(app, doctree, fromdocname):
         for node in doctree.traverse(todo_node):
             node.parent.remove(node)
 
-
-def process_todolist(app, doctree, fromdocname):
     # Replace all todolist nodes with a list of the collected todos.
     # Augment each todo with a backlink to the original location.
     env = app.builder.env
@@ -121,7 +119,6 @@ def setup(app):
 
     app.add_directive('todo', todo_directive, 1, (0, 0, 1))
     app.add_directive('todolist', todolist_directive, 1, (0, 0, 1))
-    app.connect('doctree-resolved', process_todolist)
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
 
