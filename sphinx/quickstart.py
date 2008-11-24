@@ -509,12 +509,15 @@ directly.'''
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
-source files. Use the sphinx-build script to build the docs, like so:
-''' % masterfile + (create_makefile and '''
-   make <builder>
-''' or '''
-   sphinx-build -b <builder> %s %s
-''' % (srcdir, builddir))
+source files. ''' % masterfile + (create_makefile and '''\
+Use the Makefile to build the docs, like so:
+   make builder
+''' or '''\
+Use the sphinx-build command to build the docs, like so:
+   sphinx-build -b builder %s %s
+''' % (srcdir, builddir)) + '''\
+where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
+'''
 
 
 def main(argv=sys.argv):
