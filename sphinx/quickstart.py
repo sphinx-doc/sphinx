@@ -318,6 +318,109 @@ linkcheck:
 \t      "or in %(rbuilddir)s/linkcheck/output.txt."
 '''
 
+BATCHFILE = '''\
+@ECHO OFF
+
+REM Command file for Sphinx documentation
+
+set SPHINXBUILD=sphinx-build
+set ALLSPHINXOPTS=-d %(rbuilddir)s/doctrees %%SPHINXOPTS%% %(rsrcdir)s
+if NOT "%%PAPER%%" == "" (
+\tset ALLSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%ALLSPHINXOPTS%%
+)
+
+if "%%1" == "" goto help
+
+if "%%1" == "help" (
+\t:help
+\techo.Please use `make-docs ^<target^>` where ^<target^> is one of
+\techo.  html      to make standalone HTML files
+\techo.  pickle    to make pickle files
+\techo.  json      to make JSON files
+\techo.  htmlhelp  to make HTML files and a HTML help project
+\techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+\techo.  changes   to make an overview over all changed/added/deprecated items
+\techo.  linkcheck to check all external links for integrity
+\tgoto end
+)
+
+if "%%1" == "clean" (
+\tfor /d %%%%i in (%(rbuilddir)s\*) do rmdir /q /s %%%%i
+\tdel /q /s %(rbuilddir)s\*
+\tgoto end
+)
+
+if "%%1" == "html" (
+\tcall :mkdir %(rbuilddir)s\html %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %(rbuilddir)s/html
+\techo.
+\techo.Build finished. The HTML pages are in %(rbuilddir)s/html.
+\tgoto end
+)
+
+if "%%1" == "web" goto pickle
+
+if "%%1" == "pickle" (
+\t:pickle
+\tcall :mkdir %(rbuilddir)s\pickle %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b pickle %%ALLSPHINXOPTS%% %(rbuilddir)s/pickle
+\techo.
+\techo.Build finished; now you can process the pickle files.
+\tgoto end
+)
+
+if "%%1" == "json" (
+\tcall :mkdir %(rbuilddir)s\json %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b json %%ALLSPHINXOPTS%% %(rbuilddir)s/json
+\techo.
+\techo.Build finished; now you can process the JSON files.
+\tgoto end
+)
+
+if "%%1" == "htmlhelp" (
+\tcall :mkdir %(rbuilddir)s\htmlhelp %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b htmlhelp %%ALLSPHINXOPTS%% %(rbuilddir)s/htmlhelp
+\techo.
+\techo.Build finished; now you can run HTML Help Workshop with the ^
+.hhp project file in %(rbuilddir)s/htmlhelp.
+\tgoto end
+)
+
+if "%%1" == "latex" (
+\tcall :mkdir %(rbuilddir)s\latex %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %(rbuilddir)s/latex
+\techo.
+\techo.Build finished; the LaTeX files are in %(rbuilddir)s/latex.
+\tgoto end
+)
+
+if "%%1" == "changes" (
+\tcall :mkdir %(rbuilddir)s\changes %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b changes %%ALLSPHINXOPTS%% %(rbuilddir)s/changes
+\techo.
+\techo.The overview file is in %(rbuilddir)s/changes.
+\tgoto end
+)
+
+if "%%1" == "linkcheck" (
+\tcall :mkdir %(rbuilddir)s\linkcheck %(rbuilddir)s\doctrees
+\t%%SPHINXBUILD%% -b linkcheck %%ALLSPHINXOPTS%% %(rbuilddir)s/linkcheck
+\techo.
+\techo.Link check complete; look for any errors in the above output ^
+or in %(rbuilddir)s/linkcheck/output.txt.
+\tgoto end
+)
+
+goto end
+
+:mkdir %%1 %%2
+\tIF NOT EXIST %%1 mkdir %%1
+\tIF NOT EXIST %%2 mkdir %%2
+\texit /b
+
+:end
+'''
+
 
 def mkdir_p(dir):
     if path.isdir(dir):
@@ -410,12 +513,18 @@ Either, you use a directory ".build" within the root path, or you separate
 "source" and "build" directories within the root path.'''
     do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
               boolean)
-    print '''
+    if os.name == 'nt':
+        print '''
+Inside the root directory, two more directories will be created; "_templates"
+for custom HTML templates and "_static" for custom stylesheets and other
+static files. You can enter another prefix (such as ".") to replace the underscore.'''
+        do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
+    else:
+        print '''
 Inside the root directory, two more directories will be created; ".templates"
 for custom HTML templates and ".static" for custom stylesheets and other
-static files. Since the leading dot may be inconvenient for Windows users,
-you can enter another prefix (such as "_") to replace the dot.'''
-    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '.', ok)
+static files. You can enter another prefix (such as "_") to replace the dot.'''
+        do_prompt(d, 'dot', 'Name prefix for templates and static dir', '.', ok)
 
     print '''
 The project name will occur in several places in the built documentation.'''
@@ -454,6 +563,8 @@ only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
     do_prompt(d, 'makefile', 'Create Makefile? (Y/n)',
               os.name == 'posix' and 'y' or 'n', boolean)
+    do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)',
+              os.name == 'nt' and 'y' or 'n', boolean)
 
     d['project_fn'] = make_filename(d['project'])
     d['now'] = time.asctime()
@@ -505,12 +616,21 @@ directly.'''
         f.write((MAKEFILE % d).encode('utf-8'))
         f.close()
 
+    create_batch = d['batchfile'].upper() in ('Y', 'YES')
+    if create_batch:
+        d['rsrcdir'] = separate and 'source' or '.'
+        d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
+        f = open(path.join(d['path'], 'make.bat'), 'w')
+        f.write((BATCHFILE % d).encode('utf-8'))
+        f.close()
+        
+
     print
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
 source files. Use the sphinx-build script to build the docs, like so:
-''' % masterfile + (create_makefile and '''
+''' % masterfile + ((create_makefile or create_batch) and '''
    make <builder>
 ''' or '''
    sphinx-build -b <builder> %s %s
