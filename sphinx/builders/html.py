@@ -12,9 +12,11 @@
 import os
 import codecs
 import shutil
+import posixpath
 import cPickle as pickle
 from os import path
 
+from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import publish_parts
 from docutils.utils import new_document
@@ -253,11 +255,11 @@ class StandaloneHTMLBuilder(Builder):
         )
 
     def write_doc(self, docname, doctree):
-        self.post_process_images(doctree)
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.post_process_images(doctree)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
@@ -485,6 +487,29 @@ class StandaloneHTMLBuilder(Builder):
     def cleanup(self):
         # clean up theme stuff
         self.theme.cleanup()
+
+    def post_process_images(self, doctree):
+        """
+        Pick the best candiate for an image and link down-scaled images to
+        their high res version.
+        """
+        Builder.post_process_images(self, doctree)
+        for node in doctree.traverse(nodes.image):
+            if not node.has_key('scale') or \
+               isinstance(node.parent, nodes.reference):
+                # docutils does unfortunately not preserve the
+                # ``target`` attribute on images, so we need to check
+                # the parent node here.
+                continue
+            uri = node['uri']
+            reference = nodes.reference()
+            if uri in self.images:
+                reference['refuri'] = posixpath.join(self.imgpath,
+                                                     self.images[uri])
+            else:
+                reference['refuri'] = uri
+            node.replace_self(reference)
+            reference.append(node)
 
     def get_outdated_docs(self):
         if self.templates:
