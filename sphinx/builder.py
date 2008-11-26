@@ -98,7 +98,7 @@ class Builder(object):
             self.templates = self.app.import_object(
                 self.config.template_bridge, 'template_bridge setting')()
         else:
-            from sphinx._jinja import BuiltinTemplates
+            from sphinx._jinja2 import BuiltinTemplates
             self.templates = BuiltinTemplates()
         self.templates.init(self)
 
