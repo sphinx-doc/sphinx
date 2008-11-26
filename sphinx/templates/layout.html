@@ -89,7 +89,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     {{ metatags }}
     {%- if builder != 'htmlhelp' %}
-      {%- set titlesuffix = " &mdash; " + docstitle|e %}
+      {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
     {%- endif %}
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
     {%- if builder == 'web' %}
