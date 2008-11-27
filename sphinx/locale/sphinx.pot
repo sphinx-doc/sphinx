@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2008-11-09 19:46+0100\n"
+"POT-Creation-Date: 2008-11-27 18:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.3\n"
+"Generated-By: Babel 0.9.4\n"
 
 #: sphinx/builder.py:408
 #, python-format
@@ -30,7 +30,7 @@ msgstr ""
 msgid "index"
 msgstr ""
 
-#: sphinx/builder.py:429 sphinx/htmlhelp.py:155
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:156
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
@@ -60,12 +60,12 @@ msgstr ""
 msgid "Module level"
 msgstr ""
 
-#: sphinx/environment.py:102 sphinx/latexwriter.py:164
+#: sphinx/environment.py:102 sphinx/latexwriter.py:169
 #, python-format
 msgid "%B %d, %Y"
 msgstr ""
 
-#: sphinx/environment.py:290 sphinx/latexwriter.py:170
+#: sphinx/environment.py:291 sphinx/latexwriter.py:175
 #: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
@@ -74,11 +74,11 @@ msgstr ""
 msgid "Index"
 msgstr ""
 
-#: sphinx/environment.py:291 sphinx/latexwriter.py:169
+#: sphinx/environment.py:292 sphinx/latexwriter.py:174
 msgid "Module Index"
 msgstr ""
 
-#: sphinx/environment.py:292 sphinx/templates/defindex.html:16
+#: sphinx/environment.py:293 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr ""
 
@@ -86,15 +86,15 @@ msgstr ""
 msgid "Permalink to this definition"
 msgstr ""
 
-#: sphinx/htmlwriter.py:402 sphinx/static/doctools.js:139
+#: sphinx/htmlwriter.py:399 sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr ""
 
-#: sphinx/latexwriter.py:167
+#: sphinx/latexwriter.py:172
 msgid "Release"
 msgstr ""
 
-#: sphinx/roles.py:53 sphinx/directives/desc.py:525
+#: sphinx/roles.py:53 sphinx/directives/desc.py:537
 #, python-format
 msgid "environment variable; %s"
 msgstr ""
@@ -211,15 +211,15 @@ msgstr ""
 msgid "Returns"
 msgstr ""
 
-#: sphinx/directives/desc.py:114
+#: sphinx/directives/desc.py:116
 msgid "Return type"
 msgstr ""
 
-#: sphinx/directives/desc.py:141
+#: sphinx/directives/desc.py:143
 msgid "Parameters"
 msgstr ""
 
-#: sphinx/directives/desc.py:411
+#: sphinx/directives/desc.py:423
 #, python-format
 msgid "%scommand line option; %s"
 msgstr ""
@@ -249,16 +249,16 @@ msgstr ""
 msgid "See also"
 msgstr ""
 
-#: sphinx/ext/todo.py:32
+#: sphinx/ext/todo.py:31
 msgid "Todo"
 msgstr ""
 
-#: sphinx/ext/todo.py:78
+#: sphinx/ext/todo.py:75
 #, python-format
 msgid "(The original entry is located in %s, line %d and can be found "
 msgstr ""
 
-#: sphinx/ext/todo.py:84
+#: sphinx/ext/todo.py:81
 msgid "here"
 msgstr ""
 
@@ -548,7 +548,7 @@ msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
-"    containing less words won't appear in the result list."
+"    containing fewer words won't appear in the result list."
 msgstr ""
 
 #: sphinx/templates/search.html:14

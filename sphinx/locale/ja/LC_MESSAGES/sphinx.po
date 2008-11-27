@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2008-11-16 11:10+0100\n"
+"PO-Revision-Date: 2008-11-27 18:40+0100\n"
 "Last-Translator: Yasushi MASUDA <whosaysni@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.3\n"
+"Generated-By: Babel 0.9.4\n"
 
 #: sphinx/builder.py:408
 #, python-format
@@ -30,7 +30,7 @@ msgstr "総合索引"
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builder.py:429 sphinx/htmlhelp.py:155
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:156
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
@@ -60,12 +60,12 @@ msgstr "組み込み"
 msgid "Module level"
 msgstr "モジュールレベル"
 
-#: sphinx/environment.py:102 sphinx/latexwriter.py:164
+#: sphinx/environment.py:102 sphinx/latexwriter.py:169
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/environment.py:290 sphinx/latexwriter.py:170
+#: sphinx/environment.py:291 sphinx/latexwriter.py:175
 #: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
@@ -74,11 +74,11 @@ msgstr "%Y 年 %m 月 %d 日"
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/environment.py:291 sphinx/latexwriter.py:169
+#: sphinx/environment.py:292 sphinx/latexwriter.py:174
 msgid "Module Index"
 msgstr "モジュール索引"
 
-#: sphinx/environment.py:292 sphinx/templates/defindex.html:16
+#: sphinx/environment.py:293 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr "検索ページ"
 
@@ -86,15 +86,15 @@ msgstr "検索ページ"
 msgid "Permalink to this definition"
 msgstr "この定義へのパーマリンク"
 
-#: sphinx/htmlwriter.py:402 sphinx/static/doctools.js:139
+#: sphinx/htmlwriter.py:399 sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr "このヘッドラインへのパーマリンク"
 
-#: sphinx/latexwriter.py:167
+#: sphinx/latexwriter.py:172
 msgid "Release"
 msgstr "リリース"
 
-#: sphinx/roles.py:53 sphinx/directives/desc.py:525
+#: sphinx/roles.py:53 sphinx/directives/desc.py:537
 #, python-format
 msgid "environment variable; %s"
 msgstr "環境変数; %s"
@@ -211,15 +211,15 @@ msgstr "変数"
 msgid "Returns"
 msgstr "戻り値"
 
-#: sphinx/directives/desc.py:114
+#: sphinx/directives/desc.py:116
 msgid "Return type"
 msgstr "戻り値の型"
 
-#: sphinx/directives/desc.py:141
+#: sphinx/directives/desc.py:143
 msgid "Parameters"
 msgstr "パラメタ"
 
-#: sphinx/directives/desc.py:411
+#: sphinx/directives/desc.py:423
 #, fuzzy, python-format
 msgid "%scommand line option; %s"
 msgstr "%sコマンドラインオプション; %s"
@@ -249,16 +249,16 @@ msgstr "作者: "
 msgid "See also"
 msgstr "参考"
 
-#: sphinx/ext/todo.py:32
+#: sphinx/ext/todo.py:31
 msgid "Todo"
 msgstr ""
 
-#: sphinx/ext/todo.py:78
+#: sphinx/ext/todo.py:75
 #, python-format
 msgid "(The original entry is located in %s, line %d and can be found "
 msgstr ""
 
-#: sphinx/ext/todo.py:84
+#: sphinx/ext/todo.py:81
 msgid "here"
 msgstr ""
 
@@ -549,11 +549,12 @@ msgstr ""
 "へのリダイレクトを試みますが、適切なリダイレクト先でないかもしれないので注意してください。"
 
 #: sphinx/templates/search.html:7
+#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
-"    containing less words won't appear in the result list."
+"    containing fewer words won't appear in the result list."
 msgstr "このページからドキュメントを検索できます。キーワードを下のボックスに入力して、「検索」をクリックしてください。入力された全てのキーワードを含むページが検索されます。一部のキーワードしか含まないページは検索結果に表示されないので注意してください。"
 
 #: sphinx/templates/search.html:14
@@ -591,10 +592,4 @@ msgstr "C API に関する変更"
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "その多の変更"
-
-#~ msgid "Global table of contents"
-#~ msgstr "総目次"
-
-#~ msgid "Global index"
-#~ msgstr "総合索引"
 
