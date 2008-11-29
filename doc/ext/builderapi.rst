@@ -5,7 +5,7 @@ Writing new builders
 
 .. todo:: Expand this.
 
-.. currentmodule:: sphinx.builder
+.. currentmodule:: sphinx.builders
 
 .. class:: Builder
 

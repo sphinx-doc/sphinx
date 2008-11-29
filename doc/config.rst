@@ -22,8 +22,8 @@ Important points to note:
 
 * The term "fully-qualified name" refers to a string that names an importable
   Python object inside a module; for example, the FQN
-  ``"sphinx.builder.Builder"`` means the ``Builder`` class in the
-  ``sphinx.builder`` module.
+  ``"sphinx.builders.Builder"`` means the ``Builder`` class in the
+  ``sphinx.builders`` module.
 
 * Remember that document names use ``/`` as the path separator and don't contain
   the file name extension.
@@ -412,7 +412,7 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx' :class:`~sphinx.htmlwriter.HTMLTranslator`, that is used
+   subclass of Sphinx' :class:`~sphinx.writers.html.HTMLTranslator`, that is used
    to translate document trees to HTML.  Default is ``None`` (use the builtin
    translator).
 

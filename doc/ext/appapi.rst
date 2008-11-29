@@ -13,7 +13,7 @@ the following public API:
 .. method:: Sphinx.add_builder(builder)
 
    Register a new builder.  *builder* must be a class that inherits from
-   :class:`~sphinx.builder.Builder`.
+   :class:`~sphinx.builders.Builder`.
 
 .. method:: Sphinx.add_config_value(name, default, rebuild_env)
 

@@ -19,10 +19,10 @@ No.  You have several other options:
   configuration value accordingly.
 
 * You can :ref:`write a custom builder <writing-builders>` that derives from
-  :class:`~sphinx.builder.StandaloneHTMLBuilder` and calls your template engine
+  :class:`~sphinx.builders.StandaloneHTMLBuilder` and calls your template engine
   of choice.
 
-* You can use the :class:`~sphinx.builder.PickleHTMLBuilder` that produces
+* You can use the :class:`~sphinx.builders.PickleHTMLBuilder` that produces
   pickle files with the page contents, and postprocess them using a custom tool,
   or use them in your Web application.
 
