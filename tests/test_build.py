@@ -20,7 +20,7 @@ from util import *
 from etree13 import ElementTree as ET
 
 from sphinx.builder import StandaloneHTMLBuilder, LaTeXBuilder
-from sphinx.latexwriter import LaTeXTranslator
+from sphinx.writers.latex import LaTeXTranslator
 
 
 html_warnfile = StringIO()

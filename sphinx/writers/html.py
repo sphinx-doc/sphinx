@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.htmlwriter
-    ~~~~~~~~~~~~~~~~~
+    sphinx.writers.html
+    ~~~~~~~~~~~~~~~~~~~
 
     docutils writers handling Sphinx' custom nodes.
 
