@@ -53,8 +53,7 @@ class StandaloneHTMLBuilder(Builder):
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
     searchindex_filename = 'searchindex.js'
-    add_header_links = True
-    add_definition_links = True
+    add_permalinks = True
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/doctools.js']

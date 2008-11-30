@@ -65,6 +65,7 @@ class Config(object):
         html_sidebars = ({}, False),
         html_additional_pages = ({}, False),
         html_use_modindex = (True, False),
+        html_add_permalinks = (True, False),
         html_use_index = (True, False),
         html_split_index = (False, False),
         html_copy_source = (True, False),

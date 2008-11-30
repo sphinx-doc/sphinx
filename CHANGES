@@ -4,14 +4,21 @@ Release 0.6 (in development)
 New features added
 ------------------
 
+* Configuration:
+
+  - The new ``html_add_permalinks`` config value can be used to
+    switch off the generated "paragraph sign" permalinks for each
+    heading and definition environment.
+
 * Extension API:
 
-  - Add Sphinx.add_lexer() to add custom Pygments lexers.
+  - There is now a Sphinx.add_lexer() method to add custom Pygments
+    lexers.
 
 * Other changes:
 
-  - Allow giving config overrides for single dict keys on the command
-    line.
+  - Config overrides for single dict keys can now be given on the
+    command line.
 
 
 Release 0.5 (Nov 23, 2008) -- Birthday release!

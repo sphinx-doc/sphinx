@@ -332,6 +332,15 @@ that use Sphinx' HTMLWriter class.
    If true, *SmartyPants* will be used to convert quotes and dashes to
    typographically correct entities.  Default: ``True``.
 
+.. confval:: html_add_permalinks
+
+   If true, Sphinx will add "permalinks" for each heading and description
+   environment as paragraph signs that become visible when the mouse hovers over
+   them.  Default: ``True``.
+
+   .. versionadded:: 0.6
+      Previously, this was always activated.
+   
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to

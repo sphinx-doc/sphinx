@@ -132,8 +132,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     supported_image_types = ['image/png', 'image/gif', 'image/jpeg']
 
     # don't add links
-    add_header_links = False
-    add_definition_links = False
+    add_permalinks = False
 
     def init(self):
         StandaloneHTMLBuilder.init(self)

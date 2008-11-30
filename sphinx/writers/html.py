@@ -58,6 +58,7 @@ class HTMLTranslator(BaseTranslator):
         self.highlightlang = builder.config.highlight_language
         self.highlightlinenothreshold = sys.maxint
         self.protect_literal_text = 0
+        self.add_permalinks = builder.config.html_add_permalinks
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['desctype']))
@@ -73,7 +74,7 @@ class HTMLTranslator(BaseTranslator):
         if node.parent['desctype'] in ('class', 'exception'):
             self.body.append('%s ' % node.parent['desctype'])
     def depart_desc_signature(self, node):
-        if node['ids'] and self.builder.add_definition_links:
+        if node['ids'] and self.add_permalinks and self.builder.add_permalinks:
             self.body.append(u'<a class="headerlink" href="#%s" ' % node['ids'][0] +
                              u'title="%s">\u00B6</a>' %
                              _('Permalink to this definition'))
@@ -388,7 +389,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_title(self, node):
         close_tag = self.context[-1]
-        if self.builder.add_header_links and \
+        if self.add_permalinks and self.builder.add_permalinks and \
                (close_tag.startswith('</h') or
                 close_tag.startswith('</a></h')) and \
                node.parent.hasattr('ids') and node.parent['ids']:
