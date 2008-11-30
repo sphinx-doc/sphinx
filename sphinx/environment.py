@@ -1137,25 +1137,42 @@ class BuildEnvironment:
                     pass
 
         for fn, entries in self.indexentries.iteritems():
-            # new entry types must be listed in directives.py!
+            # new entry types must be listed in directives/other.py!
             for type, string, tid, alias in entries:
                 if type == 'single':
                     try:
                         entry, subentry = string.split(';', 1)
                     except ValueError:
                         entry, subentry = string, ''
+                    if not entry:
+                        self.warn(fn, 'invalid index entry %r' % string)
+                        continue
                     add_entry(entry.strip(), subentry.strip())
                 elif type == 'pair':
-                    first, second = map(lambda x: x.strip(), string.split(';', 1))
+                    try:
+                        first, second = map(lambda x: x.strip(),
+                                            string.split(';', 1))
+                        if not first or not second:
+                            raise ValueError
+                    except ValueError:
+                        self.warn(fn, 'invalid pair index entry %r' % string)
+                        continue
                     add_entry(first, second)
                     add_entry(second, first)
                 elif type == 'triple':
-                    first, second, third = map(lambda x: x.strip(), string.split(';', 2))
+                    try:
+                        first, second, third = map(lambda x: x.strip(),
+                                                   string.split(';', 2))
+                        if not first or not second or not third:
+                            raise ValueError
+                    except ValueError:
+                        self.warn(fn, 'invalid triple index entry %r' % string)
+                        continue
                     add_entry(first, second+' '+third)
                     add_entry(second, third+', '+first)
                     add_entry(third, first+' '+second)
                 else:
-                    self.warn(fn, "unknown index entry type %r" % type)
+                    self.warn(fn, 'unknown index entry type %r' % type)
 
         newlist = new.items()
         newlist.sort(key=lambda t: t[0].lower())
