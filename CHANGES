@@ -6,7 +6,7 @@ New features added
 
 * Configuration:
 
-  - The new ``html_add_permalinks`` config value can be used to
+- The new ``html_add_permalinks`` config value can be used to
     switch off the generated "paragraph sign" permalinks for each
     heading and definition environment.
 
@@ -19,6 +19,12 @@ New features added
 
   - Config overrides for single dict keys can now be given on the
     command line.
+
+
+Release 0.5.1 (in development)
+==============================
+
+* Don't crash on empty index entries, only emit a warning.
 
 
 Release 0.5 (Nov 23, 2008) -- Birthday release!
