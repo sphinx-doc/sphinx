@@ -297,6 +297,12 @@ class Sphinx(object):
         StandaloneHTMLBuilder.script_files.append(
             posixpath.join('_static', filename))
 
+    def add_lexer(self, alias, lexer):
+        from sphinx.highlighting import lexers
+        if lexers is None:
+            return
+        lexers[alias] = lexer
+
 
 class TemplateBridge(object):
     """

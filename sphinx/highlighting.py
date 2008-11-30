@@ -30,6 +30,7 @@ try:
     from pygments.token import Generic, Comment, Number
 except ImportError:
     pygments = None
+    lexers = None
 else:
     class SphinxStyle(Style):
         """

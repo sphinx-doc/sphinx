@@ -4,6 +4,10 @@ Release 0.6 (in development)
 New features added
 ------------------
 
+* Extension API:
+
+  - Add Sphinx.add_lexer() to add custom Pygments lexers.
+
 * Other changes:
 
   - Allow giving config overrides for single dict keys on the command
