@@ -892,10 +892,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append(r'\index{%s}' % scre.sub('!', self.encode(string)))
             elif type == 'pair':
                 parts = tuple(self.encode(x.strip()) for x in string.split(';', 1))
-                self.body.append(r'\indexii{%s}{%s}' % parts)
+                try:
+                    self.body.append(r'\indexii{%s}{%s}' % parts)
+                except TypeError:
+                    self.builder.warn('invalid pair index entry %r' % string)
             elif type == 'triple':
                 parts = tuple(self.encode(x.strip()) for x in string.split(';', 2))
-                self.body.append(r'\indexiii{%s}{%s}{%s}' % parts)
+                try:
+                    self.body.append(r'\indexiii{%s}{%s}{%s}' % parts)
+                except TypeError:
+                    self.builder.warn('invalid triple index entry %r' % string)
             else:
                 self.builder.warn('unknown index entry type %s found' % type)
         raise nodes.SkipNode
