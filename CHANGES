@@ -1,3 +1,15 @@
+Release 0.6 (in development)
+============================
+
+New features added
+------------------
+
+* Other changes:
+
+  - Allow giving config overrides for single dict keys on the command
+    line.
+
+
 Release 0.5 (Nov 23, 2008) -- Birthday release!
 ===============================================
 

@@ -111,6 +111,12 @@ class Config(object):
 
     def init_values(self):
         config = self._raw_config
+        for valname, value in self.overrides.iteritems():
+            if '.' in valname:
+                realvalname, key = valname.split('.', 1)
+                config.setdefault(realvalname, {})[key] = value
+            else:
+                config[valname] = value
         config.update(self.overrides)
         for name in config:
             if name in self.values:

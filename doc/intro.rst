@@ -111,8 +111,12 @@ The :program:`sphinx-build` script has several more options:
    .. versionadded:: 0.5
    
 **-D** *setting=value*
-   Override a configuration value set in the :file:`conf.py` file.  (The value
-   must be a string value.)
+   Override a configuration value set in the :file:`conf.py` file.  The value
+   must be a string or dictionary value.  For the latter, supply the setting
+   name and key like this: ``-D latex_elements.docclass=scrartcl``.
+
+   .. versionchanged:: 0.6
+      The value can now be a dictionary value.
 
 **-A** *name=value*
    Make the *name* assigned to *value* in the HTML templates.
