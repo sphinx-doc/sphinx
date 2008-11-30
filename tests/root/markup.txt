@@ -148,6 +148,14 @@ Index markup
    single: entry
    pair: entry; pair
    triple: index; entry; triple
+   keyword: with
+
+Invalid index markup...
+
+.. index::
+   single:
+   pair:
+   keyword:
 
 
 Ö... Some strange characters

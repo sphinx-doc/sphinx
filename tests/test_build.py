@@ -35,10 +35,14 @@ file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 WARNING: %(root)s/images.txt:: no matching candidate for image URI u'foo.*'
+WARNING: %(root)s/markup.txt:: invalid index entry u''
+WARNING: %(root)s/markup.txt:: invalid pair index entry u''
+WARNING: %(root)s/markup.txt:: invalid pair index entry u'keyword; '
 """
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 WARNING: None:: no matching candidate for image URI u'foo.*'
+WARNING: invalid pair index entry u''
 """
 
 HTML_XPATH = {
