@@ -89,7 +89,7 @@ class PygmentsBridge(object):
             style = SphinxStyle
         elif '.' in stylename:
             module, stylename = stylename.rsplit('.', 1)
-            style = getattr(__import__(module, None, None, ['']), stylename)
+            style = getattr(__import__(module, None, None, ['__name__']), stylename)
         else:
             style = get_style_by_name(stylename)
         self.hfmter = {False: HtmlFormatter(style=style),
