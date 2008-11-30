@@ -82,7 +82,12 @@ if sys.version_info < (2, 5):
 
 
 class PygmentsBridge(object):
-    def __init__(self, dest='html', stylename='sphinx'):
+    # Set these attributes if you want to have different Pygments formatters
+    # than the default ones.
+    html_formatter = HtmlFormatter
+    latex_formatter = LatexFormatter
+
+    def __init__(self, dest='html', stylename='sphinx', ):
         self.dest = dest
         if not pygments:
             return
@@ -93,11 +98,14 @@ class PygmentsBridge(object):
             style = getattr(__import__(module, None, None, ['__name__']), stylename)
         else:
             style = get_style_by_name(stylename)
-        self.hfmter = {False: HtmlFormatter(style=style),
-                       True: HtmlFormatter(style=style, linenos=True)}
-        self.lfmter = {False: LatexFormatter(style=style, commandprefix='PYG'),
-                       True: LatexFormatter(style=style, linenos=True,
-                                            commandprefix='PYG')}
+        if dest == 'html':
+            self.fmter = {False: self.html_formatter(style=style),
+                          True: self.html_formatter(style=style, linenos=True)}
+        else:
+            self.fmter = {False: self.latex_formatter(style=style,
+                                                      commandprefix='PYG'),
+                          True: self.latex_formatter(style=style, linenos=True,
+                                                     commandprefix='PYG')}
 
     def unhighlighted(self, source):
         if self.dest == 'html':
@@ -171,9 +179,9 @@ class PygmentsBridge(object):
                 lexer.add_filter('raiseonerror')
         try:
             if self.dest == 'html':
-                return highlight(source, lexer, self.hfmter[bool(linenos)])
+                return highlight(source, lexer, self.fmter[bool(linenos)])
             else:
-                hlsource = highlight(source, lexer, self.lfmter[bool(linenos)])
+                hlsource = highlight(source, lexer, self.fmter[bool(linenos)])
                 return hlsource.translate(tex_hl_escape_map)
         except ErrorToken:
             # this is most probably not the selected language,
@@ -187,9 +195,9 @@ class PygmentsBridge(object):
             # no HTML styles needed
             return ''
         if self.dest == 'html':
-            return self.hfmter[0].get_style_defs()
+            return self.fmter[0].get_style_defs()
         else:
-            styledefs = self.lfmter[0].get_style_defs()
+            styledefs = self.fmter[0].get_style_defs()
             # workaround for Pygments < 0.12
             if styledefs.startswith('\\newcommand\\at{@}'):
                 styledefs += _LATEX_STYLES

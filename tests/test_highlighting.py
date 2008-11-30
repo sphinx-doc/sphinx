@@ -13,6 +13,7 @@ from util import *
 
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
+from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
 
@@ -27,6 +28,10 @@ class MyLexer(RegexLexer):
         ],
     }
 
+class MyFormatter(HtmlFormatter):
+    def format(self, tokensource, outfile):
+        outfile.write('test')
+
 
 @with_app()
 def test_add_lexer(app):
@@ -35,3 +40,12 @@ def test_add_lexer(app):
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')
     assert '<span class="n">a</span>b' in ret
+
+def test_set_formatter():
+    PygmentsBridge.html_formatter = MyFormatter
+    try:
+        bridge = PygmentsBridge('html')
+        ret = bridge.highlight_block('foo', 'python')
+        assert ret == 'test'
+    finally:
+        PygmentsBridge.html_formatter = HtmlFormatter
