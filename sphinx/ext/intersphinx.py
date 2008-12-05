@@ -31,7 +31,7 @@ from os import path
 
 from docutils import nodes
 
-from sphinx.builders import INVENTORY_FILENAME
+from sphinx.builders.html import INVENTORY_FILENAME
 
 
 def fetch_inventory(app, uri, inv):
