@@ -383,6 +383,8 @@ def parse_option_desc(signode, sig):
     return firstname
 
 
+strip_backslash_re = re.compile(r'\\(?=[^\\])')
+
 def desc_directive(desctype, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     env = state.document.settings.env
@@ -393,7 +395,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
     noindex = ('noindex' in options)
     node['noindex'] = noindex
     # remove backslashes to support (dummy) escapes; helps Vim's highlighting
-    signatures = map(lambda s: s.strip().replace('\\', ''), arguments[0].split('\n'))
+    signatures = map(lambda s: strip_backslash_re.sub('', s.strip()),
+                     arguments[0].split('\n'))
     names = []
     clsname = None
     module = options.get('module', env.currmodule)
