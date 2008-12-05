@@ -16,7 +16,7 @@ import inspect
 import cPickle as pickle
 from os import path
 
-from sphinx.builder import Builder
+from sphinx.builders import Builder
 
 
 # utility

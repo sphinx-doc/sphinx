@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.latexwriter
-    ~~~~~~~~~~~~~~~~~~
+    sphinx.writers.latex
+    ~~~~~~~~~~~~~~~~~~~~
 
     Custom docutils writer for LaTeX.
 
