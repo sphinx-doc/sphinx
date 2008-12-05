@@ -140,7 +140,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.out_suffix = '.html'
 
     def handle_finish(self):
-        self.build_hhx(self, self.outdir, self.config.htmlhelp_basename)
+        self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def build_hhx(self, outdir, outname):
         self.info('dumping stopword list...')
