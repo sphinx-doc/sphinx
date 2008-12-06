@@ -12,8 +12,13 @@ Since mathematical notation isn't natively supported by HTML in any way, Sphinx
 supports math in documentation with two extensions.
 
 The basic math support that is common to both extensions is contained in
-:mod:`sphinx.ext.mathbase`.  Other math support extensions should, if possible,
-reuse that support too.
+:mod:`sphinx.ext.mathbase`.  Other math support extensions should,
+if possible, reuse that support too.
+
+.. note::
+
+   :mod:`sphinx.ext.mathbase` does not need to be added to the
+   :confval:`extensions` config value.
 
 The input language for mathematics is LaTeX markup.  This is the de-facto
 standard for plain-text math notation and has the added advantage that no
