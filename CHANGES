@@ -26,6 +26,9 @@ Release 0.5.1 (in development)
 
 * Don't crash on empty index entries, only emit a warning.
 
+* Fix a typo in the search JavaScript code, leading to unusable
+  search function in some setups.
+
 
 Release 0.5 (Nov 23, 2008) -- Birthday release!
 ===============================================
