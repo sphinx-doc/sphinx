@@ -239,7 +239,7 @@ var Search = {
   },
 
   hasIndex : function() {
-      return self._index !== null;
+      return this._index !== null;
   },
 
   deferQuery : function(query) {
