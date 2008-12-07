@@ -215,11 +215,24 @@ def test_get_doc():
     assert getdocl('class', 'C', C) == ['Class docstring', '', 'Init docstring']
 
     class D:
+        """Class docstring"""
+        def __init__(self):
+            """Init docstring
+
+            Other
+             lines
+            """
+
+    # Indentation is normalized for 'both'
+    assert getdocl('class', 'D', D) == ['Class docstring', '', 'Init docstring',
+                                        '', 'Other', ' lines']
+
+    class E:
         def __init__(self):
             """Init docstring"""
 
     # docstring processing by event handler
-    assert getdocl('class', 'bar', D) == ['Init docstring', '', '42']
+    assert getdocl('class', 'bar', E) == ['Init docstring', '', '42']
 
 
 def test_docstring_processing_functions():

@@ -1,6 +1,9 @@
 Release 0.5.1 (in development)
 ==============================
 
+* Fix a bug in autodoc when documenting classes with the option.
+  ``autoclass_content = "both"`` set.
+
 * Don't crash on empty index entries, only emit a warning.
 
 * Fix a typo in the search JavaScript code, leading to unusable

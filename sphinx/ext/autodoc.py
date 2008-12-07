@@ -244,7 +244,7 @@ class RstGenerator(object):
                     if content == 'init':
                         docstrings = [initdocstring]
                     else:
-                        docstrings.append('\n\n' + initdocstring)
+                        docstrings.append(initdocstring)
             # the default is only the class docstring
 
         # decode the docstrings using the module's source encoding
