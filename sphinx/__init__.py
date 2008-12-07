@@ -31,17 +31,23 @@ def main(argv=sys.argv):
         errstr = str(err)
         if errstr.lower().startswith('no module named'):
             whichmod = errstr[16:]
+            hint = ''
             if whichmod.startswith('docutils'):
                 whichmod = 'Docutils library'
             elif whichmod.startswith('jinja'):
                 whichmod = 'Jinja library'
             elif whichmod == 'roman':
                 whichmod = 'roman module (which is distributed with Docutils)'
+                hint = ('This can happen if you upgraded docutils using\n'
+                        'easy_install without uninstalling the old version'
+                        'first.')
             else:
                 whichmod += ' module'
             print >>sys.stderr, \
                   'Error: The %s cannot be found. Did you install Sphinx '\
                   'and its dependencies correctly?' % whichmod
+            if hint:
+                print >> sys.stderr, hint
             return 1
         raise
     return cmdline.main(argv)
