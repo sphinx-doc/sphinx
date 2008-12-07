@@ -22,8 +22,8 @@ Important points to note:
 
 * The term "fully-qualified name" refers to a string that names an importable
   Python object inside a module; for example, the FQN
-  ``"sphinx.builder.Builder"`` means the ``Builder`` class in the
-  ``sphinx.builder`` module.
+  ``"sphinx.builders.Builder"`` means the ``Builder`` class in the
+  ``sphinx.builders`` module.
 
 * Remember that document names use ``/`` as the path separator and don't contain
   the file name extension.
@@ -332,6 +332,15 @@ that use Sphinx' HTMLWriter class.
    If true, *SmartyPants* will be used to convert quotes and dashes to
    typographically correct entities.  Default: ``True``.
 
+.. confval:: html_add_permalinks
+
+   If true, Sphinx will add "permalinks" for each heading and description
+   environment as paragraph signs that become visible when the mouse hovers over
+   them.  Default: ``True``.
+
+   .. versionadded:: 0.6
+      Previously, this was always activated.
+   
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
@@ -412,7 +421,7 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx' :class:`~sphinx.htmlwriter.HTMLTranslator`, that is used
+   subclass of Sphinx' :class:`~sphinx.writers.html.HTMLTranslator`, that is used
    to translate document trees to HTML.  Default is ``None`` (use the builtin
    translator).
 

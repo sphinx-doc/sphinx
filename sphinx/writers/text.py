@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.textwriter
-    ~~~~~~~~~~~~~~~~~
+    sphinx.writers.text
+    ~~~~~~~~~~~~~~~~~~~
 
     Custom docutils writer for plain text.
 

@@ -21,7 +21,7 @@ doctest = __import__('doctest')
 from docutils import nodes
 from docutils.parsers.rst import directives
 
-from sphinx.builder import Builder
+from sphinx.builders import Builder
 from sphinx.util.console import bold
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
