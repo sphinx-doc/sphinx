@@ -402,6 +402,12 @@ that use Sphinx' HTMLWriter class.
    If true, the reST sources are included in the HTML build as
    :file:`_sources/{name}`.  The default is ``True``.
 
+   .. warning::
+
+      If this config value is set to ``False``, the JavaScript search function
+      will only display the titles of matching documents, and no excerpt from
+      the matching contents.
+
 .. confval:: html_use_opensearch
 
    If nonempty, an `OpenSearch <http://opensearch.org>` description file will be

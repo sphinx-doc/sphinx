@@ -6,7 +6,7 @@ New features added
 
 * Configuration:
 
-- The new ``html_add_permalinks`` config value can be used to
+  - The new ``html_add_permalinks`` config value can be used to
     switch off the generated "paragraph sign" permalinks for each
     heading and definition environment.
 
@@ -23,6 +23,8 @@ New features added
 
 Release 0.5.1 (in development)
 ==============================
+
+* Fix the JavaScript search when html_copy_source is off.
 
 * Fix a bug in autodoc when documenting classes with the option.
   ``autoclass_content = "both"`` set.
