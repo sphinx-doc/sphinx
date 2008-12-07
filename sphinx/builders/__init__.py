@@ -1,0 +1,328 @@
+# -*- coding: utf-8 -*-
+"""
+    sphinx.builders
+    ~~~~~~~~~~~~~~~
+
+    Builder superclass for all builders.
+
+    :copyright: 2007-2008 by Georg Brandl, Sebastian Wiesner, Horst Gutmann.
+    :license: BSD.
+"""
+
+import os
+import gettext
+from os import path
+
+from docutils import nodes
+
+from sphinx import package_dir, locale
+from sphinx.util import SEP, relative_uri
+from sphinx.environment import BuildEnvironment
+from sphinx.util.console import bold, purple, darkgreen
+
+# side effect: registers roles and directives
+from sphinx import roles
+from sphinx import directives
+
+
+ENV_PICKLE_FILENAME = 'environment.pickle'
+
+
+class Builder(object):
+    """
+    Builds target formats from the reST sources.
+    """
+
+    # builder's name, for the -b command line options
+    name = ''
+
+    def __init__(self, app, env=None, freshenv=False):
+        self.srcdir = app.srcdir
+        self.confdir = app.confdir
+        self.outdir = app.outdir
+        self.doctreedir = app.doctreedir
+        if not path.isdir(self.doctreedir):
+            os.makedirs(self.doctreedir)
+
+        self.app = app
+        self.warn = app.warn
+        self.info = app.info
+        self.config = app.config
+
+        self.load_i18n()
+
+        # images that need to be copied over (source -> dest)
+        self.images = {}
+
+        # if None, this is set in load_env()
+        self.env = env
+        self.freshenv = freshenv
+
+        self.init()
+        self.load_env()
+
+    # helper methods
+
+    def init(self):
+        """Load necessary templates and perform initialization."""
+        raise NotImplementedError
+
+    def init_templates(self):
+        # Call this from init() if you need templates.
+        if self.config.template_bridge:
+            self.templates = self.app.import_object(
+                self.config.template_bridge, 'template_bridge setting')()
+        else:
+            from sphinx._jinja2 import BuiltinTemplates
+            self.templates = BuiltinTemplates()
+        self.templates.init(self)
+
+    def get_target_uri(self, docname, typ=None):
+        """
+        Return the target URI for a document name (typ can be used to qualify
+        the link characteristic for individual builders).
+        """
+        raise NotImplementedError
+
+    def get_relative_uri(self, from_, to, typ=None):
+        """
+        Return a relative URI between two source filenames. May raise environment.NoUri
+        if there's no way to return a sensible URI.
+        """
+        return relative_uri(self.get_target_uri(from_),
+                            self.get_target_uri(to, typ))
+
+    def get_outdated_docs(self):
+        """
+        Return an iterable of output files that are outdated, or a string describing
+        what an update build will build.
+        """
+        raise NotImplementedError
+
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen):
+        l = -1
+        for item in iterable:
+            if l == -1:
+                self.info(bold(summary), nonl=1)
+                l = 0
+            self.info(colorfunc(item) + ' ', nonl=1)
+            yield item
+        if l == 0:
+            self.info()
+
+    supported_image_types = []
+
+    def post_process_images(self, doctree):
+        """
+        Pick the best candidate for all image URIs.
+        """
+        for node in doctree.traverse(nodes.image):
+            if '?' in node['candidates']:
+                # don't rewrite nonlocal image URIs
+                continue
+            if '*' not in node['candidates']:
+                for imgtype in self.supported_image_types:
+                    candidate = node['candidates'].get(imgtype, None)
+                    if candidate:
+                        break
+                else:
+                    self.warn('%s:%s: no matching candidate for image URI %r' %
+                              (node.source, getattr(node, 'lineno', ''), node['uri']))
+                    continue
+                node['uri'] = candidate
+            else:
+                candidate = node['uri']
+            if candidate not in self.env.images:
+                # non-existing URI; let it alone
+                continue
+            self.images[candidate] = self.env.images[candidate][1]
+
+    # build methods
+
+    def load_i18n(self):
+        """
+        Load translated strings from the configured localedirs if
+        enabled in the configuration.
+        """
+        self.translator = None
+        if self.config.language is not None:
+            self.info(bold('loading translations [%s]... ' % self.config.language),
+                      nonl=True)
+            locale_dirs = [path.join(package_dir, 'locale')] + \
+                          [path.join(self.srcdir, x) for x in self.config.locale_dirs]
+            for dir_ in locale_dirs:
+                try:
+                    trans = gettext.translation('sphinx', localedir=dir_,
+                            languages=[self.config.language])
+                    if self.translator is None:
+                        self.translator = trans
+                    else:
+                        self.translator._catalog.update(trans.catalog)
+                except Exception:
+                    # Language couldn't be found in the specified path
+                    pass
+            if self.translator is not None:
+                self.info('done')
+            else:
+                self.info('locale not available')
+        if self.translator is None:
+            self.translator = gettext.NullTranslations()
+        self.translator.install(unicode=True)
+        locale.init()  # translate common labels
+
+    def load_env(self):
+        """Set up the build environment."""
+        if self.env:
+            return
+        if not self.freshenv:
+            try:
+                self.info(bold('loading pickled environment... '), nonl=True)
+                self.env = BuildEnvironment.frompickle(self.config,
+                    path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                self.info('done')
+            except Exception, err:
+                if type(err) is IOError and err.errno == 2:
+                    self.info('not found')
+                else:
+                    self.info('failed: %s' % err)
+                self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+                self.env.find_files(self.config)
+        else:
+            self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+            self.env.find_files(self.config)
+        self.env.set_warnfunc(self.warn)
+
+    def build_all(self):
+        """Build all source files."""
+        self.build(None, summary='all source files', method='all')
+
+    def build_specific(self, filenames):
+        """Only rebuild as much as needed for changes in the source_filenames."""
+        # bring the filenames to the canonical format, that is,
+        # relative to the source directory and without source_suffix.
+        dirlen = len(self.srcdir) + 1
+        to_write = []
+        suffix = self.config.source_suffix
+        for filename in filenames:
+            filename = path.abspath(filename)[dirlen:]
+            if filename.endswith(suffix):
+                filename = filename[:-len(suffix)]
+            filename = filename.replace(os.path.sep, SEP)
+            to_write.append(filename)
+        self.build(to_write, method='specific',
+                   summary='%d source files given on command '
+                   'line' % len(to_write))
+
+    def build_update(self):
+        """Only rebuild files changed or added since last build."""
+        to_build = self.get_outdated_docs()
+        if isinstance(to_build, str):
+            self.build(['__all__'], to_build)
+        else:
+            to_build = list(to_build)
+            self.build(to_build,
+                       summary='targets for %d source files that are '
+                       'out of date' % len(to_build))
+
+    def build(self, docnames, summary=None, method='update'):
+        if summary:
+            self.info(bold('building [%s]: ' % self.name), nonl=1)
+            self.info(summary)
+
+        updated_docnames = []
+        # while reading, collect all warnings from docutils
+        warnings = []
+        self.env.set_warnfunc(warnings.append)
+        self.info(bold('updating environment: '), nonl=1)
+        iterator = self.env.update(self.config, self.srcdir, self.doctreedir, self.app)
+        # the first item in the iterator is a summary message
+        self.info(iterator.next())
+        for docname in self.status_iterator(iterator, 'reading sources... ', purple):
+            updated_docnames.append(docname)
+            # nothing further to do, the environment has already done the reading
+        for warning in warnings:
+            if warning.strip():
+                self.warn(warning)
+        self.env.set_warnfunc(self.warn)
+
+        if updated_docnames:
+            # save the environment
+            self.info(bold('pickling environment... '), nonl=True)
+            self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+            self.info('done')
+
+            # global actions
+            self.info(bold('checking consistency... '), nonl=True)
+            self.env.check_consistency()
+            self.info('done')
+        else:
+            if method == 'update' and not docnames:
+                self.info(bold('no targets are out of date.'))
+                return
+
+        # another indirection to support methods which don't build files
+        # individually
+        self.write(docnames, updated_docnames, method)
+
+        # finish (write static files etc.)
+        self.finish()
+        if self.app._warncount:
+            self.info(bold('build succeeded, %s warning%s.' %
+                           (self.app._warncount,
+                            self.app._warncount != 1 and 's' or '')))
+        else:
+            self.info(bold('build succeeded.'))
+
+    def write(self, build_docnames, updated_docnames, method='update'):
+        if build_docnames is None or build_docnames == ['__all__']:
+            # build_all
+            build_docnames = self.env.found_docs
+        if method == 'update':
+            # build updated ones as well
+            docnames = set(build_docnames) | set(updated_docnames)
+        else:
+            docnames = set(build_docnames)
+
+        # add all toctree-containing files that may have changed
+        for docname in list(docnames):
+            for tocdocname in self.env.files_to_rebuild.get(docname, []):
+                docnames.add(tocdocname)
+        docnames.add(self.config.master_doc)
+
+        self.info(bold('preparing documents... '), nonl=True)
+        self.prepare_writing(docnames)
+        self.info('done')
+
+        # write target files
+        warnings = []
+        self.env.set_warnfunc(warnings.append)
+        for docname in self.status_iterator(sorted(docnames),
+                                            'writing output... ', darkgreen):
+            doctree = self.env.get_and_resolve_doctree(docname, self)
+            self.write_doc(docname, doctree)
+        for warning in warnings:
+            if warning.strip():
+                self.warn(warning)
+        self.env.set_warnfunc(self.warn)
+
+    def prepare_writing(self, docnames):
+        raise NotImplementedError
+
+    def write_doc(self, docname, doctree):
+        raise NotImplementedError
+
+    def finish(self):
+        raise NotImplementedError
+
+
+BUILTIN_BUILDERS = {
+    'html':      ('html', 'StandaloneHTMLBuilder'),
+    'pickle':    ('html', 'PickleHTMLBuilder'),
+    'json':      ('html', 'JSONHTMLBuilder'),
+    'web':       ('html', 'PickleHTMLBuilder'),
+    'htmlhelp':  ('htmlhelp', 'HTMLHelpBuilder'),
+    'latex':     ('latex', 'LaTeXBuilder'),
+    'text':      ('text', 'TextBuilder'),
+    'changes':   ('changes', 'ChangesBuilder'),
+    'linkcheck': ('linkcheck', 'CheckExternalLinksBuilder'),
+}

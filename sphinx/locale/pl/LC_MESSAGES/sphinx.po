@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-10 11:43+0000\n"
-"PO-Revision-Date: 2008-11-16 11:11+0100\n"
+"PO-Revision-Date: 2008-11-27 18:40+0100\n"
 "Last-Translator: Michał Kandulski <Michal.Kandulski@poczta.onet.pl>\n"
 "Language-Team: \n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
@@ -12,7 +12,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.3\n"
+"Generated-By: Babel 0.9.4\n"
 
 #: sphinx/builder.py:408
 #, python-format
@@ -27,7 +27,7 @@ msgstr "Indeks ogólny"
 msgid "index"
 msgstr "indeks"
 
-#: sphinx/builder.py:429 sphinx/htmlhelp.py:155
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:156
 #: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
 #: sphinx/templates/modindex.html:13
 msgid "Global Module Index"
@@ -57,12 +57,12 @@ msgstr "Wbudowane"
 msgid "Module level"
 msgstr "Poziom modułu"
 
-#: sphinx/environment.py:102 sphinx/latexwriter.py:164
+#: sphinx/environment.py:102 sphinx/latexwriter.py:169
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%B %d %Y"
 
-#: sphinx/environment.py:290 sphinx/latexwriter.py:170
+#: sphinx/environment.py:291 sphinx/latexwriter.py:175
 #: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
@@ -71,11 +71,11 @@ msgstr "%B %d %Y"
 msgid "Index"
 msgstr "Indeks"
 
-#: sphinx/environment.py:291 sphinx/latexwriter.py:169
+#: sphinx/environment.py:292 sphinx/latexwriter.py:174
 msgid "Module Index"
 msgstr "Indeks modułów"
 
-#: sphinx/environment.py:292 sphinx/templates/defindex.html:16
+#: sphinx/environment.py:293 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr "Wyszukiwanie"
 
@@ -83,15 +83,15 @@ msgstr "Wyszukiwanie"
 msgid "Permalink to this definition"
 msgstr "Stały odnośnik do tej definicji"
 
-#: sphinx/htmlwriter.py:402 sphinx/static/doctools.js:139
+#: sphinx/htmlwriter.py:399 sphinx/static/doctools.js:139
 msgid "Permalink to this headline"
 msgstr "Stały odnośnik do tego nagłówka"
 
-#: sphinx/latexwriter.py:167
+#: sphinx/latexwriter.py:172
 msgid "Release"
 msgstr "Wydanie"
 
-#: sphinx/roles.py:53 sphinx/directives/desc.py:525
+#: sphinx/roles.py:53 sphinx/directives/desc.py:537
 #, python-format
 msgid "environment variable; %s"
 msgstr "zmienna środowiskowa; %s"
@@ -208,15 +208,15 @@ msgstr "Zmienna"
 msgid "Returns"
 msgstr "Zwraca"
 
-#: sphinx/directives/desc.py:114
+#: sphinx/directives/desc.py:116
 msgid "Return type"
 msgstr "Typ zwracany"
 
-#: sphinx/directives/desc.py:141
+#: sphinx/directives/desc.py:143
 msgid "Parameters"
 msgstr "Parametry"
 
-#: sphinx/directives/desc.py:411
+#: sphinx/directives/desc.py:423
 #, fuzzy, python-format
 msgid "%scommand line option; %s"
 msgstr "%sopcja linii komend; %s"
@@ -246,16 +246,16 @@ msgstr "Autor: "
 msgid "See also"
 msgstr "Zobacz także"
 
-#: sphinx/ext/todo.py:32
+#: sphinx/ext/todo.py:31
 msgid "Todo"
 msgstr ""
 
-#: sphinx/ext/todo.py:78
+#: sphinx/ext/todo.py:75
 #, python-format
 msgid "(The original entry is located in %s, line %d and can be found "
 msgstr ""
 
-#: sphinx/ext/todo.py:84
+#: sphinx/ext/todo.py:81
 msgid "here"
 msgstr ""
 
@@ -549,11 +549,12 @@ msgstr ""
 "niewłaściwa."
 
 #: sphinx/templates/search.html:7
+#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
-"    containing less words won't appear in the result list."
+"    containing fewer words won't appear in the result list."
 msgstr ""
 "Stąd możesz przeszukać dokumentację. Wprowadź szukane\n"
 "    słowa w poniższym okienku i kliknij \"Szukaj\". Zwróć uwagę, że\n"
@@ -596,10 +597,4 @@ msgstr "Zmiany w C API"
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "Inne zmiany"
-
-#~ msgid "Global table of contents"
-#~ msgstr "Globalny spis treści"
-
-#~ msgid "Global index"
-#~ msgstr "Globalny indeks"
 

@@ -22,7 +22,7 @@ from docutils.parsers.rst import directives, roles
 import sphinx
 from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
-from sphinx.builder import builtin_builders, StandaloneHTMLBuilder
+from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import desc_directive, target_directive, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
 from sphinx.util.console import bold
@@ -77,7 +77,7 @@ class Sphinx(object):
                  confoverrides, status, warning=sys.stderr, freshenv=False):
         self.next_listener_id = 0
         self._listeners = {}
-        self.builderclasses = builtin_builders.copy()
+        self.builderclasses = BUILTIN_BUILDERS.copy()
         self.builder = None
 
         self.srcdir = srcdir
@@ -125,6 +125,11 @@ class Sphinx(object):
                                                     buildername)))
 
         builderclass = self.builderclasses[buildername]
+        if isinstance(builderclass, tuple):
+            # builtin builder
+            mod, cls = builderclass
+            builderclass = getattr(
+                __import__('sphinx.builders.' + mod, None, None, [cls]), cls)
         self.builder = builderclass(self, freshenv=freshenv)
         self.emit('builder-inited')
 
@@ -220,8 +225,12 @@ class Sphinx(object):
         if not hasattr(builder, 'name'):
             raise ExtensionError('Builder class %s has no "name" attribute' % builder)
         if builder.name in self.builderclasses:
-            raise ExtensionError('Builder %r already exists (in module %s)' % (
-                builder.name, self.builderclasses[builder.name].__module__))
+            if isinstance(self.builderclasses[builder.name], tuple):
+                raise ExtensionError('Builder %r is a builtin builder' %
+                                     builder.name)
+            else:
+                raise ExtensionError('Builder %r already exists (in module %s)' % (
+                    builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild_env):
@@ -243,11 +252,11 @@ class Sphinx(object):
                 raise ExtensionError('Value for key %r must be a (visit, depart) '
                                      'function tuple' % key)
             if key == 'html':
-                from sphinx.htmlwriter import HTMLTranslator as translator
+                from sphinx.writers.html import HTMLTranslator as translator
             elif key == 'latex':
-                from sphinx.latexwriter import LaTeXTranslator as translator
+                from sphinx.writers.latex import LaTeXTranslator as translator
             elif key == 'text':
-                from sphinx.textwriter import TextTranslator as translator
+                from sphinx.writers.text import TextTranslator as translator
             else:
                 # ignore invalid keys for compatibility
                 continue
@@ -284,8 +293,15 @@ class Sphinx(object):
         SphinxStandaloneReader.transforms.append(transform)
 
     def add_javascript(self, filename):
+        from sphinx.builders.html import StandaloneHTMLBuilder
         StandaloneHTMLBuilder.script_files.append(
             posixpath.join('_static', filename))
+
+    def add_lexer(self, alias, lexer):
+        from sphinx.highlighting import lexers
+        if lexers is None:
+            return
+        lexers[alias] = lexer
 
 
 class TemplateBridge(object):

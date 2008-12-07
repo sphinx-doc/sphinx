@@ -12,6 +12,7 @@
 import codecs
 from os import path
 
+from sphinx import package_dir
 from sphinx.util import mtimes_of_files
 from sphinx.application import TemplateBridge
 
@@ -88,7 +89,7 @@ class TranslatorEnvironment(Environment):
 class BuiltinTemplates(TemplateBridge):
     def init(self, builder):
         self.templates = {}
-        base_templates_path = path.join(path.dirname(__file__), 'templates')
+        base_templates_path = path.join(package_dir, 'templates')
         ext_templates_path = [path.join(builder.confdir, dir)
                               for dir in builder.config.templates_path]
         self.templates_path = [base_templates_path] + ext_templates_path

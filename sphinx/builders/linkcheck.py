@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.linkcheck
-    ~~~~~~~~~~~~~~~~
+    sphinx.builders.linkcheck
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The CheckExternalLinksBuilder class.
 
@@ -15,7 +15,7 @@ from urllib2 import build_opener, HTTPError
 
 from docutils import nodes
 
-from sphinx.builder import Builder
+from sphinx.builders import Builder
 from sphinx.util.console import purple, red, darkgreen
 
 # create an opener that will simulate a browser user-agent

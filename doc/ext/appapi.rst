@@ -13,7 +13,7 @@ the following public API:
 .. method:: Sphinx.add_builder(builder)
 
    Register a new builder.  *builder* must be a class that inherits from
-   :class:`~sphinx.builder.Builder`.
+   :class:`~sphinx.builders.Builder`.
 
 .. method:: Sphinx.add_config_value(name, default, rebuild_env)
 
@@ -167,6 +167,13 @@ the following public API:
    :confval:`the docs for the config value <html_static_path>`.
 
    .. versionadded:: 0.5
+
+.. method:: Sphinx.add_lexer(alias, lexer)
+
+   Use *lexer*, which must be an instance of a Pygments lexer class, to
+   highlight code blocks with the given language *alias*.
+
+   .. versionadded:: 0.6
    
 .. method:: Sphinx.connect(event, callback)
 

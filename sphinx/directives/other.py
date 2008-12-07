@@ -205,7 +205,10 @@ def index_directive(name, arguments, options, content, lineno,
             # shorthand notation for single entries
             else:
                 for value in entry.split(','):
-                    ne.append(('single', value.strip(), targetid, value.strip()))
+                    value = value.strip()
+                    if not value:
+                        continue
+                    ne.append(('single', value, targetid, value))
     return [indexnode, targetnode]
 
 index_directive.arguments = (1, 0, 1)
