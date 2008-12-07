@@ -440,6 +440,7 @@ class StandaloneHTMLBuilder(Builder):
             docstitle = self.config.html_title,
             shorttitle = self.config.html_short_title,
             show_sphinx = self.config.html_show_sphinx,
+            has_source = self.config.html_copy_source,
             file_suffix = self.out_suffix,
             script_files = self.script_files,
             sphinx_version = __version__,
