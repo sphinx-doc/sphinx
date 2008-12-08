@@ -9,6 +9,8 @@ Sphinx image handling
 
 .. an image with path name (relative to this directory!)
 .. image:: subdir/img.png
+   :height: 100
+   :width: 200
 
 .. an image with unspecified extension
 .. image:: img.*

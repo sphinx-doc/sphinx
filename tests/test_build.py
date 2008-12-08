@@ -28,7 +28,7 @@ latex_warnfile = StringIO()
 
 ENV_WARNINGS = """\
 WARNING: %(root)s/images.txt:9: Image file not readable: foo.png
-WARNING: %(root)s/images.txt:21: Nonlocal image URI found: http://www.python.org/logo.png
+WARNING: %(root)s/images.txt:23: Nonlocal image URI found: http://www.python.org/logo.png
 WARNING: %(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8' used for reading included \
 file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
 """
