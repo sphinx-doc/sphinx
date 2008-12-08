@@ -750,7 +750,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 include_graphics_options.append('width=%s' % w)
         if attrs.has_key('height'):
             h = self.latex_image_length(attrs['height'])
-            include_graphics_options.append('height=%s' % h)
+            if h:
+                include_graphics_options.append('height=%s' % h)
         if attrs.has_key('align'):
             align_prepost = {
                 # By default latex aligns the top of an image.

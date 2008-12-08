@@ -1,12 +1,15 @@
 Release 0.5.1 (in development)
 ==============================
 
-* Fix a bug when including images in sources in subdirectories.
+* Fix LaTeX writer output for images with specified height.
+
+* Fix wrong generated image path when including images in sources
+  in subdirectories.
 
 * Fix the JavaScript search when html_copy_source is off.
 
-* Fix a bug in autodoc when documenting classes with the option.
-  ``autoclass_content = "both"`` set.
+* Fix an indentation problem in autodoc when documenting classes
+  with the option ``autoclass_content = "both"`` set.
 
 * Don't crash on empty index entries, only emit a warning.
 
