@@ -1,6 +1,8 @@
 Release 0.5.1 (in development)
 ==============================
 
+* Fix a bug when including images in sources in subdirectories.
+
 * Fix the JavaScript search when html_copy_source is off.
 
 * Fix a bug in autodoc when documenting classes with the option.

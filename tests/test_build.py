@@ -51,6 +51,9 @@ HTML_XPATH = {
         ".//img[@src='_images/img1.png']": '',
         ".//img[@src='_images/simg.png']": '',
     },
+    'subdir/images.html': {
+        ".//img[@src='../_images/img1.png']": '',
+    },
     'includes.html': {
         ".//pre/span[@class='s']": u'üöä',
         ".//pre": u'Max Strauß',
