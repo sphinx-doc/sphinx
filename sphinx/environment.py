@@ -625,15 +625,17 @@ class BuildEnvironment:
                 self.warn(docname, 'Nonlocal image URI found: %s' % imguri, node.line)
                 candidates['?'] = imguri
                 continue
+            # imgpath is the image path *from srcdir*
             imgpath = path.normpath(path.join(docdir, imguri))
+            # set imgpath as default URI
             node['uri'] = imgpath
             if imgpath.endswith(os.extsep + '*'):
                 for filename in glob(path.join(self.srcdir, imgpath)):
-                    relname = relative_path(self.srcdir, filename)
+                    new_imgpath = relative_path(self.srcdir, filename)
                     if filename.lower().endswith('.pdf'):
-                        candidates['application/pdf'] = path.join(docdir, relname)
+                        candidates['application/pdf'] = new_imgpath
                     elif filename.lower().endswith('.svg'):
-                        candidates['image/svg+xml'] = path.join(docdir, relname)
+                        candidates['image/svg+xml'] = new_imgpath
                     else:
                         try:
                             f = open(filename, 'rb')
@@ -644,9 +646,11 @@ class BuildEnvironment:
                         except (OSError, IOError):
                             self.warn(docname, 'Image file %s not readable' % filename)
                         if imgtype:
-                            candidates['image/' + imgtype] = path.join(docdir, relname)
+                            candidates['image/' + imgtype] = new_imgpath
             else:
                 candidates['*'] = imgpath
+            # map image paths to unique image names (so that they can be put
+            # into a single directory)
             for imgpath in candidates.itervalues():
                 self.dependencies.setdefault(docname, set()).add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
