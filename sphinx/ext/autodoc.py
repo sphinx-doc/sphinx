@@ -321,6 +321,9 @@ class RstGenerator(object):
                 # ... or from a class directive
                 if mod_cls is None:
                     mod_cls = self.env.currclass
+                # ... if still None, there's no way to know
+                if mod_cls is None:
+                    return fullname, None, [], args, retann
             mod, cls = rpartition(mod_cls, '.')
             # if the module name is still missing, get it like above
             if not mod and hasattr(self.env, 'autodoc_current_module'):

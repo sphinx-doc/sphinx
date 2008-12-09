@@ -1,6 +1,8 @@
 Release 0.5.1 (in development)
 ==============================
 
+* Fix autodoc crash when automethod is used outside a class context.
+
 * Fix LaTeX writer output for images with specified height.
 
 * Fix wrong generated image path when including images in sources
