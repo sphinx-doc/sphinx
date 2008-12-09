@@ -24,6 +24,7 @@ except ImportError:
 from docutils import nodes
 
 from sphinx.util import ensuredir
+from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.application import SphinxError
 from sphinx.ext.mathbase import setup as mathbase_setup, wrap_displaymath
 
@@ -79,7 +80,8 @@ def render_math(self, math):
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
     outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
     if path.isfile(outfn):
-        return relfn, self.builder.env._pngmath_depth.get(shasum, None)
+        depth = read_png_depth(outfn)
+        return relfn, depth
 
     latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
     latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
@@ -158,14 +160,10 @@ def render_math(self, math):
             m = depth_re.match(line)
             if m:
                 depth = int(m.group(1))
-                self.builder.env._pngmath_depth[shasum] = depth
+                write_png_depth(outfn, depth)
                 break
 
     return relfn, depth
-
-def ensure_depthcache(app, env):
-    if not hasattr(env, '_pngmath_depth'):
-        env._pngmath_depth = {}
 
 def cleanup_tempdir(app, exc):
     if exc:
@@ -221,5 +219,4 @@ def setup(app):
     app.add_config_value('pngmath_use_preview', False, False)
     app.add_config_value('pngmath_dvipng_args', ['-gamma 1.5', '-D 110'], False)
     app.add_config_value('pngmath_latex_preamble', '', False)
-    app.connect('env-updated', ensure_depthcache)
     app.connect('build-finished', cleanup_tempdir)
