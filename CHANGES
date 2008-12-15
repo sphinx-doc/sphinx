@@ -1,6 +1,12 @@
 Release 0.5.1 (in development)
 ==============================
 
+* #72: In pngmath, make it possible to give a full path to LaTeX and
+  dvipng on Windows.  For that to work, the ``pngmath_latex`` and
+  ``pngmath_dvipng`` options are no longer split into command and
+  additional arguments; use ``pngmath_latex_args`` and
+  ``pngmath_dvipng_args`` to give additional arguments.
+
 * Don't crash on failing doctests with non-ASCII characters.
 
 * Don't crash on writing status messages and warnings containing

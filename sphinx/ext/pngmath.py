@@ -10,7 +10,6 @@
 """
 
 import re
-import shlex
 import shutil
 import tempfile
 import posixpath
@@ -103,8 +102,10 @@ def render_math(self, math):
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    ltx_args = shlex.split(self.builder.config.pngmath_latex)
-    ltx_args += ['--interaction=nonstopmode', 'math.tex']
+    ltx_args = [self.builder.config.pngmath_latex, '--interaction=nonstopmode']
+    # add custom args from the config file
+    ltx_args.extend(self.builder.config.pngmath_latex_args)
+    ltx_args.append('math.tex')
 
     curdir = getcwd()
     chdir(tempdir)
@@ -131,7 +132,7 @@ def render_math(self, math):
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
-    dvipng_args = shlex.split(self.builder.config.pngmath_dvipng)
+    dvipng_args = [self.builder.config.pngmath_dvipng]
     dvipng_args += ['-o', outfn, '-T', 'tight', '-z9']
     # add custom ones from config value
     dvipng_args.extend(self.builder.config.pngmath_dvipng_args)
@@ -218,5 +219,6 @@ def setup(app):
     app.add_config_value('pngmath_latex', 'latex', False)
     app.add_config_value('pngmath_use_preview', False, False)
     app.add_config_value('pngmath_dvipng_args', ['-gamma 1.5', '-D 110'], False)
+    app.add_config_value('pngmath_latex_args', [], False)
     app.add_config_value('pngmath_latex_preamble', '', False)
     app.connect('build-finished', cleanup_tempdir)

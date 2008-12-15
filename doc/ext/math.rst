@@ -110,9 +110,6 @@ There are various config values you can set to influence how the images are buil
    may need to set this to a full path if ``latex`` not in the executable search
    path.
 
-   This string is split into words with :func:`shlex.split`, so that you can
-   include arguments as well if needed.
-
    Since this setting is not portable from system to system, it is normally not
    useful to set it in ``conf.py``; rather, giving it on the
    :program:`sphinx-build` command line via the :option:`-D` option should be
@@ -120,12 +117,23 @@ There are various config values you can set to influence how the images are buil
 
       sphinx-build -b html -D pngmath_latex=C:\tex\latex.exe . _build/html
 
+   .. versionchanged:: 0.5.1
+      This value should only contain the path to the latex executable, not
+      further arguments; use :confval:`pngmath_latex_args` for that purpose.
+
 .. confval:: pngmath_dvipng
 
    The command name with which to invoke ``dvipng``.  The default is
    ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
    the executable search path.
 
+.. confval:: pngmath_latex_args
+
+   Additional arguments to give to latex, as a list.  The default is an empty
+   list.
+
+   .. versionadded:: 0.5.1
+   
 .. confval:: pngmath_latex_preamble
 
    Additional LaTeX code to put into the preamble of the short LaTeX files that
