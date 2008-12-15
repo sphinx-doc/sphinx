@@ -1,6 +1,9 @@
 Release 0.5.1 (in development)
 ==============================
 
+* #67: Output warnings about failed doctests in the doctest extension
+  even when running in quiet mode.
+
 * #72: In pngmath, make it possible to give a full path to LaTeX and
   dvipng on Windows.  For that to work, the ``pngmath_latex`` and
   ``pngmath_dvipng`` options are no longer split into command and

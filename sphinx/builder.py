@@ -291,12 +291,13 @@ class Builder(object):
 
         # finish (write static files etc.)
         self.finish()
+        status = self.app.statuscode == 0 and 'succeeded' or 'finished with problems'
         if self.app._warncount:
-            self.info(bold('build succeeded, %s warning%s.' %
-                           (self.app._warncount,
+            self.info(bold('build %s, %s warning%s.' %
+                           (status, self.app._warncount,
                             self.app._warncount != 1 and 's' or '')))
         else:
-            self.info(bold('build succeeded.'))
+            self.info(bold('build %s.' % status))
 
     def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None or build_docnames == ['__all__']:
