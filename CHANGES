@@ -1,5 +1,5 @@
-Release 0.5.1 (in development)
-==============================
+Release 0.5.1 (Dec 15, 2008)
+============================
 
 * #67: Output warnings about failed doctests in the doctest extension
   even when running in quiet mode.
