@@ -69,6 +69,7 @@ class Config(object):
         html_use_index = (True, False),
         html_split_index = (False, False),
         html_copy_source = (True, False),
+        html_show_sourcelink = (True, False),
         html_use_opensearch = ('', False),
         html_file_suffix = (None, False),
         html_show_sphinx = (True, False),

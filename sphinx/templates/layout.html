@@ -51,16 +51,10 @@
             <p class="topless"><a href="{{ next.link|e }}" title="{{ _('next chapter') }}">{{ next.title }}</a></p>
           {%- endif %}
           {%- endblock %}
-          {%- if sourcename %}
+          {%- if show_source and has_source %}
             <h3>{{ _('This Page') }}</h3>
             <ul class="this-page-menu">
-            {%- if builder == 'web' %}
-              <li><a href="#comments">Comments ({{ comments|length }} so far)</a></li>
-              <li><a href="{{ pathto('@edit/' + sourcename)|e }}">{{ _('Suggest Change') }}</a></li>
-              <li><a href="{{ pathto('@source/' + sourcename)|e }}">{{ _('Show Source') }}</a></li>
-            {%- elif builder == 'html' %}
               <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}">{{ _('Show Source') }}</a></li>
-            {%- endif %}
             </ul>
           {%- endif %}
           {%- if customsidebar %}
@@ -68,15 +62,13 @@
           {%- endif %}
           {%- block sidebarsearch %}
           {%- if pagename != "search" %}
-          <h3>{% if builder == 'web' %}{{ _('Keyword search')}}{% else %}{{ _('Quick search') }}{% endif %}</h3>
+          <h3>{{ _('Quick search') }}</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
               <input type="text" name="q" size="18" /> <input type="submit" value="{{ _('Go') }}" />
               <input type="hidden" name="check_keywords" value="yes" />
               <input type="hidden" name="area" value="default" />
             </form>
-            {%- if builder == 'web' %}
-            <p style="font-size: 90%">{{ _('Enter a module, class or function name.') }}</p>
-            {%- endif %}
+            <p style="font-size: 90%">{{ _('Enter search terms or a module, class or function name.') }}</p>
           {%- endif %}
           {%- endblock %}
         </div>

@@ -409,6 +409,13 @@ that use Sphinx' HTMLWriter class.
       will only display the titles of matching documents, and no excerpt from
       the matching contents.
 
+.. confval:: html_show_sourcelink
+
+   If true (and :confval:`html_copy_source` is true as well), links to the
+   reST sources will be added to the sidebar.  The default is ``True``.
+
+   .. versionadded:: 0.6
+
 .. confval:: html_use_opensearch
 
    If nonempty, an `OpenSearch <http://opensearch.org>` description file will be

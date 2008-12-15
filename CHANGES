@@ -21,6 +21,9 @@ New features added
     switch off the generated "paragraph sign" permalinks for each
     heading and definition environment.
 
+  - The new ``html_show_sourcelink`` config value can be used to
+    switch off the links to the reST sources in the sidebar.
+
 * New translations:
   
   - Italian by Sandro Dentella.
