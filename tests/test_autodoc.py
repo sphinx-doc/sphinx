@@ -24,6 +24,7 @@ def setup_module():
     app.builder.env.app = app
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
+    app.connect('autodoc-skip-member', skip_member)
 
     options = Struct(
         inherited_members = False,
@@ -69,6 +70,13 @@ def process_signature(app, what, name, obj, options, args, retann):
     processed_signatures.append((what, name))
     if name == 'bar':
         return '42', None
+
+
+def skip_member(app, what, name, obj, skip, options):
+    if name.startswith('_'):
+        return True
+    if name == 'skipmeth':
+        return True
 
 
 def test_resolve_name():
@@ -378,6 +386,10 @@ class Class(Base):
         """Function."""
 
     def undocmeth(self):
+        pass
+
+    def skipmeth(self):
+        """Method that should be skipped."""
         pass
 
     @property

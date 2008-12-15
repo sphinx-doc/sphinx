@@ -4,6 +4,17 @@ Release 0.6 (in development)
 New features added
 ------------------
 
+* Incompatible changes:
+
+  - The ``autodoc_skip_member`` event now also gets to decide
+    whether to skip members whose name starts with underscores.
+    Previously, these members were always automatically skipped.
+    Therefore, if you handle this event, add something like this
+    to your event handler to restore the old behavior::
+
+       if name.startswith('_'):
+           return True
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to

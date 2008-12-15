@@ -525,14 +525,15 @@ class RstGenerator(object):
                     all_members = sorted(todoc.__dict__.iteritems())
         else:
             all_members = [(mname, getattr(todoc, mname)) for mname in members]
-        for (membername, member) in all_members:
-            # ignore members whose name starts with _ by default
-            if _all and membername.startswith('_'):
-                continue
 
-            # ignore undocumented members if :undoc-members: is not given
-            doc = getattr(member, '__doc__', None)
-            skip = not self.options.undoc_members and not doc
+        for (membername, member) in all_members:
+            if _all and membername.startswith('_'):
+                # ignore members whose name starts with _ by default
+                skip = True
+            else:
+                # ignore undocumented members if :undoc-members: is not given
+                doc = getattr(member, '__doc__', None)
+                skip = not self.options.undoc_members and not doc
             # give the user a chance to decide whether this member should be skipped
             if self.env.app:
                 # let extensions preprocess docstrings
