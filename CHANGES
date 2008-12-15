@@ -10,6 +10,10 @@ New features added
     switch off the generated "paragraph sign" permalinks for each
     heading and definition environment.
 
+* New translations:
+  
+  - Italian by Sandro Dentella.
+
 * Extension API:
 
   - There is now a Sphinx.add_lexer() method to add custom Pygments

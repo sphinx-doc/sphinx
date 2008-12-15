@@ -205,6 +205,7 @@ Project information
    * ``en`` -- English
    * ``es`` -- Spanish
    * ``fr`` -- French
+   * ``it`` -- Italian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
