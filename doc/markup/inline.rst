@@ -372,6 +372,6 @@ They are set in the build configuration file.
 
 .. describe:: |today|
 
-   Replaced by either today's date, or the date set in the build configuration
-   file.  Normally has the format ``April 14, 2007``.  Set by
-   :confval:`today_fmt` and :confval:`today`.
+   Replaced by either today's date (the date on which the document is read), or
+   the date set in the build configuration file.  Normally has the format
+   ``April 14, 2007``.  Set by :confval:`today_fmt` and :confval:`today`.

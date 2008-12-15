@@ -118,6 +118,20 @@ doc_fields_without_arg = {
 
 del _
 
+
+def _is_only_paragraph(node):
+    # determine if the node only contains one paragraph (and system messages)
+    if len(node) == 0:
+        return False
+    elif len(node) > 1:
+        for subnode in node[1:]:
+            if not isinstance(subnode, nodes.system_message):
+                return False
+    if isinstance(node[0], nodes.paragraph):
+        return True
+    return False
+
+
 def handle_doc_fields(node, env):
     # don't traverse, only handle field lists that are immediate children
     for child in node.children:
@@ -132,8 +146,7 @@ def handle_doc_fields(node, env):
             try:
                 typ, obj = fname.astext().split(None, 1)
                 typdesc = _(doc_fields_with_arg[typ])
-                if len(fbody.children) == 1 and \
-                   isinstance(fbody.children[0], nodes.paragraph):
+                if _is_only_paragraph(fbody):
                     children = fbody.children[0].children
                 else:
                     children = fbody.children
@@ -154,7 +167,11 @@ def handle_doc_fields(node, env):
                     dlitem += dlpar
                     params += dlitem
                 elif typdesc == '%type':
-                    param_types[obj] = fbody.astext()
+                    typenodes = fbody.children
+                    if _is_only_paragraph(fbody):
+                        typenodes = [nodes.Text(' (')] + \
+                                    typenodes[0].children + [nodes.Text(')')]
+                    param_types[obj] = typenodes
                 else:
                     fieldname = typdesc + ' '
                     nfield = nodes.field()
@@ -183,7 +200,7 @@ def handle_doc_fields(node, env):
                 new_list += field
         for param, type in param_types.iteritems():
             if param in param_nodes:
-                param_nodes[param].insert(1, nodes.Text(' (%s)' % type))
+                param_nodes[param][1:1] = type
         child.replace_self(new_list)
 
 
