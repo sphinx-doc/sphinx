@@ -12,6 +12,8 @@
     :license: BSD.
 """
 
+import warnings
+
 from sphinx.builders import Builder
 from sphinx.builders.text import TextBuilder
 from sphinx.builders.html import StandaloneHTMLBuilder, WebHTMLBuilder, \
@@ -20,3 +22,7 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.builders.changes import ChangesBuilder
 from sphinx.builders.htmlhelp import HTMLHelpBuilder
 from sphinx.builders.linkcheck import CheckExternalLinksBuilder
+
+warnings.warn('The sphinx.builder module is deprecated; please import '
+              'builders from the respective sphinx.builders submodules.',
+              DeprecationWarning)
