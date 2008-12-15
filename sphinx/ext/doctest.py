@@ -184,6 +184,12 @@ Results of doctest builder run on %s
         self.info(text, nonl=True)
         self.outfile.write(text)
 
+    def _warn_out(self, text):
+        self.info(text, nonl=True)
+        if self.app.quiet:
+            self.warn(text)
+        self.outfile.write(text)
+
     def get_target_uri(self, docname, typ=None):
         return ''
 
@@ -204,6 +210,9 @@ Doctest summary
        self.total_failures, s(self.total_failures),
        self.setup_failures, s(self.setup_failures)))
         self.outfile.close()
+
+        if self.total_failures or self.setup_failures:
+            self.app.statuscode = 1
 
         sys.path[0:0] = self.config.doctest_path
 
@@ -287,7 +296,7 @@ Doctest summary
             setup_doctest.globs = ns
             old_f = self.setup_runner.failures
             self.type = 'exec' # the snippet may contain multiple statements
-            self.setup_runner.run(setup_doctest, out=self._out,
+            self.setup_runner.run(setup_doctest, out=self._warn_out,
                                   clear_globs=False)
             if self.setup_runner.failures > old_f:
                 # don't run the group
@@ -297,8 +306,6 @@ Doctest summary
                 test = parser.get_doctest(code[0].code, {},
                                           group.name, filename, code[0].lineno)
                 if not test.examples:
-                    self._out('WARNING: no examples in doctest block at '
-                              + filename + ', line %s\n' % code[0].lineno)
                     continue
                 for example in test.examples:
                     # apply directive's comparison options
@@ -320,7 +327,7 @@ Doctest summary
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
             # also don't clear the globs namespace after running the doctest
-            self.test_runner.run(test, out=self._out, clear_globs=False)
+            self.test_runner.run(test, out=self._warn_out, clear_globs=False)
 
 
 def setup(app):
