@@ -84,16 +84,8 @@
       {%- set titlesuffix = " &mdash; " + docstitle|e %}
     {%- endif %}
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
-    {%- if builder == 'web' %}
-    <link rel="stylesheet" href="{{ pathto('index') }}?do=stylesheet{%
-      if in_admin_panel %}&admin=yes{% endif %}" type="text/css" />
-    {%- for link, type, title in page_links %}
-    <link rel="alternate" type="{{ type|e(true) }}" title="{{ title|e(true) }}" href="{{ link|e(true) }}" />
-    {%- endfor %}
-    {%- else %}
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
-    {%- endif %}
     {%- if builder != 'htmlhelp' %}
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
