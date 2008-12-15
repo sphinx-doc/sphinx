@@ -229,8 +229,12 @@ Doctest summary
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                         and node.has_key('testnodetype')
         for node in doctree.traverse(condition):
-            code = TestCode(node.has_key('test') and node['test'] or node.astext(),
-                            type=node.get('testnodetype', 'doctest'),
+            source = node.has_key('test') and node['test'] or node.astext()
+            if not source:
+                self.warn('no code/output in %s block at %s:%s' %
+                          (node.get('testnodetype', 'doctest'),
+                           self.env.doc2path(docname), node.line))
+            code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
