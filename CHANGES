@@ -31,6 +31,13 @@ New features added
 Release 0.5.1 (in development)
 ==============================
 
+* Don't crash on failing doctests with non-ASCII characters.
+
+* Don't crash on writing status messages and warnings containing
+  unencodable characters.
+
+* Warn if a doctest extension block doesn't contain any code.
+
 * Fix the handling of ``:param:`` and ``:type:`` doc fields when
   they contain markup (especially cross-referencing roles).
 

@@ -149,13 +149,20 @@ class Sphinx(object):
 
     def warn(self, message):
         self._warncount += 1
-        self._warning.write('WARNING: %s\n' % message)
+        try:
+            self._warning.write('WARNING: %s\n' % message)
+        except UnicodeEncodeError:
+            encoding = getattr(self._warning, 'encoding', 'ascii')
+            self._warning.write(('WARNING: %s\n' % message).encode(encoding, 'replace'))
 
     def info(self, message='', nonl=False):
-        if nonl:
+        try:
             self._status.write(message)
-        else:
-            self._status.write(message + '\n')
+        except UnicodeEncodeError:
+            encoding = getattr(self._status, 'encoding', 'ascii')
+            self._status.write(message.encode(encoding, 'replace'))
+        if not nonl:
+            self._status.write('\n')
         self._status.flush()
 
     # general extensibility interface
