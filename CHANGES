@@ -42,8 +42,12 @@ New features added
     be used to give setup code for all doctests in the documentation.
 
 
-Release 0.5.1 (in development)
+Release 0.5.2 (in development)
 ==============================
+
+
+Release 0.5.1 (Dec 15, 2008)
+============================
 
 * #67: Output warnings about failed doctests in the doctest extension
   even when running in quiet mode.
