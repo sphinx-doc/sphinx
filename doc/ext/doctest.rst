@@ -149,6 +149,14 @@ There are also these config values for customizing the doctest extension:
    A list of directories that will be added to :data:`sys.path` when the doctest
    builder is used.  (Make sure it contains absolute paths.)
 
+.. confval:: doctest_global_setup
+
+   Python code that is treated like it were put in a ``testsetup`` directive for
+   *every* file that is tested, and for every group.  You can use this to
+   e.g. import modules you will always need in your doctests.
+
+   .. versionadded:: 0.6
+   
 .. confval:: doctest_test_doctest_blocks
 
    If this is a nonempty string (the default is ``'default'``), standard reST

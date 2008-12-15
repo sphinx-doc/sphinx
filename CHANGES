@@ -16,13 +16,16 @@ New features added
 
 * Extension API:
 
-  - There is now a Sphinx.add_lexer() method to add custom Pygments
-    lexers.
+  - There is now a ``Sphinx.add_lexer()`` method to be able to use
+    custom Pygments lexers easily.
 
 * Other changes:
 
   - Config overrides for single dict keys can now be given on the
     command line.
+
+  - There is now a ``doctest_global_setup`` config value that can
+    be used to give setup code for all doctests in the documentation.
 
 
 Release 0.5.1 (in development)

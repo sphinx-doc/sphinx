@@ -98,9 +98,12 @@ class TestGroup(object):
         self.setup = []
         self.tests = []
 
-    def add_code(self, code):
+    def add_code(self, code, prepend=False):
         if code.type == 'testsetup':
-            self.setup.append(code)
+            if prepend:
+                self.setup.insert(0, code)
+            else:
+                self.setup.append(code)
         elif code.type == 'doctest':
             self.tests.append([code])
         elif code.type == 'testcode':
@@ -243,6 +246,10 @@ Doctest summary
         for code in add_to_all_groups:
             for group in groups.itervalues():
                 group.add_code(code)
+        if self.config.doctest_global_setup:
+            code = TestCode(self.config.doctest_global_setup, 'testsetup', lineno=0)
+            for group in groups.itervalues():
+                group.add_code(code, prepend=True)
         if not groups:
             return
 
@@ -322,3 +329,4 @@ def setup(app):
     # this config value adds to sys.path
     app.add_config_value('doctest_path', [], False)
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
+    app.add_config_value('doctest_global_setup', '', False)
