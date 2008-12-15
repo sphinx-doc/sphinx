@@ -13,6 +13,7 @@
 import re
 import sys
 import time
+import codecs
 import StringIO
 from os import path
 # circumvent relative import
@@ -169,7 +170,8 @@ class DocTestBuilder(Builder):
 
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
-        self.outfile = file(path.join(self.outdir, 'output.txt'), 'w')
+        self.outfile = codecs.open(path.join(self.outdir, 'output.txt'),
+                                   'w', encoding='utf-8')
         self.outfile.write('''\
 Results of doctest builder run on %s
 ==================================%s
