@@ -31,6 +31,7 @@ try:
 except ImportError:
     pygments = None
     lexers = None
+    HtmlFormatter = LatexFormatter = None
 else:
     class SphinxStyle(Style):
         """
@@ -87,7 +88,7 @@ class PygmentsBridge(object):
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', ):
+    def __init__(self, dest='html', stylename='sphinx'):
         self.dest = dest
         if not pygments:
             return
