@@ -48,6 +48,8 @@ New features added
   - There is now a ``doctest_global_setup`` config value that can
     be used to give setup code for all doctests in the documentation.
 
+  - Source links in HTML are now generated with ``rel="nofollow"``.
+
 
 Release 0.5.2 (in development)
 ==============================
