@@ -51,12 +51,14 @@
             <p class="topless"><a href="{{ next.link|e }}" title="{{ _('next chapter') }}">{{ next.title }}</a></p>
           {%- endif %}
           {%- endblock %}
+          {%- block sidebarsourcelink %}
           {%- if show_source and has_source %}
             <h3>{{ _('This Page') }}</h3>
             <ul class="this-page-menu">
               <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}">{{ _('Show Source') }}</a></li>
             </ul>
           {%- endif %}
+          {%- endblock %}
           {%- if customsidebar %}
           {{ rendertemplate(customsidebar) }}
           {%- endif %}
