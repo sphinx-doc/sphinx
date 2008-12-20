@@ -85,6 +85,18 @@ tables of contents.  The ``toctree`` directive is the central element.
    This includes first all documents whose names start with ``intro``, then all
    documents in the ``recipe`` folder, then all remaining documents (except the
    one containing the directive, of course.) [#]_
+
+   You can also give a "hidden" option to the directive, like this::
+
+      .. toctree::
+         :hidden:
+
+         doc_1
+         doc_2
+
+   This will still notify Sphinx of the document hierarchy, but not insert links
+   into the document at the location of the directive -- this makes sense if you
+   intend to insert these links yourself, in a different style.
           
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
@@ -99,6 +111,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    .. versionchanged:: 0.3
       Added "globbing" option.
+
+   .. versionchanged:: 0.6
+      Added "hidden" option.
 
 
 Special names

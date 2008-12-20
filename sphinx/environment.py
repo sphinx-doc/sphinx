@@ -902,6 +902,8 @@ class BuildEnvironment:
         If *titles_only* is True, only toplevel document titles will be in the
         resulting tree.
         """
+        if toctree.get('hidden', False):
+            return None
 
         def _walk_depth(node, depth, maxdepth, titleoverrides):
             """Utility: Cut a TOC at a specified depth."""
