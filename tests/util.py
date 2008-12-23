@@ -19,7 +19,7 @@ except ImportError:
     # functools is new in 2.4
     wraps = lambda f: (lambda w: w)
 
-from sphinx import application, builder
+from sphinx import application
 
 from path import path
 

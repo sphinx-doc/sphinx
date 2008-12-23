@@ -29,7 +29,6 @@ def toctree_directive(name, arguments, options, content, lineno,
     glob = 'glob' in options
 
     ret = []
-    subnode = addnodes.toctree()
     includefiles = []
     includetitles = {}
     all_docnames = env.found_docs.copy()
@@ -66,15 +65,18 @@ def toctree_directive(name, arguments, options, content, lineno,
                 ret.append(state.document.reporter.warning(
                     'toctree glob pattern %r didn\'t match any documents' % entry,
                     line=lineno))
+    subnode = addnodes.toctree()
     subnode['includefiles'] = includefiles
     subnode['includetitles'] = includetitles
     subnode['maxdepth'] = options.get('maxdepth', -1)
     subnode['glob'] = glob
+    subnode['hidden'] = 'hidden' in options
     ret.append(subnode)
     return ret
 
 toctree_directive.content = 1
-toctree_directive.options = {'maxdepth': int, 'glob': directives.flag}
+toctree_directive.options = {'maxdepth': int, 'glob': directives.flag,
+                             'hidden': directives.flag}
 directives.register_directive('toctree', toctree_directive)
 
 

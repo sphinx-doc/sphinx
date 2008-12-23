@@ -12,7 +12,8 @@
 from util import *
 
 from sphinx.environment import BuildEnvironment
-from sphinx.builder import StandaloneHTMLBuilder, LaTeXBuilder
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.latex import LaTeXBuilder
 
 app = env = None
 warnings = []

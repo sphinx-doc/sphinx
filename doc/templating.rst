@@ -135,6 +135,10 @@ The following blocks exist in the ``layout`` template:
 `sidebarrel`
     The relation links (previous, next document) within the sidebar.
 
+`sidebarsourcelink`
+    The "Show source" link within the sidebar (normally only shown if this is
+    enabled by :confval:`html_show_sourcelink`).
+
 `sidebarsearch`
     The search box within the sidebar.  Override this if you want to place some
     content at the bottom of the sidebar.

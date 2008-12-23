@@ -15,6 +15,13 @@ New features added
        if name.startswith('_'):
            return True
 
+* Markup:
+
+  - The ``toctree`` directive now supports a ``:hidden:`` flag,
+    which will prevent links from being generated in place of
+    the directive -- this allows you to define your document
+    structure, but place the links yourself.
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to
@@ -28,7 +35,9 @@ New features added
   
   - Italian by Sandro Dentella.
 
-* Extension API:
+* Extensions and API:
+
+  - Autodoc now handles inner classes and their methods.
 
   - There is now a ``Sphinx.add_lexer()`` method to be able to use
     custom Pygments lexers easily.
@@ -40,6 +49,8 @@ New features added
 
   - There is now a ``doctest_global_setup`` config value that can
     be used to give setup code for all doctests in the documentation.
+
+  - Source links in HTML are now generated with ``rel="nofollow"``.
 
 
 Release 0.5.2 (in development)
