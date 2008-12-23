@@ -19,7 +19,8 @@ from subprocess import Popen, PIPE
 from util import *
 from etree13 import ElementTree as ET
 
-from sphinx.builder import StandaloneHTMLBuilder, LaTeXBuilder
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.latex import LaTeXBuilder
 from sphinx.writers.latex import LaTeXTranslator
 
 
