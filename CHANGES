@@ -35,7 +35,9 @@ New features added
   
   - Italian by Sandro Dentella.
 
-* Extension API:
+* Extensions and API:
+
+  - Autodoc now handles inner classes and their methods.
 
   - There is now a ``Sphinx.add_lexer()`` method to be able to use
     custom Pygments lexers easily.

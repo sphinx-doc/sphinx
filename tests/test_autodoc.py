@@ -82,41 +82,41 @@ def skip_member(app, what, name, obj, skip, options):
 def test_resolve_name():
     # for modules
     assert gen.resolve_name('module', 'test_autodoc') == \
-           ('test_autodoc', 'test_autodoc', [], None, None)
+           ('test_autodoc', [], None, None)
     assert gen.resolve_name('module', 'test.test_autodoc') == \
-           ('test.test_autodoc', 'test.test_autodoc', [], None, None)
+           ('test.test_autodoc', [], None, None)
 
     assert gen.resolve_name('module', 'test(arg)') == \
-           ('test', 'test', [], None, None)
+           ('test', [], None, None)
     assert 'ignoring signature arguments' in gen.warnings[0]
     del gen.warnings[:]
 
     # for functions/classes
     assert gen.resolve_name('function', 'util.raises') == \
-           ('util.raises', 'util', ['raises'], None, None)
+           ('util', ['raises'], None, None)
     assert gen.resolve_name('function', 'util.raises(exc) -> None') == \
-           ('util.raises', 'util', ['raises'], 'exc', ' -> None')
+           ('util', ['raises'], 'exc', ' -> None')
     gen.env.autodoc_current_module = 'util'
     assert gen.resolve_name('function', 'raises') == \
-           ('raises', 'util', ['raises'], None, None)
+           ('util', ['raises'], None, None)
     gen.env.autodoc_current_module = None
     gen.env.currmodule = 'util'
     assert gen.resolve_name('function', 'raises') == \
-           ('raises', 'util', ['raises'], None, None)
+           ('util', ['raises'], None, None)
     assert gen.resolve_name('class', 'TestApp') == \
-           ('TestApp', 'util', ['TestApp'], None, None)
+           ('util', ['TestApp'], None, None)
 
     # for members
     gen.env.currmodule = 'foo'
     assert gen.resolve_name('method', 'util.TestApp.cleanup') == \
-           ('util.TestApp.cleanup', 'util', ['TestApp', 'cleanup'], None, None)
+           ('util', ['TestApp', 'cleanup'], None, None)
     gen.env.currmodule = 'util'
     gen.env.currclass = 'Foo'
     gen.env.autodoc_current_class = 'TestApp'
     assert gen.resolve_name('method', 'cleanup') == \
-           ('cleanup', 'util', ['TestApp', 'cleanup'], None, None)
+           ('util', ['TestApp', 'cleanup'], None, None)
     assert gen.resolve_name('method', 'TestApp.cleanup') == \
-           ('TestApp.cleanup', 'util', ['TestApp', 'cleanup'], None, None)
+           ('util', ['TestApp', 'cleanup'], None, None)
 
     # and clean up
     gen.env.currmodule = None
@@ -321,17 +321,17 @@ def test_generate():
     assert_works('exception', 'test_autodoc.CustomEx', [], None)
 
     # test diverse inclusion settings for members
-    should = [('class', 'Class')]
+    should = [('class', 'test_autodoc.Class')]
     assert_processes(should, 'class', 'Class', [], None)
-    should.extend([('method', 'Class.meth')])
+    should.extend([('method', 'test_autodoc.Class.meth')])
     assert_processes(should, 'class', 'Class', ['meth'], None)
-    should.extend([('attribute', 'Class.prop')])
+    should.extend([('attribute', 'test_autodoc.Class.prop')])
     assert_processes(should, 'class', 'Class', ['__all__'], None)
     options.undoc_members = True
-    should.append(('method', 'Class.undocmeth'))
+    should.append(('method', 'test_autodoc.Class.undocmeth'))
     assert_processes(should, 'class', 'Class', ['__all__'], None)
     options.inherited_members = True
-    should.append(('method', 'Class.inheritedmeth'))
+    should.append(('method', 'test_autodoc.Class.inheritedmeth'))
     assert_processes(should, 'class', 'Class', ['__all__'], None)
 
     # test module flags
@@ -362,6 +362,12 @@ def test_generate():
     # okay, now let's get serious about mixing Python and C signature stuff
     assert_result_contains('.. class:: CustomDict', 'class', 'CustomDict',
                            ['__all__'], None)
+
+    # test inner class handling
+    assert_processes([('class', 'test_autodoc.Outer'),
+                      ('class', 'test_autodoc.Outer.Inner'),
+                      ('method', 'test_autodoc.Outer.Inner.meth')],
+                     'class', 'Outer', ['__all__'], None)
 
 
 # --- generate fodder ------------
@@ -404,3 +410,13 @@ def function(foo, *args, **kwds):
     Return spam.
     """
     pass
+
+
+class Outer(object):
+    """Foo"""
+
+    class Inner(object):
+        """Foo"""
+
+        def meth(self):
+            """Foo"""
