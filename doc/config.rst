@@ -432,6 +432,14 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 0.4
 
+.. confval:: html_link_suffix
+
+   Suffix for generated links to HTML files.  The default is whatever
+   :confval:`html_file_suffix` is set to; it can be set differently (e.g. to
+   support different web server setups).
+
+   .. versionadded:: 0.6
+   
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a

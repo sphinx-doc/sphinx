@@ -31,6 +31,9 @@ New features added
   - The new ``html_show_sourcelink`` config value can be used to
     switch off the links to the reST sources in the sidebar.
 
+  - The new ``html_link_suffix`` config value can be used to select
+    the suffix of generated links between HTML files.
+
 * New translations:
   
   - Italian by Sandro Dentella.

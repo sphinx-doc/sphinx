@@ -49,6 +49,7 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     copysource = True
     out_suffix = '.html'
+    link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
@@ -64,6 +65,11 @@ class StandaloneHTMLBuilder(Builder):
         self.init_translator_class()
         if self.config.html_file_suffix:
             self.out_suffix = self.config.html_file_suffix
+
+        if self.config.html_link_suffix is not None:
+            self.link_suffix = self.config.html_link_suffix
+        else:
+            self.link_suffix = self.out_suffix
 
         if self.config.language is not None:
             jsfile = path.join(package_dir, 'locale', self.config.language,
@@ -435,7 +441,7 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
-        return docname + self.out_suffix
+        return docname + self.link_suffix
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):

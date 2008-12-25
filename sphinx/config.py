@@ -72,6 +72,7 @@ class Config(object):
         html_show_sourcelink = (True, False),
         html_use_opensearch = ('', False),
         html_file_suffix = (None, False),
+        html_link_suffix = (None, False),
         html_show_sphinx = (True, False),
         html_context = ({}, False),
 
