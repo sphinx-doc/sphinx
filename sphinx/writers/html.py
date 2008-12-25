@@ -90,6 +90,11 @@ class HTMLTranslator(BaseTranslator):
     def depart_desc_type(self, node):
         pass
 
+    def visit_desc_returns(self, node):
+        self.body.append(' &rarr; ')
+    def depart_desc_returns(self, node):
+        pass
+
     def visit_desc_name(self, node):
         self.body.append(self.starttag(node, 'tt', '', CLASS='descname'))
     def depart_desc_name(self, node):

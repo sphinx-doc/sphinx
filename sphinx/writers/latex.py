@@ -112,7 +112,8 @@ class Table(object):
 class Desc(object):
     def __init__(self, node):
         self.env = LaTeXTranslator.desc_map.get(node['desctype'], 'describe')
-        self.type = self.cls = self.name = self.params = self.annotation = ''
+        self.type = self.cls = self.name = self.params = \
+                    self.annotation = self.returns = ''
         self.count = 0
 
 
@@ -475,6 +476,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             d.name += self.encode(node.astext())
         else:
             self.descstack[-1].type = self.encode(node.astext().strip())
+        raise nodes.SkipNode
+
+    def visit_desc_returns(self, node):
+        d = self.descstack[-1]
+        if d.env == 'describe':
+            d.name += ' $\\rightarrow$ ' + self.encode(node.astext())
+        else:
+            self.descstack[-1].returns = self.encode(node.astext().strip())
         raise nodes.SkipNode
 
     def visit_desc_name(self, node):

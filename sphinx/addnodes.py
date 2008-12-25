@@ -23,8 +23,12 @@ class desc(nodes.Admonition, nodes.Element): pass
 class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement): pass
 # compatibility alias
 desc_classname = desc_addname
-# return type (C); object type, e.g. -> annotation (Python)
+# return type (C); object type
 class desc_type(nodes.Part, nodes.Inline, nodes.TextElement): pass
+# -> annotation (Python)
+class desc_returns(desc_type):
+    def astext(self):
+        return ' -> ' + nodes.TextElement.astext(self)
 # main name of object
 class desc_name(nodes.Part, nodes.Inline, nodes.TextElement): pass
 # argument list
@@ -90,7 +94,8 @@ class meta(nodes.Special, nodes.PreBibliographic, nodes.Element): pass
 
 # make them known to docutils. this is needed, because the HTML writer
 # will choke at some point if these are not added
-nodes._add_node_class_names("""index desc desc_content desc_signature desc_type
+nodes._add_node_class_names("""index desc desc_content desc_signature
+      desc_type desc_returns
       desc_addname desc_name desc_parameterlist desc_parameter desc_optional
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis

@@ -209,8 +209,9 @@ def handle_doc_fields(node, env):
 py_sig_re = re.compile(
     r'''^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional arguments
-          (\s* -> \s* .*)? )? $  # optional return annotation
+          (?: \((.*)\)           # optional: arguments
+           (?:\s* -> \s* (.*))?  #           return annotation
+          )? $                   # and nothing more
           ''', re.VERBOSE)
 
 py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
@@ -228,9 +229,6 @@ def parse_py_signature(signode, sig, desctype, module, env):
     if m is None:
         raise ValueError
     classname, name, arglist, retann = m.groups()
-
-    if retann:
-        retann = u' \N{RIGHTWARDS ARROW} ' + retann.strip()[2:]
 
     if env.currclass:
         add_module = False
@@ -267,7 +265,7 @@ def parse_py_signature(signode, sig, desctype, module, env):
             # for callables, add an empty parameter list
             signode += addnodes.desc_parameterlist()
         if retann:
-            signode += addnodes.desc_type(retann, retann)
+            signode += addnodes.desc_returns(retann, retann)
         return fullname, classname
     signode += addnodes.desc_parameterlist()
 
@@ -290,7 +288,7 @@ def parse_py_signature(signode, sig, desctype, module, env):
     if len(stack) != 1:
         raise ValueError
     if retann:
-        signode += addnodes.desc_type(retann, retann)
+        signode += addnodes.desc_returns(retann, retann)
     return fullname, classname
 
 

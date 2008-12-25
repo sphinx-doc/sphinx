@@ -36,8 +36,9 @@ py_ext_sig_re = re.compile(
     r'''^ ([\w.]+::)?            # explicit module name
           ([\w.]+\.)?            # module and/or class name(s)
           (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional arguments
-          (\s* -> \s* .*)? )? $  # optional return annotation
+          (?: \((.*)\)           # optional: arguments
+           (?:\s* -> \s* (.*))?  #           return annotation
+          )? $                   # and nothing more
           ''', re.VERBOSE)
 
 
@@ -391,7 +392,7 @@ class RstGenerator(object):
             args, retann = result
 
         if args is not None:
-            return '%s%s' % (args, retann or '')
+            return '%s%s' % (args, retann and (' -> %s' % retann) or '')
         elif err:
             # re-raise the error for perusal of the handler in generate()
             raise RuntimeError(err)

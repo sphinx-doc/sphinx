@@ -195,6 +195,11 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_desc_type(self, node):
         pass
 
+    def visit_desc_returns(self, node):
+        self.add_text(' -> ')
+    def depart_desc_returns(self, node):
+        pass
+
     def visit_desc_parameterlist(self, node):
         self.add_text('(')
         self.first_param = 1
