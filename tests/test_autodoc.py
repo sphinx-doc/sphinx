@@ -420,3 +420,5 @@ class Outer(object):
 
         def meth(self):
             """Foo"""
+
+    factory = dict

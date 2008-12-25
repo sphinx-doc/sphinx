@@ -13,10 +13,9 @@
 
 import re
 import sys
-import types
 import inspect
 import linecache
-from types import FunctionType, BuiltinMethodType, MethodType
+from types import FunctionType, BuiltinFunctionType, MethodType, ClassType
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -24,6 +23,7 @@ from docutils.statemachine import ViewList
 
 from sphinx.util import rpartition, nested_parse_with_titles
 
+clstypes = (type, ClassType)
 try:
     base_exception = BaseException
 except NameError:
@@ -49,7 +49,7 @@ def is_static_method(obj):
     """Check if the object given is a static method."""
     if isinstance(obj, (FunctionType, classmethod)):
         return True
-    elif isinstance(obj, BuiltinMethodType):
+    elif isinstance(obj, BuiltinFunctionType):
         return obj.__self__ is not None
     elif isinstance(obj, MethodType):
         return obj.im_self is not None
@@ -398,7 +398,8 @@ class RstGenerator(object):
         else:
             return ''
 
-    def generate(self, what, name, members, add_content, indent=u'', check_module=False):
+    def generate(self, what, name, members, add_content, indent=u'', check_module=False,
+                 no_docstring=False):
         """
         Generate reST for the object in self.result.
         """
@@ -495,8 +496,9 @@ class RstGenerator(object):
             sourcename = 'docstring of %s' % fullname
 
         # add content from docstrings
-        for i, line in enumerate(self.get_doc(what, fullname, todoc)):
-            self.result.append(indent + line, sourcename, i)
+        if not no_docstring:
+            for i, line in enumerate(self.get_doc(what, fullname, todoc)):
+                self.result.append(indent + line, sourcename, i)
 
         # add source content, if present
         if add_content:
@@ -504,7 +506,7 @@ class RstGenerator(object):
                 self.result.append(indent + line, src[0], src[1])
 
         # document members?
-        if not members or what in ('function', 'method', 'attribute'):
+        if not members or what in ('function', 'method', 'data', 'attribute'):
             return
 
         # set current namespace for finding members
@@ -562,12 +564,17 @@ class RstGenerator(object):
             if skip:
                 continue
 
+            content = None
             if what == 'module':
-                if isinstance(member, (types.FunctionType,
-                                       types.BuiltinFunctionType)):
+                if isinstance(member, (FunctionType, BuiltinFunctionType)):
                     memberwhat = 'function'
-                elif isinstance(member, (types.ClassType, type)):
-                    if issubclass(member, base_exception):
+                elif isinstance(member, clstypes):
+                    if member.__name__ != membername:
+                        # assume it's aliased
+                        memberwhat = 'data'
+                        content = ViewList([_('alias of :class:`%s`') % member.__name__],
+                                           source='')
+                    elif issubclass(member, base_exception):
                         memberwhat = 'exception'
                     else:
                         memberwhat = 'class'
@@ -575,8 +582,14 @@ class RstGenerator(object):
                     # XXX: todo -- attribute docs
                     continue
             else:
-                if isinstance(member, (types.ClassType, type)):
-                    memberwhat = 'class'
+                if isinstance(member, clstypes):
+                    if member.__name__ != membername:
+                        # assume it's aliased
+                        memberwhat = 'attribute'
+                        content = ViewList([_('alias of :class:`%s`') % member.__name__],
+                                           source='')
+                    else:
+                        memberwhat = 'class'
                 elif callable(member):
                     memberwhat = 'method'
                 elif isdescriptor(member):
@@ -587,8 +600,9 @@ class RstGenerator(object):
             # give explicitly separated module name, so that members of inner classes
             # can be documented
             full_membername = mod + '::' + '.'.join(objpath + [membername])
-            self.generate(memberwhat, full_membername, ['__all__'], None, indent,
-                          check_module=members_check_module)
+            self.generate(memberwhat, full_membername, ['__all__'],
+                          add_content=content, no_docstring=bool(content),
+                          indent=indent, check_module=members_check_module)
 
         self.env.autodoc_current_module = None
         self.env.autodoc_current_class = None
@@ -663,6 +677,8 @@ def setup(app):
                       1, (1, 0, 1), **cls_options)
     app.add_directive('autoexception', autoclass_directive,
                       1, (1, 0, 1), **cls_options)
+    app.add_directive('autodata', auto_directive, 1, (1, 0, 1),
+                      noindex=directives.flag)
     app.add_directive('autofunction', auto_directive, 1, (1, 0, 1),
                       noindex=directives.flag)
     app.add_directive('automethod', auto_directive, 1, (1, 0, 1),
