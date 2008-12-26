@@ -20,7 +20,7 @@ Writing new builders
    .. automethod:: build_update
    .. automethod:: build
 
-   These methods must be overridden in concrete builder classes:
+   These methods can be overridden in concrete builder classes:
 
    .. automethod:: init
    .. automethod:: get_outdated_docs
@@ -28,3 +28,7 @@ Writing new builders
    .. automethod:: prepare_writing
    .. automethod:: write_doc
    .. automethod:: finish
+
+   Useful helpers:
+
+   .. automethod:: init_templates

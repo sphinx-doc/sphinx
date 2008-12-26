@@ -64,11 +64,18 @@ class Builder(object):
     # helper methods
 
     def init(self):
-        """Load necessary templates and perform initialization."""
+        """
+        Load necessary templates and perform initialization.  The default
+        implementation does nothing.
+        """
         pass
 
     def init_templates(self):
-        # Call this from init() if you need templates.
+        """
+        Initialize the template system.
+
+        Call this method from init() if you need templates in your builder.
+        """
         if self.config.template_bridge:
             self.templates = self.app.import_object(
                 self.config.template_bridge, 'template_bridge setting')()
@@ -79,7 +86,7 @@ class Builder(object):
 
     def get_target_uri(self, docname, typ=None):
         """
-        Return the target URI for a document name (typ can be used to qualify
+        Return the target URI for a document name (*typ* can be used to qualify
         the link characteristic for individual builders).
         """
         raise NotImplementedError
@@ -96,6 +103,10 @@ class Builder(object):
         """
         Return an iterable of output files that are outdated, or a string describing
         what an update build will build.
+
+        If the builder does not output individual files corresponding to source files,
+        return a string here.  If it does, return an iterable of those files that need
+        to be written.
         """
         raise NotImplementedError
 
@@ -197,7 +208,7 @@ class Builder(object):
         self.build(None, summary='all source files', method='all')
 
     def build_specific(self, filenames):
-        """Only rebuild as much as needed for changes in the source_filenames."""
+        """Only rebuild as much as needed for changes in the *filenames*."""
         # bring the filenames to the canonical format, that is,
         # relative to the source directory and without source_suffix.
         dirlen = len(self.srcdir) + 1
@@ -214,7 +225,7 @@ class Builder(object):
                    'line' % len(to_write))
 
     def build_update(self):
-        """Only rebuild files changed or added since last build."""
+        """Only rebuild what was changed or added since last build."""
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
             self.build(['__all__'], to_build)
@@ -225,6 +236,10 @@ class Builder(object):
                        'out of date' % len(to_build))
 
     def build(self, docnames, summary=None, method='update'):
+        """
+        Main build method.  This first updates the environment, and then calls
+        :meth:`write`.
+        """
         if summary:
             self.info(bold('building [%s]: ' % self.name), nonl=1)
             self.info(summary)
@@ -313,7 +328,10 @@ class Builder(object):
         raise NotImplementedError
 
     def finish(self):
-        raise NotImplementedError
+        """
+        Finish the building process.  The default implementation does nothing.
+        """
+        pass
 
 
 BUILTIN_BUILDERS = {
