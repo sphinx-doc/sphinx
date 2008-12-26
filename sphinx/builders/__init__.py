@@ -65,7 +65,7 @@ class Builder(object):
 
     def init(self):
         """Load necessary templates and perform initialization."""
-        raise NotImplementedError
+        pass
 
     def init_templates(self):
         # Call this from init() if you need templates.
