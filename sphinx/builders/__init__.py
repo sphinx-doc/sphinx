@@ -237,8 +237,7 @@ class Builder(object):
 
     def build(self, docnames, summary=None, method='update'):
         """
-        Main build method.  This first updates the environment, and then calls
-        :meth:`write`.
+        Main build method.  First updates the environment, and then calls :meth:`write`.
         """
         if summary:
             self.info(bold('building [%s]: ' % self.name), nonl=1)
@@ -275,8 +274,7 @@ class Builder(object):
                 self.info(bold('no targets are out of date.'))
                 return
 
-        # another indirection to support methods which don't build files
-        # individually
+        # another indirection to support builders that don't build files individually
         self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
