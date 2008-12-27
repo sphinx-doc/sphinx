@@ -25,4 +25,4 @@ from sphinx.builders.linkcheck import CheckExternalLinksBuilder
 
 warnings.warn('The sphinx.builder module is deprecated; please import '
               'builders from the respective sphinx.builders submodules.',
-              DeprecationWarning)
+              DeprecationWarning, stacklevel=2)
