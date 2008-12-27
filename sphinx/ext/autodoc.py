@@ -8,7 +8,7 @@
     for those who like elaborate docstrings.
 
     :copyright: 2008 by Georg Brandl, Pauli Virtanen, Martin Hans.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

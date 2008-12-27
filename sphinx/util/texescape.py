@@ -6,7 +6,7 @@
     TeX escaping helper.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 tex_replacements = [

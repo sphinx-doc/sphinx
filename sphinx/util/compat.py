@@ -6,7 +6,7 @@
     Stuff for docutils compatibility.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes

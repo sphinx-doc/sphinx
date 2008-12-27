@@ -6,7 +6,7 @@
     Test locale features.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from util import *

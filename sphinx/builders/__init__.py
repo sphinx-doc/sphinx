@@ -6,7 +6,7 @@
     Builder superclass for all builders.
 
     :copyright: 2007-2008 by Georg Brandl, Sebastian Wiesner, Horst Gutmann.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import os

@@ -6,5 +6,5 @@
     Contains Sphinx features not activated by default.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """

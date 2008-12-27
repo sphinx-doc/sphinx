@@ -6,7 +6,7 @@
     The Sphinx documentation toolchain.
 
     :copyright: 2007-2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys

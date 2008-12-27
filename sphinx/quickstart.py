@@ -6,7 +6,7 @@
     Quickly setup documentation source to work with Sphinx.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys, os, time

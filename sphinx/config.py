@@ -6,7 +6,7 @@
     Build configuration file handling.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD license.
+    :license: BSD, see LICENSE for details license.
 """
 
 import os

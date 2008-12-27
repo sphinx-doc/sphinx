@@ -7,7 +7,7 @@
     directives are tested in a test source file translated by test_build.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from util import *

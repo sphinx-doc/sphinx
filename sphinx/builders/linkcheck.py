@@ -6,7 +6,7 @@
     The CheckExternalLinksBuilder class.
 
     :copyright: 2008 by Georg Brandl, Thomas Lamb.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import socket

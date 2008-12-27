@@ -6,7 +6,7 @@
     Several HTML builders.
 
     :copyright: 2007-2008 by Georg Brandl, Armin Ronacher.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import os

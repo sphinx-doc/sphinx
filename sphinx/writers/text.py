@@ -6,7 +6,7 @@
     Custom docutils writer for plain text.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

@@ -6,7 +6,7 @@
     Handlers for additional ReST directives.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from sphinx.directives.desc import *

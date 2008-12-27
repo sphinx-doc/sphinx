@@ -6,7 +6,7 @@
     Test the Sphinx class.
 
     :copyright: 2008 by Benjamin Peterson.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from StringIO import StringIO

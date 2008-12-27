@@ -7,7 +7,7 @@
     Uses the basestring encode function from simplejson.
 
     :copyright: 2008 by Armin Ronacher, Bob Ippolito, Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

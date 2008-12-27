@@ -7,7 +7,7 @@
     Dzolonga for the Google Highly Open Participation contest.
 
     :copyright: 2008 by Josip Dzolonga, Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

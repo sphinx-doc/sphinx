@@ -9,7 +9,7 @@
     docutils sandbox.
 
     :copyright: 2007-2008 by Georg Brandl, Dave Kuhlman.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

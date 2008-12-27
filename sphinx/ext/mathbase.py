@@ -6,7 +6,7 @@
     Set up math support in source files and LaTeX/text output.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes, utils

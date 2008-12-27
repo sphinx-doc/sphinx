@@ -6,7 +6,7 @@
     Create a search index for offline search.
 
     :copyright: 2007-2008 by Armin Ronacher.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 import re
 import cPickle as pickle

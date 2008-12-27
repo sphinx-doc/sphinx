@@ -6,7 +6,7 @@
     Test various Sphinx-specific markup extensions.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

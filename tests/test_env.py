@@ -6,7 +6,7 @@
     Test the BuildEnvironment class.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from util import *

@@ -9,7 +9,7 @@
     original location.
 
     :copyright: 2008 Daniel Bültmann.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes

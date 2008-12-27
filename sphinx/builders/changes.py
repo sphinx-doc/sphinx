@@ -6,7 +6,7 @@
     Changelog builder.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import codecs

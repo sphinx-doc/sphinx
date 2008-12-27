@@ -9,7 +9,7 @@
        import these classes directly from the sphinx.builders package.
 
     :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :license: BSD, see LICENSE for details.
 """
 
 import warnings
