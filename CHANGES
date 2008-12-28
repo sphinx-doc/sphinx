@@ -26,6 +26,9 @@ New features added
     the directive -- this allows you to define your document
     structure, but place the links yourself.
 
+  - #77: If a description environment with info field list only
+    contains one ``:param:`` entry, no bullet list is generated.
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to

@@ -137,7 +137,8 @@ def handle_doc_fields(node, env):
     for child in node.children:
         if not isinstance(child, nodes.field_list):
             continue
-        params = None
+        params = []
+        pfield = None
         param_nodes = {}
         param_types = {}
         new_list = nodes.field_list()
@@ -152,11 +153,8 @@ def handle_doc_fields(node, env):
                     children = fbody.children
                 if typdesc == '%param':
                     if not params:
+                        # add the field that later gets all the parameters
                         pfield = nodes.field()
-                        pfield += nodes.field_name('', _('Parameters'))
-                        pfield += nodes.field_body()
-                        params = nodes.bullet_list()
-                        pfield[1] += params
                         new_list += pfield
                     dlitem = nodes.list_item()
                     dlpar = nodes.paragraph()
@@ -165,7 +163,7 @@ def handle_doc_fields(node, env):
                     dlpar += children
                     param_nodes[obj] = dlpar
                     dlitem += dlpar
-                    params += dlitem
+                    params.append(dlitem)
                 elif typdesc == '%type':
                     typenodes = fbody.children
                     if _is_only_paragraph(fbody):
@@ -198,6 +196,17 @@ def handle_doc_fields(node, env):
                     typ = fnametext.capitalize()
                 fname[0] = nodes.Text(typ)
                 new_list += field
+        if params:
+            if len(params) == 1:
+                pfield += nodes.field_name('', _('Parameter'))
+                pfield += nodes.field_body()
+                pfield[1] += params[0][0]
+            else:
+                pfield += nodes.field_name('', _('Parameters'))
+                pfield += nodes.field_body()
+                pfield[1] += nodes.bullet_list()
+                pfield[1][0].extend(params)
+
         for param, type in param_types.iteritems():
             if param in param_nodes:
                 param_nodes[param][1:1] = type
