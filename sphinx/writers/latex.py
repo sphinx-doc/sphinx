@@ -238,6 +238,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # ... and all others are the appendices
             self.body.append('\n\\appendix\n')
             self.first_document = -1
+        if 'docname' in node:
+            self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
     def depart_document(self, node):
@@ -260,6 +262,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\\resetcurrentobjects\n')
         # and also, new footnotes
         self.footnotestack.append(self.collect_footnotes(node))
+        # also add a document target
+        self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
 
     def collect_footnotes(self, node):
         fnotes = {}
@@ -931,6 +935,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('}')
         elif uri.startswith('#'):
             self.body.append('\\hyperlink{%s}{' % uri[1:])
+            self.context.append('}')
+        elif uri.startswith('%'):
+            hashindex = uri.find('#')
+            targetname = (hashindex == -1) and '--doc-' + uri[1:] or uri[hashindex+1:]
+            self.body.append('\\hyperlink{%s}{' % targetname)
             self.context.append('}')
         elif uri.startswith('@token'):
             if self.in_production_list:

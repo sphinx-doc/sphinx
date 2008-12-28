@@ -235,6 +235,7 @@ specific_docroles = {
     'token': xfileref_role,
     'term': xfileref_role,
     'option': xfileref_role,
+    'doc': xfileref_role,
 
     'menuselection': menusel_role,
     'file': emph_literal_role,

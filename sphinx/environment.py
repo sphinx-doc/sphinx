@@ -42,7 +42,7 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import get_matching_docs, SEP, ustrftime
+from sphinx.util import get_matching_docs, SEP, ustrftime, docname_join
 from sphinx.directives import additional_xref_types
 
 default_settings = {
@@ -1028,6 +1028,24 @@ class BuildEnvironment:
                                 fromdocname, docname)
                             if labelid:
                                 newnode['refuri'] += '#' + labelid
+                        newnode.append(innernode)
+                elif typ == 'doc':
+                    # directly reference to document by source name; can be absolute
+                    # or relative
+                    docname = docname_join(fromdocname, target)
+                    if docname not in self.all_docs:
+                        newnode = doctree.reporter.system_message(
+                            2, 'unknown document: %s' % docname)
+                    else:
+                        if node['refcaption']:
+                            # reference with explicit title
+                            caption = node.astext()
+                        else:
+                            caption = self.titles[docname].astext()
+                        innernode = nodes.emphasis(caption, caption)
+                        newnode = nodes.reference('', '')
+                        newnode['refuri'] = builder.get_relative_uri(
+                            fromdocname, docname)
                         newnode.append(innernode)
                 elif typ == 'keyword':
                     # keywords are referenced by named labels

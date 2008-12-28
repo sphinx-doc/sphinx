@@ -17,6 +17,10 @@ New features added
 
 * Markup:
 
+  - Due to popular demand, added a ``:doc:`` role which directly
+    links to another document without the need of creating a
+    label to which a ``:ref:`` could link to.
+
   - The ``toctree`` directive now supports a ``:hidden:`` flag,
     which will prevent links from being generated in place of
     the directive -- this allows you to define your document

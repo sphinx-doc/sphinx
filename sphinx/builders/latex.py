@@ -50,7 +50,7 @@ class LaTeXBuilder(Builder):
         if docname not in self.docnames:
             raise NoUri
         else:
-            return ''
+            return '%' + docname
 
     def init_document_data(self):
         preliminary_document_data = map(list, self.config.latex_documents)
@@ -123,12 +123,13 @@ class LaTeXBuilder(Builder):
                         self.warn('%s: toctree contains ref to nonexisting file %r' %
                                   (docname, includefile))
                     else:
-                        sof = addnodes.start_of_file()
+                        sof = addnodes.start_of_file(docname=includefile)
                         sof.children = subtree.children
                         newnodes.append(sof)
                 toctreenode.parent.replace(toctreenode, newnodes)
             return tree
         tree = self.env.get_doctree(indexfile)
+        tree['docname'] = indexfile
         if toctree_only:
             # extract toctree nodes from the tree and put them in a fresh document
             new_tree = new_document('<latex output>')
