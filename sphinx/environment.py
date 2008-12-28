@@ -15,6 +15,7 @@ import time
 import heapq
 import types
 import imghdr
+import string
 import difflib
 import cPickle as pickle
 from os import path
@@ -290,9 +291,12 @@ class BuildEnvironment:
         self.gloss_entries = set()  # existing definition labels
 
         # Some magically present labels
-        self.labels['genindex'] = ('genindex', '', _('Index'))
-        self.labels['modindex'] = ('modindex', '', _('Module Index'))
-        self.labels['search']   = ('search', '', _('Search Page'))
+        def add_magic_label(name, description):
+            self.labels[name] = (name, '', description)
+            self.anonlabels[name] = (name, '')
+        add_magic_label('genindex', _('Index'))
+        add_magic_label('modindex', _('Module Index'))
+        add_magic_label('search', _('Search Page'))
 
     def set_warnfunc(self, func):
         self._warnfunc = func
