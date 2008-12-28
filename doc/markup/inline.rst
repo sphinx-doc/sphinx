@@ -12,7 +12,8 @@ For all other roles, you have to write ``:rolename:`content```.
 .. note::
 
    The default role (```content```) has no special meaning by default.  You are
-   free to use it for anything you like. 
+   free to use it for anything you like; use the :confval:`default_role` config
+   value to set it to a known role.
 
 
 .. _xref-syntax:
