@@ -259,6 +259,16 @@ class HTMLTranslator(BaseTranslator):
     def depart_highlightlang(self, node):
         pass
 
+    def visit_download_reference(self, node):
+        if node.hasattr('filename'):
+            self.body.append('<a href="%s">' % posixpath.join(
+                self.builder.dlpath, node['filename']))
+            self.context.append('</a>')
+        else:
+            self.context.append('')
+    def depart_download_reference(self, node):
+        self.body.append(self.context.pop())
+
     # overwritten
     def visit_image(self, node):
         olduri = node['uri']

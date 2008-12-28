@@ -226,6 +226,7 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
         body = self.docwriter.parts['fragment']
@@ -351,6 +352,16 @@ class StandaloneHTMLBuilder(Builder):
                 self.info(' '+src, nonl=1)
                 shutil.copyfile(path.join(self.srcdir, src),
                                 path.join(self.outdir, '_images', dest))
+            self.info()
+
+        # copy downloadable files
+        if self.env.dlfiles:
+            self.info(bold('copying downloadable files...'), nonl=True)
+            ensuredir(path.join(self.outdir, '_downloads'))
+            for src, (_, dest) in self.env.dlfiles.iteritems():
+                self.info(' '+src, nonl=1)
+                shutil.copyfile(path.join(self.srcdir, src),
+                                path.join(self.outdir, '_downloads', dest))
             self.info()
 
         # copy static files

@@ -288,3 +288,39 @@ def nested_parse_with_titles(state, content, node):
 def ustrftime(format, *args):
     # strftime for unicode strings
     return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
+
+
+class FilenameUniqDict(dict):
+    """
+    A dictionary that automatically generates unique names for its keys,
+    interpreted as filenames, and keeps track of a set of docnames they
+    appear in.  Used for images and downloadable files in the environment.
+    """
+    def __init__(self):
+        self._existing = set()
+
+    def add_file(self, docname, newfile):
+        if newfile in self:
+            self[newfile][0].add(docname)
+            return
+        uniquename = path.basename(newfile)
+        base, ext = path.splitext(uniquename)
+        i = 0
+        while uniquename in self._existing:
+            i += 1
+            uniquename = '%s%s%s' % (base, i, ext)
+        self[newfile] = (set([docname]), uniquename)
+        self._existing.add(uniquename)
+        return uniquename
+
+    def purge_doc(self, docname):
+        for filename, (docs, _) in self.items():
+            docs.discard(docname)
+            if not docs:
+                del self[filename]
+
+    def __getstate__(self):
+        return self._existing
+
+    def __setstate__(self, state):
+        self._existing = state

@@ -42,7 +42,8 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import get_matching_docs, SEP, ustrftime, docname_join
+from sphinx.util import get_matching_docs, SEP, ustrftime, docname_join, \
+     FilenameUniqDict
 from sphinx.directives import additional_xref_types
 
 default_settings = {
@@ -57,7 +58,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 26
+ENV_VERSION = 27
 
 
 default_substitutions = set([
@@ -276,7 +277,8 @@ class BuildEnvironment:
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of
                                     # (type, docname, lineno, module, descname, content)
-        self.images = {}            # absolute path -> (docnames, unique filename)
+        self.images = FilenameUniqDict()  # absolute path -> (docnames, unique filename)
+        self.dlfiles = FilenameUniqDict() # absolute path -> (docnames, unique filename)
 
         # These are set while parsing a file
         self.docname = None         # current document name
@@ -317,6 +319,8 @@ class BuildEnvironment:
             self.filemodules.pop(docname, None)
             self.indexentries.pop(docname, None)
             self.glob_toctrees.discard(docname)
+            self.images.purge_doc(docname)
+            self.dlfiles.purge_doc(docname)
 
             for subfn, fnset in self.files_to_rebuild.items():
                 fnset.discard(docname)
@@ -340,10 +344,6 @@ class BuildEnvironment:
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
-            for fullpath, (docs, _) in self.images.items():
-                docs.discard(docname)
-                if not docs:
-                    del self.images[fullpath]
 
     def doc2path(self, docname, base=True, suffix=None):
         """
@@ -480,12 +480,6 @@ class BuildEnvironment:
                       self.doc2path(config.master_doc))
 
         self.app = None
-
-        # remove all non-existing images from inventory
-        for imgsrc in self.images.keys():
-            if not os.access(path.join(self.srcdir, imgsrc), os.R_OK):
-                del self.images[imgsrc]
-
         if app:
             app.emit('env-updated', self)
 
@@ -544,6 +538,7 @@ class BuildEnvironment:
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
+        self.process_downloads(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_labels_from(docname, doctree)
@@ -608,11 +603,25 @@ class BuildEnvironment:
             dep = path.join(docdir, dep)
             self.dependencies.setdefault(docname, set()).add(dep)
 
+    def process_downloads(self, docname, doctree):
+        """
+        Process downloadable file paths.
+        """
+        docdir = path.dirname(self.doc2path(docname, base=None))
+        for node in doctree.traverse(addnodes.download_reference):
+            filepath = path.normpath(path.join(docdir, node['reftarget']))
+            self.dependencies.setdefault(docname, set()).add(filepath)
+            if not os.access(path.join(self.srcdir, filepath), os.R_OK):
+                self.warn(docname, 'Download file not readable: %s' % filepath,
+                          getattr(node, 'line', None))
+                continue
+            uniquename = self.dlfiles.add_file(docname, filepath)
+            node['filename'] = uniquename
+
     def process_images(self, docname, doctree):
         """
         Process and rewrite image URIs.
         """
-        existing_names = set(v[1] for v in self.images.itervalues())
         docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
@@ -656,17 +665,8 @@ class BuildEnvironment:
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
                     self.warn(docname, 'Image file not readable: %s' % imgpath,
                               node.line)
-                if imgpath in self.images:
-                    self.images[imgpath][0].add(docname)
                     continue
-                uniquename = path.basename(imgpath)
-                base, ext = path.splitext(uniquename)
-                i = 0
-                while uniquename in existing_names:
-                    i += 1
-                    uniquename = '%s%s%s' % (base, i, ext)
-                self.images[imgpath] = (set([docname]), uniquename)
-                existing_names.add(uniquename)
+                self.images.add_file(docname, imgpath)
 
     def process_metadata(self, docname, doctree):
         """

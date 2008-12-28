@@ -77,11 +77,13 @@ def test_second_update():
     (root / 'new.txt').write_text('New file\n========\n')
     it = env.update(app.config, app.srcdir, app.doctreedir, app)
     msg = it.next()
-    assert '1 added, 1 changed, 1 removed' in msg
+    assert '1 added, 2 changed, 1 removed' in msg
     docnames = set()
     for docname in it:
         docnames.add(docname)
-    assert docnames == set(['contents', 'new'])
+    # "includes" is in there because it contains a reference to a nonexisting
+    # downloadable file, which is given another chance to exist
+    assert docnames == set(['contents', 'new', 'includes'])
     assert 'images' not in env.all_docs
     assert 'images' not in env.found_docs
 

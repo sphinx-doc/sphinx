@@ -953,6 +953,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         self.body.append(self.context.pop())
 
+    def visit_download_reference(self, node):
+        pass
+    def depart_download_reference(self, node):
+        pass
+
     def visit_pending_xref(self, node):
         pass
     def depart_pending_xref(self, node):

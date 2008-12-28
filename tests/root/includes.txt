@@ -14,3 +14,11 @@ Test file and literal inclusion
    :encoding: latin-1
 .. include:: wrongenc.inc
    :encoding: latin-1
+
+
+Testing downloadable files
+==========================
+
+Download :download:`img.png` here.
+Download :download:`this <subdir/img.png>` there.
+Don't download :download:`this <nonexisting.png>`.

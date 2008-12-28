@@ -32,6 +32,7 @@ WARNING: %(root)s/images.txt:9: Image file not readable: foo.png
 WARNING: %(root)s/images.txt:23: Nonlocal image URI found: http://www.python.org/logo.png
 WARNING: %(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8' used for reading included \
 file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
+WARNING: %(root)s/includes.txt:34: Download file not readable: nonexisting.png
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -58,6 +59,8 @@ HTML_XPATH = {
     'includes.html': {
         ".//pre/span[@class='s']": u'üöä',
         ".//pre": u'Max Strauß',
+        ".//a[@href='_downloads/img.png']": '',
+        ".//a[@href='_downloads/img1.png']": '',
     },
     'autodoc.html': {
         ".//dt[@id='test_autodoc.Class']": '',

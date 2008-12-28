@@ -96,6 +96,7 @@ innernodetypes = {
     'term': nodes.emphasis,
     'token': nodes.strong,
     'envvar': nodes.strong,
+    'download': nodes.strong,
     'option': addnodes.literal_emphasis,
 }
 
@@ -122,8 +123,10 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         return [innernodetypes.get(typ, nodes.literal)(
             rawtext, text, classes=['xref'])], []
     # we want a cross-reference, create the reference node
-    pnode = addnodes.pending_xref(rawtext, reftype=typ, refcaption=False,
-                                  modname=env.currmodule, classname=env.currclass)
+    nodeclass = (typ == 'download') and addnodes.download_reference or \
+                addnodes.pending_xref
+    pnode = nodeclass(rawtext, reftype=typ, refcaption=False,
+                      modname=env.currmodule, classname=env.currclass)
     # we may need the line number for warnings
     pnode.line = lineno
     # the link title may differ from the target, but by default they are the same
@@ -236,6 +239,7 @@ specific_docroles = {
     'term': xfileref_role,
     'option': xfileref_role,
     'doc': xfileref_role,
+    'download': xfileref_role,
 
     'menuselection': menusel_role,
     'file': emph_literal_role,

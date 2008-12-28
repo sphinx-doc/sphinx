@@ -12,7 +12,7 @@ For all other roles, you have to write ``:rolename:`content```.
 .. note::
 
    The default role (```content```) has no special meaning by default.  You are
-   free to use it for anything you like. 
+   free to use it for anything you like.
 
 
 .. _xref-syntax:
@@ -244,6 +244,30 @@ There is also a way to directly link to documents:
    </people>```), the link caption will be the title of the given document.
 
 
+Referencing downloadable files
+------------------------------
+
+.. versionadded:: 0.6
+
+.. role:: download
+
+   This role lets you link to files within your source tree that are not reST
+   documents that can be viewed, but files that can be downloaded.
+
+   When you use this role, the referenced file is automatically marked for
+   inclusion in the output when building (obviously, for HTML output only).
+   All downloadable files are put into the ``_downloads`` subdirectory of the
+   output directory; duplicate filenames are handled.
+
+   An example::
+
+      See :download:`this example script <../example.py>`.
+
+   The given filename is relative to the directory the current source file is
+   contained in.  The ``../example.py`` file will be copied to the output
+   directory, and a suitable link generated to it.
+
+
 Other semantic markup
 ---------------------
 
@@ -348,7 +372,7 @@ in a different style:
    curly braces to indicate a "variable" part, as in ``:file:``.
 
    If you don't need the "variable part" indication, use the standard
-   ````code```` instead.   
+   ````code```` instead.
 
 
 The following roles generate external links:
@@ -368,6 +392,7 @@ The following roles generate external links:
 
 Note that there are no special roles for including hyperlinks as you can use
 the standard reST markup for that purpose.
+
 
 .. _default-substitutions:
 

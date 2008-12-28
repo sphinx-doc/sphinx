@@ -614,6 +614,11 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         pass
 
+    def visit_download_reference(self, node):
+        pass
+    def depart_download_reference(self, node):
+        pass
+
     def visit_emphasis(self, node):
         self.add_text('*')
     def depart_emphasis(self, node):
