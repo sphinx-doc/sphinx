@@ -15,6 +15,7 @@ import sys
 import time
 import fnmatch
 import tempfile
+import posixpath
 import traceback
 from os import path
 
@@ -46,6 +47,11 @@ def relative_uri(base, to):
         b2.pop(0)
         t2.pop(0)
     return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
+
+
+def docname_join(basedocname, docname):
+    return posixpath.normpath(
+        posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
 def ensuredir(path):

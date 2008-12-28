@@ -8,14 +8,13 @@
 """
 
 import re
-import posixpath
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
-from sphinx.util import patfilter, ws_re, caption_ref_re
+from sphinx.util import patfilter, ws_re, caption_ref_re, docname_join
 from sphinx.util.compat import make_admonition
 
 
@@ -25,7 +24,6 @@ def toctree_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     env = state.document.settings.env
     suffix = env.config.source_suffix
-    dirname = posixpath.dirname(env.docname)
     glob = 'glob' in options
 
     ret = []
@@ -49,14 +47,14 @@ def toctree_directive(name, arguments, options, content, lineno,
             if docname.endswith(suffix):
                 docname = docname[:-len(suffix)]
             # absolutize filenames
-            docname = posixpath.normpath(posixpath.join(dirname, docname))
+            docname = docname_join(env.docname, docname)
             if docname not in env.found_docs:
                 ret.append(state.document.reporter.warning(
                     'toctree references unknown document %r' % docname, line=lineno))
             else:
                 includefiles.append(docname)
         else:
-            patname = posixpath.normpath(posixpath.join(dirname, entry))
+            patname = docname_join(env.docname, entry)
             docnames = sorted(patfilter(all_docnames, patname))
             for docname in docnames:
                 all_docnames.remove(docname) # don't include it again
