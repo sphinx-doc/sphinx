@@ -95,7 +95,7 @@ def test_resolve_name():
     assert gen.resolve_name('function', 'util.raises') == \
            ('util', ['raises'], None, None)
     assert gen.resolve_name('function', 'util.raises(exc) -> None') == \
-           ('util', ['raises'], 'exc', ' -> None')
+           ('util', ['raises'], 'exc', 'None')
     gen.env.autodoc_current_module = 'util'
     assert gen.resolve_name('function', 'raises') == \
            ('util', ['raises'], None, None)
@@ -134,7 +134,7 @@ def test_format_signature():
     assert gen.format_signature('function', 'f', f, None, None) == '(a, b, c=1, **d)'
     assert gen.format_signature('function', 'f', f, 'a, b, c, d', None) == \
            '(a, b, c, d)'
-    assert gen.format_signature('function', 'f', f, None, ' -> None') == \
+    assert gen.format_signature('function', 'f', f, None, 'None') == \
            '(a, b, c=1, **d) -> None'
 
     # test for classes
@@ -152,7 +152,7 @@ def test_format_signature():
         pass
     for C in (F, G):
         assert gen.format_signature('class', 'C', C, None, None) == '(a, b=None)'
-    assert gen.format_signature('class', 'C', D, 'a, b', ' -> X') == '(a, b) -> X'
+    assert gen.format_signature('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
     # test for methods
     class H:
