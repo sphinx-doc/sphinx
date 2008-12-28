@@ -399,6 +399,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'function' : 'funcdesc',
         'class': 'classdesc',
         'method': 'methoddesc',
+        'classmethod': 'classmethoddesc',
         'staticmethod': 'staticmethoddesc',
         'exception': 'excdesc',
         'data': 'datadesc',
@@ -441,7 +442,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             t2 = "{%s}{%s}" % (d.name, d.params)
         elif d.env in ('datadesc', 'excdesc', 'csimplemacrodesc'):
             t2 = "{%s}" % (d.name)
-        elif d.env in ('methoddesc', 'staticmethoddesc'):
+        elif d.env in ('methoddesc', 'classmethoddesc', 'staticmethoddesc'):
             if d.cls:
                 t2 = "[%s]{%s}{%s}" % (d.cls, d.name, d.params)
             else:

@@ -46,15 +46,18 @@ class Options(object):
     pass
 
 
-def is_static_method(obj):
-    """Check if the object given is a static method."""
-    if isinstance(obj, (FunctionType, classmethod)):
-        return True
-    elif isinstance(obj, BuiltinFunctionType):
-        return obj.__self__ is not None
-    elif isinstance(obj, MethodType):
-        return obj.im_self is not None
-    return False
+def get_method_type(obj):
+    """
+    Return the method type for an object: method, staticmethod or classmethod.
+    """
+    if isinstance(obj, classmethod) or \
+           (isinstance(obj, MethodType) and obj.im_self is not None):
+        return 'classmethod'
+    elif isinstance(obj, FunctionType) or \
+             (isinstance(obj, BuiltinFunctionType) and obj.__self__ is not None):
+        return 'staticmethod'
+    else:
+        return 'method'
 
 
 class AutodocReporter(object):
@@ -353,7 +356,8 @@ class RstGenerator(object):
         """
         Return the signature of the object, formatted for display.
         """
-        if what not in ('class', 'method', 'function'):
+        if what not in ('class', 'method', 'staticmethod', 'classmethod',
+                        'function'):
             return ''
 
         err = None
@@ -378,7 +382,8 @@ class RstGenerator(object):
                     getargs = False
                 if getargs:
                     argspec = inspect.getargspec(obj)
-                    if what in ('class', 'method') and argspec[0] and \
+                    if what in ('class', 'method', 'staticmethod',
+                                'classmethod') and argspec[0] and \
                            argspec[0][0] in ('cls', 'self'):
                         del argspec[0][0]
                     args = inspect.formatargspec(*argspec)
@@ -455,8 +460,10 @@ class RstGenerator(object):
         self.result.append(u'', '')
 
         # now, create the directive header
-        directive = (what == 'method' and is_static_method(todoc)) \
-                    and 'staticmethod' or what
+        if what == 'method':
+            directive = get_method_type(todoc)
+        else:
+            directive = what
         self.result.append(indent + u'.. %s:: %s%s' %
                            (directive, name_in_directive, sig), '<autodoc>')
         if what == 'module':
@@ -507,7 +514,8 @@ class RstGenerator(object):
                 self.result.append(indent + line, src[0], src[1])
 
         # document members?
-        if not members or what in ('function', 'method', 'data', 'attribute'):
+        if not members or what in ('function', 'method', 'staticmethod',
+                                   'classmethod', 'data', 'attribute'):
             return
 
         # set current namespace for finding members
@@ -591,7 +599,7 @@ class RstGenerator(object):
                                            source='')
                     else:
                         memberwhat = 'class'
-                elif callable(member):
+                elif inspect.isroutine(member):
                     memberwhat = 'method'
                 elif isdescriptor(member):
                     memberwhat = 'attribute'

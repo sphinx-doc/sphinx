@@ -205,6 +205,12 @@ The directives are:
 
    .. versionadded:: 0.4
 
+.. directive:: .. classmethod:: name(signature)
+
+   Like :dir:`method`, but indicates that the method is a class method.
+
+   .. versionadded:: 0.6
+
 
 .. _signatures:
 

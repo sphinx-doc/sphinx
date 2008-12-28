@@ -40,6 +40,9 @@ New features added
   - #6: Don't generate redundant ``<ul>`` for top-level TOC tree
     items, which leads to a visual separation of TOC entries.
 
+  - #23: Added a ``classmethod`` directive along with ``method``
+    and ``staticmethod``.
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to
