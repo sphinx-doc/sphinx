@@ -32,7 +32,7 @@
      {% if fname %}<a href="{{ fname }}">{% endif -%}
      <tt class="xref">{{ modname|e }}</tt>
      {%- if fname %}</a>{% endif %}
-   {%- if pform[0] %} <em>({{ pform|join(', ') }})</em>{% endif -%}
+   {%- if pform and pform[0] %} <em>({{ pform|join(', ') }})</em>{% endif -%}
    </td><td>{% if dep %}<strong>{{ _('Deprecated')}}:</strong>{% endif %}
      <em>{{ synops|e }}</em></td></tr>
    {%- endif -%}
