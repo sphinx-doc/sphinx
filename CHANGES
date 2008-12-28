@@ -6,6 +6,11 @@ New features added
 
 * Incompatible changes:
 
+  - Templating now requires the Jinja2 library, which is an enhanced
+    version of the old Jinja1 engine.  Since the syntax and semantic
+    is largely the same, very few fixes should be necessary in
+    custom templates.
+
   - The ``autodoc_skip_member`` event now also gets to decide
     whether to skip members whose name starts with underscores.
     Previously, these members were always automatically skipped.

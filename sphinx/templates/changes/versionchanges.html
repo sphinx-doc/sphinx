@@ -1,4 +1,4 @@
-{% macro entries changes %}
+{% macro entries(changes) %}
 <ul>{% for entry, docname, lineno in changes %}
 <li><a href="rst/{{ docname }}.html#L{{ lineno-10 }}" target="src">{{ entry }}</a></li>
 {% endfor %}</ul>

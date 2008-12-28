@@ -87,12 +87,12 @@ class ChangesBuilder(Builder):
             'otherchanges': sorted(otherchanges.iteritems()),
             'show_sphinx': self.config.html_show_sphinx,
         }
-        f = open(path.join(self.outdir, 'index.html'), 'w')
+        f = codecs.open(path.join(self.outdir, 'index.html'), 'w', 'utf8')
         try:
             f.write(self.templates.render('changes/frameset.html', ctx))
         finally:
             f.close()
-        f = open(path.join(self.outdir, 'changes.html'), 'w')
+        f = codecs.open(path.join(self.outdir, 'changes.html'), 'w', 'utf8')
         try:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
         finally:
@@ -112,11 +112,11 @@ class ChangesBuilder(Builder):
 
         self.info(bold('copying source files...'))
         for docname in self.env.all_docs:
-            f = open(self.env.doc2path(docname))
+            f = codecs.open(self.env.doc2path(docname), 'r', 'latin1')
             lines = f.readlines()
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
-            f = codecs.open(targetfn, 'w', 'utf8')
+            f = codecs.open(targetfn, 'w', 'latin1')
             try:
                 text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
                 ctx = {'filename': self.env.doc2path(docname, None), 'text': text}

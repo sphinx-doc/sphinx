@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-
 """
-    sphinx._jinja2
-    ==============
+    sphinx.jinja2glue
+    ~~~~~~~~~~~~~~~~~
 
-    Glue code for jinja2.
+    Glue code for the jinja2 templating engine.
 
-    :author: Sebastian Wiesner
-    :contact: basti.wiesner@gmx.net
-    :copyright: 2008 by Sebastian Wiesner
-    :license: MIT
+    :copyright: 2008 by Sebastian Wiesner.
+    :license: BSD, see LICENSE for details.
 """
 
 import codecs
@@ -28,17 +25,16 @@ class SphinxLoader(jinja2.BaseLoader):
 
     def __init__(self, basepath, extpaths, encoding='utf-8'):
         """
-        Creates a new loader for sphinx.
+        Create a new loader for sphinx.
 
-        ``extpaths`` is a list of directories, which provide additional
-        templates to sphinx.
+        *extpaths* is a list of directories, which provide additional templates
+        to sphinx.
 
-        ``encoding`` is used to decode the templates into unicode strings.
+        *encoding* is used to decode the templates into unicode strings.
         Defaults to utf-8.
 
-        If ``basepath`` is set, this path is used to load sphinx core
-        templates.  If False, these templates are loaded from the sphinx
-        package.
+        If *basepath* is set, this path is used to load sphinx core templates.
+        If False, these templates are loaded from the sphinx package.
         """
         self.core_loader = jinja2.FileSystemLoader(basepath)
         self.all_loaders = jinja2.ChoiceLoader(
