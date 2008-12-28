@@ -32,6 +32,9 @@ New features added
   - #77: If a description environment with info field list only
     contains one ``:param:`` entry, no bullet list is generated.
 
+  - #6: Don't generate redundant ``<ul>`` for top-level TOC tree
+    items, which leads to a visual separation of TOC entries.
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to

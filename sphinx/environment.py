@@ -917,7 +917,7 @@ class BuildEnvironment:
                     else:
                         _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
 
-        def _entries_from_toctree(toctreenode, separate=False):
+        def _entries_from_toctree(toctreenode, separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             includefiles = map(str, toctreenode['includefiles'])
 
@@ -947,7 +947,7 @@ class BuildEnvironment:
                     # resolve all sub-toctrees
                     for toctreenode in toc.traverse(addnodes.toctree):
                         i = toctreenode.parent.index(toctreenode) + 1
-                        for item in _entries_from_toctree(toctreenode):
+                        for item in _entries_from_toctree(toctreenode, subtree=True):
                             toctreenode.parent.insert(i, item)
                             i += 1
                         toctreenode.parent.remove(toctreenode)
@@ -955,12 +955,19 @@ class BuildEnvironment:
                         entries.append(toc)
                     else:
                         entries.extend(toc.children)
+            if not subtree and not separate:
+                ret = nodes.bullet_list()
+                ret += entries
+                return [ret]
             return entries
 
         maxdepth = maxdepth or toctree.get('maxdepth', -1)
         titleoverrides = toctree.get('includetitles', {})
 
-        tocentries = _entries_from_toctree(toctree, separate=True)
+        # NOTE: previously, this was separate=True, but that leads to artificial
+        # separation when two or more toctree entries form a logical unit, so
+        # separating mode is no longer used -- it's kept here for history's sake
+        tocentries = _entries_from_toctree(toctree, separate=False)
         if not tocentries:
             return None
 
