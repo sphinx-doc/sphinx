@@ -338,6 +338,7 @@ BUILTIN_BUILDERS = {
     'json':      ('html', 'JSONHTMLBuilder'),
     'web':       ('html', 'PickleHTMLBuilder'),
     'htmlhelp':  ('htmlhelp', 'HTMLHelpBuilder'),
+    'qthelp':    ('qthelp', 'QtHelpBuilder'),
     'latex':     ('latex', 'LaTeXBuilder'),
     'text':      ('text', 'TextBuilder'),
     'changes':   ('changes', 'ChangesBuilder'),

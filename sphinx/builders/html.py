@@ -55,6 +55,7 @@ class StandaloneHTMLBuilder(Builder):
                              'image/jpeg']
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
+    embedded = False  # for things like HTML help or Qt help: suppresses sidebar
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/doctools.js']
@@ -136,6 +137,7 @@ class StandaloneHTMLBuilder(Builder):
             rellinks.append(('modindex', _('Global Module Index'), 'M', _('modules')))
 
         self.globalcontext = dict(
+            embedded = self.embedded,
             project = self.config.project,
             release = self.config.release,
             version = self.config.version,

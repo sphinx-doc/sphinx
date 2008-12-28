@@ -11,7 +11,7 @@ PAPEROPT_letter  = -D latex_paper_size=letter
 ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
                 $(SPHINXOPTS) .
 
-.PHONY: help clean html web htmlhelp latex changes linkcheck
+.PHONY: help clean html pickle htmlhelp qthelp latex changes linkcheck doctest
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -47,6 +47,16 @@ htmlhelp:
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in _build/htmlhelp."
+
+qthelp:
+	mkdir -p _build/qthelp _build/doctrees
+	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) _build/qthelp
+	@echo
+	@echo "Build finished; now you can run qcollectiongenerator with the" \
+	      ".qhcp project file in build/qthelp."
+	@echo "# qcollectiongenerator _build/qthelp/Sphinx.qhcp"
+	@echo "To view the help collection:"
+	@echo "# assistant -collectionFile _build/qthelp/Sphinx.qhc"
 
 latex:
 	mkdir -p _build/latex _build/doctrees

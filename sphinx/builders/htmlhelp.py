@@ -133,6 +133,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
+    # don't add sidebar etc.
+    embedded = True
 
     def init(self):
         StandaloneHTMLBuilder.init(self)

@@ -257,7 +257,7 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html web pickle htmlhelp latex changes linkcheck
+.PHONY: help clean html pickle json htmlhelp qthelp latex changes linkcheck
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
@@ -265,6 +265,7 @@ help:
 \t@echo "  pickle    to make pickle files"
 \t@echo "  json      to make JSON files"
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
+\t@echo "  qthelp    to make HTML files and a qthelp project"
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  changes   to make an overview over all changed/added/deprecated items"
 \t@echo "  linkcheck to check all external links for integrity"
@@ -284,8 +285,6 @@ pickle:
 \t@echo
 \t@echo "Build finished; now you can process the pickle files."
 
-web: pickle
-
 json:
 \tmkdir -p %(rbuilddir)s/json %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) %(rbuilddir)s/json
@@ -298,6 +297,16 @@ htmlhelp:
 \t@echo
 \t@echo "Build finished; now you can run HTML Help Workshop with the" \\
 \t      ".hhp project file in %(rbuilddir)s/htmlhelp."
+
+qthelp:
+\tmkdir -p %(rbuilddir)s/qthelp %(rbuilddir)s/doctrees
+\t$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) %(rbuilddir)s/qthelp
+\t@echo
+\t@echo "Build finished; now you can run "qcollectiongenerator" with the" \\
+\t      ".qhcp project file in %(rbuilddir)s/qthelp, like this:"
+\t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/Sphinx.qhcp"
+\t@echo "To view the help file:"
+\t@echo "# assistant -collectionFile %(rbuilddir)s/qthelp/%(project)s.qhc"
 
 latex:
 \tmkdir -p %(rbuilddir)s/latex %(rbuilddir)s/doctrees

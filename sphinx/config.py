@@ -12,6 +12,8 @@
 import os
 from os import path
 
+from sphinx.util import make_filename
+
 
 class Config(object):
     """Configuration file abstraction."""
@@ -77,7 +79,10 @@ class Config(object):
         html_context = ({}, False),
 
         # HTML help only options
-        htmlhelp_basename = ('pydoc', False),
+        htmlhelp_basename = (lambda self: make_filename(self.project), False),
+
+        # Qt help only options
+        qthelp_basename = (lambda self: make_filename(self.project), False),
 
         # LaTeX options
         latex_documents = ([], False),

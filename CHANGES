@@ -52,6 +52,13 @@ New features added
   - The new ``html_show_sourcelink`` config value can be used to
     switch off the links to the reST sources in the sidebar.
 
+  - The default value for ``htmlhelp_basename`` is now the project
+    title, cleaned up as a filename.
+
+* Builders:
+
+  - New builder for Qt help collections, by Antonio Valentino.
+
   - The new ``html_link_suffix`` config value can be used to select
     the suffix of generated links between HTML files.
 
