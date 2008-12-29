@@ -32,6 +32,10 @@ number2name.update(token.tok_name)
 
 
 def prepare_commentdoc(s):
+    """
+    Extract documentation comment lines (starting with #:) and return them as a
+    list of lines.  Returns an empty list if there is no documentation.
+    """
     result = []
     lines = [line.strip() for line in s.expandtabs().splitlines()]
     for line in lines:
@@ -46,6 +50,10 @@ _eq = pytree.Leaf(token.EQUAL, '=')
 
 
 class ClassAttrVisitor(pytree.NodeVisitor):
+    """
+    Visitor that collects comments appearing before attribute assignments
+    on toplevel and in classes.
+    """
     def init(self, scope):
         self.scope = scope
         self.namespace = []
@@ -60,18 +68,27 @@ class ClassAttrVisitor(pytree.NodeVisitor):
         if _eq not in node.children:
             # not an assignment (we don't care for augmented assignments)
             return
-        prefix = node[0].get_prefix()
-        if not prefix:
-            # if this assignment is the first thing in a class block,
-            # the comment will be the prefix of the preceding INDENT token
-            prev = node[0].get_prev_leaf()
-            if prev and prev.type == token.INDENT:
-                prefix = prev.prefix
-        doc = prepare_commentdoc(prefix)
-        if doc:
-            name = '.'.join(self.namespace + [node[0].compact()])
+        pnode = node[0]
+        prefix = pnode.get_prefix()
+        # if the assignment is the first statement on a new indentation
+        # level, its preceding whitespace and comments are not assigned
+        # to that token, but the first INDENT or DEDENT token
+        while not prefix:
+            pnode = pnode.get_prev_leaf()
+            if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
+                break
+        docstring = prepare_commentdoc(prefix)
+        if not docstring:
+            return
+        # add an item for each assignment target
+        for i in range(0, len(node) - 1, 2):
+            target = node[i]
+            if target.type != token.NAME:
+                # don't care about complex targets
+                continue
+            name = '.'.join(self.namespace + [target.value])
             if name.startswith(self.scope):
-                self.collected.append((name, doc))
+                self.collected.append((name, docstring))
 
     def visit_funcdef(self, node):
         # don't descend into functions -- nothing interesting there

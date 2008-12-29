@@ -166,6 +166,9 @@ class Node(Base):
     def __iter__(self):
         return iter(self.children)
 
+    def __len__(self):
+        return len(self.children)
+
     def _eq(self, other):
         """Compares two nodes for equality."""
         return (self.type, self.children) == (other.type, other.children)
