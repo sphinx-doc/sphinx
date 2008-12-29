@@ -14,7 +14,7 @@ import time
 from os import path
 
 from sphinx.pycode import pytree
-from sphinx.pycode.pgen2 import driver, token
+from sphinx.pycode.pgen2 import driver, token, parse
 
 
 # load the Python grammar
@@ -78,6 +78,14 @@ class ClassAttrVisitor(pytree.NodeVisitor):
         return
 
 
+class PycodeError(Exception):
+    def __str__(self):
+        res = self.args[0]
+        if len(self.args) > 1:
+            res += ' (exception was: %r)' % self.args[1]
+        return res
+
+
 class ModuleAnalyzer(object):
 
     def __init__(self, tree, modname, srcname):
@@ -91,48 +99,55 @@ class ModuleAnalyzer(object):
 
     @classmethod
     def for_file(cls, filename, modname):
-        # XXX if raises
-        fileobj = open(filename, 'r')
         try:
-            return cls(pydriver.parse_stream(fileobj), modname, filename)
+            fileobj = open(filename, 'r')
+        except Exception, err:
+            raise PycodeError('error opening %r' % filename, err)
+        try:
+            try:
+                return cls(pydriver.parse_stream(fileobj), modname, filename)
+            except parse.ParseError, err:
+                raise PycodeError('error parsing %r' % filename, err)
         finally:
             fileobj.close()
 
     @classmethod
     def for_module(cls, modname):
         if modname not in sys.modules:
-            # XXX
-            __import__(modname)
+            try:
+                __import__(modname)
+            except ImportError, err:
+                raise PycodeError('error importing %r' % modname, err)
         mod = sys.modules[modname]
         if hasattr(mod, '__loader__'):
-            # XXX raises
-            source = mod.__loader__.get_source(modname)
+            try:
+                source = mod.__loader__.get_source(modname)
+            except Exception, err:
+                raise PycodeError('error getting source for %r' % modname, err)
             return cls.for_string(source, modname)
         filename = getattr(mod, '__file__', None)
         if filename is None:
-            # XXX
-            raise RuntimeError('no source found')
+            raise PycodeError('no source found for module %r' % modname)
         if filename.lower().endswith('.pyo') or \
            filename.lower().endswith('.pyc'):
             filename = filename[:-1]
         elif not filename.lower().endswith('.py'):
-            raise RuntimeError('not a .py file')
+            raise PycodeError('source is not a .py file: %r' % filename)
         if not path.isfile(filename):
-            # XXX
-            raise RuntimeError('source not present')
+            raise PycodeError('source file is not present: %r' % filename)
         return cls.for_file(filename, modname)
 
-    def find_defs(self):
+    def find_attrs(self):
         attr_visitor = ClassAttrVisitor(number2name, '')
         attr_visitor.visit(self.tree)
-        for name, doc in attr_visitor.collected:
-            print '>>', name
-            print doc
+        return attr_visitor.collected
 
 
 x0 = time.time()
 ma = ModuleAnalyzer.for_module('sphinx.builders.html')
 x1 = time.time()
-ma.find_defs()
+for name, doc in ma.find_attrs():
+    print '>>', name
+    print doc
 x2 = time.time()
 print "parsing %.4f, finding %.4f" % (x1-x0, x2-x1)
