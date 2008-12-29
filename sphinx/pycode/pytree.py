@@ -275,11 +275,11 @@ def nice_repr(node, number2name, prefix=False):
 
 
 class NodeVisitor(object):
-    def __init__(self, number2name):
+    def __init__(self, number2name, *args):
         self.number2name = number2name
-        self.init()
+        self.init(*args)
 
-    def init(self):
+    def init(self, *args):
         pass
 
     def visit(self, node):

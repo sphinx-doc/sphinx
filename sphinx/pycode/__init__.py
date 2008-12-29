@@ -10,6 +10,7 @@
 """
 
 import sys
+import time
 from os import path
 
 from sphinx.pycode import pytree
@@ -45,8 +46,10 @@ _eq = pytree.Leaf(token.EQUAL, '=')
 
 
 class ClassAttrVisitor(pytree.NodeVisitor):
-    def init(self):
+    def init(self, scope):
+        self.scope = scope
         self.namespace = []
+        self.collected = []
 
     def visit_classdef(self, node):
         self.namespace.append(node[1].value)
@@ -54,17 +57,21 @@ class ClassAttrVisitor(pytree.NodeVisitor):
         self.namespace.pop()
 
     def visit_expr_stmt(self, node):
-        if _eq in node.children:
-            prefix = node[0].get_prefix()
-            if not prefix:
-                prev = node[0].get_prev_leaf()
-                if prev and prev.type == token.INDENT:
-                    prefix = prev.prefix
-            doc = prepare_commentdoc(prefix)
-            if doc:
-                targ = '.'.join(self.namespace + [node[0].compact()])
-                print targ
-                print doc
+        if _eq not in node.children:
+            # not an assignment (we don't care for augmented assignments)
+            return
+        prefix = node[0].get_prefix()
+        if not prefix:
+            # if this assignment is the first thing in a class block,
+            # the comment will be the prefix of the preceding INDENT token
+            prev = node[0].get_prev_leaf()
+            if prev and prev.type == token.INDENT:
+                prefix = prev.prefix
+        doc = prepare_commentdoc(prefix)
+        if doc:
+            name = '.'.join(self.namespace + [node[0].compact()])
+            if name.startswith(self.scope):
+                self.collected.append((name, doc))
 
     def visit_funcdef(self, node):
         return
@@ -115,28 +122,16 @@ class ModuleAnalyzer(object):
         return cls.for_file(filename, modname)
 
     def find_defs(self):
-        attr_visitor = ClassAttrVisitor(number2name)
-        attr_visitor.namespace = [self.modname]
+        attr_visitor = ClassAttrVisitor(number2name, '')
         attr_visitor.visit(self.tree)
-
-class Test:
-    """doc"""
-
-    #: testing...
-    x = 1
-    """doc"""
-
-    #: testing more...
-    x = 2
+        for name, doc in attr_visitor.collected:
+            print '>>', name
+            print doc
 
 
-#ma = ModuleAnalyzer.for_file(__file__.rstrip('c'))
-import time
-x0=time.time()
-ma = ModuleAnalyzer.for_module('sphinx.builders.latex')
-x1=time.time()
+x0 = time.time()
+ma = ModuleAnalyzer.for_module('sphinx.builders.html')
+x1 = time.time()
 ma.find_defs()
-x2=time.time()
-print "%.4f %.4f" % (x1-x0, x2-x1)
-
-#print pytree.nice_repr(ma.tree, number2name, True)
+x2 = time.time()
+print "parsing %.4f, finding %.4f" % (x1-x0, x2-x1)
