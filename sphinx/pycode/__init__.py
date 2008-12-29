@@ -77,6 +77,7 @@ class ClassAttrVisitor(pytree.NodeVisitor):
             pnode = pnode.get_prev_leaf()
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
+            prefix = pnode.get_prefix()
         docstring = prepare_commentdoc(prefix)
         if not docstring:
             return

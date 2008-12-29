@@ -221,8 +221,8 @@ class Leaf(Base):
             self.prefix = prefix
 
     def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__,
-                               self.type, self.value)
+        return "%s(%r, %r, %r)" % (self.__class__.__name__,
+                                   self.type, self.value, self.prefix)
 
     def __str__(self):
         """This reproduces the input source exactly."""
