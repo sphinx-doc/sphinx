@@ -74,6 +74,7 @@ class ClassAttrVisitor(pytree.NodeVisitor):
                 self.collected.append((name, doc))
 
     def visit_funcdef(self, node):
+        # don't descend into functions -- nothing interesting there
         return
 
 
