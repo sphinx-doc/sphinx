@@ -2,6 +2,7 @@
 .*\.egg
 build/
 dist/
+sphinx/pycode/Grammar.*pickle
 Sphinx.egg-info/
 doc/_build/
 TAGS
