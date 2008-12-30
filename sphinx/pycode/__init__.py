@@ -43,7 +43,7 @@ def prepare_commentdoc(s):
             result.append(line[3:])
     if result and result[-1]:
         result.append('')
-    return '\n'.join(result)
+    return result
 
 
 _eq = pytree.Leaf(token.EQUAL, '=')
@@ -57,7 +57,7 @@ class ClassAttrVisitor(pytree.NodeVisitor):
     def init(self, scope):
         self.scope = scope
         self.namespace = []
-        self.collected = []
+        self.collected = {}
 
     def visit_classdef(self, node):
         self.namespace.append(node[1].value)
@@ -87,9 +87,9 @@ class ClassAttrVisitor(pytree.NodeVisitor):
             if target.type != token.NAME:
                 # don't care about complex targets
                 continue
-            name = '.'.join(self.namespace + [target.value])
-            if name.startswith(self.scope):
-                self.collected.append((name, docstring))
+            namespace = '.'.join(self.namespace)
+            if namespace.startswith(self.scope):
+                self.collected[namespace, target.value] = docstring
 
     def visit_funcdef(self, node):
         # don't descend into functions -- nothing interesting there
@@ -105,6 +105,8 @@ class PycodeError(Exception):
 
 
 class ModuleAnalyzer(object):
+    # cache for analyzer objects
+    cache = {}
 
     def __init__(self, tree, modname, srcname):
         self.tree = tree
@@ -131,6 +133,8 @@ class ModuleAnalyzer(object):
 
     @classmethod
     def for_module(cls, modname):
+        if modname in cls.cache:
+            return cls.cache[modname]
         if modname not in sys.modules:
             try:
                 __import__(modname)
@@ -142,7 +146,9 @@ class ModuleAnalyzer(object):
                 source = mod.__loader__.get_source(modname)
             except Exception, err:
                 raise PycodeError('error getting source for %r' % modname, err)
-            return cls.for_string(source, modname)
+            obj = cls.for_string(source, modname)
+            cls.cache[modname] = obj
+            return obj
         filename = getattr(mod, '__file__', None)
         if filename is None:
             raise PycodeError('no source found for module %r' % modname)
@@ -153,12 +159,15 @@ class ModuleAnalyzer(object):
             raise PycodeError('source is not a .py file: %r' % filename)
         if not path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
-        return cls.for_file(filename, modname)
+        obj = cls.for_file(filename, modname)
+        cls.cache[modname] = obj
+        return obj
 
-    def find_attrs(self):
-        attr_visitor = ClassAttrVisitor(number2name, '')
+    def find_attr_docs(self, scope=''):
+        attr_visitor = ClassAttrVisitor(number2name, scope)
         attr_visitor.visit(self.tree)
         return attr_visitor.collected
+
 
 if __name__ == '__main__':
     x0 = time.time()
