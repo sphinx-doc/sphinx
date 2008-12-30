@@ -14,7 +14,7 @@ import time
 from os import path
 
 from sphinx.pycode import pytree
-from sphinx.pycode.pgen2 import driver, token, parse
+from sphinx.pycode.pgen2 import driver, token, parse, literals
 
 
 # load the Python grammar
@@ -46,13 +46,42 @@ def prepare_commentdoc(s):
     return result
 
 
+def prepare_literaldoc(s):
+    # first, "evaluate" the string
+    s = literals.evalString(s)
+    # then, prepare (XXX copied from ext/autodoc)
+    lines = s.expandtabs().splitlines()
+    # Find minimum indentation of any non-blank lines after first line.
+    margin = sys.maxint
+    for line in lines[1:]:
+        content = len(line.lstrip())
+        if content:
+            indent = len(line) - content
+            margin = min(margin, indent)
+    # Remove indentation.
+    if lines:
+        lines[0] = lines[0].lstrip()
+    if margin < sys.maxint:
+        for i in range(1, len(lines)): lines[i] = lines[i][margin:]
+    # Remove any leading blank lines.
+    while lines and not lines[0]:
+        lines.pop(0)
+    # make sure there is an empty line at the end
+    if lines and lines[-1]:
+        lines.append('')
+    return lines
+
+
 _eq = pytree.Leaf(token.EQUAL, '=')
 
 
-class ClassAttrVisitor(pytree.NodeVisitor):
+class AttrDocVisitor(pytree.NodeVisitor):
     """
-    Visitor that collects comments appearing before attribute assignments
-    on toplevel and in classes.
+    Visitor that collects docstrings for attribute assignments on toplevel and
+    in classes.
+
+    The docstrings can either be in special '#:' comments before the assignment
+    or in a docstring after it.
     """
     def init(self, scope):
         self.scope = scope
@@ -65,6 +94,7 @@ class ClassAttrVisitor(pytree.NodeVisitor):
         self.namespace.pop()
 
     def visit_expr_stmt(self, node):
+        """Visit an assignment which may have a special comment before it."""
         if _eq not in node.children:
             # not an assignment (we don't care for augmented assignments)
             return
@@ -79,8 +109,27 @@ class ClassAttrVisitor(pytree.NodeVisitor):
                 break
             prefix = pnode.get_prefix()
         docstring = prepare_commentdoc(prefix)
-        if not docstring:
+        if docstring:
+            self.add_docstring(node, docstring)
+
+    def visit_simple_stmt(self, node):
+        """Visit a docstring statement which may have an assignment before."""
+        if node[0].type != token.STRING:
+            # not a docstring; but still need to visit children
+            return self.generic_visit(node)
+        prev = node.get_prev_sibling()
+        if not prev:
             return
+        if prev.type == sym.simple_stmt and \
+               prev[0].type == sym.expr_stmt and _eq in prev[0].children:
+            docstring = prepare_literaldoc(node[0].value)
+            self.add_docstring(prev[0], docstring)
+
+    def visit_funcdef(self, node):
+        # don't descend into functions -- nothing interesting there
+        return
+
+    def add_docstring(self, node, docstring):
         # add an item for each assignment target
         for i in range(0, len(node) - 1, 2):
             target = node[i]
@@ -90,10 +139,6 @@ class ClassAttrVisitor(pytree.NodeVisitor):
             namespace = '.'.join(self.namespace)
             if namespace.startswith(self.scope):
                 self.collected[namespace, target.value] = docstring
-
-    def visit_funcdef(self, node):
-        # don't descend into functions -- nothing interesting there
-        return
 
 
 class PycodeError(Exception):
@@ -164,17 +209,19 @@ class ModuleAnalyzer(object):
         return obj
 
     def find_attr_docs(self, scope=''):
-        attr_visitor = ClassAttrVisitor(number2name, scope)
+        attr_visitor = AttrDocVisitor(number2name, scope)
         attr_visitor.visit(self.tree)
         return attr_visitor.collected
 
 
 if __name__ == '__main__':
     x0 = time.time()
-    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
+    #ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
+    ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
     x1 = time.time()
-    for name, doc in ma.find_attrs():
-        print '>>', name
-        print doc
+    for (ns, name), doc in ma.find_attr_docs().iteritems():
+        print '>>', ns, name
+        print '\n'.join(doc)
     x2 = time.time()
+    #print pytree.nice_repr(ma.tree, number2name)
     print "parsing %.4f, finding %.4f" % (x1-x0, x2-x1)
