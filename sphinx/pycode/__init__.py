@@ -10,11 +10,11 @@
 """
 
 import sys
-import time
 from os import path
 
 from sphinx.pycode import pytree
 from sphinx.pycode.pgen2 import driver, token, parse, literals
+from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
 # load the Python grammar
@@ -29,47 +29,6 @@ for k, v in pygrammar.symbol2number.iteritems():
 # a dict mapping terminal and nonterminal numbers to their names
 number2name = pygrammar.number2symbol.copy()
 number2name.update(token.tok_name)
-
-
-def prepare_commentdoc(s):
-    """
-    Extract documentation comment lines (starting with #:) and return them as a
-    list of lines.  Returns an empty list if there is no documentation.
-    """
-    result = []
-    lines = [line.strip() for line in s.expandtabs().splitlines()]
-    for line in lines:
-        if line.startswith('#: '):
-            result.append(line[3:])
-    if result and result[-1]:
-        result.append('')
-    return result
-
-
-def prepare_literaldoc(s):
-    # first, "evaluate" the string
-    s = literals.evalString(s)
-    # then, prepare (XXX copied from ext/autodoc)
-    lines = s.expandtabs().splitlines()
-    # Find minimum indentation of any non-blank lines after first line.
-    margin = sys.maxint
-    for line in lines[1:]:
-        content = len(line.lstrip())
-        if content:
-            indent = len(line) - content
-            margin = min(margin, indent)
-    # Remove indentation.
-    if lines:
-        lines[0] = lines[0].lstrip()
-    if margin < sys.maxint:
-        for i in range(1, len(lines)): lines[i] = lines[i][margin:]
-    # Remove any leading blank lines.
-    while lines and not lines[0]:
-        lines.pop(0)
-    # make sure there is an empty line at the end
-    if lines and lines[-1]:
-        lines.append('')
-    return lines
 
 
 _eq = pytree.Leaf(token.EQUAL, '=')
@@ -122,7 +81,8 @@ class AttrDocVisitor(pytree.NodeVisitor):
             return
         if prev.type == sym.simple_stmt and \
                prev[0].type == sym.expr_stmt and _eq in prev[0].children:
-            docstring = prepare_literaldoc(node[0].value)
+            # need to "eval" the string because it's returned in its original form
+            docstring = prepare_docstring(literals.evalString(node[0].value))
             self.add_docstring(prev[0], docstring)
 
     def visit_funcdef(self, node):
@@ -215,9 +175,10 @@ class ModuleAnalyzer(object):
 
 
 if __name__ == '__main__':
+    import time
     x0 = time.time()
-    #ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
-    ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
+    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
+    #ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
     x1 = time.time()
     for (ns, name), doc in ma.find_attr_docs().iteritems():
         print '>>', ns, name
