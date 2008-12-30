@@ -69,7 +69,7 @@ def literalinclude_directive(name, arguments, options, content, lineno,
     fn = path.normpath(path.join(source_dir, rel_fn))
 
     fromline = toline = None
-    objectname = options.get('object')
+    objectname = options.get('pyobject')
     if objectname is not None:
         from sphinx.pycode import ModuleAnalyzer
         analyzer = ModuleAnalyzer.for_file(fn, '')
@@ -109,7 +109,7 @@ def literalinclude_directive(name, arguments, options, content, lineno,
 literalinclude_directive.options = {'linenos': directives.flag,
                                     'language': directives.unchanged_required,
                                     'encoding': directives.encoding,
-                                    'object': directives.unchanged_required,
+                                    'pyobject': directives.unchanged_required,
                                     #'lines': directives.unchanged_required,
                                     #'start-after': directives.unchanged_required,
                                     #'end-before': directives.unchanged_required,

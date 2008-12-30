@@ -113,8 +113,20 @@ Includes
       .. literalinclude:: example.py
          :encoding: latin-1
 
+   The directive also supports including only parts of the file.  If it is a
+   Python module, you can select a class, function or method to include using
+   the ``pyobject`` option::
+
+      .. literalinclude:: example.py
+         :pyobject: Timer.start
+
+   This would only include the code lines belonging to the ``start()`` method in
+   the ``Timer`` class within the file.
+
    .. versionadded:: 0.4.3
       The ``encoding`` option.
+   .. versionadded:: 0.6
+      The ``pyobject`` option.
 
 
 .. rubric:: Footnotes
