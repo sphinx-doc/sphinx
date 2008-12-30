@@ -22,6 +22,7 @@ included, please mail to `the Google group
 * Matplotlib: http://matplotlib.sourceforge.net/
 * Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
 * Mixin.com: http://dev.mixin.com/
+* mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * NetworkX: http://networkx.lanl.gov/
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * ObjectListView: http://objectlistview.sourceforge.net/python
@@ -40,6 +41,6 @@ included, please mail to `the Google group
 * SymPy: http://docs.sympy.org/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
 * TurboGears: http://turbogears.org/2.0/docs/
+* WFront: http://discorporate.us/projects/WFront/
 * Zope 3: e.g. http://docs.carduner.net/z3c-tutorial/
-* mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * zc.async: http://packages.python.org/zc.async/1.5.0/
