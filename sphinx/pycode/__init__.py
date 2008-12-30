@@ -11,9 +11,10 @@
 
 import sys
 from os import path
+from cStringIO import StringIO
 
 from sphinx.pycode import pytree
-from sphinx.pycode.pgen2 import driver, token, parse, literals
+from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -22,9 +23,12 @@ _grammarfile = path.join(path.dirname(__file__), 'Grammar.txt')
 pygrammar = driver.load_grammar(_grammarfile)
 pydriver = driver.Driver(pygrammar, convert=pytree.convert)
 
+# an object with attributes corresponding to token and symbol names
 class sym: pass
 for k, v in pygrammar.symbol2number.iteritems():
     setattr(sym, k, v)
+for k, v in token.tok_name.iteritems():
+    setattr(sym, v, k)
 
 # a dict mapping terminal and nonterminal numbers to their names
 number2name = pygrammar.number2symbol.copy()
@@ -110,36 +114,29 @@ class PycodeError(Exception):
 
 
 class ModuleAnalyzer(object):
-    # cache for analyzer objects
+    # cache for analyzer objects -- caches both by module and file name
     cache = {}
-
-    def __init__(self, tree, modname, srcname):
-        self.tree = tree
-        self.modname = modname
-        self.srcname = srcname
 
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
-        return cls(pydriver.parse_string(string), modname, srcname)
+        return cls(StringIO(string), modname, srcname)
 
     @classmethod
     def for_file(cls, filename, modname):
+        if ('file', filename) in cls.cache:
+            return cls.cache['file', filename]
         try:
             fileobj = open(filename, 'r')
         except Exception, err:
             raise PycodeError('error opening %r' % filename, err)
-        try:
-            try:
-                return cls(pydriver.parse_stream(fileobj), modname, filename)
-            except parse.ParseError, err:
-                raise PycodeError('error parsing %r' % filename, err)
-        finally:
-            fileobj.close()
+        obj = cls(fileobj, modname, filename)
+        cls.cache['file', filename] = obj
+        return obj
 
     @classmethod
     def for_module(cls, modname):
-        if modname in cls.cache:
-            return cls.cache[modname]
+        if ('module', modname) in cls.cache:
+            return cls.cache['module', modname]
         if modname not in sys.modules:
             try:
                 __import__(modname)
@@ -152,37 +149,119 @@ class ModuleAnalyzer(object):
             except Exception, err:
                 raise PycodeError('error getting source for %r' % modname, err)
             obj = cls.for_string(source, modname)
-            cls.cache[modname] = obj
+            cls.cache['module', modname] = obj
             return obj
         filename = getattr(mod, '__file__', None)
         if filename is None:
             raise PycodeError('no source found for module %r' % modname)
-        if filename.lower().endswith('.pyo') or \
-           filename.lower().endswith('.pyc'):
+        filename = path.normpath(filename)
+        lfilename = filename.lower()
+        if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
             filename = filename[:-1]
-        elif not filename.lower().endswith('.py'):
+        elif not lfilename.endswith('.py'):
             raise PycodeError('source is not a .py file: %r' % filename)
         if not path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
         obj = cls.for_file(filename, modname)
-        cls.cache[modname] = obj
+        cls.cache['module', modname] = obj
         return obj
 
+    def __init__(self, source, modname, srcname):
+        self.modname = modname
+        self.srcname = srcname
+        # file-like object yielding source lines
+        self.source = source
+
+        # will be filled by tokenize()
+        self.tokens = None
+        # will be filled by parse()
+        self.parsetree = None
+
+    def tokenize(self):
+        """Generate tokens from the source."""
+        if self.tokens is not None:
+            return
+        self.tokens = list(tokenize.generate_tokens(self.source.readline))
+        self.source.close()
+
+    def parse(self):
+        """Parse the generated source tokens."""
+        if self.parsetree is not None:
+            return
+        self.tokenize()
+        self.parsetree = pydriver.parse_tokens(self.tokens)
+
     def find_attr_docs(self, scope=''):
+        """Find class and module-level attributes and their documentation."""
+        self.parse()
         attr_visitor = AttrDocVisitor(number2name, scope)
-        attr_visitor.visit(self.tree)
+        attr_visitor.visit(self.parsetree)
         return attr_visitor.collected
+
+    def find_tags(self):
+        """Find class, function and method definitions and their location."""
+        self.tokenize()
+        result = {}
+        namespace = []
+        stack = []
+        indent = 0
+        defline = False
+        expect_indent = False
+        def tokeniter(ignore = (token.COMMENT, token.NL)):
+            for tokentup in self.tokens:
+                if tokentup[0] not in ignore:
+                    yield tokentup
+        tokeniter = tokeniter()
+        for type, tok, spos, epos, line in tokeniter:
+            if expect_indent:
+                if type != token.INDENT:
+                    # no suite -- one-line definition
+                    assert stack
+                    dtype, fullname, startline, _ = stack.pop()
+                    endline = epos[0]
+                    namespace.pop()
+                    result[dtype, fullname] = (startline, endline)
+                expect_indent = False
+            if tok in ('def', 'class'):
+                name = tokeniter.next()[1]
+                namespace.append(name)
+                fullname = '.'.join(namespace)
+                stack.append((tok, fullname, spos[0], indent))
+                defline = True
+            elif type == token.INDENT:
+                expect_indent = False
+                indent += 1
+            elif type == token.DEDENT:
+                indent -= 1
+                # if the stacklevel is the same as it was before the last def/class block,
+                # this dedent closes that block
+                if stack and indent == stack[-1][3]:
+                    dtype, fullname, startline, _ = stack.pop()
+                    endline = spos[0]
+                    namespace.pop()
+                    result[dtype, fullname] = (startline, endline)
+            elif type == token.NEWLINE:
+                # if this line contained a definition, expect an INDENT to start the
+                # suite; if there is no such INDENT it's a one-line definition
+                if defline:
+                    defline = False
+                    expect_indent = True
+        return result
 
 
 if __name__ == '__main__':
-    import time
+    import time, pprint
     x0 = time.time()
-    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
     #ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
+    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
+    ma.tokenize()
     x1 = time.time()
-    for (ns, name), doc in ma.find_attr_docs().iteritems():
-        print '>>', ns, name
-        print '\n'.join(doc)
+    ma.parse()
     x2 = time.time()
-    #print pytree.nice_repr(ma.tree, number2name)
-    print "parsing %.4f, finding %.4f" % (x1-x0, x2-x1)
+    #for (ns, name), doc in ma.find_attr_docs().iteritems():
+    #    print '>>', ns, name
+    #    print '\n'.join(doc)
+    pprint.pprint(ma.find_tags())
+    x3 = time.time()
+    #print pytree.nice_repr(ma.parsetree, number2name)
+    print "tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2)

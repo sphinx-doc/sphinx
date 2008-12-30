@@ -42,8 +42,8 @@ class Driver(object):
         column = 0
         type = value = start = end = line_text = None
         prefix = ""
-        for quintuple in tokens:
-            type, value, start, end, line_text = quintuple
+        opmap = grammar.opmap
+        for type, value, start, end, line_text in tokens:
             if start != (lineno, column):
                 assert (lineno, column) <= start, ((lineno, column), start)
                 s_lineno, s_column = start
@@ -62,13 +62,13 @@ class Driver(object):
                     column = 0
                 continue
             if type == token.OP:
-                type = grammar.opmap[value]
-            if debug:
-                self.logger.debug("%s %r (prefix=%r)",
-                                  token.tok_name[type], value, prefix)
+                type = opmap[value]
+            # if debug:
+            #     self.logger.debug("%s %r (prefix=%r)",
+            #                       token.tok_name[type], value, prefix)
             if p.addtoken(type, value, (prefix, start)):
-                if debug:
-                    self.logger.debug("Stop.")
+                # if debug:
+                #     self.logger.debug("Stop.")
                 break
             prefix = ""
             lineno, column = end
@@ -77,7 +77,7 @@ class Driver(object):
                 column = 0
         else:
             # We never broke out -- EOF is too soon (how can this happen???)
-            raise parse.ParseError("incomplete input", t, v, x)
+            raise parse.ParseError("incomplete input", type, value, line_text)
         return p.rootnode
 
     def parse_stream_raw(self, stream, debug=False):
