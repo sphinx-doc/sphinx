@@ -220,7 +220,7 @@ class ModuleAnalyzer(object):
                     dtype, fullname, startline, _ = stack.pop()
                     endline = epos[0]
                     namespace.pop()
-                    result[dtype, fullname] = (startline, endline)
+                    result[fullname] = (dtype, startline, endline)
                 expect_indent = False
             if tok in ('def', 'class'):
                 name = tokeniter.next()[1]
@@ -239,7 +239,7 @@ class ModuleAnalyzer(object):
                     dtype, fullname, startline, _ = stack.pop()
                     endline = spos[0]
                     namespace.pop()
-                    result[dtype, fullname] = (startline, endline)
+                    result[fullname] = (dtype, startline, endline)
             elif type == token.NEWLINE:
                 # if this line contained a definition, expect an INDENT to start the
                 # suite; if there is no such INDENT it's a one-line definition

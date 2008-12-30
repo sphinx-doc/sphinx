@@ -68,32 +68,52 @@ def literalinclude_directive(name, arguments, options, content, lineno,
         lineno - state_machine.input_offset - 1)))
     fn = path.normpath(path.join(source_dir, rel_fn))
 
+    fromline = toline = None
+    objectname = options.get('object')
+    if objectname is not None:
+        from sphinx.pycode import ModuleAnalyzer
+        analyzer = ModuleAnalyzer.for_file(fn, '')
+        tags = analyzer.find_tags()
+        if objectname not in tags:
+            return [state.document.reporter.warning(
+                'Object named %r not found in include file %r' %
+                (objectname, arguments[0]), line=lineno)]
+        else:
+            fromline = tags[objectname][1] - 1
+            toline = tags[objectname][2] - 1
+
     encoding = options.get('encoding', env.config.source_encoding)
     try:
         f = codecs.open(fn, 'r', encoding)
-        text = f.read()
+        lines = f.readlines()
         f.close()
     except (IOError, OSError):
-        retnode = state.document.reporter.warning(
-            'Include file %r not found or reading it failed' % arguments[0], line=lineno)
+        return [state.document.reporter.warning(
+            'Include file %r not found or reading it failed' % arguments[0],
+            line=lineno)]
     except UnicodeError:
-        retnode = state.document.reporter.warning(
+        return [state.document.reporter.warning(
             'Encoding %r used for reading included file %r seems to '
             'be wrong, try giving an :encoding: option' %
-            (encoding, arguments[0]))
-    else:
-        retnode = nodes.literal_block(text, text, source=fn)
-        retnode.line = 1
-        if options.get('language', ''):
-            retnode['language'] = options['language']
-        if 'linenos' in options:
-            retnode['linenos'] = True
-        state.document.settings.env.note_dependency(rel_fn)
+            (encoding, arguments[0]))]
+    text = ''.join(lines[fromline:toline])
+    retnode = nodes.literal_block(text, text, source=fn)
+    retnode.line = 1
+    if options.get('language', ''):
+        retnode['language'] = options['language']
+    if 'linenos' in options:
+        retnode['linenos'] = True
+    state.document.settings.env.note_dependency(rel_fn)
     return [retnode]
 
 literalinclude_directive.options = {'linenos': directives.flag,
-                                    'language': directives.unchanged,
-                                    'encoding': directives.encoding}
+                                    'language': directives.unchanged_required,
+                                    'encoding': directives.encoding,
+                                    'object': directives.unchanged_required,
+                                    #'lines': directives.unchanged_required,
+                                    #'start-after': directives.unchanged_required,
+                                    #'end-before': directives.unchanged_required,
+                                    }
 literalinclude_directive.content = 0
 literalinclude_directive.arguments = (1, 0, 0)
 directives.register_directive('literalinclude', literalinclude_directive)
