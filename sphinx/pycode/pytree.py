@@ -29,11 +29,6 @@ class Base(object):
     children = ()  # Tuple of subnodes
     was_changed = False
 
-    def __new__(cls, *args, **kwds):
-        """Constructor that prevents Base from being instantiated."""
-        assert cls is not Base, "Cannot instantiate Base"
-        return object.__new__(cls)
-
     def __eq__(self, other):
         """Compares two nodes for equality.
 
@@ -132,7 +127,7 @@ class Node(Base):
 
     """Concrete implementation for interior nodes."""
 
-    def __init__(self, type, children, context=None, prefix=None):
+    def __init__(self, type, children, context=None):
         """Initializer.
 
         Takes a type constant (a symbol number >= 256), a sequence of
@@ -140,14 +135,14 @@ class Node(Base):
 
         As a side effect, the parent pointers of the children are updated.
         """
-        assert type >= 256, type
+        # assert type >= 256, type
         self.type = type
         self.children = list(children)
         for ch in self.children:
-            assert ch.parent is None, repr(ch)
+            # assert ch.parent is None, repr(ch)
             ch.parent = self
-        if prefix is not None:
-            self.set_prefix(prefix)
+        # if prefix is not None:
+        #     self.set_prefix(prefix)
 
     def __repr__(self):
         return "%s(%s, %r)" % (self.__class__.__name__,
@@ -206,19 +201,19 @@ class Leaf(Base):
     lineno = 0   # Line where this token starts in the input
     column = 0   # Column where this token tarts in the input
 
-    def __init__(self, type, value, context=None, prefix=None):
+    def __init__(self, type, value, context=None):
         """Initializer.
 
         Takes a type constant (a token number < 256), a string value,
         and an optional context keyword argument.
         """
-        assert 0 <= type < 256, type
+        # assert 0 <= type < 256, type
         if context is not None:
             self.prefix, (self.lineno, self.column) = context
         self.type = type
         self.value = value
-        if prefix is not None:
-            self.prefix = prefix
+        # if prefix is not None:
+        #     self.prefix = prefix
 
     def __repr__(self):
         return "%s(%r, %r, %r)" % (self.__class__.__name__,
