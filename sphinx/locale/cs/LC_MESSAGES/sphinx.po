@@ -7,41 +7,108 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2008-08-10 11:43+0000\n"
-"PO-Revision-Date: 2008-12-28 23:40+0100\n"
+"POT-Creation-Date: 2008-11-27 18:39+0100\n"
+"PO-Revision-Date: 2008-12-25 05:59+0100\n"
 "Last-Translator: Pavel Kosina <pavel.kosina@gmail.com>\n"
 "Language-Team: Pavel Kosina <pavel.kosina@gmail.com>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.3\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Generated-By: Babel 0.9.4\n"
+"X-Poedit-Language: Czech\n"
+"X-Poedit-Country: CZECH REPUBLIC\n"
 
-#: sphinx/environment.py:103 sphinx/writers/latex.py:170
+#: sphinx/builder.py:408
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%d.%m.%Y"
+
+#: sphinx/builder.py:427
+#: sphinx/templates/defindex.html:21
+msgid "General Index"
+msgstr "Rejstřík indexů"
+
+#: sphinx/builder.py:427
+msgid "index"
+msgstr "index"
+
+#: sphinx/builder.py:429
+#: sphinx/htmlhelp.py:156
+#: sphinx/templates/defindex.html:19
+#: sphinx/templates/modindex.html:2
+#: sphinx/templates/modindex.html:13
+msgid "Global Module Index"
+msgstr "Celkový rejstřík modulů"
+
+#: sphinx/builder.py:429
+msgid "modules"
+msgstr "moduly"
+
+#: sphinx/builder.py:466
+msgid "next"
+msgstr "další"
+
+#: sphinx/builder.py:473
+msgid "previous"
+msgstr "předchozí"
+
+#: sphinx/builder.py:1054
+msgid " (in "
+msgstr "(v"
+
+#: sphinx/builder.py:1129
+msgid "Builtins"
+msgstr "Vestavěné funkce "
+
+#: sphinx/builder.py:1131
+msgid "Module level"
+msgstr "Úroveň modulů"
+
+#: sphinx/environment.py:102
+#: sphinx/latexwriter.py:169
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d.%m.%Y"
 
-#: sphinx/environment.py:293 sphinx/templates/genindex-single.html:2
+#: sphinx/environment.py:291
+#: sphinx/latexwriter.py:175
+#: sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
-#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
-#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
-#: sphinx/templates/layout.html:117 sphinx/writers/latex.py:176
+#: sphinx/templates/genindex-split.html:5
+#: sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5
+#: sphinx/templates/genindex.html:48
+#: sphinx/templates/layout.html:130
 msgid "Index"
 msgstr "Index"
 
-#: sphinx/environment.py:294 sphinx/writers/latex.py:175
-#, fuzzy
+#: sphinx/environment.py:292
+#: sphinx/latexwriter.py:174
 msgid "Module Index"
-msgstr "Rejstřík modulů"
+msgstr "Rejstřík modulů "
 
-#: sphinx/environment.py:295 sphinx/templates/defindex.html:16
-#, fuzzy
+#: sphinx/environment.py:293
+#: sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr "Vyhledávací stránka"
 
-#: sphinx/roles.py:53 sphinx/directives/desc.py:564
+#: sphinx/htmlwriter.py:79
+#: sphinx/static/doctools.js:145
+msgid "Permalink to this definition"
+msgstr "Trvalý odkaz na tuto definici"
+
+#: sphinx/htmlwriter.py:399
+#: sphinx/static/doctools.js:139
+msgid "Permalink to this headline"
+msgstr "Trvalý odkaz na tento nadpis"
+
+#: sphinx/latexwriter.py:172
+msgid "Release"
+msgstr "Vydání"
+
+#: sphinx/roles.py:53
+#: sphinx/directives/desc.py:537
 #, python-format
 msgid "environment variable; %s"
 msgstr "promměná prostředí, %s"
@@ -51,55 +118,22 @@ msgstr "promměná prostředí, %s"
 msgid "Python Enhancement Proposals!PEP %s"
 msgstr "Python Enhancement Proposals!PEP %s"
 
-#: sphinx/builders/changes.py:64
-msgid "Builtins"
-msgstr "Vestavěné funkce"
-
-#: sphinx/builders/changes.py:66
-msgid "Module level"
-msgstr "Úroveň modulů"
-
-#: sphinx/builders/html.py:115
+#: sphinx/textwriter.py:166
 #, python-format
-msgid "%b %d, %Y"
-msgstr "%d.%m.%Y"
+msgid "Platform: %s"
+msgstr "Platforma: %s"
 
-#: sphinx/builders/html.py:134 sphinx/templates/defindex.html:21
-msgid "General Index"
-msgstr "Rejstřík indexů"
-
-#: sphinx/builders/html.py:134
-msgid "index"
-msgstr "index"
-
-#: sphinx/builders/html.py:136 sphinx/builders/htmlhelp.py:180
-#: sphinx/builders/qthelp.py:129 sphinx/templates/defindex.html:19
-#: sphinx/templates/modindex.html:2 sphinx/templates/modindex.html:13
-msgid "Global Module Index"
-msgstr "Rejstřík modulů"
-
-#: sphinx/builders/html.py:136
-msgid "modules"
-msgstr "moduly"
-
-#: sphinx/builders/html.py:175
-msgid "next"
-msgstr "další"
-
-#: sphinx/builders/html.py:182
-msgid "previous"
-msgstr "předchozí"
-
-#: sphinx/builders/latex.py:155
-msgid " (in "
-msgstr ""
+#: sphinx/textwriter.py:422
+msgid "[image]"
+msgstr "[obrázek]"
 
 #: sphinx/directives/desc.py:25
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (vestavěná funkce)"
 
-#: sphinx/directives/desc.py:26 sphinx/directives/desc.py:42
+#: sphinx/directives/desc.py:26
+#: sphinx/directives/desc.py:42
 #: sphinx/directives/desc.py:54
 #, python-format
 msgid "%s() (in module %s)"
@@ -110,15 +144,16 @@ msgstr "%s() (v modulu %s)"
 msgid "%s (built-in variable)"
 msgstr "%s() (vestavěná proměnná)"
 
-#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:66
+#: sphinx/directives/desc.py:30
+#: sphinx/directives/desc.py:66
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s() (v modulu %s)"
 
 #: sphinx/directives/desc.py:33
-#, fuzzy, python-format
+#, python-format
 msgid "%s (built-in class)"
-msgstr "%s() (vestavěná proměnná)"
+msgstr "%s () (vestavěná proměnná)"
 
 #: sphinx/directives/desc.py:34
 #, python-format
@@ -196,19 +231,14 @@ msgstr "Vrací"
 msgid "Return type"
 msgstr "Typ navrácené hodnoty"
 
-#: sphinx/directives/desc.py:201
-#, fuzzy
-msgid "Parameter"
-msgstr "Parametry"
-
-#: sphinx/directives/desc.py:205
+#: sphinx/directives/desc.py:143
 msgid "Parameters"
 msgstr "Parametry"
 
-#: sphinx/directives/desc.py:450
-#, fuzzy, python-format
+#: sphinx/directives/desc.py:423
+#, python-format
 msgid "%scommand line option; %s"
-msgstr "%sparametry příkazového řádku; %s"
+msgstr "%s parametry příkazového řádku; %s"
 
 #: sphinx/directives/other.py:101
 msgid "Platforms: "
@@ -231,27 +261,22 @@ msgstr "Autor modulu: "
 msgid "Author: "
 msgstr "Autor: "
 
-#: sphinx/directives/other.py:249
+#: sphinx/directives/other.py:246
 msgid "See also"
 msgstr "Viz také"
 
-#: sphinx/ext/autodoc.py:576 sphinx/ext/autodoc.py:590
-#, python-format
-msgid "alias of :class:`%s`"
-msgstr ""
-
 #: sphinx/ext/todo.py:31
 msgid "Todo"
-msgstr ""
+msgstr "Todo"
 
 #: sphinx/ext/todo.py:75
 #, python-format
 msgid "(The original entry is located in %s, line %d and can be found "
-msgstr ""
+msgstr "(Původní záznam je v %s, řádka %d a lze jej nalézt"
 
 #: sphinx/ext/todo.py:81
 msgid "here"
-msgstr ""
+msgstr "zde"
 
 #: sphinx/locale/__init__.py:15
 msgid "Attention"
@@ -336,50 +361,39 @@ msgstr "příkaz"
 msgid "built-in function"
 msgstr "vestavěná funkce"
 
-#: sphinx/static/doctools.js:139 sphinx/writers/html.py:415
-msgid "Permalink to this headline"
-msgstr "Trvalý odkaz na tento nadpis"
-
-#: sphinx/static/doctools.js:145 sphinx/writers/html.py:80
-msgid "Permalink to this definition"
-msgstr "Trvalý odkaz na tuto definici"
-
 #: sphinx/static/doctools.js:174
 msgid "Hide Search Matches"
-msgstr ""
+msgstr "Skrýt výsledky vyhledávání"
 
 #: sphinx/static/searchtools.js:274
-#, fuzzy
 msgid "Searching"
-msgstr "hledej"
+msgstr "Hledám"
 
 #: sphinx/static/searchtools.js:279
 msgid "Preparing search..."
-msgstr ""
+msgstr "Připravuji vyhledávání...."
 
 #: sphinx/static/searchtools.js:338
-#, fuzzy
 msgid "module, in "
-msgstr "modul"
+msgstr "modul, v"
 
 #: sphinx/static/searchtools.js:347
 msgid ", in "
-msgstr ""
+msgstr ", v"
 
-#: sphinx/static/searchtools.js:453 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:447
+#: sphinx/templates/search.html:18
 msgid "Search Results"
 msgstr "Výsledky hledání"
 
-#: sphinx/static/searchtools.js:455
-msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
+#: sphinx/static/searchtools.js:449
+msgid "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
+msgstr "Nenalezli jsme žádný dokument. Ujistěte se prosím, že všechna slova jsou správně a že jste vybral dostatek kategorií."
 
-#: sphinx/static/searchtools.js:457
+#: sphinx/static/searchtools.js:451
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr ""
+msgstr "Vyhledávání skončilo, nalezeno %s stran."
 
 #: sphinx/templates/defindex.html:2
 msgid "Overview"
@@ -416,7 +430,8 @@ msgstr "Index &ndash; %(key)s"
 
 #: sphinx/templates/genindex-single.html:44
 #: sphinx/templates/genindex-split.html:14
-#: sphinx/templates/genindex-split.html:27 sphinx/templates/genindex.html:54
+#: sphinx/templates/genindex-split.html:27
+#: sphinx/templates/genindex.html:54
 msgid "Full index on one page"
 msgstr "Plný index na jedné stránce"
 
@@ -452,70 +467,83 @@ msgstr "Další téma"
 msgid "next chapter"
 msgstr "další kapitola"
 
-#: sphinx/templates/layout.html:56
+#: sphinx/templates/layout.html:55
 msgid "This Page"
 msgstr "Tato stránka"
 
-#: sphinx/templates/layout.html:58
+#: sphinx/templates/layout.html:59
+msgid "Suggest Change"
+msgstr "Návrh změnu"
+
+#: sphinx/templates/layout.html:60
+#: sphinx/templates/layout.html:62
 msgid "Show Source"
 msgstr "Ukázat zdroj"
 
-#: sphinx/templates/layout.html:67
+#: sphinx/templates/layout.html:71
 msgid "Quick search"
 msgstr "Rychlé vyhledávání"
 
-#: sphinx/templates/layout.html:69
+#: sphinx/templates/layout.html:71
+msgid "Keyword search"
+msgstr "Hledání dle klíče"
+
+#: sphinx/templates/layout.html:73
 msgid "Go"
 msgstr "hledej"
 
-#: sphinx/templates/layout.html:73
-#, fuzzy
-msgid "Enter search terms or a module, class or function name."
+#: sphinx/templates/layout.html:78
+msgid "Enter a module, class or function name."
 msgstr "Zadej jméno modulu, třídy nebo funkce."
 
-#: sphinx/templates/layout.html:106
+#: sphinx/templates/layout.html:119
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "Hledání uvnitř %(docstitle)s"
 
-#: sphinx/templates/layout.html:115
+#: sphinx/templates/layout.html:128
 msgid "About these documents"
 msgstr "O těchto dokumentech"
 
-#: sphinx/templates/layout.html:118 sphinx/templates/search.html:2
+#: sphinx/templates/layout.html:131
+#: sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
 msgid "Search"
 msgstr "Hledání"
 
-#: sphinx/templates/layout.html:120
+#: sphinx/templates/layout.html:133
 msgid "Copyright"
 msgstr "Veškerá práva vyhrazena"
 
-#: sphinx/templates/layout.html:165
+#: sphinx/templates/layout.html:178
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 
-#: sphinx/templates/layout.html:167
+#: sphinx/templates/layout.html:180
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr "&copy; Copyright %(copyright)s."
 
-#: sphinx/templates/layout.html:170
+#: sphinx/templates/layout.html:183
 #, python-format
 msgid "Last updated on %(last_updated)s."
-msgstr "Naposledy aktualizováno dne %(last_updated)s."
+msgstr "Aktualizováno dne %(last_updated)s."
 
-#: sphinx/templates/layout.html:173
+#: sphinx/templates/layout.html:186
 #, python-format
-msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
-msgstr ""
-"Vytvořeno pomocí <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "Vytvořeno pomocí <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
 
-#: sphinx/templates/modindex.html:36
+#: sphinx/templates/modindex.html:15
+msgid "Most popular modules:"
+msgstr "Nejpopulárnější moduly:"
+
+#: sphinx/templates/modindex.html:24
+msgid "Show modules only available on these platforms"
+msgstr "Zobrazit moduly dostupné na této platformě"
+
+#: sphinx/templates/modindex.html:56
 msgid "Deprecated"
 msgstr "Zastaralé"
 
@@ -524,18 +552,19 @@ msgstr "Zastaralé"
 msgid "Search %(docstitle)s"
 msgstr "Prohledat %(docstitle)s"
 
+#: sphinx/templates/page.html:8
+msgid "<strong>Note:</strong> You requested an out-of-date URL from this server. We've tried to redirect you to the new location of this page, but it may not be the right one."
+msgstr "<strong>Poznámka:</strong> Stránka, kterou hledáte, neexistuje.<br>Snažili jsme se najít nové umístění této stránky, ale nepovedlo se."
+
 #: sphinx/templates/search.html:7
-#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
 msgstr ""
-"Toto je vyhledávací stránka. Zadejte klíčová slova    do pole níže a "
-"klikněte na \"hledej\". \n"
-"Prohledávání funkcí  hledá automaticky všechna slova. Stránky obsahující"
-"    slov méně, nebudou nalezeny."
+"Toto je vyhledávací stránka. Zadejte klíčová slova a klikněte na \"hledej\". \n"
+"Vyhledávání hledá automaticky všechna slova. Nebudou tedy nalezeny stránky, obsahující méně slov."
 
 #: sphinx/templates/search.html:14
 msgid "search"
@@ -572,41 +601,4 @@ msgstr "Změny API"
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "Ostatní změny"
-
-#: sphinx/writers/latex.py:173
-msgid "Release"
-msgstr "Vydání"
-
-#: sphinx/writers/text.py:166
-#, python-format
-msgid "Platform: %s"
-msgstr "Platforma: %s"
-
-#: sphinx/writers/text.py:427
-msgid "[image]"
-msgstr "[obrázek]"
-
-#~ msgid "Suggest Change"
-#~ msgstr "Návrh změnu"
-
-#~ msgid "Keyword search"
-#~ msgstr "Hledání dle klíče"
-
-#~ msgid "Most popular modules:"
-#~ msgstr "Nejpopulárnější moduly:"
-
-#~ msgid "Show modules only available on these platforms"
-#~ msgstr "Zobrazit moduly dostupné na této platformě"
-
-#~ msgid ""
-#~ "<strong>Note:</strong> You requested an "
-#~ "out-of-date URL from this server. "
-#~ "We've tried to redirect you to the"
-#~ " new location of this page, but "
-#~ "it may not be the right one."
-#~ msgstr ""
-#~ "<strong>Poznámka:</strong> Stránka, kterou hledáte,"
-#~ " neexistuje.<br>Snažili jsme se najít nové"
-#~ " umístění této stránky, ale nepovedlo "
-#~ "se."
 
