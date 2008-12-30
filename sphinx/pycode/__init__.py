@@ -160,12 +160,12 @@ class ModuleAnalyzer(object):
         attr_visitor.visit(self.tree)
         return attr_visitor.collected
 
-
-x0 = time.time()
-ma = ModuleAnalyzer.for_module('sphinx.builders.html')
-x1 = time.time()
-for name, doc in ma.find_attrs():
-    print '>>', name
-    print doc
-x2 = time.time()
-print "parsing %.4f, finding %.4f" % (x1-x0, x2-x1)
+if __name__ == '__main__':
+    x0 = time.time()
+    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
+    x1 = time.time()
+    for name, doc in ma.find_attrs():
+        print '>>', name
+        print doc
+    x2 = time.time()
+    print "parsing %.4f, finding %.4f" % (x1-x0, x2-x1)
