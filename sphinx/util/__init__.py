@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: 2007-2008 by Georg Brandl.
+    :copyright: 2007-2009 by Georg Brandl.
     :license: BSD, see LICENSE for details.
 """
 
@@ -324,3 +324,26 @@ class FilenameUniqDict(dict):
 
     def __setstate__(self, state):
         self._existing = state
+
+
+def parselinenos(spec, total):
+    """
+    Parse a line number spec (such as "1,2,4-6") and return a list of
+    wanted line numbers.
+    """
+    items = list()
+    parts = spec.split(',')
+    for part in parts:
+        try:
+            begend = part.strip().split('-')
+            if len(begend) > 2:
+                raise ValueError
+            if len(begend) == 1:
+                items.append(int(begend[0])-1)
+            else:
+                start = (begend[0] == '') and 0 or int(begend[0])-1
+                end = (begend[1] == '') and total or int(begend[1])
+                items.extend(xrange(start, end))
+        except Exception, err:
+            raise ValueError('invalid line number spec: %r' % spec)
+    return items

@@ -3,7 +3,7 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2007-2008 by Georg Brandl.
+    :copyright: 2007-2009 by Georg Brandl.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,6 +15,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.util import parselinenos
 
 
 # ------ highlight directive --------------------------------------------------------
@@ -68,19 +69,9 @@ def literalinclude_directive(name, arguments, options, content, lineno,
         lineno - state_machine.input_offset - 1)))
     fn = path.normpath(path.join(source_dir, rel_fn))
 
-    fromline = toline = None
-    objectname = options.get('pyobject')
-    if objectname is not None:
-        from sphinx.pycode import ModuleAnalyzer
-        analyzer = ModuleAnalyzer.for_file(fn, '')
-        tags = analyzer.find_tags()
-        if objectname not in tags:
-            return [state.document.reporter.warning(
-                'Object named %r not found in include file %r' %
-                (objectname, arguments[0]), line=lineno)]
-        else:
-            fromline = tags[objectname][1] - 1
-            toline = tags[objectname][2] - 1
+    if 'pyobject' in options and 'lines' in options:
+        return [state.document.reporter.warning(
+            'Cannot use both "pyobject" and "lines" options', line=lineno)]
 
     encoding = options.get('encoding', env.config.source_encoding)
     try:
@@ -96,7 +87,43 @@ def literalinclude_directive(name, arguments, options, content, lineno,
             'Encoding %r used for reading included file %r seems to '
             'be wrong, try giving an :encoding: option' %
             (encoding, arguments[0]))]
-    text = ''.join(lines[fromline:toline])
+
+    objectname = options.get('pyobject')
+    if objectname is not None:
+        from sphinx.pycode import ModuleAnalyzer
+        analyzer = ModuleAnalyzer.for_file(fn, '')
+        tags = analyzer.find_tags()
+        if objectname not in tags:
+            return [state.document.reporter.warning(
+                'Object named %r not found in include file %r' %
+                (objectname, arguments[0]), line=lineno)]
+        else:
+            lines = lines[tags[objectname][1] - 1 : tags[objectname][2]]
+
+    linespec = options.get('lines')
+    if linespec is not None:
+        try:
+            linelist = parselinenos(linespec, len(lines))
+        except ValueError, err:
+            return [state.document.reporter.warning(str(err), line=lineno)]
+        lines = [lines[i] for i in linelist]
+
+    startafter = options.get('start-after')
+    endbefore = options.get('end-before')
+    if startafter is not None or endbefore is not None:
+        use = not startafter
+        res = []
+        for line in lines:
+            if not use and startafter in line:
+                use = True
+            elif use and endbefore in line:
+                use = False
+                break
+            elif use:
+                res.append(line)
+        lines = res
+
+    text = ''.join(lines)
     retnode = nodes.literal_block(text, text, source=fn)
     retnode.line = 1
     if options.get('language', ''):
@@ -110,9 +137,9 @@ literalinclude_directive.options = {'linenos': directives.flag,
                                     'language': directives.unchanged_required,
                                     'encoding': directives.encoding,
                                     'pyobject': directives.unchanged_required,
-                                    #'lines': directives.unchanged_required,
-                                    #'start-after': directives.unchanged_required,
-                                    #'end-before': directives.unchanged_required,
+                                    'lines': directives.unchanged_required,
+                                    'start-after': directives.unchanged_required,
+                                    'end-before': directives.unchanged_required,
                                     }
 literalinclude_directive.content = 0
 literalinclude_directive.arguments = (1, 0, 0)
