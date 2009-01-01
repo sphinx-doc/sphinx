@@ -5,7 +5,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: 2008 by Georg Brandl.
+    :copyright: 2008-2009 by Georg Brandl.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +13,7 @@ import sys
 from os import path
 from cStringIO import StringIO
 
-from sphinx.pycode import pytree
+from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
@@ -21,7 +21,7 @@ from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 # load the Python grammar
 _grammarfile = path.join(path.dirname(__file__), 'Grammar.txt')
 pygrammar = driver.load_grammar(_grammarfile)
-pydriver = driver.Driver(pygrammar, convert=pytree.convert)
+pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
 # an object with attributes corresponding to token and symbol names
 class sym: pass
@@ -35,10 +35,10 @@ number2name = pygrammar.number2symbol.copy()
 number2name.update(token.tok_name)
 
 
-_eq = pytree.Leaf(token.EQUAL, '=')
+_eq = nodes.Leaf(token.EQUAL, '=')
 
 
-class AttrDocVisitor(pytree.NodeVisitor):
+class AttrDocVisitor(nodes.NodeVisitor):
     """
     Visitor that collects docstrings for attribute assignments on toplevel and
     in classes.
@@ -263,5 +263,5 @@ if __name__ == '__main__':
     #    print '\n'.join(doc)
     pprint.pprint(ma.find_tags())
     x3 = time.time()
-    #print pytree.nice_repr(ma.parsetree, number2name)
+    #print nodes.nice_repr(ma.parsetree, number2name)
     print "tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2)
