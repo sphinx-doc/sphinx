@@ -233,8 +233,8 @@ class ModuleAnalyzer(object):
                 indent += 1
             elif type == token.DEDENT:
                 indent -= 1
-                # if the stacklevel is the same as it was before the last def/class block,
-                # this dedent closes that block
+                # if the stacklevel is the same as it was before the last
+                # def/class block, this dedent closes that block
                 if stack and indent == stack[-1][3]:
                     dtype, fullname, startline, _ = stack.pop()
                     endline = spos[0]
