@@ -28,6 +28,11 @@ class MyLexer(RegexLexer):
         ],
     }
 
+class ComplainOnUnhighlighted(PygmentsBridge):
+
+    def unhighlighted(self, source):
+        raise AssertionError("should highlight %r" % source)
+
 class MyFormatter(HtmlFormatter):
     def format(self, tokensource, outfile):
         outfile.write('test')
@@ -40,6 +45,18 @@ def test_add_lexer(app):
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')
     assert '<span class="n">a</span>b' in ret
+
+def test_detect_interactive():
+    bridge = ComplainOnUnhighlighted('html')
+    blocks = [
+        """
+        >>> testing()
+        True
+        """,
+        ]
+    for block in blocks:
+        ret = bridge.highlight_block(block.lstrip(), 'python')
+        assert ret.startswith("<div class=\"highlight\">")
 
 def test_set_formatter():
     PygmentsBridge.html_formatter = MyFormatter
