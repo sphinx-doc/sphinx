@@ -319,7 +319,7 @@ def parse_c_type(node, ctype):
     # add cross-ref nodes for all words
     for part in filter(None, wsplit_re.split(ctype)):
         tnode = nodes.Text(part, part)
-        if part[0] in string.letters+'_' and part not in stopwords:
+        if part[0] in string.ascii_letters+'_' and part not in stopwords:
             pnode = addnodes.pending_xref(
                 '', reftype='ctype', reftarget=part, modname=None, classname=None)
             pnode += tnode
