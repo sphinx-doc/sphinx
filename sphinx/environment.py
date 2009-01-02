@@ -20,7 +20,7 @@ import difflib
 import cPickle as pickle
 from os import path
 from glob import glob
-from string import uppercase
+from string import ascii_uppercase as uppercase
 from itertools import izip, groupby
 try:
     import hashlib
