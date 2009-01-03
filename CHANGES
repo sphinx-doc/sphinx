@@ -1,6 +1,11 @@
 Release 0.5.2 (in development)
 ==============================
 
+* #81: Write environment and search index in a manner that is safe
+  from exceptions that occur during dumping.
+
+* #80: Fix UnicodeErrors when a locale is set with setlocale().
+
 
 Release 0.5.1 (Dec 15, 2008)
 ============================

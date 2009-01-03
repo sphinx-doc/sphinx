@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: 2007-2008 by Georg Brandl.
+    :copyright: 2007-2009 by Georg Brandl.
     :license: BSD.
 """
 
@@ -203,7 +203,9 @@ class BuildEnvironment:
         self.set_warnfunc(None)
         values = self.config.values
         del self.config.values
-        picklefile = open(filename, 'wb')
+        # first write to a temporary file, so that if dumping fails, the existing
+        # environment won't be overwritten
+        picklefile = open(filename + '.tmp', 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in vars(self.config).items():
             if key.startswith('_') or \
@@ -215,6 +217,7 @@ class BuildEnvironment:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:
             picklefile.close()
+        os.rename(filename + '.tmp', filename)
         # reset attributes
         self.config.values = values
         self.set_warnfunc(warnfunc)
