@@ -8,8 +8,8 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: 2008 Daniel Bültmann.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes

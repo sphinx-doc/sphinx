@@ -5,8 +5,8 @@
 
     Builder classes for different output formats.
 
-    :copyright: 2007-2009 by Georg Brandl, Sebastian Wiesner, Horst Gutmann.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import os

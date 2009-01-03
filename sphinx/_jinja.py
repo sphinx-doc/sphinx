@@ -5,8 +5,8 @@
 
     Jinja glue.
 
-    :copyright: 2007-2008 by Georg Brandl, Horst Gutmann.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import codecs

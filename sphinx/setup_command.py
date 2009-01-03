@@ -8,7 +8,7 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: 2008 by Sebastian Wiesner.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: MIT.
 """
 

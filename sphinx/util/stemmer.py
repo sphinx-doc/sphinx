@@ -24,7 +24,7 @@
 
     Release 1: January 2001
 
-    :copyright: 2001 by Vivake Gupta <v@nano.com>.
+    :copyright: Copyright 2001 by Vivake Gupta <v@nano.com>.
     :license: Public Domain ("can be used free of charge for any purpose").
 """
 

@@ -4,10 +4,10 @@
     ~~~~~~~~~~~~~~~~~~
 
     This module implements a simple JavaScript serializer.
-    Uses the basestring encode function from simplejson.
+    Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: 2008 by Armin Ronacher, Bob Ippolito, Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2008 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import re

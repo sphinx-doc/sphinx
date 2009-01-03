@@ -6,8 +6,8 @@
     Test the autodoc extension.  This tests mainly the RstGenerator; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 from util import *
