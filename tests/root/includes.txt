@@ -15,6 +15,28 @@ Test file and literal inclusion
 .. include:: wrongenc.inc
    :encoding: latin-1
 
+Literalinclude options
+======================
+
+.. highlight:: text
+
+.. cssclass:: inc-pyobj1
+.. literalinclude:: literal.inc
+   :pyobject: Foo
+
+.. cssclass:: inc-pyobj2
+.. literalinclude:: literal.inc
+   :pyobject: Bar.baz
+
+.. cssclass:: inc-lines
+.. literalinclude:: literal.inc
+   :lines: 6-7,9
+
+.. cssclass:: inc-startend
+.. literalinclude:: literal.inc
+   :start-after: coding: utf-8
+   :end-before: class Foo
+
 
 Testing downloadable files
 ==========================

@@ -98,7 +98,7 @@ def literalinclude_directive(name, arguments, options, content, lineno,
                 'Object named %r not found in include file %r' %
                 (objectname, arguments[0]), line=lineno)]
         else:
-            lines = lines[tags[objectname][1] - 1 : tags[objectname][2]]
+            lines = lines[tags[objectname][1] - 1 : tags[objectname][2] - 1]
 
     linespec = options.get('lines')
     if linespec is not None:

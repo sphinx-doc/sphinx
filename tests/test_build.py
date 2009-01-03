@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import sys
 import difflib
 import htmlentitydefs
@@ -32,7 +33,7 @@ WARNING: %(root)s/images.txt:9: Image file not readable: foo.png
 WARNING: %(root)s/images.txt:23: Nonlocal image URI found: http://www.python.org/logo.png
 WARNING: %(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8' used for reading included \
 file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
-WARNING: %(root)s/includes.txt:34: Download file not readable: nonexisting.png
+WARNING: %(root)s/includes.txt:56: Download file not readable: nonexisting.png
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -61,11 +62,19 @@ HTML_XPATH = {
         ".//pre": u'Max Strauß',
         ".//a[@href='_downloads/img.png']": '',
         ".//a[@href='_downloads/img1.png']": '',
+        ".//div[@class='inc-pyobj1 highlight-text']/div/pre":
+            r'^class Foo:\n    pass\n\s*$',
+        ".//div[@class='inc-pyobj2 highlight-text']/div/pre":
+            r'^    def baz\(\):\n        pass\n\s*$',
+        ".//div[@class='inc-lines highlight-text']/div/pre":
+            r'^class Foo:\n    pass\nclass Bar:\n$',
+        ".//div[@class='inc-startend highlight-text']/div/pre":
+            ur'^foo = u"Including Unicode characters: üöä"\n$',
     },
     'autodoc.html': {
         ".//dt[@id='test_autodoc.Class']": '',
-        ".//dt[@id='test_autodoc.function']/em": '**kwds',
-        ".//dd": 'Return spam.',
+        ".//dt[@id='test_autodoc.function']/em": r'\*\*kwds',
+        ".//dd": r'Return spam\.',
     },
     'markup.html': {
         ".//meta[@name='author'][@content='Me']": '',
@@ -81,7 +90,7 @@ HTML_XPATH = {
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
-        ".//td[@class='label']": '[Ref1]',
+        ".//td[@class='label']": r'\[Ref1\]',
         ".//li[@class='toctree-l1']/a": 'Testing various markup',
         ".//li[@class='toctree-l2']/a": 'Admonitions',
         ".//title": 'Sphinx <Tests>',
@@ -117,18 +126,23 @@ def test_html(app):
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
         etree = ET.parse(os.path.join(app.outdir, fname), parser)
-        for path, text in paths.iteritems():
+        for path, check in paths.iteritems():
             nodes = list(etree.findall(path))
             assert nodes != []
-            if not text:
+            if callable(check):
+                check(nodes)
+            elif not check:
                 # only check for node presence
                 continue
-            for node in nodes:
-                if node.text and text in node.text:
-                    break
             else:
-                assert False, ('%r not found in any node matching '
-                               'path %s in %s' % (text, path, fname))
+                rex = re.compile(check)
+                for node in nodes:
+                    if node.text and rex.search(node.text):
+                        break
+                else:
+                    assert False, ('%r not found in any node matching '
+                                   'path %s in %s: %r' % (check, path, fname,
+                                   [node.text for node in nodes]))
 
 
 @with_app(buildername='latex', warning=latex_warnfile)

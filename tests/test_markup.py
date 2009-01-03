@@ -17,11 +17,13 @@ from docutils import frontend, utils, nodes
 from docutils.parsers import rst
 
 from sphinx import addnodes
+from sphinx.util import texescape
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 def setup_module():
     global app, settings, parser
+    texescape.init()  # otherwise done by the latex builder
     app = TestApp(cleanenv=True)
     optparser = frontend.OptionParser(components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
