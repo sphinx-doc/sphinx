@@ -6,7 +6,7 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: 2008 by Georg Brandl.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

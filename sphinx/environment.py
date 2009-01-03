@@ -5,7 +5,11 @@
 
     Global creation environment.
 
+<<<<<<< local
     :copyright: 2007-2009 by Georg Brandl.
+=======
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+>>>>>>> other
     :license: BSD, see LICENSE for details.
 """
 

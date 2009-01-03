@@ -8,7 +8,7 @@
        This module is only kept for API compatibility; new code should
        import these classes directly from the sphinx.builders package.
 
-    :copyright: 2008-2009 by Georg Brandl.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
