@@ -1,8 +1,27 @@
-The doctools are written and maintained by Georg Brandl <georg@python.org>.
-Substantial parts of the templates and the web application were written by
-Armin Ronacher <armin.ronacher@active-4.com>.
+Sphinx is written and maintained by Georg Brandl <georg@python.org>.
 
-Other contributors are noted in the :copyright: fields within the docstrings
-of the respective files.
+Substantial parts of the templates were written by Armin Ronacher
+<armin.ronacher@active-4.com>.
+
+Other contributors, listed alphabetically, are:
+
+* Daniel Bültmann -- todo extension
+* Josip Dzolonga -- coverage builder
+* Horst Gutmann -- internationalization support
+* Martin Hans -- autodoc improvements
+* Dave Kuhlman -- original LaTeX writer
+* Thomas Lamb -- linkcheck builder
+* Benjamin Peterson -- unittests
+* Antonio Valentino -- qthelp builder
+* Pauli Virtanen -- autodoc improvements
+* Sebastian Wiesner -- image handling, distutils support
 
 Many thanks for all contributions!
+
+There are also a few modules or functions incorporated from other
+authors and projects:
+
+* sphinx.util.jsdump uses the basestring encoding from simplejson,
+  written by Bob Ippolito, released under the MIT license
+* sphinx.util.stemmer was written by Vivake Gupta, placed in the
+  Public Domain

@@ -5,7 +5,7 @@
 
     Additional docutils nodes.
 
-    :copyright: 2007-2008 by Georg Brandl.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

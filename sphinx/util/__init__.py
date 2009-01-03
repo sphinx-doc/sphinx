@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: 2007-2009 by Georg Brandl.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

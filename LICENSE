@@ -1,5 +1,5 @@
-Copyright (c) 2007-2008 by the Sphinx team (see AUTHORS file).  All
-rights reserved.
+Copyright (c) 2007-2008 by the Sphinx team (see AUTHORS file).
+All rights reserved.
 
 License for Sphinx
 ==================
@@ -35,6 +35,7 @@ The pgen2 package, included in this distribution under the name
 sphinx.pycode.pgen2, is available in the Python 2.6 distribution under
 the PSF license agreement for Python:
 
+----------------------------------------------------------------------
 1. This LICENSE AGREEMENT is between the Python Software Foundation
    ("PSF"), and the Individual or Organization ("Licensee") accessing
    and otherwise using Python 2.6 software in source or binary form
@@ -81,3 +82,107 @@ the PSF license agreement for Python:
 8. By copying, installing or otherwise using Python 2.6, Licensee
    agrees to be bound by the terms and conditions of this License
    Agreement.
+----------------------------------------------------------------------
+
+The included smartypants module, included as sphinx.util.smartypants,
+is available under the following license:
+
+----------------------------------------------------------------------
+SmartyPants_ license::
+
+    Copyright (c) 2003 John Gruber
+    (http://daringfireball.net/)
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+    *   Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials
+        provided with the distribution.
+
+    *   Neither the name "SmartyPants" nor the names of its
+        contributors may be used to endorse or promote products
+        derived from this software without specific prior written
+        permission.
+
+    This software is provided by the copyright holders and
+    contributors "as is" and any express or implied warranties,
+    including, but not limited to, the implied warranties of
+    merchantability and fitness for a particular purpose are
+    disclaimed. In no event shall the copyright owner or contributors
+    be liable for any direct, indirect, incidental, special,
+    exemplary, or consequential damages (including, but not limited
+    to, procurement of substitute goods or services; loss of use,
+    data, or profits; or business interruption) however caused and on
+    any theory of liability, whether in contract, strict liability, or
+    tort (including negligence or otherwise) arising in any way out of
+    the use of this software, even if advised of the possibility of
+    such damage.
+
+
+smartypants.py license::
+
+    smartypants.py is a derivative work of SmartyPants.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+    *   Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials
+        provided with the distribution.
+
+    This software is provided by the copyright holders and
+    contributors "as is" and any express or implied warranties,
+    including, but not limited to, the implied warranties of
+    merchantability and fitness for a particular purpose are
+    disclaimed. In no event shall the copyright owner or contributors
+    be liable for any direct, indirect, incidental, special,
+    exemplary, or consequential damages (including, but not limited
+    to, procurement of substitute goods or services; loss of use,
+    data, or profits; or business interruption) however caused and on
+    any theory of liability, whether in contract, strict liability, or
+    tort (including negligence or otherwise) arising in any way out of
+    the use of this software, even if advised of the possibility of
+    such damage.
+----------------------------------------------------------------------
+
+The ElementTree package, included in this distribution in
+test/etree13, is available under the following license:
+
+----------------------------------------------------------------------
+The ElementTree toolkit is
+
+Copyright (c) 1999-2007 by Fredrik Lundh
+
+By obtaining, using, and/or copying this software and/or its
+associated documentation, you agree that you have read, understood,
+and will comply with the following terms and conditions:
+
+Permission to use, copy, modify, and distribute this software and its
+associated documentation for any purpose and without fee is hereby
+granted, provided that the above copyright notice appears in all
+copies, and that both that copyright notice and this permission notice
+appear in supporting documentation, and that the name of Secret Labs
+AB or the author not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.
+
+SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO
+THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANT- ABILITY
+AND FITNESS.  IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE
+FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+----------------------------------------------------------------------

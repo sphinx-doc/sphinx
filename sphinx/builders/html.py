@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: 2007-2008 by Georg Brandl, Armin Ronacher.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -496,11 +496,15 @@ class StandaloneHTMLBuilder(Builder):
     def handle_finish(self):
         self.info(bold('dumping search index... '), nonl=True)
         self.indexer.prune(self.env.all_docs)
-        f = open(path.join(self.outdir, self.searchindex_filename), 'wb')
+        searchindexfn = path.join(self.outdir, self.searchindex_filename)
+        # first write to a temporary file, so that if dumping fails, the existing
+        # index won't be overwritten
+        f = open(searchindexfn + '.tmp', 'wb')
         try:
             self.indexer.dump(f, self.indexer_format)
         finally:
             f.close()
+        os.rename(searchindexfn + '.tmp', searchindexfn)
         self.info('done')
 
         self.info(bold('dumping object inventory... '), nonl=True)

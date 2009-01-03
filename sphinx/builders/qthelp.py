@@ -5,7 +5,7 @@
 
     Build input files for the Qt collection generator.
 
-    :copyright: 2008 by Antonio Valentino.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

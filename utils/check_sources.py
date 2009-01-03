@@ -7,7 +7,7 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: 2006-2008 by Georg Brandl.
+    :copyright: Copyright 2006-2009 by Georg Brandl.
     :license: GNU GPL, see LICENSE for more details.
 """
 
@@ -30,7 +30,8 @@ def checker(*suffixes, **kwds):
 
 
 name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: 200\d(-200\d)? by %s(, %s)*[,.]$' %
+copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-200\d)?'
+                          r'by %s(, %s)*[,.]$' %
                           (name_mail_re, name_mail_re))
 license_re = re.compile(r"    :license: (.*?).\n")
 copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
