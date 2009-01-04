@@ -321,6 +321,16 @@ class HTMLTranslator(BaseTranslator):
     def depart_module(self, node):
         pass
 
+    def visit_hlist(self, node):
+        self.body.append('<table class="hlist"><tr>')
+    def depart_hlist(self, node):
+        self.body.append('</tr></table>\n')
+
+    def visit_hlistcol(self, node):
+        self.body.append('<td>')
+    def depart_hlistcol(self, node):
+        self.body.append('</td>')
+
     def bulk_text_processor(self, text):
         return text
 

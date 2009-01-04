@@ -516,6 +516,16 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_centered(self, node):
         pass
 
+    def visit_hlist(self, node):
+        pass
+    def depart_hlist(self, node):
+        pass
+
+    def visit_hlistcol(self, node):
+        pass
+    def depart_hlistcol(self, node):
+        pass
+
     def visit_admonition(self, node):
         self.new_state(0)
     def depart_admonition(self, node):

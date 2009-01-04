@@ -383,6 +383,34 @@ acks_directive.arguments = (0, 0, 0)
 directives.register_directive('acks', acks_directive)
 
 
+def hlist_directive(name, arguments, options, content, lineno,
+                    content_offset, block_text, state, state_machine):
+    ncolumns = options.get('columns', 2)
+    node = nodes.paragraph()
+    state.nested_parse(content, content_offset, node)
+    if len(node.children) != 1 or not isinstance(node.children[0], nodes.bullet_list):
+        return [state.document.reporter.warning('.. hlist content is not a list',
+                                                line=lineno)]
+    fulllist = node.children[0]
+    # create a hlist node where the items are distributed
+    npercol, nmore = divmod(len(fulllist), ncolumns)
+    index = 0
+    newnode = addnodes.hlist()
+    for column in range(ncolumns):
+        endindex = index + (column < nmore and (npercol+1) or npercol)
+        col = addnodes.hlistcol()
+        col += nodes.bullet_list()
+        col[0] += fulllist.children[index:endindex]
+        index = endindex
+        newnode += col
+    return [newnode]
+
+hlist_directive.content = 1
+hlist_directive.arguments = (0, 0, 0)
+hlist_directive.options = {'columns': int}
+directives.register_directive('hlist', hlist_directive)
+
+
 def tabularcolumns_directive(name, arguments, options, content, lineno,
                              content_offset, block_text, state, state_machine):
     # support giving explicit tabulary column definition to latex

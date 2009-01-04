@@ -223,6 +223,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.this_is_the_title = 1
         self.literal_whitespace = 0
         self.no_contractions = 0
+        self.compact_list = 0
 
     def astext(self):
         return (HEADER % self.elements + self.highlighter.get_stylesheet() +
@@ -652,9 +653,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_bullet_list(self, node):
-        self.body.append('\\begin{itemize}\n' )
+        if not self.compact_list:
+            self.body.append('\\begin{itemize}\n' )
     def depart_bullet_list(self, node):
-        self.body.append('\\end{itemize}\n' )
+        if not self.compact_list:
+            self.body.append('\\end{itemize}\n' )
 
     def visit_enumerated_list(self, node):
         self.body.append('\\begin{enumerate}\n' )
@@ -722,6 +725,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\\begin{centering}')
     def depart_centered(self, node):
         self.body.append('\n\\end{centering}')
+
+    def visit_hlist(self, node):
+        # for now, we don't support a more compact list format
+        # don't add individual itemize environments, but one for all columns
+        self.compact_list += 1
+        self.body.append('\\begin{itemize}\\setlength{\\itemsep}{0pt}'
+                         '\\setlength{\\parskip}{0pt}\n')
+    def depart_hlist(self, node):
+        self.compact_list -= 1
+        self.body.append('\\end{itemize}\n')
+
+    def visit_hlistcol(self, node):
+        pass
+    def depart_hlistcol(self, node):
+        pass
 
     def visit_module(self, node):
         modname = node['modname']

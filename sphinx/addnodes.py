@@ -74,6 +74,10 @@ class download_reference(nodes.reference): pass
 # for the ACKS list
 class acks(nodes.Element): pass
 
+# for horizontal lists
+class hlist(nodes.Element): pass
+class hlistcol(nodes.Element): pass
+
 # sets the highlighting language for literal blocks
 class highlightlang(nodes.Element): pass
 
@@ -99,7 +103,7 @@ class meta(nodes.Special, nodes.PreBibliographic, nodes.Element): pass
 # will choke at some point if these are not added
 nodes._add_node_class_names("""index desc desc_content desc_signature
       desc_type desc_returns desc_addname desc_name desc_parameterlist
-      desc_parameter desc_optional download_reference
+      desc_parameter desc_optional download_reference hlist hlistcol
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis
       glossary acks module start_of_file tabular_col_spec meta""".split())

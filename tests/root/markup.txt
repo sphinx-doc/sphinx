@@ -104,6 +104,16 @@ Reference lookup: [Ref1]_ (defined in another file).
    `Google <http://www.google.com>`_
        For everything.
 
+.. hlist::
+   :columns: 4
+
+   * This
+   * is
+   * a horizontal
+   * list
+   * with several
+   * items
+
 .. rubric:: Side note
 
 This is a side note.
