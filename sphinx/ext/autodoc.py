@@ -21,7 +21,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
-from sphinx.util import rpartition, nested_parse_with_titles
+from sphinx.util import rpartition, nested_parse_with_titles, force_decode
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util.docstrings import prepare_docstring
 
@@ -31,8 +31,6 @@ try:
 except NameError:
     base_exception = Exception
 
-_charset_re = re.compile(r'coding[:=]\s*([-\w.]+)')
-_module_charsets = {}
 
 py_ext_sig_re = re.compile(
     r'''^ ([\w.]+::)?            # explicit module name
@@ -173,27 +171,6 @@ def isdescriptor(x):
     return False
 
 
-def get_module_charset(module):
-    """Return the charset of the given module (cached in _module_charsets)."""
-    if module in _module_charsets:
-        return _module_charsets[module]
-    try:
-        filename = __import__(module, None, None, ['foo']).__file__
-    except (ImportError, AttributeError):
-        return None
-    if filename[-4:].lower() in ('.pyc', '.pyo'):
-        filename = filename[:-1]
-    for line in [linecache.getline(filename, x) for x in (1, 2)]:
-        match = _charset_re.search(line)
-        if match is not None:
-            charset = match.group(1)
-            break
-    else:
-        charset = 'ascii'
-    _module_charsets[module] = charset
-    return charset
-
-
 class RstGenerator(object):
     def __init__(self, options, document, lineno):
         self.options = options
@@ -207,15 +184,19 @@ class RstGenerator(object):
     def warn(self, msg):
         self.warnings.append(self.reporter.warning(msg, line=self.lineno))
 
-    def get_doc(self, what, name, obj):
-        """Format and yield lines of the docstring(s) for the object."""
+    def get_doc(self, what, obj, encoding=None):
+        """Decode and return lines of the docstring(s) for the object."""
         docstrings = []
+
+        # add the regular docstring if present
         if getattr(obj, '__doc__', None):
             docstrings.append(obj.__doc__)
-        # skip some lines in module docstrings if configured
+
+        # skip some lines in module docstrings if configured (deprecated!)
         if what == 'module' and self.env.config.automodule_skip_lines and docstrings:
             docstrings[0] = '\n'.join(docstrings[0].splitlines()
                                       [self.env.config.automodule_skip_lines:])
+
         # for classes, what the "docstring" is can be controlled via an option
         if what in ('class', 'exception'):
             content = self.env.config.autoclass_content
@@ -231,24 +212,12 @@ class RstGenerator(object):
                         docstrings.append(initdocstring)
             # the default is only the class docstring
 
-        # decode the docstrings using the module's source encoding
-        charset = None
-        module = getattr(obj, '__module__', None)
-        if module is not None:
-            charset = get_module_charset(module)
+        # make sure we get Unicode docstrings
+        return [force_decode(docstring, encoding) for docstring in docstrings]
 
-        for docstring in docstrings:
-            if isinstance(docstring, str):
-                if charset:
-                    docstring = docstring.decode(charset)
-                else:
-                    try:
-                        # try decoding with utf-8, should only work for real UTF-8
-                        docstring = docstring.decode('utf-8')
-                    except UnicodeError:
-                        # last resort -- can't fail
-                        docstring = docstring.decode('latin1')
-            docstringlines = prepare_docstring(docstring)
+    def process_doc(self, docstrings, what, name, obj):
+        """Let the user process the docstrings."""
+        for docstringlines in docstrings:
             if self.env.app:
                 # let extensions preprocess docstrings
                 self.env.app.emit('autodoc-process-docstring',
@@ -397,23 +366,24 @@ class RstGenerator(object):
 
         # now, import the module and get object to document
         try:
-            todoc = module = __import__(mod, None, None, ['foo'])
-            if hasattr(module, '__file__') and module.__file__:
-                modfile = module.__file__
-                if modfile[-4:].lower() in ('.pyc', '.pyo'):
-                    modfile = modfile[:-1]
-                self.filename_set.add(modfile)
-            else:
-                modfile = None  # e.g. for builtin and C modules
+            __import__(mod)
+            todoc = module = sys.modules[mod]
             for part in objpath:
                 todoc = getattr(todoc, part)
-            # also get a source code analyzer for attribute docs
-            analyzer = ModuleAnalyzer.for_module(mod)
         except (ImportError, AttributeError, PycodeError), err:
             self.warn('autodoc can\'t import/find %s %r, it reported error: "%s", '
                       'please check your spelling and sys.path' %
                       (what, str(fullname), err))
             return
+
+        # try to also get a source code analyzer for attribute docs
+        try:
+            analyzer = ModuleAnalyzer.for_module(mod)
+        except PycodeError, err:
+            # no source file -- e.g. for builtin and C modules
+            analyzer = None
+        else:
+            self.filename_set.add(analyzer.srcname)
 
         # check __module__ of object if wanted (for members not given explicitly)
         if check_module:
@@ -473,23 +443,29 @@ class RstGenerator(object):
         if what != 'module':
             indent += u'   '
 
-        if modfile:
-            sourcename = '%s:docstring of %s' % (modfile, fullname)
+        # add content from attribute documentation
+        if analyzer:
+            sourcename = '%s:docstring of %s' % (analyzer.srcname, fullname)
+            attr_docs = analyzer.find_attr_docs()
+            if what in ('data', 'attribute'):
+                key = ('.'.join(objpath[:-1]), objpath[-1])
+                if key in attr_docs:
+                    no_docstring = True
+                    docstrings = [attr_docs[key]]
+                    for i, line in enumerate(self.process_doc(docstrings, what,
+                                                              fullname, todoc)):
+                        self.result.append(indent + line, sourcename, i)
         else:
             sourcename = 'docstring of %s' % fullname
-
-        # add content from attribute documentation
-        attr_docs = analyzer.find_attr_docs()
-        if what in ('data', 'attribute'):
-            key = ('.'.join(objpath[:-1]), objpath[-1])
-            if key in attr_docs:
-                no_docstring = True
-                for i, line in enumerate(attr_docs[key]):
-                    self.result.append(indent + line, sourcename, i)
+            attr_docs = {}
 
         # add content from docstrings
         if not no_docstring:
-            for i, line in enumerate(self.get_doc(what, fullname, todoc)):
+            encoding = analyzer and analyzer.encoding
+            docstrings = map(prepare_docstring,
+                             self.get_doc(what, todoc, encoding))
+            for i, line in enumerate(self.process_doc(docstrings, what,
+                                                      fullname, todoc)):
                 self.result.append(indent + line, sourcename, i)
 
         # add source content, if present

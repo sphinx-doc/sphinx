@@ -347,3 +347,17 @@ def parselinenos(spec, total):
         except Exception, err:
             raise ValueError('invalid line number spec: %r' % spec)
     return items
+
+
+def force_decode(string, encoding):
+    if isinstance(string, str):
+        if encoding:
+            string = string.decode(encoding)
+        else:
+            try:
+                # try decoding with utf-8, should only work for real UTF-8
+                string = string.decode('utf-8')
+            except UnicodeError:
+                # last resort -- can't fail
+                string = string.decode('latin1')
+    return string

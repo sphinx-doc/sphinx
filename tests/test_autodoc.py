@@ -15,6 +15,7 @@ from util import *
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import RstGenerator, cut_lines, between
+from sphinx.util.docstrings import prepare_docstring
 
 
 def setup_module():
@@ -173,13 +174,14 @@ def test_format_signature():
 
 def test_get_doc():
     def getdocl(*args):
-        # strip the empty line at the end
-        return list(gen.get_doc(*args))[:-1]
+        ds = map(prepare_docstring, gen.get_doc(*args))
+        # for testing purposes, concat them and strip the empty line at the end
+        return sum(ds, [])[:-1]
 
     # objects without docstring
     def f():
         pass
-    assert getdocl('function', 'f', f) == []
+    assert getdocl('function', f) == []
 
     # standard function, diverse docstring styles...
     def f():
@@ -189,7 +191,7 @@ def test_get_doc():
         Docstring
         """
     for func in (f, g):
-        assert getdocl('function', 'f', func) == ['Docstring']
+        assert getdocl('function', func) == ['Docstring']
 
     # first line vs. other lines indentation
     def f():
@@ -198,17 +200,17 @@ def test_get_doc():
         Other
           lines
         """
-    assert getdocl('function', 'f', f) == ['First line', '', 'Other', '  lines']
+    assert getdocl('function', f) == ['First line', '', 'Other', '  lines']
 
     # charset guessing (this module is encoded in utf-8)
     def f():
         """Döcstring"""
-    assert getdocl('function', 'f', f) == [u'Döcstring']
+    assert getdocl('function', f) == [u'Döcstring']
 
     # already-unicode docstrings must be taken literally
     def f():
         u"""Döcstring"""
-    assert getdocl('function', 'f', f) == [u'Döcstring']
+    assert getdocl('function', f) == [u'Döcstring']
 
     # class docstring: depends on config value which one is taken
     class C:
@@ -216,11 +218,11 @@ def test_get_doc():
         def __init__(self):
             """Init docstring"""
     gen.env.config.autoclass_content = 'class'
-    assert getdocl('class', 'C', C) == ['Class docstring']
+    assert getdocl('class', C) == ['Class docstring']
     gen.env.config.autoclass_content = 'init'
-    assert getdocl('class', 'C', C) == ['Init docstring']
+    assert getdocl('class', C) == ['Init docstring']
     gen.env.config.autoclass_content = 'both'
-    assert getdocl('class', 'C', C) == ['Class docstring', '', 'Init docstring']
+    assert getdocl('class', C) == ['Class docstring', '', 'Init docstring']
 
     class D:
         """Class docstring"""
@@ -232,18 +234,22 @@ def test_get_doc():
             """
 
     # Indentation is normalized for 'both'
-    assert getdocl('class', 'D', D) == ['Class docstring', '', 'Init docstring',
-                                        '', 'Other', ' lines']
+    assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
+                                   '', 'Other', ' lines']
+
+
+def test_docstring_processing():
+    def process(what, name, obj):
+        return list(gen.process_doc(map(prepare_docstring, gen.get_doc(what, obj)),
+                                    what, name, obj))
 
     class E:
         def __init__(self):
             """Init docstring"""
 
     # docstring processing by event handler
-    assert getdocl('class', 'bar', E) == ['Init docstring', '', '42']
+    assert process('class', 'bar', E) == ['Init docstring', '', '42', '']
 
-
-def test_docstring_processing_functions():
     lid = app.connect('autodoc-process-docstring', cut_lines(1, 1, ['function']))
     def f():
         """
@@ -251,7 +257,7 @@ def test_docstring_processing_functions():
         second line
         third line
         """
-    assert list(gen.get_doc('function', 'f', f)) == ['second line', '']
+    assert process('function', 'f', f) == ['second line', '']
     app.disconnect(lid)
 
     lid = app.connect('autodoc-process-docstring', between('---', ['function']))
@@ -263,7 +269,7 @@ def test_docstring_processing_functions():
         ---
         third line
         """
-    assert list(gen.get_doc('function', 'f', f)) == ['second line', '']
+    assert process('function', 'f', f) == ['second line', '']
     app.disconnect(lid)
 
 
@@ -289,7 +295,7 @@ def test_generate():
 
     def assert_result_contains(item, *args):
         gen.generate(*args)
-        print '\n'.join(gen.result)
+        #print '\n'.join(gen.result)
         assert len(gen.warnings) == 0, gen.warnings
         assert item in gen.result
         del gen.result[:]
@@ -325,7 +331,10 @@ def test_generate():
     assert_processes(should, 'class', 'Class', [], None)
     should.extend([('method', 'test_autodoc.Class.meth')])
     assert_processes(should, 'class', 'Class', ['meth'], None)
-    should.extend([('attribute', 'test_autodoc.Class.prop')])
+    should.extend([('attribute', 'test_autodoc.Class.prop'),
+                   ('attribute', 'test_autodoc.Class.attr'),
+                   ('attribute', 'test_autodoc.Class.docattr'),
+                   ('attribute', 'test_autodoc.Class.udocattr')])
     assert_processes(should, 'class', 'Class', ['__all__'], None)
     options.undoc_members = True
     should.append(('method', 'test_autodoc.Class.undocmeth'))
@@ -369,6 +378,11 @@ def test_generate():
                       ('method', 'test_autodoc.Outer.Inner.meth')],
                      'class', 'Outer', ['__all__'], None)
 
+    # test generation for C modules (which have no source file)
+    gen.env.currmodule = 'time'
+    assert_processes([('function', 'time.asctime')], 'function', 'asctime', [], None)
+    assert_processes([('function', 'time.asctime')], 'function', 'asctime', [], None)
+
 
 # --- generate fodder ------------
 
@@ -398,9 +412,21 @@ class Class(Base):
         """Method that should be skipped."""
         pass
 
+    # should not be documented
+    skipattr = 'foo'
+
+    #: should be documented -- süß
+    attr = 'bar'
+
     @property
     def prop(self):
         """Property."""
+
+    docattr = 'baz'
+    """should likewise be documented -- süß"""
+
+    udocattr = 'quux'
+    u"""should be documented as well - süß"""
 
 class CustomDict(dict):
     """Docstring."""
@@ -421,4 +447,5 @@ class Outer(object):
         def meth(self):
             """Foo"""
 
+    # should be documented as an alias
     factory = dict
