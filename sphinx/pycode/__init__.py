@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
 from os import path
 from cStringIO import StringIO
@@ -35,6 +36,9 @@ number2name = pygrammar.number2symbol.copy()
 number2name.update(token.tok_name)
 
 
+# a regex to recognize coding cookies
+_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
+
 _eq = nodes.Leaf(token.EQUAL, '=')
 
 
@@ -46,8 +50,9 @@ class AttrDocVisitor(nodes.NodeVisitor):
     The docstrings can either be in special '#:' comments before the assignment
     or in a docstring after it.
     """
-    def init(self, scope):
+    def init(self, scope, encoding):
         self.scope = scope
+        self.encoding = encoding
         self.namespace = []
         self.collected = {}
 
@@ -71,6 +76,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
             prefix = pnode.get_prefix()
+        prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
         if docstring:
             self.add_docstring(node, docstring)
@@ -86,7 +92,8 @@ class AttrDocVisitor(nodes.NodeVisitor):
         if prev.type == sym.simple_stmt and \
                prev[0].type == sym.expr_stmt and _eq in prev[0].children:
             # need to "eval" the string because it's returned in its original form
-            docstring = prepare_docstring(literals.evalString(node[0].value))
+            docstring = literals.evalString(node[0].value, self.encoding)
+            docstring = prepare_docstring(docstring)
             self.add_docstring(prev[0], docstring)
 
     def visit_funcdef(self, node):
@@ -136,38 +143,48 @@ class ModuleAnalyzer(object):
     @classmethod
     def for_module(cls, modname):
         if ('module', modname) in cls.cache:
-            return cls.cache['module', modname]
-        if modname not in sys.modules:
-            try:
-                __import__(modname)
-            except ImportError, err:
-                raise PycodeError('error importing %r' % modname, err)
-        mod = sys.modules[modname]
-        if hasattr(mod, '__loader__'):
-            try:
-                source = mod.__loader__.get_source(modname)
-            except Exception, err:
-                raise PycodeError('error getting source for %r' % modname, err)
-            obj = cls.for_string(source, modname)
-            cls.cache['module', modname] = obj
-            return obj
-        filename = getattr(mod, '__file__', None)
-        if filename is None:
-            raise PycodeError('no source found for module %r' % modname)
-        filename = path.normpath(filename)
-        lfilename = filename.lower()
-        if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
-            filename = filename[:-1]
-        elif not lfilename.endswith('.py'):
-            raise PycodeError('source is not a .py file: %r' % filename)
-        if not path.isfile(filename):
-            raise PycodeError('source file is not present: %r' % filename)
-        obj = cls.for_file(filename, modname)
+            entry = cls.cache['module', modname]
+            if isinstance(entry, PycodeError):
+                raise entry
+            return entry
+
+        try:
+            if modname not in sys.modules:
+                try:
+                    __import__(modname)
+                except ImportError, err:
+                    raise PycodeError('error importing %r' % modname, err)
+            mod = sys.modules[modname]
+            if hasattr(mod, '__loader__'):
+                try:
+                    source = mod.__loader__.get_source(modname)
+                except Exception, err:
+                    raise PycodeError('error getting source for %r' % modname, err)
+                obj = cls.for_string(source, modname)
+                cls.cache['module', modname] = obj
+                return obj
+            filename = getattr(mod, '__file__', None)
+            if filename is None:
+                raise PycodeError('no source found for module %r' % modname)
+            filename = path.normpath(filename)
+            lfilename = filename.lower()
+            if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
+                filename = filename[:-1]
+            elif not lfilename.endswith('.py'):
+                raise PycodeError('source is not a .py file: %r' % filename)
+            if not path.isfile(filename):
+                raise PycodeError('source file is not present: %r' % filename)
+            obj = cls.for_file(filename, modname)
+        except PycodeError, err:
+            cls.cache['module', modname] = err
+            raise
         cls.cache['module', modname] = obj
         return obj
 
     def __init__(self, source, modname, srcname):
+        # name of the module
         self.modname = modname
+        # name of the source file
         self.srcname = srcname
         # file-like object yielding source lines
         self.source = source
@@ -194,13 +211,22 @@ class ModuleAnalyzer(object):
             return
         self.tokenize()
         self.parsetree = pydriver.parse_tokens(self.tokens)
+        # find the source code encoding
+        encoding = sys.getdefaultencoding()
+        comments = self.parsetree.get_prefix()
+        for line in comments.splitlines()[:2]:
+            match = _coding_re.search(line)
+            if match is not None:
+                encoding = match.group(1)
+                break
+        self.encoding = encoding
 
     def find_attr_docs(self, scope=''):
         """Find class and module-level attributes and their documentation."""
         if self.attr_docs is not None:
             return self.attr_docs
         self.parse()
-        attr_visitor = AttrDocVisitor(number2name, scope)
+        attr_visitor = AttrDocVisitor(number2name, scope, self.encoding)
         attr_visitor.visit(self.parsetree)
         self.attr_docs = attr_visitor.collected
         return attr_visitor.collected

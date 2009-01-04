@@ -63,9 +63,11 @@ escape_re = re.compile(r"\\(\'|\"|\\|[abfnrtv]|x.{0,2}|[0-7]{1,3})")
 uni_escape_re = re.compile(r"\\(\'|\"|\\|[abfnrtv]|x.{0,2}|[0-7]{1,3}|"
                            r"u[0-9a-fA-F]{0,4}|U[0-9a-fA-F]{0,8}|N\{.+?\})")
 
-def evalString(s):
+def evalString(s, encoding=None):
     regex = escape_re
     repl = escape
+    if encoding:
+        s = s.decode(encoding)
     if s.startswith('u') or s.startswith('U'):
         regex = uni_escape_re
         s = s[1:]
