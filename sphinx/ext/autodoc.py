@@ -371,7 +371,7 @@ class RstGenerator(object):
             todoc = module = sys.modules[mod]
             for part in objpath:
                 todoc = getattr(todoc, part)
-        except (ImportError, AttributeError, PycodeError), err:
+        except (ImportError, AttributeError), err:
             self.warn('autodoc can\'t import/find %s %r, it reported error: "%s", '
                       'please check your spelling and sys.path' %
                       (what, str(fullname), err))
@@ -392,6 +392,11 @@ class RstGenerator(object):
                 if todoc.__module__ != mod:
                     return
 
+        # make sure that the result starts with an empty line.  This is
+        # necessary for some situations where another directive preprocesses
+        # reST and no starting newline is present
+        self.result.append(u'', '')
+
         # format the object's signature, if any
         try:
             sig = self.format_signature(what, fullname, todoc, args, retann)
@@ -399,11 +404,6 @@ class RstGenerator(object):
             self.warn('error while formatting signature for %s: %s' %
                       (fullname, err))
             sig = ''
-
-        # make sure that the result starts with an empty line.  This is
-        # necessary for some situations where another directive preprocesses
-        # reST and no starting newline is present
-        self.result.append(u'', '')
 
         # now, create the directive header
         if what == 'method':
@@ -430,13 +430,14 @@ class RstGenerator(object):
             self.result.append(indent + u'   :noindex:', '<autodoc>')
         self.result.append(u'', '<autodoc>')
 
+        # add inheritance info, if wanted
         if self.options.show_inheritance and what in ('class', 'exception'):
             if len(todoc.__bases__):
                 bases = [b.__module__ == '__builtin__' and
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in todoc.__bases__]
-                self.result.append(indent + u'   Bases: %s' % ', '.join(bases),
+                self.result.append(indent + _(u'   Bases: %s') % ', '.join(bases),
                                    '<autodoc>')
                 self.result.append(u'', '<autodoc>')
 
@@ -468,7 +469,7 @@ class RstGenerator(object):
                                                       fullname, todoc)):
                 self.result.append(indent + line, sourcename, i)
 
-        # add source content, if present
+        # add additional content (e.g. from document), if present
         if add_content:
             for line, src in zip(add_content.data, add_content.items):
                 self.result.append(indent + line, src[0], src[1])
@@ -483,10 +484,10 @@ class RstGenerator(object):
         if objpath:
             self.env.autodoc_current_class = objpath[0]
 
-        # add members, if possible
-        all_members = members == ['__all__']
+        # look for members to include
+        want_all_members = members == ['__all__']
         members_check_module = False
-        if all_members:
+        if want_all_members:
             # unqualified :members: given
             if what == 'module':
                 if hasattr(todoc, '__all__'):
@@ -524,7 +525,7 @@ class RstGenerator(object):
             # if content is not None, no extra content from docstrings will be added
             content = None
 
-            if all_members and membername.startswith('_'):
+            if want_all_members and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
                 skip = True
             else:
@@ -547,6 +548,7 @@ class RstGenerator(object):
             if skip:
                 continue
 
+            # determine member type
             if what == 'module':
                 if isinstance(member, (FunctionType, BuiltinFunctionType)):
                     memberwhat = 'function'
@@ -581,6 +583,7 @@ class RstGenerator(object):
                     memberwhat = 'attribute'
                 else:
                     continue
+
             # give explicitly separated module name, so that members of inner classes
             # can be documented
             full_membername = mod + '::' + '.'.join(objpath + [membername])
