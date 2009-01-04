@@ -29,6 +29,9 @@ New features added
   - #4: Added a ``:download:`` role that marks a non-document file
     for inclusion into the HTML output and links to it.
 
+  - The ``literalinclude`` directive now supports several more
+    options, to include only parts of a file.
+
   - The ``toctree`` directive now supports a ``:hidden:`` flag,
     which will prevent links from being generated in place of
     the directive -- this allows you to define your document
@@ -67,6 +70,8 @@ New features added
   - Italian by Sandro Dentella.
 
 * Extensions and API:
+
+  - Autodoc now handles documented attributes.
 
   - Autodoc now handles inner classes and their methods.
 
