@@ -176,6 +176,10 @@ class ModuleAnalyzer(object):
         self.tokens = None
         # will be filled by parse()
         self.parsetree = None
+        # will be filled by find_attr_docs()
+        self.attr_docs = None
+        # will be filled by find_tags()
+        self.tags = None
 
     def tokenize(self):
         """Generate tokens from the source."""
@@ -193,13 +197,18 @@ class ModuleAnalyzer(object):
 
     def find_attr_docs(self, scope=''):
         """Find class and module-level attributes and their documentation."""
+        if self.attr_docs is not None:
+            return self.attr_docs
         self.parse()
         attr_visitor = AttrDocVisitor(number2name, scope)
         attr_visitor.visit(self.parsetree)
+        self.attr_docs = attr_visitor.collected
         return attr_visitor.collected
 
     def find_tags(self):
         """Find class, function and method definitions and their location."""
+        if self.tags is not None:
+            return self.tags
         self.tokenize()
         result = {}
         namespace = []
@@ -246,6 +255,7 @@ class ModuleAnalyzer(object):
                 if defline:
                     defline = False
                     expect_indent = True
+        self.tags = result
         return result
 
 
