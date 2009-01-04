@@ -16,7 +16,7 @@ TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
 from sphinx.util import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, nocolor, color_terminal
-from sphinx.util.texescape import tex_escape_map
+from sphinx.util import texescape
 
 
 PROMPT_PREFIX = '> '
@@ -274,42 +274,36 @@ clean:
 \t-rm -rf %(rbuilddir)s/*
 
 html:
-\tmkdir -p %(rbuilddir)s/html %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) %(rbuilddir)s/html
 \t@echo
 \t@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
 
 pickle:
-\tmkdir -p %(rbuilddir)s/pickle %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) %(rbuilddir)s/pickle
 \t@echo
 \t@echo "Build finished; now you can process the pickle files."
 
 json:
-\tmkdir -p %(rbuilddir)s/json %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) %(rbuilddir)s/json
 \t@echo
 \t@echo "Build finished; now you can process the JSON files."
 
 htmlhelp:
-\tmkdir -p %(rbuilddir)s/htmlhelp %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) %(rbuilddir)s/htmlhelp
 \t@echo
 \t@echo "Build finished; now you can run HTML Help Workshop with the" \\
 \t      ".hhp project file in %(rbuilddir)s/htmlhelp."
 
 qthelp:
-\tmkdir -p %(rbuilddir)s/qthelp %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) %(rbuilddir)s/qthelp
 \t@echo
 \t@echo "Build finished; now you can run "qcollectiongenerator" with the" \\
 \t      ".qhcp project file in %(rbuilddir)s/qthelp, like this:"
-\t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/Sphinx.qhcp"
+\t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/%(project)s.qhcp"
 \t@echo "To view the help file:"
 \t@echo "# assistant -collectionFile %(rbuilddir)s/qthelp/%(project)s.qhc"
 
 latex:
-\tmkdir -p %(rbuilddir)s/latex %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
 \t@echo
 \t@echo "Build finished; the LaTeX files are in %(rbuilddir)s/latex."
@@ -317,17 +311,113 @@ latex:
 \t      "run these through (pdf)latex."
 
 changes:
-\tmkdir -p %(rbuilddir)s/changes %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) %(rbuilddir)s/changes
 \t@echo
 \t@echo "The overview file is in %(rbuilddir)s/changes."
 
 linkcheck:
-\tmkdir -p %(rbuilddir)s/linkcheck %(rbuilddir)s/doctrees
 \t$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) %(rbuilddir)s/linkcheck
 \t@echo
 \t@echo "Link check complete; look for any errors in the above output " \\
 \t      "or in %(rbuilddir)s/linkcheck/output.txt."
+'''
+
+BATCHFILE = '''\
+@ECHO OFF
+
+REM Command file for Sphinx documentation
+
+set SPHINXBUILD=sphinx-build
+set ALLSPHINXOPTS=-d %(rbuilddir)s/doctrees %%SPHINXOPTS%% %(rsrcdir)s
+if NOT "%%PAPER%%" == "" (
+\tset ALLSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%ALLSPHINXOPTS%%
+)
+
+if "%%1" == "" goto help
+
+if "%%1" == "help" (
+\t:help
+\techo.Please use `make ^<target^>` where ^<target^> is one of
+\techo.  html      to make standalone HTML files
+\techo.  pickle    to make pickle files
+\techo.  json      to make JSON files
+\techo.  htmlhelp  to make HTML files and a HTML help project
+\techo.  qthelp    to make HTML files and a qthelp project
+\techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+\techo.  changes   to make an overview over all changed/added/deprecated items
+\techo.  linkcheck to check all external links for integrity
+\tgoto end
+)
+
+if "%%1" == "clean" (
+\tfor /d %%%%i in (%(rbuilddir)s\*) do rmdir /q /s %%%%i
+\tdel /q /s %(rbuilddir)s\*
+\tgoto end
+)
+
+if "%%1" == "html" (
+\t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %(rbuilddir)s/html
+\techo.
+\techo.Build finished. The HTML pages are in %(rbuilddir)s/html.
+\tgoto end
+)
+
+if "%%1" == "pickle" (
+\t%%SPHINXBUILD%% -b pickle %%ALLSPHINXOPTS%% %(rbuilddir)s/pickle
+\techo.
+\techo.Build finished; now you can process the pickle files.
+\tgoto end
+)
+
+if "%%1" == "json" (
+\t%%SPHINXBUILD%% -b json %%ALLSPHINXOPTS%% %(rbuilddir)s/json
+\techo.
+\techo.Build finished; now you can process the JSON files.
+\tgoto end
+)
+
+if "%%1" == "htmlhelp" (
+\t%%SPHINXBUILD%% -b htmlhelp %%ALLSPHINXOPTS%% %(rbuilddir)s/htmlhelp
+\techo.
+\techo.Build finished; now you can run HTML Help Workshop with the ^
+.hhp project file in %(rbuilddir)s/htmlhelp.
+\tgoto end
+)
+
+if "%%1" == "qthelp" (
+\t%%SPHINXBUILD%% -b qthelp %%ALLSPHINXOPTS%% %(rbuilddir)s/qthelp
+\techo.
+\techo.Build finished; now you can run "qcollectiongenerator" with the ^
+.qhcp project file in %(rbuilddir)s/qthelp, like this:
+\techo.^> qcollectiongenerator %(rbuilddir)s\\qthelp\\%(project)s.qhcp
+\techo.To view the help file:
+\techo.^> assistant -collectionFile %(rbuilddir)s\\qthelp\\%(project)s.ghc
+\tgoto end
+)
+
+if "%%1" == "latex" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %(rbuilddir)s/latex
+\techo.
+\techo.Build finished; the LaTeX files are in %(rbuilddir)s/latex.
+\tgoto end
+)
+
+if "%%1" == "changes" (
+\t%%SPHINXBUILD%% -b changes %%ALLSPHINXOPTS%% %(rbuilddir)s/changes
+\techo.
+\techo.The overview file is in %(rbuilddir)s/changes.
+\tgoto end
+)
+
+if "%%1" == "linkcheck" (
+\t%%SPHINXBUILD%% -b linkcheck %%ALLSPHINXOPTS%% %(rbuilddir)s/linkcheck
+\techo.
+\techo.Link check complete; look for any errors in the above output ^
+or in %(rbuilddir)s/linkcheck/output.txt.
+\tgoto end
+)
+
+:end
 '''
 
 
@@ -391,6 +481,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
 
 def inner_main(args):
     d = {}
+    texescape.init()
 
     if not sys.stdout.isatty() or not color_terminal():
         nocolor()
@@ -418,16 +509,16 @@ Enter the root path for documentation.'''
 
     print '''
 You have two options for placing the build directory for Sphinx output.
-Either, you use a directory ".build" within the root path, or you separate
+Either, you use a directory "_build" within the root path, or you separate
 "source" and "build" directories within the root path.'''
     do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
               boolean)
+
     print '''
-Inside the root directory, two more directories will be created; ".templates"
-for custom HTML templates and ".static" for custom stylesheets and other
-static files. Since the leading dot may be inconvenient for Windows users,
-you can enter another prefix (such as "_") to replace the dot.'''
-    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '.', ok)
+Inside the root directory, two more directories will be created; "_templates"
+for custom HTML templates and "_static" for custom stylesheets and other
+static files. You can enter another prefix (such as ".") to replace the underscore.'''
+    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
 
     print '''
 The project name will occur in several places in the built documentation.'''
@@ -461,11 +552,11 @@ Please indicate if you want to use one of the following Sphinx extensions:'''
     do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx documentation '
               'of different projects (y/N)', 'n', boolean)
     print '''
-If you are under Unix, a Makefile can be generated for you so that you
+A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
-    do_prompt(d, 'makefile', 'Create Makefile? (Y/n)',
-              os.name == 'posix' and 'y' or 'n', boolean)
+    do_prompt(d, 'makefile', 'Create Makefile? (Y/n)', 'y', boolean)
+    do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)', 'y', boolean)
 
     d['project_fn'] = make_filename(d['project'])
     d['now'] = time.asctime()
@@ -474,10 +565,10 @@ directly.'''
         repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest', 'intersphinx')
         if d['ext_' + name].upper() in ('Y', 'YES'))
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
-    d['author_texescaped'] = unicode(d['author']).translate(tex_escape_map)
+    d['author_texescaped'] = unicode(d['author']).translate(texescape.tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
     d['project_doc_texescaped'] = \
-        unicode(d['project'] + ' Documentation').translate(tex_escape_map)
+        unicode(d['project'] + ' Documentation').translate(texescape.tex_escape_map)
 
     if not path.isdir(d['path']):
         mkdir_p(d['path'])
@@ -517,11 +608,19 @@ directly.'''
         f.write((MAKEFILE % d).encode('utf-8'))
         f.close()
 
+    create_batch = d['batchfile'].upper() in ('Y', 'YES')
+    if create_batch:
+        d['rsrcdir'] = separate and 'source' or '.'
+        d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
+        f = open(path.join(d['path'], 'make.bat'), 'w')
+        f.write((BATCHFILE % d).encode('utf-8'))
+        f.close()
+
     print
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
-source files. ''' % masterfile + (create_makefile and '''\
+source files. ''' % masterfile + ((create_makefile or create_batch) and '''\
 Use the Makefile to build the docs, like so:
    make builder
 ''' or '''\
