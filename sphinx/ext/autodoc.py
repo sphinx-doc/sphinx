@@ -212,8 +212,9 @@ class RstGenerator(object):
                         docstrings.append(initdocstring)
             # the default is only the class docstring
 
-        # make sure we get Unicode docstrings
-        return [force_decode(docstring, encoding) for docstring in docstrings]
+        # make sure we have Unicode docstrings, then sanitize and split into lines
+        return [prepare_docstring(force_decode(docstring, encoding))
+                for docstring in docstrings]
 
     def process_doc(self, docstrings, what, name, obj):
         """Let the user process the docstrings."""
@@ -462,8 +463,7 @@ class RstGenerator(object):
         # add content from docstrings
         if not no_docstring:
             encoding = analyzer and analyzer.encoding
-            docstrings = map(prepare_docstring,
-                             self.get_doc(what, todoc, encoding))
+            docstrings = self.get_doc(what, todoc, encoding)
             for i, line in enumerate(self.process_doc(docstrings, what,
                                                       fullname, todoc)):
                 self.result.append(indent + line, sourcename, i)

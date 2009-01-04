@@ -15,7 +15,6 @@ from util import *
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import RstGenerator, cut_lines, between
-from sphinx.util.docstrings import prepare_docstring
 
 
 def setup_module():
@@ -174,7 +173,7 @@ def test_format_signature():
 
 def test_get_doc():
     def getdocl(*args):
-        ds = map(prepare_docstring, gen.get_doc(*args))
+        ds = gen.get_doc(*args)
         # for testing purposes, concat them and strip the empty line at the end
         return sum(ds, [])[:-1]
 
@@ -240,8 +239,7 @@ def test_get_doc():
 
 def test_docstring_processing():
     def process(what, name, obj):
-        return list(gen.process_doc(map(prepare_docstring, gen.get_doc(what, obj)),
-                                    what, name, obj))
+        return list(gen.process_doc(gen.get_doc(what, obj), what, name, obj))
 
     class E:
         def __init__(self):
