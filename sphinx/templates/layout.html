@@ -44,18 +44,21 @@
           {%- block sidebarrel %}
           {%- if prev %}
             <h4>{{ _('Previous topic') }}</h4>
-            <p class="topless"><a href="{{ prev.link|e }}" title="{{ _('previous chapter') }}">{{ prev.title }}</a></p>
+            <p class="topless"><a href="{{ prev.link|e }}"
+                                  title="{{ _('previous chapter') }}">{{ prev.title }}</a></p>
           {%- endif %}
           {%- if next %}
             <h4>{{ _('Next topic') }}</h4>
-            <p class="topless"><a href="{{ next.link|e }}" title="{{ _('next chapter') }}">{{ next.title }}</a></p>
+            <p class="topless"><a href="{{ next.link|e }}"
+                                  title="{{ _('next chapter') }}">{{ next.title }}</a></p>
           {%- endif %}
           {%- endblock %}
           {%- block sidebarsourcelink %}
           {%- if show_source and has_source and sourcename %}
             <h3>{{ _('This Page') }}</h3>
             <ul class="this-page-menu">
-              <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}" rel="nofollow">{{ _('Show Source') }}</a></li>
+              <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}"
+                     rel="nofollow">{{ _('Show Source') }}</a></li>
             </ul>
           {%- endif %}
           {%- endblock %}
@@ -67,15 +70,14 @@
 	  <div id="searchbox" style="display: none">
             <h3>{{ _('Quick search') }}</h3>
               <form class="search" action="{{ pathto('search') }}" method="get">
-                <input type="text" name="q" size="18" /> <input type="submit" value="{{ _('Go') }}" />
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="{{ _('Go') }}" />
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
               </form>
 	      <p style="font-size: 90%">{{ _('Enter search terms or a module, class or function name.') }}</p>
           </div>
-          <script type="text/javascript">
-            $(function () { $('#searchbox').show(0); });
-          </script>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
           {%- endif %}
           {%- endblock %}
         </div>

@@ -3,10 +3,11 @@
 {% set script_files = script_files + ['_static/searchtools.js'] %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
-  <div id ="fallback" class="admonition warning">
+  <div id="fallback" class="admonition warning">
   <script type="text/javascript">$('#fallback').hide();</script>
   <p>
-    {% trans %}Please activate Javascript to enable the search functionality.{% endtrans %}
+    {% trans %}Please activate JavaScript to enable the search
+    functionality.{% endtrans %}
   </p>
   </div>
   <p>
