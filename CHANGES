@@ -91,6 +91,8 @@ New features added
 
   - Source links in HTML are now generated with ``rel="nofollow"``.
 
+  - Quickstart can now generate a Windows ``make.bat`` file.
+
 
 Release 0.5.2 (in development)
 ==============================
