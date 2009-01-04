@@ -37,8 +37,9 @@ except ImportError:
     except ImportError:
         json = None
 
-
+#: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
+#: the filename for the "last build" file (for serializing builders)
 LAST_BUILD_FILENAME = 'last_build'
 
 

@@ -21,7 +21,9 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
-from sphinx.util import rpartition, nested_parse_with_titles
+from sphinx.util import rpartition, nested_parse_with_titles, force_decode
+from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.util.docstrings import prepare_docstring
 
 clstypes = (type, ClassType)
 try:
@@ -29,8 +31,6 @@ try:
 except NameError:
     base_exception = Exception
 
-_charset_re = re.compile(r'coding[:=]\s*([-\w.]+)')
-_module_charsets = {}
 
 py_ext_sig_re = re.compile(
     r'''^ ([\w.]+::)?            # explicit module name
@@ -171,56 +171,6 @@ def isdescriptor(x):
     return False
 
 
-def prepare_docstring(s):
-    """
-    Convert a docstring into lines of parseable reST.  Return it as a list of
-    lines usable for inserting into a docutils ViewList (used as argument
-    of nested_parse().)  An empty line is added to act as a separator between
-    this docstring and following content.
-    """
-    lines = s.expandtabs().splitlines()
-    # Find minimum indentation of any non-blank lines after first line.
-    margin = sys.maxint
-    for line in lines[1:]:
-        content = len(line.lstrip())
-        if content:
-            indent = len(line) - content
-            margin = min(margin, indent)
-    # Remove indentation.
-    if lines:
-        lines[0] = lines[0].lstrip()
-    if margin < sys.maxint:
-        for i in range(1, len(lines)): lines[i] = lines[i][margin:]
-    # Remove any leading blank lines.
-    while lines and not lines[0]:
-        lines.pop(0)
-    # make sure there is an empty line at the end
-    if lines and lines[-1]:
-        lines.append('')
-    return lines
-
-
-def get_module_charset(module):
-    """Return the charset of the given module (cached in _module_charsets)."""
-    if module in _module_charsets:
-        return _module_charsets[module]
-    try:
-        filename = __import__(module, None, None, ['foo']).__file__
-    except (ImportError, AttributeError):
-        return None
-    if filename[-4:].lower() in ('.pyc', '.pyo'):
-        filename = filename[:-1]
-    for line in [linecache.getline(filename, x) for x in (1, 2)]:
-        match = _charset_re.search(line)
-        if match is not None:
-            charset = match.group(1)
-            break
-    else:
-        charset = 'ascii'
-    _module_charsets[module] = charset
-    return charset
-
-
 class RstGenerator(object):
     def __init__(self, options, document, lineno):
         self.options = options
@@ -234,15 +184,19 @@ class RstGenerator(object):
     def warn(self, msg):
         self.warnings.append(self.reporter.warning(msg, line=self.lineno))
 
-    def get_doc(self, what, name, obj):
-        """Format and yield lines of the docstring(s) for the object."""
+    def get_doc(self, what, obj, encoding=None):
+        """Decode and return lines of the docstring(s) for the object."""
         docstrings = []
+
+        # add the regular docstring if present
         if getattr(obj, '__doc__', None):
             docstrings.append(obj.__doc__)
-        # skip some lines in module docstrings if configured
+
+        # skip some lines in module docstrings if configured (deprecated!)
         if what == 'module' and self.env.config.automodule_skip_lines and docstrings:
             docstrings[0] = '\n'.join(docstrings[0].splitlines()
                                       [self.env.config.automodule_skip_lines:])
+
         # for classes, what the "docstring" is can be controlled via an option
         if what in ('class', 'exception'):
             content = self.env.config.autoclass_content
@@ -258,24 +212,13 @@ class RstGenerator(object):
                         docstrings.append(initdocstring)
             # the default is only the class docstring
 
-        # decode the docstrings using the module's source encoding
-        charset = None
-        module = getattr(obj, '__module__', None)
-        if module is not None:
-            charset = get_module_charset(module)
+        # make sure we have Unicode docstrings, then sanitize and split into lines
+        return [prepare_docstring(force_decode(docstring, encoding))
+                for docstring in docstrings]
 
-        for docstring in docstrings:
-            if isinstance(docstring, str):
-                if charset:
-                    docstring = docstring.decode(charset)
-                else:
-                    try:
-                        # try decoding with utf-8, should only work for real UTF-8
-                        docstring = docstring.decode('utf-8')
-                    except UnicodeError:
-                        # last resort -- can't fail
-                        docstring = docstring.decode('latin1')
-            docstringlines = prepare_docstring(docstring)
+    def process_doc(self, docstrings, what, name, obj):
+        """Let the user process the docstrings."""
+        for docstringlines in docstrings:
             if self.env.app:
                 # let extensions preprocess docstrings
                 self.env.app.emit('autodoc-process-docstring',
@@ -313,7 +256,7 @@ class RstGenerator(object):
                           'for automodule %s' % name)
             return (path or '') + base, [], None, None
 
-        elif what in ('exception', 'function', 'class'):
+        elif what in ('exception', 'function', 'class', 'data'):
             if mod is None:
                 if path:
                     mod = path.rstrip('.')
@@ -424,14 +367,8 @@ class RstGenerator(object):
 
         # now, import the module and get object to document
         try:
-            todoc = module = __import__(mod, None, None, ['foo'])
-            if hasattr(module, '__file__') and module.__file__:
-                modfile = module.__file__
-                if modfile[-4:].lower() in ('.pyc', '.pyo'):
-                    modfile = modfile[:-1]
-                self.filename_set.add(modfile)
-            else:
-                modfile = None  # e.g. for builtin and C modules
+            __import__(mod)
+            todoc = module = sys.modules[mod]
             for part in objpath:
                 todoc = getattr(todoc, part)
         except (ImportError, AttributeError), err:
@@ -440,11 +377,25 @@ class RstGenerator(object):
                       (what, str(fullname), err))
             return
 
+        # try to also get a source code analyzer for attribute docs
+        try:
+            analyzer = ModuleAnalyzer.for_module(mod)
+        except PycodeError, err:
+            # no source file -- e.g. for builtin and C modules
+            analyzer = None
+        else:
+            self.filename_set.add(analyzer.srcname)
+
         # check __module__ of object if wanted (for members not given explicitly)
         if check_module:
             if hasattr(todoc, '__module__'):
                 if todoc.__module__ != mod:
                     return
+
+        # make sure that the result starts with an empty line.  This is
+        # necessary for some situations where another directive preprocesses
+        # reST and no starting newline is present
+        self.result.append(u'', '')
 
         # format the object's signature, if any
         try:
@@ -453,11 +404,6 @@ class RstGenerator(object):
             self.warn('error while formatting signature for %s: %s' %
                       (fullname, err))
             sig = ''
-
-        # make sure that the result starts with an empty line.  This is
-        # necessary for some situations where another directive preprocesses
-        # reST and no starting newline is present
-        self.result.append(u'', '')
 
         # now, create the directive header
         if what == 'method':
@@ -484,13 +430,14 @@ class RstGenerator(object):
             self.result.append(indent + u'   :noindex:', '<autodoc>')
         self.result.append(u'', '<autodoc>')
 
+        # add inheritance info, if wanted
         if self.options.show_inheritance and what in ('class', 'exception'):
             if len(todoc.__bases__):
                 bases = [b.__module__ == '__builtin__' and
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in todoc.__bases__]
-                self.result.append(indent + u'   Bases: %s' % ', '.join(bases),
+                self.result.append(indent + _(u'   Bases: %s') % ', '.join(bases),
                                    '<autodoc>')
                 self.result.append(u'', '<autodoc>')
 
@@ -498,17 +445,31 @@ class RstGenerator(object):
         if what != 'module':
             indent += u'   '
 
-        if modfile:
-            sourcename = '%s:docstring of %s' % (modfile, fullname)
+        # add content from attribute documentation
+        if analyzer:
+            sourcename = '%s:docstring of %s' % (analyzer.srcname, fullname)
+            attr_docs = analyzer.find_attr_docs()
+            if what in ('data', 'attribute'):
+                key = ('.'.join(objpath[:-1]), objpath[-1])
+                if key in attr_docs:
+                    no_docstring = True
+                    docstrings = [attr_docs[key]]
+                    for i, line in enumerate(self.process_doc(docstrings, what,
+                                                              fullname, todoc)):
+                        self.result.append(indent + line, sourcename, i)
         else:
             sourcename = 'docstring of %s' % fullname
+            attr_docs = {}
 
         # add content from docstrings
         if not no_docstring:
-            for i, line in enumerate(self.get_doc(what, fullname, todoc)):
+            encoding = analyzer and analyzer.encoding
+            docstrings = self.get_doc(what, todoc, encoding)
+            for i, line in enumerate(self.process_doc(docstrings, what,
+                                                      fullname, todoc)):
                 self.result.append(indent + line, sourcename, i)
 
-        # add source content, if present
+        # add additional content (e.g. from document), if present
         if add_content:
             for line, src in zip(add_content.data, add_content.items):
                 self.result.append(indent + line, src[0], src[1])
@@ -523,10 +484,10 @@ class RstGenerator(object):
         if objpath:
             self.env.autodoc_current_class = objpath[0]
 
-        # add members, if possible
-        _all = members == ['__all__']
+        # look for members to include
+        want_all_members = members == ['__all__']
         members_check_module = False
-        if _all:
+        if want_all_members:
             # unqualified :members: given
             if what == 'module':
                 if hasattr(todoc, '__all__'):
@@ -555,14 +516,28 @@ class RstGenerator(object):
         else:
             all_members = [(mname, getattr(todoc, mname)) for mname in members]
 
+        # search for members in source code too
+        namespace = '.'.join(objpath)  # will be empty for modules
+
         for (membername, member) in all_members:
-            if _all and membername.startswith('_'):
+            # if isattr is True, the member is documented as an attribute
+            isattr = False
+            # if content is not None, no extra content from docstrings will be added
+            content = None
+
+            if want_all_members and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
                 skip = True
             else:
-                # ignore undocumented members if :undoc-members: is not given
-                doc = getattr(member, '__doc__', None)
-                skip = not self.options.undoc_members and not doc
+                if (namespace, membername) in attr_docs:
+                    # keep documented attributes
+                    skip = False
+                    isattr = True
+                else:
+                    # ignore undocumented members if :undoc-members: is not given
+                    doc = getattr(member, '__doc__', None)
+                    skip = not self.options.undoc_members and not doc
+
             # give the user a chance to decide whether this member should be skipped
             if self.env.app:
                 # let extensions preprocess docstrings
@@ -573,10 +548,12 @@ class RstGenerator(object):
             if skip:
                 continue
 
-            content = None
+            # determine member type
             if what == 'module':
                 if isinstance(member, (FunctionType, BuiltinFunctionType)):
                     memberwhat = 'function'
+                elif isattr:
+                    memberwhat = 'attribute'
                 elif isinstance(member, clstypes):
                     if member.__name__ != membername:
                         # assume it's aliased
@@ -588,10 +565,13 @@ class RstGenerator(object):
                     else:
                         memberwhat = 'class'
                 else:
-                    # XXX: todo -- attribute docs
                     continue
             else:
-                if isinstance(member, clstypes):
+                if inspect.isroutine(member):
+                    memberwhat = 'method'
+                elif isattr:
+                    memberwhat = 'attribute'
+                elif isinstance(member, clstypes):
                     if member.__name__ != membername:
                         # assume it's aliased
                         memberwhat = 'attribute'
@@ -599,13 +579,11 @@ class RstGenerator(object):
                                            source='')
                     else:
                         memberwhat = 'class'
-                elif inspect.isroutine(member):
-                    memberwhat = 'method'
                 elif isdescriptor(member):
                     memberwhat = 'attribute'
                 else:
-                    # XXX: todo -- attribute docs
                     continue
+
             # give explicitly separated module name, so that members of inner classes
             # can be documented
             full_membername = mod + '::' + '.'.join(objpath + [membername])

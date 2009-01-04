@@ -113,8 +113,35 @@ Includes
       .. literalinclude:: example.py
          :encoding: latin-1
 
+   The directive also supports including only parts of the file.  If it is a
+   Python module, you can select a class, function or method to include using
+   the ``pyobject`` option::
+
+      .. literalinclude:: example.py
+         :pyobject: Timer.start
+
+   This would only include the code lines belonging to the ``start()`` method in
+   the ``Timer`` class within the file.
+
+   Alternately, you can specify exactly which lines to include by giving a
+   ``lines`` option::
+
+      .. literalinclude:: example.py
+         :lines: 1,3,5-10,20-
+
+   This includes the lines 1, 3, 5 to 10 and lines 20 to the last line.
+
+   Another way to control which part of the file is included is to use the
+   ``start-after`` and ``end-before`` options (or only one of them).  If
+   ``start-after`` is given as a string option, only lines that follow the first
+   line containing that string are included.  If ``end-before`` is given as a
+   string option, only lines that precede the first lines containing that string
+   are included.
+
    .. versionadded:: 0.4.3
       The ``encoding`` option.
+   .. versionadded:: 0.6
+      The ``pyobject``, ``lines``, ``start-after`` and ``end-before`` options.
 
 
 .. rubric:: Footnotes

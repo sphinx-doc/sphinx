@@ -24,7 +24,7 @@ generic_docroles = {
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
     'mailheader' : addnodes.literal_emphasis,
-    'makevar' : nodes.Text,
+    'makevar' : nodes.strong,
     'manpage' : addnodes.literal_emphasis,
     'mimetype' : addnodes.literal_emphasis,
     'newsgroup' : addnodes.literal_emphasis,

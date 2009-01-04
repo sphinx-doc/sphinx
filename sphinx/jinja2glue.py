@@ -5,7 +5,7 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: 2008 by Sebastian Wiesner.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
