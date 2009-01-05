@@ -135,11 +135,29 @@ directive.
 
 
 .. directive:: autofunction
+               autodata
                automethod
                autoattribute
 
    These work exactly like :dir:`autoclass` etc., but do not offer the options
    used for automatic member documentation.
+
+   For module data members and class attributes, documentation can either be put
+   into a special-formatted comment *before* the attribute definition, or in a
+   docstring *after* the definition.  This means that in the following class
+   definition, both attributes can be autodocumented::
+
+      class Foo:
+          """Docstring for class Foo."""
+
+          #: Doc comment for attribute Foo.bar.
+          bar = 1
+
+          baz = 2
+          """Docstring for attribute Foo.baz."""
+
+   .. versionchanged:: 0.6
+      :dir:`autodata` and :dir:`autoattribute` can now extract docstrings.
 
    .. note::
 
