@@ -17,6 +17,7 @@ recursive-include sphinx/static *
 recursive-include sphinx/locale *
 recursive-include tests *
 recursive-include utils *
+include sphinx/pycode/Grammar.txt
 
 recursive-include doc *
 prune doc/_build
