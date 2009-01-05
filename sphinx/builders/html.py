@@ -62,7 +62,6 @@ class StandaloneHTMLBuilder(Builder):
     script_files = ['_static/jquery.js', '_static/doctools.js']
 
     def init(self):
-        """Load templates."""
         self.init_templates()
         self.init_translator_class()
         if self.config.html_file_suffix:
@@ -382,7 +381,8 @@ class StandaloneHTMLBuilder(Builder):
                 shutil.copyfile(jsfile, path.join(self.outdir, '_static',
                                                   'translations.js'))
         # then, copy over all user-supplied static files
-        staticdirnames = [path.join(package_dir, 'static')] + \
+        staticdirnames = [path.join(themepath, 'static')
+                          for themepath in self.theme.get_dirchain()[::-1]] + \
                          [path.join(self.confdir, spath)
                           for spath in self.config.html_static_path]
         for staticdirname in staticdirnames:

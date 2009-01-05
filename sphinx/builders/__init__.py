@@ -72,16 +72,20 @@ class Builder(object):
 
     def init_templates(self):
         """
-        Initialize the template system.
+        Initialize the theme and template system.
 
         Call this method from init() if you need templates in your builder.
         """
+        from sphinx.theming import Theme
+        Theme.init_themes(self)
+        self.theme = Theme(self.config.html_theme)
+
         if self.config.template_bridge:
             self.templates = self.app.import_object(
                 self.config.template_bridge, 'template_bridge setting')()
         else:
-            from sphinx.jinja2glue import BuiltinTemplates
-            self.templates = BuiltinTemplates()
+            from sphinx.jinja2glue import BuiltinTemplateLoader
+            self.templates = BuiltinTemplateLoader()
         self.templates.init(self)
 
     def get_target_uri(self, docname, typ=None):

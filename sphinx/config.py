@@ -53,11 +53,13 @@ class Config(object):
         keep_warnings = (False, True),
 
         # HTML options
+        html_theme = ('default', False),
+        html_theme_path = ([], False),
         html_title = (lambda self: '%s v%s documentation' %
                                    (self.project, self.release),
                       False),
         html_short_title = (lambda self: self.html_title, False),
-        html_style = ('default.css', False),
+        html_style = ('default.css', False),  # XXX
         html_logo = (None, False),
         html_favicon = (None, False),
         html_static_path = ([], False),
