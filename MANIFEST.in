@@ -12,8 +12,7 @@ include sphinx-build.py
 include sphinx-quickstart.py
 
 recursive-include sphinx/texinputs *
-recursive-include sphinx/templates *.html *.xml
-recursive-include sphinx/static *
+recursive-include sphinx/themes *
 recursive-include sphinx/locale *
 recursive-include tests *
 recursive-include utils *
