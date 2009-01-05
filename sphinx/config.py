@@ -59,7 +59,7 @@ class Config(object):
                                    (self.project, self.release),
                       False),
         html_short_title = (lambda self: self.html_title, False),
-        html_style = ('default.css', False),  # XXX
+        html_style = (None, False),
         html_logo = (None, False),
         html_favicon = (None, False),
         html_static_path = ([], False),

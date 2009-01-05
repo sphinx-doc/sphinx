@@ -136,6 +136,11 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_use_modindex and self.env.modules:
             rellinks.append(('modindex', _('Global Module Index'), 'M', _('modules')))
 
+        if self.config.html_style is not None:
+            stylename = self.config.html_style
+        else:
+            stylename = self.theme.get_confstr('theme', 'stylesheet')
+
         self.globalcontext = dict(
             embedded = self.embedded,
             project = self.config.project,
@@ -144,7 +149,6 @@ class StandaloneHTMLBuilder(Builder):
             last_updated = self.last_updated,
             copyright = self.config.copyright,
             master_doc = self.config.master_doc,
-            style = self.config.html_style,
             use_opensearch = self.config.html_use_opensearch,
             docstitle = self.config.html_title,
             shorttitle = self.config.html_short_title,
@@ -154,6 +158,7 @@ class StandaloneHTMLBuilder(Builder):
             file_suffix = self.out_suffix,
             script_files = self.script_files,
             sphinx_version = __version__,
+            style = stylename,
             rellinks = rellinks,
             builder = self.name,
             parents = [],

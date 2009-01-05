@@ -46,14 +46,18 @@ class Theme(object):
 
     def __init__(self, name):
         if name not in self.themes:
-            raise ThemeError('no theme named %r found' % name)
+            raise ThemeError('no theme named %r found '
+                             '(missing theme.conf?)' % name)
         self.name = name
         self.themedir = self.themes[name]
 
         self.themeconf = ConfigParser.RawConfigParser()
         self.themeconf.read(path.join(self.themedir, THEMECONF))
 
-        inherit = self.themeconf.get('theme', 'inherit')
+        try:
+            inherit = self.themeconf.get('theme', 'inherit')
+        except ConfigParser.NoOptionError:
+            raise ThemeError('theme %r doesn\'t have "inherit" setting' % name)
         if inherit == 'none':
             self.base = None
         elif inherit not in self.themes:
@@ -61,6 +65,14 @@ class Theme(object):
                              (inherit, name))
         else:
             self.base = Theme(inherit)
+
+    def get_confstr(self, section, name):
+        try:
+            return self.themeconf.get(section, name)
+        except ConfigParser.NoOptionError:
+            if self.base is not None:
+                return self.base.get_confstr(section, name)
+            raise
 
     def get_dirchain(self):
         """
