@@ -274,6 +274,11 @@ def generate_tokens(readline):
             line = readline()
         except StopIteration:
             line = ''
+        # if we are not at the end of the file make sure the
+        # line ends with a newline because the parser depends
+        # on that.
+        if line:
+            line = line.rstrip() + '\n'
         lnum = lnum + 1
         pos, max = 0, len(line)
 
