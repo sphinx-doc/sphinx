@@ -32,7 +32,8 @@ def html_visit_displaymath(self, node):
         if i == 0:
             # necessary to e.g. set the id property correctly
             if node['number']:
-                self.body.append('<span class="eqno">(%s)</span>' % node['number'])
+                self.body.append('<span class="eqno">(%s)</span>' %
+                                 node['number'])
             self.body.append(self.starttag(node, 'div', CLASS='math'))
         else:
             # but only once!

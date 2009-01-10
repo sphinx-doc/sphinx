@@ -68,13 +68,15 @@ class HTMLTranslator(BaseTranslator):
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
         # anchor for per-desc interactive data
-        if node.parent['desctype'] != 'describe' and node['ids'] and node['first']:
+        if node.parent['desctype'] != 'describe' \
+               and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
         if node.parent['desctype'] in ('class', 'exception'):
             self.body.append('%s ' % node.parent['desctype'])
     def depart_desc_signature(self, node):
         if node['ids'] and self.add_permalinks and self.builder.add_permalinks:
-            self.body.append(u'<a class="headerlink" href="#%s" ' % node['ids'][0] +
+            self.body.append(u'<a class="headerlink" href="#%s" '
+                             % node['ids'][0] +
                              u'title="%s">\u00B6</a>' %
                              _('Permalink to this definition'))
         self.body.append('</dt>\n')
@@ -192,14 +194,17 @@ class HTMLTranslator(BaseTranslator):
             # most probably a parsed-literal block -- don't highlight
             return BaseTranslator.visit_literal_block(self, node)
         lang = self.highlightlang
-        linenos = node.rawsource.count('\n') >= self.highlightlinenothreshold - 1
+        linenos = node.rawsource.count('\n') >= \
+                  self.highlightlinenothreshold - 1
         if node.has_key('language'):
             # code-block directives
             lang = node['language']
         if node.has_key('linenos'):
             linenos = node['linenos']
-        highlighted = self.highlighter.highlight_block(node.rawsource, lang, linenos)
-        starttag = self.starttag(node, 'div', suffix='', CLASS='highlight-%s' % lang)
+        highlighted = self.highlighter.highlight_block(node.rawsource,
+                                                       lang, linenos)
+        starttag = self.starttag(node, 'div', suffix='',
+                                 CLASS='highlight-%s' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
@@ -211,7 +216,8 @@ class HTMLTranslator(BaseTranslator):
         if len(node.children) == 1 and \
                node.children[0] in ('None', 'True', 'False'):
             node['classes'].append('xref')
-        self.body.append(self.starttag(node, 'tt', '', CLASS='docutils literal'))
+        self.body.append(self.starttag(node, 'tt', '',
+                                       CLASS='docutils literal'))
         self.protect_literal_text += 1
     def depart_literal(self, node):
         self.protect_literal_text -= 1
@@ -243,7 +249,8 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_centered(self, node):
-        self.body.append(self.starttag(node, 'p', CLASS="centered") + '<strong>')
+        self.body.append(self.starttag(node, 'p', CLASS="centered")
+                         + '<strong>')
     def depart_centered(self, node):
         self.body.append('</strong></p>')
 

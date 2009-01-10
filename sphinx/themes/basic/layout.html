@@ -68,8 +68,8 @@
           {% include customsidebar %}
           {%- endif %}
           {%- block sidebarsearch %}
-	  {%- if pagename != "search" %}
-	  <div id="searchbox" style="display: none">
+          {%- if pagename != "search" %}
+          <div id="searchbox" style="display: none">
             <h3>{{ _('Quick search') }}</h3>
               <form class="search" action="{{ pathto('search') }}" method="get">
                 <input type="text" name="q" size="18" />
@@ -77,7 +77,7 @@
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
               </form>
-	      <p class="searchtip" style="font-size: 90%">
+              <p class="searchtip" style="font-size: 90%">
               {{ _('Enter search terms or a module, class or function name.') }}
               </p>
           </div>

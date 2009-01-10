@@ -18,7 +18,7 @@ from sphinx import addnodes
 from sphinx.util import parselinenos
 
 
-# ------ highlight directive --------------------------------------------------------
+# ------ highlight directive ---------------------------------------------------
 
 def highlightlang_directive(name, arguments, options, content, lineno,
                             content_offset, block_text, state, state_machine):
@@ -36,10 +36,11 @@ highlightlang_directive.content = 0
 highlightlang_directive.arguments = (1, 0, 0)
 highlightlang_directive.options = {'linenothreshold': directives.unchanged}
 directives.register_directive('highlight', highlightlang_directive)
-directives.register_directive('highlightlang', highlightlang_directive) # old name
+# old name
+directives.register_directive('highlightlang', highlightlang_directive)
 
 
-# ------ code-block directive -------------------------------------------------------
+# ------ code-block directive --------------------------------------------------
 
 def codeblock_directive(name, arguments, options, content, lineno,
                         content_offset, block_text, state, state_machine):
@@ -56,13 +57,15 @@ directives.register_directive('code-block', codeblock_directive)
 directives.register_directive('sourcecode', codeblock_directive)
 
 
-# ------ literalinclude directive ---------------------------------------------------
+# ------ literalinclude directive ----------------------------------------------
 
 def literalinclude_directive(name, arguments, options, content, lineno,
                              content_offset, block_text, state, state_machine):
-    """Like .. include:: :literal:, but only warns if the include file is not found."""
+    """Like .. include:: :literal:, but only warns if the include file is
+    not found."""
     if not state.document.settings.file_insertion_enabled:
-        return [state.document.reporter.warning('File insertion disabled', line=lineno)]
+        return [state.document.reporter.warning('File insertion disabled',
+                                                line=lineno)]
     env = state.document.settings.env
     rel_fn = arguments[0]
     source_dir = path.dirname(path.abspath(state_machine.input_lines.source(
@@ -133,14 +136,15 @@ def literalinclude_directive(name, arguments, options, content, lineno,
     state.document.settings.env.note_dependency(rel_fn)
     return [retnode]
 
-literalinclude_directive.options = {'linenos': directives.flag,
-                                    'language': directives.unchanged_required,
-                                    'encoding': directives.encoding,
-                                    'pyobject': directives.unchanged_required,
-                                    'lines': directives.unchanged_required,
-                                    'start-after': directives.unchanged_required,
-                                    'end-before': directives.unchanged_required,
-                                    }
+literalinclude_directive.options = {
+    'linenos': directives.flag,
+    'language': directives.unchanged_required,
+    'encoding': directives.encoding,
+    'pyobject': directives.unchanged_required,
+    'lines': directives.unchanged_required,
+    'start-after': directives.unchanged_required,
+    'end-before': directives.unchanged_required,
+}
 literalinclude_directive.content = 0
 literalinclude_directive.arguments = (1, 0, 0)
 directives.register_directive('literalinclude', literalinclude_directive)

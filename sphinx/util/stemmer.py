@@ -111,14 +111,16 @@ class PorterStemmer(object):
         return self.cons(j)
 
     def cvc(self, i):
-        """cvc(i) is TRUE <=> i-2,i-1,i has the form consonant - vowel - consonant
+        """cvc(i) is TRUE <=> i-2,i-1,i has the form
+             consonant - vowel - consonant
         and also if the second c is not w,x or y. this is used when trying to
         restore an e at the end of a short  e.g.
 
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
-        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i-1) or not self.cons(i-2):
+        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i-1) \
+               or not self.cons(i-2):
             return 0
         ch = self.b[i]
         if ch == 'w' or ch == 'x' or ch == 'y':
@@ -138,7 +140,8 @@ class PorterStemmer(object):
         return 1
 
     def setto(self, s):
-        """setto(s) sets (j+1),...k to the characters in the string s, readjusting k."""
+        """setto(s) sets (j+1),...k to the characters in the string s,
+        readjusting k."""
         length = len(s)
         self.b = self.b[:self.j+1] + s + self.b[self.j+length+1:]
         self.k = self.j + length
@@ -193,7 +196,8 @@ class PorterStemmer(object):
                 self.setto("e")
 
     def step1c(self):
-        """step1c() turns terminal y to i when there is another vowel in the stem."""
+        """step1c() turns terminal y to i when there is another vowel in
+        the stem."""
         if (self.ends("y") and self.vowelinstem()):
             self.b = self.b[:self.k] + 'i' + self.b[self.k+1:]
 
@@ -236,7 +240,8 @@ class PorterStemmer(object):
         # To match the published algorithm, delete this phrase
 
     def step3(self):
-        """step3() dels with -ic-, -full, -ness etc. similar strategy to step2."""
+        """step3() dels with -ic-, -full, -ness etc. similar strategy
+        to step2."""
         if self.b[self.k] == 'e':
             if self.ends("icate"):     self.r("ic")
             elif self.ends("ative"):   self.r("")

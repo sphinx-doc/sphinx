@@ -63,7 +63,8 @@ class Config(object):
         html_logo = (None, False),
         html_favicon = (None, False),
         html_static_path = ([], False),
-        html_last_updated_fmt = (None, False),  # the real default is locale-dependent
+        # the real default is locale-dependent
+        html_last_updated_fmt = (None, False),
         html_use_smartypants = (True, False),
         html_translator_class = (None, False),
         html_sidebars = ({}, False),

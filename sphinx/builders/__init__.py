@@ -97,20 +97,20 @@ class Builder(object):
 
     def get_relative_uri(self, from_, to, typ=None):
         """
-        Return a relative URI between two source filenames. May raise environment.NoUri
-        if there's no way to return a sensible URI.
+        Return a relative URI between two source filenames. May raise
+        environment.NoUri if there's no way to return a sensible URI.
         """
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
     def get_outdated_docs(self):
         """
-        Return an iterable of output files that are outdated, or a string describing
-        what an update build will build.
+        Return an iterable of output files that are outdated, or a string
+        describing what an update build will build.
 
-        If the builder does not output individual files corresponding to source files,
-        return a string here.  If it does, return an iterable of those files that need
-        to be written.
+        If the builder does not output individual files corresponding to
+        source files, return a string here.  If it does, return an iterable
+        of those files that need to be written.
         """
         raise NotImplementedError
 
@@ -142,7 +142,8 @@ class Builder(object):
                         break
                 else:
                     self.warn('%s:%s: no matching candidate for image URI %r' %
-                              (node.source, getattr(node, 'lineno', ''), node['uri']))
+                              (node.source, getattr(node, 'lineno', ''),
+                               node['uri']))
                     continue
                 node['uri'] = candidate
             else:
@@ -161,10 +162,10 @@ class Builder(object):
         """
         self.translator = None
         if self.config.language is not None:
-            self.info(bold('loading translations [%s]... ' % self.config.language),
-                      nonl=True)
+            self.info(bold('loading translations [%s]... ' %
+                           self.config.language), nonl=True)
             locale_dirs = [path.join(package_dir, 'locale')] + \
-                          [path.join(self.srcdir, x) for x in self.config.locale_dirs]
+                [path.join(self.srcdir, x) for x in self.config.locale_dirs]
             for dir_ in locale_dirs:
                 try:
                     trans = gettext.translation('sphinx', localedir=dir_,
@@ -200,10 +201,12 @@ class Builder(object):
                     self.info('not found')
                 else:
                     self.info('failed: %s' % err)
-                self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+                self.env = BuildEnvironment(self.srcdir, self.doctreedir,
+                                            self.config)
                 self.env.find_files(self.config)
         else:
-            self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+            self.env = BuildEnvironment(self.srcdir, self.doctreedir,
+                                        self.config)
             self.env.find_files(self.config)
         self.env.set_warnfunc(self.warn)
 
@@ -241,7 +244,8 @@ class Builder(object):
 
     def build(self, docnames, summary=None, method='update'):
         """
-        Main build method.  First updates the environment, and then calls :meth:`write`.
+        Main build method.  First updates the environment, and then
+        calls :meth:`write`.
         """
         if summary:
             self.info(bold('building [%s]: ' % self.name), nonl=1)
@@ -252,12 +256,15 @@ class Builder(object):
         warnings = []
         self.env.set_warnfunc(warnings.append)
         self.info(bold('updating environment: '), nonl=1)
-        iterator = self.env.update(self.config, self.srcdir, self.doctreedir, self.app)
+        iterator = self.env.update(self.config, self.srcdir,
+                                   self.doctreedir, self.app)
         # the first item in the iterator is a summary message
         self.info(iterator.next())
-        for docname in self.status_iterator(iterator, 'reading sources... ', purple):
+        for docname in self.status_iterator(iterator, 'reading sources... ',
+                                            purple):
             updated_docnames.append(docname)
-            # nothing further to do, the environment has already done the reading
+            # nothing further to do, the environment has already
+            # done the reading
         for warning in warnings:
             if warning.strip():
                 self.warn(warning)
@@ -278,12 +285,14 @@ class Builder(object):
                 self.info(bold('no targets are out of date.'))
                 return
 
-        # another indirection to support builders that don't build files individually
+        # another indirection to support builders that don't build
+        # files individually
         self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
         self.finish()
-        status = self.app.statuscode == 0 and 'succeeded' or 'finished with problems'
+        status = (self.app.statuscode == 0 and 'succeeded'
+                                           or 'finished with problems')
         if self.app._warncount:
             self.info(bold('build %s, %s warning%s.' %
                            (status, self.app._warncount,

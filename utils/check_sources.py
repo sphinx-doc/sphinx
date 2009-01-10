@@ -56,7 +56,7 @@ def check_syntax(fn, lines):
 def check_style_and_encoding(fn, lines):
     encoding = 'ascii'
     for lno, line in enumerate(lines):
-        if len(line) > 90:
+        if len(line) > 81:
             yield lno+1, "line too long"
         if lno < 2:
             co = coding_re.search(line)

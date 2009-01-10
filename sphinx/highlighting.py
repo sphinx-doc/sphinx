@@ -101,7 +101,8 @@ class PygmentsBridge(object):
             style = NoneStyle
         elif '.' in stylename:
             module, stylename = stylename.rsplit('.', 1)
-            style = getattr(__import__(module, None, None, ['__name__']), stylename)
+            style = getattr(__import__(module, None, None, ['__name__']),
+                            stylename)
         else:
             style = get_style_by_name(stylename)
         if dest == 'html':

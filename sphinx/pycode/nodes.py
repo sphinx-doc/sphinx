@@ -102,7 +102,8 @@ class Node(BaseNode):
             ch.parent = self
 
     def __repr__(self):
-        return '%s(%s, %r)' % (self.__class__.__name__, self.type, self.children)
+        return '%s(%s, %r)' % (self.__class__.__name__,
+                               self.type, self.children)
 
     def __str__(self):
         """This reproduces the input source exactly."""
@@ -174,7 +175,8 @@ def nice_repr(node, number2name, prefix=False):
                                ', '.join(map(_repr, node.children)))
     def _prepr(node):
         if isinstance(node, Leaf):
-            return "%s(%r, %r)" % (number2name[node.type], node.prefix, node.value)
+            return "%s(%r, %r)" % (number2name[node.type],
+                                   node.prefix, node.value)
         else:
             return "%s(%s)" % (number2name[node.type],
                                ', '.join(map(_prepr, node.children)))

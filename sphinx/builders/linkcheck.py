@@ -90,7 +90,8 @@ class CheckExternalLinksBuilder(Builder):
                     self.warn('%s:%s: broken link: %s' % (docname, lineno, uri))
             else:
                 self.info(' - ' + purple('redirected') + ' to ' + s)
-                self.write_entry('redirected', docname, lineno, uri + ' to ' + s)
+                self.write_entry('redirected', docname,
+                                 lineno, uri + ' to ' + s)
                 self.redirected[uri] = (r, s)
         elif len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
             return

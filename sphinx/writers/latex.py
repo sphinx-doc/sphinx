@@ -167,7 +167,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
             'title':        document.settings.title,
-            'date':         ustrftime(builder.config.today_fmt or _('%B %d, %Y')),
+            'date':         ustrftime(builder.config.today_fmt
+                                      or _('%B %d, %Y')),
             'release':      builder.config.release,
             'author':       document.settings.author,
             'releasename':  _('Release'),
@@ -253,7 +254,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for bi in self.bibitems:
                 # cite_key: underscores must not be escaped
                 cite_key = bi[0].replace(r"\_", "_")
-                self.body.append('\\bibitem[%s]{%s}{%s}\n' % (bi[0], cite_key, bi[1]))
+                self.body.append('\\bibitem[%s]{%s}{%s}\n' %
+                                 (bi[0], cite_key, bi[1]))
             self.body.append('\\end{thebibliography}\n')
             self.bibitems = []
 
@@ -304,7 +306,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         #            self.body.append(r'\hypertarget{%s}{}' % id)
         #            self.written_ids.add(id)
     def depart_section(self, node):
-        self.sectionlevel = max(self.sectionlevel - 1, self.top_sectionlevel - 1)
+        self.sectionlevel = max(self.sectionlevel - 1,
+                                self.top_sectionlevel - 1)
 
     def visit_problematic(self, node):
         self.body.append(r'{\color{red}\bfseries{}')
@@ -335,7 +338,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_production(self, node):
         if node['tokenname']:
-            self.body.append('\\production{%s}{' % self.encode(node['tokenname']))
+            self.body.append('\\production{%s}{' %
+                             self.encode(node['tokenname']))
         else:
             self.body.append('\\productioncont{')
     def depart_production(self, node):
@@ -352,7 +356,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # the environment already handles this
             raise nodes.SkipNode
         elif self.this_is_the_title:
-            if len(node.children) != 1 and not isinstance(node.children[0], nodes.Text):
+            if len(node.children) != 1 and not isinstance(node.children[0],
+                                                          nodes.Text):
                 self.builder.warn('document title is not a single Text node')
             if not self.elements['title']:
                 # text needs to be escaped since it is inserted into
@@ -585,7 +590,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             if self.table.has_verbatim:
                 colwidth = 0.95 / self.table.colcount
-                colspec = ('p{%.3f\\textwidth}|' % colwidth) * self.table.colcount
+                colspec = ('p{%.3f\\textwidth}|' % colwidth) * \
+                          self.table.colcount
                 self.body.append('{|' + colspec + '}\n')
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
@@ -648,7 +654,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # this is a list in the source, but should be rendered as a
         # comma-separated list here
         self.body.append('\n\n')
-        self.body.append(', '.join(n.astext() for n in node.children[0].children) + '.')
+        self.body.append(', '.join(n.astext()
+                                   for n in node.children[0].children) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
 
@@ -743,9 +750,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_module(self, node):
         modname = node['modname']
-        self.body.append('\n\\declaremodule[%s]{}{%s}' % (modname.replace('_', ''),
-                                                          self.encode(modname)))
-        self.body.append('\n\\modulesynopsis{%s}' % self.encode(node['synopsis']))
+        self.body.append('\n\\declaremodule[%s]{}{%s}' % (
+            modname.replace('_', ''), self.encode(modname)))
+        self.body.append('\n\\modulesynopsis{%s}' %
+                         self.encode(node['synopsis']))
         if node.has_key('platform'):
             self.body.append('\\platform{%s}' % self.encode(node['platform']))
     def depart_module(self, node):
@@ -922,15 +930,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
         entries = node['entries']
         for type, string, tid, _ in entries:
             if type == 'single':
-                self.body.append(r'\index{%s}' % scre.sub('!', self.encode(string)))
+                self.body.append(r'\index{%s}' %
+                                 scre.sub('!', self.encode(string)))
             elif type == 'pair':
-                parts = tuple(self.encode(x.strip()) for x in string.split(';', 1))
+                parts = tuple(self.encode(x.strip())
+                              for x in string.split(';', 1))
                 try:
                     self.body.append(r'\indexii{%s}{%s}' % parts)
                 except TypeError:
                     self.builder.warn('invalid pair index entry %r' % string)
             elif type == 'triple':
-                parts = tuple(self.encode(x.strip()) for x in string.split(';', 2))
+                parts = tuple(self.encode(x.strip())
+                              for x in string.split(';', 2))
                 try:
                     self.body.append(r'\indexiii{%s}{%s}{%s}' % parts)
                 except TypeError:
@@ -957,7 +968,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('}')
         elif uri.startswith('%'):
             hashindex = uri.find('#')
-            targetname = (hashindex == -1) and '--doc-' + uri[1:] or uri[hashindex+1:]
+            targetname = (hashindex == -1) and '--doc-' + uri[1:] \
+                                           or uri[hashindex+1:]
             self.body.append('\\hyperlink{%s}{' % targetname)
             self.context.append('}')
         elif uri.startswith('@token'):

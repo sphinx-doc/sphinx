@@ -13,8 +13,8 @@
            This stuff is only included in the built docs for unstable versions.
 
     The argument for ``ifconfig`` is a plain Python expression, evaluated in the
-    namespace of the project configuration (that is, all variables from ``conf.py``
-    are available.)
+    namespace of the project configuration (that is, all variables from
+    ``conf.py`` are available.)
 
     :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

@@ -116,12 +116,12 @@ class LaTeXBuilder(Builder):
                 for includefile in includefiles:
                     try:
                         self.info(darkgreen(includefile) + " ", nonl=1)
-                        subtree = process_tree(includefile,
-                                               self.env.get_doctree(includefile))
+                        subtree = process_tree(
+                            includefile, self.env.get_doctree(includefile))
                         self.docnames.add(includefile)
                     except Exception:
-                        self.warn('%s: toctree contains ref to nonexisting file %r' %
-                                  (docname, includefile))
+                        self.warn('%s: toctree contains ref to nonexisting '
+                                  'file %r' % (docname, includefile))
                     else:
                         sof = addnodes.start_of_file(docname=includefile)
                         sof.children = subtree.children
@@ -131,10 +131,12 @@ class LaTeXBuilder(Builder):
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
-            # extract toctree nodes from the tree and put them in a fresh document
+            # extract toctree nodes from the tree and put them in a
+            # fresh document
             new_tree = new_document('<latex output>')
             new_sect = nodes.section()
-            new_sect += nodes.title(u'<Set title in conf.py>', u'<Set title in conf.py>')
+            new_sect += nodes.title(u'<Set title in conf.py>',
+                                    u'<Set title in conf.py>')
             new_tree += new_sect
             for node in tree.traverse(addnodes.toctree):
                 new_sect += node

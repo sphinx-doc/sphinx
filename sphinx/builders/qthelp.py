@@ -19,7 +19,8 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 
-_idpattern = re.compile('(?P<title>.+) (\((?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')
+_idpattern = re.compile(
+    r'(?P<title>.+) (\((?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')
 
 
 # Qt Help Collection Project (.qhcp).
@@ -149,7 +150,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for root, dirs, files in os.walk(outdir):
             staticdir = (root == path.join(outdir, '_static'))
             for fn in files:
-                if (staticdir and not fn.endswith('.js')) or fn.endswith('.html'):
+                if (staticdir and not fn.endswith('.js')) or \
+                       fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
                     #filename = filename.replace(os.sep, '\\') # XXX
                     projectfiles.append(file_template % {'filename': filename})

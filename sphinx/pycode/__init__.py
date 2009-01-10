@@ -91,7 +91,8 @@ class AttrDocVisitor(nodes.NodeVisitor):
             return
         if prev.type == sym.simple_stmt and \
                prev[0].type == sym.expr_stmt and _eq in prev[0].children:
-            # need to "eval" the string because it's returned in its original form
+            # need to "eval" the string because it's returned in its
+            # original form
             docstring = literals.evalString(node[0].value, self.encoding)
             docstring = prepare_docstring(docstring)
             self.add_docstring(prev[0], docstring)
@@ -159,7 +160,8 @@ class ModuleAnalyzer(object):
                 try:
                     source = mod.__loader__.get_source(modname)
                 except Exception, err:
-                    raise PycodeError('error getting source for %r' % modname, err)
+                    raise PycodeError('error getting source for %r' % modname,
+                                      err)
                 obj = cls.for_string(source, modname)
                 cls.cache['module', modname] = obj
                 return obj
@@ -279,8 +281,9 @@ class ModuleAnalyzer(object):
                     namespace.pop()
                     result[fullname] = (dtype, startline, endline)
             elif type == token.NEWLINE:
-                # if this line contained a definition, expect an INDENT to start the
-                # suite; if there is no such INDENT it's a one-line definition
+                # if this line contained a definition, expect an INDENT
+                # to start the suite; if there is no such INDENT
+                # it's a one-line definition
                 if defline:
                     defline = False
                     expect_indent = True
@@ -292,7 +295,8 @@ if __name__ == '__main__':
     import time, pprint
     x0 = time.time()
     #ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
-    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py', 'sphinx.builders.html')
+    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py',
+                                 'sphinx.builders.html')
     ma.tokenize()
     x1 = time.time()
     ma.parse()

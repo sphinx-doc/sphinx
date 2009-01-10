@@ -162,7 +162,8 @@ def educateQuotes(s):
     """
 
     # Special case if the very first character is a quote
-    # followed by punctuation at a non-word-break. Close the quotes by brute force:
+    # followed by punctuation at a non-word-break. Close the quotes
+    # by brute force:
     s = single_quote_start_re.sub("&#8217;", s)
     s = double_quote_start_re.sub("&#8221;", s)
 
@@ -200,7 +201,8 @@ def educateQuotesLatex(s, dquotes=("``", "''")):
     """
 
     # Special case if the very first character is a quote
-    # followed by punctuation at a non-word-break. Close the quotes by brute force:
+    # followed by punctuation at a non-word-break. Close the quotes
+    # by brute force:
     s = single_quote_start_re.sub("\x04", s)
     s = double_quote_start_re.sub("\x02", s)
 
@@ -300,4 +302,5 @@ __author__ = "Chad Miller <smartypantspy@chad.org>"
 __version__ = "1.5_1.5: Sat, 13 Aug 2005 15:50:24 -0400"
 __url__ = "http://wiki.chad.org/SmartyPantsPy"
 __description__ = \
-    "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom"
+    "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries" \
+    " in pyblosxom"

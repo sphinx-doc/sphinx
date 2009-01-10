@@ -419,7 +419,8 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         self.new_state(0)
-        self.add_text(', '.join(n.astext() for n in node.children[0].children) + '.')
+        self.add_text(', '.join(n.astext() for n in node.children[0].children)
+                      + '.')
         self.end_state()
         raise nodes.SkipNode
 

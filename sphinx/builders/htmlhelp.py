@@ -122,8 +122,8 @@ was  will  with
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
-    Builder that also outputs Windows HTML help project, contents and index files.
-    Adapted from the original Doc/tools/prechm.py.
+    Builder that also outputs Windows HTML help project, contents and
+    index files.  Adapted from the original Doc/tools/prechm.py.
     """
     name = 'htmlhelp'
 
@@ -166,8 +166,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             for root, dirs, files in os.walk(outdir):
                 staticdir = (root == path.join(outdir, '_static'))
                 for fn in files:
-                    if (staticdir and not fn.endswith('.js')) or fn.endswith('.html'):
-                        print >>f, path.join(root, fn)[olen:].replace(os.sep, '\\')
+                    if (staticdir and not fn.endswith('.js')) or \
+                           fn.endswith('.html'):
+                        print >>f, path.join(root, fn)[olen:].replace(os.sep,
+                                                                      '\\')
         finally:
             f.close()
 
@@ -182,8 +184,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 f.write('<LI> ' + object_sitemap % (_('Global Module Index'),
                                                     'modindex.html'))
             # the TOC
-            tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
-                                                      prune_toctrees=False)
+            tocdoc = self.env.get_and_resolve_doctree(
+                self.config.master_doc, self, prune_toctrees=False)
             def write_toc(node, ullevel=0):
                 if isinstance(node, nodes.list_item):
                     f.write('<LI> ')
@@ -204,8 +206,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 elif isinstance(node, addnodes.compact_paragraph):
                     for subnode in node:
                         write_toc(subnode, ullevel)
-            istoctree = lambda node: isinstance(node, addnodes.compact_paragraph) and \
-                        node.has_key('toctree')
+            def istoctree(node):
+                return isinstance(node, addnodes.compact_paragraph) and \
+                       node.has_key('toctree')
             for node in tocdoc.traverse(istoctree):
                 write_toc(node)
             f.write(contents_footer)
@@ -230,7 +233,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     write_param('Local', refs[0])
                 else:
                     for i, ref in enumerate(refs):
-                        write_param('Name', '[%d] %s' % (i, ref)) # XXX: better title?
+                        # XXX: better title?
+                        write_param('Name', '[%d] %s' % (i, ref))
                         write_param('Local', ref)
                 f.write('</OBJECT>\n')
                 if subitems:

@@ -72,8 +72,8 @@ def process_todo_nodes(app, doctree, fromdocname):
             para = nodes.paragraph()
             filename = env.doc2path(todo_info['docname'], base=None)
             description = (
-                _('(The original entry is located in %s, line %d and can be found ') %
-                (filename, todo_info['lineno']))
+                _('(The original entry is located in %s, line %d and '
+                  'can be found ') % (filename, todo_info['lineno']))
             para += nodes.Text(description, description)
 
             # Create a reference

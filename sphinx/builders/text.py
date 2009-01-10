@@ -31,7 +31,8 @@ class TextBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir, self.out_suffix)
+            targetname = self.env.doc2path(docname, self.outdir,
+                                           self.out_suffix)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
@@ -54,7 +55,7 @@ class TextBuilder(Builder):
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
-        ensuredir(path.dirname(outfilename)) # normally different from self.outdir
+        ensuredir(path.dirname(outfilename))
         try:
             f = codecs.open(outfilename, 'w', 'utf-8')
             try:

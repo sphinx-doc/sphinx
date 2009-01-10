@@ -262,13 +262,15 @@ Doctest summary
             for group in groups.itervalues():
                 group.add_code(code)
         if self.config.doctest_global_setup:
-            code = TestCode(self.config.doctest_global_setup, 'testsetup', lineno=0)
+            code = TestCode(self.config.doctest_global_setup,
+                            'testsetup', lineno=0)
             for group in groups.itervalues():
                 group.add_code(code, prepend=True)
         if not groups:
             return
 
-        self._out('\nDocument: %s\n----------%s\n' % (docname, '-'*len(docname)))
+        self._out('\nDocument: %s\n----------%s\n' %
+                  (docname, '-'*len(docname)))
         for group in groups.itervalues():
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code
@@ -287,7 +289,8 @@ Doctest summary
         ns = {}
         examples = []
         for setup in group.setup:
-            examples.append(doctest.Example(setup.code, '', lineno=setup.lineno))
+            examples.append(doctest.Example(setup.code, '',
+                                            lineno=setup.lineno))
         if examples:
             # simulate a doctest with the setup code
             setup_doctest = doctest.DocTest(examples, {},

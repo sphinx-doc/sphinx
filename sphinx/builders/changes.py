@@ -55,7 +55,8 @@ class ChangesBuilder(Builder):
                 if not descname:
                     continue
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
+                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
+                                                          context)
                 else:
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
                 apichanges.append((entry, docname, lineno))
@@ -65,10 +66,12 @@ class ChangesBuilder(Builder):
                 if not descname:
                     descname = _('Module level')
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext, context)
+                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
+                                                          context)
                 else:
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
-                libchanges.setdefault(module, []).append((entry, docname, lineno))
+                libchanges.setdefault(module, []).append((entry, docname,
+                                                          lineno))
             else:
                 if not context:
                     continue
@@ -119,7 +122,10 @@ class ChangesBuilder(Builder):
             f = codecs.open(targetfn, 'w', 'latin1')
             try:
                 text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
-                ctx = {'filename': self.env.doc2path(docname, None), 'text': text}
+                ctx = {
+                    'filename': self.env.doc2path(docname, None),
+                    'text': text
+                }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
             finally:
                 f.close()

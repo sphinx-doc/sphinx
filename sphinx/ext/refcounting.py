@@ -55,7 +55,8 @@ class Refcounts(dict):
                     refcount = None
                 else:
                     refcount = int(refcount)
-                # Update the entry with the new parameter or the result information.
+                # Update the entry with the new parameter or the result
+                # information.
                 if arg:
                     entry.args.append((arg, type, refcount))
                 else:
@@ -81,7 +82,8 @@ class Refcounts(dict):
             if entry.result_refs is None:
                 rc += "Always NULL."
             else:
-                rc += (entry.result_refs and "New" or "Borrowed") + " reference."
+                rc += (entry.result_refs and "New" or "Borrowed") + \
+                      " reference."
             node.insert(0, refcount(rc, rc))
 
 

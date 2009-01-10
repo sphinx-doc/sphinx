@@ -17,7 +17,7 @@ from sphinx import addnodes
 from sphinx.util import ws_re
 
 
-# ------ information units ---------------------------------------------------------
+# ------ information units -----------------------------------------------------
 
 def desc_index_text(desctype, module, name, add_modules):
     if desctype == 'function':
@@ -342,7 +342,8 @@ def parse_c_type(node, ctype):
         tnode = nodes.Text(part, part)
         if part[0] in string.ascii_letters+'_' and part not in stopwords:
             pnode = addnodes.pending_xref(
-                '', reftype='ctype', reftarget=part, modname=None, classname=None)
+                '', reftype='ctype', reftarget=part,
+                modname=None, classname=None)
             pnode += tnode
             node += pnode
         else:
@@ -449,8 +450,10 @@ def desc_directive(desctype, arguments, options, content, lineno,
             if desctype in ('function', 'data', 'class', 'exception',
                             'method', 'staticmethod', 'classmethod',
                             'attribute'):
-                name, clsname = parse_py_signature(signode, sig, desctype, module, env)
-            elif desctype in ('cfunction', 'cmember', 'cmacro', 'ctype', 'cvar'):
+                name, clsname = parse_py_signature(signode, sig,
+                                                   desctype, module, env)
+            elif desctype in ('cfunction', 'cmember', 'cmacro',
+                              'ctype', 'cvar'):
                 name = parse_c_signature(signode, sig, desctype)
             elif desctype == 'cmdoption':
                 optname = parse_option_desc(signode, sig)
@@ -463,7 +466,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
                     state.document.note_explicit_target(signode)
                     inode['entries'].append(
                         ('pair', _('%scommand line option; %s') %
-                         ((env.currprogram and env.currprogram + ' ' or ''), sig),
+                         ((env.currprogram and env.currprogram + ' ' or ''),
+                          sig),
                          targetname, targetname))
                     env.note_progoption(optname, targetname)
                 continue
@@ -473,7 +477,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
                 continue
             else:
                 # another registered generic x-ref directive
-                rolename, indextemplate, parse_node = additional_xref_types[desctype]
+                rolename, indextemplate, parse_node = \
+                          additional_xref_types[desctype]
                 if parse_node:
                     fullname = parse_node(env, sig, signode)
                 else:
@@ -502,8 +507,8 @@ def desc_directive(desctype, arguments, options, content, lineno,
             signode.clear()
             signode += addnodes.desc_name(sig, sig)
             continue             # we don't want an index entry here
-        # only add target and index entry if this is the first description of the
-        # function name in this desc block
+        # only add target and index entry if this is the first description
+        # of the function name in this desc block
         if not noindex and name not in names:
             fullname = (module and module + '.' or '') + name
             # note target
@@ -583,7 +588,7 @@ additional_xref_types = {
 del _
 
 
-# ------ target --------------------------------------------------------------------
+# ------ target ----------------------------------------------------------------
 
 def target_directive(targettype, arguments, options, content, lineno,
                      content_offset, block_text, state, state_machine):
@@ -603,7 +608,8 @@ def target_directive(targettype, arguments, options, content, lineno,
         if colon != -1:
             indextype = indexentry[:colon].strip()
             indexentry = indexentry[colon+1:].strip()
-        inode = addnodes.index(entries=[(indextype, indexentry, targetname, targetname)])
+        inode = addnodes.index(entries=[(indextype, indexentry,
+                                         targetname, targetname)])
         ret.insert(0, inode)
     env.note_reftarget(rolename, fullname, targetname)
     return ret
@@ -611,5 +617,5 @@ def target_directive(targettype, arguments, options, content, lineno,
 target_directive.content = 0
 target_directive.arguments = (1, 0, 1)
 
-# note, the target directive is not registered here, it is used by the application
-# when registering additional xref types
+# note, the target directive is not registered here, it is used by the
+# application when registering additional xref types

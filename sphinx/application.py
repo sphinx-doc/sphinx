@@ -22,7 +22,8 @@ import sphinx
 from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
 from sphinx.builders import BUILTIN_BUILDERS
-from sphinx.directives import desc_directive, target_directive, additional_xref_types
+from sphinx.directives import desc_directive, target_directive, \
+     additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
 from sphinx.util.console import bold
 
@@ -152,7 +153,8 @@ class Sphinx(object):
             self._warning.write('WARNING: %s\n' % message)
         except UnicodeEncodeError:
             encoding = getattr(self._warning, 'encoding', 'ascii')
-            self._warning.write(('WARNING: %s\n' % message).encode(encoding, 'replace'))
+            self._warning.write(('WARNING: %s\n' % message).encode(encoding,
+                                                                   'replace'))
 
     def info(self, message='', nonl=False):
         try:
@@ -171,7 +173,8 @@ class Sphinx(object):
         try:
             mod = __import__(extension, None, None, ['setup'])
         except ImportError, err:
-            raise ExtensionError('Could not import extension %s' % extension, err)
+            raise ExtensionError('Could not import extension %s' % extension,
+                                 err)
         if hasattr(mod, 'setup'):
             mod.setup(self)
 
@@ -181,15 +184,18 @@ class Sphinx(object):
             module, name = objname.rsplit('.', 1)
         except ValueError, err:
             raise ExtensionError('Invalid full object name %s' % objname +
-                                 (source and ' (needed for %s)' % source or ''), err)
+                                 (source and ' (needed for %s)' % source or ''),
+                                 err)
         try:
             return getattr(__import__(module, None, None, [name]), name)
         except ImportError, err:
             raise ExtensionError('Could not import %s' % module +
-                                 (source and ' (needed for %s)' % source or ''), err)
+                                 (source and ' (needed for %s)' % source or ''),
+                                 err)
         except AttributeError, err:
             raise ExtensionError('Could not find %s' % objname +
-                                 (source and ' (needed for %s)' % source or ''), err)
+                                 (source and ' (needed for %s)' % source or ''),
+                                 err)
 
     # event interface
 
@@ -229,13 +235,15 @@ class Sphinx(object):
 
     def add_builder(self, builder):
         if not hasattr(builder, 'name'):
-            raise ExtensionError('Builder class %s has no "name" attribute' % builder)
+            raise ExtensionError('Builder class %s has no "name" attribute'
+                                 % builder)
         if builder.name in self.builderclasses:
             if isinstance(self.builderclasses[builder.name], tuple):
                 raise ExtensionError('Builder %r is a builtin builder' %
                                      builder.name)
             else:
-                raise ExtensionError('Builder %r already exists (in module %s)' % (
+                raise ExtensionError(
+                    'Builder %r already exists (in module %s)' % (
                     builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
@@ -255,8 +263,8 @@ class Sphinx(object):
             try:
                 visit, depart = val
             except ValueError:
-                raise ExtensionError('Value for key %r must be a (visit, depart) '
-                                     'function tuple' % key)
+                raise ExtensionError('Value for key %r must be a '
+                                     '(visit, depart) function tuple' % key)
             if key == 'html':
                 from sphinx.writers.html import HTMLTranslator as translator
             elif key == 'latex':
@@ -281,7 +289,8 @@ class Sphinx(object):
 
     def add_description_unit(self, directivename, rolename, indextemplate='',
                              parse_node=None, ref_nodeclass=None):
-        additional_xref_types[directivename] = (rolename, indextemplate, parse_node)
+        additional_xref_types[directivename] = (rolename, indextemplate,
+                                                parse_node)
         directives.register_directive(directivename, desc_directive)
         roles.register_canonical_role(rolename, xfileref_role)
         if ref_nodeclass is not None:

@@ -117,9 +117,9 @@ def render_math(self, math):
             if err.errno != 2:   # No such file or directory
                 raise
             if not hasattr(self.builder, '_mathpng_warned_latex'):
-                self.builder.warn('LaTeX command %r cannot be run (needed for math '
-                                  'display), check the pngmath_latex setting' %
-                                  self.builder.config.pngmath_latex)
+                self.builder.warn('LaTeX command %r cannot be run (needed for '
+                                  'math display), check the pngmath_latex '
+                                  'setting' % self.builder.config.pngmath_latex)
                 self.builder._mathpng_warned_latex = True
             return relfn, None
     finally:
@@ -127,8 +127,8 @@ def render_math(self, math):
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('latex exited with error:\n[stderr]\n%s\n[stdout]\n%s'
-                           % (stderr, stdout))
+        raise MathExtError('latex exited with error:\n[stderr]\n%s\n'
+                           '[stdout]\n%s' % (stderr, stdout))
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
@@ -146,15 +146,15 @@ def render_math(self, math):
         if err.errno != 2:   # No such file or directory
             raise
         if not hasattr(self.builder, '_mathpng_warned_dvipng'):
-            self.builder.warn('dvipng command %r cannot be run (needed for math '
-                              'display), check the pngmath_dvipng setting' %
-                              self.builder.config.pngmath_dvipng)
+            self.builder.warn('dvipng command %r cannot be run (needed for '
+                              'math display), check the pngmath_dvipng setting'
+                              % self.builder.config.pngmath_dvipng)
             self.builder._mathpng_warned_dvipng = True
         return relfn, None
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n[stdout]\n%s'
-                           % (stderr, stdout))
+        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n'
+                           '[stdout]\n%s' % (stderr, stdout))
     depth = None
     if use_preview:
         for line in stdout.splitlines():
@@ -187,7 +187,8 @@ def html_visit_math(self, node):
         raise nodes.SkipNode
     self.body.append('<img class="math" src="%s" alt="%s" %s/>' %
                      (fname, self.encode(node['latex']).strip(),
-                      depth and 'style="vertical-align: %dpx" ' % (-depth) or ''))
+                      depth and 'style="vertical-align: %dpx" ' %
+                      (-depth) or ''))
     raise nodes.SkipNode
 
 def html_visit_displaymath(self, node):
