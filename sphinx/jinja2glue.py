@@ -35,7 +35,8 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
 
         # prepend explicit template paths
         if builder.config.templates_path:
-            chain[0:0] = builder.config.templates_path
+            chain[0:0] = [path.join(builder.confdir, tp)
+                          for tp in builder.config.templates_path]
 
         # make the paths into loaders
         self.loaders = map(jinja2.FileSystemLoader, chain)

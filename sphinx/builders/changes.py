@@ -129,8 +129,12 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
             finally:
                 f.close()
-        shutil.copyfile(path.join(package_dir, 'static', 'default.css'),
+        shutil.copyfile(path.join(package_dir, 'themes', 'default',
+                                  'static', 'default.css'),
                         path.join(self.outdir, 'default.css'))
+        shutil.copyfile(path.join(package_dir, 'themes', 'basic',
+                                  'static', 'basic.css'),
+                        path.join(self.outdir, 'basic.css'))
 
     def hl(self, text, version):
         text = escape(text)
