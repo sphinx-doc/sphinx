@@ -137,7 +137,7 @@ class Config(object):
         if name not in self.values:
             raise AttributeError('No such config value: %s' % name)
         default = self.values[name][0]
-        if callable(default):
+        if hasattr(default, '__call__'):
             return default(self)
         return default
 

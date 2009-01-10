@@ -129,7 +129,7 @@ def test_html(app):
         for path, check in paths.iteritems():
             nodes = list(etree.findall(path))
             assert nodes != []
-            if callable(check):
+            if hasattr(check, '__call__'):
                 check(nodes)
             elif not check:
                 # only check for node presence
