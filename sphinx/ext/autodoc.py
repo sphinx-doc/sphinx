@@ -166,7 +166,7 @@ def between(marker, what=None, keepempty=False):
 def isdescriptor(x):
     """Check if the object is some kind of descriptor."""
     for item in '__get__', '__set__', '__delete__':
-        if callable(getattr(x, item, None)):
+        if hasattr(getattr(x, item, None), '__call__'):
             return True
     return False
 
@@ -380,6 +380,8 @@ class RstGenerator(object):
         # try to also get a source code analyzer for attribute docs
         try:
             analyzer = ModuleAnalyzer.for_module(mod)
+            # parse right now, to get PycodeErrors on parsing
+            analyzer.parse()
         except PycodeError, err:
             # no source file -- e.g. for builtin and C modules
             analyzer = None

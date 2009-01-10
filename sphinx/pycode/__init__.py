@@ -210,7 +210,10 @@ class ModuleAnalyzer(object):
         if self.parsetree is not None:
             return
         self.tokenize()
-        self.parsetree = pydriver.parse_tokens(self.tokens)
+        try:
+            self.parsetree = pydriver.parse_tokens(self.tokens)
+        except parse.ParseError, err:
+            raise PycodeError('parsing failed', err)
         # find the source code encoding
         encoding = sys.getdefaultencoding()
         comments = self.parsetree.get_prefix()

@@ -274,12 +274,17 @@ def generate_tokens(readline):
             line = readline()
         except StopIteration:
             line = ''
+        # if we are not at the end of the file make sure the
+        # line ends with a newline because the parser depends
+        # on that.
+        if line:
+            line = line.rstrip() + '\n'
         lnum = lnum + 1
         pos, max = 0, len(line)
 
         if contstr:                            # continued string
             if not line:
-                raise TokenError, ("EOF in multi-line string", strstart)
+                raise TokenError("EOF in multi-line string", strstart)
             endmatch = endprog.match(line)
             if endmatch:
                 pos = end = endmatch.end(0)
@@ -335,7 +340,7 @@ def generate_tokens(readline):
 
         else:                                  # continued statement
             if not line:
-                raise TokenError, ("EOF in multi-line statement", (lnum, 0))
+                raise TokenError("EOF in multi-line statement", (lnum, 0))
             continued = 0
 
         while pos < max:
