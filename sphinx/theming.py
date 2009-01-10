@@ -16,6 +16,7 @@ from os import path
 from sphinx.application import SphinxError
 
 
+NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
 class ThemeError(SphinxError):
@@ -66,13 +67,21 @@ class Theme(object):
         else:
             self.base = Theme(inherit)
 
-    def get_confstr(self, section, name):
+    def get_confstr(self, section, name, default=NODEFAULT):
+        """
+        Return the value for a theme configuration setting, searching the
+        base theme chain.
+        """
         try:
             return self.themeconf.get(section, name)
         except ConfigParser.NoOptionError:
             if self.base is not None:
                 return self.base.get_confstr(section, name)
-            raise
+            if default is NODEFAULT:
+                raise ThemeError('setting %s.%s occurs in none of the '
+                                 'searched theme configs' % (section, name))
+            else:
+                return default
 
     def get_dirchain(self):
         """

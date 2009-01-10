@@ -49,12 +49,15 @@ else:
             Number: '#208050',
         })
 
+    class NoneStyle(Style):
+        """Style without any styling."""
+
     lexers = dict(
         none = TextLexer(),
         python = PythonLexer(),
         pycon = PythonConsoleLexer(),
-        # the python3 option exists as of Pygments 0.12, but it doesn't
-        # do any harm in previous versions
+        # the python3 option exists as of Pygments 1.0,
+        # but it doesn't do any harm in previous versions
         pycon3 = PythonConsoleLexer(python3=True),
         rest = RstLexer(),
         c = CLexer(),
@@ -94,6 +97,8 @@ class PygmentsBridge(object):
             return
         if stylename == 'sphinx':
             style = SphinxStyle
+        elif stylename == 'none':
+            style = NoneStyle
         elif '.' in stylename:
             module, stylename = stylename.rsplit('.', 1)
             style = getattr(__import__(module, None, None, ['__name__']), stylename)

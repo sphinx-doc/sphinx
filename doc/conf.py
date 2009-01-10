@@ -66,7 +66,7 @@ release = version
 show_authors = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'friendly'
+#pygments_style = 'none'
 
 
 # Options for HTML output

@@ -78,6 +78,13 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 self.script_files.append('_static/translations.js')
 
+        # determine Pygments style and create the highlighter
+        if self.config.pygments_style is not None:
+            style = self.config.pygments_style
+        else:
+            style = self.theme.get_confstr('theme', 'pygments_style', 'none')
+        self.highlighter = PygmentsBridge('html', style)
+
     def init_translator_class(self):
         if self.config.html_translator_class:
             self.translator_class = self.app.import_object(
@@ -376,7 +383,7 @@ class StandaloneHTMLBuilder(Builder):
         ensuredir(path.join(self.outdir, '_static'))
         # first, create pygments style file
         f = open(path.join(self.outdir, '_static', 'pygments.css'), 'w')
-        f.write(PygmentsBridge('html', self.config.pygments_style).get_stylesheet())
+        f.write(self.highlighter.get_stylesheet())
         f.close()
         # then, copy translations JavaScript file
         if self.config.language is not None:

@@ -17,7 +17,6 @@ from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx.locale import admonitionlabels, versionlabels
-from sphinx.highlighting import PygmentsBridge
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 try:
@@ -52,7 +51,7 @@ class HTMLTranslator(BaseTranslator):
 
     def __init__(self, builder, *args, **kwds):
         BaseTranslator.__init__(self, *args, **kwds)
-        self.highlighter = PygmentsBridge('html', builder.config.pygments_style)
+        self.highlighter = builder.highlighter
         self.no_smarty = 0
         self.builder = builder
         self.highlightlang = builder.config.highlight_language
