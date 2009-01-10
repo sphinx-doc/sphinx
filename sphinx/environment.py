@@ -541,7 +541,7 @@ class BuildEnvironment:
             doctree = pub.document
         except UnicodeError, err:
             from sphinx.application import SphinxError
-            raise SphinxError(err.message)
+            raise SphinxError(str(err))
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
