@@ -95,7 +95,7 @@ class PygmentsBridge(object):
         self.dest = dest
         if not pygments:
             return
-        if stylename == 'sphinx':
+        if stylename is None or stylename == 'sphinx':
             style = SphinxStyle
         elif stylename == 'none':
             style = NoneStyle

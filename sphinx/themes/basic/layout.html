@@ -4,6 +4,7 @@
 {%- endblock %}
 {%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
+
 {%- macro relbar() %}
     <div class="related">
       <h3>{{ _('Navigation') }}</h3>
@@ -24,6 +25,7 @@
       </ul>
     </div>
 {%- endmacro %}
+
 {%- macro sidebar() %}
       {%- if not embedded %}
       <div class="sphinxsidebar">
@@ -75,7 +77,9 @@
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
               </form>
-	      <p style="font-size: 90%">{{ _('Enter search terms or a module, class or function name.') }}</p>
+	      <p class="searchtip" style="font-size: 90%">
+              {{ _('Enter search terms or a module, class or function name.') }}
+              </p>
           </div>
           <script type="text/javascript">$('#searchbox').show(0);</script>
           {%- endif %}
@@ -142,6 +146,7 @@
 {%- block extrahead %} {% endblock %}
   </head>
   <body>
+{%- block header %}{% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
 

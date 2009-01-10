@@ -1,21 +1,9 @@
 /**
- * Sphinx Doc Design
+ * Sphinx stylesheet -- basic theme
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
-body {
-    font-family: sans-serif;
-    font-size: 100%;
-    background-color: #11303d;
-    color: #000;
-    margin: 0;
-    padding: 0;
-}
-
-/* :::: LAYOUT :::: */
-
-div.document {
-    background-color: #1c4e63;
-}
+/* -- main layout ----------------------------------------------------------- */
 
 div.documentwrapper {
     float: left;
@@ -26,44 +14,14 @@ div.bodywrapper {
     margin: 0 0 0 230px;
 }
 
-div.body {
-    background-color: white;
-    padding: 0 20px 30px 20px;
-}
-
-div.sphinxsidebarwrapper {
-    padding: 10px 5px 0 10px;
-}
-
-div.sphinxsidebar {
-    float: left;
-    width: 230px;
-    margin-left: -100%;
-    font-size: 90%;
-}
-
 div.clearer {
     clear: both;
 }
 
-div.footer {
-    color: #fff;
-    width: 100%;
-    padding: 9px 0 9px 0;
-    text-align: center;
-    font-size: 75%;
-}
-
-div.footer a {
-    color: #fff;
-    text-decoration: underline;
-}
+/* -- relbar ---------------------------------------------------------------- */
 
 div.related {
-    background-color: #133f52;
-    color: #fff;
     width: 100%;
-    line-height: 30px;
     font-size: 90%;
 }
 
@@ -86,46 +44,21 @@ div.related li.right {
     margin-right: 5px;
 }
 
-div.related a {
-    color: white;
+/* -- sidebar --------------------------------------------------------------- */
+
+div.sphinxsidebarwrapper {
+    padding: 10px 5px 0 10px;
 }
 
-/* ::: TOC :::: */
-div.sphinxsidebar h3 {
-    font-family: 'Trebuchet MS', sans-serif;
-    color: white;
-    font-size: 1.4em;
-    font-weight: normal;
-    margin: 0;
-    padding: 0;
-}
-
-div.sphinxsidebar h3 a {
-    color: white;
-}
-
-div.sphinxsidebar h4 {
-    font-family: 'Trebuchet MS', sans-serif;
-    color: white;
-    font-size: 1.3em;
-    font-weight: normal;
-    margin: 5px 0 0 0;
-    padding: 0;
-}
-
-div.sphinxsidebar p {
-    color: white;
-}
-
-div.sphinxsidebar p.topless {
-    margin: 5px 10px 10px 10px;
+div.sphinxsidebar {
+    float: left;
+    width: 230px;
+    margin-left: -100%;
+    font-size: 90%;
 }
 
 div.sphinxsidebar ul {
-    margin: 10px;
-    padding: 0;
     list-style: none;
-    color: white;
 }
 
 div.sphinxsidebar ul ul,
@@ -139,10 +72,6 @@ div.sphinxsidebar ul ul {
     margin-bottom: 0;
 }
 
-div.sphinxsidebar a {
-    color: #98dbcc;
-}
-
 div.sphinxsidebar form {
     margin-top: 10px;
 }
@@ -153,20 +82,12 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
-/* :::: MODULE CLOUD :::: */
-div.modulecloud {
-    margin: -5px 10px 5px 10px;
-    padding: 10px;
-    line-height: 160%;
-    border: 1px solid #cbe7e5;
-    background-color: #f2fbfd;
+img.logo {
+    border: 0;
 }
 
-div.modulecloud a {
-    padding: 0 5px 0 5px;
-}
+/* -- search page ----------------------------------------------------------- */
 
-/* :::: SEARCH :::: */
 ul.search {
     margin: 10px 0 0 20px;
     padding: 0;
@@ -193,39 +114,7 @@ ul.keywordmatches li.goodmatch a {
     font-weight: bold;
 }
 
-/* :::: COMMON FORM STYLES :::: */
-
-div.actions {
-    padding: 5px 10px 5px 10px;
-    border-top: 1px solid #cbe7e5;
-    border-bottom: 1px solid #cbe7e5;
-    background-color: #e0f6f4;
-}
-
-form dl {
-    color: #333;
-}
-
-form dt {
-    clear: both;
-    float: left;
-    min-width: 110px;
-    margin-right: 10px;
-    padding-top: 2px;
-}
-
-input#homepage {
-    display: none;
-}
-
-div.error {
-    margin: 5px 20px 0 0;
-    padding: 5px;
-    border: 1px solid #d00;
-    font-weight: bold;
-}
-
-/* :::: INDEX PAGE :::: */
+/* -- index page ------------------------------------------------------------ */
 
 table.contentstable {
     width: 90%;
@@ -245,7 +134,7 @@ span.linkdescr {
     font-size: 90%;
 }
 
-/* :::: INDEX STYLES :::: */
+/* -- general index --------------------------------------------------------- */
 
 table.indextable td {
     text-align: left;
@@ -272,60 +161,9 @@ img.toggler {
     cursor: pointer;
 }
 
-form.pfform {
-    margin: 10px 0 20px 0;
-}
-
-/* :::: GLOBAL STYLES :::: */
-
-.docwarning {
-    background-color: #ffe4e4;
-    padding: 10px;
-    margin: 0 -20px 0 -20px;
-    border-bottom: 1px solid #f66;
-}
-
-p.subhead {
-    font-weight: bold;
-    margin-top: 20px;
-}
-
-a {
-    color: #355f7c;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-div.body h1,
-div.body h2,
-div.body h3,
-div.body h4,
-div.body h5,
-div.body h6 {
-    font-family: 'Trebuchet MS', sans-serif;
-    background-color: #f2f2f2;
-    font-weight: normal;
-    color: #20435c;
-    border-bottom: 1px solid #ccc;
-    margin: 20px -20px 10px -20px;
-    padding: 3px 0 3px 10px;
-}
-
-div.body h1 { margin-top: 0; font-size: 200%; }
-div.body h2 { font-size: 160%; }
-div.body h3 { font-size: 140%; }
-div.body h4 { font-size: 120%; }
-div.body h5 { font-size: 110%; }
-div.body h6 { font-size: 100%; }
+/* -- general body styles --------------------------------------------------- */
 
 a.headerlink {
-    color: #c60f0f;
-    font-size: 0.8em;
-    padding: 0 4px 0 4px;
-    text-decoration: none;
     visibility: hidden;
 }
 
@@ -339,28 +177,12 @@ dt:hover > a.headerlink {
     visibility: visible;
 }
 
-a.headerlink:hover {
-    background-color: #c60f0f;
-    color: white;
-}
-
-div.body p, div.body dd, div.body li {
-    text-align: justify;
-    line-height: 130%;
-}
-
 div.body p.caption {
     text-align: inherit;
 }
 
 div.body td {
     text-align: left;
-}
-
-ul.fakelist {
-    list-style: none;
-    margin: 10px 0 10px 20px;
-    padding: 0;
 }
 
 .field-list ul {
@@ -371,13 +193,12 @@ ul.fakelist {
     margin-top: 0 !important;
 }
 
-/* "Footnotes" heading */
 p.rubric {
     margin-top: 30px;
     font-weight: bold;
 }
 
-/* Sidebars */
+/* -- sidebars -------------------------------------------------------------- */
 
 div.sidebar {
     margin: 0 0 0.5em 1em;
@@ -392,10 +213,9 @@ p.sidebar-title {
     font-weight: bold;
 }
 
-/* "Topics" */
+/* -- topics ---------------------------------------------------------------- */
 
 div.topic {
-    background-color: #eee;
     border: 1px solid #ccc;
     padding: 7px 7px 0 7px;
     margin: 10px 0 10px 0;
@@ -407,7 +227,7 @@ p.topic-title {
     margin-top: 10px;
 }
 
-/* Admonitions */
+/* -- admonitions ----------------------------------------------------------- */
 
 div.admonition {
     margin-top: 10px;
@@ -423,33 +243,9 @@ div.admonition dl {
     margin-bottom: 0;
 }
 
-div.admonition p.admonition-title + p {
-    display: inline;
-}
-
-div.seealso {
-    background-color: #ffc;
-    border: 1px solid #ff6;
-}
-
-div.warning {
-    background-color: #ffe4e4;
-    border: 1px solid #f66;
-}
-
-div.note {
-    background-color: #eee;
-    border: 1px solid #ccc;
-}
-
 p.admonition-title {
     margin: 0px 10px 5px 0px;
     font-weight: bold;
-    display: inline;
-}
-
-p.admonition-title:after {
-    content: ":";
 }
 
 div.body p.centered {
@@ -457,8 +253,11 @@ div.body p.centered {
     margin-top: 25px;
 }
 
+/* -- tables ---------------------------------------------------------------- */
+
 table.docutils {
     border: 0;
+    border-collapse: collapse;
 }
 
 table.docutils td, table.docutils th {
@@ -477,18 +276,15 @@ table.footnote td, table.footnote th {
     border: 0 !important;
 }
 
-.field-list ul {
-    margin: 0;
-    padding-left: 1em;
+th {
+    text-align: left;
+    padding-right: 5px;
 }
 
-.field-list p {
-    margin: 0;
-}
+/* -- other body styles ----------------------------------------------------- */
 
 dl {
     margin-bottom: 15px;
-    clear: both;
 }
 
 dd p {
@@ -505,12 +301,7 @@ dd {
     margin-left: 30px;
 }
 
-.refcount {
-    color: #060;
-}
-
-dt:target,
-.highlight {
+dt:target, .highlight {
     background-color: #fbe54e;
 }
 
@@ -519,18 +310,40 @@ dl.glossary dt {
     font-size: 1.1em;
 }
 
-th {
-    text-align: left;
-    padding-right: 5px;
+.field-list ul {
+    margin: 0;
+    padding-left: 1em;
 }
 
-pre {
+.field-list p {
+    margin: 0;
+}
+
+.refcount {
+    color: #060;
+}
+
+.optional {
+    font-size: 1.3em;
+}
+
+.versionmodified {
+    font-style: italic;
+}
+
+.system-message {
+    background-color: #fda;
     padding: 5px;
-    background-color: #efc;
-    color: #333;
-    border: 1px solid #ac9;
-    border-left: none;
-    border-right: none;
+    border: 3px solid red;
+}
+
+.footnote:target  {
+    background-color: #ffa
+}
+
+/* -- code displays --------------------------------------------------------- */
+
+pre {
     overflow: auto;
 }
 
@@ -549,12 +362,6 @@ table.highlighttable td {
     padding: 0 0.5em 0 0.5em;
 }
 
-tt {
-    background-color: #ecf0f3;
-    padding: 0 1px 0 1px;
-    font-size: 0.95em;
-}
-
 tt.descname {
     background-color: transparent;
     font-weight: bold;
@@ -570,57 +377,11 @@ tt.xref, a tt {
     font-weight: bold;
 }
 
-.footnote:target  { background-color: #ffa }
-
 h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
     background-color: transparent;
 }
 
-.optional {
-    font-size: 1.3em;
-}
-
-.versionmodified {
-    font-style: italic;
-}
-
-form.comment {
-    margin: 0;
-    padding: 10px 30px 10px 30px;
-    background-color: #eee;
-}
-
-form.comment h3 {
-    background-color: #326591;
-    color: white;
-    margin: -10px -30px 10px -30px;
-    padding: 5px;
-    font-size: 1.4em;
-}
-
-form.comment input,
-form.comment textarea {
-    border: 1px solid #ccc;
-    padding: 2px;
-    font-family: sans-serif;
-    font-size: 100%;
-}
-
-form.comment input[type="text"] {
-    width: 240px;
-}
-
-form.comment textarea {
-    width: 100%;
-    height: 200px;
-    margin-bottom: 10px;
-}
-
-.system-message {
-    background-color: #fda;
-    padding: 5px;
-    border: 3px solid red;
-}
+/* -- math display ---------------------------------------------------------- */
 
 img.math {
     vertical-align: middle;
@@ -634,23 +395,19 @@ span.eqno {
     float: right;
 }
 
-img.logo {
-    border: 0;
-}
+/* -- printout stylesheet --------------------------------------------------- */
 
-/* :::: PRINT :::: */
 @media print {
     div.document,
     div.documentwrapper,
     div.bodywrapper {
         margin: 0;
-        width : 100%;
+        width: 100%;
     }
 
     div.sphinxsidebar,
     div.related,
     div.footer,
-    div#comments div.new-comment-box,
     #top-link {
         display: none;
     }

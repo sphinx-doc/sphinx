@@ -46,7 +46,7 @@ class Config(object):
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
         show_authors = (False, True),
-        pygments_style = ('sphinx', False),
+        pygments_style = (None, False),
         highlight_language = ('python', False),
         templates_path = ([], False),
         template_bridge = (None, False),
