@@ -76,7 +76,7 @@ General configuration
 
    .. versionadded:: 0.5
       Previously, Sphinx accepted only UTF-8 encoded sources.
-   
+
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that
@@ -164,9 +164,19 @@ General configuration
    .. versionadded:: 0.5
 
 
+.. confval:: modindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the module index (e.g.,
+   if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``, not
+   ``F``). This can be handy if you document a project that consists of a single
+   package.  Works only for the HTML builder currently.   Default is ``[]``.
+
+   .. versionadded:: 0.6
+
+
 Project information
 -------------------
-   
+
 .. confval:: project
 
    The documented project's name.
@@ -233,7 +243,7 @@ Project information
    :ref:`code-examples` for more details.
 
    .. versionadded:: 0.5
-   
+
 .. confval:: pygments_style
 
    The style name to use for Pygments highlighting of source code.  Default is
@@ -341,7 +351,7 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 0.6
       Previously, this was always activated.
-   
+
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
@@ -439,7 +449,7 @@ that use Sphinx' HTMLWriter class.
    support different web server setups).
 
    .. versionadded:: 0.6
-   
+
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a
@@ -527,7 +537,7 @@ These options influence LaTeX output.
    avoid interpretation as escape sequences.
 
    * Keys that you may want to override include:
-     
+
      ``'papersize'``
         Paper size option of the document class (``'a4paper'`` or
         ``'letterpaper'``), default ``'letterpaper'``.
@@ -551,9 +561,9 @@ These options influence LaTeX output.
         Additional preamble content, default empty.
      ``'footer'```
         Additional footer content (before the indices), default empty.
-     
+
    * Keys that don't need be overridden unless in special cases are:
-     
+
      ``'inputenc'``
         "inputenc" package inclusion, default
         ``'\\usepackage[utf8]{inputenc}'``.
@@ -570,9 +580,9 @@ These options influence LaTeX output.
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index
         differently or append some content after the index.
-     
+
    * Keys that are set by other options and therefore should not be overridden are:
-     
+
      ``'docclass'``
      ``'classoptions'``
      ``'title'``
@@ -585,7 +595,7 @@ These options influence LaTeX output.
      ``'makemodindex'``
      ``'shorthandoff'``
      ``'printmodindex'``
-   
+
 .. confval:: latex_preamble
 
    Additional LaTeX markup for the preamble.

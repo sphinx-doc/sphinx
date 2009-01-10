@@ -68,6 +68,9 @@ show_authors = True
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'friendly'
 
+# A list of ignored prefixes names for module index sorting.
+modindex_common_prefix = ['sphinx.']
+
 
 # Options for HTML output
 # -----------------------
