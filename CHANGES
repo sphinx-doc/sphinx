@@ -61,6 +61,9 @@ New features added
   - The default value for ``htmlhelp_basename`` is now the project
     title, cleaned up as a filename.
 
+  - The new ``modindex_common_prefix`` config value can be used to
+    ignore certain package names for module index sorting.
+
 * Builders:
 
   - New builder for Qt help collections, by Antonio Valentino.

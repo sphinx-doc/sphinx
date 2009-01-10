@@ -51,6 +51,7 @@ class Config(object):
         templates_path = ([], False),
         template_bridge = (None, False),
         keep_warnings = (False, True),
+        modindex_common_prefix = ([], False),
 
         # HTML options
         html_theme = ('default', False),

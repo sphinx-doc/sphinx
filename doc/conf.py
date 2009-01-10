@@ -33,6 +33,9 @@ show_authors = True
 # The HTML template theme.
 html_theme = 'sphinxdoc'
 
+# A list of ignored prefixes names for module index sorting.
+modindex_common_prefix = ['sphinx.']
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".

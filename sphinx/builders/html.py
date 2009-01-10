@@ -317,11 +317,24 @@ class StandaloneHTMLBuilder(Builder):
             for mn, (fn, sy, pl, dep) in modules:
                 pl = pl and pl.split(', ') or []
                 platforms.update(pl)
+
+                ignore = self.env.config['modindex_common_prefix']
+                ignore = sorted(ignore, key=len, reverse=True)
+                for i in ignore:
+                    if mn.startswith(i):
+                        mn = mn[len(i):]
+                        stripped = i
+                        break
+                else:
+                    stripped = ''
+
                 if fl != mn[0].lower() and mn[0] != '_':
                     # heading
-                    modindexentries.append(['', False, 0, False,
-                                            mn[0].upper(), '', [], False])
-                    letters.append(mn[0].upper())
+                    letter = mn[0].upper()
+                    if letter not in letters:
+                        modindexentries.append(['', False, 0, False,
+                                                letter, '', [], False, ''])
+                        letters.append(letter)
                 tn = mn.split('.')[0]
                 if tn != mn:
                     # submodule
@@ -332,13 +345,13 @@ class StandaloneHTMLBuilder(Builder):
                     elif not pmn.startswith(tn):
                         # submodule without parent in list, add dummy entry
                         cg += 1
-                        modindexentries.append([tn, True, cg,
-                                                False, '', '', [], False])
+                        modindexentries.append([tn, True, cg, False, '', '',
+                                                [], False, stripped])
                 else:
                     num_toplevels += 1
                     cg += 1
-                modindexentries.append([mn, False, cg, (tn != mn),
-                                        fn, sy, pl, dep])
+                modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl,
+                                        dep, stripped])
                 pmn = mn
                 fl = mn[0].lower()
             platforms = sorted(platforms)
@@ -347,6 +360,19 @@ class StandaloneHTMLBuilder(Builder):
             # only collapse if number of toplevel modules is larger than
             # number of submodules
             collapse = len(modules) - num_toplevels < num_toplevels
+
+            # As some parts of the module names may have been stripped, those
+            # names have changed, thus it is necessary to sort the entries.
+            if ignore:
+                def sorthelper(entry):
+                    name = entry[0]
+                    if name == '':
+                        # heading
+                        name = entry[4]
+                    return name.lower()
+
+                modindexentries.sort(key=sorthelper)
+                letters.sort()
 
             modindexcontext = dict(
                 modindexentries = modindexentries,

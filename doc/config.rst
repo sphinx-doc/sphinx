@@ -164,6 +164,16 @@ General configuration
    .. versionadded:: 0.5
 
 
+.. confval:: modindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the module index (e.g.,
+   if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``, not
+   ``F``). This can be handy if you document a project that consists of a single
+   package.  Works only for the HTML builder currently.   Default is ``[]``.
+
+   .. versionadded:: 0.6
+
+
 Project information
 -------------------
 
