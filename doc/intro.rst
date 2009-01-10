@@ -109,7 +109,7 @@ The :program:`sphinx-build` script has several more options:
    Don't look for a configuration file; only take options via the ``-D`` option.
 
    .. versionadded:: 0.5
-   
+
 **-D** *setting=value*
    Override a configuration value set in the :file:`conf.py` file.  The value
    must be a string or dictionary value.  For the latter, supply the setting

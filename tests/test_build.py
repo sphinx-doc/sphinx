@@ -30,9 +30,10 @@ latex_warnfile = StringIO()
 
 ENV_WARNINGS = """\
 WARNING: %(root)s/images.txt:9: Image file not readable: foo.png
-WARNING: %(root)s/images.txt:23: Nonlocal image URI found: http://www.python.org/logo.png
-WARNING: %(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8' used for reading included \
-file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
+WARNING: %(root)s/images.txt:23: Nonlocal image URI found: \
+http://www.python.org/logo.png
+WARNING: %(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8' used for reading \
+included file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
 WARNING: %(root)s/includes.txt:56: Download file not readable: nonexisting.png
 """
 
@@ -172,12 +173,15 @@ def test_latex(app):
             return True
 
     if kpsetest('article.sty') is None:
-        print >>sys.stderr, 'info: not running latex, it doesn\'t seem to be installed'
+        print >>sys.stderr, \
+              'info: not running latex, it doesn\'t seem to be installed'
         return
-    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty', 'amsmath.sty',
-                     'framed.sty', 'color.sty', 'fancyvrb.sty', 'threeparttable.sty']:
+    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty',
+                     'amsmath.sty', 'framed.sty', 'color.sty', 'fancyvrb.sty',
+                     'threeparttable.sty']:
         if not kpsetest(filename):
-            print >>sys.stderr, 'info: not running latex, the %s package doesn\'t ' \
+            print >>sys.stderr, \
+                  'info: not running latex, the %s package doesn\'t ' \
                   'seem to be installed' % filename
             return
 
@@ -186,8 +190,8 @@ def test_latex(app):
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['pdflatex', '--interaction=nonstopmode', 'SphinxTests.tex'],
-                      stdout=PIPE, stderr=PIPE)
+            p = Popen(['pdflatex', '--interaction=nonstopmode',
+                       'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
         except OSError, err:
             pass  # most likely pdflatex was not found
         else:

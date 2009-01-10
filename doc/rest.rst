@@ -282,7 +282,7 @@ markup blocks, like this::
 See the `reST reference for substitutions
 <http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions>`_
 for details.
-   
+
 If you want to use some substitutions for all documents, put them into a
 separate file and include it into all documents you want to use them in, using
 the :dir:`include` directive.  Be sure to give the include file a file name
@@ -301,7 +301,7 @@ footnotes above) is regarded as a comment.  For example::
    .. This is a comment.
 
 You can indent text after a comment start to form multiline comments::
-   
+
    ..
       This whole indented block
       is a comment.
@@ -329,5 +329,5 @@ There are some problems one commonly runs into while authoring reST documents:
 
 * **No nested inline markup:** Something like ``*see :func:`foo`*`` is not
   possible.
-  
+
 .. XXX more?

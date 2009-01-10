@@ -131,7 +131,7 @@ completely equivalent. ::
 
    Test-Output example:
 
-   .. testcode:: 
+   .. testcode::
 
       parrot.voom(3000)
 
@@ -156,7 +156,7 @@ There are also these config values for customizing the doctest extension:
    e.g. import modules you will always need in your doctests.
 
    .. versionadded:: 0.6
-   
+
 .. confval:: doctest_test_doctest_blocks
 
    If this is a nonempty string (the default is ``'default'``), standard reST
@@ -187,7 +187,7 @@ There are also these config values for customizing the doctest extension:
          >>> print 1
          1
 
-      Some more documentation text.      
+      Some more documentation text.
 
    This feature makes it easy for you to test doctests in docstrings included
    with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a

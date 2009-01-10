@@ -59,7 +59,7 @@ html_use_opensearch = 'http://sphinx.pocoo.org'
 htmlhelp_basename = 'Sphinxdoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, document class [howto/manual]).
+# (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
 
@@ -125,5 +125,6 @@ def setup(app):
     app.add_description_unit('directive', 'dir', 'pair: %s; directive',
                              parse_directive)
     app.add_description_unit('role', 'role', 'pair: %s; role', parse_role)
-    app.add_description_unit('confval', 'confval', 'pair: %s; configuration value')
+    app.add_description_unit('confval', 'confval',
+                             'pair: %s; configuration value')
     app.add_description_unit('event', 'event', 'pair: %s; event', parse_event)

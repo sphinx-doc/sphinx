@@ -5,9 +5,6 @@
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
-# The contents of this file are pickled, so don't put values in the namespace
-# that aren't pickleable (module imports are okay, they're removed automatically).
-#
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
@@ -57,8 +54,8 @@ today_fmt = '%B %d, %Y'
 # List of documents that shouldn't be included in the build.
 #unused_docs = []
 
-# List of directories, relative to source directories, that shouldn't be searched
-# for source files.
+# List of directories, relative to source directories, that shouldn't be
+# searched for source files.
 exclude_trees = ['_build']
 
 keep_warnings = True
@@ -150,7 +147,7 @@ htmlhelp_basename = 'SphinxTestsdoc'
 #latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, document class [howto/manual]).
+# (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
    'Georg Brandl', 'manual'),

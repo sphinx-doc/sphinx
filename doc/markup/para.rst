@@ -1,4 +1,4 @@
-.. highlight:: rest
+x.. highlight:: rest
 
 Paragraph-level markup
 ----------------------
@@ -85,9 +85,9 @@ units as well as normal text:
 
    This directive creates a paragraph heading that is not used to create a
    table of contents node.
-   
+
    .. note::
-      
+
       If the *title* of the rubric is "Footnotes", this rubric is ignored by
       the LaTeX writer, since it is assumed to only contain footnote
       definitions and therefore would create an empty heading.
@@ -239,7 +239,7 @@ the definition of the symbol.  There is this directive:
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.
 
-.. XXX describe optional first parameter 
+.. XXX describe optional first parameter
 
 The following is an example taken from the Python Reference Manual::
 

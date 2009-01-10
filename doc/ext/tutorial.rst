@@ -158,7 +158,7 @@ Let's start with the node classes::
 
    def visit_todo_node(self, node):
        self.visit_admonition(node)
-    
+
    def depart_todo_node(self, node):
        self.depart_admonition(node)
 
@@ -190,14 +190,14 @@ The ``todo`` directive function looks like this::
    def todo_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
        env = state.document.settings.env
-    
+
        targetid = "todo-%s" % env.index_num
        env.index_num += 1
        targetnode = nodes.target('', '', ids=[targetid])
-    
+
        ad = make_admonition(todo, name, [_('Todo')], options, content, lineno,
                             content_offset, block_text, state, state_machine)
-    
+
        if not hasattr(env, 'todo_all_todos'):
            env.todo_all_todos = []
        env.todo_all_todos.append({
@@ -206,7 +206,7 @@ The ``todo`` directive function looks like this::
            'todo': ad[0].deepcopy(),
            'target': targetnode,
        })
-    
+
        return [targetnode] + ad
 
 Several important things are covered here. First, as you can see, you can refer
@@ -264,18 +264,18 @@ emitted at the end of phase 3 and allows custom resolving to be done::
        if not app.config.todo_include_todos:
            for node in doctree.traverse(todo_node):
                node.parent.remove(node)
-    
+
        # Replace all todolist nodes with a list of the collected todos.
        # Augment each todo with a backlink to the original location.
        env = app.builder.env
-    
+
        for node in doctree.traverse(todolist):
            if not app.config.todo_include_todos:
                node.replace_self([])
                continue
-    
+
            content = []
-    
+
            for todo_info in env.todo_all_todos:
                para = nodes.paragraph()
                filename = env.doc2path(todo_info['docname'], base=None)
@@ -283,7 +283,7 @@ emitted at the end of phase 3 and allows custom resolving to be done::
                    _('(The original entry is located in %s, line %d and can be found ') %
                    (filename, todo_info['lineno']))
                para += nodes.Text(description, description)
-    
+
                # Create a reference
                newnode = nodes.reference('', '')
                innernode = nodes.emphasis(_('here'), _('here'))
@@ -294,11 +294,11 @@ emitted at the end of phase 3 and allows custom resolving to be done::
                newnode.append(innernode)
                para += newnode
                para += nodes.Text('.)', '.)')
-    
+
                # Insert into the todolist
                content.append(todo_info['todo'])
                content.append(para)
-    
+
            node.replace_self(content)
 
 It is a bit more involved.  If our new "todo_include_todos" config value is

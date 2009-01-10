@@ -29,7 +29,7 @@ The builder's "name" must be given to the **-b** command-line option of
    also generates HTML Help support files that allow the Microsoft HTML Help
    Workshop to compile them into a CHM file.
 
-   Its name is ``htmlhelp``. 
+   Its name is ``htmlhelp``.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
@@ -85,7 +85,7 @@ The builder's "name" must be given to the **-b** command-line option of
    .. _PHP serialization: http://pypi.python.org/pypi/phpserialize
 
    .. attribute:: implementation
-    
+
       A module that implements `dump()`, `load()`, `dumps()` and `loads()`
       functions that conform to the functions with the same names from the
       pickle module.  Known modules implementing this interface are

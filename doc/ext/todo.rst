@@ -21,9 +21,9 @@ There are two additional directives when using this extension:
    This directive is replaced by a list of all todo directives in the whole
    documentation, if :confval:`todo_include_todos` is true.
 
-   
+
 There is also an additional config value:
-   
+
 .. confval:: todo_include_todos
 
    If this is ``True``, :dir:`todo` and :dir:`todolist` produce output, else

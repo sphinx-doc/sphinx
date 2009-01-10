@@ -98,7 +98,8 @@ else:
                 else:
                     for locale in os.listdir(self.directory):
                         po_file = os.path.join(self.directory, locale,
-                                               'LC_MESSAGES', self.domain + '.po')
+                                               'LC_MESSAGES',
+                                               self.domain + '.po')
                         if os.path.exists(po_file):
                             po_files.append((locale, po_file))
                             js_files.append(os.path.join(self.directory, locale,

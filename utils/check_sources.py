@@ -30,7 +30,7 @@ def checker(*suffixes, **kwds):
 
 
 name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-200\d)?'
+copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-200\d)? '
                           r'by %s(, %s)*[,.]$' %
                           (name_mail_re, name_mail_re))
 license_re = re.compile(r"    :license: (.*?).\n")
@@ -142,7 +142,7 @@ def check_fileheader(fn, lines):
         yield 0, "no correct copyright info"
 
 
-@checker('.py', '.html')
+@checker('.py', '.html', '.rst')
 def check_whitespace_and_spelling(fn, lines):
     for lno, line in enumerate(lines):
         if "\t" in line:
@@ -154,7 +154,7 @@ def check_whitespace_and_spelling(fn, lines):
                 yield lno+1, '"%s" used' % word
 
 
-bad_tags = ('<b>', '<i>', '<u>', '<s>', '<strike>'
+bad_tags = ('<u>', '<s>', '<strike>'
             '<center>', '<big>', '<small>', '<font')
 
 @checker('.html')

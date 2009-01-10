@@ -131,7 +131,8 @@ def test_format_signature():
     # test for functions
     def f(a, b, c=1, **d):
         pass
-    assert gen.format_signature('function', 'f', f, None, None) == '(a, b, c=1, **d)'
+    assert gen.format_signature('function', 'f', f, None, None) == \
+           '(a, b, c=1, **d)'
     assert gen.format_signature('function', 'f', f, 'a, b, c, d', None) == \
            '(a, b, c, d)'
     assert gen.format_signature('function', 'f', f, None, 'None') == \
@@ -151,7 +152,8 @@ def test_format_signature():
     class G(F, object):
         pass
     for C in (F, G):
-        assert gen.format_signature('class', 'C', C, None, None) == '(a, b=None)'
+        assert gen.format_signature('class', 'C', C, None, None) == \
+               '(a, b=None)'
     assert gen.format_signature('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
     # test for methods
@@ -160,12 +162,16 @@ def test_format_signature():
             pass
         def foo2(b, *c):
             pass
-    assert gen.format_signature('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
-    assert gen.format_signature('method', 'H.foo', H.foo1, 'a', None) == '(a)'
-    assert gen.format_signature('method', 'H.foo', H.foo2, None, None) == '(b, *c)'
+    assert gen.format_signature('method', 'H.foo', H.foo1, None, None) == \
+           '(b, *c)'
+    assert gen.format_signature('method', 'H.foo', H.foo1, 'a', None) == \
+           '(a)'
+    assert gen.format_signature('method', 'H.foo', H.foo2, None, None) == \
+           '(b, *c)'
 
     # test exception handling
-    raises(RuntimeError, gen.format_signature, 'function', 'int', int, None, None)
+    raises(RuntimeError, gen.format_signature,
+           'function', 'int', int, None, None)
 
     # test processing by event handler
     assert gen.format_signature('method', 'bar', H.foo1, None, None) == '42'
@@ -248,7 +254,8 @@ def test_docstring_processing():
     # docstring processing by event handler
     assert process('class', 'bar', E) == ['Init docstring', '', '42', '']
 
-    lid = app.connect('autodoc-process-docstring', cut_lines(1, 1, ['function']))
+    lid = app.connect('autodoc-process-docstring',
+                      cut_lines(1, 1, ['function']))
     def f():
         """
         first line
@@ -289,7 +296,8 @@ def test_generate():
         del processed_docstrings[:]
         del processed_signatures[:]
         assert_works(*args)
-        assert set(processed_docstrings) | set(processed_signatures) == set(items)
+        assert set(processed_docstrings) | set(processed_signatures) == \
+               set(items)
 
     def assert_result_contains(item, *args):
         gen.generate(*args)
@@ -313,8 +321,10 @@ def test_generate():
     assert_result_contains('   Function.', 'method', 'Class.meth', [], None)
     add_content = ViewList()
     add_content.append('Content.', '', 0)
-    assert_result_contains('   Function.', 'method', 'Class.meth', [], add_content)
-    assert_result_contains('   Content.', 'method', 'Class.meth', [], add_content)
+    assert_result_contains('   Function.', 'method',
+                           'Class.meth', [], add_content)
+    assert_result_contains('   Content.', 'method',
+                           'Class.meth', [], add_content)
 
     # test check_module
     gen.generate('function', 'raises', None, None, check_module=True)
@@ -342,20 +352,23 @@ def test_generate():
     assert_processes(should, 'class', 'Class', ['__all__'], None)
 
     # test module flags
-    assert_result_contains('.. module:: test_autodoc', 'module',
-                           'test_autodoc', [], None)
+    assert_result_contains('.. module:: test_autodoc',
+                           'module', 'test_autodoc', [], None)
     options.synopsis = 'Synopsis'
-    assert_result_contains('   :synopsis: Synopsis', 'module', 'test_autodoc', [], None)
+    assert_result_contains('   :synopsis: Synopsis',
+                           'module', 'test_autodoc', [], None)
     options.deprecated = True
-    assert_result_contains('   :deprecated:', 'module', 'test_autodoc', [], None)
+    assert_result_contains('   :deprecated:',
+                           'module', 'test_autodoc', [], None)
     options.platform = 'Platform'
-    assert_result_contains('   :platform: Platform', 'module', 'test_autodoc', [], None)
+    assert_result_contains('   :platform: Platform',
+                           'module', 'test_autodoc', [], None)
     # test if __all__ is respected for modules
-    assert_result_contains('.. class:: Class', 'module', 'test_autodoc',
-                           ['__all__'], None)
+    assert_result_contains('.. class:: Class',
+                           'module', 'test_autodoc', ['__all__'], None)
     try:
-        assert_result_contains('.. exception:: CustomEx', 'module', 'test_autodoc',
-                               ['__all__'], None)
+        assert_result_contains('.. exception:: CustomEx',
+                               'module', 'test_autodoc', ['__all__'], None)
     except AssertionError:
         pass
     else:
@@ -378,8 +391,10 @@ def test_generate():
 
     # test generation for C modules (which have no source file)
     gen.env.currmodule = 'time'
-    assert_processes([('function', 'time.asctime')], 'function', 'asctime', [], None)
-    assert_processes([('function', 'time.asctime')], 'function', 'asctime', [], None)
+    assert_processes([('function', 'time.asctime')],
+                     'function', 'asctime', [], None)
+    assert_processes([('function', 'time.asctime')],
+                     'function', 'asctime', [], None)
 
 
 # --- generate fodder ------------

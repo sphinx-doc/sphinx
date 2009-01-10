@@ -101,7 +101,7 @@ Includes
    The directive also supports the ``linenos`` flag option to switch on line
    numbers, and a ``language`` option to select a language different from the
    current file's standard language.  Example with options::
-    
+
       .. literalinclude:: example.rb
          :language: ruby
          :linenos:

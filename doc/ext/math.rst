@@ -90,7 +90,7 @@ further translation is necessary when building LaTeX output.
 
       Euler's identity, equation :eq:`euler`, was elected one of the most
       beautiful mathematical formulas.
-   
+
 
 :mod:`sphinx.ext.pngmath` -- Render math as PNG images
 ------------------------------------------------------
@@ -133,7 +133,7 @@ There are various config values you can set to influence how the images are buil
    list.
 
    .. versionadded:: 0.5.1
-   
+
 .. confval:: pngmath_latex_preamble
 
    Additional LaTeX code to put into the preamble of the short LaTeX files that
@@ -145,7 +145,7 @@ There are various config values you can set to influence how the images are buil
    Additional arguments to give to dvipng, as a list.  The default value is
    ``['-gamma 1.5', '-D 110']`` which makes the image a bit darker and larger
    then it is by default.
-   
+
    An arguments you might want to add here is e.g. ``'-bg Transparent'``,
    which produces PNGs with a transparent background.  This is not enabled by
    default because some Internet Explorer versions don't like transparent PNGs.

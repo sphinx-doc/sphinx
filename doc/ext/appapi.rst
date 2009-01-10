@@ -45,12 +45,12 @@ the following public API:
    :exc:`docutils.nodes.SkipNode`.  Example::
 
       class math(docutils.nodes.Element)
-   
+
       def visit_math_html(self, node):
           self.body.append(self.starttag(node, 'math'))
       def depart_math_html(self, node):
           self.body.append('</math>')
-   
+
       app.add_node(math, html=(visit_math_html, depart_math_html))
 
    Obviously, translators for which you don't specify visitor methods will choke
@@ -174,7 +174,7 @@ the following public API:
    highlight code blocks with the given language *alias*.
 
    .. versionadded:: 0.6
-   
+
 .. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on
@@ -237,7 +237,7 @@ registered event handlers.
    since the module declarations could have been removed from the file.
 
    .. versionadded:: 0.5
-   
+
 .. event:: source-read (app, docname, source)
 
    Emitted when a source file has been read.  The *source* argument is a list
@@ -249,7 +249,7 @@ registered event handlers.
    ``:math:`...```.
 
    .. versionadded:: 0.5
-   
+
 .. event:: doctree-read (app, doctree)
 
    Emitted when a doctree has been parsed and read by the environment, and is
@@ -271,7 +271,7 @@ registered event handlers.
       future reference and should be a child of the returned reference node.
 
    .. versionadded:: 0.5
-   
+
 .. event:: doctree-resolved (app, doctree, docname)
 
    Emitted when a doctree has been "resolved" by the environment, that is, all
@@ -287,7 +287,7 @@ registered event handlers.
    completed, that is, the environment and all doctrees are now up-to-date.
 
    .. versionadded:: 0.5
-   
+
 .. event:: page-context (app, pagename, templatename, context, doctree)
 
    Emitted when the HTML builder has created a context dictionary to render a
@@ -318,7 +318,7 @@ registered event handlers.
    cleanup actions depending on the exception status.
 
    .. versionadded:: 0.5
-   
+
 
 .. _template-bridge:
 

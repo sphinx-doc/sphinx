@@ -54,7 +54,8 @@ def test_images():
     app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app, env)
     htmlbuilder.post_process_images(tree)
-    assert "no matching candidate for image URI u'foo.*'" in app._warning.content[-1]
+    assert "no matching candidate for image URI u'foo.*'" in \
+           app._warning.content[-1]
     assert set(htmlbuilder.images.keys()) == set(['subdir/img.png', 'img.png',
                                                   'subdir/simg.png'])
     assert set(htmlbuilder.images.values()) == set(['img.png', 'img1.png',
@@ -63,8 +64,10 @@ def test_images():
     app._warning.reset()
     latexbuilder = LaTeXBuilder(app, env)
     latexbuilder.post_process_images(tree)
-    assert "no matching candidate for image URI u'foo.*'" in app._warning.content[-1]
-    assert set(latexbuilder.images.keys()) == set(['subdir/img.png', 'subdir/simg.png',
+    assert "no matching candidate for image URI u'foo.*'" in \
+           app._warning.content[-1]
+    assert set(latexbuilder.images.keys()) == set(['subdir/img.png',
+                                                   'subdir/simg.png',
                                                    'img.png', 'img.pdf'])
     assert set(latexbuilder.images.values()) == set(['img.pdf', 'img.png',
                                                      'img1.png', 'simg.png'])
