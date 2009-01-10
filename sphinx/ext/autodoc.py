@@ -380,6 +380,8 @@ class RstGenerator(object):
         # try to also get a source code analyzer for attribute docs
         try:
             analyzer = ModuleAnalyzer.for_module(mod)
+            # parse right now, to get PycodeErrors on parsing
+            analyzer.parse()
         except PycodeError, err:
             # no source file -- e.g. for builtin and C modules
             analyzer = None
