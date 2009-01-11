@@ -64,6 +64,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self):
         self.init_templates()
+        self.init_highlighter()
         self.init_translator_class()
         if self.config.html_file_suffix:
             self.out_suffix = self.config.html_file_suffix
@@ -79,6 +80,7 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 self.script_files.append('_static/translations.js')
 
+    def init_highlighter(self):
         # determine Pygments style and create the highlighter
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
@@ -600,6 +602,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         self.init_translator_class()
+        self.init_highlighter()
         self.templates = None   # no template bridge necessary
 
     def get_target_uri(self, docname, typ=None):
