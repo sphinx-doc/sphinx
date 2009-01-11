@@ -125,7 +125,7 @@ def missing_reference(app, env, node, contnode):
         if target not in env.intersphinx_inventory:
             return None
         type, proj, version, uri = env.intersphinx_inventory[target]
-    print "Intersphinx hit:", target, uri
+    # print "Intersphinx hit:", target, uri
     newnode = nodes.reference('', '')
     newnode['refuri'] = uri + '#' + target
     newnode['reftitle'] = '(in %s v%s)' % (proj, version)
