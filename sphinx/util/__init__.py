@@ -361,3 +361,12 @@ def force_decode(string, encoding):
                 # last resort -- can't fail
                 string = string.decode('latin1')
     return string
+
+
+def movefile(source, dest):
+    # move a file, removing the destination if it exists
+    if os.path.exists(dest):
+            os.unlink(dest)
+        except OSError:
+            pass
+    os.rename(source, dest)

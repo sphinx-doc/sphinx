@@ -22,7 +22,8 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
-from sphinx.util import SEP, os_path, relative_uri, ensuredir, ustrftime
+from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
+    movefile, ustrftime
 from sphinx.search import js_index
 from sphinx.builders import Builder, ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
@@ -566,7 +567,7 @@ class StandaloneHTMLBuilder(Builder):
             self.indexer.dump(f, self.indexer_format)
         finally:
             f.close()
-        os.rename(searchindexfn + '.tmp', searchindexfn)
+        movefile(searchindexfn + '.tmp', searchindexfn)
         self.info('done')
 
         self.info(bold('dumping object inventory... '), nonl=True)
