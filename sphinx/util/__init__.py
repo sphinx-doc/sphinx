@@ -366,6 +366,7 @@ def force_decode(string, encoding):
 def movefile(source, dest):
     # move a file, removing the destination if it exists
     if os.path.exists(dest):
+        try:
             os.unlink(dest)
         except OSError:
             pass
