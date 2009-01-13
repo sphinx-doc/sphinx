@@ -282,3 +282,13 @@ def nested_parse_with_titles(state, content, node):
 def ustrftime(format, *args):
     # strftime for unicode strings
     return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
+
+
+def movefile(source, dest):
+    # move a file, removing the destination if it exists
+    if os.path.exists(dest):
+        try:
+            os.unlink(dest)
+        except OSError:
+            pass
+    os.rename(source, dest)

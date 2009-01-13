@@ -42,7 +42,7 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import get_matching_docs, SEP, ustrftime
+from sphinx.util import movefile, get_matching_docs, SEP, ustrftime
 from sphinx.directives import additional_xref_types
 
 default_settings = {
@@ -217,7 +217,7 @@ class BuildEnvironment:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:
             picklefile.close()
-        os.rename(filename + '.tmp', filename)
+        movefile(filename + '.tmp', filename)
         # reset attributes
         self.config.values = values
         self.set_warnfunc(warnfunc)
