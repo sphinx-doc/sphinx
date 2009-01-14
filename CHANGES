@@ -1,6 +1,8 @@
 Release 0.5.2 (in development)
 ==============================
 
+* #86: Fix explicit document titles in toctrees.
+
 * #81: Write environment and search index in a manner that is safe
   from exceptions that occur during dumping.
 
