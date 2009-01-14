@@ -985,12 +985,12 @@ class BuildEnvironment:
         # replace titles, if needed, and set the target paths in the
         # toctrees (they are not known at TOC generation time)
         for refnode in newnode.traverse(nodes.reference):
-            refnode['refuri'] = builder.get_relative_uri(
-                docname, refnode['refuri']) + refnode['anchorname']
             if titleoverrides and not refnode['anchorname'] \
                    and refnode['refuri'] in titleoverrides:
                 newtitle = titleoverrides[refnode['refuri']]
                 refnode.children = [nodes.Text(newtitle)]
+            refnode['refuri'] = builder.get_relative_uri(
+                docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
     descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr', 'obj',
