@@ -324,7 +324,18 @@ class RstGenerator(object):
                     # can never get arguments of a C function or method
                     getargs = False
                 if getargs:
-                    argspec = inspect.getargspec(obj)
+                    try:
+                        argspec = inspect.getargspec(obj)
+                    except TypeError:
+                        # if a class should be documented as function (yay duck
+                        # typing) we try to use the constructor signature as function
+                        # signature without the first argument.
+                        try:
+                            argspec = inspect.getargspec(obj.__new__)
+                        except TypeError:
+                            argspec = inspect.getargspec(obj.__init__)
+                        if argspec[0]:
+                            del argspec[0][0]
                     if what in ('class', 'method', 'staticmethod',
                                 'classmethod') and argspec[0] and \
                            argspec[0][0] in ('cls', 'self'):
