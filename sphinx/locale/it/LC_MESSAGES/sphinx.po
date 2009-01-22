@@ -2,19 +2,19 @@
 # Copyright (C) 2008 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # Sandro Dentella <sandro@e-den.it>, 2008.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-11-27 18:39+0100\n"
-"PO-Revision-Date: 2008-12-28 23:40+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: it <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"PO-Revision-Date: 2009-01-06 17:38+0200\n"
+"Last-Translator: Sandro Dentella <sandro@e-den.it>\n"
+"Language-Team: <sphinx-dev@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Virtaal 0.2\n"
 "Generated-By: Babel 0.9.3\n"
 
 #: sphinx/environment.py:103 sphinx/writers/latex.py:170
@@ -41,7 +41,7 @@ msgstr "Cerca"
 #: sphinx/roles.py:53 sphinx/directives/desc.py:564
 #, python-format
 msgid "environment variable; %s"
-msgstr "variabile dámbiente, %s"
+msgstr "variabile d'ambiente, %s"
 
 #: sphinx/roles.py:60
 #, python-format
@@ -155,7 +155,7 @@ msgstr "%s (%s attributo)"
 #: sphinx/directives/desc.py:74
 #, python-format
 msgid "%s (C function)"
-msgstr "%s (functione C)"
+msgstr "%s (funzione C)"
 
 #: sphinx/directives/desc.py:76
 #, python-format
@@ -194,7 +194,6 @@ msgid "Return type"
 msgstr "Tipo di ritorno"
 
 #: sphinx/directives/desc.py:201
-#, fuzzy
 msgid "Parameter"
 msgstr "Parametri"
 
@@ -235,7 +234,7 @@ msgstr "Vedi anche"
 #: sphinx/ext/autodoc.py:576 sphinx/ext/autodoc.py:590
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr ""
+msgstr "alias per :class:`%s`"
 
 #: sphinx/ext/todo.py:31
 msgid "Todo"
@@ -335,7 +334,7 @@ msgstr "funzione built-in"
 
 #: sphinx/static/doctools.js:139 sphinx/writers/html.py:415
 msgid "Permalink to this headline"
-msgstr "link permanente per questa inestazione"
+msgstr "link permanente per questa intestazione"
 
 #: sphinx/static/doctools.js:145 sphinx/writers/html.py:80
 msgid "Permalink to this definition"
@@ -370,14 +369,13 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
-"La tua ricerca non ha trovato alcun risultato. Controlla la corettezzadei"
-" termini di ricerca e di avere selezionato un numero sufficiente di "
-"categorie"
+"La tua ricerca non ha trovato alcun risultato. Controlla la correttezza dei "
+"termini di ricerca e di avere selezionato un numero sufficiente di categorie"
 
 #: sphinx/static/searchtools.js:457
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr "Ricera terminata, trovate %s pagine corrispondenti alla ricerca."
+msgstr "Ricerca terminata, trovate %s pagine corrispondenti alla ricerca."
 
 #: sphinx/templates/defindex.html:2
 msgid "Overview"
@@ -432,7 +430,7 @@ msgstr "Navigazione"
 
 #: sphinx/templates/layout.html:40
 msgid "Table Of Contents"
-msgstr "Tablella dei contenuti"
+msgstr "Tabella dei contenuti"
 
 #: sphinx/templates/layout.html:46
 msgid "Previous topic"
@@ -467,9 +465,8 @@ msgid "Go"
 msgstr "Vai"
 
 #: sphinx/templates/layout.html:73
-#, fuzzy
 msgid "Enter search terms or a module, class or function name."
-msgstr "Inserisci un modulo, classe o nome di funzione"
+msgstr "Inserisci un termine di ricerca un modulo, classe o nome di funzione"
 
 #: sphinx/templates/layout.html:106
 #, python-format
@@ -529,10 +526,8 @@ msgid ""
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
 msgstr ""
-"Puoi effettuare una ricerca in questi documenti. Immetti le parole chiave"
-" \n"
-"    della tua ricerca nel riquadro sottostante \"search\". Nota che la "
-"funzione\n"
+"Puoi effettuare una ricerca in questi documenti. Immetti le parole chiave \n"
+"    della tua ricerca nel riquadro sottostante \"cerca\". Nota che la funzione\n"
 "    di ricerca cerca automaticamente per tutte le parole. Le pagine\n"
 "    che contendono meno parole non compariranno nei risultati di ricerca."
 
@@ -562,18 +557,17 @@ msgstr "Lista delle modifiche generata automaticamente nella versione %(version)
 
 #: sphinx/templates/changes/versionchanges.html:18
 msgid "Library changes"
-msgstr "Modifiche nela libreria"
+msgstr "Modifiche nella libreria"
 
 #: sphinx/templates/changes/versionchanges.html:23
 msgid "C API changes"
-msgstr "Modifche nelle API C"
+msgstr "Modifiche nelle API C"
 
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "Altre modifiche"
 
 #: sphinx/writers/latex.py:173
-#, fuzzy
 msgid "Release"
 msgstr "Release"
 
@@ -609,4 +603,3 @@ msgstr "[immagine]"
 #~ "non più valido. Abbiamo provato a "
 #~ "ridirigerti verso il nuovo indirizzo, ma"
 #~ " potrebbe  non essere quello giusto"
-
