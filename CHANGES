@@ -81,6 +81,9 @@ New features added
   - There is now a ``Sphinx.add_lexer()`` method to be able to use
     custom Pygments lexers easily.
 
+  - There is now ``Sphinx.add_generic_rol()`` to mirror the docutils'
+    own function.
+
 * Other changes:
 
   - Config overrides for single dict keys can now be given on the
