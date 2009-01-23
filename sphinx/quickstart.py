@@ -352,7 +352,7 @@ if "%%1" == "help" (
 \techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  changes   to make an overview over all changed/added/deprecated items
 \techo.  linkcheck to check all external links for integrity
-\techo.  doctest   to run all doctests embedded in the documentation (if enabled)
+\techo.  doctest   to run all doctests embedded in the documentation if enabled
 \tgoto end
 )
 
