@@ -56,7 +56,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:c:CD:A:NEqP')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:c:CD:A:NEqQP')
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):

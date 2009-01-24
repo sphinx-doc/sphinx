@@ -1,6 +1,8 @@
 Release 0.5.2 (in development)
 ==============================
 
+* Actually make the ``-Q`` option work.
+
 * #86: Fix explicit document titles in toctrees.
 
 * #81: Write environment and search index in a manner that is safe
