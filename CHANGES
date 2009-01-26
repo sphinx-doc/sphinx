@@ -103,6 +103,9 @@ New features added
 Release 0.5.2 (in development)
 ==============================
 
+* Open literalinclude files in universal newline mode to allow
+  arbitrary newline conventions.
+
 * Actually make the ``-Q`` option work.
 
 * #86: Fix explicit document titles in toctrees.

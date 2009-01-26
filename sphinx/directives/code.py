@@ -75,7 +75,7 @@ def literalinclude_directive(name, arguments, options, content, lineno,
 
     encoding = options.get('encoding', env.config.source_encoding)
     try:
-        f = codecs.open(fn, 'r', encoding)
+        f = codecs.open(fn, 'rU', encoding)
         lines = f.readlines()
         f.close()
     except (IOError, OSError):
