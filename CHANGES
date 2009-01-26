@@ -1,6 +1,9 @@
 Release 0.5.2 (in development)
 ==============================
 
+* Prevent double hyphens becoming en-dashes in literal code in
+  the LaTeX output.
+
 * Open literalinclude files in universal newline mode to allow
   arbitrary newline conventions.
 
