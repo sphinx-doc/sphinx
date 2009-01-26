@@ -59,7 +59,7 @@ def toctree_directive(name, arguments, options, content, lineno,
                 ret.append(state.document.reporter.warning(
                     'toctree references unknown document %r' % docname, line=lineno))
             else:
-                entries.append((title, ref))
+                entries.append((title, docname))
                 includefiles.append(docname)
         else:
             patname = docname_join(env.docname, entry)
