@@ -59,7 +59,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 27
+ENV_VERSION = 28
 
 
 default_substitutions = set([
@@ -517,6 +517,8 @@ class BuildEnvironment:
 
         self.docname = docname
         self.settings['input_encoding'] = self.config.source_encoding
+        self.settings['trim_footnote_reference_space'] = \
+            self.config.trim_footnote_reference_space
 
         class SphinxSourceClass(FileInput):
             def read(self):

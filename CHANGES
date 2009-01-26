@@ -64,6 +64,11 @@ New features added
   - The default value for ``htmlhelp_basename`` is now the project
     title, cleaned up as a filename.
 
+  - The new ``trim_footnote_reference_space`` config value mirrors
+    the docutils config value of the same name and removes the
+    space before a footnote reference that is necessary for reST
+    to recognize the reference.
+
 * Builders:
 
   - New builder for Qt help collections, by Antonio Valentino.

@@ -45,6 +45,7 @@ class Config(object):
         default_role = (None, True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
+        trim_footnote_reference_space = (False, True),
         show_authors = (False, True),
         pygments_style = ('sphinx', False),
         highlight_language = ('python', False),
