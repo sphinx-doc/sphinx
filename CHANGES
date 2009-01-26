@@ -49,6 +49,9 @@ New features added
   - #23: Added a ``classmethod`` directive along with ``method``
     and ``staticmethod``.
 
+  - Added a toctree variable to the templates, and the ability to
+    include external links in toctrees.
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to

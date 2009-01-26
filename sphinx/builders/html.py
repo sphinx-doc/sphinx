@@ -219,6 +219,8 @@ class StandaloneHTMLBuilder(Builder):
             metatags = metatags,
             rellinks = rellinks,
             sourcename = sourcename,
+            toctree = self.render_partial(self.env.get_toctree_for(
+                                          docname, self))['fragment'],
             toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
             # only display a TOC if there's more than one item to show
             display_toc = (self.env.toc_num_entries[docname] > 1),
