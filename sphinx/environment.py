@@ -1005,8 +1005,9 @@ class BuildEnvironment:
         _walk_depth(newnode, 1, prune and maxdepth or 0)
         # set the target paths in the toctrees (they are not known at TOC generation time)
         for refnode in newnode.traverse(nodes.reference):
-            refnode['refuri'] = builder.get_relative_uri(
-                docname, refnode['refuri']) + refnode['anchorname']
+            if not refnode['refuri'].startswith('http://'):  # FIXME: see above
+                refnode['refuri'] = builder.get_relative_uri(
+                    docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
     descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr', 'obj',
