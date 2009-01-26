@@ -71,6 +71,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    The second line above will link to the ``strings`` document, but will use the
    title "All about strings" instead of the title of the ``strings`` document.
 
+   You can also add external links, by giving an HTTP URL instead of a document
+   name.
+
    You can use "globbing" in toctree directives, by giving the ``glob`` flag
    option.  All entries are then matched against the list of available
    documents, and matches are inserted into the list alphabetically.  Example::
@@ -113,7 +116,7 @@ tables of contents.  The ``toctree`` directive is the central element.
       Added "globbing" option.
 
    .. versionchanged:: 0.6
-      Added "hidden" option.
+      Added "hidden" option and external links.
 
 
 Special names

@@ -86,6 +86,13 @@ the following public API:
    source, *role* the role function (see the `Docutils documentation
    <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ on details).
 
+.. method:: Sphinx.add_generic_role(name, nodeclass)
+
+   Register a Docutils role that does nothing but wrap its contents in the
+   node given by *nodeclass*.
+
+   .. versionadded:: 0.6
+
 .. method:: Sphinx.add_description_unit(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None)
 
    This method is a very convenient way to add a new type of information that

@@ -96,6 +96,7 @@ HTML_XPATH = {
         ".//li[@class='toctree-l2']/a": 'Admonitions',
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
+        ".//a[@href='http://python.org/']": '',
     },
 }
 

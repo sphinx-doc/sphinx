@@ -49,6 +49,9 @@ New features added
   - #23: Added a ``classmethod`` directive along with ``method``
     and ``staticmethod``.
 
+  - Added a toctree variable to the templates, and the ability to
+    include external links in toctrees.
+
 * Configuration:
 
   - The new ``html_add_permalinks`` config value can be used to
@@ -84,6 +87,9 @@ New features added
   - There is now a ``Sphinx.add_lexer()`` method to be able to use
     custom Pygments lexers easily.
 
+  - There is now ``Sphinx.add_generic_rol()`` to mirror the docutils'
+    own function.
+
 * Other changes:
 
   - Config overrides for single dict keys can now be given on the
@@ -99,6 +105,11 @@ New features added
 
 Release 0.5.2 (in development)
 ==============================
+
+* Open literalinclude files in universal newline mode to allow
+  arbitrary newline conventions.
+
+* Actually make the ``-Q`` option work.
 
 * #86: Fix explicit document titles in toctrees.
 

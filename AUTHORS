@@ -12,6 +12,7 @@ Other contributors, listed alphabetically, are:
 * Dave Kuhlman -- original LaTeX writer
 * Thomas Lamb -- linkcheck builder
 * Benjamin Peterson -- unittests
+* Stefan Seefeld -- toctree improvements
 * Antonio Valentino -- qthelp builder
 * Pauli Virtanen -- autodoc improvements
 * Sebastian Wiesner -- image handling, distutils support

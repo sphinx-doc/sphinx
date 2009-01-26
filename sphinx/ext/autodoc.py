@@ -458,7 +458,10 @@ class RstGenerator(object):
 
         # add content from attribute documentation
         if analyzer:
-            sourcename = '%s:docstring of %s' % (analyzer.srcname, fullname)
+            # prevent encoding errors when the file name is non-ASCII
+            srcname = unicode(analyzer.srcname,
+                              sys.getfilesystemencoding(), 'replace')
+            sourcename = u'%s:docstring of %s' % (srcname, fullname)
             attr_docs = analyzer.find_attr_docs()
             if what in ('data', 'attribute'):
                 key = ('.'.join(objpath[:-1]), objpath[-1])
@@ -469,7 +472,7 @@ class RstGenerator(object):
                                                               fullname, todoc)):
                         self.result.append(indent + line, sourcename, i)
         else:
-            sourcename = 'docstring of %s' % fullname
+            sourcename = u'docstring of %s' % fullname
             attr_docs = {}
 
         # add content from docstrings
