@@ -1020,7 +1020,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_literal(self, node):
+        self.no_contractions += 1
         content = self.encode(node.astext().strip())
+        self.no_contractions -= 1
         if self.in_title:
             self.body.append(r'\texttt{%s}' % content)
         elif node.has_key('role') and node['role'] == 'samp':

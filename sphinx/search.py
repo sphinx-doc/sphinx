@@ -134,13 +134,16 @@ class IndexBuilder(object):
     def get_modules(self, fn2index):
         rv = {}
         for name, (doc, _, _, _) in self.env.modules.iteritems():
-            rv[name] = fn2index[doc]
+            if doc in fn2index:
+                rv[name] = fn2index[doc]
         return rv
 
     def get_descrefs(self, fn2index):
         rv = {}
         dt = self._desctypes
         for fullname, (doc, desctype) in self.env.descrefs.iteritems():
+            if doc not in fn2index:
+                continue
             prefix, name = rpartition(fullname, '.')
             pdict = rv.setdefault(prefix, {})
             try:
@@ -156,9 +159,10 @@ class IndexBuilder(object):
         for k, v in self._mapping.iteritems():
             if len(v) == 1:
                 fn, = v
-                rv[k] = fn2index[fn]
+                if fn in fn2index:
+                    rv[k] = fn2index[fn]
             else:
-                rv[k] = [fn2index[fn] for fn in v]
+                rv[k] = [fn2index[fn] for fn in v if fn in fn2index]
         return rv
 
     def freeze(self):

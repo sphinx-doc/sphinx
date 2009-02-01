@@ -59,7 +59,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 27
+ENV_VERSION = 28
 
 
 default_substitutions = set([
@@ -517,6 +517,8 @@ class BuildEnvironment:
 
         self.docname = docname
         self.settings['input_encoding'] = self.config.source_encoding
+        self.settings['trim_footnote_reference_space'] = \
+            self.config.trim_footnote_reference_space
 
         class SphinxSourceClass(FileInput):
             def read(self):
@@ -828,6 +830,17 @@ class BuildEnvironment:
             node['refuri'] = node['anchorname']
         return toc
 
+    def get_toctree_for(self, docname, builder):
+        """Return the global TOC nodetree."""
+
+        # XXX why master_doc?
+        doctree = self.get_doctree(self.config.master_doc)
+        for toctreenode in doctree.traverse(addnodes.toctree):
+            result = self.resolve_toctree(docname, builder, toctreenode,
+                                          prune=True)
+            if result is not None:
+                return result
+
     # -------
     # these are called from docutils directives and therefore use self.docname
     #
@@ -912,35 +925,46 @@ class BuildEnvironment:
         if toctree.get('hidden', False):
             return None
 
-        def _walk_depth(node, depth, maxdepth, titleoverrides):
+        def _walk_depth(node, depth, maxdepth):
             """Utility: Cut a TOC at a specified depth."""
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
                     subnode['classes'].append('toctree-l%d' % (depth-1))
-                    _walk_depth(subnode, depth, maxdepth, titleoverrides)
+                    _walk_depth(subnode, depth, maxdepth)
                 elif isinstance(subnode, nodes.bullet_list):
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
-                        _walk_depth(subnode, depth+1, maxdepth, titleoverrides)
+                        _walk_depth(subnode, depth+1, maxdepth)
 
         def _entries_from_toctree(toctreenode, separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
-            includefiles = map(str, toctreenode['includefiles'])
-
+            refs = [(e[0], str(e[1])) for e in toctreenode['entries']]
             entries = []
-            for includefile in includefiles:
+            for (title, ref) in refs:
                 try:
-                    toc = self.tocs[includefile].deepcopy()
+                    if ref.startswith('http://'): # FIXME: (see directives/other.py)
+                        reference = nodes.reference('', '', refuri=ref, anchorname='',
+                                                    *[nodes.Text(title)])
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        toc = nodes.bullet_list('', item)
+                    else:
+                        toc = self.tocs[ref].deepcopy()
+                        if title and toc.children and len(toc.children) == 1:
+                            for refnode in toc.children[0].traverse(nodes.reference):
+                                if refnode['refuri'] == ref and not refnode['anchorname']:
+                                    refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
                         self.warn(docname, 'toctree contains reference to document '
                                   '%r that doesn\'t have a title: no link will be '
-                                  'generated' % includefile)
+                                  'generated' % ref)
+
                 except KeyError:
                     # this is raised if the included file does not exist
                     self.warn(docname, 'toctree contains reference to nonexisting '
-                              'document %r' % includefile)
+                              'document %r' % ref)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
@@ -969,7 +993,6 @@ class BuildEnvironment:
             return entries
 
         maxdepth = maxdepth or toctree.get('maxdepth', -1)
-        titleoverrides = toctree.get('includetitles', {})
 
         # NOTE: previously, this was separate=True, but that leads to artificial
         # separation when two or more toctree entries form a logical unit, so
@@ -981,16 +1004,12 @@ class BuildEnvironment:
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
         # prune the tree to maxdepth and replace titles, also set level classes
-        _walk_depth(newnode, 1, prune and maxdepth or 0, titleoverrides)
-        # replace titles, if needed, and set the target paths in the
-        # toctrees (they are not known at TOC generation time)
+        _walk_depth(newnode, 1, prune and maxdepth or 0)
+        # set the target paths in the toctrees (they are not known at TOC generation time)
         for refnode in newnode.traverse(nodes.reference):
-            if titleoverrides and not refnode['anchorname'] \
-                   and refnode['refuri'] in titleoverrides:
-                newtitle = titleoverrides[refnode['refuri']]
-                refnode.children = [nodes.Text(newtitle)]
-            refnode['refuri'] = builder.get_relative_uri(
-                docname, refnode['refuri']) + refnode['anchorname']
+            if not refnode['refuri'].startswith('http://'):  # FIXME: see above
+                refnode['refuri'] = builder.get_relative_uri(
+                    docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
     descroles = frozenset(('data', 'exc', 'func', 'class', 'const', 'attr', 'obj',

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: larlet@gmail.com\n"
 "POT-Creation-Date: 2008-08-08 12:39+0000\n"
-"PO-Revision-Date: 2008-12-28 23:40+0100\n"
+"PO-Revision-Date: 2009-01-24 18:39+0000\n"
 "Last-Translator: Sébastien Douche <sdouche@gmail.com>\n"
 "Language-Team: French Translation Team <sphinx-dev@googlegroups.com>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -18,28 +18,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/environment.py:103 sphinx/writers/latex.py:170
+#: sphinx/environment.py:104 sphinx/writers/latex.py:170
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d %B %Y"
 
-#: sphinx/environment.py:293 sphinx/templates/genindex-single.html:2
+#: sphinx/environment.py:300 sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
 #: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
-#: sphinx/templates/layout.html:117 sphinx/writers/latex.py:176
+#: sphinx/templates/layout.html:126 sphinx/writers/latex.py:176
 msgid "Index"
 msgstr "Index"
 
-#: sphinx/environment.py:294 sphinx/writers/latex.py:175
+#: sphinx/environment.py:301 sphinx/writers/latex.py:175
 msgid "Module Index"
 msgstr "Index du module"
 
-#: sphinx/environment.py:295 sphinx/templates/defindex.html:16
+#: sphinx/environment.py:302 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr "Page de recherche"
 
-#: sphinx/roles.py:53 sphinx/directives/desc.py:564
+#: sphinx/roles.py:53 sphinx/directives/desc.py:580
 #, python-format
 msgid "environment variable; %s"
 msgstr "variable d'environnement; %s"
@@ -57,38 +57,38 @@ msgstr "Fonctions de base"
 msgid "Module level"
 msgstr "Module"
 
-#: sphinx/builders/html.py:115
+#: sphinx/builders/html.py:118
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d %b %Y"
 
-#: sphinx/builders/html.py:134 sphinx/templates/defindex.html:21
+#: sphinx/builders/html.py:137 sphinx/templates/defindex.html:21
 msgid "General Index"
 msgstr "Index général"
 
-#: sphinx/builders/html.py:134
+#: sphinx/builders/html.py:137
 msgid "index"
 msgstr "index"
 
-#: sphinx/builders/html.py:136 sphinx/builders/htmlhelp.py:180
-#: sphinx/builders/qthelp.py:129 sphinx/templates/defindex.html:19
+#: sphinx/builders/html.py:139 sphinx/builders/htmlhelp.py:182
+#: sphinx/builders/qthelp.py:131 sphinx/templates/defindex.html:19
 #: sphinx/templates/modindex.html:2 sphinx/templates/modindex.html:13
 msgid "Global Module Index"
 msgstr "Index général des modules"
 
-#: sphinx/builders/html.py:136
+#: sphinx/builders/html.py:139
 msgid "modules"
 msgstr "modules"
 
-#: sphinx/builders/html.py:175
+#: sphinx/builders/html.py:179
 msgid "next"
 msgstr "suivant"
 
-#: sphinx/builders/html.py:182
+#: sphinx/builders/html.py:186
 msgid "previous"
 msgstr "précédent"
 
-#: sphinx/builders/latex.py:155
+#: sphinx/builders/latex.py:155 sphinx/builders/pdf.py:162
 msgid " (in "
 msgstr "(dans"
 
@@ -108,7 +108,7 @@ msgstr "%s() (dans le module %s)"
 msgid "%s (built-in variable)"
 msgstr "%s (variable de base)"
 
-#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:66
+#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:78
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (dans le module %s)"
@@ -143,67 +143,67 @@ msgstr "%s() (méthode statique %s.%s)"
 msgid "%s() (%s static method)"
 msgstr "%s() (méthode statique %s)"
 
-#: sphinx/directives/desc.py:70
+#: sphinx/directives/desc.py:82
 #, python-format
 msgid "%s (%s.%s attribute)"
 msgstr "%s (attribut %s.%s)"
 
-#: sphinx/directives/desc.py:72
+#: sphinx/directives/desc.py:84
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (attribut %s)"
 
-#: sphinx/directives/desc.py:74
+#: sphinx/directives/desc.py:86
 #, python-format
 msgid "%s (C function)"
 msgstr "%s (fonction C)"
 
-#: sphinx/directives/desc.py:76
+#: sphinx/directives/desc.py:88
 #, python-format
 msgid "%s (C member)"
 msgstr "%s (membre C)"
 
-#: sphinx/directives/desc.py:78
+#: sphinx/directives/desc.py:90
 #, python-format
 msgid "%s (C macro)"
 msgstr "%s (macro C)"
 
-#: sphinx/directives/desc.py:80
+#: sphinx/directives/desc.py:92
 #, python-format
 msgid "%s (C type)"
 msgstr "%s (type C)"
 
-#: sphinx/directives/desc.py:82
+#: sphinx/directives/desc.py:94
 #, python-format
 msgid "%s (C variable)"
 msgstr "%s (variable C)"
 
-#: sphinx/directives/desc.py:100
+#: sphinx/directives/desc.py:112
 msgid "Raises"
 msgstr "Lève"
 
-#: sphinx/directives/desc.py:104
+#: sphinx/directives/desc.py:116
 msgid "Variable"
 msgstr "Variable"
 
-#: sphinx/directives/desc.py:107
+#: sphinx/directives/desc.py:119
 msgid "Returns"
 msgstr "Retourne"
 
-#: sphinx/directives/desc.py:116
+#: sphinx/directives/desc.py:128
 msgid "Return type"
 msgstr "Type retourné"
 
-#: sphinx/directives/desc.py:201
+#: sphinx/directives/desc.py:213
 #, fuzzy
 msgid "Parameter"
 msgstr "Paramètres"
 
-#: sphinx/directives/desc.py:205
+#: sphinx/directives/desc.py:217
 msgid "Parameters"
 msgstr "Paramètres"
 
-#: sphinx/directives/desc.py:450
+#: sphinx/directives/desc.py:465
 #, python-format
 msgid "%scommand line option; %s"
 msgstr "%soption de ligne de commande; %s"
@@ -233,7 +233,12 @@ msgstr "Auteur : "
 msgid "See also"
 msgstr "Voir aussi"
 
-#: sphinx/ext/autodoc.py:576 sphinx/ext/autodoc.py:590
+#: sphinx/ext/autodoc.py:442
+#, python-format
+msgid "   Bases: %s"
+msgstr ""
+
+#: sphinx/ext/autodoc.py:566 sphinx/ext/autodoc.py:583
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -334,7 +339,7 @@ msgstr "état"
 msgid "built-in function"
 msgstr "fonction de base"
 
-#: sphinx/static/doctools.js:139 sphinx/writers/html.py:415
+#: sphinx/static/doctools.js:139 sphinx/writers/html.py:425
 msgid "Permalink to this headline"
 msgstr "Lien permanent vers ce titre"
 
@@ -362,7 +367,7 @@ msgstr "module, dans"
 msgid ", in "
 msgstr ", dans"
 
-#: sphinx/static/searchtools.js:453 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:453 sphinx/templates/search.html:25
 msgid "Search Results"
 msgstr "Résultats de la recherche"
 
@@ -439,73 +444,73 @@ msgstr "Table des matières"
 msgid "Previous topic"
 msgstr "Sujet précédent"
 
-#: sphinx/templates/layout.html:47
+#: sphinx/templates/layout.html:48
 msgid "previous chapter"
 msgstr "Chapitre précédent"
 
-#: sphinx/templates/layout.html:50
+#: sphinx/templates/layout.html:51
 msgid "Next topic"
 msgstr "Sujet suivant"
 
-#: sphinx/templates/layout.html:51
+#: sphinx/templates/layout.html:53
 msgid "next chapter"
 msgstr "Chapitre suivant"
 
-#: sphinx/templates/layout.html:56
+#: sphinx/templates/layout.html:58
 msgid "This Page"
 msgstr "Cette page"
 
-#: sphinx/templates/layout.html:58
+#: sphinx/templates/layout.html:61
 msgid "Show Source"
 msgstr "Montrer la source"
 
-#: sphinx/templates/layout.html:67
+#: sphinx/templates/layout.html:71
 msgid "Quick search"
 msgstr "Recherche rapide"
 
-#: sphinx/templates/layout.html:69
+#: sphinx/templates/layout.html:74
 msgid "Go"
 msgstr "Go"
 
-#: sphinx/templates/layout.html:73
+#: sphinx/templates/layout.html:78
 #, fuzzy
 msgid "Enter search terms or a module, class or function name."
 msgstr "Saisissez un nom de module, classe ou fonction."
 
-#: sphinx/templates/layout.html:106
+#: sphinx/templates/layout.html:115
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "Recherchez dans %(docstitle)s"
 
-#: sphinx/templates/layout.html:115
+#: sphinx/templates/layout.html:124
 msgid "About these documents"
 msgstr "À propos de ces documents"
 
-#: sphinx/templates/layout.html:118 sphinx/templates/search.html:2
+#: sphinx/templates/layout.html:127 sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
 msgid "Search"
 msgstr "Recherche"
 
-#: sphinx/templates/layout.html:120
+#: sphinx/templates/layout.html:129
 msgid "Copyright"
 msgstr "Copyright"
 
-#: sphinx/templates/layout.html:165
+#: sphinx/templates/layout.html:174
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 
-#: sphinx/templates/layout.html:167
+#: sphinx/templates/layout.html:176
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr "&copy; Copyright %(copyright)s."
 
-#: sphinx/templates/layout.html:170
+#: sphinx/templates/layout.html:179
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "Mis à jour le %(last_updated)s."
 
-#: sphinx/templates/layout.html:173
+#: sphinx/templates/layout.html:182
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
@@ -523,7 +528,13 @@ msgstr "Obsolète"
 msgid "Search %(docstitle)s"
 msgstr "Rechercher %(docstitle)s"
 
-#: sphinx/templates/search.html:7
+#: sphinx/templates/search.html:9
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+
+#: sphinx/templates/search.html:14
 #, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
@@ -539,11 +550,11 @@ msgstr ""
 "    contenant moins de mots n'apparaîtront pas dans la liste des "
 "résultats."
 
-#: sphinx/templates/search.html:14
+#: sphinx/templates/search.html:21
 msgid "search"
 msgstr "rechercher"
 
-#: sphinx/templates/search.html:20
+#: sphinx/templates/search.html:27
 msgid "Your search did not match any results."
 msgstr "Votre recherche n'a retourné aucun résultat"
 
@@ -587,30 +598,4 @@ msgstr "Plateforme : %s"
 #: sphinx/writers/text.py:427
 msgid "[image]"
 msgstr "[image]"
-
-#~ msgid "Suggest Change"
-#~ msgstr "Suggérer une modification"
-
-#~ msgid "Keyword search"
-#~ msgstr "Recherche par mot-clé"
-
-#~ msgid "Most popular modules:"
-#~ msgstr "Modules les plus utilisés :"
-
-#~ msgid "Show modules only available on these platforms"
-#~ msgstr "N'afficher que les modules disponibles sur ces plateformes"
-
-#~ msgid ""
-#~ "<strong>Note:</strong> You requested an "
-#~ "out-of-date URL from this server. "
-#~ "We've tried to redirect you to the"
-#~ " new location of this page, but "
-#~ "it may not be the right one."
-#~ msgstr ""
-#~ "<strong>Note :</strong> Vous tentez d'accéder"
-#~ " à une ancienne URL de ce "
-#~ "serveur. Nous avons essayé de vous "
-#~ "rediriger vers la nouvelle adresse de"
-#~ " cette page, mais ce n'est peut-être"
-#~ " pas la bonne."
 

@@ -279,6 +279,9 @@ class Sphinx(object):
     def add_role(self, name, role):
         roles.register_canonical_role(name, role)
 
+    def add_generic_role(self, name, nodeclass):
+        roles.register_generic_role(name, nodeclass)
+
     def add_description_unit(self, directivename, rolename, indextemplate='',
                              parse_node=None, ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate, parse_node)

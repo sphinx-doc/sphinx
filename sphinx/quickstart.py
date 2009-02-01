@@ -40,9 +40,9 @@ QUICKSTART_CONF = '''\
 
 import sys, os
 
-# If your extensions are in another directory, add it here. If the directory
-# is relative to the documentation root, use os.path.abspath to make it
-# absolute, like shown here.
+# If your extensions (or modules documented by autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.append(os.path.abspath('.'))
 
 # General configuration
@@ -257,7 +257,7 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html pickle json htmlhelp qthelp latex changes linkcheck
+.PHONY: help clean html pickle json htmlhelp qthelp latex changes linkcheck doctest
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
@@ -269,6 +269,7 @@ help:
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  changes   to make an overview over all changed/added/deprecated items"
 \t@echo "  linkcheck to check all external links for integrity"
+\t@echo "  doctest   to run all doctests embedded in the documentation (if enabled)"
 
 clean:
 \t-rm -rf %(rbuilddir)s/*
@@ -320,6 +321,11 @@ linkcheck:
 \t@echo
 \t@echo "Link check complete; look for any errors in the above output " \\
 \t      "or in %(rbuilddir)s/linkcheck/output.txt."
+
+doctest:
+\t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) %(rbuilddir)s/doctest
+\t@echo "Testing of doctests in the sources finished, look at the " \\
+\t      "results in %(rbuilddir)s/doctest/output.txt."
 '''
 
 BATCHFILE = '''\
@@ -346,6 +352,7 @@ if "%%1" == "help" (
 \techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  changes   to make an overview over all changed/added/deprecated items
 \techo.  linkcheck to check all external links for integrity
+\techo.  doctest   to run all doctests embedded in the documentation if enabled
 \tgoto end
 )
 
@@ -414,6 +421,14 @@ if "%%1" == "linkcheck" (
 \techo.
 \techo.Link check complete; look for any errors in the above output ^
 or in %(rbuilddir)s/linkcheck/output.txt.
+\tgoto end
+)
+
+if "%%1" == "doctest" (
+\t%%SPHINXBUILD%% -b doctest %%ALLSPHINXOPTS%% %(rbuilddir)s/doctest
+\techo.
+\techo.Testing of doctests in the sources finished, look at the ^
+results in %(rbuilddir)s/doctest/output.txt.
 \tgoto end
 )
 

@@ -261,7 +261,14 @@ Project information
    A boolean that decides whether :dir:`moduleauthor` and :dir:`sectionauthor`
    directives produce any output in the built files.
 
+.. confval:: trim_footnote_reference_space
 
+   Trim spaces before footnote references that are necessary for the reST parser
+   to recognize the footnote, but do not look too nice in the output.
+
+   .. versionadded:: 0.6
+
+   
 .. _html-options:
 
 Options for HTML output
