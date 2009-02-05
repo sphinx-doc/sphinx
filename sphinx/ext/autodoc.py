@@ -359,7 +359,7 @@ class RstGenerator(object):
             return ''
 
     def generate(self, what, name, members, add_content, indent=u'', check_module=False,
-                 no_docstring=False):
+                 no_docstring=False, real_module=None):
         """
         Generate reST for the object in self.result.
         """
@@ -388,9 +388,17 @@ class RstGenerator(object):
                       (what, str(fullname), err))
             return
 
+        # if there is no real-module defined figure out which to use.  The real module
+        # is used in the module analyzer to look up the module where the attribute
+        # documentation would actually be found in.
+        # This is used for situations where you have a module that collects the
+        # functions and classes of internal submodules.
+        if real_module is None:
+            real_module = getattr(todoc, '__module__', None) or mod
+
         # try to also get a source code analyzer for attribute docs
         try:
-            analyzer = ModuleAnalyzer.for_module(mod)
+            analyzer = ModuleAnalyzer.for_module(real_module)
             # parse right now, to get PycodeErrors on parsing
             analyzer.parse()
         except PycodeError, err:
@@ -465,14 +473,13 @@ class RstGenerator(object):
                               sys.getfilesystemencoding(), 'replace')
             sourcename = u'%s:docstring of %s' % (srcname, fullname)
             attr_docs = analyzer.find_attr_docs()
-            if what in ('data', 'attribute'):
-                key = ('.'.join(objpath[:-1]), objpath[-1])
-                if key in attr_docs:
-                    no_docstring = True
-                    docstrings = [attr_docs[key]]
-                    for i, line in enumerate(self.process_doc(docstrings, what,
-                                                              fullname, todoc)):
-                        self.result.append(indent + line, sourcename, i)
+            key = ('.'.join(objpath[:-1]), objpath[-1])
+            if key in attr_docs:
+                no_docstring = True
+                docstrings = [attr_docs[key]]
+                for i, line in enumerate(self.process_doc(docstrings, what,
+                                                          fullname, todoc)):
+                    self.result.append(indent + line, sourcename, i)
         else:
             sourcename = u'docstring of %s' % fullname
             attr_docs = {}
@@ -605,7 +612,8 @@ class RstGenerator(object):
             full_membername = mod + '::' + '.'.join(objpath + [membername])
             self.generate(memberwhat, full_membername, ['__all__'],
                           add_content=content, no_docstring=bool(content),
-                          indent=indent, check_module=members_check_module)
+                          indent=indent, check_module=members_check_module,
+                          real_module=real_module)
 
         self.env.autodoc_current_module = None
         self.env.autodoc_current_class = None
