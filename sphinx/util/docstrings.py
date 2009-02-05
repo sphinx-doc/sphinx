@@ -49,8 +49,12 @@ def prepare_commentdoc(s):
     result = []
     lines = [line.strip() for line in s.expandtabs().splitlines()]
     for line in lines:
-        if line.startswith('#: '):
-            result.append(line[3:])
+        if line.startswith('#:'):
+            line = line[2:]
+            # the first space after the comment is ignored
+            if line and line[0] == ' ':
+                line = line[1:]
+            result.append(line)
     if result and result[-1]:
         result.append('')
     return result

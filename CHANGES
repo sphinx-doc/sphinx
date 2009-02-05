@@ -86,6 +86,9 @@ New features added
 
   - Autodoc now handles inner classes and their methods.
 
+  - Autodoc can document classes as functions now if explicitly
+    marked with `autofunction`.
+
   - There is now a ``Sphinx.add_lexer()`` method to be able to use
     custom Pygments lexers easily.
 
