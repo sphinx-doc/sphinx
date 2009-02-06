@@ -7,8 +7,10 @@ included, please mail to `the Google group
 <http://groups.google.com/group/sphinx-dev>`_.
 
 * APSW: http://apsw.googlecode.com/svn/publish/index.html
+* boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
 * Chaco: http://code.enthought.com/projects/chaco/docs/html/
+* CodePy: http://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * Director: http://packages.python.org/director/
 * Django: http://docs.djangoproject.com/
@@ -16,11 +18,13 @@ included, please mail to `the Google group
 * GeoDjango: http://geodjango.org/docs/
 * Glashammer: http://glashammer.org/
 * Grok: http://grok.zope.org/doc/current/
+* Hedge: http://documen.tician.de/hedge/
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
 * Jinja: http://jinja.pocoo.org/2/documentation/
 * MapServer: http://mapserver.osgeo.org/
 * Matplotlib: http://matplotlib.sourceforge.net/
 * Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
+* MeshPy: http://documen.tician.de/meshpy/
 * Mixin.com: http://dev.mixin.com/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * NetworkX: http://networkx.lanl.gov/
@@ -30,14 +34,17 @@ included, please mail to `the Google group
 * Paste: http://pythonpaste.org/script/
 * Paver: http://www.blueskyonmars.com/projects/paver/
 * Py on Windows: http://timgolden.me.uk/python-on-windows/
+* PyCuda: http://documen.tician.de/pycuda/
 * PyEphem: http://rhodesmill.org/pyephem/
 * Pyevolve: http://pyevolve.sourceforge.net/
-* PyPubSub: http://pubsub.sourceforge.net/
-* PyUblas: http://tiker.net/doc/pyublas/
+* Pylo: http://documen.tician.de/pylo/
 * Pylons: http://docs.pylonshq.com/
+* PyPubSub: http://pubsub.sourceforge.net/
+* pyrticle: http://documen.tician.de/pyrticle/
 * Pysparse: http://pysparse.sourceforge.net/
 * Python: http://docs.python.org/dev/
 * python-apt: http://people.debian.org/~jak/python-apt-doc/
+* PyUblas: http://documen.tician.de/pyublas/
 * Reteisi: http://docs.argolinux.org/reteisi/
 * Roundup: http://www.roundup-tracker.org/
 * Satchmo: http://www.satchmoproject.com/docs/svn/
