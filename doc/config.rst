@@ -210,6 +210,7 @@ Project information
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
    * ``sl`` -- Slovenian
+   * ``uk_UA`` -- Ukrainian
    * ``zh_TW`` -- Traditional Chinese
 
 .. confval:: today
