@@ -832,8 +832,6 @@ class BuildEnvironment:
 
     def get_toctree_for(self, docname, builder):
         """Return the global TOC nodetree."""
-
-        # XXX why master_doc?
         doctree = self.get_doctree(self.config.master_doc)
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
