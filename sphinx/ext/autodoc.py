@@ -473,13 +473,14 @@ class RstGenerator(object):
                               sys.getfilesystemencoding(), 'replace')
             sourcename = u'%s:docstring of %s' % (srcname, fullname)
             attr_docs = analyzer.find_attr_docs()
-            key = ('.'.join(objpath[:-1]), objpath[-1])
-            if key in attr_docs:
-                no_docstring = True
-                docstrings = [attr_docs[key]]
-                for i, line in enumerate(self.process_doc(docstrings, what,
-                                                          fullname, todoc)):
-                    self.result.append(indent + line, sourcename, i)
+            if objpath:
+                key = ('.'.join(objpath[:-1]), objpath[-1])
+                if key in attr_docs:
+                    no_docstring = True
+                    docstrings = [attr_docs[key]]
+                    for i, line in enumerate(self.process_doc(docstrings, what,
+                                                              fullname, todoc)):
+                        self.result.append(indent + line, sourcename, i)
         else:
             sourcename = u'docstring of %s' % fullname
             attr_docs = {}
