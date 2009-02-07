@@ -49,7 +49,7 @@ New features added
   - #23: Added a ``classmethod`` directive along with ``method``
     and ``staticmethod``.
 
-  - Added a toctree variable to the templates, and the ability to
+  - Added a ``toctree`` variable to the templates, and the ability to
     include external links in toctrees.
 
 * Configuration:
@@ -60,6 +60,9 @@ New features added
 
   - The new ``html_show_sourcelink`` config value can be used to
     switch off the links to the reST sources in the sidebar.
+
+  - The new ``html_collapse_toctree`` config value can be used to
+    "collapse" the generated toctree given to the templates.
 
   - The default value for ``htmlhelp_basename`` is now the project
     title, cleaned up as a filename.
