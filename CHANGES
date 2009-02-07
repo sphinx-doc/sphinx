@@ -1,6 +1,8 @@
 Release 0.5.2 (in development)
 ==============================
 
+* Fix problems with footnotes in the LaTeX output.
+
 * Prevent double hyphens becoming en-dashes in literal code in
   the LaTeX output.
 
