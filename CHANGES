@@ -1,6 +1,9 @@
 Release 0.5.2 (in development)
 ==============================
 
+* Don't call LaTeX or dvipng over and over again if it was not
+  found once, and use text-only latex as a substitute in that case.
+
 * Fix problems with footnotes in the LaTeX output.
 
 * Prevent double hyphens becoming en-dashes in literal code in
