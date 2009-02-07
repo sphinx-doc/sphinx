@@ -62,6 +62,9 @@ FOOTER = r'''
 \end{document}
 '''
 
+class collected_footnote(nodes.footnote):
+    """Footnotes that are collected are assigned this class."""
+
 
 class LaTeXWriter(writers.Writer):
 
@@ -279,8 +282,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         yield k
         for fn in footnotes_under(node):
             num = fn.children[0].astext().strip()
-            fnotes[num] = fn
-            fn.parent.remove(fn)
+            fnotes[num] = [collected_footnote(*fn.children), False]
         return fnotes
 
     def depart_start_of_file(self, node):
@@ -550,9 +552,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(self.context.pop())
 
     def visit_footnote(self, node):
-        pass
-    def depart_footnote(self, node):
-        pass
+        raise nodes.SkipNode
+
+    def visit_collected_footnote(self, node):
+        self.body.append('\\footnote{')
+    def depart_collected_footnote(self, node):
+        self.body.append('}')
 
     def visit_label(self, node):
         if isinstance(node.parent, nodes.citation):
@@ -1034,14 +1039,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_footnote_reference(self, node):
         num = node.astext().strip()
         try:
-            fn = self.footnotestack[-1][num]
+            footnode, used = self.footnotestack[-1][num]
         except (KeyError, IndexError):
             raise nodes.SkipNode
-        self.body.append('\\footnote{')
-        fn.walkabout(self)
+        # if a footnote has been inserted once, it shouldn't be repeated
+        # by the next reference
+        if used:
+            self.body.append('\\footnotemark[%s]' % num)
+        else:
+            footnode.walkabout(self)
+            self.footnotestack[-1][num][1] = True
         raise nodes.SkipChildren
     def depart_footnote_reference(self, node):
-        self.body.append('}')
+        pass
 
     def visit_literal_block(self, node):
         self.verbatim = ''
