@@ -164,6 +164,10 @@ class StandaloneHTMLBuilder(Builder):
         )
         self.globalcontext.update(self.config.html_context)
 
+    def _get_local_toctree(self, docname):
+        return self.render_partial(self.env.get_toctree_for(
+            docname, self, self.config.html_collapse_toctree))['fragment']
+
     def get_doc_context(self, docname, body, metatags):
         """Collect items for the template context of a page."""
         # find out relations
@@ -219,8 +223,6 @@ class StandaloneHTMLBuilder(Builder):
             metatags = metatags,
             rellinks = rellinks,
             sourcename = sourcename,
-            toctree = self.render_partial(self.env.get_toctree_for(
-                                          docname, self))['fragment'],
             toc = self.render_partial(self.env.get_toc_for(docname))['fragment'],
             # only display a TOC if there's more than one item to show
             display_toc = (self.env.toc_num_entries[docname] > 1),
@@ -474,6 +476,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
+        ctx['toctree'] = self._get_local_toctree(pagename)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)

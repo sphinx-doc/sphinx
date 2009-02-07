@@ -23,7 +23,7 @@ from os import path
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
 caption_ref_re = re.compile(r'^([^<]+?)\s*<(.+)>$')
-
+url_re = re.compile(r'(?P<schema>.+)://.*')
 
 # SEP separates path elements in the canonical file names
 #

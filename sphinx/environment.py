@@ -44,7 +44,7 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict
+     docname_join, FilenameUniqDict, url_re
 from sphinx.directives import additional_xref_types
 
 default_settings = {
@@ -830,12 +830,12 @@ class BuildEnvironment:
             node['refuri'] = node['anchorname']
         return toc
 
-    def get_toctree_for(self, docname, builder):
+    def get_toctree_for(self, docname, builder, collapse):
         """Return the global TOC nodetree."""
         doctree = self.get_doctree(self.config.master_doc)
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=True)
+                                          prune=True, collapse=collapse)
             if result is not None:
                 return result
 
@@ -909,7 +909,7 @@ class BuildEnvironment:
         return doctree
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
-                        titles_only=False):
+                        titles_only=False, collapse=False):
         """
         Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
@@ -919,6 +919,8 @@ class BuildEnvironment:
         to the value of the *maxdepth* option on the *toctree* node.
         If *titles_only* is True, only toplevel document titles will be in the
         resulting tree.
+        If *collapse* is True, all branches not containing docname will
+        be collapsed.
         """
         if toctree.get('hidden', False):
             return None
@@ -935,13 +937,30 @@ class BuildEnvironment:
                     else:
                         _walk_depth(subnode, depth+1, maxdepth)
 
+                        # cull sub-entries whose parents aren't 'current'
+                        if (collapse and
+                            depth > 1 and
+                            'current' not in subnode.parent['classes']):
+                            subnode.parent.remove(subnode)
+
+                elif isinstance(subnode, nodes.reference):
+                    # Identify the toc entry pointing to the current document.
+                    if subnode['refuri'] == docname and not subnode['anchorname']:
+                        # tag the whole branch as 'current'
+                        # (We can't use traverse here as 'ascend' un-intuitively
+                        # implies 'siblings'.)
+                        p = subnode
+                        while p:
+                            p['classes'].append('current')
+                            p = p.parent
+
         def _entries_from_toctree(toctreenode, separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             refs = [(e[0], str(e[1])) for e in toctreenode['entries']]
             entries = []
             for (title, ref) in refs:
                 try:
-                    if ref.startswith('http://'): # FIXME: (see directives/other.py)
+                    if url_re.match(ref):
                         reference = nodes.reference('', '', refuri=ref, anchorname='',
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)
@@ -1001,11 +1020,13 @@ class BuildEnvironment:
 
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
+
         # prune the tree to maxdepth and replace titles, also set level classes
         _walk_depth(newnode, 1, prune and maxdepth or 0)
+
         # set the target paths in the toctrees (they are not known at TOC generation time)
         for refnode in newnode.traverse(nodes.reference):
-            if not refnode['refuri'].startswith('http://'):  # FIXME: see above
+            if not url_re.match(refnode['refuri']):
                 refnode['refuri'] = builder.get_relative_uri(
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
