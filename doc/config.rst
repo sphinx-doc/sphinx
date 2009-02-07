@@ -141,7 +141,23 @@ General configuration
    instance is then used to render HTML documents, and possibly the output of
    other builders (currently the changes builder).
 
+.. confval:: rst_epilog
+
+   .. index:: pair: global; substitutions
+
+   A string of reStructuredText that will be included at the end of every source
+   file that is read.  This is the right place to add substitutions that should
+   be available in every file.  An example::
+
+      rest_preamble = """
+      .. |psf| replace:: Python Software Foundation
+      """
+
+   .. versionadded:: 0.6
+   
 .. confval:: default_role
+
+   .. index:: default; role
 
    The name of a reST role (builtin or Sphinx extension) to use as the default
    role, that is, for text marked up ```like this```.  This can be set to

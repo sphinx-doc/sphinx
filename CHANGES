@@ -54,6 +54,10 @@ New features added
 
 * Configuration:
 
+  - The new config value ``rst_epilog`` can contain reST that is
+    appended to each source file that is read.  This is the right
+    place for global substitutions.
+
   - The new ``html_add_permalinks`` config value can be used to
     switch off the generated "paragraph sign" permalinks for each
     heading and definition environment.

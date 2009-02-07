@@ -78,6 +78,7 @@ HTML_XPATH = {
         ".//a[@href='contents.html#ref1']": '',
         ".//div[@id='label']": '',
         ".//span[@class='option']": '--help',
+        ".//p": 'A global substitution.',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',

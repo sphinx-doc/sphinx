@@ -11,6 +11,8 @@ Testing various markup
    :author: Me
    :keywords: docs, sphinx
 
+A |subst|.
+
 .. _label:
 
 ::

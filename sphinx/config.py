@@ -52,6 +52,7 @@ class Config(object):
         templates_path = ([], False),
         template_bridge = (None, False),
         keep_warnings = (False, True),
+        rst_epilog = (None, True),
 
         # HTML options
         html_title = (lambda self: '%s v%s documentation' %

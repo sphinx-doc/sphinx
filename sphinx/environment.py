@@ -521,13 +521,16 @@ class BuildEnvironment:
             self.config.trim_footnote_reference_space
 
         class SphinxSourceClass(FileInput):
-            def read(self):
-                data = FileInput.read(self)
+            def read(self_):
+                data = FileInput.read(self_)
                 if app:
                     arg = [data]
                     app.emit('source-read', docname, arg)
                     data = arg[0]
-                return data
+                if self.config.rst_epilog:
+                    return data + '\n' + self.config.rst_epilog + '\n'
+                else:
+                    return data
 
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),

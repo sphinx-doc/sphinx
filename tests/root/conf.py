@@ -77,6 +77,9 @@ keep_warnings = True
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# Global substitutions
+rst_epilog = '.. |subst| replace:: global substitution'
+
 
 # Options for HTML output
 # -----------------------
