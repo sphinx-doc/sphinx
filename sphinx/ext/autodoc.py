@@ -285,7 +285,7 @@ class RstGenerator(object):
             path, base, args, retann = py_sig_re.match(name).groups()
         except:
             self.warn('invalid signature for auto%s (%r)' % (what, name))
-            return
+            return name, name, [], None, None
         # fullname is the fully qualified name, base the name after the last dot
         fullname = (path or '') + base
 
