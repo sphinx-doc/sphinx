@@ -26,6 +26,7 @@ from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
     movefile, ustrftime
 from sphinx.search import js_index
 from sphinx.builders import Builder, ENV_PICKLE_FILENAME
+from sphinx.application import SphinxError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, SmartyPantsHTMLTranslator
@@ -631,7 +632,6 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
 
     def init(self):
         if json is None:
-            from sphinx.application import SphinxError
             raise SphinxError('The module simplejson (or json in Python >= 2.6) '
                               'is not available. The JSONHTMLBuilder builder '
                               'will not work.')

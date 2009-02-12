@@ -22,6 +22,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.locale import admonitionlabels, versionlabels
+from sphinx.application import SphinxError
 from sphinx.util import ustrftime
 from sphinx.util.texescape import tex_escape_map
 from sphinx.util.smartypants import educateQuotesLatex
@@ -64,6 +65,9 @@ FOOTER = r'''
 
 class collected_footnote(nodes.footnote):
     """Footnotes that are collected are assigned this class."""
+
+class UnsupportedError(SphinxError):
+    category = 'Markup is unsupported in LaTeX'
 
 
 class LaTeXWriter(writers.Writer):
@@ -210,6 +214,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.highlightlinenothreshold = sys.maxint
         self.written_ids = set()
         self.footnotestack = []
+        self.curfilestack = []
         if self.elements['docclass'] == 'manual':
             if builder.config.latex_use_parts:
                 self.top_sectionlevel = 0
@@ -234,6 +239,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_document(self, node):
         self.footnotestack.append(self.collect_footnotes(node))
+        self.curfilestack.append(node['file'])
         if self.first_document == 1:
             # the first document is all the regular content ...
             self.body.append(BEGIN_DOC % self.elements)
@@ -268,6 +274,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.footnotestack.append(self.collect_footnotes(node))
         # also add a document target
         self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
+        self.curfilestack.append(node['file'])
 
     def collect_footnotes(self, node):
         fnotes = {}
@@ -287,6 +294,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_start_of_file(self, node):
         self.footnotestack.pop()
+        self.curfilestack.pop()
 
     def visit_highlightlang(self, node):
         self.highlightlang = node['lang']
@@ -366,9 +374,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             try:
                 self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
             except IndexError:
-                from sphinx.application import SphinxError
-                raise SphinxError('too many nesting section levels for LaTeX, '
-                                  'at heading: %s' % node.astext())
+                raise UnsupportedError(
+                    '%s:%s: too many nesting section levels for '
+                    'LaTeX, at heading: %s' % (self.curfilestack[-1],
+                                               node.line or '', node.astext()))
             self.context.append('}\n')
         elif isinstance(parent, (nodes.topic, nodes.sidebar)):
             self.body.append(r'\textbf{')
@@ -570,7 +579,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_table(self, node):
         if self.table:
-            raise NotImplementedError('Nested tables are not supported.')
+            raise UnsupportedError('%s:%s: nested tables are not yet implemented.' %
+                                   (self.curfilestack[-1], node.line or ''))
         self.table = Table()
         self.tablebody = []
         # Redirect body output until table is finished.
@@ -636,8 +646,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_entry(self, node):
         if node.has_key('morerows') or node.has_key('morecols'):
-            raise NotImplementedError('Column or row spanning cells are '
-                                      'not implemented.')
+            raise UnsupportedError('%s:%s: column or row spanning cells are '
+                                   'not yet implemented.' %
+                                   (self.curfilestack[-1], node.line or ''))
         if self.table.col > 0:
             self.body.append(' & ')
         self.table.col += 1

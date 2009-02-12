@@ -46,12 +46,13 @@ from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
      docname_join, FilenameUniqDict, url_re
 from sphinx.directives import additional_xref_types
+from sphinx.application import SphinxError
 
 default_settings = {
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'http://www.python.org/dev/peps/',
-    'rfc_base_url': 'http://rfc.net/',
+    'rfc_base_url': 'http://tools.ietf.org/html/',
     'input_encoding': 'utf-8',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
@@ -545,7 +546,6 @@ class BuildEnvironment:
             pub.publish()
             doctree = pub.document
         except UnicodeError, err:
-            from sphinx.application import SphinxError
             raise SphinxError(str(err))
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
