@@ -1,6 +1,11 @@
 Release 0.5.2 (in development)
 ==============================
 
+* Use a new RFC base URL, since rfc.org seems down.
+
+* Fix a crash in the todolist directive when no todo items are
+  defined.
+
 * Don't call LaTeX or dvipng over and over again if it was not
   found once, and use text-only latex as a substitute in that case.
 
