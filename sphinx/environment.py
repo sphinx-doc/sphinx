@@ -44,6 +44,7 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime
 from sphinx.directives import additional_xref_types
+from sphinx.application import SphinxError
 
 default_settings = {
     'embed_stylesheet': False,
@@ -542,7 +543,6 @@ class BuildEnvironment:
             pub.publish()
             doctree = pub.document
         except UnicodeError, err:
-            from sphinx.application import SphinxError
             raise SphinxError(err.message)
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)

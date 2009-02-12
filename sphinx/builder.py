@@ -36,6 +36,7 @@ from sphinx.environment import BuildEnvironment, NoUri
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, purple, darkgreen
 from sphinx.search import js_index
+from sphinx.application import SphinxError
 
 try:
     import json
@@ -902,7 +903,6 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
 
     def init(self):
         if json is None:
-            from sphinx.application import SphinxError
             raise SphinxError('The module simplejson (or json in Python >= 2.6) '
                               'is not available. The JSONHTMLBuilder builder '
                               'will not work.')
@@ -1030,7 +1030,7 @@ class LaTeXBuilder(Builder):
                         self.warn('%s: toctree contains ref to nonexisting file %r' %
                                   (docname, includefile))
                     else:
-                        sof = addnodes.start_of_file()
+                        sof = addnodes.start_of_file(file=includefile)
                         sof.children = subtree.children
                         newnodes.append(sof)
                 toctreenode.parent.replace(toctreenode, newnodes)
@@ -1047,6 +1047,7 @@ class LaTeXBuilder(Builder):
             tree = new_tree
         largetree = process_tree(indexfile, tree)
         largetree.extend(appendices)
+        largetree['file'] = indexfile
         self.info()
         self.info("resolving references...")
         self.env.resolve_references(largetree, indexfile, self)

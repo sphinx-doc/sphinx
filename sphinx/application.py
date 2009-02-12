@@ -19,14 +19,8 @@ from cStringIO import StringIO
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
-import sphinx
-from sphinx.roles import xfileref_role, innernodetypes
-from sphinx.config import Config
-from sphinx.builder import builtin_builders, StandaloneHTMLBuilder
-from sphinx.directives import desc_directive, target_directive, additional_xref_types
-from sphinx.environment import SphinxStandaloneReader
-from sphinx.util.console import bold
-
+# create the error classes before importing the rest of Sphinx, so that
+# they can be imported in a circular fashion
 
 class SphinxError(Exception):
     """
@@ -54,6 +48,15 @@ class ExtensionError(SphinxError):
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
         return parent_str
+
+
+import sphinx
+from sphinx.roles import xfileref_role, innernodetypes
+from sphinx.config import Config
+from sphinx.builder import builtin_builders, StandaloneHTMLBuilder
+from sphinx.directives import desc_directive, target_directive, additional_xref_types
+from sphinx.environment import SphinxStandaloneReader
+from sphinx.util.console import bold
 
 
 # List of all known core events. Maps name to arguments description.
