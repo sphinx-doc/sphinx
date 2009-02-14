@@ -149,7 +149,7 @@ General configuration
    file that is read.  This is the right place to add substitutions that should
    be available in every file.  An example::
 
-      rest_preamble = """
+      rst_epilog = """
       .. |psf| replace:: Python Software Foundation
       """
 
