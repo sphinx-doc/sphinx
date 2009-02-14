@@ -24,6 +24,8 @@ exclude_trees = ['_build']
 keep_warnings = True
 pygments_style = 'sphinx'
 
+rst_epilog = '.. |subst| replace:: global substitution'
+
 html_style = 'default.css'
 html_static_path = ['_static']
 html_last_updated_fmt = '%b %d, %Y'

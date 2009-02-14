@@ -20,6 +20,11 @@ from subprocess import Popen, PIPE
 from util import *
 from etree13 import ElementTree as ET
 
+try:
+    import pygments
+except ImportError:
+    pygments = None
+
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.writers.latex import LaTeXTranslator
@@ -57,20 +62,12 @@ HTML_XPATH = {
     },
     'subdir/images.html': {
         ".//img[@src='../_images/img1.png']": '',
+        ".//img[@src='../_images/rimg.png']": '',
     },
     'includes.html': {
-        ".//pre/span[@class='s']": u'üöä',
         ".//pre": u'Max Strauß',
         ".//a[@href='_downloads/img.png']": '',
         ".//a[@href='_downloads/img1.png']": '',
-        ".//div[@class='inc-pyobj1 highlight-text']/div/pre":
-            r'^class Foo:\n    pass\n\s*$',
-        ".//div[@class='inc-pyobj2 highlight-text']/div/pre":
-            r'^    def baz\(\):\n        pass\n\s*$',
-        ".//div[@class='inc-lines highlight-text']/div/pre":
-            r'^class Foo:\n    pass\nclass Bar:\n$',
-        ".//div[@class='inc-startend highlight-text']/div/pre":
-            ur'^foo = u"Including Unicode characters: üöä"\n$',
     },
     'autodoc.html': {
         ".//dt[@id='test_autodoc.Class']": '',
@@ -83,6 +80,7 @@ HTML_XPATH = {
         ".//a[@href='contents.html#ref1']": '',
         ".//div[@id='label']": '',
         ".//span[@class='option']": '--help',
+        ".//p": 'A global substitution.',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
@@ -99,6 +97,19 @@ HTML_XPATH = {
         ".//a[@href='http://python.org/']": '',
     },
 }
+
+if pygments:
+    HTML_XPATH['includes.html'].update({
+        ".//pre/span[@class='s']": u'üöä',
+        ".//div[@class='inc-pyobj1 highlight-text']/div/pre":
+            r'^class Foo:\n    pass\n\s*$',
+        ".//div[@class='inc-pyobj2 highlight-text']/div/pre":
+            r'^    def baz\(\):\n        pass\n\s*$',
+        ".//div[@class='inc-lines highlight-text']/div/pre":
+            r'^class Foo:\n    pass\nclass Bar:\n$',
+        ".//div[@class='inc-startend highlight-text']/div/pre":
+            ur'^foo = u"Including Unicode characters: üöä"\n$',
+    })
 
 class NslessParser(ET.XMLParser):
     """XMLParser that throws away namespaces in tag names."""

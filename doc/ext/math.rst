@@ -17,8 +17,9 @@ if possible, reuse that support too.
 
 .. note::
 
-   :mod:`sphinx.ext.mathbase` does not need to be added to the
-   :confval:`extensions` config value.
+   :mod:`sphinx.ext.mathbase` is not meant to be added to the
+   :confval:`extensions` config value, instead, use either
+   :mod:`sphinx.ext.pngmath` or :mod:`sphinx.ext.jsmath` as described below.
 
 The input language for mathematics is LaTeX markup.  This is the de-facto
 standard for plain-text math notation and has the added advantage that no

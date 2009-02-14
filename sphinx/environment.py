@@ -44,14 +44,15 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict
+     docname_join, FilenameUniqDict, url_re
 from sphinx.directives import additional_xref_types
+from sphinx.application import SphinxError
 
 default_settings = {
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'http://www.python.org/dev/peps/',
-    'rfc_base_url': 'http://rfc.net/',
+    'rfc_base_url': 'http://tools.ietf.org/html/',
     'input_encoding': 'utf-8',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
@@ -59,7 +60,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 27
+ENV_VERSION = 28
 
 
 default_substitutions = set([
@@ -526,15 +527,20 @@ class BuildEnvironment:
 
         self.docname = docname
         self.settings['input_encoding'] = self.config.source_encoding
+        self.settings['trim_footnote_reference_space'] = \
+            self.config.trim_footnote_reference_space
 
         class SphinxSourceClass(FileInput):
-            def read(self):
-                data = FileInput.read(self)
+            def read(self_):
+                data = FileInput.read(self_)
                 if app:
                     arg = [data]
                     app.emit('source-read', docname, arg)
                     data = arg[0]
-                return data
+                if self.config.rst_epilog:
+                    return data + '\n' + self.config.rst_epilog + '\n'
+                else:
+                    return data
 
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),
@@ -549,7 +555,6 @@ class BuildEnvironment:
             pub.publish()
             doctree = pub.document
         except UnicodeError, err:
-            from sphinx.application import SphinxError
             raise SphinxError(str(err))
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
@@ -653,7 +658,11 @@ class BuildEnvironment:
                 candidates['?'] = imguri
                 continue
             # imgpath is the image path *from srcdir*
-            imgpath = path.normpath(path.join(docdir, imguri))
+            if imguri.startswith('/') or imguri.startswith(os.sep):
+                # absolute path (= relative to srcdir)
+                imgpath = path.normpath(imguri[1:])
+            else:
+                imgpath = path.normpath(path.join(docdir, imguri))
             # set imgpath as default URI
             node['uri'] = imgpath
             if imgpath.endswith(os.extsep + '*'):
@@ -790,20 +799,32 @@ class BuildEnvironment:
         except ValueError:
             maxdepth = 0
 
+        def traverse_in_section(node, cls):
+            """Like traverse(), but stay within the same section."""
+            result = []
+            if isinstance(node, cls):
+                result.append(node)
+            for child in node.children:
+                if isinstance(child, nodes.section):
+                    continue
+                result.extend(traverse_in_section(child, cls))
+            return result
+
         def build_toc(node, depth=1):
             entries = []
-            for subnode in node:
-                if isinstance(subnode, addnodes.toctree):
-                    # just copy the toctree node which is then resolved
-                    # in self.get_and_resolve_doctree
-                    item = subnode.copy()
-                    entries.append(item)
-                    # do the inventory stuff
-                    self.note_toctree(docname, subnode)
+            for sectionnode in node:
+                # find all toctree nodes in this section and add them
+                # to the toc (just copying the toctree node which is then
+                # resolved in self.get_and_resolve_doctree)
+                if not isinstance(sectionnode, nodes.section):
+                    for toctreenode in traverse_in_section(sectionnode,
+                                                           addnodes.toctree):
+                        item = toctreenode.copy()
+                        entries.append(item)
+                        # important: do the inventory stuff
+                        self.note_toctree(docname, toctreenode)
                     continue
-                if not isinstance(subnode, nodes.section):
-                    continue
-                title = subnode[0]
+                title = sectionnode[0]
                 # copy the contents of the section title, but without references
                 # and unnecessary stuff
                 visitor = SphinxContentsFilter(document)
@@ -814,7 +835,7 @@ class BuildEnvironment:
                     # as it is the file's title anyway
                     anchorname = ''
                 else:
-                    anchorname = '#' + subnode['ids'][0]
+                    anchorname = '#' + sectionnode['ids'][0]
                 numentries[0] += 1
                 reference = nodes.reference('', '', refuri=docname,
                                             anchorname=anchorname,
@@ -822,7 +843,7 @@ class BuildEnvironment:
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
                 if maxdepth == 0 or depth < maxdepth:
-                    item += build_toc(subnode, depth+1)
+                    item += build_toc(sectionnode, depth+1)
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
@@ -841,14 +862,12 @@ class BuildEnvironment:
             node['refuri'] = node['anchorname']
         return toc
 
-    def get_toctree_for(self, docname, builder):
+    def get_toctree_for(self, docname, builder, collapse):
         """Return the global TOC nodetree."""
-
-        # XXX why master_doc?
         doctree = self.get_doctree(self.config.master_doc)
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=True)
+                                          prune=True, collapse=collapse)
             if result is not None:
                 return result
 
@@ -924,7 +943,7 @@ class BuildEnvironment:
         return doctree
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
-                        titles_only=False):
+                        titles_only=False, collapse=False):
         """
         Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
@@ -934,6 +953,8 @@ class BuildEnvironment:
         to the value of the *maxdepth* option on the *toctree* node.
         If *titles_only* is True, only toplevel document titles will be in the
         resulting tree.
+        If *collapse* is True, all branches not containing docname will
+        be collapsed.
         """
         if toctree.get('hidden', False):
             return None
@@ -951,13 +972,30 @@ class BuildEnvironment:
                     else:
                         _walk_depth(subnode, depth+1, maxdepth)
 
+                        # cull sub-entries whose parents aren't 'current'
+                        if (collapse and
+                            depth > 1 and
+                            'current' not in subnode.parent['classes']):
+                            subnode.parent.remove(subnode)
+
+                elif isinstance(subnode, nodes.reference):
+                    # Identify the toc entry pointing to the current document.
+                    if subnode['refuri'] == docname and not subnode['anchorname']:
+                        # tag the whole branch as 'current'
+                        # (We can't use traverse here as 'ascend' un-intuitively
+                        # implies 'siblings'.)
+                        p = subnode
+                        while p:
+                            p['classes'].append('current')
+                            p = p.parent
+
         def _entries_from_toctree(toctreenode, separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             refs = [(e[0], str(e[1])) for e in toctreenode['entries']]
             entries = []
             for (title, ref) in refs:
                 try:
-                    if ref.startswith('http://'): # FIXME: (see directives/other.py)
+                    if url_re.match(ref):
                         reference = nodes.reference('', '', refuri=ref, anchorname='',
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)
@@ -1019,11 +1057,13 @@ class BuildEnvironment:
 
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
+
         # prune the tree to maxdepth and replace titles, also set level classes
         _walk_depth(newnode, 1, prune and maxdepth or 0)
+
         # set the target paths in the toctrees (they are not known at TOC generation time)
         for refnode in newnode.traverse(nodes.reference):
-            if not refnode['refuri'].startswith('http://'):  # FIXME: see above
+            if not url_re.match(refnode['refuri']):
                 refnode['refuri'] = builder.get_relative_uri(
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode

@@ -57,8 +57,8 @@ tables of contents.  The ``toctree`` directive is the central element.
      chapter", "previous chapter" and "parent chapter" links.
 
    Document titles in the :dir:`toctree` will be automatically read from the
-   title of the referenced document. If that isn't what you want, you can give
-   the specify an explicit title and target using a similar syntax to reST
+   title of the referenced document. If that isn't what you want, you can
+   specify an explicit title and target using a similar syntax to reST
    hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
    looks like::
 

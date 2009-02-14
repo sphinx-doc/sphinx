@@ -141,7 +141,23 @@ General configuration
    instance is then used to render HTML documents, and possibly the output of
    other builders (currently the changes builder).
 
+.. confval:: rst_epilog
+
+   .. index:: pair: global; substitutions
+
+   A string of reStructuredText that will be included at the end of every source
+   file that is read.  This is the right place to add substitutions that should
+   be available in every file.  An example::
+
+      rst_epilog = """
+      .. |psf| replace:: Python Software Foundation
+      """
+
+   .. versionadded:: 0.6
+   
 .. confval:: default_role
+
+   .. index:: default; role
 
    The name of a reST role (builtin or Sphinx extension) to use as the default
    role, that is, for text marked up ```like this```.  This can be set to
@@ -214,12 +230,14 @@ Project information
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
+   * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``it`` -- Italian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
    * ``sl`` -- Slovenian
+   * ``uk_UA`` -- Ukrainian
    * ``zh_TW`` -- Traditional Chinese
 
 .. confval:: today
@@ -271,7 +289,14 @@ Project information
    A boolean that decides whether :dir:`moduleauthor` and :dir:`sectionauthor`
    directives produce any output in the built files.
 
+.. confval:: trim_footnote_reference_space
 
+   Trim spaces before footnote references that are necessary for the reST parser
+   to recognize the footnote, but do not look too nice in the output.
+
+   .. versionadded:: 0.6
+
+   
 .. _html-options:
 
 Options for HTML output
@@ -463,6 +488,14 @@ that use Sphinx' HTMLWriter class.
    ``True``.
 
    .. versionadded:: 0.4
+
+.. confval:: html_collapse_toctree
+
+   If true, the toctree given to the templates as ``toctree`` will be collapsed,
+   i.e. only the subitems that contain the current page are visible.  Default is
+   ``False``.
+
+   .. versionadded:: 0.6
 
 .. confval:: htmlhelp_basename
 

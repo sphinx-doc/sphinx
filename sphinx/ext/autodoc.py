@@ -329,7 +329,18 @@ class RstGenerator(object):
                     # can never get arguments of a C function or method
                     getargs = False
                 if getargs:
-                    argspec = inspect.getargspec(obj)
+                    try:
+                        argspec = inspect.getargspec(obj)
+                    except TypeError:
+                        # if a class should be documented as function (yay duck
+                        # typing) we try to use the constructor signature as function
+                        # signature without the first argument.
+                        try:
+                            argspec = inspect.getargspec(obj.__new__)
+                        except TypeError:
+                            argspec = inspect.getargspec(obj.__init__)
+                        if argspec[0]:
+                            del argspec[0][0]
                     if what in ('class', 'method', 'staticmethod',
                                 'classmethod') and argspec[0] and \
                            argspec[0][0] in ('cls', 'self'):
@@ -354,7 +365,7 @@ class RstGenerator(object):
             return ''
 
     def generate(self, what, name, members, add_content, indent=u'',
-                 check_module=False, no_docstring=False):
+                 check_module=False, no_docstring=False, real_module=None):
         """
         Generate reST for the object in self.result.
         """
@@ -385,9 +396,17 @@ class RstGenerator(object):
                       (what, str(fullname), err))
             return
 
+        # If there is no real module defined, figure out which to use.
+        # The real module is used in the module analyzer to look up the module
+        # where the attribute documentation would actually be found in.
+        # This is used for situations where you have a module that collects the
+        # functions and classes of internal submodules.
+        if real_module is None:
+            real_module = getattr(todoc, '__module__', None) or mod
+
         # try to also get a source code analyzer for attribute docs
         try:
-            analyzer = ModuleAnalyzer.for_module(mod)
+            analyzer = ModuleAnalyzer.for_module(real_module)
             # parse right now, to get PycodeErrors on parsing
             analyzer.parse()
         except PycodeError, err:
@@ -463,7 +482,7 @@ class RstGenerator(object):
                               sys.getfilesystemencoding(), 'replace')
             sourcename = u'%s:docstring of %s' % (srcname, fullname)
             attr_docs = analyzer.find_attr_docs()
-            if what in ('data', 'attribute'):
+            if objpath:
                 key = ('.'.join(objpath[:-1]), objpath[-1])
                 if key in attr_docs:
                     no_docstring = True
@@ -610,7 +629,8 @@ class RstGenerator(object):
             full_membername = mod + '::' + '.'.join(objpath + [membername])
             self.generate(memberwhat, full_membername, ['__all__'],
                           add_content=content, no_docstring=bool(content),
-                          indent=indent, check_module=members_check_module)
+                          indent=indent, check_module=members_check_module,
+                          real_module=real_module)
 
         self.env.autodoc_current_module = None
         self.env.autodoc_current_class = None
@@ -648,9 +668,12 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     state.memo.reporter = AutodocReporter(generator.result, state.memo.reporter)
     if dirname == 'automodule':
         node = nodes.section()
+        node.document = state.document  # necessary so that the child nodes
+                                        # get the right source/line set
         nested_parse_with_titles(state, generator.result, node)
     else:
         node = nodes.paragraph()
+        node.document = state.document
         state.nested_parse(generator.result, 0, node)
     state.memo.reporter = old_reporter
     return generator.warnings + node.children

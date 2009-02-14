@@ -45,6 +45,7 @@ class Config(object):
         default_role = (None, True),
         add_function_parentheses = (True, True),
         add_module_names = (True, True),
+        trim_footnote_reference_space = (False, True),
         show_authors = (False, True),
         pygments_style = (None, False),
         highlight_language = ('python', False),
@@ -52,6 +53,7 @@ class Config(object):
         template_bridge = (None, False),
         keep_warnings = (False, True),
         modindex_common_prefix = ([], False),
+        rst_epilog = (None, True),
 
         # HTML options
         html_theme = ('default', False),
@@ -69,6 +71,7 @@ class Config(object):
         html_use_smartypants = (True, False),
         html_translator_class = (None, False),
         html_sidebars = ({}, False),
+        html_collapse_toctree = (False, False),
         html_additional_pages = ({}, False),
         html_use_modindex = (True, False),
         html_add_permalinks = (True, False),

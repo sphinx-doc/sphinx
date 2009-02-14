@@ -26,6 +26,7 @@ from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
     movefile, ustrftime
 from sphinx.search import js_index
 from sphinx.builders import Builder, ENV_PICKLE_FILENAME
+from sphinx.application import SphinxError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
@@ -179,6 +180,10 @@ class StandaloneHTMLBuilder(Builder):
             favicon = favicon,
         )
         self.globalcontext.update(self.config.html_context)
+
+    def _get_local_toctree(self, docname):
+        return self.render_partial(self.env.get_toctree_for(
+            docname, self, self.config.html_collapse_toctree))['fragment']
 
     def get_doc_context(self, docname, body, metatags):
         """Collect items for the template context of a page."""
@@ -446,6 +451,9 @@ class StandaloneHTMLBuilder(Builder):
                          [path.join(self.confdir, spath)
                           for spath in self.config.html_static_path]
         for staticdirname in staticdirnames:
+            if not path.isdir(staticdirname):
+                self.warn('static directory %r does not exist' % staticdirname)
+                continue
             for filename in os.listdir(staticdirname):
                 if filename.startswith('.'):
                     continue
@@ -533,6 +541,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
+        ctx['toctree'] = lambda: self._get_local_toctree(pagename)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename,
@@ -695,7 +704,6 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
 
     def init(self):
         if json is None:
-            from sphinx.application import SphinxError
             raise SphinxError(
                 'The module simplejson (or json in Python >= 2.6) '
                 'is not available. The JSONHTMLBuilder builder will not work.')

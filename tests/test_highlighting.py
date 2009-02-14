@@ -11,6 +11,12 @@
 
 from util import *
 
+try:
+    import pygments
+except ImportError:
+    from nose.plugins.skip import SkipTest
+    raise SkipTest('pygments not available')
+
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
 from pygments.formatters.html import HtmlFormatter
@@ -28,14 +34,15 @@ class MyLexer(RegexLexer):
         ],
     }
 
-class ComplainOnUnhighlighted(PygmentsBridge):
-
-    def unhighlighted(self, source):
-        raise AssertionError("should highlight %r" % source)
 
 class MyFormatter(HtmlFormatter):
     def format(self, tokensource, outfile):
         outfile.write('test')
+
+
+class ComplainOnUnhighlighted(PygmentsBridge):
+    def unhighlighted(self, source):
+        raise AssertionError("should highlight %r" % source)
 
 
 @with_app()

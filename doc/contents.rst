@@ -15,6 +15,7 @@ Sphinx documentation contents
    templating
    extensions
 
+   faq
    glossary
    changes
    examples

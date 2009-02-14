@@ -61,6 +61,9 @@ def process_todo_nodes(app, doctree, fromdocname):
     # Augment each todo with a backlink to the original location.
     env = app.builder.env
 
+    if not hasattr(env, 'todo_all_todos'):
+        env.todo_all_todos = []
+
     for node in doctree.traverse(todolist):
         if not app.config['todo_include_todos']:
             node.replace_self([])

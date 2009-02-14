@@ -429,6 +429,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
     env = state.document.settings.env
     inode = addnodes.index(entries=[])
     node = addnodes.desc()
+    node.document = state.document
     node['desctype'] = desctype
 
     noindex = ('noindex' in options)
@@ -525,6 +526,7 @@ def desc_directive(desctype, arguments, options, content, lineno,
             inode['entries'].append(('single', indextext, fullname, fullname))
 
     subnode = addnodes.desc_content()
+    node.append(subnode)
     # needed for automatic qualification of members
     clsname_set = False
     if desctype in ('class', 'exception') and names:
@@ -542,7 +544,6 @@ def desc_directive(desctype, arguments, options, content, lineno,
     if clsname_set:
         env.currclass = None
     env.currdesc = None
-    node.append(subnode)
     return [inode, node]
 
 desc_directive.content = 1

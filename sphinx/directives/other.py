@@ -14,7 +14,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
-from sphinx.util import patfilter, ws_re, caption_ref_re, docname_join
+from sphinx.util import patfilter, ws_re, caption_ref_re, url_re, docname_join
 from sphinx.util.compat import make_admonition
 
 
@@ -53,14 +53,14 @@ def toctree_directive(name, arguments, options, content, lineno,
                 docname = docname[:-len(suffix)]
             # absolutize filenames
             docname = docname_join(env.docname, docname)
-            if ref.startswith('http://'): # FIXME: generalize to arbitrary xrefs
+            if url_re.match(ref):
                 entries.append((title, ref))
             elif docname not in env.found_docs:
                 ret.append(state.document.reporter.warning(
                     'toctree references unknown document %r' % docname,
                     line=lineno))
             else:
-                entries.append((title, ref))
+                entries.append((title, docname))
                 includefiles.append(docname)
         else:
             patname = docname_join(env.docname, entry)
@@ -230,6 +230,7 @@ directives.register_directive('index', index_directive)
 def version_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     node = addnodes.versionmodified()
+    node.document = state.document
     node['type'] = name
     node['version'] = arguments[0]
     if len(arguments) == 2:
@@ -335,6 +336,7 @@ def glossary_directive(name, arguments, options, content, lineno,
     """Glossary with cross-reference targets for :term: roles."""
     env = state.document.settings.env
     node = addnodes.glossary()
+    node.document = state.document
     state.nested_parse(content, content_offset, node)
 
     # the content should be definition lists
@@ -383,6 +385,7 @@ directives.register_directive('centered', centered_directive)
 def acks_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     node = addnodes.acks()
+    node.document = state.document
     state.nested_parse(content, content_offset, node)
     if len(node.children) != 1 or not isinstance(node.children[0],
                                                  nodes.bullet_list):
@@ -399,6 +402,7 @@ def hlist_directive(name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
     ncolumns = options.get('columns', 2)
     node = nodes.paragraph()
+    node.document = state.document
     state.nested_parse(content, content_offset, node)
     if len(node.children) != 1 or not isinstance(node.children[0],
                                                  nodes.bullet_list):

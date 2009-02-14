@@ -37,6 +37,9 @@ New features added
     the directive -- this allows you to define your document
     structure, but place the links yourself.
 
+  - Image paths can now be absolute (like ``/images/foo.png``).
+    They are treated as relative to the top source directory.
+
   - #52: There is now a ``hlist`` directive, creating a compact
     list by placing distributing items into multiple columns.
 
@@ -49,10 +52,14 @@ New features added
   - #23: Added a ``classmethod`` directive along with ``method``
     and ``staticmethod``.
 
-  - Added a toctree variable to the templates, and the ability to
-    include external links in toctrees.
+  - Added a ``toctree`` callable to the templates, and the ability
+    to include external links in toctrees.
 
 * Configuration:
+
+  - The new config value ``rst_epilog`` can contain reST that is
+    appended to each source file that is read.  This is the right
+    place for global substitutions.
 
   - The new ``html_add_permalinks`` config value can be used to
     switch off the generated "paragraph sign" permalinks for each
@@ -61,11 +68,20 @@ New features added
   - The new ``html_show_sourcelink`` config value can be used to
     switch off the links to the reST sources in the sidebar.
 
+  - The new ``html_collapse_toctree`` config value can be used to
+    "collapse" the generated toctree given to the templates.
+
   - The default value for ``htmlhelp_basename`` is now the project
     title, cleaned up as a filename.
 
+
   - The new ``modindex_common_prefix`` config value can be used to
     ignore certain package names for module index sorting.
+
+  - The new ``trim_footnote_reference_space`` config value mirrors
+    the docutils config value of the same name and removes the
+    space before a footnote reference that is necessary for reST
+    to recognize the reference.
 
 * Builders:
 
@@ -78,11 +94,18 @@ New features added
   
   - Italian by Sandro Dentella.
 
+  - Ukrainian by Petro Sasnyk.
+
+  - Finnish by Jukka Inkeri.
+
 * Extensions and API:
 
   - Autodoc now handles documented attributes.
 
   - Autodoc now handles inner classes and their methods.
+
+  - Autodoc can document classes as functions now if explicitly
+    marked with `autofunction`.
 
   - There is now a ``Sphinx.add_lexer()`` method to be able to use
     custom Pygments lexers easily.
@@ -105,6 +128,22 @@ New features added
 
 Release 0.5.2 (in development)
 ==============================
+
+* Recognize toctree directives that are not on section toplevel,
+  but within block items, such as tables.
+
+* Use a new RFC base URL, since rfc.org seems down.
+
+* Fix a crash in the todolist directive when no todo items are
+  defined.
+
+* Don't call LaTeX or dvipng over and over again if it was not
+  found once, and use text-only latex as a substitute in that case.
+
+* Fix problems with footnotes in the LaTeX output.
+
+* Prevent double hyphens becoming en-dashes in literal code in
+  the LaTeX output.
 
 * Open literalinclude files in universal newline mode to allow
   arbitrary newline conventions.
