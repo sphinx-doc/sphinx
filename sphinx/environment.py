@@ -786,20 +786,32 @@ class BuildEnvironment:
         except ValueError:
             maxdepth = 0
 
+        def traverse_in_section(node, cls):
+            """Like traverse(), but stay within the same section."""
+            result = []
+            if isinstance(node, cls):
+                result.append(node)
+            for child in node.children:
+                if isinstance(child, nodes.section):
+                    continue
+                result.extend(traverse_in_section(child, cls))
+            return result
+
         def build_toc(node, depth=1):
             entries = []
-            for subnode in node:
-                if isinstance(subnode, addnodes.toctree):
-                    # just copy the toctree node which is then resolved
-                    # in self.get_and_resolve_doctree
-                    item = subnode.copy()
-                    entries.append(item)
-                    # do the inventory stuff
-                    self.note_toctree(docname, subnode)
+            for sectionnode in node:
+                # find all toctree nodes in this section and add them
+                # to the toc (just copying the toctree node which is then
+                # resolved in self.get_and_resolve_doctree)
+                if not isinstance(sectionnode, nodes.section):
+                    for toctreenode in traverse_in_section(sectionnode,
+                                                           addnodes.toctree):
+                        item = toctreenode.copy()
+                        entries.append(item)
+                        # important: do the inventory stuff
+                        self.note_toctree(docname, toctreenode)
                     continue
-                if not isinstance(subnode, nodes.section):
-                    continue
-                title = subnode[0]
+                title = sectionnode[0]
                 # copy the contents of the section title, but without references
                 # and unnecessary stuff
                 visitor = SphinxContentsFilter(document)
@@ -810,7 +822,7 @@ class BuildEnvironment:
                     # as it is the file's title anyway
                     anchorname = ''
                 else:
-                    anchorname = '#' + subnode['ids'][0]
+                    anchorname = '#' + sectionnode['ids'][0]
                 numentries[0] += 1
                 reference = nodes.reference('', '', refuri=docname,
                                             anchorname=anchorname,
@@ -818,7 +830,7 @@ class BuildEnvironment:
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
                 if maxdepth == 0 or depth < maxdepth:
-                    item += build_toc(subnode, depth+1)
+                    item += build_toc(sectionnode, depth+1)
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
