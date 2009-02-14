@@ -647,7 +647,11 @@ class BuildEnvironment:
                 candidates['?'] = imguri
                 continue
             # imgpath is the image path *from srcdir*
-            imgpath = path.normpath(path.join(docdir, imguri))
+            if imguri.startswith('/') or imguri.startswith(os.sep):
+                # absolute path (= relative to srcdir)
+                imgpath = path.normpath(imguri[1:])
+            else:
+                imgpath = path.normpath(path.join(docdir, imguri))
             # set imgpath as default URI
             node['uri'] = imgpath
             if imgpath.endswith(os.extsep + '*'):

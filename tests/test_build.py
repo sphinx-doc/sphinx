@@ -61,6 +61,7 @@ HTML_XPATH = {
     },
     'subdir/images.html': {
         ".//img[@src='../_images/img1.png']": '',
+        ".//img[@src='../_images/rimg.png']": '',
     },
     'includes.html': {
         ".//pre": u'Max Strauß',

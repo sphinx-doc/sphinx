@@ -37,6 +37,9 @@ New features added
     the directive -- this allows you to define your document
     structure, but place the links yourself.
 
+  - Image paths can now be absolute (like ``/images/foo.png``).
+    They are treated as relative to the top source directory.
+
   - #52: There is now a ``hlist`` directive, creating a compact
     list by placing distributing items into multiple columns.
 
@@ -49,8 +52,8 @@ New features added
   - #23: Added a ``classmethod`` directive along with ``method``
     and ``staticmethod``.
 
-  - Added a ``toctree`` variable to the templates, and the ability to
-    include external links in toctrees.
+  - Added a ``toctree`` callable to the templates, and the ability
+    to include external links in toctrees.
 
 * Configuration:
 

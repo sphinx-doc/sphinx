@@ -2,3 +2,5 @@ Image including source in subdir
 ================================
 
 .. image:: img.*
+
+.. image:: /rimg.png
