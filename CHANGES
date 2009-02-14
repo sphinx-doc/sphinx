@@ -1,6 +1,9 @@
 Release 0.5.2 (in development)
 ==============================
 
+* Recognize toctree directives that are not on section toplevel,
+  but within block items, such as tables.
+
 * Use a new RFC base URL, since rfc.org seems down.
 
 * Fix a crash in the todolist directive when no todo items are
