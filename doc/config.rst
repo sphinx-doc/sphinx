@@ -220,6 +220,7 @@ Project information
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
+   * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``it`` -- Italian
    * ``nl`` -- Dutch
