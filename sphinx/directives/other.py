@@ -228,6 +228,7 @@ directives.register_directive('index', index_directive)
 def version_directive(name, arguments, options, content, lineno,
                       content_offset, block_text, state, state_machine):
     node = addnodes.versionmodified()
+    node.document = state.document
     node['type'] = name
     node['version'] = arguments[0]
     if len(arguments) == 2:
@@ -333,6 +334,7 @@ def glossary_directive(name, arguments, options, content, lineno,
     """Glossary with cross-reference targets for :term: roles."""
     env = state.document.settings.env
     node = addnodes.glossary()
+    node.document = state.document
     state.nested_parse(content, content_offset, node)
 
     # the content should be definition lists
@@ -381,6 +383,7 @@ directives.register_directive('centered', centered_directive)
 def acks_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     node = addnodes.acks()
+    node.document = state.document
     state.nested_parse(content, content_offset, node)
     if len(node.children) != 1 or not isinstance(node.children[0], nodes.bullet_list):
         return [state.document.reporter.warning('.. acks content is not a list',
@@ -396,6 +399,7 @@ def hlist_directive(name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
     ncolumns = options.get('columns', 2)
     node = nodes.paragraph()
+    node.document = state.document
     state.nested_parse(content, content_offset, node)
     if len(node.children) != 1 or not isinstance(node.children[0], nodes.bullet_list):
         return [state.document.reporter.warning('.. hlist content is not a list',

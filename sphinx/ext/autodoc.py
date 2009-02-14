@@ -652,9 +652,12 @@ def _auto_directive(dirname, arguments, options, content, lineno,
     state.memo.reporter = AutodocReporter(generator.result, state.memo.reporter)
     if dirname == 'automodule':
         node = nodes.section()
+        node.document = state.document  # necessary so that the child nodes
+                                        # get the right source/line set
         nested_parse_with_titles(state, generator.result, node)
     else:
         node = nodes.paragraph()
+        node.document = state.document
         state.nested_parse(generator.result, 0, node)
     state.memo.reporter = old_reporter
     return generator.warnings + node.children

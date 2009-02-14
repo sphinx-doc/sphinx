@@ -281,9 +281,11 @@ def nested_parse_with_titles(state, content, node):
     surrounding_section_level = state.memo.section_level
     state.memo.title_styles = []
     state.memo.section_level = 0
-    state.nested_parse(content, 0, node, match_titles=1)
-    state.memo.title_styles = surrounding_title_styles
-    state.memo.section_level = surrounding_section_level
+    try:
+        return state.nested_parse(content, 0, node, match_titles=1)
+    finally:
+        state.memo.title_styles = surrounding_title_styles
+        state.memo.section_level = surrounding_section_level
 
 
 def ustrftime(format, *args):
@@ -374,7 +376,9 @@ def movefile(source, dest):
     os.rename(source, dest)
 
 
-# monkey-patch Node.traverse
+# monkey-patch Node.traverse to get more speed
+# traverse() is called so many times during a build that it saves
+# on average 20-25% overall build time!
 
 def _all_traverse(self):
     """Version of Node.traverse() that doesn't need a condition."""
