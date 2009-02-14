@@ -979,11 +979,6 @@ class LaTeXBuilder(Builder):
             self.titles.append((docname, entry[2]))
 
     def write(self, *ignored):
-        # first, assemble the "appendix" docs that are in every PDF
-        appendices = []
-        for fname in self.config.latex_appendices:
-            appendices.append(self.env.get_doctree(fname))
-
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
@@ -1001,7 +996,8 @@ class LaTeXBuilder(Builder):
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(docname, toctree_only,
-                appendices=(docclass == 'manual') and appendices or [])
+                appendices=((docclass == 'manual') and
+                            self.config.latex_appendices or []))
             self.post_process_images(doctree)
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
@@ -1046,8 +1042,11 @@ class LaTeXBuilder(Builder):
                 new_sect += node
             tree = new_tree
         largetree = process_tree(indexfile, tree)
-        largetree.extend(appendices)
         largetree['file'] = indexfile
+        for docname in appendices:
+            appendix = self.env.get_doctree(docname)
+            appendix['file'] = docname
+            largetree.append(appendix)
         self.info()
         self.info("resolving references...")
         self.env.resolve_references(largetree, indexfile, self)
