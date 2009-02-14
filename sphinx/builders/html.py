@@ -477,7 +477,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
-        ctx['toctree'] = self._get_local_toctree(pagename)
+        ctx['toctree'] = lambda: self._get_local_toctree(pagename)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)
