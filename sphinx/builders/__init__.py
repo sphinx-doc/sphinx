@@ -344,6 +344,11 @@ class Builder(object):
         """
         pass
 
+    def cleanup(self):
+        """
+        Cleanup any resources.  The default implementation does nothing.
+        """
+
 
 BUILTIN_BUILDERS = {
     'html':      ('html', 'StandaloneHTMLBuilder'),

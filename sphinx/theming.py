@@ -10,6 +10,9 @@
 """
 
 import os
+import shutil
+import zipfile
+import tempfile
 import ConfigParser
 from os import path
 
@@ -41,16 +44,47 @@ class Theme(object):
             if not path.isdir(themedir):
                 continue
             for theme in os.listdir(themedir):
-                if not path.isfile(path.join(themedir, theme, THEMECONF)):
-                    continue
-                cls.themes[theme] = path.join(themedir, theme)
+                if theme.lower().endswith('.zip'):
+                    try:
+                        zfile = zipfile.ZipFile(path.join(themedir, theme))
+                        if THEMECONF not in zfile.namelist():
+                            continue
+                        tname = theme[:-4]
+                        tinfo = zfile
+                    except Exception:
+                        builder.warn('File %r on theme path is not a valid '
+                                     'zipfile or contains no theme' % theme)
+                        continue
+                else:
+                    if not path.isfile(path.join(themedir, theme, THEMECONF)):
+                        continue
+                    tname = theme
+                    tinfo = None
+                cls.themes[tname] = (path.join(themedir, theme), tinfo)
 
     def __init__(self, name):
         if name not in self.themes:
             raise ThemeError('no theme named %r found '
                              '(missing theme.conf?)' % name)
         self.name = name
-        self.themedir = self.themes[name]
+
+        tdir, tinfo = self.themes[name]
+        if tinfo is None:
+            # already a directory, do nothing
+            self.themedir = tdir
+            self.themedir_created = False
+        else:
+            # extract the theme to a temp directory
+            self.themedir = tempfile.mkdtemp('sxt')
+            self.themedir_created = True
+            for name in tinfo.namelist():
+                if name.endswith('/'): continue
+                dirname = path.dirname(name)
+                if not path.isdir(path.join(self.themedir, dirname)):
+                    os.makedirs(path.join(self.themedir, dirname))
+                fp = open(path.join(self.themedir, name), 'w')
+                fp.write(tinfo.read(name))
+                fp.close()
 
         self.themeconf = ConfigParser.RawConfigParser()
         self.themeconf.read(path.join(self.themedir, THEMECONF))
@@ -94,3 +128,15 @@ class Theme(object):
             chain.append(base.themedir)
             base = base.base
         return chain
+
+    def cleanup(self):
+        """
+        Remove temporary directories.
+        """
+        if self.themedir_created:
+            try:
+                shutil.rmtree(self.themedir)
+            except Exception:
+                pass
+        if self.base:
+            self.base.cleanup()

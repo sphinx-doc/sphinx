@@ -237,8 +237,6 @@ class StandaloneHTMLBuilder(Builder):
 
         # local TOC and global TOC tree
         toc = self.render_partial(self.env.get_toc_for(docname))['fragment']
-        toctree = self.render_partial(
-            self.env.get_toctree_for(docname, self))['fragment']
 
         return dict(
             parents = parents,
@@ -251,7 +249,6 @@ class StandaloneHTMLBuilder(Builder):
             rellinks = rellinks,
             sourcename = sourcename,
             toc = toc,
-            toctree = toctree,
             # only display a TOC if there's more than one item to show
             display_toc = (self.env.toc_num_entries[docname] > 1),
         )
@@ -476,6 +473,10 @@ class StandaloneHTMLBuilder(Builder):
 
         # dump the search index
         self.handle_finish()
+
+    def cleanup(self):
+        # clean up theme stuff
+        self.theme.cleanup()
 
     def get_outdated_docs(self):
         if self.templates:

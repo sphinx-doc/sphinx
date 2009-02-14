@@ -52,7 +52,7 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
         return self.environment.get_template(template).render(context)
 
     def newest_template_mtime(self):
-        return max(mtimes_of_files(self.theme.themepath, '.html'))
+        return max(mtimes_of_files(self.theme.get_dirchain(), '.html'))
 
     # Loader interface
 

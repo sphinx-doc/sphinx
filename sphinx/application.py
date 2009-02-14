@@ -149,6 +149,7 @@ class Sphinx(object):
             raise
         else:
             self.emit('build-finished', None)
+        self.builder.cleanup()
 
     def warn(self, message):
         self._warncount += 1
