@@ -392,6 +392,9 @@ class StandaloneHTMLBuilder(Builder):
                          [path.join(self.confdir, spath)
                           for spath in self.config.html_static_path]
         for staticdirname in staticdirnames:
+            if not path.isdir(staticdirname):
+                self.warn('static directory %r does not exist' % staticdirname)
+                continue
             for filename in os.listdir(staticdirname):
                 if filename.startswith('.'):
                     continue
