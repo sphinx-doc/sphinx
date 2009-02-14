@@ -239,7 +239,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_document(self, node):
         self.footnotestack.append(self.collect_footnotes(node))
-        self.curfilestack.append(node['docname'])
+        self.curfilestack.append(node.get('docname', ''))
         if self.first_document == 1:
             # the first document is all the regular content ...
             self.body.append(BEGIN_DOC % self.elements)

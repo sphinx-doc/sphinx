@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import time
+import types
 import fnmatch
 import tempfile
 import posixpath
@@ -371,3 +372,38 @@ def movefile(source, dest):
         except OSError:
             pass
     os.rename(source, dest)
+
+
+# monkey-patch Node.traverse
+
+def _all_traverse(self):
+    """Version of Node.traverse() that doesn't need a condition."""
+    result = []
+    result.append(self)
+    for child in self.children:
+        result.extend(child._all_traverse())
+    return result
+
+def _fast_traverse(self, cls):
+    """Version of Node.traverse() that only supports instance checks."""
+    result = []
+    if isinstance(self, cls):
+        result.append(self)
+    for child in self.children:
+        result.extend(child._fast_traverse(cls))
+    return result
+
+def _new_traverse(self, condition=None,
+                 include_self=1, descend=1, siblings=0, ascend=0):
+    if include_self and descend and not siblings and not ascend:
+        if condition is None:
+            return self._all_traverse()
+        elif isinstance(condition, (types.ClassType, type)):
+            return self._fast_traverse(condition)
+    return self._old_traverse(condition, include_self, descend, siblings, ascend)
+
+import docutils.nodes
+docutils.nodes.Node._old_traverse = docutils.nodes.Node.traverse
+docutils.nodes.Node._all_traverse = _all_traverse
+docutils.nodes.Node._fast_traverse = _fast_traverse
+docutils.nodes.Node.traverse = _new_traverse
