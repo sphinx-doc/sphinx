@@ -212,10 +212,14 @@ reST supports an image directive, used like so::
    .. image:: gnu.png
       (options)
 
-When used within Sphinx, the file name given (here ``gnu.png``) must be relative
-to the source file, and Sphinx will automatically copy image files over to a
-subdirectory of the output directory on building (e.g. the ``_static`` directory
-for HTML output.)
+When used within Sphinx, the file name given (here ``gnu.png``) must either be
+relative to the source file, or absolute which means that they are relative to
+the top source directory.  For example, the file ``sketch/spam.rst`` could refer
+to the image ``images/spam.png`` as ``../images/spam.png`` or
+``/images/spam.png``.
+
+Sphinx will automatically copy image files over to a subdirectory of the output
+directory on building (e.g. the ``_static`` directory for HTML output.)
 
 Interpretation of image size options (``width`` and ``height``) is as follows:
 if the size has no unit or the unit is pixels, the given size will only be
@@ -235,6 +239,9 @@ the former, while the HTML builder would prefer the latter.
 
 .. versionchanged:: 0.4
    Added the support for file names ending in an asterisk.
+
+.. versionchanged:: 0.6
+   Image paths can now be absolute.
 
 
 Footnotes
