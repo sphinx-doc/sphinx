@@ -350,7 +350,14 @@ class TemplateBridge(object):
 
     def render(self, template, context):
         """
-        Called by the builder to render a *template* with a specified
-        context (a Python dictionary).
+        Called by the builder to render a template given as a filename with a
+        specified context (a Python dictionary).
+        """
+        raise NotImplementedError('must be implemented in subclasses')
+
+    def render_string(self, template, context):
+        """
+        Called by the builder to render a template given as a string with a
+        specified context (a Python dictionary).
         """
         raise NotImplementedError('must be implemented in subclasses')

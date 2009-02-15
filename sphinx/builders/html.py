@@ -460,7 +460,16 @@ class StandaloneHTMLBuilder(Builder):
                 fullname = path.join(staticdirname, filename)
                 targetname = path.join(self.outdir, '_static', filename)
                 if path.isfile(fullname):
-                    shutil.copyfile(fullname, targetname)
+                    if fullname.lower().endswith('_t'):
+                        # templated!
+                        fsrc = open(fullname, 'rb')
+                        fdst = open(targetname[:-2], 'wb')
+                        fdst.write(self.templates.render_string(
+                            fsrc.read(), self.globalcontext))
+                        fsrc.close()
+                        fdst.close()
+                    else:
+                        shutil.copyfile(fullname, targetname)
                 elif path.isdir(fullname):
                     if filename in self.config.exclude_dirnames:
                         continue

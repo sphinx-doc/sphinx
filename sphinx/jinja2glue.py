@@ -44,6 +44,7 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
             chain[0:0] = [path.join(builder.confdir, tp)
                           for tp in builder.config.templates_path]
 
+        # store it for use in newest_template_mtime
         self.pathchain = chain
 
         # make the paths into loaders
@@ -59,6 +60,9 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
 
     def render(self, template, context):
         return self.environment.get_template(template).render(context)
+
+    def render_string(self, source, context):
+        return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self):
         return max(mtimes_of_files(self.pathchain, '.html'))
