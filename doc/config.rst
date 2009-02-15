@@ -131,15 +131,16 @@ General configuration
 .. confval:: templates_path
 
    A list of paths that contain extra templates (or templates that overwrite
-   builtin templates).  Relative paths are taken as relative to the
-   configuration directory.
+   builtin/theme-specific templates).  Relative paths are taken as relative to
+   the configuration directory.
 
 .. confval:: template_bridge
 
    A string with the fully-qualified name of a callable (or simply a class) that
    returns an instance of :class:`~sphinx.application.TemplateBridge`.  This
    instance is then used to render HTML documents, and possibly the output of
-   other builders (currently the changes builder).
+   other builders (currently the changes builder).  (Note that the template
+   bridge must be made theme-aware if HTML themes are to be used.)
 
 .. confval:: rst_epilog
 
@@ -328,6 +329,14 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 0.6
 
+.. confval:: html_style
+
+   The style sheet to use for HTML pages.  A file of that name must exist either
+   in Sphinx' :file:`static/` path, or in one of the custom paths given in
+   :confval:`html_static_path`.  Default is the stylesheet given by the selected
+   theme.  If you only want to add or override a few things compared to the
+   theme's stylesheet, use CSS ``@import`` to import the theme's stylesheet.
+
 .. confval:: html_title
 
    The "title" for HTML documentation generated with Sphinx' own templates.
@@ -343,13 +352,6 @@ that use Sphinx' HTMLWriter class.
    :confval:`html_title`.
 
    .. versionadded:: 0.4
-
-.. confval:: html_style
-
-   The style sheet to use for HTML pages.  A file of that name must exist either
-   in Sphinx' :file:`static/` path, or in one of the custom paths given in
-   :confval:`html_static_path`.  Default is the stylesheet given by the selected
-   theme.
 
 .. confval:: html_logo
 

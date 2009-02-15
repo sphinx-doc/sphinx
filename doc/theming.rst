@@ -97,11 +97,66 @@ Sphinx comes with a selection of themes to choose from:
 * **sphinxdoc** -- The theme used for this documentation.  It features a sidebar
   on the right side.  There are currently no options beyond *nosidebar*.
 
-..
- * option specs
- * zipfiles
- * old config values work
- * static/
- * theme.conf
- * _t templates
+
+Creating themes
+---------------
+
+As said, themes are either a directory or a zipfile (whose name is the theme
+name), containing the following:
+
+* A :file:`theme.conf` file, see below.
+* HTML templates, if needed.
+* A ``static/`` directory containing any static files that will be copied to the
+  output statid directory on build.  These can be images, styles, script files.
+
+The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
+Python :mod:`ConfigParser` module) and has the following structure::
+
+    [theme]
+    inherit = base theme
+    stylesheet = main CSS name
+    pygments_style = stylename
+
+    [options]
+    variable = default value
+
+* The **inherit** setting gives the name of a "base theme", or ``none``.  The
+  base theme will be used to locate missing templates, its options will be
+  inherited, and all of its static files will be used as well.
+
+* The **stylesheet** setting gives the name of a CSS file which will be
+  referenced in the HTML header.  If you need more than one CSS file, either
+  include one from the other via CSS' ``@import``, or use a custom HTML template
+  that adds ``<link rel="stylesheet">`` tags as necessary.  Setting the
+  :confval:`html_style` config value will override this setting.
+
+* The **pygments_style** setting gives the name of a Pygments style to use for
+  highlighting.  This can be overridden by the user in the
+  :confval:`pygments_style` config value.
+
+* The **options** section contains pairs of variable names and default values.
+  These options can be overridden by the user in :confval:`html_theme_options`
+  and are accessible from all templates as ``theme_<name>``.
+
+
+Static templates
+----------------
+
+Since theme options are meant for the user to configure a theme more easily,
+without having to write a custom stylesheet, it is necessary to be able to
+template static files as well as HTML files.  Therefore, Sphinx supports
+so-called "static templates", like this:
+
+If the name of a file in the ``static/`` directory of a theme (or in the user's
+static path, for that matter) ends with ``_t``, it will be processed by the
+template engine.  The ``_t`` will be left from the final file name.  For
+example, the *default* theme has a file ``static/default.css_t`` which uses
+templating to put the color options into the stylesheet.  When a documentation
+is built with the default theme, the output directory will contain a
+``_static/default.css`` file where all template tags have been processed.
+
+  
+.. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
+       because that would pose an unnecessary security risk if themes are
+       shared.
 
