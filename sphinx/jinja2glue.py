@@ -18,6 +18,12 @@ from sphinx.util import mtimes_of_files
 from sphinx.application import TemplateBridge
 
 
+def _tobool(val):
+    if isinstance(val, basestring):
+        return val.lower() in ('true', '1', 'yes', 'on')
+    return bool(val)
+
+
 class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
     """
     Interfaces the rendering environment of jinja2 for use in Sphinx.
@@ -38,6 +44,8 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
             chain[0:0] = [path.join(builder.confdir, tp)
                           for tp in builder.config.templates_path]
 
+        self.pathchain = chain
+
         # make the paths into loaders
         self.loaders = map(jinja2.FileSystemLoader, chain)
 
@@ -45,6 +53,7 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
         extensions = use_i18n and ['jinja2.ext.i18n'] or []
         self.environment = jinja2.Environment(loader=self,
                                               extensions=extensions)
+        self.environment.filters['tobool'] = _tobool
         if use_i18n:
             self.environment.install_gettext_translations(builder.translator)
 
@@ -52,7 +61,7 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
         return self.environment.get_template(template).render(context)
 
     def newest_template_mtime(self):
-        return max(mtimes_of_files(self.theme.get_dirchain(), '.html'))
+        return max(mtimes_of_files(self.pathchain, '.html'))
 
     # Loader interface
 

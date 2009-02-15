@@ -108,7 +108,7 @@ class Theme(object):
         """
         try:
             return self.themeconf.get(section, name)
-        except ConfigParser.NoOptionError:
+        except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
             if self.base is not None:
                 return self.base.get_confstr(section, name)
             if default is NODEFAULT:
@@ -116,6 +116,27 @@ class Theme(object):
                                  'searched theme configs' % (section, name))
             else:
                 return default
+
+    def get_options(self, overrides):
+        """
+        Return a dictionary of theme options and their values.
+        """
+        chain = [self.themeconf]
+        base = self.base
+        while base is not None:
+            chain.append(base.themeconf)
+            base = base.base
+        options = {}
+        for conf in reversed(chain):
+            try:
+                options.update(conf.items('options'))
+            except ConfigParser.NoSectionError:
+                pass
+        for option, value in overrides.iteritems():
+            if option not in options:
+                raise ThemeError('unsupported theme option %r given' % option)
+            options[option] = value
+        return options
 
     def get_dirchain(self):
         """

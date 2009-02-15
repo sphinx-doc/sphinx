@@ -27,7 +27,7 @@
 {%- endmacro %}
 
 {%- macro sidebar() %}
-      {%- if not embedded %}
+      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
@@ -86,7 +86,7 @@
           {%- endblock %}
         </div>
       </div>
-      {%- endif %}
+      {%- endif %}{% endif %}
 {%- endmacro %}
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -155,15 +155,15 @@
 {%- block document %}
     <div class="document">
       <div class="documentwrapper">
-      {%- if not embedded %}
+      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
         <div class="bodywrapper">
-      {%- endif %}
+      {%- endif %}{% endif %}
           <div class="body">
             {% block body %} {% endblock %}
           </div>
-      {%- if not embedded %}
+      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
         </div>
-      {%- endif %}
+      {%- endif %}{% endif %}
       </div>
 {%- endblock %}
 

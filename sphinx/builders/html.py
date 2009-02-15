@@ -179,6 +179,9 @@ class StandaloneHTMLBuilder(Builder):
             logo = logo,
             favicon = favicon,
         )
+        self.globalcontext.update(
+            ('theme_' + key, val) for (key, val) in
+            self.theme.get_options(self.config.html_theme_options).iteritems())
         self.globalcontext.update(self.config.html_context)
 
     def _get_local_toctree(self, docname):

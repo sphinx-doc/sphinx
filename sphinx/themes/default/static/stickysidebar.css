@@ -1,15 +1,17 @@
-/**
- * Sphinx Doc Design -- Sticky sidebar Overrides
- */
+/* stickysidebar overrides for default design */
 
 div.sphinxsidebar {
     top: 30px;
-    left: 0px;
+    height: 100%;
+    overflow: auto;
     position: fixed;
     margin: 0;
-    float: none;
+    background-color: #1c4e63;
 }
 
+/* this is nice, but it it leads to hidden headings when jumping
+   to an anchor */
+/*
 div.related {
     position: fixed;
 }
@@ -17,3 +19,4 @@ div.related {
 div.documentwrapper {
     margin-top: 30px;
 }
+*/
