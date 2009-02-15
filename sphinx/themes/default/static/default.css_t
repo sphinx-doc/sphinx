@@ -21,7 +21,8 @@ div.document {
 }
 
 div.body {
-    background-color: white;
+    background-color: {{ theme_bgcolor }};
+    color: {{ theme_textcolor }};
     padding: 0 20px 30px 20px;
 }
 
@@ -183,7 +184,7 @@ p.admonition-title:after {
 pre {
     padding: 5px;
     background-color: {{ theme_codebgcolor }};
-    color: {{ theme_codecolor }};
+    color: {{ theme_codetextcolor }};
     line-height: 120%;
     border: 1px solid #ac9;
     border-left: none;
