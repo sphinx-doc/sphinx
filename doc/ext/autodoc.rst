@@ -115,9 +115,11 @@ directive.
 
      .. versionadded:: 0.4
 
-   * The :dir:`autoclass` and :dir:`autoexception` directives also support a
-     flag option called ``show-inheritance``.  When given, a list of base
-     classes will be inserted just below the class signature.
+   * The :dir:`automodule`, :dir:`autoclass` and :dir:`autoexception` directives
+     also support a flag option called ``show-inheritance``.  When given, a list
+     of base classes will be inserted just below the class signature (when used
+     with :dir:`automodule`, this will be inserted for every class that is
+     documented in the module).
 
      .. versionadded:: 0.4
 
