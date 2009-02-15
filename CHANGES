@@ -20,6 +20,8 @@ New features added
        if name.startswith('_'):
            return True
 
+* Theming support.
+
 * Markup:
 
   - Due to popular demand, added a ``:doc:`` role which directly

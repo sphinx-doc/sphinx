@@ -305,6 +305,29 @@ Options for HTML output
 These options influence HTML as well as HTML Help output, and other builders
 that use Sphinx' HTMLWriter class.
 
+.. confval:: html_theme
+
+   The "theme" that the HTML output should use.  See the :doc:`section about
+   theming <theming>`.  The default is ``'default'``.
+
+   .. versionadded:: 0.6
+
+.. confval:: html_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.  These are theme-specific.  For the options understood by the builtin
+   themes, see :ref:`this section <builtin-themes>`.
+
+   .. versionadded:: 0.6
+
+.. confval:: html_theme_path
+
+   A list of paths that contain custom themes, either as subdirectories or as
+   zip files.  Relative paths are taken as relative to the configuration
+   directory.
+
+   .. versionadded:: 0.6
+
 .. confval:: html_title
 
    The "title" for HTML documentation generated with Sphinx' own templates.
@@ -325,7 +348,8 @@ that use Sphinx' HTMLWriter class.
 
    The style sheet to use for HTML pages.  A file of that name must exist either
    in Sphinx' :file:`static/` path, or in one of the custom paths given in
-   :confval:`html_static_path`.  Default is ``'default.css'``.
+   :confval:`html_static_path`.  Default is the stylesheet given by the selected
+   theme.
 
 .. confval:: html_logo
 
@@ -350,8 +374,8 @@ that use Sphinx' HTMLWriter class.
 
    A list of paths that contain custom static files (such as style sheets or
    script files).  Relative paths are taken as relative to the configuration
-   directory.  They are copied to the output directory after the builtin static
-   files, so a file named :file:`default.css` will overwrite the builtin
+   directory.  They are copied to the output directory after the theme's static
+   files, so a file named :file:`default.css` will overwrite the theme's
    :file:`default.css`.
 
    .. versionchanged:: 0.4
