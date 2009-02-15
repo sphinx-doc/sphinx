@@ -55,7 +55,9 @@ New features added
     and ``staticmethod``.
 
   - Added a ``toctree`` callable to the templates, and the ability
-    to include external links in toctrees.
+    to include external links in toctrees. The 'collapse' keyword argument
+    indicates whether or not to only display subitems of the current page.
+    (Defaults to True.)
 
 * Configuration:
 
@@ -69,9 +71,6 @@ New features added
 
   - The new ``html_show_sourcelink`` config value can be used to
     switch off the links to the reST sources in the sidebar.
-
-  - The new ``html_collapse_toctree`` config value can be used to
-    "collapse" the generated toctree given to the templates.
 
   - The default value for ``htmlhelp_basename`` is now the project
     title, cleaned up as a filename.

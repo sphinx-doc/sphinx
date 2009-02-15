@@ -184,10 +184,6 @@ class StandaloneHTMLBuilder(Builder):
             self.theme.get_options(self.config.html_theme_options).iteritems())
         self.globalcontext.update(self.config.html_context)
 
-    def _get_local_toctree(self, docname):
-        return self.render_partial(self.env.get_toctree_for(
-            docname, self, self.config.html_collapse_toctree))['fragment']
-
     def get_doc_context(self, docname, body, metatags):
         """Collect items for the template context of a page."""
         # find out relations
@@ -535,6 +531,10 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             self.indexer.feed(pagename, title, doctree)
 
+    def _get_local_toctree(self, docname, collapse=True):
+        return self.render_partial(self.env.get_toctree_for(
+            docname, self, collapse))['fragment']
+
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
@@ -554,7 +554,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
-        ctx['toctree'] = lambda: self._get_local_toctree(pagename)
+        ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename,

@@ -515,14 +515,6 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 0.4
 
-.. confval:: html_collapse_toctree
-
-   If true, the toctree given to the templates as ``toctree`` will be collapsed,
-   i.e. only the subitems that contain the current page are visible.  Default is
-   ``False``.
-
-   .. versionadded:: 0.6
-
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.

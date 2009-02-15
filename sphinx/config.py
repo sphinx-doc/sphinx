@@ -72,7 +72,6 @@ class Config(object):
         html_use_smartypants = (True, False),
         html_translator_class = (None, False),
         html_sidebars = ({}, False),
-        html_collapse_toctree = (False, False),
         html_additional_pages = ({}, False),
         html_use_modindex = (True, False),
         html_add_permalinks = (True, False),
