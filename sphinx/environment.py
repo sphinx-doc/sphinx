@@ -134,6 +134,19 @@ class HandleCodeBlocks(Transform):
                                                       nodes.doctest_block):
                 node.replace_self(node.children[0])
 
+
+class SortIds(Transform):
+    """
+    Sort secion IDs so that the "id[0-9]+" one comes last.
+    """
+    default_priority = 261
+
+    def apply(self):
+        for node in self.document.traverse(nodes.section):
+            if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
+                node['ids'] = node['ids'][1:] + [node['ids'][0]]
+
+
 class CitationReferences(Transform):
     """
     Handle citation references before the default docutils transform does.
@@ -154,7 +167,7 @@ class SphinxStandaloneReader(standalone.Reader):
     Add our own transforms.
     """
     transforms = [CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks]
+                  HandleCodeBlocks, SortIds]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -165,7 +178,6 @@ class SphinxDummyWriter(UnfilteredWriter):
 
     def translate(self):
         pass
-
 
 
 class SphinxContentsFilter(ContentsFilter):
