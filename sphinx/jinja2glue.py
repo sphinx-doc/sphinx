@@ -40,6 +40,7 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
         chain.extend(self.theme.themepath)
 
         # prepend explicit template paths
+        self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
             chain[0:0] = [path.join(builder.confdir, tp)
                           for tp in builder.config.templates_path]
@@ -71,9 +72,9 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
 
     def get_source(self, environment, template):
         loaders = self.loaders
-        # exclamation mark starts search from base
+        # exclamation mark starts search from theme
         if template.startswith('!'):
-            loaders = loaders[1:]
+            loaders = loaders[self.templatepathlen:]
             template = template[1:]
         for loader in loaders:
             try:

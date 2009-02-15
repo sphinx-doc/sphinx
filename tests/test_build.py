@@ -89,12 +89,16 @@ HTML_XPATH = {
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
+        ".//meta[@name='testopt'][@content='testoverride']": '',
         ".//td[@class='label']": r'\[Ref1\]',
         ".//li[@class='toctree-l1']/a": 'Testing various markup',
         ".//li[@class='toctree-l2']/a": 'Admonitions',
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
         ".//a[@href='http://python.org/']": '',
+    },
+    '_static/statictmpl.html': {
+        ".//project": 'Sphinx <Tests>',
     },
 }
 
@@ -141,6 +145,8 @@ def test_html(app):
         etree = ET.parse(os.path.join(app.outdir, fname), parser)
         for path, check in paths.iteritems():
             nodes = list(etree.findall(path))
+            if not nodes:
+                import pdb; pdb.set_trace()
             assert nodes != []
             if hasattr(check, '__call__'):
                 check(nodes)

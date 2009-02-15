@@ -110,7 +110,7 @@ class Theme(object):
             return self.themeconf.get(section, name)
         except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
             if self.base is not None:
-                return self.base.get_confstr(section, name)
+                return self.base.get_confstr(section, name, default)
             if default is NODEFAULT:
                 raise ThemeError('setting %s.%s occurs in none of the '
                                  'searched theme configs' % (section, name))

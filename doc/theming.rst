@@ -97,6 +97,9 @@ Sphinx comes with a selection of themes to choose from:
 * **sphinxdoc** -- The theme used for this documentation.  It features a sidebar
   on the right side.  There are currently no options beyond *nosidebar*.
 
+* **traditional** -- A theme resembling the old Python documentation.  There are
+  currently no options beyond *nosidebar*.
+
 
 Creating themes
 ---------------
@@ -151,10 +154,10 @@ searches for templates:
 * Then, in the selected theme.
 * Then, in its base theme, its base's base theme, etc.
 
-From all of these levels, you can inherit templates from the lowernext level by
-prefixing the template name with an exclamation mark in the ``extends`` tag, or
-(in the case of theme templates) giving an explicit path, like
-``basic/layout.html``.
+When extending a template in the base theme with the same name, use the theme
+name as an explicit directory: ``{% extends "basic/layout.html" %}``.  From a
+user ``templates_path`` template, you can still use the "exclamation mark"
+syntax as described in the templating document.
 
 
 Static templates
