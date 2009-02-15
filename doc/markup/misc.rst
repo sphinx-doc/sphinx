@@ -3,7 +3,7 @@
 Miscellaneous markup
 ====================
 
-.. _metadata::
+.. _metadata:
 
 File-wide metadata
 ------------------
