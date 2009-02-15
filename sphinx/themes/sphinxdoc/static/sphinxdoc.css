@@ -46,6 +46,10 @@ div.body {
     padding: 0.5em 20px 20px 20px;
 }
 
+div.related {
+    font-size: 1em;
+}
+
 div.related ul {
     background-image: url(navigation.png);
     height: 2em;
@@ -85,6 +89,7 @@ div.sphinxsidebar {
     padding: 0.5em 15px 15px 0;
     width: 210px;
     float: right;
+    font-size: 1em;
     text-align: left;
 }
 
