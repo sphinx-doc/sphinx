@@ -121,8 +121,9 @@ Python :mod:`ConfigParser` module) and has the following structure::
     variable = default value
 
 * The **inherit** setting gives the name of a "base theme", or ``none``.  The
-  base theme will be used to locate missing templates, its options will be
-  inherited, and all of its static files will be used as well.
+  base theme will be used to locate missing templates (most themes will not have
+  to supply most templates if they use ``basic`` as the base theme), its options
+  will be inherited, and all of its static files will be used as well.
 
 * The **stylesheet** setting gives the name of a CSS file which will be
   referenced in the HTML header.  If you need more than one CSS file, either
@@ -139,8 +140,25 @@ Python :mod:`ConfigParser` module) and has the following structure::
   and are accessible from all templates as ``theme_<name>``.
 
 
+Templating
+~~~~~~~~~~
+
+The :doc:`guide to templating <templating>` is helpful if you want to write your
+own templates.  What is important to keep in mind is the order in which Sphinx
+searches for templates:
+
+* First, in the user's ``templates_path`` directories.
+* Then, in the selected theme.
+* Then, in its base theme, its base's base theme, etc.
+
+From all of these levels, you can inherit templates from the lowernext level by
+prefixing the template name with an exclamation mark in the ``extends`` tag, or
+(in the case of theme templates) giving an explicit path, like
+``basic/layout.html``.
+
+
 Static templates
-----------------
+~~~~~~~~~~~~~~~~
 
 Since theme options are meant for the user to configure a theme more easily,
 without having to write a custom stylesheet, it is necessary to be able to
