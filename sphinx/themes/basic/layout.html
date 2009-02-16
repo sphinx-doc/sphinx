@@ -152,8 +152,8 @@
 
 {%- block sidebar1 %} {# possible location for sidebar #} {% endblock %}
 
-{%- block document %}
     <div class="document">
+{%- block document %}
       <div class="documentwrapper">
       {%- if not embedded %}{% if not theme_nosidebar|tobool %}
         <div class="bodywrapper">
@@ -165,10 +165,11 @@
         </div>
       {%- endif %}{% endif %}
       </div>
-      {%- block sidebar2 %}{{ sidebar() }}{% endblock %}
+{%- endblock %}
+
+{%- block sidebar2 %}{{ sidebar() }}{% endblock %}
       <div class="clearer"></div>
     </div>
-{%- endblock %}
 
 {%- block relbar2 %}{{ relbar() }}{% endblock %}
 
