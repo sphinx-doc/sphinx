@@ -89,6 +89,10 @@ tables of contents.  The ``toctree`` directive is the central element.
    documents in the ``recipe`` folder, then all remaining documents (except the
    one containing the directive, of course.) [#]_
 
+   The special entry name ``self`` stands for the document containing the
+   toctree directive.  This is useful if you want to generate a "sitemap" from
+   the toctree.
+
    You can also give a "hidden" option to the directive, like this::
 
       .. toctree::
@@ -99,7 +103,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    This will still notify Sphinx of the document hierarchy, but not insert links
    into the document at the location of the directive -- this makes sense if you
-   intend to insert these links yourself, in a different style.
+   intend to insert these links yourself, in a different style, or in the HTML
+   sidebar.
 
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
@@ -116,7 +121,7 @@ tables of contents.  The ``toctree`` directive is the central element.
       Added "globbing" option.
 
    .. versionchanged:: 0.6
-      Added "hidden" option and external links.
+      Added "hidden" option and external links, as well as support for "self".
 
 
 Special names
