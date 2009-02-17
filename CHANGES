@@ -131,6 +131,9 @@ New features added
 
   - Quickstart can now generate a Windows ``make.bat`` file.
 
+  - There is now a ``-W`` option for sphinx-build that turns warnings
+    into errors.
+
 
 Release 0.5.2 (in development)
 ==============================

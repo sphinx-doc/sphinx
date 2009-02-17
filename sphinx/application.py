@@ -28,6 +28,10 @@ class SphinxError(Exception):
     """
     category = 'Sphinx error'
 
+class SphinxWarning(SphinxError):
+    """Raised for warnings if warnings are treated as errors."""
+    category = 'Warning, treated as error'
+
 class ExtensionError(SphinxError):
     """Raised if something's wrong with the configuration."""
     category = 'Extension error'
@@ -78,7 +82,8 @@ CONFIG_FILENAME = 'conf.py'
 class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
-                 confoverrides, status, warning=sys.stderr, freshenv=False):
+                 confoverrides, status, warning=sys.stderr, freshenv=False,
+                 warningiserror=False):
         self.next_listener_id = 0
         self._listeners = {}
         self.builderclasses = BUILTIN_BUILDERS.copy()
@@ -95,11 +100,13 @@ class Sphinx(object):
         else:
             self._status = status
             self.quiet = False
+
         if warning is None:
             self._warning = StringIO()
         else:
             self._warning = warning
         self._warncount = 0
+        self.warningiserror = warningiserror
 
         self._events = events.copy()
 
@@ -153,6 +160,8 @@ class Sphinx(object):
         self.builder.cleanup()
 
     def warn(self, message):
+        if self.warningiserror:
+            raise SphinxWarning('WARNING: %s\n' % message)
         self._warncount += 1
         try:
             self._warning.write('WARNING: %s\n' % message)

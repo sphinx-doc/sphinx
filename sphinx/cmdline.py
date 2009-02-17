@@ -44,6 +44,7 @@ new and changed files
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
          -Q        -- no output at all, not even warnings
+         -W        -- turn warnings into errors
          -P        -- run Pdb on exception
 Modi:
 * without -a and without filenames, write new and changed files.
@@ -57,7 +58,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:c:CD:A:NEqQP')
+        opts, args = getopt.getopt(argv[1:], 'ab:d:c:CD:A:NEqQWP')
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
@@ -86,7 +87,7 @@ def main(argv):
         return 1
 
     buildername = all_files = None
-    freshenv = use_pdb = False
+    freshenv = warningiserror = use_pdb = False
     status = sys.stdout
     warning = sys.stderr
     confoverrides = {}
@@ -143,13 +144,15 @@ def main(argv):
         elif opt == '-Q':
             status = None
             warning = None
+        elif opt == '-W':
+            warningiserror = True
         elif opt == '-P':
             use_pdb = True
     confoverrides['html_context'] = htmlcontext
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
-                     confoverrides, status, warning, freshenv)
+                     confoverrides, status, warning, freshenv, warningiserror)
         app.build(all_files, filenames)
         return app.statuscode
     except KeyboardInterrupt:

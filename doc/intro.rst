@@ -133,6 +133,10 @@ The :program:`sphinx-build` script has several more options:
    Do not output anything on standard output, also suppress warnings.  Only
    errors are written to standard error.
 
+**-W**
+   Turn warnings into errors.  This means that the build stops at the first
+   warning and ``sphinx-build`` exits with exit status 1.
+
 **-P**
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an
    unhandled exception occurs while building.
