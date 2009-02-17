@@ -1019,17 +1019,18 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            newnode = doctree.reporter.system_message(
-                                2, 'undefined label: %s' % target)
+                            self.warn(fromdocname, 'undefined label: %s' % target,
+                                      node.line)
                     else:
                         # reference to the named label; the final node will contain the
                         # section name after the label
                         docname, labelid, sectname = self.labels.get(target, ('','',''))
                         if not docname:
-                            newnode = doctree.reporter.system_message(
-                                2, 'undefined label: %s -- if you don\'t ' % target +
+                            self.warn(
+                                fromdocname,
+                                'undefined label: %s -- if you don\'t ' % target +
                                 'give a link caption the label must precede a section '
-                                'header.')
+                                'header.', node.line)
                     if docname:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)
@@ -1046,6 +1047,8 @@ class BuildEnvironment:
                             if labelid:
                                 newnode['refuri'] += '#' + labelid
                         newnode.append(innernode)
+                    else:
+                        newnode = contnode
                 elif typ == 'keyword':
                     # keywords are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
