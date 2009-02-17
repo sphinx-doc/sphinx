@@ -23,3 +23,6 @@ Sphinx image handling
 
 .. an image with subdir and unspecified extension
 .. image:: subdir/simg.*
+
+.. an SVG image (for HTML at least)
+.. image:: svgimg.*

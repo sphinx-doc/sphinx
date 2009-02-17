@@ -61,6 +61,9 @@ New features added
 
   - Scaled images now get a link to the unscaled version.
 
+  - SVG images are now supported in HTML (via ``<object>`` and
+    ``<embed>`` tags).
+
   - Added a ``toctree`` callable to the templates, and the ability
     to include external links in toctrees. The 'collapse' keyword
     argument indicates whether or not to only display subitems of

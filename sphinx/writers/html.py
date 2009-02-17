@@ -283,6 +283,26 @@ class HTMLTranslator(BaseTranslator):
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
 
+        if node['uri'].lower().endswith('svg') or \
+           node['uri'].lower().endswith('svgz'):
+            atts = {'data': node['uri'], 'type': 'image/svg+xml'}
+            if 'width' in node:
+                atts['width'] = node['width']
+            if 'height' in node:
+                atts['height'] = node['height']
+            if 'align' in node:
+                self.body.append('<div align="%s" class="align-%s">' %
+                                 (node['align'], node['align']))
+                self.context.append('</div>\n')
+            else:
+                self.context.append('')
+            embatts = atts.copy()
+            embatts['src'] = embatts.pop('data')
+            self.body.append(self.starttag(node, 'object', '', **atts))
+            self.body.append(self.emptytag(node, 'embed', '', **embatts))
+            self.body.append('</object>\n')
+            return
+
         if node.has_key('scale'):
             if Image and not (node.has_key('width')
                               and node.has_key('height')):
