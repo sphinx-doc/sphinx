@@ -14,9 +14,8 @@ from util import *
 
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import AutoDirective, Documenter, ModuleDocumenter, \
-     ClassDocumenter, FunctionDocumenter, DataDocumenter, MethodDocumenter, \
-     AttributeDocumenter, cut_lines, between, ALL
+from sphinx.ext.autodoc import AutoDirective, Documenter, add_documenter, \
+     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 
 def setup_module():
@@ -281,6 +280,33 @@ def test_docstring_processing():
     app.disconnect(lid)
 
 
+def test_new_documenter():
+    class MyDocumenter(ModuleLevelDocumenter):
+        objtype = 'integer'
+        directivetype = 'data'
+        priority = 100
+
+        @classmethod
+        def can_document_member(cls, member, membername, isattr, parent):
+            return isinstance(member, int)
+
+        def document_members(self, all_members=False):
+            return
+
+    add_documenter(MyDocumenter)
+
+    def assert_result_contains(item, objtype, name, **kw):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+        #print '\n'.join(directive.result)
+        assert len(_warnings) == 0, _warnings
+        assert item in directive.result
+        del directive.result[:]
+
+    options.members = ['integer']
+    assert_result_contains('.. data:: integer', 'module', 'test_autodoc')
+
+
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -311,6 +337,8 @@ def test_generate():
         assert len(_warnings) == 0, _warnings
         assert item in directive.result
         del directive.result[:]
+
+    options.members = []
 
     # no module found?
     assert_warns("import for autodocumenting 'foobar'",
@@ -405,12 +433,13 @@ def test_generate():
 
 __all__ = ['Class']
 
+integer = 1
+
 class CustomEx(Exception):
     """My custom exception."""
 
     def f(self):
         """Exception method."""
-
 
 class Base(object):
     def inheritedmeth(self):

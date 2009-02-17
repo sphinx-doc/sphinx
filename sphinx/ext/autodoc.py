@@ -404,7 +404,7 @@ class Documenter(object):
                 try:
                     ret.append((mname, self.get_attr(self.object, mname)))
                 except AttributeError:
-                    self.directive.warn('missing attribute %s in object %s: '
+                    self.directive.warn('missing attribute %s in object %s'
                                         % (mname, self.fullname))
             return False, ret
         elif self.options.inherited_members:
