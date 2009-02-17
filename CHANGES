@@ -59,10 +59,12 @@ New features added
   - #23: Added a ``classmethod`` directive along with ``method``
     and ``staticmethod``.
 
+  - Scaled images now get a link to the unscaled version.
+
   - Added a ``toctree`` callable to the templates, and the ability
-    to include external links in toctrees. The 'collapse' keyword argument
-    indicates whether or not to only display subitems of the current page.
-    (Defaults to True.)
+    to include external links in toctrees. The 'collapse' keyword
+    argument indicates whether or not to only display subitems of
+    the current page.  (Defaults to True.)
 
 * Configuration:
 
