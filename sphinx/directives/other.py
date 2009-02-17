@@ -53,7 +53,7 @@ def toctree_directive(name, arguments, options, content, lineno,
                 docname = docname[:-len(suffix)]
             # absolutize filenames
             docname = docname_join(env.docname, docname)
-            if url_re.match(ref):
+            if url_re.match(ref) or ref == 'self':
                 entries.append((title, ref))
             elif docname not in env.found_docs:
                 ret.append(state.document.reporter.warning(
@@ -74,6 +74,7 @@ def toctree_directive(name, arguments, options, content, lineno,
                     'toctree glob pattern %r didn\'t match any documents'
                     % entry, line=lineno))
     subnode = addnodes.toctree()
+    subnode['parent'] = env.docname
     subnode['entries'] = entries
     subnode['includefiles'] = includefiles
     subnode['maxdepth'] = options.get('maxdepth', -1)

@@ -1013,6 +1013,19 @@ class BuildEnvironment:
                         para = addnodes.compact_paragraph('', '', reference)
                         item = nodes.list_item('', para)
                         toc = nodes.bullet_list('', item)
+                    elif ref == 'self':
+                        # 'self' refers to the document from which this toctree originates.
+                        ref = toctreenode['parent']
+                        if not title:
+                            title = self.titles[ref].astext()
+                        reference = nodes.reference('', '',
+                                                    refuri=ref,
+                                                    anchorname='',
+                                                    *[nodes.Text(title)])
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        # Don't show subitems.
+                        toc = nodes.bullet_list('', item)
                     else:
                         toc = self.tocs[ref].deepcopy()
                         if title and toc.children and len(toc.children) == 1:
