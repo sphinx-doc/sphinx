@@ -68,13 +68,14 @@ the following public API:
    * In the docutils 0.4 style, *func* is the directive function.  *content*,
      *arguments* and *options* are set as attributes on the function and
      determine whether the directive has content, arguments and options,
-     respectively.  For their exact meaning, please consult the Docutils
-     documentation.
+     respectively.
 
    * In the docutils 0.5 style, *directiveclass* is the directive class.  It
      must already have attributes named *has_content*, *required_arguments*,
      *optional_arguments*, *final_argument_whitespace* and *option_spec* that
-     correspond to the options for the function way.
+     correspond to the options for the function way.  See `the Docutils docs
+     <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ for
+     details.
 
      The directive class normally must inherit from the class
      ``docutils.parsers.rst.Directive``.  When writing a directive for usage in
