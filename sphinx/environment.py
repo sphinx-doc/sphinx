@@ -629,13 +629,17 @@ class BuildEnvironment:
         """
         Process docutils-generated dependency info.
         """
+        cwd = os.getcwd()
         deps = doctree.settings.record_dependencies
         if not deps:
             return
         docdir = path.dirname(self.doc2path(docname, base=None))
         for dep in deps.list:
-            dep = path.join(docdir, dep)
-            self.dependencies.setdefault(docname, set()).add(dep)
+            # the dependency path is relative to the working dir, so get
+            # one relative to the srcdir
+            fullpath = path.normpath(path.join(cwd, dep))
+            relpath = fullpath[len(path.normpath(self.srcdir))+len(path.sep):]
+            self.dependencies.setdefault(docname, set()).add(relpath)
 
     def process_downloads(self, docname, doctree):
         """
