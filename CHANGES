@@ -1,6 +1,10 @@
 Release 0.5.2 (in development)
 ==============================
 
+* #82: Determine the correct path for dependencies noted by
+  docutils.  This fixes behavior where a source with dependent
+  files was always reported as changed.
+
 * Recognize toctree directives that are not on section toplevel,
   but within block items, such as tables.
 
