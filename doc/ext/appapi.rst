@@ -60,13 +60,27 @@ the following public API:
       Added the support for keyword arguments giving visit functions.
 
 .. method:: Sphinx.add_directive(name, func, content, arguments, **options)
+            Sphinx.add_directive(name, directiveclass)
 
    Register a Docutils directive.  *name* must be the prospective directive
-   name, *func* the directive function for details about the signature and
-   return value.  *content*, *arguments* and *options* are set as attributes on
-   the function and determine whether the directive has content, arguments and
-   options, respectively.  For their exact meaning, please consult the Docutils
-   documentation.
+   name.  There are two possible ways to write a directive:
+
+   * In the docutils 0.4 style, *func* is the directive function.  *content*,
+     *arguments* and *options* are set as attributes on the function and
+     determine whether the directive has content, arguments and options,
+     respectively.  For their exact meaning, please consult the Docutils
+     documentation.
+
+   * In the docutils 0.5 style, *directiveclass* is the directive class.  It
+     must already have attributes named *has_content*, *required_arguments*,
+     *optional_arguments*, *final_argument_whitespace* and *option_spec* that
+     correspond to the options for the function way.
+
+     The directive class normally must inherit from the class
+     ``docutils.parsers.rst.Directive``.  When writing a directive for usage in
+     a Sphinx extension, you inherit from ``sphinx.util.compat.Directive``
+     instead which does the right thing even on docutils 0.4 (which doesn't
+     support directive classes otherwise).
 
    For example, the (already existing) :dir:`literalinclude` directive would be
    added like this::
@@ -78,7 +92,8 @@ the following public API:
                     language = direcitves.unchanged,
                     encoding = directives.encoding)
 
-   .. XXX once we target docutils 0.5, update this
+   .. versionchanged:: 0.6
+      Docutils 0.5-style directive classes are now supported.
 
 .. method:: Sphinx.add_role(name, role)
 
@@ -179,6 +194,15 @@ the following public API:
 
    Use *lexer*, which must be an instance of a Pygments lexer class, to
    highlight code blocks with the given language *alias*.
+
+   .. versionadded:: 0.6
+
+.. method:: Sphinx.add_autodocumenter(cls)
+
+   Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
+   extension.  It must be a subclass of :class:`sphinx.ext.autodoc.Documenter`.
+   This allows to auto-document new types of objects.  See the source of the
+   autodoc module for examples on how to subclass :class:`Documenter`.
 
    .. versionadded:: 0.6
 
