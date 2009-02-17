@@ -399,11 +399,11 @@ class Documenter(object):
             for line, src in zip(more_content.data, more_content.items):
                 self.add_line(line, src[0], src[1])
 
-    def get_object_members(self, members=ALL):
-        if members is not ALL:
+    def get_object_members(self, want_all):
+        if not want_all:
             # specific members given
             ret = []
-            for mname in members:
+            for mname in self.options.members:
                 try:
                     ret.append((mname, self.get_attr(self.object, mname)))
                 except AttributeError:
@@ -416,8 +416,10 @@ class Documenter(object):
             return False, inspect.getmembers(self.object)
         else:
             # __dict__ contains only the members directly defined in
-            # the class
-            return False, sorted(self.object.__dict__.iteritems())
+            # the class (but get them via getattr anyway, to e.g. get
+            # unbound method objects instead of function objects)
+            return False, sorted([(mname, self.get_attr(self.object, mname))
+                                  for mname in self.object.__dict__])
 
     def filter_members(self, members, want_all):
         ret = []
@@ -474,6 +476,7 @@ class Documenter(object):
                    self.options.members is ALL
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
+        print members
 
         # document non-skipped members
         for (mname, member, isattr) in self.filter_members(members, want_all):
@@ -483,7 +486,7 @@ class Documenter(object):
                 # don't know how to document this member
                 continue
             # prefer the documenter with the highest priority
-            classes.sort(lambda cls: cls.priority)
+            classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
             full_mname = self.modname + '::' + \
@@ -705,11 +708,11 @@ class ClassDocumenter(ModuleLevelDocumenter):
         return isinstance(member, (type, ClassType))
 
     def import_object(self):
-        ModuleLevelDocumenter.import_object(self)
-
+        ret = ModuleLevelDocumenter.import_object(self)
         # if the class is documented under another name, document it
         # as data/attribute
         self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+        return ret
 
     def format_args(self):
         args = None
