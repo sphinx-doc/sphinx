@@ -16,6 +16,9 @@ directory`, the extension is stripped, and path separators are converted to
 slashes.  All values, parameters and suchlike referring to "documents" expect
 such a document name.
 
+Examples for document names are ``index``, ``library/zipfile``, or
+``reference/datamodel/types``.  Note that there is no leading slash.
+
 
 The TOC tree
 ------------
