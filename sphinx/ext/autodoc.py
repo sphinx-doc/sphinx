@@ -817,6 +817,20 @@ class MethodDocumenter(ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
+    def import_object(self):
+        ret = ClassLevelDocumenter.import_object(self)
+        if isinstance(self.object, classmethod) or \
+               (isinstance(self.object, MethodType) and
+                self.object.im_self is not None):
+            self.directivetype = 'classmethod'
+        elif isinstance(self.object, FunctionType) or \
+             (isinstance(self.object, BuiltinFunctionType) and
+              self.object.__self__ is not None):
+            self.directivetype = 'staticmethod'
+        else:
+            self.directivetype = 'method'
+        return ret
+
     def format_args(self):
         if inspect.isbuiltin(self.object) or \
                inspect.ismethoddescriptor(self.object):
@@ -829,33 +843,6 @@ class MethodDocumenter(ClassLevelDocumenter):
 
     def document_members(self, all_members=False):
         pass
-
-
-class ClassmethodDocumenter(MethodDocumenter):
-    objtype = 'classmethod'
-
-    priority = 10
-
-    @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
-        return inspect.isroutine(member) and \
-               not isinstance(parent, ModuleDocumenter) and \
-               (isinstance(member, classmethod) or
-                (isinstance(member, MethodType) and member.im_self is not None))
-
-
-class StaticmethodDocumenter(MethodDocumenter):
-    objtype = 'staticmethod'
-
-    priority = 10
-
-    @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
-        return inspect.isroutine(member) and \
-               not isinstance(parent, ModuleDocumenter) and \
-               (isinstance(member, FunctionType) or
-                (isinstance(member, BuiltinFunctionType) and
-                 member.__self__ is not None))
 
 
 class AttributeDocumenter(ClassLevelDocumenter):
@@ -940,8 +927,6 @@ def setup(app):
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(MethodDocumenter)
-    app.add_autodocumenter(ClassmethodDocumenter)
-    app.add_autodocumenter(StaticmethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True)
