@@ -401,6 +401,8 @@ class Documenter(object):
 
     def get_object_members(self, want_all):
         if not want_all:
+            if not self.options.members:
+                return False, []
             # specific members given
             ret = []
             for mname in self.options.members:
@@ -476,7 +478,6 @@ class Documenter(object):
                    self.options.members is ALL
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
-        print members
 
         # document non-skipped members
         for (mname, member, isattr) in self.filter_members(members, want_all):
@@ -576,7 +577,8 @@ class ModuleDocumenter(Documenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, ModuleType)
+        # don't document submodules automatically
+        return False
 
     def resolve_name(self, modname, parents, path, base):
         if modname is not None:
