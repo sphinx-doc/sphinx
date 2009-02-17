@@ -236,6 +236,22 @@ node.
 In the last line, the nodes that should be put into the doctree are returned:
 the target node and the admonition node.
 
+The node structure that the directive returns looks like this::
+
+   +--------------------+
+   | target node        |
+   +--------------------+
+   +--------------------+
+   | todo node          |
+   +--------------------+
+     \__+--------------------+
+        | admonition title   |
+        +--------------------+
+        | paragraph          |
+        +--------------------+
+        | ...                |
+        +--------------------+
+
 
 The Event Handlers
 ------------------
