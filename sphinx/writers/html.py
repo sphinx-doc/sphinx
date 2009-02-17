@@ -291,7 +291,6 @@ class HTMLTranslator(BaseTranslator):
                                                     olduri))
                 except (IOError, # Source image can't be found or opened
                         UnicodeError):  # PIL doesn't like Unicode paths.
-                    print olduri
                     pass
                 else:
                     if not node.has_key('width'):
