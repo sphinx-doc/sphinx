@@ -271,10 +271,13 @@ class Documenter(object):
         self.modname, self.objpath = \
                       self.resolve_name(modname, parents, path, base)
 
+        if not self.modname:
+            return False
+
         self.args = args
         self.retann = retann
-        self.fullname = self.modname + (self.objpath and
-                                        '.' + '.'.join(self.objpath) or '')
+        self.fullname = (self.modname or '') + (self.objpath and
+                                                '.' + '.'.join(self.objpath) or '')
         return True
 
     def import_object(self):
@@ -305,17 +308,12 @@ class Documenter(object):
         return None
 
     def format_signature(self):
-        err = None
         if self.args is not None:
             # signature given explicitly
             args = "(%s)" % self.args
         else:
             # try to introspect the signature
-            try:
-                args = self.format_args()
-            except Exception, e:
-                args = None
-                err = e
+            args = self.format_args()
         if args is None:
             return ''
         retann = self.retann
@@ -328,9 +326,6 @@ class Documenter(object):
 
         if args is not None:
             return args + (retann and (' -> %s' % retann) or '')
-        elif err:
-            # re-raise the error for perusal of the handler in generate()
-            raise RuntimeError(err)
         else:
             return ''
 
@@ -568,6 +563,9 @@ class Documenter(object):
 
 
 class ModuleDocumenter(Documenter):
+    objtype = 'module'
+    content_indent = u''
+
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': bool_option,
@@ -605,13 +603,18 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line(u'   :deprecated:', '<autodoc>')
 
-    def get_object_members(self, members=None):
-        if members is ALL or not hasattr(self.object, '__all__'):
-            # for implicit module members, check __module__ to avoid
-            # documenting imported objects
-            return True, inspect.getmembers(self.object)
+    def get_object_members(self, want_all):
+        if want_all:
+            if not hasattr(self.object, '__all__'):
+                # for implicit module members, check __module__ to avoid
+                # documenting imported objects
+                return True, inspect.getmembers(self.object)
+            else:
+                memberlist = self.object.__all__
+        else:
+            memberlist = self.options.members
         ret = []
-        for mname in (members or self.object.__all__):
+        for mname in memberlist:
             try:
                 ret.append((mname, getattr(self.object, mname)))
             except AttributeError:
@@ -783,6 +786,11 @@ class ClassDocumenter(ModuleLevelDocumenter):
             ModuleLevelDocumenter.add_content(self, content, no_docstring=True)
         else:
             ModuleLevelDocumenter.add_content(self, more_content)
+
+    def document_members(self, all_members=False):
+        if self.doc_as_attr:
+            return
+        ModuleLevelDocumenter.document_members(self, all_members)
 
 
 class ExceptionDocumenter(ClassDocumenter):

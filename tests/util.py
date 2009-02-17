@@ -20,6 +20,7 @@ except ImportError:
     wraps = lambda f: (lambda w: w)
 
 from sphinx import application
+from sphinx.ext.autodoc import AutoDirective
 
 from path import path
 
@@ -141,6 +142,7 @@ class TestApp(application.Sphinx):
                                     freshenv)
 
     def cleanup(self, doctrees=False):
+        AutoDirective._registry.clear()
         for tree in self.cleanup_trees:
             shutil.rmtree(tree, True)
 
