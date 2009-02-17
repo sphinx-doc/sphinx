@@ -113,7 +113,9 @@ name), containing the following:
   output statid directory on build.  These can be images, styles, script files.
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
-Python :mod:`ConfigParser` module) and has the following structure::
+Python :mod:`ConfigParser` module) and has the following structure:
+
+.. sourcecode:: ini
 
     [theme]
     inherit = base theme
