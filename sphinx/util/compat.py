@@ -11,7 +11,6 @@
 
 from docutils import nodes
 
-
 # function missing in 0.5 SVN
 def make_admonition(node_class, name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
@@ -35,3 +34,65 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
     state.nested_parse(content, content_offset, admonition_node)
     return [admonition_node]
 
+
+# support the class-style Directive interface even when using docutils 0.4
+
+try:
+    from docutils.parsers.rst import Directive
+
+except ImportError:
+    class Directive(object):
+        """
+        Fake Directive class to allow Sphinx directives to be written in
+        class style.
+        """
+        required_arguments = 0
+        optional_arguments = 0
+        final_argument_whitespace = False
+        option_spec = None
+        has_content = False
+
+        def __init__(self, name, arguments, options, content, lineno,
+                     content_offset, block_text, state, state_machine):
+            self.name = name
+            self.arguments = arguments
+            self.options = options
+            self.content = content
+            self.lineno = lineno
+            self.content_offset = content_offset
+            self.block_text = block_text
+            self.state = state
+            self.state_machine = state_machine
+
+        def run(self):
+            raise NotImplementedError('Must override run() is subclass.')
+
+    def directive_dwim(obj):
+        """
+        Return something usable with register_directive(), regardless if
+        class or function.  For that, we need to convert classes to a
+        function for docutils 0.4.
+        """
+        if isinstance(obj, Directive):
+            def _class_directive(name, arguments, options, content,
+                                 lineno, content_offset, block_text,
+                                 state, state_machine):
+                return obj(name, arguments, options, content,
+                           lineno, content_offset, block_text,
+                           state, state_machine).run()
+            _class_directive.options = obj.option_spec
+            _class_directive.content = obj.has_content
+            _class_directive.arguments = (obj.required_arguments,
+                                          obj.optional_arguments,
+                                          obj.final_argument_whitespace)
+            return _class_directive
+        return obj
+
+else:
+    def directive_dwim(obj):
+        """
+        Return something usable with register_directive(), regardless if
+        class or function.  Nothing to do here, because docutils 0.5 takes
+        care of converting functions itself.
+        """
+        return obj

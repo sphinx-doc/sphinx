@@ -56,6 +56,7 @@ from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import desc_directive, target_directive, \
      additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
+from sphinx.util.compat import Directive, directive_dwim
 from sphinx.util.console import bold
 
 
@@ -282,11 +283,17 @@ class Sphinx(object):
             if depart:
                 setattr(translator, 'depart_'+node.__name__, depart)
 
-    def add_directive(self, name, func, content, arguments, **options):
-        func.content = content
-        func.arguments = arguments
-        func.options = options
-        directives.register_directive(name, func)
+    def add_directive(self, name, obj, content=None, arguments=None, **options):
+        if isinstance(obj, Directive):
+            if content or arguments or options:
+                raise ExtensionError('when adding directive classes, no '
+                                     'additional arguments may be given')
+            directives.register_directive(name, directive_dwim(obj))
+        else:
+            obj.content = content
+            obj.arguments = arguments
+            obj.options = options
+            directives.register_directive(name, obj)
 
     def add_role(self, name, role):
         roles.register_canonical_role(name, role)
@@ -324,6 +331,11 @@ class Sphinx(object):
         if lexers is None:
             return
         lexers[alias] = lexer
+
+    def add_autodocumenter(self, cls):
+        from sphinx.ext import autodoc
+        autodoc.add_documenter(cls)
+        self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
 
 
 class TemplateBridge(object):
