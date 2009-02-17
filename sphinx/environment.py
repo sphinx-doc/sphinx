@@ -1121,18 +1121,19 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            newnode = doctree.reporter.system_message(
-                                2, 'undefined label: %s' % target)
+                            self.warn(fromdocname, 'undefined label: %s' % target,
+                                      node.line)
                     else:
                         # reference to the named label; the final node will
                         # contain the section name after the label
                         docname, labelid, sectname = self.labels.get(target,
                                                                      ('','',''))
                         if not docname:
-                            newnode = doctree.reporter.system_message(
-                                2, 'undefined label: %s' % target +
-                                ' -- if you don\'t give a link caption '
-                                'the label must precede a section header.')
+                            self.warn(fromdocname,
+                                      'undefined label: %s' % target +
+                                      ' -- if you don\'t give a link caption '
+                                      'the label must precede a section header.',
+                                      node.line)
                     if docname:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)
@@ -1150,13 +1151,16 @@ class BuildEnvironment:
                             if labelid:
                                 newnode['refuri'] += '#' + labelid
                         newnode.append(innernode)
+                    else:
+                        newnode = contnode
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
                     docname = docname_join(fromdocname, target)
                     if docname not in self.all_docs:
-                        newnode = doctree.reporter.system_message(
-                            2, 'unknown document: %s' % docname)
+                        self.warn(fromdocname, 'unknown document: %s' % docname,
+                                  node.line)
+                        newnode = contnode
                     else:
                         if node['refcaption']:
                             # reference with explicit title

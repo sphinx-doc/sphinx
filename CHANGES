@@ -135,6 +135,9 @@ New features added
 Release 0.5.2 (in development)
 ==============================
 
+* Don't output system messages while resolving, because they
+  would stay in the doctrees even if keep_warnings is false.
+
 * #82: Determine the correct path for dependencies noted by
   docutils.  This fixes behavior where a source with dependent
   files was always reported as changed.
