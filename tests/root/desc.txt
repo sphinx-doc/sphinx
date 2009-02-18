@@ -58,3 +58,14 @@ Testing references
 ==================
 
 Referencing :class:`mod.Cls` or :Class:`mod.Cls` should be the same.
+
+
+User markup
+===========
+
+.. userdesc:: myobj:parameter
+
+   Description of userdesc.
+
+
+Referencing :userdescrole:`myobj`.

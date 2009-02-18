@@ -88,6 +88,9 @@ HTML_XPATH = {
         ".//dt[@id='mod.Cls.meth1']": '',
         ".//dt[@id='errmod.Error']": '',
         ".//a[@href='#mod.Cls']": '',
+        ".//dl[@class='userdesc']": '',
+        ".//dt[@id='userdescrole-myobj']": '',
+        ".//a[@href='#userdescrole-myobj']": '',
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
@@ -147,9 +150,8 @@ def test_html(app):
         etree = ET.parse(os.path.join(app.outdir, fname), parser)
         for path, check in paths.iteritems():
             nodes = list(etree.findall(path))
-            if not nodes:
-                import pdb; pdb.set_trace()
-            assert nodes != []
+            assert nodes != [], ('did not find any node matching xpath '
+                                 '%r in file %s' % (path, fname))
             if hasattr(check, '__call__'):
                 check(nodes)
             elif not check:

@@ -48,5 +48,16 @@ coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'cfunction': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
 
+from sphinx import addnodes
+
+def userdesc_parse(env, sig, signode):
+    x, y = sig.split(':')
+    signode += addnodes.desc_name(x, x)
+    signode += addnodes.desc_parameterlist()
+    signode[-1] += addnodes.desc_parameter(y, y)
+    return x
+
 def setup(app):
     app.add_config_value('value_from_conf_py', 42, False)
+    app.add_description_unit('userdesc', 'userdescrole', '%s (userdesc)',
+                             userdesc_parse)
