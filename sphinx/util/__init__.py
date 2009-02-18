@@ -39,11 +39,10 @@ def os_path(canonicalpath):
 
 def relative_uri(base, to):
     """Return a relative URL from ``base`` to ``to``."""
+    if to.startswith(SEP):
+        return to
     b2 = base.split(SEP)
     t2 = to.split(SEP)
-    if len(t2) > 1 and t2[0] == '':
-        # "to" is absolute, return it
-        return to
     # remove common segments
     for x, y in zip(b2, t2):
         if x != y:

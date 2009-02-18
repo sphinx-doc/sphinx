@@ -634,7 +634,6 @@ class BuildEnvironment:
         deps = doctree.settings.record_dependencies
         if not deps:
             return
-        docdir = path.dirname(self.doc2path(docname, base=None))
         for dep in deps.list:
             # the dependency path is relative to the working dir, so get
             # one relative to the srcdir
