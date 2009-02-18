@@ -612,9 +612,9 @@ class ModuleDocumenter(Documenter):
             else:
                 memberlist = self.object.__all__
         else:
-            memberlist = self.options.members
+            memberlist = self.options.members or []
         ret = []
-        for mname in memberlist or ():
+        for mname in memberlist:
             try:
                 ret.append((mname, getattr(self.object, mname)))
             except AttributeError:
@@ -716,7 +716,8 @@ class ClassDocumenter(ModuleLevelDocumenter):
         ret = ModuleLevelDocumenter.import_object(self)
         # if the class is documented under another name, document it
         # as data/attribute
-        self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+        if ret:
+            self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
         return ret
 
     def format_args(self):
