@@ -630,6 +630,7 @@ class BuildEnvironment:
         Process docutils-generated dependency info.
         """
         cwd = os.getcwd()
+        frompath = path.join(path.normpath(self.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:
             return
@@ -637,8 +638,8 @@ class BuildEnvironment:
         for dep in deps.list:
             # the dependency path is relative to the working dir, so get
             # one relative to the srcdir
-            fullpath = path.normpath(path.join(cwd, dep))
-            relpath = fullpath[len(path.normpath(self.srcdir))+len(path.sep):]
+            relpath = relative_path(frompath,
+                                    path.normpath(path.join(cwd, dep)))
             self.dependencies.setdefault(docname, set()).add(relpath)
 
     def process_downloads(self, docname, doctree):
