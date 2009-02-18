@@ -614,7 +614,7 @@ class ModuleDocumenter(Documenter):
         else:
             memberlist = self.options.members
         ret = []
-        for mname in memberlist:
+        for mname in memberlist or ():
             try:
                 ret.append((mname, getattr(self.object, mname)))
             except AttributeError:
