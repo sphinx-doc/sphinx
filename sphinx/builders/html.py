@@ -57,8 +57,8 @@ class StandaloneHTMLBuilder(Builder):
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
-    supported_image_types = ['image/png', 'image/gif', 'image/jpeg',
-                             'image/svg+xml']
+    supported_image_types = ['image/svg+xml',
+                             'image/png', 'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
