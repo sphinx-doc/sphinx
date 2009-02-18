@@ -14,42 +14,63 @@
 
 from docutils import nodes
 
-from sphinx.util.compat import make_admonition
+from sphinx.util.compat import Directive, make_admonition
 
 class todo_node(nodes.Admonition, nodes.Element): pass
 class todolist(nodes.General, nodes.Element): pass
 
 
-def todo_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    env = state.document.settings.env
+class Todo(Directive):
+    """
+    A todo entry, displayed (if configured) in the form of an admonition.
+    """
 
-    targetid = "todo-%s" % env.index_num
-    env.index_num += 1
-    targetnode = nodes.target('', '', ids=[targetid])
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
 
-    ad = make_admonition(todo_node, name, [_('Todo')], options, content, lineno,
-                         content_offset, block_text, state, state_machine)
+    def run(self):
+        env = self.state.document.settings.env
 
-    # Attach a list of all todos to the environment,
-    # the todolist works with the collected todo nodes
-    if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []
-    env.todo_all_todos.append({
-        'docname': env.docname,
-        'lineno': lineno,
-        'todo': ad[0].deepcopy(),
-        'target': targetnode,
-    })
+        targetid = "todo-%s" % env.index_num
+        env.index_num += 1
+        targetnode = nodes.target('', '', ids=[targetid])
 
-    return [targetnode] + ad
+        ad = make_admonition(todo_node, self.name, [_('Todo')], self.options,
+                             self.content, self.lineno, self.content_offset,
+                             self.block_text, self.state, self.state_machine)
+
+        # Attach a list of all todos to the environment,
+        # the todolist works with the collected todo nodes
+        if not hasattr(env, 'todo_all_todos'):
+            env.todo_all_todos = []
+        env.todo_all_todos.append({
+            'docname': env.docname,
+            'lineno': self.lineno,
+            'todo': ad[0].deepcopy(),
+            'target': targetnode,
+        })
+
+        return [targetnode] + ad
 
 
-def todolist_directive(name, arguments, options, content, lineno,
-                       content_offset, block_text, state, state_machine):
-    # Simply insert an empty todolist node which will be replaced later
-    # when process_todo_nodes is called
-    return [todolist('')]
+class TodoList(Directive):
+    """
+    A list of all todo entries.
+    """
+
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
+
+    def run(self):
+        # Simply insert an empty todolist node which will be replaced later
+        # when process_todo_nodes is called
+        return [todolist('')]
 
 
 def process_todo_nodes(app, doctree, fromdocname):
@@ -119,8 +140,8 @@ def setup(app):
                  latex=(visit_todo_node, depart_todo_node),
                  text=(visit_todo_node, depart_todo_node))
 
-    app.add_directive('todo', todo_directive, 1, (0, 0, 1))
-    app.add_directive('todolist', todolist_directive, 0, (0, 0, 0))
+    app.add_directive('todo', Todo)
+    app.add_directive('todolist', TodoList)
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
 

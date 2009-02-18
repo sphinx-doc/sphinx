@@ -23,6 +23,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.builders import Builder
+from sphinx.util.compat import Directive
 from sphinx.util.console import bold
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
@@ -30,63 +31,77 @@ doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 # set up the necessary directives
 
-def test_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    # use ordinary docutils nodes for test code: they get special attributes
-    # so that our builder recognizes them, and the other builders are happy.
-    code = '\n'.join(content)
-    test = None
-    if name == 'doctest':
-        if '<BLANKLINE>' in code:
-            # convert <BLANKLINE>s to ordinary blank lines for presentation
-            test = code
-            code = blankline_re.sub('', code)
-        if doctestopt_re.search(code):
-            if not test:
+class TestDirective(Directive):
+    """
+    Base class for doctest-related directives.
+    """
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        # use ordinary docutils nodes for test code: they get special attributes
+        # so that our builder recognizes them, and the other builders are happy.
+        code = '\n'.join(self.content)
+        test = None
+        if self.name == 'doctest':
+            if '<BLANKLINE>' in code:
+                # convert <BLANKLINE>s to ordinary blank lines for presentation
                 test = code
-            code = doctestopt_re.sub('', code)
-    nodetype = nodes.literal_block
-    if name == 'testsetup' or 'hide' in options:
-        nodetype = nodes.comment
-    if arguments:
-        groups = [x.strip() for x in arguments[0].split(',')]
-    else:
-        groups = ['default']
-    node = nodetype(code, code, testnodetype=name, groups=groups)
-    node.line = lineno
-    if test is not None:
-        # only save if it differs from code
-        node['test'] = test
-    if name == 'testoutput':
-        # don't try to highlight output
-        node['language'] = 'none'
-    node['options'] = {}
-    if name in ('doctest', 'testoutput') and 'options' in options:
-        # parse doctest-like output comparison flags
-        option_strings = options['options'].replace(',', ' ').split()
-        for option in option_strings:
-            if (option[0] not in '+-' or option[1:] not in
-                doctest.OPTIONFLAGS_BY_NAME):
-                # XXX warn?
-                continue
-            flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
-            node['options'][flag] = (option[0] == '+')
-    return [node]
+                code = blankline_re.sub('', code)
+            if doctestopt_re.search(code):
+                if not test:
+                    test = code
+                code = doctestopt_re.sub('', code)
+        nodetype = nodes.literal_block
+        if self.name == 'testsetup' or 'hide' in self.options:
+            nodetype = nodes.comment
+        if self.arguments:
+            groups = [x.strip() for x in self.arguments[0].split(',')]
+        else:
+            groups = ['default']
+        node = nodetype(code, code, testnodetype=self.name, groups=groups)
+        node.line = self.lineno
+        if test is not None:
+            # only save if it differs from code
+            node['test'] = test
+        if self.name == 'testoutput':
+            # don't try to highlight output
+            node['language'] = 'none'
+        node['options'] = {}
+        if self.name in ('doctest', 'testoutput') and 'options' in self.options:
+            # parse doctest-like output comparison flags
+            option_strings = self.options['options'].replace(',', ' ').split()
+            for option in option_strings:
+                if (option[0] not in '+-' or option[1:] not in
+                    doctest.OPTIONFLAGS_BY_NAME):
+                    # XXX warn?
+                    continue
+                flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
+                node['options'][flag] = (option[0] == '+')
+        return [node]
 
-# need to have individual functions for each directive due to different
-# options they accept
+class TestsetupDirective(TestDirective):
+    option_spec = {}
 
-def testsetup_directive(*args):
-    return test_directive(*args)
+class DoctestDirective(TestDirective):
+    option_spec = {
+        'hide': directives.flag,
+        'options': directives.unchanged,
+    }
 
-def doctest_directive(*args):
-    return test_directive(*args)
+class TestcodeDirective(TestDirective):
+    option_spec = {
+        'hide': directives.flag,
+    }
 
-def testcode_directive(*args):
-    return test_directive(*args)
-
-def testoutput_directive(*args):
-    return test_directive(*args)
+class TestoutputDirective(TestDirective):
+    option_spec = {
+        'hide': directives.flag,
+        'options': directives.unchanged,
+    }
 
 
 parser = doctest.DocTestParser()
@@ -334,13 +349,10 @@ Doctest summary
 
 
 def setup(app):
-    app.add_directive('testsetup', testsetup_directive, 1, (0, 1, 1))
-    app.add_directive('doctest', doctest_directive, 1, (0, 1, 1),
-                      hide=directives.flag, options=directives.unchanged)
-    app.add_directive('testcode', testcode_directive, 1, (0, 1, 1),
-                      hide=directives.flag)
-    app.add_directive('testoutput', testoutput_directive, 1, (0, 1, 1),
-                      hide=directives.flag, options=directives.unchanged)
+    app.add_directive('testsetup', TestsetupDirective)
+    app.add_directive('doctest', DoctestDirective)
+    app.add_directive('testcode', TestcodeDirective)
+    app.add_directive('testoutput', TestoutputDirective)
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
     app.add_config_value('doctest_path', [], False)

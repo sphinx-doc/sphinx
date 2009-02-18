@@ -12,6 +12,8 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
+from sphinx.util.compat import Directive
+
 
 class math(nodes.Inline, nodes.TextElement):
     pass
@@ -45,22 +47,33 @@ def eq_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     node['docname'] = inliner.document.settings.env.docname
     return [node], []
 
-def math_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    latex = '\n'.join(content)
-    if arguments and arguments[0]:
-        latex = arguments[0] + '\n\n' + latex
-    node = displaymath()
-    node['latex'] = latex
-    node['label'] = options.get('label', None)
-    node['nowrap'] = 'nowrap' in options
-    node['docname'] = state.document.settings.env.docname
-    ret = [node]
-    if node['label']:
-        tnode = nodes.target('', '', ids=['equation-' + node['label']])
-        state.document.note_explicit_target(tnode)
-        ret.insert(0, tnode)
-    return ret
+
+class MathDirective(Directive):
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+    option_spec = {
+        'label': directives.unchanged,
+        'nowrap': directives.flag,
+    }
+
+    def run(self):
+        latex = '\n'.join(self.content)
+        if self.arguments and self.arguments[0]:
+            latex = self.arguments[0] + '\n\n' + latex
+        node = displaymath()
+        node['latex'] = latex
+        node['label'] = self.options.get('label', None)
+        node['nowrap'] = 'nowrap' in self.options
+        node['docname'] = self.state.document.settings.env.docname
+        ret = [node]
+        if node['label']:
+            tnode = nodes.target('', '', ids=['equation-' + node['label']])
+            self.state.document.note_explicit_target(tnode)
+            ret.insert(0, tnode)
+        return ret
 
 
 def latex_visit_math(self, node):
@@ -134,6 +147,5 @@ def setup(app, htmlinlinevisitors, htmldisplayvisitors):
                  html=(html_visit_eqref, html_depart_eqref))
     app.add_role('math', math_role)
     app.add_role('eq', eq_role)
-    app.add_directive('math', math_directive, 1, (0, 1, 1),
-                      label=directives.unchanged, nowrap=directives.flag)
+    app.add_directive('math', MathDirective)
     app.connect('doctree-resolved', number_equations)
