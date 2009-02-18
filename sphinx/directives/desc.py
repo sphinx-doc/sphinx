@@ -603,7 +603,7 @@ class GenericDesc(DescDirective):
         return name
 
     def add_target_and_index(self, name, sig, signode):
-        rolename, indextemplate, _ = additional_xref_types[self.desctype]
+        rolename, indextemplate = additional_xref_types[self.desctype][:2]
         targetname = '%s-%s' % (rolename, name)
         signode['ids'].append(targetname)
         self.state.document.note_explicit_target(signode)
