@@ -57,8 +57,7 @@ import sphinx
 from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
 from sphinx.builders import BUILTIN_BUILDERS
-from sphinx.directives import desc_directive, target_directive, \
-     additional_xref_types
+from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
 from sphinx.util.compat import Directive, directive_dwim
 from sphinx.util.console import bold
@@ -314,7 +313,7 @@ class Sphinx(object):
                              parse_node=None, ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate,
                                                 parse_node)
-        directives.register_directive(directivename, desc_directive)
+        directives.register_directive(directivename, GenericDesc)
         roles.register_canonical_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass
@@ -322,7 +321,7 @@ class Sphinx(object):
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate, None)
-        directives.register_directive(directivename, target_directive)
+        directives.register_directive(directivename, Target)
         roles.register_canonical_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass
