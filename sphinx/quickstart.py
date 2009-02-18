@@ -263,11 +263,13 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html pickle json htmlhelp qthelp latex changes linkcheck doctest
+.PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes \
+linkcheck doctest
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
 \t@echo "  html      to make standalone HTML files"
+\t@echo "  dirhtml   to make HTML files named index.html in directories"
 \t@echo "  pickle    to make pickle files"
 \t@echo "  json      to make JSON files"
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
@@ -284,6 +286,11 @@ html:
 \t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) %(rbuilddir)s/html
 \t@echo
 \t@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
+
+dirhtml:
+\t$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) %(rbuilddir)s/dirhtml
+\t@echo
+\t@echo "Build finished. The HTML pages are in %(rbuilddir)s/dirhtml."
 
 pickle:
 \t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) %(rbuilddir)s/pickle
@@ -351,6 +358,7 @@ if "%%1" == "help" (
 \t:help
 \techo.Please use `make ^<target^>` where ^<target^> is one of
 \techo.  html      to make standalone HTML files
+\techo.  dirhtml   to make HTML files named index.html in directories
 \techo.  pickle    to make pickle files
 \techo.  json      to make JSON files
 \techo.  htmlhelp  to make HTML files and a HTML help project
@@ -372,6 +380,13 @@ if "%%1" == "html" (
 \t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %(rbuilddir)s/html
 \techo.
 \techo.Build finished. The HTML pages are in %(rbuilddir)s/html.
+\tgoto end
+)
+
+if "%%1" == "dirhtml" (
+\t%%SPHINXBUILD%% -b dirhtml %%ALLSPHINXOPTS%% %(rbuilddir)s/dirhtml
+\techo.
+\techo.Build finished. The HTML pages are in %(rbuilddir)s/dirhtml.
 \tgoto end
 )
 

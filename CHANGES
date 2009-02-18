@@ -25,7 +25,7 @@ New features added
        if name.startswith('_'):
            return True
 
-* Theming support.
+* Theming support, see the new section in the documentation.
 
 * Markup:
 
@@ -97,6 +97,11 @@ New features added
 * Builders:
 
   - New builder for Qt help collections, by Antonio Valentino.
+
+  - The new ``DirectoryHTMLBuilder`` (short name ``dirhtml``) creates
+    a separate directory for every page, and places the page there
+    in a file called ``index.html``.  Therefore, page URLs and links
+    don't need to contain ``.html``.
 
   - The new ``html_link_suffix`` config value can be used to select
     the suffix of generated links between HTML files.

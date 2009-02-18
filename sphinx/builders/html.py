@@ -560,6 +560,9 @@ class StandaloneHTMLBuilder(Builder):
         return self.render_partial(self.env.get_toctree_for(
             docname, self, collapse))['fragment']
 
+    def get_outfilename(self, pagename):
+        return path.join(self.outdir, os_path(pagename) + self.out_suffix)
+
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
@@ -587,8 +590,7 @@ class StandaloneHTMLBuilder(Builder):
 
         output = self.templates.render(templatename, ctx)
         if not outfilename:
-            outfilename = path.join(self.outdir,
-                                    os_path(pagename) + self.out_suffix)
+            outfilename = self.get_outfilename(pagename)
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
@@ -636,9 +638,35 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
 
+class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
+    """
+    A StandaloneHTMLBuilder that creates all HTML pages as "index.html" in
+    a directory given by their pagename, so that generated URLs don't have
+    ``.html`` in them.
+    """
+    name = 'dirhtml'
+
+    def get_target_uri(self, docname, typ=None):
+        if docname == 'index':
+            return ''
+        if docname.endswith(SEP + 'index'):
+            return docname[:-5] # up to sep
+        return docname + SEP
+
+    def get_outfilename(self, pagename):
+        if pagename == 'index' or pagename.endswith(SEP + 'index'):
+            outfilename = path.join(self.outdir, os_path(pagename)
+                                    + self.out_suffix)
+        else:
+            outfilename = path.join(self.outdir, os_path(pagename),
+                                    'index' + self.out_suffix)
+
+        return outfilename
+
+
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     """
-    An abstract builder that serializes the HTML generated.
+    An abstract builder that serializes the generated HTML.
     """
     #: the serializing implementation to use.  Set this to a module that
     #: implements a `dump`, `load`, `dumps` and `loads` functions

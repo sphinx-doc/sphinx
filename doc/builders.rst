@@ -23,6 +23,19 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``html``.
 
+.. class:: DirectoryHTMLBuilder
+
+   This is a subclass of the standard HTML builder.  Its output is a directory
+   with HTML files, where each file is called ``index.html`` and placed in a
+   subdirectory named like its page name.  For example, the document
+   ``markup/rest.rst`` will not result in an output file ``markup/rest.html``,
+   but ``markup/rest/index.html``.  When generating links between pages, the
+   ``index.html`` is omitted, so that the URL would look like ``markup/rest/``.
+
+   Its name is ``dirhtml``.
+
+   .. versionadded:: 0.6
+
 .. class:: HTMLHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but

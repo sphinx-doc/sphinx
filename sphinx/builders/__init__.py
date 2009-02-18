@@ -352,6 +352,7 @@ class Builder(object):
 
 BUILTIN_BUILDERS = {
     'html':      ('html', 'StandaloneHTMLBuilder'),
+    'dirhtml':   ('html', 'DirectoryHTMLBuilder'),
     'pickle':    ('html', 'PickleHTMLBuilder'),
     'json':      ('html', 'JSONHTMLBuilder'),
     'web':       ('html', 'PickleHTMLBuilder'),

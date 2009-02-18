@@ -11,11 +11,12 @@ PAPEROPT_letter  = -D latex_paper_size=letter
 ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
                 $(SPHINXOPTS) .
 
-.PHONY: help clean html pickle htmlhelp qthelp latex changes linkcheck doctest
+.PHONY: help clean html dirhtml pickle htmlhelp qthelp latex changes linkcheck doctest
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html      to make standalone HTML files"
+	@echo "  dirhtml   to make HTML files called index.html in directories"
 	@echo "  pickle    to make pickle files"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
@@ -30,6 +31,12 @@ html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
 	@echo "Build finished. The HTML pages are in _build/html."
+
+dirhtml:
+	mkdir -p _build/dirhtml _build/doctrees
+	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) _build/dirhtml
+	@echo
+	@echo "Build finished. The HTML pages are in _build/dirhtml."
 
 text:
 	mkdir -p _build/text _build/doctrees
