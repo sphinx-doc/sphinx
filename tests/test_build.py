@@ -138,7 +138,26 @@ class NslessParser(ET.XMLParser):
             return name
 
 
-@with_app(buildername='html', warning=html_warnfile, tags=['testtag'])
+def check_xpath(etree, fname, path, check):
+    nodes = list(etree.findall(path))
+    assert nodes != [], ('did not find any node matching xpath '
+                         '%r in file %s' % (path, fname))
+    if hasattr(check, '__call__'):
+        check(nodes)
+    elif not check:
+        # only check for node presence
+        pass
+    else:
+        rex = re.compile(check)
+        for node in nodes:
+            if node.text and rex.search(node.text):
+                break
+        else:
+            assert False, ('%r not found in any node matching '
+                           'path %s in %s: %r' % (check, path, fname,
+                           [node.text for node in nodes]))
+
+@gen_with_app(buildername='html', warning=html_warnfile, tags=['testtag'])
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
@@ -152,23 +171,7 @@ def test_html(app):
         parser.entity.update(htmlentitydefs.entitydefs)
         etree = ET.parse(os.path.join(app.outdir, fname), parser)
         for path, check in paths.iteritems():
-            nodes = list(etree.findall(path))
-            assert nodes != [], ('did not find any node matching xpath '
-                                 '%r in file %s' % (path, fname))
-            if hasattr(check, '__call__'):
-                check(nodes)
-            elif not check:
-                # only check for node presence
-                continue
-            else:
-                rex = re.compile(check)
-                for node in nodes:
-                    if node.text and rex.search(node.text):
-                        break
-                else:
-                    assert False, ('%r not found in any node matching '
-                                   'path %s in %s: %r' % (check, path, fname,
-                                   [node.text for node in nodes]))
+            yield check_xpath, etree, fname, path, check
 
 
 @with_app(buildername='latex', warning=latex_warnfile)

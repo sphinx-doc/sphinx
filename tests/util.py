@@ -30,7 +30,7 @@ from nose import tools
 __all__ = [
     'test_root',
     'raises', 'raises_msg', 'Struct',
-    'ListOutput', 'TestApp', 'with_app',
+    'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir', 'write_file',
     'sprint',
 ]
@@ -160,7 +160,25 @@ def with_app(*args, **kwargs):
         def deco(*args2, **kwargs2):
             app = TestApp(*args, **kwargs)
             try:
-                func(app, *args2, **kwargs2)
+                return func(app, *args2, **kwargs2)
+            finally:
+                app.cleanup()
+        return deco
+    return generator
+
+
+def gen_with_app(*args, **kwargs):
+    """
+    Make a TestApp with args and kwargs, pass it to the test and clean up
+    properly.
+    """
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            app = TestApp(*args, **kwargs)
+            try:
+                for item in func(app, *args2, **kwargs2):
+                    yield item
             finally:
                 app.cleanup()
         return deco
