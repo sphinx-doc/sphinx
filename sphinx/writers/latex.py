@@ -584,8 +584,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_table(self, node):
         if self.table:
-            raise UnsupportedError('%s:%s: nested tables are not yet implemented.' %
-                                   (self.curfilestack[-1], node.line or ''))
+            raise UnsupportedError(
+                '%s:%s: nested tables are not yet implemented.' %
+                (self.curfilestack[-1], node.line or ''))
         self.table = Table()
         self.tablebody = []
         # Redirect body output until table is finished.

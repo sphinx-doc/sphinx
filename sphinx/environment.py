@@ -995,11 +995,10 @@ class BuildEnvironment:
                             subnode.parent.remove(subnode)
 
                 elif isinstance(subnode, nodes.reference):
-                    # Identify the toc entry pointing to the current document.
-                    if subnode['refuri'] == docname and not subnode['anchorname']:
+                    # identify the toc entry pointing to the current document
+                    if subnode['refuri'] == docname and \
+                           not subnode['anchorname']:
                         # tag the whole branch as 'current'
-                        # (We can't use traverse here as 'ascend' un-intuitively
-                        # implies 'siblings'.)
                         p = subnode
                         while p:
                             p['classes'].append('current')
@@ -1012,13 +1011,15 @@ class BuildEnvironment:
             for (title, ref) in refs:
                 try:
                     if url_re.match(ref):
-                        reference = nodes.reference('', '', refuri=ref, anchorname='',
+                        reference = nodes.reference('', '',
+                                                    refuri=ref, anchorname='',
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)
                         item = nodes.list_item('', para)
                         toc = nodes.bullet_list('', item)
                     elif ref == 'self':
-                        # 'self' refers to the document from which this toctree originates.
+                        # 'self' refers to the document from which this
+                        # toctree originates
                         ref = toctreenode['parent']
                         if not title:
                             title = self.titles[ref].astext()
@@ -1028,13 +1029,15 @@ class BuildEnvironment:
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)
                         item = nodes.list_item('', para)
-                        # Don't show subitems.
+                        # don't show subitems
                         toc = nodes.bullet_list('', item)
                     else:
                         toc = self.tocs[ref].deepcopy()
                         if title and toc.children and len(toc.children) == 1:
-                            for refnode in toc.children[0].traverse(nodes.reference):
-                                if refnode['refuri'] == ref and not refnode['anchorname']:
+                            child = toc.children[0]
+                            for refnode in child.traverse(nodes.reference):
+                                if refnode['refuri'] == ref and \
+                                       not refnode['anchorname']:
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
@@ -1090,7 +1093,8 @@ class BuildEnvironment:
         # prune the tree to maxdepth and replace titles, also set level classes
         _walk_depth(newnode, 1, prune and maxdepth or 0)
 
-        # set the target paths in the toctrees (they are not known at TOC generation time)
+        # set the target paths in the toctrees (they are not known at TOC
+        # generation time)
         for refnode in newnode.traverse(nodes.reference):
             if not url_re.match(refnode['refuri']):
                 refnode['refuri'] = builder.get_relative_uri(
@@ -1121,19 +1125,19 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            self.warn(fromdocname, 'undefined label: %s' % target,
-                                      node.line)
+                            self.warn(fromdocname, 'undefined label: %s' %
+                                      target, node.line)
                     else:
                         # reference to the named label; the final node will
                         # contain the section name after the label
                         docname, labelid, sectname = self.labels.get(target,
                                                                      ('','',''))
                         if not docname:
-                            self.warn(fromdocname,
-                                      'undefined label: %s' % target +
-                                      ' -- if you don\'t give a link caption '
-                                      'the label must precede a section header.',
-                                      node.line)
+                            self.warn(
+                                fromdocname,
+                                'undefined label: %s' % target + ' -- if you '
+                                'don\'t give a link caption the label must '
+                                'precede a section header.', node.line)
                     if docname:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)

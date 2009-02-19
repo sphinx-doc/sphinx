@@ -401,7 +401,8 @@ def test_generate():
     options.members = ALL
     assert_result_contains('.. class:: Class', 'module', 'test_autodoc')
     try:
-        assert_result_contains('.. exception:: CustomEx', 'module', 'test_autodoc')
+        assert_result_contains('.. exception:: CustomEx',
+                               'module', 'test_autodoc')
     except AssertionError:
         pass
     else:

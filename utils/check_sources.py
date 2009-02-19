@@ -64,9 +64,9 @@ def check_style_and_encoding(fn, lines):
                 encoding = co.group(1)
         if line.strip().startswith('#'):
             continue
-        m = not_ix_re.search(line)
-        if m:
-            yield lno+1, '"' + m.group() + '"'
+        #m = not_ix_re.search(line)
+        #if m:
+        #    yield lno+1, '"' + m.group() + '"'
         if is_const_re.search(line):
             yield lno+1, 'using == None/True/False'
         try:

@@ -342,7 +342,7 @@ in the future.
 In addition to these values, there are also all **theme options** available
 (prefixed by ``theme_``), as well as the values given by the user in
 :confval:`html_context`.
-   
+
 In documents that are created from source files (as opposed to
 automatically-generated files like the module index, or documents that already
 are in HTML form), these variables are also available:

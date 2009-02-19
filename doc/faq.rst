@@ -17,7 +17,7 @@ How do I...
 
 ... write my own extension?
    See the :ref:`extension tutorial <exttut>`.
-   
+
 ... use Sphinx with Epydoc?
    There's a third-party extension providing an `api role`_ which refers to
    Epydoc's API docs for a given identifier.

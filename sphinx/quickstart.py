@@ -38,7 +38,7 @@ QUICKSTART_CONF = '''\
 
 import sys, os
 
-# If your extensions (or modules documented by autodoc) are in another directory,
+# If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.append(os.path.abspath('.'))
@@ -277,7 +277,8 @@ help:
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  changes   to make an overview of all changed/added/deprecated items"
 \t@echo "  linkcheck to check all external links for integrity"
-\t@echo "  doctest   to run all doctests embedded in the documentation (if enabled)"
+\t@echo "  doctest   to run all doctests embedded in the documentation \
+(if enabled)"
 
 clean:
 \t-rm -rf %(rbuilddir)s/*

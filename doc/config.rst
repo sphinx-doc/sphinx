@@ -160,7 +160,7 @@ General configuration
       """
 
    .. versionadded:: 0.6
-   
+
 .. confval:: default_role
 
    .. index:: default; role
@@ -302,7 +302,7 @@ Project information
 
    .. versionadded:: 0.6
 
-   
+
 .. _html-options:
 
 Options for HTML output

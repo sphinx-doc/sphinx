@@ -13,7 +13,8 @@ import codecs
 from os import path
 from pprint import pformat
 
-from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, contextfunction
+from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
+     contextfunction
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx.util import mtimes_of_files

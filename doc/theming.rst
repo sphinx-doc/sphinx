@@ -178,7 +178,7 @@ templating to put the color options into the stylesheet.  When a documentation
 is built with the default theme, the output directory will contain a
 ``_static/default.css`` file where all template tags have been processed.
 
-  
+
 .. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
        because that would pose an unnecessary security risk if themes are
        shared.

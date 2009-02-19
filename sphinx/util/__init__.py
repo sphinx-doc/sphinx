@@ -407,7 +407,8 @@ def _new_traverse(self, condition=None,
             return self._all_traverse()
         elif isinstance(condition, (types.ClassType, type)):
             return self._fast_traverse(condition)
-    return self._old_traverse(condition, include_self, descend, siblings, ascend)
+    return self._old_traverse(condition, include_self,
+                              descend, siblings, ascend)
 
 import docutils.nodes
 docutils.nodes.Node._old_traverse = docutils.nodes.Node.traverse

@@ -982,8 +982,8 @@ class AutoDirective(Directive):
     most of the work to one of the Documenters, which it selects through its
     *_registry* dictionary.
 
-    The *_special_attrgetters* attribute is used to customize ``getattr()`` calls
-    that the Documenters make; its entries are of the form ``type:
+    The *_special_attrgetters* attribute is used to customize ``getattr()``
+    calls that the Documenters make; its entries are of the form ``type:
     getattr_function``.
 
     Note: When importing an object, all items along the import chain are
