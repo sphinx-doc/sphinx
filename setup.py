@@ -36,7 +36,7 @@ are already present, work fine and can be seen "in action" in the Python docs:
   and inclusion of appropriately formatted docstrings.
 '''
 
-requires = ['Pygments>=0.8', 'Jinja>=1.1', 'docutils>=0.4']
+requires = ['Pygments>=0.8', 'Jinja>=1.2', 'docutils>=0.4']
 
 if sys.version_info < (2, 4):
     print 'ERROR: Sphinx requires at least Python 2.4 to run.'
