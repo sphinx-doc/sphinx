@@ -307,7 +307,7 @@ class FilenameUniqDict(dict):
     def add_file(self, docname, newfile):
         if newfile in self:
             self[newfile][0].add(docname)
-            return
+            return self[newfile][1]
         uniquename = path.basename(newfile)
         base, ext = path.splitext(uniquename)
         i = 0
@@ -321,8 +321,9 @@ class FilenameUniqDict(dict):
     def purge_doc(self, docname):
         for filename, (docs, _) in self.items():
             docs.discard(docname)
-            if not docs:
-                del self[filename]
+            #if not docs:
+            #    del self[filename]
+            #    self._existing.discard(filename)
 
     def __getstate__(self):
         return self._existing

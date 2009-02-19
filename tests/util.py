@@ -159,10 +159,9 @@ def with_app(*args, **kwargs):
         @wraps(func)
         def deco(*args2, **kwargs2):
             app = TestApp(*args, **kwargs)
-            try:
-                return func(app, *args2, **kwargs2)
-            finally:
-                app.cleanup()
+            func(app, *args2, **kwargs2)
+            # don't execute cleanup if test failed
+            app.cleanup()
         return deco
     return generator
 
@@ -176,11 +175,10 @@ def gen_with_app(*args, **kwargs):
         @wraps(func)
         def deco(*args2, **kwargs2):
             app = TestApp(*args, **kwargs)
-            try:
-                for item in func(app, *args2, **kwargs2):
-                    yield item
-            finally:
-                app.cleanup()
+            for item in func(app, *args2, **kwargs2):
+                yield item
+            # don't execute cleanup if test failed
+            app.cleanup()
         return deco
     return generator
 

@@ -30,6 +30,10 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.writers.latex import LaTeXTranslator
 
 
+def teardown_module():
+    (test_root / '_build').rmtree()
+
+
 html_warnfile = StringIO()
 latex_warnfile = StringIO()
 
