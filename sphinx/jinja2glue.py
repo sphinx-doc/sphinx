@@ -11,8 +11,10 @@
 
 import codecs
 from os import path
+from pprint import pformat
 
-import jinja2
+from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, contextfunction
+from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx.util import mtimes_of_files
 from sphinx.application import TemplateBridge
@@ -24,7 +26,7 @@ def _tobool(val):
     return bool(val)
 
 
-class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
+class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     """
     Interfaces the rendering environment of jinja2 for use in Sphinx.
     """
@@ -49,13 +51,14 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
         self.pathchain = chain
 
         # make the paths into loaders
-        self.loaders = map(jinja2.FileSystemLoader, chain)
+        self.loaders = map(FileSystemLoader, chain)
 
         use_i18n = builder.translator is not None
         extensions = use_i18n and ['jinja2.ext.i18n'] or []
-        self.environment = jinja2.Environment(loader=self,
-                                              extensions=extensions)
+        self.environment = SandboxedEnvironment(loader=self,
+                                                extensions=extensions)
         self.environment.filters['tobool'] = _tobool
+        self.environment.globals['debug'] = contextfunction(pformat)
         if use_i18n:
             self.environment.install_gettext_translations(builder.translator)
 
@@ -79,6 +82,6 @@ class BuiltinTemplateLoader(TemplateBridge, jinja2.BaseLoader):
         for loader in loaders:
             try:
                 return loader.get_source(environment, template)
-            except jinja2.TemplateNotFound:
+            except TemplateNotFound:
                 pass
-        raise jinja2.TemplateNotFound(template)
+        raise TemplateNotFound(template)
