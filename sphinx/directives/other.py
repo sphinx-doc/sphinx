@@ -567,7 +567,7 @@ directives.register_directive('only', directive_dwim(Only))
 try:
     # docutils 0.4
     from docutils.parsers.rst.directives.misc import class_directive
-    directives.register_directive('cssclass' class_directive)
+    directives.register_directive('cssclass', class_directive)
 except ImportError:
     try:
         # docutils 0.5
