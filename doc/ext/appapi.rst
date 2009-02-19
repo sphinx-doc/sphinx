@@ -216,6 +216,15 @@ the following public API:
 
    .. versionadded:: 0.6
 
+.. method:: Sphinx.add_autodoc_attrgetter(type, getter)
+
+   Add *getter*, which must be a function with an interface compatible to the
+   :func:`getattr` builtin, as the autodoc attribute getter for objects that are
+   instances of *type*.  All cases where autodoc needs to get an attribute of a
+   type are then handled by this function instead of :func:`getattr`.
+
+   .. versionadded:: 0.6
+
 .. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on

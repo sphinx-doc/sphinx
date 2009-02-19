@@ -351,6 +351,10 @@ class Sphinx(object):
         autodoc.add_documenter(cls)
         self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
 
+    def add_autodoc_attrgetter(self, type, getter):
+        from sphinx.ext import autodoc
+        autodoc.AutoDirective._special_attrgetters[type] = getter
+
 
 class TemplateBridge(object):
     """

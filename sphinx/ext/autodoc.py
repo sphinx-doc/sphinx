@@ -210,10 +210,6 @@ class Documenter(object):
     A Documenter has an *option_spec* that works like a docutils directive's;
     in fact, it will be used to parse an auto directive's options that matches
     the documenter.
-
-    The *special_attrgetters* attribute is used to customize ``getattr()``
-    calls that the Documenter makes; its entries are of the form
-    ``type: getattr_function``.
     """
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
@@ -225,12 +221,10 @@ class Documenter(object):
 
     option_spec = {'noindex': bool_option}
 
-    special_attrgetters = {}
-
-    @classmethod
-    def get_attr(cls, obj, name, *defargs):
+    @staticmethod
+    def get_attr(obj, name, *defargs):
         """getattr() override for types such as Zope interfaces."""
-        for typ, func in cls.special_attrgetters.iteritems():
+        for typ, func in AutoDirective._special_attrgetters.iteritems():
             if isinstance(obj, typ):
                 return func(obj, name, *defargs)
         return getattr(obj, name, *defargs)
@@ -454,7 +448,8 @@ class Documenter(object):
 
     def get_object_members(self, want_all):
         """
-        Return (membername, member) pairs of the members of *self.object*.
+        Return `(members_check_module, members)` where `members` is a
+        list of `(membername, member)` pairs of the members of *self.object*.
 
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
@@ -479,8 +474,9 @@ class Documenter(object):
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
             # unbound method objects instead of function objects)
-            return False, sorted([(mname, self.get_attr(self.object, mname))
-                                  for mname in self.object.__dict__])
+            return False, sorted([
+                (mname, self.get_attr(self.object, mname))
+                for mname in self.get_attr(self.object, '__dict__')])
 
     def filter_members(self, members, want_all):
         """
@@ -985,9 +981,21 @@ class AutoDirective(Directive):
     The AutoDirective class is used for all autodoc directives.  It dispatches
     most of the work to one of the Documenters, which it selects through its
     *_registry* dictionary.
+
+    The *_special_attrgetters* attribute is used to customize ``getattr()`` calls
+    that the Documenters make; its entries are of the form ``type:
+    getattr_function``.
+
+    Note: When importing an object, all items along the import chain are
+    accessed using the descendant's *_special_attrgetters*, thus this
+    dictionary should include all necessary functions for accessing
+    attributes of the parents.
     """
     # a registry of objtype -> documenter class
     _registry = {}
+
+    # a registry of type -> getattr function
+    _special_attrgetters = {}
 
     # standard docutils directive settings
     has_content = True
