@@ -383,6 +383,23 @@ class ProductionList(Directive):
         return [node] + messages
 
 
+class TabularColumns(Directive):
+    """
+    Directive to give an explicit tabulary column definition to LaTeX.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}
+
+    def run(self):
+        node = addnodes.tabular_col_spec()
+        node['spec'] = self.arguments[0]
+        return [node]
+
+
 class Glossary(Directive):
     """
     Directive to create a glossary with cross-reference targets
@@ -506,20 +523,23 @@ class HList(Directive):
         return [newnode]
 
 
-class TabularColumns(Directive):
+class Only(Directive):
     """
-    Directive to give an explicit tabulary column definition to LaTeX.
+    Directive to only include text if the given tag(s) are enabled.
     """
 
-    has_content = False
+    has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {}
 
     def run(self):
-        node = addnodes.tabular_col_spec()
-        node['spec'] = self.arguments[0]
+        node = addnodes.only()
+        node.document = self.state.document
+        node.line = self.lineno
+        node['expr'] = self.arguments[0]
+        self.state.nested_parse(self.content, self.content_offset, node)
         return [node]
 
 
@@ -535,11 +555,12 @@ directives.register_directive('versionadded', VersionChange)
 directives.register_directive('versionchanged', VersionChange)
 directives.register_directive('seealso', SeeAlso)
 directives.register_directive('productionlist', ProductionList)
+directives.register_directive('tabularcolumns', TabularColumns)
 directives.register_directive('glossary', Glossary)
 directives.register_directive('centered', Centered)
 directives.register_directive('acks', Acks)
 directives.register_directive('hlist', HList)
-directives.register_directive('tabularcolumns', TabularColumns)
+directives.register_directive('only', Only)
 
 # register the standard rst class directive under a different name
 

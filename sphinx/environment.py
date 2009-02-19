@@ -1270,6 +1270,19 @@ class BuildEnvironment:
             if newnode:
                 node.replace_self(newnode)
 
+        for node in doctree.traverse(addnodes.only):
+            try:
+                ret = builder.tags.eval_condition(node['expr'])
+            except Exception, err:
+                self.warn(fromdocname, 'exception while evaluating only '
+                          'directive expression: %s' % err, node.line)
+                node.replace_self(node.children)
+            else:
+                if ret:
+                    node.replace_self(node.children)
+                else:
+                    node.replace_self([])
+
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
 

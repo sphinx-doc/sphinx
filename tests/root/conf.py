@@ -47,6 +47,8 @@ value_from_conf_py = 84
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'cfunction': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
+# modify tags from conf.py
+tags.add('confpytag')
 
 from sphinx import addnodes
 

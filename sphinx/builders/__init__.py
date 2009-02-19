@@ -35,6 +35,8 @@ class Builder(object):
 
     # builder's name, for the -b command line options
     name = ''
+    # builder's output format, or '' if no document output is produced
+    format = ''
 
     def __init__(self, app, env=None, freshenv=False):
         self.srcdir = app.srcdir

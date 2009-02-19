@@ -176,6 +176,26 @@ Invalid index markup...
 Testing öäü...
 
 
+Only directive
+--------------
+
+.. only:: html
+
+   In HTML.
+
+.. only:: latex
+
+   In LaTeX.
+
+.. only:: html or latex
+
+   In both.
+
+.. only:: confpytag and (testtag or nonexisting_tag)
+
+   Always present, because set through conf.py/command line.
+
+
 .. rubric:: Footnotes
 
 .. [#] Like footnotes.

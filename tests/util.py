@@ -99,8 +99,9 @@ class TestApp(application.Sphinx):
 
     def __init__(self, srcdir=None, confdir=None, outdir=None, doctreedir=None,
                  buildername='html', confoverrides=None,
-                 status=None, warning=None,
-                 freshenv=None, confname='conf.py', cleanenv=False):
+                 status=None, warning=None, freshenv=None,
+                 warningiserror=None, tags=None,
+                 confname='conf.py', cleanenv=False):
 
         application.CONFIG_FILENAME = confname
 
@@ -136,10 +137,12 @@ class TestApp(application.Sphinx):
             warning = ListOutput('stderr')
         if freshenv is None:
             freshenv = False
+        if warningiserror is None:
+            warningiserror = False
 
         application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                     buildername, confoverrides, status, warning,
-                                    freshenv)
+                                    freshenv, warningiserror, tags)
 
     def cleanup(self, doctrees=False):
         AutoDirective._registry.clear()

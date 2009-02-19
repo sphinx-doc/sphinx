@@ -89,6 +89,12 @@ The :program:`sphinx-build` script has several more options:
    cross-references), but rebuild it completely.  The default is to only read
    and parse source files that are new or have changed since the last run.
 
+**-t** *tag*
+   Define the tag *tag*.  This is relevant for :dir:`only` directives that only
+   include their content if this tag is set.
+
+   .. versionadded:: 0.6
+
 **-d** *path*
    Since Sphinx has to read and parse all source files before it can write an
    output file, the parsed source files are cached as "doctree pickles".

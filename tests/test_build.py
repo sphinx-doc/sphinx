@@ -83,6 +83,9 @@ HTML_XPATH = {
         ".//div[@id='label']": '',
         ".//span[@class='option']": '--help',
         ".//p": 'A global substitution.',
+        ".//p": 'In HTML.',
+        ".//p": 'In both.',
+        ".//p": 'Always present',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
@@ -135,7 +138,7 @@ class NslessParser(ET.XMLParser):
             return name
 
 
-@with_app(buildername='html', warning=html_warnfile)
+@with_app(buildername='html', warning=html_warnfile, tags=['testtag'])
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')

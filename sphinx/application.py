@@ -59,6 +59,7 @@ from sphinx.config import Config
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
+from sphinx.util.tags import Tags
 from sphinx.util.compat import Directive, directive_dwim
 from sphinx.util.console import bold
 
@@ -82,7 +83,7 @@ class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides, status, warning=sys.stderr, freshenv=False,
-                 warningiserror=False):
+                 warningiserror=False, tags=None):
         self.next_listener_id = 0
         self._listeners = {}
         self.builderclasses = BUILTIN_BUILDERS.copy()
@@ -113,7 +114,8 @@ class Sphinx(object):
         self.statuscode = 0
 
         # read config
-        self.config = Config(confdir, CONFIG_FILENAME, confoverrides)
+        self.tags = Tags(tags)
+        self.config = Config(confdir, CONFIG_FILENAME, confoverrides, self.tags)
 
         # load all extension modules
         for extension in self.config.extensions:
@@ -141,6 +143,8 @@ class Sphinx(object):
             builderclass = getattr(
                 __import__('sphinx.builders.' + mod, None, None, [cls]), cls)
         self.builder = builderclass(self, freshenv=freshenv)
+        self.builder.tags = self.tags
+        self.builder.tags.add(self.builder.format)
         self.emit('builder-inited')
 
     def build(self, all_files, filenames):

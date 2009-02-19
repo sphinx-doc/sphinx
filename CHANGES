@@ -36,6 +36,11 @@ New features added
   - #4: Added a ``:download:`` role that marks a non-document file
     for inclusion into the HTML output and links to it.
 
+  - Added an ``only`` directive that can selectively include text
+    based on enabled "tags".  Tags can be given on the command
+    line.  Also, the current builder output format (e.g. "html" or
+    "latex") is always a defined tag.
+
   - The ``literalinclude`` directive now supports several more
     options, to include only parts of a file.
 

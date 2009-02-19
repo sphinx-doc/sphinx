@@ -31,8 +31,9 @@ class LaTeXBuilder(Builder):
     Builds LaTeX output to create PDF.
     """
     name = 'latex'
-    supported_image_types = ['application/pdf', 'image/png', 'image/gif',
-                             'image/jpeg']
+    format = 'latex'
+    supported_image_types = ['application/pdf', 'image/png',
+                             'image/gif', 'image/jpeg']
 
     def init(self):
         self.docnames = []

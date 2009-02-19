@@ -21,6 +21,7 @@ from sphinx.writers.text import TextWriter
 
 class TextBuilder(Builder):
     name = 'text'
+    format = 'text'
     out_suffix = '.txt'
 
     def init(self):

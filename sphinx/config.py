@@ -106,12 +106,13 @@ class Config(object):
         latex_preamble = ('', None),
     )
 
-    def __init__(self, dirname, filename, overrides):
+    def __init__(self, dirname, filename, overrides, tags):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
         if dirname is not None:
             config['__file__'] = path.join(dirname, filename)
+            config['tags'] = tags
             olddir = os.getcwd()
             try:
                 os.chdir(dirname)

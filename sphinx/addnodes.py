@@ -96,6 +96,9 @@ class start_of_file(nodes.Element): pass
 # tabular column specification, used for the LaTeX writer
 class tabular_col_spec(nodes.Element): pass
 
+# only (in/exclusion based on tags)
+class only(nodes.Element): pass
+
 # meta directive -- same as docutils' standard meta node, but pickleable
 class meta(nodes.Special, nodes.PreBibliographic, nodes.Element): pass
 

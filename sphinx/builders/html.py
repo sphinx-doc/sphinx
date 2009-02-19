@@ -60,12 +60,13 @@ class StandaloneHTMLBuilder(Builder):
     Builds standalone HTML docs.
     """
     name = 'html'
+    format = 'html'
     copysource = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
-    supported_image_types = ['image/svg+xml',
-                             'image/png', 'image/gif', 'image/jpeg']
+    supported_image_types = ['image/svg+xml', 'image/png',
+                             'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
@@ -76,6 +77,7 @@ class StandaloneHTMLBuilder(Builder):
     def init(self):
         # a hash of all config values that, if changed, cause a full rebuild
         self.config_hash = ''
+        self.tags_hash = ''
         self.init_templates()
         self.init_highlighter()
         self.init_translator_class()
@@ -116,23 +118,28 @@ class StandaloneHTMLBuilder(Builder):
                        for (name, desc) in self.config.values.iteritems()
                        if desc[1] == 'html')
         self.config_hash = md5(str(cfgdict)).hexdigest()
+        self.tags_hash = md5(str(sorted(self.tags))).hexdigest()
+        old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
             version = fp.readline()
             if version.rstrip() != '# Sphinx build info version 1':
                 raise ValueError
             fp.readline()  # skip commentary
-            cfg, old_hash = fp.readline().strip().split(': ')
+            cfg, old_config_hash = fp.readline().strip().split(': ')
             if cfg != 'config':
+                raise ValueError
+            tag, old_tags_hash = fp.readline().strip().split(': ')
+            if tag != 'tags':
                 raise ValueError
             fp.close()
         except ValueError:
             self.warn('unsupported build info format in %r, building all' %
                       path.join(self.outdir, '.buildinfo'))
-            old_hash = ''
         except Exception:
-            old_hash = ''
-        if old_hash != self.config_hash:
+            pass
+        if old_config_hash != self.config_hash or \
+               old_tags_hash != self.tags_hash:
             for docname in self.env.found_docs:
                 yield docname
             return
@@ -544,7 +551,8 @@ class StandaloneHTMLBuilder(Builder):
             fp.write('# Sphinx build info version 1\n'
                      '# This file hashes the configuration used when building'
                      ' these files. When it is not found, a full rebuild will'
-                     ' be done.\nconfig: %s\n' % self.config_hash)
+                     ' be done.\nconfig: %s\ntags: %s\n' %
+                     (self.config_hash, self.tags_hash))
         finally:
             fp.close()
 
@@ -721,8 +729,8 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     #: the filename for the global context file
     globalcontext_filename = None
 
-    supported_image_types = ('image/svg+xml', 'image/png', 'image/gif',
-                             'image/jpeg')
+    supported_image_types = ['image/svg+xml', 'image/png',
+                             'image/gif', 'image/jpeg']
 
     def init(self):
         self.init_translator_class()

@@ -34,6 +34,7 @@ Options: -b <builder> -- builder to use; default is html
          -a        -- write all files; default is to only write \
 new and changed files
          -E        -- don't use a saved environment, always read all files
+         -t <tag>  -- include "only" blocks with <tag>
          -d <path> -- path for the cached environment and doctree files
                       (default: outdir/.doctrees)
          -c <path> -- path where configuration file (conf.py) is located
@@ -58,7 +59,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:d:c:CD:A:NEqQWP')
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:NEqQWP')
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
@@ -92,6 +93,7 @@ def main(argv):
     warning = sys.stderr
     confoverrides = {}
     htmlcontext = {}
+    tags = []
     doctreedir = path.join(outdir, '.doctrees')
     for opt, val in opts:
         if opt == '-b':
@@ -101,6 +103,8 @@ def main(argv):
                 usage(argv, 'Cannot combine -a option and filenames.')
                 return 1
             all_files = True
+        elif opt == '-t':
+            tags.append(val)
         elif opt == '-d':
             doctreedir = path.abspath(val)
         elif opt == '-c':
@@ -152,7 +156,8 @@ def main(argv):
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
-                     confoverrides, status, warning, freshenv, warningiserror)
+                     confoverrides, status, warning, freshenv,
+                     warningiserror, tags)
         app.build(all_files, filenames)
         return app.statuscode
     except KeyboardInterrupt:
