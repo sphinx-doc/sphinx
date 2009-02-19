@@ -73,7 +73,7 @@ except ImportError:
         class or function.  For that, we need to convert classes to a
         function for docutils 0.4.
         """
-        if isinstance(obj, Directive):
+        if isinstance(obj, type) and issubclass(obj, Directive):
             def _class_directive(name, arguments, options, content,
                                  lineno, content_offset, block_text,
                                  state, state_machine):
