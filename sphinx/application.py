@@ -12,11 +12,15 @@
 """
 
 import sys
+import types
 import posixpath
 from cStringIO import StringIO
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
+
+# Directive is either new-style or old-style
+clstypes = (type, types.ClassType)
 
 # create the error classes before importing the rest of Sphinx, so that
 # they can be imported in a circular fashion
@@ -298,7 +302,7 @@ class Sphinx(object):
                 setattr(translator, 'depart_'+node.__name__, depart)
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
-        if isinstance(obj, Directive):
+        if isinstance(obj, clstypes) and issubclass(obj, Directive):
             if content or arguments or options:
                 raise ExtensionError('when adding directive classes, no '
                                      'additional arguments may be given')
