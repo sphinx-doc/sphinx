@@ -15,7 +15,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
 from sphinx.util import patfilter, ws_re, caption_ref_re, url_re, docname_join
-from sphinx.util.compat import Directive, make_admonition
+from sphinx.util.compat import Directive, directive_dwim, make_admonition
 
 
 class TocTree(Directive):
@@ -543,31 +543,31 @@ class Only(Directive):
         return [node]
 
 
-directives.register_directive('toctree', TocTree)
-directives.register_directive('module', Module)
-directives.register_directive('currentmodule', CurrentModule)
-directives.register_directive('sectionauthor', Author)
-directives.register_directive('moduleauthor', Author)
-directives.register_directive('program', Program)
-directives.register_directive('index', Index)
-directives.register_directive('deprecated', VersionChange)
-directives.register_directive('versionadded', VersionChange)
-directives.register_directive('versionchanged', VersionChange)
-directives.register_directive('seealso', SeeAlso)
-directives.register_directive('productionlist', ProductionList)
-directives.register_directive('tabularcolumns', TabularColumns)
-directives.register_directive('glossary', Glossary)
-directives.register_directive('centered', Centered)
-directives.register_directive('acks', Acks)
-directives.register_directive('hlist', HList)
-directives.register_directive('only', Only)
+directives.register_directive('toctree', directive_dwim(TocTree))
+directives.register_directive('module', directive_dwim(Module))
+directives.register_directive('currentmodule', directive_dwim(CurrentModule))
+directives.register_directive('sectionauthor', directive_dwim(Author))
+directives.register_directive('moduleauthor', directive_dwim(Author))
+directives.register_directive('program', directive_dwim(Program))
+directives.register_directive('index', directive_dwim(Index))
+directives.register_directive('deprecated', directive_dwim(VersionChange))
+directives.register_directive('versionadded', directive_dwim(VersionChange))
+directives.register_directive('versionchanged', directive_dwim(VersionChange))
+directives.register_directive('seealso', directive_dwim(SeeAlso))
+directives.register_directive('productionlist', directive_dwim(ProductionList))
+directives.register_directive('tabularcolumns', directive_dwim(TabularColumns))
+directives.register_directive('glossary', directive_dwim(Glossary))
+directives.register_directive('centered', directive_dwim(Centered))
+directives.register_directive('acks', directive_dwim(Acks))
+directives.register_directive('hlist', directive_dwim(HList))
+directives.register_directive('only', directive_dwim(Only))
 
 # register the standard rst class directive under a different name
 
 try:
     # docutils 0.4
     from docutils.parsers.rst.directives.misc import class_directive
-    directives.register_directive('cssclass', class_directive)
+    directives.register_directive('cssclass' class_directive)
 except ImportError:
     try:
         # docutils 0.5

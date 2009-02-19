@@ -16,7 +16,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.util import parselinenos
-from sphinx.util.compat import Directive
+from sphinx.util.compat import Directive, directive_dwim
 
 
 class Highlight(Directive):
@@ -167,8 +167,8 @@ class LiteralInclude(Directive):
         return [retnode]
 
 
-directives.register_directive('highlight', Highlight)
-directives.register_directive('highlightlang', Highlight) # old name
-directives.register_directive('code-block', CodeBlock)
-directives.register_directive('sourcecode', CodeBlock)
-directives.register_directive('literalinclude', LiteralInclude)
+directives.register_directive('highlight', directive_dwim(Highlight))
+directives.register_directive('highlightlang', directive_dwim(Highlight)) # old
+directives.register_directive('code-block', directive_dwim(CodeBlock))
+directives.register_directive('sourcecode', directive_dwim(CodeBlock))
+directives.register_directive('literalinclude', directive_dwim(LiteralInclude))

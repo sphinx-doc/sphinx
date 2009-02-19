@@ -319,7 +319,8 @@ class Sphinx(object):
                              parse_node=None, ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate,
                                                 parse_node)
-        directives.register_directive(directivename, GenericDesc)
+        directives.register_directive(directivename,
+                                      directive_dwim(GenericDesc))
         roles.register_canonical_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass
@@ -327,7 +328,7 @@ class Sphinx(object):
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate, None)
-        directives.register_directive(directivename, Target)
+        directives.register_directive(directivename, directive_dwim(Target))
         roles.register_canonical_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass

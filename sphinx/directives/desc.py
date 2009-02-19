@@ -15,7 +15,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.util import ws_re
-from sphinx.util.compat import Directive
+from sphinx.util.compat import Directive, directive_dwim
 
 
 def _is_only_paragraph(node):
@@ -667,22 +667,22 @@ additional_xref_types = {
 del _
 
 
-directives.register_directive('describe', DescDirective)
+directives.register_directive('describe', directive_dwim(DescDirective))
 
-directives.register_directive('function', ModulelevelDesc)
-directives.register_directive('data', ModulelevelDesc)
-directives.register_directive('class', ClasslikeDesc)
-directives.register_directive('exception', ClasslikeDesc)
-directives.register_directive('method', ClassmemberDesc)
-directives.register_directive('classmethod', ClassmemberDesc)
-directives.register_directive('staticmethod', ClassmemberDesc)
-directives.register_directive('attribute', ClassmemberDesc)
+directives.register_directive('function', directive_dwim(ModulelevelDesc))
+directives.register_directive('data', directive_dwim(ModulelevelDesc))
+directives.register_directive('class', directive_dwim(ClasslikeDesc))
+directives.register_directive('exception', directive_dwim(ClasslikeDesc))
+directives.register_directive('method', directive_dwim(ClassmemberDesc))
+directives.register_directive('classmethod', directive_dwim(ClassmemberDesc))
+directives.register_directive('staticmethod', directive_dwim(ClassmemberDesc))
+directives.register_directive('attribute', directive_dwim(ClassmemberDesc))
 
-directives.register_directive('cfunction', CDesc)
-directives.register_directive('cmember', CDesc)
-directives.register_directive('cmacro', CDesc)
-directives.register_directive('ctype', CDesc)
-directives.register_directive('cvar', CDesc)
+directives.register_directive('cfunction', directive_dwim(CDesc))
+directives.register_directive('cmember', directive_dwim(CDesc))
+directives.register_directive('cmacro', directive_dwim(CDesc))
+directives.register_directive('ctype', directive_dwim(CDesc))
+directives.register_directive('cvar', directive_dwim(CDesc))
 
-directives.register_directive('cmdoption', CmdoptionDesc)
-directives.register_directive('envvar', GenericDesc)
+directives.register_directive('cmdoption', directive_dwim(CmdoptionDesc))
+directives.register_directive('envvar', directive_dwim(GenericDesc))
