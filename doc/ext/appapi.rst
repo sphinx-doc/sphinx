@@ -15,19 +15,28 @@ the following public API:
    Register a new builder.  *builder* must be a class that inherits from
    :class:`~sphinx.builders.Builder`.
 
-.. method:: Sphinx.add_config_value(name, default, rebuild_env)
+.. method:: Sphinx.add_config_value(name, default, rebuild)
 
    Register a configuration value.  This is necessary for Sphinx to recognize
    new values and set default values accordingly.  The *name* should be prefixed
    with the extension name, to avoid clashes.  The *default* value can be any
-   Python object.  The boolean value *rebuild_env* must be ``True`` if a change
-   in the setting only takes effect when a document is parsed -- this means that
-   the whole environment must be rebuilt.
+   Python object.  The string value *rebuild* must be one of those values:
+
+   * ``'env'`` if a change in the setting only takes effect when a document is
+     parsed -- this means that the whole environment must be rebuilt.
+   * ``'html'`` if a change in the setting needs a full rebuild of HTML
+     documents.
+   * ``''`` if a change in the setting will not need any special rebuild.
 
    .. versionchanged:: 0.4
       If the *default* value is a callable, it will be called with the config
       object as its argument in order to get the default value.  This can be
       used to implement config values whose default depends on other values.
+
+   .. versionchanged:: 0.6
+      Changed *rebuild* from a simple boolean (equivalent to ``''`` or
+      ``'env'``) to a string.  However, booleans are still accepted and
+      converted internally.
 
 .. method:: Sphinx.add_event(name)
 

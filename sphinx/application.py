@@ -260,10 +260,12 @@ class Sphinx(object):
                     builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
-    def add_config_value(self, name, default, rebuild_env):
+    def add_config_value(self, name, default, rebuild):
         if name in self.config.values:
             raise ExtensionError('Config value %r already present' % name)
-        self.config.values[name] = (default, rebuild_env)
+        if rebuild in (False, True):
+            rebuild = rebuild and 'env' or ''
+        self.config.values[name] = (default, rebuild)
 
     def add_event(self, name):
         if name in self._events:

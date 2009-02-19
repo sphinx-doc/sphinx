@@ -96,6 +96,11 @@ New features added
 
 * Builders:
 
+  - The HTML builder now stores a small file named ``.buildinfo`` in
+    its output directory.  It stores a hash of config values that
+    can be used to determine if a full rebuild needs to be done (e.g.
+    after changing ``html_theme``).
+
   - New builder for Qt help collections, by Antonio Valentino.
 
   - The new ``DirectoryHTMLBuilder`` (short name ``dirhtml``) creates

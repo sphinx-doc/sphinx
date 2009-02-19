@@ -15,6 +15,13 @@ import shutil
 import posixpath
 import cPickle as pickle
 from os import path
+try:
+    import hashlib
+    md5 = hashlib.md5
+except ImportError:
+    # 2.4 compatibility
+    import md5
+    md5 = md5.new
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -67,6 +74,8 @@ class StandaloneHTMLBuilder(Builder):
     script_files = ['_static/jquery.js', '_static/doctools.js']
 
     def init(self):
+        # a hash of all config values that, if changed, cause a full rebuild
+        self.config_hash = ''
         self.init_templates()
         self.init_highlighter()
         self.init_translator_class()
@@ -101,6 +110,55 @@ class StandaloneHTMLBuilder(Builder):
             self.translator_class = SmartyPantsHTMLTranslator
         else:
             self.translator_class = HTMLTranslator
+
+    def get_outdated_docs(self):
+        cfgdict = dict((name, self.config[name])
+                       for (name, desc) in self.config.values.iteritems()
+                       if desc[1] == 'html')
+        self.config_hash = md5(str(cfgdict)).hexdigest()
+        try:
+            fp = open(path.join(self.outdir, '.buildinfo'))
+            version = fp.readline()
+            if version.rstrip() != '# Sphinx build info version 1':
+                raise ValueError
+            fp.readline()  # skip commentary
+            cfg, old_hash = fp.readline().strip().split(': ')
+            if cfg != 'config':
+                raise ValueError
+            fp.close()
+        except ValueError:
+            self.warn('unsupported build info format in %r, building all' %
+                      path.join(self.outdir, '.buildinfo'))
+            old_hash = ''
+        except Exception:
+            old_hash = ''
+        if old_hash != self.config_hash:
+            for docname in self.env.found_docs:
+                yield docname
+            return
+
+        if self.templates:
+            template_mtime = self.templates.newest_template_mtime()
+        else:
+            template_mtime = 0
+        for docname in self.env.found_docs:
+            if docname not in self.env.all_docs:
+                yield docname
+                continue
+            targetname = self.env.doc2path(docname, self.outdir,
+                                           self.out_suffix)
+            try:
+                targetmtime = path.getmtime(targetname)
+            except Exception:
+                targetmtime = 0
+            try:
+                srcmtime = max(path.getmtime(self.env.doc2path(docname)),
+                               template_mtime)
+                if srcmtime > targetmtime:
+                    yield docname
+            except EnvironmentError:
+                # source doesn't exist anymore
+                pass
 
     def render_partial(self, node):
         """Utility: Render a lone doctree node."""
@@ -479,6 +537,17 @@ class StandaloneHTMLBuilder(Builder):
             logobase = path.basename(self.config.html_logo)
             shutil.copyfile(path.join(self.confdir, self.config.html_logo),
                             path.join(self.outdir, '_static', logobase))
+
+        # write build info file
+        fp = open(path.join(self.outdir, '.buildinfo'), 'w')
+        try:
+            fp.write('# Sphinx build info version 1\n'
+                     '# This file hashes the configuration used when building'
+                     ' these files. When it is not found, a full rebuild will'
+                     ' be done.\nconfig: %s\n' % self.config_hash)
+        finally:
+            fp.close()
+
         self.info('done')
 
         # dump the search index
@@ -510,30 +579,6 @@ class StandaloneHTMLBuilder(Builder):
                 reference['refuri'] = uri
             node.replace_self(reference)
             reference.append(node)
-
-    def get_outdated_docs(self):
-        if self.templates:
-            template_mtime = self.templates.newest_template_mtime()
-        else:
-            template_mtime = 0
-        for docname in self.env.found_docs:
-            if docname not in self.env.all_docs:
-                yield docname
-                continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
-            try:
-                targetmtime = path.getmtime(targetname)
-            except Exception:
-                targetmtime = 0
-            try:
-                srcmtime = max(path.getmtime(self.env.doc2path(docname)),
-                               template_mtime)
-                if srcmtime > targetmtime:
-                    yield docname
-            except EnvironmentError:
-                # source doesn't exist anymore
-                pass
 
     def load_indexer(self, docnames):
         keep = set(self.env.all_docs) - set(docnames)
