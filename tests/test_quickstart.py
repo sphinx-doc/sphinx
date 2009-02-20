@@ -125,6 +125,7 @@ def test_quickstart_all_answers(tempdir):
         'coverage': 'no',
         'pngmath': 'N',
         'jsmath': 'no',
+        'ifconfig': 'no',
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
     }
