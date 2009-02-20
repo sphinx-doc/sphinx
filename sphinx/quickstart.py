@@ -589,6 +589,17 @@ Please indicate if you want to use one of the following Sphinx extensions:'''
               'in doctest blocks (y/N)', 'n', boolean)
     do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
               'documentation of different projects (y/N)', 'n', boolean)
+    do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
+              'that can be shown or hidden on build (y/N)', 'n', boolean)
+    do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
+              'coverage (y/N)', 'n', boolean)
+    do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
+              'as PNG images (y/N)', 'n', boolean)
+    do_prompt(d, 'ext_jsmath', 'jsmath: include math, rendered in the '
+              'browser by JSMath (y/N)', 'n', boolean)
+    if d['ext_pngmath'] and d['ext_jsmath']:
+        print '''Note: pngmath and jsmath cannot be enabled at the same time.
+pngmath has been deselected.'''
     print '''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
@@ -601,8 +612,9 @@ directly.'''
     d['now'] = time.asctime()
     d['underline'] = len(d['project']) * '='
     d['extensions'] = ', '.join(
-        repr('sphinx.ext.' + name) for name in ('autodoc', 'doctest',
-                                                'intersphinx')
+        repr('sphinx.ext.' + name)
+        for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
+                     'pngmath', 'jsmath')
         if d['ext_' + name].upper() in ('Y', 'YES'))
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = unicode(d['author']).\

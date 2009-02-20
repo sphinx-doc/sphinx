@@ -121,6 +121,10 @@ def test_quickstart_all_answers(tempdir):
         'autodoc': 'y',
         'doctest': 'yes',
         'intersphinx': 'no',
+        'todo': 'n',
+        'coverage': 'no',
+        'pngmath': 'N',
+        'jsmath': 'no',
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
     }
