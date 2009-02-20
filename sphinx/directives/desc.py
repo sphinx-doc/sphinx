@@ -456,7 +456,7 @@ class ClassmemberDesc(PythonDesc):
     """
 
     def needs_arglist(self):
-        return self.argtype.endswith('method')
+        return self.desctype.endswith('method')
 
     def get_signature_prefix(self, sig):
         if self.desctype == 'staticmethod':
