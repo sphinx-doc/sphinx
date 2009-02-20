@@ -531,7 +531,7 @@ class CDesc(DescDirective):
             signode += addnodes.desc_addname(const, const)
         return name
 
-    def get_index_text(self, modname, name):
+    def get_index_text(self, name):
         if self.desctype == 'cfunction':
             return _('%s (C function)') % name
         elif self.desctype == 'cmember':
@@ -545,8 +545,18 @@ class CDesc(DescDirective):
         else:
             return ''
 
-    # just copy that one
-    add_target_and_index = PythonDesc.__dict__['add_target_and_index']
+    def add_target_and_index(self, name, sig, signode):
+        # note target
+        if name not in self.state.document.ids:
+            signode['names'].append(name)
+            signode['ids'].append(name)
+            signode['first'] = (not self.names)
+            self.state.document.note_explicit_target(signode)
+            self.env.note_descref(name, self.desctype, self.lineno)
+
+        indextext = self.get_index_text(name)
+        if indextext:
+            self.indexnode['entries'].append(('single', indextext, name, name))
 
 
 class CmdoptionDesc(DescDirective):
