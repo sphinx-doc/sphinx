@@ -124,7 +124,7 @@ class Module(Directive):
         modulenode = addnodes.module()
         modulenode['modname'] = modname
         modulenode['synopsis'] = self.options.get('synopsis', '')
-        targetnode = nodes.target('', '', ids=['module-' + modname])
+        targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
         self.state.document.note_explicit_target(targetnode)
         ret = [modulenode, targetnode]
         if 'platform' in self.options:
