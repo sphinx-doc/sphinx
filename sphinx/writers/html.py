@@ -71,8 +71,6 @@ class HTMLTranslator(BaseTranslator):
         if node.parent['desctype'] != 'describe' \
                and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
-        if node.parent['desctype'] in ('class', 'exception'):
-            self.body.append('%s ' % node.parent['desctype'])
     def depart_desc_signature(self, node):
         if node['ids'] and self.add_permalinks and self.builder.add_permalinks:
             self.body.append(u'<a class="headerlink" href="#%s" '

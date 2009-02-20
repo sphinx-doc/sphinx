@@ -70,7 +70,8 @@ strip_backslash_re = re.compile(r'\\(?=[^\\])')
 
 class DescDirective(Directive):
     """
-    Directive to describe a class, function or similar object.
+    Directive to describe a class, function or similar object.  Not used
+    directly, but subclassed to add custom behavior.
     """
 
     has_content = True
@@ -113,6 +114,10 @@ class DescDirective(Directive):
     }
 
     def handle_doc_fields(self, node):
+        """
+        Convert field lists with known keys inside the description content into
+        better-looking equivalents.
+        """
         # don't traverse, only handle field lists that are immediate children
         for child in node.children:
             if not isinstance(child, nodes.field_list):
@@ -193,20 +198,39 @@ class DescDirective(Directive):
             child.replace_self(new_list)
 
     def get_signatures(self):
+        """
+        Retrieve the signatures to document from the directive arguments.
+        """
         # remove backslashes to support (dummy) escapes; helps Vim highlighting
         return [strip_backslash_re.sub('', sig.strip())
                 for sig in self.arguments[0].split('\n')]
 
     def parse_signature(self, sig, signode):
-        raise ValueError  # must be implemented in subclasses
+        """
+        Parse the signature *sig* into individual nodes and append them to
+        *signode*. If ValueError is raised, parsing is aborted and the whole
+        *sig* is put into a single desc_name node.
+        """
+        raise ValueError
 
     def add_target_and_index(self, name, sig, signode):
+        """
+        Add cross-reference IDs and entries to self.indexnode, if applicable.
+        """
         return  # do nothing by default
 
     def before_content(self):
+        """
+        Called before parsing content. Used to set information about the current
+        directive context on the build environment.
+        """
         pass
 
     def after_content(self):
+        """
+        Called after parsing content. Used to reset information about the
+        current directive context on the build environment.
+        """
         pass
 
     def run(self):
@@ -255,10 +279,27 @@ class DescDirective(Directive):
 
 
 class PythonDesc(DescDirective):
+    """
+    Description of a general Python object.
+    """
+
+    def get_signature_prefix(self, sig):
+        """
+        May return a prefix to put before the object name in the signature.
+        """
+        return ''
+
+    def needs_arglist(self):
+        """
+        May return true if an empty argument list is to be generated even if
+        the document contains none.
+        """
+        return False
+
     def parse_signature(self, sig, signode):
         """
-        Transform a python signature into RST nodes.
-        Return (fully qualified name of the thing, classname if any).
+        Transform a Python signature into RST nodes.
+        Returns (fully qualified name of the thing, classname if any).
 
         If inside a class, the current class name is handled intelligently:
         * it is stripped from the displayed name if present
@@ -286,11 +327,9 @@ class PythonDesc(DescDirective):
             add_module = True
             fullname = classname and classname + name or name
 
-        # XXX!
-        if self.desctype == 'staticmethod':
-            signode += addnodes.desc_annotation('static ', 'static ')
-        elif self.desctype == 'classmethod':
-            signode += addnodes.desc_annotation('classmethod ', 'classmethod ')
+        prefix = self.get_signature_prefix(sig)
+        if prefix:
+            signode += addnodes.desc_annotation(prefix, prefix)
 
         if classname:
             signode += addnodes.desc_addname(classname, classname)
@@ -304,9 +343,7 @@ class PythonDesc(DescDirective):
 
         signode += addnodes.desc_name(name, name)
         if not arglist:
-            # XXX!
-            if self.desctype in ('function', 'method',
-                                 'staticmethod', 'classmethod'):
+            if self.needs_arglist():
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if retann:
@@ -337,6 +374,9 @@ class PythonDesc(DescDirective):
         return fullname, classname
 
     def get_index_text(self, modname, name):
+        """
+        Return the text for the index entry of the object.
+        """
         raise NotImplementedError('must be implemented in subclasses')
 
     def add_target_and_index(self, name_cls, sig, signode):
@@ -365,6 +405,13 @@ class PythonDesc(DescDirective):
 
 
 class ModulelevelDesc(PythonDesc):
+    """
+    Description of an object on module level (functions, data).
+    """
+
+    def needs_arglist(self):
+        return self.desctype == 'function'
+
     def get_index_text(self, modname, name_cls):
         if self.desctype == 'function':
             if not modname:
@@ -379,6 +426,13 @@ class ModulelevelDesc(PythonDesc):
 
 
 class ClasslikeDesc(PythonDesc):
+    """
+    Description of a class-like object (classes, interfaces, exceptions).
+    """
+
+    def get_signature_prefix(self, sig):
+        return self.desctype + ' '
+
     def get_index_text(self, modname, name_cls):
         if self.desctype == 'class':
             if not modname:
@@ -397,6 +451,20 @@ class ClasslikeDesc(PythonDesc):
 
 
 class ClassmemberDesc(PythonDesc):
+    """
+    Description of a class member (methods, attributes).
+    """
+
+    def needs_arglist(self):
+        return self.argtype.endswith('method')
+
+    def get_signature_prefix(self, sig):
+        if self.desctype == 'staticmethod':
+            return 'static '
+        elif self.desctype == 'classmethod':
+            return 'classmethod '
+        return ''
+
     def get_index_text(self, modname, name_cls):
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
@@ -461,6 +529,9 @@ class ClassmemberDesc(PythonDesc):
 
 
 class CDesc(DescDirective):
+    """
+    Description of a C language object.
+    """
 
     # These C types aren't described anywhere, so don't try to create
     # a cross-reference to them
@@ -561,7 +632,7 @@ class CDesc(DescDirective):
 
 class CmdoptionDesc(DescDirective):
     """
-    A command-line option (.. cmdoption).
+    Description of a command-line option (.. cmdoption).
     """
 
     def parse_signature(self, sig, signode):
