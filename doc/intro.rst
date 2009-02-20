@@ -139,6 +139,9 @@ The :program:`sphinx-build` script has several more options:
    Do not output anything on standard output, also suppress warnings.  Only
    errors are written to standard error.
 
+**-w** *file*
+   Write warnings (and errors) to the given file, in addition to standard error.
+
 **-W**
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.

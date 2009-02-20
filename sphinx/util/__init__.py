@@ -295,6 +295,19 @@ def ustrftime(format, *args):
     return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
 
 
+class Tee(object):
+    """
+    File-like object writing to two streams.
+    """
+    def __init__(self, stream1, stream2):
+        self.stream1 = stream1
+        self.stream2 = stream2
+
+    def write(self, text):
+        self.stream1.write(text)
+        self.stream2.write(text)
+
+
 class FilenameUniqDict(dict):
     """
     A dictionary that automatically generates unique names for its keys,

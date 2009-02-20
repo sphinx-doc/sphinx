@@ -19,7 +19,7 @@ from docutils.utils import SystemMessage
 
 from sphinx import __version__
 from sphinx.application import Sphinx, SphinxError
-from sphinx.util import format_exception_cut_frames, save_traceback
+from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import darkred, nocolor, color_terminal
 
 
@@ -45,6 +45,7 @@ new and changed files
          -N        -- do not do colored output
          -q        -- no output on stdout, just warnings on stderr
          -Q        -- no output at all, not even warnings
+         -w <file> -- write warnings (and errors) to given file
          -W        -- turn warnings into errors
          -P        -- run Pdb on exception
 Modi:
@@ -59,7 +60,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:NEqQWP')
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:NEqQWw:P')
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
@@ -91,6 +92,8 @@ def main(argv):
     freshenv = warningiserror = use_pdb = False
     status = sys.stdout
     warning = sys.stderr
+    error = sys.stderr
+    warnfile = None
     confoverrides = {}
     htmlcontext = {}
     tags = []
@@ -150,9 +153,16 @@ def main(argv):
             warning = None
         elif opt == '-W':
             warningiserror = True
+        elif opt == '-w':
+            warnfile = val
         elif opt == '-P':
             use_pdb = True
     confoverrides['html_context'] = htmlcontext
+
+    if warning and warnfile:
+        warnfp = open(warnfile, 'w')
+        warning = Tee(warning, warnfp)
+        error = warning
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
@@ -163,36 +173,35 @@ def main(argv):
     except KeyboardInterrupt:
         if use_pdb:
             import pdb
-            print >>sys.stderr, darkred('Interrupted while building, '
-                                        'starting debugger:')
+            print >>error, darkred('Interrupted while building, '
+                                   'starting debugger:')
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         return 1
     except Exception, err:
         if use_pdb:
             import pdb
-            print >>sys.stderr, darkred('Exception occurred while building, '
-                                        'starting debugger:')
+            print >>error, darkred('Exception occurred while building, '
+                                   'starting debugger:')
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         else:
             if isinstance(err, SystemMessage):
-                print >>sys.stderr, darkred('reST markup error:')
-                print >>sys.stderr, err.args[0].encode('ascii',
-                                                       'backslashreplace')
+                print >>error, darkred('reST markup error:')
+                print >>error, err.args[0].encode('ascii', 'backslashreplace')
             elif isinstance(err, SphinxError):
-                print >>sys.stderr, darkred('%s:' % err.category)
-                print >>sys.stderr, err
+                print >>error, darkred('%s:' % err.category)
+                print >>error, err
             else:
-                print >>sys.stderr, darkred('Exception occurred:')
-                print >>sys.stderr, format_exception_cut_frames().rstrip()
+                print >>error, darkred('Exception occurred:')
+                print >>error, format_exception_cut_frames().rstrip()
                 tbpath = save_traceback()
-                print >>sys.stderr, darkred('The full traceback has been saved '
-                                            'in %s, if you want to report the '
-                                            'issue to the author.' % tbpath)
-                print >>sys.stderr, ('Please also report this if it was a user '
-                                     'error, so that a better error message '
-                                     'can be provided next time.')
-                print >>sys.stderr, ('Send reports to '
-                                     'sphinx-dev@googlegroups.com. Thanks!')
+                print >>error, darkred('The full traceback has been saved '
+                                       'in %s, if you want to report the '
+                                       'issue to the author.' % tbpath)
+                print >>error, ('Please also report this if it was a user '
+                                'error, so that a better error message '
+                                'can be provided next time.')
+                print >>error, ('Send reports to sphinx-dev@googlegroups.com. '
+                                'Thanks!')
             return 1

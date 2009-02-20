@@ -160,6 +160,9 @@ New features added
 
   - Quickstart can now generate a Windows ``make.bat`` file.
 
+  - #62: There is now a ``-w`` option for sphinx-build that writes
+    warnings to a file, in addition to stderr.
+
   - There is now a ``-W`` option for sphinx-build that turns warnings
     into errors.
 
