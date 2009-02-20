@@ -31,7 +31,7 @@ release = version
 show_authors = True
 
 # The HTML template theme.
-html_theme = 'default'
+html_theme = 'sphinxdoc'
 
 # A list of ignored prefixes names for module index sorting.
 modindex_common_prefix = ['sphinx.']
