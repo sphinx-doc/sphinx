@@ -178,6 +178,15 @@ class LaTeXBuilder(Builder):
                                 path.join(self.outdir, dest))
             self.info()
 
+        # copy additional files
+        if self.config.latex_additional_files:
+            self.info(bold('copying additional files...'), nonl=1)
+            for filename in self.config.latex_additional_files:
+                self.info(' '+filename, nonl=1)
+                shutil.copyfile(path.join(self.confdir, filename),
+                                path.join(self.outdir, path.basename(filename)))
+            self.info()
+
         # the logo is handled differently
         if self.config.latex_logo:
             logobase = path.basename(self.config.latex_logo)

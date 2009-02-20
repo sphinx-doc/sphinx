@@ -187,6 +187,8 @@ def test_latex(app):
     assert latex_warnings == latex_warnings_exp, 'Warnings don\'t match:\n' + \
            '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
                                    latex_warnings.splitlines()))
+    # file from latex_additional_files
+    assert (app.outdir / 'svgimg.svg').isfile()
 
     # only run latex if all needed packages are there
     def kpsetest(filename):

@@ -652,6 +652,19 @@ These options influence LaTeX output.
      ``'shorthandoff'``
      ``'printmodindex'``
 
+.. confval:: latex_additional_files
+
+   A list of file names, relative to the configuration directory, to copy to the
+   build directory when building LaTeX output.  This is useful to copy files
+   that Sphinx doesn't copy automatically, e.g. if they are referenced in custom
+   LaTeX added in ``latex_elements``.  Image files that are referenced in source
+   files (e.g. via ``.. image::``) are copied automatically.
+
+   You have to make sure yourself that the filenames don't collide with those of
+   any automatically copied files.
+
+   .. versionadded:: 0.6
+
 .. confval:: latex_preamble
 
    Additional LaTeX markup for the preamble.

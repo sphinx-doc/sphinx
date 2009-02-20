@@ -102,6 +102,7 @@ class Config(object):
         latex_paper_size = ('letter', None),
         latex_font_size = ('10pt', None),
         latex_elements = ({}, None),
+        latex_additional_files = ([], None),
         # now deprecated - use latex_elements
         latex_preamble = ('', None),
     )

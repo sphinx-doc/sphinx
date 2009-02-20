@@ -42,6 +42,8 @@ latex_documents = [
    'Georg Brandl', 'manual'),
 ]
 
+latex_additional_files = ['svgimg.svg']
+
 value_from_conf_py = 84
 
 coverage_c_path = ['special/*.h']
