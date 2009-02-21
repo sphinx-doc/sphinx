@@ -80,39 +80,39 @@ def test_inline():
     # correct interpretation of code with whitespace
     _html = ('<p><tt class="docutils literal"><span class="pre">'
              'code</span>&nbsp;&nbsp; <span class="pre">sample</span></tt></p>')
-    verify('``code   sample``', _html, '\\code{code   sample}')
-    verify(':samp:`code   sample`', _html, '\\samp{code   sample}')
+    yield verify, '``code   sample``', _html, '\\code{code   sample}'
+    yield verify, ':samp:`code   sample`', _html, '\\samp{code   sample}'
 
     # interpolation of braces in samp and file roles (HTML only)
-    verify(':samp:`a{b}c`',
+    yield (verify, ':samp:`a{b}c`',
            '<p><tt class="docutils literal"><span class="pre">a</span>'
            '<em><span class="pre">b</span></em>'
            '<span class="pre">c</span></tt></p>',
            '\\samp{abc}')
 
     # interpolation of arrows in menuselection
-    verify(':menuselection:`a --> b`',
+    yield (verify, ':menuselection:`a --> b`',
            u'<p><em>a \N{TRIANGULAR BULLET} b</em></p>',
            '\\emph{a \\(\\rightarrow\\) b}')
 
     # non-interpolation of dashes in option role
-    verify_re(':option:`--with-option`',
-              '<p><em( class="xref")?>--with-option</em></p>$',
-              r'\\emph{\\texttt{-{-}with-option}}$')
+    yield (verify_re, ':option:`--with-option`',
+           '<p><em( class="xref")?>--with-option</em></p>$',
+           r'\\emph{\\texttt{-{-}with-option}}$')
 
     # verify smarty-pants quotes
-    verify('"John"', '<p>&#8220;John&#8221;</p>', "``John''")
+    yield verify, '"John"', '<p>&#8220;John&#8221;</p>', "``John''"
     # ... but not in literal text
-    verify('``"John"``',
+    yield (verify, '``"John"``',
            '<p><tt class="docutils literal"><span class="pre">'
            '&quot;John&quot;</span></tt></p>',
            '\\code{"John"}')
 
 def test_latex_escaping():
     # correct escaping in normal mode
-    verify(u'Γ\\\\∞$', None, ur'\(\Gamma\)\textbackslash{}\(\infty\)\$')
+    yield verify, u'Γ\\\\∞$', None, ur'\(\Gamma\)\textbackslash{}\(\infty\)\$'
     # in verbatim code fragments
-    verify(u'::\n\n @Γ\\∞$[]', None,
+    yield (verify, u'::\n\n @Γ\\∞$[]', None,
            u'\\begin{Verbatim}[commandchars=@\\[\\]]\n'
            u'@PYGZat[]@(@Gamma@)\\@(@infty@)@$@PYGZlb[]@PYGZrb[]\n'
            u'\\end{Verbatim}')
