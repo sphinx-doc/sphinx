@@ -314,10 +314,13 @@ class Sphinx(object):
             directives.register_directive(name, obj)
 
     def add_role(self, name, role):
-        roles.register_canonical_role(name, role)
+        roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
-        roles.register_generic_role(name, nodeclass)
+        # don't use roles.register_generic_role because it uses
+        # register_canonical_role
+        role = roles.GenericRole(name, nodeclass)
+        roles.register_local_role(name, role)
 
     def add_description_unit(self, directivename, rolename, indextemplate='',
                              parse_node=None, ref_nodeclass=None):
@@ -325,7 +328,7 @@ class Sphinx(object):
                                                 parse_node)
         directives.register_directive(directivename,
                                       directive_dwim(GenericDesc))
-        roles.register_canonical_role(rolename, xfileref_role)
+        roles.register_local_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass
 
@@ -333,7 +336,7 @@ class Sphinx(object):
                           ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate, None)
         directives.register_directive(directivename, directive_dwim(Target))
-        roles.register_canonical_role(rolename, xfileref_role)
+        roles.register_local_role(rolename, xfileref_role)
         if ref_nodeclass is not None:
             innernodetypes[rolename] = ref_nodeclass
 
