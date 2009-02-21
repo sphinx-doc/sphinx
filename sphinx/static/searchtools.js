@@ -283,7 +283,7 @@ var Search = {
     if (this.hasIndex())
       this.query(query);
     else
-      this.setQuery(query);
+      this.deferQuery(query);
   },
 
   query : function(query) {
