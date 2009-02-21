@@ -239,6 +239,10 @@ def test_latex(app):
 
 # just let the remaining ones run for now
 
+@with_app(buildername='pickle')
+def test_pickle(app):
+    app.builder.build_all()
+
 @with_app(buildername='linkcheck')
 def test_linkcheck(app):
     app.builder.build_all()
@@ -247,6 +251,14 @@ def test_linkcheck(app):
 def test_text(app):
     app.builder.build_all()
 
-@with_app(buildername='changes', cleanenv=True)
+@with_app(buildername='htmlhelp')
+def test_htmlhelp(app):
+    app.builder.build_all()
+
+@with_app(buildername='qthelp')
+def test_qthelp(app):
+    app.builder.build_all()
+
+@with_app(buildername='changes')
 def test_changes(app):
     app.builder.build_all()

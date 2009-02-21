@@ -32,8 +32,9 @@ from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
 from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
-    movefile, ustrftime
+    movefile, ustrftime, copy_static_entry
 from sphinx.search import js_index
+from sphinx.theming import Theme
 from sphinx.builders import Builder, ENV_PICKLE_FILENAME
 from sphinx.application import SphinxError
 from sphinx.highlighting import PygmentsBridge
@@ -95,12 +96,20 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 self.script_files.append('_static/translations.js')
 
+    def init_templates(self):
+        Theme.init_themes(self)
+        self.theme = Theme(self.config.html_theme)
+        self.create_template_bridge()
+        self.templates.init(self, self.theme)
+
     def init_highlighter(self):
         # determine Pygments style and create the highlighter
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
-        else:
+        elif self.theme:
             style = self.theme.get_confstr('theme', 'pygments_style', 'none')
+        else:
+            style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
     def init_translator_class(self):
@@ -219,8 +228,10 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_style is not None:
             stylename = self.config.html_style
-        else:
+        elif self.theme:
             stylename = self.theme.get_confstr('theme', 'stylesheet')
+        else:
+            stylename = 'default.css'
 
         self.globalcontext = dict(
             embedded = self.embedded,
@@ -246,9 +257,11 @@ class StandaloneHTMLBuilder(Builder):
             logo = logo,
             favicon = favicon,
         )
-        self.globalcontext.update(
-            ('theme_' + key, val) for (key, val) in
-            self.theme.get_options(self.config.html_theme_options).iteritems())
+        if self.theme:
+            self.globalcontext.update(
+                ('theme_' + key, val) for (key, val) in
+                self.theme.get_options(
+                self.config.html_theme_options).iteritems())
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
@@ -509,10 +522,13 @@ class StandaloneHTMLBuilder(Builder):
                 shutil.copyfile(jsfile, path.join(self.outdir, '_static',
                                                   'translations.js'))
         # then, copy over all user-supplied static files
-        staticdirnames = [path.join(themepath, 'static')
-                          for themepath in self.theme.get_dirchain()[::-1]] + \
-                         [path.join(self.confdir, spath)
-                          for spath in self.config.html_static_path]
+        if self.theme:
+            staticdirnames = [path.join(themepath, 'static')
+                              for themepath in self.theme.get_dirchain()[::-1]]
+        else:
+            staticdirnames = []
+        staticdirnames += [path.join(self.confdir, spath)
+                           for spath in self.config.html_static_path]
         for staticdirname in staticdirnames:
             if not path.isdir(staticdirname):
                 self.warn('static directory %r does not exist' % staticdirname)
@@ -522,23 +538,8 @@ class StandaloneHTMLBuilder(Builder):
                     continue
                 fullname = path.join(staticdirname, filename)
                 targetname = path.join(self.outdir, '_static', filename)
-                if path.isfile(fullname):
-                    if fullname.lower().endswith('_t'):
-                        # templated!
-                        fsrc = open(fullname, 'rb')
-                        fdst = open(targetname[:-2], 'wb')
-                        fdst.write(self.templates.render_string(
-                            fsrc.read(), self.globalcontext))
-                        fsrc.close()
-                        fdst.close()
-                    else:
-                        shutil.copyfile(fullname, targetname)
-                elif path.isdir(fullname):
-                    if filename in self.config.exclude_dirnames:
-                        continue
-                    if path.exists(targetname):
-                        shutil.rmtree(targetname)
-                    shutil.copytree(fullname, targetname)
+                copy_static_entry(fullname, targetname, self,
+                                  self.globalcontext)
         # last, copy logo file (handled differently)
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
@@ -563,7 +564,8 @@ class StandaloneHTMLBuilder(Builder):
 
     def cleanup(self):
         # clean up theme stuff
-        self.theme.cleanup()
+        if self.theme:
+            self.theme.cleanup()
 
     def post_process_images(self, doctree):
         """
@@ -733,9 +735,12 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
                              'image/gif', 'image/jpeg']
 
     def init(self):
+        self.config_hash = ''
+        self.tags_hash = ''
+        self.theme = None       # no theme necessary
+        self.templates = None   # no template bridge necessary
         self.init_translator_class()
         self.init_highlighter()
-        self.templates = None   # no template bridge necessary
 
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':

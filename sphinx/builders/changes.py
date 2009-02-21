@@ -15,7 +15,8 @@ from os import path
 from cgi import escape
 
 from sphinx import package_dir
-from sphinx.util import ensuredir, os_path
+from sphinx.util import ensuredir, os_path, copy_static_entry
+from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.util.console import bold
 
@@ -27,7 +28,10 @@ class ChangesBuilder(Builder):
     name = 'changes'
 
     def init(self):
-        self.init_templates()
+        self.create_template_bridge()
+        Theme.init_themes(self)
+        self.theme = Theme('default')
+        self.templates.init(self, self.theme)
 
     def get_outdated_docs(self):
         return self.outdir
@@ -44,11 +48,13 @@ class ChangesBuilder(Builder):
         apichanges = []
         otherchanges = {}
         if version not in self.env.versionchanges:
-            self.info(bold('no changes in this version.'))
+            self.info(bold('no changes in version %s.' % version))
             return
         self.info(bold('writing summary file...'))
         for type, docname, lineno, module, descname, content in \
                 self.env.versionchanges[version]:
+            if isinstance(descname, tuple):
+                descname = descname[0]
             ttext = self.typemap[type]
             context = content.replace('\n', ' ')
             if descname and docname.startswith('c-api'):
@@ -129,12 +135,15 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
             finally:
                 f.close()
-        shutil.copyfile(path.join(package_dir, 'themes', 'default',
-                                  'static', 'default.css'),
-                        path.join(self.outdir, 'default.css'))
-        shutil.copyfile(path.join(package_dir, 'themes', 'basic',
-                                  'static', 'basic.css'),
-                        path.join(self.outdir, 'basic.css'))
+        themectx = dict(('theme_' + key, val) for (key, val) in
+                        self.theme.get_options({}).iteritems())
+        copy_static_entry(path.join(package_dir, 'themes', 'default',
+                                    'static', 'default.css_t'),
+                          path.join(self.outdir, 'default.css_t'),
+                          self, themectx)
+        copy_static_entry(path.join(package_dir, 'themes', 'basic',
+                                    'static', 'basic.css'),
+                          path.join(self.outdir, 'basic.css'), self)
 
     def hl(self, text, version):
         text = escape(text)

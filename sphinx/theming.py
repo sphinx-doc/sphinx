@@ -30,11 +30,11 @@ class Theme(object):
     """
     Represents the theme chosen in the configuration.
     """
+    themes = {}
+
     @classmethod
     def init_themes(cls, builder):
         """Search all theme paths for available themes."""
-        cls.themes = {}
-
         cls.themepath = list(builder.config.html_theme_path)
         cls.themepath.append(
             path.join(path.abspath(path.dirname(__file__)), 'themes'))

@@ -84,13 +84,13 @@ Tables
 Version markup
 --------------
 
-.. versionadded:: 0.5
+.. versionadded:: 0.6
    Some funny **stuff**.
 
-.. versionchanged:: 0.5
+.. versionchanged:: 0.6
    Even more funny stuff.
 
-.. deprecated:: 0.4
+.. deprecated:: 0.6
    Boring stuff.
 
 

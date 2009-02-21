@@ -14,6 +14,7 @@ import re
 import sys
 import time
 import types
+import shutil
 import fnmatch
 import tempfile
 import posixpath
@@ -390,6 +391,25 @@ def movefile(source, dest):
         except OSError:
             pass
     os.rename(source, dest)
+
+
+def copy_static_entry(source, target, builder, context={}):
+    if path.isfile(source):
+        if source.lower().endswith('_t'):
+            # templated!
+            fsrc = open(source, 'rb')
+            fdst = open(target[:-2], 'wb')
+            fdst.write(builder.templates.render_string(fsrc.read(), context))
+            fsrc.close()
+            fdst.close()
+        else:
+            shutil.copyfile(source, target)
+    elif path.isdir(source):
+        if filename in builder.config.exclude_dirnames:
+            return
+        if path.exists(target):
+            shutil.rmtree(target)
+        shutil.copytree(source, target)
 
 
 # monkey-patch Node.traverse to get more speed

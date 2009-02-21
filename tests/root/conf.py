@@ -16,6 +16,7 @@ source_suffix = '.txt'
 
 project = 'Sphinx <Tests>'
 copyright = '2008, Georg Brandl & Team'
+# If this is changed, remember to update the versionchanges!
 version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'

@@ -367,11 +367,15 @@ class TemplateBridge(object):
     that renders templates given a template name and a context.
     """
 
-    def init(self, builder):
+    def init(self, builder, theme=None, dirs=None):
         """
-        Called by the builder to initialize the template system.  *builder*
-        is the builder object; you'll probably want to look at the value of
-        ``builder.config.templates_path``.
+        Called by the builder to initialize the template system.
+
+        *builder* is the builder object; you'll probably want to look at the
+        value of ``builder.config.templates_path``.
+
+        *theme* is a :class:`sphinx.theming.Theme` object or None; in the latter
+        case, *dirs* can be list of fixed directories to look for templates.
         """
         raise NotImplementedError('must be implemented in subclasses')
 

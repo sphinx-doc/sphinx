@@ -34,13 +34,17 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # TemplateBridge interface
 
-    def init(self, builder):
-        self.theme = builder.theme
-        # create a chain of paths to search:
-        # the theme's own dir and its bases' dirs
-        chain = self.theme.get_dirchain()
-        # then the theme parent paths (XXX doc)
-        chain.extend(self.theme.themepath)
+    def init(self, builder, theme=None, dirs=None):
+        # create a chain of paths to search
+        if theme:
+            # the theme's own dir and its bases' dirs
+            chain = theme.get_dirchain()
+            # then the theme parent paths
+            chain.extend(theme.themepath)
+        elif dirs:
+            chain = list(dirs)
+        else:
+            chain = []
 
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)
