@@ -850,17 +850,23 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_figure(self, node):
-        if (not node.attributes.has_key('align') or
-            node.attributes['align'] == 'center'):
-            # centering does not add vertical space like center.
-            align = '\n\\centering'
-            align_end = ''
+        if node.has_key('width') and node.get('align', '') in ('left', 'right'):
+            self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
+                             (node['align'] == 'right' and 'r' or 'l',
+                              node['width']))
+            self.context.append('\\end{wrapfigure}\n')
         else:
-            # TODO non vertical space for other alignments.
-            align = '\\begin{flush%s}' % node.attributes['align']
-            align_end = '\\end{flush%s}' % node.attributes['align']
-        self.body.append('\\begin{figure}[htbp]%s\n' % align)
-        self.context.append('%s\\end{figure}\n' % align_end)
+            if (not node.attributes.has_key('align') or
+                node.attributes['align'] == 'center'):
+                # centering does not add vertical space like center.
+                align = '\n\\centering'
+                align_end = ''
+            else:
+                # TODO non vertical space for other alignments.
+                align = '\\begin{flush%s}' % node.attributes['align']
+                align_end = '\\end{flush%s}' % node.attributes['align']
+            self.body.append('\\begin{figure}[htbp]%s\n' % align)
+            self.context.append('%s\\end{figure}\n' % align_end)
     def depart_figure(self, node):
         self.body.append(self.context.pop())
 

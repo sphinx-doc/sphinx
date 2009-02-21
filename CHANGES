@@ -120,6 +120,9 @@ New features added
   - The new ``html_link_suffix`` config value can be used to select
     the suffix of generated links between HTML files.
 
+  - #96: The LaTeX builder now supports figures wrapped by text, when
+    using the ``figwidth`` option and right/left alignment.
+
 * New translations:
   
   - Italian by Sandro Dentella.
