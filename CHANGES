@@ -174,6 +174,9 @@ New features added
 Release 0.5.2 (in development)
 ==============================
 
+* Fix a problem in the HTML search if the index takes too long
+  to load.
+
 * Don't output system messages while resolving, because they
   would stay in the doctrees even if keep_warnings is false.
 
