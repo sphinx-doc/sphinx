@@ -1,6 +1,9 @@
 Release 0.5.2 (in development)
 ==============================
 
+* #71: If a decoding error occurs in source files, print a
+  warning and replace the characters by "?".
+
 * Fix a problem in the HTML search if the index takes too long
   to load.
 
