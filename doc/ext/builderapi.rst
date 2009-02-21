@@ -29,6 +29,3 @@ Writing new builders
    .. automethod:: write_doc
    .. automethod:: finish
 
-   Useful helpers:
-
-   .. automethod:: init_templates
