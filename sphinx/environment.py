@@ -14,6 +14,7 @@ import os
 import time
 import heapq
 import types
+import codecs
 import imghdr
 import string
 import difflib
@@ -516,6 +517,21 @@ class BuildEnvironment:
 
     # --------- SINGLE FILE READING --------------------------------------------
 
+    def warn_and_replace(self, error):
+        """
+        Custom decoding error handler that warns and replaces.
+        """
+        linestart = error.object.rfind('\n', None, error.start)
+        lineend = error.object.find('\n', error.start)
+        if lineend == -1: lineend = len(error.object)
+        lineno = error.object.count('\n', 0, error.start) + 1
+        self.warn(self.docname, 'undecodable source characters, '
+                  'replacing with "?": %r' %
+                  (error.object[linestart+1:error.start] + '>>>' +
+                   error.object[error.start:error.end] + '<<<' +
+                   error.object[error.end:lineend]), lineno)
+        return (u'?', error.end)
+
     def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
         """
         Parse a file and add/update inventory entries for the doctree.
@@ -543,7 +559,14 @@ class BuildEnvironment:
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
 
+        codecs.register_error('sphinx', self.warn_and_replace)
+
+        codecs.register_error('sphinx', self.warn_and_replace)
+
         class SphinxSourceClass(FileInput):
+            def decode(self_, data):
+                return data.decode(self_.encoding, 'sphinx')
+
             def read(self_):
                 data = FileInput.read(self_)
                 if app:
@@ -568,6 +591,7 @@ class BuildEnvironment:
             pub.publish()
             doctree = pub.document
         except UnicodeError, err:
+            import pdb; pdb.set_trace()
             raise SphinxError(str(err))
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
