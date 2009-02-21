@@ -24,6 +24,7 @@ try:
 except ImportError:
     Image = None
 
+
 class HTMLWriter(Writer):
     def __init__(self, builder):
         Writer.__init__(self)
@@ -305,8 +306,7 @@ class HTMLTranslator(BaseTranslator):
             if Image and not (node.has_key('width')
                               and node.has_key('height')):
                 try:
-                    im = Image.open(os.path.join(self.builder.srcdir,
-                                                    olduri))
+                    im = Image.open(os.path.join(self.builder.srcdir, olduri))
                 except (IOError, # Source image can't be found or opened
                         UnicodeError):  # PIL doesn't like Unicode paths.
                     pass
