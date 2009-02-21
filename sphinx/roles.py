@@ -33,7 +33,8 @@ generic_docroles = {
 }
 
 for rolename, nodeclass in generic_docroles.iteritems():
-    roles.register_generic_role(rolename, nodeclass)
+    role = roles.GenericRole(rolename, nodeclass)
+    roles.register_local_role(rolename, role)
 
 
 def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
@@ -85,7 +86,7 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
         rn += sn
         return [indexnode, targetnode, rn], []
 
-roles.register_canonical_role('envvar', indexmarkup_role)
+roles.register_local_role('envvar', indexmarkup_role)
 roles.register_local_role('pep', indexmarkup_role)
 roles.register_local_role('rfc', indexmarkup_role)
 
@@ -242,4 +243,4 @@ specific_docroles = {
 }
 
 for rolename, func in specific_docroles.iteritems():
-    roles.register_canonical_role(rolename, func)
+    roles.register_local_role(rolename, func)
