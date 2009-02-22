@@ -30,3 +30,6 @@ reindent:
 
 test:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
+
+covertest:
+	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage --cover-package=sphinx $(TEST)
