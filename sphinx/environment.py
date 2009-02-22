@@ -277,11 +277,13 @@ class BuildEnvironment:
         self.toc_num_entries = {}   # docname -> number of real entries
         # used to determine when to show the TOC
         # in a sidebar (don't show if it's only one item)
+        self.toc_secnumbers = {}    # docname -> dict of sectionid -> number
 
         self.toctree_includes = {}  # docname -> list of toctree includefiles
         self.files_to_rebuild = {}  # docname -> set of files
                                     # (containing its TOCs) to rebuild too
         self.glob_toctrees = set()  # docnames that have :glob: toctrees
+        self.numbered_toctrees = set() # docnames that have :numbered: toctrees
 
         # X-ref target inventory
         self.descrefs = {}          # fullname -> docname, desctype
@@ -341,11 +343,13 @@ class BuildEnvironment:
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
             self.tocs.pop(docname, None)
+            self.toc_secnumbers.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
             self.toctree_includes.pop(docname, None)
             self.filemodules.pop(docname, None)
             self.indexentries.pop(docname, None)
             self.glob_toctrees.discard(docname)
+            self.numbered_toctrees.discard(docname)
             self.images.purge_doc(docname)
             self.dlfiles.purge_doc(docname)
 
@@ -502,7 +506,8 @@ class BuildEnvironment:
             self.clear_doc(docname)
 
         # read all new and changed files
-        for docname in sorted(added | changed):
+        to_read = added | changed
+        for docname in sorted(to_read):
             yield docname
             self.read_doc(docname, app=app)
 
@@ -514,6 +519,11 @@ class BuildEnvironment:
         if app:
             app.emit('env-updated', self)
 
+    def check_dependents(self, already):
+        to_rewrite = self.assign_section_numbers()
+        for docname in to_rewrite:
+            if docname not in already:
+                yield docname
 
     # --------- SINGLE FILE READING --------------------------------------------
 
@@ -824,6 +834,8 @@ class BuildEnvironment:
            file relations from it."""
         if toctreenode['glob']:
             self.glob_toctrees.add(docname)
+        if toctreenode['numbered']:
+            self.numbered_toctrees.add(docname)
         includefiles = toctreenode['includefiles']
         for includefile in includefiles:
             # note that if the included file is rebuilt, this one must be
@@ -1314,6 +1326,57 @@ class BuildEnvironment:
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
+
+    def assign_section_numbers(self):
+        """Assign a section number to each heading under a numbered toctree."""
+        # a list of all docnames whose section numbers changed
+        rewrite_needed = []
+
+        old_secnumbers = self.toc_secnumbers
+        self.toc_secnumbers = {}
+
+        def _walk_toc(node, secnums, titlenode=None):
+            # titlenode is the title of the document, it will get assigned a
+            # secnumber too, so that it shows up in next/prev/parent rellinks
+            for subnode in node.children:
+                if isinstance(subnode, nodes.bullet_list):
+                    numstack.append(0)
+                    _walk_toc(subnode, secnums, titlenode)
+                    numstack.pop()
+                    titlenode = None
+                elif isinstance(subnode, nodes.list_item):
+                    _walk_toc(subnode, secnums, titlenode)
+                    titlenode = None
+                elif isinstance(subnode, addnodes.compact_paragraph):
+                    numstack[-1] += 1
+                    secnums[subnode[0]['anchorname']] = \
+                        subnode[0]['secnumber'] = tuple(numstack)
+                    if titlenode:
+                        titlenode['secnumber'] = tuple(numstack)
+                        titlenode = None
+                elif isinstance(subnode, addnodes.toctree):
+                    _walk_toctree(subnode)
+
+        def _walk_toctree(toctreenode):
+            for (title, ref) in toctreenode['entries']:
+                if url_re.match(ref) or ref == 'self':
+                    # don't mess with those
+                    continue
+                if ref in self.tocs:
+                    secnums = self.toc_secnumbers[ref] = {}
+                    _walk_toc(self.tocs[ref], secnums, self.titles.get(ref))
+                    if secnums != old_secnumbers.get(ref):
+                        rewrite_needed.append(ref)
+
+        for docname in self.numbered_toctrees:
+            doctree = self.get_doctree(docname)
+            for toctreenode in doctree.traverse(addnodes.toctree):
+                if toctreenode.get('numbered'):
+                    # every numbered toctree gets new numbering
+                    numstack = [0]
+                    _walk_toctree(toctreenode)
+
+        return rewrite_needed
 
     def create_index(self, builder, _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         """Create the real index from the collected index entries."""

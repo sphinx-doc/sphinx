@@ -41,6 +41,9 @@ New features added
     line.  Also, the current builder output format (e.g. "html" or
     "latex") is always a defined tag.
 
+  - #10: Added HTML section numbers, enabled by giving a
+    ``:numbered:`` flag to the ``toctree`` directive.
+
   - The ``literalinclude`` directive now supports several more
     options, to include only parts of a file.
 

@@ -79,6 +79,9 @@ class StandaloneHTMLBuilder(Builder):
         # a hash of all config values that, if changed, cause a full rebuild
         self.config_hash = ''
         self.tags_hash = ''
+        # section numbers for headings in the currently visited document
+        self.secnumbers = {}
+
         self.init_templates()
         self.init_highlighter()
         self.init_translator_class()
@@ -336,6 +339,7 @@ class StandaloneHTMLBuilder(Builder):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
+        self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.post_process_images(doctree)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')

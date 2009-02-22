@@ -77,6 +77,18 @@ tables of contents.  The ``toctree`` directive is the central element.
    You can also add external links, by giving an HTTP URL instead of a document
    name.
 
+   If you want to have section numbers even in HTML output, give the toctree a
+   ``numbered`` flag option.  For example::
+
+      .. toctree::
+         :numbered:
+
+         foo
+         bar
+
+   Numbering then starts at the heading of ``foo``.  Sub-toctrees are
+   automatically numbered (don't give the ``numbered`` flag to those).
+
    You can use "globbing" in toctree directives, by giving the ``glob`` flag
    option.  All entries are then matched against the list of available
    documents, and matches are inserted into the list alphabetically.  Example::
@@ -124,7 +136,8 @@ tables of contents.  The ``toctree`` directive is the central element.
       Added "globbing" option.
 
    .. versionchanged:: 0.6
-      Added "hidden" option and external links, as well as support for "self".
+      Added "numbered" and "hidden" options as well as external links and
+      support for "self" references.
 
 
 Special names

@@ -76,19 +76,22 @@ def test_second_update():
     # delete, add and "edit" (change saved mtime) some files and update again
     env.all_docs['contents'] = 0
     root = path(app.srcdir)
-    (root / 'images.txt').unlink()
+    # important: using "autodoc" because it is the last one to be included in
+    # the contents.txt toctree; otherwise section numbers would shift
+    (root / 'autodoc.txt').unlink()
     (root / 'new.txt').write_text('New file\n========\n')
     it = env.update(app.config, app.srcdir, app.doctreedir, app)
     msg = it.next()
-    assert '1 added, 2 changed, 1 removed' in msg
+    assert '1 added, 3 changed, 1 removed' in msg
     docnames = set()
     for docname in it:
         docnames.add(docname)
-    # "includes" is in there because it contains a reference to a nonexisting
-    # downloadable file, which is given another chance to exist
-    assert docnames == set(['contents', 'new', 'includes'])
-    assert 'images' not in env.all_docs
-    assert 'images' not in env.found_docs
+    # "includes" and "images" are in there because they contain references
+    # to nonexisting downloadable or image files, which are given another
+    # chance to exist
+    assert docnames == set(['contents', 'new', 'includes', 'images'])
+    assert 'autodoc' not in env.all_docs
+    assert 'autodoc' not in env.found_docs
 
 def test_object_inventory():
     refs = env.descrefs

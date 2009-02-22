@@ -32,6 +32,7 @@ class TocTree(Directive):
         'maxdepth': int,
         'glob': directives.flag,
         'hidden': directives.flag,
+        'numbered': directives.flag,
     }
 
     def run(self):
@@ -93,6 +94,7 @@ class TocTree(Directive):
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
+        subnode['numbered'] = 'numbered' in self.options
         ret.append(subnode)
         return ret
 

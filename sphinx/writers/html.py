@@ -158,6 +158,8 @@ class HTMLTranslator(BaseTranslator):
                 return
             self.body[-1] = '<a title="%s"' % self.attval(node['reftitle']) + \
                             starttag[2:]
+        if node.hasattr('secnumber'):
+            self.body.append('%s. ' % '.'.join(map(str, node['secnumber'])))
 
     # overwritten -- we don't want source comments to show up in the HTML
     def visit_comment(self, node):
@@ -176,6 +178,17 @@ class HTMLTranslator(BaseTranslator):
     def depart_seealso(self, node):
         self.depart_admonition(node)
 
+    def add_secnumber(self, node):
+        if node.hasattr('secnumber'):
+            self.body.append('.'.join(map(str, node['secnumber'])) + '. ')
+        elif isinstance(node.parent, nodes.section):
+            anchorname = '#' + node.parent['ids'][0]
+            if anchorname not in self.builder.secnumbers:
+                anchorname = ''  # try first heading which has no anchor
+            if anchorname in self.builder.secnumbers:
+                numbers = self.builder.secnumbers[anchorname]
+                self.body.append('.'.join(map(str, numbers)) + '. ')
+
     # overwritten for docutils 0.4
     if hasattr(BaseTranslator, 'start_tag_with_title'):
         def visit_section(self, node):
@@ -186,6 +199,11 @@ class HTMLTranslator(BaseTranslator):
         def visit_title(self, node):
             # don't move the id attribute inside the <h> tag
             BaseTranslator.visit_title(self, node, move_ids=0)
+            self.add_secnumber(node)
+    else:
+        def visit_title(self, node):
+            BaseTranslator.visit_title(self, node)
+            self.add_secnumber(node)
 
     # overwritten
     def visit_literal_block(self, node):

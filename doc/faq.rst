@@ -9,10 +9,14 @@ suggest new entries!
 How do I...
 -----------
 
+... get section numbers?
+   They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
+   the :dir:`toctree` directive where you want to start numbering.
+
 ... customize the look of the built HTML files?
    Use themes, see :doc:`theming`.
 
-... add global substitutions?
+... add global substitutions or includes?
    Add them in the :confval:`rst_epilog` config value.
 
 ... write my own extension?

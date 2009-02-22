@@ -246,7 +246,7 @@ class Builder(object):
             self.info(bold('building [%s]: ' % self.name), nonl=1)
             self.info(summary)
 
-        updated_docnames = []
+        updated_docnames = set()
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(warnings.append)
@@ -257,13 +257,23 @@ class Builder(object):
         self.info(iterator.next())
         for docname in self.status_iterator(iterator, 'reading sources... ',
                                             purple):
-            updated_docnames.append(docname)
+            updated_docnames.add(docname)
             # nothing further to do, the environment has already
             # done the reading
         for warning in warnings:
             if warning.strip():
                 self.warn(warning)
         self.env.set_warnfunc(self.warn)
+
+        doccount = len(updated_docnames)
+        self.info(bold('looking for now-outdated files... '), nonl=1)
+        for docname in self.env.check_dependents(updated_docnames):
+            updated_docnames.add(docname)
+        outdated = len(updated_docnames) - doccount
+        if outdated:
+            self.info('%d found' % outdated)
+        else:
+            self.info('none found')
 
         if updated_docnames:
             # save the environment
@@ -282,7 +292,7 @@ class Builder(object):
 
         # another indirection to support builders that don't build
         # files individually
-        self.write(docnames, updated_docnames, method)
+        self.write(docnames, list(updated_docnames), method)
 
         # finish (write static files etc.)
         self.finish()
