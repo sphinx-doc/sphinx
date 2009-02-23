@@ -30,7 +30,10 @@ installed) and handled in a smart way:
   config value.
 
 * Within Python highlighting mode, interactive sessions are recognized
-  automatically and highlighted appropriately.
+  automatically and highlighted appropriately.  Normal Python code is only
+  highlighted if it is parseable (so you can use Python as the default, but
+  interspersed snippets of shell commands or other code blocks will not be
+  highlighted as Python).
 
 * The highlighting language can be changed using the ``highlight`` directive,
   used as follows::
