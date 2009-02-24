@@ -21,8 +21,8 @@ from docutils.writers.latex2e import Babel
 
 from sphinx import addnodes
 from sphinx import highlighting
+from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, versionlabels
-from sphinx.application import SphinxError
 from sphinx.util import ustrftime
 from sphinx.util.texescape import tex_escape_map
 from sphinx.util.smartypants import educateQuotesLatex

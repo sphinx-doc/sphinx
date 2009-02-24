@@ -44,8 +44,8 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
      docname_join, FilenameUniqDict, url_re
+from sphinx.errors import SphinxError
 from sphinx.directives import additional_xref_types
-from sphinx.application import SphinxError
 
 default_settings = {
     'embed_stylesheet': False,

@@ -18,7 +18,8 @@ from os import path
 from docutils.utils import SystemMessage
 
 from sphinx import __version__
-from sphinx.application import Sphinx, SphinxError
+from sphinx.errors import SphinxError
+from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import darkred, nocolor, color_terminal
 

@@ -16,15 +16,11 @@ import tempfile
 import ConfigParser
 from os import path
 
-from sphinx.application import SphinxError
+from sphinx.errors import ThemeError
 
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
-
-class ThemeError(SphinxError):
-    category = 'Theme error'
-
 
 class Theme(object):
     """
