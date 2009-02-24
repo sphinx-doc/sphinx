@@ -26,6 +26,15 @@ def _tobool(val):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
+def accesskey(context, key):
+    """Helper to output each access key only once."""
+    if '_accesskeys' not in context:
+        context.vars['_accesskeys'] = {}
+    if key not in context.vars['_accesskeys']:
+        context.vars['_accesskeys'][key] = 1
+        return 'accesskey="%s"' % key
+    return ''
+
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     """
@@ -64,6 +73,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.globals['debug'] = contextfunction(pformat)
+        self.environment.globals['accesskey'] = contextfunction(accesskey)
         if use_i18n:
             self.environment.install_gettext_translations(builder.translator)
 
