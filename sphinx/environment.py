@@ -837,7 +837,7 @@ class BuildEnvironment:
            file relations from it."""
         if toctreenode['glob']:
             self.glob_toctrees.add(docname)
-        if toctreenode['numbered']:
+        if toctreenode.get('numbered'):
             self.numbered_toctrees.add(docname)
         includefiles = toctreenode['includefiles']
         for includefile in includefiles:
