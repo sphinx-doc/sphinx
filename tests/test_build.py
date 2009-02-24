@@ -70,6 +70,11 @@ HTML_XPATH = {
         ".//img[@src='../_images/img1.png']": '',
         ".//img[@src='../_images/rimg.png']": '',
     },
+    'subdir/includes.html': {
+        ".//pre/span": 'line 1',
+        ".//pre/span": 'line 2',
+        ".//a[@href='../_downloads/img.png']": '',
+    },
     'includes.html': {
         ".//pre": u'Max Strauß',
         ".//a[@href='_downloads/img.png']": '',

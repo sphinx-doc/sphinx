@@ -264,9 +264,12 @@ Referencing downloadable files
 
       See :download:`this example script <../example.py>`.
 
-   The given filename is relative to the directory the current source file is
-   contained in.  The ``../example.py`` file will be copied to the output
-   directory, and a suitable link generated to it.
+   The given filename is usually relative to the directory the current source
+   file is contained in, but if it absolute (starting with ``/``), it is taken
+   as relative to the top source directory.
+
+   The ``example.py`` file will be copied to the output directory, and a
+   suitable link generated to it.
 
 
 Other semantic markup

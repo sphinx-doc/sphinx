@@ -52,8 +52,9 @@ New features added
     the directive -- this allows you to define your document
     structure, but place the links yourself.
 
-  - Image paths can now be absolute (like ``/images/foo.png``).
-    They are treated as relative to the top source directory.
+  - Paths to images, literal include files and download files
+    can now be absolute (like ``/images/foo.png``).  They are
+    treated as relative to the top source directory.
 
   - #52: There is now a ``hlist`` directive, creating a compact
     list by placing distributing items into multiple columns.

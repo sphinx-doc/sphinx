@@ -7,6 +7,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import sys
 import codecs
 from os import path
@@ -95,11 +96,12 @@ class LiteralInclude(Directive):
             return [document.reporter.warning('File insertion disabled',
                                               line=self.lineno)]
         env = document.settings.env
-        rel_fn = filename
-        sourcename = self.state_machine.input_lines.source(
-            self.lineno - self.state_machine.input_offset - 1)
-        source_dir = path.dirname(path.abspath(sourcename))
-        fn = path.normpath(path.join(source_dir, rel_fn))
+        if filename.startswith('/') or filename.startswith(os.sep):
+            rel_fn = filename[1:]
+        else:
+            docdir = path.dirname(env.doc2path(env.docname, base=None))
+            rel_fn = path.normpath(path.join(docdir, filename))
+        fn = path.join(env.srcdir, rel_fn)
 
         if 'pyobject' in self.options and 'lines' in self.options:
             return [document.reporter.warning(

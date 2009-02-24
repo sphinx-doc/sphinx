@@ -13,6 +13,7 @@ Contents:
 
    images
    subdir/images
+   subdir/includes
    includes
    markup
    desc

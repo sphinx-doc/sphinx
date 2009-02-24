@@ -24,12 +24,10 @@ from glob import glob
 from string import ascii_uppercase as uppercase
 from itertools import izip, groupby
 try:
-    import hashlib
-    md5 = hashlib.md5
+    from hashlib import md5
 except ImportError:
     # 2.4 compatibility
-    import md5
-    md5 = md5.new
+    from md5 import md5
 
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
@@ -682,7 +680,12 @@ class BuildEnvironment:
         """
         docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(addnodes.download_reference):
-            filepath = path.normpath(path.join(docdir, node['reftarget']))
+            targetname = node['reftarget']
+            if targetname.startswith('/') or targetname.startswith(os.sep):
+                # absolute
+                filepath = targetname[1:]
+            else:
+                filepath = path.normpath(path.join(docdir, node['reftarget']))
             self.dependencies.setdefault(docname, set()).add(filepath)
             if not os.access(path.join(self.srcdir, filepath), os.R_OK):
                 self.warn(docname, 'Download file not readable: %s' % filepath,
@@ -952,9 +955,6 @@ class BuildEnvironment:
              node.astext()))
 
     def note_dependency(self, filename):
-        basename = path.dirname(self.doc2path(self.docname, base=None))
-        # this will do the right thing when filename is absolute too
-        filename = path.join(basename, filename)
         self.dependencies.setdefault(self.docname, set()).add(filename)
     # -------
 

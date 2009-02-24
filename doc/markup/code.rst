@@ -99,7 +99,9 @@ Includes
 
       .. literalinclude:: example.py
 
-   The file name is relative to the current file's path.
+   The file name is usually relative to the current file's path.  However, if it
+   is absolute (starting with ``/``), it is relative to the top source
+   directory.
 
    The directive also supports the ``linenos`` flag option to switch on line
    numbers, and a ``language`` option to select a language different from the
@@ -144,7 +146,8 @@ Includes
    .. versionadded:: 0.4.3
       The ``encoding`` option.
    .. versionadded:: 0.6
-      The ``pyobject``, ``lines``, ``start-after`` and ``end-before`` options.
+      The ``pyobject``, ``lines``, ``start-after`` and ``end-before`` options,
+      as well as support for absolute filenames.
 
 
 .. rubric:: Footnotes
