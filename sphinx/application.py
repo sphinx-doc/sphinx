@@ -89,6 +89,7 @@ class Sphinx(object):
                  confoverrides, status, warning=sys.stderr, freshenv=False,
                  warningiserror=False, tags=None):
         self.next_listener_id = 0
+        self._extensions = {}
         self._listeners = {}
         self.builderclasses = BUILTIN_BUILDERS.copy()
         self.builder = None
@@ -190,7 +191,9 @@ class Sphinx(object):
     # general extensibility interface
 
     def setup_extension(self, extension):
-        """Import and setup a Sphinx extension module."""
+        """Import and setup a Sphinx extension module. No-op if called twice."""
+        if extension in self._extensions:
+            return
         try:
             mod = __import__(extension, None, None, ['setup'])
         except ImportError, err:
@@ -198,6 +201,7 @@ class Sphinx(object):
                                  err)
         if hasattr(mod, 'setup'):
             mod.setup(self)
+        self._extensions[extension] = mod
 
     def import_object(self, objname, source=None):
         """Import an object from a 'module.name' string."""
