@@ -16,12 +16,10 @@ import posixpath
 import cPickle as pickle
 from os import path
 try:
-    import hashlib
-    md5 = hashlib.md5
+    from hashlib import md5
 except ImportError:
     # 2.4 compatibility
-    import md5
-    md5 = md5.new
+    from md5 import md5
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
