@@ -135,6 +135,12 @@ directive.
 
      .. versionadded:: 0.5
 
+   * :dir:`automodule` and :dir:`autoclass` also has an ``member-order`` option
+     that can be used to override the global value of
+     :confval:`autodoc_member_order` for one directive.
+
+     .. versionadded:: 0.6
+
    .. note::
 
       In an :dir:`automodule` directive with the ``members`` option set, only
@@ -198,6 +204,14 @@ There are also new config values that you can set:
       Only the ``__init__`` method's docstring is inserted.
 
    .. versionadded:: 0.3
+
+.. confval:: autodoc_member_order
+
+   This value selects if automatically documented members are sorted
+   alphabetical (value ``'alphabetical'``) or by member type (value
+   ``'groupwise'``).  The default is alphabetical.
+
+   .. versionadded:: 0.6
 
 
 Docstring preprocessing

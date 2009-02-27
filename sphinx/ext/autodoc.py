@@ -218,6 +218,8 @@ class Documenter(object):
     content_indent = u'   '
     #: priority if multiple documenters return True from can_document_member
     priority = 0
+    #: order if autodoc_member_order is set to 'groupwise'
+    member_order = 0
 
     option_spec = {'noindex': bool_option}
 
@@ -548,6 +550,7 @@ class Documenter(object):
         members_check_module, members = self.get_object_members(want_all)
 
         # document non-skipped members
+        memberdocumenters = []
         for (mname, member, isattr) in self.filter_members(members, want_all):
             classes = [cls for cls in AutoDirective._registry.itervalues()
                        if cls.can_document_member(member, mname, isattr, self)]
@@ -560,11 +563,19 @@ class Documenter(object):
             # of inner classes can be documented
             full_mname = self.modname + '::' + \
                               '.'.join(self.objpath + [mname])
-            memberdocmtr = classes[-1](self.directive, full_mname,
-                                       self.indent)
-            memberdocmtr.generate(all_members=True,
-                                  real_modname=self.real_modname,
-                                  check_module=members_check_module)
+            memberdocumenters.append(
+                classes[-1](self.directive, full_mname, self.indent))
+
+        if (self.options.member_order or self.env.config.autodoc_member_order) \
+               == 'groupwise':
+            # sort by group; relies on stable sort to keep items in the
+            # same group sorted alphabetically
+            memberdocumenters.sort(key=lambda d: d.member_order)
+
+        for documenter in memberdocumenters:
+            documenter.generate(all_members=True,
+                                real_modname=self.real_modname,
+                                check_module=members_check_module)
 
         # reset current objects
         self.env.autodoc_current_module = None
@@ -655,6 +666,7 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
+        'member-order': identity,
     }
 
     @classmethod
@@ -767,6 +779,7 @@ class FunctionDocumenter(ModuleLevelDocumenter):
     Specialized Documenter subclass for functions.
     """
     objtype = 'function'
+    member_order = 30
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -800,10 +813,11 @@ class ClassDocumenter(ModuleLevelDocumenter):
     Specialized Documenter subclass for classes.
     """
     objtype = 'class'
+    member_order = 20
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': bool_option,
-        'show-inheritance': bool_option,
+        'show-inheritance': bool_option, 'member-order': identity,
     }
 
     @classmethod
@@ -897,6 +911,7 @@ class ExceptionDocumenter(ClassDocumenter):
     Specialized ClassDocumenter subclass for exceptions.
     """
     objtype = 'exception'
+    member_order = 10
 
     # needs a higher priority than ClassDocumenter
     priority = 10
@@ -912,6 +927,7 @@ class DataDocumenter(ModuleLevelDocumenter):
     Specialized Documenter subclass for data items.
     """
     objtype = 'data'
+    member_order = 40
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -926,6 +942,7 @@ class MethodDocumenter(ClassLevelDocumenter):
     Specialized Documenter subclass for methods (normal, static and class).
     """
     objtype = 'method'
+    member_order = 50
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -939,10 +956,14 @@ class MethodDocumenter(ClassLevelDocumenter):
                (isinstance(self.object, MethodType) and
                 self.object.im_self is not None):
             self.directivetype = 'classmethod'
+            # document class and static members before ordinary ones
+            self.member_order = self.member_order - 1
         elif isinstance(self.object, FunctionType) or \
              (isinstance(self.object, BuiltinFunctionType) and
               self.object.__self__ is not None):
             self.directivetype = 'staticmethod'
+            # document class and static members before ordinary ones
+            self.member_order = self.member_order - 1
         else:
             self.directivetype = 'method'
         return ret
@@ -966,11 +987,13 @@ class AttributeDocumenter(ClassLevelDocumenter):
     Specialized Documenter subclass for attributes.
     """
     objtype = 'attribute'
+    member_order = 60
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isdescriptor(member) or \
-               (not isinstance(parent, ModuleDocumenter) and isattr)
+        return (isdescriptor(member) and not
+                isinstance(member, (FunctionType, BuiltinFunctionType))) \
+               or (not isinstance(parent, ModuleDocumenter) and isattr)
 
     def document_members(self, all_members=False):
         pass
@@ -1033,6 +1056,7 @@ class AutoDirective(Directive):
         old_reporter = self.state.memo.reporter
         self.state.memo.reporter = AutodocReporter(self.result,
                                                    self.state.memo.reporter)
+
         if self.name == 'automodule':
             node = nodes.section()
             # necessary so that the child nodes get the right source/line set
@@ -1068,6 +1092,7 @@ def setup(app):
     app.add_autodocumenter(AttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True)
+    app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

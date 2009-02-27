@@ -148,6 +148,11 @@ New features added
   - Autodoc can document classes as functions now if explicitly
     marked with `autofunction`.
 
+  - Autodoc can now order members either alphabetically (like
+    previously) or by member type; configurable either with the
+    config value ``autodoc_member_order`` or a ``member-order``
+    option per directive.
+
   - The function ``Sphinx.add_directive()`` now also supports
     docutils 0.5-style directive classes.  If they inherit from
     ``sphinx.util.compat.Directive``, they also work with
