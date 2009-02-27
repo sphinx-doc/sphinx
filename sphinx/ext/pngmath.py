@@ -193,10 +193,15 @@ def html_visit_math(self, node):
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node['latex']).strip())
     else:
-        self.body.append(
-            '<img class="math" src="%s" alt="%s" %s/>' %
-            (fname, self.encode(node['latex']).strip(),
-             depth and 'style="vertical-align: %dpx" ' % (-depth) or ''))
+        if depth is None:
+            self.body.append(
+                '<img class="math" src="%s" alt="%s"/>' %
+                (fname, self.encode(node['latex']).strip()))
+        else:
+            self.body.append(
+                '<img class="math" src="%s" alt="%s" '
+                'style="vertical-align: %dpx"/>' %
+                (fname, self.encode(node['latex']).strip(), -depth))
     raise nodes.SkipNode
 
 def html_visit_displaymath(self, node):
