@@ -182,19 +182,6 @@ directive.
 
 There are also new config values that you can set:
 
-.. confval:: automodule_skip_lines
-
-   This value (whose default is ``0``) can be used to skip an amount of lines in
-   every module docstring that is processed by an :dir:`automodule` directive.
-   This is provided because some projects like to put headings in the module
-   docstring, which would then interfere with your sectioning, or automatic
-   fields with version control tags, that you don't want to put in the generated
-   documentation.
-
-   .. deprecated:: 0.4
-      Use the more versatile docstring processing provided by
-      :event:`autodoc-process-docstring`.
-
 .. confval:: autoclass_content
 
    This value selects what content will be inserted into the main body of an
