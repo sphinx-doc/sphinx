@@ -86,7 +86,9 @@ Sphinx comes with a selection of themes to choose from:
   - **bgcolor** (CSS color): Body background color.
   - **textcolor** (CSS color): Body text color.
   - **linkcolor** (CSS color): Body link color.
-  - **headcolor** (CSS color): Text color for headings.
+  - **headbgcolor** (CSS color): Background color for headings.
+  - **headtextcolor** (CSS color): Text color for headings.
+  - **headlinkcolor** (CSS color): Link color for headings.
   - **codebgcolor** (CSS color): Background color for code blocks.
   - **codetextcolor** (CSS color): Default text color for code blocks, if not
     set differently by the highlighting style.

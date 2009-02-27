@@ -154,9 +154,9 @@ div.body h4,
 div.body h5,
 div.body h6 {
     font-family: {{ theme_headfont }};
-    background-color: #f2f2f2;
+    background-color: {{ theme_headbgcolor }};
     font-weight: normal;
-    color: {{ theme_headcolor }};
+    color: {{ theme_headtextcolor }};
     border-bottom: 1px solid #ccc;
     margin: 20px -20px 10px -20px;
     padding: 3px 0 3px 10px;
@@ -170,14 +170,14 @@ div.body h5 { font-size: 110%; }
 div.body h6 { font-size: 100%; }
 
 a.headerlink {
-    color: #c60f0f;
+    color: {{ theme_headlinkcolor }};
     font-size: 0.8em;
     padding: 0 4px 0 4px;
     text-decoration: none;
 }
 
 a.headerlink:hover {
-    background-color: #c60f0f;
+    background-color: {{ theme_headlinkcolor }};
     color: white;
 }
 
