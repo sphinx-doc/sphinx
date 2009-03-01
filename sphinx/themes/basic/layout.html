@@ -127,8 +127,12 @@
     {%- if hasdoc('about') %}
     <link rel="author" title="{{ _('About these documents') }}" href="{{ pathto('about') }}" />
     {%- endif %}
+    {%- if hasdoc('genindex') %}
     <link rel="index" title="{{ _('Index') }}" href="{{ pathto('genindex') }}" />
+    {%- endif %}
+    {%- if hasdoc('search') %}
     <link rel="search" title="{{ _('Search') }}" href="{{ pathto('search') }}" />
+    {%- endif %}
     {%- if hasdoc('copyright') %}
     <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
     {%- endif %}
