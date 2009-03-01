@@ -1051,6 +1051,11 @@ class AutoDirective(Directive):
         if not self.result:
             return self.warnings
 
+        # record all filenames as dependencies -- this will at least
+        # partially make automatic invalidation possible
+        for fn in self.filename_set:
+            self.env.note_dependency(fn)
+
         # use a custom reporter that correctly assigns lines to source
         # filename/description and lineno
         old_reporter = self.state.memo.reporter
