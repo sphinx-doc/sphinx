@@ -14,6 +14,7 @@ class BaseNode(object):
     """
     Node superclass for both terminal and nonterminal nodes.
     """
+    parent = None
 
     def _eq(self, other):
         raise NotImplementedError
