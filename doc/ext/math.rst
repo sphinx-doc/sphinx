@@ -108,8 +108,8 @@ There are various config values you can set to influence how the images are buil
 .. confval:: pngmath_latex
 
    The command name with which to invoke LaTeX.  The default is ``'latex'``; you
-   may need to set this to a full path if ``latex`` not in the executable search
-   path.
+   may need to set this to a full path if ``latex`` is not in the executable
+   search path.
 
    Since this setting is not portable from system to system, it is normally not
    useful to set it in ``conf.py``; rather, giving it on the
