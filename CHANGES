@@ -137,6 +137,8 @@ New features added
 
 * Extensions and API:
 
+  - New ``graphviz`` extension to embed graphviz graphs.
+
   - Autodoc now has a reusable Python API, which can be used to
     create custom types of objects to auto-document (e.g. Zope
     interfaces).  See also ``Sphinx.add_autodocumenter()``.

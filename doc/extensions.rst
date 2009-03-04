@@ -44,6 +44,8 @@ These extensions are built in and can be activated by respective entries in the
    ext/doctest
    ext/intersphinx
    ext/math
+   ext/graphviz
+   ext/inheritance
    ext/refcounting
    ext/ifconfig
    ext/coverage

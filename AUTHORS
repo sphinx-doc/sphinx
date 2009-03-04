@@ -6,6 +6,7 @@ Substantial parts of the templates were written by Armin Ronacher
 Other contributors, listed alphabetically, are:
 
 * Daniel Bültmann -- todo extension
+* Charles Duffy -- original graphviz extension
 * Josip Dzolonga -- coverage builder
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
