@@ -89,7 +89,9 @@ class TocTree(Directive):
                         % entry, line=self.lineno))
         subnode = addnodes.toctree()
         subnode['parent'] = env.docname
+        # entries contains all entries (self references, external links etc.)
         subnode['entries'] = entries
+        # includefiles only entries that are documents
         subnode['includefiles'] = includefiles
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
         subnode['glob'] = glob
