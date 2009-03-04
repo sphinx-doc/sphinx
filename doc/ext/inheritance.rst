@@ -1,7 +1,7 @@
 .. highlight:: rest
 
-The inheritance diagram extension
-=================================
+:mod:`sphinx.ext.inheritance_diagram` -- Include inheritance diagrams
+=====================================================================
 
 .. module:: sphinx.ext.inheritance_diagram
    :synopsis: Support for displaying inheritance diagrams via graphviz.

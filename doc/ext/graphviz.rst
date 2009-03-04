@@ -1,7 +1,7 @@
 .. highlight:: rest
 
-The Graphviz extension
-======================
+:mod:`sphinx.ext.graphviz` -- Add Graphviz graphs
+=================================================
 
 .. module:: sphinx.ext.graphviz
    :synopsis: Support for Graphviz graphs.
