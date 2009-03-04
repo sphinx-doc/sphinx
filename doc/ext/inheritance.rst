@@ -1,0 +1,46 @@
+.. highlight:: rest
+
+The inheritance diagram extension
+=================================
+
+.. module:: sphinx.ext.inheritance_diagram
+   :synopsis: Support for displaying inheritance diagrams via graphviz.
+
+.. versionadded:: 0.6
+
+This extension allows you to include inheritance diagrams, rendered via the
+:mod:`Graphviz extension <sphinx.ext.graphviz>`.
+
+It adds this directive:
+
+.. directive:: inheritance-diagram
+
+   This directive has one or more arguments, each giving a module or class
+   name.  Class names can be unqualified; in that case they are taken to exist
+   in the currently described module (see :dir:`module`).
+
+   For each given class, and each class in each given module, the base classes
+   are determined.  Then, from all classes and their base classes, a graph is
+   generated which is then rendered via the graphviz extension to a directed
+   graph.
+
+   This directive supports an option called ``parts`` that, if given, must be an
+   integer, advising the directive to remove that many parts of module names
+   from the displayed names.  (For example, if all your class names start with
+   ``lib.``, you can give ``:parts: 1`` to remove that prefix from the displayed
+   node names.)
+
+
+New config values are:
+
+.. confval:: inheritance_graph_attrs
+
+   A dictionary of graphviz graph attributes for inheritance diagrams.
+
+.. confval:: inheritance_node_attrs
+
+   A dictionary of graphviz node attributes for inheritance diagrams.
+
+.. confval:: inheritance_edge_attrs
+
+   A dictionary of graphviz edge attributes for inheritance diagrams.
