@@ -19,8 +19,6 @@ such a document name.
 Examples for document names are ``index``, ``library/zipfile``, or
 ``reference/datamodel/types``.  Note that there is no leading slash.
 
-This is a :abbr:`LIFO (last-in, first-out)` and a :abbr:`LIFO (last-in, first-out)`.
-
 
 The TOC tree
 ------------
