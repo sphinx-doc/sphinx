@@ -453,10 +453,13 @@ class BuildEnvironment:
         return added, changed, removed
 
     def update(self, config, srcdir, doctreedir, app=None):
-        """(Re-)read all files new or changed since last update.
-        Yields a summary and then docnames as it processes them.
-        Store all environment docnames in the canonical format
-        (ie using SEP as a separator in place of os.path.sep)."""
+        """
+        (Re-)read all files new or changed since last update.  Returns a
+        summary, the total count of documents to reread and an iterator that
+        yields docnames as it processes them.  Store all environment docnames in
+        the canonical format (ie using SEP as a separator in place of
+        os.path.sep).
+        """
         config_changed = False
         if self.config is None:
             msg = '[new config] '
@@ -482,6 +485,7 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.doctreedir = doctreedir
         self.find_files(config)
+        self.config = config
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
@@ -492,30 +496,31 @@ class BuildEnvironment:
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
-        yield msg
 
-        self.config = config
-        self.app = app
+        def update_generator():
+            self.app = app
 
-        # clear all files no longer present
-        for docname in removed:
+            # clear all files no longer present
+            for docname in removed:
+                if app:
+                    app.emit('env-purge-doc', self, docname)
+                self.clear_doc(docname)
+
+            # read all new and changed files
+            to_read = added | changed
+            for docname in sorted(to_read):
+                yield docname
+                self.read_doc(docname, app=app)
+
+            if config.master_doc not in self.all_docs:
+                self.warn(None, 'master file %s not found' %
+                          self.doc2path(config.master_doc))
+
+            self.app = None
             if app:
-                app.emit('env-purge-doc', self, docname)
-            self.clear_doc(docname)
+                app.emit('env-updated', self)
 
-        # read all new and changed files
-        to_read = added | changed
-        for docname in sorted(to_read):
-            yield docname
-            self.read_doc(docname, app=app)
-
-        if config.master_doc not in self.all_docs:
-            self.warn(None, 'master file %s not found' %
-                      self.doc2path(config.master_doc))
-
-        self.app = None
-        if app:
-            app.emit('env-updated', self)
+        return msg, len(added | changed), update_generator()
 
     def check_dependents(self, already):
         to_rewrite = self.assign_section_numbers()

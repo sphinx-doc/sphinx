@@ -109,7 +109,7 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen):
+    def status_iterator(self, iterable, length, summary, colorfunc=darkgreen):
         l = -1
         for item in iterable:
             if l == -1:
@@ -119,6 +119,17 @@ class Builder(object):
             yield item
         if l == 0:
             self.info()
+
+    ## new version with progress info
+    #def status_iterator(self, iterable, length, summary, colorfunc=darkgreen):
+    #    l = 0
+    #    for item in iterable:
+    #        if l == 0:
+    #            self.info(bold(summary))
+    #        l += 1
+    #        self.info('  [%3d%%] %s\n' % (100*l/length, colorfunc(item)),
+    #                  nonl=1)
+    #        yield item
 
     supported_image_types = []
 
@@ -251,12 +262,11 @@ class Builder(object):
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
         self.info(bold('updating environment: '), nonl=1)
-        iterator = self.env.update(self.config, self.srcdir,
-                                   self.doctreedir, self.app)
-        # the first item in the iterator is a summary message
-        self.info(iterator.next())
-        for docname in self.status_iterator(iterator, 'reading sources... ',
-                                            purple):
+        msg, length, iterator = self.env.update(self.config, self.srcdir,
+                                                self.doctreedir, self.app)
+        self.info(msg)
+        for docname in self.status_iterator(iterator, length,
+                                            'reading sources... ', purple):
             updated_docnames.add(docname)
             # nothing further to do, the environment has already
             # done the reading
@@ -327,7 +337,7 @@ class Builder(object):
         # write target files
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        for docname in self.status_iterator(sorted(docnames),
+        for docname in self.status_iterator(sorted(docnames), len(docnames),
                                             'writing output... ', darkgreen):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc(docname, doctree)
