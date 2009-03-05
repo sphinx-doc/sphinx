@@ -60,8 +60,8 @@ class LaTeXBuilder(Builder):
     def init_document_data(self):
         preliminary_document_data = map(list, self.config.latex_documents)
         if not preliminary_document_data:
-            self.warn('No "latex_documents" config value found; no documents '
-                      'will be written.')
+            self.warn('no "latex_documents" config value found; no documents '
+                      'will be written')
             return
         # assign subdirs to titles
         self.titles = []
@@ -121,8 +121,9 @@ class LaTeXBuilder(Builder):
                             includefile, self.env.get_doctree(includefile))
                         self.docnames.add(includefile)
                     except Exception:
-                        self.warn('%s: toctree contains ref to nonexisting '
-                                  'file %r' % (docname, includefile))
+                        self.warn('toctree contains ref to nonexisting '
+                                  'file %r' % includefile,
+                                  self.builder.env.doc2path(docname))
                     else:
                         sof = addnodes.start_of_file(docname=includefile)
                         sof.children = subtree.children

@@ -36,6 +36,7 @@ def setup_module():
         platform = '',
         deprecated = False,
         members = [],
+        member_order = 'alphabetic',
     )
 
     directive = Struct(

@@ -87,7 +87,8 @@ class CheckExternalLinksBuilder(Builder):
                 self.write_entry('broken', docname, lineno, uri + ': ' + s)
                 self.broken[uri] = (r, s)
                 if self.app.quiet:
-                    self.warn('%s:%s: broken link: %s' % (docname, lineno, uri))
+                    self.warn('broken link: %s' % uri,
+                              '%s:%s' % (self.env.doc2path(docname), lineno))
             else:
                 self.info(' - ' + purple('redirected') + ' to ' + s)
                 self.write_entry('redirected', docname,
@@ -99,7 +100,8 @@ class CheckExternalLinksBuilder(Builder):
             self.warn(uri + ' - ' + red('malformed!'))
             self.write_entry('malformed', docname, lineno, uri)
             if self.app.quiet:
-                self.warn('%s:%s: malformed link: %s' % (docname, lineno, uri))
+                self.warn('malformed link: %s' % uri,
+                          '%s:%s' % (self.env.doc2path(docname), lineno))
             self.app.statuscode = 1
 
         if self.broken:

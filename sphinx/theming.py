@@ -48,7 +48,7 @@ class Theme(object):
                         tname = theme[:-4]
                         tinfo = zfile
                     except Exception:
-                        builder.warn('File %r on theme path is not a valid '
+                        builder.warn('file %r on theme path is not a valid '
                                      'zipfile or contains no theme' % theme)
                         continue
                 else:

@@ -53,7 +53,7 @@ def test_output():
 
         old_count = app._warncount
         app.warn("Bad news!")
-        assert warnings.getvalue() == "WARNING: Bad news!\n"
+        assert warnings.getvalue() == "warning: Bad news!\n"
         assert app._warncount == old_count + 1
     finally:
         app.cleanup()

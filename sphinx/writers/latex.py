@@ -368,7 +368,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif self.this_is_the_title:
             if len(node.children) != 1 and not isinstance(node.children[0],
                                                           nodes.Text):
-                self.builder.warn('document title is not a single Text node')
+                self.builder.warn(
+                    'document title is not a single Text node',
+                    '%s:%s' % (self.builder.env.doc2path(self.curfilestack[-1]),
+                               node.line or ''))
             if not self.elements['title']:
                 # text needs to be escaped since it is inserted into
                 # the output literally
@@ -394,8 +397,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.table.caption = self.encode(node.astext())
             raise nodes.SkipNode
         else:
-            self.builder.warn('encountered title node not in section, topic, '
-                              'table, admonition or sidebar')
+            self.builder.warn(
+                'encountered title node not in section, topic, table, '
+                'admonition or sidebar',
+                '%s:%s' % (self.builder.env.doc2path(self.curfilestack[-1]),
+                           node.line or ''))
             self.body.append('\\textbf{')
             self.context.append('}\n')
         self.in_title = 1
@@ -1002,7 +1008,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\grammartoken{')
             self.context.append('}')
         else:
-            self.builder.warn('unusable reference target found: %s' % uri)
+            self.builder.warn(
+                'unusable reference target found: %s' % uri,
+                '%s:%s' % (self.builder.env.doc2path(self.curfilestack[-1]),
+                           node.line or ''))
             self.context.append('')
     def depart_reference(self, node):
         self.body.append(self.context.pop())

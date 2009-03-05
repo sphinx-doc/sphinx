@@ -657,7 +657,7 @@ class StandaloneHTMLBuilder(Builder):
             finally:
                 f.close()
         except (IOError, OSError), err:
-            self.warn("Error writing file %s: %s" % (outfilename, err))
+            self.warn("error writing file %s: %s" % (outfilename, err))
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
             source_name = path.join(self.outdir, '_sources',

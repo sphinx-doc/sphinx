@@ -134,16 +134,17 @@ class Sphinx(object):
             self.emit('build-finished', None)
         self.builder.cleanup()
 
-    def warn(self, message):
+    def warn(self, message, location=None, prefix='warning: '):
+        warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
+                   '%s%s\n' % (prefix, message)
         if self.warningiserror:
-            raise SphinxWarning('WARNING: %s\n' % message)
+            raise SphinxWarning(warntext)
         self._warncount += 1
         try:
-            self._warning.write('WARNING: %s\n' % message)
+            self._warning.write(warntext)
         except UnicodeEncodeError:
             encoding = getattr(self._warning, 'encoding', 'ascii')
-            self._warning.write(('WARNING: %s\n' % message).encode(encoding,
-                                                                   'replace'))
+            self._warning.write(warntext.encode(encoding, 'replace'))
 
     def info(self, message='', nonl=False):
         try:

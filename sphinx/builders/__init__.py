@@ -136,9 +136,9 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    self.warn('%s:%s: no matching candidate for image URI %r' %
-                              (node.source, getattr(node, 'lineno', ''),
-                               node['uri']))
+                    self.warn(
+                        'no matching candidate for image URI %r' % node['uri'],
+                        '%s:%s' % (node.source, getattr(node, 'line', '')))
                     continue
                 node['uri'] = candidate
             else:
@@ -249,7 +249,7 @@ class Builder(object):
         updated_docnames = set()
         # while reading, collect all warnings from docutils
         warnings = []
-        self.env.set_warnfunc(warnings.append)
+        self.env.set_warnfunc(lambda *args: warnings.append(args))
         self.info(bold('updating environment: '), nonl=1)
         iterator = self.env.update(self.config, self.srcdir,
                                    self.doctreedir, self.app)
@@ -261,8 +261,7 @@ class Builder(object):
             # nothing further to do, the environment has already
             # done the reading
         for warning in warnings:
-            if warning.strip():
-                self.warn(warning)
+            self.warn(*warning)
         self.env.set_warnfunc(self.warn)
 
         doccount = len(updated_docnames)
@@ -327,14 +326,13 @@ class Builder(object):
 
         # write target files
         warnings = []
-        self.env.set_warnfunc(warnings.append)
+        self.env.set_warnfunc(lambda *args: warnings.append(args))
         for docname in self.status_iterator(sorted(docnames),
                                             'writing output... ', darkgreen):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc(docname, doctree)
         for warning in warnings:
-            if warning.strip():
-                self.warn(warning)
+            self.warn(*warning)
         self.env.set_warnfunc(self.warn)
 
     def prepare_writing(self, docnames):

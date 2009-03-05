@@ -71,12 +71,12 @@ default_substitutions = set([
 dummy_reporter = Reporter('', 4, 4)
 
 
-class RedirStream(object):
-    def __init__(self, writefunc):
-        self.writefunc = writefunc
+class WarningStream(object):
+    def __init__(self, warnfunc):
+        self.warnfunc = warnfunc
     def write(self, text):
         if text.strip():
-            self.writefunc(text)
+            self.warnfunc(text, None, '')
 
 
 class NoUri(Exception):
@@ -323,15 +323,15 @@ class BuildEnvironment:
 
     def set_warnfunc(self, func):
         self._warnfunc = func
-        self.settings['warning_stream'] = RedirStream(func)
+        self.settings['warning_stream'] = WarningStream(func)
 
     def warn(self, docname, msg, lineno=None):
         if docname:
             if lineno is None:
                 lineno = ''
-            self._warnfunc('%s:%s: %s' % (self.doc2path(docname), lineno, msg))
+            self._warnfunc(msg, '%s:%s' % (self.doc2path(docname), lineno))
         else:
-            self._warnfunc('GLOBAL:: ' + msg)
+            self._warnfunc(msg)
 
     def clear_doc(self, docname):
         """Remove all traces of a source file in the inventory."""
@@ -688,7 +688,7 @@ class BuildEnvironment:
                 filepath = path.normpath(path.join(docdir, node['reftarget']))
             self.dependencies.setdefault(docname, set()).add(filepath)
             if not os.access(path.join(self.srcdir, filepath), os.R_OK):
-                self.warn(docname, 'Download file not readable: %s' % filepath,
+                self.warn(docname, 'download file not readable: %s' % filepath,
                           getattr(node, 'line', None))
                 continue
             uniquename = self.dlfiles.add_file(docname, filepath)
@@ -707,7 +707,7 @@ class BuildEnvironment:
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.find('://') != -1:
-                self.warn(docname, 'Nonlocal image URI found: %s' % imguri,
+                self.warn(docname, 'nonlocal image URI found: %s' % imguri,
                           node.line)
                 candidates['?'] = imguri
                 continue
@@ -735,7 +735,7 @@ class BuildEnvironment:
                                 f.close()
                         except (OSError, IOError):
                             self.warn(docname,
-                                      'Image file %s not readable' % filename)
+                                      'image file %s not readable' % filename)
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:
@@ -745,7 +745,7 @@ class BuildEnvironment:
             for imgpath in candidates.itervalues():
                 self.dependencies.setdefault(docname, set()).add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    self.warn(docname, 'Image file not readable: %s' % imgpath,
+                    self.warn(docname, 'image file not readable: %s' % imgpath,
                               node.line)
                     continue
                 self.images.add_file(docname, imgpath)
@@ -970,7 +970,7 @@ class BuildEnvironment:
             f.close()
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 4,
-                                    stream=RedirStream(self._warnfunc))
+                                    stream=WarningStream(self._warnfunc))
         return doctree
 
 

@@ -22,14 +22,14 @@ def setup_module():
     global app, env
     app = TestApp(srcdir='(temp)')
     env = BuildEnvironment(app.srcdir, app.doctreedir, app.config)
-    env.set_warnfunc(warnings.append)
+    env.set_warnfunc(lambda *args: warnings.append(args))
 
 def teardown_module():
     app.cleanup()
 
 def warning_emitted(file, text):
     for warning in warnings:
-        if file+':' in warning and text in warning:
+        if len(warning) == 2 and file+':' in warning[1] and text in warning[0]:
             return True
     return False
 
@@ -46,8 +46,8 @@ def test_first_update():
     assert docnames == env.found_docs == set(env.all_docs)
 
 def test_images():
-    assert warning_emitted('images.txt', 'Image file not readable: foo.png')
-    assert warning_emitted('images.txt', 'Nonlocal image URI found: '
+    assert warning_emitted('images.txt', 'image file not readable: foo.png')
+    assert warning_emitted('images.txt', 'nonlocal image URI found: '
                            'http://www.python.org/logo.png')
 
     tree = env.get_doctree('images')
