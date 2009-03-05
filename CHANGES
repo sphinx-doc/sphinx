@@ -44,6 +44,9 @@ New features added
   - #10: Added HTML section numbers, enabled by giving a
     ``:numbered:`` flag to the ``toctree`` directive.
 
+  - #114: Added an ``abbr`` role to markup abbreviations and
+    acronyms.
+
   - The ``literalinclude`` directive now supports several more
     options, to include only parts of a file.
 

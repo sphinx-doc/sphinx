@@ -152,6 +152,7 @@ Option list:
    try2_stmt: "try" ":" `suite`
             : "finally" ":" `suite`
 
+Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
 Index markup
 ------------

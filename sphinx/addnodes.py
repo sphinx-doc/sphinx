@@ -84,6 +84,9 @@ class highlightlang(nodes.Element): pass
 # like emphasis, but doesn't apply further text processors, e.g. smartypants
 class literal_emphasis(nodes.emphasis): pass
 
+# for abbreviations (with explanations)
+class abbreviation(nodes.Inline, nodes.TextElement): pass
+
 # glossary
 class glossary(nodes.Element): pass
 
@@ -109,4 +112,5 @@ nodes._add_node_class_names("""index desc desc_content desc_signature
       desc_parameter desc_optional download_reference hlist hlistcol
       centered versionmodified seealso productionlist production toctree
       pending_xref compact_paragraph highlightlang literal_emphasis
-      glossary acks module start_of_file tabular_col_spec meta""".split())
+      abbreviation glossary acks module start_of_file tabular_col_spec
+      meta""".split())

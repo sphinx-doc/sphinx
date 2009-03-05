@@ -216,6 +216,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.written_ids = set()
         self.footnotestack = []
         self.curfilestack = []
+        self.handled_abbrs = set()
         if self.elements['docclass'] == 'manual':
             if builder.config.latex_use_parts:
                 self.top_sectionlevel = 0
@@ -1042,6 +1043,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(r'\textbf{')
     def depart_strong(self, node):
         self.body.append('}')
+
+    def visit_abbreviation(self, node):
+        abbr = node.astext()
+        self.body.append(r'\textsc{')
+        # spell out the explanation once
+        if node.hasattr('explanation') and abbr not in self.handled_abbrs:
+            self.context.append('} (%s)' % self.encode(node['explanation']))
+            self.handled_abbrs.add(abbr)
+        else:
+            self.context.append('}')
+    def depart_abbreviation(self, node):
+        self.body.append(self.context.pop())
 
     def visit_title_reference(self, node):
         self.body.append(r'\emph{')

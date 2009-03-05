@@ -645,6 +645,12 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_strong(self, node):
         self.add_text('**')
 
+    def visit_abbreviation(self, node):
+        self.add_text('')
+    def depart_abbreviation(self, node):
+        if node.hasattr('explanation'):
+            self.add_text(' (%s)' % node['explanation'])
+
     def visit_title_reference(self, node):
         self.add_text('*')
     def depart_title_reference(self, node):

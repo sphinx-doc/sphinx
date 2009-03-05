@@ -226,6 +226,18 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
     return [retnode], []
 
 
+_abbr_re = re.compile('\((.*)\)$')
+
+def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    text = utils.unescape(text)
+    m = _abbr_re.search(text)
+    if m is None:
+        return [addnodes.abbreviation(text, text)], []
+    abbr = text[:m.start()].strip()
+    expl = m.group(1)
+    return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
+
+
 specific_docroles = {
     'data': xfileref_role,
     'exc': xfileref_role,
@@ -254,6 +266,7 @@ specific_docroles = {
     'menuselection': menusel_role,
     'file': emph_literal_role,
     'samp': emph_literal_role,
+    'abbr': abbr_role,
 }
 
 for rolename, func in specific_docroles.iteritems():

@@ -278,6 +278,16 @@ Other semantic markup
 The following roles don't do anything special except formatting the text
 in a different style:
 
+.. role:: abbr
+
+   An abbreviation.  If the role content contains a parenthesized explanation,
+   it will be treated specially: it will be shown in a tool-tip in HTML, and
+   output only once in LaTeX.
+
+   Example: ``:abbr:`LIFO (last-in, first-out)```.
+
+   .. versionadded:: 0.6
+
 .. role:: command
 
    The name of an OS-level command, such as ``rm``.

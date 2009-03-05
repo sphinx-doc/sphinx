@@ -453,6 +453,14 @@ class HTMLTranslator(BaseTranslator):
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
 
+    def visit_abbreviation(self, node):
+        attrs = {}
+        if node.hasattr('explanation'):
+            attrs['title'] = node['explanation']
+        self.body.append(self.starttag(node, 'abbr', **attrs))
+    def depart_abbreviation(self, node):
+        self.body.append('</abbr>')
+
     def depart_title(self, node):
         close_tag = self.context[-1]
         if self.add_permalinks and self.builder.add_permalinks and \
