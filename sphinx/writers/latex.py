@@ -264,8 +264,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for bi in self.bibitems:
                 # cite_key: underscores must not be escaped
                 cite_key = bi[0].replace(r"\_", "_")
-                self.body.append('\\bibitem[%s]{%s}{%s}\n' %
-                                 (bi[0], cite_key, bi[1]))
+                self.body.append('\\bibitem[%s]{%s}{\hypertarget{%s}{} %s}\n' %
+                                 (bi[0], cite_key, cite_key.lower(), bi[1]))
             self.body.append('\\end{thebibliography}\n')
             self.bibitems = []
 
@@ -774,6 +774,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_module(self, node):
         modname = node['modname']
+        self.body.append('\n\\hypertarget{module-%s}{}' %
+                         (modname.replace(' ','')))
         self.body.append('\n\\declaremodule[%s]{}{%s}' % (
             modname.replace('_', ''), self.encode(modname)))
         self.body.append('\n\\modulesynopsis{%s}' %
