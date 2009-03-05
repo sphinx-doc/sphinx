@@ -134,7 +134,7 @@ class Sphinx(object):
             self.emit('build-finished', None)
         self.builder.cleanup()
 
-    def warn(self, message, location=None, prefix='warning: '):
+    def warn(self, message, location=None, prefix='WARNING: '):
         warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
                    '%s%s\n' % (prefix, message)
         if self.warningiserror:
