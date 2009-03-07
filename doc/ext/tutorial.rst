@@ -109,8 +109,8 @@ new Python module called :file:`todo.py` and add the setup function::
                     latex=(visit_todo_node, depart_todo_node),
                     text=(visit_todo_node, depart_todo_node))
 
-       app.add_directive('todo', todo_directive, 1, (0, 0, 1))
-       app.add_directive('todolist', todolist_directive, 0, (0, 0, 0))
+       app.add_directive('todo', TodoDirective)
+       app.add_directive('todolist', TodolistDirective)
        app.connect('doctree-resolved', process_todo_nodes)
        app.connect('env-purge-doc', purge_todos)
 
@@ -132,9 +132,7 @@ the individual calls do is the following:
 
   We need to create the two node classes ``todo`` and ``todolist`` later.
 
-* :meth:`~Sphinx.add_directive` adds a new *directive*, given by name, handler
-  function and two arguments that specify if the directive has content and how
-  many arguments it accepts.
+* :meth:`~Sphinx.add_directive` adds a new *directive*, given by name and class.
 
   The handler functions are created later.
 
@@ -168,17 +166,25 @@ docutils classes defined in :mod:`docutils.nodes`.  ``todo`` inherits from
 is just a "general" node.
 
 
-The Directive Handlers
-----------------------
+The Directive Classes
+---------------------
 
-A directive handler is a function with a host of arguments, covered in detail in
-the docutils documentation.  It must return a list of nodes.
+A directive class is a class deriving usually from
+``docutils.parsers.rst.Directive``.  Since the class-based directive interface
+doesn't exist yet in Docutils 0.4, Sphinx has another base class called
+``sphinx.util.compat.Directive`` that you can derive your directive from, and it
+will work with both Docutils 0.4 and 0.5 upwards.  The directive interface is
+covered in detail in the docutils documentation; the important thing is that the
+class has a method ``run`` that returns a list of nodes.
 
 The ``todolist`` directive is quite simple::
 
-   def todolist_directive(name, arguments, options, content, lineno,
-                          content_offset, block_text, state, state_machine):
-       return [todolist('')]
+   from sphinx.util.compat import Directive
+
+   class TodolistDirective(Directive):
+
+       def run(self):
+           return [todolist('')]
 
 An instance of our ``todolist`` node class is created and returned.  The
 todolist directive has neither content nor arguments that need to be handled.
@@ -187,30 +193,35 @@ The ``todo`` directive function looks like this::
 
    from sphinx.util.compat import make_admonition
 
-   def todo_directive(name, arguments, options, content, lineno,
-                      content_offset, block_text, state, state_machine):
-       env = state.document.settings.env
+   class TodoDirective(Directive):
 
-       targetid = "todo-%s" % env.index_num
-       env.index_num += 1
-       targetnode = nodes.target('', '', ids=[targetid])
+       # this enables content in the directive
+       has_content = True
 
-       ad = make_admonition(todo, name, [_('Todo')], options, content, lineno,
-                            content_offset, block_text, state, state_machine)
+       def run(self):
+           env = self.state.document.settings.env
 
-       if not hasattr(env, 'todo_all_todos'):
-           env.todo_all_todos = []
-       env.todo_all_todos.append({
-           'docname': env.docname,
-           'lineno': lineno,
-           'todo': ad[0].deepcopy(),
-           'target': targetnode,
-       })
+           targetid = "todo-%s" % env.index_num
+           env.index_num += 1
+           targetnode = nodes.target('', '', ids=[targetid])
 
-       return [targetnode] + ad
+           ad = make_admonition(todo, self.name, [_('Todo')], self.options,
+                                self.content, self.lineno, self.content_offset,
+                                self.block_text, self.state, self.state_machine)
+
+           if not hasattr(env, 'todo_all_todos'):
+               env.todo_all_todos = []
+           env.todo_all_todos.append({
+               'docname': env.docname,
+               'lineno': self.lineno,
+               'todo': ad[0].deepcopy(),
+               'target': targetnode,
+           })
+
+           return [targetnode] + ad
 
 Several important things are covered here. First, as you can see, you can refer
-to the build environment instance using ``state.document.settings.env``.
+to the build environment instance using ``self.state.document.settings.env``.
 
 Then, to act as a link target (from the todolist), the todo directive needs to
 return a target node in addition to the todo node.  The target ID (in HTML, this
