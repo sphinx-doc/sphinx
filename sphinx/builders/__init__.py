@@ -18,7 +18,7 @@ from docutils import nodes
 from sphinx import package_dir, locale
 from sphinx.util import SEP, relative_uri
 from sphinx.environment import BuildEnvironment
-from sphinx.util.console import bold, purple, darkgreen
+from sphinx.util.console import bold, purple, darkgreen, term_width_line
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -109,27 +109,33 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def status_iterator(self, iterable, length, summary, colorfunc=darkgreen):
-        l = -1
+    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen):
+        l = 0
         for item in iterable:
-            if l == -1:
+            if l == 0:
                 self.info(bold(summary), nonl=1)
-                l = 0
+                l = 1
             self.info(colorfunc(item) + ' ', nonl=1)
             yield item
-        if l == 0:
+        if l == 1:
             self.info()
 
-    ## new version with progress info
-    #def status_iterator(self, iterable, length, summary, colorfunc=darkgreen):
-    #    l = 0
-    #    for item in iterable:
-    #        if l == 0:
-    #            self.info(bold(summary))
-    #        l += 1
-    #        self.info('  [%3d%%] %s\n' % (100*l/length, colorfunc(item)),
-    #                  nonl=1)
-    #        yield item
+    # new version with progress info
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0):
+        if length == 0:
+            for item in self.old_status_iterator(iterable, summary, colorfunc):
+                yield item
+            return
+        l = 0
+        summary = bold(summary)
+        for item in iterable:
+            l += 1
+            self.info(term_width_line('%s[%3d%%] %s' %
+                                      (summary, 100*l/length,
+                                       colorfunc(item))), nonl=1)
+            yield item
+        if l > 0:
+            self.info()
 
     supported_image_types = []
 
@@ -265,8 +271,8 @@ class Builder(object):
         msg, length, iterator = self.env.update(self.config, self.srcdir,
                                                 self.doctreedir, self.app)
         self.info(msg)
-        for docname in self.status_iterator(iterator, length,
-                                            'reading sources... ', purple):
+        for docname in self.status_iterator(iterator, 'reading sources... ',
+                                            purple, length):
             updated_docnames.add(docname)
             # nothing further to do, the environment has already
             # done the reading
@@ -337,8 +343,8 @@ class Builder(object):
         # write target files
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        for docname in self.status_iterator(sorted(docnames), len(docnames),
-                                            'writing output... ', darkgreen):
+        for docname in self.status_iterator(
+            sorted(docnames), 'writing output... ', darkgreen, len(docnames)):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc(docname, doctree)
         for warning in warnings:

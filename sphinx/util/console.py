@@ -16,25 +16,26 @@ codes = {}
 def get_terminal_width():
     """Borrowed from the py lib."""
     try:
-        import os, termios, fcntl, struct
-        call = fcntl.ioctl(0, termios.TIOCGWINSZ, "\000"*8)
-        height, width = struct.unpack("hhhh", call)[:2]
+        import termios, fcntl, struct
+        call = fcntl.ioctl(0, termios.TIOCGWINSZ,
+                           struct.pack('hhhh', 0, 0, 0, 0))
+        height, width = struct.unpack('hhhh', call)[:2]
         terminal_width = width
     except (SystemExit, KeyboardInterrupt):
         raise
     except:
         # FALLBACK
-        terminal_width = int(os.environ.get('COLUMNS', 80))-1
+        terminal_width = int(os.environ.get('COLUMNS', 80)) - 1
     return terminal_width
 
 _tw = get_terminal_width()
 
-def print_and_backspace(text, func):
+def term_width_line(text):
     if not codes:
         # if no coloring, don't output fancy backspaces
-        func(text)
+        return text + '\n'
     else:
-        func(text.ljust(_tw) + _tw * "\b")
+        return text.ljust(_tw) + '\r'
 
 def color_terminal():
     if 'COLORTERM' in os.environ:
