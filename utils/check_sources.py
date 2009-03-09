@@ -7,8 +7,8 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: Copyright 2006-2009 by Georg Brandl.
-    :license: GNU GPL, see LICENSE for more details.
+    :copyright: Copyright 2006-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys, os, re
