@@ -115,6 +115,9 @@ def render_dot(self, code, options, format, prefix='graphviz'):
                           self.builder.config.graphviz_dot)
         self.builder._graphviz_warned_dot = True
         return None
+    # graphviz expects UTF-8 by default
+    if isinstance(code, unicode):
+        code = code.encode('utf-8')
     stdout, stderr = p.communicate(code)
     if p.returncode != 0:
         raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
