@@ -194,6 +194,8 @@ New features added
 Release 0.5.2 (in development)
 ==============================
 
+* Properly escape ``|`` in LaTeX output.
+
 * #71: If a decoding error occurs in source files, print a
   warning and replace the characters by "?".
 
