@@ -289,7 +289,7 @@ emitted at the end of phase 3 and allows custom resolving to be done::
 
    def process_todo_nodes(app, doctree, fromdocname):
        if not app.config.todo_include_todos:
-           for node in doctree.traverse(todo_node):
+           for node in doctree.traverse(todo):
                node.parent.remove(node)
 
        # Replace all todolist nodes with a list of the collected todos.
