@@ -10,6 +10,11 @@ This function is called at initialization time with one argument, the
 application object representing the Sphinx process.  This application object has
 the following public API:
 
+.. method:: Sphinx.setup_extension(name)
+
+   Load the extension given by the module *name*.  Use this if your extension
+   needs the features provided by another extension.
+
 .. method:: Sphinx.add_builder(builder)
 
    Register a new builder.  *builder* must be a class that inherits from
