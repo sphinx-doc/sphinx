@@ -14,10 +14,12 @@ Other contributors, listed alphabetically, are:
 * Dave Kuhlman -- original LaTeX writer
 * Thomas Lamb -- linkcheck builder
 * Will Maier -- directory HTML builder
+* Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * Stefan Seefeld -- toctree improvements
 * Antonio Valentino -- qthelp builder
-* Pauli Virtanen -- autodoc improvements
+* Pauli Virtanen -- autodoc improvements, autosummary extension
+* Stefan van der Walt -- autosummary extension
 * Sebastian Wiesner -- image handling, distutils support
 
 Many thanks for all contributions!
