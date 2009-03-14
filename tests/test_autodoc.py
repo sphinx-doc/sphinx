@@ -3,27 +3,29 @@
     test_autodoc
     ~~~~~~~~~~~~
 
-    Test the autodoc extension.  This tests mainly the RstGenerator; the auto
+    Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 from util import *
 
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import RstGenerator, cut_lines, between
+from sphinx.ext.autodoc import AutoDirective, Documenter, add_documenter, \
+     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 
 def setup_module():
-    global app, lid, options, gen
+    global app, lid, options, directive
 
     app = TestApp()
     app.builder.env.app = app
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
+    app.connect('autodoc-skip-member', skip_member)
 
     options = Struct(
         inherited_members = False,
@@ -33,27 +35,26 @@ def setup_module():
         synopsis = '',
         platform = '',
         deprecated = False,
+        members = [],
+        member_order = 'alphabetic',
     )
 
-    gen = TestGenerator(options, app)
+    directive = Struct(
+        env = app.builder.env,
+        genopt = options,
+        result = ViewList(),
+        warn = warnfunc,
+        filename_set = set(),
+    )
 
 def teardown_module():
     app.cleanup()
 
 
-class TestGenerator(RstGenerator):
-    """Generator that handles warnings without a reporter."""
+_warnings = []
 
-    def __init__(self, options, app):
-        self.options = options
-        self.env = app.builder.env
-        self.lineno = 42
-        self.filename_set = set()
-        self.warnings = []
-        self.result = ViewList()
-
-    def warn(self, msg):
-        self.warnings.append(msg)
+def warnfunc(msg):
+    _warnings.append(msg)
 
 
 processed_docstrings = []
@@ -71,62 +72,73 @@ def process_signature(app, what, name, obj, options, args, retann):
         return '42', None
 
 
-def test_resolve_name():
-    # for modules
-    assert gen.resolve_name('module', 'test_autodoc') == \
-           ('test_autodoc', 'test_autodoc', [], None, None)
-    assert gen.resolve_name('module', 'test.test_autodoc') == \
-           ('test.test_autodoc', 'test.test_autodoc', [], None, None)
+def skip_member(app, what, name, obj, skip, options):
+    if name.startswith('_'):
+        return True
+    if name == 'skipmeth':
+        return True
 
-    assert gen.resolve_name('module', 'test(arg)') == \
-           ('test', 'test', [], None, None)
-    assert 'ignoring signature arguments' in gen.warnings[0]
-    del gen.warnings[:]
+
+def test_parse_name():
+    def verify(objtype, name, result):
+        inst = AutoDirective._registry[objtype](directive, name)
+        assert inst.parse_name()
+        assert (inst.modname, inst.objpath, inst.args, inst.retann) == result
+
+    # for modules
+    verify('module', 'test_autodoc', ('test_autodoc', [], None, None))
+    verify('module', 'test.test_autodoc', ('test.test_autodoc', [], None, None))
+    verify('module', 'test(arg)', ('test', [], 'arg', None))
+    assert 'signature arguments' in _warnings[0]
+    del _warnings[:]
 
     # for functions/classes
-    assert gen.resolve_name('function', 'util.raises') == \
-           ('util.raises', 'util', ['raises'], None, None)
-    assert gen.resolve_name('function', 'util.raises(exc) -> None') == \
-           ('util.raises', 'util', ['raises'], 'exc', ' -> None')
-    gen.env.autodoc_current_module = 'util'
-    assert gen.resolve_name('function', 'raises') == \
-           ('raises', 'util', ['raises'], None, None)
-    gen.env.autodoc_current_module = None
-    gen.env.currmodule = 'util'
-    assert gen.resolve_name('function', 'raises') == \
-           ('raises', 'util', ['raises'], None, None)
-    assert gen.resolve_name('class', 'TestApp') == \
-           ('TestApp', 'util', ['TestApp'], None, None)
+    verify('function', 'util.raises', ('util', ['raises'], None, None))
+    verify('function', 'util.raises(exc) -> None',
+           ('util', ['raises'], 'exc', 'None'))
+    directive.env.autodoc_current_module = 'util'
+    verify('function', 'raises', ('util', ['raises'], None, None))
+    directive.env.autodoc_current_module = None
+    directive.env.currmodule = 'util'
+    verify('function', 'raises', ('util', ['raises'], None, None))
+    verify('class', 'TestApp', ('util', ['TestApp'], None, None))
 
     # for members
-    gen.env.currmodule = 'foo'
-    assert gen.resolve_name('method', 'util.TestApp.cleanup') == \
-           ('util.TestApp.cleanup', 'util', ['TestApp', 'cleanup'], None, None)
-    gen.env.currmodule = 'util'
-    gen.env.currclass = 'Foo'
-    gen.env.autodoc_current_class = 'TestApp'
-    assert gen.resolve_name('method', 'cleanup') == \
-           ('cleanup', 'util', ['TestApp', 'cleanup'], None, None)
-    assert gen.resolve_name('method', 'TestApp.cleanup') == \
-           ('TestApp.cleanup', 'util', ['TestApp', 'cleanup'], None, None)
+    directive.env.currmodule = 'foo'
+    verify('method', 'util.TestApp.cleanup',
+           ('util', ['TestApp', 'cleanup'], None, None))
+    directive.env.currmodule = 'util'
+    directive.env.currclass = 'Foo'
+    directive.env.autodoc_current_class = 'TestApp'
+    verify('method', 'cleanup', ('util', ['TestApp', 'cleanup'], None, None))
+    verify('method', 'TestApp.cleanup',
+           ('util', ['TestApp', 'cleanup'], None, None))
 
     # and clean up
-    gen.env.currmodule = None
-    gen.env.currclass = None
-    gen.env.autodoc_current_class = None
+    directive.env.currmodule = None
+    directive.env.currclass = None
+    directive.env.autodoc_current_class = None
 
 
 def test_format_signature():
+    def formatsig(objtype, name, obj, args, retann):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.fullname = name
+        inst.doc_as_attr = False  # for class objtype
+        inst.object = obj
+        inst.args = args
+        inst.retann = retann
+        return inst.format_signature()
+
     # no signatures for modules
-    assert gen.format_signature('module', 'test', None, None, None) == ''
+    assert formatsig('module', 'test', None, None, None) == ''
 
     # test for functions
     def f(a, b, c=1, **d):
         pass
-    assert gen.format_signature('function', 'f', f, None, None) == '(a, b, c=1, **d)'
-    assert gen.format_signature('function', 'f', f, 'a, b, c, d', None) == \
-           '(a, b, c, d)'
-    assert gen.format_signature('function', 'f', f, None, ' -> None') == \
+    assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
+    assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
+    assert formatsig('function', 'f', f, None, 'None') == \
            '(a, b, c=1, **d) -> None'
 
     # test for classes
@@ -136,15 +148,15 @@ def test_format_signature():
         pass
     # no signature for classes without __init__
     for C in (D, E):
-        assert gen.format_signature('class', 'D', C, None, None) == ''
+        assert formatsig('class', 'D', C, None, None) == ''
     class F:
         def __init__(self, a, b=None):
             pass
     class G(F, object):
         pass
     for C in (F, G):
-        assert gen.format_signature('class', 'C', C, None, None) == '(a, b=None)'
-    assert gen.format_signature('class', 'C', D, 'a, b', ' -> X') == '(a, b) -> X'
+        assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
+    assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
     # test for methods
     class H:
@@ -152,26 +164,29 @@ def test_format_signature():
             pass
         def foo2(b, *c):
             pass
-    assert gen.format_signature('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
-    assert gen.format_signature('method', 'H.foo', H.foo1, 'a', None) == '(a)'
-    assert gen.format_signature('method', 'H.foo', H.foo2, None, None) == '(b, *c)'
+    assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
+    assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
+    assert formatsig('method', 'H.foo', H.foo2, None, None) == '(b, *c)'
 
     # test exception handling
-    raises(RuntimeError, gen.format_signature, 'function', 'int', int, None, None)
+    raises(TypeError, formatsig, 'function', 'int', int, None, None)
 
     # test processing by event handler
-    assert gen.format_signature('method', 'bar', H.foo1, None, None) == '42'
+    assert formatsig('method', 'bar', H.foo1, None, None) == '42'
 
 
 def test_get_doc():
-    def getdocl(*args):
-        # strip the empty line at the end
-        return list(gen.get_doc(*args))[:-1]
+    def getdocl(objtype, obj, encoding=None):
+        inst = AutoDirective._registry[objtype](directive, 'tmp')
+        inst.object = obj
+        ds = inst.get_doc(encoding)
+        # for testing purposes, concat them and strip the empty line at the end
+        return sum(ds, [])[:-1]
 
     # objects without docstring
     def f():
         pass
-    assert getdocl('function', 'f', f) == []
+    assert getdocl('function', f) == []
 
     # standard function, diverse docstring styles...
     def f():
@@ -181,7 +196,7 @@ def test_get_doc():
         Docstring
         """
     for func in (f, g):
-        assert getdocl('function', 'f', func) == ['Docstring']
+        assert getdocl('function', func) == ['Docstring']
 
     # first line vs. other lines indentation
     def f():
@@ -190,47 +205,67 @@ def test_get_doc():
         Other
           lines
         """
-    assert getdocl('function', 'f', f) == ['First line', '', 'Other', '  lines']
+    assert getdocl('function', f) == ['First line', '', 'Other', '  lines']
 
     # charset guessing (this module is encoded in utf-8)
     def f():
         """Döcstring"""
-    assert getdocl('function', 'f', f) == [u'Döcstring']
+    assert getdocl('function', f) == [u'Döcstring']
 
     # already-unicode docstrings must be taken literally
     def f():
         u"""Döcstring"""
-    assert getdocl('function', 'f', f) == [u'Döcstring']
+    assert getdocl('function', f) == [u'Döcstring']
 
     # class docstring: depends on config value which one is taken
     class C:
         """Class docstring"""
         def __init__(self):
             """Init docstring"""
-    gen.env.config.autoclass_content = 'class'
-    assert getdocl('class', 'C', C) == ['Class docstring']
-    gen.env.config.autoclass_content = 'init'
-    assert getdocl('class', 'C', C) == ['Init docstring']
-    gen.env.config.autoclass_content = 'both'
-    assert getdocl('class', 'C', C) == ['Class docstring', '', 'Init docstring']
+    directive.env.config.autoclass_content = 'class'
+    assert getdocl('class', C) == ['Class docstring']
+    directive.env.config.autoclass_content = 'init'
+    assert getdocl('class', C) == ['Init docstring']
+    directive.env.config.autoclass_content = 'both'
+    assert getdocl('class', C) == ['Class docstring', '', 'Init docstring']
 
     class D:
+        """Class docstring"""
+        def __init__(self):
+            """Init docstring
+
+            Other
+             lines
+            """
+
+    # Indentation is normalized for 'both'
+    assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
+                                   '', 'Other', ' lines']
+
+
+def test_docstring_processing():
+    def process(objtype, name, obj):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.object = obj
+        inst.fullname = name
+        return list(inst.process_doc(inst.get_doc()))
+
+    class E:
         def __init__(self):
             """Init docstring"""
 
     # docstring processing by event handler
-    assert getdocl('class', 'bar', D) == ['Init docstring', '', '42']
+    assert process('class', 'bar', E) == ['Init docstring', '', '42', '']
 
-
-def test_docstring_processing_functions():
-    lid = app.connect('autodoc-process-docstring', cut_lines(1, 1, ['function']))
+    lid = app.connect('autodoc-process-docstring',
+                      cut_lines(1, 1, ['function']))
     def f():
         """
         first line
         second line
         third line
         """
-    assert list(gen.get_doc('function', 'f', f)) == ['second line', '']
+    assert process('function', 'f', f) == ['second line', '']
     app.disconnect(lid)
 
     lid = app.connect('autodoc-process-docstring', between('---', ['function']))
@@ -242,117 +277,171 @@ def test_docstring_processing_functions():
         ---
         third line
         """
-    assert list(gen.get_doc('function', 'f', f)) == ['second line', '']
+    assert process('function', 'f', f) == ['second line', '']
     app.disconnect(lid)
 
 
+def test_new_documenter():
+    class MyDocumenter(ModuleLevelDocumenter):
+        objtype = 'integer'
+        directivetype = 'data'
+        priority = 100
+
+        @classmethod
+        def can_document_member(cls, member, membername, isattr, parent):
+            return isinstance(member, int)
+
+        def document_members(self, all_members=False):
+            return
+
+    add_documenter(MyDocumenter)
+
+    def assert_result_contains(item, objtype, name, **kw):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+        #print '\n'.join(directive.result)
+        assert len(_warnings) == 0, _warnings
+        assert item in directive.result
+        del directive.result[:]
+
+    options.members = ['integer']
+    assert_result_contains('.. data:: integer', 'module', 'test_autodoc')
+
+
 def test_generate():
-    def assert_warns(warn_str, *args):
-        gen.generate(*args)
-        assert len(gen.result) == 0, gen.result
-        assert len(gen.warnings) == 1, gen.warnings
-        assert warn_str in gen.warnings[0], gen.warnings
-        del gen.warnings[:]
+    def assert_warns(warn_str, objtype, name, **kw):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+        assert len(directive.result) == 0, directive.result
+        assert len(_warnings) == 1, _warnings
+        assert warn_str in _warnings[0], _warnings
+        del _warnings[:]
 
-    def assert_works(*args):
-        gen.generate(*args)
-        assert gen.result
-        assert len(gen.warnings) == 0, gen.warnings
-        del gen.result[:]
+    def assert_works(objtype, name, **kw):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+        assert directive.result
+        assert len(_warnings) == 0, _warnings
+        del directive.result[:]
 
-    def assert_processes(items, *args):
+    def assert_processes(items, objtype, name, **kw):
         del processed_docstrings[:]
         del processed_signatures[:]
-        assert_works(*args)
-        assert set(processed_docstrings) | set(processed_signatures) == set(items)
+        assert_works(objtype, name, **kw)
+        assert set(processed_docstrings) | set(processed_signatures) == \
+               set(items)
 
-    def assert_result_contains(item, *args):
-        gen.generate(*args)
-        print '\n'.join(gen.result)
-        assert len(gen.warnings) == 0, gen.warnings
-        assert item in gen.result
-        del gen.result[:]
+    def assert_result_contains(item, objtype, name, **kw):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+        #print '\n'.join(directive.result)
+        assert len(_warnings) == 0, _warnings
+        assert item in directive.result
+        del directive.result[:]
+
+    options.members = []
 
     # no module found?
     assert_warns("import for autodocumenting 'foobar'",
-                 'function', 'foobar', None, None)
+                 'function', 'foobar', more_content=None)
     # importing
     assert_warns("import/find module 'test_foobar'",
-                 'module', 'test_foobar', None, None)
+                 'module', 'test_foobar', more_content=None)
     # attributes missing
     assert_warns("import/find function 'util.foobar'",
-                 'function', 'util.foobar', None, None)
+                 'function', 'util.foobar', more_content=None)
 
     # test auto and given content mixing
-    gen.env.currmodule = 'test_autodoc'
-    assert_result_contains('   Function.', 'method', 'Class.meth', [], None)
+    directive.env.currmodule = 'test_autodoc'
+    assert_result_contains('   Function.', 'method', 'Class.meth')
     add_content = ViewList()
     add_content.append('Content.', '', 0)
-    assert_result_contains('   Function.', 'method', 'Class.meth', [], add_content)
-    assert_result_contains('   Content.', 'method', 'Class.meth', [], add_content)
+    assert_result_contains('   Function.', 'method',
+                           'Class.meth', more_content=add_content)
+    assert_result_contains('   Content.', 'method',
+                           'Class.meth', more_content=add_content)
 
     # test check_module
-    gen.generate('function', 'raises', None, None, check_module=True)
-    assert len(gen.result) == 0
+    inst = FunctionDocumenter(directive, 'raises')
+    inst.generate(check_module=True)
+    assert len(directive.result) == 0
 
     # assert that exceptions can be documented
-    assert_works('exception', 'test_autodoc.CustomEx', ['__all__'], None)
-    assert_works('exception', 'test_autodoc.CustomEx', [], None)
+    assert_works('exception', 'test_autodoc.CustomEx', all_members=True)
+    assert_works('exception', 'test_autodoc.CustomEx')
 
     # test diverse inclusion settings for members
-    should = [('class', 'Class')]
-    assert_processes(should, 'class', 'Class', [], None)
-    should.extend([('method', 'Class.meth')])
-    assert_processes(should, 'class', 'Class', ['meth'], None)
-    should.extend([('attribute', 'Class.prop')])
-    assert_processes(should, 'class', 'Class', ['__all__'], None)
+    should = [('class', 'test_autodoc.Class')]
+    assert_processes(should, 'class', 'Class')
+    should.extend([('method', 'test_autodoc.Class.meth')])
+    options.members = ['meth']
+    assert_processes(should, 'class', 'Class')
+    should.extend([('attribute', 'test_autodoc.Class.prop'),
+                   ('attribute', 'test_autodoc.Class.attr'),
+                   ('attribute', 'test_autodoc.Class.docattr'),
+                   ('attribute', 'test_autodoc.Class.udocattr')])
+    options.members = ALL
+    assert_processes(should, 'class', 'Class')
     options.undoc_members = True
-    should.append(('method', 'Class.undocmeth'))
-    assert_processes(should, 'class', 'Class', ['__all__'], None)
+    should.append(('method', 'test_autodoc.Class.undocmeth'))
+    assert_processes(should, 'class', 'Class')
     options.inherited_members = True
-    should.append(('method', 'Class.inheritedmeth'))
-    assert_processes(should, 'class', 'Class', ['__all__'], None)
+    should.append(('method', 'test_autodoc.Class.inheritedmeth'))
+    assert_processes(should, 'class', 'Class')
 
+    options.members = []
     # test module flags
-    assert_result_contains('.. module:: test_autodoc', 'module',
-                           'test_autodoc', [], None)
+    assert_result_contains('.. module:: test_autodoc', 'module', 'test_autodoc')
     options.synopsis = 'Synopsis'
-    assert_result_contains('   :synopsis: Synopsis', 'module', 'test_autodoc', [], None)
+    assert_result_contains('   :synopsis: Synopsis', 'module', 'test_autodoc')
     options.deprecated = True
-    assert_result_contains('   :deprecated:', 'module', 'test_autodoc', [], None)
+    assert_result_contains('   :deprecated:', 'module', 'test_autodoc')
     options.platform = 'Platform'
-    assert_result_contains('   :platform: Platform', 'module', 'test_autodoc', [], None)
+    assert_result_contains('   :platform: Platform', 'module', 'test_autodoc')
     # test if __all__ is respected for modules
-    assert_result_contains('.. class:: Class', 'module', 'test_autodoc',
-                           ['__all__'], None)
+    options.members = ALL
+    assert_result_contains('.. class:: Class', 'module', 'test_autodoc')
     try:
-        assert_result_contains('.. exception:: CustomEx', 'module', 'test_autodoc',
-                               ['__all__'], None)
+        assert_result_contains('.. exception:: CustomEx',
+                               'module', 'test_autodoc')
     except AssertionError:
         pass
     else:
         assert False, 'documented CustomEx which is not in __all__'
 
     # test noindex flag
+    options.members = []
     options.noindex = True
-    assert_result_contains('   :noindex:', 'module', 'test_autodoc', [], None)
-    assert_result_contains('   :noindex:', 'class', 'Base', [], None)
+    assert_result_contains('   :noindex:', 'module', 'test_autodoc')
+    assert_result_contains('   :noindex:', 'class', 'Base')
 
     # okay, now let's get serious about mixing Python and C signature stuff
     assert_result_contains('.. class:: CustomDict', 'class', 'CustomDict',
-                           ['__all__'], None)
+                           all_members=True)
+
+    # test inner class handling
+    assert_processes([('class', 'test_autodoc.Outer'),
+                      ('class', 'test_autodoc.Outer.Inner'),
+                      ('method', 'test_autodoc.Outer.Inner.meth')],
+                     'class', 'Outer', all_members=True)
+
+    # test generation for C modules (which have no source file)
+    directive.env.currmodule = 'time'
+    assert_processes([('function', 'time.asctime')], 'function', 'asctime')
+    assert_processes([('function', 'time.asctime')], 'function', 'asctime')
 
 
 # --- generate fodder ------------
 
 __all__ = ['Class']
 
+integer = 1
+
 class CustomEx(Exception):
     """My custom exception."""
 
     def f(self):
         """Exception method."""
-
 
 class Base(object):
     def inheritedmeth(self):
@@ -367,9 +456,25 @@ class Class(Base):
     def undocmeth(self):
         pass
 
+    def skipmeth(self):
+        """Method that should be skipped."""
+        pass
+
+    # should not be documented
+    skipattr = 'foo'
+
+    #: should be documented -- süß
+    attr = 'bar'
+
     @property
     def prop(self):
         """Property."""
+
+    docattr = 'baz'
+    """should likewise be documented -- süß"""
+
+    udocattr = 'quux'
+    u"""should be documented as well - süß"""
 
 class CustomDict(dict):
     """Docstring."""
@@ -379,3 +484,16 @@ def function(foo, *args, **kwds):
     Return spam.
     """
     pass
+
+
+class Outer(object):
+    """Foo"""
+
+    class Inner(object):
+        """Foo"""
+
+        def meth(self):
+            """Foo"""
+
+    # should be documented as an alias
+    factory = dict

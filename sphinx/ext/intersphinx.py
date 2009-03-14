@@ -20,8 +20,8 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import time
@@ -31,7 +31,7 @@ from os import path
 
 from docutils import nodes
 
-from sphinx.builder import INVENTORY_FILENAME
+from sphinx.builders.html import INVENTORY_FILENAME
 
 
 def fetch_inventory(app, uri, inv):
@@ -125,7 +125,7 @@ def missing_reference(app, env, node, contnode):
         if target not in env.intersphinx_inventory:
             return None
         type, proj, version, uri = env.intersphinx_inventory[target]
-    print "Intersphinx hit:", target, uri
+    # print "Intersphinx hit:", target, uri
     newnode = nodes.reference('', '')
     newnode['refuri'] = uri + '#' + target
     newnode['reftitle'] = '(in %s v%s)' % (proj, version)

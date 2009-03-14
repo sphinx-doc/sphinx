@@ -6,8 +6,8 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: 2008 by Josip Dzolonga, Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import re
@@ -16,7 +16,7 @@ import inspect
 import cPickle as pickle
 from os import path
 
-from sphinx.builder import Builder
+from sphinx.builders import Builder
 
 
 # utility
@@ -53,17 +53,17 @@ class CoverageBuilder(Builder):
 
         self.c_ignorexps = {}
         for (name, exps) in self.config.coverage_ignore_c_items.iteritems():
-            self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
-                                                        exps, self.warn)
-        self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
-                                                self.config.coverage_ignore_modules,
-                                                self.warn)
-        self.cls_ignorexps = compile_regex_list('coverage_ignore_classes',
-                                                self.config.coverage_ignore_classes,
-                                                self.warn)
-        self.fun_ignorexps = compile_regex_list('coverage_ignore_functions',
-                                                self.config.coverage_ignore_functions,
-                                                self.warn)
+            self.c_ignorexps[name] = compile_regex_list(
+                'coverage_ignore_c_items', exps, self.warn)
+        self.mod_ignorexps = compile_regex_list(
+            'coverage_ignore_modules', self.config.coverage_ignore_modules,
+            self.warn)
+        self.cls_ignorexps = compile_regex_list(
+            'coverage_ignore_classes', self.config.coverage_ignore_classes,
+            self.warn)
+        self.fun_ignorexps = compile_regex_list(
+            'coverage_ignore_functions', self.config.coverage_ignore_functions,
+            self.warn)
 
     def get_outdated_docs(self):
         return 'coverage overview'
@@ -128,7 +128,8 @@ class CoverageBuilder(Builder):
             try:
                 mod = __import__(mod_name, fromlist=['foo'])
             except ImportError, err:
-                self.warn('module %s could not be imported: %s' % (mod_name, err))
+                self.warn('module %s could not be imported: %s' %
+                          (mod_name, err))
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 
@@ -168,7 +169,8 @@ class CoverageBuilder(Builder):
 
                         attrs = []
 
-                        for attr_name, attr in inspect.getmembers(obj, inspect.ismethod):
+                        for attr_name, attr in inspect.getmembers(
+                               obj, inspect.ismethod):
                             if attr_name[0] == '_':
                                 # starts with an underscore, ignore it
                                 continue

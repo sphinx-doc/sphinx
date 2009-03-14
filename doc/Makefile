@@ -11,12 +11,13 @@ PAPEROPT_letter  = -D latex_paper_size=letter
 ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
                 $(SPHINXOPTS) .
 
-.PHONY: help clean html web htmlhelp latex changes linkcheck
+.PHONY: help clean html dirhtml pickle htmlhelp qthelp latex changes linkcheck doctest
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html      to make standalone HTML files"
-	@echo "  web       to make files usable by Sphinx.web"
+	@echo "  dirhtml   to make HTML files called index.html in directories"
+	@echo "  pickle    to make pickle files"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  changes   to make an overview over all changed/added/deprecated items"
@@ -31,13 +32,21 @@ html:
 	@echo
 	@echo "Build finished. The HTML pages are in _build/html."
 
+dirhtml:
+	mkdir -p _build/dirhtml _build/doctrees
+	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) _build/dirhtml
+	@echo
+	@echo "Build finished. The HTML pages are in _build/dirhtml."
+
+text:
+	mkdir -p _build/text _build/doctrees
+	$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) _build/text
+	@echo
+	@echo "Build finished."
+
 pickle:
 	mkdir -p _build/pickle _build/doctrees
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) _build/pickle
-	@echo
-	@echo "Build finished; now you can run"
-	@echo "  python -m sphinx.web _build/pickle"
-	@echo "to start the server."
 
 htmlhelp:
 	mkdir -p _build/htmlhelp _build/doctrees
@@ -45,6 +54,16 @@ htmlhelp:
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in _build/htmlhelp."
+
+qthelp:
+	mkdir -p _build/qthelp _build/doctrees
+	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) _build/qthelp
+	@echo
+	@echo "Build finished; now you can run qcollectiongenerator with the" \
+	      ".qhcp project file in build/qthelp."
+	@echo "# qcollectiongenerator _build/qthelp/Sphinx.qhcp"
+	@echo "To view the help collection:"
+	@echo "# assistant -collectionFile _build/qthelp/Sphinx.qhc"
 
 latex:
 	mkdir -p _build/latex _build/doctrees

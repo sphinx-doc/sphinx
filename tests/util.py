@@ -3,8 +3,8 @@
     Sphinx test suite utilities
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys
@@ -13,9 +13,14 @@ import StringIO
 import tempfile
 import shutil
 
-from functools import wraps
+try:
+    from functools import wraps
+except ImportError:
+    # functools is new in 2.4
+    wraps = lambda f: (lambda w: w)
 
-from sphinx import application, builder
+from sphinx import application
+from sphinx.ext.autodoc import AutoDirective
 
 from path import path
 
@@ -25,7 +30,7 @@ from nose import tools
 __all__ = [
     'test_root',
     'raises', 'raises_msg', 'Struct',
-    'ListOutput', 'TestApp', 'with_app',
+    'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir', 'write_file',
     'sprint',
 ]
@@ -93,8 +98,10 @@ class TestApp(application.Sphinx):
     """
 
     def __init__(self, srcdir=None, confdir=None, outdir=None, doctreedir=None,
-                 buildername='html', confoverrides=None, status=None, warning=None,
-                 freshenv=None, confname='conf.py', cleanenv=False):
+                 buildername='html', confoverrides=None,
+                 status=None, warning=None, freshenv=None,
+                 warningiserror=None, tags=None,
+                 confname='conf.py', cleanenv=False):
 
         application.CONFIG_FILENAME = confname
 
@@ -130,12 +137,15 @@ class TestApp(application.Sphinx):
             warning = ListOutput('stderr')
         if freshenv is None:
             freshenv = False
+        if warningiserror is None:
+            warningiserror = False
 
         application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                     buildername, confoverrides, status, warning,
-                                    freshenv)
+                                    freshenv, warningiserror, tags)
 
     def cleanup(self, doctrees=False):
+        AutoDirective._registry.clear()
         for tree in self.cleanup_trees:
             shutil.rmtree(tree, True)
 
@@ -149,10 +159,26 @@ def with_app(*args, **kwargs):
         @wraps(func)
         def deco(*args2, **kwargs2):
             app = TestApp(*args, **kwargs)
-            try:
-                func(app, *args2, **kwargs2)
-            finally:
-                app.cleanup()
+            func(app, *args2, **kwargs2)
+            # don't execute cleanup if test failed
+            app.cleanup()
+        return deco
+    return generator
+
+
+def gen_with_app(*args, **kwargs):
+    """
+    Make a TestApp with args and kwargs, pass it to the test and clean up
+    properly.
+    """
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            app = TestApp(*args, **kwargs)
+            for item in func(app, *args2, **kwargs2):
+                yield item
+            # don't execute cleanup if test failed
+            app.cleanup()
         return deco
     return generator
 

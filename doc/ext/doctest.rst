@@ -131,7 +131,7 @@ completely equivalent. ::
 
    Test-Output example:
 
-   .. testcode:: 
+   .. testcode::
 
       parrot.voom(3000)
 
@@ -148,6 +148,14 @@ There are also these config values for customizing the doctest extension:
 
    A list of directories that will be added to :data:`sys.path` when the doctest
    builder is used.  (Make sure it contains absolute paths.)
+
+.. confval:: doctest_global_setup
+
+   Python code that is treated like it were put in a ``testsetup`` directive for
+   *every* file that is tested, and for every group.  You can use this to
+   e.g. import modules you will always need in your doctests.
+
+   .. versionadded:: 0.6
 
 .. confval:: doctest_test_doctest_blocks
 
@@ -179,7 +187,7 @@ There are also these config values for customizing the doctest extension:
          >>> print 1
          1
 
-      Some more documentation text.      
+      Some more documentation text.
 
    This feature makes it easy for you to test doctests in docstrings included
    with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a

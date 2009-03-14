@@ -1,5 +1,288 @@
-Release 0.5 (in development)
+Release 0.6 (in development)
 ============================
+
+New features added
+------------------
+
+* Incompatible changes:
+
+  - Templating now requires the Jinja2 library, which is an enhanced
+    version of the old Jinja1 engine.  Since the syntax and semantic
+    is largely the same, very few fixes should be necessary in
+    custom templates.
+
+  - The "document" div tag has been moved out of the ``layout.html``
+    template's "document" block, because the closing tag was already
+    outside.  If you overwrite this block, you need to remove your
+    "document" div tag as well.
+
+  - The ``autodoc_skip_member`` event now also gets to decide
+    whether to skip members whose name starts with underscores.
+    Previously, these members were always automatically skipped.
+    Therefore, if you handle this event, add something like this
+    to your event handler to restore the old behavior::
+
+       if name.startswith('_'):
+           return True
+
+* Theming support, see the new section in the documentation.
+
+* Markup:
+
+  - Due to popular demand, added a ``:doc:`` role which directly
+    links to another document without the need of creating a
+    label to which a ``:ref:`` could link to.
+
+  - #4: Added a ``:download:`` role that marks a non-document file
+    for inclusion into the HTML output and links to it.
+
+  - Added an ``only`` directive that can selectively include text
+    based on enabled "tags".  Tags can be given on the command
+    line.  Also, the current builder output format (e.g. "html" or
+    "latex") is always a defined tag.
+
+  - #10: Added HTML section numbers, enabled by giving a
+    ``:numbered:`` flag to the ``toctree`` directive.
+
+  - #114: Added an ``abbr`` role to markup abbreviations and
+    acronyms.
+
+  - The ``literalinclude`` directive now supports several more
+    options, to include only parts of a file.
+
+  - The ``toctree`` directive now supports a ``:hidden:`` flag,
+    which will prevent links from being generated in place of
+    the directive -- this allows you to define your document
+    structure, but place the links yourself.
+
+  - Paths to images, literal include files and download files
+    can now be absolute (like ``/images/foo.png``).  They are
+    treated as relative to the top source directory.
+
+  - #52: There is now a ``hlist`` directive, creating a compact
+    list by placing distributing items into multiple columns.
+
+  - #77: If a description environment with info field list only
+    contains one ``:param:`` entry, no bullet list is generated.
+
+  - #6: Don't generate redundant ``<ul>`` for top-level TOC tree
+    items, which leads to a visual separation of TOC entries.
+
+  - #23: Added a ``classmethod`` directive along with ``method``
+    and ``staticmethod``.
+
+  - Scaled images now get a link to the unscaled version.
+
+  - SVG images are now supported in HTML (via ``<object>`` and
+    ``<embed>`` tags).
+
+  - Added a ``toctree`` callable to the templates, and the ability
+    to include external links in toctrees. The 'collapse' keyword
+    argument indicates whether or not to only display subitems of
+    the current page.  (Defaults to True.)
+
+* Configuration:
+
+  - The new config value ``rst_epilog`` can contain reST that is
+    appended to each source file that is read.  This is the right
+    place for global substitutions.
+
+  - The new ``html_add_permalinks`` config value can be used to
+    switch off the generated "paragraph sign" permalinks for each
+    heading and definition environment.
+
+  - The new ``html_show_sourcelink`` config value can be used to
+    switch off the links to the reST sources in the sidebar.
+
+  - The default value for ``htmlhelp_basename`` is now the project
+    title, cleaned up as a filename.
+
+  - The new ``modindex_common_prefix`` config value can be used to
+    ignore certain package names for module index sorting.
+
+  - The new ``trim_footnote_reference_space`` config value mirrors
+    the docutils config value of the same name and removes the
+    space before a footnote reference that is necessary for reST
+    to recognize the reference.
+
+  - The new ``latex_additional_files`` config value can be used to
+    copy files (that Sphinx doesn't copy automatically, e.g. if they
+    are referenced in custom LaTeX added in ``latex_elements``) to
+    the build directory.
+
+* Builders:
+
+  - The HTML builder now stores a small file named ``.buildinfo`` in
+    its output directory.  It stores a hash of config values that
+    can be used to determine if a full rebuild needs to be done (e.g.
+    after changing ``html_theme``).
+
+  - New builder for Qt help collections, by Antonio Valentino.
+
+  - The new ``DirectoryHTMLBuilder`` (short name ``dirhtml``) creates
+    a separate directory for every page, and places the page there
+    in a file called ``index.html``.  Therefore, page URLs and links
+    don't need to contain ``.html``.
+
+  - The new ``html_link_suffix`` config value can be used to select
+    the suffix of generated links between HTML files.
+
+  - #96: The LaTeX builder now supports figures wrapped by text, when
+    using the ``figwidth`` option and right/left alignment.
+
+* New translations:
+  
+  - Italian by Sandro Dentella.
+
+  - Ukrainian by Petro Sasnyk.
+
+  - Finnish by Jukka Inkeri.
+
+* Extensions and API:
+
+  - New ``graphviz`` extension to embed graphviz graphs.
+
+  - New ``inheritance_diagram`` extension to embed... inheritance
+    diagrams!
+
+  - Autodoc now has a reusable Python API, which can be used to
+    create custom types of objects to auto-document (e.g. Zope
+    interfaces).  See also ``Sphinx.add_autodocumenter()``.
+
+  - Autodoc now handles documented attributes.
+
+  - Autodoc now handles inner classes and their methods.
+
+  - Autodoc can document classes as functions now if explicitly
+    marked with `autofunction`.
+
+  - Autodoc can now order members either alphabetically (like
+    previously) or by member type; configurable either with the
+    config value ``autodoc_member_order`` or a ``member-order``
+    option per directive.
+
+  - The function ``Sphinx.add_directive()`` now also supports
+    docutils 0.5-style directive classes.  If they inherit from
+    ``sphinx.util.compat.Directive``, they also work with
+    docutils 0.4.
+
+  - There is now a ``Sphinx.add_lexer()`` method to be able to use
+    custom Pygments lexers easily.
+
+  - There is now ``Sphinx.add_generic_role()`` to mirror the
+    docutils' own function.
+
+* Other changes:
+
+  - Config overrides for single dict keys can now be given on the
+    command line.
+
+  - There is now a ``doctest_global_setup`` config value that can
+    be used to give setup code for all doctests in the documentation.
+
+  - Source links in HTML are now generated with ``rel="nofollow"``.
+
+  - Quickstart can now generate a Windows ``make.bat`` file.
+
+  - #62: There is now a ``-w`` option for sphinx-build that writes
+    warnings to a file, in addition to stderr.
+
+  - There is now a ``-W`` option for sphinx-build that turns warnings
+    into errors.
+
+
+Release 0.5.2 (in development)
+==============================
+
+* Properly escape ``|`` in LaTeX output.
+
+* #71: If a decoding error occurs in source files, print a
+  warning and replace the characters by "?".
+
+* Fix a problem in the HTML search if the index takes too long
+  to load.
+
+* Don't output system messages while resolving, because they
+  would stay in the doctrees even if keep_warnings is false.
+
+* #82: Determine the correct path for dependencies noted by
+  docutils.  This fixes behavior where a source with dependent
+  files was always reported as changed.
+
+* Recognize toctree directives that are not on section toplevel,
+  but within block items, such as tables.
+
+* Use a new RFC base URL, since rfc.org seems down.
+
+* Fix a crash in the todolist directive when no todo items are
+  defined.
+
+* Don't call LaTeX or dvipng over and over again if it was not
+  found once, and use text-only latex as a substitute in that case.
+
+* Fix problems with footnotes in the LaTeX output.
+
+* Prevent double hyphens becoming en-dashes in literal code in
+  the LaTeX output.
+
+* Open literalinclude files in universal newline mode to allow
+  arbitrary newline conventions.
+
+* Actually make the ``-Q`` option work.
+
+* #86: Fix explicit document titles in toctrees.
+
+* #81: Write environment and search index in a manner that is safe
+  from exceptions that occur during dumping.
+
+* #80: Fix UnicodeErrors when a locale is set with setlocale().
+
+
+Release 0.5.1 (Dec 15, 2008)
+============================
+
+* #67: Output warnings about failed doctests in the doctest extension
+  even when running in quiet mode.
+
+* #72: In pngmath, make it possible to give a full path to LaTeX and
+  dvipng on Windows.  For that to work, the ``pngmath_latex`` and
+  ``pngmath_dvipng`` options are no longer split into command and
+  additional arguments; use ``pngmath_latex_args`` and
+  ``pngmath_dvipng_args`` to give additional arguments.
+
+* Don't crash on failing doctests with non-ASCII characters.
+
+* Don't crash on writing status messages and warnings containing
+  unencodable characters.
+
+* Warn if a doctest extension block doesn't contain any code.
+
+* Fix the handling of ``:param:`` and ``:type:`` doc fields when
+  they contain markup (especially cross-referencing roles).
+
+* #65: Fix storage of depth information for PNGs generated by the
+  pngmath extension.
+
+* Fix autodoc crash when automethod is used outside a class context.
+
+* #68: Fix LaTeX writer output for images with specified height.
+
+* #60: Fix wrong generated image path when including images in sources
+  in subdirectories.
+
+* Fix the JavaScript search when html_copy_source is off.
+
+* Fix an indentation problem in autodoc when documenting classes
+  with the option ``autoclass_content = "both"`` set.
+
+* Don't crash on empty index entries, only emit a warning.
+
+* Fix a typo in the search JavaScript code, leading to unusable
+  search function in some setups.
+
+
+Release 0.5 (Nov 23, 2008) -- Birthday release!
+===============================================
 
 New features added
 ------------------
@@ -31,6 +314,9 @@ New features added
   - The ``seealso`` directive can now also be given arguments, as a short
     form.
 
+  - You can now document several programs and their options with the
+    new ``program`` directive.
+
 * HTML output and templates:
 
   - Incompatible change: The "root" relation link (top left in the
@@ -41,6 +327,12 @@ New features added
 
   - The JavaScript search now searches for objects before searching in
     the full text.
+
+  - TOC tree entries now have CSS classes that make it possible to
+    style them depending on their depth.
+
+  - Highlighted code blocks now have CSS classes that make it possible
+    to style them depending on their language.
 
   - HTML ``<meta>`` tags via the docutils ``meta`` directive are now
     supported.
@@ -76,6 +368,10 @@ New features added
     * Michał Kandulski -- Polish
     * Yasushi Masuda -- Japanese
     * Guillem Borrell -- Spanish
+    * Luc Saffre and Peter Bertels -- Dutch
+    * Fred Lin -- Traditional Chinese
+    * Roger Demetrescu -- Brazilian Portuguese
+    * Rok Garbas -- Slovenian
 
   - The new config value ``highlight_language`` set a global default for
     highlighting.  When ``'python3'`` is selected, console output blocks
@@ -100,6 +396,10 @@ New features added
     creates links to Sphinx documentation of Python objects in other
     projects.
 
+  - The new extension ``sphinx.ext.todo`` allows the insertion of
+    "To do" directives whose visibility in the output can be toggled.
+    It also adds a directive to compile a list of all todo items.
+
   - sphinx.ext.autodoc has a new event ``autodoc-process-signature``
     that allows tuning function signature introspection.
 
@@ -121,7 +421,7 @@ New features added
     default HTML template.
 
   - Added new events: ``source-read``, ``env-updated``,
-    ``missing-reference``, ``build-finished``.
+    ``env-purge-doc``, ``missing-reference``, ``build-finished``.
 
 * Other changes:
 
@@ -129,6 +429,9 @@ New features added
 
   - Added a command-line switch ``-A``: it can be used to supply
     additional values into the HTML templates.
+
+  - Added a command-line switch ``-C``: if it is given, no configuration
+    file ``conf.py`` is required.
 
   - Added a distutils command `build_sphinx`: When Sphinx is installed,
     you can call ``python setup.py build_sphinx`` for projects that have
@@ -141,16 +444,33 @@ New features added
 Bugs fixed
 ----------
 
-* Support option lists in the text writer.  Make sure that dashes
+* #51: Escape configuration values placed in HTML templates.
+
+* #44: Fix small problems in HTML help index generation.
+
+* Fix LaTeX output for line blocks in tables.
+
+* #38: Fix "illegal unit" error when using pixel image widths/heights.
+
+* Support table captions in LaTeX output.
+
+* #39: Work around a bug in Jinja that caused "<generator ...>" to be
+  emitted in HTML output.
+
+* Fix a problem with module links not being generated in LaTeX output.
+
+* Fix the handling of images in different directories.
+
+* #29: Support option lists in the text writer.  Make sure that dashes
   introducing long option names are not contracted to en-dashes.
 
 * Support the "scale" option for images in HTML output.
 
-* Properly escape quotes in HTML help attribute values.
+* #25: Properly escape quotes in HTML help attribute values.
 
 * Fix LaTeX build for some description environments with ``:noindex:``.
 
-* Don't crash on weird casing of role names (like ``:Class:``).
+* #24: Don't crash on uncommon casing of role names (like ``:Class:``).
 
 * Only output ANSI colors on color terminals.
 

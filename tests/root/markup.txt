@@ -11,6 +11,8 @@ Testing various markup
    :author: Me
    :keywords: docs, sphinx
 
+A |subst|.
+
 .. _label:
 
 ::
@@ -82,13 +84,13 @@ Tables
 Version markup
 --------------
 
-.. versionadded:: 0.5
+.. versionadded:: 0.6
    Some funny **stuff**.
 
-.. versionchanged:: 0.5
+.. versionchanged:: 0.6
    Even more funny stuff.
 
-.. deprecated:: 0.4
+.. deprecated:: 0.6
    Boring stuff.
 
 
@@ -103,6 +105,16 @@ Reference lookup: [Ref1]_ (defined in another file).
 
    `Google <http://www.google.com>`_
        For everything.
+
+.. hlist::
+   :columns: 4
+
+   * This
+   * is
+   * a horizontal
+   * list
+   * with several
+   * items
 
 .. rubric:: Side note
 
@@ -140,6 +152,7 @@ Option list:
    try2_stmt: "try" ":" `suite`
             : "finally" ":" `suite`
 
+Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
 Index markup
 ------------
@@ -148,12 +161,40 @@ Index markup
    single: entry
    pair: entry; pair
    triple: index; entry; triple
+   keyword: with
+
+Invalid index markup...
+
+.. index::
+   single:
+   pair:
+   keyword:
 
 
 Ö... Some strange characters
 ----------------------------
 
 Testing öäü...
+
+
+Only directive
+--------------
+
+.. only:: html
+
+   In HTML.
+
+.. only:: latex
+
+   In LaTeX.
+
+.. only:: html or latex
+
+   In both.
+
+.. only:: confpytag and (testtag or nonexisting_tag)
+
+   Always present, because set through conf.py/command line.
 
 
 .. rubric:: Footnotes

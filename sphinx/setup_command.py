@@ -8,8 +8,8 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: 2008 by Sebastian Wiesner.
-    :license: MIT.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys
@@ -84,6 +84,7 @@ class BuildDoc(Command):
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):
                 sys.stderr, darkred('reST markup error:')
-                print >>sys.stderr, err.args[0].encode('ascii', 'backslashreplace')
+                print >>sys.stderr, err.args[0].encode('ascii',
+                                                       'backslashreplace')
             else:
                 raise

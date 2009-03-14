@@ -12,8 +12,14 @@ Since mathematical notation isn't natively supported by HTML in any way, Sphinx
 supports math in documentation with two extensions.
 
 The basic math support that is common to both extensions is contained in
-:mod:`sphinx.ext.mathbase`.  Other math support extensions should, if possible,
-reuse that support too.
+:mod:`sphinx.ext.mathbase`.  Other math support extensions should,
+if possible, reuse that support too.
+
+.. note::
+
+   :mod:`sphinx.ext.mathbase` is not meant to be added to the
+   :confval:`extensions` config value, instead, use either
+   :mod:`sphinx.ext.pngmath` or :mod:`sphinx.ext.jsmath` as described below.
 
 The input language for mathematics is LaTeX markup.  This is the de-facto
 standard for plain-text math notation and has the added advantage that no
@@ -85,7 +91,7 @@ further translation is necessary when building LaTeX output.
 
       Euler's identity, equation :eq:`euler`, was elected one of the most
       beautiful mathematical formulas.
-   
+
 
 :mod:`sphinx.ext.pngmath` -- Render math as PNG images
 ------------------------------------------------------
@@ -102,11 +108,8 @@ There are various config values you can set to influence how the images are buil
 .. confval:: pngmath_latex
 
    The command name with which to invoke LaTeX.  The default is ``'latex'``; you
-   may need to set this to a full path if ``latex`` not in the executable search
-   path.
-
-   This string is split into words with :func:`shlex.split`, so that you can
-   include arguments as well if needed.
+   may need to set this to a full path if ``latex`` is not in the executable
+   search path.
 
    Since this setting is not portable from system to system, it is normally not
    useful to set it in ``conf.py``; rather, giving it on the
@@ -115,11 +118,22 @@ There are various config values you can set to influence how the images are buil
 
       sphinx-build -b html -D pngmath_latex=C:\tex\latex.exe . _build/html
 
+   .. versionchanged:: 0.5.1
+      This value should only contain the path to the latex executable, not
+      further arguments; use :confval:`pngmath_latex_args` for that purpose.
+
 .. confval:: pngmath_dvipng
 
    The command name with which to invoke ``dvipng``.  The default is
    ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
    the executable search path.
+
+.. confval:: pngmath_latex_args
+
+   Additional arguments to give to latex, as a list.  The default is an empty
+   list.
+
+   .. versionadded:: 0.5.1
 
 .. confval:: pngmath_latex_preamble
 
@@ -129,10 +143,20 @@ There are various config values you can set to influence how the images are buil
 
 .. confval:: pngmath_dvipng_args
 
-   Additional arguments to give to dvipng, as a list.  This is empty by default.
-   Arguments you might want to add here are e.g. ``['-bg', 'Transparent']``,
+   Additional arguments to give to dvipng, as a list.  The default value is
+   ``['-gamma 1.5', '-D 110']`` which makes the image a bit darker and larger
+   then it is by default.
+
+   An arguments you might want to add here is e.g. ``'-bg Transparent'``,
    which produces PNGs with a transparent background.  This is not enabled by
    default because some Internet Explorer versions don't like transparent PNGs.
+
+   .. note::
+
+      When you "add" an argument, you need to reproduce the default arguments if
+      you want to keep them; that is, like this::
+
+         pngmath_dvipng_args = ['-gamma 1.5', '-D 110', '-bg Transparent']
 
 .. confval:: pngmath_use_preview
 

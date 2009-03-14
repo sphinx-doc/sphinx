@@ -12,6 +12,13 @@
 This extension can import the modules you are documenting, and pull in
 documentation from docstrings in a semi-automatic way.
 
+.. note::
+
+   For Sphinx (actually, the Python interpreter that executes Sphinx) to find
+   your module, it must be importable.  That means that the module or the
+   package must be in one of the directories on :data:`sys.path` -- adapt your
+   :data:`sys.path` in the configuration file accordingly.
+
 For this to work, the docstrings must of course be written in correct
 reStructuredText.  You can then use all of the usual Sphinx markup in the
 docstrings, and it will end up correctly in the documentation.  Together with
@@ -61,7 +68,7 @@ directive.
             Boil the noodle *time* minutes.
 
    **Options and advanced usage**
-         
+
    * If you want to automatically document members, there's a ``members``
      option::
 
@@ -108,9 +115,11 @@ directive.
 
      .. versionadded:: 0.4
 
-   * The :dir:`autoclass` and :dir:`autoexception` directives also support a
-     flag option called ``show-inheritance``.  When given, a list of base
-     classes will be inserted just below the class signature.
+   * The :dir:`automodule`, :dir:`autoclass` and :dir:`autoexception` directives
+     also support a flag option called ``show-inheritance``.  When given, a list
+     of base classes will be inserted just below the class signature (when used
+     with :dir:`automodule`, this will be inserted for every class that is
+     documented in the module).
 
      .. versionadded:: 0.4
 
@@ -126,6 +135,12 @@ directive.
 
      .. versionadded:: 0.5
 
+   * :dir:`automodule` and :dir:`autoclass` also has an ``member-order`` option
+     that can be used to override the global value of
+     :confval:`autodoc_member_order` for one directive.
+
+     .. versionadded:: 0.6
+
    .. note::
 
       In an :dir:`automodule` directive with the ``members`` option set, only
@@ -135,11 +150,29 @@ directive.
 
 
 .. directive:: autofunction
+               autodata
                automethod
                autoattribute
 
    These work exactly like :dir:`autoclass` etc., but do not offer the options
    used for automatic member documentation.
+
+   For module data members and class attributes, documentation can either be put
+   into a special-formatted comment *before* the attribute definition, or in a
+   docstring *after* the definition.  This means that in the following class
+   definition, both attributes can be autodocumented::
+
+      class Foo:
+          """Docstring for class Foo."""
+
+          #: Doc comment for attribute Foo.bar.
+          bar = 1
+
+          baz = 2
+          """Docstring for attribute Foo.baz."""
+
+   .. versionchanged:: 0.6
+      :dir:`autodata` and :dir:`autoattribute` can now extract docstrings.
 
    .. note::
 
@@ -154,19 +187,6 @@ directive.
 
 
 There are also new config values that you can set:
-
-.. confval:: automodule_skip_lines
-
-   This value (whose default is ``0``) can be used to skip an amount of lines in
-   every module docstring that is processed by an :dir:`automodule` directive.
-   This is provided because some projects like to put headings in the module
-   docstring, which would then interfere with your sectioning, or automatic
-   fields with version control tags, that you don't want to put in the generated
-   documentation.
-
-   .. deprecated:: 0.4
-      Use the more versatile docstring processing provided by
-      :event:`autodoc-process-docstring`.
 
 .. confval:: autoclass_content
 
@@ -184,6 +204,14 @@ There are also new config values that you can set:
       Only the ``__init__`` method's docstring is inserted.
 
    .. versionadded:: 0.3
+
+.. confval:: autodoc_member_order
+
+   This value selects if automatically documented members are sorted
+   alphabetical (value ``'alphabetical'``) or by member type (value
+   ``'groupwise'``).  The default is alphabetical.
+
+   .. versionadded:: 0.6
 
 
 Docstring preprocessing

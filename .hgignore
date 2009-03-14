@@ -1,6 +1,10 @@
 .*\.pyc
 .*\.egg
+.*\.so
 build/
 dist/
+tests/.coverage
+sphinx/pycode/Grammar.*pickle
 Sphinx.egg-info/
 doc/_build/
+TAGS

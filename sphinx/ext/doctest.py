@@ -6,13 +6,14 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import re
 import sys
 import time
+import codecs
 import StringIO
 from os import path
 # circumvent relative import
@@ -21,7 +22,8 @@ doctest = __import__('doctest')
 from docutils import nodes
 from docutils.parsers.rst import directives
 
-from sphinx.builder import Builder
+from sphinx.builders import Builder
+from sphinx.util.compat import Directive
 from sphinx.util.console import bold
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
@@ -29,63 +31,77 @@ doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 # set up the necessary directives
 
-def test_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    # use ordinary docutils nodes for test code: they get special attributes
-    # so that our builder recognizes them, and the other builders are happy.
-    code = '\n'.join(content)
-    test = None
-    if name == 'doctest':
-        if '<BLANKLINE>' in code:
-            # convert <BLANKLINE>s to ordinary blank lines for presentation
-            test = code
-            code = blankline_re.sub('', code)
-        if doctestopt_re.search(code):
-            if not test:
+class TestDirective(Directive):
+    """
+    Base class for doctest-related directives.
+    """
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        # use ordinary docutils nodes for test code: they get special attributes
+        # so that our builder recognizes them, and the other builders are happy.
+        code = '\n'.join(self.content)
+        test = None
+        if self.name == 'doctest':
+            if '<BLANKLINE>' in code:
+                # convert <BLANKLINE>s to ordinary blank lines for presentation
                 test = code
-            code = doctestopt_re.sub('', code)
-    nodetype = nodes.literal_block
-    if name == 'testsetup' or 'hide' in options:
-        nodetype = nodes.comment
-    if arguments:
-        groups = [x.strip() for x in arguments[0].split(',')]
-    else:
-        groups = ['default']
-    node = nodetype(code, code, testnodetype=name, groups=groups)
-    node.line = lineno
-    if test is not None:
-        # only save if it differs from code
-        node['test'] = test
-    if name == 'testoutput':
-        # don't try to highlight output
-        node['language'] = 'none'
-    node['options'] = {}
-    if name in ('doctest', 'testoutput') and 'options' in options:
-        # parse doctest-like output comparison flags
-        option_strings = options['options'].replace(',', ' ').split()
-        for option in option_strings:
-            if (option[0] not in '+-' or option[1:] not in
-                doctest.OPTIONFLAGS_BY_NAME):
-                # XXX warn?
-                continue
-            flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
-            node['options'][flag] = (option[0] == '+')
-    return [node]
+                code = blankline_re.sub('', code)
+            if doctestopt_re.search(code):
+                if not test:
+                    test = code
+                code = doctestopt_re.sub('', code)
+        nodetype = nodes.literal_block
+        if self.name == 'testsetup' or 'hide' in self.options:
+            nodetype = nodes.comment
+        if self.arguments:
+            groups = [x.strip() for x in self.arguments[0].split(',')]
+        else:
+            groups = ['default']
+        node = nodetype(code, code, testnodetype=self.name, groups=groups)
+        node.line = self.lineno
+        if test is not None:
+            # only save if it differs from code
+            node['test'] = test
+        if self.name == 'testoutput':
+            # don't try to highlight output
+            node['language'] = 'none'
+        node['options'] = {}
+        if self.name in ('doctest', 'testoutput') and 'options' in self.options:
+            # parse doctest-like output comparison flags
+            option_strings = self.options['options'].replace(',', ' ').split()
+            for option in option_strings:
+                if (option[0] not in '+-' or option[1:] not in
+                    doctest.OPTIONFLAGS_BY_NAME):
+                    # XXX warn?
+                    continue
+                flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
+                node['options'][flag] = (option[0] == '+')
+        return [node]
 
-# need to have individual functions for each directive due to different
-# options they accept
+class TestsetupDirective(TestDirective):
+    option_spec = {}
 
-def testsetup_directive(*args):
-    return test_directive(*args)
+class DoctestDirective(TestDirective):
+    option_spec = {
+        'hide': directives.flag,
+        'options': directives.unchanged,
+    }
 
-def doctest_directive(*args):
-    return test_directive(*args)
+class TestcodeDirective(TestDirective):
+    option_spec = {
+        'hide': directives.flag,
+    }
 
-def testcode_directive(*args):
-    return test_directive(*args)
-
-def testoutput_directive(*args):
-    return test_directive(*args)
+class TestoutputDirective(TestDirective):
+    option_spec = {
+        'hide': directives.flag,
+        'options': directives.unchanged,
+    }
 
 
 parser = doctest.DocTestParser()
@@ -98,9 +114,12 @@ class TestGroup(object):
         self.setup = []
         self.tests = []
 
-    def add_code(self, code):
+    def add_code(self, code, prepend=False):
         if code.type == 'testsetup':
-            self.setup.append(code)
+            if prepend:
+                self.setup.insert(0, code)
+            else:
+                self.setup.append(code)
         elif code.type == 'doctest':
             self.tests.append([code])
         elif code.type == 'testcode':
@@ -169,7 +188,8 @@ class DocTestBuilder(Builder):
 
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
-        self.outfile = file(path.join(self.outdir, 'output.txt'), 'w')
+        self.outfile = codecs.open(path.join(self.outdir, 'output.txt'),
+                                   'w', encoding='utf-8')
         self.outfile.write('''\
 Results of doctest builder run on %s
 ==================================%s
@@ -177,6 +197,12 @@ Results of doctest builder run on %s
 
     def _out(self, text):
         self.info(text, nonl=True)
+        self.outfile.write(text)
+
+    def _warn_out(self, text):
+        self.info(text, nonl=True)
+        if self.app.quiet:
+            self.warn(text)
         self.outfile.write(text)
 
     def get_target_uri(self, docname, typ=None):
@@ -199,6 +225,9 @@ Doctest summary
        self.total_failures, s(self.total_failures),
        self.setup_failures, s(self.setup_failures)))
         self.outfile.close()
+
+        if self.total_failures or self.setup_failures:
+            self.app.statuscode = 1
 
         sys.path[0:0] = self.config.doctest_path
 
@@ -229,8 +258,12 @@ Doctest summary
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                         and node.has_key('testnodetype')
         for node in doctree.traverse(condition):
-            code = TestCode(node.has_key('test') and node['test'] or node.astext(),
-                            type=node.get('testnodetype', 'doctest'),
+            source = node.has_key('test') and node['test'] or node.astext()
+            if not source:
+                self.warn('no code/output in %s block at %s:%s' %
+                          (node.get('testnodetype', 'doctest'),
+                           self.env.doc2path(docname), node.line))
+            code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
@@ -243,10 +276,16 @@ Doctest summary
         for code in add_to_all_groups:
             for group in groups.itervalues():
                 group.add_code(code)
+        if self.config.doctest_global_setup:
+            code = TestCode(self.config.doctest_global_setup,
+                            'testsetup', lineno=0)
+            for group in groups.itervalues():
+                group.add_code(code, prepend=True)
         if not groups:
             return
 
-        self._out('\nDocument: %s\n----------%s\n' % (docname, '-'*len(docname)))
+        self._out('\nDocument: %s\n----------%s\n' %
+                  (docname, '-'*len(docname)))
         for group in groups.itervalues():
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code
@@ -265,7 +304,8 @@ Doctest summary
         ns = {}
         examples = []
         for setup in group.setup:
-            examples.append(doctest.Example(setup.code, '', lineno=setup.lineno))
+            examples.append(doctest.Example(setup.code, '',
+                                            lineno=setup.lineno))
         if examples:
             # simulate a doctest with the setup code
             setup_doctest = doctest.DocTest(examples, {},
@@ -274,7 +314,7 @@ Doctest summary
             setup_doctest.globs = ns
             old_f = self.setup_runner.failures
             self.type = 'exec' # the snippet may contain multiple statements
-            self.setup_runner.run(setup_doctest, out=self._out,
+            self.setup_runner.run(setup_doctest, out=self._warn_out,
                                   clear_globs=False)
             if self.setup_runner.failures > old_f:
                 # don't run the group
@@ -284,8 +324,6 @@ Doctest summary
                 test = parser.get_doctest(code[0].code, {},
                                           group.name, filename, code[0].lineno)
                 if not test.examples:
-                    self._out('WARNING: no examples in doctest block at '
-                              + filename + ', line %s\n' % code[0].lineno)
                     continue
                 for example in test.examples:
                     # apply directive's comparison options
@@ -307,18 +345,16 @@ Doctest summary
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
             # also don't clear the globs namespace after running the doctest
-            self.test_runner.run(test, out=self._out, clear_globs=False)
+            self.test_runner.run(test, out=self._warn_out, clear_globs=False)
 
 
 def setup(app):
-    app.add_directive('testsetup', testsetup_directive, 1, (0, 1, 1))
-    app.add_directive('doctest', doctest_directive, 1, (0, 1, 1),
-                      hide=directives.flag, options=directives.unchanged)
-    app.add_directive('testcode', testcode_directive, 1, (0, 1, 1),
-                      hide=directives.flag)
-    app.add_directive('testoutput', testoutput_directive, 1, (0, 1, 1),
-                      hide=directives.flag, options=directives.unchanged)
+    app.add_directive('testsetup', TestsetupDirective)
+    app.add_directive('doctest', DoctestDirective)
+    app.add_directive('testcode', TestcodeDirective)
+    app.add_directive('testoutput', TestoutputDirective)
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
     app.add_config_value('doctest_path', [], False)
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
+    app.add_config_value('doctest_global_setup', '', False)

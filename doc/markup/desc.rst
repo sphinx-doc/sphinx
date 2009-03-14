@@ -17,7 +17,7 @@ typical module section might start like this::
    .. moduleauthor:: John Idle <john@python.invalid>
 
 
-The directives you can use for module are:
+The directives you can use for module declarations are:
 
 .. directive:: .. module:: name
 
@@ -67,8 +67,8 @@ The directives you can use for module are:
 
 .. _desc-units:
 
-Description units
------------------
+Object description units
+------------------------
 
 There are a number of directives used to describe specific features provided by
 modules.  Each directive requires one or more signatures to provide basic
@@ -204,39 +204,12 @@ The directives are:
    Like :dir:`method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
-   
-.. directive:: .. cmdoption:: name args, name args, ...
 
-   Describes a command line option or switch.  Option argument names should be
-   enclosed in angle brackets.  Example::
+.. directive:: .. classmethod:: name(signature)
 
-      .. cmdoption:: -m <module>, --module <module>
+   Like :dir:`method`, but indicates that the method is a class method.
 
-         Run a module as a script.
-
-   The directive will create a cross-reference target named after the *first*
-   option, referencable by :role:`option` (in the example case, you'd use
-   something like ``:option:`-m```).
-
-.. directive:: .. envvar:: name
-
-   Describes an environment variable that the documented code uses or defines.
-
-
-There is also a generic version of these directives:
-
-.. directive:: .. describe:: text
-
-   This directive produces the same formatting as the specific ones explained
-   above but does not create index entries or cross-referencing targets.  It is
-   used, for example, to describe the directives in this document. Example::
-
-      .. describe:: opcode
-
-         Describes a Python bytecode instruction.
-
-Extensions may add more directives like that, using the
-:func:`~sphinx.application.Sphinx.add_description_unit` method.
+   .. versionadded:: 0.6
 
 
 .. _signatures:
@@ -287,7 +260,7 @@ explained by an example::
    .. function:: format_exception(etype, value, tb[, limit=None])
 
       Format the exception with a traceback.
-   
+
       :param etype: exception type
       :param value: exception value
       :param tb: traceback object
@@ -308,3 +281,77 @@ This will render like this:
       :param limit: maximum number of stack frames to show
       :type limit: integer or None
       :rtype: list of strings
+
+
+Command-line program markup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a set of directives allowing documenting command-line programs:
+
+.. directive:: .. cmdoption:: name args, name args, ...
+
+   Describes a command line option or switch.  Option argument names should be
+   enclosed in angle brackets.  Example::
+
+      .. cmdoption:: -m <module>, --module <module>
+
+         Run a module as a script.
+
+   The directive will create a cross-reference target named after the *first*
+   option, referencable by :role:`option` (in the example case, you'd use
+   something like ``:option:`-m```).
+
+.. directive:: .. envvar:: name
+
+   Describes an environment variable that the documented code or program uses or
+   defines.
+
+
+.. directive:: .. program:: name
+
+   Like :dir:`currentmodule`, this directive produces no output.  Instead, it
+   serves to notify Sphinx that all following :dir:`cmdoption` directives
+   document options for the program called *name*.
+
+   If you use :dir:`program`, you have to qualify the references in your
+   :role:`option` roles by the program name, so if you have the following
+   situation ::
+
+      .. program:: rm
+
+      .. cmdoption:: -r
+
+         Work recursively.
+
+      .. program:: svn
+
+      .. cmdoption:: -r revision
+
+         Specify the revision to work upon.
+
+   then ``:option:`rm -r``` would refer to the first option, while
+   ``:option:`svn -r``` would refer to the second one.
+
+   The program name may contain spaces (in case you want to document subcommands
+   like ``svn add`` and ``svn commit`` separately).
+
+   .. versionadded:: 0.5
+
+
+Custom description units
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is also a generic version of these directives:
+
+.. directive:: .. describe:: text
+
+   This directive produces the same formatting as the specific ones explained
+   above but does not create index entries or cross-referencing targets.  It is
+   used, for example, to describe the directives in this document. Example::
+
+      .. describe:: opcode
+
+         Describes a Python bytecode instruction.
+
+Extensions may add more directives like that, using the
+:func:`~sphinx.application.Sphinx.add_description_unit` method.

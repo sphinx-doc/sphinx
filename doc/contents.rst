@@ -12,9 +12,11 @@ Sphinx documentation contents
    markup/index
    builders
    config
+   theming
    templating
    extensions
-   
+
+   faq
    glossary
    changes
    examples

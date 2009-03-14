@@ -1,3 +1,5 @@
+.. highlight:: html+jinja
+
 .. _templating:
 
 Templating
@@ -19,10 +21,10 @@ No.  You have several other options:
   configuration value accordingly.
 
 * You can :ref:`write a custom builder <writing-builders>` that derives from
-  :class:`~sphinx.builder.StandaloneHTMLBuilder` and calls your template engine
+  :class:`~sphinx.builders.StandaloneHTMLBuilder` and calls your template engine
   of choice.
 
-* You can use the :class:`~sphinx.builder.PickleHTMLBuilder` that produces
+* You can use the :class:`~sphinx.builders.PickleHTMLBuilder` that produces
   pickle files with the page contents, and postprocess them using a custom tool,
   or use them in your Web application.
 
@@ -37,27 +39,26 @@ template, customizing it while also keeping the changes at a minimum.
 
 To customize the output of your documentation you can override all the templates
 (both the layout templates and the child templates) by adding files with the
-same name as the original filename into the template directory of the folder the
-Sphinx quickstart generated for you.
+same name as the original filename into the template directory of the structure
+the Sphinx quickstart generated for you.
 
 Sphinx will look for templates in the folders of :confval:`templates_path`
 first, and if it can't find the template it's looking for there, it falls back
-to the builtin templates that come with Sphinx.
+to the selected theme's templates.
 
 A template contains **variables**, which are replaced with values when the
 template is evaluated, **tags**, which control the logic of the template and
 **blocks** which are used for template inheritance.
 
-Sphinx provides base templates with a couple of blocks it will fill with data.
-The default templates are located in the :file:`templates` folder of the Sphinx
-installation directory.  Templates with the same name in the
-:confval:`templates_path` override templates located in the builtin folder.
+Sphinx' *basic* theme provides base templates with a couple of blocks it will
+fill with data.  These are located in the :file:`themes/basic` subdirectory of
+the Sphinx installation directory, and used by all builtin Sphinx themes.
+Templates with the same name in the :confval:`templates_path` override templates
+supplied by the selected theme.
 
 For example, to add a new link to the template area containing related links all
 you have to do is to add a new template called ``layout.html`` with the
-following contents:
-
-.. sourcecode:: html+jinja
+following contents::
 
     {% extends "!layout.html" %}
     {% block rootrellink %}
@@ -65,16 +66,24 @@ following contents:
         {{ super() }}
     {% endblock %}
 
-By prefixing the name of the extended template with an exclamation mark, Sphinx
-will load the builtin layout template.  If you override a block, you should call
-``{{ super() }}`` somewhere to render the block's content in the extended
-template -- unless you don't want that content to show up.
+By prefixing the name of the overridden template with an exclamation mark,
+Sphinx will load the layout template from the underlying HTML theme.
 
+**Important**: If you override a block, call ``{{ super() }}`` somewhere to
+render the block's content in the extended template -- unless you don't want
+that content to show up.
+
+
+Working the the builtin templates
+---------------------------------
+
+The builtin **basic** theme supplies the templates that all builtin Sphinx
+themes are based on.  It has the following elements you can override or use:
 
 Blocks
 ~~~~~~
 
-The following blocks exist in the ``layout`` template:
+The following blocks exist in the ``layout.html`` template:
 
 `doctype`
     The doctype of the output format.  By default this is XHTML 1.0 Transitional
@@ -92,11 +101,11 @@ The following blocks exist in the ``layout`` template:
     add references to JavaScript or extra CSS files.
 
 `relbar1` / `relbar2`
-    This block contains the list of related links (the parent documents on the
-    left, and the links to index, modules etc. on the right).  `relbar1` appears
-    before the document, `relbar2` after the document.  By default, both blocks
-    are filled; to show the relbar only before the document, you would override
-    `relbar2` like this::
+    This block contains the *relation bar*, the list of related links (the
+    parent documents on the left, and the links to index, modules etc. on the
+    right).  `relbar1` appears before the document, `relbar2` after the
+    document.  By default, both blocks are filled; to show the relbar only
+    before the document, you would override `relbar2` like this::
 
        {% block relbar2 %}{% endblock %}
 
@@ -109,7 +118,8 @@ The following blocks exist in the ``layout`` template:
     the :data:`reldelim1`.
 
 `document`
-    The contents of the document itself.
+    The contents of the document itself.  It contains the block "body" where the
+    individual content is put by subtemplates like ``page.html``.
 
 `sidebar1` / `sidebar2`
     A possible location for a sidebar.  `sidebar1` appears before the document
@@ -134,6 +144,10 @@ The following blocks exist in the ``layout`` template:
 
 `sidebarrel`
     The relation links (previous, next document) within the sidebar.
+
+`sidebarsourcelink`
+    The "Show source" link within the sidebar (normally only shown if this is
+    enabled by :confval:`html_show_sourcelink`).
 
 `sidebarsearch`
     The search box within the sidebar.  Override this if you want to place some
@@ -162,12 +176,16 @@ using the ``{% set %}`` tag:
    defaults to ``' |'``.  Each item except of the last one in the related bar
    ends with the value of this variable.
 
-Overriding works like this:
-
-.. sourcecode:: html+jinja
+Overriding works like this::
 
    {% extends "!layout.html" %}
    {% set reldelim1 = ' &gt;' %}
+
+.. data:: script_files
+
+   Add additional script files here, like this::
+
+      {% set script_files = script_files + [pathto("_static/myscript.js", 1)] %}
 
 
 Helper Functions
@@ -196,7 +214,7 @@ them to generate links or output multiply used elements.
 
 .. function:: relbar()
 
-   Return the rendered relbar.
+   Return the rendered relation bar.
 
 
 Global Variables
@@ -206,32 +224,145 @@ These global variables are available in every template and are safe to use.
 There are more, but most of them are an implementation detail and might change
 in the future.
 
+.. data:: builder
+
+   The name of the builder (e.g. ``html`` or ``htmlhelp``).
+
+.. data:: copyright
+
+   The value of :confval:`copyright`.
+
 .. data:: docstitle
 
    The title of the documentation (the value of :confval:`html_title`).
+
+.. data:: embedded
+
+   True if the built HTML is meant to be embedded in some viewing application
+   that handles navigation, not the web browser, such as for HTML help or Qt
+   help formats.  In this case, the sidebar is not included.
+
+.. data:: favicon
+
+   The path to the HTML favicon in the static path, or ``''``.
+
+.. data:: file_suffix
+
+   The value of the builder's :attr:`out_suffix` attribute, i.e. the file name
+   extension that the output files will get.  For a standard HTML builder, this
+   is usually ``.html``.
+
+.. data:: has_source
+
+   True if the reST document sources are copied (if :confval:`html_copy_source`
+   is true).
+
+.. data:: last_updated
+
+   The build date.
+
+.. data:: logo
+
+   The path to the HTML logo image in the static path, or ``''``.
+
+.. data:: master_doc
+
+   The value of :confval:`master_doc`, for usage with :func:`pathto`.
+
+.. data:: next
+
+   The next document for the navigation.  This variable is either false or has
+   two attributes `link` and `title`.  The title contains HTML markup.  For
+   example, to generate a link to the next page, you can use this snippet::
+
+      {% if next %}
+      <a href="{{ next.link|e }}">{{ next.title }}</a>
+      {% endif %}
+
+.. data:: pagename
+
+   The "page name" of the current file, i.e. either the document name if the
+   file is generated from a reST source, or the equivalent hierarchical name
+   relative to the output directory (``[directory/]filename_without_extension``).
+
+.. data:: parents
+
+   A list of parent documents for navigation, structured like the :data:`next`
+   item.
+
+.. data:: prev
+
+   Like :data:`next`, but for the previous page.
+
+.. data:: project
+
+   The value of :confval:`project`.
+
+.. data:: release
+
+   The value of :confval:`release`.
+
+.. data:: rellinks
+
+   A list of links to put at the left side of the relbar, next to "next" and
+   "prev".  This usually contains links to the index and the modindex.  If you
+   add something yourself, it must be a tuple ``(pagename, link title,
+   accesskey, link text)``.
+
+.. data:: shorttitle
+
+   The value of :confval:`html_short_title`.
+
+.. data:: show_source
+
+   True if :confval:`html_show_sourcelink` is true.
+
+.. data:: sphinx_version
+
+   The version of Sphinx used to build.
+
+.. data:: style
+
+   The name of the main stylesheet, as given by the theme or
+   :confval:`html_style`.
+
+.. data:: title
+
+   The title of the current document, as used in the ``<title>`` tag.
+
+.. data:: use_opensearch
+
+   The value of :confval:`html_use_opensearch`.
+
+.. data:: version
+
+   The value of :confval:`version`.
+
+
+In addition to these values, there are also all **theme options** available
+(prefixed by ``theme_``), as well as the values given by the user in
+:confval:`html_context`.
+
+In documents that are created from source files (as opposed to
+automatically-generated files like the module index, or documents that already
+are in HTML form), these variables are also available:
+
+.. data:: meta
+
+   Document metadata, see :ref:`metadata`.
 
 .. data:: sourcename
 
    The name of the copied source file for the current document.  This is only
    nonempty if the :confval:`html_copy_source` value is true.
 
-.. data:: builder
+.. data:: toc
 
-   The name of the builder (for builtin builders, ``html``, ``htmlhelp``, or
-   ``web``).
+   The local table of contents for the current page, rendered as HTML bullet
+   lists.
 
-.. data:: next
+.. data:: toctree
 
-   The next document for the navigation.  This variable is either false or has
-   two attributes `link` and `title`.  The title contains HTML markup.  For
-   example, to generate a link to the next page, you can use this snippet:
-
-   .. sourcecode:: html+jinja
-
-      {% if next %}
-      <a href="{{ next.link|e }}">{{ next.title }}</a>
-      {% endif %}
-
-.. data:: prev
-
-   Like :data:`next`, but for the previous page.
+   A callable yielding the global TOC tree containing the current page, rendered
+   as HTML bullet lists.  If the optional keyword argument ``collapse`` is true,
+   all TOC entries that are not ancestors of the current page are collapsed.

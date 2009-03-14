@@ -5,102 +5,121 @@
 
     Build configuration file handling.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD license.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import os
 from os import path
 
+from sphinx.util import make_filename
+
 
 class Config(object):
     """Configuration file abstraction."""
 
-    # the values are: (default, needs fresh doctrees if changed)
+    # the values are: (default, what needs to be rebuilt if changed)
 
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
     config_values = dict(
         # general options
-        project = ('Python', True),
-        copyright = ('', False),
-        version = ('', True),
-        release = ('', True),
-        today = ('', True),
-        today_fmt = (None, True),  # the real default is locale-dependent
+        project = ('Python', 'env'),
+        copyright = ('', 'html'),
+        version = ('', 'env'),
+        release = ('', 'env'),
+        today = ('', 'env'),
+        today_fmt = (None, 'env'),  # the real default is locale-dependent
 
-        language = (None, True),
-        locale_dirs = ([], True),
+        language = (None, 'env'),
+        locale_dirs = ([], 'env'),
 
-        master_doc = ('contents', True),
-        source_suffix = ('.rst', True),
-        source_encoding = ('utf-8', True),
-        unused_docs = ([], True),
-        exclude_dirs = ([], True),
-        exclude_trees = ([], True),
-        exclude_dirnames = ([], True),
-        default_role = (None, True),
-        add_function_parentheses = (True, True),
-        add_module_names = (True, True),
-        show_authors = (False, True),
-        pygments_style = ('sphinx', False),
-        highlight_language = ('python', False),
-        templates_path = ([], False),
-        template_bridge = (None, False),
-        keep_warnings = (False, True),
+        master_doc = ('contents', 'env'),
+        source_suffix = ('.rst', 'env'),
+        source_encoding = ('utf-8', 'env'),
+        unused_docs = ([], 'env'),
+        exclude_dirs = ([], 'env'),
+        exclude_trees = ([], 'env'),
+        exclude_dirnames = ([], 'env'),
+        default_role = (None, 'env'),
+        add_function_parentheses = (True, 'env'),
+        add_module_names = (True, 'env'),
+        trim_footnote_reference_space = (False, 'env'),
+        show_authors = (False, 'env'),
+        pygments_style = (None, 'html'),
+        highlight_language = ('python', 'env'),
+        templates_path = ([], 'html'),
+        template_bridge = (None, 'html'),
+        keep_warnings = (False, 'env'),
+        modindex_common_prefix = ([], 'html'),
+        rst_epilog = (None, 'env'),
 
         # HTML options
+        html_theme = ('default', 'html'),
+        html_theme_path = ([], 'html'),
+        html_theme_options = ({}, 'html'),
         html_title = (lambda self: '%s v%s documentation' %
                                    (self.project, self.release),
-                      False),
-        html_short_title = (lambda self: self.html_title, False),
-        html_style = ('default.css', False),
-        html_logo = (None, False),
-        html_favicon = (None, False),
-        html_static_path = ([], False),
-        html_last_updated_fmt = (None, False),  # the real default is locale-dependent
-        html_use_smartypants = (True, False),
-        html_translator_class = (None, False),
-        html_sidebars = ({}, False),
-        html_additional_pages = ({}, False),
-        html_use_modindex = (True, False),
-        html_use_index = (True, False),
-        html_split_index = (False, False),
-        html_copy_source = (True, False),
-        html_use_opensearch = ('', False),
-        html_file_suffix = (None, False),
-        html_show_sphinx = (True, False),
-        html_context = ({}, False),
+                      'html'),
+        html_short_title = (lambda self: self.html_title, 'html'),
+        html_style = (None, 'html'),
+        html_logo = (None, 'html'),
+        html_favicon = (None, 'html'),
+        html_static_path = ([], 'html'),
+        # the real default is locale-dependent
+        html_last_updated_fmt = (None, 'html'),
+        html_use_smartypants = (True, 'html'),
+        html_translator_class = (None, 'html'),
+        html_sidebars = ({}, 'html'),
+        html_additional_pages = ({}, 'html'),
+        html_use_modindex = (True, 'html'),
+        html_add_permalinks = (True, 'html'),
+        html_use_index = (True, 'html'),
+        html_split_index = (False, 'html'),
+        html_copy_source = (True, 'html'),
+        html_show_sourcelink = (True, 'html'),
+        html_use_opensearch = ('', 'html'),
+        html_file_suffix = (None, 'html'),
+        html_link_suffix = (None, 'html'),
+        html_show_sphinx = (True, 'html'),
+        html_context = ({}, 'html'),
 
         # HTML help only options
-        htmlhelp_basename = ('pydoc', False),
+        htmlhelp_basename = (lambda self: make_filename(self.project), None),
+
+        # Qt help only options
+        qthelp_basename = (lambda self: make_filename(self.project), None),
 
         # LaTeX options
-        latex_documents = ([], False),
-        latex_logo = (None, False),
-        latex_appendices = ([], False),
-        latex_use_parts = (False, False),
-        latex_use_modindex = (True, False),
+        latex_documents = ([], None),
+        latex_logo = (None, None),
+        latex_appendices = ([], None),
+        latex_use_parts = (False, None),
+        latex_use_modindex = (True, None),
         # paper_size and font_size are still separate values
         # so that you can give them easily on the command line
-        latex_paper_size = ('letter', False),
-        latex_font_size = ('10pt', False),
-        latex_elements = ({}, False),
+        latex_paper_size = ('letter', None),
+        latex_font_size = ('10pt', None),
+        latex_elements = ({}, None),
+        latex_additional_files = ([], None),
         # now deprecated - use latex_elements
-        latex_preamble = ('', False),
+        latex_preamble = ('', None),
     )
 
-    def __init__(self, dirname, filename, overrides):
+    def __init__(self, dirname, filename, overrides, tags):
         self.overrides = overrides
         self.values = Config.config_values.copy()
-        config = {'__file__': path.join(dirname, filename)}
-        olddir = os.getcwd()
-        try:
-            os.chdir(dirname)
-            execfile(config['__file__'], config)
-        finally:
-            os.chdir(olddir)
+        config = {}
+        if dirname is not None:
+            config['__file__'] = path.join(dirname, filename)
+            config['tags'] = tags
+            olddir = os.getcwd()
+            try:
+                os.chdir(dirname)
+                execfile(config['__file__'], config)
+            finally:
+                os.chdir(olddir)
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
         # own config values
@@ -109,7 +128,12 @@ class Config(object):
 
     def init_values(self):
         config = self._raw_config
-        config.update(self.overrides)
+        for valname, value in self.overrides.iteritems():
+            if '.' in valname:
+                realvalname, key = valname.split('.', 1)
+                config.setdefault(realvalname, {})[key] = value
+            else:
+                config[valname] = value
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
@@ -121,7 +145,7 @@ class Config(object):
         if name not in self.values:
             raise AttributeError('No such config value: %s' % name)
         default = self.values[name][0]
-        if callable(default):
+        if hasattr(default, '__call__'):
             return default(self)
         return default
 

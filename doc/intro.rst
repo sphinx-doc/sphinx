@@ -89,6 +89,12 @@ The :program:`sphinx-build` script has several more options:
    cross-references), but rebuild it completely.  The default is to only read
    and parse source files that are new or have changed since the last run.
 
+**-t** *tag*
+   Define the tag *tag*.  This is relevant for :dir:`only` directives that only
+   include their content if this tag is set.
+
+   .. versionadded:: 0.6
+
 **-d** *path*
    Since Sphinx has to read and parse all source files before it can write an
    output file, the parsed source files are cached as "doctree pickles".
@@ -105,9 +111,18 @@ The :program:`sphinx-build` script has several more options:
 
    .. versionadded:: 0.3
 
+**-C**
+   Don't look for a configuration file; only take options via the ``-D`` option.
+
+   .. versionadded:: 0.5
+
 **-D** *setting=value*
-   Override a configuration value set in the :file:`conf.py` file.  (The value
-   must be a string value.)
+   Override a configuration value set in the :file:`conf.py` file.  The value
+   must be a string or dictionary value.  For the latter, supply the setting
+   name and key like this: ``-D latex_elements.docclass=scrartcl``.
+
+   .. versionchanged:: 0.6
+      The value can now be a dictionary value.
 
 **-A** *name=value*
    Make the *name* assigned to *value* in the HTML templates.
@@ -123,6 +138,13 @@ The :program:`sphinx-build` script has several more options:
 **-Q**
    Do not output anything on standard output, also suppress warnings.  Only
    errors are written to standard error.
+
+**-w** *file*
+   Write warnings (and errors) to the given file, in addition to standard error.
+
+**-W**
+   Turn warnings into errors.  This means that the build stops at the first
+   warning and ``sphinx-build`` exits with exit status 1.
 
 **-P**
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an

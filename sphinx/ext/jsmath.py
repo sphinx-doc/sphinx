@@ -6,8 +6,8 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
@@ -32,7 +32,8 @@ def html_visit_displaymath(self, node):
         if i == 0:
             # necessary to e.g. set the id property correctly
             if node['number']:
-                self.body.append('<span class="eqno">(%s)</span>' % node['number'])
+                self.body.append('<span class="eqno">(%s)</span>' %
+                                 node['number'])
             self.body.append(self.starttag(node, 'div', CLASS='math'))
         else:
             # but only once!

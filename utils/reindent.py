@@ -8,7 +8,8 @@
 -d (--dryrun)  Dry run.  Analyze, but don't make any changes to files.
 -r (--recurse) Recurse.  Search for all .py files in subdirectories too.
 -B (--no-backup)         Don't write .bak backup files.
--v (--verbose) Verbose.  Print informative msgs; else only names of changed files.
+-v (--verbose) Verbose.  Print informative msgs; else only names of \
+changed files.
 -h (--help)    Help.     Print this usage information and exit.
 
 Change Python (.py) files to use 4-space indents and no hard tab characters.
@@ -118,7 +119,8 @@ def check(file):
             if dryrun:
                 print "But this is a dry run, so leaving it alone."
         else:
-            print "reindented", file, (dryrun and "(dry run => not really)" or "")
+            print "reindented", file, \
+                  (dryrun and "(dry run => not really)" or "")
         if not dryrun:
             if not no_backup:
                 bak = file + ".bak"

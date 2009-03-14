@@ -17,7 +17,15 @@
 \RequirePackage{makeidx}
 \RequirePackage{framed}
 \RequirePackage{color}
+% For highlighted code.
 \RequirePackage{fancyvrb}
+% For table captions.
+\RequirePackage{threeparttable}
+% Handle footnotes in tables.
+\RequirePackage{footnote}
+\makesavenoteenv{tabulary}
+% For floating figures in the text.
+\RequirePackage{wrapfig}
 
 % Redefine these colors to your liking in the preamble.
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
@@ -55,11 +63,10 @@
 \fi\fi
 
 % XeLaTeX can do colors, too
-\IfFileExists{ifxetex.sty}{\RequirePackage{ifxetex}}{}
-\ifx\ifxetex\undefined\else\ifxetex
+\ifx\XeTeXrevision\undefined\else
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
-\fi\fi
+\fi
 
 % Increase printable page size (copied from fullpage.sty)
 \topmargin 0pt
@@ -448,6 +455,20 @@
     \else
       \def\py@thisclass{#1}
       \staticmethodline{#2}{#3}
+    \fi
+}{\end{fulllineitems}}
+
+% class method ----------------------------------------------------------
+% \begin{classmethoddesc}[classname]{methodname}{args}
+\newcommand{\classmethodline}[3][\@undefined]{
+  \py@sigline{class \bfcode{#2}}{#3}}
+\newenvironment{classmethoddesc}[3][\@undefined]{
+  \begin{fulllineitems}
+    \ifx\@undefined#1\relax
+      \classmethodline{#2}{#3}
+    \else
+      \def\py@thisclass{#1}
+      \classmethodline{#2}{#3}
     \fi
 }{\end{fulllineitems}}
 

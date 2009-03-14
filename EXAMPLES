@@ -1,37 +1,71 @@
 Projects using Sphinx
 =====================
 
-This is an (incomplete) list of projects that use Sphinx or are
-experimenting with using it for their documentation.  If you like
-to be included, please mail to `the Google group
+This is an (incomplete) alphabetic list of projects that use Sphinx or are
+experimenting with using it for their documentation.  If you like to be
+included, please mail to `the Google group
 <http://groups.google.com/group/sphinx-dev>`_.
 
-* Sphinx: http://sphinx.pocoo.org/
-* Python: http://docs.python.org/dev/
-* NumPy: http://mentat.za.net/numpy/refguide/
-* Matplotlib: http://matplotlib.sourceforge.net/
-* Pylons: http://docs.pylonshq.com/
-* Django: http://docs.djangoproject.com/
-* Grok: http://grok.zope.org/doc/current/
-* TurboGears: http://turbogears.org/2.0/docs/
-* Jinja: http://jinja.pocoo.org/2/documentation/
-* Cython: http://docs.cython.org/
-* F2py: http://www.f2py.org/html/
-* zc.async: http://packages.python.org/zc.async/1.5.0/
-* Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
-* Chaco: http://code.enthought.com/projects/chaco/docs/html/
-* Paver: http://www.blueskyonmars.com/projects/paver/
-* Satchmo: http://www.satchmoproject.com/docs/svn/
-* PyEphem: http://rhodesmill.org/pyephem/
-* Paste: http://pythonpaste.org/script/
-* Director: http://packages.python.org/director/
+* APSW: http://apsw.googlecode.com/svn/publish/index.html
+* boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
-* PyUblas: http://tiker.net/doc/pyublas/
-* Py on Windows: http://timgolden.me.uk/python-on-windows/
-* mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
-* Zope 3: e.g. http://docs.carduner.net/z3c-tutorial/
-* Glashammer: http://glashammer.org/
-* SymPy: http://docs.sympy.org/
+* Chaco: http://code.enthought.com/projects/chaco/docs/html/
+* CodePy: http://documen.tician.de/codepy/
+* Cython: http://docs.cython.org/
+* C\\C++ Python language binding project: http://language-binding.net/index.html
+* Director: http://packages.python.org/director/
+* Django: http://docs.djangoproject.com/
+* F2py: http://www.f2py.org/html/
 * GeoDjango: http://geodjango.org/docs/
+* Glashammer: http://glashammer.org/
+* Grok: http://grok.zope.org/doc/current/
+* Hedge: http://documen.tician.de/hedge/
+* IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
+* Jinja: http://jinja.pocoo.org/2/documentation/
+* MapServer: http://mapserver.osgeo.org/
+* Matplotlib: http://matplotlib.sourceforge.net/
+* Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
+* MeshPy: http://documen.tician.de/meshpy/
 * Mixin.com: http://dev.mixin.com/
+* mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
+* MyHDL: http://www.myhdl.org/doc/0.6/
+* NetworkX: http://networkx.lanl.gov/
+* NumPy: http://docs.scipy.org/doc/numpy/reference/
+* ObjectListView: http://objectlistview.sourceforge.net/python
+* OpenLayers: http://docs.openlayers.org/
+* openWNS: http://docs.openwns.org/
+* Paste: http://pythonpaste.org/script/
+* Paver: http://www.blueskyonmars.com/projects/paver/
+* Py on Windows: http://timgolden.me.uk/python-on-windows/
+* PyCuda: http://documen.tician.de/pycuda/
+* PyEphem: http://rhodesmill.org/pyephem/
+* Pyevolve: http://pyevolve.sourceforge.net/
+* PyLit: http://pylit.berlios.de/
+* Pylo: http://documen.tician.de/pylo/
+* Pylons: http://docs.pylonshq.com/
+* PyMOTW: http://www.doughellmann.com/PyMOTW/
 * PyPubSub: http://pubsub.sourceforge.net/
+* pyrticle: http://documen.tician.de/pyrticle/
+* Pysparse: http://pysparse.sourceforge.net/
+* Python: http://docs.python.org/
+* python-apt: http://people.debian.org/~jak/python-apt-doc/
+* PyUblas: http://documen.tician.de/pyublas/
+* Quex: http://quex.sourceforge.net/
+* Reteisi: http://docs.argolinux.org/reteisi/
+* Roundup: http://www.roundup-tracker.org/
+* Satchmo: http://www.satchmoproject.com/docs/svn/
+* Scapy: http://www.secdev.org/projects/scapy/doc/
+* Self: http://selflanguage.org/
+* SimPy: http://simpy.sourceforge.net/
+* Sphinx: http://sphinx.pocoo.org/
+* Sprox: http://sprox.org/
+* SQLAlchemy: http://www.sqlalchemy.org/docs/
+* Sqlkit: http://sqlkit.argolinux.org/
+* SymPy: http://docs.sympy.org/
+* tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
+* TurboGears: http://turbogears.org/2.0/docs/
+* VOR: http://www.vor-cycling.be/
+* WFront: http://discorporate.us/projects/WFront/
+* WTForms: http://wtforms.simplecodes.com/docs/
+* Zope 3: e.g. http://docs.carduner.net/z3c-tutorial/
+* zc.async: http://packages.python.org/zc.async/1.5.0/

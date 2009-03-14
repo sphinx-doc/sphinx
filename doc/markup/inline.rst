@@ -12,7 +12,8 @@ For all other roles, you have to write ``:rolename:`content```.
 .. note::
 
    The default role (```content```) has no special meaning by default.  You are
-   free to use it for anything you like. 
+   free to use it for anything you like; use the :confval:`default_role` config
+   value to set it to a known role.
 
 
 .. _xref-syntax:
@@ -223,13 +224,69 @@ to labels:
 Using :role:`ref` is advised over standard reStructuredText links to sections
 (like ```Section title`_``) because it works across files, when section headings
 are changed, and for all builders that support cross-references.
-  
+
+
+Cross-referencing documents
+---------------------------
+
+.. versionadded:: 0.6
+
+There is also a way to directly link to documents:
+
+.. role:: doc
+
+   Link to the specified document; the document name can be specified in
+   absolute or relative fashion.  For example, if the reference
+   ``:doc:`parrot``` occurs in the document ``sketches/index``, then the link
+   refers to ``sketches/parrot``.  If the reference is ``:doc:`/people``` or
+   ``:doc:`../people```, the link refers to ``people``.
+
+   If no explicit link text is given (like usual: ``:doc:`Monty Python members
+   </people>```), the link caption will be the title of the given document.
+
+
+Referencing downloadable files
+------------------------------
+
+.. versionadded:: 0.6
+
+.. role:: download
+
+   This role lets you link to files within your source tree that are not reST
+   documents that can be viewed, but files that can be downloaded.
+
+   When you use this role, the referenced file is automatically marked for
+   inclusion in the output when building (obviously, for HTML output only).
+   All downloadable files are put into the ``_downloads`` subdirectory of the
+   output directory; duplicate filenames are handled.
+
+   An example::
+
+      See :download:`this example script <../example.py>`.
+
+   The given filename is usually relative to the directory the current source
+   file is contained in, but if it absolute (starting with ``/``), it is taken
+   as relative to the top source directory.
+
+   The ``example.py`` file will be copied to the output directory, and a
+   suitable link generated to it.
+
 
 Other semantic markup
 ---------------------
 
 The following roles don't do anything special except formatting the text
 in a different style:
+
+.. role:: abbr
+
+   An abbreviation.  If the role content contains a parenthesized explanation,
+   it will be treated specially: it will be shown in a tool-tip in HTML, and
+   output only once in LaTeX.
+
+   Example: ``:abbr:`LIFO (last-in, first-out)```.
+
+   .. versionadded:: 0.6
 
 .. role:: command
 
@@ -329,7 +386,7 @@ in a different style:
    curly braces to indicate a "variable" part, as in ``:file:``.
 
    If you don't need the "variable part" indication, use the standard
-   ````code```` instead.   
+   ````code```` instead.
 
 
 The following roles generate external links:
@@ -349,6 +406,7 @@ The following roles generate external links:
 
 Note that there are no special roles for including hyperlinks as you can use
 the standard reST markup for that purpose.
+
 
 .. _default-substitutions:
 
@@ -372,6 +430,6 @@ They are set in the build configuration file.
 
 .. describe:: |today|
 
-   Replaced by either today's date, or the date set in the build configuration
-   file.  Normally has the format ``April 14, 2007``.  Set by
-   :confval:`today_fmt` and :confval:`today`.
+   Replaced by either today's date (the date on which the document is read), or
+   the date set in the build configuration file.  Normally has the format
+   ``April 14, 2007``.  Set by :confval:`today_fmt` and :confval:`today`.

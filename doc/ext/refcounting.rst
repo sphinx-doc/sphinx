@@ -4,4 +4,4 @@
 .. module:: sphinx.ext.refcounting
    :synopsis: Keep track of reference counting behavior.
 
-XXX to be written.
+.. todo:: Write this section.

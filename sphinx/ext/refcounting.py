@@ -9,8 +9,8 @@
     Usage: Set the `refcount_file` config value to the path to the reference
     count data file.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 from os import path
@@ -55,7 +55,8 @@ class Refcounts(dict):
                     refcount = None
                 else:
                     refcount = int(refcount)
-                # Update the entry with the new parameter or the result information.
+                # Update the entry with the new parameter or the result
+                # information.
                 if arg:
                     entry.args.append((arg, type, refcount))
                 else:
@@ -81,7 +82,8 @@ class Refcounts(dict):
             if entry.result_refs is None:
                 rc += "Always NULL."
             else:
-                rc += (entry.result_refs and "New" or "Borrowed") + " reference."
+                rc += (entry.result_refs and "New" or "Borrowed") + \
+                      " reference."
             node.insert(0, refcount(rc, rc))
 
 

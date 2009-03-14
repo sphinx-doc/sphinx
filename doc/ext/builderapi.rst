@@ -3,9 +3,9 @@
 Writing new builders
 ====================
 
-XXX to be expanded.
+.. todo:: Expand this.
 
-.. currentmodule:: sphinx.builder
+.. currentmodule:: sphinx.builders
 
 .. class:: Builder
 
@@ -20,7 +20,7 @@ XXX to be expanded.
    .. automethod:: build_update
    .. automethod:: build
 
-   These methods must be overridden in concrete builder classes:
+   These methods can be overridden in concrete builder classes:
 
    .. automethod:: init
    .. automethod:: get_outdated_docs
@@ -28,3 +28,4 @@ XXX to be expanded.
    .. automethod:: prepare_writing
    .. automethod:: write_doc
    .. automethod:: finish
+

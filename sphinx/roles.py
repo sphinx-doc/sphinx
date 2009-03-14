@@ -5,8 +5,8 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: 2007-2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import re
@@ -15,9 +15,8 @@ from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
 from sphinx import addnodes
+from sphinx.util import ws_re, caption_ref_re
 
-ws_re = re.compile(r'\s+')
-caption_ref_re = re.compile(r'^([^<]+?)\s*<(.+)>$')
 
 generic_docroles = {
     'command' : nodes.strong,
@@ -25,7 +24,7 @@ generic_docroles = {
     'guilabel' : nodes.strong,
     'kbd' : nodes.literal,
     'mailheader' : addnodes.literal_emphasis,
-    'makevar' : nodes.Text,
+    'makevar' : nodes.strong,
     'manpage' : addnodes.literal_emphasis,
     'mimetype' : addnodes.literal_emphasis,
     'newsgroup' : addnodes.literal_emphasis,
@@ -34,10 +33,12 @@ generic_docroles = {
 }
 
 for rolename, nodeclass in generic_docroles.iteritems():
-    roles.register_generic_role(rolename, nodeclass)
+    role = roles.GenericRole(rolename, nodeclass)
+    roles.register_local_role(rolename, role)
 
 
-def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
+def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
+                     options={}, content=[]):
     env = inliner.document.settings.env
     if not typ:
         typ = env.config.default_role
@@ -57,13 +58,14 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
                                    options, content)[0]
         return [indexnode, targetnode] + xref_nodes, []
     elif typ == 'pep':
-        indexnode['entries'] = [('single',
-                                 _('Python Enhancement Proposals!PEP %s') % text,
-                                 targetid, 'PEP %s' % text)]
+        indexnode['entries'] = [
+            ('single', _('Python Enhancement Proposals!PEP %s') % text,
+             targetid, 'PEP %s' % text)]
         try:
             pepnum = int(text)
         except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % text, line=lineno)
+            msg = inliner.reporter.error('invalid PEP number %s' % text,
+                                         line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
@@ -77,7 +79,8 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
         try:
             rfcnum = int(text)
         except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % text, line=lineno)
+            msg = inliner.reporter.error('invalid RFC number %s' % text,
+                                         line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
@@ -86,7 +89,7 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner, options={}, content=[
         rn += sn
         return [indexnode, targetnode, rn], []
 
-roles.register_canonical_role('envvar', indexmarkup_role)
+roles.register_local_role('envvar', indexmarkup_role)
 roles.register_local_role('pep', indexmarkup_role)
 roles.register_local_role('rfc', indexmarkup_role)
 
@@ -97,6 +100,7 @@ innernodetypes = {
     'term': nodes.emphasis,
     'token': nodes.strong,
     'envvar': nodes.strong,
+    'download': nodes.strong,
     'option': addnodes.literal_emphasis,
 }
 
@@ -123,11 +127,14 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         return [innernodetypes.get(typ, nodes.literal)(
             rawtext, text, classes=['xref'])], []
     # we want a cross-reference, create the reference node
-    pnode = addnodes.pending_xref(rawtext, reftype=typ, refcaption=False,
-                                  modname=env.currmodule, classname=env.currclass)
+    nodeclass = (typ == 'download') and addnodes.download_reference or \
+                addnodes.pending_xref
+    pnode = nodeclass(rawtext, reftype=typ, refcaption=False,
+                      modname=env.currmodule, classname=env.currclass)
     # we may need the line number for warnings
     pnode.line = lineno
-    # the link title may differ from the target, but by default they are the same
+    # the link title may differ from the target, but by default
+    # they are the same
     title = target = text
     titleistarget = True
     # look if explicit title and target are given with `foo <bar>` syntax
@@ -143,8 +150,9 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             # fallback: everything after '<' is the target
             target = text[brace+1:]
             title = text[:brace]
-    # special target  for Python object cross-references
-    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr', 'meth', 'mod', 'obj'):
+    # special target for Python object cross-references
+    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr',
+               'meth', 'mod', 'obj'):
         # fix-up parentheses in link title
         if titleistarget:
             title = title.lstrip('.')   # only has a meaning for the target
@@ -166,9 +174,18 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             target = target[1:]
             pnode['refspecific'] = True
     # some other special cases for the target
-    elif typ == 'option' and target[0] in '-/':
-        # strip option marker from target
-        target = target[1:]
+    elif typ == 'option':
+        program = env.currprogram
+        if titleistarget:
+            if ' ' in title and not (title.startswith('/') or
+                                     title.startswith('-')):
+                program, target = re.split(' (?=-|--|/)', title, 1)
+                program = ws_re.sub('-', program)
+                target = target.strip()
+        elif ' ' in target:
+            program, target = re.split(' (?=-|--|/)', target, 1)
+            program = ws_re.sub('-', program)
+        pnode['refprogram'] = program
     elif typ == 'term':
         # normalize whitespace in definition terms (if the term reference is
         # broken over a line, a newline will be in target)
@@ -180,18 +197,21 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         # remove all whitespace to avoid referencing problems
         target = ws_re.sub('', target)
     pnode['reftarget'] = target
-    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, title, classes=['xref'])
+    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, title,
+                                                    classes=['xref'])
     return [pnode], []
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [nodes.emphasis(
-        rawtext, utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
+        rawtext,
+        utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
 
 
 _litvar_re = re.compile('{([^}]+)}')
 
-def emph_literal_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+def emph_literal_role(typ, rawtext, text, lineno, inliner,
+                      options={}, content=[]):
     text = utils.unescape(text)
     pos = 0
     retnode = nodes.literal(role=typ.lower())
@@ -206,6 +226,18 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner, options={}, content=[
     return [retnode], []
 
 
+_abbr_re = re.compile('\((.*)\)$')
+
+def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    text = utils.unescape(text)
+    m = _abbr_re.search(text)
+    if m is None:
+        return [addnodes.abbreviation(text, text)], []
+    abbr = text[:m.start()].strip()
+    expl = m.group(1)
+    return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
+
+
 specific_docroles = {
     'data': xfileref_role,
     'exc': xfileref_role,
@@ -217,22 +249,25 @@ specific_docroles = {
     'obj': xfileref_role,
     'cfunc' : xfileref_role,
     'cmember': xfileref_role,
-    'cdata' : xfileref_role,
-    'ctype' : xfileref_role,
-    'cmacro' : xfileref_role,
+    'cdata': xfileref_role,
+    'ctype': xfileref_role,
+    'cmacro': xfileref_role,
 
-    'mod' : xfileref_role,
+    'mod': xfileref_role,
 
     'keyword': xfileref_role,
     'ref': xfileref_role,
-    'token' : xfileref_role,
+    'token': xfileref_role,
     'term': xfileref_role,
     'option': xfileref_role,
+    'doc': xfileref_role,
+    'download': xfileref_role,
 
-    'menuselection' : menusel_role,
-    'file' : emph_literal_role,
-    'samp' : emph_literal_role,
+    'menuselection': menusel_role,
+    'file': emph_literal_role,
+    'samp': emph_literal_role,
+    'abbr': abbr_role,
 }
 
 for rolename, func in specific_docroles.iteritems():
-    roles.register_canonical_role(rolename, func)
+    roles.register_local_role(rolename, func)

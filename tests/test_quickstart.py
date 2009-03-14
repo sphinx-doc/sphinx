@@ -5,8 +5,8 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys
@@ -70,6 +70,7 @@ def test_do_prompt():
     assert d['k5'] == 'no'
     raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
 
+
 @with_tempdir
 def test_quickstart_defaults(tempdir):
     answers = {
@@ -86,29 +87,31 @@ def test_quickstart_defaults(tempdir):
     ns = {}
     execfile(conffile, ns)
     assert ns['extensions'] == []
-    assert ns['templates_path'] == ['.templates']
+    assert ns['templates_path'] == ['_templates']
     assert ns['source_suffix'] == '.rst'
     assert ns['master_doc'] == 'index'
     assert ns['project'] == 'Sphinx Test'
     assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
     assert ns['version'] == '0.1'
     assert ns['release'] == '0.1'
-    assert ns['html_static_path'] == ['.static']
+    assert ns['html_static_path'] == ['_static']
     assert ns['latex_documents'] == [
         ('index', 'SphinxTest.tex', 'Sphinx Test Documentation',
          'Georg Brandl', 'manual')]
 
-    assert (tempdir / '.static').isdir()
-    assert (tempdir / '.templates').isdir()
+    assert (tempdir / '_static').isdir()
+    assert (tempdir / '_templates').isdir()
     assert (tempdir / 'index.rst').isfile()
     assert (tempdir / 'Makefile').isfile()
+    assert (tempdir / 'make.bat').isfile()
+
 
 @with_tempdir
 def test_quickstart_all_answers(tempdir):
     answers = {
         'Root path': tempdir,
         'Separate source and build': 'y',
-        'Name prefix for templates': '_',
+        'Name prefix for templates': '.',
         'Project name': 'STASI\xe2\x84\xa2',
         'Author name': 'Wolfgang Sch\xc3\xa4uble & G. Beckstein',
         'Project version': '2.0',
@@ -118,7 +121,13 @@ def test_quickstart_all_answers(tempdir):
         'autodoc': 'y',
         'doctest': 'yes',
         'intersphinx': 'no',
+        'todo': 'n',
+        'coverage': 'no',
+        'pngmath': 'N',
+        'jsmath': 'no',
+        'ifconfig': 'no',
         'Create Makefile': 'no',
+        'Create Windows command file': 'no',
     }
     qs.raw_input = mock_raw_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
@@ -129,7 +138,7 @@ def test_quickstart_all_answers(tempdir):
     ns = {}
     execfile(conffile, ns)
     assert ns['extensions'] == ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
-    assert ns['templates_path'] == ['_templates']
+    assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['master_doc'] == 'contents'
     assert ns['project'] == u'STASI™'
@@ -137,12 +146,12 @@ def test_quickstart_all_answers(tempdir):
            time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
-    assert ns['html_static_path'] == ['_static']
+    assert ns['html_static_path'] == ['.static']
     assert ns['latex_documents'] == [
         ('contents', 'STASI.tex', u'STASI™ Documentation',
          ur'Wolfgang Schäuble \& G. Beckstein', 'manual')]
 
     assert (tempdir / 'build').isdir()
-    assert (tempdir / 'source' / '_static').isdir()
-    assert (tempdir / 'source' / '_templates').isdir()
+    assert (tempdir / 'source' / '.static').isdir()
+    assert (tempdir / 'source' / '.templates').isdir()
     assert (tempdir / 'source' / 'contents.txt').isfile()

@@ -7,8 +7,8 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: 2006-2008 by Georg Brandl.
-    :license: GNU GPL, see LICENSE for more details.
+    :copyright: Copyright 2006-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import sys, os, re
@@ -30,7 +30,8 @@ def checker(*suffixes, **kwds):
 
 
 name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: 200\d(-200\d)? by %s(, %s)*[,.]$' %
+copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-200\d)? '
+                          r'by %s(, %s)*[,.]$' %
                           (name_mail_re, name_mail_re))
 license_re = re.compile(r"    :license: (.*?).\n")
 copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
@@ -55,7 +56,7 @@ def check_syntax(fn, lines):
 def check_style_and_encoding(fn, lines):
     encoding = 'ascii'
     for lno, line in enumerate(lines):
-        if len(line) > 90:
+        if len(line) > 81:
             yield lno+1, "line too long"
         if lno < 2:
             co = coding_re.search(line)
@@ -63,9 +64,9 @@ def check_style_and_encoding(fn, lines):
                 encoding = co.group(1)
         if line.strip().startswith('#'):
             continue
-        m = not_ix_re.search(line)
-        if m:
-            yield lno+1, '"' + m.group() + '"'
+        #m = not_ix_re.search(line)
+        #if m:
+        #    yield lno+1, '"' + m.group() + '"'
         if is_const_re.search(line):
             yield lno+1, 'using == None/True/False'
         try:
@@ -141,7 +142,7 @@ def check_fileheader(fn, lines):
         yield 0, "no correct copyright info"
 
 
-@checker('.py', '.html')
+@checker('.py', '.html', '.rst')
 def check_whitespace_and_spelling(fn, lines):
     for lno, line in enumerate(lines):
         if "\t" in line:
@@ -153,7 +154,7 @@ def check_whitespace_and_spelling(fn, lines):
                 yield lno+1, '"%s" used' % word
 
 
-bad_tags = ('<b>', '<i>', '<u>', '<s>', '<strike>'
+bad_tags = ('<u>', '<s>', '<strike>'
             '<center>', '<big>', '<small>', '<font')
 
 @checker('.html')

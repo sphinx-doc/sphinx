@@ -5,16 +5,15 @@
 
     Render math in HTML via dvipng.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import re
-import shlex
 import shutil
 import tempfile
 import posixpath
-from os import path
+from os import path, getcwd, chdir
 from subprocess import Popen, PIPE
 try:
     from hashlib import sha1 as sha
@@ -23,8 +22,9 @@ except ImportError:
 
 from docutils import nodes
 
+from sphinx.errors import SphinxError
 from sphinx.util import ensuredir
-from sphinx.application import SphinxError
+from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.ext.mathbase import setup as mathbase_setup, wrap_displaymath
 
 class MathExtError(SphinxError):
@@ -75,9 +75,17 @@ def render_math(self, math):
     """
     use_preview = self.builder.config.pngmath_use_preview
 
-    shasum = "%s.png" % sha(math).hexdigest()
+    shasum = "%s.png" % sha(math.encode('utf-8')).hexdigest()
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
     outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
+    if path.isfile(outfn):
+        depth = read_png_depth(outfn)
+        return relfn, depth
+
+    # if latex or dvipng has failed once, don't bother to try again
+    if hasattr(self.builder, '_mathpng_warned_latex') or \
+       hasattr(self.builder, '_mathpng_warned_dvipng'):
+        return None, None
 
     latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
     latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
@@ -96,28 +104,39 @@ def render_math(self, math):
     tf.write(latex)
     tf.close()
 
-    ltx_args = shlex.split(self.builder.config.pngmath_latex)
-    ltx_args += ['--interaction=nonstopmode', '--output-directory=' + tempdir,
-                 'math.tex']
+    # build latex command; old versions of latex don't have the
+    # --output-directory option, so we have to manually chdir to the
+    # temp dir to run it.
+    ltx_args = [self.builder.config.pngmath_latex, '--interaction=nonstopmode']
+    # add custom args from the config file
+    ltx_args.extend(self.builder.config.pngmath_latex_args)
+    ltx_args.append('math.tex')
+
+    curdir = getcwd()
+    chdir(tempdir)
+
     try:
-        p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
-    except OSError, err:
-        if err.errno != 2:   # No such file or directory
-            raise
-        if not hasattr(self.builder, '_mathpng_warned_latex'):
+        try:
+            p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
+        except OSError, err:
+            if err.errno != 2:   # No such file or directory
+                raise
             self.builder.warn('LaTeX command %r cannot be run (needed for math '
                               'display), check the pngmath_latex setting' %
                               self.builder.config.pngmath_latex)
             self.builder._mathpng_warned_latex = True
-        return relfn, None
+            return None, None
+    finally:
+        chdir(curdir)
+
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('latex exited with error:\n[stderr]\n%s\n[stdout]\n%s'
-                           % (stderr, stdout))
+        raise MathExtError('latex exited with error:\n[stderr]\n%s\n'
+                           '[stdout]\n%s' % (stderr, stdout))
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
-    dvipng_args = shlex.split(self.builder.config.pngmath_dvipng)
+    dvipng_args = [self.builder.config.pngmath_dvipng]
     dvipng_args += ['-o', outfn, '-T', 'tight', '-z9']
     # add custom ones from config value
     dvipng_args.extend(self.builder.config.pngmath_dvipng_args)
@@ -130,22 +149,22 @@ def render_math(self, math):
     except OSError, err:
         if err.errno != 2:   # No such file or directory
             raise
-        if not hasattr(self.builder, '_mathpng_warned_dvipng'):
-            self.builder.warn('dvipng command %r cannot be run (needed for math '
-                              'display), check the pngmath_dvipng setting' %
-                              self.builder.config.pngmath_dvipng)
-            self.builder._mathpng_warned_dvipng = True
-        return relfn, None
+        self.builder.warn('dvipng command %r cannot be run (needed for math '
+                          'display), check the pngmath_dvipng setting' %
+                          self.builder.config.pngmath_dvipng)
+        self.builder._mathpng_warned_dvipng = True
+        return None, None
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n[stdout]\n%s'
-                           % (stderr, stdout))
+        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n'
+                           '[stdout]\n%s' % (stderr, stdout))
     depth = None
     if use_preview:
         for line in stdout.splitlines():
             m = depth_re.match(line)
             if m:
                 depth = int(m.group(1))
+                write_png_depth(outfn, depth)
                 break
 
     return relfn, depth
@@ -161,10 +180,28 @@ def cleanup_tempdir(app, exc):
         pass
 
 def html_visit_math(self, node):
-    fname, depth = render_math(self, '$'+node['latex']+'$')
-    self.body.append('<img src="%s" alt="%s" %s/>' %
-                     (fname, self.encode(node['latex']),
-                      depth and 'style="vertical-align: %dpx" ' % (-depth) or ''))
+    try:
+        fname, depth = render_math(self, '$'+node['latex']+'$')
+    except MathExtError, exc:
+        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+                                  backrefs=[], source=node['latex'])
+        sm.walkabout(self)
+        self.builder.warn('display latex %r: ' % node['latex'] + str(exc))
+        raise nodes.SkipNode
+    if fname is None:
+        # something failed -- use text-only as a bad substitute
+        self.body.append('<span class="math">%s</span>' %
+                         self.encode(node['latex']).strip())
+    else:
+        if depth is None:
+            self.body.append(
+                '<img class="math" src="%s" alt="%s"/>' %
+                (fname, self.encode(node['latex']).strip()))
+        else:
+            self.body.append(
+                '<img class="math" src="%s" alt="%s" '
+                'style="vertical-align: %dpx"/>' %
+                (fname, self.encode(node['latex']).strip(), -depth))
     raise nodes.SkipNode
 
 def html_visit_displaymath(self, node):
@@ -172,13 +209,25 @@ def html_visit_displaymath(self, node):
         latex = node['latex']
     else:
         latex = wrap_displaymath(node['latex'], None)
-    fname, depth = render_math(self, latex)
+    try:
+        fname, depth = render_math(self, latex)
+    except MathExtError, exc:
+        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+                                  backrefs=[], source=node['latex'])
+        sm.walkabout(self)
+        self.builder.warn('inline latex %r: ' % node['latex'] + str(exc))
+        raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
         self.body.append('<span class="eqno">(%s)</span>' % node['number'])
-    self.body.append('<img src="%s" alt="%s" />\n</div>' %
-                     (fname, self.encode(node['latex'])))
+    if fname is None:
+        # something failed -- use text-only as a bad substitute
+        self.body.append('<span class="math">%s</span>' %
+                         self.encode(node['latex']).strip())
+    else:
+        self.body.append('<img src="%s" alt="%s" />\n</div>' %
+                         (fname, self.encode(node['latex']).strip()))
     self.body.append('</p>')
     raise nodes.SkipNode
 
@@ -188,6 +237,7 @@ def setup(app):
     app.add_config_value('pngmath_dvipng', 'dvipng', False)
     app.add_config_value('pngmath_latex', 'latex', False)
     app.add_config_value('pngmath_use_preview', False, False)
-    app.add_config_value('pngmath_dvipng_args', [], False)
+    app.add_config_value('pngmath_dvipng_args', ['-gamma 1.5', '-D 110'], False)
+    app.add_config_value('pngmath_latex_args', [], False)
     app.add_config_value('pngmath_latex_preamble', '', False)
     app.connect('build-finished', cleanup_tempdir)

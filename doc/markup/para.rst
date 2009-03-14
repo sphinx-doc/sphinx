@@ -1,4 +1,4 @@
-.. highlight:: rest
+x.. highlight:: rest
 
 Paragraph-level markup
 ----------------------
@@ -85,9 +85,9 @@ units as well as normal text:
 
    This directive creates a paragraph heading that is not used to create a
    table of contents node.
-   
+
    .. note::
-      
+
       If the *title* of the rubric is "Footnotes", this rubric is ignored by
       the LaTeX writer, since it is assumed to only contain footnote
       definitions and therefore would create an empty heading.
@@ -98,6 +98,27 @@ units as well as normal text:
    This directive creates a centered boldfaced line of text.  Use it as follows::
 
       .. centered:: LICENSE AGREEMENT
+
+
+.. directive:: hlist
+
+   This directive must contain a bullet list.  It will transform it into a more
+   compact list by either distributing more than one item horizontally, or
+   reducing spacing between items, depending on the builder.
+
+   For builders that support the horizontal distribution, there is a ``columns``
+   option that specifies the number of columns; it defaults to 2.  Example::
+
+      .. hlist::
+         :columns: 3
+
+         * A list of
+         * short items
+         * that should be
+         * displayed
+         * horizontally
+
+   .. versionadded:: 0.6
 
 
 Table-of-contents markup
@@ -218,7 +239,7 @@ the definition of the symbol.  There is this directive:
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.
 
-.. XXX describe optional first parameter 
+.. XXX describe optional first parameter
 
 The following is an example taken from the Python Reference Manual::
 

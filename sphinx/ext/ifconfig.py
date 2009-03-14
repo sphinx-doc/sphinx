@@ -13,26 +13,36 @@
            This stuff is only included in the built docs for unstable versions.
 
     The argument for ``ifconfig`` is a plain Python expression, evaluated in the
-    namespace of the project configuration (that is, all variables from ``conf.py``
-    are available.)
+    namespace of the project configuration (that is, all variables from
+    ``conf.py`` are available.)
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
+
+from sphinx.util.compat import Directive
 
 
 class ifconfig(nodes.Element): pass
 
 
-def ifconfig_directive(name, arguments, options, content, lineno,
-                       content_offset, block_text, state, state_machine):
-    node = ifconfig()
-    node.line = lineno
-    node['expr'] = arguments[0]
-    state.nested_parse(content, content_offset, node)
-    return [node]
+class IfConfig(Directive):
+
+    has_content = True
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}
+
+    def run(self):
+        node = ifconfig()
+        node.document = self.state.document
+        node.line = self.lineno
+        node['expr'] = self.arguments[0]
+        self.state.nested_parse(self.content, self.content_offset, node)
+        return [node]
 
 
 def process_ifconfig_nodes(app, doctree, docname):
@@ -58,5 +68,5 @@ def process_ifconfig_nodes(app, doctree, docname):
 
 def setup(app):
     app.add_node(ifconfig)
-    app.add_directive('ifconfig', ifconfig_directive, 1, (1, 0, 1))
+    app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)

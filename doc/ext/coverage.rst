@@ -12,7 +12,7 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
    To use this builder, activate the coverage extension in your configuration
    file and give ``-b coverage`` on the command line.
 
-XXX to be expanded.
+.. todo:: Write this section.
 
 Several new configuration values can be used to specify what the builder
 should check:

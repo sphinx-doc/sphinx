@@ -1,0 +1,102 @@
+.TH sphinx-build 1 "Jan 2009" "Sphinx 0.6" "User Commands"
+.SH NAME
+sphinx-build \- Sphinx documentation generator tool
+.SH SYNOPSIS
+.B sphinx-build
+[\fIoptions\fR] <\fIsourcedir\fR> <\fIoutdir\fR> [\fIfilenames\fR...]
+.SH DESCRIPTION
+sphinx-build generates documentation from the files in <sourcedir> and places it
+in the <outdir>.
+
+sphinx-build looks for <sourcedir>/conf.py for the configuration settings.
+.B sphinx-quickstart(1)
+may be used to generate template files, including conf.py.
+
+sphinx-build can create documentation in different formats.  A format is
+selected by specifying the builder name on the command line; it defaults to
+HTML.  Builders can also perform other tasks related to documentation
+processing.
+
+By default, everything that is outdated is built.  Output only for selected
+files can be built by specifying individual filenames.
+
+List of available builders:
+.TP
+\fBhtml\fR
+HTML files generation.  This is default builder.
+.TP
+\fBhtmlhelp\fR
+Generates files for CHM generation.
+.TP
+\fBqthelp\fR
+Generates files for Qt help collection generation.
+.TP
+\fBlatex\fR
+Generates a LaTeX version of the documentation.
+.TP
+\fBtext\fR
+Generates a plain-text version of the documentation.
+.TP
+\fBchanges\fR
+Generates HTML files listing changed/added/deprecated items for the
+current version.
+.TP
+\fBlinkcheck\fR
+Checks the integrity of all external links in the documentation.
+.TP
+\fBpickle / json\fR
+Generates serialized HTML files in the selected format.
+
+.SH OPTIONS
+.TP
+\fB-b\fR <builder>
+Builder to use; defaults to html. See the full list of builders above.
+.TP
+\fB-a\fR
+Generates output for all files; without this option only output for
+new and changed files is generated.
+.TP
+\fB-E\fR
+Ignores cached files, forces to re-read all source files from disk.
+.TP
+\fB-c\fR <path>
+Locates the conf.py file in the specified path instead of <sourcedir>.
+.TP
+\fB-C\fR
+Specifies that no conf.py file at all is to be used.  Configuration can
+only be set with the -D option.
+.TP
+\fB-D\fR <setting>=<value>
+Overrides a setting from the configuration file.
+.TP
+\fB-d\fR <path>
+Path to cached files; defaults to <outdir>/.doctrees.
+.TP
+\fB-A\fR <name>=<value>
+Passes a value into the HTML templates (only for html builders).
+.TP
+\fB-N\fR
+Prevents colored output.
+.TP
+\fB-q\fR
+Quiet operation, just prints warnings and errors on stderr.
+.TP
+\fB-Q\fR
+Very quiet operation, doesn't print anything except for errors.
+.TP
+\fB-w\fR <file>
+Write warnings and errors into the given file, in addition to stderr.
+.TP
+\fB-W\fR
+Turn warnings into errors.
+.TP
+\fB-P\fR
+Runs Pdb on exception.
+.SH "SEE ALSO"
+.BR sphinx-quickstart(1)
+.SH AUTHOR
+Georg Brandl <georg@python.org>, Armin Ronacher <armin.ronacher@active-4.com> et
+al.
+.PP
+This manual page was initially written by Mikhail Gusarov
+<dottedmag@dottedmag.net>, for the Debian project.

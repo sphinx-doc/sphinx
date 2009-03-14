@@ -1,0 +1,2 @@
+<!-- testing static templates -->
+<html><project>{{ project|e }}</project></html>

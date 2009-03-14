@@ -24,7 +24,7 @@ parsing and translating suite, the Docutils.
 Although it is still under constant development, the following features
 are already present, work fine and can be seen "in action" in the Python docs:
 
-* Output formats: HTML (including Windows HTML Help) and LaTeX,
+* Output formats: HTML (including Windows HTML Help), plain text and LaTeX,
   for printable PDF versions
 * Extensive cross-references: semantic markup and automatic links
   for functions, classes, glossary terms and similar pieces of information
@@ -36,7 +36,7 @@ are already present, work fine and can be seen "in action" in the Python docs:
   and inclusion of appropriately formatted docstrings.
 '''
 
-requires = ['Pygments>=0.8', 'Jinja>=1.1', 'docutils>=0.4']
+requires = ['Pygments>=0.8', 'Jinja2>=2.1', 'docutils>=0.4']
 
 if sys.version_info < (2, 4):
     print 'ERROR: Sphinx requires at least Python 2.4 to run.'
@@ -98,7 +98,8 @@ else:
                 else:
                     for locale in os.listdir(self.directory):
                         po_file = os.path.join(self.directory, locale,
-                                               'LC_MESSAGES', self.domain + '.po')
+                                               'LC_MESSAGES',
+                                               self.domain + '.po')
                         if os.path.exists(po_file):
                             po_files.append((locale, po_file))
                             js_files.append(os.path.join(self.directory, locale,

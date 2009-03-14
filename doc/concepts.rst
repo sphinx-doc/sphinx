@@ -16,6 +16,9 @@ directory`, the extension is stripped, and path separators are converted to
 slashes.  All values, parameters and suchlike referring to "documents" expect
 such a document name.
 
+Examples for document names are ``index``, ``library/zipfile``, or
+``reference/datamodel/types``.  Note that there is no leading slash.
+
 
 The TOC tree
 ------------
@@ -55,21 +58,36 @@ tables of contents.  The ``toctree`` directive is the central element.
      ``strings`` and so forth, and it knows that they are children of the shown
      document, the library index.  From this information it generates "next
      chapter", "previous chapter" and "parent chapter" links.
-     
+
    Document titles in the :dir:`toctree` will be automatically read from the
-   title of the referenced document. If that isn't what you want, you can give
-   the specify an explicit title and target using a similar syntax to reST
+   title of the referenced document. If that isn't what you want, you can
+   specify an explicit title and target using a similar syntax to reST
    hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
    looks like::
-   
+
        .. toctree::
-          
+
           intro
           All about strings <strings>
           datatypes
-          
+
    The second line above will link to the ``strings`` document, but will use the
    title "All about strings" instead of the title of the ``strings`` document.
+
+   You can also add external links, by giving an HTTP URL instead of a document
+   name.
+
+   If you want to have section numbers even in HTML output, give the toctree a
+   ``numbered`` flag option.  For example::
+
+      .. toctree::
+         :numbered:
+
+         foo
+         bar
+
+   Numbering then starts at the heading of ``foo``.  Sub-toctrees are
+   automatically numbered (don't give the ``numbered`` flag to those).
 
    You can use "globbing" in toctree directives, by giving the ``glob`` flag
    option.  All entries are then matched against the list of available
@@ -85,7 +103,24 @@ tables of contents.  The ``toctree`` directive is the central element.
    This includes first all documents whose names start with ``intro``, then all
    documents in the ``recipe`` folder, then all remaining documents (except the
    one containing the directive, of course.) [#]_
-          
+
+   The special entry name ``self`` stands for the document containing the
+   toctree directive.  This is useful if you want to generate a "sitemap" from
+   the toctree.
+
+   You can also give a "hidden" option to the directive, like this::
+
+      .. toctree::
+         :hidden:
+
+         doc_1
+         doc_2
+
+   This will still notify Sphinx of the document hierarchy, but not insert links
+   into the document at the location of the directive -- this makes sense if you
+   intend to insert these links yourself, in a different style, or in the HTML
+   sidebar.
+
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
    finds a file that is not included, because that means that this file will not
@@ -99,6 +134,10 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    .. versionchanged:: 0.3
       Added "globbing" option.
+
+   .. versionchanged:: 0.6
+      Added "numbered" and "hidden" options as well as external links and
+      support for "self" references.
 
 
 Special names

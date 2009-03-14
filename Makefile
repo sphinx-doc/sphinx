@@ -7,7 +7,9 @@ export PYTHONPATH = $(shell echo "$$PYTHONPATH"):./sphinx
 all: clean-pyc check test
 
 check:
-	@$(PYTHON) utils/check_sources.py -i sphinx/style/jquery.js sphinx
+	@$(PYTHON) utils/check_sources.py -i sphinx/style/jquery.js \
+		-i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
+		-i doc/_build -i ez_setup.py -i tests/path.py .
 
 clean: clean-pyc clean-patchfiles
 
@@ -28,3 +30,6 @@ reindent:
 
 test:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
+
+covertest:
+	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage --cover-package=sphinx $(TEST)

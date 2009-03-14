@@ -3,6 +3,8 @@
 Miscellaneous markup
 ====================
 
+.. _metadata:
+
 File-wide metadata
 ------------------
 
@@ -44,6 +46,28 @@ Meta-information markup
    keep track of contributions), but you can set the configuration value
    :confval:`show_authors` to True to make them produce a paragraph in the
    output.
+
+
+.. _tags:
+
+Including content based on tags
+-------------------------------
+
+.. directive:: .. only:: <expression>
+
+   Include the content of the directive only if the *expression* is true.  The
+   expression should consist of tags, like this::
+
+      .. only:: html and draft
+
+   Undefined tags are false, defined tags (via the ``-t`` command-line option or
+   within :file:`conf.py`) are true.  Boolean expressions, also using
+   parentheses (like ``html and (latex or draft)`` are supported.
+
+   The format of the current builder (``html``, ``latex`` or ``text``) is always
+   set as a tag.
+
+   .. versionadded:: 0.6
 
 
 Tables

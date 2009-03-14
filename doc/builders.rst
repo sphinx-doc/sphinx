@@ -3,7 +3,7 @@
 Available builders
 ==================
 
-.. module:: sphinx.builder
+.. module:: sphinx.builders
    :synopsis: Available built-in builder classes.
 
 These are the built-in Sphinx builders.  More builders can be added by
@@ -13,6 +13,7 @@ The builder's "name" must be given to the **-b** command-line option of
 :program:`sphinx-build` to select a builder.
 
 
+.. module:: sphinx.builders.html
 .. class:: StandaloneHTMLBuilder
 
    This is the standard HTML builder.  Its output is a directory with HTML
@@ -22,13 +23,106 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``html``.
 
+.. class:: DirectoryHTMLBuilder
+
+   This is a subclass of the standard HTML builder.  Its output is a directory
+   with HTML files, where each file is called ``index.html`` and placed in a
+   subdirectory named like its page name.  For example, the document
+   ``markup/rest.rst`` will not result in an output file ``markup/rest.html``,
+   but ``markup/rest/index.html``.  When generating links between pages, the
+   ``index.html`` is omitted, so that the URL would look like ``markup/rest/``.
+
+   Its name is ``dirhtml``.
+
+   .. versionadded:: 0.6
+
 .. class:: HTMLHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
    also generates HTML Help support files that allow the Microsoft HTML Help
    Workshop to compile them into a CHM file.
 
-   Its name is ``htmlhelp``. 
+   Its name is ``htmlhelp``.
+
+.. module:: sphinx.builders.latex
+.. class:: LaTeXBuilder
+
+   This builder produces a bunch of LaTeX files in the output directory.  You
+   have to specify which documents are to be included in which LaTeX files via
+   the :confval:`latex_documents` configuration value.  There are a few
+   configuration values that customize the output of this builder, see the
+   chapter :ref:`latex-options` for details.
+
+   .. note::
+
+      The produced LaTeX file uses several LaTeX packages that may not be
+      present in a "minimal" TeX distribution installation.  For TeXLive,
+      the following packages need to be installed:
+
+      * latex-recommended
+      * latex-extra
+      * fonts-recommended
+
+   Its name is ``latex``.
+
+.. module:: sphinx.builders.text
+.. class:: TextBuilder
+
+   This builder produces a text file for each reST file -- this is almost the
+   same as the reST source, but with much of the markup stripped for better
+   readability.
+
+   Its name is ``text``.
+
+   .. versionadded:: 0.4
+
+.. currentmodule:: sphinx.builders.html
+.. class:: SerializingHTMLBuilder
+
+   This builder uses a module that implements the Python serialization API
+   (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
+   HTML documentation.  The pickle builder is a subclass of it.
+
+   A concreate subclass of this builder serializing to the `PHP serialization`_
+   format could look like this::
+
+        import phpserialize
+
+        class PHPSerializedBuilder(SerializingHTMLBuilder):
+            name = 'phpserialized'
+            implementation = phpserialize
+            out_suffix = '.file.phpdump'
+            globalcontext_filename = 'globalcontext.phpdump'
+            searchindex_filename = 'searchindex.phpdump'
+
+   .. _PHP serialization: http://pypi.python.org/pypi/phpserialize
+
+   .. attribute:: implementation
+
+      A module that implements `dump()`, `load()`, `dumps()` and `loads()`
+      functions that conform to the functions with the same names from the
+      pickle module.  Known modules implementing this interface are
+      `simplejson` (or `json` in Python 2.6), `phpserialize`, `plistlib`,
+      and others.
+
+   .. attribute:: out_suffix
+
+      The suffix for all regular files.
+
+   .. attribute:: globalcontext_filename
+
+      The filename for the file that contains the "global context".  This
+      is a dict with some general configuration values such as the name
+      of the project.
+
+   .. attribute:: searchindex_filename
+
+      The filename for the search index Sphinx generates.
+
+
+   See :ref:`serialization-details` for details about the output format.
+
+   .. versionadded:: 0.5
 
 .. class:: PickleHTMLBuilder
 
@@ -58,73 +152,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 0.5
 
-.. class:: LaTeXBuilder
-
-   This builder produces a bunch of LaTeX files in the output directory.  You
-   have to specify which documents are to be included in which LaTeX files via
-   the :confval:`latex_documents` configuration value.  There are a few
-   configuration values that customize the output of this builder, see the
-   chapter :ref:`latex-options` for details.
-
-   Its name is ``latex``.
-
-.. class:: TextBuilder
-
-   This builder produces a text file for each reST file -- this is almost the
-   same as the reST source, but with much of the markup stripped for better
-   readability.
-
-   Its name is ``text``.
-
-   .. versionadded:: 0.4
-
-.. class:: SerializingHTMLBuilder
-
-   This builder uses a module that implements the Python serialization API
-   (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
-   HTML documentation.  The pickle builder is a subclass of it.
-
-   A concreate subclass of this builder serializing to the `PHP serialization`_
-   format could look like this::
-
-        import phpserialize
-
-        class PHPSerializedBuilder(SerializingHTMLBuilder):
-            name = 'phpserialized'
-            implementation = phpserialize
-            out_suffix = '.file.phpdump'
-            globalcontext_filename = 'globalcontext.phpdump'
-            searchindex_filename = 'searchindex.phpdump'
-
-   .. _PHP serialization: http://pypi.python.org/pypi/phpserialize
-
-   .. attribute:: implementation
-    
-      A module that implements `dump()`, `load()`, `dumps()` and `loads()`
-      functions that conform to the functions with the same names from the
-      pickle module.  Known modules implementing this interface are
-      `simplejson` (or `json` in Python 2.6), `phpserialize`, `plistlib`,
-      and others.
-
-   .. attribute:: out_suffix
-
-      The suffix for all regular files.
-
-   .. attribute:: globalcontext_filename
-
-      The filename for the file that contains the "global context".  This
-      is a dict with some general configuration values such as the name
-      of the project.
-
-   .. attribute:: searchindex_filename
-
-      The filename for the search index Sphinx generates.
-
-
-   See :ref:`serialization-details` for details about the output format.
-
-   .. versionadded:: 0.5
-   
+.. module:: sphinx.builders.changes
 .. class:: ChangesBuilder
 
    This builder produces an HTML overview of all :dir:`versionadded`,
@@ -134,6 +162,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``changes``.
 
+.. module:: sphinx.builders.linkcheck
 .. class:: CheckExternalLinksBuilder
 
    This builder scans all documents for external links, tries to open them with

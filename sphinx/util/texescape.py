@@ -5,8 +5,8 @@
 
     TeX escaping helper.
 
-    :copyright: 2008 by Georg Brandl.
-    :license: BSD.
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 tex_replacements = [
@@ -40,7 +40,8 @@ tex_replacements = [
     (u'─', ur'-'),
     (u'⎽', ur'\_'),
     (u'╲', ur'\textbackslash{}'),
-    (u'│', ur'|'),
+    (u'|', ur'\textbar{}'),
+    (u'│', ur'\textbar{}'),
     (u'ℯ', ur'e'),
     (u'ⅈ', ur'i'),
     (u'₁', ur'1'),

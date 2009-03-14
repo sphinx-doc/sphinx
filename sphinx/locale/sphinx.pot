@@ -1,14 +1,14 @@
 # Translations template for Sphinx.
-# Copyright (C) 2008 ORGANIZATION
+# Copyright (C) 2009 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.5\n"
+"Project-Id-Version: Sphinx 0.6\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2008-09-11 23:58+0200\n"
+"POT-Creation-Date: 2009-01-24 18:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,226 +17,241 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.3\n"
 
-#: sphinx/builder.py:400
-#, python-format
-msgid "%b %d, %Y"
-msgstr ""
-
-#: sphinx/builder.py:419 sphinx/templates/defindex.html:21
-msgid "General Index"
-msgstr ""
-
-#: sphinx/builder.py:419
-msgid "index"
-msgstr ""
-
-#: sphinx/builder.py:421 sphinx/htmlhelp.py:155
-#: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
-#: sphinx/templates/modindex.html:13
-msgid "Global Module Index"
-msgstr ""
-
-#: sphinx/builder.py:421
-msgid "modules"
-msgstr ""
-
-#: sphinx/builder.py:457
-msgid "next"
-msgstr ""
-
-#: sphinx/builder.py:464
-msgid "previous"
-msgstr ""
-
-#: sphinx/builder.py:1108
-msgid "Builtins"
-msgstr ""
-
-#: sphinx/builder.py:1110
-msgid "Module level"
-msgstr ""
-
-#: sphinx/environment.py:107 sphinx/latexwriter.py:129
+#: sphinx/environment.py:104 sphinx/writers/latex.py:170
 #, python-format
 msgid "%B %d, %Y"
 msgstr ""
 
-#: sphinx/environment.py:270 sphinx/latexwriter.py:190
-#: sphinx/templates/genindex-single.html:2
+#: sphinx/environment.py:300 sphinx/templates/genindex-single.html:2
 #: sphinx/templates/genindex-split.html:2
 #: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
 #: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+#: sphinx/templates/layout.html:126 sphinx/writers/latex.py:176
 msgid "Index"
 msgstr ""
 
-#: sphinx/environment.py:271 sphinx/latexwriter.py:188
+#: sphinx/environment.py:301 sphinx/writers/latex.py:175
 msgid "Module Index"
 msgstr ""
 
-#: sphinx/environment.py:272 sphinx/templates/defindex.html:16
+#: sphinx/environment.py:302 sphinx/templates/defindex.html:16
 msgid "Search Page"
 msgstr ""
 
-#: sphinx/htmlwriter.py:73 sphinx/static/doctools.js:145
-msgid "Permalink to this definition"
-msgstr ""
-
-#: sphinx/htmlwriter.py:375 sphinx/static/doctools.js:139
-msgid "Permalink to this headline"
-msgstr ""
-
-#: sphinx/latexwriter.py:143
-msgid "Release"
-msgstr ""
-
-#: sphinx/roles.py:52 sphinx/directives/desc.py:514
+#: sphinx/roles.py:53 sphinx/directives/desc.py:580
 #, python-format
 msgid "environment variable; %s"
 msgstr ""
 
-#: sphinx/roles.py:59
+#: sphinx/roles.py:60
 #, python-format
 msgid "Python Enhancement Proposals!PEP %s"
 msgstr ""
 
-#: sphinx/textwriter.py:151
+#: sphinx/builders/changes.py:64
+msgid "Builtins"
+msgstr ""
+
+#: sphinx/builders/changes.py:66
+msgid "Module level"
+msgstr ""
+
+#: sphinx/builders/html.py:118
 #, python-format
-msgid "Platform: %s"
+msgid "%b %d, %Y"
 msgstr ""
 
-#: sphinx/textwriter.py:353
-msgid "[image]"
+#: sphinx/builders/html.py:137 sphinx/templates/defindex.html:21
+msgid "General Index"
 msgstr ""
 
-#: sphinx/directives/desc.py:26
+#: sphinx/builders/html.py:137
+msgid "index"
+msgstr ""
+
+#: sphinx/builders/html.py:139 sphinx/builders/htmlhelp.py:182
+#: sphinx/builders/qthelp.py:131 sphinx/templates/defindex.html:19
+#: sphinx/templates/modindex.html:2 sphinx/templates/modindex.html:13
+msgid "Global Module Index"
+msgstr ""
+
+#: sphinx/builders/html.py:139
+msgid "modules"
+msgstr ""
+
+#: sphinx/builders/html.py:179
+msgid "next"
+msgstr ""
+
+#: sphinx/builders/html.py:186
+msgid "previous"
+msgstr ""
+
+#: sphinx/builders/latex.py:155 sphinx/builders/pdf.py:162
+msgid " (in "
+msgstr ""
+
+#: sphinx/directives/desc.py:25
 #, python-format
 msgid "%s() (built-in function)"
 msgstr ""
 
-#: sphinx/directives/desc.py:27 sphinx/directives/desc.py:41
-#: sphinx/directives/desc.py:53
+#: sphinx/directives/desc.py:26 sphinx/directives/desc.py:42
+#: sphinx/directives/desc.py:54
 #, python-format
 msgid "%s() (in module %s)"
 msgstr ""
 
-#: sphinx/directives/desc.py:30
+#: sphinx/directives/desc.py:29
 #, python-format
 msgid "%s (built-in variable)"
 msgstr ""
 
-#: sphinx/directives/desc.py:31 sphinx/directives/desc.py:65
+#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:78
 #, python-format
 msgid "%s (in module %s)"
 msgstr ""
 
 #: sphinx/directives/desc.py:33
 #, python-format
+msgid "%s (built-in class)"
+msgstr ""
+
+#: sphinx/directives/desc.py:34
+#, python-format
 msgid "%s (class in %s)"
 msgstr ""
 
-#: sphinx/directives/desc.py:45
+#: sphinx/directives/desc.py:46
 #, python-format
 msgid "%s() (%s.%s method)"
 msgstr ""
 
-#: sphinx/directives/desc.py:47
+#: sphinx/directives/desc.py:48
 #, python-format
 msgid "%s() (%s method)"
 msgstr ""
 
-#: sphinx/directives/desc.py:57
+#: sphinx/directives/desc.py:58
 #, python-format
 msgid "%s() (%s.%s static method)"
 msgstr ""
 
-#: sphinx/directives/desc.py:59
+#: sphinx/directives/desc.py:60
 #, python-format
 msgid "%s() (%s static method)"
 msgstr ""
 
-#: sphinx/directives/desc.py:69
+#: sphinx/directives/desc.py:82
 #, python-format
 msgid "%s (%s.%s attribute)"
 msgstr ""
 
-#: sphinx/directives/desc.py:71
+#: sphinx/directives/desc.py:84
 #, python-format
 msgid "%s (%s attribute)"
 msgstr ""
 
-#: sphinx/directives/desc.py:73
+#: sphinx/directives/desc.py:86
 #, python-format
 msgid "%s (C function)"
 msgstr ""
 
-#: sphinx/directives/desc.py:75
+#: sphinx/directives/desc.py:88
 #, python-format
 msgid "%s (C member)"
 msgstr ""
 
-#: sphinx/directives/desc.py:77
+#: sphinx/directives/desc.py:90
 #, python-format
 msgid "%s (C macro)"
 msgstr ""
 
-#: sphinx/directives/desc.py:79
+#: sphinx/directives/desc.py:92
 #, python-format
 msgid "%s (C type)"
 msgstr ""
 
-#: sphinx/directives/desc.py:81
+#: sphinx/directives/desc.py:94
 #, python-format
 msgid "%s (C variable)"
 msgstr ""
 
-#: sphinx/directives/desc.py:99
+#: sphinx/directives/desc.py:112
 msgid "Raises"
 msgstr ""
 
-#: sphinx/directives/desc.py:103
+#: sphinx/directives/desc.py:116
 msgid "Variable"
 msgstr ""
 
-#: sphinx/directives/desc.py:106
+#: sphinx/directives/desc.py:119
 msgid "Returns"
 msgstr ""
 
-#: sphinx/directives/desc.py:113
+#: sphinx/directives/desc.py:128
 msgid "Return type"
 msgstr ""
 
-#: sphinx/directives/desc.py:140
+#: sphinx/directives/desc.py:213
+msgid "Parameter"
+msgstr ""
+
+#: sphinx/directives/desc.py:217
 msgid "Parameters"
 msgstr ""
 
-#: sphinx/directives/desc.py:402
+#: sphinx/directives/desc.py:465
 #, python-format
-msgid "command line option; %s"
+msgid "%scommand line option; %s"
 msgstr ""
 
-#: sphinx/directives/other.py:102
+#: sphinx/directives/other.py:101
 msgid "Platforms: "
 msgstr ""
 
-#: sphinx/directives/other.py:107
+#: sphinx/directives/other.py:106
 #, python-format
 msgid "%s (module)"
 msgstr ""
 
-#: sphinx/directives/other.py:147
+#: sphinx/directives/other.py:146
 msgid "Section author: "
 msgstr ""
 
-#: sphinx/directives/other.py:149
+#: sphinx/directives/other.py:148
 msgid "Module author: "
 msgstr ""
 
-#: sphinx/directives/other.py:151
+#: sphinx/directives/other.py:150
 msgid "Author: "
 msgstr ""
 
-#: sphinx/directives/other.py:233
+#: sphinx/directives/other.py:249
 msgid "See also"
+msgstr ""
+
+#: sphinx/ext/autodoc.py:442
+#, python-format
+msgid "   Bases: %s"
+msgstr ""
+
+#: sphinx/ext/autodoc.py:566 sphinx/ext/autodoc.py:583
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr ""
+
+#: sphinx/ext/todo.py:31
+msgid "Todo"
+msgstr ""
+
+#: sphinx/ext/todo.py:75
+#, python-format
+msgid "(The original entry is located in %s, line %d and can be found "
+msgstr ""
+
+#: sphinx/ext/todo.py:81
+msgid "here"
 msgstr ""
 
 #: sphinx/locale/__init__.py:15
@@ -322,6 +337,14 @@ msgstr ""
 msgid "built-in function"
 msgstr ""
 
+#: sphinx/static/doctools.js:139 sphinx/writers/html.py:425
+msgid "Permalink to this headline"
+msgstr ""
+
+#: sphinx/static/doctools.js:145 sphinx/writers/html.py:80
+msgid "Permalink to this definition"
+msgstr ""
+
 #: sphinx/static/doctools.js:174
 msgid "Hide Search Matches"
 msgstr ""
@@ -334,17 +357,25 @@ msgstr ""
 msgid "Preparing search..."
 msgstr ""
 
-#: sphinx/static/searchtools.js:401 sphinx/templates/search.html:18
+#: sphinx/static/searchtools.js:338
+msgid "module, in "
+msgstr ""
+
+#: sphinx/static/searchtools.js:347
+msgid ", in "
+msgstr ""
+
+#: sphinx/static/searchtools.js:453 sphinx/templates/search.html:25
 msgid "Search Results"
 msgstr ""
 
-#: sphinx/static/searchtools.js:403
+#: sphinx/static/searchtools.js:455
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
 
-#: sphinx/static/searchtools.js:405
+#: sphinx/static/searchtools.js:457
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
@@ -408,27 +439,23 @@ msgstr ""
 msgid "Previous topic"
 msgstr ""
 
-#: sphinx/templates/layout.html:47
+#: sphinx/templates/layout.html:48
 msgid "previous chapter"
 msgstr ""
 
-#: sphinx/templates/layout.html:50
+#: sphinx/templates/layout.html:51
 msgid "Next topic"
 msgstr ""
 
-#: sphinx/templates/layout.html:51
+#: sphinx/templates/layout.html:53
 msgid "next chapter"
 msgstr ""
 
-#: sphinx/templates/layout.html:55
+#: sphinx/templates/layout.html:58
 msgid "This Page"
 msgstr ""
 
-#: sphinx/templates/layout.html:59
-msgid "Suggest Change"
-msgstr ""
-
-#: sphinx/templates/layout.html:60 sphinx/templates/layout.html:62
+#: sphinx/templates/layout.html:61
 msgid "Show Source"
 msgstr ""
 
@@ -436,75 +463,55 @@ msgstr ""
 msgid "Quick search"
 msgstr ""
 
-#: sphinx/templates/layout.html:71
-msgid "Keyword search"
-msgstr ""
-
-#: sphinx/templates/layout.html:73
+#: sphinx/templates/layout.html:74
 msgid "Go"
 msgstr ""
 
 #: sphinx/templates/layout.html:78
-msgid "Enter a module, class or function name."
+msgid "Enter search terms or a module, class or function name."
 msgstr ""
 
-#: sphinx/templates/layout.html:118
+#: sphinx/templates/layout.html:115
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr ""
 
-#: sphinx/templates/layout.html:127
+#: sphinx/templates/layout.html:124
 msgid "About these documents"
 msgstr ""
 
-#: sphinx/templates/layout.html:129
-msgid "Global table of contents"
-msgstr ""
-
-#: sphinx/templates/layout.html:130
-msgid "Global index"
-msgstr ""
-
-#: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
+#: sphinx/templates/layout.html:127 sphinx/templates/search.html:2
 #: sphinx/templates/search.html:5
 msgid "Search"
 msgstr ""
 
-#: sphinx/templates/layout.html:133
+#: sphinx/templates/layout.html:129
 msgid "Copyright"
 msgstr ""
 
-#: sphinx/templates/layout.html:178
+#: sphinx/templates/layout.html:174
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr ""
 
-#: sphinx/templates/layout.html:180
+#: sphinx/templates/layout.html:176
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr ""
 
-#: sphinx/templates/layout.html:183
+#: sphinx/templates/layout.html:179
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr ""
 
-#: sphinx/templates/layout.html:186
+#: sphinx/templates/layout.html:182
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
 
-#: sphinx/templates/modindex.html:15
-msgid "Most popular modules:"
-msgstr ""
-
-#: sphinx/templates/modindex.html:24
-msgid "Show modules only available on these platforms"
-msgstr ""
-
-#: sphinx/templates/modindex.html:56
+#: sphinx/templates/modindex.html:36
 msgid "Deprecated"
 msgstr ""
 
@@ -513,26 +520,25 @@ msgstr ""
 msgid "Search %(docstitle)s"
 msgstr ""
 
-#: sphinx/templates/page.html:8
+#: sphinx/templates/search.html:9
 msgid ""
-"<strong>Note:</strong> You requested an out-of-date URL from this server."
-" We've tried to redirect you to the new location of this page, but it may"
-" not be the right one."
+"Please activate JavaScript to enable the search\n"
+"    functionality."
 msgstr ""
 
-#: sphinx/templates/search.html:7
+#: sphinx/templates/search.html:14
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
-"    containing less words won't appear in the result list."
+"    containing fewer words won't appear in the result list."
 msgstr ""
 
-#: sphinx/templates/search.html:14
+#: sphinx/templates/search.html:21
 msgid "search"
 msgstr ""
 
-#: sphinx/templates/search.html:20
+#: sphinx/templates/search.html:27
 msgid "Your search did not match any results."
 msgstr ""
 
@@ -562,5 +568,18 @@ msgstr ""
 
 #: sphinx/templates/changes/versionchanges.html:25
 msgid "Other changes"
+msgstr ""
+
+#: sphinx/writers/latex.py:173
+msgid "Release"
+msgstr ""
+
+#: sphinx/writers/text.py:166
+#, python-format
+msgid "Platform: %s"
+msgstr ""
+
+#: sphinx/writers/text.py:427
+msgid "[image]"
 msgstr ""
 
