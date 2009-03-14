@@ -1,80 +1,73 @@
+# -*- coding: utf-8 -*-
 """
-===========
-autosummary
-===========
+    sphinx.ext.autosummary
+    ~~~~~~~~~~~~~~~~~~~~~~
 
-Sphinx extension that adds an autosummary:: directive, which can be
-used to generate function/method/attribute/etc. summary lists, similar
-to those output eg. by Epydoc and other API doc generation tools.
+    Sphinx extension that adds an autosummary:: directive, which can be
+    used to generate function/method/attribute/etc. summary lists, similar
+    to those output eg. by Epydoc and other API doc generation tools.
 
-An :autolink: role is also provided.
+    An :autolink: role is also provided.
 
-autosummary directive
----------------------
+    autosummary directive
+    ---------------------
 
-The autosummary directive has the form::
+    The autosummary directive has the form::
 
-    .. autosummary::
-       :nosignatures:
-       :toctree: generated/
-       
-       module.function_1
-       module.function_2
-       ...
+        .. autosummary::
+           :nosignatures:
+           :toctree: generated/
 
-and it generates an output table (containing signatures, optionally)
+           module.function_1
+           module.function_2
+           ...
 
-    ========================  =============================================
-    module.function_1(args)   Summary line from the docstring of function_1
-    module.function_2(args)   Summary line from the docstring
-    ...
-    ========================  =============================================
+    and it generates an output table (containing signatures, optionally)
 
-If the :toctree: option is specified, files matching the function names
-are inserted to the toctree with the given prefix:
+        ========================  =============================================
+        module.function_1(args)   Summary line from the docstring of function_1
+        module.function_2(args)   Summary line from the docstring
+        ...
+        ========================  =============================================
 
-    generated/module.function_1
-    generated/module.function_2
-    ...
+    If the :toctree: option is specified, files matching the function names
+    are inserted to the toctree with the given prefix:
 
-Note: The file names contain the module:: or currentmodule:: prefixes.
+        generated/module.function_1
+        generated/module.function_2
+        ...
 
-.. seealso:: autosummary_generate.py
+    Note: The file names contain the module:: or currentmodule:: prefixes.
+
+    .. seealso:: autosummary_generate.py
 
 
-autolink role
--------------
+    autolink role
+    -------------
 
-The autolink role functions as ``:obj:`` when the name referred can be
-resolved to a Python object, and otherwise it becomes simple emphasis.
-This can be used as the default role to make links 'smart'.
+    The autolink role functions as ``:obj:`` when the name referred can be
+    resolved to a Python object, and otherwise it becomes simple emphasis.
+    This can be used as the default role to make links 'smart'.
 
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
-import sys, os, posixpath, re
+
+import os
+import re
+import sys
+import inspect
+import posixpath
 
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
 
-import sphinx.addnodes, sphinx.roles, sphinx.builder
+from sphinx import addnodes, roles
 from sphinx.util import patfilter
 
-import inspect
 
-def setup(app):
-    app.add_directive('autosummary', autosummary_directive, True, (0, 0, False),
-                      toctree=directives.unchanged,
-                      nosignatures=directives.flag)
-    app.add_role('autolink', autolink_role)
-    
-    app.add_node(autosummary_toc,
-                 html=(autosummary_toc_visit_html, autosummary_toc_depart_noop),
-                 latex=(autosummary_toc_visit_latex, autosummary_toc_depart_noop))
-    app.connect('doctree-read', process_autosummary_toc)
-
-#------------------------------------------------------------------------------
-# autosummary_toc node
-#------------------------------------------------------------------------------
+# -- autosummary_toc node ------------------------------------------------------
 
 class autosummary_toc(nodes.comment):
     pass
@@ -83,7 +76,6 @@ def process_autosummary_toc(app, doctree):
     """
     Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
-
     """
     env = app.builder.env
     crawled = {}
@@ -92,7 +84,7 @@ def process_autosummary_toc(app, doctree):
         for j, subnode in enumerate(node):
             try:
                 if (isinstance(subnode, autosummary_toc)
-                    and isinstance(subnode[0], sphinx.addnodes.toctree)):
+                    and isinstance(subnode[0], addnodes.toctree)):
                     env.note_toctree(env.docname, subnode[0])
                     continue
             except IndexError:
@@ -104,19 +96,18 @@ def process_autosummary_toc(app, doctree):
     crawl_toc(doctree)
 
 def autosummary_toc_visit_html(self, node):
-    """Hide autosummary toctree list in HTML output"""
+    """Hide autosummary toctree list in HTML output."""
     raise nodes.SkipNode
 
 def autosummary_toc_visit_latex(self, node):
-    """Show autosummary toctree (= put the referenced pages here) in Latex"""
+    """Show autosummary toctree (= put the referenced pages here) in Latex."""
     pass
 
 def autosummary_toc_depart_noop(self, node):
     pass
 
-#------------------------------------------------------------------------------
-# .. autosummary::
-#------------------------------------------------------------------------------
+
+# -- .. autosummary:: ----------------------------------------------------------
 
 def autosummary_directive(dirname, arguments, options, content, lineno,
                           content_offset, block_text, state, state_machine):
@@ -155,7 +146,7 @@ def autosummary_directive(dirname, arguments, options, content, lineno,
                     line=lineno))
             docnames.append(docname)
 
-        tocnode = sphinx.addnodes.toctree()
+        tocnode = addnodes.toctree()
         tocnode['includefiles'] = docnames
         tocnode['maxdepth'] = -1
         tocnode['glob'] = None
@@ -164,6 +155,7 @@ def autosummary_directive(dirname, arguments, options, content, lineno,
         return warnings + [node] + [tocnode]
     else:
         return warnings + [node]
+
 
 def get_autosummary(names, state, no_signatures=False):
     """
@@ -175,10 +167,10 @@ def get_autosummary(names, state, no_signatures=False):
         Names of Python objects to be imported and added to the table.
     document : document
         Docutils document object
-    
+
     """
     document = state.document
-    
+
     real_names = {}
     warnings = []
 
@@ -209,14 +201,14 @@ def get_autosummary(names, state, no_signatures=False):
         except ImportError:
             warnings.append(document.reporter.warning(
                 'failed to import %s' % name))
-            append_row(":obj:`%s`" % name, "")
+            append_row(':obj:`%s`' % name, '')
             continue
 
         real_names[name] = real_name
 
-        title = ""
+        title = ''
         qualifier = 'obj'
-        col1 = ":"+qualifier+":`%s <%s>`" % (name, real_name)
+        col1 = ':'+qualifier+':`%s <%s>`' % (name, real_name)
         col2 = title
         append_row(col1, col2)
 
@@ -240,7 +232,7 @@ def import_by_name(name, prefixes=[None]):
         The imported object
     name
         Name of the imported object (useful if `prefixes` was used)
-    
+
     """
     for prefix in prefixes:
         try:
@@ -254,9 +246,18 @@ def import_by_name(name, prefixes=[None]):
     raise ImportError
 
 def _import_by_name(name):
-    """Import a Python object given its full name"""
+    """Import a Python object given its full name."""
     try:
+        # try first interpret `name` as MODNAME.OBJ
         name_parts = name.split('.')
+        try:
+            modname = '.'.join(name_parts[:-1])
+            __import__(modname)
+            return getattr(sys.modules[modname], name_parts[-1])
+        except (ImportError, IndexError, AttributeError):
+            pass
+
+        # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
         modname = None
         for j in reversed(range(1, len(name_parts)+1)):
@@ -279,20 +280,19 @@ def _import_by_name(name):
     except (ValueError, ImportError, AttributeError, KeyError), e:
         raise ImportError(e)
 
-#------------------------------------------------------------------------------
-# :autolink: (smart default role)
-#------------------------------------------------------------------------------
+
+# -- :autolink: (smart default role) -------------------------------------------
 
 def autolink_role(typ, rawtext, etext, lineno, inliner,
                   options={}, content=[]):
     """
     Smart linking role.
 
-    Expands to ":obj:`text`" if `text` is an object that can be imported;
-    otherwise expands to "*text*".
+    Expands to ':obj:`text`' if `text` is an object that can be imported;
+    otherwise expands to '*text*'.
     """
-    r = sphinx.roles.xfileref_role('obj', rawtext, etext, lineno, inliner,
-                                   options, content)
+    r = roles.xfileref_role('obj', rawtext, etext, lineno, inliner,
+                            options, content)
     pnode = r[0][0]
 
     prefixes = [None]
@@ -304,3 +304,15 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
         r[0][0] = nodes.emphasis(rawtext, content[0].astext(),
                                  classes=content['classes'])
     return r
+
+
+def setup(app):
+    app.add_directive('autosummary', autosummary_directive, True, (0, 0, False),
+                      toctree=directives.unchanged,
+                      nosignatures=directives.flag)
+    app.add_role('autolink', autolink_role)
+
+    app.add_node(autosummary_toc,
+                 html=(autosummary_toc_visit_html, autosummary_toc_depart_noop),
+                 latex=(autosummary_toc_visit_latex, autosummary_toc_depart_noop))
+    app.connect('doctree-read', process_autosummary_toc)
