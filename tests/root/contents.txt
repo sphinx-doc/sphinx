@@ -19,6 +19,7 @@ Contents:
    desc
    math
    autodoc
+   autosummary
 
    Python <http://python.org/>
 
