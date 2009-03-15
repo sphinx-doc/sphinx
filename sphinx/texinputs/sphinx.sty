@@ -710,3 +710,15 @@
                 linkcolor=InnerLinkColor,filecolor=OuterLinkColor,
                 menucolor=OuterLinkColor,pagecolor=OuterLinkColor,
                 urlcolor=OuterLinkColor]{hyperref}
+
+% From docutils.writers.latex2e
+\providecommand{\DUspan}[2]{%
+  {% group ("span") to limit the scope of styling commands
+    \@for\node@class@name:=#1\do{%
+    \ifcsname docutilsrole\node@class@name\endcsname%
+      \csname docutilsrole\node@class@name\endcsname%
+    \fi%
+    }%
+    {#2}% node content
+  }% close "span"
+}

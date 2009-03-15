@@ -1159,6 +1159,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_substitution_reference(self, node):
         raise nodes.SkipNode
 
+    def visit_inline(self, node):
+        classes = node.get('classes', [])
+        self.body.append(r'\DUspan{%s}{' %','.join(classes))
+    def depart_inline(self, node):
+        self.body.append('}')
+
     def visit_generated(self, node):
         pass
     def depart_generated(self, node):
