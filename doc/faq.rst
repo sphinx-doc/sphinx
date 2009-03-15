@@ -26,5 +26,9 @@ How do I...
    There's a third-party extension providing an `api role`_ which refers to
    Epydoc's API docs for a given identifier.
 
+... use Sphinx with SCons?
+   Glenn Hutchings has written a SCons build script to build Sphinx
+   documentation; it is hosted here: http://bitbucket.org/zondo/sphinx-scons
+   
 
 .. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
