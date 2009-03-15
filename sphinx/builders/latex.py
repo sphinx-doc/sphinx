@@ -123,7 +123,7 @@ class LaTeXBuilder(Builder):
                     except Exception:
                         self.warn('toctree contains ref to nonexisting '
                                   'file %r' % includefile,
-                                  self.builder.env.doc2path(docname))
+                                  self.env.doc2path(docname))
                     else:
                         sof = addnodes.start_of_file(docname=includefile)
                         sof.children = subtree.children
