@@ -37,6 +37,7 @@ def setup_module():
         deprecated = False,
         members = [],
         member_order = 'alphabetic',
+        exclude_members = set(),
     )
 
     directive = Struct(
@@ -375,6 +376,7 @@ def test_generate():
     assert_processes(should, 'class', 'Class')
     should.extend([('method', 'test_autodoc.Class.meth')])
     options.members = ['meth']
+    options.exclude_members = set(['excludemeth'])
     assert_processes(should, 'class', 'Class')
     should.extend([('attribute', 'test_autodoc.Class.prop'),
                    ('attribute', 'test_autodoc.Class.attr'),
@@ -458,7 +460,9 @@ class Class(Base):
 
     def skipmeth(self):
         """Method that should be skipped."""
-        pass
+
+    def excludemeth(self):
+        """Method that should be excluded."""
 
     # should not be documented
     skipattr = 'foo'

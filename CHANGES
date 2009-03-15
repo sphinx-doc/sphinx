@@ -162,6 +162,9 @@ New features added
   - Autodoc can document classes as functions now if explicitly
     marked with `autofunction`.
 
+  - Autodoc can now exclude single members from documentation
+    via the ``exclude-members`` option.
+
   - Autodoc can now order members either alphabetically (like
     previously) or by member type; configurable either with the
     config value ``autodoc_member_order`` or a ``member-order``

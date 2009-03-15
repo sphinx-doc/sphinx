@@ -79,6 +79,12 @@ def members_option(arg):
         return ALL
     return [x.strip() for x in arg.split(',')]
 
+def members_set_option(arg):
+    """Used to convert the :members: option to auto directives."""
+    if arg is None:
+        return ALL
+    return set(x.strip() for x in arg.split(','))
+
 def bool_option(arg):
     """Used to convert flag options to auto directives.  (Instead of
     directives.flag(), which returns None.)"""
@@ -549,6 +555,11 @@ class Documenter(object):
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
 
+        # remove members given by exclude-members
+        if self.options.exclude_members:
+            members = [(membername, member) for (membername, member) in members
+                       if membername not in self.options.exclude_members]
+
         # document non-skipped members
         memberdocumenters = []
         for (mname, member, isattr) in self.filter_members(members, want_all):
@@ -666,7 +677,7 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
-        'member-order': identity,
+        'member-order': identity, 'exclude-members': members_set_option,
     }
 
     @classmethod
@@ -818,6 +829,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'member-order': identity,
+        'exclude-members': members_set_option,
     }
 
     @classmethod

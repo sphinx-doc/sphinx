@@ -141,6 +141,12 @@ directive.
 
      .. versionadded:: 0.6
 
+  * The directives supporting member documentation also have a
+    ``exclude-members`` option that can be used to exclude single member names
+    from documentation, if all members are to be documented.
+
+    .. versionadded:: 0.6
+
    .. note::
 
       In an :dir:`automodule` directive with the ``members`` option set, only
