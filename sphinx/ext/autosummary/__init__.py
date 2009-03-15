@@ -317,7 +317,8 @@ def setup(app):
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,
                  html=(autosummary_toc_visit_html, autosummary_noop),
-                 latex=(autosummary_toc_visit_latex, autosummary_noop))
+                 latex=(autosummary_toc_visit_latex, autosummary_noop),
+                 text=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)

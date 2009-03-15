@@ -1,5 +1,7 @@
 Autosummary test
 ================
 
-.. autosummary:: sphinx.application
-   :toctree: xyz
+.. autosummary::
+   :toctree: generated
+
+   sphinx.application
