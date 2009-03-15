@@ -37,8 +37,7 @@ def warning_emitted(file, text):
 # afford to not run update() in the setup but in its own test
 
 def test_first_update():
-    it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    msg = it.next()
+    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
     assert msg.endswith('%d added, 0 changed, 0 removed' % len(env.found_docs))
     docnames = set()
     for docname in it:  # the generator does all the work
@@ -80,8 +79,7 @@ def test_second_update():
     # the contents.txt toctree; otherwise section numbers would shift
     (root / 'autodoc.txt').unlink()
     (root / 'new.txt').write_text('New file\n========\n')
-    it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    msg = it.next()
+    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
     assert '1 added, 3 changed, 1 removed' in msg
     docnames = set()
     for docname in it:
