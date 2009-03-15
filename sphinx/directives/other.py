@@ -414,7 +414,9 @@ class Glossary(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {
+        'sorted': directives.flag,
+    }
 
     def run(self):
         env = self.state.document.settings.env
@@ -426,8 +428,10 @@ class Glossary(Directive):
         dls = [child for child in node
                if isinstance(child, nodes.definition_list)]
         # now, extract definition terms to enable cross-reference creation
+        new_dl = nodes.definition_list()
+        new_dl['classes'].append('glossary')
+        items = []
         for dl in dls:
-            dl['classes'].append('glossary')
             for li in dl.children:
                 if not li.children or not isinstance(li[0], nodes.term):
                     continue
@@ -443,6 +447,11 @@ class Glossary(Directive):
                 indexnode = addnodes.index()
                 indexnode['entries'] = [('single', termtext, new_id, termtext)]
                 li.insert(0, indexnode)
+                items.append((termtext, li))
+        if 'sorted' in self.options:
+            items.sort()
+        new_dl.extend(item[1] for item in items)
+        node.children = [new_dl]
         return [node]
 
 
