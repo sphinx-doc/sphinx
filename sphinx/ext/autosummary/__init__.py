@@ -226,6 +226,7 @@ def import_by_name(name, prefixes=[None]):
     Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
+    tried = []
     for prefix in prefixes:
         try:
             if prefix:
@@ -234,8 +235,8 @@ def import_by_name(name, prefixes=[None]):
                 prefixed_name = name
             return _import_by_name(prefixed_name), prefixed_name
         except ImportError:
-            pass
-    raise ImportError
+            tried.append(prefixed_name)
+    raise ImportError('no module named %s' % ' or '.join(tried))
 
 def _import_by_name(name):
     """Import a Python object given its full name."""
@@ -270,7 +271,7 @@ def _import_by_name(name):
         else:
             return sys.modules[modname]
     except (ValueError, ImportError, AttributeError, KeyError), e:
-        raise ImportError(e)
+        raise ImportError(*e.args)
 
 
 # -- :autolink: (smart default role) -------------------------------------------
