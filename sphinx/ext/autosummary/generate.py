@@ -20,7 +20,7 @@
 import os
 import re
 import sys
-import glob
+import getopt
 import inspect
 
 from jinja2 import Environment, PackageLoader
@@ -32,7 +32,17 @@ from sphinx.util import ensuredir
 env = Environment(loader=PackageLoader('sphinx.ext.autosummary', 'templates'))
 
 
-def generate_autosummary_docs(sources, output_dir=None):
+def _simple_info(msg):
+    print msg
+
+def _simple_warn(msg):
+    print >>sys.stderr, 'WARNING: ' + msg
+
+def generate_autosummary_docs(sources, output_dir=None,
+                              warn=_simple_warn, info=_simple_info):
+    info('generating autosummary for: %s' % ', '.join(sources))
+    if output_dir:
+        info('writing to %s' % output_dir)
     # read
     names = {}
     for name, loc in get_documented(sources).items():
@@ -43,15 +53,13 @@ def generate_autosummary_docs(sources, output_dir=None):
 
     # write
     for name, path in sorted(names.items()):
-        if output_dir is not None:
-            path = output_dir
-
+        path = output_dir or path
         ensuredir(path)
 
         try:
             obj, name = import_by_name(name)
         except ImportError, e:
-            print >>sys.stderr, 'Failed to import %r: %s' % (name, e)
+            warn('failed to import %r: %s' % (name, e))
             continue
 
         fn = os.path.join(path, '%s.rst' % name)
@@ -63,6 +71,7 @@ def generate_autosummary_docs(sources, output_dir=None):
 
         try:
             if inspect.ismodule(obj):
+                # XXX replace this with autodoc's API?
                 tmpl = env.get_template('module')
                 functions = [getattr(obj, item).__name__
                              for item in dir(obj)
@@ -76,6 +85,7 @@ def generate_autosummary_docs(sources, output_dir=None):
                               if inspect.isclass(getattr(obj, item))
                               and issubclass(getattr(obj, item), Exception)]
                 rendered = tmpl.render(name=name,
+                                       underline='='*len(name),
                                        functions=functions,
                                        classes=classes,
                                        exceptions=exceptions,
@@ -177,6 +187,7 @@ def get_documented(filenames):
                 m = autodoc_re.search(line)
                 if m:
                     name = m.group(2).strip()
+                    # XXX look in newer generate.py
                     if current_module and \
                            not name.startswith(current_module + '.'):
                         name = '%s.%s' % (current_module, name)
@@ -200,15 +211,24 @@ def get_documented(filenames):
     return documented
 
 
-def main(args=None):
-    if args is None:
-        args = sys.argv[1:]
+def main(argv):
+    usage = 'usage: %s [-o output_dir] sourcefile ...' % sys.argv[0]
+    try:
+        opts, args = getopt.getopt(argv[1:], 'o:')
+    except getopt.error:
+        print >>sys.stderr, usage
+        return 1
 
-    if len(args) < 2:
-        print >>sys.stderr, 'usage: %s sourcefile ... outputdir' % sys.argv[0]
+    output_dir = None
+    for opt, val in opts:
+        if opt == '-o':
+            output_dir = val
 
-    print 'generating docs from:', ', '.join(args[:-1])
-    generate_autosummary_docs(args[:-1], args[-1])
+    if len(args) < 1:
+        print >>sys.stderr, usage
+        return 1
+
+    generate_autosummary_docs(args, output_dir)
 
 
 if __name__ == '__main__':

@@ -58,6 +58,7 @@ import re
 import sys
 import inspect
 import posixpath
+from os import path
 
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
@@ -65,6 +66,7 @@ from docutils import nodes
 
 from sphinx import addnodes, roles
 from sphinx.util import patfilter
+from sphinx.util.compat import Directive
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -103,70 +105,75 @@ def autosummary_toc_visit_latex(self, node):
     """Show autosummary toctree (= put the referenced pages here) in Latex."""
     pass
 
-def autosummary_toc_depart_noop(self, node):
+def autosummary_noop(self, node):
     pass
 
 
 # -- .. autosummary:: ----------------------------------------------------------
 
-def autosummary_directive(dirname, arguments, options, content, lineno,
-                          content_offset, block_text, state, state_machine):
+class Autosummary(Directive):
     """
     Pretty table containing short signatures and summaries of functions etc.
 
     autosummary also generates a (hidden) toctree:: node.
-
     """
 
-    names = []
-    names += [x.strip() for x in content if x.strip()]
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+    has_content = True
+    option_spec = {
+        'toctree': directives.unchanged,
+        'nosignatures': directives.flag,
+    }
 
-    table, warnings, real_names = get_autosummary(names, state,
-                                                  'nosignatures' in options)
-    node = table
+    def run(self):
+        names = []
+        names += [x.strip() for x in self.content if x.strip()]
 
-    env = state.document.settings.env
-    suffix = env.config.source_suffix
-    all_docnames = env.found_docs.copy()
-    dirname = posixpath.dirname(env.docname)
+        table, warnings, real_names = get_autosummary(
+            names, self.state, 'nosignatures' in self.options)
+        node = table
 
-    if 'toctree' in options:
-        tree_prefix = options['toctree'].strip()
-        docnames = []
-        for name in names:
-            name = real_names.get(name, name)
+        env = self.state.document.settings.env
+        suffix = env.config.source_suffix
+        all_docnames = env.found_docs.copy()
+        dirname = posixpath.dirname(env.docname)
 
-            docname = tree_prefix + name
-            if docname.endswith(suffix):
-                docname = docname[:-len(suffix)]
-            docname = posixpath.normpath(posixpath.join(dirname, docname))
-            if docname not in env.found_docs:
-                warnings.append(state.document.reporter.warning(
-                    'toctree references unknown document %r' % docname,
-                    line=lineno))
-            docnames.append(docname)
+        if 'toctree' in self.options:
+            tree_prefix = self.options['toctree'].strip()
+            docnames = []
+            for name in names:
+                name = real_names.get(name, name)
 
-        tocnode = addnodes.toctree()
-        tocnode['includefiles'] = docnames
-        tocnode['maxdepth'] = -1
-        tocnode['glob'] = None
+                docname = posixpath.join(tree_prefix, name)
+                if docname.endswith(suffix):
+                    docname = docname[:-len(suffix)]
+                docname = posixpath.normpath(posixpath.join(dirname, docname))
+                if docname not in env.found_docs:
+                    warnings.append(self.state.document.reporter.warning(
+                        'toctree references unknown document %r' % docname,
+                        line=self.lineno))
+                docnames.append(docname)
 
-        tocnode = autosummary_toc('', '', tocnode)
-        return warnings + [node] + [tocnode]
-    else:
-        return warnings + [node]
+            tocnode = addnodes.toctree()
+            tocnode['includefiles'] = docnames
+            tocnode['entries'] = [(None, docname) for docname in docnames]
+            tocnode['maxdepth'] = -1
+            tocnode['glob'] = None
+
+            tocnode = autosummary_toc('', '', tocnode)
+            return warnings + [node] + [tocnode]
+        else:
+            return warnings + [node]
 
 
 def get_autosummary(names, state, no_signatures=False):
     """
     Generate a proper table node for autosummary:: directive.
 
-    Parameters
-    ----------
-    names : list of str
-        Names of Python objects to be imported and added to the table.
-    document : document
-        Docutils document object
+    *names* is a list of names of Python objects to be imported and added to the
+    table.  *document* is the Docutils document object.
 
     """
     document = state.document
@@ -216,23 +223,8 @@ def get_autosummary(names, state, no_signatures=False):
 
 def import_by_name(name, prefixes=[None]):
     """
-    Import a Python object that has the given name, under one of the prefixes.
-
-    Parameters
-    ----------
-    name : str
-        Name of a Python object, eg. 'numpy.ndarray.view'
-    prefixes : list of (str or None), optional
-        Prefixes to prepend to the name (None implies no prefix).
-        The first prefixed name that results to successful import is used.
-
-    Returns
-    -------
-    obj
-        The imported object
-    name
-        Name of the imported object (useful if `prefixes` was used)
-
+    Import a Python object that has the given *name*, under one of the
+    *prefixes*.  The first name that succeeds is used.
     """
     for prefix in prefixes:
         try:
@@ -306,13 +298,27 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     return r
 
 
-def setup(app):
-    app.add_directive('autosummary', autosummary_directive, True, (0, 0, False),
-                      toctree=directives.unchanged,
-                      nosignatures=directives.flag)
-    app.add_role('autolink', autolink_role)
+def process_generate_options(app):
+    genfiles = app.config.autosummary_generate
+    if not genfiles:
+        return
+    from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
+    ext = app.config.source_suffix
+    genfiles = [path.join(app.srcdir, genfile +
+                          (not genfile.endswith(ext) and ext or ''))
+                for genfile in genfiles]
+    generate_autosummary_docs(genfiles, warn=app.warn, info=app.info)
+
+
+def setup(app):
+    # I need autodoc
+    app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,
-                 html=(autosummary_toc_visit_html, autosummary_toc_depart_noop),
-                 latex=(autosummary_toc_visit_latex, autosummary_toc_depart_noop))
+                 html=(autosummary_toc_visit_html, autosummary_noop),
+                 latex=(autosummary_toc_visit_latex, autosummary_noop))
+    app.add_directive('autosummary', Autosummary)
+    app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)
+    app.connect('builder-inited', process_generate_options)
+    app.add_config_value('autosummary_generate', [], True)

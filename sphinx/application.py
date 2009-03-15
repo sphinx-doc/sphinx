@@ -82,6 +82,9 @@ class Sphinx(object):
 
         self._events = events.copy()
 
+        # say hello to the world
+        self.info(bold('Running Sphinx v%s' % sphinx.__released__))
+
         # status code for command-line application
         self.statuscode = 0
 
@@ -104,9 +107,6 @@ class Sphinx(object):
             buildername = 'html'
         if buildername not in self.builderclasses:
             raise SphinxError('Builder name %s not registered' % buildername)
-
-        self.info(bold('Sphinx v%s, building %s' % (sphinx.__released__,
-                                                    buildername)))
 
         builderclass = self.builderclasses[buildername]
         if isinstance(builderclass, tuple):
