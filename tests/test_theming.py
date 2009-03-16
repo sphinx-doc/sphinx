@@ -16,10 +16,6 @@ from util import *
 
 from sphinx.theming import Theme, ThemeError
 
-def teardown_module():
-    (test_root / '_build').rmtree()
-    (test_root / 'generated').rmtree()
-
 
 @with_app(confoverrides={'html_theme': 'ziptheme',
                          'html_theme_options.testopt': 'foo'})

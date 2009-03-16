@@ -853,7 +853,12 @@ class ClassDocumenter(ModuleLevelDocumenter):
         if initmeth is None or initmeth is object.__init__ or not \
                (inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
-        argspec = inspect.getargspec(initmeth)
+        try:
+            argspec = inspect.getargspec(initmeth)
+        except TypeError:
+            # still not possible: happens e.g. for old-style classes
+            # with __init__ in C
+            return None
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
         return inspect.formatargspec(*argspec)

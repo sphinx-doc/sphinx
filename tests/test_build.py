@@ -31,8 +31,7 @@ from sphinx.writers.latex import LaTeXTranslator
 
 
 def teardown_module():
-    (test_root / '_build').rmtree()
-    (test_root / 'generated').rmtree()
+    (test_root / '_build').rmtree(True)
 
 
 html_warnfile = StringIO()

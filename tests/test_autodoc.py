@@ -470,9 +470,10 @@ class Class(Base):
     #: should be documented -- süß
     attr = 'bar'
 
-    @property
     def prop(self):
         """Property."""
+    # stay 2.4 compatible (docstring!)
+    prop = property(prop, doc="Property.")
 
     docattr = 'baz'
     """should likewise be documented -- süß"""

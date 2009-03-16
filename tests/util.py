@@ -105,7 +105,7 @@ class TestApp(application.Sphinx):
 
         application.CONFIG_FILENAME = confname
 
-        self.cleanup_trees = []
+        self.cleanup_trees = [test_root / 'generated']
 
         if srcdir is None:
             srcdir = test_root
