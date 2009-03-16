@@ -91,7 +91,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         outfn = path.join(self.builder.outdir, fname)
 
     if path.isfile(outfn):
-        return relfn
+        return relfn, outfn
 
     if hasattr(self.builder, '_graphviz_warned_dot') or \
        hasattr(self.builder, '_graphviz_warned_ps2pdf'):
@@ -122,12 +122,12 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if p.returncode != 0:
         raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
                             '[stdout]\n%s' % (stderr, stdout))
-    return relfn
+    return relfn, outfn
 
 
 def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
     try:
-        fname = render_dot(self, code, options, 'png', prefix)
+        fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError, exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
@@ -136,9 +136,11 @@ def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
     if fname is None:
         self.body.append(self.encode(code))
     else:
-        mapfile = open(path.join(self.builder.outdir, fname) + '.map', 'rb')
-        imgmap = mapfile.readlines()
-        mapfile.close()
+        mapfile = open(outfn + '.map', 'rb')
+        try:
+            imgmap = mapfile.readlines()
+        finally:
+            mapfile.close()
         imgcss = imgcls and 'class="%s"' % imgcls or ''
         if len(imgmap) == 2:
             # nothing in image map (the lines are <map> and </map>)
