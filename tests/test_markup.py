@@ -23,7 +23,8 @@ from sphinx.latexwriter import LaTeXWriter, LaTeXTranslator
 def setup_module():
     global app, settings, parser
     app = TestApp(cleanenv=True)
-    optparser = frontend.OptionParser(components=(rst.Parser, HTMLWriter, LaTeXWriter))
+    optparser = frontend.OptionParser(
+        components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
     settings.env = app.builder.env
     parser = rst.Parser()
@@ -47,6 +48,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 
 def verify_re(rst, html_expected, latex_expected):
     document = utils.new_document('test data', settings)
+    document['file'] = 'dummy'
     parser.parse(rst, document)
     for msg in document.traverse(nodes.system_message):
         if msg['level'] == 1:
