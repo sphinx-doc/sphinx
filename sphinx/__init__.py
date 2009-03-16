@@ -12,8 +12,8 @@
 import sys
 
 __revision__ = '$Revision$'
-__version__ = '0.5.1+'
-__released__ = '0.5.1'
+__version__ = '0.5.2b1'
+__released__ = '0.5.2b1'
 
 
 def main(argv=sys.argv):
