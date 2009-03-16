@@ -41,6 +41,7 @@ These extensions are built in and can be activated by respective entries in the
 .. toctree::
 
    ext/autodoc
+   ext/autosummary
    ext/doctest
    ext/intersphinx
    ext/math
