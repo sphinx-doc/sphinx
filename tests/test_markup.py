@@ -50,6 +50,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 
 def verify_re(rst, html_expected, latex_expected):
     document = utils.new_document('test data', settings)
+    document['file'] = 'dummy'
     parser.parse(rst, document)
     for msg in document.traverse(nodes.system_message):
         if msg['level'] == 1:

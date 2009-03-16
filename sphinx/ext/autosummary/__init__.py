@@ -309,7 +309,8 @@ def process_generate_options(app):
     genfiles = [path.join(app.srcdir, genfile +
                           (not genfile.endswith(ext) and ext or ''))
                 for genfile in genfiles]
-    generate_autosummary_docs(genfiles, warn=app.warn, info=app.info)
+    generate_autosummary_docs(genfiles, warn=app.warn, info=app.info,
+                              suffix=ext)
 
 
 def setup(app):

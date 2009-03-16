@@ -38,7 +38,7 @@ def _simple_info(msg):
 def _simple_warn(msg):
     print >>sys.stderr, 'WARNING: ' + msg
 
-def generate_autosummary_docs(sources, output_dir=None,
+def generate_autosummary_docs(sources, output_dir=None, suffix=None,
                               warn=_simple_warn, info=_simple_info):
     info('generating autosummary for: %s' % ', '.join(sources))
     if output_dir:
@@ -62,7 +62,7 @@ def generate_autosummary_docs(sources, output_dir=None,
             warn('failed to import %r: %s' % (name, e))
             continue
 
-        fn = os.path.join(path, '%s.rst' % name)
+        fn = os.path.join(path, name + (suffix or '.rst'))
         # skip it if it exists
         if os.path.isfile(fn):
             continue
@@ -212,23 +212,26 @@ def get_documented(filenames):
 
 
 def main(argv):
-    usage = 'usage: %s [-o output_dir] sourcefile ...' % sys.argv[0]
+    usage = 'usage: %s [-o output_dir] [-s suffix] sourcefile ...' % sys.argv[0]
     try:
-        opts, args = getopt.getopt(argv[1:], 'o:')
+        opts, args = getopt.getopt(argv[1:], 'o:s:')
     except getopt.error:
         print >>sys.stderr, usage
         return 1
 
     output_dir = None
+    suffix = None
     for opt, val in opts:
         if opt == '-o':
             output_dir = val
+        elif opt == '-s':
+            suffix = val
 
     if len(args) < 1:
         print >>sys.stderr, usage
         return 1
 
-    generate_autosummary_docs(args, output_dir)
+    generate_autosummary_docs(args, output_dir, suffix)
 
 
 if __name__ == '__main__':

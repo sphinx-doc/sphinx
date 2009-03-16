@@ -4,4 +4,4 @@ Autosummary test
 .. autosummary::
    :toctree: generated
 
-   sphinx.application
+   sphinx.application.TemplateBridge

@@ -32,6 +32,7 @@ from sphinx.writers.latex import LaTeXTranslator
 
 def teardown_module():
     (test_root / '_build').rmtree()
+    (test_root / 'generated').rmtree()
 
 
 html_warnfile = StringIO()
@@ -166,7 +167,8 @@ def check_xpath(etree, fname, path, check):
                            'path %s in %s: %r' % (check, path, fname,
                            [node.text for node in nodes]))
 
-@gen_with_app(buildername='html', warning=html_warnfile, tags=['testtag'])
+@gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
+              tags=['testtag'])
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
@@ -183,7 +185,7 @@ def test_html(app):
             yield check_xpath, etree, fname, path, check
 
 
-@with_app(buildername='latex', warning=latex_warnfile)
+@with_app(buildername='latex', warning=latex_warnfile, cleanenv=True)
 def test_latex(app):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
@@ -264,6 +266,6 @@ def test_htmlhelp(app):
 def test_qthelp(app):
     app.builder.build_all()
 
-@with_app(buildername='changes')
+@with_app(buildername='changes', cleanenv=True)
 def test_changes(app):
     app.builder.build_all()
