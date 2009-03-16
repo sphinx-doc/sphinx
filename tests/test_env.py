@@ -26,6 +26,7 @@ def setup_module():
 
 def teardown_module():
     app.cleanup()
+    (test_root / 'generated').rmtree()
 
 def warning_emitted(file, text):
     for warning in warnings:

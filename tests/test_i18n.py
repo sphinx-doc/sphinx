@@ -11,6 +11,10 @@
 
 from util import *
 
+def teardown_module():
+    (test_root / '_build').rmtree()
+    (test_root / 'generated').rmtree()
+
 
 @with_app(confoverrides={'language': 'de'})
 def test_i18n(app):
