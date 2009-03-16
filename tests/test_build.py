@@ -77,7 +77,8 @@ HTML_XPATH = {
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
-        ".//td[@class='label']": '[Ref1]',
+        #".//td[@class='label']": '[Ref1]',   # docutils 0.5 only
+        ".//td[@class='label']": '',
         ".//li[@class='toctree-l1']/a": 'Testing various markup',
         ".//li[@class='toctree-l2']/a": 'Admonitions',
         ".//title": 'Sphinx <Tests>',
