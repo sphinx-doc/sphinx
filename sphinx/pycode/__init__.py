@@ -168,7 +168,7 @@ class ModuleAnalyzer(object):
             filename = getattr(mod, '__file__', None)
             if filename is None:
                 raise PycodeError('no source found for module %r' % modname)
-            filename = path.normpath(filename)
+            filename = path.normpath(path.abspath(filename))
             lfilename = filename.lower()
             if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
                 filename = filename[:-1]

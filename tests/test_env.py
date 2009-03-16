@@ -80,7 +80,7 @@ def test_second_update():
     (root / 'autodoc.txt').unlink()
     (root / 'new.txt').write_text('New file\n========\n')
     msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    assert '1 added, 4 changed, 1 removed' in msg
+    assert '1 added, 3 changed, 1 removed' in msg
     docnames = set()
     for docname in it:
         docnames.add(docname)
