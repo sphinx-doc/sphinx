@@ -60,6 +60,9 @@ linking:
    ``http://docs.python.org/dev``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
 
+   When fetching remote inventory files, proxy settings will be read from
+   the ``$HTTP_PROXY`` environment variable.
+
 .. confval:: intersphinx_cache_limit
 
    The maximum number of days to cache remote inventories.  The default is

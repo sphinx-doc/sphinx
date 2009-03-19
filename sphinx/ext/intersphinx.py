@@ -25,13 +25,18 @@
 """
 
 import time
-import urllib
+import urllib2
 import posixpath
 from os import path
 
 from docutils import nodes
 
 from sphinx.builders.html import INVENTORY_FILENAME
+
+
+urllib2.install_opener(urllib2.build_opener(
+    urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
+    urllib2.HTTPHandler(), urllib2.HTTPSHandler()))
 
 
 def fetch_inventory(app, uri, inv):
@@ -42,7 +47,7 @@ def fetch_inventory(app, uri, inv):
     localuri = uri.find('://') == -1
     try:
         if inv.find('://') != -1:
-            f = urllib.urlopen(inv)
+            f = urllib2.urlopen(inv)
         else:
             f = open(path.join(app.srcdir, inv))
     except Exception, err:
