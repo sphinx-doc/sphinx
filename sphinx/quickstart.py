@@ -642,6 +642,12 @@ directly.'''
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
+    def escape(key):
+        d[key] = d[key].encode('string-escape')
+    for key in ('project', 'copyright', 'version', 'release',
+                'master', 'suffix'):
+        escape(key)
+
     conf_text = QUICKSTART_CONF % d
     if d['ext_intersphinx'].upper() in ('Y', 'YES'):
         conf_text += INTERSPHINX_CONFIG
