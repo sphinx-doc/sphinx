@@ -211,10 +211,10 @@ def get_documented(filenames):
     return documented
 
 
-def main(argv):
+def main():
     usage = 'usage: %s [-o output_dir] [-s suffix] sourcefile ...' % sys.argv[0]
     try:
-        opts, args = getopt.getopt(argv[1:], 'o:s:')
+        opts, args = getopt.getopt(sys.argv[1:], 'o:s:')
     except getopt.error:
         print >>sys.stderr, usage
         return 1

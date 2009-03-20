@@ -68,6 +68,8 @@ from sphinx import addnodes, roles
 from sphinx.util import patfilter
 from sphinx.util.compat import Directive
 
+from sphinx.ext.autodoc import FunctionDocumenter
+
 
 # -- autosummary_toc node ------------------------------------------------------
 
@@ -132,7 +134,7 @@ class Autosummary(Directive):
         names += [x.strip() for x in self.content if x.strip()]
 
         table, warnings, real_names = get_autosummary(
-            names, self.state, 'nosignatures' in self.options)
+            names, self, 'nosignatures' in self.options)
         node = table
 
         env = self.state.document.settings.env
@@ -168,7 +170,7 @@ class Autosummary(Directive):
             return warnings + [node]
 
 
-def get_autosummary(names, state, no_signatures=False):
+def get_autosummary(names, directive, no_signatures=False):
     """
     Generate a proper table node for autosummary:: directive.
 
@@ -176,13 +178,11 @@ def get_autosummary(names, state, no_signatures=False):
     table.  *document* is the Docutils document object.
 
     """
+    state = directive.state
     document = state.document
 
     real_names = {}
     warnings = []
-
-    prefixes = ['']
-    prefixes.insert(0, document.settings.env.currmodule)
 
     table = nodes.table('')
     group = nodes.tgroup('', cols=2)
@@ -203,19 +203,25 @@ def get_autosummary(names, state, no_signatures=False):
         body.append(row)
 
     for name in names:
-        try:
-            obj, real_name = import_by_name(name, prefixes=prefixes)
-        except ImportError:
-            warnings.append(document.reporter.warning(
-                'failed to import %s' % name))
-            append_row(':obj:`%s`' % name, '')
-            continue
+        documenter = FunctionDocumenter(self, name)
+        documenter.parse_name()
 
-        real_names[name] = real_name
+        real_names[name] = documenter.fullname
 
-        title = ''
+        sig = documenter.format_signature()
+        if sig:
+            pass
+        else:
+            sig = ''
+
+        doc = list(documenter.process_doc([documenter.get_doc()]))
+        if doc:
+            title = doc[0]
+        else:
+            title = ''
+
         qualifier = 'obj'
-        col1 = ':'+qualifier+':`%s <%s>`' % (name, real_name)
+        col1 = ':' + qualifier + r':`%s <%s>`\ %s' % (name, real_name, sig)
         col2 = title
         append_row(col1, col2)
 
