@@ -405,7 +405,7 @@ def copy_static_entry(source, target, builder, context={}):
         else:
             shutil.copyfile(source, target)
     elif path.isdir(source):
-        if filename in builder.config.exclude_dirnames:
+        if source in builder.config.exclude_dirnames:
             return
         if path.exists(target):
             shutil.rmtree(target)
