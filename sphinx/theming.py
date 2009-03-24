@@ -16,6 +16,7 @@ import tempfile
 import ConfigParser
 from os import path
 
+from sphinx import package_dir
 from sphinx.errors import ThemeError
 
 
@@ -32,8 +33,7 @@ class Theme(object):
     def init_themes(cls, builder):
         """Search all theme paths for available themes."""
         cls.themepath = list(builder.config.html_theme_path)
-        cls.themepath.append(
-            path.join(path.abspath(path.dirname(__file__)), 'themes'))
+        cls.themepath.append(path.join(package_dir, 'themes'))
 
         for themedir in cls.themepath[::-1]:
             themedir = path.join(builder.confdir, themedir)
