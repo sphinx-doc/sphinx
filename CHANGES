@@ -1,5 +1,5 @@
-Release 0.5.2 (in development)
-==============================
+Release 0.5.2 (Mar 24, 2009)
+============================
 
 * Properly escape ``|`` in LaTeX output.
 
