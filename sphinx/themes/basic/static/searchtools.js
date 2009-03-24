@@ -221,7 +221,7 @@ var Search = {
       var params = $.getQueryParameters();
       if (params.q) {
           var query = params.q[0];
-          $('input[@name="q"]')[0].value = query;
+          $('input[name="q"]')[0].value = query;
           this.performSearch(query);
       }
   },
