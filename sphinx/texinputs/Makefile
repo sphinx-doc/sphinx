@@ -6,6 +6,8 @@ ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
 
 # Prefix for archive names
 ARCHIVEPRREFIX =
+# Additional LaTeX options
+LATEXOPTS =
 
 all: $(ALLPDF)
 all-pdf: $(ALLPDF)
@@ -31,22 +33,22 @@ bz2: tar
 # The number of LaTeX runs is quite conservative, but I don't expect it
 # to get run often, so the little extra time won't hurt.
 %.dvi: %.tex
-	latex '$<'
-	latex '$<'
-	latex '$<'
+	latex $(LATEXOPTS) '$<'
+	latex $(LATEXOPTS) '$<'
+	latex $(LATEXOPTS) '$<'
 	-makeindex -s python.ist '$(basename $<).idx'
 	-makeindex -s python.ist '$(basename mod$<).idx'
-	latex '$<'
-	latex '$<'
+	latex $(LATEXOPTS) '$<'
+	latex $(LATEXOPTS) '$<'
 
 %.pdf: %.tex
-	pdflatex '$<'
-	pdflatex '$<'
-	pdflatex '$<'
+	pdflatex $(LATEXOPTS) '$<'
+	pdflatex $(LATEXOPTS) '$<'
+	pdflatex $(LATEXOPTS) '$<'
 	-makeindex -s python.ist '$(basename $<).idx'
 	-makeindex -s python.ist '$(basename mod$<).idx'
-	pdflatex '$<'
-	pdflatex '$<'
+	pdflatex $(LATEXOPTS) '$<'
+	pdflatex $(LATEXOPTS) '$<'
 
 clean:
 	rm -f *.pdf *.dvi *.ps
