@@ -242,6 +242,7 @@ Project information
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
+   * ``ru`` -- Russian
    * ``sl`` -- Slovenian
    * ``uk_UA`` -- Ukrainian
    * ``zh_TW`` -- Traditional Chinese
