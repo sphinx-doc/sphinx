@@ -344,7 +344,7 @@ def latex_visit_inheritance_diagram(self, node):
     graph_hash = get_graph_hash(node)
     name = 'inheritance%s' % graph_hash
 
-    dotcode = graph.generate_dot(name, parts, urls, env=self.builder.env,
+    dotcode = graph.generate_dot(name, parts, env=self.builder.env,
                                  graph_attrs={'size': '"6.0,6.0"'})
     render_dot_latex(self, node, dotcode, [], 'inheritance')
     raise nodes.SkipNode
