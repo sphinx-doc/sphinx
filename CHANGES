@@ -1,5 +1,8 @@
-Release 0.6.1 (in development)
-==============================
+Release 0.6.1 (Mar 26, 2009)
+============================
+
+* #132: Include the autosummary "module" template in the distribution.
+
 
 Release 0.6 (Mar 24, 2009)
 ==========================

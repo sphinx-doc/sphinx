@@ -14,6 +14,7 @@ include sphinx-quickstart.py
 recursive-include sphinx/texinputs *
 recursive-include sphinx/themes *
 recursive-include sphinx/locale *
+recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *
 include sphinx/pycode/Grammar.txt
