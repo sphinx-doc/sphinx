@@ -163,7 +163,7 @@ def html_visit_graphviz(self, node):
 
 def render_dot_latex(self, node, code, options, prefix='graphviz'):
     try:
-        fname = render_dot(self, code, options, 'pdf', prefix)
+        fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError, exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
