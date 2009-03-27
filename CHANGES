@@ -5,9 +5,13 @@ Release 0.7 (in development)
 Release 0.6.2 (in development)
 ==============================
 
+* #134: Fix pending_xref leftover nodes when using the todolist
+  directive from the todo extension.
 
 Release 0.6.1 (Mar 26, 2009)
 ============================
+
+* #135: Fix problems with LaTeX output and the graphviz extension.
 
 * #132: Include the autosummary "module" template in the distribution.
 
