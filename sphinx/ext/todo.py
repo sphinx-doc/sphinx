@@ -111,8 +111,13 @@ def process_todo_nodes(app, doctree, fromdocname):
             para += newnode
             para += nodes.Text('.)', '.)')
 
+            # (Recursively) resolve references in the todo content
+            todo_entry = todo_info['todo']
+            env.resolve_references(todo_entry, todo_info['docname'],
+                                   app.builder)
+
             # Insert into the todolist
-            content.append(todo_info['todo'])
+            content.append(todo_entry)
             content.append(para)
 
         node.replace_self(content)
