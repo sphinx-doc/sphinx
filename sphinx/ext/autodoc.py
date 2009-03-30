@@ -841,7 +841,10 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # if the class is documented under another name, document it
         # as data/attribute
         if ret:
-            self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+            if hasattr(self.object, '__name__'):
+                self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+            else:
+                self.doc_as_attr = True
         return ret
 
     def format_args(self):
