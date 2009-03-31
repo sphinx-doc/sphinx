@@ -1,6 +1,8 @@
 Release 0.6.2 (in development)
 ==============================
 
+* Fix intersphinx for installations without urllib2.HTTPSHandler.
+
 * #134: Fix pending_xref leftover nodes when using the todolist
   directive from the todo extension.
 

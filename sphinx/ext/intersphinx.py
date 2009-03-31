@@ -33,10 +33,12 @@ from docutils import nodes
 
 from sphinx.builders.html import INVENTORY_FILENAME
 
+handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
+            urllib2.HTTPHandler()]
+if hasattr(urllib2, 'HTTPSHandler'):
+    handlers.append(urllib2.HTTPSHandler)
 
-urllib2.install_opener(urllib2.build_opener(
-    urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
-    urllib2.HTTPHandler(), urllib2.HTTPSHandler()))
+urllib2.install_opener(urllib2.build_opener(*handlers))
 
 
 def fetch_inventory(app, uri, inv):
