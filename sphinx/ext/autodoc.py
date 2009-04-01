@@ -481,10 +481,12 @@ class Documenter(object):
         else:
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
-            # unbound method objects instead of function objects)
+            # unbound method objects instead of function objects);
+            # using keys() because apparently there are objects for which
+            # __dict__ changes while getting attributes
             return False, sorted([
                 (mname, self.get_attr(self.object, mname))
-                for mname in self.get_attr(self.object, '__dict__')])
+                for mname in self.get_attr(self.object, '__dict__').keys()])
 
     def filter_members(self, members, want_all):
         """
