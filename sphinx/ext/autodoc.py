@@ -481,10 +481,12 @@ class Documenter(object):
         else:
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
-            # unbound method objects instead of function objects)
+            # unbound method objects instead of function objects);
+            # using keys() because apparently there are objects for which
+            # __dict__ changes while getting attributes
             return False, sorted([
                 (mname, self.get_attr(self.object, mname))
-                for mname in self.get_attr(self.object, '__dict__')])
+                for mname in self.get_attr(self.object, '__dict__').keys()])
 
     def filter_members(self, members, want_all):
         """
@@ -841,7 +843,10 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # if the class is documented under another name, document it
         # as data/attribute
         if ret:
-            self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+            if hasattr(self.object, '__name__'):
+                self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+            else:
+                self.doc_as_attr = True
         return ret
 
     def format_args(self):

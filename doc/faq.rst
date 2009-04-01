@@ -29,6 +29,12 @@ How do I...
 ... use Sphinx with SCons?
    Glenn Hutchings has written a SCons build script to build Sphinx
    documentation; it is hosted here: http://bitbucket.org/zondo/sphinx-scons
-   
+
+... convert from my existing docs using MoinMoin markup?
+   The easiest way is to convert to xhtml, then convert `xhtml to reST`_.  You'll
+   still need to mark up classes and such, but the headings and code examples
+   come through cleanly.
+
 
 .. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
+.. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py

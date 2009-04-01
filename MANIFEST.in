@@ -8,6 +8,7 @@ include TODO
 include babel.cfg
 include Makefile
 include ez_setup.py
+include sphinx-autogen.py
 include sphinx-build.py
 include sphinx-quickstart.py
 
