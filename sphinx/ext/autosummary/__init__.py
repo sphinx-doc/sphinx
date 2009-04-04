@@ -159,8 +159,8 @@ class Autosummary(Directive):
         self.genopt = {}
         self.warnings = []
 
-        names = []
-        names += [x.strip() for x in self.content if x.strip()]
+        names = [x.strip().split()[0] for x in self.content
+                 if x.strip() and re.search(r'^[a-zA-Z_]', x.strip()[0])]
 
         table, real_names = self.get_table(names)
         nodes = [table]

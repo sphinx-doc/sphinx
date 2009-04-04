@@ -43,6 +43,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     info('generating autosummary for: %s' % ', '.join(sources))
     if output_dir:
         info('writing to %s' % output_dir)
+
     # read
     names = {}
     for name, loc in get_documented(sources).items():
@@ -121,7 +122,7 @@ autodoc_re = re.compile(r'.. auto(function|method|attribute|class|exception'
                         '|module)::\s*([A-Za-z0-9_.]+)\s*$')
 autosummary_re = re.compile(r'^\.\.\s+autosummary::\s*')
 module_re = re.compile(r'^\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
-autosummary_item_re = re.compile(r'^\s+([_a-zA-Z][a-zA-Z0-9_.]*)\s*')
+autosummary_item_re = re.compile(r'^\s+([_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
 toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
 
 def get_documented(filenames):
