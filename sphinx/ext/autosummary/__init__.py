@@ -125,7 +125,8 @@ def get_documenter(obj):
         return reg.get('module')
     elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
         return reg.get('method')
-    elif inspect.ismemberdescriptor(obj) or inspect.isgetsetdescriptor(obj):
+    elif (inspect.ismemberdescriptor(obj) or inspect.isgetsetdescriptor(obj)
+          or inspect.isdatadescriptor(obj)):
         return reg.get('attribute')
     elif inspect.isroutine(obj):
         return reg.get('function')
@@ -245,7 +246,7 @@ class Autosummary(Directive):
                 append_row(':obj:`%s`' % name, '')
                 continue
 
-            real_names[name] = documenter.fullname
+            real_names[name] = real_name
 
             sig = documenter.format_signature()
             if not sig or 'nosignatures' in self.options:
@@ -254,15 +255,15 @@ class Autosummary(Directive):
                 sig = mangle_signature(sig)
 
             doc = list(documenter.process_doc(documenter.get_doc()))
-            if doc:
-                # grab the summary
-                while doc and not doc[0].strip():
-                    doc.pop(0)
-                m = re.search(r"^([A-Z].*?\.\s)", " ".join(doc).strip())
-                if m:
-                    summary = m.group(1).strip()
-                else:
-                    summary = doc[0].strip()
+
+            # grab the summary
+            while doc and not doc[0].strip():
+                doc.pop(0)
+            m = re.search(r"^([A-Z].*?\.\s)", " ".join(doc).strip())
+            if m:
+                summary = m.group(1).strip()
+            elif doc:
+                summary = doc[0].strip()
             else:
                 summary = ''
 
