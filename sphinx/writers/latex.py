@@ -137,7 +137,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'pointsize':       '10pt',
         'classoptions':    '',
         'inputenc':        '\\usepackage[utf8]{inputenc}',
-        'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\nobreakspace}',
+        'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
         'babel':           '\\usepackage{babel}',
         'fontpkg':         '\\usepackage{times}',
