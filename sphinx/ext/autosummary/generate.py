@@ -20,7 +20,7 @@
 import os
 import re
 import sys
-import getopt
+import optparse
 import inspect
 
 from jinja2 import Environment, PackageLoader
@@ -38,7 +38,7 @@ def _simple_info(msg):
 def _simple_warn(msg):
     print >>sys.stderr, 'WARNING: ' + msg
 
-def generate_autosummary_docs(sources, output_dir=None, suffix=None,
+def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info):
     info('generating autosummary for: %s' % ', '.join(sources))
     if output_dir:
@@ -62,7 +62,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix=None,
             warn('failed to import %r: %s' % (name, e))
             continue
 
-        fn = os.path.join(path, name + (suffix or '.rst'))
+        fn = os.path.join(path, name + suffix)
         # skip it if it exists
         if os.path.isfile(fn):
             continue
@@ -211,28 +211,22 @@ def get_documented(filenames):
     return documented
 
 
-def main():
-    usage = 'usage: %s [-o output_dir] [-s suffix] sourcefile ...' % sys.argv[0]
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 'o:s:')
-    except getopt.error:
-        print >>sys.stderr, usage
-        return 1
-
-    output_dir = None
-    suffix = None
-    for opt, val in opts:
-        if opt == '-o':
-            output_dir = val
-        elif opt == '-s':
-            suffix = val
+def main(argv):
+    usage = """%prog [OPTIONS] SOURCEFILE ..."""
+    p = optparse.OptionParser(usage.strip())
+    p.add_option("-o", "--output-dir", action="store", type="string",
+                 dest="output_dir", default=None,
+                 help="Directory to place all output in")
+    p.add_option("-s", "--suffix", action="store", type="string",
+                 dest="suffix", default="rst",
+                 help="Default suffix for files (default: %default)")
+    options, args = p.parse_args(argv[1:])
 
     if len(args) < 1:
-        print >>sys.stderr, usage
-        return 1
+        p.error('no input files given')
 
-    generate_autosummary_docs(args, output_dir, suffix)
-
+    generate_autosummary_docs(args, options.output_dir,
+                              "." + options.suffix)
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
