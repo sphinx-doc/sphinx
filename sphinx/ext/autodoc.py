@@ -372,8 +372,7 @@ class Documenter(object):
         else:
             # try to introspect the signature
             args = self.format_args()
-        if args is None:
-            return ''
+
         retann = self.retann
 
         result = self.env.app.emit_firstresult(
