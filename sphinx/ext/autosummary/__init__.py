@@ -271,7 +271,12 @@ class Autosummary(Directive):
                 vl = ViewList()
                 vl.append(text, '<autosummary>')
                 self.state.nested_parse(vl, 0, node)
-                row.append(nodes.entry('', node[0]))
+                try:
+                    if isinstance(node[0], nodes.paragraph):
+                        node = node[0]
+                except IndexError:
+                    pass
+                row.append(nodes.entry('', node))
             body.append(row)
 
         for name, sig, summary, real_name in items:
