@@ -16,12 +16,12 @@ from docutils.nodes import Text, NodeVisitor
 
 from sphinx.util import jsdump, rpartition
 try:
-    # PyStemmer is wrapper for stemmer in c
-    import Stemmer as PyStemmer
-    PYSTEMMER = True
+    # http://bitbucket.org/methane/porterstemmer/
+    from porterstemmer import Stemmer as CStemmer
+    CSTEMMER = True
 except ImportError:
     from sphinx.util.stemmer import PorterStemmer
-    PYSTEMMER = False
+    CSTEMMER = False
 
 
 word_re = re.compile(r'\w+(?u)')
@@ -68,18 +68,12 @@ class _JavaScriptIndex(object):
 js_index = _JavaScriptIndex()
 
 
-if PYSTEMMER:
-    class Stemmer(object):
-
-        def __init__(self):
-            self._stemmer = PyStemmer.Stemmer('english')
+if CSTEMMER:
+    class Stemmer(CStemmer):
 
         def stem(self, word):
-            return self._stemmer.stemWord(word.lower())
+            return self(word.lower())
 
-        def stemWords(self, iter):
-            import itertools
-            return self._stemmer.stemWords(itertools.imap(lambda x: x.lower(), iter))
 else:
     class Stemmer(PorterStemmer):
         """
