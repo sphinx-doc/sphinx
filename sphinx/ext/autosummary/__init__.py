@@ -259,8 +259,8 @@ class Autosummary(Directive):
         table = nodes.table('')
         group = nodes.tgroup('', cols=2)
         table.append(group)
-        group.append(nodes.colspec('', colwidth=10))
-        group.append(nodes.colspec('', colwidth=90))
+        group.append(nodes.colspec('', colwidth=30))
+        group.append(nodes.colspec('', colwidth=70))
         body = nodes.tbody('')
         group.append(body)
 
@@ -319,8 +319,7 @@ def mangle_signature(sig, max_chars=30):
     else:
         sig = ", ".join(args)
 
-    sig = unicode(sig).replace(u" ", u"\u00a0")
-    return u"(%s)" % sig
+    return "(%s)" % sig
 
 # -- Importing items -----------------------------------------------------------
 
