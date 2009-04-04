@@ -229,7 +229,7 @@ class Autosummary(Directive):
             if not sig:
                 sig = ''
             else:
-                sig = mangle_signature(sig)
+                sig = mangle_signature(sig).replace('*', r'\*')
 
             # -- Grab the summary
 
@@ -312,8 +312,10 @@ def mangle_signature(sig, max_chars=30):
                 args.append('...')
             break
 
-    if opts:
+    if opts and args:
         sig = ", ".join(args) + "[, " + ", ".join(opts) + "]"
+    elif opts and not args:
+        sig = "[" + ", ".join(opts) + "]"
     else:
         sig = ", ".join(args)
 
