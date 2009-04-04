@@ -68,8 +68,6 @@ from sphinx import addnodes, roles
 from sphinx.util import patfilter
 from sphinx.util.compat import Directive
 
-import sphinx.ext.autodoc
-
 
 # -- autosummary_toc node ------------------------------------------------------
 
@@ -116,22 +114,23 @@ def get_documenter(obj):
     """
     Get an autodoc.Documenter class suitable for documenting the given object
     """
-    reg = sphinx.ext.autodoc.AutoDirective._registry
+    import sphinx.ext.autodoc as autodoc
+
     if inspect.isclass(obj):
         if issubclass(obj, Exception):
-            return reg.get('exception')
-        return reg.get('class')
+            return autodoc.ExceptionDocumenter
+        return autodoc.ClassDocumenter
     elif inspect.ismodule(obj):
-        return reg.get('module')
+        return autodoc.ModuleDocumenter
     elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
-        return reg.get('method')
+        return autodoc.MethodDocumenter
     elif (inspect.ismemberdescriptor(obj) or inspect.isgetsetdescriptor(obj)
           or inspect.isdatadescriptor(obj)):
-        return reg.get('attribute')
+        return autodoc.AttributeDocumenter
     elif inspect.isroutine(obj):
-        return reg.get('function')
+        return autodoc.FunctionDocumenter
     else:
-        return reg.get('data')
+        return autodoc.DataDocumenter
 
 # -- .. autosummary:: ----------------------------------------------------------
 

@@ -25,7 +25,7 @@ import inspect
 
 from jinja2 import Environment, PackageLoader
 
-from sphinx.ext.autosummary import import_by_name
+from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.util import ensuredir
 
 # create our own templating environment, for module template only
@@ -73,17 +73,16 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             if inspect.ismodule(obj):
                 # XXX replace this with autodoc's API?
                 tmpl = env.get_template('module')
-                functions = [getattr(obj, item).__name__
-                             for item in dir(obj)
-                             if inspect.isfunction(getattr(obj, item))]
-                classes = [getattr(obj, item).__name__
-                           for item in dir(obj)
-                           if inspect.isclass(getattr(obj, item))
-                           and not issubclass(getattr(obj, item), Exception)]
-                exceptions = [getattr(obj, item).__name__
-                              for item in dir(obj)
-                              if inspect.isclass(getattr(obj, item))
-                              and issubclass(getattr(obj, item), Exception)]
+
+                def get_items(mod, typ):
+                    return [getattr(mod, name).__name__
+                            for name in dir(mod)
+                            if get_documenter(getattr(mod,name)).objtype==typ]
+
+                functions = get_items(obj, 'function')
+                classes = get_items(obj, 'class')
+                exceptions = get_items(obj, 'exception')
+
                 rendered = tmpl.render(name=name,
                                        underline='='*len(name),
                                        functions=functions,
@@ -96,19 +95,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             else:
                 f.write('%s\n%s\n\n' % (name, '='*len(name)))
 
-                if inspect.isclass(obj):
-                    if issubclass(obj, Exception):
-                        f.write(format_modulemember(name, 'autoexception'))
-                    else:
-                        f.write(format_modulemember(name, 'autoclass'))
-                elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
-                    f.write(format_classmember(name, 'automethod'))
-                elif callable(obj):
-                    f.write(format_modulemember(name, 'autofunction'))
-                elif hasattr(obj, '__get__'):
-                    f.write(format_classmember(name, 'autoattribute'))
+                doc = get_documenter(obj)
+                if doc.objtype in ('method', 'attribute'):
+                    f.write(format_classmember(name, 'auto%s' % doc.objtype))
                 else:
-                    f.write(format_modulemember(name, 'autofunction'))
+                    f.write(format_modulemember(name, 'auto%s' % doc.objtype))
         finally:
             f.close()
 
