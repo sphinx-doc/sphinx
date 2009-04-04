@@ -14,8 +14,14 @@ from cStringIO import StringIO
 
 from docutils.nodes import Text, NodeVisitor
 
-from sphinx.util.stemmer import PorterStemmer
 from sphinx.util import jsdump, rpartition
+try:
+    # PyStemmer is wrapper for stemmer in c
+    import Stemmer as PyStemmer
+    PYSTEMMER = True
+except ImportError:
+    from sphinx.util.stemmer import PorterStemmer
+    PYSTEMMER = False
 
 
 word_re = re.compile(r'\w+(?u)')
@@ -62,15 +68,29 @@ class _JavaScriptIndex(object):
 js_index = _JavaScriptIndex()
 
 
-class Stemmer(PorterStemmer):
-    """
-    All those porter stemmer implementations look hideous.
-    make at least the stem method nicer.
-    """
+if PYSTEMMER:
+    class Stemmer(object):
 
-    def stem(self, word):
-        word = word.lower()
-        return PorterStemmer.stem(self, word, 0, len(word) - 1)
+        def __init__(self):
+            self._stemmer = PyStemmer.Stemmer('english')
+
+        def stem(self, word):
+            return self._stemmer.stemWord(word.lower())
+
+        def stemWords(self, iter):
+            import itertools
+            return self._stemmer.stemWords(itertools.imap(lambda x: x.lower(), iter))
+else:
+    class Stemmer(PorterStemmer):
+        """
+        All those porter stemmer implementations look hideous.
+        make at least the stem method nicer.
+        """
+
+        def stem(self, word):
+            word = word.lower()
+            return PorterStemmer.stem(self, word, 0, len(word) - 1)
+
 
 
 class WordCollector(NodeVisitor):
@@ -196,11 +216,11 @@ class IndexBuilder(object):
         visitor = WordCollector(doctree)
         doctree.walk(visitor)
 
-        def add_term(word, prefix='', stem=self._stemmer.stem):
+        def add_term(word, stem=self._stemmer.stem):
             word = stem(word)
             if len(word) < 3 or word in stopwords or word.isdigit():
                 return
-            self._mapping.setdefault(prefix + word, set()).add(filename)
+            self._mapping.setdefault(word, set()).add(filename)
 
         for word in word_re.findall(title):
             add_term(word)
