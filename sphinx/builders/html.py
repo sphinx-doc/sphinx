@@ -23,7 +23,7 @@ except ImportError:
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
-from docutils.core import publish_parts
+from docutils.core import Publisher, publish_parts
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
@@ -181,14 +181,26 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         doc = new_document('<partial node>')
         doc.append(node)
-        return publish_parts(
-            doc,
-            source_class=DocTreeInput,
-            reader=DoctreeReader(),
-            writer=HTMLWriter(self),
-            settings_overrides={'output_encoding': 'unicode'}
-        )
 
+        # cache publisher object.
+        if 'publisher' not in self.__dict__:
+            self.publisher = Publisher(
+                    source_class = DocTreeInput,
+                    destination_class=StringOutput)
+            self.publisher.set_components('standalone',
+                    'restructuredtext', 'pseudoxml')
+
+        pub = self.publisher
+
+        pub.reader = DoctreeReader()
+        pub.writer = HTMLWriter(self)
+        pub.process_programmatic_settings(
+                None, {'output_encoding': 'unicode'}, None)
+        pub.set_source(doc, None)
+        pub.set_destination(None, None)
+        pub.publish()
+        return pub.writer.parts
+        
     def prepare_writing(self, docnames):
         from sphinx.search import IndexBuilder
 
