@@ -71,8 +71,6 @@ HTML_XPATH = {
         ".//img[@src='../_images/rimg.png']": '',
     },
     'subdir/includes.html': {
-        ".//pre/span": 'line 1',
-        ".//pre/span": 'line 2',
         ".//a[@href='../_downloads/img.png']": '',
     },
     'includes.html': {
@@ -131,6 +129,10 @@ if pygments:
             r'^class Foo:\n    pass\nclass Bar:\n$',
         ".//div[@class='inc-startend highlight-text']/div/pre":
             ur'^foo = u"Including Unicode characters: üöä"\n$',
+    })
+    HTML_XPATH['subdir/includes.html'].update({
+        ".//pre/span": 'line 1',
+        ".//pre/span": 'line 2',
     })
 
 class NslessParser(ET.XMLParser):
