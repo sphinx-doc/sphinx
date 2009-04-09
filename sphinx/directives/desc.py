@@ -579,6 +579,8 @@ class CDesc(DescDirective):
             if self.desctype == 'cfunction':
                 # for functions, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
+            if const:
+                signode += addnodes.desc_addname(const, const)
             return name
 
         paramlist = addnodes.desc_parameterlist()
