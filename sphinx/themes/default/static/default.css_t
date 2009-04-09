@@ -232,3 +232,7 @@ tt {
     padding: 0 1px 0 1px;
     font-size: 0.95em;
 }
+
+th {
+    background-color: #ede;
+}
