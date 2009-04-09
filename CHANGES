@@ -1,6 +1,7 @@
 Release 0.7 (in development)
 ============================
 
+* Added ``html_show_copyright`` config value.
 
 Release 0.6.2 (in development)
 ==============================

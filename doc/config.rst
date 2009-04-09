@@ -514,6 +514,12 @@ that use Sphinx' HTMLWriter class.
    to translate document trees to HTML.  Default is ``None`` (use the builtin
    translator).
 
+.. confval:: html_show_copyright
+
+   If true, "(C) Copyright ..." is shown in the HTML footer. Default is ``True``.
+
+   .. versionadded:: 0.7
+
 .. confval:: html_show_sphinx
 
    If true, "Created using Sphinx" is shown in the HTML footer.  Default is

@@ -94,6 +94,7 @@ class ChangesBuilder(Builder):
             'libchanges': sorted(libchanges.iteritems()),
             'apichanges': sorted(apichanges),
             'otherchanges': sorted(otherchanges.iteritems()),
+            'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
         f = codecs.open(path.join(self.outdir, 'index.html'), 'w', 'utf8')

@@ -82,6 +82,7 @@ class Config(object):
         html_use_opensearch = ('', 'html'),
         html_file_suffix = (None, 'html'),
         html_link_suffix = (None, 'html'),
+        html_show_copyright = (True, 'html'),
         html_show_sphinx = (True, 'html'),
         html_context = ({}, 'html'),
 
