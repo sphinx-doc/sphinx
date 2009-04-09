@@ -416,30 +416,28 @@ def copy_static_entry(source, target, builder, context={}):
 # traverse() is called so many times during a build that it saves
 # on average 20-25% overall build time!
 
-def _all_traverse(self):
+def _all_traverse(self, result):
     """Version of Node.traverse() that doesn't need a condition."""
-    result = []
     result.append(self)
     for child in self.children:
-        result.extend(child._all_traverse())
+        child._all_traverse(result)
     return result
 
-def _fast_traverse(self, cls):
+def _fast_traverse(self, cls, result):
     """Version of Node.traverse() that only supports instance checks."""
-    result = []
     if isinstance(self, cls):
         result.append(self)
     for child in self.children:
-        result.extend(child._fast_traverse(cls))
+        child._fast_traverse(cls, result)
     return result
 
 def _new_traverse(self, condition=None,
                  include_self=1, descend=1, siblings=0, ascend=0):
     if include_self and descend and not siblings and not ascend:
         if condition is None:
-            return self._all_traverse()
+            return self._all_traverse([])
         elif isinstance(condition, (types.ClassType, type)):
-            return self._fast_traverse(condition)
+            return self._fast_traverse(condition, [])
     return self._old_traverse(condition, include_self,
                               descend, siblings, ascend)
 
