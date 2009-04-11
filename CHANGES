@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* If specific filenames to build are given on the command line,
+  check that they are within the source directory.
+
 * Fix autodoc crash for objects without a ``__name__``.
 
 * Fix intersphinx for installations without urllib2.HTTPSHandler.
