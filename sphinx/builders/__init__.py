@@ -234,10 +234,19 @@ class Builder(object):
         to_write = []
         suffix = self.config.source_suffix
         for filename in filenames:
-            filename = path.abspath(filename)[dirlen:]
+            filename = path.normpath(path.abspath(filename))
+            if not filename.startswith(self.srcdir):
+                self.warn('file %r given on command line is not under the '
+                          'source directory, ignoring' % filename)
+                continue
+            if not (path.isfile(filename) or path.isfile(filename + suffix)):
+                self.warn('file %r given on command line does not exist, '
+                          'ignoring' % filename)
+                continue
+            filename = filename[dirlen:]
             if filename.endswith(suffix):
                 filename = filename[:-len(suffix)]
-            filename = filename.replace(os.path.sep, SEP)
+            filename = filename.replace(path.sep, SEP)
             to_write.append(filename)
         self.build(to_write, method='specific',
                    summary='%d source files given on command '
