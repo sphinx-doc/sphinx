@@ -73,16 +73,19 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         sources = [os.path.join(base_path, filename) for filename in sources]
 
     # read
-    names = {}
-    for name, loc in get_documented_in_files(sources).items():
-        for (filename, sec_title, keyword, toctree) in loc:
-            if toctree is not None:
-                path = os.path.join(os.path.dirname(filename), toctree)
-                names[name] = os.path.abspath(path)
+    items = find_autosummary_in_files(sources)
+
+    # remove possible duplicates
+    items = dict([(item, True) for item in items]).keys()
 
     # write
-    for name, path in sorted(names.items()):
-        path = output_dir or path
+    for name, path in sorted(items):
+        if path is None:
+            # The corresponding autosummary:: directive did not have
+            # a :toctree: option
+            continue
+
+        path = output_dir or os.path.abspath(path)
         ensuredir(path)
 
         try:
@@ -92,6 +95,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             continue
 
         fn = os.path.join(path, name + suffix)
+
         # skip it if it exists
         if os.path.isfile(fn):
             continue
@@ -147,113 +151,100 @@ def format_classmember(name, directive):
 
 # -- Finding documented entries in files ---------------------------------------
 
-def get_documented_in_files(filenames):
+def find_autosummary_in_files(filenames):
     """
     Find out what items are documented in source/*.rst.
-    See `get_documented_in_lines`.
+    See `find_autosummary_in_lines`.
     """
-    documented = {}
+    documented = []
     for filename in filenames:
         f = open(filename, 'r')
         lines = f.read().splitlines()
-        documented.update(get_documented_in_lines(lines, filename=filename))
+        documented.extend(find_autosummary_in_lines(lines, filename=filename))
         f.close()
     return documented
 
-def get_documented_in_docstring(name, module=None, filename=None):
+def find_autosummary_in_docstring(name, module=None, filename=None):
     """
     Find out what items are documented in the given object's docstring.
-    See `get_documented_in_lines`.
+    See `find_autosummary_in_lines`.
     """
     try:
         obj, real_name = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
-        return get_documented_in_lines(lines, module=name, filename=filename)
+        return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
         pass
     except ImportError, e:
         print "Failed to import '%s': %s" % (name, e)
-    return {}
+    return []
 
-def get_documented_in_lines(lines, module=None, filename=None):
+def find_autosummary_in_lines(lines, module=None, filename=None):
     """
-    Find out what items are documented in the given lines.
+    Find out what items appear in autosummary:: directives in the given lines.
 
-    Returns a dict of lists of (filename, title, keyword, toctree) and whose
-    keys are documented names of objects.  The value is a list of locations
-    where the object was documented.  Each location is a tuple of filename, the
-    current section title, the name of the directive, and the value of the
-    :toctree: argument (if present) of the directive.
+    Returns a list of (name, toctree) where *name* is a name of an object
+    and *toctree* the :toctree: path of the corresponding autosummary directive
+    (relative to the root of the file name). *toctree* is ``None`` if
+    the directive does not have the :toctree: option set.
     """
-    title_underline_re = re.compile("^[-=*_^#]{3,}\s*$")
-    autodoc_re = re.compile(r'.. auto(function|method|attribute|class|'
-                            r'exception|module)::\s*([A-Za-z0-9_.]+)\s*$')
     autosummary_re = re.compile(r'^\.\.\s+autosummary::\s*')
+    automodule_re = re.compile(r'.. automodule::\s*([A-Za-z0-9_.]+)\s*$')
     module_re = re.compile(r'^\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
     autosummary_item_re = re.compile(r'^\s+([_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
 
-    documented = {}
+    documented = []
 
-    current_title = []
-    last_line = None
     toctree = None
     current_module = module
     in_autosummary = False
 
     for line in lines:
-        try:
-            if in_autosummary:
-                m = toctree_arg_re.match(line)
-                if m:
-                    toctree = m.group(1)
-                    continue
-
-                if line.strip().startswith(':'):
-                    continue # skip options
-
-                m = autosummary_item_re.match(line)
-                if m:
-                    name = m.group(1).strip()
-                    if current_module and \
-                           not name.startswith(current_module + '.'):
-                        name = "%s.%s" % (current_module, name)
-                    documented.setdefault(name, []).append(
-                        (filename, current_title, 'autosummary', toctree))
-                    continue
-                if not line.strip():
-                    continue
-                in_autosummary = False
-
-            m = autosummary_re.match(line)
+        if in_autosummary:
+            m = toctree_arg_re.match(line)
             if m:
-                in_autosummary = True
+                toctree = m.group(1)
+                if filename:
+                    toctree = os.path.join(os.path.dirname(filename),
+                                           toctree)
                 continue
 
-            m = autodoc_re.search(line)
+            if line.strip().startswith(':'):
+                continue # skip options
+
+            m = autosummary_item_re.match(line)
             if m:
-                name = m.group(2).strip()
-                if m.group(1) == "module":
-                    current_module = name
-                    documented.update(get_documented_in_docstring(
-                        name, filename=filename))
-                elif current_module and not name.startswith(current_module+'.'):
+                name = m.group(1).strip()
+                if current_module and \
+                       not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
-                documented.setdefault(name, []).append(
-                    (filename, current_title, "auto" + m.group(1), None))
+                documented.append((name, toctree))
                 continue
 
-            m = title_underline_re.match(line)
-            if m and last_line:
-                current_title = last_line.strip()
+            if not line.strip():
                 continue
 
-            m = module_re.match(line)
-            if m:
-                current_module = m.group(2)
-                continue
-        finally:
-            last_line = line
+            in_autosummary = False
+
+        m = autosummary_re.match(line)
+        if m:
+            in_autosummary = True
+            toctree = None
+            continue
+
+        m = automodule_re.search(line)
+        if m:
+            current_module = m.group(1).strip()
+            # recurse into the automodule docstring
+            documented.extend(find_autosummary_in_docstring(
+                current_module, filename=filename))
+            continue
+
+        m = module_re.match(line)
+        if m:
+            current_module = m.group(2)
+            continue
 
     return documented
 
