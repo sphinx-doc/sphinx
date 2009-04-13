@@ -108,6 +108,29 @@ def autosummary_toc_visit_latex(self, node):
 def autosummary_noop(self, node):
     pass
 
+# -- autodoc integration -------------------------------------------------------
+
+def get_documenter(obj):
+    """
+    Get an autodoc.Documenter class suitable for documenting the given object
+    """
+    import sphinx.ext.autodoc as autodoc
+
+    if inspect.isclass(obj):
+        if issubclass(obj, Exception):
+            return autodoc.ExceptionDocumenter
+        return autodoc.ClassDocumenter
+    elif inspect.ismodule(obj):
+        return autodoc.ModuleDocumenter
+    elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
+        return autodoc.MethodDocumenter
+    elif (inspect.ismemberdescriptor(obj) or inspect.isgetsetdescriptor(obj)
+          or inspect.isdatadescriptor(obj)):
+        return autodoc.AttributeDocumenter
+    elif inspect.isroutine(obj):
+        return autodoc.FunctionDocumenter
+    else:
+        return autodoc.DataDocumenter
 
 # -- .. autosummary:: ----------------------------------------------------------
 
@@ -127,33 +150,35 @@ class Autosummary(Directive):
         'nosignatures': directives.flag,
     }
 
+    def warn(self, msg):
+        self.warnings.append(self.state.document.reporter.warning(
+            msg, line=self.lineno))
+
     def run(self):
-        names = []
-        names += [x.strip() for x in self.content if x.strip()]
+        self.env = env = self.state.document.settings.env
+        self.genopt = {}
+        self.warnings = []
 
-        table, warnings, real_names = get_autosummary(
-            names, self.state, 'nosignatures' in self.options)
-        node = table
-
-        env = self.state.document.settings.env
-        suffix = env.config.source_suffix
-        all_docnames = env.found_docs.copy()
-        dirname = posixpath.dirname(env.docname)
+        names = [x.strip().split()[0] for x in self.content
+                 if x.strip() and re.search(r'^[a-zA-Z_]', x.strip()[0])]
+        items = self.get_items(names)
+        nodes = [self.get_table(items)]
 
         if 'toctree' in self.options:
+            suffix = env.config.source_suffix
+            all_docnames = env.found_docs.copy()
+            dirname = posixpath.dirname(env.docname)
+
             tree_prefix = self.options['toctree'].strip()
             docnames = []
-            for name in names:
-                name = real_names.get(name, name)
-
-                docname = posixpath.join(tree_prefix, name)
+            for name, sig, summary, real_name in items:
+                docname = posixpath.join(tree_prefix, real_name)
                 if docname.endswith(suffix):
                     docname = docname[:-len(suffix)]
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in env.found_docs:
-                    warnings.append(self.state.document.reporter.warning(
-                        'toctree references unknown document %r' % docname,
-                        line=self.lineno))
+                    self.warn('toctree references unknown document %r'
+                              % docname)
                 docnames.append(docname)
 
             tocnode = addnodes.toctree()
@@ -163,63 +188,146 @@ class Autosummary(Directive):
             tocnode['glob'] = None
 
             tocnode = autosummary_toc('', '', tocnode)
-            return warnings + [node] + [tocnode]
+            nodes.append(tocnode)
+
+        return self.warnings + nodes
+
+    def get_items(self, names):
+        """
+        Try to import the given names, and return a list of
+        ``[(name, signature, summary_string, real_name), ...]``
+
+        """
+        prefixes = ['']
+        prefixes.insert(0, self.state.document.settings.env.currmodule)
+
+        items = []
+
+        for name in names:
+            try:
+                obj, real_name = import_by_name(name, prefixes=prefixes)
+            except ImportError:
+                self.warn('failed to import %s' % name)
+                items.append((name, '', '', name))
+                continue
+
+            # NB. using real_name here is important, since Documenters
+            #     don't handle module prefixes slightly differently
+            documenter = get_documenter(obj)(self, real_name)
+            if not documenter.parse_name():
+                self.warn('failed to parse name %s' % real_name)
+                items.append((name, '', '', real_name))
+                continue
+            if not documenter.import_object():
+                self.warn('failed to import object %s' % real_name)
+                items.append((name, '', '', real_name))
+                continue
+
+            # -- Grab the signature
+
+            sig = documenter.format_signature()
+            if not sig:
+                sig = ''
+            else:
+                sig = mangle_signature(sig).replace('*', r'\*')
+
+            # -- Grab the summary
+
+            doc = list(documenter.process_doc(documenter.get_doc()))
+
+            while doc and not doc[0].strip():
+                doc.pop(0)
+            m = re.search(r"^([A-Z][^A-Z]*?\.\s)", " ".join(doc).strip())
+            if m:
+                summary = m.group(1).strip()
+            elif doc:
+                summary = doc[0].strip()
+            else:
+                summary = ''
+
+            items.append((name, sig, summary, real_name))
+
+        return items
+
+    def get_table(self, items):
+        """
+        Generate a proper table node for autosummary:: directive.
+
+        *items* is a list produced by :meth:`get_items`
+
+        """
+        table = nodes.table('')
+        group = nodes.tgroup('', cols=2)
+        table.append(group)
+        group.append(nodes.colspec('', colwidth=10))
+        group.append(nodes.colspec('', colwidth=90))
+        body = nodes.tbody('')
+        group.append(body)
+
+        def append_row(*column_texts):
+            row = nodes.row('')
+            for text in column_texts:
+                node = nodes.paragraph('')
+                vl = ViewList()
+                vl.append(text, '<autosummary>')
+                self.state.nested_parse(vl, 0, node)
+                try:
+                    if isinstance(node[0], nodes.paragraph):
+                        node = node[0]
+                except IndexError:
+                    pass
+                row.append(nodes.entry('', node))
+            body.append(row)
+
+        for name, sig, summary, real_name in items:
+            qualifier = 'obj'
+            if 'nosignatures' not in self.options:
+                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, sig)
+            else:
+                col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
+            col2 = summary
+            append_row(col1, col2)
+
+        return table
+
+def mangle_signature(sig, max_chars=30):
+    """
+    Reformat function signature to a more compact form.
+
+    """
+    sig = re.sub(r"^\((.*)\)$", r"\1", sig) + ", "
+    r = re.compile(r"(?P<name>[a-zA_Z0-9_*]+)(?P<default>=.*?)?, ")
+    items = r.findall(sig)
+
+    args = []
+    opts = []
+
+    total_len = 4
+    for name, default in items:
+        if default:
+            opts.append(name)
         else:
-            return warnings + [node]
+            args.append(name)
+        total_len += len(name) + 2
 
+        if total_len > max_chars:
+            if opts:
+                opts.append('...')
+            else:
+                args.append('...')
+            break
 
-def get_autosummary(names, state, no_signatures=False):
-    """
-    Generate a proper table node for autosummary:: directive.
+    if opts and args:
+        sig = ", ".join(args) + "[, " + ", ".join(opts) + "]"
+    elif opts and not args:
+        sig = "[" + ", ".join(opts) + "]"
+    else:
+        sig = ", ".join(args)
 
-    *names* is a list of names of Python objects to be imported and added to the
-    table.  *document* is the Docutils document object.
+    sig = unicode(sig).replace(u" ", u"\u00a0")
+    return u"(%s)" % sig
 
-    """
-    document = state.document
-
-    real_names = {}
-    warnings = []
-
-    prefixes = ['']
-    prefixes.insert(0, document.settings.env.currmodule)
-
-    table = nodes.table('')
-    group = nodes.tgroup('', cols=2)
-    table.append(group)
-    group.append(nodes.colspec('', colwidth=30))
-    group.append(nodes.colspec('', colwidth=70))
-    body = nodes.tbody('')
-    group.append(body)
-
-    def append_row(*column_texts):
-        row = nodes.row('')
-        for text in column_texts:
-            node = nodes.paragraph('')
-            vl = ViewList()
-            vl.append(text, '<autosummary>')
-            state.nested_parse(vl, 0, node)
-            row.append(nodes.entry('', node))
-        body.append(row)
-
-    for name in names:
-        try:
-            obj, real_name = import_by_name(name, prefixes=prefixes)
-        except ImportError:
-            warnings.append(document.reporter.warning(
-                'failed to import %s' % name))
-            append_row(':obj:`%s`' % name, '')
-            continue
-
-        real_names[name] = real_name
-
-        title = ''
-        qualifier = 'obj'
-        col1 = ':'+qualifier+':`%s <%s>`' % (name, real_name)
-        col2 = title
-        append_row(col1, col2)
-
-    return table, warnings, real_names
+# -- Importing items -----------------------------------------------------------
 
 def import_by_name(name, prefixes=[None]):
     """
