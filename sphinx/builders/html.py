@@ -73,9 +73,10 @@ class StandaloneHTMLBuilder(Builder):
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/doctools.js']
 
+    # cached publisher object for snippets
+    _publisher = None
+
     def init(self):
-        # cached publisher object for snippets
-        self._publisher = None
         # a hash of all config values that, if changed, cause a full rebuild
         self.config_hash = ''
         self.tags_hash = ''
