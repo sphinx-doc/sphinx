@@ -347,14 +347,16 @@ def import_by_name(name, prefixes=[None]):
 def _import_by_name(name):
     """Import a Python object given its full name."""
     try:
-        # try first interpret `name` as MODNAME.OBJ
         name_parts = name.split('.')
-        try:
-            modname = '.'.join(name_parts[:-1])
-            __import__(modname)
-            return getattr(sys.modules[modname], name_parts[-1])
-        except (ImportError, IndexError, AttributeError):
-            pass
+
+        # try first interpret `name` as MODNAME.OBJ
+        modname = '.'.join(name_parts[:-1])
+        if modname:
+            try:
+                __import__(modname)
+                return getattr(sys.modules[modname], name_parts[-1])
+            except (ImportError, IndexError, AttributeError):
+                pass
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
