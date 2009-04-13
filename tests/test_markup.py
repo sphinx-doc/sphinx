@@ -111,7 +111,8 @@ def test_inline():
 
 def test_latex_escaping():
     # correct escaping in normal mode
-    yield verify, u'Γ\\\\∞$', None, ur'\(\Gamma\)\textbackslash{}\(\infty\)\$'
+    yield verify, u'Γ\\\\∞$', None, \
+          ur'\(\Gamma\)\textbackslash{}\(\infty\)\$'
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞$[]', None,
            u'\\begin{Verbatim}[commandchars=@\\[\\]]\n'
