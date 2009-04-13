@@ -52,7 +52,7 @@ def _simple_info(msg):
     print msg
 
 def _simple_warn(msg):
-    print >>sys.stderr, 'WARNING: ' + msg
+    print >> sys.stderr, 'WARNING: ' + msg
 
 # -- Generating output ---------------------------------------------------------
 
@@ -60,10 +60,17 @@ def _simple_warn(msg):
 env = Environment(loader=PackageLoader('sphinx.ext.autosummary', 'templates'))
 
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
-                              warn=_simple_warn, info=_simple_info):
-    info('generating autosummary for: %s' % ', '.join(sources))
+                              warn=_simple_warn, info=_simple_info,
+                              base_path=None):
+
+    info('[autosummary] generating autosummary for: %s' %
+         ', '.join(sorted(sources)))
+
     if output_dir:
-        info('writing to %s' % output_dir)
+        info('[autosummary] writing to %s' % output_dir)
+
+    if base_path is not None:
+        sources = [os.path.join(base_path, filename) for filename in sources]
 
     # read
     names = {}
@@ -81,7 +88,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         try:
             obj, name = import_by_name(name)
         except ImportError, e:
-            warn('failed to import %r: %s' % (name, e))
+            warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
 
         fn = os.path.join(path, name + suffix)
