@@ -29,7 +29,8 @@ from jinja2 import Environment, PackageLoader
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.util import ensuredir
 
-def main(argv):
+
+def main(argv=sys.argv):
     usage = """%prog [OPTIONS] SOURCEFILE ..."""
     p = optparse.OptionParser(usage.strip())
     p.add_option("-o", "--output-dir", action="store", type="string",
@@ -53,9 +54,7 @@ def _simple_info(msg):
 def _simple_warn(msg):
     print >>sys.stderr, 'WARNING: ' + msg
 
-#------------------------------------------------------------------------------
-# Generating output
-#------------------------------------------------------------------------------
+# -- Generating output ---------------------------------------------------------
 
 # create our own templating environment, for module template only
 env = Environment(loader=PackageLoader('sphinx.ext.autosummary', 'templates'))
@@ -94,13 +93,13 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
 
         try:
             if inspect.ismodule(obj):
-                # XXX replace this with autodoc's API?
                 tmpl = env.get_template('module')
 
                 def get_items(mod, typ):
-                    return [getattr(mod, name).__name__
-                            for name in dir(mod)
-                            if get_documenter(getattr(mod,name)).objtype==typ]
+                    return [
+                        getattr(mod, name).__name__ for name in dir(mod)
+                        if get_documenter(getattr(mod, name)).objtype == typ
+                    ]
 
                 functions = get_items(obj, 'function')
                 classes = get_items(obj, 'class')
@@ -139,15 +138,12 @@ def format_classmember(name, directive):
     return '.. currentmodule:: %s\n\n.. %s:: %s\n' % (mod, directive, name)
 
 
-#------------------------------------------------------------------------------
-# Finding documented entries in files
-#------------------------------------------------------------------------------
+# -- Finding documented entries in files ---------------------------------------
 
 def get_documented_in_files(filenames):
     """
-    Find out what items are documented in source/*.rst
+    Find out what items are documented in source/*.rst.
     See `get_documented_in_lines`.
-
     """
     documented = {}
     for filename in filenames:
@@ -161,7 +157,6 @@ def get_documented_in_docstring(name, module=None, filename=None):
     """
     Find out what items are documented in the given object's docstring.
     See `get_documented_in_lines`.
-    
     """
     try:
         obj, real_name = import_by_name(name)
@@ -175,33 +170,30 @@ def get_documented_in_docstring(name, module=None, filename=None):
 
 def get_documented_in_lines(lines, module=None, filename=None):
     """
-    Find out what items are documented in the given lines
-    
-    Returns
-    -------
-    documented : dict of list of (filename, title, keyword, toctree)
-        Dictionary whose keys are documented names of objects.
-        The value is a list of locations where the object was documented.
-        Each location is a tuple of filename, the current section title,
-        the name of the directive, and the value of the :toctree: argument
-        (if present) of the directive.
+    Find out what items are documented in the given lines.
 
+    Returns a dict of lists of (filename, title, keyword, toctree) and whose
+    keys are documented names of objects.  The value is a list of locations
+    where the object was documented.  Each location is a tuple of filename, the
+    current section title, the name of the directive, and the value of the
+    :toctree: argument (if present) of the directive.
     """
     title_underline_re = re.compile("^[-=*_^#]{3,}\s*$")
-    autodoc_re = re.compile(".. auto(function|method|attribute|class|exception|module)::\s*([A-Za-z0-9_.]+)\s*$")
+    autodoc_re = re.compile(r'.. auto(function|method|attribute|class|'
+                            r'exception|module)::\s*([A-Za-z0-9_.]+)\s*$')
     autosummary_re = re.compile(r'^\.\.\s+autosummary::\s*')
     module_re = re.compile(r'^\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
     autosummary_item_re = re.compile(r'^\s+([_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
-    
+
     documented = {}
-   
+
     current_title = []
     last_line = None
     toctree = None
     current_module = module
     in_autosummary = False
-    
+
     for line in lines:
         try:
             if in_autosummary:
@@ -216,12 +208,13 @@ def get_documented_in_lines(lines, module=None, filename=None):
                 m = autosummary_item_re.match(line)
                 if m:
                     name = m.group(1).strip()
-                    if current_module and not name.startswith(current_module + '.'):
+                    if current_module and \
+                           not name.startswith(current_module + '.'):
                         name = "%s.%s" % (current_module, name)
                     documented.setdefault(name, []).append(
                         (filename, current_title, 'autosummary', toctree))
                     continue
-                if line.strip() == '':
+                if not line.strip():
                     continue
                 in_autosummary = False
 
@@ -257,7 +250,6 @@ def get_documented_in_lines(lines, module=None, filename=None):
 
     return documented
 
-#------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     main()

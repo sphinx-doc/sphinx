@@ -108,6 +108,7 @@ def autosummary_toc_visit_latex(self, node):
 def autosummary_noop(self, node):
     pass
 
+
 # -- autodoc integration -------------------------------------------------------
 
 def get_documenter(obj):
@@ -131,6 +132,7 @@ def get_documenter(obj):
         return autodoc.FunctionDocumenter
     else:
         return autodoc.DataDocumenter
+
 
 # -- .. autosummary:: ----------------------------------------------------------
 
@@ -195,8 +197,7 @@ class Autosummary(Directive):
     def get_items(self, names):
         """
         Try to import the given names, and return a list of
-        ``[(name, signature, summary_string, real_name), ...]``
-
+        ``[(name, signature, summary_string, real_name), ...]``.
         """
         prefixes = ['']
         prefixes.insert(0, self.state.document.settings.env.currmodule)
@@ -253,8 +254,7 @@ class Autosummary(Directive):
         """
         Generate a proper table node for autosummary:: directive.
 
-        *items* is a list produced by :meth:`get_items`
-
+        *items* is a list produced by :meth:`get_items`.
         """
         table = nodes.table('')
         group = nodes.tgroup('', cols=2)
@@ -291,10 +291,7 @@ class Autosummary(Directive):
         return table
 
 def mangle_signature(sig, max_chars=30):
-    """
-    Reformat function signature to a more compact form.
-
-    """
+    """Reformat a function signature to a more compact form."""
     sig = re.sub(r"^\((.*)\)$", r"\1", sig) + ", "
     r = re.compile(r"(?P<name>[a-zA_Z0-9_*]+)(?P<default>=.*?)?, ")
     items = r.findall(sig)
@@ -326,6 +323,7 @@ def mangle_signature(sig, max_chars=30):
 
     sig = unicode(sig).replace(u" ", u"\u00a0")
     return u"(%s)" % sig
+
 
 # -- Importing items -----------------------------------------------------------
 
