@@ -1,6 +1,9 @@
 Release 0.7 (in development)
 ============================
 
+* Allow searching for object names including the module name, like
+  ``sys.argv``.
+
 * Many improvements and fixes to the ``autosummary`` extension,
   thanks to Pauli Virtanen.
 
