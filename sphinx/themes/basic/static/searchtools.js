@@ -287,8 +287,13 @@ var Search = {
   },
 
   query : function(query) {
-    // stem the searchterms and add them to the
-    // correct list
+    var stopwords = ['and', 'then', 'into', 'it', 'as', 'are', 'in',
+                     'if', 'for', 'no', 'there', 'their', 'was', 'is',
+                     'be', 'to', 'that', 'but', 'they', 'not', 'such',
+                     'with', 'by', 'a', 'on', 'these', 'of', 'will',
+                     'this', 'near', 'the', 'or', 'at'];
+
+    // stem the searchterms and add them to the correct list
     var stemmer = new PorterStemmer();
     var searchterms = [];
     var excluded = [];
@@ -296,6 +301,10 @@ var Search = {
     var tmp = query.split(/\s+/);
     var object = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
     for (var i = 0; i < tmp.length; i++) {
+      if (stopwords.indexOf(tmp[i]) != -1 || tmp[i].match(/^\d+$/)) {
+        // skip this word
+        continue;
+      }
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
       // select the correct list
