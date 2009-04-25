@@ -293,7 +293,7 @@ class Autosummary(Directive):
 def mangle_signature(sig, max_chars=30):
     """Reformat a function signature to a more compact form."""
     sig = re.sub(r"^\((.*)\)$", r"\1", sig) + ", "
-    r = re.compile(r"(?P<name>[a-zA_Z0-9_*]+)(?P<default>=.*?)?, ")
+    r = re.compile(r"(?P<name>[a-zA-Z0-9_*]+)(?P<default>=.*?)?, ")
     items = r.findall(sig)
 
     args = []
