@@ -173,9 +173,9 @@ There are also these config values for customizing the doctest extension:
 
       Some more documentation text.
 
-   (Note that no special ``::`` is needed to introduce the block; docutils
-   recognizes it from the leading ``>>>``.  Also, no additional indentation is
-   necessary, though it doesn't hurt.)
+   (Note that no special ``::`` is used to introduce a doctest block; docutils
+   recognizes them from the leading ``>>>``.  Also, no additional indentation is
+   used, though it doesn't hurt.)
 
    If this value is left at its default value, the above snippet is interpreted
    by the doctest builder exactly like the following::
