@@ -463,15 +463,19 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_title(self, node):
         close_tag = self.context[-1]
-        if self.add_permalinks and self.builder.add_permalinks and \
-               (close_tag.startswith('</h') or
-                close_tag.startswith('</a></h')) and \
-               node.parent.hasattr('ids') and node.parent['ids']:
+        if (self.add_permalinks and self.builder.add_permalinks and
+            node.parent.hasattr('ids') and node.parent['ids']):
             aname = node.parent['ids'][0]
             # add permalink anchor
-            self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
-                             u'title="%s">\u00B6</a>' %
-                             _('Permalink to this headline'))
+            if close_tag.startswith('</h'):
+                self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
+                                 u'title="%s">\u00B6</a>' %
+                                 _('Permalink to this headline'))
+            elif close_tag.startswith('</a></h'):
+                self.body.append(u'</a><a class="headerlink" href="#%s" ' % aname +
+                                 u'title="%s">\u00B6' %
+                                 _('Permalink to this headline'))
+                
         BaseTranslator.depart_title(self, node)
 
     def unknown_visit(self, node):
