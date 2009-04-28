@@ -11,7 +11,6 @@
 
 import os
 import codecs
-import shutil
 import posixpath
 import cPickle as pickle
 from os import path
@@ -30,7 +29,7 @@ from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
 from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
-    movefile, ustrftime, copy_static_entry
+    movefile, ustrftime, copy_static_entry, copyfile
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -495,8 +494,8 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.join(self.outdir, '_images'))
             for src, dest in self.images.iteritems():
                 self.info(' '+src, nonl=1)
-                shutil.copyfile(path.join(self.srcdir, src),
-                                path.join(self.outdir, '_images', dest))
+                copyfile(path.join(self.srcdir, src),
+                         path.join(self.outdir, '_images', dest))
             self.info()
 
         # copy downloadable files
@@ -505,8 +504,8 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.join(self.outdir, '_downloads'))
             for src, (_, dest) in self.env.dlfiles.iteritems():
                 self.info(' '+src, nonl=1)
-                shutil.copyfile(path.join(self.srcdir, src),
-                                path.join(self.outdir, '_downloads', dest))
+                copyfile(path.join(self.srcdir, src),
+                         path.join(self.outdir, '_downloads', dest))
             self.info()
 
         # copy static files
@@ -521,8 +520,8 @@ class StandaloneHTMLBuilder(Builder):
             jsfile = path.join(package_dir, 'locale', self.config.language,
                                'LC_MESSAGES', 'sphinx.js')
             if path.isfile(jsfile):
-                shutil.copyfile(jsfile, path.join(self.outdir, '_static',
-                                                  'translations.js'))
+                copyfile(jsfile, path.join(self.outdir, '_static',
+                                           'translations.js'))
         # then, copy over all user-supplied static files
         if self.theme:
             staticdirnames = [path.join(themepath, 'static')
@@ -545,8 +544,8 @@ class StandaloneHTMLBuilder(Builder):
         # last, copy logo file (handled differently)
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
-            shutil.copyfile(path.join(self.confdir, self.config.html_logo),
-                            path.join(self.outdir, '_static', logobase))
+            copyfile(path.join(self.confdir, self.config.html_logo),
+                     path.join(self.outdir, '_static', logobase))
 
         # write build info file
         fp = open(path.join(self.outdir, '.buildinfo'), 'w')
@@ -663,7 +662,7 @@ class StandaloneHTMLBuilder(Builder):
             source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            shutil.copyfile(self.env.doc2path(pagename), source_name)
+            copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
         self.info(bold('dumping search index... '), nonl=True)
@@ -778,7 +777,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
             source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            shutil.copyfile(self.env.doc2path(pagename), source_name)
+            copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
         # dump the global context
@@ -794,8 +793,8 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
 
         # copy the environment file from the doctree dir to the output dir
         # as needed by the web app
-        shutil.copyfile(path.join(self.doctreedir, ENV_PICKLE_FILENAME),
-                        path.join(self.outdir, ENV_PICKLE_FILENAME))
+        copyfile(path.join(self.doctreedir, ENV_PICKLE_FILENAME),
+                 path.join(self.outdir, ENV_PICKLE_FILENAME))
 
         # touch 'last build' file, used by the web application to determine
         # when to reload its environment and clear the cache

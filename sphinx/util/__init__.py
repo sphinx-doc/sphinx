@@ -384,13 +384,20 @@ def force_decode(string, encoding):
 
 
 def movefile(source, dest):
-    # move a file, removing the destination if it exists
+    """Move a file, removing the destination if it exists."""
     if os.path.exists(dest):
         try:
             os.unlink(dest)
         except OSError:
             pass
     os.rename(source, dest)
+
+
+def copyfile(source, dest):
+    """Copy a file and its modification times, if possible."""
+    shutil.copyfile(source, dest)
+    try: shutil.copystat(source, dest)
+    except shutil.Error: pass
 
 
 def copy_static_entry(source, target, builder, context={}):
@@ -403,7 +410,7 @@ def copy_static_entry(source, target, builder, context={}):
             fsrc.close()
             fdst.close()
         else:
-            shutil.copyfile(source, target)
+            copyfile(source, target)
     elif path.isdir(source):
         if source in builder.config.exclude_dirnames:
             return

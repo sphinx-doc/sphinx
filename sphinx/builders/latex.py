@@ -10,7 +10,6 @@
 """
 
 import os
-import shutil
 from os import path
 
 from docutils import nodes
@@ -19,7 +18,7 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes
-from sphinx.util import SEP, texescape
+from sphinx.util import SEP, texescape, copyfile
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.console import bold, darkgreen
@@ -175,8 +174,8 @@ class LaTeXBuilder(Builder):
             self.info(bold('copying images...'), nonl=1)
             for src, dest in self.images.iteritems():
                 self.info(' '+src, nonl=1)
-                shutil.copyfile(path.join(self.srcdir, src),
-                                path.join(self.outdir, dest))
+                copyfile(path.join(self.srcdir, src),
+                         path.join(self.outdir, dest))
             self.info()
 
         # copy additional files
@@ -184,20 +183,20 @@ class LaTeXBuilder(Builder):
             self.info(bold('copying additional files...'), nonl=1)
             for filename in self.config.latex_additional_files:
                 self.info(' '+filename, nonl=1)
-                shutil.copyfile(path.join(self.confdir, filename),
-                                path.join(self.outdir, path.basename(filename)))
+                copyfile(path.join(self.confdir, filename),
+                         path.join(self.outdir, path.basename(filename)))
             self.info()
 
         # the logo is handled differently
         if self.config.latex_logo:
             logobase = path.basename(self.config.latex_logo)
-            shutil.copyfile(path.join(self.confdir, self.config.latex_logo),
-                            path.join(self.outdir, logobase))
+            copyfile(path.join(self.confdir, self.config.latex_logo),
+                     path.join(self.outdir, logobase))
 
         self.info(bold('copying TeX support files... '), nonl=True)
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
-                shutil.copyfile(path.join(staticdirname, filename),
-                                path.join(self.outdir, filename))
+                copyfile(path.join(staticdirname, filename),
+                         path.join(self.outdir, filename))
         self.info('done')
