@@ -1,0 +1,599 @@
+# Chinese (Simplified Chinese) translations for Sphinx.
+# Copyright (C) 2009  Tower Joo
+# This file is distributed under the same license as the Sphinx project.
+# Tower Joo<zhutao.iscas@gmail.com>, 2009.
+# My homepage is at http://sites.google.com/site/towerjooeng
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx 0.6\n"
+"Report-Msgid-Bugs-To: zhutao.iscas@gmail.com\n"
+"POT-Creation-Date: 2009-03-09 19:46+0080\n"
+"PO-Revision-Date: 2008-04-25 18:40+0080\n"
+"Last-Translator: Tower Joo<zhutao.iscas@gmail.com>\n"
+"Language-Team: cn <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: sphinx/builder.py:408
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%Y 年 %m 月 %d 日"
+
+#: sphinx/builder.py:427 sphinx/templates/defindex.html:21
+msgid "General Index"
+msgstr "总目录"
+
+#: sphinx/builder.py:427
+msgid "index"
+msgstr "索引"
+
+#: sphinx/builder.py:429 sphinx/htmlhelp.py:156
+#: sphinx/templates/defindex.html:19 sphinx/templates/modindex.html:2
+#: sphinx/templates/modindex.html:13
+msgid "Global Module Index"
+msgstr "全局模块索引"
+
+#: sphinx/builder.py:429
+msgid "modules"
+msgstr "模块"
+
+#: sphinx/builder.py:466
+msgid "next"
+msgstr "下一页"
+
+#: sphinx/builder.py:473
+msgid "previous"
+msgstr "上一页"
+
+#: sphinx/builder.py:1054
+msgid " (in "
+msgstr ""
+
+#: sphinx/builder.py:1129
+msgid "Builtins"
+msgstr "内置"
+
+#: sphinx/builder.py:1131
+msgid "Module level"
+msgstr "模块级别"
+
+#: sphinx/environment.py:102 sphinx/latexwriter.py:169
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%Y 年 %m 月 %d 日"
+
+#: sphinx/environment.py:291 sphinx/latexwriter.py:175
+#: sphinx/templates/genindex-single.html:2
+#: sphinx/templates/genindex-split.html:2
+#: sphinx/templates/genindex-split.html:5 sphinx/templates/genindex.html:2
+#: sphinx/templates/genindex.html:5 sphinx/templates/genindex.html:48
+#: sphinx/templates/layout.html:130
+msgid "Index"
+msgstr "索引"
+
+#: sphinx/environment.py:292 sphinx/latexwriter.py:174
+msgid "Module Index"
+msgstr "模块索引"
+
+#: sphinx/environment.py:293 sphinx/templates/defindex.html:16
+msgid "Search Page"
+msgstr "搜索页面"
+
+#: sphinx/htmlwriter.py:79 sphinx/static/doctools.js:145
+msgid "Permalink to this definition"
+msgstr "永久链接至目标"
+
+#: sphinx/htmlwriter.py:399 sphinx/static/doctools.js:139
+msgid "Permalink to this headline"
+msgstr "永久链接至标题"
+
+#: sphinx/latexwriter.py:172
+msgid "Release"
+msgstr "发布"
+
+#: sphinx/roles.py:53 sphinx/directives/desc.py:537
+#, python-format
+msgid "environment variable; %s"
+msgstr "环境变量; %s"
+
+#: sphinx/roles.py:60
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr "Python 建议文件!PEP %s"
+
+#: sphinx/textwriter.py:166
+#, python-format
+msgid "Platform: %s"
+msgstr "平台：%s"
+
+#: sphinx/textwriter.py:422
+msgid "[image]"
+msgstr "[图片]"
+
+#: sphinx/directives/desc.py:25
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (內置函数)"
+
+#: sphinx/directives/desc.py:26 sphinx/directives/desc.py:42
+#: sphinx/directives/desc.py:54
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (在 %s 模块中)"
+
+#: sphinx/directives/desc.py:29
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (內置变量)"
+
+#: sphinx/directives/desc.py:30 sphinx/directives/desc.py:66
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s() (在 %s 模块中)"
+
+#: sphinx/directives/desc.py:33
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (內置类)"
+
+#: sphinx/directives/desc.py:34
+#, python-format
+msgid "%s (class in %s)"
+msgstr ""
+
+#: sphinx/directives/desc.py:46
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s 方法)"
+
+#: sphinx/directives/desc.py:48
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s 方法)"
+
+#: sphinx/directives/desc.py:58
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s 静态方法)"
+
+#: sphinx/directives/desc.py:60
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s 静态方法)"
+
+#: sphinx/directives/desc.py:70
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s 属性)"
+
+#: sphinx/directives/desc.py:72
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s 属性)"
+
+#: sphinx/directives/desc.py:74
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (C 函数)"
+
+#: sphinx/directives/desc.py:76
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (C 成员)"
+
+#: sphinx/directives/desc.py:78
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (C 宏)"
+
+#: sphinx/directives/desc.py:80
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (C 类型)"
+
+#: sphinx/directives/desc.py:82
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (C 变量)"
+
+#: sphinx/directives/desc.py:100
+msgid "Raises"
+msgstr "引发"
+
+#: sphinx/directives/desc.py:104
+msgid "Variable"
+msgstr "变量"
+
+#: sphinx/directives/desc.py:107
+msgid "Returns"
+msgstr "返回"
+
+#: sphinx/directives/desc.py:116
+msgid "Return type"
+msgstr "返回类型"
+
+#: sphinx/directives/desc.py:143
+msgid "Parameters"
+msgstr "参数"
+
+#: sphinx/directives/desc.py:423
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "%s命令行选项; %s"
+
+#: sphinx/directives/other.py:101
+msgid "Platforms: "
+msgstr "平台"
+
+#: sphinx/directives/other.py:106
+#, python-format
+msgid "%s (module)"
+msgstr "%s (模块)"
+
+#: sphinx/directives/other.py:146
+msgid "Section author: "
+msgstr "Section 作者："
+
+#: sphinx/directives/other.py:148
+msgid "Module author: "
+msgstr "模块作者："
+
+#: sphinx/directives/other.py:150
+msgid "Author: "
+msgstr "作者："
+
+#: sphinx/directives/other.py:246
+msgid "See also"
+msgstr "也可以参考"
+
+#: sphinx/ext/todo.py:31
+msgid "Todo"
+msgstr "待处理"
+
+#: sphinx/ext/todo.py:75
+#, python-format
+msgid "(The original entry is located in %s, line %d and can be found "
+msgstr "(最初的入口位于%s 的第%d行"
+
+#: sphinx/ext/todo.py:81
+msgid "here"
+msgstr "这里"
+
+#: sphinx/locale/__init__.py:15
+msgid "Attention"
+msgstr "注意"
+
+#: sphinx/locale/__init__.py:16
+msgid "Caution"
+msgstr "警告"
+
+#: sphinx/locale/__init__.py:17
+msgid "Danger"
+msgstr "危险"
+
+#: sphinx/locale/__init__.py:18
+msgid "Error"
+msgstr "错误"
+
+#: sphinx/locale/__init__.py:19
+msgid "Hint"
+msgstr "提示"
+
+#: sphinx/locale/__init__.py:20
+msgid "Important"
+msgstr "重要"
+
+#: sphinx/locale/__init__.py:21
+msgid "Note"
+msgstr "注解"
+
+#: sphinx/locale/__init__.py:22
+msgid "See Also"
+msgstr "也可以参考"
+
+#: sphinx/locale/__init__.py:23
+msgid "Tip"
+msgstr "小技巧"
+
+#: sphinx/locale/__init__.py:24
+msgid "Warning"
+msgstr "警告"
+
+#: sphinx/locale/__init__.py:28
+#, python-format
+msgid "New in version %s"
+msgstr "%s 新版功能"
+
+#: sphinx/locale/__init__.py:29
+#, python-format
+msgid "Changed in version %s"
+msgstr "在 %s 版更改"
+
+#: sphinx/locale/__init__.py:30
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "%s 版后已移除"
+
+#: sphinx/locale/__init__.py:34
+msgid "module"
+msgstr "模块"
+
+#: sphinx/locale/__init__.py:35
+msgid "keyword"
+msgstr "关键字"
+
+#: sphinx/locale/__init__.py:36
+msgid "operator"
+msgstr "操作数"
+
+#: sphinx/locale/__init__.py:37
+msgid "object"
+msgstr "对象"
+
+#: sphinx/locale/__init__.py:38
+msgid "exception"
+msgstr "例外"
+
+#: sphinx/locale/__init__.py:39
+msgid "statement"
+msgstr "语句"
+
+#: sphinx/locale/__init__.py:40
+msgid "built-in function"
+msgstr "內置函数"
+
+#: sphinx/static/doctools.js:174
+msgid "Hide Search Matches"
+msgstr "隐藏搜索结果"
+
+#: sphinx/static/searchtools.js:274
+msgid "Searching"
+msgstr "搜索中"
+
+#: sphinx/static/searchtools.js:279
+msgid "Preparing search..."
+msgstr "准备搜索..."
+
+#: sphinx/static/searchtools.js:338
+msgid "module, in "
+msgstr "模块，位于"
+
+#: sphinx/static/searchtools.js:347
+msgid ", in "
+msgstr ", 位于"
+
+#: sphinx/static/searchtools.js:447 sphinx/templates/search.html:18
+msgid "Search Results"
+msgstr "搜索结果"
+
+#: sphinx/static/searchtools.js:449
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr "你的搜索没有匹配到任何文档。请确认你所搜索的关键字."
+
+#: sphinx/static/searchtools.js:451
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "搜索完成， 找到了 %s 页匹配所搜索的关键字"
+
+#: sphinx/templates/defindex.html:2
+msgid "Overview"
+msgstr "概述"
+
+#: sphinx/templates/defindex.html:11
+msgid "Indices and tables:"
+msgstr "索引和表格"
+
+#: sphinx/templates/defindex.html:14
+msgid "Complete Table of Contents"
+msgstr "完整的内容表"
+
+#: sphinx/templates/defindex.html:15
+msgid "lists all sections and subsections"
+msgstr "列出所有的章节和部分"
+
+#: sphinx/templates/defindex.html:17
+msgid "search this documentation"
+msgstr "搜索文档"
+
+#: sphinx/templates/defindex.html:20
+msgid "quick access to all modules"
+msgstr "快速查看所有的模块"
+
+#: sphinx/templates/defindex.html:22
+msgid "all functions, classes, terms"
+msgstr "所的函数，类，术语"
+
+#: sphinx/templates/genindex-single.html:5
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "索引 &ndash; %(key)s"
+
+#: sphinx/templates/genindex-single.html:44
+#: sphinx/templates/genindex-split.html:14
+#: sphinx/templates/genindex-split.html:27 sphinx/templates/genindex.html:54
+msgid "Full index on one page"
+msgstr "一页的全部索引"
+
+#: sphinx/templates/genindex-split.html:7
+msgid "Index pages by letter"
+msgstr "按照字母的索引页"
+
+#: sphinx/templates/genindex-split.html:15
+msgid "can be huge"
+msgstr "可能会很多"
+
+#: sphinx/templates/layout.html:9
+msgid "Navigation"
+msgstr "导航"
+
+#: sphinx/templates/layout.html:40
+msgid "Table Of Contents"
+msgstr "內容目录"
+
+#: sphinx/templates/layout.html:46
+msgid "Previous topic"
+msgstr "上一个主题"
+
+#: sphinx/templates/layout.html:47
+msgid "previous chapter"
+msgstr "上一章"
+
+#: sphinx/templates/layout.html:50
+msgid "Next topic"
+msgstr "下一个主题"
+
+#: sphinx/templates/layout.html:51
+msgid "next chapter"
+msgstr "下一章"
+
+#: sphinx/templates/layout.html:55
+msgid "This Page"
+msgstr "本页"
+
+#: sphinx/templates/layout.html:59
+msgid "Suggest Change"
+msgstr "建议更改"
+
+#: sphinx/templates/layout.html:60 sphinx/templates/layout.html:62
+msgid "Show Source"
+msgstr "显示源代码"
+
+#: sphinx/templates/layout.html:71
+msgid "Quick search"
+msgstr "快速搜索"
+
+#: sphinx/templates/layout.html:71
+msgid "Keyword search"
+msgstr "关键字搜索"
+
+#: sphinx/templates/layout.html:73
+msgid "Go"
+msgstr "搜索"
+
+#: sphinx/templates/layout.html:78
+msgid "Enter search terms or a module, class or function name."
+msgstr "输入相关的模块，术语，类或者函数名称进行搜索"
+
+#: sphinx/templates/layout.html:119
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "在 %(docstitle)s 中搜索"
+
+#: sphinx/templates/layout.html:128
+msgid "About these documents"
+msgstr "关于这些文档"
+
+#: sphinx/templates/layout.html:131 sphinx/templates/search.html:2
+#: sphinx/templates/search.html:5
+msgid "Search"
+msgstr "搜索"
+
+#: sphinx/templates/layout.html:133
+msgid "Copyright"
+msgstr "版权所有"
+
+#: sphinx/templates/layout.html:178
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">版权所有</a> % (copyright)s."
+
+#: sphinx/templates/layout.html:180
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; 版权所有 %(copyright)s."
+
+#: sphinx/templates/layout.html:183
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "最后更新日期是 %(last_updated)s."
+
+#: sphinx/templates/layout.html:186
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr "使用 <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+
+#: sphinx/templates/modindex.html:15
+msgid "Most popular modules:"
+msgstr "最流行的模块"
+
+#: sphinx/templates/modindex.html:24
+msgid "Show modules only available on these platforms"
+msgstr "显示只在这些平台上可用的模块"
+
+#: sphinx/templates/modindex.html:56
+msgid "Deprecated"
+msgstr "已移除"
+
+#: sphinx/templates/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "搜索 %(docstitle)s"
+
+#: sphinx/templates/page.html:8
+msgid ""
+"<strong>Note:</strong> You requested an out-of-date URL from this server."
+" We've tried to redirect you to the new location of this page, but it may"
+" not be the right one."
+msgstr "<strong>注意：</strong> 你向服务器请求了一个过时的链接。 我们试图将你重定向到本页的新位置，但是它可能并非你所期望的位置"
+
+#: sphinx/templates/search.html:7
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr "在这儿，你可以对这些文档进行搜索。向搜索框中输入你所要搜索的关键字并点击\"搜索\"。注意：搜索引擎会自动搜索所有的关键字。将不会搜索到部分关键字的页面."
+
+#: sphinx/templates/search.html:14
+msgid "search"
+msgstr "搜索"
+
+#: sphinx/templates/search.html:20
+msgid "Your search did not match any results."
+msgstr "你的搜索没有找到任何的结果."
+
+#: sphinx/templates/changes/frameset.html:5
+#: sphinx/templates/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "更改发生在版本 %(version)s &mdash; %(docstitle)s"
+
+#: sphinx/templates/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr ""
+
+#: sphinx/templates/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "自动生成的版本 %(version)s中的更改列表"
+
+#: sphinx/templates/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "库更改"
+
+#: sphinx/templates/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "C API 更改"
+
+#: sphinx/templates/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "其他更改"
+
+#~ msgid ""
+#~ "From here you can search these documents. Enter your search\n"
+#~ "    words into the box below and"
+#~ " click \"search\". Note that the "
+#~ "search\n"
+#~ "    function will automatically search for all of the words. Pages\n"
+#~ "    containing less words won't appear in the result list."
+#~ msgstr ""
+

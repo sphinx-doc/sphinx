@@ -9,6 +9,8 @@ Release 0.7 (in development)
 
 * Added ``html_show_copyright`` config value.
 
+* Added simplified Chinese locale.
+
 
 Release 0.6.2 (in development)
 ==============================

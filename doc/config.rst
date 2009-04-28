@@ -245,6 +245,7 @@ Project information
    * ``ru`` -- Russian
    * ``sl`` -- Slovenian
    * ``uk_UA`` -- Ukrainian
+   * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
 
 .. confval:: today
