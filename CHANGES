@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* #145: Fix autodoc problem with automatic members that refuse to be
+  getattr()'d from their parent.
+
 * If specific filenames to build are given on the command line,
   check that they are within the source directory.
 
@@ -11,6 +14,7 @@ Release 0.6.2 (in development)
 * #134: Fix pending_xref leftover nodes when using the todolist
   directive from the todo extension.
 
+  
 Release 0.6.1 (Mar 26, 2009)
 ============================
 

@@ -485,7 +485,7 @@ class Documenter(object):
             # using keys() because apparently there are objects for which
             # __dict__ changes while getting attributes
             return False, sorted([
-                (mname, self.get_attr(self.object, mname))
+                (mname, self.get_attr(self.object, mname, None))
                 for mname in self.get_attr(self.object, '__dict__').keys()])
 
     def filter_members(self, members, want_all):
