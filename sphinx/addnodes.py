@@ -63,7 +63,7 @@ class toctree(nodes.General, nodes.Element): pass
 class centered(nodes.Part, nodes.Element): pass
 
 # pending xref
-class pending_xref(nodes.Element): pass
+class pending_xref(nodes.Inline, nodes.Element): pass
 
 # compact paragraph -- never makes a <p>
 class compact_paragraph(nodes.paragraph): pass

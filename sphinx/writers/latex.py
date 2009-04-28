@@ -385,10 +385,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             try:
                 self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
             except IndexError:
-                raise UnsupportedError(
-                    '%s:%s: too many nesting section levels for '
-                    'LaTeX, at heading: %s' % (self.curfilestack[-1],
-                                               node.line or '', node.astext()))
+                # just use "subparagraph", it's not numbered anyway
+                self.body.append(r'\%s{' % self.sectionnames[-1])
             self.context.append('}\n')
         elif isinstance(parent, (nodes.topic, nodes.sidebar)):
             self.body.append(r'\textbf{')
