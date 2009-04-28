@@ -1,6 +1,8 @@
 Release 0.6.2 (in development)
 ==============================
 
+* #29: Don't generate visible "-{-}" in option lists in LaTeX.
+
 * Fix cross-reference roles when put into substitutions.
 
 * Don't put image "alt" text into table-of-contents entries.

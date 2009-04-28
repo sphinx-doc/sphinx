@@ -1217,7 +1217,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_option_string(self, node):
         ostring = node.astext()
-        self.body.append(self.encode(ostring.replace('--', u'-{-}')))
+        self.no_contractions += 1
+        self.body.append(self.encode(ostring))
+        self.no_contractions -= 1
         raise nodes.SkipNode
 
     def visit_description(self, node):
