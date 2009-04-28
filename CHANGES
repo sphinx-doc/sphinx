@@ -1,6 +1,8 @@
 Release 0.6.2 (in development)
 ==============================
 
+* Don't put image "alt" text into table-of-contents entries.
+
 * In the LaTeX writer, do not raise an exception on too many section
   levels, just use the "subparagraph" level for all of them.
 

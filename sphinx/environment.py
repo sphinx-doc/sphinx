@@ -190,6 +190,9 @@ class SphinxContentsFilter(ContentsFilter):
         self.parent.append(nodes.literal(text, text))
         raise nodes.SkipNode
 
+    def visit_image(self, node):
+        raise nodes.SkipNode
+
 
 class BuildEnvironment:
     """
