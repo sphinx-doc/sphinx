@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* In the LaTeX writer, do not raise an exception on too many section
+  levels, just use the "subparagraph" level for all of them.
+
 * #145: Fix autodoc problem with automatic members that refuse to be
   getattr()'d from their parent.
 
