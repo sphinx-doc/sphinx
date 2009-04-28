@@ -19,6 +19,9 @@ such a document name.
 Examples for document names are ``index``, ``library/zipfile``, or
 ``reference/datamodel/types``.  Note that there is no leading slash.
 
+--option           Option.
+--very-long        Opitomn.
+
 
 The TOC tree
 ------------
