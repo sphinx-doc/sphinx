@@ -65,9 +65,9 @@ def test_do_prompt():
     qs.do_prompt(d, 'k2', 'Q2')
     assert d['k2'] == 'v2'
     qs.do_prompt(d, 'k4', 'Q4', validator=qs.boolean)
-    assert d['k4'] == 'yes'
+    assert d['k4'] is True
     qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
-    assert d['k5'] == 'no'
+    assert d['k5'] is False
     raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
 
 

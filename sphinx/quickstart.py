@@ -470,30 +470,39 @@ def mkdir_p(dir):
     os.makedirs(dir)
 
 
+class ValidationError(Exception):
+    """Raised for validation errors."""
+
 def is_path(x):
-    """Please enter a valid path name."""
-    return path.isdir(x) or not path.exists(x)
+    if path.exists(x) and not path.isdir(x):
+        raise ValidationError("Please enter a valid path name.")
+    return x
 
 def nonempty(x):
-    """Please enter some text."""
-    return len(x)
+    if not x:
+        raise ValidationError("Please enter some text.")
+    return x
 
 def choice(*l):
     def val(x):
-        return x in l
-    val.__doc__ = 'Please enter one of %s.' % ', '.join(l)
+        if x not in l:
+            raise ValidationError('Please enter one of %s.' % ', '.join(l))
+        return x
     return val
 
 def boolean(x):
-    """Please enter either 'y' or 'n'."""
-    return x.upper() in ('Y', 'YES', 'N', 'NO')
+    if x.upper() not in ('Y', 'YES', 'N', 'NO'):
+        raise ValidationError("Please enter either 'y' or 'n'.")
+    return x.upper() in ('Y', 'YES')
 
 def suffix(x):
-    """Please enter a file suffix, e.g. '.rst' or '.txt'."""
-    return x[0:1] == '.' and len(x) > 1
+    if not (x[0:1] == '.' and len(x) > 1):
+        raise ValidationError("Please enter a file suffix, "
+                              "e.g. '.rst' or '.txt'.")
+    return x
 
 def ok(x):
-    return True
+    return x
 
 
 def do_prompt(d, key, text, default=None, validator=nonempty):
@@ -516,8 +525,10 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
                     x = x.decode('utf-8')
                 except UnicodeDecodeError:
                     x = x.decode('latin1')
-        if validator and not validator(x):
-            print red('* ' + validator.__doc__)
+        try:
+            x = validator(x)
+        except ValidationError, err:
+            print red('* ' + str(err))
             continue
         break
     d[key] = x
@@ -623,7 +634,7 @@ directly.'''
         repr('sphinx.ext.' + name)
         for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
                      'pngmath', 'jsmath', 'ifconfig')
-        if d['ext_' + name].upper() in ('Y', 'YES'))
+        if d['ext_' + name])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = unicode(d['author']).\
                              translate(texescape.tex_escape_map)
@@ -640,11 +651,10 @@ directly.'''
     if not path.isdir(d['path']):
         mkdir_p(d['path'])
 
-    separate = d['sep'].upper() in ('Y', 'YES')
-    srcdir = separate and path.join(d['path'], 'source') or d['path']
+    srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
 
     mkdir_p(srcdir)
-    if separate:
+    if d['sep']:
         builddir = path.join(d['path'], 'build')
         d['exclude_trees'] = ''
     else:
@@ -655,7 +665,7 @@ directly.'''
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
     conf_text = QUICKSTART_CONF % d
-    if d['ext_intersphinx'].upper() in ('Y', 'YES'):
+    if d['ext_intersphinx']:
         conf_text += INTERSPHINX_CONFIG
 
     f = open(path.join(srcdir, 'conf.py'), 'w')
@@ -667,18 +677,16 @@ directly.'''
     f.write((MASTER_FILE % d).encode('utf-8'))
     f.close()
 
-    create_makefile = d['makefile'].upper() in ('Y', 'YES')
-    if create_makefile:
-        d['rsrcdir'] = separate and 'source' or '.'
-        d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
+    if d['makefile']:
+        d['rsrcdir'] = d['sep'] and 'source' or '.'
+        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         f = open(path.join(d['path'], 'Makefile'), 'w')
         f.write((MAKEFILE % d).encode('utf-8'))
         f.close()
 
-    create_batch = d['batchfile'].upper() in ('Y', 'YES')
-    if create_batch:
-        d['rsrcdir'] = separate and 'source' or '.'
-        d['rbuilddir'] = separate and 'build' or d['dot'] + 'build'
+    if d['batchfile']:
+        d['rsrcdir'] = d['sep'] and 'source' or '.'
+        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         f = open(path.join(d['path'], 'make.bat'), 'w')
         f.write((BATCHFILE % d).encode('utf-8'))
         f.close()
@@ -687,7 +695,7 @@ directly.'''
     print bold('Finished: An initial directory structure has been created.')
     print '''
 You should now populate your master file %s and create other documentation
-source files. ''' % masterfile + ((create_makefile or create_batch) and '''\
+source files. ''' % masterfile + ((d['makefile'] or d['batchfile']) and '''\
 Use the Makefile to build the docs, like so:
    make builder
 ''' or '''\
