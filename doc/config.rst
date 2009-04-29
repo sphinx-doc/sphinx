@@ -519,7 +519,7 @@ that use Sphinx' HTMLWriter class.
 
    If true, "(C) Copyright ..." is shown in the HTML footer. Default is ``True``.
 
-   .. versionadded:: 0.7
+   .. versionadded:: 1.0
 
 .. confval:: html_show_sphinx
 
