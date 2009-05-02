@@ -41,7 +41,7 @@ def color_terminal():
     if 'COLORTERM' in os.environ:
         return True
     term = os.environ.get('TERM', 'dumb').lower()
-    if 'xterm' in term or 'color' in term:
+    if term in ('xterm', 'linux') or 'color' in term:
         return True
     return False
 
