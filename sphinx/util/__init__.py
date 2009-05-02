@@ -419,6 +419,22 @@ def copy_static_entry(source, target, builder, context={}):
         shutil.copytree(source, target)
 
 
+def split_explicit_title(text):
+    """Split role content into title and target, if given."""
+    brace = text.find('<')
+    if brace != -1:
+        m = caption_ref_re.match(text)
+        if m:
+            target = m.group(2)
+            title = m.group(1)
+        else:
+            # fallback: everything after '<' is the target
+            target = text[brace+1:]
+            title = text[:brace]
+        return True, title, target
+    else:
+        return False, text, text
+
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves
 # on average 20-25% overall build time!

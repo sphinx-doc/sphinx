@@ -15,7 +15,7 @@ from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
 from sphinx import addnodes
-from sphinx.util import ws_re, caption_ref_re
+from sphinx.util import ws_re, split_explicit_title
 
 
 generic_docroles = {
@@ -133,28 +133,15 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
                       modname=env.currmodule, classname=env.currclass)
     # we may need the line number for warnings
     pnode.line = lineno
-    # the link title may differ from the target, but by default
-    # they are the same
-    title = target = text
-    titleistarget = True
     # look if explicit title and target are given with `foo <bar>` syntax
-    brace = text.find('<')
-    if brace != -1:
-        titleistarget = False
+    has_explicit_title, title, target = split_explicit_title(text)
+    if has_explicit_title:
         pnode['refcaption'] = True
-        m = caption_ref_re.match(text)
-        if m:
-            target = m.group(2)
-            title = m.group(1)
-        else:
-            # fallback: everything after '<' is the target
-            target = text[brace+1:]
-            title = text[:brace]
     # special target for Python object cross-references
     if typ in ('data', 'exc', 'func', 'class', 'const', 'attr',
                'meth', 'mod', 'obj'):
         # fix-up parentheses in link title
-        if titleistarget:
+        if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~') # only has a meaning for the title
             title = _fix_parens(typ, title, env)
@@ -176,7 +163,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # some other special cases for the target
     elif typ == 'option':
         program = env.currprogram
-        if titleistarget:
+        if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):
                 program, target = re.split(' (?=-|--|/)', title, 1)
