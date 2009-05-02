@@ -51,6 +51,7 @@ These extensions are built in and can be activated by respective entries in the
    ext/ifconfig
    ext/coverage
    ext/todo
+   ext/extlinks
 
 
 Third-party extensions
