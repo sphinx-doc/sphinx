@@ -43,5 +43,5 @@ The extension adds one new config value:
      ``issue 123``.
 
    You can also use the usual "explicit title" syntax supported by other roles
-   that generate links, i.e. ``:issue:`this issue <123>`.  In this case, the
+   that generate links, i.e. ``:issue:`this issue <123>```.  In this case, the
    *prefix* is not relevant.
