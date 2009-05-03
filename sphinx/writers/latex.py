@@ -1269,6 +1269,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_decoration(self, node):
         pass
 
+    # docutils-generated elements that we don't support
+
+    def visit_header(self, node):
+        raise nodes.SkipNode
+
+    def visit_footer(self, node):
+        raise nodes.SkipNode
+
+    def visit_docinfo(self, node):
+        raise nodes.SkipNode
+
     # text handling
 
     def encode(self, text):
