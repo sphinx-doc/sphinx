@@ -204,6 +204,8 @@ class Autosummary(Directive):
 
         items = []
 
+        max_item_chars = 50
+
         for name in names:
             try:
                 obj, real_name = import_by_name(name, prefixes=prefixes)
@@ -230,7 +232,9 @@ class Autosummary(Directive):
             if not sig:
                 sig = ''
             else:
-                sig = mangle_signature(sig).replace('*', r'\*')
+                max_chars = max(10, max_item_chars - len(name))
+                sig = mangle_signature(sig, max_chars=max_chars)
+                sig = sig.replace('*', r'\*')
 
             # -- Grab the summary
 
@@ -296,34 +300,43 @@ def mangle_signature(sig, max_chars=30):
     r = re.compile(r"(?P<name>[a-zA-Z0-9_*]+)(?P<default>=.*?)?, ")
     items = r.findall(sig)
 
-    args = []
-    opts = []
+    args = [name for name, default in items if not default]
+    opts = [name for name, default in items if default]
 
-    total_len = 4
-    for name, default in items:
-        if default:
-            opts.append(name)
-        else:
-            args.append(name)
-        total_len += len(name) + 2
-
-        if total_len > max_chars:
-            if opts:
-                opts.append('...')
-            else:
-                args.append('...')
-            break
-
-    if opts and args:
-        sig = ", ".join(args) + "[, " + ", ".join(opts) + "]"
-    elif opts and not args:
-        sig = "[" + ", ".join(opts) + "]"
-    else:
-        sig = ", ".join(args)
+    sig = limited_join(", ", args, max_chars=max_chars-2)
+    if opts:
+        if not sig:
+            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars-4)
+        elif len(sig) < max_chars - 4 - 2 - 3:
+            sig += "[, %s]" % limited_join(", ", opts,
+                                           max_chars=max_chars-len(sig)-4-2)
 
     sig = unicode(sig).replace(u" ", u"\u00a0")
     return u"(%s)" % sig
 
+def limited_join(sep, items, max_chars=30, overflow_marker="..."):
+    """
+    Join a number of strings to one, limiting the length to *max_chars*.
+
+    If the string overflows this limit, replace the last fitting item by
+    *overflow_marker*.
+
+    Returns: joined_string
+    """
+    full_str = sep.join(items)
+    if len(full_str) < max_chars:
+        return full_str
+
+    n_chars = 0
+    n_items = 0
+    for j, item in enumerate(items):
+        n_chars += len(item) + len(sep)
+        if n_chars < max_chars - len(overflow_marker):
+            n_items += 1
+        else:
+            break
+
+    return sep.join(list(items[:n_items]) + [overflow_marker])
 
 # -- Importing items -----------------------------------------------------------
 
