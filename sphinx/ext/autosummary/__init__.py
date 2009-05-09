@@ -181,7 +181,7 @@ class Autosummary(Directive):
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[a-zA-Z_]', x.strip()[0])]
         items = self.get_items(names)
-        nodes = [self.get_table(items)]
+        nodes = self.get_table(items)
 
         if 'toctree' in self.options:
             suffix = env.config.source_suffix
@@ -273,10 +273,13 @@ class Autosummary(Directive):
 
     def get_table(self, items):
         """
-        Generate a proper table node for autosummary:: directive.
+        Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
         """
+        table_spec = addnodes.tabular_col_spec()
+        table_spec['spec'] = 'LL'
+
         table = autosummary_table('')
         real_table = nodes.table('')
         table.append(real_table)
@@ -311,7 +314,7 @@ class Autosummary(Directive):
             col2 = summary
             append_row(col1, col2)
 
-        return table
+        return [table_spec, table]
 
 def mangle_signature(sig, max_chars=30):
     """Reformat a function signature to a more compact form."""
