@@ -101,12 +101,29 @@ def autosummary_toc_visit_html(self, node):
     """Hide autosummary toctree list in HTML output."""
     raise nodes.SkipNode
 
-def autosummary_toc_visit_latex(self, node):
-    """Show autosummary toctree (= put the referenced pages here) in Latex."""
-    pass
-
 def autosummary_noop(self, node):
     pass
+
+
+# -- autosummary_table node ----------------------------------------------------
+
+class autosummary_table(nodes.comment):
+    pass
+
+def autosummary_table_visit_html(self, node):
+    """Make the first column of the table non-breaking."""
+    try:
+        tbody = node[0][0][-1]
+        for row in tbody:
+            col1_entry = row[0]
+            par = col1_entry[0]
+            for j, subnode in enumerate(list(par)):
+                if isinstance(subnode, nodes.Text):
+                    new_text = unicode(subnode.astext())
+                    new_text = new_text.replace(u" ", u"\u00a0")
+                    par[j] = nodes.Text(new_text)
+    except IndexError:
+        pass
 
 
 # -- autodoc integration -------------------------------------------------------
@@ -260,9 +277,11 @@ class Autosummary(Directive):
 
         *items* is a list produced by :meth:`get_items`.
         """
-        table = nodes.table('')
+        table = autosummary_table('')
+        real_table = nodes.table('')
+        table.append(real_table)
         group = nodes.tgroup('', cols=2)
-        table.append(group)
+        real_table.append(group)
         group.append(nodes.colspec('', colwidth=10))
         group.append(nodes.colspec('', colwidth=90))
         body = nodes.tbody('')
@@ -311,7 +330,6 @@ def mangle_signature(sig, max_chars=30):
             sig += "[, %s]" % limited_join(", ", opts,
                                            max_chars=max_chars-len(sig)-4-2)
 
-    sig = unicode(sig).replace(u" ", u"\u00a0")
     return u"(%s)" % sig
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
@@ -438,7 +456,11 @@ def setup(app):
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,
                  html=(autosummary_toc_visit_html, autosummary_noop),
-                 latex=(autosummary_toc_visit_latex, autosummary_noop),
+                 latex=(autosummary_noop, autosummary_noop),
+                 text=(autosummary_noop, autosummary_noop))
+    app.add_node(autosummary_table,
+                 html=(autosummary_table_visit_html, autosummary_noop),
+                 latex=(autosummary_noop, autosummary_noop),
                  text=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', autolink_role)
