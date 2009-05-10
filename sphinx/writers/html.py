@@ -472,10 +472,11 @@ class HTMLTranslator(BaseTranslator):
                                  u'title="%s">\u00B6</a>' %
                                  _('Permalink to this headline'))
             elif close_tag.startswith('</a></h'):
-                self.body.append(u'</a><a class="headerlink" href="#%s" ' % aname +
+                self.body.append(u'</a><a class="headerlink" href="#%s" ' %
+                                 aname +
                                  u'title="%s">\u00B6' %
                                  _('Permalink to this headline'))
-                
+
         BaseTranslator.depart_title(self, node)
 
     def unknown_visit(self, node):
