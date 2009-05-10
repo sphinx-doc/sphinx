@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* #155: Fix Python 2.4 compatibility: exceptions are old-style
+  classes there.
+
 * #150: Fix display of the "sphinxdoc" theme on Internet Explorer
   versions 6 and 7.
 

@@ -28,7 +28,7 @@ class ExtensionError(SphinxError):
     category = 'Extension error'
 
     def __init__(self, message, orig_exc=None):
-        super(ExtensionError, self).__init__(message)
+        SphinxError.__init__(self, message)
         self.orig_exc = orig_exc
 
     def __repr__(self):
@@ -38,7 +38,7 @@ class ExtensionError(SphinxError):
         return '%s(%r)' % (self.__class__.__name__, self.message)
 
     def __str__(self):
-        parent_str = super(ExtensionError, self).__str__()
+        parent_str = SphinxError.__str__(self)
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
         return parent_str
