@@ -18,7 +18,7 @@ from StringIO import StringIO
 from distutils.cmd import Command
 
 from sphinx.application import Sphinx
-from sphinx.util.console import darkred, nocolor
+from sphinx.util.console import darkred, nocolor, color_terminal
 
 
 class BuildDoc(Command):
@@ -63,7 +63,7 @@ class BuildDoc(Command):
         self.mkpath(self.builder_target_dir)
 
     def run(self):
-        if not sys.stdout.isatty() or sys.platform == 'win32':
+        if not color_terminal():
             # Windows' poor cmd box doesn't understand ANSI sequences
             nocolor()
         if not self.verbose:

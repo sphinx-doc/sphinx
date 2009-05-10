@@ -538,7 +538,7 @@ def inner_main(args):
     d = {}
     texescape.init()
 
-    if not sys.stdout.isatty() or not color_terminal():
+    if not color_terminal():
         nocolor()
 
     print bold('Welcome to the Sphinx quickstart utility.')

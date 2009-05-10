@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 
 codes = {}
 
@@ -38,6 +39,10 @@ def term_width_line(text):
         return text.ljust(_tw) + '\r'
 
 def color_terminal():
+    if not hasattr(sys.stdout, 'isatty'):
+        return False
+    if not sys.stdout.isatty():
+        return False
     if 'COLORTERM' in os.environ:
         return True
     term = os.environ.get('TERM', 'dumb').lower()
