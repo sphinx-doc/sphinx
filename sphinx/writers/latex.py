@@ -589,7 +589,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_tabular_col_spec(self, node):
         self.next_table_colspec = node['spec']
-        self.next_table_longtable = node['longtable']
         raise nodes.SkipNode
 
     def visit_table(self, node):
@@ -598,12 +597,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 '%s:%s: nested tables are not yet implemented.' %
                 (self.curfilestack[-1], node.line or ''))
         self.table = Table()
+        self.table.longtable = 'longtable' in node['classes']
         self.tablebody = []
-        self.table.longtable = self.next_table_longtable
         # Redirect body output until table is finished.
         self._body = self.body
         self.body = self.tablebody
     def depart_table(self, node):
+        if self.table.rowcount > 30:
+            self.table.longtable = True
         self.body = self._body
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\n\\begin{threeparttable}\n'
@@ -622,6 +623,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 colspec = ('p{%.3f\\textwidth}|' % colwidth) * \
                           self.table.colcount
                 self.body.append('{|' + colspec + '}\n')
+            elif self.table.longtable:
+                self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:

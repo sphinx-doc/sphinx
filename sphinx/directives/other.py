@@ -396,14 +396,11 @@ class TabularColumns(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
-        'longtable': directives.flag,
-    }
+    option_spec = {}
 
     def run(self):
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
-        node['longtable'] = 'longtable' in self.options
         return [node]
 
 
