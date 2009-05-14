@@ -167,6 +167,7 @@ class Autosummary(Directive):
     option_spec = {
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'template': directives.unchanged,
     }
 
     def warn(self, msg):
@@ -179,7 +180,7 @@ class Autosummary(Directive):
         self.warnings = []
 
         names = [x.strip().split()[0] for x in self.content
-                 if x.strip() and re.search(r'^[a-zA-Z_]', x.strip()[0])]
+                 if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
         items = self.get_items(names)
         nodes = self.get_table(items)
 
@@ -216,14 +217,22 @@ class Autosummary(Directive):
         Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
+        env = self.state.document.settings.env
+        
         prefixes = ['']
-        prefixes.insert(0, self.state.document.settings.env.currmodule)
+        if env.currmodule:
+            prefixes.insert(0, env.currmodule)
 
         items = []
 
         max_item_chars = 50
 
         for name in names:
+            display_name = name
+            if name.startswith('~'):
+                name = name[1:]
+                display_name = name.split('.')[-1]
+
             try:
                 obj, real_name = import_by_name(name, prefixes=prefixes)
             except ImportError:
@@ -232,15 +241,15 @@ class Autosummary(Directive):
                 continue
 
             # NB. using real_name here is important, since Documenters
-            #     don't handle module prefixes slightly differently
+            #     handle module prefixes slightly differently
             documenter = get_documenter(obj)(self, real_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
-                items.append((name, '', '', real_name))
+                items.append((display_name, '', '', real_name))
                 continue
             if not documenter.import_object():
                 self.warn('failed to import object %s' % real_name)
-                items.append((name, '', '', real_name))
+                items.append((display_name, '', '', real_name))
                 continue
 
             # -- Grab the signature
@@ -249,7 +258,7 @@ class Autosummary(Directive):
             if not sig:
                 sig = ''
             else:
-                max_chars = max(10, max_item_chars - len(name))
+                max_chars = max(10, max_item_chars - len(display_name))
                 sig = mangle_signature(sig, max_chars=max_chars)
                 sig = sig.replace('*', r'\*')
 
@@ -267,7 +276,7 @@ class Autosummary(Directive):
             else:
                 summary = ''
 
-            items.append((name, sig, summary, real_name))
+            items.append((display_name, sig, summary, real_name))
 
         return items
 
@@ -456,8 +465,10 @@ def process_generate_options(app):
     ext = app.config.source_suffix
     genfiles = [genfile + (not genfile.endswith(ext) and ext or '')
                 for genfile in genfiles]
-    generate_autosummary_docs(genfiles, warn=app.warn, info=app.info,
-                              suffix=ext, base_path=app.srcdir)
+
+    generate_autosummary_docs(genfiles, builder=app.builder,
+                              warn=app.warn, info=app.info, suffix=ext,
+                              base_path=app.srcdir)
 
 
 def setup(app):
