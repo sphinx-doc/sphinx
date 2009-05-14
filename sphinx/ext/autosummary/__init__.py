@@ -443,8 +443,14 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
 
 def process_generate_options(app):
     genfiles = app.config.autosummary_generate
+
+    if genfiles and not hasattr(genfiles, '__len__'):
+        env = app.environment
+        genfiles = [env.doc2path(x) for x in env.found_docs]
+
     if not genfiles:
         return
+
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
     ext = app.config.source_suffix
