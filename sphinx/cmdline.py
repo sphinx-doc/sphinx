@@ -56,7 +56,7 @@ Modi:
 
 
 def main(argv):
-    if not sys.stdout.isatty() or not color_terminal():
+    if not color_terminal():
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 
