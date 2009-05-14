@@ -453,16 +453,18 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
 def process_generate_options(app):
     genfiles = app.config.autosummary_generate
 
+    ext = app.config.source_suffix
+
     if genfiles and not hasattr(genfiles, '__len__'):
-        env = app.environment
-        genfiles = [env.doc2path(x) for x in env.found_docs]
+        env = app.builder.env
+        genfiles = [x + ext for x in env.found_docs
+                    if os.path.isfile(env.doc2path(x))]
 
     if not genfiles:
         return
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
-    ext = app.config.source_suffix
     genfiles = [genfile + (not genfile.endswith(ext) and ext or '')
                 for genfile in genfiles]
 
