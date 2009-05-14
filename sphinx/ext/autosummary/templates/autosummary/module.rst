@@ -1,7 +1,7 @@
 {{ fullname }}
 {{ underline }}
 
-.. automodule:: {{ objname }}
+.. automodule:: {{ fullname }}
 
    {% block functions %}
    {% if functions %}
