@@ -3,10 +3,10 @@
 
 .. automodule:: {{ objname }}
 
+   {% block functions %}
    {% if functions %}
    .. rubric:: Functions
 
-   {% block functions %}
    .. autosummary::
    {% for item in functions %}
       {{ item }}
