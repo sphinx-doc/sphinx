@@ -64,8 +64,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
                               base_path=None, builder=None, template_dir=None):
 
+    showed_sources = list(sorted(sources))
+    if len(showed_sources) > 20:
+        showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
     info('[autosummary] generating autosummary for: %s' %
-         ', '.join(sorted(sources)))
+         ', '.join(showed_sources))
 
     if output_dir:
         info('[autosummary] writing to %s' % output_dir)
