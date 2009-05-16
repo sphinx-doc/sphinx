@@ -710,7 +710,7 @@ class BuildEnvironment:
         for node in doctree.traverse(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
             # choose the best image from these candidates.  The special key * is
-            # set if there is only single candiate to be used by a writer.
+            # set if there is only single candidate to be used by a writer.
             # The special key ? is set for nonlocal URIs.
             node['candidates'] = candidates = {}
             imguri = node['uri']
