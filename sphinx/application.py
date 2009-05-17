@@ -143,14 +143,14 @@ class Sphinx(object):
         try:
             self._warning.write(warntext)
         except UnicodeEncodeError:
-            encoding = getattr(self._warning, 'encoding', 'ascii')
+            encoding = getattr(self._warning, 'encoding', 'ascii') or 'ascii'
             self._warning.write(warntext.encode(encoding, 'replace'))
 
     def info(self, message='', nonl=False):
         try:
             self._status.write(message)
         except UnicodeEncodeError:
-            encoding = getattr(self._status, 'encoding', 'ascii')
+            encoding = getattr(self._status, 'encoding', 'ascii') or 'ascii'
             self._status.write(message.encode(encoding, 'replace'))
         if not nonl:
             self._status.write('\n')
