@@ -341,7 +341,7 @@ var Search = {
       }
       for (var prefix in descrefs) {
         for (var name in descrefs[prefix]) {
-          fullname = (prefix ? prefix + '.' : '') + name;
+          var fullname = (prefix ? prefix + '.' : '') + name;
           if (fullname.toLowerCase().indexOf(object) > -1) {
             match = descrefs[prefix][name];
             descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
