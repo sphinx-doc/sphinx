@@ -176,7 +176,8 @@ class Builder(object):
         if self.config.language is not None:
             self.info(bold('loading translations [%s]... ' %
                            self.config.language), nonl=True)
-            locale_dirs = [path.join(package_dir, 'locale')] + \
+            # the None entry is the system's default locale path
+            locale_dirs = [None, path.join(package_dir, 'locale')] + \
                 [path.join(self.srcdir, x) for x in self.config.locale_dirs]
             for dir_ in locale_dirs:
                 try:

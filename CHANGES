@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* Look for Sphinx message catalogs in the system default path before
+  trying ``sphinx/locale``.
+
 * Fix the search for methods via "classname.methodname".
 
 * #155: Fix Python 2.4 compatibility: exceptions are old-style
