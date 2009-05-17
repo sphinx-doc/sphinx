@@ -1,5 +1,7 @@
 :tocdepth: 2
 
+.. title:: set by title directive
+
 Testing various markup
 ======================
 

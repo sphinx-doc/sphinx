@@ -93,6 +93,7 @@ HTML_XPATH = {
         ".//p": 'In HTML.',
         ".//p": 'In both.',
         ".//p": 'Always present',
+        ".//title": 'set by title directive',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
