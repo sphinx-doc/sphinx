@@ -1,6 +1,8 @@
 Release 0.6.2 (in development)
 ==============================
 
+* #172: The ``obj`` role now links to modules as promised.
+
 * #19: Tables now can have a "longtable" class, in order to get
   correctly broken into pages in LaTeX output.
 

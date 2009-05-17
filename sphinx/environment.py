@@ -1270,7 +1270,8 @@ class BuildEnvironment:
                             newnode['refuri'] = builder.get_relative_uri(
                                 fromdocname, docname, typ) + '#' + labelid
                         newnode.append(contnode)
-                elif typ == 'mod':
+                elif typ == 'mod' or \
+                         typ == 'obj' and target in self.modules:
                     docname, synopsis, platform, deprecated = \
                         self.modules.get(target, ('','','', ''))
                     if not docname:
