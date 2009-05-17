@@ -34,6 +34,9 @@ are already present, work fine and can be seen "in action" in the Python docs:
 * Code handling: automatic highlighting using the Pygments highlighter
 * Various extensions are available, e.g. for automatic testing of snippets
   and inclusion of appropriately formatted docstrings.
+
+A development egg can be found `here
+<http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
 requires = ['Pygments>=0.8', 'Jinja2>=2.1', 'docutils>=0.4']
