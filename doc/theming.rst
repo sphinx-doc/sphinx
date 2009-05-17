@@ -27,7 +27,7 @@ your :file:`conf.py`::
     html_theme = "default"
     html_theme_options = {
         "rightsidebar": "true",
-        "relbarbgcolor: "black"
+        "relbarbgcolor": "black"
     }
 
 That would give you the default theme, but with a sidebar on the right side and
