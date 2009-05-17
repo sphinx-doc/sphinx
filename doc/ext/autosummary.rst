@@ -73,7 +73,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      that stub pages should be generated for the entries listed in this
      directive.  The option accepts a directory name as an argument;
      :program:`sphinx-autogen` will by default place its output in this
-     directory.
+     directory. If no argument is given, output is placed in the same directory
+     as the file that contains the directive.
 
    * If you don't want the :dir:`autosummary` to show function signatures in the
      listing, include the ``nosignatures`` option::
@@ -83,6 +84,18 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
             sphinx.environment.BuildEnvironment
             sphinx.util.relative_uri
+
+   * You can specify a custom template with the ``template`` option.
+     For example, ::
+
+         .. autosummary::
+            :template: mytemplate.rst
+
+            sphinx.environment.BuildEnvironment
+
+     would use the template :file:`mytemplate.rst` in your
+     :confval:`templates_path` to generate the pages for all entries
+     listed. See `Customizing templates`_ below.
 
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
@@ -117,5 +130,98 @@ also use this new config value:
 
 .. confval:: autosummary_generate
 
-   A list of documents for which stub pages should be generated.  They will be
-   placed in the directories specified in the ``:toctree:`` options.
+   Boolean indicating whether to scan all found documents for
+   autosummary directives, and to generate stub pages for each.
+
+   Can also be a list of documents for which stub pages should be
+   generated.
+
+   The new files will be placed in the directories specified in the
+   ``:toctree:`` options of the directives.
+
+
+Customizing templates
+---------------------
+
+You can customize the stub page templates, in a similar way as the
+HTML Jinja templates, see
+:ref:`templating`. (:class:`~sphinx.application.TemplateBridge` is not
+supported.)
+
+.. note::
+
+   If you find yourself spending much time tailoring the stub
+   templates, this may indicate that it's a better idea to write
+   custom narrative documentation instead.
+
+Autosummary uses the following template files:
+
+  - :file:`autosummary/base.rst` -- fallback template
+  - :file:`autosummary/module.rst` -- template for modules
+  - :file:`autosummary/class.rst` -- template for classes
+  - :file:`autosummary/function.rst` -- template for functions
+  - :file:`autosummary/attribute.rst` -- template for class attributes
+  - :file:`autosummary/method.rst` -- template for class methods
+
+The following variables available in the templates:
+
+.. data:: name
+
+   Name of the documented object, excluding the module and class parts.
+
+.. data:: objname
+
+   Name of the documented object, excluding the module parts.
+
+.. data:: fullname
+
+   Full name of the documented object, including module and class parts.
+
+.. data:: module
+
+   Name of the module the documented object belongs to.
+
+.. data:: class
+
+   Name of the class the documented object belongs to.
+   Only available for methods and attributes.
+
+.. data:: underline
+
+   A string containing ``len(full_name) * '='``.
+
+.. data:: members
+
+   List containing names of all members of the module or class.
+   Only available for modules and classes.
+
+.. data:: functions
+
+   List containing names of "public" functions in the module.
+   Here, "public" here means that the name does not start with an
+   underscore. Only available for modules.
+
+.. data:: classes
+
+   List containing names of "public" classes in the module.
+   Only available for modules.
+
+.. data:: exceptions
+
+   List containing names of "public" exceptions in the module.
+   Only available for modules.
+
+.. data:: methods
+
+   List containing names of "public" methods in the class.
+   Only available for classes.
+
+.. data:: methods
+
+   List containing names of "public" attributes in the class.
+   Only available for classes.
+
+.. note::
+   
+   You can use the :dir:`autosummary` directive in the stub pages.
+   However, stub pages are not generated automatically recursively.

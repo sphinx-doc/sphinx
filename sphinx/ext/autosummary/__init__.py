@@ -101,12 +101,29 @@ def autosummary_toc_visit_html(self, node):
     """Hide autosummary toctree list in HTML output."""
     raise nodes.SkipNode
 
-def autosummary_toc_visit_latex(self, node):
-    """Show autosummary toctree (= put the referenced pages here) in Latex."""
-    pass
-
 def autosummary_noop(self, node):
     pass
+
+
+# -- autosummary_table node ----------------------------------------------------
+
+class autosummary_table(nodes.comment):
+    pass
+
+def autosummary_table_visit_html(self, node):
+    """Make the first column of the table non-breaking."""
+    try:
+        tbody = node[0][0][-1]
+        for row in tbody:
+            col1_entry = row[0]
+            par = col1_entry[0]
+            for j, subnode in enumerate(list(par)):
+                if isinstance(subnode, nodes.Text):
+                    new_text = unicode(subnode.astext())
+                    new_text = new_text.replace(u" ", u"\u00a0")
+                    par[j] = nodes.Text(new_text)
+    except IndexError:
+        pass
 
 
 # -- autodoc integration -------------------------------------------------------
@@ -150,6 +167,7 @@ class Autosummary(Directive):
     option_spec = {
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'template': directives.unchanged,
     }
 
     def warn(self, msg):
@@ -162,9 +180,9 @@ class Autosummary(Directive):
         self.warnings = []
 
         names = [x.strip().split()[0] for x in self.content
-                 if x.strip() and re.search(r'^[a-zA-Z_]', x.strip()[0])]
+                 if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
         items = self.get_items(names)
-        nodes = [self.get_table(items)]
+        nodes = self.get_table(items)
 
         if 'toctree' in self.options:
             suffix = env.config.source_suffix
@@ -199,12 +217,22 @@ class Autosummary(Directive):
         Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
+        env = self.state.document.settings.env
+        
         prefixes = ['']
-        prefixes.insert(0, self.state.document.settings.env.currmodule)
+        if env.currmodule:
+            prefixes.insert(0, env.currmodule)
 
         items = []
 
+        max_item_chars = 50
+
         for name in names:
+            display_name = name
+            if name.startswith('~'):
+                name = name[1:]
+                display_name = name.split('.')[-1]
+
             try:
                 obj, real_name = import_by_name(name, prefixes=prefixes)
             except ImportError:
@@ -213,15 +241,15 @@ class Autosummary(Directive):
                 continue
 
             # NB. using real_name here is important, since Documenters
-            #     don't handle module prefixes slightly differently
+            #     handle module prefixes slightly differently
             documenter = get_documenter(obj)(self, real_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
-                items.append((name, '', '', real_name))
+                items.append((display_name, '', '', real_name))
                 continue
             if not documenter.import_object():
                 self.warn('failed to import object %s' % real_name)
-                items.append((name, '', '', real_name))
+                items.append((display_name, '', '', real_name))
                 continue
 
             # -- Grab the signature
@@ -230,7 +258,9 @@ class Autosummary(Directive):
             if not sig:
                 sig = ''
             else:
-                sig = mangle_signature(sig).replace('*', r'\*')
+                max_chars = max(10, max_item_chars - len(display_name))
+                sig = mangle_signature(sig, max_chars=max_chars)
+                sig = sig.replace('*', r'\*')
 
             # -- Grab the summary
 
@@ -246,19 +276,24 @@ class Autosummary(Directive):
             else:
                 summary = ''
 
-            items.append((name, sig, summary, real_name))
+            items.append((display_name, sig, summary, real_name))
 
         return items
 
     def get_table(self, items):
         """
-        Generate a proper table node for autosummary:: directive.
+        Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
         """
-        table = nodes.table('')
+        table_spec = addnodes.tabular_col_spec()
+        table_spec['spec'] = 'LL'
+
+        table = autosummary_table('')
+        real_table = nodes.table('')
+        table.append(real_table)
         group = nodes.tgroup('', cols=2)
-        table.append(group)
+        real_table.append(group)
         group.append(nodes.colspec('', colwidth=10))
         group.append(nodes.colspec('', colwidth=90))
         body = nodes.tbody('')
@@ -288,7 +323,7 @@ class Autosummary(Directive):
             col2 = summary
             append_row(col1, col2)
 
-        return table
+        return [table_spec, table]
 
 def mangle_signature(sig, max_chars=30):
     """Reformat a function signature to a more compact form."""
@@ -296,34 +331,42 @@ def mangle_signature(sig, max_chars=30):
     r = re.compile(r"(?P<name>[a-zA-Z0-9_*]+)(?P<default>=.*?)?, ")
     items = r.findall(sig)
 
-    args = []
-    opts = []
+    args = [name for name, default in items if not default]
+    opts = [name for name, default in items if default]
 
-    total_len = 4
-    for name, default in items:
-        if default:
-            opts.append(name)
-        else:
-            args.append(name)
-        total_len += len(name) + 2
+    sig = limited_join(", ", args, max_chars=max_chars-2)
+    if opts:
+        if not sig:
+            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars-4)
+        elif len(sig) < max_chars - 4 - 2 - 3:
+            sig += "[, %s]" % limited_join(", ", opts,
+                                           max_chars=max_chars-len(sig)-4-2)
 
-        if total_len > max_chars:
-            if opts:
-                opts.append('...')
-            else:
-                args.append('...')
-            break
-
-    if opts and args:
-        sig = ", ".join(args) + "[, " + ", ".join(opts) + "]"
-    elif opts and not args:
-        sig = "[" + ", ".join(opts) + "]"
-    else:
-        sig = ", ".join(args)
-
-    sig = unicode(sig).replace(u" ", u"\u00a0")
     return u"(%s)" % sig
 
+def limited_join(sep, items, max_chars=30, overflow_marker="..."):
+    """
+    Join a number of strings to one, limiting the length to *max_chars*.
+
+    If the string overflows this limit, replace the last fitting item by
+    *overflow_marker*.
+
+    Returns: joined_string
+    """
+    full_str = sep.join(items)
+    if len(full_str) < max_chars:
+        return full_str
+
+    n_chars = 0
+    n_items = 0
+    for j, item in enumerate(items):
+        n_chars += len(item) + len(sep)
+        if n_chars < max_chars - len(overflow_marker):
+            n_items += 1
+        else:
+            break
+
+    return sep.join(list(items[:n_items]) + [overflow_marker])
 
 # -- Importing items -----------------------------------------------------------
 
@@ -409,15 +452,25 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
 
 def process_generate_options(app):
     genfiles = app.config.autosummary_generate
-    if not genfiles:
-        return
-    from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
     ext = app.config.source_suffix
+
+    if genfiles and not hasattr(genfiles, '__len__'):
+        env = app.builder.env
+        genfiles = [x + ext for x in env.found_docs
+                    if os.path.isfile(env.doc2path(x))]
+
+    if not genfiles:
+        return
+
+    from sphinx.ext.autosummary.generate import generate_autosummary_docs
+
     genfiles = [genfile + (not genfile.endswith(ext) and ext or '')
                 for genfile in genfiles]
-    generate_autosummary_docs(genfiles, warn=app.warn, info=app.info,
-                              suffix=ext, base_path=app.srcdir)
+
+    generate_autosummary_docs(genfiles, builder=app.builder,
+                              warn=app.warn, info=app.info, suffix=ext,
+                              base_path=app.srcdir)
 
 
 def setup(app):
@@ -425,7 +478,11 @@ def setup(app):
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,
                  html=(autosummary_toc_visit_html, autosummary_noop),
-                 latex=(autosummary_toc_visit_latex, autosummary_noop),
+                 latex=(autosummary_noop, autosummary_noop),
+                 text=(autosummary_noop, autosummary_noop))
+    app.add_node(autosummary_table,
+                 html=(autosummary_table_visit_html, autosummary_noop),
+                 latex=(autosummary_noop, autosummary_noop),
                  text=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', autolink_role)
