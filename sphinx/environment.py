@@ -785,13 +785,21 @@ class BuildEnvironment:
         Add a title node to the document (just copy the first section title),
         and store that title in the environment.
         """
-        for node in document.traverse(nodes.section):
-            titlenode = nodes.title()
-            visitor = SphinxContentsFilter(document)
-            node[0].walkabout(visitor)
-            titlenode += visitor.get_entry_text()
-            self.titles[docname] = titlenode
-            return
+        titlenode = nodes.title()
+        # explicit title set with title directive
+        if document.has_key('title'):
+            titlenode += nodes.Text(document['title'])
+        # look for first section title and use that as the title
+        else:
+            for node in document.traverse(nodes.section):
+                visitor = SphinxContentsFilter(document)
+                node[0].walkabout(visitor)
+                titlenode += visitor.get_entry_text()
+                break
+            else:
+                # document has no title
+                titlenode += nodes.Text('<no title>')
+        self.titles[docname] = titlenode
 
     def note_labels_from(self, docname, document):
         for name, explicit in document.nametypes.iteritems():
