@@ -128,6 +128,14 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
+try:
+    ismemberdescriptor = inspect.ismemberdescriptor
+    isgetsetdescriptor = inspect.isgetsetdescriptor
+except AttributeError:
+    def ismemberdescriptor(obj):
+        return False
+    isgetsetdescriptor = ismemberdescriptor
+
 def get_documenter(obj):
     """
     Get an autodoc.Documenter class suitable for documenting the given object
@@ -142,7 +150,7 @@ def get_documenter(obj):
         return autodoc.ModuleDocumenter
     elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
         return autodoc.MethodDocumenter
-    elif (inspect.ismemberdescriptor(obj) or inspect.isgetsetdescriptor(obj)
+    elif (ismemberdescriptor(obj) or isgetsetdescriptor(obj)
           or inspect.isdatadescriptor(obj)):
         return autodoc.AttributeDocumenter
     elif inspect.isroutine(obj):
