@@ -147,10 +147,12 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             outdir += os.sep
         olen = len(outdir)
         projectfiles = []
+        staticdir = path.join(outdir, '_static')
+        imagesdir = path.join(outdir, '_images')
         for root, dirs, files in os.walk(outdir):
-            staticdir = (root == path.join(outdir, '_static'))
+            resourcedir = root.startswith(staticdir) or root.startswith(imagesdir)
             for fn in files:
-                if (staticdir and not fn.endswith('.js')) or \
+                if (resourcedir and not fn.endswith('.js')) or \
                        fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
                     #filename = filename.replace(os.sep, '\\') # XXX
