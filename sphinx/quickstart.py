@@ -314,9 +314,9 @@ qthelp:
 \t@echo
 \t@echo "Build finished; now you can run "qcollectiongenerator" with the" \\
 \t      ".qhcp project file in %(rbuilddir)s/qthelp, like this:"
-\t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/%(project)s.qhcp"
+\t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/%(project_fn)s.qhcp"
 \t@echo "To view the help file:"
-\t@echo "# assistant -collectionFile %(rbuilddir)s/qthelp/%(project)s.qhc"
+\t@echo "# assistant -collectionFile %(rbuilddir)s/qthelp/%(project_fn)s.qhc"
 
 latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
@@ -418,9 +418,9 @@ if "%%1" == "qthelp" (
 \techo.
 \techo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %(rbuilddir)s/qthelp, like this:
-\techo.^> qcollectiongenerator %(rbuilddir)s\\qthelp\\%(project)s.qhcp
+\techo.^> qcollectiongenerator %(rbuilddir)s\\qthelp\\%(project_fn)s.qhcp
 \techo.To view the help file:
-\techo.^> assistant -collectionFile %(rbuilddir)s\\qthelp\\%(project)s.ghc
+\techo.^> assistant -collectionFile %(rbuilddir)s\\qthelp\\%(project_fn)s.ghc
 \tgoto end
 )
 
