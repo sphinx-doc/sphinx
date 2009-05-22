@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.6\n"
 "Report-Msgid-Bugs-To: sphinx@awot.fi\n"
 "POT-Creation-Date: 2009-01-24 18:39+0000\n"
-"PO-Revision-Date: 2009-05-22 18:19+0200\n"
+"PO-Revision-Date: 2009-05-22 18:51+0200\n"
 "Last-Translator: Jukka Inkeri <sphinx@awot.fi>\n"
 "Language-Team: fi <sphinx@awot.fi>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:104 sphinx/writers/latex.py:182
+#: sphinx/environment.py:104 sphinx/writers/latex.py:184
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d.%m.%Y"
@@ -27,11 +27,11 @@ msgstr "%d.%m.%Y"
 #: sphinx/themes/basic/genindex-split.html:5
 #: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
 #: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:131
-#: sphinx/writers/latex.py:188
+#: sphinx/writers/latex.py:190
 msgid "Index"
 msgstr "Sisällysluettelo"
 
-#: sphinx/environment.py:324 sphinx/writers/latex.py:187
+#: sphinx/environment.py:324 sphinx/writers/latex.py:189
 msgid "Module Index"
 msgstr "Moduuli sisällysluettelo"
 
@@ -57,34 +57,34 @@ msgstr ""
 msgid "Module level"
 msgstr "Moduulitaso"
 
-#: sphinx/builders/html.py:205
+#: sphinx/builders/html.py:219
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d.%m.%Y"
 
-#: sphinx/builders/html.py:224 sphinx/themes/basic/defindex.html:21
+#: sphinx/builders/html.py:238 sphinx/themes/basic/defindex.html:21
 msgid "General Index"
 msgstr "Yleinen sisällysluettelo"
 
-#: sphinx/builders/html.py:224
+#: sphinx/builders/html.py:238
 msgid "index"
 msgstr "hakemisto"
 
-#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:184
+#: sphinx/builders/html.py:240 sphinx/builders/htmlhelp.py:184
 #: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
 #: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "Yleinen moduulien sisällysluettelo"
 
-#: sphinx/builders/html.py:227
+#: sphinx/builders/html.py:241
 msgid "modules"
 msgstr "moduulit"
 
-#: sphinx/builders/html.py:281
+#: sphinx/builders/html.py:296
 msgid "next"
 msgstr ">"
 
-#: sphinx/builders/html.py:290
+#: sphinx/builders/html.py:305
 msgid "previous"
 msgstr "<"
 
@@ -232,12 +232,12 @@ msgstr "Tekijä: "
 msgid "See also"
 msgstr "Katso myös"
 
-#: sphinx/ext/autodoc.py:889
+#: sphinx/ext/autodoc.py:888
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:920
+#: sphinx/ext/autodoc.py:919
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -448,22 +448,22 @@ msgstr "Etsi"
 msgid "Copyright"
 msgstr ""
 
-#: sphinx/themes/basic/layout.html:183
+#: sphinx/themes/basic/layout.html:184
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr ""
 
-#: sphinx/themes/basic/layout.html:185
+#: sphinx/themes/basic/layout.html:186
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr ""
 
-#: sphinx/themes/basic/layout.html:188
+#: sphinx/themes/basic/layout.html:190
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr ""
 
-#: sphinx/themes/basic/layout.html:191
+#: sphinx/themes/basic/layout.html:193
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
@@ -498,7 +498,7 @@ msgid "search"
 msgstr "etsi"
 
 #: sphinx/themes/basic/search.html:25
-#: sphinx/themes/basic/static/searchtools.js:453
+#: sphinx/themes/basic/static/searchtools.js:462
 msgid "Search Results"
 msgstr "Etsinnän tulos"
 
@@ -555,34 +555,34 @@ msgstr "Etsitään"
 msgid "Preparing search..."
 msgstr "Valmistellaan etsintää..."
 
-#: sphinx/themes/basic/static/searchtools.js:338
+#: sphinx/themes/basic/static/searchtools.js:347
 msgid "module, in "
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:347
+#: sphinx/themes/basic/static/searchtools.js:356
 msgid ", in "
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:455
+#: sphinx/themes/basic/static/searchtools.js:464
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr "Ei löytynyt yhtään. Tarkista hakuehdot, sanahaku, ei sen osia"
 
-#: sphinx/themes/basic/static/searchtools.js:457
+#: sphinx/themes/basic/static/searchtools.js:466
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Etsintä tehty, löydetty %s sivu(a)."
 
-#: sphinx/writers/latex.py:185
+#: sphinx/writers/latex.py:187
 msgid "Release"
 msgstr ""
 
-#: sphinx/writers/latex.py:637
+#: sphinx/writers/latex.py:639
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:641
+#: sphinx/writers/latex.py:643
 #, fuzzy
 msgid "Continued on next page"
 msgstr "Hakemisto yhtenä luettelona"
@@ -595,7 +595,4 @@ msgstr "Ympäristö"
 #: sphinx/writers/text.py:428
 msgid "[image]"
 msgstr ""
-
-#~ msgid "Ympäristö: %s"
-#~ msgstr ""
 

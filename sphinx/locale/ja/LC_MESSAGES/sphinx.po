@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2009-05-22 18:19+0200\n"
+"PO-Revision-Date: 2009-05-22 18:51+0200\n"
 "Last-Translator: Yasushi MASUDA <whosaysni@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:104 sphinx/writers/latex.py:182
+#: sphinx/environment.py:104 sphinx/writers/latex.py:184
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
@@ -27,11 +27,11 @@ msgstr "%Y 年 %m 月 %d 日"
 #: sphinx/themes/basic/genindex-split.html:5
 #: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
 #: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:131
-#: sphinx/writers/latex.py:188
+#: sphinx/writers/latex.py:190
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/environment.py:324 sphinx/writers/latex.py:187
+#: sphinx/environment.py:324 sphinx/writers/latex.py:189
 msgid "Module Index"
 msgstr "モジュール索引"
 
@@ -57,34 +57,34 @@ msgstr "組み込み"
 msgid "Module level"
 msgstr "モジュールレベル"
 
-#: sphinx/builders/html.py:205
+#: sphinx/builders/html.py:219
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/builders/html.py:224 sphinx/themes/basic/defindex.html:21
+#: sphinx/builders/html.py:238 sphinx/themes/basic/defindex.html:21
 msgid "General Index"
 msgstr "総合索引"
 
-#: sphinx/builders/html.py:224
+#: sphinx/builders/html.py:238
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:184
+#: sphinx/builders/html.py:240 sphinx/builders/htmlhelp.py:184
 #: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
 #: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "モジュール総索引"
 
-#: sphinx/builders/html.py:227
+#: sphinx/builders/html.py:241
 msgid "modules"
 msgstr "モジュール"
 
-#: sphinx/builders/html.py:281
+#: sphinx/builders/html.py:296
 msgid "next"
 msgstr "次へ"
 
-#: sphinx/builders/html.py:290
+#: sphinx/builders/html.py:305
 msgid "previous"
 msgstr "前へ"
 
@@ -233,12 +233,12 @@ msgstr "作者: "
 msgid "See also"
 msgstr "参考"
 
-#: sphinx/ext/autodoc.py:889
+#: sphinx/ext/autodoc.py:888
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:920
+#: sphinx/ext/autodoc.py:919
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -450,22 +450,22 @@ msgstr "検索"
 msgid "Copyright"
 msgstr "著作権"
 
-#: sphinx/themes/basic/layout.html:183
+#: sphinx/themes/basic/layout.html:184
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:185
+#: sphinx/themes/basic/layout.html:186
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr "&copy; Copyright %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:188
+#: sphinx/themes/basic/layout.html:190
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "最終更新: %(last_updated)s"
 
-#: sphinx/themes/basic/layout.html:191
+#: sphinx/themes/basic/layout.html:193
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
@@ -503,7 +503,7 @@ msgid "search"
 msgstr "検索"
 
 #: sphinx/themes/basic/search.html:25
-#: sphinx/themes/basic/static/searchtools.js:453
+#: sphinx/themes/basic/static/searchtools.js:462
 msgid "Search Results"
 msgstr "検索結果"
 
@@ -560,35 +560,35 @@ msgstr "検索中"
 msgid "Preparing search..."
 msgstr "検索の準備中..."
 
-#: sphinx/themes/basic/static/searchtools.js:338
+#: sphinx/themes/basic/static/searchtools.js:347
 #, fuzzy
 msgid "module, in "
 msgstr "モジュール"
 
-#: sphinx/themes/basic/static/searchtools.js:347
+#: sphinx/themes/basic/static/searchtools.js:356
 msgid ", in "
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:455
+#: sphinx/themes/basic/static/searchtools.js:464
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr "検索条件に一致するドキュメントはありませんでした。検索したい言葉を正しいつづりで入力しているか確認してください。また、正しいカテゴリの検索を行っているか確認してください。"
 
-#: sphinx/themes/basic/static/searchtools.js:457
+#: sphinx/themes/basic/static/searchtools.js:466
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "検索が終了し、条件に一致するページが %s 個みつかりました。"
 
-#: sphinx/writers/latex.py:185
+#: sphinx/writers/latex.py:187
 msgid "Release"
 msgstr "リリース"
 
-#: sphinx/writers/latex.py:637
+#: sphinx/writers/latex.py:639
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:641
+#: sphinx/writers/latex.py:643
 #, fuzzy
 msgid "Continued on next page"
 msgstr "総索引"

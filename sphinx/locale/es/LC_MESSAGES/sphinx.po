@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: guillem@torroja.dmt.upm.es\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2009-05-22 18:19+0200\n"
+"PO-Revision-Date: 2009-05-22 18:51+0200\n"
 "Last-Translator: Guillem Borrell <guillem@torroja.dmt.upm.es>\n"
 "Language-Team: es <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:104 sphinx/writers/latex.py:182
+#: sphinx/environment.py:104 sphinx/writers/latex.py:184
 #, fuzzy, python-format
 msgid "%B %d, %Y"
 msgstr "%d de %B de %Y"
@@ -27,11 +27,11 @@ msgstr "%d de %B de %Y"
 #: sphinx/themes/basic/genindex-split.html:5
 #: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
 #: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:131
-#: sphinx/writers/latex.py:188
+#: sphinx/writers/latex.py:190
 msgid "Index"
 msgstr "Índice"
 
-#: sphinx/environment.py:324 sphinx/writers/latex.py:187
+#: sphinx/environment.py:324 sphinx/writers/latex.py:189
 msgid "Module Index"
 msgstr "Índice de Módulos"
 
@@ -59,34 +59,34 @@ msgstr "Funciones de base"
 msgid "Module level"
 msgstr "Módulos"
 
-#: sphinx/builders/html.py:205
+#: sphinx/builders/html.py:219
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d %b, %Y"
 
-#: sphinx/builders/html.py:224 sphinx/themes/basic/defindex.html:21
+#: sphinx/builders/html.py:238 sphinx/themes/basic/defindex.html:21
 msgid "General Index"
 msgstr "Índice General"
 
-#: sphinx/builders/html.py:224
+#: sphinx/builders/html.py:238
 msgid "index"
 msgstr "índice"
 
-#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:184
+#: sphinx/builders/html.py:240 sphinx/builders/htmlhelp.py:184
 #: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
 #: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "Índice Global de Módulos"
 
-#: sphinx/builders/html.py:227
+#: sphinx/builders/html.py:241
 msgid "modules"
 msgstr "módulos"
 
-#: sphinx/builders/html.py:281
+#: sphinx/builders/html.py:296
 msgid "next"
 msgstr "siguiente"
 
-#: sphinx/builders/html.py:290
+#: sphinx/builders/html.py:305
 msgid "previous"
 msgstr "anterior"
 
@@ -236,12 +236,12 @@ msgstr "Autor:"
 msgid "See also"
 msgstr "Ver también"
 
-#: sphinx/ext/autodoc.py:889
+#: sphinx/ext/autodoc.py:888
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:920
+#: sphinx/ext/autodoc.py:919
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -454,22 +454,22 @@ msgstr "Búsqueda"
 msgid "Copyright"
 msgstr "Copyright"
 
-#: sphinx/themes/basic/layout.html:183
+#: sphinx/themes/basic/layout.html:184
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr "&copy; <a href=\\\"%(path)s\\\">Copyright</a> %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:185
+#: sphinx/themes/basic/layout.html:186
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr "&copy; Copyright %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:188
+#: sphinx/themes/basic/layout.html:190
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "Actualizado por última vez en %(last_updated)s."
 
-#: sphinx/themes/basic/layout.html:191
+#: sphinx/themes/basic/layout.html:193
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
@@ -511,7 +511,7 @@ msgid "search"
 msgstr "buscar"
 
 #: sphinx/themes/basic/search.html:25
-#: sphinx/themes/basic/static/searchtools.js:453
+#: sphinx/themes/basic/static/searchtools.js:462
 msgid "Search Results"
 msgstr "Resultados de la búsqueda"
 
@@ -569,16 +569,16 @@ msgstr "Buscando"
 msgid "Preparing search..."
 msgstr "Preparando la búsqueda"
 
-#: sphinx/themes/basic/static/searchtools.js:338
+#: sphinx/themes/basic/static/searchtools.js:347
 #, fuzzy
 msgid "module, in "
 msgstr "módulo"
 
-#: sphinx/themes/basic/static/searchtools.js:347
+#: sphinx/themes/basic/static/searchtools.js:356
 msgid ", in "
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:455
+#: sphinx/themes/basic/static/searchtools.js:464
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
@@ -587,23 +587,23 @@ msgstr ""
 "todas las palabras correctamente y que ha seleccionado suficientes "
 "categorías"
 
-#: sphinx/themes/basic/static/searchtools.js:457
+#: sphinx/themes/basic/static/searchtools.js:466
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
 "Búsqueda finalizada, se han encontrado %s página(s) que concuerdan con su"
 " consulta"
 
-#: sphinx/writers/latex.py:185
+#: sphinx/writers/latex.py:187
 #, fuzzy
 msgid "Release"
 msgstr "Versión"
 
-#: sphinx/writers/latex.py:637
+#: sphinx/writers/latex.py:639
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:641
+#: sphinx/writers/latex.py:643
 #, fuzzy
 msgid "Continued on next page"
 msgstr "Índice completo en una página"
