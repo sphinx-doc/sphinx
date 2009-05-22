@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* #178: apply ``add_function_parentheses`` config value to C
+  functions as promised.
+
 * #173: Respect the docutils ``title`` directive.
 
 * #172: The ``obj`` role now links to modules as promised.

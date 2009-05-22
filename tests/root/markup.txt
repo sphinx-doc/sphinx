@@ -179,6 +179,11 @@ Invalid index markup...
 Testing öäü...
 
 
+Object markup
+-------------
+
+:cfunc:`CFunction`.
+
 Only directive
 --------------
 

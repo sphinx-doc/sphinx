@@ -94,6 +94,7 @@ HTML_XPATH = {
         ".//p": 'In both.',
         ".//p": 'Always present',
         ".//title": 'set by title directive',
+        ".//span[@class='pre']": 'CFunction()',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
