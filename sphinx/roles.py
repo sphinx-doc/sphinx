@@ -180,6 +180,13 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     elif typ == 'ref':
         # reST label names are always lowercased
         target = ws_re.sub('', target).lower()
+    elif typ == 'cfunc':
+        # fix-up parens for C functions too
+        if titleistarget:
+            title = _fix_parens(typ, title, env)
+        # remove parentheses from the target too
+        if target.endswith('()'):
+            target = target[:-2]
     else:
         # remove all whitespace to avoid referencing problems
         target = ws_re.sub('', target)
