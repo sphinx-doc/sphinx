@@ -361,6 +361,16 @@ class Documenter(object):
         """
         return None
 
+    def format_name(self):
+        """
+        Format the name of *self.object*.  This normally should be something
+        that can be parsed by the generated directive, but doesn't need to be
+        (Sphinx will display it unparsed then).
+        """
+        # normally the name doesn't contain the module (except for module
+        # directives of course)
+        return '.'.join(self.objpath) or self.modname
+
     def format_signature(self):
         """
         Format the signature (arguments and return annotation) of the object.
@@ -389,11 +399,8 @@ class Documenter(object):
     def add_directive_header(self, sig):
         """Add the directive header and options to the generated content."""
         directive = getattr(self, 'directivetype', self.objtype)
-        # the name to put into the generated directive -- doesn't contain
-        # the module (except for module directive of course)
-        name_in_directive = '.'.join(self.objpath) or self.modname
-        self.add_line(u'.. %s:: %s%s' % (directive, name_in_directive, sig),
-                      '<autodoc>')
+        name = self.format_name()
+        self.add_line(u'.. %s:: %s%s' % (directive, name, sig), '<autodoc>')
         if self.options.noindex:
             self.add_line(u'   :noindex:', '<autodoc>')
         if self.objpath:
