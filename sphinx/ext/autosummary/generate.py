@@ -211,7 +211,7 @@ def get_documented(filenames):
     return documented
 
 
-def main(argv):
+def main(argv=sys.argv):
     usage = 'usage: %s [-o output_dir] [-s suffix] sourcefile ...' % sys.argv[0]
     try:
         opts, args = getopt.getopt(argv[1:], 'o:s:')
