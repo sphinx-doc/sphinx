@@ -41,7 +41,7 @@ ENV_WARNINGS = """\
 %(root)s/images.txt:9: WARNING: image file not readable: foo.png
 %(root)s/images.txt:23: WARNING: nonlocal image URI found: \
 http://www.python.org/logo.png
-%(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8' used for reading \
+%(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8-sig' used for reading \
 included file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/includes.txt:56: WARNING: download file not readable: nonexisting.png
 """
@@ -114,6 +114,9 @@ HTML_XPATH = {
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
         ".//a[@href='http://python.org/']": '',
+    },
+    'bom.html': {
+        ".//title": " File with UTF-8 BOM",
     },
     '_static/statictmpl.html': {
         ".//project": 'Sphinx <Tests>',

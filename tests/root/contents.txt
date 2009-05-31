@@ -17,6 +17,7 @@ Contents:
    includes
    markup
    desc
+   bom
    math
    autodoc
    autosummary
