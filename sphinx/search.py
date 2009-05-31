@@ -12,7 +12,7 @@ import re
 import cPickle as pickle
 from cStringIO import StringIO
 
-from docutils.nodes import Text, NodeVisitor
+from docutils.nodes import comment, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
 try:
@@ -97,6 +97,8 @@ class WordCollector(NodeVisitor):
         self.found_words = []
 
     def dispatch_visit(self, node):
+        if node.__class__ is comment:
+            raise SkipNode
         if node.__class__ is Text:
             self.found_words.extend(word_re.findall(node.astext()))
 

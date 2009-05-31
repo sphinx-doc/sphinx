@@ -17,6 +17,8 @@ Release 1.0 (in development)
 Release 0.6.2 (in development)
 ==============================
 
+* Don't consider contents of source comments for the search index.
+
 * Set the default encoding to ``utf-8-sig`` to handle files with a
   UTF-8 BOM correctly.
 

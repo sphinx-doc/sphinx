@@ -22,7 +22,7 @@ def test_mangle_signature():
     (a, b, c, d, e) :: (a, b, c, d, e)
     (a, b, c=1, d=2, e=3) :: (a, b[, c, d, e])
     (a, b, aaa=1, bbb=1, ccc=1, eee=1, fff=1, ggg=1, hhh=1, iii=1, jjj=1)\
-    :: (a, b[, aaa, bbb, ccc, eee, fff, ...])
+    :: (a, b[, aaa, bbb, ccc, ...])
     (a, b, c=(), d=<foo>) :: (a, b[, c, d])
     (a, b, c='foobar()', d=123) :: (a, b[, c, d])
     """
