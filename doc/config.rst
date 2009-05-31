@@ -77,7 +77,7 @@ General configuration
 .. confval:: source_encoding
 
    The encoding of all reST source files.  The recommended encoding, and the
-   default value, is ``'utf-8'``.
+   default value, is ``'utf-8-sig'``.
 
    .. versionadded:: 0.5
       Previously, Sphinx accepted only UTF-8 encoded sources.

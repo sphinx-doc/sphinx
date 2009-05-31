@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* Set the default encoding to ``utf-8-sig`` to handle files with a
+  UTF-8 BOM correctly.
+
 * #178: apply ``add_function_parentheses`` config value to C
   functions as promised.
 
