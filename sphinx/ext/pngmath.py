@@ -234,9 +234,9 @@ def html_visit_displaymath(self, node):
 
 def setup(app):
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
-    app.add_config_value('pngmath_dvipng', 'dvipng', False, 'html')
-    app.add_config_value('pngmath_latex', 'latex', False, 'html')
-    app.add_config_value('pngmath_use_preview', False, 'html')
+    app.add_config_value('pngmath_dvipng', 'dvipng', 'html')
+    app.add_config_value('pngmath_latex', 'latex', 'html')
+    app.add_config_value('pngmath_use_preview', 'html')
     app.add_config_value('pngmath_dvipng_args', ['-gamma 1.5', '-D 110'], 'html')
     app.add_config_value('pngmath_latex_args', [], 'html')
     app.add_config_value('pngmath_latex_preamble', '', 'html')
