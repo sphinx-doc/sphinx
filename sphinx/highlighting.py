@@ -13,6 +13,7 @@ import sys
 import cgi
 import re
 import parser
+import textwrap
 
 from sphinx.util.texescape import tex_hl_escape_map
 
@@ -128,6 +129,10 @@ class PygmentsBridge(object):
     def try_parse(self, src):
         # Make sure it ends in a newline
         src += '\n'
+
+        # Ignore consistent indentation.
+        if src.lstrip('\n').startswith(' '):
+            src = textwrap.dedent(src)
 
         # Replace "..." by a mark which is also a valid python expression
         # (Note, the highlighter gets the original source, this is only done

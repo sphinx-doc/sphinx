@@ -1,6 +1,9 @@
 Release 0.6.2 (in development)
 ==============================
 
+* When highlighting Python code, ignore extra indentation before
+  trying to parse it as Python.
+
 * #191: Don't escape the tilde in URIs in LaTeX.
 
 * Don't consider contents of source comments for the search index.
