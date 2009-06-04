@@ -835,12 +835,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
             res = "%.3f\\linewidth" % (float(amount) / 100.0)
         return res
 
+    def is_inline(self, node):
+        """Check whether a node represents an inline element."""
+        return isinstance(node.parent, nodes.TextElement)
+
     def visit_image(self, node):
         attrs = node.attributes
         pre = []                        # in reverse order
         post = []
         include_graphics_options = []
-        inline = isinstance(node.parent, nodes.TextElement)
+        is_inline = self.is_inline(node)
         if attrs.has_key('scale'):
             # Could also be done with ``scale`` option to
             # ``\includegraphics``; doing it this way for consistency.
@@ -867,11 +871,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 (0, 'left'): ('{', '\\hfill}'),
                 (0, 'right'): ('{\\hfill', '}'),}
             try:
-                pre.append(align_prepost[inline, attrs['align']][0])
-                post.append(align_prepost[inline, attrs['align']][1])
+                pre.append(align_prepost[is_inline, attrs['align']][0])
+                post.append(align_prepost[is_inline, attrs['align']][1])
             except KeyError:
                 pass                    # XXX complain here?
-        if not inline:
+        if not is_inline:
             pre.append('\n')
             post.append('\n')
         pre.reverse()
@@ -1029,7 +1033,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('')
         elif uri.startswith('mailto:') or uri.startswith('http:') or \
              uri.startswith('https:') or uri.startswith('ftp:'):
-            self.body.append('\\href{%s}{' % self.encode(uri))
+            self.body.append('\\href{%s}{' % self.encode_uri(uri))
             self.context.append('}')
         elif uri.startswith('#'):
             self.body.append('\\hyperlink{%s}{' % uri[1:])
@@ -1329,6 +1333,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.no_contractions:
             text = text.replace('--', u'-{-}')
         return text
+
+    def encode_uri(self, text):
+        # in \href, the tilde is allowed and must be represented literally
+        return self.encode(text).replace('\\textasciitilde{}', '~')
 
     def visit_Text(self, node):
         if self.verbatim is not None:

@@ -15,6 +15,7 @@ from pprint import pformat
 
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
      contextfunction
+from jinja2.utils import open_if_exists
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx.util import mtimes_of_files
@@ -34,6 +35,32 @@ def accesskey(context, key):
         context.vars['_accesskeys'][key] = 1
         return 'accesskey="%s"' % key
     return ''
+
+
+class SphinxFileSystemLoader(FileSystemLoader):
+    """FileSystemLoader subclass that is not so strict about '..'
+    entries in template names."""
+
+    def get_source(self, environment, template):
+        for searchpath in self.searchpath:
+            filename = path.join(searchpath, template)
+            f = open_if_exists(filename)
+            if f is None:
+                continue
+            try:
+                contents = f.read().decode(self.encoding)
+            finally:
+                f.close()
+
+            mtime = path.getmtime(filename)
+            def uptodate():
+                try:
+                    return path.getmtime(filename) == mtime
+                except OSError:
+                    return False
+            return contents, filename, uptodate
+        raise TemplateNotFound(template)
+
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
@@ -65,7 +92,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.pathchain = chain
 
         # make the paths into loaders
-        self.loaders = map(FileSystemLoader, chain)
+        self.loaders = map(SphinxFileSystemLoader, chain)
 
         use_i18n = builder.translator is not None
         extensions = use_i18n and ['jinja2.ext.i18n'] or []

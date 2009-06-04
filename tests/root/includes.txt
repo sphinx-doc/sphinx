@@ -1,3 +1,10 @@
+Testing downloadable files
+==========================
+
+Download :download:`img.png` here.
+Download :download:`this <subdir/img.png>` there.
+Don't download :download:`this <nonexisting.png>`.
+
 Test file and literal inclusion
 ===============================
 
@@ -42,9 +49,10 @@ Literalinclude options
    :prepend: START CODE
    :append: END CODE
 
-Testing downloadable files
-==========================
+Test if dedenting before parsing works.
 
-Download :download:`img.png` here.
-Download :download:`this <subdir/img.png>` there.
-Don't download :download:`this <nonexisting.png>`.
+.. highlight:: python
+
+.. cssclass:: inc-pyobj-dedent
+.. literalinclude:: literal.inc
+   :pyobject: Bar.baz

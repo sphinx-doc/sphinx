@@ -23,6 +23,14 @@ Release 1.0 (in development)
 Release 0.6.2 (in development)
 ==============================
 
+* #158: Allow '..' in template names, and absolute template paths;
+  Jinja 2 by default disables both.  
+
+* When highlighting Python code, ignore extra indentation before
+  trying to parse it as Python.
+
+* #191: Don't escape the tilde in URIs in LaTeX.
+
 * Don't consider contents of source comments for the search index.
 
 * Set the default encoding to ``utf-8-sig`` to handle files with a

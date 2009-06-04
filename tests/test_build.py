@@ -43,7 +43,7 @@ ENV_WARNINGS = """\
 http://www.python.org/logo.png
 %(root)s/includes.txt:: (WARNING/2) Encoding 'utf-8-sig' used for reading \
 included file u'wrongenc.inc' seems to be wrong, try giving an :encoding: option
-%(root)s/includes.txt:60: WARNING: download file not readable: nonexisting.png
+%(root)s/includes.txt:4: WARNING: download file not readable: nonexisting.png
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -136,6 +136,8 @@ if pygments:
             ur'^foo = u"Including Unicode characters: üöä"\n$',
         ".//div[@class='inc-preappend highlight-text']/div/pre":
             r'(?m)^START CODE$',
+        ".//div[@class='inc-pyobj-dedent highlight-python']/div/pre/span":
+            r'def',
     })
     HTML_XPATH['subdir/includes.html'].update({
         ".//pre/span": 'line 1',

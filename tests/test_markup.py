@@ -118,3 +118,6 @@ def test_latex_escaping():
            u'\\begin{Verbatim}[commandchars=@\\[\\]]\n'
            u'@PYGZat[]@(@Gamma@)\\@(@infty@)@$@PYGZlb[]@PYGZrb[]\n'
            u'\\end{Verbatim}')
+    # in URIs
+    yield (verify, u'`test <http://example.com/~me/>`_', None,
+           u'\\href{http://example.com/~me/}{test}')
