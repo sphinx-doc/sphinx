@@ -87,6 +87,8 @@ class LiteralInclude(Directive):
         'lines': directives.unchanged_required,
         'start-after': directives.unchanged_required,
         'end-before': directives.unchanged_required,
+        'prepend': directives.unchanged_required,
+        'append': directives.unchanged_required,
     }
 
     def run(self):
@@ -144,7 +146,9 @@ class LiteralInclude(Directive):
             lines = [lines[i] for i in linelist]
 
         startafter = self.options.get('start-after')
-        endbefore = self.options.get('end-before')
+        endbefore  = self.options.get('end-before')
+        prepend    = self.options.get('prepend')
+        append     = self.options.get('append')
         if startafter is not None or endbefore is not None:
             use = not startafter
             res = []
@@ -157,6 +161,11 @@ class LiteralInclude(Directive):
                 elif use:
                     res.append(line)
             lines = res
+
+        if prepend:
+           lines.insert(0, prepend + '\n')
+        if append:
+           lines.append(append + '\n')
 
         text = ''.join(lines)
         retnode = nodes.literal_block(text, text, source=fn)

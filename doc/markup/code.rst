@@ -143,11 +143,17 @@ Includes
    string option, only lines that precede the first lines containing that string
    are included.
 
+   You can prepend and/or append a line to the included code, using the
+   ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
+   highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
+
    .. versionadded:: 0.4.3
       The ``encoding`` option.
    .. versionadded:: 0.6
       The ``pyobject``, ``lines``, ``start-after`` and ``end-before`` options,
       as well as support for absolute filenames.
+   .. versionadded:: 1.0
+      The ``prepend`` and ``append`` options.
 
 
 .. rubric:: Footnotes

@@ -1,6 +1,9 @@
 Release 1.0 (in development)
 ============================
 
+* Added the ``prepend`` and ``append`` options to the
+  ``literalinclude`` directive.
+
 * Added the ``latex_docclass`` config value and made the "twoside"
   documentclass option overridable by "oneside".
 

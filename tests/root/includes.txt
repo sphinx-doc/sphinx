@@ -37,6 +37,10 @@ Literalinclude options
    :start-after: coding: utf-8
    :end-before: class Foo
 
+.. cssclass:: inc-preappend
+.. literalinclude:: literal.inc
+   :prepend: START CODE
+   :append: END CODE
 
 Testing downloadable files
 ==========================
