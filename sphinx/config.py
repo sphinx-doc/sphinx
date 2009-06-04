@@ -104,6 +104,7 @@ class Config(object):
         latex_font_size = ('10pt', None),
         latex_elements = ({}, None),
         latex_additional_files = ([], None),
+        latex_docclass = ({}, None),
         # now deprecated - use latex_elements
         latex_preamble = ('', None),
     )

@@ -74,7 +74,7 @@ latex_logo = '_static/sphinx.png'
 
 # Additional stuff for the LaTeX preamble.
 latex_elements = {
-    'fontpkg': '\\usepackage{palatino}'
+    'fontpkg': '\\usepackage{palatino}',
 }
 
 # Put TODOs into the output.

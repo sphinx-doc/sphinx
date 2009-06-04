@@ -660,6 +660,14 @@ These options influence LaTeX output.
      ``'shorthandoff'``
      ``'printmodindex'``
 
+.. confval:: latex_docclass
+
+   A dictionary mapping ``'howto'`` and ``'manual'`` to names of real document
+   classes that will be used as the base for the two Sphinx classes.  Default
+   is to use ``'article'`` for ``'howto'`` and ``'report'`` for ``'manual'``.
+
+   .. versionadded:: 1.0
+
 .. confval:: latex_additional_files
 
    A list of file names, relative to the configuration directory, to copy to the

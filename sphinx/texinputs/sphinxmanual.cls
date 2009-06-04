@@ -1,14 +1,28 @@
 %
-% manual.cls for Sphinx
+% sphinxmanual.cls for Sphinx (http://sphinx.pocoo.org/)
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{manual}[2008/10/18 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2009/06/02 Document class (Sphinx manual)]
 
-% Pass all given class options to the parent class.
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
+% chapters starting at odd pages (overridden by 'openany' document option)
+\PassOptionsToClass{openright}{\sphinxdocclass}
+
+% 'oneside' option overriding the 'twoside' default
+\newif\if@oneside
+\DeclareOption{oneside}{\@onesidetrue}
+% Pass remaining document options to the parent class.
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{\sphinxdocclass}}
 \ProcessOptions\relax
-\LoadClass[twoside,openright]{report}
+
+% Defaults two-side document
+\if@oneside
+% nothing to do (oneside is the default)
+\else
+\PassOptionsToClass{twoside}{\sphinxdocclass}
+\fi
+
+\LoadClass{\sphinxdocclass}
 
 % Set some sane defaults for section numbering depth and TOC depth.  You can
 % reset these counters in your preamble.

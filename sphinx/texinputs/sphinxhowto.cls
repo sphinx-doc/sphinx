@@ -1,14 +1,25 @@
 %
-% howto.cls for Sphinx
+% sphinxhowto.cls for Sphinx (http://sphinx.pocoo.org/)
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{howto}[2008/10/18 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2009/06/02 Document class (Sphinx HOWTO)]
 
-% Pass all given class options to the parent class.
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+% 'oneside' option overriding the 'twoside' default
+\newif\if@oneside
+\DeclareOption{oneside}{\@onesidetrue}
+% Pass remaining document options to the parent class.
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{\sphinxdocclass}}
 \ProcessOptions\relax
-\LoadClass[twoside]{article}
+
+% Default to two-side document
+\if@oneside
+% nothing to do (oneside is the default)
+\else
+\PassOptionsToClass{twoside}{\sphinxdocclass}
+\fi
+
+\LoadClass{\sphinxdocclass}
 
 % Set some sane defaults for section numbering depth and TOC depth.  You can
 % reset these counters in your preamble.
