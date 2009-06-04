@@ -1,6 +1,8 @@
 Release 0.6.2 (in development)
 ==============================
 
+* #191: Don't escape the tilde in URIs in LaTeX.
+
 * Don't consider contents of source comments for the search index.
 
 * Set the default encoding to ``utf-8-sig`` to handle files with a
