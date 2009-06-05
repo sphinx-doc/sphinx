@@ -93,7 +93,7 @@ def process_todo_nodes(app, doctree, fromdocname):
         content = []
 
         for todo_info in env.todo_all_todos:
-            para = nodes.paragraph()
+            para = nodes.paragraph(classes=['todo-source'])
             filename = env.doc2path(todo_info['docname'], base=None)
             description = (
                 _('(The original entry is located in %s, line %d and '
