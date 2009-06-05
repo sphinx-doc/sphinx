@@ -147,6 +147,11 @@ a {
     text-decoration: none;
 }
 
+a:visited {
+    color: {{ theme_visitedlinkcolor }};
+    text-decoration: none;
+}
+
 a:hover {
     text-decoration: underline;
 }
