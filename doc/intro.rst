@@ -23,8 +23,8 @@ This section is intended to collect helpful hints for those wanting to migrate
 to reStructuredText/Sphinx from other documentation systems.
 
 * Gerard Flanagan has written a script to convert pure HTML to reST; it can be
-  found at `Launchpad
-  <http://bazaar.launchpad.net/~grflanagan/python-rattlebag/trunk/annotate/head:/src/html2rest.py>`_.
+  found at `BitBucket
+  <http://bitbucket.org/djerdo/musette/src/tip/musette/html/html2rest.py>`_.
 
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
