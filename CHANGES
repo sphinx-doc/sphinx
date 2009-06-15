@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* Added ``titlesonly`` option to ``toctree`` directive.
+
 * Removed the deprecated ``sphinx.builder`` module.
 
 * #193: Added a ``visitedlinkcolor`` theme option to the default

@@ -89,6 +89,15 @@ tables of contents.  The ``toctree`` directive is the central element.
    Numbering then starts at the heading of ``foo``.  Sub-toctrees are
    automatically numbered (don't give the ``numbered`` flag to those).
 
+   If you want only the titles of documents in the tree to show up, not other
+   headings of the same level, you can use the ``titlesonly`` option::
+
+      .. toctree::
+         :titlesonly:
+
+         foo
+         bar
+
    You can use "globbing" in toctree directives, by giving the ``glob`` flag
    option.  All entries are then matched against the list of available
    documents, and matches are inserted into the list alphabetically.  Example::
@@ -138,6 +147,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    .. versionchanged:: 0.6
       Added "numbered" and "hidden" options as well as external links and
       support for "self" references.
+
+   .. versionchanged:: 1.0
+      Added "titlesonly" option.
 
 
 Special names

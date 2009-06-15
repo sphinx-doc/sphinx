@@ -33,6 +33,7 @@ class TocTree(Directive):
         'glob': directives.flag,
         'hidden': directives.flag,
         'numbered': directives.flag,
+        'titlesonly': directives.flag,
     }
 
     def run(self):
@@ -97,6 +98,7 @@ class TocTree(Directive):
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
         subnode['numbered'] = 'numbered' in self.options
+        subnode['titlesonly'] = 'titlesonly' in self.options
         ret.append(subnode)
         return ret
 
