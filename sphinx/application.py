@@ -167,7 +167,10 @@ class Sphinx(object):
         except ImportError, err:
             raise ExtensionError('Could not import extension %s' % extension,
                                  err)
-        if hasattr(mod, 'setup'):
+        if not hasattr(mod, 'setup'):
+            self.warn('extension %r has no setup() function; is it really '
+                      'a Sphinx extension module?' % extension)
+        else:
             mod.setup(self)
         self._extensions[extension] = mod
 
