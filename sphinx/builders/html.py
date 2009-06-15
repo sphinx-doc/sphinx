@@ -498,7 +498,7 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
                 except Exception, err:
-                    self.warn('cannot copy image file %s: %s' %
+                    self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
             self.info()
 
@@ -512,7 +512,7 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
                 except Exception, err:
-                    self.warn('cannot copy downloadable file %s: %s' %
+                    self.warn('cannot copy downloadable file %r: %s' %
                               (path.join(self.srcdir, src), err))
             self.info()
 
