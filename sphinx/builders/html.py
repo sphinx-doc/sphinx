@@ -494,8 +494,12 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.join(self.outdir, '_images'))
             for src, dest in self.images.iteritems():
                 self.info(' '+src, nonl=1)
-                copyfile(path.join(self.srcdir, src),
-                         path.join(self.outdir, '_images', dest))
+                try:
+                    copyfile(path.join(self.srcdir, src),
+                             path.join(self.outdir, '_images', dest))
+                except Exception, err:
+                    self.warn('cannot copy image file %s: %s' %
+                              (path.join(self.srcdir, src), err))
             self.info()
 
         # copy downloadable files
@@ -504,8 +508,12 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.join(self.outdir, '_downloads'))
             for src, (_, dest) in self.env.dlfiles.iteritems():
                 self.info(' '+src, nonl=1)
-                copyfile(path.join(self.srcdir, src),
-                         path.join(self.outdir, '_downloads', dest))
+                try:
+                    copyfile(path.join(self.srcdir, src),
+                             path.join(self.outdir, '_downloads', dest))
+                except Exception, err:
+                    self.warn('cannot copy downloadable file %s: %s' %
+                              (path.join(self.srcdir, src), err))
             self.info()
 
         # copy static files
