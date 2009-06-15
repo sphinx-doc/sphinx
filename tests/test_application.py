@@ -57,3 +57,13 @@ def test_output():
         assert app._warncount == old_count + 1
     finally:
         app.cleanup()
+
+
+def test_extensions():
+    status, warnings = StringIO(), StringIO()
+    app = TestApp(status=status, warning=warnings)
+    try:
+        app.setup_extension('shutil')
+        assert warnings.getvalue().startswith("WARNING: extension 'shutil'")
+    finally:
+        app.cleanup()

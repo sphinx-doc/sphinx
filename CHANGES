@@ -28,6 +28,9 @@ Release 1.0 (in development)
 Release 0.6.2 (in development)
 ==============================
 
+* #196: Add a warning if an extension module doesn't have a
+  ``setup()`` function.
+
 * #158: Allow '..' in template names, and absolute template paths;
   Jinja 2 by default disables both.  
 
