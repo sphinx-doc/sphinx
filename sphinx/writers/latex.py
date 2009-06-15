@@ -228,13 +228,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.footnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
-        if self.elements['docclass'] == 'manual':
+        if document.settings.docclass == 'howto':
+            self.top_sectionlevel = 2
+        else:
             if builder.config.latex_use_parts:
                 self.top_sectionlevel = 0
             else:
                 self.top_sectionlevel = 1
-        else:
-            self.top_sectionlevel = 2
         self.next_section_target = None
         # flags
         self.verbatim = None
