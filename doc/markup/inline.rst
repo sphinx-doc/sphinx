@@ -4,16 +4,13 @@ Inline markup
 =============
 
 Sphinx uses interpreted text roles to insert semantic markup into documents.
-
-Variable names are an exception, they should be marked simply with ``*var*``.
-
-For all other roles, you have to write ``:rolename:`content```.
+They are written as ``:rolename:`content```.
 
 .. note::
 
    The default role (```content```) has no special meaning by default.  You are
-   free to use it for anything you like; use the :confval:`default_role` config
-   value to set it to a known role.
+   free to use it for anything you like, e.g. variable names; use the
+   :confval:`default_role` config value to set it to a known role.
 
 
 .. _xref-syntax:
