@@ -103,9 +103,9 @@ directive.
 
      .. versionadded:: 0.3
 
-   * It's possible to override the signature for callable members (functions,
-     methods, classes) with the regular syntax that will override the signature
-     gained from instropection::
+   * It's possible to override the signature for explicitly documented callable
+     objects (functions, methods, classes) with the regular syntax that will
+     override the signature gained from introspection::
 
         .. autoclass:: Noodle(type)
 
