@@ -449,7 +449,7 @@ class Glossary(Directive):
                 li.insert(0, indexnode)
                 items.append((termtext, li))
         if 'sorted' in self.options:
-            items.sort()
+            items.sort(key=lambda x: x[0].lower())
         new_dl.extend(item[1] for item in items)
         node.children = [new_dl]
         return [node]
