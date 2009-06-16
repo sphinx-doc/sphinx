@@ -1,5 +1,5 @@
-Release 0.6.2 (in development)
-==============================
+Release 0.6.2 (Jun 16, 2009)
+============================
 
 * #130: Fix obscure IndexError in doctest extension.
 
