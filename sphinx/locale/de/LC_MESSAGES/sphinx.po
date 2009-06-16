@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-07 21:40+0200\n"
-"PO-Revision-Date: 2009-05-22 18:19+0200\n"
+"PO-Revision-Date: 2009-06-16 19:25+0200\n"
 "Last-Translator: Horst Gutmann <zerok@zerokspot.com>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -118,7 +118,7 @@ msgstr "Parameter"
 #: sphinx/directives/desc.py:418
 #, python-format
 msgid "%s() (built-in function)"
-msgstr "%s() (eingebaute Funktion)"
+msgstr "%s() (Standard-Funktion)"
 
 #: sphinx/directives/desc.py:419 sphinx/directives/desc.py:476
 #: sphinx/directives/desc.py:488
@@ -129,7 +129,7 @@ msgstr "%s() (in Modul %s)"
 #: sphinx/directives/desc.py:422
 #, python-format
 msgid "%s (built-in variable)"
-msgstr "%s (eingebaute Variable)"
+msgstr "%s (Standard-Variable)"
 
 #: sphinx/directives/desc.py:423 sphinx/directives/desc.py:514
 #, python-format
@@ -139,7 +139,7 @@ msgstr "%s (in Modul %s)"
 #: sphinx/directives/desc.py:439
 #, python-format
 msgid "%s (built-in class)"
-msgstr "%s (eingebaute Klasse)"
+msgstr "%s (Standard-Klasse)"
 
 #: sphinx/directives/desc.py:440
 #, python-format
@@ -248,7 +248,7 @@ msgstr "Zu tun"
 #: sphinx/ext/todo.py:99
 #, python-format
 msgid "(The original entry is located in %s, line %d and can be found "
-msgstr "(Der Eintrag steht in %s, Zeile %s, siehe "
+msgstr "(Der ursprüngliche Eintrag steht in %s, Zeile %s, siehe "
 
 #: sphinx/ext/todo.py:105
 msgid "here"
@@ -331,11 +331,11 @@ msgstr "Exception"
 
 #: sphinx/locale/__init__.py:39
 msgid "statement"
-msgstr "Statement"
+msgstr "Anweisung"
 
 #: sphinx/locale/__init__.py:40
 msgid "built-in function"
-msgstr "eingebaute Funktion"
+msgstr "Standard-Funktion"
 
 #: sphinx/themes/basic/defindex.html:2
 msgid "Overview"
@@ -427,7 +427,7 @@ msgstr "Los"
 
 #: sphinx/themes/basic/layout.html:81
 msgid "Enter search terms or a module, class or function name."
-msgstr "Geben Sie einen Modul-, Klassen- oder Funktionsnamen einn."
+msgstr "Geben Sie Suchbegriffe oder einen Modul-, Klassen- oder Funktionsnamen ein."
 
 #: sphinx/themes/basic/layout.html:119
 #, python-format
@@ -530,7 +530,7 @@ msgstr "Automatisch generierte Liste der Änderungen in Version %(version)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
-msgstr "Bibliotheksänderungen"
+msgstr "Bibliotheks-Änderungen"
 
 #: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
@@ -555,7 +555,7 @@ msgstr "Suchergebnisse ausblenden"
 
 #: sphinx/themes/basic/static/searchtools.js:274
 msgid "Searching"
-msgstr "Suchen..."
+msgstr "Suche..."
 
 #: sphinx/themes/basic/static/searchtools.js:279
 msgid "Preparing search..."
@@ -574,13 +574,13 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
-"Es wurden keine Dokumente gefunden. Haben Sie alle Suchworte richtig "
+"Es wurden keine zutreffenden Dokumente gefunden. Haben Sie alle Suchbegriffe richtig "
 "geschrieben und genügend Kategorien ausgewählt?"
 
 #: sphinx/themes/basic/static/searchtools.js:457
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr "Suche beendet, %s Seite(n) mit Ergebnissen wurden gefunden."
+msgstr "Suche beendet, %s zutreffende Seite(n) gefunden."
 
 #: sphinx/writers/latex.py:185
 msgid "Release"
@@ -588,12 +588,11 @@ msgstr "Release"
 
 #: sphinx/writers/latex.py:637
 msgid "continued from previous page"
-msgstr ""
+msgstr "Fortsetzung der vorherigen Seite"
 
 #: sphinx/writers/latex.py:641
-#, fuzzy
 msgid "Continued on next page"
-msgstr "Gesamtes Stichwortverzeichnis auf einer Seite"
+msgstr "Fortsetzung auf der nächsten Seite"
 
 #: sphinx/writers/text.py:166
 #, python-format
