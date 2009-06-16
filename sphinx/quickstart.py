@@ -56,7 +56,7 @@ templates_path = ['%(dot)stemplates']
 source_suffix = '%(suffix)s'
 
 # The encoding of source files.
-#source_encoding = 'utf-8'
+#source_encoding = 'utf-8-sig'
 
 # The master toctree document.
 master_doc = '%(master_str)s'

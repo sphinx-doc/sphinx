@@ -86,6 +86,7 @@ class Config(object):
         html_show_copyright = (True, 'html'),
         html_show_sphinx = (True, 'html'),
         html_context = ({}, 'html'),
+        html_output_encoding = ('utf-8', 'html'),
 
         # HTML help only options
         htmlhelp_basename = (lambda self: make_filename(self.project), None),

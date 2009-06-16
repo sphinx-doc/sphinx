@@ -536,6 +536,14 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 0.4
 
+.. confval:: html_output_encoding
+
+   Encoding of HTML output files. Default is ``'utf-8'``.  Note that this
+   encoding name must both be a valid Python encoding name and a valid HTML
+   ``charset`` value.
+
+   .. versionadded:: 1.0
+
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.

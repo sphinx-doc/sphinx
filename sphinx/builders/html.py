@@ -665,6 +665,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
+        ctx['encoding'] = encoding = self.config.html_output_encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         ctx.update(addctx)
 
@@ -677,7 +678,7 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            f = codecs.open(outfilename, 'w', 'utf-8')
+            f = codecs.open(outfilename, 'w', encoding)
             try:
                 f.write(output)
             finally:
