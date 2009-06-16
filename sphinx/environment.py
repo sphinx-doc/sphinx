@@ -607,7 +607,6 @@ class BuildEnvironment:
             pub.publish()
             doctree = pub.document
         except UnicodeError, err:
-            import pdb; pdb.set_trace()
             raise SphinxError(str(err))
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
