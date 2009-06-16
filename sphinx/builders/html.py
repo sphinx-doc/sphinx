@@ -306,7 +306,7 @@ class StandaloneHTMLBuilder(Builder):
         parents.reverse()
 
         # title rendered as HTML
-        title = titles.get(docname)
+        title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
         # the name for the copied source
         sourcename = self.config.html_copy_source and docname + '.txt' or ''
