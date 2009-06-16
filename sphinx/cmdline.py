@@ -21,7 +21,7 @@ from sphinx import __version__
 from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import darkred, nocolor, color_terminal
+from sphinx.util.console import red, nocolor, color_terminal
 
 
 def usage(argv, msg=None):
@@ -174,7 +174,7 @@ def main(argv):
     except KeyboardInterrupt:
         if use_pdb:
             import pdb
-            print >>error, darkred('Interrupted while building, '
+            print >>error, red('Interrupted while building, '
                                    'starting debugger:')
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
@@ -182,24 +182,25 @@ def main(argv):
     except Exception, err:
         if use_pdb:
             import pdb
-            print >>error, darkred('Exception occurred while building, '
+            print >>error, red('Exception occurred while building, '
                                    'starting debugger:')
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         else:
+            print >>error
             if isinstance(err, SystemMessage):
-                print >>error, darkred('reST markup error:')
+                print >>error, red('reST markup error:')
                 print >>error, err.args[0].encode('ascii', 'backslashreplace')
             elif isinstance(err, SphinxError):
-                print >>error, darkred('%s:' % err.category)
+                print >>error, red('%s:' % err.category)
                 print >>error, err
             else:
-                print >>error, darkred('Exception occurred:')
+                print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()
                 tbpath = save_traceback()
-                print >>error, darkred('The full traceback has been saved '
-                                       'in %s, if you want to report the '
-                                       'issue to the author.' % tbpath)
+                print >>error, red('The full traceback has been saved '
+                                   'in %s, if you want to report the '
+                                   'issue to the author.' % tbpath)
                 print >>error, ('Please also report this if it was a user '
                                 'error, so that a better error message '
                                 'can be provided next time.')
