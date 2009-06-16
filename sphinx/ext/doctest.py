@@ -159,6 +159,23 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         out(io.getvalue())
         return res
 
+    def _DocTestRunner__patched_linecache_getlines(self, filename,
+                                                   module_globals=None):
+        # this is overridden from DocTestRunner adding the try-except below
+        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)
+        if m and m.group('name') == self.test.name:
+            try:
+                example = self.test.examples[int(m.group('examplenum'))]
+            # because we compile multiple doctest blocks with the same name
+            # (viz. the group name) this might, for outer stack frames in a
+            # traceback, get the wrong test which might not have enough examples
+            except IndexError:
+                pass
+            else:
+                return example.source.splitlines(True)
+        return self.save_linecache_getlines(filename, module_globals)
+
+
 # the new builder -- use sphinx-build.py -b doctest to run
 
 class DocTestBuilder(Builder):
@@ -302,13 +319,13 @@ Doctest summary
 
     def test_group(self, group, filename):
         ns = {}
-        examples = []
+        setup_examples = []
         for setup in group.setup:
-            examples.append(doctest.Example(setup.code, '',
-                                            lineno=setup.lineno))
-        if examples:
+            setup_examples.append(doctest.Example(setup.code, '',
+                                                  lineno=setup.lineno))
+        if setup_examples:
             # simulate a doctest with the setup code
-            setup_doctest = doctest.DocTest(examples, {},
+            setup_doctest = doctest.DocTest(setup_examples, {},
                                             '%s (setup code)' % group.name,
                                             filename, 0, None)
             setup_doctest.globs = ns
@@ -321,8 +338,9 @@ Doctest summary
                 return
         for code in group.tests:
             if len(code) == 1:
-                test = parser.get_doctest(code[0].code, {},
-                                          group.name, filename, code[0].lineno)
+                # ordinary doctests (code/output interleaved)
+                test = parser.get_doctest(code[0].code, {}, group.name,
+                                          filename, code[0].lineno)
                 if not test.examples:
                     continue
                 for example in test.examples:
@@ -330,8 +348,9 @@ Doctest summary
                     new_opt = code[0].options.copy()
                     new_opt.update(example.options)
                     example.options = new_opt
-                self.type = 'single' # ordinary doctests
+                self.type = 'single' # as for ordinary doctests
             else:
+                # testcode and output separate
                 output = code[1] and code[1].code or ''
                 options = code[1] and code[1].options or {}
                 # disable <BLANKLINE> processing as it is not needed
