@@ -18,6 +18,8 @@ Release 1.0 (in development)
 * Added the ``latex_docclass`` config value and made the "twoside"
   documentclass option overridable by "oneside".
 
+* Added the ``trim_doctest_flags`` config value, which is true by default.
+
 * Added the ``extlinks`` extension.
 
 * Allow searching for object names including the module name, like

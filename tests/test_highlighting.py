@@ -37,7 +37,8 @@ class MyLexer(RegexLexer):
 
 class MyFormatter(HtmlFormatter):
     def format(self, tokensource, outfile):
-        outfile.write('test')
+        for tok in tokensource:
+            outfile.write(tok[1])
 
 
 class ComplainOnUnhighlighted(PygmentsBridge):
@@ -69,7 +70,16 @@ def test_set_formatter():
     PygmentsBridge.html_formatter = MyFormatter
     try:
         bridge = PygmentsBridge('html')
-        ret = bridge.highlight_block('foo', 'python')
-        assert ret == 'test'
+        ret = bridge.highlight_block('foo\n', 'python')
+        assert ret == 'foo\n'
+    finally:
+        PygmentsBridge.html_formatter = HtmlFormatter
+
+def test_trim_doctest_flags():
+    PygmentsBridge.html_formatter = MyFormatter
+    try:
+        bridge = PygmentsBridge('html', trim_doctest_flags=True)
+        ret = bridge.highlight_block('>>> 1+2 # doctest: SKIP\n3\n', 'pycon')
+        assert ret == '>>> 1+2 \n3\n'
     finally:
         PygmentsBridge.html_formatter = HtmlFormatter

@@ -215,8 +215,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
 
-        self.highlighter = highlighting.PygmentsBridge(
-            'latex', builder.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge('latex',
+            builder.config.pygments_style, builder.config.trim_doctest_flags)
         self.context = []
         self.descstack = []
         self.bibitems = []

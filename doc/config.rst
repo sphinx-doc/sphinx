@@ -185,7 +185,6 @@ General configuration
 
    .. versionadded:: 0.5
 
-
 .. confval:: modindex_common_prefix
 
    A list of prefixes that are ignored for sorting the module index (e.g.,
@@ -194,6 +193,15 @@ General configuration
    package.  Works only for the HTML builder currently.   Default is ``[]``.
 
    .. versionadded:: 0.6
+
+.. confval:: trim_doctest_flags
+
+   If true, doctest flags (comments looking like ``# doctest: FLAG, ...``) at
+   the ends of lines are removed for all code blocks showing interactive Python
+   sessions (i.e. doctests).  Default is true.  See the extension
+   :mod:`~sphinx.ext.doctest` for more possibilities of including doctests.
+
+   .. versionadded:: 1.0
 
 
 Project information

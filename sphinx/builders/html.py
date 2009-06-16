@@ -115,7 +115,8 @@ class StandaloneHTMLBuilder(Builder):
             style = self.theme.get_confstr('theme', 'pygments_style', 'none')
         else:
             style = 'sphinx'
-        self.highlighter = PygmentsBridge('html', style)
+        self.highlighter = PygmentsBridge('html', style,
+                                          self.config.trim_doctest_flags)
 
     def init_translator_class(self):
         if self.config.html_translator_class:

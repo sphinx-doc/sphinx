@@ -54,6 +54,7 @@ class Config(object):
         keep_warnings = (False, 'env'),
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env'),
+        trim_doctest_flags = (True, 'env'),
 
         # HTML options
         html_theme = ('default', 'html'),

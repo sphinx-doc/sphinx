@@ -196,4 +196,5 @@ There are also these config values for customizing the doctest extension:
    Note though that you can't have blank lines in reST doctest blocks.  They
    will be interpreted as one block ending and another one starting.  Also,
    removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
-   :dir:`doctest` blocks.
+   :dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags` to
+   achieve the latter in all code blocks with Python console content.
