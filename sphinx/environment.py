@@ -59,7 +59,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 29
+ENV_VERSION = 30
 
 
 default_substitutions = set([
@@ -274,6 +274,8 @@ class BuildEnvironment:
 
         # TOC inventory
         self.titles = {}            # docname -> title node
+        self.longtitles = {}        # docname -> title node; only different if
+                                    # set differently with title directive
         self.tocs = {}              # docname -> table of contents nodetree
         self.toc_num_entries = {}   # docname -> number of real entries
         # used to determine when to show the TOC
@@ -343,6 +345,7 @@ class BuildEnvironment:
             self.metadata.pop(docname, None)
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
+            self.longtitles.pop(docname, None)
             self.tocs.pop(docname, None)
             self.toc_secnumbers.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
@@ -785,20 +788,23 @@ class BuildEnvironment:
         and store that title in the environment.
         """
         titlenode = nodes.title()
-        # explicit title set with title directive
+        longtitlenode = titlenode
+        # explicit title set with title directive; use this only for
+        # the <title> tag in HTML output
         if document.has_key('title'):
-            titlenode += nodes.Text(document['title'])
+            longtitlenode = nodes.title()
+            longtitlenode += nodes.Text(document['title'])
         # look for first section title and use that as the title
+        for node in document.traverse(nodes.section):
+            visitor = SphinxContentsFilter(document)
+            node[0].walkabout(visitor)
+            titlenode += visitor.get_entry_text()
+            break
         else:
-            for node in document.traverse(nodes.section):
-                visitor = SphinxContentsFilter(document)
-                node[0].walkabout(visitor)
-                titlenode += visitor.get_entry_text()
-                break
-            else:
-                # document has no title
-                titlenode += nodes.Text('<no title>')
+            # document has no title
+            titlenode += nodes.Text('<no title>')
         self.titles[docname] = titlenode
+        self.longtitles[docname] = longtitlenode
 
     def note_labels_from(self, docname, document):
         for name, explicit in document.nametypes.iteritems():

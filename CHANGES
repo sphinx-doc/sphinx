@@ -38,6 +38,8 @@ Release 1.0 (in development)
 Release 0.6.2 (in development)
 ==============================
 
+* #167: Make glossary sorting case-independent.
+
 * #196: Add a warning if an extension module doesn't have a
   ``setup()`` function.
 
