@@ -330,7 +330,7 @@ class Documenter(object):
                 obj = self.get_attr(obj, part)
             self.object = obj
             return True
-        except (ImportError, AttributeError), err:
+        except (SyntaxError, ImportError, AttributeError), err:
             self.directive.warn(
                 'autodoc can\'t import/find %s %r, it reported error: '
                 '"%s", please check your spelling and sys.path' %
