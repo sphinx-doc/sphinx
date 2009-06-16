@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* #200: Added ``Sphinx.add_stylesheet()``.
+
 * Added ``titlesonly`` option to ``toctree`` directive.
 
 * Removed the deprecated ``sphinx.builder`` module.

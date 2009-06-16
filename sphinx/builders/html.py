@@ -71,6 +71,8 @@ class StandaloneHTMLBuilder(Builder):
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/doctools.js']
+    # Dito for this one.
+    css_files = []
 
     # cached publisher object for snippets
     _publisher = None
@@ -264,6 +266,7 @@ class StandaloneHTMLBuilder(Builder):
             show_source = self.config.html_show_sourcelink,
             file_suffix = self.out_suffix,
             script_files = self.script_files,
+            css_files = self.css_files,
             sphinx_version = __version__,
             style = stylename,
             rellinks = rellinks,

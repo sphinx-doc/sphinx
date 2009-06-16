@@ -205,6 +205,14 @@ the following public API:
 
    .. versionadded:: 0.5
 
+.. method:: Sphinx.add_stylesheet(filename)
+
+   Add *filename* to the list of CSS files that the default HTML template will
+   include.  Like for :meth:`add_javascript`, the filename must be relative to
+   the HTML static path.
+
+   .. versionadded:: 1.0
+
 .. method:: Sphinx.add_lexer(alias, lexer)
 
    Use *lexer*, which must be an instance of a Pygments lexer class, to

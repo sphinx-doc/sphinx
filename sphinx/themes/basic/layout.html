@@ -101,6 +101,9 @@
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
+    {%- for cssfile in css_files %}
+    <link rel="stylesheet" href="{{ pathto('_static/' + cssfile, 1) }}" type="text/css" />
+    {%- endfor %}
     {%- if not embedded %}
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {

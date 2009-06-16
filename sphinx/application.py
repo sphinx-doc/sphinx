@@ -323,6 +323,11 @@ class Sphinx(object):
         StandaloneHTMLBuilder.script_files.append(
             posixpath.join('_static', filename))
 
+    def add_stylesheet(self, filename):
+        from sphinx.builders.html import StandaloneHTMLBuilder
+        StandaloneHTMLBuilder.css_files.append(
+            posixpath.join('_static', filename))
+
     def add_lexer(self, alias, lexer):
         from sphinx.highlighting import lexers
         if lexers is None:
