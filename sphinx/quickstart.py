@@ -281,6 +281,7 @@ help:
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
 \t@echo "  qthelp    to make HTML files and a qthelp project"
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+\t@echo "  latexpdf  to make LaTeX files and run them through pdflatex"
 \t@echo "  changes   to make an overview of all changed/added/deprecated items"
 \t@echo "  linkcheck to check all external links for integrity"
 \t@echo "  doctest   to run all doctests embedded in the documentation \
@@ -330,6 +331,12 @@ latex:
 \t@echo "Build finished; the LaTeX files are in %(rbuilddir)s/latex."
 \t@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
 \t      "run these through (pdf)latex."
+
+latexpdf: latex
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
+\t@echo "Running LaTeX files through pdflatex..."
+\tmake -C %(rbuilddir)s/latex all-pdf
+\t@echo "pdflatex finished; the PDF files are in %(rbuilddir)s/latex."
 
 changes:
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) %(rbuilddir)s/changes
