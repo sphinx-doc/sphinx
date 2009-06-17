@@ -633,13 +633,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table.longtable:
             self.body.append('\\hline\n')
             self.body.append('\\endfirsthead\n\n')
-            self.body.append('\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append('{{\\bfseries \\tablename\\ \\thetable{} -- %s}} \\\\\n' % _('continued from previous page'))
-            self.body.append('\\hline\n')
+            self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
+            self.body.append(r'{{\bfseries \tablename\ \thetable{} -- %s}} \\'
+                             % _('continued from previous page'))
+            self.body.append('\n\\hline\n')
             self.body.append('\\endhead\n\n')
-            self.body.append('\\hline \multicolumn{%s}{|r|}{{%s}} \\\\ \\hline\n' % (
-                self.table.colcount, _('Continued on next page')))
-            self.body.append('\\endfoot\n\n')
+            self.body.append(r'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
+                             % (self.table.colcount,
+                                _('Continued on next page')))
+            self.body.append('\n\\endfoot\n\n')
             self.body.append('\\hline\n')
             self.body.append('\\endlastfoot\n\n')
         else:
