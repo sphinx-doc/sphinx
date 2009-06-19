@@ -221,5 +221,5 @@ The following variables available in the templates:
 
 .. note::
    
-   You can use the :dir:`autosummary` directive in the stub pages.  However,
-   stub pages are not generated automatically recursively.
+   You can use the :dir:`autosummary` directive in the stub pages.
+   Stub pages are generated also based on these directives.

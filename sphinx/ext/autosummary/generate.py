@@ -94,6 +94,9 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     # remove possible duplicates
     items = dict([(item, True) for item in items]).keys()
 
+    # keep track of new files
+    new_files = []
+
     # write
     for name, path, template_name in sorted(items):
         if path is None:
@@ -115,6 +118,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         # skip it if it exists
         if os.path.isfile(fn):
             continue
+
+        new_files.append(fn)
 
         f = open(fn, 'w')
 
@@ -139,21 +144,21 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                           if x in include_public or not x.startswith('_')]
                 return public, items
 
-            info = {}
+            ns = {}
 
             if doc.objtype == 'module':
-                info['members'] = dir(obj)
-                info['functions'], info['all_functions'] = \
+                ns['members'] = dir(obj)
+                ns['functions'], ns['all_functions'] = \
                                    get_members(obj, 'function')
-                info['classes'], info['all_classes'] = \
+                ns['classes'], ns['all_classes'] = \
                                  get_members(obj, 'class')
-                info['exceptions'], info['all_exceptions'] = \
+                ns['exceptions'], ns['all_exceptions'] = \
                                    get_members(obj, 'exception')
             elif doc.objtype == 'class':
-                info['members'] = dir(obj)
-                info['methods'], info['all_methods'] = \
+                ns['members'] = dir(obj)
+                ns['methods'], ns['all_methods'] = \
                                  get_members(obj, 'method', ['__init__'])
-                info['attributes'], info['all_attributes'] = \
+                ns['attributes'], ns['all_attributes'] = \
                                  get_members(obj, 'attribute')
 
             parts = name.split('.')
@@ -161,22 +166,29 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 mod_name = '.'.join(parts[:-2])
                 cls_name = parts[-2]
                 obj_name = '.'.join(parts[-2:])
-                info['class'] = cls_name
+                ns['class'] = cls_name
             else:
                 mod_name, obj_name = '.'.join(parts[:-1]), parts[-1]
 
-            info['fullname'] = name
-            info['module'] = mod_name
-            info['objname'] = obj_name
-            info['name'] = parts[-1]
+            ns['fullname'] = name
+            ns['module'] = mod_name
+            ns['objname'] = obj_name
+            ns['name'] = parts[-1]
 
-            info['objtype'] = doc.objtype
-            info['underline'] = len(name) * '='
+            ns['objtype'] = doc.objtype
+            ns['underline'] = len(name) * '='
 
-            rendered = template.render(**info)
+            rendered = template.render(**ns)
             f.write(rendered)
         finally:
             f.close()
+
+    # descend recursively to new files
+    if new_files:
+        generate_autosummary_docs(new_files, output_dir=output_dir,
+                                  suffix=suffix, warn=warn, info=info,
+                                  base_path=base_path, builder=builder,
+                                  template_dir=template_dir)
 
 
 # -- Finding documented entries in files ---------------------------------------
