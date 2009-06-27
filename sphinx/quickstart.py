@@ -280,6 +280,7 @@ help:
 \t@echo "  json      to make JSON files"
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
 \t@echo "  qthelp    to make HTML files and a qthelp project"
+\t@echo "  devhelp   to make HTML files and a Devhelp project"
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf  to make LaTeX files and run them through pdflatex"
 \t@echo "  changes   to make an overview of all changed/added/deprecated items"
@@ -324,6 +325,15 @@ qthelp:
 \t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/%(project_fn)s.qhcp"
 \t@echo "To view the help file:"
 \t@echo "# assistant -collectionFile %(rbuilddir)s/qthelp/%(project_fn)s.qhc"
+
+devhelp:
+\t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) %(rbuilddir)s/devhelp
+\t@echo
+\t@echo "Build finished."
+\t@echo "To view the help file:"
+\t@echo "# mkdir -p $$HOME/.local/share/devhelp/%(project_fn)s"
+\t@echo "# ln -s %(rbuilddir)s/devhelp $$HOME/.local/share/devhelp/%(project_fn)s"
+\t@echo "# devhelp"
 
 latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
@@ -377,6 +387,7 @@ if "%%1" == "help" (
 \techo.  json      to make JSON files
 \techo.  htmlhelp  to make HTML files and a HTML help project
 \techo.  qthelp    to make HTML files and a qthelp project
+\techo.  devhelp   to make HTML files and a Devhelp project
 \techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  changes   to make an overview over all changed/added/deprecated items
 \techo.  linkcheck to check all external links for integrity
@@ -434,6 +445,13 @@ if "%%1" == "qthelp" (
 \techo.^> qcollectiongenerator %(rbuilddir)s\\qthelp\\%(project_fn)s.qhcp
 \techo.To view the help file:
 \techo.^> assistant -collectionFile %(rbuilddir)s\\qthelp\\%(project_fn)s.ghc
+\tgoto end
+)
+
+if "%%1" == "devhelp" (
+\t%%SPHINXBUILD%% -b devhelp %%ALLSPHINXOPTS%% %(rbuilddir)s/devhelp
+\techo.
+\techo.Build finished.
 \tgoto end
 )
 

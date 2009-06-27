@@ -94,6 +94,9 @@ class Config(object):
         # Qt help only options
         qthelp_basename = (lambda self: make_filename(self.project), None),
 
+        # Devhelp only options
+        devhelp_basename = (lambda self: make_filename(self.project), None),
+
         # LaTeX options
         latex_documents = ([], None),
         latex_logo = (None, None),
