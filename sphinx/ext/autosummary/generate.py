@@ -235,7 +235,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     autosummary_re = re.compile(r'^\s*\.\.\s+autosummary::\s*')
     automodule_re = re.compile(r'^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$')
     module_re = re.compile(r'^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
-    autosummary_item_re = re.compile(r'^\s+([_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
+    autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
@@ -267,6 +267,8 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
             m = autosummary_item_re.match(line)
             if m:
                 name = m.group(1).strip()
+                if name.startswith('~'):
+                    name = name[1:]
                 if current_module and \
                        not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
