@@ -31,7 +31,7 @@ except ImportError:
         try:
             import elementtree.ElementTree as etree
         except ImportError:
-            import cElementTree.ElemenTree as etree
+            import cElementTree as etree
 
 try:
     import gzip
