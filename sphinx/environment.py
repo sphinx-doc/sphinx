@@ -62,7 +62,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 30
+ENV_VERSION = 31
 
 
 default_substitutions = set([
@@ -293,7 +293,6 @@ class BuildEnvironment:
 
         # X-ref target inventory
         self.descrefs = {}          # fullname -> docname, desctype
-        self.filemodules = {}       # docname -> [modules]
         self.modules = {}           # modname -> docname, synopsis,
                                     #            platform, deprecated
         self.labels = {}            # labelname -> docname, labelid, sectionname
@@ -353,7 +352,6 @@ class BuildEnvironment:
             self.toc_secnumbers.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
             self.toctree_includes.pop(docname, None)
-            self.filemodules.pop(docname, None)
             self.indexentries.pop(docname, None)
             self.glob_toctrees.discard(docname)
             self.numbered_toctrees.discard(docname)
@@ -984,7 +982,6 @@ class BuildEnvironment:
 
     def note_module(self, modname, synopsis, platform, deprecated):
         self.modules[modname] = (self.docname, synopsis, platform, deprecated)
-        self.filemodules.setdefault(self.docname, []).append(modname)
 
     def note_progoption(self, optname, labelid):
         self.progoptions[self.currprogram, optname] = (self.docname, labelid)
