@@ -621,7 +621,6 @@ class BuildEnvironment:
 
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),
-                        parser=SphinxRstParser(),
                         writer=SphinxDummyWriter(),
                         source_class=SphinxSourceClass,
                         destination_class=NullOutput)

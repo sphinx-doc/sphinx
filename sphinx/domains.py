@@ -15,3 +15,4 @@ class Domain(object):
     directives = {}
     label = ''
 
+domains = {}

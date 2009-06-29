@@ -55,6 +55,7 @@ class Config(object):
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env'),
         trim_doctest_flags = (True, 'env'),
+        default_domain = ('py', 'env'),
 
         # HTML options
         html_theme = ('default', 'html'),
