@@ -14,6 +14,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.domains import Domain, domains
 from sphinx.util import ws_re
 from sphinx.util.compat import Directive, directive_dwim
 
@@ -735,6 +736,24 @@ class Target(Directive):
         env.note_reftarget(rolename, fullname, targetname)
         return ret
 
+
+class DefaultDomain(Directive):
+    """
+    Directive to (re-)set the default domain for this source file.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
+
+    def run(self):
+        env = self.state.document.settings.env
+        domain_name = arguments[0]
+        env.default_domain = domains.get(domain_name)
+
+
 # Note: the target directive is not registered here, it is used by the
 # application when registering additional xref types.
 
@@ -750,22 +769,37 @@ additional_xref_types = {
 del _
 
 
+directives.register_directive('default-domain', directive_dwim(DefaultDomain))
 directives.register_directive('describe', directive_dwim(DescDirective))
-
-directives.register_directive('function', directive_dwim(ModulelevelDesc))
-directives.register_directive('data', directive_dwim(ModulelevelDesc))
-directives.register_directive('class', directive_dwim(ClasslikeDesc))
-directives.register_directive('exception', directive_dwim(ClasslikeDesc))
-directives.register_directive('method', directive_dwim(ClassmemberDesc))
-directives.register_directive('classmethod', directive_dwim(ClassmemberDesc))
-directives.register_directive('staticmethod', directive_dwim(ClassmemberDesc))
-directives.register_directive('attribute', directive_dwim(ClassmemberDesc))
-
-directives.register_directive('cfunction', directive_dwim(CDesc))
-directives.register_directive('cmember', directive_dwim(CDesc))
-directives.register_directive('cmacro', directive_dwim(CDesc))
-directives.register_directive('ctype', directive_dwim(CDesc))
-directives.register_directive('cvar', directive_dwim(CDesc))
-
 directives.register_directive('cmdoption', directive_dwim(CmdoptionDesc))
 directives.register_directive('envvar', directive_dwim(GenericDesc))
+
+
+class PythonDomain(Domain):
+    name = 'py'
+    label = 'Python'
+    directives = {
+        'function': ModulelevelDesc,
+        'data': ModulelevelDesc,
+        'class': ClasslikeDesc,
+        'exception': ClasslikeDesc,
+        'method': ClassmemberDesc,
+        'classmethod': ClassmemberDesc,
+        'staticmethod': ClassmemberDesc,
+        'attribute': ClassmemberDesc,
+    }
+
+class CDomain(Domain):
+    name = 'c'
+    label = 'C'
+    directives = {
+        'function': CDesc,
+        'member': CDesc,
+        'macro': CDesc,
+        'type': CDesc,
+        'var': CDesc,
+    }
+
+
+domains['py'] = PythonDomain
+domains['c'] = CDomain

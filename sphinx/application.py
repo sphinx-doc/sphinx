@@ -23,6 +23,7 @@ import sphinx
 from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
+from sphinx.domains import domains
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
@@ -297,6 +298,11 @@ class Sphinx(object):
         # register_canonical_role
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
+
+    def add_domain(self, domain):
+        if domain.name in domains:
+            raise ExtensionError('domain %s already registered' % domain.name)
+        domains[domain.name] = domain
 
     def add_description_unit(self, directivename, rolename, indextemplate='',
                              parse_node=None, ref_nodeclass=None):
