@@ -10,6 +10,7 @@
 """
 
 import re
+import os
 import textwrap
 
 from docutils import nodes, writers
@@ -97,7 +98,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.new_state(0)
     def depart_document(self, node):
         self.end_state()
-        self.body = '\n'.join(line and (' '*indent + line)
+        self.body = os.linesep.join(line and (' '*indent + line)
                               for indent, lines in self.states[0]
                               for line in lines)
         # XXX header/footer?
@@ -231,7 +232,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_desc_content(self, node):
         self.new_state()
-        self.add_text('\n')
+        self.add_text(os.linesep)
     def depart_desc_content(self, node):
         self.end_state()
 
@@ -257,7 +258,7 @@ class TextTranslator(nodes.NodeVisitor):
                 lastname = production['tokenname']
             else:
                 self.add_text('%s    ' % (' '*len(lastname)))
-            self.add_text(production.astext() + '\n')
+            self.add_text(production.astext() + os.linesep)
         self.end_state(wrap=False)
         raise nodes.SkipNode
 
@@ -357,7 +358,7 @@ class TextTranslator(nodes.NodeVisitor):
                                       'not implemented.')
         self.new_state(0)
     def depart_entry(self, node):
-        text = '\n'.join('\n'.join(x[1]) for x in self.states.pop())
+        text = os.linesep.join(os.linesep.join(x[1]) for x in self.states.pop())
         self.stateindent.pop()
         self.table[-1].append(text)
 
@@ -393,7 +394,7 @@ class TextTranslator(nodes.NodeVisitor):
             for width in realwidths:
                 out.append(char * (width+2))
                 out.append('+')
-            self.add_text(''.join(out) + '\n')
+            self.add_text(''.join(out) + os.linesep)
 
         def writerow(row):
             lines = map(None, *row)
@@ -405,7 +406,7 @@ class TextTranslator(nodes.NodeVisitor):
                     else:
                         out.append(' ' * (realwidths[i] + 2))
                     out.append('|')
-                self.add_text(''.join(out) + '\n')
+                self.add_text(''.join(out) + os.linesep)
 
         for i, row in enumerate(fmted_rows):
             if separator and i == separator:
