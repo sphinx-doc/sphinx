@@ -116,7 +116,8 @@ def make_xref_role(link_func, nodeclass=None, innernodeclass=None):
                           modname=env.currmodule, classname=env.currclass)
         # we may need the line number for warnings
         pnode.line = lineno
-        target, title = link_func(env, text, pnode)
+        has_explicit_title, title, target = split_explicit_title(text)
+        target, title = link_func(env, pnode, has_explicit_title, title, target)
         pnode['reftarget'] = target
         pnode += innernodeclass(rawtext, title, classes=['xref'])
         return [pnode], []
@@ -160,32 +161,31 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
 
 
-def normalize_func_parens(env, target, title):
-    if title.endswith('()'):
-        # remove parentheses
-        title = title[:-2]
-    if env.config.add_function_parentheses:
-        # add them back to all occurrences if configured
-        title += '()'
+def normalize_func_parens(env, has_explicit_title, target, title):
+    if has_explicit_title:
+        if title.endswith('()'):
+            # remove parentheses
+            title = title[:-2]
+        if env.config.add_function_parentheses:
+            # add them back to all occurrences if configured
+            title += '()'
     # remove parentheses from the target too
     if target.endswith('()'):
         target = target[:-2]
     return target, title
 
 
-def generic_link_func(env, text, pnode):
-    has_explicit_title, title, target = split_explicit_title(text)
+def generic_link_func(env, pnode, has_explicit_title, title, target):
     if has_explicit_title:
         pnode['refcaption'] = True
     return target, title
 
 
-def pyref_link_func(env, text, pnode):
-    has_explicit_title, title, target = split_explicit_title(text)
+def pyref_link_func(env, pnode, has_explicit_title, title, target):
     if has_explicit_title:
         pnode['refcaption'] = True
     # fix-up parentheses in link title
-    if not has_explicit_title:
+    else:
         title = title.lstrip('.')   # only has a meaning for the target
         target = target.lstrip('~') # only has a meaning for the title
         # if the first character is a tilde, don't display the module/class
@@ -203,14 +203,13 @@ def pyref_link_func(env, text, pnode):
     return target, title
 
 
-def pyref_callable_link_func(env, text, pnode):
-    target, title = pyref_link_func(env, text, pnode)
-    target, title = normalize_func_parens(env, target, title)
+def pyref_callable_link_func(env, pnode, has_explicit_title, title, target):
+    target, title = pyref_link_func(env, pnode, has_explicit_title, title, target)
+    target, title = normalize_func_parens(env, has_explicit_title, target, title)
     return target, title
 
 
-def option_link_func(env, text, pnode):
-    has_explicit_title, title, target = split_explicit_title(text)
+def option_link_func(env, pnode, has_explicit_title, title, target):
     program = env.currprogram
     if not has_explicit_title:
         if ' ' in title and not (title.startswith('/') or
@@ -225,23 +224,19 @@ def option_link_func(env, text, pnode):
     return target, title
 
 
-def simple_link_func(env, text, pnode):
+def simple_link_func(env, pnode, has_explicit_title, title, target):
     # normalize all whitespace to avoid referencing problems
-    has_explicit_title, title, target = split_explicit_title(text)
     target = ws_re.sub(' ', target)
     return target, title
 
 
-def lowercase_link_func(env, text, pnode):
-    target, title = simple_link_func(env, text, pnode)
+def lowercase_link_func(env, pnode, has_explicit_title, title, target):
+    target, title = simple_link_func(env, pnode, has_explicit_title, title, target)
     return target.lower(), title
 
 
-def cfunc_link_func(env, text, pnode):
-    has_explicit_title, title, target = split_explicit_title(text)
-    if not has_explicit_title:
-        target, title = normalize_func_parens(env, target, title)
-    return target, title
+def cfunc_link_func(env, pnode, has_explicit_title, title, target):
+    return normalize_func_parens(env, has_explicit_title, target, title)
 
 
 generic_pyref_role = make_xref_role(pyref_link_func)
