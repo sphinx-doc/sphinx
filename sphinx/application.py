@@ -20,7 +20,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 import sphinx
-from sphinx.roles import xfileref_role, innernodetypes
+from sphinx.roles import make_xref_role, simple_link_func
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
 from sphinx.domains import domains
@@ -310,17 +310,15 @@ class Sphinx(object):
                                                 parse_node)
         directives.register_directive(directivename,
                                       directive_dwim(GenericDesc))
-        roles.register_local_role(rolename, xfileref_role)
-        if ref_nodeclass is not None:
-            innernodetypes[rolename] = ref_nodeclass
+        role_func = make_xref_role(simple_link_func, innernodeclass=ref_nodeclass)
+        roles.register_local_role(rolename, role_func)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None):
         additional_xref_types[directivename] = (rolename, indextemplate, None)
         directives.register_directive(directivename, directive_dwim(Target))
-        roles.register_local_role(rolename, xfileref_role)
-        if ref_nodeclass is not None:
-            innernodetypes[rolename] = ref_nodeclass
+        role_func = make_xref_role(simple_link_func, innernodeclass=ref_nodeclass)
+        roles.register_local_role(rolename, role_func)
 
     def add_transform(self, transform):
         SphinxStandaloneReader.transforms.append(transform)
