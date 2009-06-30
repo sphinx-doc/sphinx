@@ -13,6 +13,7 @@
 class Domain(object):
     name = ''
     directives = {}
+    roles = {}
     label = ''
 
 domains = {}

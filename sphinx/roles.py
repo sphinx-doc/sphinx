@@ -94,106 +94,40 @@ roles.register_local_role('pep', indexmarkup_role)
 roles.register_local_role('rfc', indexmarkup_role)
 
 
-# default is `literal`
-innernodetypes = {
-    'ref': nodes.emphasis,
-    'term': nodes.emphasis,
-    'token': nodes.strong,
-    'envvar': nodes.strong,
-    'download': nodes.strong,
-    'option': addnodes.literal_emphasis,
-}
+def make_xref_role(link_func, nodeclass=None, innernodeclass=None):
+    if nodeclass is None:
+        nodeclass = addnodes.pending_xref
+    if innernodeclass is None:
+        innernodeclass = nodes.literal
 
-def _fix_parens(typ, text, env):
-    if typ in ('func', 'meth', 'cfunc'):
-        if text.endswith('()'):
-            # remove parentheses
-            text = text[:-2]
-        if env.config.add_function_parentheses:
-            # add them back to all occurrences if configured
-            text += '()'
-    return text
+    def func(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+        env = inliner.document.settings.env
+        if not typ:
+            typ = env.config.default_role
+        else:
+            typ = typ.lower()
+        text = utils.unescape(text)
+        # if the first character is a bang, don't cross-reference at all
+        if text[0:1] == '!':
+            text = _fix_parens(typ, text[1:], env)
+            return [innernodeclass(rawtext, text, classes=['xref'])], []
+        # we want a cross-reference, create the reference node
+        pnode = nodeclass(rawtext, reftype=typ, refcaption=False,
+                          modname=env.currmodule, classname=env.currclass)
+        # we may need the line number for warnings
+        pnode.line = lineno
+        target, title = link_func(env, text, pnode)
+        pnode['reftarget'] = target
+        pnode += innernodeclass(rawtext, title, classes=['xref'])
+        return [pnode], []
+    return func
 
-def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    env = inliner.document.settings.env
-    if not typ:
-        typ = env.config.default_role
-    else:
-        typ = typ.lower()
-    text = utils.unescape(text)
-    # if the first character is a bang, don't cross-reference at all
-    if text[0:1] == '!':
-        text = _fix_parens(typ, text[1:], env)
-        return [innernodetypes.get(typ, nodes.literal)(
-            rawtext, text, classes=['xref'])], []
-    # we want a cross-reference, create the reference node
-    nodeclass = (typ == 'download') and addnodes.download_reference or \
-                addnodes.pending_xref
-    pnode = nodeclass(rawtext, reftype=typ, refcaption=False,
-                      modname=env.currmodule, classname=env.currclass)
-    # we may need the line number for warnings
-    pnode.line = lineno
-    # look if explicit title and target are given with `foo <bar>` syntax
-    has_explicit_title, title, target = split_explicit_title(text)
-    if has_explicit_title:
-        pnode['refcaption'] = True
-    # special target for Python object cross-references
-    if typ in ('data', 'exc', 'func', 'class', 'const', 'attr',
-               'meth', 'mod', 'obj'):
-        # fix-up parentheses in link title
-        if not has_explicit_title:
-            title = title.lstrip('.')   # only has a meaning for the target
-            target = target.lstrip('~') # only has a meaning for the title
-            title = _fix_parens(typ, title, env)
-            # if the first character is a tilde, don't display the module/class
-            # parts of the contents
-            if title[0:1] == '~':
-                title = title[1:]
-                dot = title.rfind('.')
-                if dot != -1:
-                    title = title[dot+1:]
-        # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
-        # if the first character is a dot, search more specific namespaces first
-        # else search builtins first
-        if target[0:1] == '.':
-            target = target[1:]
-            pnode['refspecific'] = True
-    # some other special cases for the target
-    elif typ == 'option':
-        program = env.currprogram
-        if not has_explicit_title:
-            if ' ' in title and not (title.startswith('/') or
-                                     title.startswith('-')):
-                program, target = re.split(' (?=-|--|/)', title, 1)
-                program = ws_re.sub('-', program)
-                target = target.strip()
-        elif ' ' in target:
-            program, target = re.split(' (?=-|--|/)', target, 1)
-            program = ws_re.sub('-', program)
-        pnode['refprogram'] = program
-    elif typ == 'term':
-        # normalize whitespace in definition terms (if the term reference is
-        # broken over a line, a newline will be in target)
-        target = ws_re.sub(' ', target).lower()
-    elif typ == 'ref':
-        # reST label names are always lowercased
-        target = ws_re.sub('', target).lower()
-    elif typ == 'cfunc':
-        # fix-up parens for C functions too
-        if not has_explicit_title:
-            title = _fix_parens(typ, title, env)
-        # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
-    else:
-        # remove all whitespace to avoid referencing problems
-        target = ws_re.sub('', target)
-    pnode['reftarget'] = target
-    pnode += innernodetypes.get(typ, nodes.literal)(rawtext, title,
-                                                    classes=['xref'])
-    return [pnode], []
+
+def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    return [nodes.emphasis(
+        rawtext,
+        utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
+    return role
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -232,30 +166,121 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
 
 
+def normalize_func_parens(env, target, title):
+    if title.endswith('()'):
+        # remove parentheses
+        title = title[:-2]
+    if env.config.add_function_parentheses:
+        # add them back to all occurrences if configured
+        title += '()'
+    # remove parentheses from the target too
+    if target.endswith('()'):
+        target = target[:-2]
+    return target, title
+
+
+def generic_link_func(env, text, pnode):
+    has_explicit_title, title, target = split_explicit_title(text)
+    if has_explicit_title:
+        pnode['refcaption'] = True
+    return target, title
+
+
+def pyref_link_func(env, text, pnode):
+    has_explicit_title, title, target = split_explicit_title(text)
+    if has_explicit_title:
+        pnode['refcaption'] = True
+    # fix-up parentheses in link title
+    if not has_explicit_title:
+        title = title.lstrip('.')   # only has a meaning for the target
+        target = target.lstrip('~') # only has a meaning for the title
+        # if the first character is a tilde, don't display the module/class
+        # parts of the contents
+        if title[0:1] == '~':
+            title = title[1:]
+            dot = title.rfind('.')
+            if dot != -1:
+                title = title[dot+1:]
+    # if the first character is a dot, search more specific namespaces first
+    # else search builtins first
+    if target[0:1] == '.':
+        target = target[1:]
+        pnode['refspecific'] = True
+    return target, title
+
+
+def pyref_callable_link_func(env, text, pnode):
+    target, title = pyref_link_func(env, text, pnode)
+    target, title = normalize_func_parens(env, target, title)
+    return target, title
+
+
+def option_link_func(env, text, pnode):
+    has_explicit_title, title, target = split_explicit_title(text)
+    program = env.currprogram
+    if not has_explicit_title:
+        if ' ' in title and not (title.startswith('/') or
+                                 title.startswith('-')):
+            program, target = re.split(' (?=-|--|/)', title, 1)
+            program = ws_re.sub('-', program)
+            target = target.strip()
+    elif ' ' in target:
+        program, target = re.split(' (?=-|--|/)', target, 1)
+        program = ws_re.sub('-', program)
+    pnode['refprogram'] = program
+    return target, title
+
+
+def simple_link_func(env, text, pnode):
+    # normalize all whitespace to avoid referencing problems
+    has_explicit_title, title, target = split_explicit_title(text)
+    target = ws_re.sub(' ', target)
+    return target, title
+
+
+def lowercase_link_func(env, text, pnode):
+    target, title = simple_link_func(env, text, pnode)
+    return target.lower(), title
+
+
+def cfunc_link_func(env, text, pnode):
+    has_explicit_title, title, target = split_explicit_title(text)
+    if not has_explicit_title:
+        target, title = normalize_func_parens(env, target, title)
+    # remove parentheses from the target too
+    if target.endswith('()'):
+        target = target[:-2]
+    return target, title
+
+
+generic_pyref_role = make_xref_role(pyref_link_func)
+callable_pyref_role = make_xref_role(pyref_callable_link_func)
+simple_xref_role = make_xref_role(simple_link_func)
+
 specific_docroles = {
-    'data': xfileref_role,
-    'exc': xfileref_role,
-    'func': xfileref_role,
-    'class': xfileref_role,
-    'const': xfileref_role,
-    'attr': xfileref_role,
-    'meth': xfileref_role,
-    'obj': xfileref_role,
-    'cfunc' : xfileref_role,
-    'cmember': xfileref_role,
-    'cdata': xfileref_role,
-    'ctype': xfileref_role,
-    'cmacro': xfileref_role,
+    'data': generic_pyref_role,
+    'exc': generic_pyref_role,
+    'func': callable_pyref_role,
+    'class': generic_pyref_role,
+    'const': generic_pyref_role,
+    'attr': generic_pyref_role,
+    'meth': callable_pyref_role,
+    'mod': generic_pyref_role,
+    'obj': generic_pyref_role,
 
-    'mod': xfileref_role,
+    'keyword': simple_xref_role,
+    'ref': make_xref_role(lowercase_link_func, None, nodes.emphasis),
+    'token': simple_xref_role,
+    'term': make_xref_role(lowercase_link_func, None, nodes.emphasis),
+    'option': make_xref_role(option_link_func, None, addnodes.literal_emphasis),
+    'doc': simple_xref_role,
+    'download': make_xref_role(simple_link_func, addnodes.download_reference),
 
-    'keyword': xfileref_role,
-    'ref': xfileref_role,
-    'token': xfileref_role,
-    'term': xfileref_role,
-    'option': xfileref_role,
-    'doc': xfileref_role,
-    'download': xfileref_role,
+    'cmember': simple_xref_role,
+    'cmacro': simple_xref_role,
+    'cfunc' : make_xref_role(cfunc_link_func),
+    'cdata': simple_xref_role,
+    'ctype': simple_xref_role,
 
     'menuselection': menusel_role,
     'file': emph_literal_role,
