@@ -9,3 +9,5 @@ Sphinx.egg-info/
 doc/_build/
 TAGS
 \.ropeproject/
+^env/
+\.DS_Store$
