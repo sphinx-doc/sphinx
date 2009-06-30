@@ -130,12 +130,6 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return role
 
 
-def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    return [nodes.emphasis(
-        rawtext,
-        utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
-
-
 _litvar_re = re.compile('{([^}]+)}')
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
@@ -247,9 +241,6 @@ def cfunc_link_func(env, text, pnode):
     has_explicit_title, title, target = split_explicit_title(text)
     if not has_explicit_title:
         target, title = normalize_func_parens(env, target, title)
-    # remove parentheses from the target too
-    if target.endswith('()'):
-        target = target[:-2]
     return target, title
 
 
