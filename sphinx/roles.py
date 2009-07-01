@@ -161,7 +161,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
 
 
-def normalize_func_parens(env, has_explicit_title, target, title):
+def normalize_func_parens(env, has_explicit_title, title, target):
     if has_explicit_title:
         if title.endswith('()'):
             # remove parentheses
@@ -205,7 +205,7 @@ def pyref_link_func(env, pnode, has_explicit_title, title, target):
 
 def pyref_callable_link_func(env, pnode, has_explicit_title, title, target):
     target, title = pyref_link_func(env, pnode, has_explicit_title, title, target)
-    target, title = normalize_func_parens(env, has_explicit_title, target, title)
+    target, title = normalize_func_parens(env, has_explicit_title, title, target)
     return target, title
 
 
@@ -236,7 +236,7 @@ def lowercase_link_func(env, pnode, has_explicit_title, title, target):
 
 
 def cfunc_link_func(env, pnode, has_explicit_title, title, target):
-    return normalize_func_parens(env, has_explicit_title, target, title)
+    return normalize_func_parens(env, has_explicit_title, title, target)
 
 
 generic_pyref_role = make_xref_role(pyref_link_func)
