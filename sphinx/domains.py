@@ -16,4 +16,5 @@ class Domain(object):
     roles = {}
     label = ''
 
+# this contains all registered domains
 domains = {}
