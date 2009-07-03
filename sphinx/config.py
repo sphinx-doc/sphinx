@@ -113,6 +113,10 @@ class Config(object):
         latex_docclass = ({}, None),
         # now deprecated - use latex_elements
         latex_preamble = ('', None),
+
+        # text options
+        text_sectionchars = ('*=-~"+`', 'text'),
+        text_windows_newlines = (False, 'text'),
     )
 
     def __init__(self, dirname, filename, overrides, tags):

@@ -15,6 +15,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.domains import Domain, domains
+from sphinx.locale import l_
 from sphinx.util import ws_re
 from sphinx.util.compat import Directive, directive_dwim
 
@@ -84,8 +85,6 @@ class DescDirective(Directive):
         'module': directives.unchanged,
     }
 
-    _ = lambda x: x  # make gettext extraction in constants possible
-
     doc_fields_with_arg = {
         'param': '%param',
         'parameter': '%param',
@@ -95,23 +94,23 @@ class DescDirective(Directive):
         'kwarg': '%param',
         'kwparam': '%param',
         'type': '%type',
-        'raises': _('Raises'),
-        'raise': 'Raises',
-        'exception': 'Raises',
-        'except': 'Raises',
-        'var': _('Variable'),
-        'ivar': 'Variable',
-        'cvar': 'Variable',
-        'returns': _('Returns'),
-        'return': 'Returns',
+        'raises': l_('Raises'),
+        'raise': l_('Raises'),
+        'exception': l_('Raises'),
+        'except': l_('Raises'),
+        'var': l_('Variable'),
+        'ivar': l_('Variable'),
+        'cvar': l_('Variable'),
+        'returns': l_('Returns'),
+        'return': l_('Returns'),
     }
 
     doc_fields_with_linked_arg = ('raises', 'raise', 'exception', 'except')
 
     doc_fields_without_arg = {
-        'returns': 'Returns',
-        'return': 'Returns',
-        'rtype': _('Return type'),
+        'returns': l_('Returns'),
+        'return': l_('Returns'),
+        'rtype': l_('Return type'),
     }
 
     def handle_doc_fields(self, node):
@@ -132,7 +131,7 @@ class DescDirective(Directive):
                 fname, fbody = field
                 try:
                     typ, obj = fname.astext().split(None, 1)
-                    typdesc = _(self.doc_fields_with_arg[typ])
+                    typdesc = self.doc_fields_with_arg[typ]
                     if _is_only_paragraph(fbody):
                         children = fbody.children[0].children
                     else:
@@ -176,7 +175,7 @@ class DescDirective(Directive):
                 except (KeyError, ValueError):
                     fnametext = fname.astext()
                     try:
-                        typ = _(self.doc_fields_without_arg[fnametext])
+                        typ = self.doc_fields_without_arg[fnametext]
                     except KeyError:
                         # at least capitalize the field name
                         typ = fnametext.capitalize()
@@ -499,14 +498,14 @@ class ClassmemberDesc(PythonDesc):
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
                 if modname:
-                    return '%s() (in module %s)' % (name, modname)
+                    return _('%s() (in module %s)') % (name, modname)
                 else:
                     return '%s()' % name
             if modname:
-                return '%s() (%s.%s class method)' % (methname, modname,
-                                                      clsname)
+                return _('%s() (%s.%s class method)') % (methname, modname,
+                                                         clsname)
             else:
-                return '%s() (%s class method)' % (methname, clsname)
+                return _('%s() (%s class method)') % (methname, clsname)
         elif self.desctype == 'attribute':
             try:
                 clsname, attrname = name.rsplit('.', 1)
@@ -692,7 +691,7 @@ class GenericDesc(DescDirective):
         signode['ids'].append(targetname)
         self.state.document.note_explicit_target(signode)
         if indextemplate:
-            indexentry = _(indextemplate) % (name,)
+            indexentry = indextemplate % (name,)
             indextype = 'single'
             colon = indexentry.find(':')
             if colon != -1:
@@ -757,16 +756,12 @@ class DefaultDomain(Directive):
 # Note: the target directive is not registered here, it is used by the
 # application when registering additional xref types.
 
-_ = lambda x: x
-
 # Generic cross-reference types; they can be registered in the application;
 # the directives are either desc_directive or target_directive.
 additional_xref_types = {
     # directive name: (role name, index text, function to parse the desc node)
-    'envvar': ('envvar', _('environment variable; %s'), None),
+    'envvar': ('envvar', l_('environment variable; %s'), None),
 }
-
-del _
 
 
 directives.register_directive('default-domain', directive_dwim(DefaultDomain))

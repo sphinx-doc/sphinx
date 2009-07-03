@@ -172,32 +172,18 @@ class Builder(object):
         Load translated strings from the configured localedirs if
         enabled in the configuration.
         """
-        self.translator = None
         if self.config.language is not None:
             self.info(bold('loading translations [%s]... ' %
                            self.config.language), nonl=True)
-            # the None entry is the system's default locale path
             locale_dirs = [None, path.join(package_dir, 'locale')] + \
                 [path.join(self.srcdir, x) for x in self.config.locale_dirs]
-            for dir_ in locale_dirs:
-                try:
-                    trans = gettext.translation('sphinx', localedir=dir_,
-                            languages=[self.config.language])
-                    if self.translator is None:
-                        self.translator = trans
-                    else:
-                        self.translator._catalog.update(trans.catalog)
-                except Exception:
-                    # Language couldn't be found in the specified path
-                    pass
-            if self.translator is not None:
+        self.translator, has_translation = locale.init(locale_dirs,
+                                                       self.config.language)
+        if self.config.language is not None:
+            if has_translation:
                 self.info('done')
             else:
                 self.info('locale not available')
-        if self.translator is None:
-            self.translator = gettext.NullTranslations()
-        self.translator.install(unicode=True)
-        locale.init()  # translate common labels
 
     def load_env(self):
         """Set up the build environment."""
