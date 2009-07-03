@@ -177,6 +177,8 @@ class Builder(object):
                            self.config.language), nonl=True)
             locale_dirs = [None, path.join(package_dir, 'locale')] + \
                 [path.join(self.srcdir, x) for x in self.config.locale_dirs]
+        else:
+            locale_dirs = []
         self.translator, has_translation = locale.init(locale_dirs,
                                                        self.config.language)
         if self.config.language is not None:
