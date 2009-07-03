@@ -47,7 +47,7 @@ STDINDENT = 3
 
 
 class TextTranslator(nodes.NodeVisitor):
-    sectionchars = '*=-~"+'
+    sectionchars = '*=-~"+`'
 
     def __init__(self, document, builder):
         nodes.NodeVisitor.__init__(self, document)
