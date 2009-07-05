@@ -182,7 +182,8 @@ Testing öäü...
 Object markup
 -------------
 
-:cfunc:`CFunction`.
+:c:func:`CFunction`. :c:func:`!malloc`.
+
 
 Only directive
 --------------
@@ -207,3 +208,4 @@ Only directive
 .. rubric:: Footnotes
 
 .. [#] Like footnotes.
+
