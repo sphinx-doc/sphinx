@@ -24,7 +24,7 @@ def test_theme_api(app):
 
     # test Theme class API
     assert set(Theme.themes.keys()) == \
-           set(['basic', 'default', 'sphinxdoc', 'traditional',
+           set(['basic', 'default', 'scrolls', 'sphinxdoc', 'traditional',
                 'testtheme', 'ziptheme'])
     assert Theme.themes['testtheme'][1] is None
     assert isinstance(Theme.themes['ziptheme'][1], zipfile.ZipFile)
