@@ -162,7 +162,8 @@ class XRefRole(object):
             target = target[:-2]
         return title, target
 
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    def __call__(self, typ, rawtext, text, lineno, inliner,
+                 options={}, content=[]):
         env = inliner.document.settings.env
         if not typ:
             typ = env.config.default_role
@@ -185,7 +186,8 @@ class XRefRole(object):
                                refcaption=has_explicit_title)
         # we may need the line number for warnings
         pnode.line = lineno
-        title, target = self.process_link(env, pnode, has_explicit_title, title, target)
+        title, target = self.process_link(env, pnode,
+                                          has_explicit_title, title, target)
         pnode['reftarget'] = target
         pnode += self.innernodeclass(rawtext, title, classes=['xref'])
         return [pnode], []

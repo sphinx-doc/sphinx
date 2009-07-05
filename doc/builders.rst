@@ -58,7 +58,7 @@ The builder's "name" must be given to the **-b** command-line option of
 .. class:: DevhelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
-   also generates `GNOME Devhelp <http://live.gnome.org/devhelp>`__ 
+   also generates `GNOME Devhelp <http://live.gnome.org/devhelp>`__
    support file that allows the GNOME Devhelp reader to view them.
 
    Its name is ``devhelp``.

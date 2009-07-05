@@ -150,7 +150,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         staticdir = path.join(outdir, '_static')
         imagesdir = path.join(outdir, '_images')
         for root, dirs, files in os.walk(outdir):
-            resourcedir = root.startswith(staticdir) or root.startswith(imagesdir)
+            resourcedir = root.startswith(staticdir) or \
+                          root.startswith(imagesdir)
             for fn in files:
                 if (resourcedir and not fn.endswith('.js')) or \
                        fn.endswith('.html'):

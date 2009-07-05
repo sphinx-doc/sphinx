@@ -27,7 +27,8 @@ if sys.version_info < (2, 5):
     # begin code copied from utf_8_sig.py in Python 2.6
 
     def encode(input, errors='strict'):
-        return (codecs.BOM_UTF8 + codecs.utf_8_encode(input, errors)[0], len(input))
+        return (codecs.BOM_UTF8 + codecs.utf_8_encode(input, errors)[0],
+                len(input))
 
     def decode(input, errors='strict'):
         prefix = 0

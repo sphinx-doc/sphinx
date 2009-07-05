@@ -121,8 +121,8 @@ class _TranslationProxy(UserString.UserString, object):
             return '<%s broken>' % self.__class__.__name__
 
 def mygettext(string):
-    """Used instead of _ when creating TranslationProxies, because _ is not bound
-    yet at that time."""
+    """Used instead of _ when creating TranslationProxies, because _ is
+    not bound yet at that time."""
     return _(string)
 
 def lazy_gettext(string):
