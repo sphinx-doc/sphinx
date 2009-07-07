@@ -12,6 +12,7 @@
 """
 
 import os
+import re
 import cgi
 import sys
 from os import path
@@ -30,7 +31,7 @@ except ImportError:
         try:
             import elementtree.ElementTree as etree
         except ImportError:
-            import cElementTree.ElemenTree as etree
+            import cElementTree as etree
 
 try:
     import gzip
@@ -114,11 +115,14 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
             else:
                 for i, ref in enumerate(refs):
                     etree.SubElement(functions, 'function',
-                                     name="%s [%d]" % (title, i), link=ref)
+                                     name="[%d] %s" % (i, title),
+                                     link=ref)
 
             if subitems:
+                parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)
                 for subitem in subitems:
-                    write_index(subitem[0], subitem[1], [])
+                    write_index("%s %s" % (parent_title, subitem[0]),
+                                subitem[1], [])
 
         for (key, group) in index:
             for title, (refs, subitems) in group:
