@@ -1,6 +1,9 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #210: Fix nesting of HTML tags for displayed math from pngmath
+  extension.
+
 * #213: Fix centering of images in LaTeX output.
 
 * #211: Fix compatibility with docutils 0.5.
