@@ -784,9 +784,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n')
 
     def visit_centered(self, node):
-        self.body.append('\n\\begin{centering}')
+        self.body.append('\n\\begin{center}')
     def depart_centered(self, node):
-        self.body.append('\n\\end{centering}')
+        self.body.append('\n\\end{center}')
 
     def visit_hlist(self, node):
         # for now, we don't support a more compact list format
