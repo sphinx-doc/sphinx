@@ -1,6 +1,9 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #208: Use MS-sanctioned locale settings, determined by the
+  ``language`` config option, in the HTML help builder.
+
 * #210: Fix nesting of HTML tags for displayed math from pngmath
   extension.
 
