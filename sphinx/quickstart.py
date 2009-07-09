@@ -592,6 +592,17 @@ of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.'''
     do_prompt(d, 'master', 'Name of your master document (without suffix)',
               'index')
+
+    while path.isfile(path.join(d['path'], d['master']+d['suffix'])) or \
+          path.isfile(path.join(d['path'], 'source', d['master']+d['suffix'])):
+        print
+        print bold('Error: the master file %s has already been found in the '
+                   'selected root path.' % (d['master']+d['suffix']))
+        print 'sphinx-quickstart will not overwrite the existing file.'
+        print
+        do_prompt(d, 'master', 'Please enter a new file name, or rename the '
+                  'existing file and press Enter', d['master'])
+
     print '''
 Please indicate if you want to use one of the following Sphinx extensions:'''
     do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
