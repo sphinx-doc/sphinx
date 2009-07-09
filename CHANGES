@@ -1,6 +1,11 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #213: Fix centering of images in LaTeX output.
+
+* #211: Fix compatibility with docutils 0.5.
+
+
 Release 0.6.2 (Jun 16, 2009)
 ============================
 
