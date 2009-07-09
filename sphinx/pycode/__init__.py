@@ -234,6 +234,7 @@ class ModuleAnalyzer(object):
         attr_visitor = AttrDocVisitor(number2name, scope, self.encoding)
         attr_visitor.visit(self.parsetree)
         self.attr_docs = attr_visitor.collected
+        self.parsetree = None
         return attr_visitor.collected
 
     def find_tags(self):

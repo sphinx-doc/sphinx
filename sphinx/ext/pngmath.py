@@ -223,12 +223,11 @@ def html_visit_displaymath(self, node):
         self.body.append('<span class="eqno">(%s)</span>' % node['number'])
     if fname is None:
         # something failed -- use text-only as a bad substitute
-        self.body.append('<span class="math">%s</span>' %
+        self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node['latex']).strip())
     else:
-        self.body.append('<img src="%s" alt="%s" />\n</div>' %
+        self.body.append('<img src="%s" alt="%s" /></p>\n</div>' %
                          (fname, self.encode(node['latex']).strip()))
-    self.body.append('</p>')
     raise nodes.SkipNode
 
 

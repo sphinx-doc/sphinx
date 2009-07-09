@@ -43,9 +43,9 @@ def main(argv=sys.argv):
                         'first.')
             else:
                 whichmod += ' module'
-            print >>sys.stderr, \
-                  'Error: The %s cannot be found. Did you install Sphinx '\
-                  'and its dependencies correctly?' % whichmod
+            print >>sys.stderr, ('Error: The %s cannot be found. '
+                                 'Did you install Sphinx and its dependencies '
+                                 'correctly?' % whichmod)
             if hint:
                 print >> sys.stderr, hint
             return 1
