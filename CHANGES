@@ -40,6 +40,8 @@ Release 1.0 (in development)
 Release 0.6.3 (in development)
 ==============================
 
+* #201: Make ``centered`` directive work in LaTeX output.
+
 * #206: Refuse to overwrite an existing master document in
   sphinx-quickstart.
 
