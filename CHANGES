@@ -40,6 +40,12 @@ Release 1.0 (in development)
 Release 0.6.3 (in development)
 ==============================
 
+* #206: Refuse to overwrite an existing master document in
+  sphinx-quickstart.
+
+* #208: Use MS-sanctioned locale settings, determined by the
+  ``language`` config option, in the HTML help builder.
+
 * #210: Fix nesting of HTML tags for displayed math from pngmath
   extension.
 
