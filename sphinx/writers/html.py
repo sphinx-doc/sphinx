@@ -303,11 +303,11 @@ class HTMLTranslator(BaseTranslator):
         if node['uri'].lower().endswith('svg') or \
            node['uri'].lower().endswith('svgz'):
             atts = {'data': node['uri'], 'type': 'image/svg+xml'}
-            if 'width' in node:
+            if node.has_key('width'):
                 atts['width'] = node['width']
-            if 'height' in node:
+            if node.has_key('height'):
                 atts['height'] = node['height']
-            if 'align' in node:
+            if node.has_key('align'):
                 self.body.append('<div align="%s" class="align-%s">' %
                                  (node['align'], node['align']))
                 self.context.append('</div>\n')

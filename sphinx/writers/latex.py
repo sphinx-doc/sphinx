@@ -254,7 +254,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # ... and all others are the appendices
             self.body.append('\n\\appendix\n')
             self.first_document = -1
-        if 'docname' in node:
+        if node.has_key('docname'):
             self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
