@@ -11,6 +11,9 @@
 """
 
 import re
+import string
+
+from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -24,7 +27,18 @@ class Domain(object):
     roles = {}
     label = ''
 
-    def __init__(self):
+    # data value for a fresh environment
+    initial_data = {
+        
+    }
+    # data version
+    data_version = 0
+
+    def __init__(self, env):
+        self.env = env
+        self.data = env.domaindata.get(self.name, self.initial_data)
+        if 'version' in self.data and self.data['version'] < self.data_version:
+            raise IOError('data of %r domain out of date' % self.label)
         self._role_cache = {}
         self._directive_cache = {}
 
@@ -34,6 +48,8 @@ class Domain(object):
         state['_role_cache'] = {}
         state['_directive_cache'] = {}
         return state
+
+    #def clear_doc
 
     def role(self, name):
         """
@@ -492,7 +508,7 @@ class CDesc(DescDirective):
             if part[0] in string.ascii_letters+'_' and \
                    part not in self.stopwords:
                 pnode = addnodes.pending_xref(
-                    '', reftype='ctype', reftarget=part,
+                    '', refdomain='c', reftype='type', reftarget=part,
                     modname=None, classname=None)
                 pnode += tnode
                 node += pnode

@@ -21,7 +21,8 @@ warnings = []
 def setup_module():
     global app, env
     app = TestApp(srcdir='(temp)')
-    env = BuildEnvironment(app.srcdir, app.doctreedir, app.config)
+    env = app.env
+    #env = BuildEnvironment(app.srcdir, app.doctreedir, app.config)
     env.set_warnfunc(lambda *args: warnings.append(args))
 
 def teardown_module():
@@ -51,7 +52,7 @@ def test_images():
 
     tree = env.get_doctree('images')
     app._warning.reset()
-    htmlbuilder = StandaloneHTMLBuilder(app, env)
+    htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.post_process_images(tree)
     assert "no matching candidate for image URI u'foo.*'" in \
            app._warning.content[-1]
@@ -61,7 +62,7 @@ def test_images():
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg'])
 
     app._warning.reset()
-    latexbuilder = LaTeXBuilder(app, env)
+    latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
     assert "no matching candidate for image URI u'foo.*'" in \
            app._warning.content[-1]

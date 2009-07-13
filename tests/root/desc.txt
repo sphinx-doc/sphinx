@@ -43,15 +43,15 @@ Testing description units
 C items
 =======
 
-.. cfunction:: Sphinx_DoSomething()
+.. c:function:: Sphinx_DoSomething()
 
-.. cmember:: SphinxStruct.member
+.. c:member:: SphinxStruct.member
 
-.. cmacro:: SPHINX_USE_PYTHON
+.. c:macro:: SPHINX_USE_PYTHON
 
-.. ctype:: SphinxType
+.. c:type:: SphinxType
 
-.. cvar:: sphinx_global
+.. c:var:: sphinx_global
 
 
 Testing references

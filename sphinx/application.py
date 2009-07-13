@@ -107,11 +107,6 @@ class Sphinx(object):
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
 
-        # intialize domains
-        self.domains = {}
-        for domain in all_domains.keys():
-            self.domains[domain] = all_domains[domain]()
-
         # set up translation infrastructure
         self._init_i18n()
         # set up the build environment
@@ -144,20 +139,25 @@ class Sphinx(object):
             self.env = BuildEnvironment(self.srcdir, self.doctreedir,
                                         self.config)
             self.env.find_files(self.config)
+            for domain in all_domains.keys():
+                self.env.domains[domain] = all_domains[domain](self.env)
         else:
             try:
                 self.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(self.config,
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                self.env.domains = {}
+                for domain in all_domains.keys():
+                    # this can raise if the data version doesn't fit
+                    self.env.domains[domain] = all_domains[domain](self.env)
                 self.info('done')
             except Exception, err:
                 if type(err) is IOError and err.errno == 2:
                     self.info('not yet created')
                 else:
                     self.info('failed: %s' % err)
-                self.env = BuildEnvironment(self.srcdir, self.doctreedir,
-                                            self.config)
-                self.env.find_files(self.config)
+                return self._init_env(freshenv=True)
+
         self.env.set_warnfunc(self.warn)
 
     def _init_builder(self, buildername):

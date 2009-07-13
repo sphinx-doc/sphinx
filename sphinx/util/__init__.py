@@ -438,6 +438,8 @@ def split_explicit_title(text):
         return False, text, text
 
 
+from docutils import nodes
+
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     """Shortcut to create a reference node."""
     node = nodes.reference('', '')
@@ -481,8 +483,7 @@ def _new_traverse(self, condition=None,
     return self._old_traverse(condition, include_self,
                               descend, siblings, ascend)
 
-import docutils.nodes
-docutils.nodes.Node._old_traverse = docutils.nodes.Node.traverse
-docutils.nodes.Node._all_traverse = _all_traverse
-docutils.nodes.Node._fast_traverse = _fast_traverse
-docutils.nodes.Node.traverse = _new_traverse
+nodes.Node._old_traverse = nodes.Node.traverse
+nodes.Node._all_traverse = _all_traverse
+nodes.Node._fast_traverse = _fast_traverse
+nodes.Node.traverse = _new_traverse

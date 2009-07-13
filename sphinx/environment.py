@@ -213,9 +213,9 @@ class BuildEnvironment:
             env = pickle.load(picklefile)
         finally:
             picklefile.close()
-        env.config.values = config.values
         if env.version != ENV_VERSION:
             raise IOError('env version not current')
+        env.config.values = config.values
         return env
 
     def topickle(self, filename):
@@ -224,6 +224,8 @@ class BuildEnvironment:
         self.set_warnfunc(None)
         values = self.config.values
         del self.config.values
+        domains = self.domains
+        del self.domains
         # first write to a temporary file, so that if dumping fails,
         # the existing environment won't be overwritten
         picklefile = open(filename + '.tmp', 'wb')
@@ -240,6 +242,7 @@ class BuildEnvironment:
             picklefile.close()
         movefile(filename + '.tmp', filename)
         # reset attributes
+        self.domains = domains
         self.config.values = values
         self.set_warnfunc(warnfunc)
 
@@ -252,6 +255,9 @@ class BuildEnvironment:
 
         # the application object; only set while update() runs
         self.app = None
+
+        # all the registered domains, set by the application
+        self.domains = {}
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -290,6 +296,9 @@ class BuildEnvironment:
                                     # (containing its TOCs) to rebuild too
         self.glob_toctrees = set()  # docnames that have :glob: toctrees
         self.numbered_toctrees = set() # docnames that have :numbered: toctrees
+
+        # domain-specific inventories
+        self.domaindata = {}        # domainname -> object
 
         # X-ref target inventory
         self.descrefs = {}          # fullname -> docname, desctype
@@ -600,14 +609,15 @@ class BuildEnvironment:
                     return data
 
         # defaults to the global default, but can be re-set in a document
-        self.default_domain = app.domains.get(self.config.default_domain)
+        self.default_domain = self.domains.get(self.config.default_domain)
 
         # monkey-patch, so that domain directives take precedence
         def directive(directive_name, language_module, document):
+            directive_name = directive_name.lower()
             if ':' in directive_name:
                 domain_name, directive_name = directive_name.split(':', 1)
-                if domain_name in app.domains:
-                    domain = app.domains[domain_name]
+                if domain_name in self.domains:
+                    domain = self.domains[domain_name]
                     directive = domain.directive(directive_name)
                     if directive is not None:
                         return directive, []
@@ -620,10 +630,11 @@ class BuildEnvironment:
         directives.directive = directive
 
         def role(role_name, language_module, lineno, reporter):
+            role_name = role_name.lower()
             if ':' in role_name:
                 domain_name, role_name = role_name.split(':', 1)
-                if domain_name in app.domains:
-                    domain = app.domains[domain_name]
+                if domain_name in self.domains:
+                    domain = self.domains[domain_name]
                     role = domain.role(role_name)
                     if role is not None:
                         return role, []
@@ -1216,7 +1227,7 @@ class BuildEnvironment:
                 if node.has_key('refdomain'):
                     # let the domain try to resolve the reference
                     try:
-                        domain = builder.app.domains[node['refdomain']]
+                        domain = self.domains[node['refdomain']]
                     except KeyError:
                         raise NoUri
                     newnode = domain.resolve_xref(self, fromdocname, builder,
@@ -1320,7 +1331,7 @@ class BuildEnvironment:
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
-                        'missing-reference', env, node, contnode)
+                        'missing-reference', self, node, contnode)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
