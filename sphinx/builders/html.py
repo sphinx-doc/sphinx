@@ -33,7 +33,8 @@ from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
-from sphinx.builders import Builder, ENV_PICKLE_FILENAME
+from sphinx.builders import Builder
+from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \

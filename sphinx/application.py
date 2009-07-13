@@ -20,13 +20,14 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 import sphinx
+from sphinx import package_dir, locale
 from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
 from sphinx.domains import all_domains
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import GenericDesc, Target, additional_xref_types
-from sphinx.environment import SphinxStandaloneReader
+from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat
 from sphinx.util.tags import Tags
 from sphinx.util.compat import Directive, directive_dwim
@@ -50,6 +51,7 @@ events = {
 }
 
 CONFIG_FILENAME = 'conf.py'
+ENV_PICKLE_FILENAME = 'environment.pickle'
 
 
 class Sphinx(object):
@@ -62,6 +64,7 @@ class Sphinx(object):
         self._listeners = {}
         self.builderclasses = BUILTIN_BUILDERS.copy()
         self.builder = None
+        self.env = None
 
         self.srcdir = srcdir
         self.confdir = confdir
@@ -107,10 +110,59 @@ class Sphinx(object):
         # intialize domains
         self.domains = {}
         for domain in all_domains.keys():
-            self.domains[domain] = all_domains[domain](self)
+            self.domains[domain] = all_domains[domain]()
 
+        # set up translation infrastructure
+        self._init_i18n()
+        # set up the build environment
+        self._init_env(freshenv)
+        # set up the builder
+        self._init_builder(buildername)
+
+    def _init_i18n(self):
+        """
+        Load translated strings from the configured localedirs if
+        enabled in the configuration.
+        """
+        if self.config.language is not None:
+            self.info(bold('loading translations [%s]... ' %
+                           self.config.language), nonl=True)
+            locale_dirs = [None, path.join(package_dir, 'locale')] + \
+                [path.join(self.srcdir, x) for x in self.config.locale_dirs]
+        else:
+            locale_dirs = []
+        self.translator, has_translation = locale.init(locale_dirs,
+                                                       self.config.language)
+        if self.config.language is not None:
+            if has_translation:
+                self.info('done')
+            else:
+                self.info('locale not available')
+
+    def _init_env(self, freshenv):
+        if freshenv:
+            self.env = BuildEnvironment(self.srcdir, self.doctreedir,
+                                        self.config)
+            self.env.find_files(self.config)
+        else:
+            try:
+                self.info(bold('loading pickled environment... '), nonl=True)
+                self.env = BuildEnvironment.frompickle(self.config,
+                    path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                self.info('done')
+            except Exception, err:
+                if type(err) is IOError and err.errno == 2:
+                    self.info('not yet created')
+                else:
+                    self.info('failed: %s' % err)
+                self.env = BuildEnvironment(self.srcdir, self.doctreedir,
+                                            self.config)
+                self.env.find_files(self.config)
+        self.env.set_warnfunc(self.warn)
+
+    def _init_builder(self, buildername):
         if buildername is None:
-            print >>status, 'No builder selected, using default: html'
+            print >>self._status, 'No builder selected, using default: html'
             buildername = 'html'
         if buildername not in self.builderclasses:
             raise SphinxError('Builder name %s not registered' % buildername)
@@ -121,9 +173,7 @@ class Sphinx(object):
             mod, cls = builderclass
             builderclass = getattr(
                 __import__('sphinx.builders.' + mod, None, None, [cls]), cls)
-        self.builder = builderclass(self, freshenv=freshenv)
-        self.builder.tags = self.tags
-        self.builder.tags.add(self.builder.format)
+        self.builder = builderclass(self)
         self.emit('builder-inited')
 
     def build(self, all_files, filenames):
