@@ -15,6 +15,7 @@ import re
 from sphinx import addnodes
 from sphinx.roles import XRefRole
 from sphinx.directives import DescDirective
+from sphinx.util import make_refnode
 
 
 class Domain(object):
@@ -50,7 +51,7 @@ class Domain(object):
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
         return role_adapter
-        
+
     def directive(self, name):
         """
         Return a directive adapter class that always gives the registered
@@ -384,21 +385,15 @@ class PythonDomain(Domain):
     }
 
     def find_desc(self, env, modname, classname, name, type, searchorder=0):
-        """Find a description node matching "name", perhaps using
-           the given module and/or classname."""
+        """
+        Find a Python object description for "name", perhaps using the given
+        module and/or classname.
+        """
         # skip parens
         if name[-2:] == '()':
             name = name[:-2]
 
         if not name:
-            return None, None
-
-        # don't add module and class names for C things
-        if type[0] == 'c' and type not in ('class', 'const'):
-            # skip trailing star and whitespace
-            name = name.rstrip(' *')
-            if name in env.descrefs and env.descrefs[name][1][0] == 'c':
-                return name, env.descrefs[name]
             return None, None
 
         newname = None
@@ -432,28 +427,22 @@ class PythonDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-
-        if typ == 'mod' or \
-           typ == 'obj' and target in env.modules:
+        if (typ == 'mod' or
+            typ == 'obj' and target in env.modules):
             docname, synopsis, platform, deprecated = \
                 env.modules.get(target, ('','','', ''))
             if not docname:
-                newnode = builder.app.emit_firstresult(
-                    'missing-reference', env, node, contnode)
-                if not newnode:
-                    newnode = contnode
+                return None
             elif docname == fromdocname:
                 # don't link to self
-                newnode = contnode
+                return contnode
             else:
-                newnode = nodes.reference('', '')
-                newnode['refuri'] = builder.get_relative_uri(
-                    fromdocname, docname) + '#module-' + target
-                newnode['reftitle'] = '%s%s%s' % (
-                    (platform and '(%s) ' % platform),
-                    synopsis, (deprecated and ' (deprecated)' or ''))
-                newnode.append(contnode)
-        elif typ in env.descroles:
+                title = '%s%s%s' % ((platform and '(%s) ' % platform),
+                                    synopsis,
+                                    (deprecated and ' (deprecated)' or ''))
+                return make_refnode(builder, fromdocname, docname,
+                                    'module-' + target, contnode, title)
+        else:
             # "descrefs"
             modname = node['modname']
             clsname = node['classname']
@@ -461,20 +450,10 @@ class PythonDomain(Domain):
             name, desc = self.find_desc(env, modname, clsname,
                                         target, typ, searchorder)
             if not desc:
-                newnode = builder.app.emit_firstresult(
-                    'missing-reference', env, node, contnode)
-                if not newnode:
-                    newnode = contnode
+                return None
             else:
-                newnode = nodes.reference('', '')
-                if desc[0] == fromdocname:
-                    newnode['refid'] = name
-                else:
-                    newnode['refuri'] = (
-                        builder.get_relative_uri(fromdocname, desc[0])
-                        + '#' + name)
-                newnode['reftitle'] = name
-                newnode.append(contnode)
+                return make_refnode(builder, fromdocname, desc[0], name,
+                                    contnode, name)
 
 
 
@@ -619,6 +598,16 @@ class CDomain(Domain):
         'data': XRefRole(),
         'type': XRefRole(),
     }
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        # strip pointer asterisk
+        target = target.rstrip(' *')
+        # XXX descrefs
+        if target not in env.descrefs:
+            return None
+        desc = env.descrefs[target]
+        return make_refnode(builder, fromdocname, desc[0], contnode, target)
 
 
 # this contains all registered domains

@@ -43,7 +43,7 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict, url_re
+     docname_join, FilenameUniqDict, url_re, make_refnode
 from sphinx.errors import SphinxError
 from sphinx.directives import additional_xref_types
 
@@ -1199,10 +1199,6 @@ class BuildEnvironment:
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
-    descroles = frozenset(('data', 'exc', 'func', 'class', 'const',
-                           'attr', 'obj', 'meth', 'cfunc', 'cmember',
-                           'cdata', 'ctype', 'cmacro'))
-
     def resolve_references(self, doctree, fromdocname, builder):
         # XXX remove this
         reftarget_roles = set(('token', 'term', 'citation'))
@@ -1218,7 +1214,7 @@ class BuildEnvironment:
 
             try:
                 if node.has_key('refdomain'):
-                    # let the domain resolve the reference
+                    # let the domain try to resolve the reference
                     try:
                         domain = builder.app.domains[node['refdomain']]
                     except KeyError:
@@ -1290,13 +1286,8 @@ class BuildEnvironment:
                         #self.warn(fromdocname, 'unknown keyword: %s' % target)
                         newnode = contnode
                     else:
-                        newnode = nodes.reference('', '')
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname) + '#' + labelid
-                        newnode.append(contnode)
+                        newnode = make_refnode(builder, fromdocname, docname,
+                                               labelid, contnode)
                 elif typ == 'option':
                     progname = node['refprogram']
                     docname, labelid = self.progoptions.get((progname, target),
@@ -1304,13 +1295,8 @@ class BuildEnvironment:
                     if not docname:
                         newnode = contnode
                     else:
-                        newnode = nodes.reference('', '')
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname) + '#' + labelid
-                        newnode.append(contnode)
+                        newnode = make_refnode(builder, fromdocname, docname,
+                                               labelid, contnode)
                 elif typ in reftarget_roles:
                     docname, labelid = self.reftargets.get((typ, target),
                                                            ('', ''))
@@ -1325,20 +1311,19 @@ class BuildEnvironment:
                                       node.line)
                         newnode = contnode
                     else:
-                        newnode = nodes.reference('', '')
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname, typ) + '#' + labelid
-                        newnode.append(contnode)
+                        newnode = make_refnode(builder, fromdocname, docname,
+                                               labelid, contnode)
                 else:
                     raise RuntimeError('unknown xfileref node encountered: %s'
                                        % node)
+
+                # no new node found? try the missing-reference event
+                if newnode is None:
+                    newnode = builder.app.emit_firstresult(
+                        'missing-reference', env, node, contnode)
             except NoUri:
                 newnode = contnode
-            if newnode:
-                node.replace_self(newnode)
+            node.replace_self(newnode or contnode)
 
         for node in doctree.traverse(addnodes.only):
             try:
