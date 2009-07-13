@@ -79,7 +79,7 @@ class CoverageBuilder(Builder):
 
     def build_c_coverage(self):
         # Fetch all the info from the header files
-        c_objects = self.env.domains['c'].data['objects']
+        c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
             undoc = []
             f = open(filename, 'r')
@@ -117,8 +117,8 @@ class CoverageBuilder(Builder):
             op.close()
 
     def build_py_coverage(self):
-        objects = self.env.domains['py'].data['objects']
-        modules = self.env.domains['py'].data['modules']
+        objects = self.env.domaindata['py']['objects']
+        modules = self.env.domaindata['py']['modules']
         
         for mod_name in modules:
             ignore = False

@@ -92,7 +92,7 @@ def test_second_update():
     assert 'autodoc' not in env.found_docs
 
 def test_object_inventory():
-    refs = env.domains['py'].data['objects']
+    refs = env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
     assert refs['func_without_module'] == ('desc', 'function')
@@ -109,5 +109,8 @@ def test_object_inventory():
     assert 'func_in_module' not in refs
     assert 'func_noindex' not in refs
 
-    assert env.domains['py'].data['modules']['mod'] == \
+    assert env.domaindata['py']['modules']['mod'] == \
         ('desc', 'Module synopsis.', 'UNIX', False)
+
+    assert env.domains['py'].data is env.domaindata['py']
+    assert env.domains['c'].data is env.domaindata['c']

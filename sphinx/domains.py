@@ -214,7 +214,7 @@ class PythonDesc(DescDirective):
             signode['ids'].append(fullname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            objects = self.env.domains['py'].data['objects']
+            objects = self.env.domaindata['py']['objects']
             if fullname in objects:
                 self.env.warn(
                     self.env.docname,
@@ -383,7 +383,7 @@ class PyModule(Directive):
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         env.currmodule = modname
-        env.domains['py'].data['modules'][modname] = \
+        env.domaindata['py']['modules'][modname] = \
             (env.docname, self.options.get('synopsis', ''),
              self.options.get('platform', ''), 'deprecated' in self.options)
         modulenode = addnodes.module()
@@ -683,7 +683,7 @@ class CDesc(DescDirective):
             signode['ids'].append(name)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            inv = self.env.domains['c'].data['objects']
+            inv = self.env.domaindata['c']['objects']
             if name in inv:
                 self.env.warn(
                     self.env.docname,

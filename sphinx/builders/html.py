@@ -242,7 +242,7 @@ class StandaloneHTMLBuilder(Builder):
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         # XXX generalization of modindex?
         if self.config.html_use_modindex and \
-                self.env.domains['py'].data['modules']:
+                self.env.domaindata['py']['modules']:
             rellinks.append(('modindex', _('Global Module Index'),
                              'M', _('modules')))
 
@@ -407,7 +407,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # the global module index
 
-        moduleindex = self.env.domains['py'].data['modules']
+        moduleindex = self.env.domaindata['py']['modules']
         if self.config.html_use_modindex and moduleindex:
             # the sorted list of all modules, for the global module index
             modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
