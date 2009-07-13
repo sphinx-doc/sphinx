@@ -204,7 +204,10 @@ class DescDirective(Directive):
         pass
 
     def run(self):
-        self.desctype = self.name
+        if ':' in self.name:
+            self.domain, self.desctype = self.name.split(':', 1)
+        else:
+            self.domain, self.desctype = '', self.name
         self.env = self.state.document.settings.env
         self.indexnode = addnodes.index(entries=[])
 
@@ -366,7 +369,6 @@ class DefaultDomain(Directive):
     def run(self):
         env = self.state.document.settings.env
         domain_name = arguments[0]
-        # XXX won't work
         env.default_domain = env.domains.get(domain_name)
 
 

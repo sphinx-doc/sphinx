@@ -20,9 +20,8 @@ warnings = []
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='(temp)')
+    app = TestApp(srcdir='(temp)', freshenv=True)
     env = app.env
-    #env = BuildEnvironment(app.srcdir, app.doctreedir, app.config)
     env.set_warnfunc(lambda *args: warnings.append(args))
 
 def teardown_module():
@@ -93,7 +92,7 @@ def test_second_update():
     assert 'autodoc' not in env.found_docs
 
 def test_object_inventory():
-    refs = env.descrefs
+    refs = env.domains['py'].data['objects']
 
     assert 'func_without_module' in refs
     assert refs['func_without_module'] == ('desc', 'function')
@@ -110,5 +109,5 @@ def test_object_inventory():
     assert 'func_in_module' not in refs
     assert 'func_noindex' not in refs
 
-    assert 'mod' in env.modules
-    assert env.modules['mod'] == ('desc', 'Module synopsis.', 'UNIX', False)
+    assert env.domains['py'].data['modules']['mod'] == \
+        ('desc', 'Module synopsis.', 'UNIX', False)

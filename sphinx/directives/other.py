@@ -103,75 +103,6 @@ class TocTree(Directive):
         return ret
 
 
-class Module(Directive):
-    """
-    Directive to mark description of a new module.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {
-        'platform': lambda x: x,
-        'synopsis': lambda x: x,
-        'noindex': directives.flag,
-        'deprecated': directives.flag,
-    }
-
-    def run(self):
-        env = self.state.document.settings.env
-        modname = self.arguments[0].strip()
-        noindex = 'noindex' in self.options
-        env.currmodule = modname
-        env.note_module(modname, self.options.get('synopsis', ''),
-                        self.options.get('platform', ''),
-                        'deprecated' in self.options)
-        modulenode = addnodes.module()
-        modulenode['modname'] = modname
-        modulenode['synopsis'] = self.options.get('synopsis', '')
-        targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
-        self.state.document.note_explicit_target(targetnode)
-        ret = [modulenode, targetnode]
-        if 'platform' in self.options:
-            platform = self.options['platform']
-            modulenode['platform'] = platform
-            node = nodes.paragraph()
-            node += nodes.emphasis('', _('Platforms: '))
-            node += nodes.Text(platform, platform)
-            ret.append(node)
-        # the synopsis isn't printed; in fact, it is only used in the
-        # modindex currently
-        if not noindex:
-            indextext = _('%s (module)') % modname
-            inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + modname, modname)])
-            ret.insert(0, inode)
-        return ret
-
-
-class CurrentModule(Directive):
-    """
-    This directive is just to tell Sphinx that we're documenting
-    stuff in module foo, but links to module foo won't lead here.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {}
-
-    def run(self):
-        env = self.state.document.settings.env
-        modname = self.arguments[0].strip()
-        if modname == 'None':
-            env.currmodule = None
-        else:
-            env.currmodule = modname
-        return []
-
-
 class Author(Directive):
     """
     Directive to give the name of the author of the current document
@@ -559,8 +490,6 @@ class Only(Directive):
 
 
 directives.register_directive('toctree', directive_dwim(TocTree))
-directives.register_directive('module', directive_dwim(Module))
-directives.register_directive('currentmodule', directive_dwim(CurrentModule))
 directives.register_directive('sectionauthor', directive_dwim(Author))
 directives.register_directive('moduleauthor', directive_dwim(Author))
 directives.register_directive('program', directive_dwim(Program))

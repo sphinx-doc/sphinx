@@ -240,7 +240,9 @@ class StandaloneHTMLBuilder(Builder):
         rellinks = []
         if self.config.html_use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        if self.config.html_use_modindex and self.env.modules:
+        # XXX generalization of modindex?
+        if self.config.html_use_modindex and \
+                self.env.domains['py'].data['modules']:
             rellinks.append(('modindex', _('Global Module Index'),
                              'M', _('modules')))
 
@@ -405,12 +407,13 @@ class StandaloneHTMLBuilder(Builder):
 
         # the global module index
 
-        if self.config.html_use_modindex and self.env.modules:
+        moduleindex = self.env.domains['py'].data['modules']
+        if self.config.html_use_modindex and moduleindex:
             # the sorted list of all modules, for the global module index
             modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
                                     '#module-' + mn, sy, pl, dep))
                               for (mn, (fn, sy, pl, dep)) in
-                              self.env.modules.iteritems()),
+                              moduleindex.iteritems()),
                              key=lambda x: x[0].lower())
             # collect all platforms
             platforms = set()
@@ -710,14 +713,15 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('dumping object inventory... '), nonl=True)
         f = open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
         try:
+            # XXX inventory version 2
             f.write('# Sphinx inventory version 1\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
             f.write('# Version: %s\n' % self.config.version)
-            for modname, info in self.env.modules.iteritems():
-                f.write('%s mod %s\n' % (modname, self.get_target_uri(info[0])))
-            for refname, (docname, desctype) in self.env.descrefs.iteritems():
-                f.write('%s %s %s\n' % (refname, desctype,
-                                        self.get_target_uri(docname)))
+            #for modname, info in self.env.modules.iteritems():
+            #    f.write('%s mod %s\n' % (modname, self.get_target_uri(info[0])))
+            #for refname, (docname, desctype) in self.env.descrefs.iteritems():
+            #    f.write('%s %s %s\n' % (refname, desctype,
+            #                            self.get_target_uri(docname)))
         finally:
             f.close()
         self.info('done')

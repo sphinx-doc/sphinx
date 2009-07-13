@@ -14,6 +14,7 @@
 import sys
 import types
 import posixpath
+from os import path
 from cStringIO import StringIO
 
 from docutils import nodes

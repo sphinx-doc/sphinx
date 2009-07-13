@@ -297,13 +297,10 @@ class BuildEnvironment:
         self.glob_toctrees = set()  # docnames that have :glob: toctrees
         self.numbered_toctrees = set() # docnames that have :numbered: toctrees
 
-        # domain-specific inventories
-        self.domaindata = {}        # domainname -> object
+        # domain-specific inventories, here to be pickled
+        self.domaindata = {}        # domainname -> domain-specific object
 
         # X-ref target inventory
-        self.descrefs = {}          # fullname -> docname, desctype
-        self.modules = {}           # modname -> docname, synopsis,
-                                    #            platform, deprecated
         self.labels = {}            # labelname -> docname, labelid, sectionname
         self.anonlabels = {}        # labelname -> docname, labelid
         self.progoptions = {}       # (program, name) -> docname, labelid
@@ -371,12 +368,6 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for fullname, (fn, _) in self.descrefs.items():
-                if fn == docname:
-                    del self.descrefs[fullname]
-            for modname, (fn, _, _, _) in self.modules.items():
-                if fn == docname:
-                    del self.modules[modname]
             for labelname, (fn, _, _) in self.labels.items():
                 if fn == docname:
                     del self.labels[labelname]
@@ -389,6 +380,10 @@ class BuildEnvironment:
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
+
+        # XXX why does this not work inside the if?
+        for domain in self.domains.values():
+            domain.clear_doc(docname)
 
     def doc2path(self, docname, base=True, suffix=None):
         """
@@ -1001,18 +996,6 @@ class BuildEnvironment:
     # -------
     # these are called from docutils directives and therefore use self.docname
     #
-    def note_descref(self, fullname, desctype, line):
-        if fullname in self.descrefs:
-            self.warn(self.docname,
-                      'duplicate canonical description name %s, ' % fullname +
-                      'other instance in ' +
-                      self.doc2path(self.descrefs[fullname][0]),
-                      line)
-        self.descrefs[fullname] = (self.docname, desctype)
-
-    def note_module(self, modname, synopsis, platform, deprecated):
-        self.modules[modname] = (self.docname, synopsis, platform, deprecated)
-
     def note_progoption(self, optname, labelid):
         self.progoptions[self.currprogram, optname] = (self.docname, labelid)
 
