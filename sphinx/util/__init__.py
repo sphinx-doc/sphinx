@@ -396,8 +396,10 @@ def movefile(source, dest):
 def copyfile(source, dest):
     """Copy a file and its modification times, if possible."""
     shutil.copyfile(source, dest)
-    try: shutil.copystat(source, dest)
-    except shutil.Error: pass
+    try:
+        shutil.copystat(source, dest)
+    except shutil.Error:
+        pass
 
 
 def copy_static_entry(source, target, builder, context={}):
