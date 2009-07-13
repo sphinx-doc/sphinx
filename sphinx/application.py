@@ -316,7 +316,7 @@ class Sphinx(object):
         directives.register_directive(directivename,
                                       directive_dwim(GenericDesc))
         # XXX support more options?
-        role_func = XRefRole('', innernodeclass=ref_nodeclass)
+        role_func = XRefRole(innernodeclass=ref_nodeclass)
         roles.register_local_role(rolename, role_func)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
@@ -324,7 +324,7 @@ class Sphinx(object):
         additional_xref_types[directivename] = (rolename, indextemplate, None)
         directives.register_directive(directivename, directive_dwim(Target))
         # XXX support more options
-        role_func = XRefRole('', innernodeclass=ref_nodeclass)
+        role_func = XRefRole(innernodeclass=ref_nodeclass)
         roles.register_local_role(rolename, role_func)
 
     def add_transform(self, transform):
