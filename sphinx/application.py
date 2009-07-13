@@ -23,7 +23,7 @@ import sphinx
 from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
-from sphinx.domains import domains
+from sphinx.domains import all_domains
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
@@ -103,6 +103,11 @@ class Sphinx(object):
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
+
+        # intialize domains
+        self.domains = {}
+        for domain in all_domains.keys():
+            self.domains[domain] = all_domains[domain](self)
 
         if buildername is None:
             print >>status, 'No builder selected, using default: html'
@@ -300,9 +305,9 @@ class Sphinx(object):
         roles.register_local_role(name, role)
 
     def add_domain(self, domain):
-        if domain.name in domains:
+        if domain.name in all_domains:
             raise ExtensionError('domain %s already registered' % domain.name)
-        domains[domain.name] = domain
+        all_domains[domain.name] = domain
 
     def add_description_unit(self, directivename, rolename, indextemplate='',
                              parse_node=None, ref_nodeclass=None):

@@ -23,6 +23,36 @@ class Domain(object):
     roles = {}
     label = ''
 
+    def __init__(self, app):
+        self.app = app
+        self._role_cache = {}
+        self._directive_cache = {}
+
+    def role(self, name):
+        if name in self._role_cache:
+            return self._role_cache[name]
+        if name not in self.roles:
+            return None
+        def role_adapter(typ, rawtext, text, lineno, inliner,
+                         options={}, content=[]):
+            return self.roles[name](name, rawtext, text, lineno,
+                                    inliner, options, content)
+        self._role_cache[name] = role_adapter
+        return role_adapter
+        
+    def directive(self, name):
+        if name in self._directive_cache:
+            return self._directive_cache[name]
+        if name not in self.directives:
+            return None
+        BaseDirective = self.directives[name]
+        class DirectiveAdapter(BaseDirective):
+            def run(self):
+                self.name = name
+                return BaseDirective.run(self)
+        self._directive_cache[name] = DirectiveAdapter
+        return DirectiveAdapter
+
 
 # REs for Python signatures
 py_sig_re = re.compile(
@@ -479,7 +509,7 @@ class CDomain(Domain):
 
 
 # this contains all registered domains
-domains = {
+all_domains = {
     'py': PythonDomain,
     'c': CDomain,
 }

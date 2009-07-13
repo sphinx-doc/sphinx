@@ -45,7 +45,6 @@ from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
      docname_join, FilenameUniqDict, url_re
 from sphinx.errors import SphinxError
-from sphinx.domains import domains
 from sphinx.directives import additional_xref_types
 
 orig_role_function = roles.role
@@ -561,6 +560,7 @@ class BuildEnvironment:
         # remove all inventory entries for that file
         if app:
             app.emit('env-purge-doc', self, docname)
+
         self.clear_doc(docname)
 
         if src_path is None:
@@ -600,18 +600,19 @@ class BuildEnvironment:
                     return data
 
         # defaults to the global default, but can be re-set in a document
-        self.default_domain = domains.get(self.config.default_domain)
+        self.default_domain = app.domains.get(self.config.default_domain)
 
         # monkey-patch, so that domain directives take precedence
         def directive(directive_name, language_module, document):
             if ':' in directive_name:
                 domain_name, directive_name = directive_name.split(':', 1)
-                if domain_name in domains:
-                    domain = domains[domain_name]
-                    if directive_name in domain.directives:
-                        return domain.directives[directive_name], []
+                if domain_name in app.domains:
+                    domain = app.domains[domain_name]
+                    directive = domain.directive(directive_name)
+                    if directive is not None:
+                        return directive, []
             elif self.default_domain is not None:
-                directive = self.default_domain.directives.get(directive_name)
+                directive = self.default_domain.directive(directive_name)
                 if directive is not None:
                     return directive, []
             return orig_directive_function(directive_name, language_module,
@@ -621,12 +622,13 @@ class BuildEnvironment:
         def role(role_name, language_module, lineno, reporter):
             if ':' in role_name:
                 domain_name, role_name = role_name.split(':', 1)
-                if domain_name in domains:
-                    domain = domains[domain_name]
-                    if role_name in domain.roles:
-                        return domain.roles[role_name], []
+                if domain_name in app.domains:
+                    domain = app.domains[domain_name]
+                    role = domain.role(role_name)
+                    if role is not None:
+                        return role, []
             elif self.default_domain is not None:
-                role = self.default_domain.roles.get(role_name)
+                role = self.default_domain.role(role_name)
                 if role is not None:
                     return role, []
             return orig_role_function(role_name, language_module,
@@ -678,6 +680,7 @@ class BuildEnvironment:
         self.docname = None
         self.currmodule = None
         self.currclass = None
+        self.default_domain = None
         self.gloss_entries = set()
 
         if save_parsed:

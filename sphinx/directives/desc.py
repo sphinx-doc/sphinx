@@ -366,7 +366,8 @@ class DefaultDomain(Directive):
     def run(self):
         env = self.state.document.settings.env
         domain_name = arguments[0]
-        env.default_domain = domains.get(domain_name)
+        # XXX won't work
+        env.default_domain = env.domains.get(domain_name)
 
 
 # Note: the target directive is not registered here, it is used by the
