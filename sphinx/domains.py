@@ -33,9 +33,10 @@ class Domain(object):
             return self._role_cache[name]
         if name not in self.roles:
             return None
+        fullname = '%s:%s' % (self.name, name)
         def role_adapter(typ, rawtext, text, lineno, inliner,
                          options={}, content=[]):
-            return self.roles[name](name, rawtext, text, lineno,
+            return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
         return role_adapter
@@ -45,10 +46,11 @@ class Domain(object):
             return self._directive_cache[name]
         if name not in self.directives:
             return None
+        fullname = '%s:%s' % (self.name, name)
         BaseDirective = self.directives[name]
         class DirectiveAdapter(BaseDirective):
             def run(self):
-                self.name = name
+                self.name = fullname
                 return BaseDirective.run(self)
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
@@ -353,15 +355,15 @@ class PythonDomain(Domain):
         'attribute': ClassmemberDesc,
     }
     roles = {
-        'data': PyXRefRole('py'),
-        'exc': PyXRefRole('py'),
-        'func': PyXRefRole('py', True),
-        'class': PyXRefRole('py'),
-        'const': PyXRefRole('py'),
-        'attr': PyXRefRole('py'),
-        'meth': PyXRefRole('py', True),
-        'mod': PyXRefRole('py'),
-        'obj': PyXRefRole('py'),
+        'data': PyXRefRole(),
+        'exc': PyXRefRole(),
+        'func': PyXRefRole(fix_parens=True),
+        'class': PyXRefRole(),
+        'const': PyXRefRole(),
+        'attr': PyXRefRole(),
+        'meth': PyXRefRole(fix_parens=True),
+        'mod': PyXRefRole(),
+        'obj': PyXRefRole(),
     }
 
 
@@ -500,11 +502,11 @@ class CDomain(Domain):
         'var': CDesc,
     }
     roles = {
-        'member': XRefRole('c'),
-        'macro': XRefRole('c'),
-        'func' : XRefRole('c', True),
-        'data': XRefRole('c'),
-        'type': XRefRole('c'),
+        'member': XRefRole(),
+        'macro': XRefRole(),
+        'func' : XRefRole(fix_parens=True),
+        'data': XRefRole(),
+        'type': XRefRole(),
     }
 
 

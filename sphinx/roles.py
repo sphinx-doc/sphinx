@@ -137,9 +137,8 @@ class XRefRole(object):
     nodeclass = addnodes.pending_xref
     innernodeclass = nodes.literal
 
-    def __init__(self, domain_name, fix_parens=False, lowercase=False,
+    def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None):
-        self.domain_name = domain_name
         self.fix_parens = fix_parens
         if nodeclass is not None:
             self.nodeclass = nodeclass
@@ -169,10 +168,10 @@ class XRefRole(object):
             typ = env.config.default_role
         else:
             typ = typ.lower()
-        if ":" in typ:
-            domain, role = typ.split(":", 1)
+        if ':' not in typ:
+            domain, role = '', typ
         else:
-            domain, role = self.domain_name, typ
+            domain, role = typ.split(':', 1)
         text = utils.unescape(text)
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
@@ -212,13 +211,13 @@ class OptionXRefRole(XRefRole):
 
 
 specific_docroles = {
-    'keyword': XRefRole(''),
-    'ref': XRefRole('', lowercase=True, innernodeclass=nodes.emphasis),
-    'token': XRefRole(''),
-    'term': XRefRole('', lowercase=True, innernodeclass=nodes.emphasis),
-    'option': OptionXRefRole('', innernodeclass=addnodes.literal_emphasis),
-    'doc': XRefRole(''),
-    'download': XRefRole('', nodeclass=addnodes.download_reference),
+    'keyword': XRefRole(),
+    'ref': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+    'token': XRefRole(),
+    'term': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+    'option': OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
+    'doc': XRefRole(),
+    'download': XRefRole(nodeclass=addnodes.download_reference),
 
     'menuselection': menusel_role,
     'file': emph_literal_role,
