@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~
 
     Support for domains, which are groupings of description directives
-    describing e.g. constructs of one programming language.
+    and roles describing e.g. constructs of one programming language.
 
     :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -23,12 +23,22 @@ class Domain(object):
     roles = {}
     label = ''
 
-    def __init__(self, app):
-        self.app = app
+    def __init__(self):
         self._role_cache = {}
         self._directive_cache = {}
 
+    def __getstate__(self):
+        # can't pickle the adapter caches
+        state = self.__dict__.copy()
+        state['_role_cache'] = {}
+        state['_directive_cache'] = {}
+        return state
+
     def role(self, name):
+        """
+        Return a role adapter function that always gives the registered
+        role its full name ('domain:name') as the first argument.
+        """
         if name in self._role_cache:
             return self._role_cache[name]
         if name not in self.roles:
@@ -42,6 +52,10 @@ class Domain(object):
         return role_adapter
         
     def directive(self, name):
+        """
+        Return a directive adapter class that always gives the registered
+        directive its full name ('domain:name') as ``self.name``.
+        """
         if name in self._directive_cache:
             return self._directive_cache[name]
         if name not in self.directives:
@@ -54,6 +68,9 @@ class Domain(object):
                 return BaseDirective.run(self)
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
+
+    def resolve_xref(self, typ, target, node, contnode):
+        pass
 
 
 # REs for Python signatures
@@ -365,6 +382,100 @@ class PythonDomain(Domain):
         'mod': PyXRefRole(),
         'obj': PyXRefRole(),
     }
+
+    def find_desc(self, env, modname, classname, name, type, searchorder=0):
+        """Find a description node matching "name", perhaps using
+           the given module and/or classname."""
+        # skip parens
+        if name[-2:] == '()':
+            name = name[:-2]
+
+        if not name:
+            return None, None
+
+        # don't add module and class names for C things
+        if type[0] == 'c' and type not in ('class', 'const'):
+            # skip trailing star and whitespace
+            name = name.rstrip(' *')
+            if name in env.descrefs and env.descrefs[name][1][0] == 'c':
+                return name, env.descrefs[name]
+            return None, None
+
+        newname = None
+        if searchorder == 1:
+            if modname and classname and \
+                   modname + '.' + classname + '.' + name in env.descrefs:
+                newname = modname + '.' + classname + '.' + name
+            elif modname and modname + '.' + name in env.descrefs:
+                newname = modname + '.' + name
+            elif name in env.descrefs:
+                newname = name
+        else:
+            if name in env.descrefs:
+                newname = name
+            elif modname and modname + '.' + name in env.descrefs:
+                newname = modname + '.' + name
+            elif modname and classname and \
+                     modname + '.' + classname + '.' + name in env.descrefs:
+                newname = modname + '.' + classname + '.' + name
+            # special case: builtin exceptions have module "exceptions" set
+            elif type == 'exc' and '.' not in name and \
+                 'exceptions.' + name in env.descrefs:
+                newname = 'exceptions.' + name
+            # special case: object methods
+            elif type in ('func', 'meth') and '.' not in name and \
+                 'object.' + name in env.descrefs:
+                newname = 'object.' + name
+        if newname is None:
+            return None, None
+        return newname, env.descrefs[newname]
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+
+        if typ == 'mod' or \
+           typ == 'obj' and target in env.modules:
+            docname, synopsis, platform, deprecated = \
+                env.modules.get(target, ('','','', ''))
+            if not docname:
+                newnode = builder.app.emit_firstresult(
+                    'missing-reference', env, node, contnode)
+                if not newnode:
+                    newnode = contnode
+            elif docname == fromdocname:
+                # don't link to self
+                newnode = contnode
+            else:
+                newnode = nodes.reference('', '')
+                newnode['refuri'] = builder.get_relative_uri(
+                    fromdocname, docname) + '#module-' + target
+                newnode['reftitle'] = '%s%s%s' % (
+                    (platform and '(%s) ' % platform),
+                    synopsis, (deprecated and ' (deprecated)' or ''))
+                newnode.append(contnode)
+        elif typ in env.descroles:
+            # "descrefs"
+            modname = node['modname']
+            clsname = node['classname']
+            searchorder = node.hasattr('refspecific') and 1 or 0
+            name, desc = self.find_desc(env, modname, clsname,
+                                        target, typ, searchorder)
+            if not desc:
+                newnode = builder.app.emit_firstresult(
+                    'missing-reference', env, node, contnode)
+                if not newnode:
+                    newnode = contnode
+            else:
+                newnode = nodes.reference('', '')
+                if desc[0] == fromdocname:
+                    newnode['refid'] = name
+                else:
+                    newnode['refuri'] = (
+                        builder.get_relative_uri(fromdocname, desc[0])
+                        + '#' + name)
+                newnode['reftitle'] = name
+                newnode.append(contnode)
+
 
 
 # RE to split at word boundaries

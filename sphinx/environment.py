@@ -1204,6 +1204,7 @@ class BuildEnvironment:
                            'cdata', 'ctype', 'cmacro'))
 
     def resolve_references(self, doctree, fromdocname, builder):
+        # XXX remove this
         reftarget_roles = set(('token', 'term', 'citation'))
         # add all custom xref types too
         reftarget_roles.update(i[0] for i in additional_xref_types.values())
@@ -1216,7 +1217,15 @@ class BuildEnvironment:
             target = node['reftarget']
 
             try:
-                if typ == 'ref':
+                if node.has_key('refdomain'):
+                    # let the domain resolve the reference
+                    try:
+                        domain = builder.app.domains[node['refdomain']]
+                    except KeyError:
+                        raise NoUri
+                    newnode = domain.resolve_xref(self, fromdocname, builder,
+                                                  typ, target, node, contnode)
+                elif typ == 'ref':
                     if node['refcaption']:
                         # reference to anonymous label; the reference uses
                         # the supplied link caption
@@ -1322,48 +1331,6 @@ class BuildEnvironment:
                         else:
                             newnode['refuri'] = builder.get_relative_uri(
                                 fromdocname, docname, typ) + '#' + labelid
-                        newnode.append(contnode)
-                elif typ == 'mod' or \
-                         typ == 'obj' and target in self.modules:
-                    docname, synopsis, platform, deprecated = \
-                        self.modules.get(target, ('','','', ''))
-                    if not docname:
-                        newnode = builder.app.emit_firstresult(
-                            'missing-reference', self, node, contnode)
-                        if not newnode:
-                            newnode = contnode
-                    elif docname == fromdocname:
-                        # don't link to self
-                        newnode = contnode
-                    else:
-                        newnode = nodes.reference('', '')
-                        newnode['refuri'] = builder.get_relative_uri(
-                            fromdocname, docname) + '#module-' + target
-                        newnode['reftitle'] = '%s%s%s' % (
-                            (platform and '(%s) ' % platform),
-                            synopsis, (deprecated and ' (deprecated)' or ''))
-                        newnode.append(contnode)
-                elif typ in self.descroles:
-                    # "descrefs"
-                    modname = node['modname']
-                    clsname = node['classname']
-                    searchorder = node.hasattr('refspecific') and 1 or 0
-                    name, desc = self.find_desc(modname, clsname,
-                                                target, typ, searchorder)
-                    if not desc:
-                        newnode = builder.app.emit_firstresult(
-                            'missing-reference', self, node, contnode)
-                        if not newnode:
-                            newnode = contnode
-                    else:
-                        newnode = nodes.reference('', '')
-                        if desc[0] == fromdocname:
-                            newnode['refid'] = name
-                        else:
-                            newnode['refuri'] = (
-                                builder.get_relative_uri(fromdocname, desc[0])
-                                + '#' + name)
-                        newnode['reftitle'] = name
                         newnode.append(contnode)
                 else:
                     raise RuntimeError('unknown xfileref node encountered: %s'
@@ -1595,52 +1562,3 @@ class BuildEnvironment:
                     # the master file is not included anywhere ;)
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
-
-    # --------- QUERYING -------------------------------------------------------
-
-    def find_desc(self, modname, classname, name, type, searchorder=0):
-        """Find a description node matching "name", perhaps using
-           the given module and/or classname."""
-        # skip parens
-        if name[-2:] == '()':
-            name = name[:-2]
-
-        if not name:
-            return None, None
-
-        # don't add module and class names for C things
-        if type[0] == 'c' and type not in ('class', 'const'):
-            # skip trailing star and whitespace
-            name = name.rstrip(' *')
-            if name in self.descrefs and self.descrefs[name][1][0] == 'c':
-                return name, self.descrefs[name]
-            return None, None
-
-        newname = None
-        if searchorder == 1:
-            if modname and classname and \
-                   modname + '.' + classname + '.' + name in self.descrefs:
-                newname = modname + '.' + classname + '.' + name
-            elif modname and modname + '.' + name in self.descrefs:
-                newname = modname + '.' + name
-            elif name in self.descrefs:
-                newname = name
-        else:
-            if name in self.descrefs:
-                newname = name
-            elif modname and modname + '.' + name in self.descrefs:
-                newname = modname + '.' + name
-            elif modname and classname and \
-                     modname + '.' + classname + '.' + name in self.descrefs:
-                newname = modname + '.' + classname + '.' + name
-            # special case: builtin exceptions have module "exceptions" set
-            elif type == 'exc' and '.' not in name and \
-                 'exceptions.' + name in self.descrefs:
-                newname = 'exceptions.' + name
-            # special case: object methods
-            elif type in ('func', 'meth') and '.' not in name and \
-                 'object.' + name in self.descrefs:
-                newname = 'object.' + name
-        if newname is None:
-            return None, None
-        return newname, self.descrefs[newname]
