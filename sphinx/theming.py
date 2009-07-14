@@ -78,7 +78,7 @@ class Theme(object):
                 dirname = path.dirname(name)
                 if not path.isdir(path.join(self.themedir, dirname)):
                     os.makedirs(path.join(self.themedir, dirname))
-                fp = open(path.join(self.themedir, name), 'w')
+                fp = open(path.join(self.themedir, name), 'wb')
                 fp.write(tinfo.read(name))
                 fp.close()
 
