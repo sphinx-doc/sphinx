@@ -4,17 +4,23 @@
     ~~~~~~~~~~~~~~
 
     Support for domains, which are groupings of description directives
-    describing e.g. constructs of one programming language.
+    and roles describing e.g. constructs of one programming language.
 
     :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import string
+
+from docutils import nodes
+from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
 from sphinx.directives import DescDirective
+from sphinx.util import make_refnode
+from sphinx.util.compat import Directive
 
 
 class Domain(object):
@@ -22,6 +28,68 @@ class Domain(object):
     directives = {}
     roles = {}
     label = ''
+
+    # data value for a fresh environment
+    initial_data = {}
+    # data version
+    data_version = 0
+
+    def __init__(self, env):
+        self.env = env
+        if self.name not in env.domaindata:
+            new_data = self.initial_data.copy()
+            new_data['version'] = self.data_version
+            self.data = env.domaindata[self.name] = new_data
+        else:
+            self.data = env.domaindata[self.name]
+            if self.data['version'] < self.data_version:
+                raise IOError('data of %r domain out of date' % self.label)
+        self._role_cache = {}
+        self._directive_cache = {}
+
+    def clear_doc(self, docname):
+        """
+        Remove traces of a document in the domain-specific inventories.
+        """
+        pass
+
+    def role(self, name):
+        """
+        Return a role adapter function that always gives the registered
+        role its full name ('domain:name') as the first argument.
+        """
+        if name in self._role_cache:
+            return self._role_cache[name]
+        if name not in self.roles:
+            return None
+        fullname = '%s:%s' % (self.name, name)
+        def role_adapter(typ, rawtext, text, lineno, inliner,
+                         options={}, content=[]):
+            return self.roles[name](fullname, rawtext, text, lineno,
+                                    inliner, options, content)
+        self._role_cache[name] = role_adapter
+        return role_adapter
+
+    def directive(self, name):
+        """
+        Return a directive adapter class that always gives the registered
+        directive its full name ('domain:name') as ``self.name``.
+        """
+        if name in self._directive_cache:
+            return self._directive_cache[name]
+        if name not in self.directives:
+            return None
+        fullname = '%s:%s' % (self.name, name)
+        BaseDirective = self.directives[name]
+        class DirectiveAdapter(BaseDirective):
+            def run(self):
+                self.name = fullname
+                return BaseDirective.run(self)
+        self._directive_cache[name] = DirectiveAdapter
+        return DirectiveAdapter
+
+    def resolve_xref(self, typ, target, node, contnode):
+        pass
 
 
 # REs for Python signatures
@@ -146,7 +214,15 @@ class PythonDesc(DescDirective):
             signode['ids'].append(fullname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            self.env.note_descref(fullname, self.desctype, self.lineno)
+            objects = self.env.domaindata['py']['objects']
+            if fullname in objects:
+                self.env.warn(
+                    self.env.docname,
+                    'duplicate object description of %s, ' % fullname +
+                    'other instance in ' +
+                    self.env.doc2path(objects[fullname][0]),
+                    self.lineno)
+            objects[fullname] = (self.env.docname, self.desctype)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -286,6 +362,75 @@ class ClassmemberDesc(PythonDesc):
             self.clsname_set = True
 
 
+class PyModule(Directive):
+    """
+    Directive to mark description of a new module.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {
+        'platform': lambda x: x,
+        'synopsis': lambda x: x,
+        'noindex': directives.flag,
+        'deprecated': directives.flag,
+    }
+
+    def run(self):
+        env = self.state.document.settings.env
+        modname = self.arguments[0].strip()
+        noindex = 'noindex' in self.options
+        env.currmodule = modname
+        env.domaindata['py']['modules'][modname] = \
+            (env.docname, self.options.get('synopsis', ''),
+             self.options.get('platform', ''), 'deprecated' in self.options)
+        modulenode = addnodes.module()
+        modulenode['modname'] = modname
+        modulenode['synopsis'] = self.options.get('synopsis', '')
+        targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
+        self.state.document.note_explicit_target(targetnode)
+        ret = [modulenode, targetnode]
+        if 'platform' in self.options:
+            platform = self.options['platform']
+            modulenode['platform'] = platform
+            node = nodes.paragraph()
+            node += nodes.emphasis('', _('Platforms: '))
+            node += nodes.Text(platform, platform)
+            ret.append(node)
+        # the synopsis isn't printed; in fact, it is only used in the
+        # modindex currently
+        if not noindex:
+            indextext = _('%s (module)') % modname
+            inode = addnodes.index(entries=[('single', indextext,
+                                             'module-' + modname, modname)])
+            ret.insert(0, inode)
+        return ret
+
+
+class PyCurrentModule(Directive):
+    """
+    This directive is just to tell Sphinx that we're documenting
+    stuff in module foo, but links to module foo won't lead here.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
+
+    def run(self):
+        env = self.state.document.settings.env
+        modname = self.arguments[0].strip()
+        if modname == 'None':
+            env.currmodule = None
+        else:
+            env.currmodule = modname
+        return []
+
+
 class PyXRefRole(XRefRole):
     def process_link(self, env, pnode, has_explicit_title, title, target):
         pnode['modname'] = env.currmodule
@@ -321,18 +466,105 @@ class PythonDomain(Domain):
         'classmethod': ClassmemberDesc,
         'staticmethod': ClassmemberDesc,
         'attribute': ClassmemberDesc,
+        'module': PyModule,
+        'currentmodule': PyCurrentModule,
     }
     roles = {
-        'data': PyXRefRole('py'),
-        'exc': PyXRefRole('py'),
-        'func': PyXRefRole('py', True),
-        'class': PyXRefRole('py'),
-        'const': PyXRefRole('py'),
-        'attr': PyXRefRole('py'),
-        'meth': PyXRefRole('py', True),
-        'mod': PyXRefRole('py'),
-        'obj': PyXRefRole('py'),
+        'data': PyXRefRole(),
+        'exc': PyXRefRole(),
+        'func': PyXRefRole(fix_parens=True),
+        'class': PyXRefRole(),
+        'const': PyXRefRole(),
+        'attr': PyXRefRole(),
+        'meth': PyXRefRole(fix_parens=True),
+        'mod': PyXRefRole(),
+        'obj': PyXRefRole(),
     }
+    initial_data = {
+        'objects': {},  # fullname -> docname, desctype
+        'modules': {},  # modname -> docname, synopsis, platform, deprecated
+    }
+
+    def clear_doc(self, docname):
+        for fullname, (fn, _) in self.data['objects'].items():
+            if fn == docname:
+                del self.data['objects'][fullname]
+        for modname, (fn, _, _, _) in self.data['modules'].items():
+            if fn == docname:
+                del self.data['modules'][modname]
+
+    def find_desc(self, env, modname, classname, name, type, searchorder=0):
+        """
+        Find a Python object description for "name", perhaps using the given
+        module and/or classname.
+        """
+        # skip parens
+        if name[-2:] == '()':
+            name = name[:-2]
+
+        if not name:
+            return None, None
+
+        objects = self.data['objects']
+
+        newname = None
+        if searchorder == 1:
+            if modname and classname and \
+                   modname + '.' + classname + '.' + name in objects:
+                newname = modname + '.' + classname + '.' + name
+            elif modname and modname + '.' + name in objects:
+                newname = modname + '.' + name
+            elif name in objects:
+                newname = name
+        else:
+            if name in objects:
+                newname = name
+            elif modname and modname + '.' + name in objects:
+                newname = modname + '.' + name
+            elif modname and classname and \
+                     modname + '.' + classname + '.' + name in objects:
+                newname = modname + '.' + classname + '.' + name
+            # special case: builtin exceptions have module "exceptions" set
+            elif type == 'exc' and '.' not in name and \
+                 'exceptions.' + name in objects:
+                newname = 'exceptions.' + name
+            # special case: object methods
+            elif type in ('func', 'meth') and '.' not in name and \
+                 'object.' + name in objects:
+                newname = 'object.' + name
+        if newname is None:
+            return None, None
+        return newname, objects[newname]
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        if (typ == 'mod' or
+            typ == 'obj' and target in self.data['modules']):
+            docname, synopsis, platform, deprecated = \
+                self.data['modules'].get(target, ('','','', ''))
+            if not docname:
+                return None
+            elif docname == fromdocname:
+                # don't link to self
+                return contnode
+            else:
+                title = '%s%s%s' % ((platform and '(%s) ' % platform),
+                                    synopsis,
+                                    (deprecated and ' (deprecated)' or ''))
+                return make_refnode(builder, fromdocname, docname,
+                                    'module-' + target, contnode, title)
+        else:
+            modname = node['modname']
+            clsname = node['classname']
+            searchorder = node.hasattr('refspecific') and 1 or 0
+            name, desc = self.find_desc(env, modname, clsname,
+                                        target, typ, searchorder)
+            if not desc:
+                return None
+            else:
+                return make_refnode(builder, fromdocname, desc[0], name,
+                                    contnode, name)
+
 
 
 # RE to split at word boundaries
@@ -370,7 +602,7 @@ class CDesc(DescDirective):
             if part[0] in string.ascii_letters+'_' and \
                    part not in self.stopwords:
                 pnode = addnodes.pending_xref(
-                    '', reftype='ctype', reftarget=part,
+                    '', refdomain='c', reftype='type', reftarget=part,
                     modname=None, classname=None)
                 pnode += tnode
                 node += pnode
@@ -451,7 +683,14 @@ class CDesc(DescDirective):
             signode['ids'].append(name)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            self.env.note_descref(name, self.desctype, self.lineno)
+            inv = self.env.domaindata['c']['objects']
+            if name in inv:
+                self.env.warn(
+                    self.env.docname,
+                    'duplicate C object description of %s, ' % name +
+                    'other instance in ' + self.env.doc2path(inv[name][0]),
+                    self.lineno)
+            inv[name] = (self.env.docname, self.desctype)
 
         indextext = self.get_index_text(name)
         if indextext:
@@ -470,16 +709,33 @@ class CDomain(Domain):
         'var': CDesc,
     }
     roles = {
-        'member': XRefRole('c'),
-        'macro': XRefRole('c'),
-        'func' : XRefRole('c', True),
-        'data': XRefRole('c'),
-        'type': XRefRole('c'),
+        'member': XRefRole(),
+        'macro': XRefRole(),
+        'func' : XRefRole(fix_parens=True),
+        'data': XRefRole(),
+        'type': XRefRole(),
     }
+    initial_data = {
+        'objects': {},  # fullname -> docname, desctype
+    }
+
+    def clear_doc(self, docname):
+        for fullname, (fn, _) in self.data['objects'].items():
+            if fn == docname:
+                del self.data['objects'][fullname]
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        # strip pointer asterisk
+        target = target.rstrip(' *')
+        if target not in self.data:
+            return None
+        desc = self.data[target]
+        return make_refnode(builder, fromdocname, desc[0], contnode, target)
 
 
 # this contains all registered domains
-domains = {
+all_domains = {
     'py': PythonDomain,
     'c': CDomain,
 }

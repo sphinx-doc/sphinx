@@ -43,9 +43,8 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict, url_re
+     docname_join, FilenameUniqDict, url_re, make_refnode
 from sphinx.errors import SphinxError
-from sphinx.domains import domains
 from sphinx.directives import additional_xref_types
 
 orig_role_function = roles.role
@@ -214,9 +213,9 @@ class BuildEnvironment:
             env = pickle.load(picklefile)
         finally:
             picklefile.close()
-        env.config.values = config.values
         if env.version != ENV_VERSION:
             raise IOError('env version not current')
+        env.config.values = config.values
         return env
 
     def topickle(self, filename):
@@ -225,6 +224,8 @@ class BuildEnvironment:
         self.set_warnfunc(None)
         values = self.config.values
         del self.config.values
+        domains = self.domains
+        del self.domains
         # first write to a temporary file, so that if dumping fails,
         # the existing environment won't be overwritten
         picklefile = open(filename + '.tmp', 'wb')
@@ -241,6 +242,7 @@ class BuildEnvironment:
             picklefile.close()
         movefile(filename + '.tmp', filename)
         # reset attributes
+        self.domains = domains
         self.config.values = values
         self.set_warnfunc(warnfunc)
 
@@ -253,6 +255,9 @@ class BuildEnvironment:
 
         # the application object; only set while update() runs
         self.app = None
+
+        # all the registered domains, set by the application
+        self.domains = {}
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -292,10 +297,10 @@ class BuildEnvironment:
         self.glob_toctrees = set()  # docnames that have :glob: toctrees
         self.numbered_toctrees = set() # docnames that have :numbered: toctrees
 
+        # domain-specific inventories, here to be pickled
+        self.domaindata = {}        # domainname -> domain-specific object
+
         # X-ref target inventory
-        self.descrefs = {}          # fullname -> docname, desctype
-        self.modules = {}           # modname -> docname, synopsis,
-                                    #            platform, deprecated
         self.labels = {}            # labelname -> docname, labelid, sectionname
         self.anonlabels = {}        # labelname -> docname, labelid
         self.progoptions = {}       # (program, name) -> docname, labelid
@@ -363,12 +368,6 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for fullname, (fn, _) in self.descrefs.items():
-                if fn == docname:
-                    del self.descrefs[fullname]
-            for modname, (fn, _, _, _) in self.modules.items():
-                if fn == docname:
-                    del self.modules[modname]
             for labelname, (fn, _, _) in self.labels.items():
                 if fn == docname:
                     del self.labels[labelname]
@@ -381,6 +380,10 @@ class BuildEnvironment:
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
+
+        # XXX why does this not work inside the if?
+        for domain in self.domains.values():
+            domain.clear_doc(docname)
 
     def doc2path(self, docname, base=True, suffix=None):
         """
@@ -561,6 +564,7 @@ class BuildEnvironment:
         # remove all inventory entries for that file
         if app:
             app.emit('env-purge-doc', self, docname)
+
         self.clear_doc(docname)
 
         if src_path is None:
@@ -600,18 +604,20 @@ class BuildEnvironment:
                     return data
 
         # defaults to the global default, but can be re-set in a document
-        self.default_domain = domains.get(self.config.default_domain)
+        self.default_domain = self.domains.get(self.config.default_domain)
 
         # monkey-patch, so that domain directives take precedence
         def directive(directive_name, language_module, document):
+            directive_name = directive_name.lower()
             if ':' in directive_name:
                 domain_name, directive_name = directive_name.split(':', 1)
-                if domain_name in domains:
-                    domain = domains[domain_name]
-                    if directive_name in domain.directives:
-                        return domain.directives[directive_name], []
+                if domain_name in self.domains:
+                    domain = self.domains[domain_name]
+                    directive = domain.directive(directive_name)
+                    if directive is not None:
+                        return directive, []
             elif self.default_domain is not None:
-                directive = self.default_domain.directives.get(directive_name)
+                directive = self.default_domain.directive(directive_name)
                 if directive is not None:
                     return directive, []
             return orig_directive_function(directive_name, language_module,
@@ -619,14 +625,16 @@ class BuildEnvironment:
         directives.directive = directive
 
         def role(role_name, language_module, lineno, reporter):
+            role_name = role_name.lower()
             if ':' in role_name:
                 domain_name, role_name = role_name.split(':', 1)
-                if domain_name in domains:
-                    domain = domains[domain_name]
-                    if role_name in domain.roles:
-                        return domain.roles[role_name], []
+                if domain_name in self.domains:
+                    domain = self.domains[domain_name]
+                    role = domain.role(role_name)
+                    if role is not None:
+                        return role, []
             elif self.default_domain is not None:
-                role = self.default_domain.roles.get(role_name)
+                role = self.default_domain.role(role_name)
                 if role is not None:
                     return role, []
             return orig_role_function(role_name, language_module,
@@ -678,6 +686,7 @@ class BuildEnvironment:
         self.docname = None
         self.currmodule = None
         self.currclass = None
+        self.default_domain = None
         self.gloss_entries = set()
 
         if save_parsed:
@@ -987,18 +996,6 @@ class BuildEnvironment:
     # -------
     # these are called from docutils directives and therefore use self.docname
     #
-    def note_descref(self, fullname, desctype, line):
-        if fullname in self.descrefs:
-            self.warn(self.docname,
-                      'duplicate canonical description name %s, ' % fullname +
-                      'other instance in ' +
-                      self.doc2path(self.descrefs[fullname][0]),
-                      line)
-        self.descrefs[fullname] = (self.docname, desctype)
-
-    def note_module(self, modname, synopsis, platform, deprecated):
-        self.modules[modname] = (self.docname, synopsis, platform, deprecated)
-
     def note_progoption(self, optname, labelid):
         self.progoptions[self.currprogram, optname] = (self.docname, labelid)
 
@@ -1196,11 +1193,8 @@ class BuildEnvironment:
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
-    descroles = frozenset(('data', 'exc', 'func', 'class', 'const',
-                           'attr', 'obj', 'meth', 'cfunc', 'cmember',
-                           'cdata', 'ctype', 'cmacro'))
-
     def resolve_references(self, doctree, fromdocname, builder):
+        # XXX remove this
         reftarget_roles = set(('token', 'term', 'citation'))
         # add all custom xref types too
         reftarget_roles.update(i[0] for i in additional_xref_types.values())
@@ -1213,7 +1207,15 @@ class BuildEnvironment:
             target = node['reftarget']
 
             try:
-                if typ == 'ref':
+                if node.has_key('refdomain'):
+                    # let the domain try to resolve the reference
+                    try:
+                        domain = self.domains[node['refdomain']]
+                    except KeyError:
+                        raise NoUri
+                    newnode = domain.resolve_xref(self, fromdocname, builder,
+                                                  typ, target, node, contnode)
+                elif typ == 'ref':
                     if node['refcaption']:
                         # reference to anonymous label; the reference uses
                         # the supplied link caption
@@ -1278,13 +1280,8 @@ class BuildEnvironment:
                         #self.warn(fromdocname, 'unknown keyword: %s' % target)
                         newnode = contnode
                     else:
-                        newnode = nodes.reference('', '')
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname) + '#' + labelid
-                        newnode.append(contnode)
+                        newnode = make_refnode(builder, fromdocname, docname,
+                                               labelid, contnode)
                 elif typ == 'option':
                     progname = node['refprogram']
                     docname, labelid = self.progoptions.get((progname, target),
@@ -1292,13 +1289,8 @@ class BuildEnvironment:
                     if not docname:
                         newnode = contnode
                     else:
-                        newnode = nodes.reference('', '')
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname) + '#' + labelid
-                        newnode.append(contnode)
+                        newnode = make_refnode(builder, fromdocname, docname,
+                                               labelid, contnode)
                 elif typ in reftarget_roles:
                     docname, labelid = self.reftargets.get((typ, target),
                                                            ('', ''))
@@ -1313,62 +1305,19 @@ class BuildEnvironment:
                                       node.line)
                         newnode = contnode
                     else:
-                        newnode = nodes.reference('', '')
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname, typ) + '#' + labelid
-                        newnode.append(contnode)
-                elif typ == 'mod' or \
-                         typ == 'obj' and target in self.modules:
-                    docname, synopsis, platform, deprecated = \
-                        self.modules.get(target, ('','','', ''))
-                    if not docname:
-                        newnode = builder.app.emit_firstresult(
-                            'missing-reference', self, node, contnode)
-                        if not newnode:
-                            newnode = contnode
-                    elif docname == fromdocname:
-                        # don't link to self
-                        newnode = contnode
-                    else:
-                        newnode = nodes.reference('', '')
-                        newnode['refuri'] = builder.get_relative_uri(
-                            fromdocname, docname) + '#module-' + target
-                        newnode['reftitle'] = '%s%s%s' % (
-                            (platform and '(%s) ' % platform),
-                            synopsis, (deprecated and ' (deprecated)' or ''))
-                        newnode.append(contnode)
-                elif typ in self.descroles:
-                    # "descrefs"
-                    modname = node['modname']
-                    clsname = node['classname']
-                    searchorder = node.hasattr('refspecific') and 1 or 0
-                    name, desc = self.find_desc(modname, clsname,
-                                                target, typ, searchorder)
-                    if not desc:
-                        newnode = builder.app.emit_firstresult(
-                            'missing-reference', self, node, contnode)
-                        if not newnode:
-                            newnode = contnode
-                    else:
-                        newnode = nodes.reference('', '')
-                        if desc[0] == fromdocname:
-                            newnode['refid'] = name
-                        else:
-                            newnode['refuri'] = (
-                                builder.get_relative_uri(fromdocname, desc[0])
-                                + '#' + name)
-                        newnode['reftitle'] = name
-                        newnode.append(contnode)
+                        newnode = make_refnode(builder, fromdocname, docname,
+                                               labelid, contnode)
                 else:
                     raise RuntimeError('unknown xfileref node encountered: %s'
                                        % node)
+
+                # no new node found? try the missing-reference event
+                if newnode is None:
+                    newnode = builder.app.emit_firstresult(
+                        'missing-reference', self, node, contnode)
             except NoUri:
                 newnode = contnode
-            if newnode:
-                node.replace_self(newnode)
+            node.replace_self(newnode or contnode)
 
         for node in doctree.traverse(addnodes.only):
             try:
@@ -1592,52 +1541,3 @@ class BuildEnvironment:
                     # the master file is not included anywhere ;)
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
-
-    # --------- QUERYING -------------------------------------------------------
-
-    def find_desc(self, modname, classname, name, type, searchorder=0):
-        """Find a description node matching "name", perhaps using
-           the given module and/or classname."""
-        # skip parens
-        if name[-2:] == '()':
-            name = name[:-2]
-
-        if not name:
-            return None, None
-
-        # don't add module and class names for C things
-        if type[0] == 'c' and type not in ('class', 'const'):
-            # skip trailing star and whitespace
-            name = name.rstrip(' *')
-            if name in self.descrefs and self.descrefs[name][1][0] == 'c':
-                return name, self.descrefs[name]
-            return None, None
-
-        newname = None
-        if searchorder == 1:
-            if modname and classname and \
-                   modname + '.' + classname + '.' + name in self.descrefs:
-                newname = modname + '.' + classname + '.' + name
-            elif modname and modname + '.' + name in self.descrefs:
-                newname = modname + '.' + name
-            elif name in self.descrefs:
-                newname = name
-        else:
-            if name in self.descrefs:
-                newname = name
-            elif modname and modname + '.' + name in self.descrefs:
-                newname = modname + '.' + name
-            elif modname and classname and \
-                     modname + '.' + classname + '.' + name in self.descrefs:
-                newname = modname + '.' + classname + '.' + name
-            # special case: builtin exceptions have module "exceptions" set
-            elif type == 'exc' and '.' not in name and \
-                 'exceptions.' + name in self.descrefs:
-                newname = 'exceptions.' + name
-            # special case: object methods
-            elif type in ('func', 'meth') and '.' not in name and \
-                 'object.' + name in self.descrefs:
-                newname = 'object.' + name
-        if newname is None:
-            return None, None
-        return newname, self.descrefs[newname]
