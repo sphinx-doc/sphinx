@@ -13,7 +13,6 @@ Writing new builders
 
    These methods are predefined and will be called from the application:
 
-   .. automethod:: load_env
    .. automethod:: get_relative_uri
    .. automethod:: build_all
    .. automethod:: build_specific
