@@ -319,6 +319,7 @@ class BuildEnvironment:
 
         # These are set while parsing a file
         self.docname = None         # current document name
+        # XXX remove currmodule and currclass from here
         self.currmodule = None      # current module name
         self.currclass = None       # current class name
         self.currdesc = None        # current descref name

@@ -334,17 +334,21 @@ class Sphinx(object):
             if depart:
                 setattr(translator, 'depart_'+node.__name__, depart)
 
-    def add_directive(self, name, obj, content=None, arguments=None, **options):
+    def _directive_helper(self, obj, content=None, arguments=None, **options):
         if isinstance(obj, clstypes) and issubclass(obj, Directive):
             if content or arguments or options:
                 raise ExtensionError('when adding directive classes, no '
                                      'additional arguments may be given')
-            directives.register_directive(name, directive_dwim(obj))
+            return directive_dwim(obj)
         else:
             obj.content = content
             obj.arguments = arguments
             obj.options = options
-            directives.register_directive(name, obj)
+            return obj
+
+    def add_directive(self, name, obj, content=None, arguments=None, **options):
+        directives.register_directive(
+            name, self._directive_helper(obj, content, arguments, **options))
 
     def add_role(self, name, role):
         roles.register_local_role(name, role)
@@ -356,9 +360,22 @@ class Sphinx(object):
         roles.register_local_role(name, role)
 
     def add_domain(self, domain):
+        # XXX needs to be documented
         if domain.name in all_domains:
             raise ExtensionError('domain %s already registered' % domain.name)
         all_domains[domain.name] = domain
+
+    def add_directive_to_domain(self, domain, name, obj):
+        # XXX needs to be documented
+        if domain not in all_domains:
+            raise ExtensionError('domain %s not yet registered' % domain)
+        all_domains[domain].directives[name] = self._directive_helper(obj)
+
+    def add_role_to_domain(self, domain, name, role):
+        # XXX needs to be documented
+        if domain not in all_domains:
+            raise ExtensionError('domain %s not yet registered' % domain)
+        all_domains[domain].roles[name] = role
 
     def add_description_unit(self, directivename, rolename, indextemplate='',
                              parse_node=None, ref_nodeclass=None):
