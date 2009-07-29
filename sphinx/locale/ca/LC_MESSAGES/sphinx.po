@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the Sphinx project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.0\n"

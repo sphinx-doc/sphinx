@@ -240,6 +240,7 @@ Project information
 
    Currently supported languages are:
 
+   * ``ca`` -- Catalan
    * ``cs`` -- Czech
    * ``de`` -- German
    * ``en`` -- English
