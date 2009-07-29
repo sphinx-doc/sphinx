@@ -24,6 +24,28 @@ from sphinx.util.compat import Directive
 
 
 class Domain(object):
+    """
+    A Domain is meant to be a group of "object" description directives for
+    objects of a similar nature, and corresponding roles to create references to
+    them.  Examples would be Python modules, classes, functions etc., elements
+    of a templating language, Sphinx roles and directives, etc.
+
+    Each domain has a separate storage for information about existing objects
+    and how to reference them in `data`, which must be a dictionary.  It also
+    must implement several functions that expose the object information in a
+    uniform way to parts of Sphinx that allow the user to reference or search
+    for objects in a domain-agnostic way.
+
+    About `self.data`: since all object and cross-referencing information is
+    stored on a BuildEnvironment instance, the `domain.data` object is also
+    stored in the `env.domaindata` dict under the key `domain.name`.  Before the
+    build process starts, every active domain is instantiated and given the
+    environment object; the `domaindata` dict must then either be nonexistent or
+    a dictionary whose 'version' key is equal to the domain class'
+    `data_version` attribute.  Otherwise, `IOError` is raised and the pickled
+    environment is discarded.
+    """
+
     name = ''
     directives = {}
     roles = {}
@@ -37,12 +59,13 @@ class Domain(object):
     def __init__(self, env):
         self.env = env
         if self.name not in env.domaindata:
+            assert isinstance(self.initial_data, dict)
             new_data = self.initial_data.copy()
             new_data['version'] = self.data_version
             self.data = env.domaindata[self.name] = new_data
         else:
             self.data = env.domaindata[self.name]
-            if self.data['version'] < self.data_version:
+            if self.data['version'] != self.data_version:
                 raise IOError('data of %r domain out of date' % self.label)
         self._role_cache = {}
         self._directive_cache = {}
@@ -80,6 +103,7 @@ class Domain(object):
         if name not in self.directives:
             return None
         fullname = '%s:%s' % (self.name, name)
+        # XXX what about function-style directives?
         BaseDirective = self.directives[name]
         class DirectiveAdapter(BaseDirective):
             def run(self):
@@ -89,6 +113,20 @@ class Domain(object):
         return DirectiveAdapter
 
     def resolve_xref(self, typ, target, node, contnode):
+        """
+        Resolve the ``pending_xref`` *node* with the given *typ* and *target*.
+
+        This method should return a new node, to replace the xref node,
+        containing the *contnode* which is the markup content of the
+        cross-reference.
+
+        If no resolution can be found, None can be returned; the xref node will
+        then given to the 'missing-reference' event, and if that yields no
+        resolution, replaced by *contnode*.
+
+        The method can also raise `sphinx.environment.NoUri` to suppress the
+        'missing-reference' event being emitted.
+        """
         pass
 
 
