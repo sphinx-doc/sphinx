@@ -32,7 +32,7 @@ Release 0.6.2 (Jun 16, 2009)
   ``setup()`` function.
 
 * #158: Allow '..' in template names, and absolute template paths;
-  Jinja 2 by default disables both.  
+  Jinja 2 by default disables both.
 
 * When highlighting Python code, ignore extra indentation before
   trying to parse it as Python.
@@ -90,7 +90,7 @@ Release 0.6.2 (Jun 16, 2009)
 * #134: Fix pending_xref leftover nodes when using the todolist
   directive from the todo extension.
 
-  
+
 Release 0.6.1 (Mar 26, 2009)
 ============================
 
@@ -235,7 +235,7 @@ New features added
     using the ``figwidth`` option and right/left alignment.
 
 * New translations:
-  
+
   - Italian by Sandro Dentella.
   - Ukrainian by Petro Sasnyk.
   - Finnish by Jukka Inkeri.
