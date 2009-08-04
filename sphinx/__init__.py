@@ -13,9 +13,24 @@ import sys
 from os import path
 
 __version__ = '1.0pre'
-__released__ = '1.0 (hg)'
+__released__ = '1.0 (hg)'  # used when Sphinx builds its own docs
 
 package_dir = path.abspath(path.dirname(__file__))
+
+if '+' in __version__ or 'pre' in __version__:
+    # try to find out the changeset hash if checked out from hg, and append
+    # it to __version__ (since we use this value from setup.py, it gets
+    # automatically propagated to an installed copy as well)
+    try:
+        import subprocess
+        p = subprocess.Popen(['hg', 'id', '-i', '-R',
+                              path.join(package_dir, '..')],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = p.communicate()
+        if out:
+            __version__ += '/' + out.strip()
+    except Exception:
+        pass
 
 
 def main(argv=sys.argv):

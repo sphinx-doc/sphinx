@@ -21,7 +21,6 @@ import difflib
 import cPickle as pickle
 from os import path
 from glob import glob
-from string import ascii_uppercase as uppercase
 from itertools import izip, groupby
 try:
     from hashlib import md5
@@ -1406,35 +1405,35 @@ class BuildEnvironment:
 
         for fn, entries in self.indexentries.iteritems():
             # new entry types must be listed in directives/other.py!
-            for type, string, tid, alias in entries:
+            for type, value, tid, alias in entries:
                 if type == 'single':
                     try:
-                        entry, subentry = string.split(';', 1)
+                        entry, subentry = value.split(';', 1)
                     except ValueError:
-                        entry, subentry = string, ''
+                        entry, subentry = value, ''
                     if not entry:
-                        self.warn(fn, 'invalid index entry %r' % string)
+                        self.warn(fn, 'invalid index entry %r' % value)
                         continue
                     add_entry(entry.strip(), subentry.strip())
                 elif type == 'pair':
                     try:
                         first, second = map(lambda x: x.strip(),
-                                            string.split(';', 1))
+                                            value.split(';', 1))
                         if not first or not second:
                             raise ValueError
                     except ValueError:
-                        self.warn(fn, 'invalid pair index entry %r' % string)
+                        self.warn(fn, 'invalid pair index entry %r' % value)
                         continue
                     add_entry(first, second)
                     add_entry(second, first)
                 elif type == 'triple':
                     try:
                         first, second, third = map(lambda x: x.strip(),
-                                                   string.split(';', 2))
+                                                   value.split(';', 2))
                         if not first or not second or not third:
                             raise ValueError
                     except ValueError:
-                        self.warn(fn, 'invalid triple index entry %r' % string)
+                        self.warn(fn, 'invalid triple index entry %r' % value)
                         continue
                     add_entry(first, second+' '+third)
                     add_entry(second, third+', '+first)
@@ -1442,8 +1441,15 @@ class BuildEnvironment:
                 else:
                     self.warn(fn, 'unknown index entry type %r' % type)
 
+        # sort the index entries; put all symbols at the front, even those
+        # following the letters in ASCII, this is where the chr(127) comes from
+        def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
+            lckey = entry[0].lower()
+            if lckey[0:1] in lcletters:
+                return chr(127) + lckey
+            return lckey
         newlist = new.items()
-        newlist.sort(key=lambda t: t[0].lower())
+        newlist.sort(key=keyfunc)
 
         # fixup entries: transform
         #   func() (in module foo)
@@ -1457,7 +1463,7 @@ class BuildEnvironment:
         i = 0
         while i < len(newlist):
             key, (targets, subitems) = newlist[i]
-            # cannot move if it hassubitems; structure gets too complex
+            # cannot move if it has subitems; structure gets too complex
             if not subitems:
                 m = _fixre.match(key)
                 if m:
@@ -1475,12 +1481,12 @@ class BuildEnvironment:
             i += 1
 
         # group the entries by letter
-        def keyfunc((k, v), ltrs=uppercase+'_'):
-            # hack: mutate the subitems dicts to a list in the keyfunc
+        def keyfunc((k, v), letters=string.ascii_uppercase + '_'):
+            # hack: mutating the subitems dicts to a list in the keyfunc
             v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
             # now calculate the key
             letter = k[0].upper()
-            if letter in ltrs:
+            if letter in letters:
                 return letter
             else:
                 # get all other symbols under one heading

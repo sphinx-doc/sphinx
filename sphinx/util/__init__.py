@@ -21,6 +21,9 @@ import posixpath
 import traceback
 from os import path
 
+import docutils
+import sphinx
+
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
@@ -206,6 +209,9 @@ def save_traceback():
     """
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
+    os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
+    os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
+                                                  docutils.__version_details__))
     os.write(fd, exc)
     os.close(fd)
     return path

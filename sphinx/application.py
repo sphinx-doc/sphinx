@@ -89,7 +89,7 @@ class Sphinx(object):
         self._events = events.copy()
 
         # say hello to the world
-        self.info(bold('Running Sphinx v%s' % sphinx.__released__))
+        self.info(bold('Running Sphinx v%s' % sphinx.__version__))
 
         # status code for command-line application
         self.statuscode = 0

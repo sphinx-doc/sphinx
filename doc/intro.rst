@@ -31,6 +31,9 @@ to reStructuredText/Sphinx from other documentation systems.
   <http://svn.python.org/projects/doctools/converter>`_.  It contains generic
   code to convert Python-doc-style LaTeX markup to Sphinx reST.
 
+* Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
+  markup; it is at `Google Code <http://code.google.com/p/db2rst/>`_.
+
 
 Prerequisites
 -------------
