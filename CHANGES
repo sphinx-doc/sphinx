@@ -1,6 +1,8 @@
 Release 0.6.3 (in development)
 ==============================
 
+* Section titles are now allowed inside ``only`` directives.
+
 * #201: Make ``centered`` directive work in LaTeX output.
 
 * #206: Refuse to overwrite an existing master document in
