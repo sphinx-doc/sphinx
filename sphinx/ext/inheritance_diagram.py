@@ -49,6 +49,7 @@ except ImportError:
 from docutils import nodes
 from docutils.parsers.rst import directives
 
+# XXX needs to be adapted
 from sphinx.roles import xfileref_role
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex
 from sphinx.util.compat import Directive

@@ -54,6 +54,7 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
         indexnode['entries'] = [('single', text, targetid, text),
                                 ('single', _('environment variable; %s') % text,
                                  targetid, text)]
+        # XXX needs to be adapted
         xref_nodes = xfileref_role(typ, rawtext, etext, lineno, inliner,
                                    options, content)[0]
         return [indexnode, targetnode] + xref_nodes, []

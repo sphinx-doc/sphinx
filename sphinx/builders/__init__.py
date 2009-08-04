@@ -55,7 +55,6 @@ class Builder(object):
         self.init()
 
     # helper methods
-
     def init(self):
         """
         Load necessary templates and perform initialization.  The default

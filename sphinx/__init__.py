@@ -12,8 +12,7 @@
 import sys
 from os import path
 
-__revision__ = '$Revision$'
-__version__ = '1.0'
+__version__ = '1.0pre'
 __released__ = '1.0 (hg)'
 
 package_dir = path.abspath(path.dirname(__file__))
