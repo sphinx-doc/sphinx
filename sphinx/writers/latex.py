@@ -744,7 +744,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
-        ctx = ']'
+        ctx = '] \\leavevmode'
         if node.has_key('ids') and node['ids']:
             ctx += '\\hypertarget{%s}{}' % node['ids'][0]
         self.body.append('\\item[')
