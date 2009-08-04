@@ -12,7 +12,6 @@
 import sys
 from os import path
 
-__revision__ = '$Revision$'
 __version__ = '0.6.2+'
 __released__ = '0.6.2'
 
