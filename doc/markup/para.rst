@@ -88,9 +88,10 @@ units as well as normal text:
 
    .. note::
 
-      If the *title* of the rubric is "Footnotes", this rubric is ignored by
-      the LaTeX writer, since it is assumed to only contain footnote
-      definitions and therefore would create an empty heading.
+      If the *title* of the rubric is "Footnotes" (or the selected language's
+      equivalent), this rubric is ignored by the LaTeX writer, since it is
+      assumed to only contain footnote definitions and therefore would create an
+      empty heading.
 
 
 .. directive:: centered

@@ -12,6 +12,7 @@
 import os
 import re
 import cgi
+import codecs
 from os import path
 
 from docutils import nodes
@@ -28,7 +29,7 @@ _idpattern = re.compile(
 # It contains references to compressed help files which should be
 # included in the collection.
 # It may contain various other information for customizing Qt Assistant.
-collection_template = '''\
+collection_template = u'''\
 <?xml version="1.0" encoding="utf-8" ?>
 <QHelpCollectionProject version="1.0">
     <docFiles>
@@ -50,7 +51,7 @@ collection_template = '''\
 # It contains the table of contents, indices and references to the
 # actual documentation files (*.html).
 # In addition it defines a unique namespace for the documentation.
-project_template = '''\
+project_template = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <QtHelpProject version="1.0">
     <namespace>%(outname)s.org.%(outname)s.%(nversion)s</namespace>
@@ -109,7 +110,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     def build_qhcp(self, outdir, outname):
         self.info('writing collection project file...')
-        f = open(path.join(outdir, outname+'.qhcp'), 'w')
+        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
         try:
             f.write(collection_template % {'outname': outname})
         finally:
@@ -161,7 +162,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         projectfiles = '\n'.join(projectfiles)
 
         # write the project file
-        f = open(path.join(outdir, outname+'.qhp'), 'w')
+        f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
         try:
             nversion = self.config.version.replace('.', '_')
             nversion = nversion.replace(' ', '_')

@@ -123,7 +123,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('<span class="optional">]</span>')
 
     def visit_desc_annotation(self, node):
-        self.body.append(self.starttag(node, 'em', CLASS='property'))
+        self.body.append(self.starttag(node, 'em', '', CLASS='property'))
     def depart_desc_annotation(self, node):
         self.body.append('</em>')
 
@@ -457,7 +457,7 @@ class HTMLTranslator(BaseTranslator):
         attrs = {}
         if node.hasattr('explanation'):
             attrs['title'] = node['explanation']
-        self.body.append(self.starttag(node, 'abbr', **attrs))
+        self.body.append(self.starttag(node, 'abbr', '', **attrs))
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
