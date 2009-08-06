@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.6\n"
 "Report-Msgid-Bugs-To: zhutao.iscas@gmail.com\n"
 "POT-Creation-Date: 2009-03-09 19:46+0120\n"
-"PO-Revision-Date: 2009-05-22 18:51+0200\n"
+"PO-Revision-Date: 2009-08-06 23:04+0200\n"
 "Last-Translator: Tower Joo<zhutao.iscas@gmail.com>\n"
 "Language-Team: cn <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -18,25 +18,25 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:104 sphinx/writers/latex.py:184
+#: sphinx/environment.py:103 sphinx/writers/latex.py:184
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/environment.py:323 sphinx/themes/basic/genindex-single.html:2
+#: sphinx/environment.py:324 sphinx/themes/basic/genindex-single.html:2
 #: sphinx/themes/basic/genindex-split.html:2
 #: sphinx/themes/basic/genindex-split.html:5
 #: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
-#: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:131
+#: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:134
 #: sphinx/writers/latex.py:190
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/environment.py:324 sphinx/writers/latex.py:189
+#: sphinx/environment.py:325 sphinx/writers/latex.py:189
 msgid "Module Index"
 msgstr "模块索引"
 
-#: sphinx/environment.py:325 sphinx/themes/basic/defindex.html:16
+#: sphinx/environment.py:326 sphinx/themes/basic/defindex.html:16
 msgid "Search Page"
 msgstr "搜索页面"
 
@@ -58,34 +58,34 @@ msgstr "内置"
 msgid "Module level"
 msgstr "模块级别"
 
-#: sphinx/builders/html.py:219
+#: sphinx/builders/html.py:222
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/builders/html.py:238 sphinx/themes/basic/defindex.html:21
+#: sphinx/builders/html.py:241 sphinx/themes/basic/defindex.html:21
 msgid "General Index"
 msgstr "总目录"
 
-#: sphinx/builders/html.py:238
+#: sphinx/builders/html.py:241
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html.py:240 sphinx/builders/htmlhelp.py:184
-#: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
+#: sphinx/builders/html.py:243 sphinx/builders/htmlhelp.py:219
+#: sphinx/builders/qthelp.py:133 sphinx/themes/basic/defindex.html:19
 #: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "全局模块索引"
 
-#: sphinx/builders/html.py:241
+#: sphinx/builders/html.py:244
 msgid "modules"
 msgstr "模块"
 
-#: sphinx/builders/html.py:296
+#: sphinx/builders/html.py:300
 msgid "next"
 msgstr "下一页"
 
-#: sphinx/builders/html.py:305
+#: sphinx/builders/html.py:309
 msgid "previous"
 msgstr "上一页"
 
@@ -209,37 +209,37 @@ msgstr "%s (C 变量)"
 msgid "%scommand line option; %s"
 msgstr "%s命令行选项; %s"
 
-#: sphinx/directives/other.py:138
+#: sphinx/directives/other.py:140
 msgid "Platforms: "
 msgstr "平台"
 
-#: sphinx/directives/other.py:144
+#: sphinx/directives/other.py:146
 #, python-format
 msgid "%s (module)"
 msgstr "%s (模块)"
 
-#: sphinx/directives/other.py:193
+#: sphinx/directives/other.py:195
 msgid "Section author: "
 msgstr "Section 作者："
 
-#: sphinx/directives/other.py:195
+#: sphinx/directives/other.py:197
 msgid "Module author: "
 msgstr "模块作者："
 
-#: sphinx/directives/other.py:197
+#: sphinx/directives/other.py:199
 msgid "Author: "
 msgstr "作者："
 
-#: sphinx/directives/other.py:317
+#: sphinx/directives/other.py:319
 msgid "See also"
 msgstr "也可以参考"
 
-#: sphinx/ext/autodoc.py:888
+#: sphinx/ext/autodoc.py:889
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:919
+#: sphinx/ext/autodoc.py:922
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -432,40 +432,40 @@ msgstr "搜索"
 msgid "Enter search terms or a module, class or function name."
 msgstr "输入相关的模块，术语，类或者函数名称进行搜索"
 
-#: sphinx/themes/basic/layout.html:119
+#: sphinx/themes/basic/layout.html:122
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "在 %(docstitle)s 中搜索"
 
-#: sphinx/themes/basic/layout.html:128
+#: sphinx/themes/basic/layout.html:131
 msgid "About these documents"
 msgstr "关于这些文档"
 
-#: sphinx/themes/basic/layout.html:134 sphinx/themes/basic/search.html:2
+#: sphinx/themes/basic/layout.html:137 sphinx/themes/basic/search.html:2
 #: sphinx/themes/basic/search.html:5
 msgid "Search"
 msgstr "搜索"
 
-#: sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/layout.html:140
 msgid "Copyright"
 msgstr "版权所有"
 
-#: sphinx/themes/basic/layout.html:184
+#: sphinx/themes/basic/layout.html:187
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr "&copy; <a href=\"%(path)s\">版权所有</a> % (copyright)s."
 
-#: sphinx/themes/basic/layout.html:186
+#: sphinx/themes/basic/layout.html:189
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr "&copy; 版权所有 %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:190
+#: sphinx/themes/basic/layout.html:193
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "最后更新日期是 %(last_updated)s."
 
-#: sphinx/themes/basic/layout.html:193
+#: sphinx/themes/basic/layout.html:196
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
@@ -580,11 +580,15 @@ msgstr "搜索完成， 找到了 %s 页匹配所搜索的关键字"
 msgid "Release"
 msgstr "发布"
 
-#: sphinx/writers/latex.py:639
+#: sphinx/writers/latex.py:578
+msgid "Footnotes"
+msgstr ""
+
+#: sphinx/writers/latex.py:646
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:643
+#: sphinx/writers/latex.py:651
 #, fuzzy
 msgid "Continued on next page"
 msgstr "一页的全部索引"
@@ -597,24 +601,4 @@ msgstr "平台：%s"
 #: sphinx/writers/text.py:428
 msgid "[image]"
 msgstr "[图片]"
-
-#~ msgid "Suggest Change"
-#~ msgstr "建议更改"
-
-#~ msgid "Keyword search"
-#~ msgstr "关键字搜索"
-
-#~ msgid "Most popular modules:"
-#~ msgstr "最流行的模块"
-
-#~ msgid "Show modules only available on these platforms"
-#~ msgstr "显示只在这些平台上可用的模块"
-
-#~ msgid ""
-#~ "<strong>Note:</strong> You requested an "
-#~ "out-of-date URL from this server. "
-#~ "We've tried to redirect you to the"
-#~ " new location of this page, but "
-#~ "it may not be the right one."
-#~ msgstr "<strong>注意：</strong> 你向服务器请求了一个过时的链接。 我们试图将你重定向到本页的新位置，但是它可能并非你所期望的位置"
 
