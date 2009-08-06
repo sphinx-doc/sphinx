@@ -567,7 +567,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append("\n\n")
 
     def visit_rubric(self, node):
-        if len(node.children) == 1 and node.children[0].astext() == 'Footnotes':
+        if len(node.children) == 1 and node.children[0].astext() in \
+               ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
         self.body.append('\\paragraph{')
         self.context.append('}\n')
