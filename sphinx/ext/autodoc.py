@@ -25,6 +25,7 @@ from sphinx.util import rpartition, nested_parse_with_titles, force_decode
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util.compat import Directive
+from sphinx.util.inspect import isdescriptor, safe_getmembers, safe_getattr
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -192,25 +193,6 @@ def between(marker, what=None, keepempty=False):
         if lines and lines[-1]:
             lines.append('')
     return process
-
-
-def safe_getattr(obj, name, *defargs):
-    try:
-        return getattr(obj, name, *defargs)
-    except Exception:
-        # this is a catch-all for all the weird things that some modules do
-        # with attribute access
-        if defargs:
-            return defargs[0]
-        raise AttributeError
-
-
-def isdescriptor(x):
-    """Check if the object is some kind of descriptor."""
-    for item in '__get__', '__set__', '__delete__':
-        if hasattr(safe_getattr(x, item, None), '__call__'):
-            return True
-    return False
 
 
 class Documenter(object):
@@ -486,9 +468,9 @@ class Documenter(object):
                                         % (mname, self.fullname))
             return False, ret
         elif self.options.inherited_members:
-            # getmembers() uses dir() which pulls in members from all
+            # safe_getmembers() uses dir() which pulls in members from all
             # base classes
-            return False, inspect.getmembers(self.object)
+            return False, safe_getmembers(self.object)
         else:
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
@@ -728,7 +710,7 @@ class ModuleDocumenter(Documenter):
             if not hasattr(self.object, '__all__'):
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
-                return True, inspect.getmembers(self.object)
+                return True, safe_getmembers(self.object)
             else:
                 memberlist = self.object.__all__
         else:
