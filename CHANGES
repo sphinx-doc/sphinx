@@ -1,6 +1,8 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #232: Support non-ASCII metadata in Qt help builder.
+
 * Properly format bullet lists nested in definition lists for LaTeX.
 
 * Section titles are now allowed inside ``only`` directives.
