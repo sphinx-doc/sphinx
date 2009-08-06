@@ -261,7 +261,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # ... and all others are the appendices
             self.body.append('\n\\appendix\n')
             self.first_document = -1
-        if 'docname' in node:
+        if node.has_key('docname'):
             self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
@@ -640,13 +640,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table.longtable:
             self.body.append('\\hline\n')
             self.body.append('\\endfirsthead\n\n')
-            self.body.append('\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append('{{\\bfseries \\tablename\\ \\thetable{} -- %s}} \\\\\n' % _('continued from previous page'))
-            self.body.append('\\hline\n')
+            self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
+            self.body.append(r'{{\bfseries \tablename\ \thetable{} -- %s}} \\'
+                             % _('continued from previous page'))
+            self.body.append('\n\\hline\n')
             self.body.append('\\endhead\n\n')
-            self.body.append('\\hline \multicolumn{%s}{|r|}{{%s}} \\\\ \\hline\n' % (
-                self.table.colcount, _('Continued on next page')))
-            self.body.append('\\endfoot\n\n')
+            self.body.append(r'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
+                             % (self.table.colcount,
+                                _('Continued on next page')))
+            self.body.append('\n\\endfoot\n\n')
             self.body.append('\\hline\n')
             self.body.append('\\endlastfoot\n\n')
         else:
@@ -749,7 +751,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
-        ctx = ']'
+        ctx = '] \\leavevmode'
         if node.has_key('ids') and node['ids']:
             ctx += '\\hypertarget{%s}{}' % node['ids'][0]
         self.body.append('\\item[')
@@ -789,9 +791,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n')
 
     def visit_centered(self, node):
-        self.body.append('\n\\begin{centering}')
+        self.body.append('\n\\begin{center}')
     def depart_centered(self, node):
-        self.body.append('\n\\end{centering}')
+        self.body.append('\n\\end{center}')
 
     def visit_hlist(self, node):
         # for now, we don't support a more compact list format

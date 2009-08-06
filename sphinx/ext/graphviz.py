@@ -95,7 +95,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
     if hasattr(self.builder, '_graphviz_warned_dot') or \
        hasattr(self.builder, '_graphviz_warned_ps2pdf'):
-        return None
+        return None, None
 
     ensuredir(path.dirname(outfn))
 
@@ -114,7 +114,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
                           'output), check the graphviz_dot setting' %
                           self.builder.config.graphviz_dot)
         self.builder._graphviz_warned_dot = True
-        return None
+        return None, None
     # graphviz expects UTF-8 by default
     if isinstance(code, unicode):
         code = code.encode('utf-8')
@@ -169,7 +169,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         raise nodes.SkipNode
 
     if fname is not None:
-        self.body.append('\\includegraphics[]{%s}' % fname)
+        self.body.append('\\includegraphics{%s}' % fname)
     raise nodes.SkipNode
 
 

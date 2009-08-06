@@ -194,10 +194,21 @@ def between(marker, what=None, keepempty=False):
     return process
 
 
+def safe_getattr(obj, name, *defargs):
+    try:
+        return getattr(obj, name, *defargs)
+    except Exception:
+        # this is a catch-all for all the weird things that some modules do
+        # with attribute access
+        if defargs:
+            return defargs[0]
+        raise AttributeError
+
+
 def isdescriptor(x):
     """Check if the object is some kind of descriptor."""
     for item in '__get__', '__set__', '__delete__':
-        if hasattr(getattr(x, item, None), '__call__'):
+        if hasattr(safe_getattr(x, item, None), '__call__'):
             return True
     return False
 
@@ -235,7 +246,7 @@ class Documenter(object):
         for typ, func in AutoDirective._special_attrgetters.iteritems():
             if isinstance(obj, typ):
                 return func(obj, name, *defargs)
-        return getattr(obj, name, *defargs)
+        return safe_getattr(obj, name, *defargs)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -731,11 +742,12 @@ class ModuleDocumenter(Documenter):
         ret = []
         for mname in memberlist:
             try:
-                ret.append((mname, getattr(self.object, mname)))
+                ret.append((mname, safe_getattr(self.object, mname)))
             except AttributeError:
-                self.directive.warn('missing attribute mentioned in :members: '
-                                    'or __all__: module %s, attribute %s' %
-                                    (self.object.__name__, mname))
+                self.directive.warn(
+                    'missing attribute mentioned in :members: or __all__: '
+                    'module %s, attribute %s' % (
+                    safe_getattr(self.object, '__name__', '???'), mname))
         return False, ret
 
 
@@ -922,9 +934,12 @@ class ClassDocumenter(ModuleLevelDocumenter):
 
     def add_content(self, more_content, no_docstring=False):
         if self.doc_as_attr:
-            content = ViewList(
-                [_('alias of :class:`%s`') % self.object.__name__], source='')
-            ModuleLevelDocumenter.add_content(self, content, no_docstring=True)
+            classname = safe_getattr(self.object, '__name__', None)
+            if classname:
+                content = ViewList(
+                    [_('alias of :class:`%s`') % classname], source='')
+                ModuleLevelDocumenter.add_content(self, content,
+                                                  no_docstring=True)
         else:
             ModuleLevelDocumenter.add_content(self, more_content)
 

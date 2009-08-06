@@ -12,6 +12,7 @@
 
 import os
 import cgi
+import codecs
 from os import path
 
 from docutils import nodes
@@ -66,7 +67,7 @@ Display compile progress=No
 Full text search stop list file=%(outname)s.stp
 Full-text search=Yes
 Index file=%(outname)s.hhk
-Language=0x409
+Language=%(lcid)#x
 Title=%(title)s
 
 [WINDOWS]
@@ -119,6 +120,27 @@ that  the  their  then  there  these  they  this  to
 was  will  with
 """.split()
 
+# The following list includes only languages supported by Sphinx.
+# See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
+chm_locales = {
+    # lang:   LCID,  encoding
+    'cs':    (0x405, 'iso8859_2'),
+    'de':    (0x407, 'iso8859_1'),
+    'en':    (0x409, 'iso8859_1'),
+    'es':    (0x40a, 'iso8859_1'),
+    'fi':    (0x40b, 'iso8859_1'),
+    'fr':    (0x40c, 'iso8859_1'),
+    'it':    (0x410, 'iso8859_1'),
+    'ja':    (0x411, 'cp932'),
+    'nl':    (0x413, 'iso8859_1'),
+    'pl':    (0x415, 'iso8859_2'),
+    'pt_BR': (0x416, 'iso8859_1'),
+    'ru':    (0x419, 'cp1251'),
+    'sl':    (0x424, 'iso8859_2'),
+    'uk_UA': (0x422, 'cp1251'),
+    'zh_TW': (0x404, 'cp950'),
+}
+
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
@@ -136,17 +158,29 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     # don't add sidebar etc.
     embedded = True
 
+    lcid = 0x409
+    encoding = 'iso8859_1'
+
     def init(self):
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+        # determine the correct locale setting
+        locale = chm_locales.get(self.config.language)
+        if locale is not None:
+            self.lcid, self.encoding = locale
+
+    def open_file(self, outdir, basename, mode='w'):
+        # open a file with the correct encoding for the selected language
+        return codecs.open(path.join(outdir, basename), mode,
+            self.encoding, 'xmlcharrefreplace')
 
     def handle_finish(self):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def build_hhx(self, outdir, outname):
         self.info('dumping stopword list...')
-        f = open(path.join(outdir, outname+'.stp'), 'w')
+        f = self.open_file(outdir, outname+'.stp')
         try:
             for word in sorted(stopwords):
                 print >>f, word
@@ -154,12 +188,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.close()
 
         self.info('writing project file...')
-        f = open(path.join(outdir, outname+'.hhp'), 'w')
+        f = self.open_file(outdir, outname+'.hhp')
         try:
             f.write(project_template % {'outname': outname,
                                         'title': self.config.html_title,
                                         'version': self.config.version,
-                                        'project': self.config.project})
+                                        'project': self.config.project,
+                                        'lcid': self.lcid})
             if not outdir.endswith(os.sep):
                 outdir += os.sep
             olen = len(outdir)
@@ -174,7 +209,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.close()
 
         self.info('writing TOC file...')
-        f = open(path.join(outdir, outname+'.hhc'), 'w')
+        f = self.open_file(outdir, outname+'.hhc')
         try:
             f.write(contents_header)
             # special books
@@ -194,8 +229,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
                     title = cgi.escape(node.astext()).replace('"','&quot;')
-                    item = object_sitemap % (title, link)
-                    f.write(item.encode('ascii', 'xmlcharrefreplace'))
+                    f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
                         f.write('<UL>\n')
@@ -217,7 +251,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
         self.info('writing index file...')
         index = self.env.create_index(self)
-        f = open(path.join(outdir, outname+'.hhk'), 'w')
+        f = self.open_file(outdir, outname+'.hhk')
         try:
             f.write('<UL>\n')
             def write_index(title, refs, subitems):

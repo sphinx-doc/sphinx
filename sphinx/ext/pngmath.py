@@ -223,12 +223,11 @@ def html_visit_displaymath(self, node):
         self.body.append('<span class="eqno">(%s)</span>' % node['number'])
     if fname is None:
         # something failed -- use text-only as a bad substitute
-        self.body.append('<span class="math">%s</span>' %
+        self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node['latex']).strip())
     else:
-        self.body.append('<img src="%s" alt="%s" />\n</div>' %
+        self.body.append('<img src="%s" alt="%s" /></p>\n</div>' %
                          (fname, self.encode(node['latex']).strip()))
-    self.body.append('</p>')
     raise nodes.SkipNode
 
 
@@ -237,7 +236,8 @@ def setup(app):
     app.add_config_value('pngmath_dvipng', 'dvipng', 'html')
     app.add_config_value('pngmath_latex', 'latex', 'html')
     app.add_config_value('pngmath_use_preview', False, 'html')
-    app.add_config_value('pngmath_dvipng_args', ['-gamma 1.5', '-D 110'], 'html')
+    app.add_config_value('pngmath_dvipng_args',
+                         ['-gamma 1.5', '-D 110'], 'html')
     app.add_config_value('pngmath_latex_args', [], 'html')
     app.add_config_value('pngmath_latex_preamble', '', 'html')
     app.connect('build-finished', cleanup_tempdir)

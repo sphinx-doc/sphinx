@@ -554,7 +554,8 @@ class Only(Directive):
         node.document = self.state.document
         node.line = self.lineno
         node['expr'] = self.arguments[0]
-        self.state.nested_parse(self.content, self.content_offset, node)
+        self.state.nested_parse(self.content, self.content_offset, node,
+                                match_titles=1)
         return [node]
 
 

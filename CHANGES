@@ -38,6 +38,26 @@ Release 1.0 (in development)
 Release 0.6.3 (in development)
 ==============================
 
+* Properly format bullet lists nested in definition lists for LaTeX.
+
+* Section titles are now allowed inside ``only`` directives.
+
+* #201: Make ``centered`` directive work in LaTeX output.
+
+* #206: Refuse to overwrite an existing master document in
+  sphinx-quickstart.
+
+* #208: Use MS-sanctioned locale settings, determined by the
+  ``language`` config option, in the HTML help builder.
+
+* #210: Fix nesting of HTML tags for displayed math from pngmath
+  extension.
+
+* #213: Fix centering of images in LaTeX output.
+
+* #211: Fix compatibility with docutils 0.5.
+
+
 Release 0.6.2 (Jun 16, 2009)
 ============================
 
@@ -49,7 +69,7 @@ Release 0.6.2 (Jun 16, 2009)
   ``setup()`` function.
 
 * #158: Allow '..' in template names, and absolute template paths;
-  Jinja 2 by default disables both.  
+  Jinja 2 by default disables both.
 
 * When highlighting Python code, ignore extra indentation before
   trying to parse it as Python.
@@ -107,7 +127,7 @@ Release 0.6.2 (Jun 16, 2009)
 * #134: Fix pending_xref leftover nodes when using the todolist
   directive from the todo extension.
 
- 
+
 Release 0.6.1 (Mar 26, 2009)
 ============================
 
@@ -252,7 +272,7 @@ New features added
     using the ``figwidth`` option and right/left alignment.
 
 * New translations:
-  
+
   - Italian by Sandro Dentella.
   - Ukrainian by Petro Sasnyk.
   - Finnish by Jukka Inkeri.

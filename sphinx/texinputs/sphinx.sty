@@ -695,8 +695,10 @@
     \image@width\wd\image@box%
     \ifdim \image@width>\linewidth%
       \setbox\image@box=\hbox{\py@Oldincludegraphics[width=\linewidth]{#2}}%
+      \box\image@box%
+    \else%
+      \py@Oldincludegraphics{#2}%
     \fi%
-    \box\image@box%
   \else%
     \py@Oldincludegraphics[#1]{#2}%
   \fi%

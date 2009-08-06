@@ -14,6 +14,7 @@ included, please mail to `the Google group
 * Cython: http://docs.cython.org/
 * C\\C++ Python language binding project: http://language-binding.net/index.html
 * Director: http://packages.python.org/director/
+* Djagios: http://djagios.org/
 * Django: http://docs.djangoproject.com/
 * F2py: http://www.f2py.org/html/
 * GeoDjango: http://geodjango.org/docs/
@@ -23,10 +24,12 @@ included, please mail to `the Google group
 * Hedge: http://documen.tician.de/hedge/
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
 * Jinja: http://jinja.pocoo.org/2/documentation/
+* LEPL: http://www.acooke.org/lepl/
 * MapServer: http://mapserver.org/
 * Matplotlib: http://matplotlib.sourceforge.net/
 * Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
 * MeshPy: http://documen.tician.de/meshpy/
+* MirrorBrain: http://mirrorbrain.org/docs/
 * Mixin.com: http://dev.mixin.com/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * MyHDL: http://www.myhdl.org/doc/0.6/
@@ -35,6 +38,7 @@ included, please mail to `the Google group
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * ObjectListView: http://objectlistview.sourceforge.net/python
 * Open ERP: http://doc.openerp.com/
+* OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenLayers: http://docs.openlayers.org/
 * openWNS: http://docs.openwns.org/
 * Paste: http://pythonpaste.org/script/
@@ -71,6 +75,7 @@ included, please mail to `the Google group
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
 * SymPy: http://docs.sympy.org/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
+* The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
 * TurboGears: http://turbogears.org/2.0/docs/
 * VOR: http://www.vor-cycling.be/
 * Werkzeug: http://werkzeug.pocoo.org/documentation/dev/
