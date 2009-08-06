@@ -12,6 +12,7 @@
 import os
 import re
 import sys
+import stat
 import time
 import types
 import shutil
@@ -399,11 +400,22 @@ def movefile(source, dest):
     os.rename(source, dest)
 
 
+def copytimes(source, dest):
+    """Copy a file's modification times."""
+    st = os.stat(source)
+    mode = stat.S_IMODE(st.st_mode)
+    if hasattr(os, 'utime'):
+        os.utime(dest, (st.st_atime, st.st_mtime))
+
+
 def copyfile(source, dest):
     """Copy a file and its modification times, if possible."""
     shutil.copyfile(source, dest)
-    try: shutil.copystat(source, dest)
-    except shutil.Error: pass
+    try:
+        # don't do full copystat because the source may be read-only
+        copytimes(source, dest)
+    except shutil.Error:
+        pass
 
 
 def copy_static_entry(source, target, builder, context={}):

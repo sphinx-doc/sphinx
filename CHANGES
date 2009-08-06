@@ -1,6 +1,9 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #205: When copying files, don't copy full stat info, only
+  modification times.
+
 * #232: Support non-ASCII metadata in Qt help builder.
 
 * Properly format bullet lists nested in definition lists for LaTeX.
