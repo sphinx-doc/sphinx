@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-07 21:40+0200\n"
-"PO-Revision-Date: 2009-08-06 22:48+0200\n"
+"PO-Revision-Date: 2009-08-06 22:49+0200\n"
 "Last-Translator: Horst Gutmann <zerok@zerokspot.com>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -590,7 +590,7 @@ msgstr "Release"
 
 #: sphinx/writers/latex.py:571
 msgid "Footnotes"
-msgstr ""
+msgstr "Fußnoten"
 
 #: sphinx/writers/latex.py:639
 msgid "continued from previous page"
