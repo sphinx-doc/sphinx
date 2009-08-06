@@ -1,6 +1,9 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #227: Make ``literalinclude`` work when the document's path
+  name contains non-ASCII characters.
+
 * #229: Fix autodoc failures with members that raise errors
   on ``getattr()``.
 
