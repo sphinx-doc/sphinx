@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-10 11:43+0000\n"
-"PO-Revision-Date: 2009-05-22 18:19+0200\n"
+"PO-Revision-Date: 2009-08-06 22:48+0200\n"
 "Last-Translator: Michał Kandulski <Michal.Kandulski@poczta.onet.pl>\n"
 "Language-Team: \n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
@@ -14,12 +14,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:104 sphinx/writers/latex.py:182
+#: sphinx/environment.py:103 sphinx/writers/latex.py:182
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%B %d %Y"
 
-#: sphinx/environment.py:323 sphinx/themes/basic/genindex-single.html:2
+#: sphinx/environment.py:324 sphinx/themes/basic/genindex-single.html:2
 #: sphinx/themes/basic/genindex-split.html:2
 #: sphinx/themes/basic/genindex-split.html:5
 #: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
@@ -28,11 +28,11 @@ msgstr "%B %d %Y"
 msgid "Index"
 msgstr "Indeks"
 
-#: sphinx/environment.py:324 sphinx/writers/latex.py:187
+#: sphinx/environment.py:325 sphinx/writers/latex.py:187
 msgid "Module Index"
 msgstr "Indeks modułów"
 
-#: sphinx/environment.py:325 sphinx/themes/basic/defindex.html:16
+#: sphinx/environment.py:326 sphinx/themes/basic/defindex.html:16
 msgid "Search Page"
 msgstr "Wyszukiwanie"
 
@@ -67,8 +67,8 @@ msgstr "Indeks ogólny"
 msgid "index"
 msgstr "indeks"
 
-#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:184
-#: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
+#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:219
+#: sphinx/builders/qthelp.py:133 sphinx/themes/basic/defindex.html:19
 #: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "Indeks modułów"
@@ -230,12 +230,12 @@ msgstr "Autor: "
 msgid "See also"
 msgstr "Zobacz także"
 
-#: sphinx/ext/autodoc.py:889
+#: sphinx/ext/autodoc.py:883
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:920
+#: sphinx/ext/autodoc.py:916
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -588,11 +588,15 @@ msgstr "Przeszukiwanie zakończone, znaleziono %s pasujących stron."
 msgid "Release"
 msgstr "Wydanie"
 
-#: sphinx/writers/latex.py:637
+#: sphinx/writers/latex.py:571
+msgid "Footnotes"
+msgstr ""
+
+#: sphinx/writers/latex.py:639
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:641
+#: sphinx/writers/latex.py:644
 #, fuzzy
 msgid "Continued on next page"
 msgstr "Cały indeks na jednej stronie"

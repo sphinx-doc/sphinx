@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2009-05-22 18:19+0200\n"
+"PO-Revision-Date: 2009-08-06 22:48+0200\n"
 "Last-Translator: Yasushi MASUDA <whosaysni@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:104 sphinx/writers/latex.py:182
+#: sphinx/environment.py:103 sphinx/writers/latex.py:182
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/environment.py:323 sphinx/themes/basic/genindex-single.html:2
+#: sphinx/environment.py:324 sphinx/themes/basic/genindex-single.html:2
 #: sphinx/themes/basic/genindex-split.html:2
 #: sphinx/themes/basic/genindex-split.html:5
 #: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
@@ -31,11 +31,11 @@ msgstr "%Y 年 %m 月 %d 日"
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/environment.py:324 sphinx/writers/latex.py:187
+#: sphinx/environment.py:325 sphinx/writers/latex.py:187
 msgid "Module Index"
 msgstr "モジュール索引"
 
-#: sphinx/environment.py:325 sphinx/themes/basic/defindex.html:16
+#: sphinx/environment.py:326 sphinx/themes/basic/defindex.html:16
 msgid "Search Page"
 msgstr "検索ページ"
 
@@ -70,8 +70,8 @@ msgstr "総合索引"
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:184
-#: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
+#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:219
+#: sphinx/builders/qthelp.py:133 sphinx/themes/basic/defindex.html:19
 #: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "モジュール総索引"
@@ -233,12 +233,12 @@ msgstr "作者: "
 msgid "See also"
 msgstr "参考"
 
-#: sphinx/ext/autodoc.py:889
+#: sphinx/ext/autodoc.py:883
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:920
+#: sphinx/ext/autodoc.py:916
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
@@ -584,11 +584,15 @@ msgstr "検索が終了し、条件に一致するページが %s 個みつか�
 msgid "Release"
 msgstr "リリース"
 
-#: sphinx/writers/latex.py:637
+#: sphinx/writers/latex.py:571
+msgid "Footnotes"
+msgstr ""
+
+#: sphinx/writers/latex.py:639
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:641
+#: sphinx/writers/latex.py:644
 #, fuzzy
 msgid "Continued on next page"
 msgstr "総索引"
