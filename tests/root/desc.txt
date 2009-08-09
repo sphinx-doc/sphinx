@@ -54,6 +54,12 @@ C items
 .. c:var:: sphinx_global
 
 
+Others
+======
+
+.. envvar:: HOME
+
+
 Testing references
 ==================
 

@@ -95,6 +95,9 @@ HTML_XPATH = {
         ".//p": 'Always present',
         ".//title": 'set by title directive',
         ".//span[@class='pre']": 'CFunction()',
+        ".//a[@href='desc.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
+        ".//a[@href='http://www.python.org/dev/peps/pep-0008']/strong": 'PEP 8',
+        ".//a[@href='http://tools.ietf.org/html/rfc1.html']/strong": 'RFC 1',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
@@ -114,6 +117,9 @@ HTML_XPATH = {
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
         ".//a[@href='http://python.org/']": '',
+        ".//li/a[@href='genindex.html']/em": 'Index',
+        ".//li/a[@href='modindex.html']/em": 'Module Index',
+        ".//li/a[@href='search.html']/em": 'Search Page',
     },
     'bom.html': {
         ".//title": " File with UTF-8 BOM",

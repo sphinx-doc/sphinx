@@ -27,8 +27,8 @@ Inline
 Inline markup:
 
 * :pep:`8`
+* :rfc:`1`
 * :envvar:`HOME`
-* :rfc:`2014`
 
 Admonitions
 -----------
