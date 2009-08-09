@@ -10,6 +10,7 @@
 """
 
 import re
+import warnings
 
 from docutils import nodes, utils
 from docutils.parsers.rst import roles
@@ -40,6 +41,8 @@ for rolename, nodeclass in generic_docroles.iteritems():
 # -- generic cross-reference roles ---------------------------------------------
 
 class XRefRole(object):
+    """XXX add docstring"""
+
     nodeclass = addnodes.pending_xref
     innernodeclass = nodes.literal
 
@@ -230,3 +233,8 @@ for rolename, func in specific_docroles.iteritems():
     roles.register_local_role(rolename, func)
 
 
+# compatibility alias
+def xfileref_role(*args, **kwds):
+    warnings.warn('xfileref_role is deprecated, use XRefRole',
+                  DeprecationWarning, stacklevel=2)
+    return XRefRole()(*args, **kwds)
