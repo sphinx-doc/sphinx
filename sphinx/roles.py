@@ -37,101 +37,6 @@ for rolename, nodeclass in generic_docroles.iteritems():
     roles.register_local_role(rolename, role)
 
 
-def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
-                     options={}, content=[]):
-    env = inliner.document.settings.env
-    if not typ:
-        typ = env.config.default_role
-    else:
-        typ = typ.lower()
-    text = utils.unescape(etext)
-    targetid = 'index-%s' % env.index_num
-    env.index_num += 1
-    indexnode = addnodes.index()
-    targetnode = nodes.target('', '', ids=[targetid])
-    inliner.document.note_explicit_target(targetnode)
-    if typ == 'envvar':
-        indexnode['entries'] = [('single', text, targetid, text),
-                                ('single', _('environment variable; %s') % text,
-                                 targetid, text)]
-        # XXX needs to be adapted
-        xref_nodes = xfileref_role(typ, rawtext, etext, lineno, inliner,
-                                   options, content)[0]
-        return [indexnode, targetnode] + xref_nodes, []
-    elif typ == 'pep':
-        indexnode['entries'] = [
-            ('single', _('Python Enhancement Proposals!PEP %s') % text,
-             targetid, 'PEP %s' % text)]
-        try:
-            pepnum = int(text)
-        except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % text,
-                                         line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)
-            return [prb], [msg]
-        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
-        sn = nodes.strong('PEP '+text, 'PEP '+text)
-        rn = nodes.reference('', '', refuri=ref)
-        rn += sn
-        return [indexnode, targetnode, rn], []
-    elif typ == 'rfc':
-        indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
-                                 targetid, 'RFC %s' % text)]
-        try:
-            rfcnum = int(text)
-        except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % text,
-                                         line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)
-            return [prb], [msg]
-        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
-        sn = nodes.strong('RFC '+text, 'RFC '+text)
-        rn = nodes.reference('', '', refuri=ref)
-        rn += sn
-        return [indexnode, targetnode, rn], []
-
-roles.register_local_role('envvar', indexmarkup_role)
-roles.register_local_role('pep', indexmarkup_role)
-roles.register_local_role('rfc', indexmarkup_role)
-
-
-def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    return [nodes.emphasis(
-        rawtext,
-        utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
-    return role
-
-
-_litvar_re = re.compile('{([^}]+)}')
-
-def emph_literal_role(typ, rawtext, text, lineno, inliner,
-                      options={}, content=[]):
-    text = utils.unescape(text)
-    pos = 0
-    retnode = nodes.literal(role=typ.lower())
-    for m in _litvar_re.finditer(text):
-        if m.start() > pos:
-            txt = text[pos:m.start()]
-            retnode += nodes.Text(txt, txt)
-        retnode += nodes.emphasis(m.group(1), m.group(1))
-        pos = m.end()
-    if pos < len(text):
-        retnode += nodes.Text(text[pos:], text[pos:])
-    return [retnode], []
-
-
-_abbr_re = re.compile('\((.*)\)$')
-
-def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    text = utils.unescape(text)
-    m = _abbr_re.search(text)
-    if m is None:
-        return [addnodes.abbreviation(text, text)], []
-    abbr = text[:m.start()].strip()
-    expl = m.group(1)
-    return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
-
-
 # -- generic cross-reference roles ---------------------------------------------
 
 class XRefRole(object):
@@ -211,6 +116,98 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
+_EnvvarXrefRole = XRefRole()
+
+def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
+                     options={}, content=[]):
+    env = inliner.document.settings.env
+    if not typ:
+        typ = env.config.default_role
+    else:
+        typ = typ.lower()
+    text = utils.unescape(etext)
+    targetid = 'index-%s' % env.index_num
+    env.index_num += 1
+    indexnode = addnodes.index()
+    targetnode = nodes.target('', '', ids=[targetid])
+    inliner.document.note_explicit_target(targetnode)
+    if typ == 'envvar':
+        indexnode['entries'] = [('single', text, targetid, text),
+                                ('single', _('environment variable; %s') % text,
+                                 targetid, text)]
+        xref_nodes = _EnvvarXrefRole(typ, rawtext, etext, lineno, inliner,
+                                     options, content)[0]
+        return [indexnode, targetnode] + xref_nodes, []
+    elif typ == 'pep':
+        indexnode['entries'] = [
+            ('single', _('Python Enhancement Proposals!PEP %s') % text,
+             targetid, 'PEP %s' % text)]
+        try:
+            pepnum = int(text)
+        except ValueError:
+            msg = inliner.reporter.error('invalid PEP number %s' % text,
+                                         line=lineno)
+            prb = inliner.problematic(rawtext, rawtext, msg)
+            return [prb], [msg]
+        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
+        sn = nodes.strong('PEP '+text, 'PEP '+text)
+        rn = nodes.reference('', '', refuri=ref)
+        rn += sn
+        return [indexnode, targetnode, rn], []
+    elif typ == 'rfc':
+        indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
+                                 targetid, 'RFC %s' % text)]
+        try:
+            rfcnum = int(text)
+        except ValueError:
+            msg = inliner.reporter.error('invalid RFC number %s' % text,
+                                         line=lineno)
+            prb = inliner.problematic(rawtext, rawtext, msg)
+            return [prb], [msg]
+        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
+        sn = nodes.strong('RFC '+text, 'RFC '+text)
+        rn = nodes.reference('', '', refuri=ref)
+        rn += sn
+        return [indexnode, targetnode, rn], []
+
+
+def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    return [nodes.emphasis(
+        rawtext,
+        utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
+    return role
+
+
+_litvar_re = re.compile('{([^}]+)}')
+
+def emph_literal_role(typ, rawtext, text, lineno, inliner,
+                      options={}, content=[]):
+    text = utils.unescape(text)
+    pos = 0
+    retnode = nodes.literal(role=typ.lower())
+    for m in _litvar_re.finditer(text):
+        if m.start() > pos:
+            txt = text[pos:m.start()]
+            retnode += nodes.Text(txt, txt)
+        retnode += nodes.emphasis(m.group(1), m.group(1))
+        pos = m.end()
+    if pos < len(text):
+        retnode += nodes.Text(text[pos:], text[pos:])
+    return [retnode], []
+
+
+_abbr_re = re.compile('\((.*)\)$')
+
+def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    text = utils.unescape(text)
+    m = _abbr_re.search(text)
+    if m is None:
+        return [addnodes.abbreviation(text, text)], []
+    abbr = text[:m.start()].strip()
+    expl = m.group(1)
+    return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
+
+
 specific_docroles = {
     'keyword': XRefRole(),
     'ref': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
@@ -220,6 +217,9 @@ specific_docroles = {
     'doc': XRefRole(),
     'download': XRefRole(nodeclass=addnodes.download_reference),
 
+    'envvar': indexmarkup_role,
+    'pep': indexmarkup_role,
+    'rfc': indexmarkup_role,
     'menuselection': menusel_role,
     'file': emph_literal_role,
     'samp': emph_literal_role,

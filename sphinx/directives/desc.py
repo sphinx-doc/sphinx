@@ -300,7 +300,7 @@ class GenericDesc(DescDirective):
         else:
             signode.clear()
             signode += addnodes.desc_name(sig, sig)
-            # normalize whitespace like xfileref_role does
+            # normalize whitespace like XRefRole does
             name = ws_re.sub('', sig)
         return name
 
@@ -335,7 +335,7 @@ class Target(Directive):
     def run(self):
         env = self.state.document.settings.env
         rolename, indextemplate, foo = additional_xref_types[self.name]
-        # normalize whitespace in fullname like xfileref_role does
+        # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub('', self.arguments[0].strip())
         targetname = '%s-%s' % (rolename, fullname)
         node = nodes.target('', '', ids=[targetname])

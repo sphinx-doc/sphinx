@@ -21,6 +21,15 @@ A |subst|.
 
    some code
 
+Inline
+------
+
+Inline markup:
+
+* :pep:`8`
+* :envvar:`HOME`
+* :rfc:`2014`
+
 Admonitions
 -----------
 

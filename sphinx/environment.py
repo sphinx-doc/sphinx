@@ -1011,6 +1011,14 @@ class BuildEnvironment:
         self.dependencies.setdefault(self.docname, set()).add(filename)
     # -------
 
+    def get_domain(self, domainname):
+        """Return the domain instance with the specified name.
+        Raises a nicer KeyError if the domain is not registered."""
+        try:
+            return self.domains[domainname]
+        except KeyError:
+            raise KeyError('Domain %r is not registered' % domainname)
+
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
     def get_doctree(self, docname):

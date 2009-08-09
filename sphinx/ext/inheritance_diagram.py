@@ -49,8 +49,6 @@ except ImportError:
 from docutils import nodes
 from docutils.parsers.rst import directives
 
-# XXX needs to be adapted
-from sphinx.roles import xfileref_role
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex
 from sphinx.util.compat import Directive
 
@@ -283,6 +281,7 @@ class InheritanceDiagram(Directive):
         node.document = self.state.document
         env = self.state.document.settings.env
         class_names = self.arguments[0].split()
+        class_role = env.get_domain('py').roles['class']
 
         # Create a graph starting with the list of classes
         try:
@@ -296,8 +295,8 @@ class InheritanceDiagram(Directive):
         # references to real URLs later.  These nodes will eventually be
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
-            refnodes, x = xfileref_role(
-                'class', ':class:`%s`' % name, name, 0, self.state)
+            refnodes, x = class_role(
+                'py:class', ':class:`%s`' % name, name, 0, self.state)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later
