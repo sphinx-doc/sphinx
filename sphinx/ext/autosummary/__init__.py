@@ -444,8 +444,8 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     otherwise expands to '*text*'.
     """
     env = inliner.document.settings.env
-    r = env.get_domain('py').roles['obj'](
-        'py:obj', rawtext, etext, lineno, inliner, options, content)
+    r = env.get_domain('py').role('obj')(
+        'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
 
     prefixes = [None]

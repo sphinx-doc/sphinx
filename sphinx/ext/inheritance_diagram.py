@@ -281,7 +281,7 @@ class InheritanceDiagram(Directive):
         node.document = self.state.document
         env = self.state.document.settings.env
         class_names = self.arguments[0].split()
-        class_role = env.get_domain('py').roles['class']
+        class_role = env.get_domain('py').role('class')
 
         # Create a graph starting with the list of classes
         try:
@@ -296,7 +296,7 @@ class InheritanceDiagram(Directive):
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
             refnodes, x = class_role(
-                'py:class', ':class:`%s`' % name, name, 0, self.state)
+                'class', ':class:`%s`' % name, name, 0, self.state)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later
