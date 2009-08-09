@@ -42,6 +42,23 @@ Release 1.0 (in development)
 Release 0.6.3 (in development)
 ==============================
 
+* #220: Fix CSS so that displaymath really is centered.
+
+* #222: Allow the "Footnotes" header to be translated.
+
+* #225: Don't add whitespace in generated HTML after inline tags.
+
+* #227: Make ``literalinclude`` work when the document's path
+  name contains non-ASCII characters.
+
+* #229: Fix autodoc failures with members that raise errors
+  on ``getattr()``.
+
+* #205: When copying files, don't copy full stat info, only
+  modification times.
+
+* #232: Support non-ASCII metadata in Qt help builder.
+
 * Properly format bullet lists nested in definition lists for LaTeX.
 
 * Section titles are now allowed inside ``only`` directives.

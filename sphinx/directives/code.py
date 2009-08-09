@@ -103,7 +103,13 @@ class LiteralInclude(Directive):
         else:
             docdir = path.dirname(env.doc2path(env.docname, base=None))
             rel_fn = path.normpath(path.join(docdir, filename))
-        fn = path.join(env.srcdir, rel_fn)
+        try:
+            fn = path.join(env.srcdir, rel_fn)
+        except UnicodeDecodeError:
+            # the source directory is a bytestring with non-ASCII characters;
+            # let's try to encode the rel_fn in the file system encoding
+            rel_fn = rel_fn.encode(sys.getfilesystemencoding())
+            fn = path.join(env.srcdir, rel_fn)
 
         if 'pyobject' in self.options and 'lines' in self.options:
             return [document.reporter.warning(
