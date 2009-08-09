@@ -103,14 +103,30 @@ Inline markup
 * :newsgroup:`newsgroup`
 * :program:`program`
 * :regexp:`regexp`
+* :menuselection:`File --> Close`
+* :file:`a/{varpart}/b`
+* :samp:`print {i}`
 
 *Linking inline markup*
 
 * :pep:`8`
 * :rfc:`1`
 * :envvar:`HOME`
+* :keyword:`with`
+* :token:`try statement <try_stmt>`
+* :doc:`subdir/includes`
+* ``:download:`` is tested in includes.txt
+* :option:`Python -c option <python -c>`
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
+
+
+.. _with:
+
+With
+----
+
+(Empty section.)
 
 
 Tables

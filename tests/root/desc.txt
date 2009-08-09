@@ -65,6 +65,14 @@ Others
 
 .. envvar:: HOME
 
+.. program:: python
+
+.. cmdoption:: -c command
+
+.. program:: perl
+
+.. cmdoption:: -c
+
 
 Testing references
 ==================

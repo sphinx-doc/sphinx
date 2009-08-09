@@ -103,9 +103,17 @@ HTML_XPATH = {
         ".//li/strong": '^program$',
         ".//li/em": '^dfn$',
         ".//li/tt/span[@class='pre']": '^kbd$',
-        ".//a[@href='desc.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
+        ".//li/em": u'File \N{TRIANGULAR BULLET} Close',
+        ".//li/tt/span[@class='pre']": '^a/$',
+        ".//li/tt/em/span[@class='pre']": '^varpart$',
+        ".//li/tt/em/span[@class='pre']": '^i$',
         ".//a[@href='http://www.python.org/dev/peps/pep-0008']/strong": 'PEP 8',
         ".//a[@href='http://tools.ietf.org/html/rfc1.html']/strong": 'RFC 1',
+        ".//a[@href='desc.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
+        ".//a[@href='#with']/tt/span[@class='pre']": '^with$',
+        ".//a[@href='#grammar-token-try_stmt']/tt/span": '^statement$',
+        ".//a[@href='subdir/includes.html']/em": 'Including in subdir',
+        ".//a[@href='desc.html#cmdoption-python-c']/em": 'Python -c option',
         # abbreviations
         ".//abbr[@title='abbreviation']": '^abbr$',
         # version stuff
