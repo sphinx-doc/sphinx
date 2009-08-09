@@ -1215,7 +1215,7 @@ class BuildEnvironment:
             target = node['reftarget']
 
             try:
-                if node.has_key('refdomain'):
+                if node.has_key('refdomain') and node['refdomain']:
                     # let the domain try to resolve the reference
                     try:
                         domain = self.domains[node['refdomain']]
