@@ -122,7 +122,7 @@ HTML_XPATH = {
         ".//dl/dt[@id='term-boson']": 'boson',
         # a production list
         ".//pre/strong": 'try_stmt',
-        ".//pre/a[@href='grammar-token-try1_stmt']/tt/span": 'try1_stmt',
+        ".//pre/a[@href='#grammar-token-try1_stmt']/tt/span": 'try1_stmt',
         # tests for ``only`` directive
         ".//p": 'A global substitution.',
         ".//p": 'In HTML.',
