@@ -25,6 +25,7 @@ today_fmt = '%B %d, %Y'
 exclude_trees = ['_build']
 keep_warnings = True
 pygments_style = 'sphinx'
+show_authors = True
 
 rst_epilog = '.. |subst| replace:: global substitution'
 

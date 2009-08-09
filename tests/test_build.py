@@ -85,6 +85,8 @@ HTML_XPATH = {
     },
     'markup.html': {
         ".//title": 'set by title directive',
+        ".//p/em": 'Section author: Georg Brandl',
+        ".//p/em": 'Module author: Georg Brandl',
         # created by the meta directive
         ".//meta[@name='author'][@content='Me']": '',
         ".//meta[@name='keywords'][@content='docs, sphinx']": '',
@@ -122,6 +124,8 @@ HTML_XPATH = {
         ".//a[@class='footnote-reference']": r'\[1\]',
         # created by reference lookup
         ".//a[@href='contents.html#ref1']": '',
+        # ``seealso`` directive
+        ".//div/p[@class='first admonition-title']": 'See also',
         # a ``hlist`` directive
         ".//table[@class='hlist']/tr/td/ul/li": '^This$',
         # a ``centered`` directive

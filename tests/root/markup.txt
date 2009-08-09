@@ -9,6 +9,7 @@ Meta markup
 -----------
 
 .. sectionauthor:: Georg Brandl
+.. moduleauthor:: Georg Brandl
 
 .. contents:: TOC
 
@@ -153,6 +154,17 @@ Version markup
 
 .. deprecated:: 0.6
    Boring stuff.
+
+
+Code blocks
+-----------
+
+.. code-block:: ruby
+   :linenos:
+
+   def ruby?
+       false
+   end
 
 
 Misc stuff
