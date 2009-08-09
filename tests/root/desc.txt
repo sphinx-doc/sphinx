@@ -54,6 +54,12 @@ C items
 .. c:var:: sphinx_global
 
 
+References
+==========
+
+:c:func:`CFunction`. :c:func:`!malloc`.
+
+
 Others
 ======
 

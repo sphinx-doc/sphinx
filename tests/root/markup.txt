@@ -5,6 +5,9 @@
 Testing various markup
 ======================
 
+Meta markup
+-----------
+
 .. sectionauthor:: Georg Brandl
 
 .. contents:: TOC
@@ -13,7 +16,11 @@ Testing various markup
    :author: Me
    :keywords: docs, sphinx
 
-A |subst|.
+
+Generic reST
+------------
+
+A |subst| (the definition is in rst_epilog).
 
 .. _label:
 
@@ -21,31 +28,14 @@ A |subst|.
 
    some code
 
-Inline
-------
+Option list:
 
-Inline markup:
-
-* :pep:`8`
-* :rfc:`1`
-* :envvar:`HOME`
-
-Admonitions
------------
-
-.. note:: Note
-   Note text.
-
-.. warning:: Warning
-
-   Warning text.
-
-.. tip::
-   Tip text.
+-h              help
+--help          also help
 
 
 Body directives
----------------
+^^^^^^^^^^^^^^^
 
 .. topic:: Title
 
@@ -78,7 +68,51 @@ Body directives
 
    b
 
-   
+
+Admonitions
+^^^^^^^^^^^
+
+.. admonition:: My Admonition
+
+   Admonition text.
+
+.. note::
+   Note text.
+
+.. warning::
+
+   Warning text.
+
+.. tip::
+   Tip text.
+
+
+Inline markup
+-------------
+
+*Generic inline markup*
+
+* :command:`command`
+* :dfn:`dfn`
+* :guilabel:`guilabel`
+* :kbd:`kbd`
+* :mailheader:`mailheader`
+* :makevar:`makevar`
+* :manpage:`manpage`
+* :mimetype:`mimetype`
+* :newsgroup:`newsgroup`
+* :program:`program`
+* :regexp:`regexp`
+
+*Linking inline markup*
+
+* :pep:`8`
+* :rfc:`1`
+* :envvar:`HOME`
+
+Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
+
+
 Tables
 ------
 
@@ -133,11 +167,6 @@ This is a side note.
 
 This tests :CLASS:`role names in uppercase`.
 
-Option list:
-
--h              help
---help          also help
-
 .. centered:: LICENSE AGREEMENT
 
 .. acks::
@@ -155,7 +184,7 @@ Option list:
       Particle with half-integer spin.
 
 .. productionlist::
-   try_stmt: try1_stmt | try2_stmt
+   try_stmt: `try1_stmt` | `try2_stmt`
    try1_stmt: "try" ":" `suite`
             : ("except" [`expression` ["," `target`]] ":" `suite`)+
             : ["else" ":" `suite`]
@@ -163,7 +192,6 @@ Option list:
    try2_stmt: "try" ":" `suite`
             : "finally" ":" `suite`
 
-Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
 Index markup
 ------------
@@ -186,12 +214,6 @@ Invalid index markup...
 ----------------------------
 
 Testing öäü...
-
-
-Object markup
--------------
-
-:c:func:`CFunction`. :c:func:`!malloc`.
 
 
 Only directive

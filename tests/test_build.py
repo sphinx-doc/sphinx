@@ -84,20 +84,50 @@ HTML_XPATH = {
         ".//dd": r'Return spam\.',
     },
     'markup.html': {
+        ".//title": 'set by title directive',
+        # created by the meta directive
         ".//meta[@name='author'][@content='Me']": '',
         ".//meta[@name='keywords'][@content='docs, sphinx']": '',
-        ".//a[@href='contents.html#ref1']": '',
+        # a label created by ``.. _label:``
         ".//div[@id='label']": '',
+        # code with standard code blocks
+        ".//pre": '^some code$',
+        # an option list
         ".//span[@class='option']": '--help',
+        # admonitions
+        ".//p[@class='first admonition-title']": 'My Admonition',
+        ".//p[@class='last']": 'Note text.',
+        ".//p[@class='last']": 'Warning text.',
+        # inline markup
+        ".//li/strong": '^command$',
+        ".//li/strong": '^program$',
+        ".//li/em": '^dfn$',
+        ".//li/tt/span[@class='pre']": '^kbd$',
+        ".//a[@href='desc.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
+        ".//a[@href='http://www.python.org/dev/peps/pep-0008']/strong": 'PEP 8',
+        ".//a[@href='http://tools.ietf.org/html/rfc1.html']/strong": 'RFC 1',
+        # abbreviations
+        ".//abbr[@title='abbreviation']": '^abbr$',
+        # version stuff
+        ".//span[@class='versionmodified']": 'New in version 0.6',
+        # footnote reference
+        ".//a[@class='footnote-reference']": r'\[1\]',
+        # created by reference lookup
+        ".//a[@href='contents.html#ref1']": '',
+        # a ``hlist`` directive
+        ".//table[@class='hlist']/tr/td/ul/li": '^This$',
+        # a ``centered`` directive
+        ".//p[@class='centered']/strong": 'LICENSE',
+        # a glossary
+        ".//dl/dt[@id='term-boson']": 'boson',
+        # a production list
+        ".//pre/strong": 'try_stmt',
+        ".//pre/a[@href='grammar-token-try1_stmt']/tt/span": 'try1_stmt',
+        # tests for ``only`` directive
         ".//p": 'A global substitution.',
         ".//p": 'In HTML.',
         ".//p": 'In both.',
         ".//p": 'Always present',
-        ".//title": 'set by title directive',
-        ".//span[@class='pre']": 'CFunction()',
-        ".//a[@href='desc.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
-        ".//a[@href='http://www.python.org/dev/peps/pep-0008']/strong": 'PEP 8',
-        ".//a[@href='http://tools.ietf.org/html/rfc1.html']/strong": 'RFC 1',
     },
     'desc.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
@@ -106,6 +136,7 @@ HTML_XPATH = {
         ".//dl[@class='userdesc']": '',
         ".//dt[@id='userdescrole-myobj']": '',
         ".//a[@href='#userdescrole-myobj']": '',
+        ".//span[@class='pre']": 'CFunction()',
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
@@ -113,7 +144,7 @@ HTML_XPATH = {
         #".//td[@class='label']": r'\[Ref1\]',   # docutils 0.5 only
         ".//td[@class='label']": '',
         ".//li[@class='toctree-l1']/a": 'Testing various markup',
-        ".//li[@class='toctree-l2']/a": 'Admonitions',
+        ".//li[@class='toctree-l2']/a": 'Inline markup',
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
         ".//a[@href='http://python.org/']": '',

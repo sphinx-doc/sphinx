@@ -29,7 +29,7 @@ generic_docroles = {
     'manpage' : addnodes.literal_emphasis,
     'mimetype' : addnodes.literal_emphasis,
     'newsgroup' : addnodes.literal_emphasis,
-    'program' : nodes.strong,
+    'program' : nodes.strong,  # XXX should be an x-ref
     'regexp' : nodes.literal,
 }
 

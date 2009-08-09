@@ -260,7 +260,7 @@ class SeeAlso(Directive):
         return ret
 
 
-token_re = re.compile('`([a-z_]+)`')
+token_re = re.compile('`([a-z_][a-z0-9_]*)`')
 
 def token_xrefs(text, env):
     retnodes = []
