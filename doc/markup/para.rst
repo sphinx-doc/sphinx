@@ -1,4 +1,4 @@
-x.. highlight:: rest
+.. highlight:: rest
 
 Paragraph-level markup
 ----------------------
