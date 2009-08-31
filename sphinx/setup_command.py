@@ -31,15 +31,19 @@ class BuildDoc(Command):
         ('source-dir=', 's', 'Source directory'),
         ('build-dir=', None, 'Build directory'),
         ('builder=', 'b', 'The builder to use. Defaults to "html"'),
-        ]
+        ('version=', None, 'The short X.Y version'),
+        ('release=', None, 'The full version, including alpha/beta/rc tags'),
+        ('today=', None, 'hum... today??')]
     boolean_options = ['fresh-env', 'all-files']
 
 
     def initialize_options(self):
         self.fresh_env = self.all_files = False
         self.source_dir = self.build_dir = None
-        self.conf_file_name = 'conf.py'
         self.builder = 'html'
+        self.version = ''
+        self.release = ''
+        self.today = ''
 
     def finalize_options(self):
         if self.source_dir is None:
@@ -70,9 +74,16 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout
+        confoverrides = {}
+        if self.version:
+             confoverrides['version'] = self.version
+        if self.release:
+             confoverrides['release'] = self.release
+        if self.today:
+             confoverrides['today'] = self.today
         app = Sphinx(self.source_dir, self.source_dir,
                      self.builder_target_dir, self.doctree_dir,
-                     self.builder, {}, status_stream,
+                     self.builder, confoverrides, status_stream,
                      freshenv=self.fresh_env)
 
         try:
