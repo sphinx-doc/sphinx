@@ -43,7 +43,7 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
      docname_join, FilenameUniqDict, url_re, make_refnode
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ExtensionError
 from sphinx.directives import additional_xref_types
 
 orig_role_function = roles.role
@@ -1013,11 +1013,11 @@ class BuildEnvironment:
 
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
-        Raises a nicer KeyError if the domain is not registered."""
+        Raises an ExtensionError if the domain is not registered."""
         try:
             return self.domains[domainname]
         except KeyError:
-            raise KeyError('Domain %r is not registered' % domainname)
+            raise ExtensionError('Domain %r is not registered' % domainname)
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
