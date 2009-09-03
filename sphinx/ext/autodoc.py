@@ -620,8 +620,9 @@ class Documenter(object):
         # try to also get a source code analyzer for attribute docs
         try:
             self.analyzer = ModuleAnalyzer.for_module(self.real_modname)
-            # parse right now, to get PycodeErrors on parsing
-            self.analyzer.parse()
+            # parse right now, to get PycodeErrors on parsing (results will
+            # be cached anyway)
+            self.analyzer.find_attr_docs()
         except PycodeError, err:
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
