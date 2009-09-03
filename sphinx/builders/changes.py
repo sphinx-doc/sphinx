@@ -10,7 +10,6 @@
 """
 
 import codecs
-import shutil
 from os import path
 from cgi import escape
 

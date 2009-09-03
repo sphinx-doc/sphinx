@@ -10,7 +10,6 @@
 """
 import re
 import cPickle as pickle
-from cStringIO import StringIO
 
 from docutils.nodes import comment, Text, NodeVisitor, SkipNode
 

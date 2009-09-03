@@ -10,9 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
-import sys
 import posixpath
 from os import path
 from subprocess import Popen, PIPE

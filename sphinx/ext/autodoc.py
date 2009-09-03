@@ -14,8 +14,7 @@
 import re
 import sys
 import inspect
-from types import ModuleType, FunctionType, BuiltinFunctionType, MethodType, \
-     ClassType
+from types import FunctionType, BuiltinFunctionType, MethodType, ClassType
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict

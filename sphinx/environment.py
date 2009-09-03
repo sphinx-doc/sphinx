@@ -22,11 +22,6 @@ import cPickle as pickle
 from os import path
 from glob import glob
 from itertools import izip, groupby
-try:
-    from hashlib import md5
-except ImportError:
-    # 2.4 compatibility
-    from md5 import md5
 
 from docutils import nodes
 from docutils.io import FileInput, NullOutput

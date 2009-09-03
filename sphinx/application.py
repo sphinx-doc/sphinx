@@ -26,7 +26,7 @@ from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
-from sphinx.util import pycompat
+from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
 from sphinx.util.compat import Directive, directive_dwim
 from sphinx.util.console import bold
