@@ -460,7 +460,7 @@ msgstr "&copy; Copyright %(copyright)s."
 #: sphinx/themes/basic/layout.html:188
 #, python-format
 msgid "Last updated on %(last_updated)s."
-msgstr "Ultimo Aggiornamento on %(last_updated)s."
+msgstr "Ultimo aggiornamento %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:191
 #, python-format
