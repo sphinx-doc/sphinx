@@ -1,6 +1,8 @@
 Release 0.6.3 (in development)
 ==============================
 
+* Properly add C module filenames as dependencies in autodoc.
+
 * #253: Ignore graphviz directives without content instead of
   raising an unhandled exception.
 

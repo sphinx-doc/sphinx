@@ -625,6 +625,9 @@ class Documenter(object):
         except PycodeError, err:
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
+            # at least add the module.__file__ as a dependency
+            if hasattr(self.module, '__file__') and self.module.__file__:
+                self.directive.filename_set.add(self.module.__file__)
         else:
             self.directive.filename_set.add(self.analyzer.srcname)
 
