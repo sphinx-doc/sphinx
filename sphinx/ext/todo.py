@@ -14,6 +14,7 @@
 
 from docutils import nodes
 
+from sphinx.environment import NoUri
 from sphinx.util.compat import Directive, make_admonition
 
 class todo_node(nodes.Admonition, nodes.Element): pass
@@ -104,9 +105,13 @@ def process_todo_nodes(app, doctree, fromdocname):
             newnode = nodes.reference('', '')
             innernode = nodes.emphasis(_('here'), _('here'))
             newnode['refdocname'] = todo_info['docname']
-            newnode['refuri'] = app.builder.get_relative_uri(
-                fromdocname, todo_info['docname'])
-            newnode['refuri'] += '#' + todo_info['target']['refid']
+            try:
+                newnode['refuri'] = app.builder.get_relative_uri(
+                    fromdocname, todo_info['docname'])
+                newnode['refuri'] += '#' + todo_info['target']['refid']
+            except NoUri:
+                # ignore if no URI can be determined, e.g. for LaTeX output
+                pass
             newnode.append(innernode)
             para += newnode
             para += nodes.Text('.)', '.)')
