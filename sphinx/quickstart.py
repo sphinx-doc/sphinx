@@ -262,11 +262,12 @@ MAKEFILE = '''\
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
+BUILDDIR      = %(rbuilddir)s
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d %(rbuilddir)s/doctrees $(PAPEROPT_$(PAPER)) \
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes \
@@ -289,42 +290,42 @@ help:
 (if enabled)"
 
 clean:
-\t-rm -rf %(rbuilddir)s/*
+\t-rm -rf $(BUILDDIR)/*
 
 html:
-\t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) %(rbuilddir)s/html
+\t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 \t@echo
-\t@echo "Build finished. The HTML pages are in %(rbuilddir)s/html."
+\t@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 dirhtml:
-\t$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) %(rbuilddir)s/dirhtml
+\t$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 \t@echo
-\t@echo "Build finished. The HTML pages are in %(rbuilddir)s/dirhtml."
+\t@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
 pickle:
-\t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) %(rbuilddir)s/pickle
+\t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle
 \t@echo
 \t@echo "Build finished; now you can process the pickle files."
 
 json:
-\t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) %(rbuilddir)s/json
+\t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) $(BUILDDIR)/json
 \t@echo
 \t@echo "Build finished; now you can process the JSON files."
 
 htmlhelp:
-\t$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) %(rbuilddir)s/htmlhelp
+\t$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(BUILDDIR)/htmlhelp
 \t@echo
 \t@echo "Build finished; now you can run HTML Help Workshop with the" \\
-\t      ".hhp project file in %(rbuilddir)s/htmlhelp."
+\t      ".hhp project file in $(BUILDDIR)/htmlhelp."
 
 qthelp:
-\t$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) %(rbuilddir)s/qthelp
+\t$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) $(BUILDDIR)/qthelp
 \t@echo
 \t@echo "Build finished; now you can run "qcollectiongenerator" with the" \\
-\t      ".qhcp project file in %(rbuilddir)s/qthelp, like this:"
-\t@echo "# qcollectiongenerator %(rbuilddir)s/qthelp/%(project_fn)s.qhcp"
+\t      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
+\t@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/%(project_fn)s.qhcp"
 \t@echo "To view the help file:"
-\t@echo "# assistant -collectionFile %(rbuilddir)s/qthelp/%(project_fn)s.qhc"
+\t@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/%(project_fn)s.qhc"
 
 devhelp:
 \t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) %(rbuilddir)s/devhelp
@@ -336,9 +337,9 @@ devhelp:
 \t@echo "# devhelp"
 
 latex:
-\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo
-\t@echo "Build finished; the LaTeX files are in %(rbuilddir)s/latex."
+\t@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
 \t@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
 \t      "run these through (pdf)latex."
 
@@ -349,20 +350,20 @@ latexpdf: latex
 \t@echo "pdflatex finished; the PDF files are in %(rbuilddir)s/latex."
 
 changes:
-\t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) %(rbuilddir)s/changes
+\t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 \t@echo
-\t@echo "The overview file is in %(rbuilddir)s/changes."
+\t@echo "The overview file is in $(BUILDDIR)/changes."
 
 linkcheck:
-\t$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) %(rbuilddir)s/linkcheck
+\t$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 \t@echo
 \t@echo "Link check complete; look for any errors in the above output " \\
-\t      "or in %(rbuilddir)s/linkcheck/output.txt."
+\t      "or in $(BUILDDIR)/linkcheck/output.txt."
 
 doctest:
-\t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) %(rbuilddir)s/doctest
+\t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 \t@echo "Testing of doctests in the sources finished, look at the " \\
-\t      "results in %(rbuilddir)s/doctest/output.txt."
+\t      "results in $(BUILDDIR)/doctest/output.txt."
 '''
 
 BATCHFILE = '''\
@@ -371,7 +372,8 @@ BATCHFILE = '''\
 REM Command file for Sphinx documentation
 
 set SPHINXBUILD=sphinx-build
-set ALLSPHINXOPTS=-d %(rbuilddir)s/doctrees %%SPHINXOPTS%% %(rsrcdir)s
+set BUILDDIR=%(rbuilddir)s
+set ALLSPHINXOPTS=-d %%BUILDDIR%%/doctrees %%SPHINXOPTS%% %(rsrcdir)s
 if NOT "%%PAPER%%" == "" (
 \tset ALLSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%ALLSPHINXOPTS%%
 )
@@ -396,55 +398,55 @@ if "%%1" == "help" (
 )
 
 if "%%1" == "clean" (
-\tfor /d %%%%i in (%(rbuilddir)s\*) do rmdir /q /s %%%%i
-\tdel /q /s %(rbuilddir)s\*
+\tfor /d %%%%i in (%%BUILDDIR%%\*) do rmdir /q /s %%%%i
+\tdel /q /s %%BUILDDIR%%\*
 \tgoto end
 )
 
 if "%%1" == "html" (
-\t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %(rbuilddir)s/html
+\t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %%BUILDDIR%%/html
 \techo.
-\techo.Build finished. The HTML pages are in %(rbuilddir)s/html.
+\techo.Build finished. The HTML pages are in %%BUILDDIR%%/html.
 \tgoto end
 )
 
 if "%%1" == "dirhtml" (
-\t%%SPHINXBUILD%% -b dirhtml %%ALLSPHINXOPTS%% %(rbuilddir)s/dirhtml
+\t%%SPHINXBUILD%% -b dirhtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/dirhtml
 \techo.
-\techo.Build finished. The HTML pages are in %(rbuilddir)s/dirhtml.
+\techo.Build finished. The HTML pages are in %%BUILDDIR%%/dirhtml.
 \tgoto end
 )
 
 if "%%1" == "pickle" (
-\t%%SPHINXBUILD%% -b pickle %%ALLSPHINXOPTS%% %(rbuilddir)s/pickle
+\t%%SPHINXBUILD%% -b pickle %%ALLSPHINXOPTS%% %%BUILDDIR%%/pickle
 \techo.
 \techo.Build finished; now you can process the pickle files.
 \tgoto end
 )
 
 if "%%1" == "json" (
-\t%%SPHINXBUILD%% -b json %%ALLSPHINXOPTS%% %(rbuilddir)s/json
+\t%%SPHINXBUILD%% -b json %%ALLSPHINXOPTS%% %%BUILDDIR%%/json
 \techo.
 \techo.Build finished; now you can process the JSON files.
 \tgoto end
 )
 
 if "%%1" == "htmlhelp" (
-\t%%SPHINXBUILD%% -b htmlhelp %%ALLSPHINXOPTS%% %(rbuilddir)s/htmlhelp
+\t%%SPHINXBUILD%% -b htmlhelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/htmlhelp
 \techo.
 \techo.Build finished; now you can run HTML Help Workshop with the ^
-.hhp project file in %(rbuilddir)s/htmlhelp.
+.hhp project file in %%BUILDDIR%%/htmlhelp.
 \tgoto end
 )
 
 if "%%1" == "qthelp" (
-\t%%SPHINXBUILD%% -b qthelp %%ALLSPHINXOPTS%% %(rbuilddir)s/qthelp
+\t%%SPHINXBUILD%% -b qthelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/qthelp
 \techo.
 \techo.Build finished; now you can run "qcollectiongenerator" with the ^
-.qhcp project file in %(rbuilddir)s/qthelp, like this:
-\techo.^> qcollectiongenerator %(rbuilddir)s\\qthelp\\%(project_fn)s.qhcp
+.qhcp project file in %%BUILDDIR%%/qthelp, like this:
+\techo.^> qcollectiongenerator %%BUILDDIR%%\\qthelp\\%(project_fn)s.qhcp
 \techo.To view the help file:
-\techo.^> assistant -collectionFile %(rbuilddir)s\\qthelp\\%(project_fn)s.ghc
+\techo.^> assistant -collectionFile %%BUILDDIR%%\\qthelp\\%(project_fn)s.ghc
 \tgoto end
 )
 
@@ -456,32 +458,32 @@ if "%%1" == "devhelp" (
 )
 
 if "%%1" == "latex" (
-\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %(rbuilddir)s/latex
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
 \techo.
-\techo.Build finished; the LaTeX files are in %(rbuilddir)s/latex.
+\techo.Build finished; the LaTeX files are in %%BUILDDIR%%/latex.
 \tgoto end
 )
 
 if "%%1" == "changes" (
-\t%%SPHINXBUILD%% -b changes %%ALLSPHINXOPTS%% %(rbuilddir)s/changes
+\t%%SPHINXBUILD%% -b changes %%ALLSPHINXOPTS%% %%BUILDDIR%%/changes
 \techo.
-\techo.The overview file is in %(rbuilddir)s/changes.
+\techo.The overview file is in %%BUILDDIR%%/changes.
 \tgoto end
 )
 
 if "%%1" == "linkcheck" (
-\t%%SPHINXBUILD%% -b linkcheck %%ALLSPHINXOPTS%% %(rbuilddir)s/linkcheck
+\t%%SPHINXBUILD%% -b linkcheck %%ALLSPHINXOPTS%% %%BUILDDIR%%/linkcheck
 \techo.
 \techo.Link check complete; look for any errors in the above output ^
-or in %(rbuilddir)s/linkcheck/output.txt.
+or in %%BUILDDIR%%/linkcheck/output.txt.
 \tgoto end
 )
 
 if "%%1" == "doctest" (
-\t%%SPHINXBUILD%% -b doctest %%ALLSPHINXOPTS%% %(rbuilddir)s/doctest
+\t%%SPHINXBUILD%% -b doctest %%ALLSPHINXOPTS%% %%BUILDDIR%%/doctest
 \techo.
 \techo.Testing of doctests in the sources finished, look at the ^
-results in %(rbuilddir)s/doctest/output.txt.
+results in %%BUILDDIR%%/doctest/output.txt.
 \tgoto end
 )
 
