@@ -1,5 +1,5 @@
-Release 0.6.3 (in development)
-==============================
+Release 0.6.3 (Sep 03, 2009)
+============================
 
 * Properly add C module filenames as dependencies in autodoc.
 
