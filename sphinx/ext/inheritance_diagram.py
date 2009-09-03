@@ -36,11 +36,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
 import sys
 import inspect
-import subprocess
 try:
     from hashlib import md5
 except ImportError:

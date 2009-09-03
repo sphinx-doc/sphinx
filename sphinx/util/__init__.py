@@ -443,7 +443,7 @@ def split_explicit_title(text):
     """Split role content into title and target, if given."""
     match = explicit_title_re.match(text)
     if match:
-        return True, m.group(1), m.group(2)
+        return True, match.group(1), match.group(2)
     return False, text, text
 
 
