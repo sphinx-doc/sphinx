@@ -234,6 +234,8 @@ class ModuleAnalyzer(object):
         attr_visitor = AttrDocVisitor(number2name, scope, self.encoding)
         attr_visitor.visit(self.parsetree)
         self.attr_docs = attr_visitor.collected
+        # now that we found everything we could in the tree, throw it away
+        # (it takes quite a bit of memory for large modules)
         self.parsetree = None
         return attr_visitor.collected
 

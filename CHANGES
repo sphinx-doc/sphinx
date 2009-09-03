@@ -35,8 +35,12 @@ Release 1.0 (in development)
 * Added simplified Chinese locale.
 
 
-Release 0.6.3 (in development)
+Release 0.6.4 (in development)
 ==============================
+
+
+Release 0.6.3 (Sep 03, 2009)
+============================
 
 * Properly add C module filenames as dependencies in autodoc.
 
