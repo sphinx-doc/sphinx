@@ -50,8 +50,13 @@ class Graphviz(Directive):
     option_spec = {}
 
     def run(self):
+        dotcode = '\n'.join(self.content)
+        if not dotcode.strip():
+            return [self.state_machine.reporter.warning(
+                'Ignoring "graphviz" directive without content.',
+                line=self.lineno)]
         node = graphviz()
-        node['code'] = '\n'.join(self.content)
+        node['code'] = dotcode
         node['options'] = []
         return [node]
 

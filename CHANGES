@@ -1,6 +1,9 @@
 Release 0.6.3 (in development)
 ==============================
 
+* #253: Ignore graphviz directives without content instead of
+  raising an unhandled exception.
+
 * #241: Fix a crash building LaTeX output for documents that contain
   a todolist directive.
 
