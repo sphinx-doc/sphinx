@@ -49,6 +49,7 @@ class XRefRole(object):
     def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None):
         self.fix_parens = fix_parens
+        self.lowercase = lowercase
         if nodeclass is not None:
             self.nodeclass = nodeclass
         if innernodeclass is not None:
@@ -94,6 +95,11 @@ class XRefRole(object):
                                refcaption=has_explicit_title)
         # we may need the line number for warnings
         pnode.line = lineno
+        if self.lowercase:
+            target = target.lower()
+        if self.fix_parens:
+            title, target = self.normalize_func_parens(env, has_explicit_title,
+                                                       title, target)
         title, target = self.process_link(env, pnode,
                                           has_explicit_title, title, target)
         pnode['reftarget'] = target
