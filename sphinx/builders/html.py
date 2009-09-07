@@ -10,6 +10,7 @@
 """
 
 import os
+import zlib
 import codecs
 import posixpath
 import cPickle as pickle
@@ -711,15 +712,22 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
         self.info(bold('dumping object inventory... '), nonl=True)
-        f = open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
+        f = open(path.join(self.outdir, INVENTORY_FILENAME), 'wb')
         try:
             f.write('# Sphinx inventory version 2\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
             f.write('# Version: %s\n' % self.config.version)
+            f.write('# The remainder of this file is compressed using zlib.\n')
+            compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
                 for name, type, docname, anchor, prio in domain.get_objects():
-                    f.write('%s %s:%s %s %s\n' % (name, domainname, type, prio,
-                            self.get_target_uri(docname) + '#' + anchor))
+                    if anchor.endswith(name):
+                        # this can shorten the inventory by as much as 25%
+                        anchor = anchor[:-len(name)] + '$'
+                    f.write(compressor.compress(
+                        '%s %s:%s %s %s\n' % (name, domainname, type, prio,
+                        self.get_target_uri(docname) + '#' + anchor)))
+            f.write(compressor.flush())
         finally:
             f.close()
         self.info('done')

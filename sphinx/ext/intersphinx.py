@@ -25,6 +25,7 @@
 """
 
 import time
+import zlib
 import urllib2
 import posixpath
 from os import path
@@ -62,12 +63,35 @@ def fetch_inventory_v1(f, uri, join):
 
 def fetch_inventory_v2(f, uri, join):
     invdata = {}
-    line = f.next()
+    line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
-    line = f.next()
+    line = f.readline()
     version = line.rstrip()[11:]
-    for line in f:
+    line = f.readline()
+    if 'zlib' not in line:
+        raise ValueError
+
+    def read_chunks():
+        decompressor = zlib.decompressobj()
+        for chunk in iter(lambda: f.read(16 * 1024), ''):
+            yield decompressor.decompress(chunk)
+        yield decompressor.flush()
+
+    def split_lines(iter):
+        buf = ''
+        for chunk in iter:
+            buf += chunk
+            lineend = buf.find('\n')
+            while lineend != -1:
+                yield buf[:lineend]
+                buf = buf[lineend+1:]
+                lineend = buf.find('\n')
+        assert not buf
+
+    for line in split_lines(read_chunks()):
         name, type, prio, location = line.rstrip().split(None, 3)
+        if location.endswith('$'):
+            location = location[:-1] + name
         location = join(uri, location)
         invdata.setdefault(type, {})[name] = (projname, version, location)
     return invdata
@@ -89,15 +113,18 @@ def fetch_inventory(app, uri, inv):
                  '%s: %s' % (inv, err.__class__, err))
         return
     try:
-        line = f.next().rstrip()
-        if line == '# Sphinx inventory version 1':
-            invdata = fetch_inventory_v1(f, uri, join)
-        elif line == '# Sphinx inventory version 2':
-            invdata = fetch_inventory_v2(f, uri, join)
-        else:
+        line = f.readline().rstrip()
+        try:
+            if line == '# Sphinx inventory version 1':
+                invdata = fetch_inventory_v1(f, uri, join)
+            elif line == '# Sphinx inventory version 2':
+                invdata = fetch_inventory_v2(f, uri, join)
+            else:
+                raise ValueError
+            f.close()
+        except ValueError:
             f.close()
             raise ValueError('unknown or unsupported inventory version')
-        f.close()
     except Exception, err:
         app.warn('intersphinx inventory %r not readable due to '
                  '%s: %s' % (inv, err.__class__.__name__, err))
