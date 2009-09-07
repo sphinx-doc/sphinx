@@ -119,8 +119,8 @@ class IndexBuilder(object):
         self._titles = {}
         # stemmed word -> set(filenames)
         self._mapping = {}
-        # desctypes -> index
-        self._desctypes = {}
+        # objtype -> index
+        self._objtypes = {}
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -138,7 +138,7 @@ class IndexBuilder(object):
                 self._mapping[k] = set([index2fn[v]])
             else:
                 self._mapping[k] = set(index2fn[i] for i in v)
-        # no need to load keywords/desctypes
+        # no need to load keywords/objtypes
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
@@ -157,7 +157,7 @@ class IndexBuilder(object):
 
     def get_descrefs(self, fn2index):
         rv = {}
-        dt = self._desctypes
+        dt = self._objtypes
         # XXX implement search capability
         return rv
         for fullname, (doc, desctype) in self.env.descrefs.iteritems():
@@ -193,9 +193,10 @@ class IndexBuilder(object):
             filenames=filenames,
             titles=titles,
             terms=self.get_terms(fn2index),
-            descrefs=self.get_descrefs(fn2index),
-            modules=self.get_modules(fn2index),
-            desctypes=dict((v, k) for (k, v) in self._desctypes.items()),
+            # XXX
+            #descrefs=self.get_descrefs(fn2index),
+            #modules=self.get_modules(fn2index),
+            objtypes=dict((v, k) for (k, v) in self._objtypes.items()),
         )
 
     def prune(self, filenames):

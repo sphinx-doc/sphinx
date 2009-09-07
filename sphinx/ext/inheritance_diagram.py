@@ -283,7 +283,8 @@ class InheritanceDiagram(Directive):
 
         # Create a graph starting with the list of classes
         try:
-            graph = InheritanceGraph(class_names, env.currmodule)
+            graph = InheritanceGraph(class_names,
+                                     env.doc_read_data.get('py_module'))
         except InheritanceException, err:
             return [node.document.reporter.warning(err.args[0],
                                                    line=self.lineno)]

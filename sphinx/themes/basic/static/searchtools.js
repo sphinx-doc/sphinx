@@ -330,9 +330,8 @@ var Search = {
     var filenames = this._index.filenames;
     var titles = this._index.titles;
     var terms = this._index.terms;
-    var descrefs = this._index.descrefs;
-    var modules = this._index.modules;
-    var desctypes = this._index.desctypes;
+    var objects = this._index.objects;
+    var objtypes = this._index.objtypes;
     var fileMap = {};
     var files = null;
     var objectResults = [];
@@ -341,6 +340,7 @@ var Search = {
 
     // lookup as object
     if (object != null) {
+      // XXX must be adapted
       for (var module in modules) {
         if (module.indexOf(object) > -1) {
           fn = modules[module];
@@ -348,12 +348,12 @@ var Search = {
           objectResults.push([filenames[fn], module, '#module-'+module, descr]);
         }
       }
-      for (var prefix in descrefs) {
-        for (var name in descrefs[prefix]) {
+      for (var prefix in objects) {
+        for (var name in objects[prefix]) {
           var fullname = (prefix ? prefix + '.' : '') + name;
           if (fullname.toLowerCase().indexOf(object) > -1) {
-            match = descrefs[prefix][name];
-            descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
+            match = objects[prefix][name];
+            descr = objtypes[match[1]] + _(', in ') + titles[match[0]];
             objectResults.push([filenames[match[0]], fullname, '#'+fullname, descr]);
           }
         }

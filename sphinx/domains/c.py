@@ -1,0 +1,203 @@
+# -*- coding: utf-8 -*-
+"""
+    sphinx.domains.c
+    ~~~~~~~~~~~~~~~~
+
+    The C language domain.
+
+    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+"""
+
+import re
+import string
+
+from docutils import nodes
+from docutils.parsers.rst import directives
+
+from sphinx import addnodes
+from sphinx.roles import XRefRole
+from sphinx.locale import l_
+from sphinx.domains import Domain, ObjType
+from sphinx.directives import ObjectDescription
+from sphinx.util import make_refnode
+from sphinx.util.compat import Directive
+
+
+# RE to split at word boundaries
+wsplit_re = re.compile(r'(\W+)')
+
+# REs for C signatures
+c_sig_re = re.compile(
+    r'''^([^(]*?)          # return type
+        ([\w:]+)  \s*      # thing name (colon allowed for C++ class names)
+        (?: \((.*)\) )?    # optionally arguments
+        (\s+const)? $      # const specifier
+    ''', re.VERBOSE)
+c_funcptr_sig_re = re.compile(
+    r'''^([^(]+?)          # return type
+        (\( [^()]+ \)) \s* # name in parentheses
+        \( (.*) \)         # arguments
+        (\s+const)? $      # const specifier
+    ''', re.VERBOSE)
+c_funcptr_name_re = re.compile(r'^\(\s*\*\s*(.*?)\s*\)$')
+
+
+class CObject(ObjectDescription):
+    """
+    Description of a C language object.
+    """
+
+    # These C types aren't described anywhere, so don't try to create
+    # a cross-reference to them
+    stopwords = set(('const', 'void', 'char', 'int', 'long', 'FILE', 'struct'))
+
+    def _parse_type(self, node, ctype):
+        # add cross-ref nodes for all words
+        for part in filter(None, wsplit_re.split(ctype)):
+            tnode = nodes.Text(part, part)
+            if part[0] in string.ascii_letters+'_' and \
+                   part not in self.stopwords:
+                pnode = addnodes.pending_xref(
+                    '', refdomain='c', reftype='type', reftarget=part,
+                    modname=None, classname=None)
+                pnode += tnode
+                node += pnode
+            else:
+                node += tnode
+
+    def parse_signature(self, sig, signode):
+        """Transform a C (or C++) signature into RST nodes."""
+        # first try the function pointer signature regex, it's more specific
+        m = c_funcptr_sig_re.match(sig)
+        if m is None:
+            m = c_sig_re.match(sig)
+        if m is None:
+            raise ValueError('no match')
+        rettype, name, arglist, const = m.groups()
+
+        signode += addnodes.desc_type('', '')
+        self._parse_type(signode[-1], rettype)
+        try:
+            classname, funcname = name.split('::', 1)
+            classname += '::'
+            signode += addnodes.desc_addname(classname, classname)
+            signode += addnodes.desc_name(funcname, funcname)
+            # name (the full name) is still both parts
+        except ValueError:
+            signode += addnodes.desc_name(name, name)
+        # clean up parentheses from canonical name
+        m = c_funcptr_name_re.match(name)
+        if m:
+            name = m.group(1)
+        if not arglist:
+            if self.objtype == 'cfunction':
+                # for functions, add an empty parameter list
+                signode += addnodes.desc_parameterlist()
+            if const:
+                signode += addnodes.desc_addname(const, const)
+            return name
+
+        paramlist = addnodes.desc_parameterlist()
+        arglist = arglist.replace('`', '').replace('\\ ', '') # remove markup
+        # this messes up function pointer types, but not too badly ;)
+        args = arglist.split(',')
+        for arg in args:
+            arg = arg.strip()
+            param = addnodes.desc_parameter('', '', noemph=True)
+            try:
+                ctype, argname = arg.rsplit(' ', 1)
+            except ValueError:
+                # no argument name given, only the type
+                self._parse_type(param, arg)
+            else:
+                self._parse_type(param, ctype)
+                param += nodes.emphasis(' '+argname, ' '+argname)
+            paramlist += param
+        signode += paramlist
+        if const:
+            signode += addnodes.desc_addname(const, const)
+        return name
+
+    def get_index_text(self, name):
+        if self.objtype == 'cfunction':
+            return _('%s (C function)') % name
+        elif self.objtype == 'cmember':
+            return _('%s (C member)') % name
+        elif self.objtype == 'cmacro':
+            return _('%s (C macro)') % name
+        elif self.objtype == 'ctype':
+            return _('%s (C type)') % name
+        elif self.objtype == 'cvar':
+            return _('%s (C variable)') % name
+        else:
+            return ''
+
+    def add_target_and_index(self, name, sig, signode):
+        # note target
+        if name not in self.state.document.ids:
+            signode['names'].append(name)
+            signode['ids'].append(name)
+            signode['first'] = (not self.names)
+            self.state.document.note_explicit_target(signode)
+            inv = self.env.domaindata['c']['objects']
+            if name in inv:
+                self.env.warn(
+                    self.env.docname,
+                    'duplicate C object description of %s, ' % name +
+                    'other instance in ' + self.env.doc2path(inv[name][0]),
+                    self.lineno)
+            inv[name] = (self.env.docname, self.objtype)
+
+        indextext = self.get_index_text(name)
+        if indextext:
+            self.indexnode['entries'].append(('single', indextext, name, name))
+
+
+class CDomain(Domain):
+    """C language domain."""
+    name = 'c'
+    label = 'C'
+    object_types = {
+        'function': ObjType(l_('C function'), 'func'),
+        'member':   ObjType(l_('C member'),   'member'),
+        'macro':    ObjType(l_('C macro'),    'macro'),
+        'type':     ObjType(l_('C type'),     'type'),
+        'var':      ObjType(l_('C variable'), 'data'),
+    }
+
+    directives = {
+        'function': CObject,
+        'member':   CObject,
+        'macro':    CObject,
+        'type':     CObject,
+        'var':      CObject,
+    }
+    roles = {
+        'func' :  XRefRole(fix_parens=True),
+        'member': XRefRole(),
+        'macro':  XRefRole(),
+        'data':   XRefRole(),
+        'type':   XRefRole(),
+    }
+    initial_data = {
+        'objects': {},  # fullname -> docname, objtype
+    }
+
+    def clear_doc(self, docname):
+        for fullname, (fn, _) in self.data['objects'].items():
+            if fn == docname:
+                del self.data['objects'][fullname]
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        # strip pointer asterisk
+        target = target.rstrip(' *')
+        if target not in self.data:
+            return None
+        obj = self.data[target]
+        return make_refnode(builder, fromdocname, obj[0], contnode, target)
+
+    def get_objects(self):
+        for refname, (docname, type) in self.data['objects'].iteritems():
+            yield (refname, type, docname, refname, 0)

@@ -95,7 +95,7 @@ def test_object_inventory():
     refs = env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('desc', 'function')
+    assert refs['func_without_module'] == ('objects', 'function')
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
@@ -110,7 +110,7 @@ def test_object_inventory():
     assert 'func_noindex' not in refs
 
     assert env.domaindata['py']['modules']['mod'] == \
-        ('desc', 'Module synopsis.', 'UNIX', False)
+        ('objects', 'Module synopsis.', 'UNIX', False)
 
     assert env.domains['py'].data is env.domaindata['py']
     assert env.domains['c'].data is env.domaindata['c']

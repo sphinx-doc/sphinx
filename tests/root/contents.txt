@@ -16,7 +16,7 @@ Contents:
    subdir/includes
    includes
    markup
-   desc
+   objects
    bom
    math
    autodoc

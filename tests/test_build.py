@@ -111,11 +111,11 @@ HTML_XPATH = {
         ".//li/tt/em/span[@class='pre']": '^i$',
         ".//a[@href='http://www.python.org/dev/peps/pep-0008']/strong": 'PEP 8',
         ".//a[@href='http://tools.ietf.org/html/rfc1.html']/strong": 'RFC 1',
-        ".//a[@href='desc.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
+        ".//a[@href='objects.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
         ".//a[@href='#with']/tt/span[@class='pre']": '^with$',
         ".//a[@href='#grammar-token-try_stmt']/tt/span": '^statement$',
         ".//a[@href='subdir/includes.html']/em": 'Including in subdir',
-        ".//a[@href='desc.html#cmdoption-python-c']/em": 'Python -c option',
+        ".//a[@href='objects.html#cmdoption-python-c']/em": 'Python -c option',
         # abbreviations
         ".//abbr[@title='abbreviation']": '^abbr$',
         # version stuff
@@ -141,13 +141,13 @@ HTML_XPATH = {
         ".//p": 'In both.',
         ".//p": 'Always present',
     },
-    'desc.html': {
+    'objects.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
         ".//dt[@id='errmod.Error']": '',
         ".//a[@href='#mod.Cls']": '',
         ".//dl[@class='userdesc']": '',
-        ".//dt[@id='userdescrole-myobj']": '',
-        ".//a[@href='#userdescrole-myobj']": '',
+        ".//dt[@id='userdesc-myobj']": '',
+        ".//a[@href='#userdesc-myobj']": '',
         ".//span[@class='pre']": 'CFunction()',
     },
     'contents.html': {

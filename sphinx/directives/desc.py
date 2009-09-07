@@ -15,7 +15,6 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.locale import l_
-from sphinx.util import ws_re
 from sphinx.util.compat import Directive, directive_dwim
 
 
@@ -32,15 +31,11 @@ def _is_only_paragraph(node):
     return False
 
 
-# RE for option descriptions
-option_desc_re = re.compile(
-    r'((?:/|-|--)[-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
-
 # RE to strip backslash escapes
 strip_backslash_re = re.compile(r'\\(?=[^\\])')
 
 
-class DescDirective(Directive):
+class ObjectDescription(Directive):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed to add custom behavior.
@@ -133,10 +128,12 @@ class DescDirective(Directive):
                         nfield += nfieldname
                         node = nfieldname
                         if typ in self.doc_fields_with_linked_arg:
+                            # XXX currmodule/currclass
                             node = addnodes.pending_xref(
                                 obj, reftype='obj', refcaption=False,
-                                reftarget=obj, modname=self.env.currmodule,
-                                classname=self.env.currclass)
+                                reftarget=obj)
+                            #, modname=self.env.currmodule
+                            #, classname=self.env.currclass
                             nfieldname += node
                         node += nodes.Text(obj, obj)
                         nfield += nodes.field_body()
@@ -205,15 +202,17 @@ class DescDirective(Directive):
 
     def run(self):
         if ':' in self.name:
-            self.domain, self.desctype = self.name.split(':', 1)
+            self.domain, self.objtype = self.name.split(':', 1)
         else:
-            self.domain, self.desctype = '', self.name
+            self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
         self.indexnode = addnodes.index(entries=[])
 
         node = addnodes.desc()
         node.document = self.state.document
-        node['desctype'] = self.desctype
+        node['domain'] = self.domain
+        # 'desctype' is a backwards compatible attribute
+        node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
 
         self.names = []
@@ -242,117 +241,16 @@ class DescDirective(Directive):
         node.append(contentnode)
         if self.names:
             # needed for association of version{added,changed} directives
-            self.env.currdesc = self.names[0]
+            self.env.doc_read_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
         self.handle_doc_fields(contentnode)
-        self.env.currdesc = None
+        self.env.doc_read_data['object'] = None
         self.after_content()
         return [self.indexnode, node]
 
-
-class CmdoptionDesc(DescDirective):
-    """
-    Description of a command-line option (.. cmdoption).
-    """
-
-    def parse_signature(self, sig, signode):
-        """Transform an option description into RST nodes."""
-        count = 0
-        firstname = ''
-        for m in option_desc_re.finditer(sig):
-            optname, args = m.groups()
-            if count:
-                signode += addnodes.desc_addname(', ', ', ')
-            signode += addnodes.desc_name(optname, optname)
-            signode += addnodes.desc_addname(args, args)
-            if not count:
-                firstname = optname
-            count += 1
-        if not firstname:
-            raise ValueError
-        return firstname
-
-    def add_target_and_index(self, name, sig, signode):
-        targetname = name.replace('/', '-')
-        if self.env.currprogram:
-            targetname = '-' + self.env.currprogram + targetname
-        targetname = 'cmdoption' + targetname
-        signode['ids'].append(targetname)
-        self.state.document.note_explicit_target(signode)
-        self.indexnode['entries'].append(
-            ('pair', _('%scommand line option; %s') %
-             ((self.env.currprogram and
-               self.env.currprogram + ' ' or ''), sig),
-             targetname, targetname))
-        self.env.note_progoption(name, targetname)
-
-
-class GenericDesc(DescDirective):
-    """
-    A generic x-ref directive registered with Sphinx.add_description_unit().
-    """
-
-    def parse_signature(self, sig, signode):
-        parse_node = additional_xref_types[self.desctype][2]
-        if parse_node:
-            name = parse_node(self.env, sig, signode)
-        else:
-            signode.clear()
-            signode += addnodes.desc_name(sig, sig)
-            # normalize whitespace like XRefRole does
-            name = ws_re.sub('', sig)
-        return name
-
-    def add_target_and_index(self, name, sig, signode):
-        rolename, indextemplate = additional_xref_types[self.desctype][:2]
-        targetname = '%s-%s' % (rolename, name)
-        signode['ids'].append(targetname)
-        self.state.document.note_explicit_target(signode)
-        if indextemplate:
-            indexentry = indextemplate % (name,)
-            indextype = 'single'
-            colon = indexentry.find(':')
-            if colon != -1:
-                indextype = indexentry[:colon].strip()
-                indexentry = indexentry[colon+1:].strip()
-            self.indexnode['entries'].append((indextype, indexentry,
-                                              targetname, targetname))
-        self.env.note_reftarget(rolename, name, targetname)
-
-
-class Target(Directive):
-    """
-    Generic target for user-defined cross-reference types.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    option_spec = {}
-
-    def run(self):
-        env = self.state.document.settings.env
-        rolename, indextemplate, foo = additional_xref_types[self.name]
-        # normalize whitespace in fullname like XRefRole does
-        fullname = ws_re.sub('', self.arguments[0].strip())
-        targetname = '%s-%s' % (rolename, fullname)
-        node = nodes.target('', '', ids=[targetname])
-        self.state.document.note_explicit_target(node)
-        ret = [node]
-        if indextemplate:
-            indexentry = indextemplate % (fullname,)
-            indextype = 'single'
-            colon = indexentry.find(':')
-            if colon != -1:
-                indextype = indexentry[:colon].strip()
-                indexentry = indexentry[colon+1:].strip()
-            inode = addnodes.index(entries=[(indextype, indexentry,
-                                             targetname, targetname)])
-            ret.insert(0, inode)
-        env.note_reftarget(rolename, fullname, targetname)
-        return ret
+# backwards compatible old name
+DescDirective = ObjectDescription
 
 
 class DefaultDomain(Directive):
@@ -372,18 +270,7 @@ class DefaultDomain(Directive):
         env.default_domain = env.domains.get(domain_name)
 
 
-# Note: the target directive is not registered here, it is used by the
-# application when registering additional xref types.
-
-# Generic cross-reference types; they can be registered in the application;
-# the directives are either desc_directive or target_directive.
-additional_xref_types = {
-    # directive name: (role name, index text, function to parse the desc node)
-    'envvar': ('envvar', l_('environment variable; %s'), None),
-}
-
-
 directives.register_directive('default-domain', directive_dwim(DefaultDomain))
-directives.register_directive('describe', directive_dwim(DescDirective))
-directives.register_directive('cmdoption', directive_dwim(CmdoptionDesc))
-directives.register_directive('envvar', directive_dwim(GenericDesc))
+directives.register_directive('describe', directive_dwim(ObjectDescription))
+# new, more consistent, name
+directives.register_directive('object', directive_dwim(ObjectDescription))

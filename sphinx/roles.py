@@ -41,7 +41,7 @@ for rolename, nodeclass in generic_docroles.iteritems():
 # -- generic cross-reference roles ---------------------------------------------
 
 class XRefRole(object):
-    """XXX add docstring"""
+    """XXX add docstrings"""
 
     nodeclass = addnodes.pending_xref
     innernodeclass = nodes.literal
@@ -101,24 +101,6 @@ class XRefRole(object):
         return [pnode], []
 
 
-class OptionXRefRole(XRefRole):
-    innernodeclass = addnodes.literal_emphasis
-
-    def process_link(self, env, pnode, has_explicit_title, title, target):
-        program = env.currprogram
-        if not has_explicit_title:
-            if ' ' in title and not (title.startswith('/') or
-                                     title.startswith('-')):
-                program, target = re.split(' (?=-|--|/)', title, 1)
-                program = ws_re.sub('-', program)
-                target = target.strip()
-        elif ' ' in target:
-            program, target = re.split(' (?=-|--|/)', target, 1)
-            program = ws_re.sub('-', program)
-        pnode['refprogram'] = program
-        return title, target
-
-
 _EnvvarXrefRole = XRefRole()
 
 def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
@@ -129,11 +111,11 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
     else:
         typ = typ.lower()
     text = utils.unescape(etext)
-    targetid = 'index-%s' % env.index_num
-    env.index_num += 1
+    targetid = 'index-%s' % env.new_serialno('index')
     indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
     inliner.document.note_explicit_target(targetnode)
+    # XXX remove
     if typ == 'envvar':
         indexnode['entries'] = [('single', text, targetid, text),
                                 ('single', _('environment variable; %s') % text,
@@ -214,9 +196,6 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 specific_docroles = {
     'keyword': XRefRole(),
     'ref': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
-    'token': XRefRole(),
-    'term': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
-    'option': OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
     'doc': XRefRole(),
     'download': XRefRole(nodeclass=addnodes.download_reference),
 
@@ -233,7 +212,7 @@ for rolename, func in specific_docroles.iteritems():
     roles.register_local_role(rolename, func)
 
 
-# compatibility alias
+# backwards compatibility alias
 def xfileref_role(*args, **kwds):
     warnings.warn('xfileref_role is deprecated, use XRefRole',
                   DeprecationWarning, stacklevel=2)

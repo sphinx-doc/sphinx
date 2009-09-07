@@ -61,7 +61,7 @@ class HTMLTranslator(BaseTranslator):
         self.add_permalinks = builder.config.html_add_permalinks
 
     def visit_desc(self, node):
-        self.body.append(self.starttag(node, 'dl', CLASS=node['desctype']))
+        self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
     def depart_desc(self, node):
         self.body.append('</dl>\n\n')
 
@@ -69,7 +69,7 @@ class HTMLTranslator(BaseTranslator):
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
         # anchor for per-desc interactive data
-        if node.parent['desctype'] != 'describe' \
+        if node.parent['objtype'] != 'describe' \
                and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
     def depart_desc_signature(self, node):

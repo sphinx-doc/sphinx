@@ -123,7 +123,7 @@ class Table(object):
 
 class Desc(object):
     def __init__(self, node):
-        self.env = LaTeXTranslator.desc_map.get(node['desctype'], 'describe')
+        self.env = LaTeXTranslator.desc_map.get(node['objtype'], 'describe')
         self.type = self.cls = self.name = self.params = \
                     self.annotation = self.returns = ''
         self.count = 0
@@ -462,7 +462,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_desc_signature(self, node):
         d = self.descstack[-1]
         d.cls = d.cls.rstrip('.')
-        if node.parent['desctype'] != 'describe' and node['ids']:
+        if node.parent['objtype'] != 'describe' and node['ids']:
             hyper = '\\hypertarget{%s}{}' % node['ids'][0]
         else:
             hyper = ''

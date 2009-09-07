@@ -1,133 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.domains
-    ~~~~~~~~~~~~~~
+    sphinx.domains.python
+    ~~~~~~~~~~~~~~~~~~~~~
 
-    Support for domains, which are groupings of description directives
-    and roles describing e.g. constructs of one programming language.
+    The Python domain.
 
     :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-import string
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
-from sphinx.directives import DescDirective
+from sphinx.locale import l_
+from sphinx.domains import Domain, ObjType
+from sphinx.directives import ObjectDescription
 from sphinx.util import make_refnode
 from sphinx.util.compat import Directive
-
-
-class Domain(object):
-    """
-    A Domain is meant to be a group of "object" description directives for
-    objects of a similar nature, and corresponding roles to create references to
-    them.  Examples would be Python modules, classes, functions etc., elements
-    of a templating language, Sphinx roles and directives, etc.
-
-    Each domain has a separate storage for information about existing objects
-    and how to reference them in `data`, which must be a dictionary.  It also
-    must implement several functions that expose the object information in a
-    uniform way to parts of Sphinx that allow the user to reference or search
-    for objects in a domain-agnostic way.
-
-    About `self.data`: since all object and cross-referencing information is
-    stored on a BuildEnvironment instance, the `domain.data` object is also
-    stored in the `env.domaindata` dict under the key `domain.name`.  Before the
-    build process starts, every active domain is instantiated and given the
-    environment object; the `domaindata` dict must then either be nonexistent or
-    a dictionary whose 'version' key is equal to the domain class'
-    `data_version` attribute.  Otherwise, `IOError` is raised and the pickled
-    environment is discarded.
-    """
-
-    name = ''
-    directives = {}
-    roles = {}
-    label = ''
-
-    # data value for a fresh environment
-    initial_data = {}
-    # data version
-    data_version = 0
-
-    def __init__(self, env):
-        self.env = env
-        if self.name not in env.domaindata:
-            assert isinstance(self.initial_data, dict)
-            new_data = self.initial_data.copy()
-            new_data['version'] = self.data_version
-            self.data = env.domaindata[self.name] = new_data
-        else:
-            self.data = env.domaindata[self.name]
-            if self.data['version'] != self.data_version:
-                raise IOError('data of %r domain out of date' % self.label)
-        self._role_cache = {}
-        self._directive_cache = {}
-
-    def clear_doc(self, docname):
-        """
-        Remove traces of a document in the domain-specific inventories.
-        """
-        pass
-
-    def role(self, name):
-        """
-        Return a role adapter function that always gives the registered
-        role its full name ('domain:name') as the first argument.
-        """
-        if name in self._role_cache:
-            return self._role_cache[name]
-        if name not in self.roles:
-            return None
-        fullname = '%s:%s' % (self.name, name)
-        def role_adapter(typ, rawtext, text, lineno, inliner,
-                         options={}, content=[]):
-            return self.roles[name](fullname, rawtext, text, lineno,
-                                    inliner, options, content)
-        self._role_cache[name] = role_adapter
-        return role_adapter
-
-    def directive(self, name):
-        """
-        Return a directive adapter class that always gives the registered
-        directive its full name ('domain:name') as ``self.name``.
-        """
-        if name in self._directive_cache:
-            return self._directive_cache[name]
-        if name not in self.directives:
-            return None
-        fullname = '%s:%s' % (self.name, name)
-        # XXX what about function-style directives?
-        BaseDirective = self.directives[name]
-        class DirectiveAdapter(BaseDirective):
-            def run(self):
-                self.name = fullname
-                return BaseDirective.run(self)
-        self._directive_cache[name] = DirectiveAdapter
-        return DirectiveAdapter
-
-    def resolve_xref(self, typ, target, node, contnode):
-        """
-        Resolve the ``pending_xref`` *node* with the given *typ* and *target*.
-
-        This method should return a new node, to replace the xref node,
-        containing the *contnode* which is the markup content of the
-        cross-reference.
-
-        If no resolution can be found, None can be returned; the xref node will
-        then given to the 'missing-reference' event, and if that yields no
-        resolution, replaced by *contnode*.
-
-        The method can also raise `sphinx.environment.NoUri` to suppress the
-        'missing-reference' event being emitted.
-        """
-        pass
 
 
 # REs for Python signatures
@@ -142,7 +35,7 @@ py_sig_re = re.compile(
 py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
 
 
-class PythonDesc(DescDirective):
+class PyObject(ObjectDescription):
     """
     Description of a general Python object.
     """
@@ -174,19 +67,20 @@ class PythonDesc(DescDirective):
             raise ValueError
         classname, name, arglist, retann = m.groups()
 
-        if self.env.currclass:
+        currclass = self.env.doc_read_data.get('py_class')
+        if currclass:
             add_module = False
-            if classname and classname.startswith(self.env.currclass):
+            if classname and classname.startswith(currclass):
                 fullname = classname + name
                 # class name is given again in the signature
-                classname = classname[len(self.env.currclass):].lstrip('.')
+                classname = classname[len(currclass):].lstrip('.')
             elif classname:
                 # class name is given in the signature, but different
                 # (shouldn't happen)
-                fullname = self.env.currclass + '.' + classname + name
+                fullname = currclass + '.' + classname + name
             else:
                 # class name is not given in the signature
-                fullname = self.env.currclass + '.' + name
+                fullname = currclass + '.' + name
         else:
             add_module = True
             fullname = classname and classname + name or name
@@ -200,7 +94,8 @@ class PythonDesc(DescDirective):
         # exceptions are a special case, since they are documented in the
         # 'exceptions' module.
         elif add_module and self.env.config.add_module_names:
-            modname = self.options.get('module', self.env.currmodule)
+            modname = self.options.get(
+                'module', self.env.doc_read_data.get('py_module'))
             if modname and modname != 'exceptions':
                 nodetext = modname + '.'
                 signode += addnodes.desc_addname(nodetext, nodetext)
@@ -244,7 +139,8 @@ class PythonDesc(DescDirective):
         raise NotImplementedError('must be implemented in subclasses')
 
     def add_target_and_index(self, name_cls, sig, signode):
-        modname = self.options.get('module', self.env.currmodule)
+        modname = self.options.get(
+            'module', self.env.doc_read_data.get('py_module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -260,7 +156,7 @@ class PythonDesc(DescDirective):
                     'other instance in ' +
                     self.env.doc2path(objects[fullname][0]),
                     self.lineno)
-            objects[fullname] = (self.env.docname, self.desctype)
+            objects[fullname] = (self.env.docname, self.objtype)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -273,23 +169,23 @@ class PythonDesc(DescDirective):
 
     def after_content(self):
         if self.clsname_set:
-            self.env.currclass = None
+            self.env.doc_read_data['py_class'] = None
 
 
-class ModulelevelDesc(PythonDesc):
+class PyModulelevel(PyObject):
     """
     Description of an object on module level (functions, data).
     """
 
     def needs_arglist(self):
-        return self.desctype == 'function'
+        return self.objtype == 'function'
 
     def get_index_text(self, modname, name_cls):
-        if self.desctype == 'function':
+        if self.objtype == 'function':
             if not modname:
                 return _('%s() (built-in function)') % name_cls[0]
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.desctype == 'data':
+        elif self.objtype == 'data':
             if not modname:
                 return _('%s (built-in variable)') % name_cls[0]
             return _('%s (in module %s)') % (name_cls[0], modname)
@@ -297,50 +193,50 @@ class ModulelevelDesc(PythonDesc):
             return ''
 
 
-class ClasslikeDesc(PythonDesc):
+class PyClasslike(PyObject):
     """
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
     def get_signature_prefix(self, sig):
-        return self.desctype + ' '
+        return self.objtype + ' '
 
     def get_index_text(self, modname, name_cls):
-        if self.desctype == 'class':
+        if self.objtype == 'class':
             if not modname:
                 return _('%s (built-in class)') % name_cls[0]
             return _('%s (class in %s)') % (name_cls[0], modname)
-        elif self.desctype == 'exception':
+        elif self.objtype == 'exception':
             return name_cls[0]
         else:
             return ''
 
     def before_content(self):
-        PythonDesc.before_content(self)
+        PyObject.before_content(self)
         if self.names:
-            self.env.currclass = self.names[0][0]
+            self.env.doc_read_data['py_class'] = self.names[0][0]
             self.clsname_set = True
 
 
-class ClassmemberDesc(PythonDesc):
+class PyClassmember(PyObject):
     """
     Description of a class member (methods, attributes).
     """
 
     def needs_arglist(self):
-        return self.desctype.endswith('method')
+        return self.objtype.endswith('method')
 
     def get_signature_prefix(self, sig):
-        if self.desctype == 'staticmethod':
+        if self.objtype == 'staticmethod':
             return 'static '
-        elif self.desctype == 'classmethod':
+        elif self.objtype == 'classmethod':
             return 'classmethod '
         return ''
 
     def get_index_text(self, modname, name_cls):
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
-        if self.desctype == 'method':
+        if self.objtype == 'method':
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -352,7 +248,7 @@ class ClassmemberDesc(PythonDesc):
                 return _('%s() (%s.%s method)') % (methname, modname, clsname)
             else:
                 return _('%s() (%s method)') % (methname, clsname)
-        elif self.desctype == 'staticmethod':
+        elif self.objtype == 'staticmethod':
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -365,7 +261,7 @@ class ClassmemberDesc(PythonDesc):
                                                           clsname)
             else:
                 return _('%s() (%s static method)') % (methname, clsname)
-        elif self.desctype == 'classmethod':
+        elif self.objtype == 'classmethod':
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -378,7 +274,7 @@ class ClassmemberDesc(PythonDesc):
                                                          clsname)
             else:
                 return _('%s() (%s class method)') % (methname, clsname)
-        elif self.desctype == 'attribute':
+        elif self.objtype == 'attribute':
             try:
                 clsname, attrname = name.rsplit('.', 1)
             except ValueError:
@@ -394,9 +290,10 @@ class ClassmemberDesc(PythonDesc):
             return ''
 
     def before_content(self):
-        PythonDesc.before_content(self)
-        if self.names and self.names[-1][1] and not self.env.currclass:
-            self.env.currclass = self.names[-1][1].strip('.')
+        PyObject.before_content(self)
+        lastname = self.names and self.names[-1][1]
+        if lastname and not self.env.doc_read_data.get('py_class'):
+            self.env.doc_read_data['py_class'] = lastname.strip('.')
             self.clsname_set = True
 
 
@@ -420,7 +317,7 @@ class PyModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
-        env.currmodule = modname
+        env.doc_read_data['py_module'] = modname
         env.domaindata['py']['modules'][modname] = \
             (env.docname, self.options.get('synopsis', ''),
              self.options.get('platform', ''), 'deprecated' in self.options)
@@ -463,16 +360,16 @@ class PyCurrentModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
-            env.currmodule = None
+            env.doc_read_data['py_module'] = None
         else:
-            env.currmodule = modname
+            env.doc_read_data['py_module'] = modname
         return []
 
 
 class PyXRefRole(XRefRole):
     def process_link(self, env, pnode, has_explicit_title, title, target):
-        pnode['modname'] = env.currmodule
-        pnode['classname'] = env.currclass
+        pnode['modname'] = env.doc_read_data.get('py_module')
+        pnode['classname'] = env.doc_read_data.get('py_class')
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~') # only has a meaning for the title
@@ -495,31 +392,41 @@ class PythonDomain(Domain):
     """Python language domain."""
     name = 'py'
     label = 'Python'
+    object_types = {
+        'function':  ObjType(l_('function'),  'func', 'obj'),
+        'data':      ObjType(l_('data'),      'data', 'obj'),
+        'class':     ObjType(l_('class'),     'class', 'obj'),
+        'exception': ObjType(l_('exception'), 'exc', 'obj'),
+        'method':    ObjType(l_('method'),    'meth', 'obj'),
+        'attribute': ObjType(l_('attribute'), 'attr', 'obj'),
+        'module':    ObjType(l_('module'),    'mod', 'obj'),
+    }
+
     directives = {
-        'function': ModulelevelDesc,
-        'data': ModulelevelDesc,
-        'class': ClasslikeDesc,
-        'exception': ClasslikeDesc,
-        'method': ClassmemberDesc,
-        'classmethod': ClassmemberDesc,
-        'staticmethod': ClassmemberDesc,
-        'attribute': ClassmemberDesc,
-        'module': PyModule,
+        'function':      PyModulelevel,
+        'data':          PyModulelevel,
+        'class':         PyClasslike,
+        'exception':     PyClasslike,
+        'method':        PyClassmember,
+        'classmethod':   PyClassmember,
+        'staticmethod':  PyClassmember,
+        'attribute':     PyClassmember,
+        'module':        PyModule,
         'currentmodule': PyCurrentModule,
     }
     roles = {
-        'data': PyXRefRole(),
-        'exc': PyXRefRole(),
-        'func': PyXRefRole(fix_parens=True),
+        'data':  PyXRefRole(),
+        'exc':   PyXRefRole(),
+        'func':  PyXRefRole(fix_parens=True),
         'class': PyXRefRole(),
         'const': PyXRefRole(),
-        'attr': PyXRefRole(),
-        'meth': PyXRefRole(fix_parens=True),
-        'mod': PyXRefRole(),
-        'obj': PyXRefRole(),
+        'attr':  PyXRefRole(),
+        'meth':  PyXRefRole(fix_parens=True),
+        'mod':   PyXRefRole(),
+        'obj':   PyXRefRole(),
     }
     initial_data = {
-        'objects': {},  # fullname -> docname, desctype
+        'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
 
@@ -531,10 +438,10 @@ class PythonDomain(Domain):
             if fn == docname:
                 del self.data['modules'][modname]
 
-    def find_desc(self, env, modname, classname, name, type, searchorder=0):
+    def find_obj(self, env, modname, classname, name, type, searchorder=0):
         """
-        Find a Python object description for "name", perhaps using the given
-        module and/or classname.
+        Find a Python object for "name", perhaps using the given module and/or
+        classname.
         """
         # skip parens
         if name[-2:] == '()':
@@ -592,188 +499,19 @@ class PythonDomain(Domain):
                 return make_refnode(builder, fromdocname, docname,
                                     'module-' + target, contnode, title)
         else:
-            modname = node['modname']
-            clsname = node['classname']
+            modname = node.get('modname')
+            clsname = node.get('classname')
             searchorder = node.hasattr('refspecific') and 1 or 0
-            name, desc = self.find_desc(env, modname, clsname,
-                                        target, typ, searchorder)
-            if not desc:
+            name, obj = self.find_obj(env, modname, clsname,
+                                       target, typ, searchorder)
+            if not obj:
                 return None
             else:
-                return make_refnode(builder, fromdocname, desc[0], name,
+                return make_refnode(builder, fromdocname, obj[0], name,
                                     contnode, name)
 
-
-
-# RE to split at word boundaries
-wsplit_re = re.compile(r'(\W+)')
-
-# REs for C signatures
-c_sig_re = re.compile(
-    r'''^([^(]*?)          # return type
-        ([\w:]+)  \s*      # thing name (colon allowed for C++ class names)
-        (?: \((.*)\) )?    # optionally arguments
-        (\s+const)? $      # const specifier
-    ''', re.VERBOSE)
-c_funcptr_sig_re = re.compile(
-    r'''^([^(]+?)          # return type
-        (\( [^()]+ \)) \s* # name in parentheses
-        \( (.*) \)         # arguments
-        (\s+const)? $      # const specifier
-    ''', re.VERBOSE)
-c_funcptr_name_re = re.compile(r'^\(\s*\*\s*(.*?)\s*\)$')
-
-
-class CDesc(DescDirective):
-    """
-    Description of a C language object.
-    """
-
-    # These C types aren't described anywhere, so don't try to create
-    # a cross-reference to them
-    stopwords = set(('const', 'void', 'char', 'int', 'long', 'FILE', 'struct'))
-
-    def _parse_type(self, node, ctype):
-        # add cross-ref nodes for all words
-        for part in filter(None, wsplit_re.split(ctype)):
-            tnode = nodes.Text(part, part)
-            if part[0] in string.ascii_letters+'_' and \
-                   part not in self.stopwords:
-                pnode = addnodes.pending_xref(
-                    '', refdomain='c', reftype='type', reftarget=part,
-                    modname=None, classname=None)
-                pnode += tnode
-                node += pnode
-            else:
-                node += tnode
-
-    def parse_signature(self, sig, signode):
-        """Transform a C (or C++) signature into RST nodes."""
-        # first try the function pointer signature regex, it's more specific
-        m = c_funcptr_sig_re.match(sig)
-        if m is None:
-            m = c_sig_re.match(sig)
-        if m is None:
-            raise ValueError('no match')
-        rettype, name, arglist, const = m.groups()
-
-        signode += addnodes.desc_type('', '')
-        self._parse_type(signode[-1], rettype)
-        try:
-            classname, funcname = name.split('::', 1)
-            classname += '::'
-            signode += addnodes.desc_addname(classname, classname)
-            signode += addnodes.desc_name(funcname, funcname)
-            # name (the full name) is still both parts
-        except ValueError:
-            signode += addnodes.desc_name(name, name)
-        # clean up parentheses from canonical name
-        m = c_funcptr_name_re.match(name)
-        if m:
-            name = m.group(1)
-        if not arglist:
-            if self.desctype == 'cfunction':
-                # for functions, add an empty parameter list
-                signode += addnodes.desc_parameterlist()
-            if const:
-                signode += addnodes.desc_addname(const, const)
-            return name
-
-        paramlist = addnodes.desc_parameterlist()
-        arglist = arglist.replace('`', '').replace('\\ ', '') # remove markup
-        # this messes up function pointer types, but not too badly ;)
-        args = arglist.split(',')
-        for arg in args:
-            arg = arg.strip()
-            param = addnodes.desc_parameter('', '', noemph=True)
-            try:
-                ctype, argname = arg.rsplit(' ', 1)
-            except ValueError:
-                # no argument name given, only the type
-                self._parse_type(param, arg)
-            else:
-                self._parse_type(param, ctype)
-                param += nodes.emphasis(' '+argname, ' '+argname)
-            paramlist += param
-        signode += paramlist
-        if const:
-            signode += addnodes.desc_addname(const, const)
-        return name
-
-    def get_index_text(self, name):
-        if self.desctype == 'cfunction':
-            return _('%s (C function)') % name
-        elif self.desctype == 'cmember':
-            return _('%s (C member)') % name
-        elif self.desctype == 'cmacro':
-            return _('%s (C macro)') % name
-        elif self.desctype == 'ctype':
-            return _('%s (C type)') % name
-        elif self.desctype == 'cvar':
-            return _('%s (C variable)') % name
-        else:
-            return ''
-
-    def add_target_and_index(self, name, sig, signode):
-        # note target
-        if name not in self.state.document.ids:
-            signode['names'].append(name)
-            signode['ids'].append(name)
-            signode['first'] = (not self.names)
-            self.state.document.note_explicit_target(signode)
-            inv = self.env.domaindata['c']['objects']
-            if name in inv:
-                self.env.warn(
-                    self.env.docname,
-                    'duplicate C object description of %s, ' % name +
-                    'other instance in ' + self.env.doc2path(inv[name][0]),
-                    self.lineno)
-            inv[name] = (self.env.docname, self.desctype)
-
-        indextext = self.get_index_text(name)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext, name, name))
-
-
-class CDomain(Domain):
-    """C language domain."""
-    name = 'c'
-    label = 'C'
-    directives = {
-        'function': CDesc,
-        'member': CDesc,
-        'macro': CDesc,
-        'type': CDesc,
-        'var': CDesc,
-    }
-    roles = {
-        'member': XRefRole(),
-        'macro': XRefRole(),
-        'func' : XRefRole(fix_parens=True),
-        'data': XRefRole(),
-        'type': XRefRole(),
-    }
-    initial_data = {
-        'objects': {},  # fullname -> docname, desctype
-    }
-
-    def clear_doc(self, docname):
-        for fullname, (fn, _) in self.data['objects'].items():
-            if fn == docname:
-                del self.data['objects'][fullname]
-
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
-        # strip pointer asterisk
-        target = target.rstrip(' *')
-        if target not in self.data:
-            return None
-        desc = self.data[target]
-        return make_refnode(builder, fromdocname, desc[0], contnode, target)
-
-
-# this contains all registered domains
-all_domains = {
-    'py': PythonDomain,
-    'c': CDomain,
-}
+    def get_objects(self):
+        for modname, info in self.data['modules'].iteritems():
+            yield (modname, 'module', info[0], 'module-' + modname, 1)
+        for refname, (docname, type) in self.data['objects'].iteritems():
+            yield (refname, type, docname, refname, 0)

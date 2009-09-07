@@ -713,15 +713,13 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('dumping object inventory... '), nonl=True)
         f = open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
         try:
-            # XXX inventory version 2
-            f.write('# Sphinx inventory version 1\n')
+            f.write('# Sphinx inventory version 2\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
             f.write('# Version: %s\n' % self.config.version)
-            #for modname, info in self.env.modules.iteritems():
-            #    f.write('%s mod %s\n' % (modname, self.get_target_uri(info[0])))
-            #for refname, (docname, desctype) in self.env.descrefs.iteritems():
-            #    f.write('%s %s %s\n' % (refname, desctype,
-            #                            self.get_target_uri(docname)))
+            for domain in self.env.domains.itervalues():
+                for name, type, docname, anchor, prio in domain.get_objects():
+                    f.write('%s %s:%s %s %s\n' % (name, domain, type, prio,
+                            self.get_target_uri(docname) + '#' + anchor))
         finally:
             f.close()
         self.info('done')

@@ -25,9 +25,9 @@ from sphinx import package_dir, locale
 from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
-from sphinx.domains import all_domains
+from sphinx.domains import ObjType, all_domains
+from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
-from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
@@ -361,6 +361,7 @@ class Sphinx(object):
 
     def add_domain(self, domain):
         # XXX needs to be documented
+        # XXX what about subclassing and overriding?
         if domain.name in all_domains:
             raise ExtensionError('domain %s already registered' % domain.name)
         all_domains[domain.name] = domain
@@ -377,23 +378,31 @@ class Sphinx(object):
             raise ExtensionError('domain %s not yet registered' % domain)
         all_domains[domain].roles[name] = role
 
-    def add_description_unit(self, directivename, rolename, indextemplate='',
-                             parse_node=None, ref_nodeclass=None):
-        additional_xref_types[directivename] = (rolename, indextemplate,
-                                                parse_node)
-        directives.register_directive(directivename,
-                                      directive_dwim(GenericDesc))
+    def add_object_type(self, directivename, rolename, indextemplate='',
+                        parse_node=None, ref_nodeclass=None):
+        StandardDomain.object_types[directivename] = \
+            ObjType(directivename, rolename)
+        # create a subclass of GenericObject as the new directive
+        new_directive = type(directivename, (GenericObject, object),
+                             {'indextemplate': indextemplate,
+                              'parse_node': staticmethod(parse_node)})
+        StandardDomain.directives[directivename] = new_directive
         # XXX support more options?
-        role_func = XRefRole(innernodeclass=ref_nodeclass)
-        roles.register_local_role(rolename, role_func)
+        StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
+
+    # backwards compatible alias
+    add_description_unit = add_object_type
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None):
-        additional_xref_types[directivename] = (rolename, indextemplate, None)
-        directives.register_directive(directivename, directive_dwim(Target))
-        # XXX support more options
-        role_func = XRefRole(innernodeclass=ref_nodeclass)
-        roles.register_local_role(rolename, role_func)
+        StandardDomain.object_types[directivename] = \
+            ObjType(directivename, rolename)
+        # create a subclass of Target as the new directive
+        new_directive = type(directivename, (Target, object),
+                             {'indextemplate': indextemplate})
+        StandardDomain.directives[directivename] = new_directive
+        # XXX support more options?
+        StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
 
     def add_transform(self, transform):
         SphinxStandaloneReader.transforms.append(transform)
