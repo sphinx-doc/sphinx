@@ -193,10 +193,11 @@ class CDomain(Domain):
                      typ, target, node, contnode):
         # strip pointer asterisk
         target = target.rstrip(' *')
-        if target not in self.data:
+        if target not in self.data['objects']:
             return None
-        obj = self.data[target]
-        return make_refnode(builder, fromdocname, obj[0], contnode, target)
+        obj = self.data['objects'][target]
+        return make_refnode(builder, fromdocname, obj[0], target,
+                            contnode, target)
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
