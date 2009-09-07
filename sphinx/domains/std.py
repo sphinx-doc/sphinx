@@ -301,8 +301,8 @@ class StandardDomain(Domain):
     label = 'Default'
 
     object_types = {
-        'term': ObjType(l_('glossary term'), 'term', search=False),
-        'token': ObjType(l_('grammar token'), 'token', search=False),
+        'term': ObjType(l_('glossary term'), 'term', searchprio=-1),
+        'token': ObjType(l_('grammar token'), 'token', searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
     }
@@ -358,4 +358,8 @@ class StandardDomain(Domain):
                                     labelid, contnode)
 
     def get_objects(self):
-        return []  # XXX implement
+        for (prog, option), info in self.data['progoptions'].iteritems():
+            yield (option, 'option', info[0], info[1], 1)
+        for (type, name), info in self.data['objects'].iteritems():
+            yield (name, type, info[0], info[1],
+                   self.object_types[type].attrs['searchprio'])

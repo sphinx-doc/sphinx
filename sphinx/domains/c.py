@@ -201,4 +201,4 @@ class CDomain(Domain):
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, type, docname, refname, 0)
+            yield (refname, type, docname, refname, 1)

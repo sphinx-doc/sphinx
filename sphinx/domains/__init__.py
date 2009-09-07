@@ -17,7 +17,7 @@ class ObjType(object):
     """
 
     known_attrs = {
-        'search': True,
+        'searchprio': 1,
     }
 
     def __init__(self, lname, *roles, **attrs):
@@ -158,8 +158,13 @@ class Domain(object):
         * `type`     -- object type, a key in ``self.object_types``
         * `docname`  -- the document where it is to be found
         * `anchor`   -- the anchor name for the object
-        * `priority` -- how "important" the object is; an integer
-                        (XXX assign meanings)
+        * `priority` -- how "important" the object is (determines placement
+          in search results)
+
+          1: default priority (placed before full-text matches)
+          0: object is important (placed before default-priority objects)
+          2: object is unimportant (placed after full-text matches)
+          -1: object should not show up in search at all
         """
         return []
 
