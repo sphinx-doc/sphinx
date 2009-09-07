@@ -379,9 +379,10 @@ class Sphinx(object):
         all_domains[domain].roles[name] = role
 
     def add_object_type(self, directivename, rolename, indextemplate='',
-                        parse_node=None, ref_nodeclass=None):
+                        parse_node=None, ref_nodeclass=None, objname=''):
+        # XXX document objname
         StandardDomain.object_types[directivename] = \
-            ObjType(directivename, rolename)
+            ObjType(objname or directivename, rolename)
         # create a subclass of GenericObject as the new directive
         new_directive = type(directivename, (GenericObject, object),
                              {'indextemplate': indextemplate,
@@ -394,9 +395,10 @@ class Sphinx(object):
     add_description_unit = add_object_type
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
-                          ref_nodeclass=None):
+                          ref_nodeclass=None, objname=''):
+        # XXX document objname
         StandardDomain.object_types[directivename] = \
-            ObjType(directivename, rolename)
+            ObjType(objname or directivename, rolename)
         # create a subclass of Target as the new directive
         new_directive = type(directivename, (Target, object),
                              {'indextemplate': indextemplate})
