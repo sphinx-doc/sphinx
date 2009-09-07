@@ -716,9 +716,9 @@ class StandaloneHTMLBuilder(Builder):
             f.write('# Sphinx inventory version 2\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
             f.write('# Version: %s\n' % self.config.version)
-            for domain in self.env.domains.itervalues():
+            for domainname, domain in self.env.domains.iteritems():
                 for name, type, docname, anchor, prio in domain.get_objects():
-                    f.write('%s %s:%s %s %s\n' % (name, domain, type, prio,
+                    f.write('%s %s:%s %s %s\n' % (name, domainname, type, prio,
                             self.get_target_uri(docname) + '#' + anchor))
         finally:
             f.close()
