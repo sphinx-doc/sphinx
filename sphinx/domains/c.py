@@ -30,7 +30,7 @@ wsplit_re = re.compile(r'(\W+)')
 # REs for C signatures
 c_sig_re = re.compile(
     r'''^([^(]*?)          # return type
-        ([\w:]+)  \s*      # thing name (colon allowed for C++ class names)
+        ([\w:.]+)  \s*     # thing name (colon allowed for C++ class names)
         (?: \((.*)\) )?    # optionally arguments
         (\s+const)? $      # const specifier
     ''', re.VERBOSE)
@@ -91,7 +91,7 @@ class CObject(ObjectDescription):
         if m:
             name = m.group(1)
         if not arglist:
-            if self.objtype == 'cfunction':
+            if self.objtype == 'function':
                 # for functions, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if const:
@@ -120,15 +120,15 @@ class CObject(ObjectDescription):
         return name
 
     def get_index_text(self, name):
-        if self.objtype == 'cfunction':
+        if self.objtype == 'function':
             return _('%s (C function)') % name
-        elif self.objtype == 'cmember':
+        elif self.objtype == 'member':
             return _('%s (C member)') % name
-        elif self.objtype == 'cmacro':
+        elif self.objtype == 'macro':
             return _('%s (C macro)') % name
-        elif self.objtype == 'ctype':
+        elif self.objtype == 'type':
             return _('%s (C type)') % name
-        elif self.objtype == 'cvar':
+        elif self.objtype == 'var':
             return _('%s (C variable)') % name
         else:
             return ''
