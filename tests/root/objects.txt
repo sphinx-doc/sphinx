@@ -57,7 +57,13 @@ C items
 References
 ==========
 
-:c:func:`CFunction`. :c:func:`!malloc`.
+Referencing :class:`mod.Cls` or :Class:`mod.Cls` should be the same.
+
+With target: :c:func:`Sphinx_DoSomething()` (parentheses are handled),
+:c:member:`SphinxStruct.member`, :c:macro:`SPHINX_USE_PYTHON`,
+:c:type:`SphinxType *` (pointer is handled), :c:data:`sphinx_global`.
+
+Without target: :c:func:`CFunction`. :c:func:`!malloc`.
 
 
 Others
@@ -72,12 +78,6 @@ Others
 .. program:: perl
 
 .. cmdoption:: -c
-
-
-Testing references
-==================
-
-Referencing :class:`mod.Cls` or :Class:`mod.Cls` should be the same.
 
 
 User markup
