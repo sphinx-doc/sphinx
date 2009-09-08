@@ -23,6 +23,8 @@ import traceback
 from os import path
 
 import docutils
+from docutils import nodes
+
 import sphinx
 
 
@@ -446,8 +448,6 @@ def split_explicit_title(text):
         return True, match.group(1), match.group(2)
     return False, text, text
 
-
-from docutils import nodes
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     """Shortcut to create a reference node."""

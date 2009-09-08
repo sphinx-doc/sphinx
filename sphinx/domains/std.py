@@ -346,8 +346,7 @@ class StandardDomain(Domain):
                 return make_refnode(builder, fromdocname, docname,
                                     labelid, contnode)
         else:
-            docname, labelid = self.data['objects'].get((typ, target),
-                                                        ('', ''))
+            docname, labelid = self.data['objects'].get((typ, target), ('', ''))
             if not docname:
                 if typ == 'term':
                     env.warn(fromdocname, 'term not in glossary: %s' % target,
