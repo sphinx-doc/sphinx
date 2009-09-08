@@ -62,7 +62,8 @@ Sphinx comes with a selection of themes to choose from:
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     false.
 
-* **default** -- This is the default theme.  It can be customized via these
+* **default** -- This is the default theme, which looks like `the Python
+  documentation <http://docs.python.org/>`_.  It can be customized via these
   options:
 
   - **rightsidebar** (true or false): Put the sidebar on the right side.
@@ -99,6 +100,16 @@ Sphinx comes with a selection of themes to choose from:
 
 * **sphinxdoc** -- The theme used for this documentation.  It features a sidebar
   on the right side.  There are currently no options beyond *nosidebar*.
+
+* **scrolls** -- A more lightweight theme, based on `the Jinja documentation
+  <http://jinja.pocoo.org/documentation/2>`_.  The following color options are
+  available:
+
+  - **headerbordercolor**
+  - **subheadlinecolor**
+  - **linkcolor**
+  - **visitedlinkcolor**
+  - **admonitioncolor**
 
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar*.
