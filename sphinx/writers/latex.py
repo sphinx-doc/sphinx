@@ -428,6 +428,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_subtitle(self, node):
         self.body.append(self.context.pop())
 
+    # XXX update this
     desc_map = {
         'function' : 'funcdesc',
         'class': 'classdesc',

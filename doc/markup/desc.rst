@@ -92,6 +92,8 @@ index entries more informative.
 
 The directives are:
 
+.. XXX update this
+
 .. directive:: .. cfunction:: type name(signature)
 
    Describes a C function. The signature should be given as in C, e.g.::
