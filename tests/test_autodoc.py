@@ -306,7 +306,7 @@ def test_new_documenter():
         del directive.result[:]
 
     options.members = ['integer']
-    assert_result_contains('.. data:: integer', 'module', 'test_autodoc')
+    assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
 
 
 def test_generate():
@@ -393,7 +393,8 @@ def test_generate():
 
     options.members = []
     # test module flags
-    assert_result_contains('.. module:: test_autodoc', 'module', 'test_autodoc')
+    assert_result_contains('.. py:module:: test_autodoc',
+                           'module', 'test_autodoc')
     options.synopsis = 'Synopsis'
     assert_result_contains('   :synopsis: Synopsis', 'module', 'test_autodoc')
     options.deprecated = True
@@ -402,9 +403,9 @@ def test_generate():
     assert_result_contains('   :platform: Platform', 'module', 'test_autodoc')
     # test if __all__ is respected for modules
     options.members = ALL
-    assert_result_contains('.. class:: Class', 'module', 'test_autodoc')
+    assert_result_contains('.. py:class:: Class', 'module', 'test_autodoc')
     try:
-        assert_result_contains('.. exception:: CustomEx',
+        assert_result_contains('.. py:exception:: CustomEx',
                                'module', 'test_autodoc')
     except AssertionError:
         pass
@@ -418,7 +419,7 @@ def test_generate():
     assert_result_contains('   :noindex:', 'class', 'Base')
 
     # okay, now let's get serious about mixing Python and C signature stuff
-    assert_result_contains('.. class:: CustomDict', 'class', 'CustomDict',
+    assert_result_contains('.. py:class:: CustomDict', 'class', 'CustomDict',
                            all_members=True)
 
     # test inner class handling
