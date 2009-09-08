@@ -1,6 +1,7 @@
 .*\.pyc
 .*\.egg
 .*\.so
+.dir-locals.el
 \.DS_Store$
 ^build/
 ^dist/
