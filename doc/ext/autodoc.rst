@@ -107,6 +107,9 @@ directive.
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
+     Note: this will lead to markup errors if the inherited members come from a
+     module whose docstrings are not reST formatted.
+
      .. versionadded:: 0.3
 
    * It's possible to override the signature for explicitly documented callable
