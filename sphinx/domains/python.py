@@ -367,9 +367,9 @@ class PyCurrentModule(Directive):
 
 
 class PyXRefRole(XRefRole):
-    def process_link(self, env, pnode, has_explicit_title, title, target):
-        pnode['modname'] = env.doc_read_data.get('py_module')
-        pnode['classname'] = env.doc_read_data.get('py_class')
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        refnode['py_module'] = env.doc_read_data.get('py_module')
+        refnode['py_class'] = env.doc_read_data.get('py_class')
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~') # only has a meaning for the title
@@ -384,7 +384,7 @@ class PyXRefRole(XRefRole):
         # else search builtins first
         if target[0:1] == '.':
             target = target[1:]
-            pnode['refspecific'] = True
+            refnode['refspecific'] = True
         return title, target
 
 
@@ -499,11 +499,11 @@ class PythonDomain(Domain):
                 return make_refnode(builder, fromdocname, docname,
                                     'module-' + target, contnode, title)
         else:
-            modname = node.get('modname')
-            clsname = node.get('classname')
+            modname = node.get('py_module')
+            clsname = node.get('py_class')
             searchorder = node.hasattr('refspecific') and 1 or 0
             name, obj = self.find_obj(env, modname, clsname,
-                                       target, typ, searchorder)
+                                      target, typ, searchorder)
             if not obj:
                 return None
             else:
