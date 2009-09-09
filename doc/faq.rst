@@ -19,6 +19,10 @@ How do I...
 ... add global substitutions or includes?
    Add them in the :confval:`rst_epilog` config value.
 
+... display the whole TOC tree in the sidebar?
+   Use the :data:`toctree` callable in a custom layout template, probably in the
+   ``sidebartoc`` block.
+
 ... write my own extension?
    See the :ref:`extension tutorial <exttut>`.
 
