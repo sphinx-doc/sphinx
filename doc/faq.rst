@@ -43,6 +43,12 @@ SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
    documentation; it is hosted here: http://bitbucket.org/zondo/sphinx-scons
 
+PyPI
+   Jannis Leidel wrote a `setuptools command
+   <http://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically uploads
+   Sphinx documentation to the PyPI package documentation area at
+   http://packages.python.org/.
+
 github pages
    You can use `Michael Jones' sphinx-to-github tool
    <http://github.com/michaeljones/sphinx-to-github/tree/master>`_ to prepare
