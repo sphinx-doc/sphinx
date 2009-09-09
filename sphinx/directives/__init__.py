@@ -145,7 +145,7 @@ class ObjectDescription(Directive):
                         if typ in self.doc_fields_with_linked_arg:
                             # XXX currmodule/currclass
                             node = addnodes.pending_xref(
-                                obj, reftype='obj', refcaption=False,
+                                obj, reftype='obj', refexplicit=False,
                                 reftarget=obj)
                             #, modname=self.env.currmodule
                             #, classname=self.env.currclass

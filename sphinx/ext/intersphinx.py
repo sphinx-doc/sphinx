@@ -42,7 +42,7 @@ if hasattr(urllib2, 'HTTPSHandler'):
 urllib2.install_opener(urllib2.build_opener(*handlers))
 
 
-def fetch_inventory_v1(f, uri, join):
+def read_inventory_v1(f, uri, join):
     invdata = {}
     line = f.next()
     projname = line.rstrip()[11:].decode('utf-8')
@@ -56,12 +56,13 @@ def fetch_inventory_v1(f, uri, join):
             type = 'py:module'
             location += '#module-' + name
         else:
+            type = 'py:' + type
             location += '#' + name
         invdata.setdefault(type, {})[name] = (projname, version, location)
     return invdata
 
 
-def fetch_inventory_v2(f, uri, join):
+def read_inventory_v2(f, uri, join, bufsize=16*1024):
     invdata = {}
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
@@ -73,7 +74,7 @@ def fetch_inventory_v2(f, uri, join):
 
     def read_chunks():
         decompressor = zlib.decompressobj()
-        for chunk in iter(lambda: f.read(16 * 1024), ''):
+        for chunk in iter(lambda: f.read(bufsize), ''):
             yield decompressor.decompress(chunk)
         yield decompressor.flush()
 
@@ -116,9 +117,9 @@ def fetch_inventory(app, uri, inv):
         line = f.readline().rstrip()
         try:
             if line == '# Sphinx inventory version 1':
-                invdata = fetch_inventory_v1(f, uri, join)
+                invdata = read_inventory_v1(f, uri, join)
             elif line == '# Sphinx inventory version 2':
-                invdata = fetch_inventory_v2(f, uri, join)
+                invdata = read_inventory_v2(f, uri, join)
             else:
                 raise ValueError
             f.close()
@@ -163,33 +164,24 @@ def load_mappings(app):
 
 def missing_reference(app, env, node, contnode):
     """Attempt to resolve a missing reference via intersphinx references."""
-    type = node['reftype']
-    domain = node['refdomain']
-    fulltype = domain + ':' + type
+    domain = node.get('refdomain')
+    if not domain:
+        # only objects in domains are in the inventory
+        return
     target = node['reftarget']
-    if type not in env.intersphinx_inventory:
+    objtypes = env.domains[domain].objtypes_for_role(node['reftype'])
+    if not objtypes:
         return
-    if target not in env.intersphinx_inventory[type]:
+    for objtype in objtypes:
+        fulltype = '%s:%s' % (domain, objtype)
+        if fulltype in env.intersphinx_inventory and \
+           target in env.intersphinx_inventory[fulltype]:
+            break
+    else:
         return
-    proj, version, uri = env.intersphinx_inventory[type][target]
-
-    # XXX
-    if target[-2:] == '()':
-        target = target[:-2]
-    target = target.rstrip(' *')
-    # special case: exceptions and object methods
-    if type == 'exc' and '.' not in target and \
-       'exceptions.' + target in env.intersphinx_inventory:
-        target = 'exceptions.' + target
-    elif type in ('func', 'meth') and '.' not in target and \
-       'object.' + target in env.intersphinx_inventory:
-        target = 'object.' + target
-    if target not in env.intersphinx_inventory:
-        return None
-    type, proj, version, uri = env.intersphinx_inventory[target]
-    # print "Intersphinx hit:", target, uri
+    proj, version, uri = env.intersphinx_inventory[fulltype][target]
     newnode = nodes.reference('', '')
-    newnode['refuri'] = uri + '#' + target
+    newnode['refuri'] = uri
     newnode['reftitle'] = '(in %s v%s)' % (proj, version)
     newnode['class'] = 'external-xref'
     newnode.append(contnode)

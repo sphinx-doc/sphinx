@@ -82,8 +82,8 @@ class Domain(object):
         self._role2type = {}
         for name, obj in self.object_types.iteritems():
             for rolename in obj.roles:
-                self._role2type[rolename] = name
-        self.object_type = self._role2type.get  # XXX necessary?
+                self._role2type.setdefault(rolename, []).append(name)
+        self.objtypes_for_role = self._role2type.get
 
     def role(self, name):
         """
