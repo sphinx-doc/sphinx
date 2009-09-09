@@ -75,7 +75,7 @@ directive.
         .. automodule:: noodle
            :members:
 
-     will document all module members (recursively), and
+     will document all module members (recursively), and ::
 
         .. autoclass:: Noodle
            :members:
