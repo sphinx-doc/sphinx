@@ -38,7 +38,7 @@ for rolename, nodeclass in generic_docroles.iteritems():
     roles.register_local_role(rolename, role)
 
 
-# -- generic cross-reference roles ---------------------------------------------
+# -- generic cross-reference role ----------------------------------------------
 
 class XRefRole(object):
     """XXX add docstrings"""
@@ -55,10 +55,7 @@ class XRefRole(object):
         if innernodeclass is not None:
             self.innernodeclass = innernodeclass
 
-    def process_link(self, env, pnode, has_explicit_title, title, target):
-        return title, ws_re.sub(' ', target)
-
-    def normalize_func_parens(self, env, has_explicit_title, title, target):
+    def _fix_parens(self, env, has_explicit_title, title, target):
         if not has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -86,28 +83,38 @@ class XRefRole(object):
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
             if self.fix_parens:
-                text, _ = self.normalize_func_parens(env, False, text[1:], "")
-            return [self.innernodeclass(rawtext, text, classes=['xref'])], []
+                text, _ = self._fix_parens(env, False, text[1:], "")
+            innernode = self.innernodeclass(rawtext, text, classes=['xref'])
+            return self.return_nodes(env, innernode, is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
-        # we want a cross-reference, create the reference node
-        pnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
-                               refcaption=has_explicit_title)
-        # we may need the line number for warnings
-        pnode.line = lineno
+        # fix-up title and target
         if self.lowercase:
             target = target.lower()
         if self.fix_parens:
-            title, target = self.normalize_func_parens(env, has_explicit_title,
-                                                       title, target)
-        title, target = self.process_link(env, pnode,
-                                          has_explicit_title, title, target)
-        pnode['reftarget'] = target
-        pnode += self.innernodeclass(rawtext, title, classes=['xref'])
-        return [pnode], []
+            title, target = self.fix_parens(
+                env, has_explicit_title, title, target)
+        # create the reference node
+        refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
+                                 refexplicit=has_explicit_title)
+        # we may need the line number for warnings
+        refnode.line = lineno
+        title, target = self.process_link(
+            env, refnode, has_explicit_title, title, target)
+        # now that the target and title are finally determined, set them
+        refnode['reftarget'] = target
+        refnode += self.innernodeclass(rawtext, title, classes=['xref'])
+        # result_nodes allow further modification of return values
+        return self.result_nodes(env, refnode, is_ref=True)
 
+    # methods that can be overwritten
 
-_EnvvarXrefRole = XRefRole()
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        return title, ws_re.sub(' ', target)
+
+    def result_nodes(self, env, node, is_ref):
+        return [node], []
+
 
 def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
                      options={}, content=[]):
@@ -121,15 +128,7 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
     indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
     inliner.document.note_explicit_target(targetnode)
-    # XXX remove
-    if typ == 'envvar':
-        indexnode['entries'] = [('single', text, targetid, text),
-                                ('single', _('environment variable; %s') % text,
-                                 targetid, text)]
-        xref_nodes = _EnvvarXrefRole(typ, rawtext, etext, lineno, inliner,
-                                     options, content)[0]
-        return [indexnode, targetnode] + xref_nodes, []
-    elif typ == 'pep':
+    if typ == 'pep':
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals!PEP %s') % text,
              targetid, 'PEP %s' % text)]
@@ -200,10 +199,14 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 specific_docroles = {
-    'keyword': XRefRole(),
-    'ref': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
-    'doc': XRefRole(),
+    # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
+    # links to headings or arbitrary labels
+    'ref': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+    # links to documents
+    'doc': XRefRole(),
+    # links to labels, without a different title
+    'keyword': XRefRole(),
 
     'envvar': indexmarkup_role,
     'pep': indexmarkup_role,

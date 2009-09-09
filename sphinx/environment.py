@@ -1234,7 +1234,7 @@ class BuildEnvironment:
                                                   typ, target, node, contnode)
                 # really hardwired reference types
                 elif typ == 'ref':
-                    if node['refcaption']:
+                    if node['refexplicit']:
                         # reference to anonymous label; the reference uses
                         # the supplied link caption
                         docname, labelid = self.anonlabels.get(target, ('',''))
@@ -1281,7 +1281,7 @@ class BuildEnvironment:
                                   node.line)
                         newnode = contnode
                     else:
-                        if node['refcaption']:
+                        if node['refexplicit']:
                             # reference with explicit title
                             caption = node.astext()
                         else:

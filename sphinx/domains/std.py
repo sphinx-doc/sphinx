@@ -11,7 +11,7 @@
 
 import re
 
-from docutils import nodes
+from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
@@ -65,6 +65,26 @@ class GenericObject(ObjectDescription):
 
 class EnvVar(GenericObject):
     indextemplate = l_('environment variable; %s')
+
+
+class EnvVarXRefRole(XRefRole):
+    """
+    Cross-referencing role for environment variables (adds an index entry).
+    """
+
+    def result_nodes(self, env, node, is_ref):
+        if not is_ref:
+            return [node], []
+        varname = node['reftarget']
+        tgtid = 'index-%s' % env.new_serialno('index')
+        indexnode = addnodes.index()
+        indexnode['entries'] = [
+            ('single', varname, tgtid, varname),
+            ('single', _('environment variable; %s') % varname, tgtid, varname)
+        ]
+        targetnode = nodes.target('', '', ids=[tgtid])
+        inliner.document.note_explicit_target(targetnode)
+        return [indexnode, targetnode, node], []
 
 
 class Target(Directive):
@@ -164,7 +184,7 @@ class Program(Directive):
 class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
 
-    def process_link(self, env, pnode, has_explicit_title, title, target):
+    def process_link(self, env, refnode, has_explicit_title, title, target):
         program = env.doc_read_data.get('std_program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
@@ -175,7 +195,7 @@ class OptionXRefRole(XRefRole):
         elif ' ' in target:
             program, target = re.split(' (?=-|--|/)', target, 1)
             program = ws_re.sub('-', program)
-        pnode['refprogram'] = program
+        refnode['refprogram'] = program
         return title, target
 
 
@@ -316,7 +336,7 @@ class StandardDomain(Domain):
     }
     roles = {
         'option': OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
-        'envvar': XRefRole(),  # XXX add index entries
+        'envvar': EnvVarXRefRole(),
         'token':  XRefRole(),
         'term':   XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
     }
