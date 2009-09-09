@@ -644,7 +644,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             self.indexer.feed(pagename, title, doctree)
 
-    def _get_local_toctree(self, docname, collapse=True):
+    def _get_local_toctree(self, docname, collapse=True, maxdepth=0):
         return self.render_partial(self.env.get_toctree_for(
             docname, self, collapse))['fragment']
 

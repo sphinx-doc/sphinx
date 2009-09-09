@@ -138,6 +138,11 @@ HTML_XPATH = {
         ".//a[@href='#SPHINX_USE_PYTHON']": '',
         ".//a[@href='#SphinxType']": '',
         ".//a[@href='#sphinx_global']": '',
+        # test global TOC created by toctree()
+        ".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']":
+            'Testing object descriptions',
+        ".//li[@class='toctree-l1']/a[@href='markup.html']":
+            'Testing various markup',
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',

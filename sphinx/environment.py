@@ -1007,12 +1007,13 @@ class BuildEnvironment:
             node['refuri'] = node['anchorname']
         return toc
 
-    def get_toctree_for(self, docname, builder, collapse):
+    def get_toctree_for(self, docname, builder, collapse, maxdepth=0):
         """Return the global TOC nodetree."""
         doctree = self.get_doctree(self.config.master_doc)
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=True, collapse=collapse)
+                                          prune=True, collapse=collapse,
+                                          maxdepth=maxdepth)
             if result is not None:
                 return result
 

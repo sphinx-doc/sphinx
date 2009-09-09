@@ -1,5 +1,12 @@
 {% extends "!layout.html" %}
+
 {% block extrahead %}
 <meta name="hc" content="{{ hckey }}" />
 {{ super() }}
+{% endblock %}
+
+{% block sidebartoc %}
+{# display global TOC in addition to local TOC #}
+{{ super() }}
+{{ toctree(collapse=False, maxdepth=-1) }}
 {% endblock %}

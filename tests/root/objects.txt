@@ -1,5 +1,5 @@
-Testing description units
-=========================
+Testing object descriptions
+===========================
 
 .. function:: func_without_module(a, b, *c[, d])
 
