@@ -208,7 +208,6 @@ specific_docroles = {
     # links to labels, without a different title
     'keyword': XRefRole(),
 
-    'envvar': indexmarkup_role,
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,
     'menuselection': menusel_role,
