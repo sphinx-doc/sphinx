@@ -72,21 +72,27 @@ directive.
    * If you want to automatically document members, there's a ``members``
      option::
 
+        .. automodule:: noodle
+           :members:
+
+     will document all module members (recursively), and ::
+
         .. autoclass:: Noodle
            :members:
 
      will document all non-private member functions and properties (that is,
-     those whose name doesn't start with ``_``), while ::
+     those whose name doesn't start with ``_``).
+
+     You can also give an explicit list of members; only these will then be
+     documented::
 
         .. autoclass:: Noodle
            :members: eat, slurp
 
-     will document exactly the specified members.
-
    * Members without docstrings will be left out, unless you give the
      ``undoc-members`` flag option::
 
-        .. autoclass:: Noodle
+        .. automodule:: noodle
            :members:
            :undoc-members:
 
@@ -100,6 +106,9 @@ directive.
 
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
+
+     Note: this will lead to markup errors if the inherited members come from a
+     module whose docstrings are not reST formatted.
 
      .. versionadded:: 0.3
 
@@ -141,11 +150,11 @@ directive.
 
      .. versionadded:: 0.6
 
-  * The directives supporting member documentation also have a
-    ``exclude-members`` option that can be used to exclude single member names
-    from documentation, if all members are to be documented.
+   * The directives supporting member documentation also have a
+     ``exclude-members`` option that can be used to exclude single member names
+     from documentation, if all members are to be documented.
 
-    .. versionadded:: 0.6
+     .. versionadded:: 0.6
 
    .. note::
 
