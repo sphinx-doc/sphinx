@@ -85,14 +85,15 @@ class XRefRole(object):
             if self.fix_parens:
                 text, _ = self._fix_parens(env, False, text[1:], "")
             innernode = self.innernodeclass(rawtext, text, classes=['xref'])
-            return self.return_nodes(env, innernode, is_ref=False)
+            return self.result_nodes(inliner.document, env, innernode,
+                                     is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
         # fix-up title and target
         if self.lowercase:
             target = target.lower()
         if self.fix_parens:
-            title, target = self.fix_parens(
+            title, target = self._fix_parens(
                 env, has_explicit_title, title, target)
         # create the reference node
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
@@ -105,14 +106,14 @@ class XRefRole(object):
         refnode['reftarget'] = target
         refnode += self.innernodeclass(rawtext, title, classes=['xref'])
         # result_nodes allow further modification of return values
-        return self.result_nodes(env, refnode, is_ref=True)
+        return self.result_nodes(inliner.document, env, refnode, is_ref=True)
 
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
         return title, ws_re.sub(' ', target)
 
-    def result_nodes(self, env, node, is_ref):
+    def result_nodes(self, document, env, node, is_ref):
         return [node], []
 
 

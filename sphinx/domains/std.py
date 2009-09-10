@@ -72,7 +72,7 @@ class EnvVarXRefRole(XRefRole):
     Cross-referencing role for environment variables (adds an index entry).
     """
 
-    def result_nodes(self, env, node, is_ref):
+    def result_nodes(self, document, env, node, is_ref):
         if not is_ref:
             return [node], []
         varname = node['reftarget']
@@ -83,7 +83,7 @@ class EnvVarXRefRole(XRefRole):
             ('single', _('environment variable; %s') % varname, tgtid, varname)
         ]
         targetnode = nodes.target('', '', ids=[tgtid])
-        inliner.document.note_explicit_target(targetnode)
+        document.note_explicit_target(targetnode)
         return [indexnode, targetnode, node], []
 
 

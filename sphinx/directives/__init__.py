@@ -65,6 +65,8 @@ class ObjectDescription(Directive):
         'module': directives.unchanged,
     }
 
+    # XXX make this more domain specific
+
     doc_fields_with_arg = {
         'param': '%param',
         'parameter': '%param',
