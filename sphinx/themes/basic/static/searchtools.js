@@ -350,6 +350,7 @@ var Search = {
           if (fullname.toLowerCase().indexOf(object) > -1) {
             match = objects[prefix][name];
             descr = objnames[match[1]] + _(', in ') + titles[match[0]];
+            // XXX the generated anchors are not generally correct
             result = [filenames[match[0]], fullname, '#'+fullname, descr];
             switch (match[2]) {
             case 1: objectResults.push(result); break;

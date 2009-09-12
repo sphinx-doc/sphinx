@@ -41,7 +41,28 @@ for rolename, nodeclass in generic_docroles.iteritems():
 # -- generic cross-reference role ----------------------------------------------
 
 class XRefRole(object):
-    """XXX add docstrings"""
+    """
+    A generic cross-referencing role.  To create a callable that can be used as
+    a role function, create an instance of this class.
+
+    The general features of this role are:
+
+    * Automatic creation of a reference and a content node.
+    * Optional separation of title and target with `title <target>`.
+    * The implementation is a class rather than a function to make
+      customization easier.
+
+    Customization can be done in two ways:
+
+    * Supplying constructor parameters:
+      * `fix_parens` to normalize parentheses (strip from target, and add to
+        title if configured)
+      * `lowercase` to lowercase the target
+      * `nodeclass` and `innernodeclass` select the node classes for
+        the reference and the content node
+
+    * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
+    """
 
     nodeclass = addnodes.pending_xref
     innernodeclass = nodes.literal
@@ -111,14 +132,26 @@ class XRefRole(object):
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
+        """
+        Called after parsing title and target text, and creating the reference
+        node (given in *refnode*).  This method can alter the reference node and
+        must return a new (or the same) ``(title, target)`` tuple.
+        """
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
+        """
+        Called before returning the finished nodes.  *node* is the reference
+        node if one was created (*is_ref* is then true), else the content node.
+        This method can add other nodes and must return a ``(nodes, messages)``
+        tuple (the usual return value of a role function).
+        """
         return [node], []
 
 
 def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
                      options={}, content=[]):
+    """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
     if not typ:
         typ = env.config.default_role
