@@ -569,9 +569,10 @@ class BuildEnvironment:
         return (u'?', error.end)
 
     def patch_lookup_functions(self):
-        """Monkey-patch directive and role dispatch, so that domain-specific
-        markup takes precedence."""
-
+        """
+        Monkey-patch directive and role dispatch, so that domain-specific
+        markup takes precedence.
+        """
         def directive(name, lang_module, document):
             try:
                 return lookup_domain_element(self, 'directive', name)
@@ -726,6 +727,8 @@ class BuildEnvironment:
 
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    # post-processing of read doctrees
 
     def filter_messages(self, doctree):
         """
