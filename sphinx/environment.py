@@ -1017,14 +1017,6 @@ class BuildEnvironment:
             if result is not None:
                 return result
 
-    # XXX remove
-    def note_versionchange(self, type, version, node, lineno):
-        self.versionchanges.setdefault(version, []).append(
-            (type, self.docname, lineno,
-             self.doc_read_data.get('py_module'),
-             self.doc_read_data.get('object'),
-             node.astext()))
-
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
         Raises an ExtensionError if the domain is not registered."""

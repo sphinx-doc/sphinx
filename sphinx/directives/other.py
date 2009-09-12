@@ -209,8 +209,11 @@ class VersionChange(Directive):
         else:
             ret = [node]
         env = self.state.document.settings.env
-        # XXX replace? what with?
-        env.note_versionchange(node['type'], node['version'], node, self.lineno)
+        env.versionchanges.setdefault(node['version'], []).append(
+            (node['type'], env.doc_read_data['docname'], self.lineno,
+             env.doc_read_data.get('py_module'),
+             env.doc_read_data.get('object'),
+             node.astext()))
         return ret
 
 
