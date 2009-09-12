@@ -284,7 +284,7 @@ class DefaultDomain(Directive):
     def run(self):
         env = self.state.document.settings.env
         domain_name = arguments[0]
-        env.default_domain = env.domains.get(domain_name)
+        env.doc_read_data['default_domain'] = env.domains.get(domain_name)
 
 
 directives.register_directive('default-domain', directive_dwim(DefaultDomain))

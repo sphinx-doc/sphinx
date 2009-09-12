@@ -29,6 +29,7 @@ def setup_module():
         components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
     settings.env = app.builder.env
+    settings.env.patch_lookup_functions()
     parser = rst.Parser()
 
 def teardown_module():
@@ -60,7 +61,7 @@ def verify_re(rst, html_expected, latex_expected):
         html_translator = ForgivingHTMLTranslator(app.builder, document)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
-        assert re.match(html_expected, html_translated), 'from' + rst
+        assert re.match(html_expected, html_translated), 'from ' + rst
 
     if latex_expected:
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)

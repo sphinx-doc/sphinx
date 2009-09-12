@@ -40,8 +40,38 @@ from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
      docname_join, FilenameUniqDict, url_re, make_refnode
 from sphinx.errors import SphinxError, ExtensionError
 
+
 orig_role_function = roles.role
 orig_directive_function = directives.directive
+
+class ElementLookupError(Exception): pass
+
+def lookup_domain_element(env, type, name):
+    """Lookup a markup element (directive or role), given its name which can
+    be a full name (with domain).
+    """
+    name = name.lower()
+    # explicit domain given?
+    if ':' in name:
+        domain_name, name = name.split(':', 1)
+        if domain_name in env.domains:
+            domain = env.domains[domain_name]
+            element = getattr(domain, type)(name)
+            if element is not None:
+                return element, []
+    # else look in the default domain
+    else:
+        def_domain = env.doc_read_data.get('default_domain')
+        if def_domain is not None:
+            element = getattr(def_domain, type)(name)
+            if element is not None:
+                return element, []
+    # always look in the std domain
+    element = getattr(env.domains['std'], type)(name)
+    if element is not None:
+        return element, []
+    raise ElementLookupError
+
 
 default_settings = {
     'embed_stylesheet': False,
@@ -538,6 +568,25 @@ class BuildEnvironment:
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)
 
+    def patch_lookup_functions(self):
+        """Monkey-patch directive and role dispatch, so that domain-specific
+        markup takes precedence."""
+
+        def directive(name, lang_module, document):
+            try:
+                return lookup_domain_element(self, 'directive', name)
+            except ElementLookupError:
+                return orig_directive_function(name, lang_module, document)
+
+        def role(name, lang_module, lineno, reporter):
+            try:
+                return lookup_domain_element(self, 'role', name)
+            except ElementLookupError:
+                return orig_role_function(name, lang_module, lineno, reporter)
+
+        directives.directive = directive
+        roles.role = role
+
     def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
         """
         Parse a file and add/update inventory entries for the doctree.
@@ -562,11 +611,15 @@ class BuildEnvironment:
                           self.config.default_role)
 
         self.doc_read_data['docname'] = docname
+        # defaults to the global default, but can be re-set in a document
+        self.doc_read_data['default_domain'] = \
+            self.domains.get(self.config.default_domain)
+
         self.settings['input_encoding'] = self.config.source_encoding
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
 
-        codecs.register_error('sphinx', self.warn_and_replace)
+        self.patch_lookup_functions()
 
         codecs.register_error('sphinx', self.warn_and_replace)
 
@@ -585,61 +638,6 @@ class BuildEnvironment:
                 else:
                     return data
 
-        # defaults to the global default, but can be re-set in a document
-        self.default_domain = self.domains.get(self.config.default_domain)
-
-        # monkey-patch, so that domain directives take precedence
-        def directive(directive_name, language_module, document):
-            """Lookup a directive."""
-            directive_name = directive_name.lower()
-            # explicit domain given?
-            if ':' in directive_name:
-                domain_name, directive_name = directive_name.split(':', 1)
-                if domain_name in self.domains:
-                    domain = self.domains[domain_name]
-                    directive = domain.directive(directive_name)
-                    if directive is not None:
-                        return directive, []
-            # else look in the default domain
-            elif self.default_domain is not None:
-                directive = self.default_domain.directive(directive_name)
-                if directive is not None:
-                    return directive, []
-            # always look in the std domain
-            # (XXX or register them in the docutils namespace?)
-            directive = self.domains['std'].directive(directive_name)
-            if directive is not None:
-                return directive, []
-            # last, look in the default docutils namespace
-            return orig_directive_function(directive_name, language_module,
-                                           document)
-        directives.directive = directive
-
-        def role(role_name, language_module, lineno, reporter):
-            """Lookup a role name."""
-            role_name = role_name.lower()
-            # explicit domain given?
-            if ':' in role_name:
-                domain_name, role_name = role_name.split(':', 1)
-                if domain_name in self.domains:
-                    domain = self.domains[domain_name]
-                    role = domain.role(role_name)
-                    if role is not None:
-                        return role, []
-            # else look in the default domain
-            elif self.default_domain is not None:
-                role = self.default_domain.role(role_name)
-                if role is not None:
-                    return role, []
-            # always look in the std domain
-            role = self.domains['std'].role(role_name)
-            if role is not None:
-                return role, []
-            # last, look in the default docutils namespace
-            return orig_role_function(role_name, language_module,
-                                      lineno, reporter)
-        roles.role = role
-
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),
                         writer=SphinxDummyWriter(),
@@ -654,6 +652,8 @@ class BuildEnvironment:
             doctree = pub.document
         except UnicodeError, err:
             raise SphinxError(str(err))
+
+        # post-processing
         self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
@@ -665,11 +665,12 @@ class BuildEnvironment:
         self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
 
-        # store time of reading, used to find outdated files
-        self.all_docs[docname] = time.time()
-
+        # allow extension-specific post-processing
         if app:
             app.emit('doctree-read', doctree)
+
+        # store time of reading, used to find outdated files
+        self.all_docs[docname] = time.time()
 
         # make it picklable
         doctree.reporter = None
@@ -683,7 +684,6 @@ class BuildEnvironment:
 
         # cleanup
         self.doc_read_data.clear()
-        self.default_domain = None
 
         if save_parsed:
             # save the parsed doctree
