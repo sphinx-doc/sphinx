@@ -28,7 +28,7 @@ import sphinx
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
-explicit_title_re = re.compile('^(.+?)\s*<(.*?)>$')
+explicit_title_re = re.compile('^(.+?)\s*<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 url_re = re.compile(r'(?P<schema>.+)://.*')
 
