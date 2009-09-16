@@ -138,7 +138,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</em>')
 
     def visit_versionmodified(self, node):
-        self.body.append(self.starttag(node, 'p'))
+        self.body.append(self.starttag(node, 'p', CLASS=node['type']))
         text = versionlabels[node['type']] % node['version']
         if len(node):
             text += ': '
