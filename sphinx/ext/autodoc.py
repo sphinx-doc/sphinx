@@ -965,10 +965,10 @@ class MethodDocumenter(ClassLevelDocumenter):
     """
     objtype = 'method'
     member_order = 50
+    priority = 0
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        # other attributes are recognized via the module analyzer
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
@@ -1010,6 +1010,10 @@ class AttributeDocumenter(ClassLevelDocumenter):
     """
     objtype = 'attribute'
     member_order = 60
+
+    # must be higher than the MethodDocumenter, else it will recognize
+    # some non-data descriptors as methods
+    priority = 10
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
