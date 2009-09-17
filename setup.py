@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ASD# -*- coding: utf-8 -*-
 import ez_setup
 ez_setup.use_setuptools()
 
