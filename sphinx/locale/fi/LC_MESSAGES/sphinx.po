@@ -594,7 +594,7 @@ msgstr "Hakemisto yhtenä luettelona"
 #: sphinx/writers/text.py:166
 #, fuzzy, python-format
 msgid "Platform: %s"
-msgstr "Ympäristö"
+msgstr "Ympäristö: %s"
 
 #: sphinx/writers/text.py:428
 msgid "[image]"
