@@ -1,6 +1,8 @@
 Release 0.6.4 (in development)
 ==============================
 
+* Fix the handling of non-data descriptors in autodoc.
+
 
 Release 0.6.3 (Sep 03, 2009)
 ============================

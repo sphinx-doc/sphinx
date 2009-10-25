@@ -1015,11 +1015,14 @@ class AttributeDocumenter(ClassLevelDocumenter):
     # some non-data descriptors as methods
     priority = 10
 
+    method_types = (FunctionType, BuiltinFunctionType, MethodType)
+
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return (isdescriptor(member) and not
-                isinstance(member, (FunctionType, BuiltinFunctionType))) \
-               or (not isinstance(parent, ModuleDocumenter) and isattr)
+        isdatadesc = isdescriptor(member) and not \
+                     isinstance(member, cls.method_types)
+        return isdatadesc or \
+               (isattr and not isinstance(parent, ModuleDocumenter))
 
     def document_members(self, all_members=False):
         pass
