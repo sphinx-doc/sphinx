@@ -3,8 +3,6 @@ Release 1.0 (in development)
 
 * Added ``html_output_encoding`` config value.
 
-* Added ``latexpdf`` target in quickstart Makefile.
-
 * #200: Added ``Sphinx.add_stylesheet()``.
 
 * Added ``titlesonly`` option to ``toctree`` directive.
@@ -33,6 +31,8 @@ Release 1.0 (in development)
 * Added ``html_show_copyright`` config value.
 
 * Added simplified Chinese locale.
+
+* Added ``latexpdf`` target in quickstart Makefile.
 
 
 Release 0.6.4 (in development)
