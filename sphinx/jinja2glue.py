@@ -101,7 +101,8 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         if use_i18n:
-            self.environment.install_gettext_translations(builder.app.translator)
+            self.environment.install_gettext_translations(
+                builder.app.translator)
 
     def render(self, template, context):
         return self.environment.get_template(template).render(context)

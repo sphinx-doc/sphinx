@@ -119,7 +119,7 @@ class CoverageBuilder(Builder):
     def build_py_coverage(self):
         objects = self.env.domaindata['py']['objects']
         modules = self.env.domaindata['py']['modules']
-        
+
         for mod_name in modules:
             ignore = False
             for exp in self.mod_ignorexps:
