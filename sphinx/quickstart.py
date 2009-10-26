@@ -333,7 +333,8 @@ devhelp:
 \t@echo "Build finished."
 \t@echo "To view the help file:"
 \t@echo "# mkdir -p $$HOME/.local/share/devhelp/%(project_fn)s"
-\t@echo "# ln -s %(rbuilddir)s/devhelp $$HOME/.local/share/devhelp/%(project_fn)s"
+\t@echo "# ln -s %(rbuilddir)s/devhelp\
+ $$HOME/.local/share/devhelp/%(project_fn)s"
 \t@echo "# devhelp"
 
 latex:

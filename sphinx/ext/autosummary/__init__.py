@@ -226,7 +226,7 @@ class Autosummary(Directive):
         ``[(name, signature, summary_string, real_name), ...]``.
         """
         env = self.state.document.settings.env
-        
+
         prefixes = ['']
         if env.currmodule:
             prefixes.insert(0, env.currmodule)
