@@ -379,6 +379,7 @@ def test_generate():
     options.exclude_members = set(['excludemeth'])
     assert_processes(should, 'class', 'Class')
     should.extend([('attribute', 'test_autodoc.Class.prop'),
+                   ('attribute', 'test_autodoc.Class.descr'),
                    ('attribute', 'test_autodoc.Class.attr'),
                    ('attribute', 'test_autodoc.Class.docattr'),
                    ('attribute', 'test_autodoc.Class.udocattr')])
@@ -428,6 +429,10 @@ def test_generate():
                       ('method', 'test_autodoc.Outer.Inner.meth')],
                      'class', 'Outer', all_members=True)
 
+    # test descriptor docstrings
+    assert_result_contains('   Descriptor instance docstring.',
+                           'attribute', 'test_autodoc.Class.descr')
+
     # test generation for C modules (which have no source file)
     directive.env.doc_read_data['py_module'] = 'time'
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
@@ -446,12 +451,25 @@ class CustomEx(Exception):
     def f(self):
         """Exception method."""
 
+class CustomDataDescriptor(object):
+    """Descriptor class docstring."""
+
+    def __init__(self, doc):
+        self.__doc__ = doc
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self
+        return 42
+
 class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
 
 class Class(Base):
     """Class to document."""
+
+    descr = CustomDataDescriptor("Descriptor instance docstring.")
 
     def meth(self):
         """Function."""

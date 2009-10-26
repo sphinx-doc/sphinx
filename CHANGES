@@ -10,8 +10,6 @@ Release 1.0 (in development)
 
 * Added ``html_output_encoding`` config value.
 
-* Added ``latexpdf`` target in quickstart Makefile.
-
 * #200: Added ``Sphinx.add_stylesheet()``.
 
 * Added ``titlesonly`` option to ``toctree`` directive.
@@ -41,9 +39,13 @@ Release 1.0 (in development)
 
 * Added simplified Chinese locale.
 
+* Added ``latexpdf`` target in quickstart Makefile.
+
 
 Release 0.6.4 (in development)
 ==============================
+
+* Fix the handling of non-data, but non-method descriptors in autodoc.
 
 
 Release 0.6.3 (Sep 03, 2009)

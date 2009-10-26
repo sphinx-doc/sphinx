@@ -237,8 +237,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
         r'^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$')
     module_re = re.compile(
         r'^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
-    autosummary_item_re = re.compile(
-        r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
+    autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
