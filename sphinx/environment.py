@@ -1288,9 +1288,6 @@ class BuildEnvironment:
                             'missing-reference', self, node, contnode)
                         if not newnode:
                             newnode = contnode
-                    elif docname == fromdocname:
-                        # don't link to self
-                        newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
                         newnode['refuri'] = builder.get_relative_uri(
