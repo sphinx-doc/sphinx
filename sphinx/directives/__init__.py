@@ -12,12 +12,11 @@
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives import images
 
 from sphinx import addnodes
 from sphinx.locale import l_
-from sphinx.util.compat import Directive, directive_dwim
 
 # import and register directives
 from sphinx.directives.code import *
@@ -287,7 +286,7 @@ class DefaultDomain(Directive):
         env.doc_read_data['default_domain'] = env.domains.get(domain_name)
 
 
-directives.register_directive('default-domain', directive_dwim(DefaultDomain))
-directives.register_directive('describe', directive_dwim(ObjectDescription))
+directives.register_directive('default-domain', DefaultDomain)
+directives.register_directive('describe', ObjectDescription)
 # new, more consistent, name
-directives.register_directive('object', directive_dwim(ObjectDescription))
+directives.register_directive('object', ObjectDescription)

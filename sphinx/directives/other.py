@@ -10,13 +10,13 @@
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
 from sphinx.util import patfilter, ws_re, url_re, docname_join, \
      explicit_title_re
-from sphinx.util.compat import Directive, directive_dwim, make_admonition
+from sphinx.util.compat import make_admonition
 
 
 class TocTree(Directive):
@@ -362,31 +362,21 @@ class Only(Directive):
         return [node]
 
 
-directives.register_directive('toctree', directive_dwim(TocTree))
-directives.register_directive('sectionauthor', directive_dwim(Author))
-directives.register_directive('moduleauthor', directive_dwim(Author))
-directives.register_directive('index', directive_dwim(Index))
-directives.register_directive('deprecated', directive_dwim(VersionChange))
-directives.register_directive('versionadded', directive_dwim(VersionChange))
-directives.register_directive('versionchanged', directive_dwim(VersionChange))
-directives.register_directive('seealso', directive_dwim(SeeAlso))
-directives.register_directive('tabularcolumns', directive_dwim(TabularColumns))
-directives.register_directive('centered', directive_dwim(Centered))
-directives.register_directive('acks', directive_dwim(Acks))
-directives.register_directive('hlist', directive_dwim(HList))
-directives.register_directive('only', directive_dwim(Only))
+directives.register_directive('toctree', TocTree)
+directives.register_directive('sectionauthor', Author)
+directives.register_directive('moduleauthor', Author)
+directives.register_directive('index', Index)
+directives.register_directive('deprecated', VersionChange)
+directives.register_directive('versionadded', VersionChange)
+directives.register_directive('versionchanged', VersionChange)
+directives.register_directive('seealso', SeeAlso)
+directives.register_directive('tabularcolumns', TabularColumns)
+directives.register_directive('centered', Centered)
+directives.register_directive('acks', Acks)
+directives.register_directive('hlist', HList)
+directives.register_directive('only', Only)
 
 # register the standard rst class directive under a different name
 # only for backwards compatibility now
-try:
-    # docutils 0.4
-    from docutils.parsers.rst.directives.misc import class_directive
-    directives.register_directive('cssclass', class_directive)
-except ImportError:
-    try:
-        # docutils 0.5
-        from docutils.parsers.rst.directives.misc import Class
-        directives.register_directive('cssclass', Class)
-    except ImportError:
-        # whatever :)
-        pass
+from docutils.parsers.rst.directives.misc import Class
+directives.register_directive('cssclass', Class)

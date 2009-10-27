@@ -189,21 +189,10 @@ class HTMLTranslator(BaseTranslator):
                 numbers = self.builder.secnumbers[anchorname]
                 self.body.append('.'.join(map(str, numbers)) + '. ')
 
-    # overwritten for docutils 0.4
-    if hasattr(BaseTranslator, 'start_tag_with_title'):
-        def visit_section(self, node):
-            # the 0.5 version, to get the id attribute in the <div> tag
-            self.section_level += 1
-            self.body.append(self.starttag(node, 'div', CLASS='section'))
-
-        def visit_title(self, node):
-            # don't move the id attribute inside the <h> tag
-            BaseTranslator.visit_title(self, node, move_ids=0)
-            self.add_secnumber(node)
-    else:
-        def visit_title(self, node):
-            BaseTranslator.visit_title(self, node)
-            self.add_secnumber(node)
+    # overwritten
+    def visit_title(self, node):
+        BaseTranslator.visit_title(self, node)
+        self.add_secnumber(node)
 
     # overwritten
     def visit_literal_block(self, node):

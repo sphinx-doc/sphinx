@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* Support for docutils 0.4 has been removed.
+
 * The ``toctree()`` callable in templates now has a ``maxdepth``
   keyword argument to control the depth of the generated tree.
 

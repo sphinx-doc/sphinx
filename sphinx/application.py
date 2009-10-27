@@ -18,7 +18,7 @@ from os import path
 from cStringIO import StringIO
 
 from docutils import nodes
-from docutils.parsers.rst import directives, roles
+from docutils.parsers.rst import Directive, directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
@@ -31,7 +31,6 @@ from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
-from sphinx.util.compat import Directive, directive_dwim
 from sphinx.util.console import bold
 
 
@@ -339,7 +338,7 @@ class Sphinx(object):
             if content or arguments or options:
                 raise ExtensionError('when adding directive classes, no '
                                      'additional arguments may be given')
-            return directive_dwim(obj)
+            return obj
         else:
             obj.content = content
             obj.arguments = arguments
@@ -366,11 +365,13 @@ class Sphinx(object):
             raise ExtensionError('domain %s already registered' % domain.name)
         all_domains[domain.name] = domain
 
-    def add_directive_to_domain(self, domain, name, obj):
+    def add_directive_to_domain(self, domain, name, obj,
+                                content=None, arguments=None, **options):
         # XXX needs to be documented
         if domain not in all_domains:
             raise ExtensionError('domain %s not yet registered' % domain)
-        all_domains[domain].directives[name] = self._directive_helper(obj)
+        all_domains[domain].directives[name] = \
+            self._directive_helper(obj, content, arguments, **options)
 
     def add_role_to_domain(self, domain, name, role):
         # XXX needs to be documented
