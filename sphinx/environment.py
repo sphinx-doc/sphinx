@@ -888,7 +888,7 @@ class BuildEnvironment:
             if name.isdigit() or node.has_key('refuri') or \
                    node.tagname.startswith('desc_'):
                 # ignore footnote labels, labels automatically generated from a
-                # link and description units
+                # link and object descriptions
                 continue
             if name in self.labels:
                 self.warn(docname, 'duplicate label %s, ' % name +

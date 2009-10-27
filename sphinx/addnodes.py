@@ -14,7 +14,7 @@ from docutils import nodes
 # index markup
 class index(nodes.Invisible, nodes.Inline, nodes.TextElement): pass
 
-# domain-specific object description units (class, function etc.)
+# domain-specific object descriptions (class, function etc.)
 
 # parent node for signature and content
 class desc(nodes.Admonition, nodes.Element): pass

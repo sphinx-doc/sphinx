@@ -85,5 +85,5 @@ def setup(app):
     app.add_config_value('value_from_conf_py', 42, False)
     app.add_directive('funcdir', functional_directive, opt=lambda x: x)
     app.add_directive('clsdir', ClassDirective)
-    app.add_description_unit('userdesc', 'userdescrole', '%s (userdesc)',
-                             userdesc_parse)
+    app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
+                        userdesc_parse, objname='user desc')

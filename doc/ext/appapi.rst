@@ -123,26 +123,28 @@ the following public API:
 
    .. versionadded:: 0.6
 
-.. method:: Sphinx.add_description_unit(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None)
+.. method:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='')
 
-   This method is a very convenient way to add a new type of information that
+   This method is a very convenient way to add a new :term:`object` type that
    can be cross-referenced.  It will do this:
 
-   * Create a new directive (called *directivename*) for a :term:`description
-     unit`.  It will automatically add index entries if *indextemplate* is
-     nonempty; if given, it must contain exactly one instance of ``%s``.  See
-     the example below for how the template will be interpreted.
+   * Create a new directive (called *directivename*) for documenting an object.
+     It will automatically add index entries if *indextemplate* is nonempty; if
+     given, it must contain exactly one instance of ``%s``.  See the example
+     below for how the template will be interpreted.
    * Create a new role (called *rolename*) to cross-reference to these
-     description units.
+     object descriptions.
    * If you provide *parse_node*, it must be a function that takes a string and
      a docutils node, and it must populate the node with children parsed from
      the string.  It must then return the name of the item to be used in
      cross-referencing and index entries.  See the :file:`ext.py` file in the
      source for this documentation for an example.
+   * The *objname* (if not given, will default to *directivename*) names the
+     type of object.  It is used when listing objects, e.g. in search results.
 
    For example, if you have this call in a custom Sphinx extension::
 
-      app.add_description_unit('directive', 'dir', 'pair: %s; directive')
+      app.add_object_type('directive', 'dir', 'pair: %s; directive')
 
    you can use this markup in your documents::
 
@@ -164,12 +166,15 @@ the following public API:
    ``docutils.nodes.emphasis`` or ``docutils.nodes.strong`` -- you can also use
    ``docutils.nodes.generated`` if you want no further text decoration).
 
-   For the role content, you have the same options as for standard Sphinx roles
-   (see :ref:`xref-syntax`).
+   For the role content, you have the same syntactical possibilities as for
+   standard Sphinx roles (see :ref:`xref-syntax`).
 
-.. method:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None)
+   This method is also available under the deprecated alias
+   :meth:`add_description_unit`.
 
-   This method is very similar to :meth:`add_description_unit` except that the
+.. method:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
+
+   This method is very similar to :meth:`add_object_type` except that the
    directive it generates must be empty, and will produce no output.
 
    That means that you can add semantic targets to your sources, and refer to

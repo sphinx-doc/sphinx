@@ -30,7 +30,7 @@ option_desc_re = re.compile(
 
 class GenericObject(ObjectDescription):
     """
-    A generic x-ref directive registered with Sphinx.add_description_unit().
+    A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate = ''
     parse_node = None
