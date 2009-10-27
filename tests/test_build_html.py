@@ -66,6 +66,10 @@ HTML_XPATH = {
         ".//dt[@id='test_autodoc.function']/em": r'\*\*kwds',
         ".//dd": r'Return spam\.',
     },
+    'extapi.html': {
+        ".//strong": 'from function: Foo',
+        ".//strong": 'from class: Bar',
+    },
     'markup.html': {
         ".//title": 'set by title directive',
         ".//p/em": 'Section author: Georg Brandl',

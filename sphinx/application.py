@@ -18,7 +18,8 @@ from os import path
 from cStringIO import StringIO
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives, roles
+from docutils.parsers.rst import Directive, convert_directive_function, \
+     directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
@@ -341,9 +342,9 @@ class Sphinx(object):
             return obj
         else:
             obj.content = content
-            obj.arguments = arguments
+            obj.arguments = arguments or (0, 0, False)
             obj.options = options
-            return obj
+            return convert_directive_function(obj)
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         directives.register_directive(

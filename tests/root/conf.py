@@ -58,7 +58,12 @@ autosummary_generate = ['autosummary']
 # modify tags from conf.py
 tags.add('confpytag')
 
+
+# -- extension API
+
+from docutils import nodes
 from sphinx import addnodes
+from sphinx.util.compat import Directive
 
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
@@ -67,7 +72,18 @@ def userdesc_parse(env, sig, signode):
     signode[-1] += addnodes.desc_parameter(y, y)
     return x
 
+def functional_directive(name, arguments, options, content, lineno,
+                         content_offset, block_text, state, state_machine):
+    return [nodes.strong(text='from function: %s' % options['opt'])]
+
+class ClassDirective(Directive):
+    option_spec = {'opt': lambda x: x}
+    def run(self):
+        return [nodes.strong(text='from class: %s' % self.options['opt'])]
+
 def setup(app):
     app.add_config_value('value_from_conf_py', 42, False)
+    app.add_directive('funcdir', functional_directive, opt=lambda x: x)
+    app.add_directive('clsdir', ClassDirective)
     app.add_description_unit('userdesc', 'userdescrole', '%s (userdesc)',
                              userdesc_parse)

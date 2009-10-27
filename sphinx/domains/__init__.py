@@ -112,7 +112,6 @@ class Domain(object):
         if name not in self.directives:
             return None
         fullname = '%s:%s' % (self.name, name)
-        # XXX what about function-style directives?
         BaseDirective = self.directives[name]
         class DirectiveAdapter(BaseDirective):
             def run(self):

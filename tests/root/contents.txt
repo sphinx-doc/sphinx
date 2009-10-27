@@ -11,6 +11,7 @@ Contents:
    :maxdepth: 2
    :numbered:
 
+   extapi
    images
    subdir/images
    subdir/includes
