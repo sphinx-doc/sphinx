@@ -489,9 +489,6 @@ class PythonDomain(Domain):
                 self.data['modules'].get(target, ('','','', ''))
             if not docname:
                 return None
-            elif docname == fromdocname:
-                # don't link to self
-                return contnode
             else:
                 title = '%s%s%s' % ((platform and '(%s) ' % platform),
                                     synopsis,

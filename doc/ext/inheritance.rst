@@ -37,9 +37,19 @@ New config values are:
 
    A dictionary of graphviz graph attributes for inheritance diagrams.
 
+   For example::
+
+      inheritance_graph_attrs = dict(rankdir="LR", size='"6.0, 8.0"',
+                                     fontsize=14, ratio='compress')
+
 .. confval:: inheritance_node_attrs
 
    A dictionary of graphviz node attributes for inheritance diagrams.
+
+   For example::
+
+      inheritance_node_attrs = dict(shape='ellipse', fontsize=14, height=0.75,
+                                    color='dodgerblue1', style='filled')
 
 .. confval:: inheritance_edge_attrs
 

@@ -9,6 +9,11 @@ suggest new entries!
 How do I...
 -----------
 
+... create PDF files without LaTeX?
+   You can use `rst2pdf <http://rst2pdf.googlecode.com>`_ version 0.12 or greater
+   which comes with built-in Sphinx integration.  See the :ref:`builders`
+   section for details.
+
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
    the :dir:`toctree` directive where you want to start numbering.
