@@ -3,6 +3,8 @@ Release 0.6.4 (in development)
 
 * Fix the handling of non-data, but non-method descriptors in autodoc.
 
+* When copying file times, ignore OSErrors raised by ``os.utime()``.
+
 
 Release 0.6.3 (Sep 03, 2009)
 ============================

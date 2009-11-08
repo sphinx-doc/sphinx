@@ -414,7 +414,7 @@ def copyfile(source, dest):
     try:
         # don't do full copystat because the source may be read-only
         copytimes(source, dest)
-    except shutil.Error:
+    except OSError:
         pass
 
 
