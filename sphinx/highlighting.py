@@ -12,8 +12,13 @@
 import sys
 import cgi
 import re
-import parser
 import textwrap
+
+try:
+    import parser
+except ImportError:
+    # parser is not available on Jython
+    parser = None
 
 from sphinx.util.texescape import tex_hl_escape_map
 
@@ -157,6 +162,9 @@ class PygmentsBridge(object):
             # encoding.  Since it may not even be given in a snippet,
             # just replace all non-ASCII characters.
             src = src.encode('ascii', 'replace')
+
+        if parser is None:
+            return True
 
         try:
             parser.suite(src)

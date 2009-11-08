@@ -132,7 +132,7 @@ def number_equations(app, doctree, docname):
         node[0] = nodes.Text(num, num)
 
 
-def setup(app, htmlinlinevisitors, htmldisplayvisitors):
+def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_node(math,
                  latex=(latex_visit_math, None),
                  text=(text_visit_math, None),
