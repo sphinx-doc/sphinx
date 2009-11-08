@@ -98,7 +98,9 @@
     {%- else %}
       {%- set titlesuffix = "" %}
     {%- endif %}
+    {%- block htmltitle %}
     <title>{{ title|striptags }}{{ titlesuffix }}</title>
+    {%- endblock %}
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
     {%- for cssfile in css_files %}

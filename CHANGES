@@ -34,6 +34,8 @@ Release 1.0 (in development)
 
 * Added ``latexpdf`` target in quickstart Makefile.
 
+* Added ``htmltitle`` block in layout template.
+
 
 Release 0.6.4 (in development)
 ==============================
