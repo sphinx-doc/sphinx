@@ -14,6 +14,7 @@ import re
 import sys
 import stat
 import time
+import errno
 import types
 import shutil
 import fnmatch
@@ -67,7 +68,8 @@ def ensuredir(path):
     try:
         os.makedirs(path)
     except OSError, err:
-        if not err.errno == 17:
+        # 0 for Jython/Win32
+        if err.errno not in [0, getattr(errno, 'EEXIST', 0)]:
             raise
 
 
