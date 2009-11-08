@@ -9,7 +9,7 @@ suggest new entries!
 How do I...
 -----------
 
-... create PDF builds without LaTeX?
+... create PDF files without LaTeX?
    You can use `rst2pdf <http://rst2pdf.googlecode.com>`_ version 0.12 or greater
    which comes with built-in Sphinx integration.  See the :ref:`builders`
    section for details.
