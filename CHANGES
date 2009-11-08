@@ -1,6 +1,9 @@
 Release 0.6.4 (in development)
 ==============================
 
+* #238: In autodoc, catch all errors that occur on module import,
+  not just ``ImportError``.
+
 * Fix the handling of non-data, but non-method descriptors in autodoc.
 
 * When copying file times, ignore OSErrors raised by ``os.utime()``.
