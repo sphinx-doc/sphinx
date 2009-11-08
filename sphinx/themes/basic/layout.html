@@ -93,7 +93,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     {{ metatags }}
-    {%- if not embedded %}
+    {%- if not embedded and docstitle %}
       {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
     {%- else %}
       {%- set titlesuffix = "" %}
