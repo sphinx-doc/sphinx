@@ -1,6 +1,9 @@
 Release 0.6.4 (in development)
 ==============================
 
+* Fix a Jython compatibility issue: make the dependence on the
+  ``parser`` module optional.
+
 * #238: In autodoc, catch all errors that occur on module import,
   not just ``ImportError``.
 
