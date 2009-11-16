@@ -52,7 +52,33 @@ file :file:`blue.zip`, you can put it right in the directory containing
 Builtin themes
 --------------
 
-Sphinx comes with a selection of themes to choose from:
+.. cssclass:: right
+
++-----------------------------------------+
+| **Theme overview**                      |
++--------------------+--------------------+
+| |default|          | |sphinxdoc|        |
+|                    |                    |
+| *default*          | *sphinxdoc*        |
++--------------------+--------------------+
+| |scrolls|          | |agogo|            |
+|                    |                    |
+| *scrolls*          | *agogo*            |
++--------------------+--------------------+
+| |traditional|      |                    |
+|                    |                    |
+| *traditional*      |                    |
++--------------------+--------------------+
+
+.. |default|     image:: themes/default.png
+.. |sphinxdoc|   image:: themes/sphinxdoc.png
+.. |scrolls|     image:: themes/scrolls.png
+.. |agogo|       image:: themes/agogo.png
+.. |traditional| image:: themes/traditional.png
+
+Sphinx comes with a selection of themes to choose from.
+
+These themes are:
 
 * **basic** -- This is a basically unstyled layout used as the base for the
   *default* and *sphinxdoc* themes, and usable as the base for custom themes as
@@ -102,6 +128,26 @@ Sphinx comes with a selection of themes to choose from:
 
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar*.
+
+* **agogo** -- A theme created by Andi Albrecht.  The following options are
+  supported:
+
+  - **bodyfont** (CSS font family): Font for normal text.
+  - **headerfont** (CSS font family): Font for headings.
+  - **pagewidth** (CSS length): Width of the page content, default 70em.
+  - **documentwidth** (CSS length): Width of the document (without sidebar),
+    default 50em.
+  - **sidebarwidth** (CSS length): Width of the sidebar, default 20em.
+  - **bgcolor** (CSS color): Background color.
+  - **headerbg** (CSS value for "background"): background for the header area,
+    default a grayish gradient.
+  - **footerbg** (CSS value for "background"): background for the footer area,
+    default a light gray gradient.
+  - **linkcolor** (CSS color): Body link color.
+  - **headercolor1**, **headercolor2** (CSS color): colors for <h1> and <h2>
+    headings.
+  - **headerlinkcolor** (CSS color): Color for the backreference link in
+    headings.
 
 
 Creating themes

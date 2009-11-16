@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* Added new HTML theme ``agogo``, created by Andi Albrecht.
+
 * Added ``html_output_encoding`` config value.
 
 * #200: Added ``Sphinx.add_stylesheet()``.
