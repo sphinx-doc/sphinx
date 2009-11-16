@@ -3,12 +3,14 @@ Release 1.0 (in development)
 
 * Support for docutils 0.4 has been removed.
 
+* Added new HTML theme ``agogo``, created by Andi Albrecht.
+
 * The ``toctree()`` callable in templates now has a ``maxdepth``
   keyword argument to control the depth of the generated tree.
 
-* Added Catalan translation, thanks to Pau Fernández.
+* Added new minimal theme called scrolls, created by Armin Ronacher.
 
-* Added new minimal theme called scrolls.
+* Added Catalan translation, thanks to Pau Fernández.
 
 * Added ``html_output_encoding`` config value.
 
