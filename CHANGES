@@ -3,7 +3,7 @@ Release 1.0 (in development)
 
 * Added new HTML theme ``agogo``, created by Andi Albrecht.
 
-* Added new minimal theme called scrolls.
+* Added new minimal theme called scrolls, created by Armin Ronacher.
 
 * Added ``html_output_encoding`` config value.
 
