@@ -137,9 +137,6 @@ These themes are:
   - **visitedlinkcolor**
   - **admonitioncolor**
 
-* **traditional** -- A theme resembling the old Python documentation.  There are
-  currently no options beyond *nosidebar*.
-
 * **agogo** -- A theme created by Andi Albrecht.  The following options are
   supported:
 
@@ -159,6 +156,9 @@ These themes are:
     headings.
   - **headerlinkcolor** (CSS color): Color for the backreference link in
     headings.
+
+* **traditional** -- A theme resembling the old Python documentation.  There are
+  currently no options beyond *nosidebar*.
 
 
 Creating themes
