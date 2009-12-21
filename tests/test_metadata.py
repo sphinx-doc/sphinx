@@ -59,85 +59,44 @@ reStructuredText Demonstration
 Above is the document title.
 """
 
-import re
-
 from util import *
 
-from docutils import frontend, utils, nodes
-from docutils.parsers import rst
+from sphinx.environment import BuildEnvironment
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.latex import LaTeXBuilder
 
-from sphinx import addnodes
-from sphinx.util import texescape
-from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+app = env = None
+warnings = []
 
 def setup_module():
-    global app, settings, parser
-    texescape.init()  # otherwise done by the latex builder
-    app = TestApp(cleanenv=True)
-    optparser = frontend.OptionParser(
-        components=(rst.Parser, HTMLWriter, LaTeXWriter))
-    settings = optparser.get_default_values()
-    settings.env = app.builder.env
-    parser = rst.Parser()
+    global app, env
+    app = TestApp(srcdir='(temp)')
+    env = BuildEnvironment(app.srcdir, app.doctreedir, app.config)
+    env.set_warnfunc(lambda *args: warnings.append(args))
+    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
+    for docname in it:
+        pass
 
 def teardown_module():
     app.cleanup()
 
-# since we're not resolving the markup afterwards, these nodes may remain
-class ForgivingTranslator:
-    def visit_pending_xref(self, node):
-        pass
-    def depart_pending_xref(self, node):
-        pass
 
-class ForgivingHTMLTranslator(SmartyPantsHTMLTranslator, ForgivingTranslator):
-    pass
-
-class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
-    pass
-
-
-def verify_re(rst, html_expected, latex_expected):
-    document = utils.new_document('test data', settings)
-    document['file'] = 'dummy'
-    parser.parse(rst, document)
-    for msg in document.traverse(nodes.system_message):
-        if msg['level'] == 1:
-            msg.replace_self([])
-
-    if html_expected:
-        html_translator = ForgivingHTMLTranslator(app.builder, document)
-        document.walkabout(html_translator)
-        html_translated = ''.join(html_translator.fragment).strip()
-        assert re.match(html_expected, html_translated), 'from' + rst
-
-    if latex_expected:
-        latex_translator = ForgivingLaTeXTranslator(document, app.builder)
-        latex_translator.first_document = -1 # don't write \begin{document}
-        document.walkabout(latex_translator)
-        latex_translated = ''.join(latex_translator.body).strip()
-        assert re.match(latex_expected, latex_translated), 'from ' + repr(rst)
-
-def verify(rst, html_expected, latex_expected):
-    if html_expected:
-        html_expected = re.escape(html_expected) + '$'
-    if latex_expected:
-        latex_expected = re.escape(latex_expected) + '$'
-    verify_re(rst, html_expected, latex_expected)
-
-
-def test_bibliographic_fields():
-    # correct parsing of doc metadata
-    document = utils.new_document('test data', settings)
-    document['file'] = 'dummy'
-    parser.parse(BIBLIOGRAPHIC_FIELDS_REST, document)
-    import pdb; pdb.set_trace()
-    for msg in document.traverse(nodes.system_message):
-        if msg['level'] == 1:
-            msg.replace_self([])
-    _html = ('<p><tt class="docutils literal"><span class="pre">'
-             'code</span>&nbsp;&nbsp; <span class="pre">sample</span></tt></p>')
-    yield verify, '``code   sample``', _html, '\\code{code   sample}'
-    yield verify, ':samp:`code   sample`', _html, '\\samp{code   sample}'
-
+def test_second_update():
+    # delete, add and "edit" (change saved mtime) some files and update again
+    env.all_docs['contents'] = 0
+    root = path(app.srcdir)
+    # important: using "autodoc" because it is the last one to be included in
+    # the contents.txt toctree; otherwise section numbers would shift
+    (root / 'autodoc.txt').unlink()
+    (root / 'new.txt').write_text('New file\n========\n')
+    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert '1 added, 3 changed, 1 removed' in msg
+    docnames = set()
+    for docname in it:
+        docnames.add(docname)
+    # "includes" and "images" are in there because they contain references
+    # to nonexisting downloadable or image files, which are given another
+    # chance to exist
+    assert docnames == set(['contents', 'new', 'includes', 'images'])
+    assert 'autodoc' not in env.all_docs
+    assert 'autodoc' not in env.found_docs
