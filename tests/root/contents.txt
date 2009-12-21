@@ -21,6 +21,7 @@ Contents:
    math
    autodoc
    autosummary
+   metadata
 
    Python <http://python.org/>
 
