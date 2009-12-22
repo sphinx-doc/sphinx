@@ -48,4 +48,4 @@ def test_docinfo():
     for key in exampledocinfo:
         yield assert_equals, exampledocinfo[key], expected_metadata[key]
     #but then we still have to check for missing keys
-    yield assert_equals, expected_metadata.keys(), exampledocinfo.keys()
+    yield assert_equals, set(expected_metadata.keys()), set(exampledocinfo.keys())
