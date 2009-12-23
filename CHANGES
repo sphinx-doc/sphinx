@@ -3,6 +3,9 @@ Release 1.0 (in development)
 
 * Support for docutils 0.4 has been removed.
 
+* #284: All docinfo metadata is now put into the document metadata, not
+  just the author.
+
 * Added new HTML theme ``agogo``, created by Andi Albrecht.
 
 * The ``toctree()`` callable in templates now has a ``maxdepth``

@@ -12,12 +12,10 @@
 import re
 import os
 import time
-import heapq
 import types
 import codecs
 import imghdr
 import string
-import difflib
 import cPickle as pickle
 from os import path
 from glob import glob
@@ -834,6 +832,7 @@ class BuildEnvironment:
     def process_metadata(self, docname, doctree):
         """
         Process the docinfo part of the doctree as metadata.
+        Keep processing minimal -- just return what docutils says.
         """
         self.metadata[docname] = md = {}
         try:
@@ -845,10 +844,12 @@ class BuildEnvironment:
             # nothing to see here
             return
         for node in docinfo:
-            if node.__class__ is nodes.author:
-                # handled specially by docutils
-                md['author'] = node.astext()
-            elif node.__class__ is nodes.field:
+            # nodes are multiply inherited...
+            if isinstance(node, nodes.authors):
+                md['authors'] = [author.astext() for author in node]
+            elif isinstance(node, nodes.TextElement): # e.g. author
+                md[node.__class__.__name__] = node.astext()
+            else:
                 name, body = node
                 md[name.astext()] = body.astext()
         del doctree[0]
