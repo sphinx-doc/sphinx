@@ -214,7 +214,7 @@ The following variables available in the templates:
    List containing names of "public" methods in the class.  Only available for
    classes.
 
-.. data:: methods
+.. data:: attributes
 
    List containing names of "public" attributes in the class.  Only available
    for classes.

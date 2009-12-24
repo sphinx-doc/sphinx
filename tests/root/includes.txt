@@ -56,3 +56,12 @@ Test if dedenting before parsing works.
 .. cssclass:: inc-pyobj-dedent
 .. literalinclude:: literal.inc
    :pyobject: Bar.baz
+
+Docutils include with "literal"
+===============================
+
+While not recommended, it should work (and leave quotes alone).
+
+.. include:: quotes.inc
+   :literal:
+   :tab-width: 4

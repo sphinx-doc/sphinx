@@ -26,6 +26,9 @@ from os import path
 import docutils
 import sphinx
 
+# Errnos that we need.
+EEXIST = getattr(errno, 'EEXIST', 0)
+ENOENT = getattr(errno, 'ENOENT', 0)
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
@@ -70,7 +73,7 @@ def ensuredir(path):
         os.makedirs(path)
     except OSError, err:
         # 0 for Jython/Win32
-        if err.errno not in [0, getattr(errno, 'EEXIST', 0)]:
+        if err.errno not in [0, EEXIST]:
             raise
 
 

@@ -22,7 +22,7 @@ except ImportError:
 from docutils import nodes
 
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir
+from sphinx.util import ensuredir, ENOENT
 from sphinx.util.compat import Directive
 
 
@@ -111,7 +111,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     try:
         p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     except OSError, err:
-        if err.errno != 2:   # No such file or directory
+        if err.errno != ENOENT:   # No such file or directory
             raise
         self.builder.warn('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting' %
