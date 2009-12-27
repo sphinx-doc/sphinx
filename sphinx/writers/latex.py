@@ -245,6 +245,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.literal_whitespace = 0
         self.no_contractions = 0
         self.compact_list = 0
+        self.section_references = []
 
     def astext(self):
         return (HEADER % self.elements + self.highlighter.get_stylesheet() +
@@ -319,8 +320,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.this_is_the_title:
             self.sectionlevel += 1
         self.body.append('\n\n')
-        if self.next_section_target:
-            self.body.append(r'\hypertarget{%s}{}' % self.next_section_target)
+        ns_target = self.next_section_target
+        if ns_target:
+            self.section_references.append(
+                r'\hypertarget{%s}{}\label{%s}' % (ns_target, ns_target))
             self.next_section_target = None
         #if node.get('ids'):
         #    for id in node['ids']:
@@ -418,6 +421,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_title(self, node):
         self.in_title = 0
         self.body.append(self.context.pop())
+        if self.section_references:
+            self.body.append(self.section_references.pop())
 
     def visit_subtitle(self, node):
         if isinstance(node.parent, nodes.sidebar):
@@ -463,13 +468,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         d = self.descstack[-1]
         d.cls = d.cls.rstrip('.')
         if node.parent['desctype'] != 'describe' and node['ids']:
-            hyper = '\\hypertarget{%s}{}' % node['ids'][0]
+            hyper = r'\hypertarget{%s}{}\label{%s}' % (node['ids'][0],
+                                                       node['ids'][0])
         else:
             hyper = ''
         if d.count == 0:
-            t1 = "\n\n%s\\begin{%s}" % (hyper, d.env)
+            t1 = "\n\n\\begin{%s}" % (d.env)
         else:
-            t1 = "\n%s\\%sline" % (hyper, d.env[:-4])
+            t1 = "\n\\%sline" % (d.env[:-4])
         d.count += 1
         if d.env in ('funcdesc', 'classdesc', 'excclassdesc'):
             t2 = "{%s}{%s}" % (d.name, d.params)
@@ -506,7 +512,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             t2 = "{%s}{%s}" % (d.name, d.params)
         elif d.env == 'describe':
             t2 = "{%s}" % d.name
-        self.body.append(t1 + t2)
+        self.body.append(t1 + t2 + hyper)
 
     def visit_desc_type(self, node):
         d = self.descstack[-1]
@@ -813,8 +819,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_module(self, node):
         modname = node['modname']
-        self.body.append('\n\\hypertarget{module-%s}{}' %
-                         (modname.replace(' ','')))
+        modname2 = modname.replace(' ','')
+        self.body.append('\n\\hypertarget{module-%s}{}\label{module-%s}' %
+                         (modname2, modname2))
         self.body.append('\n\\declaremodule[%s]{}{%s}' % (
             modname.replace('_', ''), self.encode(modname)))
         self.body.append('\n\\modulesynopsis{%s}' %
@@ -979,7 +986,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # indexing uses standard LaTeX index markup, so the targets
             # will be generated differently
             if not id.startswith('index-'):
-                self.body.append(r'\hypertarget{%s}{}' % id)
+                self.section_references.append(
+                    r'\hypertarget{%s}{}\label{%s}' % (id ,id))
 
         if node.has_key('refid') and node['refid'] not in self.written_ids:
             parindex = node.parent.index(node)
@@ -1060,6 +1068,20 @@ class LaTeXTranslator(nodes.NodeVisitor):
                            node.line or ''))
             self.context.append('')
     def depart_reference(self, node):
+        uri = node.get('refuri', '')
+        if uri.startswith('mailto:') or uri.startswith('http:') or \
+             uri.startswith('https:') or uri.startswith('ftp:'):
+            self.body.append(' (%s)' % self.encode_uri(uri))
+        elif uri.startswith('#'):
+            self.body.append(' (pp. \pageref{%s})' % uri[1:])
+        elif uri.startswith('%') and not self.in_title:
+            if not uri.startswith('%glossary'):
+                hashindex = uri.find('#')
+                targetname = (hashindex == -1) and '--doc-' + uri[1:] \
+                                               or uri[hashindex+1:]
+                pp = ' (pp. \pageref{%s})' % targetname
+                self.body.append(pp)
+            
         self.body.append(self.context.pop())
 
     def visit_download_reference(self, node):
