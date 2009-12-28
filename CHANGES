@@ -54,6 +54,13 @@ Release 1.0 (in development)
 Release 0.6.4 (in development)
 ==============================
 
+* #299: Fix the mangling of quotes in some literal blocks.
+
+* #292: Fix path to the search index for the ``dirhtml`` builder.
+
+* Fix a Jython compatibility issue: make the dependence on the
+  ``parser`` module optional.
+
 * #238: In autodoc, catch all errors that occur on module import,
   not just ``ImportError``.
 

@@ -30,7 +30,7 @@ from sphinx.domains import ObjType, all_domains
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
-from sphinx.util import pycompat  # imported for side-effects
+from sphinx.util import ENOENT, pycompat  # pycompat imported for side-effects
 from sphinx.util.tags import Tags
 from sphinx.util.console import bold
 
@@ -153,7 +153,7 @@ class Sphinx(object):
                     self.env.domains[domain] = all_domains[domain](self.env)
                 self.info('done')
             except Exception, err:
-                if type(err) is IOError and err.errno == 2:
+                if type(err) is IOError and err.errno == ENOENT:
                     self.info('not yet created')
                 else:
                     self.info('failed: %s' % err)

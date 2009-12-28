@@ -60,6 +60,8 @@ HTML_XPATH = {
         ".//pre": u'Max Strauß',
         ".//a[@href='_downloads/img.png']": '',
         ".//a[@href='_downloads/img1.png']": '',
+        ".//pre": u'"quotes"',
+        ".//pre": u"'included'",
     },
     'autodoc.html': {
         ".//dt[@id='test_autodoc.Class']": '',

@@ -74,8 +74,8 @@ render the block's content in the extended template -- unless you don't want
 that content to show up.
 
 
-Working the the builtin templates
----------------------------------
+Working with the builtin templates
+----------------------------------
 
 The builtin **basic** theme supplies the templates that all builtin Sphinx
 themes are based on.  It has the following elements you can override or use:
