@@ -503,9 +503,10 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
 
     def visit_literal_block(self, node):
         self.no_smarty += 1
-
-    def depart_literal_block(self, node):
-        self.no_smarty -= 1
+        try:
+            HTMLTranslator.visit_literal_block(self, node)
+        finally:
+            self.no_smarty -= 1
 
     def visit_literal_emphasis(self, node):
         self.no_smarty += 1
