@@ -279,6 +279,10 @@ def test_htmlhelp(app):
 def test_qthelp(app):
     app.builder.build_all()
 
+@with_app(buildername='epub')
+def test_epub(app):
+    app.builder.build_all()
+
 @with_app(buildername='changes', cleanenv=True)
 def test_changes(app):
     app.builder.build_all()

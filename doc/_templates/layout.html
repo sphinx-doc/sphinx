@@ -1,10 +1,12 @@
 {% extends "!layout.html" %}
 
 {% block extrahead %}
+{%- if not embedded %}
 <style type="text/css">
   table.right { float: right; margin-left: 20px; }
   table.right td { border: 1px solid #ccc; }
 </style>
+{% endif %}
 {% endblock %}
 
 {% block rootrellink %}

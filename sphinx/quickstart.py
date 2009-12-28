@@ -223,6 +223,56 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+
+# -- Options for Epub output ---------------------------------------------------
+
+# Please also set the html_theme to 'epub' or any other approriate theme.
+# The display size is quite small for ebook readers.
+# The default themes may take too much space.
+
+# bibliographic Dublin Core description of the content.opf and
+# in the toc.ncx file. It defaults to the html_title option.
+#epub_title = ''
+
+# The author of the text. The author is inserted into the
+# bibliographic Dublin Core description of the content.opf file.
+#epub_author = ''
+
+# The language of the text. It defaults to the language option
+# or en if the language is not set.
+#epub_language = ''
+
+# The publisher of the text. The publisher is inserted  into the
+# bibliographic Dublin Core description of the content.opf file.
+# You may use the project homepage.
+#epub_publisher = ''
+
+# The copyright of the text. The copyright is inserted into the
+# bibliographci Dublin Core description of the content.opf file.
+# It defaults to the copyright option.
+#epub_copyright = ''
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#epub_identifier = ''
+
+# The scheme of the identifier. Typical schemes are ISBN or URL.
+#epub_scheme = ''
+
+# A unique identification for the text.
+#epub_uid = ''
+
+# HTML files that should be inserted before the pages created by sphinx.
+# The format is a list of tuples containing the path and title.
+#epub_pre_files = []
+
+# HTML files shat should be inserted after the pages created by sphinx.
+# The format is a list of tuples containing the path and title.
+#epub_post_files = []
+
+# A list of files that should not be packed into the epub file.
+#epub_exclude_files = []
 '''
 
 INTERSPHINX_CONFIG = '''
@@ -270,8 +320,8 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes \
-linkcheck doctest
+.PHONY: help clean html dirhtml pickle json htmlhelp qthelp epub \
+latex changes linkcheck doctest
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
@@ -282,6 +332,7 @@ help:
 \t@echo "  htmlhelp  to make HTML files and a HTML help project"
 \t@echo "  qthelp    to make HTML files and a qthelp project"
 \t@echo "  devhelp   to make HTML files and a Devhelp project"
+\t@echo "  epub      to make an epub"
 \t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf  to make LaTeX files and run them through pdflatex"
 \t@echo "  changes   to make an overview of all changed/added/deprecated items"
@@ -337,6 +388,11 @@ devhelp:
  $$HOME/.local/share/devhelp/%(project_fn)s"
 \t@echo "# devhelp"
 
+epub:
+\t$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) $(BUILDDIR)/epub
+\t@echo
+\t@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
+
 latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo
@@ -391,6 +447,7 @@ if "%%1" == "help" (
 \techo.  htmlhelp  to make HTML files and a HTML help project
 \techo.  qthelp    to make HTML files and a qthelp project
 \techo.  devhelp   to make HTML files and a Devhelp project
+\techo.  epub      to make an epub
 \techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  changes   to make an overview over all changed/added/deprecated items
 \techo.  linkcheck to check all external links for integrity
@@ -455,6 +512,13 @@ if "%%1" == "devhelp" (
 \t%%SPHINXBUILD%% -b devhelp %%ALLSPHINXOPTS%% %(rbuilddir)s/devhelp
 \techo.
 \techo.Build finished.
+\tgoto end
+)
+
+if "%%1" == "epub" (
+\t%%SPHINXBUILD%% -b epub %%ALLSPHINXOPTS%% %%BUILDDIR%%/epub
+\techo.
+\techo.Build finished. The epub file is in %%BUILDDIR%%/epub.
 \tgoto end
 )
 

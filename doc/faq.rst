@@ -54,5 +54,46 @@ github pages
    Sphinx HTML output.
 
 
+Epub
+----
+
+The EpubBuilder is currently in an experimental stage.
+It has only been tested with the Sphinx documentation itself.
+If you want to create epubs, here are some notes:
+
+* Split the text into several files. The longer the individual HTML files
+  are, the longer it takes the ebook reader to render them.
+  In extreme cases, the rendering can take up to one minute.
+
+* Try to minimize the markup. This also pays in rendering time.
+
+* For some readers you can use embedded or external fonts
+  using the CSS ``@font-face`` directive.
+  This is *extremely* useful for code listings which are often cut
+  at the right margin. The default Courier font (or variant) is quite
+  wide and you can only display up to 60 characters on a line.
+  If you replace it with a narrower font, you can get more characters
+  on a line. You may even use
+  `fontforge <http://fontforge.sourceforge.net/>`_
+  and create narrow variants
+  of some free font. In my case I get up to 70 characters on a line.
+
+  You may have to experiment a little until you get reasonable results.
+
+* Test the created epubs. You can use several alternatives.
+  The ones I am aware of are
+  Epubcheck
+  (`http://code.google.com/p/epubcheck/
+  <http://code.google.com/p/epubcheck/>`_),
+  Calibre 
+  (`http://calibre-ebook.com/ <http://calibre-ebook.com/>`_),
+  FBreader (`http://www.fbreader.org/ <http://www.fbreader.org/>`_,
+  although it does not render the CSS), and
+  Bookworm (`http://bookworm.oreilly.com/ <http://bookworm.oreilly.com/>`_).
+  For bookworm you can download the source from
+  `http://code.google.com/p/threepress/ <http://code.google.com/p/threepress/>`_
+  and run you own local server.
+
+
 .. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py

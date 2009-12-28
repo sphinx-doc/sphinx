@@ -388,6 +388,7 @@ BUILTIN_BUILDERS = {
     'htmlhelp':  ('htmlhelp', 'HTMLHelpBuilder'),
     'devhelp':   ('devhelp', 'DevhelpBuilder'),
     'qthelp':    ('qthelp', 'QtHelpBuilder'),
+    'epub':      ('epub', 'EpubBuilder'),
     'latex':     ('latex', 'LaTeXBuilder'),
     'text':      ('text', 'TextBuilder'),
     'changes':   ('changes', 'ChangesBuilder'),
