@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* Added Epub builder.
+
 * #284: All docinfo metadata is now put into the document metadata, not
   just the author.
 
