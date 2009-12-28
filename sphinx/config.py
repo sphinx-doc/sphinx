@@ -112,6 +112,20 @@ class Config(object):
         latex_docclass = ({}, None),
         # now deprecated - use latex_elements
         latex_preamble = ('', None),
+
+        # Epub options
+        epub_basename = (lambda self: make_filename(self.project), None),
+        epub_title = (lambda self: self.html_title, 'html'),
+        epub_author = ('unknown', 'html'),
+        epub_language = (lambda self: self.language or 'en', 'html'),
+        epub_publisher = ('unknown', 'html'),
+        epub_copyright = (lambda self: self.copyright, 'html'),
+        epub_identifier = ('unknown', 'html'),
+        epub_scheme = ('unknown', 'html'),
+        epub_uid = ('unknown', 'env'),
+        epub_pre_files = ([], 'env'),
+        epub_post_files = ([], 'env'),
+        epub_exclude_files = ([], 'env'),
     )
 
     def __init__(self, dirname, filename, overrides, tags):

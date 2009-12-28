@@ -63,6 +63,18 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``devhelp``.
 
+.. module:: sphinx.builders.epub
+.. class:: EpubBuilder
+
+   This builder produces the same output as the standalone HTML builder, but
+   also generates an *epub* file for ebook readers.
+   This builder is meant to be used together with the
+   :confval:`html_theme` ``'epub'``.
+   See `<http://www.idpf.org/specs.htm>`_ or
+   `<http://en.wikipedia.org/wiki/EPUB>`_ for the definition of epubs.
+
+   Its name is ``epub``.
+
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
 
