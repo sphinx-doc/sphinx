@@ -59,4 +59,3 @@ While not recommended, it should work (and leave quotes alone).
 
 .. include:: quotes.inc
    :literal:
-   :tab-width: 4
