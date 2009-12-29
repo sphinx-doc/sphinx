@@ -11,20 +11,17 @@
 """
 
 import os
-import re
 import codecs
 from os import path
 import zipfile
 
 from docutils import nodes
 
-from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 
 
-# (Fragment) templates from which the metainfo files
-# content.opf, toc.ncx, mimetype, and META-INF/container.xml
-# are created.
+# (Fragment) templates from which the metainfo files content.opf, toc.ncx,
+# mimetype, and META-INF/container.xml are created.
 
 _mimetype_template = 'application/epub+zip' # no EOL!
 
@@ -118,9 +115,10 @@ _media_types = {
 
 class EpubBuilder(StandaloneHTMLBuilder):
     """Builder that outputs epub files.
-    It creates the metainfo files
-    container.opf, toc.ncx, mimetype, and META-INF/container.xml.
-    Afterwards, all necessary files are zipped to an epub file.
+
+    It creates the metainfo files container.opf, toc.ncx, mimetype, and
+    META-INF/container.xml.  Afterwards, all necessary files are zipped to an
+    epub file.
     """
     name = 'epub'
 
@@ -136,18 +134,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         StandaloneHTMLBuilder.init(self)
-        # the output files for HTML help must be .html only
+        # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
 
+    def get_theme_config(self):
+        return self.config.epub_theme, {}
 
     # generic support functions
     def make_id(self, name):
-        """Replace all characters not allowed for (X)HTML ids"""
+        """Replace all characters not allowed for (X)HTML ids."""
         return name.replace('/', '_')
 
     def esc(self, name):
-        """Replace all characters not allowed in text an attribute values"""
+        """Replace all characters not allowed in text an attribute values."""
         # Like cgi.escape, but also replace apostrophe
         name = name.replace('&', '&amp;')
         name = name.replace('<', '&lt;')
@@ -157,17 +157,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return name
 
     def collapse_text(self, doctree, result):
-       """Remove all HTML markup and return only the text nodes"""
+       """Remove all HTML markup and return only the text nodes."""
        for c in doctree.children:
             if isinstance(c, nodes.Text):
-                result.append(c.data)
+                result.append(unicode(c))
             else:
                 result = self.collapse_text(c, result)
        return result
 
     def get_refnodes(self, doctree, result):
-        """Collect section titles, their depth in the toc and the refuri"""
-        # XXX: is there a betterr way than checking the attribute
+        """Collect section titles, their depth in the toc and the refuri."""
+        # XXX: is there a better way than checking the attribute
         # toctree-l[1-6] on the parent node?
         if isinstance(doctree, nodes.reference):
             classes = doctree.parent.attributes['classes']
@@ -187,7 +187,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def get_toc(self):
         """Get the total table of contents, containg the master_doc
-        and pre and post files not managed by sphinx"""
+        and pre and post files not managed by sphinx.
+        """
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc, self)
         self.refnodes = self.get_refnodes(doctree, [])
         self.refnodes.insert(0, {
@@ -214,7 +215,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     # Finish by building the epub file
     def handle_finish(self):
-        """Create the metainfo files and finally the epub"""
+        """Create the metainfo files and finally the epub."""
         self.get_toc()
         self.build_mimetype(self.outdir, 'mimetype')
         self.build_container(self.outdir, 'META-INF/container.xml')
@@ -223,7 +224,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
     def build_mimetype(self, outdir, outname):
-        """Write the metainfo file mimetype"""
+        """Write the metainfo file mimetype."""
         self.info('writing %s file...' % outname)
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
@@ -232,7 +233,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             f.close()
 
     def build_container(self, outdir, outname):
-        """Write the metainfo file META-INF/cointainer.xml"""
+        """Write the metainfo file META-INF/cointainer.xml."""
         self.info('writing %s file...' % outname)
         fn = path.join(outdir, outname)
         try:
@@ -248,7 +249,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def content_metadata(self, files, spine):
         """Create a dictionary with all metadata for the content.opf
-        file properly escaped"""
+        file properly escaped.
+        """
         metadata = {}
         metadata['title'] = self.esc(self.config.epub_title)
         metadata['author'] = self.esc(self.config.epub_author)
@@ -263,9 +265,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return metadata
 
     def build_content(self, outdir, outname):
-        """Write the metainfo file content.opf
-        It contains bibliographic data, a file list and
-        the spine (the reading order)."""
+        """Write the metainfo file content.opf It contains bibliographic data,
+        a file list and the spine (the reading order).
+        """
         self.info('writing %s file...' % outname)
 
         # files
@@ -317,7 +319,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             f.close()
 
     def new_navpoint(self, node, level, incr=True):
-        """Create a new entry in the toc from the node at given level"""
+        """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         if incr:
             self.playorder += 1
@@ -327,16 +329,19 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return _navpoint_template % node
 
     def insert_subnav(self, node, subnav):
-        """Insert nested navpoints for given node
-        The node and subnav are already rendered to text"""
+        """Insert nested navpoints for given node.
+        The node and subnav are already rendered to text.
+        """
         nlist = node.split('\n')
         nlist.insert(-1, subnav)
         return '\n'.join(nlist)
 
     def build_navpoints(self, nodes):
-        """Create the toc navigation structure
+        """Create the toc navigation structure.
+
         Subelements of a node are nested inside the navpoint.
-        For nested nodes the parent node is reinserted in the subnav."""
+        For nested nodes the parent node is reinserted in the subnav.
+        """
         navstack = []
         navlist = []
         level = 1
@@ -372,7 +377,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def toc_metadata(self, level, navpoints):
         """Create a dictionary with all metadata for the toc.ncx
-        file properly escaped"""
+        file properly escaped.
+        """
         metadata = {}
         metadata['uid'] = self.config.epub_uid
         metadata['title'] = self.config.epub_title
@@ -381,7 +387,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return metadata
 
     def build_toc(self, outdir, outname):
-        """Write the metainfo file toc.ncx"""
+        """Write the metainfo file toc.ncx."""
         self.info('writing %s file...' % outname)
 
         navpoints = self.build_navpoints(self.refnodes)
@@ -393,9 +399,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
             f.close()
 
     def build_epub(self, outdir, outname):
-        """Write the epub file
+        """Write the epub file.
+
         It is a zip file with the mimetype file stored uncompressed
-        as the first entry."""
+        as the first entry.
+        """
         self.info('writing %s file...' % outname)
         projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx'] \
             + self.files
@@ -406,4 +414,3 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for file in projectfiles:
             epub.write(path.join(outdir, file), file, zipfile.ZIP_DEFLATED)
         epub.close()
-

@@ -160,9 +160,9 @@ These themes are:
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar*.
 
-* **epub** -- A theme for the epub formatter. There are currently no
-  options. This theme tries to reduce visual space which is a sparse
-  resource on ebook readers.
+* **epub** -- A theme for the epub builder.  There are currently no options.
+  This theme tries to save visual space which is a sparse resource on ebook
+  readers.
 
 
 Creating themes

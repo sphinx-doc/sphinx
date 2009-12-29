@@ -34,7 +34,7 @@ release = version
 show_authors = True
 
 # The HTML template theme.
-html_theme = 'epub'
+html_theme = 'sphinxdoc'
 
 # A list of ignored prefixes names for module index sorting.
 modindex_common_prefix = ['sphinx.']
@@ -65,12 +65,13 @@ html_use_opensearch = 'http://sphinx.pocoo.org'
 htmlhelp_basename = 'Sphinxdoc'
 
 # Epub fields
+epub_theme = 'epub'
 epub_basename = 'sphinx'
-epub_author = 'Georg  Brandl'
+epub_author = 'Georg Brandl'
 epub_publisher = 'http://sphinx.pocoo.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
-epub_pre_files = [ ('index', 'Welcome')]
+epub_pre_files = [('index', 'Welcome')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js',
     '_static/basic.css', 'search.html']
