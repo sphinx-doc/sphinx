@@ -160,7 +160,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
        """Remove all HTML markup and return only the text nodes."""
        for c in doctree.children:
             if isinstance(c, nodes.Text):
-                result.append(unicode(c))
+                result.append(c)
             else:
                 result = self.collapse_text(c, result)
        return result
