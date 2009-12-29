@@ -161,8 +161,7 @@ class StandaloneHTMLBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
+            targetname = self.get_outfilename(docname)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
