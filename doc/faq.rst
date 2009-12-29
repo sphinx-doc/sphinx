@@ -58,8 +58,10 @@ github pages
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
 
 
-Epub
-----
+.. _epub-faq:
+
+Epub info
+---------
 
 The epub builder is currently in an experimental stage.  It has only been tested
 with the Sphinx documentation itself.  If you want to create epubs, here are
