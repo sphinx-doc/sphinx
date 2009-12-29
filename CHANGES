@@ -49,6 +49,9 @@ Release 1.0 (in development)
 Release 0.6.4 (in development)
 ==============================
 
+* Fix a bug preventing incremental rebuilds for the ``dirhtml``
+  builder.
+
 * #299: Fix the mangling of quotes in some literal blocks.
 
 * #292: Fix path to the search index for the ``dirhtml`` builder.
