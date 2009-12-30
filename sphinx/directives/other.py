@@ -238,7 +238,7 @@ class Index(Directive):
     option_spec = {}
 
     indextypes = [
-        'single', 'pair', 'triple',
+        'single', 'pair', 'double', 'triple',
     ]
 
     def run(self):
@@ -262,6 +262,8 @@ class Index(Directive):
                 for type in self.indextypes:
                     if entry.startswith(type+':'):
                         value = entry[len(type)+1:].strip()
+                        if type == 'double':
+                            type = 'pair'
                         ne.append((type, value, targetid, value))
                         break
                 # shorthand notation for single entries
