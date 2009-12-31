@@ -36,7 +36,7 @@ html_theme_options = {'testopt': 'testoverride'}
 html_style = 'default.css'
 html_static_path = ['_static']
 html_last_updated_fmt = '%b %d, %Y'
-html_context = {'hckey': 'hcval'}
+html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
 htmlhelp_basename = 'SphinxTestsdoc'
 

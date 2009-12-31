@@ -1,7 +1,13 @@
 Release 1.0 (in development)
 ============================
 
+.. XXX add short info about domains
+
+* Support for domains has been added.
+
 * Support for docutils 0.4 has been removed.
+
+* Added Epub builder.
 
 * #284: All docinfo metadata is now put into the document metadata, not
   just the author.
@@ -53,6 +59,12 @@ Release 1.0 (in development)
 
 Release 0.6.4 (in development)
 ==============================
+
+* #303: ``html_context`` values given on the command line via ``-A``
+  should not override other values given in conf.py.
+
+* Fix a bug preventing incremental rebuilds for the ``dirhtml``
+  builder.
 
 * #299: Fix the mangling of quotes in some literal blocks.
 

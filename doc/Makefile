@@ -19,6 +19,7 @@ help:
 	@echo "  dirhtml   to make HTML files called index.html in directories"
 	@echo "  pickle    to make pickle files"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  epub      to make an epub file"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  changes   to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck to check all external links for integrity"
@@ -65,6 +66,11 @@ qthelp:
 	@echo "To view the help collection:"
 	@echo "# assistant -collectionFile _build/qthelp/Sphinx.qhc"
 
+epub:
+	mkdir -p _build/epub _build/doctrees
+	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) _build/epub
+	@echo
+	@echo "Build finished. The epub file is in _build/epub."
 latex:
 	mkdir -p _build/latex _build/doctrees
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) _build/latex

@@ -152,6 +152,7 @@ HTML_XPATH = {
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
+        ".//meta[@name='hc_co'][@content='hcval_co']": '',
         ".//meta[@name='testopt'][@content='testoverride']": '',
         #".//td[@class='label']": r'\[Ref1\]',   # docutils 0.5 only
         ".//td[@class='label']": '',
@@ -228,6 +229,7 @@ def check_xpath(etree, fname, path, check):
                            [node.text for node in nodes]))
 
 @gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
+              confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
 def test_html(app):
     app.builder.build_all()

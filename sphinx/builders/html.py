@@ -103,9 +103,14 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 self.script_files.append('_static/translations.js')
 
+    def get_theme_config(self):
+        return self.config.html_theme, self.config.html_theme_options
+
     def init_templates(self):
         Theme.init_themes(self)
-        self.theme = Theme(self.config.html_theme)
+        themename, themeoptions = self.get_theme_config()
+        self.theme = Theme(themename)
+        self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)
 
@@ -169,8 +174,7 @@ class StandaloneHTMLBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
+            targetname = self.get_outfilename(docname)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
@@ -283,8 +287,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
-                self.theme.get_options(
-                self.config.html_theme_options).iteritems())
+                self.theme.get_options(self.theme_options).iteritems())
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
