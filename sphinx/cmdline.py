@@ -96,7 +96,6 @@ def main(argv):
     error = sys.stderr
     warnfile = None
     confoverrides = {}
-    htmlcontext = {}
     tags = []
     doctreedir = path.join(outdir, '.doctrees')
     for opt, val in opts:
@@ -142,7 +141,7 @@ def main(argv):
                 val = int(val)
             except ValueError:
                 pass
-            htmlcontext[key] = val
+            confoverrides['html_context.%s' % key] = val
         elif opt == '-N':
             nocolor()
         elif opt == '-E':
@@ -158,7 +157,6 @@ def main(argv):
             warnfile = val
         elif opt == '-P':
             use_pdb = True
-    confoverrides['html_context'] = htmlcontext
 
     if warning and warnfile:
         warnfp = open(warnfile, 'w')
