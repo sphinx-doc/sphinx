@@ -60,8 +60,8 @@ There are several extensions that are not (yet) maintained in the Sphinx
 distribution.  The `Wiki at BitBucket`_ maintains a list of those.
 
 If you write an extension that you think others will find useful, please write
-to the project mailing list (sphinx-dev@googlegroups.com) and we'll find the
-proper way of including or hosting it for the public.
+to the project mailing list (`join here <http://groups.google.com/group/sphinx-dev>`_)
+and we'll find the proper way of including or hosting it for the public.
 
 .. _Wiki at BitBucket: http://www.bitbucket.org/birkenfeld/sphinx/wiki/Home
 
