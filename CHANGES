@@ -1,6 +1,8 @@
 Release 0.6.4 (in development)
 ==============================
 
+* #285: make the ``locale_dirs`` config value work again.
+
 * #303: ``html_context`` values given on the command line via ``-A``
   should not override other values given in conf.py.
 

@@ -186,7 +186,7 @@ class Builder(object):
                     if self.translator is None:
                         self.translator = trans
                     else:
-                        self.translator._catalog.update(trans.catalog)
+                        self.translator._catalog.update(trans._catalog)
                 except Exception:
                     # Language couldn't be found in the specified path
                     pass
