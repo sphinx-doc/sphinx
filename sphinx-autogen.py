@@ -4,7 +4,7 @@
     Sphinx - Python documentation toolchain
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2007-2009 by Georg Brandl.
+    :copyright: 2007-2010 by Georg Brandl.
     :license: BSD.
 """
 

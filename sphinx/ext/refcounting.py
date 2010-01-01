@@ -9,7 +9,7 @@
     Usage: Set the `refcount_file` config value to the path to the reference
     count data file.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

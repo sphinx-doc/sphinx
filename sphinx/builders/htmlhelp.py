@@ -6,7 +6,7 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

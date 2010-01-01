@@ -20,7 +20,7 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Sphinx'
-copyright = '2007-2009, Georg Brandl'
+copyright = '2007-2010, Georg Brandl'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
