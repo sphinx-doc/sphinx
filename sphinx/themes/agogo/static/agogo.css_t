@@ -44,6 +44,18 @@ a {
   float: right;
 }
 
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
+}
+
 h1, h2, h3, h4 {
   font-family: {{ theme_headerfont }};
   font-weight: normal;
@@ -257,7 +269,7 @@ div.footer .left {
 }
 
 
-/* Styles copied form basic theme */
+/* Styles copied from basic theme */
 
 /* -- search page ----------------------------------------------------------- */
 

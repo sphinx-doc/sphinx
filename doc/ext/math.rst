@@ -191,10 +191,10 @@ value:
    JSMath.  There is no default.
 
    The path can be absolute or relative; if it is relative, it is relative to
-   the root of the built docs.
+   the ``_static`` directory of the built docs.
 
    For example, if you put JSMath into the static path of the Sphinx docs, this
-   value would be ``_static/jsMath/easy/load.js``.  If you host more than one
+   value would be ``jsMath/easy/load.js``.  If you host more than one
    Sphinx documentation set on one server, it is advisable to install jsMath in
    a shared location.
 

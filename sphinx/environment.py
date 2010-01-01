@@ -931,7 +931,7 @@ class BuildEnvironment:
         """Return a TOC nodetree -- for use on the same page only!"""
         toc = self.tocs[docname].deepcopy()
         for node in toc.traverse(nodes.reference):
-            node['refuri'] = node['anchorname']
+            node['refuri'] = node['anchorname'] or '#'
         return toc
 
     def get_toctree_for(self, docname, builder, collapse):

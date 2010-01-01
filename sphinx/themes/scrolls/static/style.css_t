@@ -396,3 +396,15 @@ span.highlight {
 #toc ul li {
     margin: 2px 0 0 0;
 }
+
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
+}

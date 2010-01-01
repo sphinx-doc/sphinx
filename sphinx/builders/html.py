@@ -664,7 +664,8 @@ class StandaloneHTMLBuilder(Builder):
                    baseuri=self.get_target_uri(pagename)):
             if not resource:
                 otheruri = self.get_target_uri(otheruri)
-            return relative_uri(baseuri, otheruri)
+            uri = relative_uri(baseuri, otheruri) or '#'
+            return uri
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
