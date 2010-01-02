@@ -241,3 +241,11 @@ tt {
     padding: 0 1px 0 1px;
     font-size: 0.95em;
 }
+
+.warning tt {
+    background: #efc2c2;
+}
+
+.note tt {
+    background: #d6d6d6;
+}
