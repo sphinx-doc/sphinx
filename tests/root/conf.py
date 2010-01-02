@@ -4,9 +4,9 @@ import sys, os
 
 sys.path.append(os.path.abspath('.'))
 
-extensions = ['ext', 'sphinx.ext.autodoc', 'sphinx.ext.jsmath',
-              'sphinx.ext.coverage', 'sphinx.ext.todo',
-              'sphinx.ext.autosummary', 'sphinx.ext.extlinks']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
+              'sphinx.ext.coverage', 'sphinx.ext.autosummary',
+              'sphinx.ext.doctest', 'sphinx.ext.extlinks', 'ext']
 
 jsmath_path = 'dummy.js'
 

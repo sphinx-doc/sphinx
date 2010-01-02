@@ -355,7 +355,14 @@ Doctest summary
                 options = code[1] and code[1].options or {}
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
+                # find out if we're testing an exception
+                m = parser._EXCEPTION_RE.match(output)
+                if m:
+                    exc_msg = m.group('msg')
+                else:
+                    exc_msg = None
                 example = doctest.Example(code[0].code, output,
+                                          exc_msg=exc_msg,
                                           lineno=code[0].lineno,
                                           options=options)
                 test = doctest.DocTest([example], {}, group.name,
