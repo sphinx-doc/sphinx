@@ -121,6 +121,11 @@ HTML_XPATH = {
     'bom.html': {
         ".//title": " File with UTF-8 BOM",
     },
+    'extensions.html': {
+        ".//a[@href='http://python.org/dev/']": "http://python.org/dev/",
+        ".//a[@href='http://bugs.python.org/issue1000']": "issue 1000",
+        ".//a[@href='http://bugs.python.org/issue1042']": "explicit caption",
+    },
     '_static/statictmpl.html': {
         ".//project": 'Sphinx <Tests>',
     },

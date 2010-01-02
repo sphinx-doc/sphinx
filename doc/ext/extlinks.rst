@@ -27,11 +27,13 @@ The extension adds one new config value:
    short alias names to a base URL and a *prefix*.  For example, to create an
    alias for the above mentioned issues, you would add ::
 
-      extlinks = {'issue': ('http://bitbucket.org/birkenfeld/sphinx/issue/',
+      extlinks = {'issue': ('http://bitbucket.org/birkenfeld/sphinx/issue/%s',
                             'issue ')}
 
    Now, you can use the alias name as a new role, e.g. ``:issue:`123```.  This
    then inserts a link to http://bitbucket.org/birkenfeld/sphinx/issue/123.
+   As you can see, the target given in the role is substituted in the base URL
+   in the place of ``%s``.
 
    The link *caption* depends on the second item in the tuple, the *prefix*:
 
