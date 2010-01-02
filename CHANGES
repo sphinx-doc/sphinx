@@ -1,6 +1,9 @@
 Release 0.6.4 (in development)
 ==============================
 
+* #310: support exception messages in the ``testoutput`` blocks of
+  the ``doctest`` extension.
+
 * #293: line blocks are styled properly in HTML output.
 
 * #285: make the ``locale_dirs`` config value work again.

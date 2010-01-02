@@ -21,6 +21,7 @@ Contents:
    math
    autodoc
    autosummary
+   doctest
 
    Python <http://python.org/>
 

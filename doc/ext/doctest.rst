@@ -87,10 +87,30 @@ names.
    * ``hide``, a flag option, hides the code block in other builders.  By
      default it is shown as a highlighted code block.
 
+   .. note::
+
+      Code in a ``testcode`` block is always executed all at once, no matter how
+      many statements it contains.  Therefore, output will *not* be generated
+      for bare expressions -- use ``print``.  Example::
+
+          .. testcode::
+
+             1+1        # this will give no output!
+             print 2+2  # this will give output
+
+          .. testoutput::
+
+             4
+
+      Also, please be aware that since the doctest module does not support
+      mixing regular output and an exception message in the same snippet, this
+      applies to testcode/testoutput as well.
+
 
 .. directive:: .. testoutput:: [group]
 
-   The corresponding output for the last :dir:`testcode` block.
+   The corresponding output, or the exception message, for the last
+   :dir:`testcode` block.
 
    This directive supports two options:
 
@@ -102,6 +122,10 @@ names.
 
    Example::
 
+      .. testcode::
+
+         print 'Output     text.'
+
       .. testoutput::
          :hide:
          :options: -ELLIPSIS, +NORMALIZE_WHITESPACE
@@ -111,7 +135,7 @@ names.
 
 The following is an example for the usage of the directives.  The test via
 :dir:`doctest` and the test via :dir:`testcode` and :dir:`testoutput` are
-completely equivalent. ::
+equivalent. ::
 
    The parrot module
    =================
