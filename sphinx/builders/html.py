@@ -10,6 +10,7 @@
 """
 
 import os
+import zlib
 import codecs
 import posixpath
 import cPickle as pickle
@@ -33,7 +34,8 @@ from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
-from sphinx.builders import Builder, ENV_PICKLE_FILENAME
+from sphinx.builders import Builder
+from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
@@ -243,7 +245,9 @@ class StandaloneHTMLBuilder(Builder):
         rellinks = []
         if self.config.html_use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        if self.config.html_use_modindex and self.env.modules:
+        # XXX generalization of modindex?
+        if self.config.html_use_modindex and \
+                self.env.domaindata['py']['modules']:
             rellinks.append(('modindex', _('Global Module Index'),
                              'M', _('modules')))
 
@@ -407,12 +411,13 @@ class StandaloneHTMLBuilder(Builder):
 
         # the global module index
 
-        if self.config.html_use_modindex and self.env.modules:
+        moduleindex = self.env.domaindata['py']['modules']
+        if self.config.html_use_modindex and moduleindex:
             # the sorted list of all modules, for the global module index
             modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
                                     '#module-' + mn, sy, pl, dep))
                               for (mn, (fn, sy, pl, dep)) in
-                              self.env.modules.iteritems()),
+                              moduleindex.iteritems()),
                              key=lambda x: x[0].lower())
             # collect all platforms
             platforms = set()
@@ -642,7 +647,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             self.indexer.feed(pagename, title, doctree)
 
-    def _get_local_toctree(self, docname, collapse=True):
+    def _get_local_toctree(self, docname, collapse=True, maxdepth=0):
         return self.render_partial(self.env.get_toctree_for(
             docname, self, collapse))['fragment']
 
@@ -711,16 +716,22 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
         self.info(bold('dumping object inventory... '), nonl=True)
-        f = open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
+        f = open(path.join(self.outdir, INVENTORY_FILENAME), 'wb')
         try:
-            f.write('# Sphinx inventory version 1\n')
+            f.write('# Sphinx inventory version 2\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
             f.write('# Version: %s\n' % self.config.version)
-            for modname, info in self.env.modules.iteritems():
-                f.write('%s mod %s\n' % (modname, self.get_target_uri(info[0])))
-            for refname, (docname, desctype) in self.env.descrefs.iteritems():
-                f.write('%s %s %s\n' % (refname, desctype,
-                                        self.get_target_uri(docname)))
+            f.write('# The remainder of this file is compressed using zlib.\n')
+            compressor = zlib.compressobj(9)
+            for domainname, domain in self.env.domains.iteritems():
+                for name, type, docname, anchor, prio in domain.get_objects():
+                    if anchor.endswith(name):
+                        # this can shorten the inventory by as much as 25%
+                        anchor = anchor[:-len(name)] + '$'
+                    f.write(compressor.compress(
+                        '%s %s:%s %s %s\n' % (name, domainname, type, prio,
+                        self.get_target_uri(docname) + '#' + anchor)))
+            f.write(compressor.flush())
         finally:
             f.close()
         self.info('done')

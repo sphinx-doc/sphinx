@@ -1,5 +1,5 @@
-Testing description units
-=========================
+Testing object descriptions
+===========================
 
 .. function:: func_without_module(a, b, *c[, d])
 
@@ -43,21 +43,41 @@ Testing description units
 C items
 =======
 
-.. cfunction:: Sphinx_DoSomething()
+.. c:function:: Sphinx_DoSomething()
 
-.. cmember:: SphinxStruct.member
+.. c:member:: SphinxStruct.member
 
-.. cmacro:: SPHINX_USE_PYTHON
+.. c:macro:: SPHINX_USE_PYTHON
 
-.. ctype:: SphinxType
+.. c:type:: SphinxType
 
-.. cvar:: sphinx_global
+.. c:var:: sphinx_global
 
 
-Testing references
-==================
+References
+==========
 
 Referencing :class:`mod.Cls` or :Class:`mod.Cls` should be the same.
+
+With target: :c:func:`Sphinx_DoSomething()` (parentheses are handled),
+:c:member:`SphinxStruct.member`, :c:macro:`SPHINX_USE_PYTHON`,
+:c:type:`SphinxType *` (pointer is handled), :c:data:`sphinx_global`.
+
+Without target: :c:func:`CFunction`. :c:func:`!malloc`.
+
+
+Others
+======
+
+.. envvar:: HOME
+
+.. program:: python
+
+.. cmdoption:: -c command
+
+.. program:: perl
+
+.. cmdoption:: -c
 
 
 User markup

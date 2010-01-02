@@ -24,6 +24,10 @@ How do I...
 ... add global substitutions or includes?
    Add them in the :confval:`rst_epilog` config value.
 
+... display the whole TOC tree in the sidebar?
+   Use the :data:`toctree` callable in a custom layout template, probably in the
+   ``sidebartoc`` block.
+
 ... write my own extension?
    See the :ref:`extension tutorial <exttut>`.
 
@@ -47,6 +51,12 @@ Doxygen
 SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
    documentation; it is hosted here: http://bitbucket.org/zondo/sphinx-scons
+
+PyPI
+   Jannis Leidel wrote a `setuptools command
+   <http://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically uploads
+   Sphinx documentation to the PyPI package documentation area at
+   http://packages.python.org/.
 
 github pages
    You can use `Michael Jones' sphinx-to-github tool

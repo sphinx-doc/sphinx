@@ -364,5 +364,10 @@ are in HTML form), these variables are also available:
 .. data:: toctree
 
    A callable yielding the global TOC tree containing the current page, rendered
-   as HTML bullet lists.  If the optional keyword argument ``collapse`` is true,
-   all TOC entries that are not ancestors of the current page are collapsed.
+   as HTML bullet lists.  Optional keyword arguments:
+
+   * ``collapse`` (true by default): if true, all TOC entries that are not
+     ancestors of the current page are collapsed
+
+   * ``maxdepth`` (defaults to the max depth selected in the toctree directive):
+     the maximum depth of the tree; set it to ``-1`` to allow unlimited depth

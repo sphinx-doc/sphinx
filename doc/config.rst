@@ -240,6 +240,7 @@ Project information
 
    Currently supported languages are:
 
+   * ``ca`` -- Catalan
    * ``cs`` -- Czech
    * ``de`` -- German
    * ``en`` -- English
@@ -297,8 +298,8 @@ Project information
 .. confval:: add_module_names
 
    A boolean that decides whether module names are prepended to all
-   :term:`description unit` titles, e.g. for :dir:`function` directives.
-   Default is ``True``.
+   :term:`object` names (for object types where a "module" of some kind is
+   defined), e.g. for :dir:`function` directives.  Default is ``True``.
 
 .. confval:: show_authors
 

@@ -93,7 +93,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # make the paths into loaders
         self.loaders = map(SphinxFileSystemLoader, chain)
 
-        use_i18n = builder.translator is not None
+        use_i18n = builder.app.translator is not None
         extensions = use_i18n and ['jinja2.ext.i18n'] or []
         self.environment = SandboxedEnvironment(loader=self,
                                                 extensions=extensions)
@@ -101,7 +101,8 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         if use_i18n:
-            self.environment.install_gettext_translations(builder.translator)
+            self.environment.install_gettext_translations(
+                builder.app.translator)
 
     def render(self, template, context):
         return self.environment.get_template(template).render(context)

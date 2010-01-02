@@ -10,13 +10,13 @@
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
 from sphinx.util import patfilter, ws_re, url_re, docname_join, \
      explicit_title_re
-from sphinx.util.compat import Directive, directive_dwim, make_admonition
+from sphinx.util.compat import make_admonition
 
 
 class TocTree(Directive):
@@ -104,75 +104,6 @@ class TocTree(Directive):
         return ret
 
 
-class Module(Directive):
-    """
-    Directive to mark description of a new module.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {
-        'platform': lambda x: x,
-        'synopsis': lambda x: x,
-        'noindex': directives.flag,
-        'deprecated': directives.flag,
-    }
-
-    def run(self):
-        env = self.state.document.settings.env
-        modname = self.arguments[0].strip()
-        noindex = 'noindex' in self.options
-        env.currmodule = modname
-        env.note_module(modname, self.options.get('synopsis', ''),
-                        self.options.get('platform', ''),
-                        'deprecated' in self.options)
-        modulenode = addnodes.module()
-        modulenode['modname'] = modname
-        modulenode['synopsis'] = self.options.get('synopsis', '')
-        targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
-        self.state.document.note_explicit_target(targetnode)
-        ret = [modulenode, targetnode]
-        if 'platform' in self.options:
-            platform = self.options['platform']
-            modulenode['platform'] = platform
-            node = nodes.paragraph()
-            node += nodes.emphasis('', _('Platforms: '))
-            node += nodes.Text(platform, platform)
-            ret.append(node)
-        # the synopsis isn't printed; in fact, it is only used in the
-        # modindex currently
-        if not noindex:
-            indextext = _('%s (module)') % modname
-            inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + modname, modname)])
-            ret.insert(0, inode)
-        return ret
-
-
-class CurrentModule(Directive):
-    """
-    This directive is just to tell Sphinx that we're documenting
-    stuff in module foo, but links to module foo won't lead here.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {}
-
-    def run(self):
-        env = self.state.document.settings.env
-        modname = self.arguments[0].strip()
-        if modname == 'None':
-            env.currmodule = None
-        else:
-            env.currmodule = modname
-        return []
-
-
 class Author(Directive):
     """
     Directive to give the name of the author of the current document
@@ -205,27 +136,6 @@ class Author(Directive):
         return [para] + messages
 
 
-class Program(Directive):
-    """
-    Directive to name the program for which options are documented.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    option_spec = {}
-
-    def run(self):
-        env = self.state.document.settings.env
-        program = ws_re.sub('-', self.arguments[0].strip())
-        if program == 'None':
-            env.currprogram = None
-        else:
-            env.currprogram = program
-        return []
-
-
 class Index(Directive):
     """
     Directive to add entries to the index.
@@ -244,8 +154,7 @@ class Index(Directive):
     def run(self):
         arguments = self.arguments[0].split('\n')
         env = self.state.document.settings.env
-        targetid = 'index-%s' % env.index_num
-        env.index_num += 1
+        targetid = 'index-%s' % env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
@@ -302,7 +211,11 @@ class VersionChange(Directive):
         else:
             ret = [node]
         env = self.state.document.settings.env
-        env.note_versionchange(node['type'], node['version'], node, self.lineno)
+        env.versionchanges.setdefault(node['version'], []).append(
+            (node['type'], env.doc_read_data['docname'], self.lineno,
+             env.doc_read_data.get('py_module'),
+             env.doc_read_data.get('object'),
+             node.astext()))
         return ret
 
 
@@ -332,66 +245,6 @@ class SeeAlso(Directive):
         return ret
 
 
-token_re = re.compile('`([a-z_]+)`')
-
-def token_xrefs(text, env):
-    retnodes = []
-    pos = 0
-    for m in token_re.finditer(text):
-        if m.start() > pos:
-            txt = text[pos:m.start()]
-            retnodes.append(nodes.Text(txt, txt))
-        refnode = addnodes.pending_xref(m.group(1))
-        refnode['reftype'] = 'token'
-        refnode['reftarget'] = m.group(1)
-        refnode['modname'] = env.currmodule
-        refnode['classname'] = env.currclass
-        refnode += nodes.literal(m.group(1), m.group(1), classes=['xref'])
-        retnodes.append(refnode)
-        pos = m.end()
-    if pos < len(text):
-        retnodes.append(nodes.Text(text[pos:], text[pos:]))
-    return retnodes
-
-class ProductionList(Directive):
-    """
-    Directive to list grammar productions.
-    """
-
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    option_spec = {}
-
-    def run(self):
-        env = self.state.document.settings.env
-        node = addnodes.productionlist()
-        messages = []
-        i = 0
-
-        for rule in self.arguments[0].split('\n'):
-            if i == 0 and ':' not in rule:
-                # production group
-                continue
-            i += 1
-            try:
-                name, tokens = rule.split(':', 1)
-            except ValueError:
-                break
-            subnode = addnodes.production()
-            subnode['tokenname'] = name.strip()
-            if subnode['tokenname']:
-                idname = 'grammar-token-%s' % subnode['tokenname']
-                if idname not in self.state.document.ids:
-                    subnode['ids'].append(idname)
-                self.state.document.note_implicit_target(subnode, subnode)
-                env.note_reftarget('token', subnode['tokenname'], idname)
-            subnode.extend(token_xrefs(tokens, env))
-            node.append(subnode)
-        return [node] + messages
-
-
 class TabularColumns(Directive):
     """
     Directive to give an explicit tabulary column definition to LaTeX.
@@ -406,57 +259,6 @@ class TabularColumns(Directive):
     def run(self):
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
-        return [node]
-
-
-class Glossary(Directive):
-    """
-    Directive to create a glossary with cross-reference targets
-    for :term: roles.
-    """
-
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {
-        'sorted': directives.flag,
-    }
-
-    def run(self):
-        env = self.state.document.settings.env
-        node = addnodes.glossary()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-
-        # the content should be definition lists
-        dls = [child for child in node
-               if isinstance(child, nodes.definition_list)]
-        # now, extract definition terms to enable cross-reference creation
-        new_dl = nodes.definition_list()
-        new_dl['classes'].append('glossary')
-        items = []
-        for dl in dls:
-            for li in dl.children:
-                if not li.children or not isinstance(li[0], nodes.term):
-                    continue
-                termtext = li.children[0].astext()
-                new_id = 'term-' + nodes.make_id(termtext)
-                if new_id in env.gloss_entries:
-                    new_id = 'term-' + str(len(env.gloss_entries))
-                env.gloss_entries.add(new_id)
-                li[0]['names'].append(new_id)
-                li[0]['ids'].append(new_id)
-                env.note_reftarget('term', termtext.lower(), new_id)
-                # add an index entry too
-                indexnode = addnodes.index()
-                indexnode['entries'] = [('single', termtext, new_id, termtext)]
-                li.insert(0, indexnode)
-                items.append((termtext, li))
-        if 'sorted' in self.options:
-            items.sort(key=lambda x: x[0].lower())
-        new_dl.extend(item[1] for item in items)
-        node.children = [new_dl]
         return [node]
 
 
@@ -562,36 +364,21 @@ class Only(Directive):
         return [node]
 
 
-directives.register_directive('toctree', directive_dwim(TocTree))
-directives.register_directive('module', directive_dwim(Module))
-directives.register_directive('currentmodule', directive_dwim(CurrentModule))
-directives.register_directive('sectionauthor', directive_dwim(Author))
-directives.register_directive('moduleauthor', directive_dwim(Author))
-directives.register_directive('program', directive_dwim(Program))
-directives.register_directive('index', directive_dwim(Index))
-directives.register_directive('deprecated', directive_dwim(VersionChange))
-directives.register_directive('versionadded', directive_dwim(VersionChange))
-directives.register_directive('versionchanged', directive_dwim(VersionChange))
-directives.register_directive('seealso', directive_dwim(SeeAlso))
-directives.register_directive('productionlist', directive_dwim(ProductionList))
-directives.register_directive('tabularcolumns', directive_dwim(TabularColumns))
-directives.register_directive('glossary', directive_dwim(Glossary))
-directives.register_directive('centered', directive_dwim(Centered))
-directives.register_directive('acks', directive_dwim(Acks))
-directives.register_directive('hlist', directive_dwim(HList))
-directives.register_directive('only', directive_dwim(Only))
+directives.register_directive('toctree', TocTree)
+directives.register_directive('sectionauthor', Author)
+directives.register_directive('moduleauthor', Author)
+directives.register_directive('index', Index)
+directives.register_directive('deprecated', VersionChange)
+directives.register_directive('versionadded', VersionChange)
+directives.register_directive('versionchanged', VersionChange)
+directives.register_directive('seealso', SeeAlso)
+directives.register_directive('tabularcolumns', TabularColumns)
+directives.register_directive('centered', Centered)
+directives.register_directive('acks', Acks)
+directives.register_directive('hlist', HList)
+directives.register_directive('only', Only)
 
 # register the standard rst class directive under a different name
-
-try:
-    # docutils 0.4
-    from docutils.parsers.rst.directives.misc import class_directive
-    directives.register_directive('cssclass', class_directive)
-except ImportError:
-    try:
-        # docutils 0.5
-        from docutils.parsers.rst.directives.misc import Class
-        directives.register_directive('cssclass', Class)
-    except ImportError:
-        # whatever :)
-        pass
+# only for backwards compatibility now
+from docutils.parsers.rst.directives.misc import Class
+directives.register_directive('cssclass', Class)

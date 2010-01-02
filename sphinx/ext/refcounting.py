@@ -69,7 +69,7 @@ class Refcounts(dict):
     def add_refcount_annotations(self, app, doctree):
         for node in doctree.traverse(addnodes.desc_content):
             par = node.parent
-            if par['desctype'] != 'cfunction':
+            if par['domain'] != 'c' or par['objtype'] != 'function':
                 continue
             if not par[0].has_key('names') or not par[0]['names']:
                 continue

@@ -24,6 +24,8 @@ import traceback
 from os import path
 
 import docutils
+from docutils import nodes
+
 import sphinx
 
 # Errnos that we need.
@@ -451,6 +453,21 @@ def split_explicit_title(text):
         return True, match.group(1), match.group(2)
     return False, text, text
 
+
+def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
+    """Shortcut to create a reference node."""
+    node = nodes.reference('', '')
+    if fromdocname == todocname:
+        node['refid'] = targetid
+    else:
+        node['refuri'] = (builder.get_relative_uri(fromdocname, todocname)
+                          + '#' + targetid)
+    if title:
+        node['reftitle'] = title
+    node.append(child)
+    return node
+
+
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves
 # on average 20-25% overall build time!
@@ -480,8 +497,7 @@ def _new_traverse(self, condition=None,
     return self._old_traverse(condition, include_self,
                               descend, siblings, ascend)
 
-import docutils.nodes
-docutils.nodes.Node._old_traverse = docutils.nodes.Node.traverse
-docutils.nodes.Node._all_traverse = _all_traverse
-docutils.nodes.Node._fast_traverse = _fast_traverse
-docutils.nodes.Node.traverse = _new_traverse
+nodes.Node._old_traverse = nodes.Node.traverse
+nodes.Node._all_traverse = _all_traverse
+nodes.Node._fast_traverse = _fast_traverse
+nodes.Node.traverse = _new_traverse

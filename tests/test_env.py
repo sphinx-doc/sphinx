@@ -20,8 +20,8 @@ warnings = []
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='(temp)')
-    env = BuildEnvironment(app.srcdir, app.doctreedir, app.config)
+    app = TestApp(srcdir='(temp)', freshenv=True)
+    env = app.env
     env.set_warnfunc(lambda *args: warnings.append(args))
 
 def teardown_module():
@@ -51,7 +51,7 @@ def test_images():
 
     tree = env.get_doctree('images')
     app._warning.reset()
-    htmlbuilder = StandaloneHTMLBuilder(app, env)
+    htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.post_process_images(tree)
     assert "no matching candidate for image URI u'foo.*'" in \
            app._warning.content[-1]
@@ -61,7 +61,7 @@ def test_images():
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg'])
 
     app._warning.reset()
-    latexbuilder = LaTeXBuilder(app, env)
+    latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
     assert "no matching candidate for image URI u'foo.*'" in \
            app._warning.content[-1]
@@ -92,10 +92,10 @@ def test_second_update():
     assert 'autodoc' not in env.found_docs
 
 def test_object_inventory():
-    refs = env.descrefs
+    refs = env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('desc', 'function')
+    assert refs['func_without_module'] == ('objects', 'function')
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
@@ -109,5 +109,8 @@ def test_object_inventory():
     assert 'func_in_module' not in refs
     assert 'func_noindex' not in refs
 
-    assert 'mod' in env.modules
-    assert env.modules['mod'] == ('desc', 'Module synopsis.', 'UNIX', False)
+    assert env.domaindata['py']['modules']['mod'] == \
+        ('objects', 'Module synopsis.', 'UNIX', False)
+
+    assert env.domains['py'].data is env.domaindata['py']
+    assert env.domains['c'].data is env.domaindata['c']

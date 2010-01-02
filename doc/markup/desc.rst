@@ -67,10 +67,12 @@ The directives you can use for module declarations are:
 
 .. _desc-units:
 
-Object description units
-------------------------
+Object descriptions
+-------------------
 
-There are a number of directives used to describe specific features provided by
+.. XXX generalize for domains
+
+There are a number of directives used to describe specific objects provided by
 modules.  Each directive requires one or more signatures to provide basic
 information about what is being described, and the content should be the
 description.  The basic version makes entries in the general index; if no index
@@ -91,6 +93,8 @@ such as "context managers", include a (pseudo-)type name too to make the
 index entries more informative.
 
 The directives are:
+
+.. XXX update this
 
 .. directive:: .. cfunction:: type name(signature)
 
@@ -119,8 +123,8 @@ The directives are:
    Describes a "simple" C macro.  Simple macros are macros which are used
    for code expansion, but which do not take arguments so cannot be described as
    functions.  This is not to be used for simple constant definitions.  Examples
-   of its use in the Python documentation include :cmacro:`PyObject_HEAD` and
-   :cmacro:`Py_BEGIN_ALLOW_THREADS`.
+   of its use in the Python documentation include :c:macro:`PyObject_HEAD` and
+   :c:macro:`Py_BEGIN_ALLOW_THREADS`.
 
 .. directive:: .. ctype:: name
 
@@ -241,7 +245,7 @@ Info field lists
 
 .. versionadded:: 0.4
 
-Inside description unit directives, reST field lists with these fields are
+Inside object description directives, reST field lists with these fields are
 recognized and formatted nicely:
 
 * ``param``, ``parameter``, ``arg``, ``argument``, ``key``, ``keyword``:
@@ -338,8 +342,8 @@ There is a set of directives allowing documenting command-line programs:
    .. versionadded:: 0.5
 
 
-Custom description units
-~~~~~~~~~~~~~~~~~~~~~~~~
+Custom object types
+~~~~~~~~~~~~~~~~~~~
 
 There is also a generic version of these directives:
 
@@ -354,4 +358,4 @@ There is also a generic version of these directives:
          Describes a Python bytecode instruction.
 
 Extensions may add more directives like that, using the
-:func:`~sphinx.application.Sphinx.add_description_unit` method.
+:func:`~sphinx.application.Sphinx.add_object_type` method.

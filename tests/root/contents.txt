@@ -11,12 +11,13 @@ Contents:
    :maxdepth: 2
    :numbered:
 
+   extapi
    images
    subdir/images
    subdir/includes
    includes
    markup
-   desc
+   objects
    bom
    math
    autodoc

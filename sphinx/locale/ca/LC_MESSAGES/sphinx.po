@@ -1,0 +1,606 @@
+# Catalan translations for Sphinx.
+# Copyright (C) 2009 ORGANIZATION
+# This file is distributed under the same license as the Sphinx project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx 1.0\n"
+"Report-Msgid-Bugs-To: pau.fernandez@upc.edu\n"
+"POT-Creation-Date: 2009-05-22 18:51+0200\n"
+"PO-Revision-Date: 2009-06-07 14:20+0200\n"
+"Last-Translator: Pau Fernández <pau.fernandez@upc.edu>\n"
+"Language-Team: ca <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: sphinx/environment.py:104 sphinx/writers/latex.py:184
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%d de %B de %Y"
+
+#: sphinx/environment.py:323 sphinx/themes/basic/genindex-single.html:2
+#: sphinx/themes/basic/genindex-split.html:2
+#: sphinx/themes/basic/genindex-split.html:5
+#: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
+#: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:131
+#: sphinx/writers/latex.py:190
+msgid "Index"
+msgstr "Índex"
+
+#: sphinx/environment.py:324 sphinx/writers/latex.py:189
+msgid "Module Index"
+msgstr "Índex de Mòduls"
+
+#: sphinx/environment.py:325 sphinx/themes/basic/defindex.html:16
+msgid "Search Page"
+msgstr "Pàgina de Cerca"
+
+#: sphinx/roles.py:55 sphinx/directives/desc.py:747
+#, python-format
+msgid "environment variable; %s"
+msgstr "variable d'entorn; %s"
+
+#: sphinx/roles.py:62
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr "Python Enhancement Proposals!PEP %s"
+
+#: sphinx/builders/changes.py:71
+msgid "Builtins"
+msgstr "Mòduls Interns"
+
+#: sphinx/builders/changes.py:73
+msgid "Module level"
+msgstr "Nivell de mòdul"
+
+#: sphinx/builders/html.py:219
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%d %b, %Y"
+
+#: sphinx/builders/html.py:238 sphinx/themes/basic/defindex.html:21
+msgid "General Index"
+msgstr "Índex General"
+
+#: sphinx/builders/html.py:238
+msgid "index"
+msgstr "índex"
+
+#: sphinx/builders/html.py:240 sphinx/builders/htmlhelp.py:184
+#: sphinx/builders/qthelp.py:132 sphinx/themes/basic/defindex.html:19
+#: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
+msgid "Global Module Index"
+msgstr "Índex Global de Mòduls"
+
+#: sphinx/builders/html.py:241
+msgid "modules"
+msgstr "mòduls"
+
+#: sphinx/builders/html.py:296
+msgid "next"
+msgstr "següent"
+
+#: sphinx/builders/html.py:305
+msgid "previous"
+msgstr "anterior"
+
+#: sphinx/builders/latex.py:162
+msgid " (in "
+msgstr " (a "
+
+#: sphinx/directives/desc.py:97
+msgid "Raises"
+msgstr "Llença"
+
+#: sphinx/directives/desc.py:101
+msgid "Variable"
+msgstr "Variable"
+
+#: sphinx/directives/desc.py:104
+msgid "Returns"
+msgstr "Retorna"
+
+#: sphinx/directives/desc.py:113
+msgid "Return type"
+msgstr "Tipus de retorn"
+
+#: sphinx/directives/desc.py:186
+msgid "Parameter"
+msgstr "Paràmetre"
+
+#: sphinx/directives/desc.py:190
+msgid "Parameters"
+msgstr "Paràmetres"
+
+#: sphinx/directives/desc.py:418
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (funció interna)"
+
+#: sphinx/directives/desc.py:419 sphinx/directives/desc.py:476
+#: sphinx/directives/desc.py:488
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (al mòdul %s)"
+
+#: sphinx/directives/desc.py:422
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (variable interna)"
+
+#: sphinx/directives/desc.py:423 sphinx/directives/desc.py:514
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (al mòdul %s)"
+
+#: sphinx/directives/desc.py:439
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (classe interna)"
+
+#: sphinx/directives/desc.py:440
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (class a %s)"
+
+#: sphinx/directives/desc.py:480
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (mètode %s.%s)"
+
+#: sphinx/directives/desc.py:482
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (mètode %s)"
+
+#: sphinx/directives/desc.py:492
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (mètode estàtic %s.%s)"
+
+#: sphinx/directives/desc.py:495
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (mètode estàtic %s)"
+
+#: sphinx/directives/desc.py:518
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (atribut %s.%s)"
+
+#: sphinx/directives/desc.py:520
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (atribut %s)"
+
+#: sphinx/directives/desc.py:609
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (funció de C)"
+
+#: sphinx/directives/desc.py:611
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (membre de C)"
+
+#: sphinx/directives/desc.py:613
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (macro de C)"
+
+#: sphinx/directives/desc.py:615
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (tipus de C)"
+
+#: sphinx/directives/desc.py:617
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (variable de C)"
+
+#: sphinx/directives/desc.py:665
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "opció de línia de comandes %s; %s"
+
+#: sphinx/directives/other.py:138
+msgid "Platforms: "
+msgstr "Plataformes: "
+
+#: sphinx/directives/other.py:144
+#, python-format
+msgid "%s (module)"
+msgstr "%s (mòdul)"
+
+#: sphinx/directives/other.py:193
+msgid "Section author: "
+msgstr "Autor de la secció:"
+
+#: sphinx/directives/other.py:195
+msgid "Module author: "
+msgstr "Autor del mòdul: "
+
+#: sphinx/directives/other.py:197
+msgid "Author: "
+msgstr "Autor: "
+
+#: sphinx/directives/other.py:317
+msgid "See also"
+msgstr "Vegeu també"
+
+#: sphinx/ext/autodoc.py:888
+#, python-format
+msgid "   Bases: %s"
+msgstr "   Bases: %s"
+
+#: sphinx/ext/autodoc.py:919
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr "àlies de :class:`%s`"
+
+#: sphinx/ext/todo.py:41
+msgid "Todo"
+msgstr "Pendent"
+
+#: sphinx/ext/todo.py:99
+#, python-format
+msgid "(The original entry is located in %s, line %d and can be found "
+msgstr "(La entrada original està a %s, línia %d i es pot trobar "
+
+#: sphinx/ext/todo.py:105
+msgid "here"
+msgstr "aquí"
+
+#: sphinx/locale/__init__.py:15
+msgid "Attention"
+msgstr "Atenció"
+
+#: sphinx/locale/__init__.py:16
+msgid "Caution"
+msgstr "Compte"
+
+#: sphinx/locale/__init__.py:17
+msgid "Danger"
+msgstr "Perill"
+
+#: sphinx/locale/__init__.py:18
+msgid "Error"
+msgstr "Error"
+
+#: sphinx/locale/__init__.py:19
+msgid "Hint"
+msgstr "Suggerència"
+
+#: sphinx/locale/__init__.py:20
+msgid "Important"
+msgstr "Important"
+
+#: sphinx/locale/__init__.py:21
+msgid "Note"
+msgstr "Nota"
+
+#: sphinx/locale/__init__.py:22
+msgid "See Also"
+msgstr "Vegeu També"
+
+#: sphinx/locale/__init__.py:23
+msgid "Tip"
+msgstr "Truc"
+
+#: sphinx/locale/__init__.py:24
+msgid "Warning"
+msgstr "Avís"
+
+#: sphinx/locale/__init__.py:28
+#, python-format
+msgid "New in version %s"
+msgstr "Novetat de la versió %s"
+
+#: sphinx/locale/__init__.py:29
+#, python-format
+msgid "Changed in version %s"
+msgstr "Canviat a la versió %s"
+
+#: sphinx/locale/__init__.py:30
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Obsolet desde la versió %s"
+
+#: sphinx/locale/__init__.py:34
+msgid "module"
+msgstr "mòdul"
+
+#: sphinx/locale/__init__.py:35
+msgid "keyword"
+msgstr "paraula clau"
+
+#: sphinx/locale/__init__.py:36
+msgid "operator"
+msgstr "operador"
+
+#: sphinx/locale/__init__.py:37
+msgid "object"
+msgstr "objecte"
+
+#: sphinx/locale/__init__.py:38
+msgid "exception"
+msgstr "excepció"
+
+#: sphinx/locale/__init__.py:39
+msgid "statement"
+msgstr "sentència"
+
+#: sphinx/locale/__init__.py:40
+msgid "built-in function"
+msgstr "funció interna"
+
+#: sphinx/themes/basic/defindex.html:2
+msgid "Overview"
+msgstr "Resum"
+
+#: sphinx/themes/basic/defindex.html:11
+msgid "Indices and tables:"
+msgstr "Índexs i taules:"
+
+#: sphinx/themes/basic/defindex.html:14
+msgid "Complete Table of Contents"
+msgstr "Taula de Contingut Completa"
+
+#: sphinx/themes/basic/defindex.html:15
+msgid "lists all sections and subsections"
+msgstr "llista totes les seccions i subseccions"
+
+#: sphinx/themes/basic/defindex.html:17
+msgid "search this documentation"
+msgstr "cerca aquesta documentació"
+
+#: sphinx/themes/basic/defindex.html:20
+msgid "quick access to all modules"
+msgstr "accés ràpid a tots els mòduls"
+
+#: sphinx/themes/basic/defindex.html:22
+msgid "all functions, classes, terms"
+msgstr "totes les funcions, classes, termes"
+
+#: sphinx/themes/basic/genindex-single.html:5
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "Índes &ndash; %(key)s"
+
+#: sphinx/themes/basic/genindex-single.html:44
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex-split.html:27
+#: sphinx/themes/basic/genindex.html:54
+msgid "Full index on one page"
+msgstr "Índex complet en una pàgina"
+
+#: sphinx/themes/basic/genindex-split.html:7
+msgid "Index pages by letter"
+msgstr "Pàgines d'índex per lletra"
+
+#: sphinx/themes/basic/genindex-split.html:15
+msgid "can be huge"
+msgstr "pot ser gegant"
+
+#: sphinx/themes/basic/layout.html:10
+msgid "Navigation"
+msgstr "Navegació"
+
+#: sphinx/themes/basic/layout.html:42
+msgid "Table Of Contents"
+msgstr "Taula de Contingut"
+
+#: sphinx/themes/basic/layout.html:48
+msgid "Previous topic"
+msgstr "Tema anterior"
+
+#: sphinx/themes/basic/layout.html:50
+msgid "previous chapter"
+msgstr "capítol anterior"
+
+#: sphinx/themes/basic/layout.html:53
+msgid "Next topic"
+msgstr "Tema següent"
+
+#: sphinx/themes/basic/layout.html:55
+msgid "next chapter"
+msgstr "capítol següent"
+
+#: sphinx/themes/basic/layout.html:60
+msgid "This Page"
+msgstr "Aquesta Pàgina"
+
+#: sphinx/themes/basic/layout.html:63
+msgid "Show Source"
+msgstr "Mostra Codi Font"
+
+#: sphinx/themes/basic/layout.html:73
+msgid "Quick search"
+msgstr "Cerca ràpida"
+
+#: sphinx/themes/basic/layout.html:76
+msgid "Go"
+msgstr "Ves a"
+
+#: sphinx/themes/basic/layout.html:81
+msgid "Enter search terms or a module, class or function name."
+msgstr "Entra paraules de cerca o el nom d'un mòdul, classe o funció."
+
+#: sphinx/themes/basic/layout.html:119
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Cerca dins de %(docstitle)s"
+
+#: sphinx/themes/basic/layout.html:128
+msgid "About these documents"
+msgstr "Quant a aquests documents"
+
+#: sphinx/themes/basic/layout.html:134 sphinx/themes/basic/search.html:2
+#: sphinx/themes/basic/search.html:5
+msgid "Search"
+msgstr "Cerca"
+
+#: sphinx/themes/basic/layout.html:137
+msgid "Copyright"
+msgstr "Copyright"
+
+#: sphinx/themes/basic/layout.html:184
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\\\"%(path)s\\\">Copyright</a> %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:186
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; Copyright %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:190
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Última actualització el %(last_updated)s."
+
+#: sphinx/themes/basic/layout.html:193
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+"Creat amb <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+
+#: sphinx/themes/basic/modindex.html:36
+msgid "Deprecated"
+msgstr "Obsolet"
+
+#: sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Cercar a %(docstitle)s"
+
+#: sphinx/themes/basic/search.html:9
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+"Activa JavaScript per utilitzar la funcionalitat\n"
+"de cerca."
+
+#: sphinx/themes/basic/search.html:14
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr ""
+"Des d'aquí pots fer cerques en aquests documents. Entra les \n"
+"paraules de la teva cerca i clica el botó \"cerca\". Tingues en compte\n"
+"que la cerca inclourà totes les paraules que posis. Les pàgines que no\n"
+"tenen totes les paraules no sortiràn."
+
+#: sphinx/themes/basic/search.html:21
+msgid "search"
+msgstr "cerca"
+
+#: sphinx/themes/basic/search.html:25
+#: sphinx/themes/basic/static/searchtools.js:462
+msgid "Search Results"
+msgstr "Resultats de la Cerca"
+
+#: sphinx/themes/basic/search.html:27
+msgid "Your search did not match any results."
+msgstr "La teva cerca no té resultats."
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "Canvis a la Versió %(version)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Llista de canvis de la versió %(version)s generada automàticament"
+
+#: sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Canvis a la llibreria"
+
+#: sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "Canvis a la API de C"
+
+#: sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Altres canvis"
+
+#: sphinx/themes/basic/static/doctools.js:139 sphinx/writers/html.py:473
+#: sphinx/writers/html.py:478
+msgid "Permalink to this headline"
+msgstr "Link permanent a aquest títol"
+
+#: sphinx/themes/basic/static/doctools.js:145 sphinx/writers/html.py:80
+msgid "Permalink to this definition"
+msgstr "Link permanent a aquesta definició"
+
+#: sphinx/themes/basic/static/doctools.js:174
+msgid "Hide Search Matches"
+msgstr "Oculta Resultats de Cerca"
+
+#: sphinx/themes/basic/static/searchtools.js:274
+msgid "Searching"
+msgstr "Cercant"
+
+#: sphinx/themes/basic/static/searchtools.js:279
+msgid "Preparing search..."
+msgstr "Preparant la cerca..."
+
+#: sphinx/themes/basic/static/searchtools.js:347
+msgid "module, in "
+msgstr "mòdule, a "
+
+#: sphinx/themes/basic/static/searchtools.js:356
+msgid ", in "
+msgstr ", a "
+
+#: sphinx/themes/basic/static/searchtools.js:464
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr ""
+"La teva cerca no ha donat resultats. Assegura't que totes les paraules "
+"estan ben escrites i que has seleccionat prou categories."
+
+#: sphinx/themes/basic/static/searchtools.js:466
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "Cerca finalitzada, s'han trobat %s pàgin(a/es) de resultats."
+
+#: sphinx/writers/latex.py:187
+msgid "Release"
+msgstr "Versió"
+
+#: sphinx/writers/latex.py:639
+msgid "continued from previous page"
+msgstr "ve de la pàgina anterior"
+
+#: sphinx/writers/latex.py:643
+msgid "Continued on next page"
+msgstr "Continua a la pàgina següent"
+
+#: sphinx/writers/text.py:166
+#, python-format
+msgid "Platform: %s"
+msgstr "Plataforma: %s"
+
+#: sphinx/writers/text.py:428
+msgid "[image]"
+msgstr "[imatge]"
+

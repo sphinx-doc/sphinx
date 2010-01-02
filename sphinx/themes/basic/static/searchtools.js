@@ -330,31 +330,33 @@ var Search = {
     var filenames = this._index.filenames;
     var titles = this._index.titles;
     var terms = this._index.terms;
-    var descrefs = this._index.descrefs;
-    var modules = this._index.modules;
-    var desctypes = this._index.desctypes;
+    var objects = this._index.objects;
+    var objtypes = this._index.objtypes;
+    var objnames = this._index.objnames;
     var fileMap = {};
     var files = null;
+    // different result priorities
+    var importantResults = [];
     var objectResults = [];
     var regularResults = [];
+    var unimportantResults = [];
     $('#search-progress').empty();
 
     // lookup as object
     if (object != null) {
-      for (var module in modules) {
-        if (module.indexOf(object) > -1) {
-          fn = modules[module];
-          descr = _('module, in ') + titles[fn];
-          objectResults.push([filenames[fn], module, '#module-'+module, descr]);
-        }
-      }
-      for (var prefix in descrefs) {
-        for (var name in descrefs[prefix]) {
+      for (var prefix in objects) {
+        for (var name in objects[prefix]) {
           var fullname = (prefix ? prefix + '.' : '') + name;
           if (fullname.toLowerCase().indexOf(object) > -1) {
-            match = descrefs[prefix][name];
-            descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
-            objectResults.push([filenames[match[0]], fullname, '#'+fullname, descr]);
+            match = objects[prefix][name];
+            descr = objnames[match[1]] + _(', in ') + titles[match[0]];
+            // XXX the generated anchors are not generally correct
+            result = [filenames[match[0]], fullname, '#'+fullname, descr];
+            switch (match[2]) {
+            case 1: objectResults.push(result); break;
+            case 0: importantResults.push(result); break;
+            case 2: unimportantResults.push(result); break;
+            }
           }
         }
       }
@@ -362,6 +364,14 @@ var Search = {
 
     // sort results descending
     objectResults.sort(function(a, b) {
+      return (a[1] > b[1]) ? -1 : ((a[1] < b[1]) ? 1 : 0);
+    });
+
+    importantResults.sort(function(a, b) {
+      return (a[1] > b[1]) ? -1 : ((a[1] < b[1]) ? 1 : 0);
+    });
+
+    unimportantResults.sort(function(a, b) {
       return (a[1] > b[1]) ? -1 : ((a[1] < b[1]) ? 1 : 0);
     });
 
@@ -420,8 +430,9 @@ var Search = {
       return (left > right) ? -1 : ((left < right) ? 1 : 0);
     });
 
-    // combine both
-    var results = regularResults.concat(objectResults);
+    // combine all results
+    var results = unimportantResults.concat(regularResults)
+      .concat(objectResults).concat(importantResults);
 
     // print the results
     var resultCount = results.length;

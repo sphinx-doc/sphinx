@@ -25,6 +25,7 @@ today_fmt = '%B %d, %Y'
 exclude_trees = ['_build']
 keep_warnings = True
 pygments_style = 'sphinx'
+show_authors = True
 
 rst_epilog = '.. |subst| replace:: global substitution'
 
@@ -49,6 +50,7 @@ latex_additional_files = ['svgimg.svg']
 value_from_conf_py = 84
 
 coverage_c_path = ['special/*.h']
+# XXX cfunction?
 coverage_c_regexes = {'cfunction': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
 autosummary_generate = ['autosummary']
@@ -59,7 +61,12 @@ extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
 # modify tags from conf.py
 tags.add('confpytag')
 
+
+# -- extension API
+
+from docutils import nodes
 from sphinx import addnodes
+from sphinx.util.compat import Directive
 
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
@@ -68,7 +75,18 @@ def userdesc_parse(env, sig, signode):
     signode[-1] += addnodes.desc_parameter(y, y)
     return x
 
+def functional_directive(name, arguments, options, content, lineno,
+                         content_offset, block_text, state, state_machine):
+    return [nodes.strong(text='from function: %s' % options['opt'])]
+
+class ClassDirective(Directive):
+    option_spec = {'opt': lambda x: x}
+    def run(self):
+        return [nodes.strong(text='from class: %s' % self.options['opt'])]
+
 def setup(app):
     app.add_config_value('value_from_conf_py', 42, False)
-    app.add_description_unit('userdesc', 'userdescrole', '%s (userdesc)',
-                             userdesc_parse)
+    app.add_directive('funcdir', functional_directive, opt=lambda x: x)
+    app.add_directive('clsdir', ClassDirective)
+    app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
+                        userdesc_parse, objname='user desc')

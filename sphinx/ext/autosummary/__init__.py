@@ -228,8 +228,9 @@ class Autosummary(Directive):
         env = self.state.document.settings.env
 
         prefixes = ['']
-        if env.currmodule:
-            prefixes.insert(0, env.currmodule)
+        currmodule = env.doc_read_data.get('py_module')
+        if currmodule:
+            prefixes.insert(0, currmodule)
 
         items = []
 
@@ -443,8 +444,9 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
-    r = roles.xfileref_role('obj', rawtext, etext, lineno, inliner,
-                            options, content)
+    env = inliner.document.settings.env
+    r = env.get_domain('py').role('obj')(
+        'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
 
     prefixes = [None]

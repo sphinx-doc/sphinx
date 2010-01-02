@@ -15,17 +15,12 @@ from os import path
 
 from docutils import nodes
 
-from sphinx import package_dir, locale
-from sphinx.util import SEP, ENOENT, relative_uri
-from sphinx.environment import BuildEnvironment
+from sphinx.util import SEP, relative_uri
 from sphinx.util.console import bold, purple, darkgreen, term_width_line
 
 # side effect: registers roles and directives
 from sphinx import roles
 from sphinx import directives
-
-
-ENV_PICKLE_FILENAME = 'environment.pickle'
 
 
 class Builder(object):
@@ -38,7 +33,8 @@ class Builder(object):
     # builder's output format, or '' if no document output is produced
     format = ''
 
-    def __init__(self, app, env=None, freshenv=False):
+    def __init__(self, app):
+        self.env = app.env
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -50,21 +46,15 @@ class Builder(object):
         self.warn = app.warn
         self.info = app.info
         self.config = app.config
-
-        self.load_i18n()
+        self.tags = app.tags
+        self.tags.add(self.format)
 
         # images that need to be copied over (source -> dest)
         self.images = {}
 
-        # if None, this is set in load_env()
-        self.env = env
-        self.freshenv = freshenv
-
         self.init()
-        self.load_env()
 
     # helper methods
-
     def init(self):
         """
         Load necessary templates and perform initialization.  The default
@@ -167,62 +157,6 @@ class Builder(object):
 
     # build methods
 
-    def load_i18n(self):
-        """
-        Load translated strings from the configured localedirs if
-        enabled in the configuration.
-        """
-        self.translator = None
-        if self.config.language is not None:
-            self.info(bold('loading translations [%s]... ' %
-                           self.config.language), nonl=True)
-            # the None entry is the system's default locale path
-            locale_dirs = [None, path.join(package_dir, 'locale')] + \
-                [path.join(self.srcdir, x) for x in self.config.locale_dirs]
-            for dir_ in locale_dirs:
-                try:
-                    trans = gettext.translation('sphinx', localedir=dir_,
-                            languages=[self.config.language])
-                    if self.translator is None:
-                        self.translator = trans
-                    else:
-                        self.translator._catalog.update(trans._catalog)
-                except Exception:
-                    # Language couldn't be found in the specified path
-                    pass
-            if self.translator is not None:
-                self.info('done')
-            else:
-                self.info('locale not available')
-        if self.translator is None:
-            self.translator = gettext.NullTranslations()
-        self.translator.install(unicode=True)
-        locale.init()  # translate common labels
-
-    def load_env(self):
-        """Set up the build environment."""
-        if self.env:
-            return
-        if not self.freshenv:
-            try:
-                self.info(bold('loading pickled environment... '), nonl=True)
-                self.env = BuildEnvironment.frompickle(self.config,
-                    path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-                self.info('done')
-            except Exception, err:
-                if type(err) is IOError and err.errno == ENOENT:
-                    self.info('not found')
-                else:
-                    self.info('failed: %s' % err)
-                self.env = BuildEnvironment(self.srcdir, self.doctreedir,
-                                            self.config)
-                self.env.find_files(self.config)
-        else:
-            self.env = BuildEnvironment(self.srcdir, self.doctreedir,
-                                        self.config)
-            self.env.find_files(self.config)
-        self.env.set_warnfunc(self.warn)
-
     def build_all(self):
         """Build all source files."""
         self.build(None, summary='all source files', method='all')
@@ -302,6 +236,7 @@ class Builder(object):
 
         if updated_docnames:
             # save the environment
+            from sphinx.application import ENV_PICKLE_FILENAME
             self.info(bold('pickling environment... '), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
             self.info('done')

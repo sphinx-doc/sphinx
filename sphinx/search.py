@@ -119,8 +119,10 @@ class IndexBuilder(object):
         self._titles = {}
         # stemmed word -> set(filenames)
         self._mapping = {}
-        # desctypes -> index
-        self._desctypes = {}
+        # objtype -> index
+        self._objtypes = {}
+        # objtype index -> objname (localized)
+        self._objnames = {}
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -138,7 +140,7 @@ class IndexBuilder(object):
                 self._mapping[k] = set([index2fn[v]])
             else:
                 self._mapping[k] = set(index2fn[i] for i in v)
-        # no need to load keywords/desctypes
+        # no need to load keywords/objtypes
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
@@ -146,27 +148,30 @@ class IndexBuilder(object):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
-    def get_modules(self, fn2index):
+    def get_objects(self, fn2index):
         rv = {}
-        for name, (doc, _, _, _) in self.env.modules.iteritems():
-            if doc in fn2index:
-                rv[name] = fn2index[doc]
-        return rv
-
-    def get_descrefs(self, fn2index):
-        rv = {}
-        dt = self._desctypes
-        for fullname, (doc, desctype) in self.env.descrefs.iteritems():
-            if doc not in fn2index:
-                continue
-            prefix, name = rpartition(fullname, '.')
-            pdict = rv.setdefault(prefix, {})
-            try:
-                i = dt[desctype]
-            except KeyError:
-                i = len(dt)
-                dt[desctype] = i
-            pdict[name] = (fn2index[doc], i)
+        ot = self._objtypes
+        on = self._objnames
+        for domainname, domain in self.env.domains.iteritems():
+            for fullname, type, docname, anchor, prio in domain.get_objects():
+                if docname not in fn2index:
+                    continue
+                if prio < 0:
+                    continue
+                # XXX splitting at dot is kind of Python specific
+                prefix, name = rpartition(fullname, '.')
+                pdict = rv.setdefault(prefix, {})
+                try:
+                    i = ot[domainname, type]
+                except KeyError:
+                    i = len(ot)
+                    ot[domainname, type] = i
+                    otype = domain.object_types.get(type)
+                    if otype:
+                        on[i] = str(otype.lname)  # fire translation proxies
+                    else:
+                        on[i] = type
+                pdict[name] = (fn2index[docname], i, prio)
         return rv
 
     def get_terms(self, fn2index):
@@ -185,14 +190,13 @@ class IndexBuilder(object):
         filenames = self._titles.keys()
         titles = self._titles.values()
         fn2index = dict((f, i) for (i, f) in enumerate(filenames))
-        return dict(
-            filenames=filenames,
-            titles=titles,
-            terms=self.get_terms(fn2index),
-            descrefs=self.get_descrefs(fn2index),
-            modules=self.get_modules(fn2index),
-            desctypes=dict((v, k) for (k, v) in self._desctypes.items()),
-        )
+        terms = self.get_terms(fn2index)
+        objects = self.get_objects(fn2index)  # populates _objtypes
+        objtypes = dict((v, k[0] + ':' + k[1])
+                        for (k, v) in self._objtypes.iteritems())
+        objnames = self._objnames
+        return dict(filenames=filenames, titles=titles, terms=terms,
+                    objects=objects, objtypes=objtypes, objnames=objnames)
 
     def prune(self, filenames):
         """Remove data for all filenames not in the list."""

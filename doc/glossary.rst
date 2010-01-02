@@ -19,16 +19,16 @@ Glossary
       the :term:`source directory`, but can be set differently with the **-c**
       command-line option.
 
-   description unit
-      The basic building block of Sphinx documentation.  Every "description
-      directive" (e.g. :dir:`function` or :dir:`describe`) creates such a unit;
-      and most units can be cross-referenced to.
-
    environment
       A structure where information about all documents under the root is saved,
       and used for cross-referencing.  The environment is pickled after the
       parsing stage, so that successive runs only need to read and parse new and
       changed documents.
+
+   object
+      The basic building block of Sphinx documentation.  Every "object
+      directive" (e.g. :dir:`function` or :dir:`object`) creates such a block;
+      and most objects can be cross-referenced to.
 
    source directory
       The directory which, including its subdirectories, contains all source
