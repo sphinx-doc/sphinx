@@ -154,7 +154,7 @@ HTML_XPATH = {
         ".//meta[@name='hc'][@content='hcval']": '',
         ".//meta[@name='hc_co'][@content='hcval_co']": '',
         ".//meta[@name='testopt'][@content='testoverride']": '',
-        #".//td[@class='label']": r'\[Ref1\]',   # docutils 0.5 only
+        ".//td[@class='label']": r'\[Ref1\]',
         ".//td[@class='label']": '',
         ".//li[@class='toctree-l1']/a": 'Testing various markup',
         ".//li[@class='toctree-l2']/a": 'Inline markup',
