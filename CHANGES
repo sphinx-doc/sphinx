@@ -3,6 +3,9 @@ Release 1.0 (in development)
 
 * Added Epub builder.
 
+* #309: The ``graphviz`` extension can now output SVG instead of PNG
+  images, controlled by the ``graphviz_output_format`` config value.
+
 * #284: All docinfo metadata is now put into the document metadata, not
   just the author.
 
