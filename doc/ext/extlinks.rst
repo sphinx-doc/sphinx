@@ -47,3 +47,8 @@ The extension adds one new config value:
    You can also use the usual "explicit title" syntax supported by other roles
    that generate links, i.e. ``:issue:`this issue <123>```.  In this case, the
    *prefix* is not relevant.
+
+.. note::
+
+   Since links are generated from the role in the reading stage, they appear as
+   ordinary links to e.g. the ``linkcheck`` builder.
