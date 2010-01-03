@@ -190,6 +190,7 @@ def xfileref_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     else:
         # remove all whitespace to avoid referencing problems
         target = ws_re.sub('', target)
+    pnode['refdoc'] = env.docname
     pnode['reftarget'] = target
     pnode += innernodetypes.get(typ, nodes.literal)(rawtext, title,
                                                     classes=['xref'])

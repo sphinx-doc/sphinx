@@ -51,7 +51,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 30
+ENV_VERSION = 31
 
 
 default_substitutions = set([
@@ -1180,7 +1180,7 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            self.warn(fromdocname, 'undefined label: %s' %
+                            self.warn(node['refdoc'], 'undefined label: %s' %
                                       target, node.line)
                     else:
                         # reference to the named label; the final node will
@@ -1189,7 +1189,7 @@ class BuildEnvironment:
                                                                      ('','',''))
                         if not docname:
                             self.warn(
-                                fromdocname,
+                                node['refdoc'],
                                 'undefined label: %s' % target + ' -- if you '
                                 'don\'t give a link caption the label must '
                                 'precede a section header.', node.line)
@@ -1215,10 +1215,10 @@ class BuildEnvironment:
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
-                    docname = docname_join(fromdocname, target)
+                    docname = docname_join(node['refdoc'], target)
                     if docname not in self.all_docs:
-                        self.warn(fromdocname, 'unknown document: %s' % docname,
-                                  node.line)
+                        self.warn(node['refdoc'],
+                                  'unknown document: %s' % docname, node.line)
                         newnode = contnode
                     else:
                         if node['refcaption']:
@@ -1235,7 +1235,7 @@ class BuildEnvironment:
                     # keywords are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
-                        #self.warn(fromdocname, 'unknown keyword: %s' % target)
+                        #self.warn(node['refdoc'], 'unknown keyword: %s' % target)
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
@@ -1264,11 +1264,11 @@ class BuildEnvironment:
                                                            ('', ''))
                     if not docname:
                         if typ == 'term':
-                            self.warn(fromdocname,
+                            self.warn(node['refdoc'],
                                       'term not in glossary: %s' % target,
                                       node.line)
                         elif typ == 'citation':
-                            self.warn(fromdocname,
+                            self.warn(node['refdoc'],
                                       'citation not found: %s' % target,
                                       node.line)
                         newnode = contnode
