@@ -56,7 +56,9 @@ the following public API:
    given as keyword arguments: the keyword must be one or more of ``'html'``,
    ``'latex'``, ``'text'``, the value a 2-tuple of ``(visit, depart)`` methods.
    ``depart`` can be ``None`` if the ``visit`` function raises
-   :exc:`docutils.nodes.SkipNode`.  Example::
+   :exc:`docutils.nodes.SkipNode`.  Example:
+
+   .. code-block:: python
 
       class math(docutils.nodes.Element)
 
@@ -98,7 +100,9 @@ the following public API:
      support directive classes otherwise).
 
    For example, the (already existing) :dir:`literalinclude` directive would be
-   added like this::
+   added like this:
+
+   .. code-block:: python
 
       from docutils.parsers.rst import directives
       add_directive('literalinclude', literalinclude_directive,
