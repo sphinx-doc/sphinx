@@ -21,6 +21,7 @@ except ImportError:
     from sha import sha
 
 from docutils import nodes
+from docutils.parsers.rst import directives
 
 from sphinx.errors import SphinxError
 from sphinx.util import ensuredir, ENOENT
@@ -47,7 +48,9 @@ class Graphviz(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {
+        'alt': directives.unchanged,
+    }
 
     def run(self):
         dotcode = '\n'.join(self.content)
@@ -58,6 +61,8 @@ class Graphviz(Directive):
         node = graphviz()
         node['code'] = dotcode
         node['options'] = []
+        if 'alt' in self.options:
+            node['alt'] = self.options['alt']
         return [node]
 
 
@@ -69,13 +74,17 @@ class GraphvizSimple(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {
+        'alt': directives.unchanged,
+    }
 
     def run(self):
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
         node['options'] = []
+        if 'alt' in self.options:
+            node['alt'] = self.options['alt']
         return [node]
 
 
@@ -178,7 +187,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         self.body.append(self.encode(code))
     else:
         if alt is None:
-            alt = self.encode(code).strip()
+            alt = node.get('alt', self.encode(code).strip())
         if format == 'svg':
             svgtag = get_svg_tag(fname, outfn, imgcls)
             self.body.append(svgtag)

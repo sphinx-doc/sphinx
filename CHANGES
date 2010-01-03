@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* Added ``alt`` option to ``graphviz`` extension directives.
+
 * Added Epub builder.
 
 * #309: The ``graphviz`` extension can now output SVG instead of PNG
