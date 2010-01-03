@@ -1,6 +1,9 @@
 Release 0.6.4 (in development)
 ==============================
 
+* #294: do not ignore an explicit ``today`` config value in a
+  LaTeX build.
+
 * The ``alt`` text of inheritance diagrams is now much cleaner.
 
 * Ignore images in section titles when generating link captions.
