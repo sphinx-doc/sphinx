@@ -23,7 +23,7 @@ except ImportError:
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
-from docutils.core import Publisher, publish_parts
+from docutils.core import Publisher
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
@@ -701,20 +701,7 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
 
-    def handle_finish(self):
-        self.info(bold('dumping search index... '), nonl=True)
-        self.indexer.prune(self.env.all_docs)
-        searchindexfn = path.join(self.outdir, self.searchindex_filename)
-        # first write to a temporary file, so that if dumping fails,
-        # the existing index won't be overwritten
-        f = open(searchindexfn + '.tmp', 'wb')
-        try:
-            self.indexer.dump(f, self.indexer_format)
-        finally:
-            f.close()
-        movefile(searchindexfn + '.tmp', searchindexfn)
-        self.info('done')
-
+    def dump_inventory(self):
         self.info(bold('dumping object inventory... '), nonl=True)
         f = open(path.join(self.outdir, INVENTORY_FILENAME), 'wb')
         try:
@@ -735,6 +722,22 @@ class StandaloneHTMLBuilder(Builder):
         finally:
             f.close()
         self.info('done')
+
+    def handle_finish(self):
+        self.info(bold('dumping search index... '), nonl=True)
+        self.indexer.prune(self.env.all_docs)
+        searchindexfn = path.join(self.outdir, self.searchindex_filename)
+        # first write to a temporary file, so that if dumping fails,
+        # the existing index won't be overwritten
+        f = open(searchindexfn + '.tmp', 'wb')
+        try:
+            self.indexer.dump(f, self.indexer_format)
+        finally:
+            f.close()
+        movefile(searchindexfn + '.tmp', searchindexfn)
+        self.info('done')
+
+        self.dump_inventory()
 
 
 class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
