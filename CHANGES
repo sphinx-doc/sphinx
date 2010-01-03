@@ -54,6 +54,12 @@ Release 1.0 (in development)
 Release 0.6.4 (in development)
 ==============================
 
+* #286: collect todo nodes after the whole document has been read;
+  this allows placing substitution references in todo items.
+
+* #294: do not ignore an explicit ``today`` config value in a
+  LaTeX build.
+
 * The ``alt`` text of inheritance diagrams is now much cleaner.
 
 * Ignore images in section titles when generating link captions.

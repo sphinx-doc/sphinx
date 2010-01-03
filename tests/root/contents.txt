@@ -24,6 +24,7 @@ Contents:
    metadata
    extensions
    doctest
+   extensions
 
    Python <http://python.org/>
 

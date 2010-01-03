@@ -180,8 +180,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
             'title':        document.settings.title,
-            'date':         ustrftime(builder.config.today_fmt
-                                      or _('%B %d, %Y')),
             'release':      builder.config.release,
             'author':       document.settings.author,
             'releasename':  _('Release'),
@@ -194,6 +192,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             docclass = builder.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
+        if builder.config.today:
+            self.elements['date'] = builder.config.today
+        else:
+            self.elements['date'] = ustrftime(builder.config.today_fmt
+                                              or _('%B %d, %Y'))
         if builder.config.latex_logo:
             self.elements['logo'] = '\\includegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
