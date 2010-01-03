@@ -128,7 +128,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     return relfn, outfn
 
 
-def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
+def render_dot_html(self, node, code, options, prefix='graphviz',
+                    imgcls=None, alt=None):
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError, exc:
@@ -145,16 +146,17 @@ def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
         finally:
             mapfile.close()
         imgcss = imgcls and 'class="%s"' % imgcls or ''
+        if alt is None:
+            alt = self.encode(code).strip()
         if len(imgmap) == 2:
             # nothing in image map (the lines are <map> and </map>)
             self.body.append('<img src="%s" alt="%s" %s/>\n' %
-                             (fname, self.encode(code).strip(), imgcss))
+                             (fname, alt, imgcss))
         else:
             # has a map: get the name of the map and connect the parts
             mapname = mapname_re.match(imgmap[0]).group(1)
             self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
-                             (fname, self.encode(code).strip(),
-                              mapname, imgcss))
+                             (fname, alt, mapname, imgcss))
             self.body.extend(imgmap)
     self.body.append('</p>\n')
     raise nodes.SkipNode
