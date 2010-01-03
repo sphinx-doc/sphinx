@@ -22,6 +22,7 @@ Contents:
    autodoc
    autosummary
    doctest
+   extensions
 
    Python <http://python.org/>
 

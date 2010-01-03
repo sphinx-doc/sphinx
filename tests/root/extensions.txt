@@ -1,0 +1,22 @@
+Test for diverse extensions
+===========================
+
+todo
+----
+
+.. todo::
+
+   Test the todo extension.
+
+.. todo::
+
+   Test with |sub| (see #286).
+
+.. |sub| replace:: substitution references
+
+
+list of all todos
+^^^^^^^^^^^^^^^^^
+
+.. todolist::
+
