@@ -443,6 +443,13 @@ def copy_static_entry(source, target, builder, context={}):
         shutil.copytree(source, target)
 
 
+def clean_astext(node):
+    """Like node.astext(), but ignore images."""
+    node = node.deepcopy()
+    for img in node.traverse(docutils.nodes.image):
+        img['alt'] = ''
+    return node.astext()
+
 
 def split_explicit_title(text):
     """Split role content into title and target, if given."""
@@ -450,6 +457,7 @@ def split_explicit_title(text):
     if match:
         return True, match.group(1), match.group(2)
     return False, text, text
+
 
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves

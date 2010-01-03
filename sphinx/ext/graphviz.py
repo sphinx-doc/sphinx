@@ -161,7 +161,8 @@ def get_svg_tag(svgref, svgfile, imgcls=None):
            (svgref, imgcss, style)
 
 
-def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
+def render_dot_html(self, node, code, options, prefix='graphviz',
+                    imgcls=None, alt=None):
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
@@ -176,6 +177,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
     if fname is None:
         self.body.append(self.encode(code))
     else:
+        if alt is None:
+            alt = self.encode(code).strip()
         if format == 'svg':
             svgtag = get_svg_tag(fname, outfn, imgcls)
             self.body.append(svgtag)
@@ -189,13 +192,12 @@ def render_dot_html(self, node, code, options, prefix='graphviz', imgcls=None):
             if len(imgmap) == 2:
                 # nothing in image map (the lines are <map> and </map>)
                 self.body.append('<img src="%s" alt="%s" %s/>\n' %
-                                 (fname, self.encode(code).strip(), imgcss))
+                                 (fname, alt, imgcss))
             else:
                 # has a map: get the name of the map and connect the parts
                 mapname = mapname_re.match(imgmap[0]).group(1)
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
-                                 (fname, self.encode(code).strip(),
-                                  mapname, imgcss))
+                                 (fname, alt, mapname, imgcss))
                 self.body.extend(imgmap)
 
     self.body.append('</p>\n')

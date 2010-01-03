@@ -52,6 +52,10 @@ Release 1.0 (in development)
 Release 0.6.4 (in development)
 ==============================
 
+* The ``alt`` text of inheritance diagrams is now much cleaner.
+
+* Ignore images in section titles when generating link captions.
+
 * #310: support exception messages in the ``testoutput`` blocks of
   the ``doctest`` extension.
 
