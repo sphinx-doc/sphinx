@@ -37,7 +37,7 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict, url_re
+     docname_join, FilenameUniqDict, url_re, clean_astext
 from sphinx.errors import SphinxError
 from sphinx.directives import additional_xref_types
 
@@ -820,11 +820,11 @@ class BuildEnvironment:
                           node.line)
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
-                sectname = node[0].astext() # node[0] == title node
+                sectname = clean_astext(node[0]) # node[0] == title node
             elif node.tagname == 'figure':
                 for n in node:
                     if n.tagname == 'caption':
-                        sectname = n.astext()
+                        sectname = clean_astext(n)
                         break
                 else:
                     continue
@@ -1074,7 +1074,7 @@ class BuildEnvironment:
                         # toctree originates
                         ref = toctreenode['parent']
                         if not title:
-                            title = self.titles[ref].astext()
+                            title = clean_astext(self.titles[ref])
                         reference = nodes.reference('', '',
                                                     refuri=ref,
                                                     anchorname='',
@@ -1222,7 +1222,7 @@ class BuildEnvironment:
                             # reference with explicit title
                             caption = node.astext()
                         else:
-                            caption = self.titles[docname].astext()
+                            caption = clean_astext(self.titles[docname])
                         innernode = nodes.emphasis(caption, caption)
                         newnode = nodes.reference('', '')
                         newnode['refuri'] = builder.get_relative_uri(

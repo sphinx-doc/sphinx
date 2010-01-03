@@ -442,6 +442,14 @@ def copy_static_entry(source, target, builder, context={}):
         shutil.copytree(source, target)
 
 
+def clean_astext(node):
+    """Like node.astext(), but ignore images."""
+    node = node.deepcopy()
+    for img in node.traverse(docutils.nodes.image):
+        img['alt'] = ''
+    return node.astext()
+
+
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves
 # on average 20-25% overall build time!

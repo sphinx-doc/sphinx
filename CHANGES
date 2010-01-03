@@ -1,6 +1,8 @@
 Release 0.6.4 (in development)
 ==============================
 
+* Ignore images in section titles when generating link captions.
+
 * #310: support exception messages in the ``testoutput`` blocks of
   the ``doctest`` extension.
 
