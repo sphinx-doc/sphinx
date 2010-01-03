@@ -60,7 +60,7 @@ the following public API:
 
    .. code-block:: python
 
-      class math(docutils.nodes.Element)
+      class math(docutils.nodes.Element): pass
 
       def visit_math_html(self, node):
           self.body.append(self.starttag(node, 'math'))
