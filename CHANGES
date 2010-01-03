@@ -1,6 +1,9 @@
 Release 1.0 (in development)
 ============================
 
+* #129: Wrap toctrees in a div tag with class ``toctree-wrapper``
+  in HTML output.
+
 * #280: Autodoc can now document instance attributes assigned in
   ``__init__`` methods.
 
