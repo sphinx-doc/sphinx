@@ -20,7 +20,7 @@ except ImportError:
     # parser is not available on Jython
     parser = None
 
-from sphinx.util.texescape import tex_hl_escape_map
+from sphinx.util.texescape import tex_hl_escape_map_old, tex_hl_escape_map_new
 
 try:
     import pygments
@@ -127,7 +127,7 @@ class PygmentsBridge(object):
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)
             # then, escape all characters nonrepresentable in LaTeX
-            source = source.translate(tex_hl_escape_map)
+            source = source.translate(tex_hl_escape_map_old)
             return '\\begin{Verbatim}[commandchars=@\\[\\]]\n' + \
                    source + '\\end{Verbatim}\n'
 
@@ -204,7 +204,10 @@ class PygmentsBridge(object):
                 return highlight(source, lexer, self.fmter[bool(linenos)])
             else:
                 hlsource = highlight(source, lexer, self.fmter[bool(linenos)])
-                return hlsource.translate(tex_hl_escape_map)
+                if hlsource.startswith(r'\begin{Verbatim}[commandchars=\\\{\}'):
+                    # Pygments >= 1.2
+                    return hlsource.translate(tex_hl_escape_map_new)
+                return hlsource.translate(tex_hl_escape_map_old)
         except ErrorToken:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
