@@ -110,16 +110,6 @@ General configuration
 
    .. versionadded:: 0.5
 
-.. confval:: exclude_dirs
-
-   A list of directory names, relative to the source directory, that are to be
-   excluded from the search for source files.
-
-   .. deprecated:: 0.5
-      This does not take subdirs of the excluded directories into account.  Use
-      :confval:`exclude_trees` or :confval:`exclude_dirnames`, which match the
-      expectations.
-
 .. confval:: locale_dirs
 
    .. versionadded:: 0.5

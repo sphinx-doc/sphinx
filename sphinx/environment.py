@@ -393,12 +393,10 @@ class BuildEnvironment:
         """
         Find all source files in the source dir and put them in self.found_docs.
         """
-        exclude_dirs  = [d.replace(SEP, path.sep) for d in config.exclude_dirs]
         exclude_trees = [d.replace(SEP, path.sep) for d in config.exclude_trees]
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix,
             exclude_docs=set(config.unused_docs),
-            exclude_dirs=exclude_dirs,
             exclude_trees=exclude_trees,
             exclude_dirnames=['_sources'] + config.exclude_dirnames))
 
