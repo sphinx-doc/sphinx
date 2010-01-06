@@ -188,7 +188,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def get_toc(self):
         """Get the total table of contents, containg the master_doc
         and pre and post files not managed by sphinx"""
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc, self)
+        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+            self, prune_toctrees=False)
         self.refnodes = self.get_refnodes(doctree, [])
         self.refnodes.insert(0, {
             'level': 1,
