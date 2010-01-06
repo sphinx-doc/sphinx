@@ -278,7 +278,6 @@ def patfilter(names, pat):
     Return the subset of the list NAMES that match PAT.
     Adapted from fnmatch module.
     """
-    result = []
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     match = _pat_cache[pat].match
@@ -409,7 +408,6 @@ def movefile(source, dest):
 def copytimes(source, dest):
     """Copy a file's modification times."""
     st = os.stat(source)
-    mode = stat.S_IMODE(st.st_mode)
     if hasattr(os, 'utime'):
         os.utime(dest, (st.st_atime, st.st_mtime))
 

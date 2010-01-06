@@ -253,6 +253,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return (HEADER % self.elements + self.highlighter.get_stylesheet() +
                 u''.join(self.body) + FOOTER % self.elements)
 
+    def idescape(self, id):
+        return str(unicode(id).translate(tex_escape_map))
+
     def visit_document(self, node):
         self.footnotestack.append(self.collect_footnotes(node))
         self.curfilestack.append(node.get('docname', ''))
@@ -466,7 +469,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         d = self.descstack[-1]
         d.cls = d.cls.rstrip('.')
         if node.parent['desctype'] != 'describe' and node['ids']:
-            hyper = '\\hypertarget{%s}{}' % node['ids'][0]
+            hyper = '\\hypertarget{%s}{}' % self.idescape(node['ids'][0])
         else:
             hyper = ''
         if d.count == 0:
@@ -757,7 +760,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_term(self, node):
         ctx = '] \\leavevmode'
         if node.has_key('ids') and node['ids']:
-            ctx += '\\hypertarget{%s}{}' % node['ids'][0]
+            ctx += '\\hypertarget{%s}{}' % self.idescape(node['ids'][0])
         self.body.append('\\item[')
         self.context.append(ctx)
     def depart_term(self, node):
