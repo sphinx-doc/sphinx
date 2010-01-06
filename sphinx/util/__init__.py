@@ -277,7 +277,6 @@ def patfilter(names, pat):
     Return the subset of the list NAMES that match PAT.
     Adapted from fnmatch module.
     """
-    result = []
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     match = _pat_cache[pat].match
