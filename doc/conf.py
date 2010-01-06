@@ -18,6 +18,8 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'contents'
 
+exclude_patterns = ['_build']
+
 # General substitutions.
 project = 'Sphinx'
 copyright = '2007-2010, Georg Brandl'

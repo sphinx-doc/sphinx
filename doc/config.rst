@@ -87,11 +87,36 @@ General configuration
    The document name of the "master" document, that is, the document that
    contains the root :dir:`toctree` directive.  Default is ``'contents'``.
 
+.. confval:: exclude_patterns
+
+   A list of glob-style patterns that should be excluded when looking for source
+   files. [#]_ They are matched against the source file names relative to the
+   source directory, using slashes as directory separators on all platforms.
+
+   Example patterns:
+
+   - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
+     entry in :confval:`unused_docs`
+   - ``'library/xml'`` -- ignores the ``library/xml`` directory (replaces entry
+     in :confval:`exclude_trees`)
+   - ``'library/xml*'`` -- ignores all files and directories starting with
+     ``library/xml``
+   - ``'**/.svn'`` -- ignores all ``.svn`` directories (replaces entry in
+     :confval:`exclude_dirnames`)
+
+   :confval:`exclude_patterns` is also consulted when looking for static files
+   in :confval:`html_static_path`.
+
+   .. versionadded:: 1.0
+
 .. confval:: unused_docs
 
    A list of document names that are present, but not currently included in the
    toctree.  Use this setting to suppress the warning that is normally emitted
    in that case.
+
+   .. deprecated:: 1.0
+      Use :confval:`exclude_patterns` instead.
 
 .. confval:: exclude_trees
 
@@ -101,6 +126,9 @@ General configuration
 
    .. versionadded:: 0.4
 
+   .. deprecated:: 1.0
+      Use :confval:`exclude_patterns` instead.
+
 .. confval:: exclude_dirnames
 
    A list of directory names that are to be excluded from any recursive
@@ -109,6 +137,9 @@ General configuration
    directories like ``'CVS'``.  The default is ``[]``.
 
    .. versionadded:: 0.5
+
+   .. deprecated:: 1.0
+      Use :confval:`exclude_patterns` instead.
 
 .. confval:: locale_dirs
 
@@ -797,3 +828,11 @@ These options influence LaTeX output.
 
    .. deprecated:: 0.5
       Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
+
+
+.. rubric:: Footnotes
+
+.. [#] A note on available globbing syntax: you can use the standard shell
+       constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
+       these all don't match slashes.  A double star ``**`` can be used to match
+       any sequence of characters *including* slashes.

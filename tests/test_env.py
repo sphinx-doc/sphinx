@@ -43,6 +43,8 @@ def test_first_update():
     for docname in it:  # the generator does all the work
         docnames.add(docname)
     assert docnames == env.found_docs == set(env.all_docs)
+    # test if exclude_patterns works ok
+    assert 'subdir/excluded' not in env.found_docs
 
 def test_images():
     assert warning_emitted('images.txt', 'image file not readable: foo.png')

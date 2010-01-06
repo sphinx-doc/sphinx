@@ -84,12 +84,9 @@ release = '%(release_str)s'
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%%B %%d, %%Y'
 
-# List of documents that shouldn't be included in the build.
-#unused_docs = []
-
-# List of directories, relative to source directory, that shouldn't be searched
-# for source files.
-exclude_trees = [%(exclude_trees)s]
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+exclude_patterns = [%(exclude_patterns)s]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -743,10 +740,10 @@ directly.'''
     mkdir_p(srcdir)
     if d['sep']:
         builddir = path.join(d['path'], 'build')
-        d['exclude_trees'] = ''
+        d['exclude_patterns'] = ''
     else:
         builddir = path.join(srcdir, d['dot'] + 'build')
-        d['exclude_trees'] = repr(d['dot'] + 'build')
+        d['exclude_patterns'] = repr(d['dot'] + 'build')
     mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))

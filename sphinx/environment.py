@@ -393,12 +393,13 @@ class BuildEnvironment:
         """
         Find all source files in the source dir and put them in self.found_docs.
         """
-        exclude_trees = [d.replace(SEP, path.sep) for d in config.exclude_trees]
+        patterns = config.exclude_patterns[:]
+        patterns += config.exclude_trees
+        patterns += [d + config.source_suffix for d in config.unused_docs]
+        patterns += ['**/' + d for d in config.exclude_dirnames]
+        patterns += ['**/_sources']
         self.found_docs = set(get_matching_docs(
-            self.srcdir, config.source_suffix,
-            exclude_docs=set(config.unused_docs),
-            exclude_trees=exclude_trees,
-            exclude_dirnames=['_sources'] + config.exclude_dirnames))
+            self.srcdir, config.source_suffix, exclude_patterns=patterns))
 
     def get_outdated_files(self, config_changed):
         """

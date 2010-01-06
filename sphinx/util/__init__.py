@@ -101,38 +101,48 @@ def walk(top, topdown=True, followlinks=False):
         yield top, dirs, nondirs
 
 
-def get_matching_docs(dirname, suffix, exclude_docs=(), exclude_dirs=(),
-                      exclude_trees=(), exclude_dirnames=()):
+def get_matching_files(dirname, exclude_patterns=()):
+    """
+    Get all file names in a directory, recursively.
+
+    Exclude files and dirs matching a pattern in *exclude_patterns*.
+    """
+    # dirname is a normalized absolute path.
+    dirname = path.normpath(path.abspath(dirname))
+    dirlen = len(dirname) + 1    # exclude final os.path.sep
+
+    matchers = [re.compile(_translate_pattern(pat)).match
+                for pat in exclude_patterns]
+
+    for root, dirs, files in walk(dirname, followlinks=True):
+        relativeroot = root[dirlen:]
+
+        qdirs = enumerate(path.join(relativeroot, dir).replace(os.path.sep, SEP)
+                          for dir in dirs)
+        qfiles = enumerate(path.join(relativeroot, file).replace(os.path.sep, SEP)
+                           for file in files)
+        for matcher in matchers:
+            qdirs = [entry for entry in qdirs if not matcher(entry[1])]
+            qfiles = [entry for entry in qfiles if not matcher(entry[1])]
+
+        dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
+
+        for i, filename in sorted(qfiles):
+            yield filename
+
+
+def get_matching_docs(dirname, suffix, exclude_patterns=()):
     """
     Get all file names (without suffix) matching a suffix in a
     directory, recursively.
 
-    Exclude docs in *exclude_docs*, exclude dirs in *exclude_dirs*,
-    prune dirs in *exclude_trees*, prune dirnames in *exclude_dirnames*.
+    Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
-    pattern = '*' + suffix
-    # dirname is a normalized absolute path.
-    dirname = path.normpath(path.abspath(dirname))
-    dirlen = len(dirname) + 1    # exclude slash
-    for root, dirs, files in walk(dirname, followlinks=True):
-        if root[dirlen:] in exclude_dirs:
+    suffixpattern = '*' + suffix
+    for filename in get_matching_files(dirname, exclude_patterns):
+        if not fnmatch.fnmatch(filename, suffixpattern):
             continue
-        if root[dirlen:] in exclude_trees:
-            del dirs[:]
-            continue
-        dirs.sort()
-        files.sort()
-        for prunedir in exclude_dirnames:
-            if prunedir in dirs:
-                dirs.remove(prunedir)
-        for sfile in files:
-            if not fnmatch.fnmatch(sfile, pattern):
-                continue
-            qualified_name = path.join(root[dirlen:], sfile[:-len(suffix)])
-            qualified_name = qualified_name.replace(os.path.sep, SEP)
-            if qualified_name in exclude_docs:
-                continue
-            yield qualified_name
+        yield filename[:-len(suffix)]
 
 
 def mtimes_of_files(dirnames, suffix):

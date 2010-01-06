@@ -22,7 +22,7 @@ version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
 #unused_docs = []
-exclude_trees = ['_build']
+exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
 
