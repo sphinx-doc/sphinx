@@ -579,11 +579,19 @@ class StandaloneHTMLBuilder(Builder):
                 continue
             copy_static_entry(entry, path.join(self.outdir, '_static'), self,
                               self.globalcontext, exclude_matchers=matchers)
-        # last, copy logo file (handled differently XXX why?)
+        # copy logo and favicon files if not already in static path
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
-            copyfile(path.join(self.confdir, self.config.html_logo),
-                     path.join(self.outdir, '_static', logobase))
+            logotarget = path.join(self.outdir, '_static', logobase)
+            if not path.isfile(logotarget):
+                copyfile(path.join(self.confdir, self.config.html_logo),
+                         logotarget)
+        if self.config.html_favicon:
+            iconbase = path.basename(self.config.html_favicon)
+            icontarget = path.join(self.outdir, '_static', iconbase)
+            if not path.isfile(icontarget):
+                copyfile(path.join(self.confdir, self.config.html_favicon),
+                         icontarget)
 
         # write build info file
         fp = open(path.join(self.outdir, '.buildinfo'), 'w')
