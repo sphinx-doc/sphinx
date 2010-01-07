@@ -87,9 +87,9 @@ Sphinx comes with a selection of themes to choose from.
 These themes are:
 
 * **basic** -- This is a basically unstyled layout used as the base for the
-  *default* and *sphinxdoc* themes, and usable as the base for custom themes as
-  well.  The HTML contains all important elements like sidebar and relation bar.
-  There is one option (which is inherited by *default* and *sphinxdoc*):
+  other themes, and usable as the base for custom themes as well.  The HTML
+  contains all important elements like sidebar and relation bar.  There is one
+  option (which is inherited by the other themes):
 
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     false.
