@@ -40,19 +40,30 @@ class Todo(Directive):
         ad = make_admonition(todo_node, self.name, [_('Todo')], self.options,
                              self.content, self.lineno, self.content_offset,
                              self.block_text, self.state, self.state_machine)
+        ad[0].line = self.lineno
+        return [targetnode] + ad
 
-        # Attach a list of all todos to the environment,
-        # the todolist works with the collected todo nodes
-        if not hasattr(env, 'todo_all_todos'):
-            env.todo_all_todos = []
+
+def process_todos(app, doctree):
+    # collect all todos in the environment
+    # this is not done in the directive itself because it some transformations
+    # must have already been run, e.g. substitutions
+    env = app.builder.env
+    if not hasattr(env, 'todo_all_todos'):
+        env.todo_all_todos = []
+    for node in doctree.traverse(todo_node):
+        try:
+            targetnode = node.parent[node.parent.index(node) - 1]
+            if not isinstance(targetnode, nodes.target):
+                raise IndexError
+        except IndexError:
+            targetnode = None
         env.todo_all_todos.append({
             'docname': env.docname,
-            'lineno': self.lineno,
-            'todo': ad[0].deepcopy(),
+            'lineno': node.line,
+            'todo': node.deepcopy(),
             'target': targetnode,
         })
-
-        return [targetnode] + ad
 
 
 class TodoList(Directive):
@@ -150,6 +161,7 @@ def setup(app):
 
     app.add_directive('todo', Todo)
     app.add_directive('todolist', TodoList)
+    app.connect('doctree-read', process_todos)
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
 

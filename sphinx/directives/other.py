@@ -100,7 +100,9 @@ class TocTree(Directive):
         subnode['hidden'] = 'hidden' in self.options
         subnode['numbered'] = 'numbered' in self.options
         subnode['titlesonly'] = 'titlesonly' in self.options
-        ret.append(subnode)
+        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode.append(subnode)
+        ret.append(wrappernode)
         return ret
 
 

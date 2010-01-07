@@ -56,6 +56,12 @@ It adds these directives:
          "bar" -> "baz" -> "quux";
 
 
+.. versionadded:: 1.0
+   All three directives support an ``alt`` option that determines the image's
+   alternate text for HTML output.  If not given, the alternate text defaults to
+   the graphviz code.
+
+
 There are also these new config values:
 
 .. confval:: graphviz_dot

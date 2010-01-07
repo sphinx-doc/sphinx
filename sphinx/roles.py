@@ -126,6 +126,8 @@ class XRefRole(object):
         # now that the target and title are finally determined, set them
         refnode['reftarget'] = target
         refnode += self.innernodeclass(rawtext, title, classes=['xref'])
+        # we also need the source document
+        refnode['refdoc'] = env.docname
         # result_nodes allow further modification of return values
         return self.result_nodes(inliner.document, env, refnode, is_ref=True)
 

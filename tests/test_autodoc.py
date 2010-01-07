@@ -382,7 +382,10 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.descr'),
                    ('attribute', 'test_autodoc.Class.attr'),
                    ('attribute', 'test_autodoc.Class.docattr'),
-                   ('attribute', 'test_autodoc.Class.udocattr')])
+                   ('attribute', 'test_autodoc.Class.udocattr'),
+                   ('attribute', 'test_autodoc.Class.inst_attr_comment'),
+                   ('attribute', 'test_autodoc.Class.inst_attr_string')
+                   ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
@@ -404,7 +407,7 @@ def test_generate():
     assert_result_contains('   :platform: Platform', 'module', 'test_autodoc')
     # test if __all__ is respected for modules
     options.members = ALL
-    assert_result_contains('.. py:class:: Class', 'module', 'test_autodoc')
+    assert_result_contains('.. py:class:: Class(arg)', 'module', 'test_autodoc')
     try:
         assert_result_contains('.. py:exception:: CustomEx',
                                'module', 'test_autodoc')
@@ -499,6 +502,13 @@ class Class(Base):
 
     udocattr = 'quux'
     u"""should be documented as well - süß"""
+
+    def __init__(self, arg):
+        #: a documented instance attribute
+        self.inst_attr_comment = None
+        self.inst_attr_string = None
+        """a documented instance attribute"""
+
 
 class CustomDict(dict):
     """Docstring."""

@@ -1236,7 +1236,7 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            self.warn(fromdocname, 'undefined label: %s' %
+                            self.warn(node['refdoc'], 'undefined label: %s' %
                                       target, node.line)
                     else:
                         # reference to the named label; the final node will
@@ -1245,7 +1245,7 @@ class BuildEnvironment:
                                                                      ('','',''))
                         if not docname:
                             self.warn(
-                                fromdocname,
+                                node['refdoc'],
                                 'undefined label: %s' % target + ' -- if you '
                                 'don\'t give a link caption the label must '
                                 'precede a section header.', node.line)
@@ -1271,10 +1271,10 @@ class BuildEnvironment:
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
-                    docname = docname_join(fromdocname, target)
+                    docname = docname_join(node['refdoc'], target)
                     if docname not in self.all_docs:
-                        self.warn(fromdocname, 'unknown document: %s' % docname,
-                                  node.line)
+                        self.warn(node['refdoc'],
+                                  'unknown document: %s' % docname, node.line)
                         newnode = contnode
                     else:
                         if node['refexplicit']:
@@ -1290,7 +1290,7 @@ class BuildEnvironment:
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
                     if not docname:
-                        self.warn(fromdocname,
+                        self.warn(node['refdoc'],
                                   'citation not found: %s' % target, node.line)
                         newnode = None
                     else:
@@ -1300,7 +1300,7 @@ class BuildEnvironment:
                     # keywords are oddballs: they are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
-                        #self.warn(fromdocname, 'unknown keyword: %s' % target)
+                        #self.warn(node['refdoc'], 'unknown keyword: %s' % target)
                         newnode = None
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
