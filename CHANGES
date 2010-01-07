@@ -23,11 +23,13 @@ Release 1.0 (in development)
 * #284: All docinfo metadata is now put into the document metadata, not
   just the author.
 
+* Added new HTML theme ``haiku``, inspired by the Haiku OS user guide.
+
 * Added new HTML theme ``nature``.
 
 * Added new HTML theme ``agogo``, created by Andi Albrecht.
 
-* Added new HTML theme called scrolls, created by Armin Ronacher.
+* Added new HTML theme ``scrolls``, created by Armin Ronacher.
 
 * Added ``html_output_encoding`` config value.
 
