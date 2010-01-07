@@ -22,7 +22,7 @@ except ImportError:
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
-from docutils.core import Publisher, publish_parts
+from docutils.core import Publisher
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
