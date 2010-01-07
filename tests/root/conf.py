@@ -31,7 +31,7 @@ rst_epilog = '.. |subst| replace:: global substitution'
 html_theme = 'testtheme'
 html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
-
+html_sidebars = {'**': 'customsb.html', 'contents': 'contentssb.html'}
 html_style = 'default.css'
 html_static_path = ['_static', 'templated.css_t']
 html_last_updated_fmt = '%b %d, %Y'

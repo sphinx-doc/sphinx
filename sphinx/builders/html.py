@@ -28,8 +28,8 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
-from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
-    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers
+from sphinx.util import SEP, os_path, relative_uri, ensuredir, patmatch, \
+    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers, any
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -73,6 +73,9 @@ class StandaloneHTMLBuilder(Builder):
     script_files = ['_static/jquery.js', '_static/doctools.js']
     # Dito for this one.
     css_files = []
+
+    default_sidebars = ['localtoc.html', 'relations.html',
+                        'sourcelink.html', 'searchbox.html']
 
     # cached publisher object for snippets
     _publisher = None
@@ -654,6 +657,33 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename):
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
+    def get_sidebars(self, pagename):
+        def has_wildcard(pattern):
+            return any(char in pattern for char in '*?[')
+        sidebars = None
+        matched = None
+        for pattern, patsidebars in self.config.html_sidebars.iteritems():
+            if patmatch(pagename, pattern):
+                if matched:
+                    if has_wildcard(pattern):
+                        # warn if both patterns contain wildcards
+                        if has_wildcard(matched):
+                            self.warn('page %s matches two patterns in '
+                                      'html_sidebars: %r and %r' %
+                                      (pagename, matched, pattern))
+                        # else the already matched pattern is more specific
+                        # than the present one, because it contains no wildcard
+                        continue
+                matched = pattern
+                sidebars = patsidebars
+        if sidebars is None:
+            sidebars = self.default_sidebars
+        elif isinstance(sidebars, basestring):
+            # 0.x compatible mode: insert custom sidebar before searchbox
+            sidebars = self.default_sidebars[:-1] + [sidebars] + \
+                       self.default_sidebars[-1:]
+        return sidebars
+
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
@@ -673,9 +703,9 @@ class StandaloneHTMLBuilder(Builder):
             return uri
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
-        ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
         ctx['encoding'] = encoding = self.config.html_output_encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
+        ctx['sidebars'] = self.get_sidebars(pagename)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename,
@@ -790,9 +820,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         ctx['current_page_name'] = pagename
-        sidebarfile = self.config.html_sidebars.get(pagename)
-        if sidebarfile:
-            ctx['customsidebar'] = sidebarfile
+        ctx['sidebars'] = self.get_sidebars(pagename)
 
         if not outfilename:
             outfilename = path.join(self.outdir,

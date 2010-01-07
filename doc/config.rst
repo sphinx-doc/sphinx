@@ -90,7 +90,7 @@ General configuration
 .. confval:: exclude_patterns
 
    A list of glob-style patterns that should be excluded when looking for source
-   files. [#]_ They are matched against the source file names relative to the
+   files. [1]_ They are matched against the source file names relative to the
    source directory, using slashes as directory separators on all platforms.
 
    Example patterns:
@@ -445,14 +445,53 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
-   template names.  Example::
+   template names.
+
+   The keys can contain glob-style patterns [1]_, in which case all matching
+   documents will get the specified sidebars.  (A warning is emitted when a
+   more than one glob-style pattern matches for any document.)
+
+   The values can be either lists or single strings.
+
+   * If a value is a list, it specifies the complete list of sidebar templates
+     to include.  If all or some of the default sidebars are to be included,
+     they must be put into this list as well.
+
+     The default sidebars (for documents that don't match any pattern) are:
+     ``['localtoc.html', 'relations.html', 'sourcelink.html',
+     'searchbox.html']``.
+
+   * If a value is a single string, it specifies a custom sidebar to be added
+     between the ``'sourcelink.html'`` and ``'searchbox.html'`` entries.  This
+     is for compatibility with Sphinx versions before 1.0.
+
+   Builtin sidebar templates that can be rendered are:
+
+   * **localtoc.html** -- a fine-grained table of contents of the current document
+   * **globaltoc.html** -- a coarse-grained table of contents for the whole
+     documentation set, collapsed
+   * **relations.html** -- two links to the previous and next documents
+   * **sourcelink.html** -- a link to the source of the current document, if
+     enabled in :confval:`html_show_sourcelink`
+   * **searchbox.html** -- the "quick search" box
+
+   Example::
 
       html_sidebars = {
-         'using/windows': 'windowssidebar.html'
+         '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+         'using/windows': ['windowssidebar.html', 'searchbox.html'],
       }
 
-   This will render the template ``windowssidebar.html`` within the sidebar of
-   the given document.
+   This will render the custom template ``windowssidebar.html`` and the quick
+   search box within the sidebar of the given document, and render the default
+   sidebars for all other pages (except that the local TOC is replaced by the
+   global TOC).
+
+   .. versionadded:: 1.0
+      The ability to use globbing keys and to specify multiple sidebars.
+
+   Note that this value only has no effect if the chosen theme does not possess
+   a sidebar, like the builtin **scrolls** and **haiku** themes.
 
 .. confval:: html_additional_pages
 
@@ -835,7 +874,7 @@ These options influence LaTeX output.
 
 .. rubric:: Footnotes
 
-.. [#] A note on available globbing syntax: you can use the standard shell
+.. [1] A note on available globbing syntax: you can use the standard shell
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to match
        any sequence of characters *including* slashes.

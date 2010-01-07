@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import stat
 import time
 import errno
 import types
@@ -285,6 +284,14 @@ def compile_matchers(patterns):
 
 _pat_cache = {}
 
+def patmatch(name, pat):
+    """
+    Return if name matches pat.  Adapted from fnmatch module.
+    """
+    if pat not in _pat_cache:
+        _pat_cache[pat] = re.compile(_translate_pattern(pat))
+    return _pat_cache[pat].match(name)
+
 def patfilter(names, pat):
     """
     Return the subset of the list NAMES that match PAT.
@@ -482,6 +489,15 @@ def split_explicit_title(text):
         return True, match.group(1), match.group(2)
     return False, text, text
 
+
+try:
+    any = any
+except NameError:
+    def any(gen):
+        for i in gen:
+            if i:
+                return True
+        return False
 
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves

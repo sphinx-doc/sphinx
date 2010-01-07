@@ -86,6 +86,8 @@ HTML_XPATH = {
         ".//dl[@class='userdesc']": '',
         ".//dt[@id='userdescrole-myobj']": '',
         ".//a[@href='#userdescrole-myobj']": '',
+        # custom sidebar
+        ".//h4": 'Custom sidebar',
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
@@ -98,6 +100,8 @@ HTML_XPATH = {
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
         ".//a[@href='http://python.org/']": '',
+        # custom sidebar only for contents
+        ".//h4": 'Contents sidebar',
     },
     'bom.html': {
         ".//title": " File with UTF-8 BOM",

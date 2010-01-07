@@ -1,6 +1,11 @@
 Release 1.0 (in development)
 ============================
 
+* The ``html_sidebars`` config value can now contain patterns as
+  keys, and the values can be lists that explicitly select which
+  sidebar templates should be rendered.  That means that the builtin
+  sidebar contents can be included only selectively.
+
 * ``html_static_path`` can now contain single file entries.
 
 * The new universal config value ``exclude_patterns`` makes the
