@@ -172,7 +172,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if isinstance(doctree, nodes.reference):
             classes = doctree.parent.attributes['classes']
             level = 1
-            for l in range(5,0,-1): # or range(1,6)?
+            for l in range(8,0,-1): # or range(1,8)?
                 if (_toctree_template % l) in classes:
                     level = l
             result.append({
