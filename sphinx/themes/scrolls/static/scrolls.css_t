@@ -97,13 +97,6 @@ h1.heading span {
     display: none;
 }
 
-#jinjalogo {
-    background-image: url(jinjalogo.png);
-    background-repeat: no-repeat;
-    width: 400px;
-    height: 160px;
-}
-
 #contentwrapper {
     max-width: 680px;
     padding: 0 18px 20px 18px;
