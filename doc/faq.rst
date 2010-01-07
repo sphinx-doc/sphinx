@@ -53,6 +53,39 @@ github pages
    <http://github.com/michaeljones/sphinx-to-github/tree/master>`_ to prepare
    Sphinx HTML output.
 
+Google Analytics
+   You can use a custom ``layout.html`` template, like this:
+
+   .. code-block:: html+django
+
+      {% extends "!layout.html" %}
+
+      {%- block extrahead %}
+      {{ super() }}
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'XXX account number XXX']);
+        _gaq.push(['_trackPageview']);
+      </script>
+      {% endblock %}
+
+      {% block footer %}
+      {{ super() }}
+      <div class="footer">This page uses <a href="http://analytics.google.com/">
+      Google Analytics</a> to collect statistics. You can disable it by blocking
+      the JavaScript coming from www.google-analytics.com.
+      <script type="text/javascript">
+        (function() {
+          var ga = document.createElement('script');
+          ga.src = ('https:' == document.location.protocol ?
+                    'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          ga.setAttribute('async', 'true');
+          document.documentElement.firstChild.appendChild(ga);
+        })();
+      </script>
+      </div>
+      {% endblock %}
+
 
 .. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
