@@ -12,12 +12,13 @@
 
    <h1 id="global-module-index">{{ _('Global Module Index') }}</h1>
 
+   <div class="modindex-jumpbox">
    {%- for letter in letters %}
    <a href="#cap-{{ letter }}"><strong>{{ letter }}</strong></a> {% if not loop.last %}| {% endif %}
    {%- endfor %}
-   <hr/>
+   </div>
 
-   <table width="100%" class="indextable" cellspacing="0" cellpadding="2">
+   <table class="indextable modindextable" cellspacing="0" cellpadding="2">
    {%- for modname, collapse, cgroup, indent, fname, synops, pform, dep, stripped in modindexentries %}
    {%- if not modname -%}
    <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>

@@ -259,7 +259,7 @@ table.indextable {
     width: 100%;
 }
 
-table.indextable td {
+table.genindextable td {
     vertical-align: top;
     width: 50%;
 }
