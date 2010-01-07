@@ -65,9 +65,9 @@ Builtin themes
 |                    |                    |
 | *scrolls*          | *agogo*            |
 +--------------------+--------------------+
-| |traditional|      |                    |
+| |traditional|      | |nature|           |
 |                    |                    |
-| *traditional*      |                    |
+| *traditional*      | *nature*           |
 +--------------------+--------------------+
 
 .. |default|     image:: themes/default.png
@@ -75,6 +75,7 @@ Builtin themes
 .. |scrolls|     image:: themes/scrolls.png
 .. |agogo|       image:: themes/agogo.png
 .. |traditional| image:: themes/traditional.png
+.. |nature|      image:: themes/nature.png
 
 Sphinx comes with a selection of themes to choose from.
 
@@ -156,6 +157,9 @@ These themes are:
     headings.
   - **headerlinkcolor** (CSS color): Color for the backreference link in
     headings.
+
+* **nature** -- A greenish theme.  There are currently no options beyond
+  *nosidebar*.
 
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar*.

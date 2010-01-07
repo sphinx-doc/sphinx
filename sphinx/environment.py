@@ -1300,7 +1300,8 @@ class BuildEnvironment:
                     # keywords are oddballs: they are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
-                        #self.warn(node['refdoc'], 'unknown keyword: %s' % target)
+                        #self.warn(node['refdoc'],
+                        #          'unknown keyword: %s' % target)
                         newnode = None
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
