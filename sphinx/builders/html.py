@@ -665,11 +665,12 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename):
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
-    def get_sidebars(self, pagename):
+    def add_sidebars(self, pagename, ctx):
         def has_wildcard(pattern):
             return any(char in pattern for char in '*?[')
         sidebars = None
         matched = None
+        customsidebar = None
         for pattern, patsidebars in self.config.html_sidebars.iteritems():
             if patmatch(pagename, pattern):
                 if matched:
@@ -685,12 +686,14 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = patsidebars
         if sidebars is None:
-            sidebars = self.default_sidebars
+            # keep defaults
+            pass
         elif isinstance(sidebars, basestring):
             # 0.x compatible mode: insert custom sidebar before searchbox
-            sidebars = self.default_sidebars[:-1] + [sidebars] + \
-                       self.default_sidebars[-1:]
-        return sidebars
+            customsidebar = sidebars
+            sidebars = None
+        ctx['sidebars'] = sidebars
+        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 
@@ -713,7 +716,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['encoding'] = encoding = self.config.html_output_encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
-        ctx['sidebars'] = self.get_sidebars(pagename)
+        self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename,
@@ -828,7 +831,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         ctx['current_page_name'] = pagename
-        ctx['sidebars'] = self.get_sidebars(pagename)
+        self.add_sidebars(pagename, ctx)
 
         if not outfilename:
             outfilename = path.join(self.outdir,

@@ -7,7 +7,6 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
-{%- block sidebarsearch %}
 {%- if pagename != "search" %}
 <div id="searchbox" style="display: none">
   <h3>{{ _('Quick search') }}</h3>
@@ -23,4 +22,3 @@
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
 {%- endif %}
-{%- endblock %}

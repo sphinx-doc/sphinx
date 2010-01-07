@@ -139,23 +139,36 @@ The following blocks exist in the ``layout.html`` template:
     The logo location within the sidebar.  Override this if you want to place
     some content at the top of the sidebar.
 
+`footer`
+    The block for the footer div.  If you want a custom footer or markup before
+    or after it, override this one.
+
+The following four blocks are *only* used for pages that do not have assigned a
+list of custom sidebars in the :confval:`html_sidebars` config value.  Their use
+is deprecated in favor of separate sidebar templates, which can be included via
+:confval:`html_sidebars`.
+
 `sidebartoc`
     The table of contents within the sidebar.
 
+    .. deprecated:: 1.0
+
 `sidebarrel`
     The relation links (previous, next document) within the sidebar.
+
+    .. deprecated:: 1.0
 
 `sidebarsourcelink`
     The "Show source" link within the sidebar (normally only shown if this is
     enabled by :confval:`html_show_sourcelink`).
 
+    .. deprecated:: 1.0
+
 `sidebarsearch`
     The search box within the sidebar.  Override this if you want to place some
     content at the bottom of the sidebar.
 
-`footer`
-    The block for the footer div.  If you want a custom footer or markup before
-    or after it, override this one.
+    .. deprecated:: 1.0
 
 
 Configuration Variables
