@@ -117,10 +117,10 @@ def get_matching_files(dirname, exclude_patterns=()):
     for root, dirs, files in walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
 
-        qdirs = enumerate(path.join(relativeroot, dir).replace(os.path.sep, SEP)
-                          for dir in dirs)
-        qfiles = enumerate(path.join(relativeroot, file).replace(os.path.sep, SEP)
-                           for file in files)
+        qdirs = enumerate(path.join(relativeroot, dn).replace(os.path.sep, SEP)
+                          for dn in dirs)
+        qfiles = enumerate(path.join(relativeroot, fn).replace(os.path.sep, SEP)
+                           for fn in files)
         for matcher in matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
             qfiles = [entry for entry in qfiles if not matcher(entry[1])]
