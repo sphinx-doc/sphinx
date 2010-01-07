@@ -1,3 +1,14 @@
+/*
+ * searchtools.js
+ * ~~~~~~~~~~~~~~
+ *
+ * Sphinx JavaScript utilties for the full-text search.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 /**
  * helper function to return a node containing the
  * search summary for a given text. keywords is a list

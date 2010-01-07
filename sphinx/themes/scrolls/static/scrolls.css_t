@@ -1,3 +1,14 @@
+/*
+ * scrolls.css_t
+ * ~~~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- scrolls theme.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 body {
     background-color: #222;
     margin: 0;
