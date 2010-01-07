@@ -419,6 +419,9 @@ that use Sphinx' HTMLWriter class.
    .. versionchanged:: 0.4
       The paths in :confval:`html_static_path` can now contain subdirectories.
 
+   .. versionchanged:: 1.0
+      The entries in :confval:`html_static_path` can now be single files.
+
 .. confval:: html_last_updated_fmt
 
    If this is not the empty string, a 'Last updated on:' timestamp is inserted

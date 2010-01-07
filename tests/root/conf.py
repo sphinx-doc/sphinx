@@ -33,7 +33,7 @@ html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
 
 html_style = 'default.css'
-html_static_path = ['_static']
+html_static_path = ['_static', 'templated.css_t']
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 

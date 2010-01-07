@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* ``html_static_path`` can now contain single file entries.
+
 * The new universal config value ``exclude_patterns`` makes the
   old ``unused_docs``, ``exclude_trees`` and ``exclude_dirnames``
   obsolete.

@@ -432,9 +432,12 @@ def copyfile(source, dest):
         pass
 
 
-def copy_static_entry(source, target, builder, context={}):
+def copy_static_entry(source, targetdir, builder, context={},
+                      exclude=True, level=0):
+    # XXX: exclusion
     if path.isfile(source):
-        if source.lower().endswith('_t'):
+        target = path.join(targetdir, path.basename(source))
+        if source.lower().endswith('_t') and builder.templates:
             # templated!
             fsrc = open(source, 'rb')
             fdst = open(target[:-2], 'wb')
@@ -444,11 +447,17 @@ def copy_static_entry(source, target, builder, context={}):
         else:
             copyfile(source, target)
     elif path.isdir(source):
-        if source in builder.config.exclude_dirnames:
-            return
-        if path.exists(target):
-            shutil.rmtree(target)
-        shutil.copytree(source, target)
+        if level == 0:
+            for entry in os.listdir(source):
+                if entry.startswith('.'):
+                    continue
+                copy_static_entry(path.join(source, entry), targetdir,
+                                  builder, context, level=1)
+        else:
+            target = path.join(targetdir, path.basename(source))
+            if path.exists(target):
+                shutil.rmtree(target)
+            shutil.copytree(source, target)
 
 
 def clean_astext(node):

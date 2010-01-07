@@ -556,26 +556,23 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 copyfile(jsfile, path.join(self.outdir, '_static',
                                            'translations.js'))
-        # then, copy over all user-supplied static files
+        # then, copy over theme-supplied static files
         if self.theme:
-            staticdirnames = [path.join(themepath, 'static')
-                              for themepath in self.theme.get_dirchain()[::-1]]
-        else:
-            staticdirnames = []
-        staticdirnames += [path.join(self.confdir, spath)
-                           for spath in self.config.html_static_path]
-        for staticdirname in staticdirnames:
-            if not path.isdir(staticdirname):
-                self.warn('static directory %r does not exist' % staticdirname)
+            themeentries = [path.join(themepath, 'static')
+                            for themepath in self.theme.get_dirchain()[::-1]]
+            for entry in themeentries:
+                copy_static_entry(entry, path.join(self.outdir, '_static'),
+                                  self, self.globalcontext, exclude=False)
+        # then, copy over all user-supplied static files
+        staticentries = [path.join(self.confdir, spath)
+                         for spath in self.config.html_static_path]
+        for entry in staticentries:
+            if not path.exists(entry):
+                self.warn('html_static_path entry %r does not exist' % entry)
                 continue
-            for filename in os.listdir(staticdirname):
-                if filename.startswith('.'):
-                    continue
-                fullname = path.join(staticdirname, filename)
-                targetname = path.join(self.outdir, '_static', filename)
-                copy_static_entry(fullname, targetname, self,
-                                  self.globalcontext)
-        # last, copy logo file (handled differently)
+            copy_static_entry(entry, path.join(self.outdir, '_static'),
+                              self, self.globalcontext)
+        # last, copy logo file (handled differently XXX why?)
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
             copyfile(path.join(self.confdir, self.config.html_logo),
