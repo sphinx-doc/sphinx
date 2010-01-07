@@ -1,8 +1,13 @@
-/**
- * Sphinx stylesheet -- sphinxdoc theme
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/*
+ * sphinxdoc.css_t
+ * ~~~~~~~~~~~~~~~
  *
- * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
+ * Sphinx stylesheet -- sphinxdoc theme.  Originally created by
+ * Armin Ronacher for Werkzeug.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
  */
 
 @import url("basic.css");

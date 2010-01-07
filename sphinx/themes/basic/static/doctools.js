@@ -1,3 +1,14 @@
+/*
+ * doctools.js
+ * ~~~~~~~~~~~
+ *
+ * Sphinx JavaScript utilties for all documentation.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 /**
  * make the code below compatible with browsers without
  * an installed firebug like debugger

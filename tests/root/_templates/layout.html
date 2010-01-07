@@ -11,5 +11,6 @@
 {% block sidebartoc %}
 {# display global TOC in addition to local TOC #}
 {{ super() }}
+{{ 1/0 }}
 {{ toctree(collapse=False, maxdepth=-1) }}
 {% endblock %}

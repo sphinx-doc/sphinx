@@ -35,7 +35,8 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict, url_re, make_refnode, clean_astext
+     docname_join, FilenameUniqDict, url_re, make_refnode, clean_astext, \
+     compile_matchers
 from sphinx.errors import SphinxError, ExtensionError
 
 
@@ -416,14 +417,15 @@ class BuildEnvironment:
         """
         Find all source files in the source dir and put them in self.found_docs.
         """
-        exclude_dirs  = [d.replace(SEP, path.sep) for d in config.exclude_dirs]
-        exclude_trees = [d.replace(SEP, path.sep) for d in config.exclude_trees]
+        matchers = compile_matchers(
+            config.exclude_patterns[:] +
+            config.exclude_trees +
+            [d + config.source_suffix for d in config.unused_docs] +
+            ['**/' + d for d in config.exclude_dirnames] +
+            ['**/_sources']
+        )
         self.found_docs = set(get_matching_docs(
-            self.srcdir, config.source_suffix,
-            exclude_docs=set(config.unused_docs),
-            exclude_dirs=exclude_dirs,
-            exclude_trees=exclude_trees,
-            exclude_dirnames=['_sources'] + config.exclude_dirnames))
+            self.srcdir, config.source_suffix, exclude_matchers=matchers))
 
     def get_outdated_files(self, config_changed):
         """

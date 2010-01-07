@@ -7,6 +7,19 @@ Release 1.0 (in development)
 
 * Support for docutils 0.4 has been removed.
 
+* The ``html_sidebars`` config value can now contain patterns as
+  keys, and the values can be lists that explicitly select which
+  sidebar templates should be rendered.  That means that the builtin
+  sidebar contents can be included only selectively.
+
+* ``html_static_path`` can now contain single file entries.
+
+* The new universal config value ``exclude_patterns`` makes the
+  old ``unused_docs``, ``exclude_trees`` and ``exclude_dirnames``
+  obsolete.
+
+* Remove the deprecated ``exclude_dirs`` config value.
+
 * #129: Wrap toctrees in a div tag with class ``toctree-wrapper``
   in HTML output.
 
@@ -23,11 +36,13 @@ Release 1.0 (in development)
 * #284: All docinfo metadata is now put into the document metadata, not
   just the author.
 
+* Added new HTML theme ``haiku``, inspired by the Haiku OS user guide.
+
 * Added new HTML theme ``nature``.
 
 * Added new HTML theme ``agogo``, created by Andi Albrecht.
 
-* Added new HTML theme called scrolls, created by Armin Ronacher.
+* Added new HTML theme ``scrolls``, created by Armin Ronacher.
 
 * The ``toctree()`` callable in templates now has a ``maxdepth``
   keyword argument to control the depth of the generated tree.

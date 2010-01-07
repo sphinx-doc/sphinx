@@ -11,7 +11,6 @@
 
 import os
 import re
-import sys
 import difflib
 import htmlentitydefs
 from StringIO import StringIO
@@ -21,8 +20,7 @@ try:
 except ImportError:
     pygments = None
 
-from sphinx.builders.html import StandaloneHTMLBuilder
-
+from sphinx import __version__
 from util import *
 from test_build import ENV_WARNINGS
 from etree13 import ElementTree as ET
@@ -149,6 +147,8 @@ HTML_XPATH = {
             'Testing object descriptions',
         ".//li[@class='toctree-l1']/a[@href='markup.html']":
             'Testing various markup',
+        # custom sidebar
+        ".//h4": 'Custom sidebar',
     },
     'contents.html': {
         ".//meta[@name='hc'][@content='hcval']": '',
@@ -164,6 +164,8 @@ HTML_XPATH = {
         ".//li/a[@href='genindex.html']/em": 'Index',
         ".//li/a[@href='modindex.html']/em": 'Module Index',
         ".//li/a[@href='search.html']/em": 'Search Page',
+        # custom sidebar only for contents
+        ".//h4": 'Contents sidebar',
     },
     'bom.html': {
         ".//title": " File with UTF-8 BOM",
@@ -233,6 +235,19 @@ def check_xpath(etree, fname, path, check):
                            'path %s in %s: %r' % (check, path, fname,
                            [node.text for node in nodes]))
 
+def check_static_entries(outdir):
+    staticdir = outdir / '_static'
+    assert staticdir.isdir()
+    # a file from a directory entry in html_static_path
+    assert (staticdir / 'README').isfile()
+    # a directory from a directory entry in html_static_path
+    assert (staticdir / 'subdir' / 'foo.css').isfile()
+    # a file from a file entry in html_static_path
+    assert (staticdir / 'templated.css').isfile()
+    assert (staticdir / 'templated.css').text().splitlines()[1] == __version__
+    # a file from _static, but matches exclude_patterns
+    assert not (staticdir / 'excluded.css').exists()
+
 @gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
@@ -250,3 +265,5 @@ def test_html(app):
         etree = ET.parse(os.path.join(app.outdir, fname), parser)
         for path, check in paths.iteritems():
             yield check_xpath, etree, fname, path, check
+
+    check_static_entries(app.builder.outdir)

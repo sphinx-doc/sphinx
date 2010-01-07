@@ -30,8 +30,8 @@ def test_core_config(app):
     assert cfg.latex_elements['docclass'] == 'scrartcl'
 
     # simple default values
-    assert 'exclude_dirs' not in cfg.__dict__
-    assert cfg.exclude_dirs == []
+    assert 'locale_dirs' not in cfg.__dict__
+    assert cfg.locale_dirs == []
     assert cfg.trim_footnote_reference_space == False
 
     # complex default values

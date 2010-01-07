@@ -1,3 +1,14 @@
+/*
+ * agogo.css_t
+ * ~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- agogo theme.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 * {
   margin: 0px;
   padding: 0px;

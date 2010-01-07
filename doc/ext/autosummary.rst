@@ -163,6 +163,8 @@ Autosummary uses the following template files:
 
 The following variables available in the templates:
 
+.. currentmodule:: None
+
 .. data:: name
 
    Name of the documented object, excluding the module and class parts.

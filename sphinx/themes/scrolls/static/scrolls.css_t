@@ -1,3 +1,14 @@
+/*
+ * scrolls.css_t
+ * ~~~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- scrolls theme.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 body {
     background-color: #222;
     margin: 0;
@@ -84,13 +95,6 @@ h1.heading a:focus {
 
 h1.heading span {
     display: none;
-}
-
-#jinjalogo {
-    background-image: url(jinjalogo.png);
-    background-repeat: no-repeat;
-    width: 400px;
-    height: 160px;
 }
 
 #contentwrapper {
@@ -259,7 +263,7 @@ table.indextable {
     width: 100%;
 }
 
-table.indextable td {
+table.genindextable td {
     vertical-align: top;
     width: 50%;
 }

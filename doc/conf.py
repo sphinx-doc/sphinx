@@ -18,6 +18,8 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'contents'
 
+exclude_patterns = ['_build']
+
 # General substitutions.
 project = 'Sphinx'
 copyright = '2007-2010, Georg Brandl'
@@ -50,7 +52,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
-html_sidebars = {'index': 'indexsidebar.html'}
+html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 
 # Additional templates that should be rendered to pages, maps page names to
 # templates.

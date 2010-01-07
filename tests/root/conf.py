@@ -22,7 +22,7 @@ version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
 #unused_docs = []
-exclude_trees = ['_build']
+exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
@@ -32,9 +32,10 @@ rst_epilog = '.. |subst| replace:: global substitution'
 html_theme = 'testtheme'
 html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
-
+html_sidebars = {'**': 'customsb.html',
+                 'contents': ['contentssb.html', 'localtoc.html'] }
 html_style = 'default.css'
-html_static_path = ['_static']
+html_static_path = ['_static', 'templated.css_t']
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
