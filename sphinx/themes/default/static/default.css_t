@@ -250,3 +250,11 @@ tt {
 th {
     background-color: #ede;
 }
+
+.warning tt {
+    background: #efc2c2;
+}
+
+.note tt {
+    background: #d6d6d6;
+}

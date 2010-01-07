@@ -443,6 +443,10 @@ class StandaloneHTMLBuilder(Builder):
                 else:
                     stripped = ''
 
+                # we stripped the whole module name
+                if not mn:
+                    continue
+
                 if fl != mn[0].lower() and mn[0] != '_':
                     # heading
                     letter = mn[0].upper()

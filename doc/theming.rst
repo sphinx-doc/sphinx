@@ -128,7 +128,7 @@ These themes are:
   on the right side.  There are currently no options beyond *nosidebar*.
 
 * **scrolls** -- A more lightweight theme, based on `the Jinja documentation
-  <http://jinja.pocoo.org/documentation/2>`_.  The following color options are
+  <http://jinja.pocoo.org/2/documentation/>`_.  The following color options are
   available:
 
   - **headerbordercolor**

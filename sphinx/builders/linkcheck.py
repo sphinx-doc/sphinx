@@ -70,6 +70,8 @@ class CheckExternalLinksBuilder(Builder):
             lineno = node.line
 
         if uri[0:5] == 'http:' or uri[0:6] == 'https:':
+            if lineno:
+                self.info('(line %3d) ' % lineno, nonl=1)
             self.info(uri, nonl=1)
 
             if uri in self.broken:

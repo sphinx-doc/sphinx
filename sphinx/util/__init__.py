@@ -445,6 +445,13 @@ def copy_static_entry(source, target, builder, context={}):
         shutil.copytree(source, target)
 
 
+def clean_astext(node):
+    """Like node.astext(), but ignore images."""
+    node = node.deepcopy()
+    for img in node.traverse(docutils.nodes.image):
+        img['alt'] = ''
+    return node.astext()
+
 
 def split_explicit_title(text):
     """Split role content into title and target, if given."""

@@ -30,7 +30,7 @@ def checker(*suffixes, **kwds):
 
 
 name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-200\d)? '
+copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
                           r'by %s(, %s)*[,.]$' %
                           (name_mail_re, name_mail_re))
 license_re = re.compile(r"    :license: (.*?).\n")
