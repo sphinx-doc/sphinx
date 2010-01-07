@@ -178,7 +178,7 @@ def check_static_entries(outdir):
     assert (staticdir / 'templated.css').isfile()
     assert (staticdir / 'templated.css').text().splitlines()[1] == __version__
     # a file from _static, but matches exclude_patterns
-    ##assert not (staticdir / 'excluded.css').exists()
+    assert not (staticdir / 'excluded.css').exists()
 
 @gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
               confoverrides={'html_context.hckey_co': 'hcval_co'},

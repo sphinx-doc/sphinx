@@ -29,7 +29,7 @@ from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
 from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
-    movefile, ustrftime, copy_static_entry, copyfile
+    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -562,16 +562,20 @@ class StandaloneHTMLBuilder(Builder):
                             for themepath in self.theme.get_dirchain()[::-1]]
             for entry in themeentries:
                 copy_static_entry(entry, path.join(self.outdir, '_static'),
-                                  self, self.globalcontext, exclude=False)
+                                  self, self.globalcontext)
         # then, copy over all user-supplied static files
         staticentries = [path.join(self.confdir, spath)
                          for spath in self.config.html_static_path]
+        matchers = compile_matchers(
+            self.config.exclude_patterns +
+            ['**/' + d for d in self.config.exclude_dirnames]
+        )
         for entry in staticentries:
             if not path.exists(entry):
                 self.warn('html_static_path entry %r does not exist' % entry)
                 continue
-            copy_static_entry(entry, path.join(self.outdir, '_static'),
-                              self, self.globalcontext)
+            copy_static_entry(entry, path.join(self.outdir, '_static'), self,
+                              self.globalcontext, exclude_matchers=matchers)
         # last, copy logo file (handled differently XXX why?)
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)

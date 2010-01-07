@@ -24,6 +24,8 @@ import traceback
 from os import path
 
 import docutils
+from docutils.utils import relative_path
+
 import sphinx
 
 # Errnos that we need.
@@ -101,18 +103,15 @@ def walk(top, topdown=True, followlinks=False):
         yield top, dirs, nondirs
 
 
-def get_matching_files(dirname, exclude_patterns=()):
+def get_matching_files(dirname, exclude_matchers=()):
     """
     Get all file names in a directory, recursively.
 
-    Exclude files and dirs matching a pattern in *exclude_patterns*.
+    Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
     dirlen = len(dirname) + 1    # exclude final os.path.sep
-
-    matchers = [re.compile(_translate_pattern(pat)).match
-                for pat in exclude_patterns]
 
     for root, dirs, files in walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
@@ -121,7 +120,7 @@ def get_matching_files(dirname, exclude_patterns=()):
                           for dn in dirs)
         qfiles = enumerate(path.join(relativeroot, fn).replace(os.path.sep, SEP)
                            for fn in files)
-        for matcher in matchers:
+        for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
             qfiles = [entry for entry in qfiles if not matcher(entry[1])]
 
@@ -131,7 +130,7 @@ def get_matching_files(dirname, exclude_patterns=()):
             yield filename
 
 
-def get_matching_docs(dirname, suffix, exclude_patterns=()):
+def get_matching_docs(dirname, suffix, exclude_matchers=()):
     """
     Get all file names (without suffix) matching a suffix in a
     directory, recursively.
@@ -139,7 +138,7 @@ def get_matching_docs(dirname, suffix, exclude_patterns=()):
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
     suffixpattern = '*' + suffix
-    for filename in get_matching_files(dirname, exclude_patterns):
+    for filename in get_matching_files(dirname, exclude_matchers):
         if not fnmatch.fnmatch(filename, suffixpattern):
             continue
         yield filename[:-len(suffix)]
@@ -279,6 +278,9 @@ def _translate_pattern(pat):
         else:
             res += re.escape(c)
     return res + '$'
+
+def compile_matchers(patterns):
+    return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
 _pat_cache = {}
@@ -433,8 +435,12 @@ def copyfile(source, dest):
 
 
 def copy_static_entry(source, targetdir, builder, context={},
-                      exclude=True, level=0):
-    # XXX: exclusion
+                      exclude_matchers=(), level=0):
+    if exclude_matchers:
+        relpath = relative_path(builder.srcdir, source)
+        for matcher in exclude_matchers:
+            if matcher(relpath):
+                return
     if path.isfile(source):
         target = path.join(targetdir, path.basename(source))
         if source.lower().endswith('_t') and builder.templates:
@@ -452,7 +458,8 @@ def copy_static_entry(source, targetdir, builder, context={},
                 if entry.startswith('.'):
                     continue
                 copy_static_entry(path.join(source, entry), targetdir,
-                                  builder, context, level=1)
+                                  builder, context, level=1,
+                                  exclude_matchers=exclude_matchers)
         else:
             target = path.join(targetdir, path.basename(source))
             if path.exists(target):
