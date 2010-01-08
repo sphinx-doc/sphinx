@@ -96,7 +96,9 @@ Documentation using the sphinxdoc theme
 Documentation using another builtin theme
 -----------------------------------------
 
+* Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/2/documentation/ (scrolls)
+* pip: http://pip.openplans.org/ (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html (agogo)
 
 
