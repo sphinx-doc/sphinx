@@ -48,8 +48,8 @@
           {%- endblock %}
           {%- if sidebars %}
             {#- new style sidebar: explicitly include/exclude templates #}
-            {%- for sidebar in sidebars %}
-            {%- include sidebar %}
+            {%- for sidebartemplate in sidebars %}
+            {%- include sidebartemplate %}
             {%- endfor %}
           {%- else %}
             {#- old style sidebars: using blocks -- should be deprecated #}
