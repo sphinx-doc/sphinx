@@ -7,6 +7,8 @@ Release 1.0 (in development)
 
 * Support for docutils 0.4 has been removed.
 
+* Added ``tab-width`` option to ``literalinclude`` directive.
+
 * The ``html_sidebars`` config value can now contain patterns as
   keys, and the values can be lists that explicitly select which
   sidebar templates should be rendered.  That means that the builtin

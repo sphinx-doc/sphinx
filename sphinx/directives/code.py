@@ -80,6 +80,7 @@ class LiteralInclude(Directive):
     final_argument_whitespace = False
     option_spec = {
         'linenos': directives.flag,
+        'tab-width': int,
         'language': directives.unchanged_required,
         'encoding': directives.encoding,
         'pyobject': directives.unchanged_required,
@@ -173,6 +174,8 @@ class LiteralInclude(Directive):
            lines.append(append + '\n')
 
         text = ''.join(lines)
+        if self.options.get('tab-width'):
+            text = text.expandtabs(self.options['tab-width'])
         retnode = nodes.literal_block(text, text, source=fn)
         retnode.line = 1
         if self.options.get('language', ''):

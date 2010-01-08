@@ -1,102 +1,136 @@
 Projects using Sphinx
 =====================
 
-This is an (incomplete) alphabetic list of projects that use Sphinx or are
-experimenting with using it for their documentation.  If you like to be
-included, please mail to `the Google group
+This is an (incomplete) alphabetic list of projects that use Sphinx or
+are experimenting with using it for their documentation.  If you like to
+be included, please mail to `the Google group
 <http://groups.google.com/group/sphinx-dev>`_.
 
-* Advanced Generic Widgets: http://xoomer.virgilio.it/infinity77/AGW_Docs/index.html
-* Applied Mathematics at the Stellenbosch University: http://dip.sun.ac.za/
+I've grouped the list into sections to make it easier to find
+interesting examples.
+
+Documentation using the default theme
+-------------------------------------
+
 * APSW: http://apsw.googlecode.com/svn/publish/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
-* Bazaar: http://doc.bazaar.canonical.com/en/
 * Blender: http://www.blender.org/documentation/250PythonDoc/
 * boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
-* Chaco: http://code.enthought.com/projects/chaco/docs/html/
 * CodePy: http://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * C\\C++ Python language binding project: http://language-binding.net/index.html
 * Director: http://packages.python.org/director/
-* Djagios: http://djagios.org/
-* Django: http://docs.djangoproject.com/
 * F2py: http://www.f2py.org/html/
-* Fityk: http://www.unipress.waw.pl/fityk/
 * GeoDjango: http://geodjango.org/docs/
-* GeoServer: http://docs.geoserver.org/
-* Glashammer: http://glashammer.org/
-* GPAW: https://wiki.fysik.dtu.dk/gpaw/
-* Grok: http://grok.zope.org/doc/current/
 * GSL Shell: http://www.nongnu.org/gsl-shell/
 * Hedge: http://documen.tician.de/hedge/
-* IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
-* Jinja: http://jinja.pocoo.org/2/documentation/
 * Kaa: http://doc.freevo.org/api/kaa/
-* LEPL: http://www.acooke.org/lepl/
-* MapServer: http://mapserver.org/
-* Matplotlib: http://matplotlib.sourceforge.net/
-* Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
 * MeshPy: http://documen.tician.de/meshpy/
-* MirrorBrain: http://mirrorbrain.org/docs/
-* Mixin.com: http://dev.mixin.com/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
-* MyHDL: http://www.myhdl.org/doc/0.6/
-* NetworkX: http://networkx.lanl.gov/
-* NOC: http://trac.nocproject.org/trac/wiki/NocGuide
-* nose: http://somethingaboutorange.com/mrl/projects/nose/
-* NumPy: http://docs.scipy.org/doc/numpy/reference/
-* ObjectListView: http://objectlistview.sourceforge.net/python
-* Open ERP: http://doc.openerp.com/
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenGDA: http://www.opengda.org/gdadoc/html/
-* OpenLayers: http://docs.openlayers.org/
 * openWNS: http://docs.openwns.org/
 * Paste: http://pythonpaste.org/script/
 * Paver: http://www.blueskyonmars.com/projects/paver/
-* Peach^3: http://peach3.nl/doc/latest/userdoc/
-* Py on Windows: http://timgolden.me.uk/python-on-windows/
 * Pyccuracy: http://www.pyccuracy.org/
 * PyCuda: http://documen.tician.de/pycuda/
-* PyEphem: http://rhodesmill.org/pyephem/
 * Pyevolve: http://pyevolve.sourceforge.net/
-* PyLit: http://pylit.berlios.de/
 * Pylo: http://documen.tician.de/pylo/
-* Pylons: http://docs.pylonshq.com/
-* PyMOTW: http://www.doughellmann.com/PyMOTW/
 * PyPubSub: http://pubsub.sourceforge.net/
 * pyrticle: http://documen.tician.de/pyrticle/
-* Pysparse: http://pysparse.sourceforge.net/
-* PyTango: http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
 * Python: http://docs.python.org/
-* python-apt: http://people.debian.org/~jak/python-apt-doc/
+* python-apt: http://apt.alioth.debian.org/python-apt-doc/
 * PyUblas: http://documen.tician.de/pyublas/
-* Quex: http://quex.sourceforge.net/
-* Reteisi: http://docs.argolinux.org/reteisi/
-* Roundup: http://www.roundup-tracker.org/
-* Sage: http://sagemath.org/doc/
-* Satchmo: http://www.satchmoproject.com/docs/svn/
+* Quex: http://quex.sourceforge.net/doc/html/main.html
 * Scapy: http://www.secdev.org/projects/scapy/doc/
-* SciPy: http://docs.scipy.org/doc/scipy/reference/
-* Selenium: http://seleniumhq.org/docs/
-* Self: http://selflanguage.org/
-* SimPy: http://simpy.sourceforge.net/
-* Sphinx: http://sphinx.pocoo.org/
-* Sprox: http://sprox.org/
-* SQLAlchemy: http://www.sqlalchemy.org/docs/
-* Sqlkit: http://sqlkit.argolinux.org/
-* sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
+* SimPy: http://simpy.sourceforge.net/SimPyDocs/index.html
 * SymPy: http://docs.sympy.org/
-* tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
-* The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
-* Total Open Station: http://tops.berlios.de/
-* TurboGears: http://turbogears.org/2.0/docs/
-* VOR: http://www.vor-cycling.be/
-* WebFaction: http://docs.webfaction.com/
-* Werkzeug: http://werkzeug.pocoo.org/documentation/dev/
-* WFront: http://discorporate.us/projects/WFront/
 * WTForms: http://wtforms.simplecodes.com/docs/
-* Zope 3: e.g. http://docs.carduner.net/z3c-tutorial/
+* z3c: http://docs.carduner.net/z3c-tutorial/
+
+
+Documentation using a customized version of the default theme
+-------------------------------------------------------------
+
+* Advanced Generic Widgets: http://xoomer.virgilio.it/infinity77/AGW_Docs/index.html
+* Bazaar: http://doc.bazaar.canonical.com/en/
+* Chaco: http://code.enthought.com/projects/chaco/docs/html/
+* Djagios: http://djagios.org/
+* GPAW: https://wiki.fysik.dtu.dk/gpaw/
+* Grok: http://grok.zope.org/doc/current/
+* IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
+* LEPL: http://www.acooke.org/lepl/
+* Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
+* NOC: http://trac.nocproject.org/trac/wiki/NocGuide
+* NumPy: http://docs.scipy.org/doc/numpy/reference/
+* Peach^3: http://peach3.nl/doc/latest/userdoc/
+* Py on Windows: http://timgolden.me.uk/python-on-windows/
+* PyLit: http://pylit.berlios.de/
+* Sage: http://sagemath.org/doc/
+* SciPy: http://docs.scipy.org/doc/scipy/reference/
+* Sprox: http://sprox.org/
+* TurboGears: http://turbogears.org/2.0/docs/
+* Zope: http://docs.zope.org/zope2/index.html
 * zc.async: http://packages.python.org/zc.async/1.5.0/
 
-.. XXX maybe regroup by interesting features used?
+
+Documentation using the sphinxdoc theme
+---------------------------------------
+
+* Fityk: http://www.unipress.waw.pl/fityk/
+* MapServer: http://mapserver.org/
+* Matplotlib: http://matplotlib.sourceforge.net/
+* MyHDL: http://www.myhdl.org/doc/0.6/
+* NetworkX: http://networkx.lanl.gov/
+* Pysparse: http://pysparse.sourceforge.net/
+* PyTango: http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
+* Reteisi: http://docs.argolinux.org/reteisi/
+* Satchmo: http://www.satchmoproject.com/docs/svn/
+* Sphinx: http://sphinx.pocoo.org/
+* Sqlkit: http://sqlkit.argolinux.org/
+* Total Open Station: http://tops.berlios.de/
+* WebFaction: http://docs.webfaction.com/
+
+
+Documentation using another builtin theme
+-----------------------------------------
+
+* Distribute: http://packages.python.org/distribute/ (nature)
+* Jinja: http://jinja.pocoo.org/2/documentation/ (scrolls)
+* pip: http://pip.openplans.org/ (nature)
+* sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html (agogo)
+
+
+Documentation using a custom theme/integrated in a site
+-------------------------------------------------------
+
+* Django: http://docs.djangoproject.com/
+* GeoServer: http://docs.geoserver.org/
+* Glashammer: http://glashammer.org/
+* MirrorBrain: http://mirrorbrain.org/docs/
+* nose: http://somethingaboutorange.com/mrl/projects/nose/
+* ObjectListView: http://objectlistview.sourceforge.net/python
+* Open ERP: http://doc.openerp.com/
+* OpenLayers: http://docs.openlayers.org/
+* PyEphem: http://rhodesmill.org/pyephem/
+* Pylons: http://pylonshq.com/docs/en/0.9.7/
+* PyMOTW: http://www.doughellmann.com/PyMOTW/
+* Roundup: http://www.roundup-tracker.org/
+* Selenium: http://seleniumhq.org/docs/
+* Self: http://selflanguage.org/
+* SQLAlchemy: http://www.sqlalchemy.org/docs/
+* tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
+* Werkzeug: http://werkzeug.pocoo.org/documentation/dev/
+* WFront: http://discorporate.us/projects/WFront/
+
+
+Homepages and other non-documentation sites
+-------------------------------------------
+
+* Applied Mathematics at the Stellenbosch University: http://dip.sun.ac.za/
+* A personal page: http://www.dehlia.in/
+* Benoit Boissinot: http://perso.ens-lyon.fr/benoit.boissinot/
+* lunarsite: http://lunaryorn.de/
+* The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
+* VOR: http://www.vor-cycling.be/

@@ -26,6 +26,8 @@ import docutils
 from docutils import nodes
 from docutils.utils import relative_path
 
+import jinja2
+
 import sphinx
 
 # Errnos that we need.
@@ -228,6 +230,7 @@ def save_traceback():
     os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
     os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
                                                   docutils.__version_details__))
+    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
     os.write(fd, exc)
     os.close(fd)
     return path
