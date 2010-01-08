@@ -45,6 +45,7 @@ orig_directive_function = directives.directive
 
 class ElementLookupError(Exception): pass
 
+# XXX why isn't this a method of env?
 def lookup_domain_element(env, type, name):
     """Lookup a markup element (directive or role), given its name which can
     be a full name (with domain).
@@ -338,6 +339,7 @@ class BuildEnvironment:
         self.dlfiles = FilenameUniqDict()
 
         # temporary data storage while reading a document
+        # XXX find a better name
         self.doc_read_data = {}
 
         # Some magically present labels

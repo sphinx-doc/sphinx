@@ -94,6 +94,8 @@ class ObjectDescription(Directive):
         'rtype': l_('Return type'),
     }
 
+    # XXX refactor this
+
     def handle_doc_fields(self, node):
         """
         Convert field lists with known keys inside the description content into

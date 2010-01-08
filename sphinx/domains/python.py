@@ -327,6 +327,7 @@ class PyModule(Directive):
         targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
         self.state.document.note_explicit_target(targetnode)
         ret = [modulenode, targetnode]
+        # XXX this behavior of the module directive is a mess...
         if 'platform' in self.options:
             platform = self.options['platform']
             modulenode['platform'] = platform

@@ -172,7 +172,7 @@ from sphinx.domains.c import CDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.domains.python import PythonDomain
 
-# this contains all registered domains
+# this contains all registered domains (XXX global state)
 all_domains = {
     'std': StandardDomain,
     'py': PythonDomain,

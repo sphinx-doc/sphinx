@@ -150,8 +150,8 @@ class IndexBuilder(object):
 
     def get_objects(self, fn2index):
         rv = {}
-        ot = self._objtypes
-        on = self._objnames
+        otypes = self._objtypes
+        onames = self._objnames
         for domainname, domain in self.env.domains.iteritems():
             for fullname, type, docname, anchor, prio in domain.get_objects():
                 if docname not in fn2index:
@@ -162,15 +162,15 @@ class IndexBuilder(object):
                 prefix, name = rpartition(fullname, '.')
                 pdict = rv.setdefault(prefix, {})
                 try:
-                    i = ot[domainname, type]
+                    i = otypes[domainname, type]
                 except KeyError:
-                    i = len(ot)
-                    ot[domainname, type] = i
+                    i = len(otypes)
+                    otypes[domainname, type] = i
                     otype = domain.object_types.get(type)
                     if otype:
-                        on[i] = str(otype.lname)  # fire translation proxies
+                        onames[i] = str(otype.lname)  # fire translation proxies
                     else:
-                        on[i] = type
+                        onames[i] = type
                 pdict[name] = (fn2index[docname], i, prio)
         return rv
 
