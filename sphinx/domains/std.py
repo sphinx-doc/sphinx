@@ -369,8 +369,8 @@ class StandardDomain(Domain):
             docname, labelid = self.data['objects'].get((typ, target), ('', ''))
             if not docname:
                 if typ == 'term':
-                    env.warn(node['refdoc'], 'term not in glossary: %s' % target,
-                             node.line)
+                    env.warn(node['refdoc'],
+                             'term not in glossary: %s' % target, node.line)
                 return None
             else:
                 return make_refnode(builder, fromdocname, docname,
