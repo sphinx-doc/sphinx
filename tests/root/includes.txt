@@ -49,6 +49,16 @@ Literalinclude options
    :prepend: START CODE
    :append: END CODE
 
+.. cssclass:: inc-tab3
+.. literalinclude:: tabs.inc
+   :tab-width: 3
+   :language: text
+
+.. cssclass:: inc-tab8
+.. literalinclude:: tabs.inc
+   :tab-width: 8
+   :language: python
+
 Test if dedenting before parsing works.
 
 .. highlight:: python

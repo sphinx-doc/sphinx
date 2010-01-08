@@ -119,18 +119,22 @@ HTML_XPATH = {
 if pygments:
     HTML_XPATH['includes.html'].update({
         ".//pre/span[@class='s']": u'üöä',
-        ".//div[@class='inc-pyobj1 highlight-text']/div/pre":
+        ".//div[@class='inc-pyobj1 highlight-text']//pre":
             r'^class Foo:\n    pass\n\s*$',
-        ".//div[@class='inc-pyobj2 highlight-text']/div/pre":
+        ".//div[@class='inc-pyobj2 highlight-text']//pre":
             r'^    def baz\(\):\n        pass\n\s*$',
-        ".//div[@class='inc-lines highlight-text']/div/pre":
+        ".//div[@class='inc-lines highlight-text']//pre":
             r'^class Foo:\n    pass\nclass Bar:\n$',
-        ".//div[@class='inc-startend highlight-text']/div/pre":
+        ".//div[@class='inc-startend highlight-text']//pre":
             ur'^foo = u"Including Unicode characters: üöä"\n$',
-        ".//div[@class='inc-preappend highlight-text']/div/pre":
+        ".//div[@class='inc-preappend highlight-text']//pre":
             r'(?m)^START CODE$',
-        ".//div[@class='inc-pyobj-dedent highlight-python']/div/pre/span":
+        ".//div[@class='inc-pyobj-dedent highlight-python']//span":
             r'def',
+        ".//div[@class='inc-tab3 highlight-text']//pre":
+            r'-| |-',
+        ".//div[@class='inc-tab8 highlight-python']//pre":
+            r'-|      |-',
     })
     HTML_XPATH['subdir/includes.html'].update({
         ".//pre/span": 'line 1',

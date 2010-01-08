@@ -103,6 +103,9 @@ Includes
    is absolute (starting with ``/``), it is relative to the top source
    directory.
 
+   Tabs in the input are expanded if you give a ``tab-width`` option with the
+   desired tab width.
+
    The directive also supports the ``linenos`` flag option to switch on line
    numbers, and a ``language`` option to select a language different from the
    current file's standard language.  Example with options::
@@ -153,7 +156,7 @@ Includes
       The ``pyobject``, ``lines``, ``start-after`` and ``end-before`` options,
       as well as support for absolute filenames.
    .. versionadded:: 1.0
-      The ``prepend`` and ``append`` options.
+      The ``prepend`` and ``append`` options, as well as ``tab-width``.
 
 
 .. rubric:: Footnotes
