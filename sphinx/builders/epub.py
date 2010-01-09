@@ -156,20 +156,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         name = name.replace('\'', '&apos;')
         return name
 
-    def collapse_text(self, doctree, result):
-       """Remove all HTML markup and return only the text nodes."""
-       for c in doctree.children:
-            if isinstance(c, nodes.Text):
-                try:
-                    # docutils 0.4 and 0.5: Text is a UserString subclass
-                    result.append(c.data)
-                except AttributeError:
-                    # docutils 0.6: Text is a unicode subclass
-                    result.append(c)
-            else:
-                result = self.collapse_text(c, result)
-       return result
-
     def get_refnodes(self, doctree, result):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
@@ -183,7 +169,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             result.append({
                 'level': level,
                 'refuri': self.esc(doctree['refuri']),
-                'text': self.esc(''.join(self.collapse_text(doctree, [])))
+                'text': self.esc(doctree.astext())
             })
         else:
             for elem in doctree.children:
@@ -200,9 +186,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
-            'text': self.esc(''.join(self.collapse_text(
-                self.env.titles[self.config.master_doc], []
-            ))),
+            'text': self.esc(self.env.titles[self.config.master_doc].astext())
         })
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
