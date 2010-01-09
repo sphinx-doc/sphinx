@@ -321,7 +321,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Insert nested navpoints for given node.
         The node and subnav are already rendered to text.
         """
-        nlist = node.split('\n')
+        nlist = node.rsplit('\n', 1)
         nlist.insert(-1, subnav)
         return '\n'.join(nlist)
 
