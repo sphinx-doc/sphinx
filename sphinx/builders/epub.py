@@ -159,7 +159,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def get_refnodes(self, doctree, result):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
-        # toctree-l[1-6] on the parent node?
+        # toctree-l[1-8] on the parent node?
         if isinstance(doctree, nodes.reference):
             classes = doctree.parent.attributes['classes']
             level = 1
