@@ -1,0 +1,2 @@
+Excluded file -- should *not* be read as source
+-----------------------------------------------

@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,14 +22,14 @@ except ImportError:
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
-from docutils.core import Publisher, publish_parts
+from docutils.core import Publisher
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
-from sphinx.util import SEP, os_path, relative_uri, ensuredir, \
-    movefile, ustrftime, copy_static_entry, copyfile
+from sphinx.util import SEP, os_path, relative_uri, ensuredir, patmatch, \
+    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers, any
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -74,6 +74,9 @@ class StandaloneHTMLBuilder(Builder):
     # Dito for this one.
     css_files = []
 
+    default_sidebars = ['localtoc.html', 'relations.html',
+                        'sourcelink.html', 'searchbox.html']
+
     # cached publisher object for snippets
     _publisher = None
 
@@ -101,9 +104,14 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 self.script_files.append('_static/translations.js')
 
+    def get_theme_config(self):
+        return self.config.html_theme, self.config.html_theme_options
+
     def init_templates(self):
         Theme.init_themes(self)
-        self.theme = Theme(self.config.html_theme)
+        themename, themeoptions = self.get_theme_config()
+        self.theme = Theme(themename)
+        self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)
 
@@ -167,8 +175,7 @@ class StandaloneHTMLBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
+            targetname = self.get_outfilename(docname)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
@@ -279,8 +286,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
-                self.theme.get_options(
-                self.config.html_theme_options).iteritems())
+                self.theme.get_options(self.theme_options).iteritems())
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
@@ -435,6 +441,10 @@ class StandaloneHTMLBuilder(Builder):
                 else:
                     stripped = ''
 
+                # we stripped the whole module name
+                if not mn:
+                    continue
+
                 if fl != mn[0].lower() and mn[0] != '_':
                     # heading
                     letter = mn[0].upper()
@@ -549,30 +559,39 @@ class StandaloneHTMLBuilder(Builder):
             if path.isfile(jsfile):
                 copyfile(jsfile, path.join(self.outdir, '_static',
                                            'translations.js'))
-        # then, copy over all user-supplied static files
+        # then, copy over theme-supplied static files
         if self.theme:
-            staticdirnames = [path.join(themepath, 'static')
-                              for themepath in self.theme.get_dirchain()[::-1]]
-        else:
-            staticdirnames = []
-        staticdirnames += [path.join(self.confdir, spath)
-                           for spath in self.config.html_static_path]
-        for staticdirname in staticdirnames:
-            if not path.isdir(staticdirname):
-                self.warn('static directory %r does not exist' % staticdirname)
+            themeentries = [path.join(themepath, 'static')
+                            for themepath in self.theme.get_dirchain()[::-1]]
+            for entry in themeentries:
+                copy_static_entry(entry, path.join(self.outdir, '_static'),
+                                  self, self.globalcontext)
+        # then, copy over all user-supplied static files
+        staticentries = [path.join(self.confdir, spath)
+                         for spath in self.config.html_static_path]
+        matchers = compile_matchers(
+            self.config.exclude_patterns +
+            ['**/' + d for d in self.config.exclude_dirnames]
+        )
+        for entry in staticentries:
+            if not path.exists(entry):
+                self.warn('html_static_path entry %r does not exist' % entry)
                 continue
-            for filename in os.listdir(staticdirname):
-                if filename.startswith('.'):
-                    continue
-                fullname = path.join(staticdirname, filename)
-                targetname = path.join(self.outdir, '_static', filename)
-                copy_static_entry(fullname, targetname, self,
-                                  self.globalcontext)
-        # last, copy logo file (handled differently)
+            copy_static_entry(entry, path.join(self.outdir, '_static'), self,
+                              self.globalcontext, exclude_matchers=matchers)
+        # copy logo and favicon files if not already in static path
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
-            copyfile(path.join(self.confdir, self.config.html_logo),
-                     path.join(self.outdir, '_static', logobase))
+            logotarget = path.join(self.outdir, '_static', logobase)
+            if not path.isfile(logotarget):
+                copyfile(path.join(self.confdir, self.config.html_logo),
+                         logotarget)
+        if self.config.html_favicon:
+            iconbase = path.basename(self.config.html_favicon)
+            icontarget = path.join(self.outdir, '_static', iconbase)
+            if not path.isfile(icontarget):
+                copyfile(path.join(self.confdir, self.config.html_favicon),
+                         icontarget)
 
         # write build info file
         fp = open(path.join(self.outdir, '.buildinfo'), 'w')
@@ -646,6 +665,36 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename):
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
+    def add_sidebars(self, pagename, ctx):
+        def has_wildcard(pattern):
+            return any(char in pattern for char in '*?[')
+        sidebars = None
+        matched = None
+        customsidebar = None
+        for pattern, patsidebars in self.config.html_sidebars.iteritems():
+            if patmatch(pagename, pattern):
+                if matched:
+                    if has_wildcard(pattern):
+                        # warn if both patterns contain wildcards
+                        if has_wildcard(matched):
+                            self.warn('page %s matches two patterns in '
+                                      'html_sidebars: %r and %r' %
+                                      (pagename, matched, pattern))
+                        # else the already matched pattern is more specific
+                        # than the present one, because it contains no wildcard
+                        continue
+                matched = pattern
+                sidebars = patsidebars
+        if sidebars is None:
+            # keep defaults
+            pass
+        elif isinstance(sidebars, basestring):
+            # 0.x compatible mode: insert custom sidebar before searchbox
+            customsidebar = sidebars
+            sidebars = None
+        ctx['sidebars'] = sidebars
+        ctx['customsidebar'] = customsidebar
+
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
@@ -661,12 +710,13 @@ class StandaloneHTMLBuilder(Builder):
                    baseuri=self.get_target_uri(pagename)):
             if not resource:
                 otheruri = self.get_target_uri(otheruri)
-            return relative_uri(baseuri, otheruri)
+            uri = relative_uri(baseuri, otheruri) or '#'
+            return uri
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
-        ctx['customsidebar'] = self.config.html_sidebars.get(pagename)
         ctx['encoding'] = encoding = self.config.html_output_encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
+        self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
         self.app.emit('html-page-context', pagename, templatename,
@@ -781,9 +831,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         ctx['current_page_name'] = pagename
-        sidebarfile = self.config.html_sidebars.get(pagename)
-        if sidebarfile:
-            ctx['customsidebar'] = sidebarfile
+        self.add_sidebars(pagename, ctx)
 
         if not outfilename:
             outfilename = path.join(self.outdir,

@@ -5,6 +5,8 @@ Substantial parts of the templates were written by Armin Ronacher
 
 Other contributors, listed alphabetically, are:
 
+* Andi Albrecht -- agogo theme
+* Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
@@ -14,7 +16,9 @@ Other contributors, listed alphabetically, are:
 * Dave Kuhlman -- original LaTeX writer
 * Thomas Lamb -- linkcheck builder
 * Dan MacKinlay -- metadata fixes
+* Martin Mahner -- nature theme
 * Will Maier -- directory HTML builder
+* Roland Meister -- epub builder
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * Stefan Seefeld -- toctree improvements

@@ -20,7 +20,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

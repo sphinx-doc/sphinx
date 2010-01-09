@@ -3,7 +3,7 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -100,7 +100,9 @@ class TocTree(Directive):
         subnode['hidden'] = 'hidden' in self.options
         subnode['numbered'] = 'numbered' in self.options
         subnode['titlesonly'] = 'titlesonly' in self.options
-        ret.append(subnode)
+        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode.append(subnode)
+        ret.append(wrappernode)
         return ret
 
 
@@ -238,7 +240,7 @@ class Index(Directive):
     option_spec = {}
 
     indextypes = [
-        'single', 'pair', 'triple',
+        'single', 'pair', 'double', 'triple',
     ]
 
     def run(self):
@@ -262,6 +264,8 @@ class Index(Directive):
                 for type in self.indextypes:
                     if entry.startswith(type+':'):
                         value = entry[len(type)+1:].strip()
+                        if type == 'double':
+                            type = 'pair'
                         ne.append((type, value, targetid, value))
                         break
                 # shorthand notation for single entries

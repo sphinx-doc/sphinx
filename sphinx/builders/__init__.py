@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import package_dir, locale
-from sphinx.util import SEP, relative_uri
+from sphinx.util import SEP, ENOENT, relative_uri
 from sphinx.environment import BuildEnvironment
 from sphinx.util.console import bold, purple, darkgreen, term_width_line
 
@@ -186,7 +186,7 @@ class Builder(object):
                     if self.translator is None:
                         self.translator = trans
                     else:
-                        self.translator._catalog.update(trans.catalog)
+                        self.translator._catalog.update(trans._catalog)
                 except Exception:
                     # Language couldn't be found in the specified path
                     pass
@@ -210,7 +210,7 @@ class Builder(object):
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.info('done')
             except Exception, err:
-                if type(err) is IOError and err.errno == 2:
+                if type(err) is IOError and err.errno == ENOENT:
                     self.info('not found')
                 else:
                     self.info('failed: %s' % err)

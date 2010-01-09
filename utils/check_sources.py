@@ -7,7 +7,7 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: Copyright 2006-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,7 +30,7 @@ def checker(*suffixes, **kwds):
 
 
 name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-200\d)? '
+copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
                           r'by %s(, %s)*[,.]$' %
                           (name_mail_re, name_mail_re))
 license_re = re.compile(r"    :license: (.*?).\n")

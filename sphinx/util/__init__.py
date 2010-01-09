@@ -5,14 +5,13 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
 import sys
-import stat
 import time
 import errno
 import types
@@ -24,8 +23,15 @@ import traceback
 from os import path
 
 import docutils
+from docutils.utils import relative_path
+
+import jinja2
+
 import sphinx
 
+# Errnos that we need.
+EEXIST = getattr(errno, 'EEXIST', 0)
+ENOENT = getattr(errno, 'ENOENT', 0)
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
@@ -70,7 +76,7 @@ def ensuredir(path):
         os.makedirs(path)
     except OSError, err:
         # 0 for Jython/Win32
-        if err.errno not in [0, getattr(errno, 'EEXIST', 0)]:
+        if err.errno not in [0, EEXIST]:
             raise
 
 
@@ -98,38 +104,45 @@ def walk(top, topdown=True, followlinks=False):
         yield top, dirs, nondirs
 
 
-def get_matching_docs(dirname, suffix, exclude_docs=(), exclude_dirs=(),
-                      exclude_trees=(), exclude_dirnames=()):
+def get_matching_files(dirname, exclude_matchers=()):
+    """
+    Get all file names in a directory, recursively.
+
+    Exclude files and dirs matching some matcher in *exclude_matchers*.
+    """
+    # dirname is a normalized absolute path.
+    dirname = path.normpath(path.abspath(dirname))
+    dirlen = len(dirname) + 1    # exclude final os.path.sep
+
+    for root, dirs, files in walk(dirname, followlinks=True):
+        relativeroot = root[dirlen:]
+
+        qdirs = enumerate(path.join(relativeroot, dn).replace(os.path.sep, SEP)
+                          for dn in dirs)
+        qfiles = enumerate(path.join(relativeroot, fn).replace(os.path.sep, SEP)
+                           for fn in files)
+        for matcher in exclude_matchers:
+            qdirs = [entry for entry in qdirs if not matcher(entry[1])]
+            qfiles = [entry for entry in qfiles if not matcher(entry[1])]
+
+        dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
+
+        for i, filename in sorted(qfiles):
+            yield filename
+
+
+def get_matching_docs(dirname, suffix, exclude_matchers=()):
     """
     Get all file names (without suffix) matching a suffix in a
     directory, recursively.
 
-    Exclude docs in *exclude_docs*, exclude dirs in *exclude_dirs*,
-    prune dirs in *exclude_trees*, prune dirnames in *exclude_dirnames*.
+    Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
-    pattern = '*' + suffix
-    # dirname is a normalized absolute path.
-    dirname = path.normpath(path.abspath(dirname))
-    dirlen = len(dirname) + 1    # exclude slash
-    for root, dirs, files in walk(dirname, followlinks=True):
-        if root[dirlen:] in exclude_dirs:
+    suffixpattern = '*' + suffix
+    for filename in get_matching_files(dirname, exclude_matchers):
+        if not fnmatch.fnmatch(filename, suffixpattern):
             continue
-        if root[dirlen:] in exclude_trees:
-            del dirs[:]
-            continue
-        dirs.sort()
-        files.sort()
-        for prunedir in exclude_dirnames:
-            if prunedir in dirs:
-                dirs.remove(prunedir)
-        for sfile in files:
-            if not fnmatch.fnmatch(sfile, pattern):
-                continue
-            qualified_name = path.join(root[dirlen:], sfile[:-len(suffix)])
-            qualified_name = qualified_name.replace(os.path.sep, SEP)
-            if qualified_name in exclude_docs:
-                continue
-            yield qualified_name
+        yield filename[:-len(suffix)]
 
 
 def mtimes_of_files(dirnames, suffix):
@@ -216,6 +229,7 @@ def save_traceback():
     os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
     os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
                                                   docutils.__version_details__))
+    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
     os.write(fd, exc)
     os.close(fd)
     return path
@@ -267,15 +281,25 @@ def _translate_pattern(pat):
             res += re.escape(c)
     return res + '$'
 
+def compile_matchers(patterns):
+    return [re.compile(_translate_pattern(pat)).match for pat in patterns]
+
 
 _pat_cache = {}
+
+def patmatch(name, pat):
+    """
+    Return if name matches pat.  Adapted from fnmatch module.
+    """
+    if pat not in _pat_cache:
+        _pat_cache[pat] = re.compile(_translate_pattern(pat))
+    return _pat_cache[pat].match(name)
 
 def patfilter(names, pat):
     """
     Return the subset of the list NAMES that match PAT.
     Adapted from fnmatch module.
     """
-    result = []
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     match = _pat_cache[pat].match
@@ -406,7 +430,6 @@ def movefile(source, dest):
 def copytimes(source, dest):
     """Copy a file's modification times."""
     st = os.stat(source)
-    mode = stat.S_IMODE(st.st_mode)
     if hasattr(os, 'utime'):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
@@ -421,9 +444,16 @@ def copyfile(source, dest):
         pass
 
 
-def copy_static_entry(source, target, builder, context={}):
+def copy_static_entry(source, targetdir, builder, context={},
+                      exclude_matchers=(), level=0):
+    if exclude_matchers:
+        relpath = relative_path(builder.srcdir, source)
+        for matcher in exclude_matchers:
+            if matcher(relpath):
+                return
     if path.isfile(source):
-        if source.lower().endswith('_t'):
+        target = path.join(targetdir, path.basename(source))
+        if source.lower().endswith('_t') and builder.templates:
             # templated!
             fsrc = open(source, 'rb')
             fdst = open(target[:-2], 'wb')
@@ -433,12 +463,26 @@ def copy_static_entry(source, target, builder, context={}):
         else:
             copyfile(source, target)
     elif path.isdir(source):
-        if source in builder.config.exclude_dirnames:
-            return
-        if path.exists(target):
-            shutil.rmtree(target)
-        shutil.copytree(source, target)
+        if level == 0:
+            for entry in os.listdir(source):
+                if entry.startswith('.'):
+                    continue
+                copy_static_entry(path.join(source, entry), targetdir,
+                                  builder, context, level=1,
+                                  exclude_matchers=exclude_matchers)
+        else:
+            target = path.join(targetdir, path.basename(source))
+            if path.exists(target):
+                shutil.rmtree(target)
+            shutil.copytree(source, target)
 
+
+def clean_astext(node):
+    """Like node.astext(), but ignore images."""
+    node = node.deepcopy()
+    for img in node.traverse(docutils.nodes.image):
+        img['alt'] = ''
+    return node.astext()
 
 
 def split_explicit_title(text):
@@ -447,6 +491,16 @@ def split_explicit_title(text):
     if match:
         return True, match.group(1), match.group(2)
     return False, text, text
+
+
+try:
+    any = any
+except NameError:
+    def any(gen):
+        for i in gen:
+            if i:
+                return True
+        return False
 
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves

@@ -6,7 +6,7 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,8 +30,8 @@ def test_core_config(app):
     assert cfg.latex_elements['docclass'] == 'scrartcl'
 
     # simple default values
-    assert 'exclude_dirs' not in cfg.__dict__
-    assert cfg.exclude_dirs == []
+    assert 'locale_dirs' not in cfg.__dict__
+    assert cfg.locale_dirs == []
     assert cfg.show_authors == False
 
     # complex default values

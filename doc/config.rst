@@ -87,11 +87,36 @@ General configuration
    The document name of the "master" document, that is, the document that
    contains the root :dir:`toctree` directive.  Default is ``'contents'``.
 
+.. confval:: exclude_patterns
+
+   A list of glob-style patterns that should be excluded when looking for source
+   files. [1]_ They are matched against the source file names relative to the
+   source directory, using slashes as directory separators on all platforms.
+
+   Example patterns:
+
+   - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
+     entry in :confval:`unused_docs`
+   - ``'library/xml'`` -- ignores the ``library/xml`` directory (replaces entry
+     in :confval:`exclude_trees`)
+   - ``'library/xml*'`` -- ignores all files and directories starting with
+     ``library/xml``
+   - ``'**/.svn'`` -- ignores all ``.svn`` directories (replaces entry in
+     :confval:`exclude_dirnames`)
+
+   :confval:`exclude_patterns` is also consulted when looking for static files
+   in :confval:`html_static_path`.
+
+   .. versionadded:: 1.0
+
 .. confval:: unused_docs
 
    A list of document names that are present, but not currently included in the
    toctree.  Use this setting to suppress the warning that is normally emitted
    in that case.
+
+   .. deprecated:: 1.0
+      Use :confval:`exclude_patterns` instead.
 
 .. confval:: exclude_trees
 
@@ -100,6 +125,9 @@ General configuration
    subdirectories won't be searched too.  The default is ``[]``.
 
    .. versionadded:: 0.4
+
+   .. deprecated:: 1.0
+      Use :confval:`exclude_patterns` instead.
 
 .. confval:: exclude_dirnames
 
@@ -110,15 +138,8 @@ General configuration
 
    .. versionadded:: 0.5
 
-.. confval:: exclude_dirs
-
-   A list of directory names, relative to the source directory, that are to be
-   excluded from the search for source files.
-
-   .. deprecated:: 0.5
-      This does not take subdirs of the excluded directories into account.  Use
-      :confval:`exclude_trees` or :confval:`exclude_dirnames`, which match the
-      expectations.
+   .. deprecated:: 1.0
+      Use :confval:`exclude_patterns` instead.
 
 .. confval:: locale_dirs
 
@@ -398,6 +419,9 @@ that use Sphinx' HTMLWriter class.
    .. versionchanged:: 0.4
       The paths in :confval:`html_static_path` can now contain subdirectories.
 
+   .. versionchanged:: 1.0
+      The entries in :confval:`html_static_path` can now be single files.
+
 .. confval:: html_last_updated_fmt
 
    If this is not the empty string, a 'Last updated on:' timestamp is inserted
@@ -421,14 +445,53 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
-   template names.  Example::
+   template names.
+
+   The keys can contain glob-style patterns [1]_, in which case all matching
+   documents will get the specified sidebars.  (A warning is emitted when a
+   more than one glob-style pattern matches for any document.)
+
+   The values can be either lists or single strings.
+
+   * If a value is a list, it specifies the complete list of sidebar templates
+     to include.  If all or some of the default sidebars are to be included,
+     they must be put into this list as well.
+
+     The default sidebars (for documents that don't match any pattern) are:
+     ``['localtoc.html', 'relations.html', 'sourcelink.html',
+     'searchbox.html']``.
+
+   * If a value is a single string, it specifies a custom sidebar to be added
+     between the ``'sourcelink.html'`` and ``'searchbox.html'`` entries.  This
+     is for compatibility with Sphinx versions before 1.0.
+
+   Builtin sidebar templates that can be rendered are:
+
+   * **localtoc.html** -- a fine-grained table of contents of the current document
+   * **globaltoc.html** -- a coarse-grained table of contents for the whole
+     documentation set, collapsed
+   * **relations.html** -- two links to the previous and next documents
+   * **sourcelink.html** -- a link to the source of the current document, if
+     enabled in :confval:`html_show_sourcelink`
+   * **searchbox.html** -- the "quick search" box
+
+   Example::
 
       html_sidebars = {
-         'using/windows': 'windowssidebar.html'
+         '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+         'using/windows': ['windowssidebar.html', 'searchbox.html'],
       }
 
-   This will render the template ``windowssidebar.html`` within the sidebar of
-   the given document.
+   This will render the custom template ``windowssidebar.html`` and the quick
+   search box within the sidebar of the given document, and render the default
+   sidebars for all other pages (except that the local TOC is replaced by the
+   global TOC).
+
+   .. versionadded:: 1.0
+      The ability to use globbing keys and to specify multiple sidebars.
+
+   Note that this value only has no effect if the chosen theme does not possess
+   a sidebar, like the builtin **scrolls** and **haiku** themes.
 
 .. confval:: html_additional_pages
 
@@ -554,92 +617,89 @@ that use Sphinx' HTMLWriter class.
 Options for epub output
 -----------------------
 
-These options influence the epub output. As this writer derives from the
-HTMLWriter the HTML options also apply where appropriate.
-The actual values for some of the options is not really important,
-they just have to be entered into
+These options influence the epub output.  As this builder derives from the HTML
+builder, the HTML options also apply where appropriate.  The actual values for
+some of the options is not really important, they just have to be entered into
 the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_basename
 
-  The basename for the epub file. It defaults to the :confval:`project` name.
+   The basename for the epub file.  It defaults to the :confval:`project` name.
+
+.. confval:: epub_theme
+
+   The HTML theme for the epub output.  Since the default themes are not
+   optimized for small screen space, using the same theme for HTML and epub
+   output is usually not wise.  This defaults to ``'epub'``, a theme designed to
+   save visual space.
 
 .. confval:: epub_title
 
-  The title of the document.
-  It defaults to the :confval:`html_title` option
-  but can be set independently for epub creation.
+   The title of the document.  It defaults to the :confval:`html_title` option
+   but can be set independently for epub creation.
 
 .. confval:: epub_author
 
-  The author of the document.
-  This is put in the Dublin Core metadata.
-  The default value is ``'unknown'``.
+   The author of the document.  This is put in the Dublin Core metadata.  The
+   default value is ``'unknown'``.
 
 .. confval:: epub_language
 
-  The language of the document.
-  This is put in the Dublin Core metadata.
-  The default is the :confval:`language` option or ``'en'`` if unset.
+   The language of the document.  This is put in the Dublin Core metadata.  The
+   default is the :confval:`language` option or ``'en'`` if unset.
 
 .. confval:: epub_publisher
 
-  The publisher of the document.
-  This is put in the Dublin Core metadata.
-  You may use any sensible string, e.g. the project homepage.
-  The default value is ``'unknown'``.
+   The publisher of the document.  This is put in the Dublin Core metadata.  You
+   may use any sensible string, e.g. the project homepage.  The default value is
+   ``'unknown'``.
 
 .. confval:: epub_copyright
 
-  The copyright of the document.
-  It defaults to the :confval:`copyright` option
-  but can be set independently for epub creation.
+   The copyright of the document.  It defaults to the :confval:`copyright`
+   option but can be set independently for epub creation.
 
 .. confval:: epub_identifier
 
-  An identifier for the document.
-  This is put in the Dublin Core metadata.
-  For published documents this is the ISBN number, but you can
-  also use an alternative scheme, e.g. the project homepage.
-  The default value is ``'unknown'``.
+   An identifier for the document.  This is put in the Dublin Core metadata.
+   For published documents this is the ISBN number, but you can also use an
+   alternative scheme, e.g. the project homepage.  The default value is
+   ``'unknown'``.
 
 .. confval:: epub_scheme
 
-  The publication scheme for the :confval:`epub_identifier`.
-  This is put in the Dublin Core metadata.
-  For published books the scheme is ``'ISBN'``.
-  If you use the project homepage, ``'URL'`` seems reasonable.
+   The publication scheme for the :confval:`epub_identifier`.  This is put in
+   the Dublin Core metadata.  For published books the scheme is ``'ISBN'``.  If
+   you use the project homepage, ``'URL'`` seems reasonable.  The default value
+   is ``'unknown'``.
 
 .. confval:: epub_uid
 
-  A unique identifier for the document.
-  This is put in the Dublin Core metadata.
-  You may use a random string.
-  The default value is ``'unknown'``.
+   A unique identifier for the document.  This is put in the Dublin Core
+   metadata.  You may use a random string.  The default value is ``'unknown'``.
 
 .. confval:: epub_pre_files
 
-  Additional files that should be inserted before the text generated by
-  Sphinx. It is a list of tuples containing the file name and the title.
-  Example::
+   Additional files that should be inserted before the text generated by
+   Sphinx. It is a list of tuples containing the file name and the title.
+   Example::
 
       epub_pre_files = [
-         ('index.html', 'Welcome'),
+          ('index.html', 'Welcome'),
       ]
 
-  The default value is ``[]``.
+   The default value is ``[]``.
 
 .. confval:: epub_post_files
 
-  Additional files that should be inserted after the text generated by
-  Sphinx. It is a list of tuples containing the file name and the title.
-  The default value is ``[]``.
+   Additional files that should be inserted after the text generated by Sphinx.
+   It is a list of tuples containing the file name and the title.  The default
+   value is ``[]``.
 
 .. confval:: epub_exclude_files
 
-  A list of files that are generated/copied in the build directory
-  but should not be included in the epub file.
-  The default value is ``[]``.
+   A list of files that are generated/copied in the build directory but should
+   not be included in the epub file.  The default value is ``[]``.
 
 
 .. _latex-options:
@@ -810,3 +870,11 @@ These options influence LaTeX output.
 
    .. deprecated:: 0.5
       Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
+
+
+.. rubric:: Footnotes
+
+.. [1] A note on available globbing syntax: you can use the standard shell
+       constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
+       these all don't match slashes.  A double star ``**`` can be used to match
+       any sequence of characters *including* slashes.

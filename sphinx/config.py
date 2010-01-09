@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -38,8 +38,9 @@ class Config(object):
         master_doc = ('contents', 'env'),
         source_suffix = ('.rst', 'env'),
         source_encoding = ('utf-8-sig', 'env'),
+        exclude_patterns = ([], 'env'),
+        # the next three are all deprecated now
         unused_docs = ([], 'env'),
-        exclude_dirs = ([], 'env'),
         exclude_trees = ([], 'env'),
         exclude_dirnames = ([], 'env'),
         default_role = (None, 'env'),
@@ -97,6 +98,21 @@ class Config(object):
         # Devhelp only options
         devhelp_basename = (lambda self: make_filename(self.project), None),
 
+        # Epub options
+        epub_basename = (lambda self: make_filename(self.project), None),
+        epub_theme = ('epub', 'html'),
+        epub_title = (lambda self: self.html_title, 'html'),
+        epub_author = ('unknown', 'html'),
+        epub_language = (lambda self: self.language or 'en', 'html'),
+        epub_publisher = ('unknown', 'html'),
+        epub_copyright = (lambda self: self.copyright, 'html'),
+        epub_identifier = ('unknown', 'html'),
+        epub_scheme = ('unknown', 'html'),
+        epub_uid = ('unknown', 'env'),
+        epub_pre_files = ([], 'env'),
+        epub_post_files = ([], 'env'),
+        epub_exclude_files = ([], 'env'),
+
         # LaTeX options
         latex_documents = ([], None),
         latex_logo = (None, None),
@@ -112,20 +128,6 @@ class Config(object):
         latex_docclass = ({}, None),
         # now deprecated - use latex_elements
         latex_preamble = ('', None),
-
-        # Epub options
-        epub_basename = (lambda self: make_filename(self.project), None),
-        epub_title = (lambda self: self.html_title, 'html'),
-        epub_author = ('unknown', 'html'),
-        epub_language = (lambda self: self.language or 'en', 'html'),
-        epub_publisher = ('unknown', 'html'),
-        epub_copyright = (lambda self: self.copyright, 'html'),
-        epub_identifier = ('unknown', 'html'),
-        epub_scheme = ('unknown', 'html'),
-        epub_uid = ('unknown', 'env'),
-        epub_pre_files = ([], 'env'),
-        epub_post_files = ([], 'env'),
-        epub_exclude_files = ([], 'env'),
     )
 
     def __init__(self, dirname, filename, overrides, tags):

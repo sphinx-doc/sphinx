@@ -8,7 +8,7 @@ all: clean-pyc check test
 
 check:
 	@$(PYTHON) utils/check_sources.py -i build -i dist -i sphinx/style/jquery.js \
-		-i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
+		-i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py -i .ropeproject \
 		-i doc/_build -i ez_setup.py -i tests/path.py -i tests/coverage.py .
 
 clean: clean-pyc clean-patchfiles

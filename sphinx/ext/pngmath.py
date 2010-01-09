@@ -5,7 +5,7 @@
 
     Render math in HTML via dvipng.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,7 +23,7 @@ except ImportError:
 from docutils import nodes
 
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir
+from sphinx.util import ensuredir, ENOENT
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
@@ -119,7 +119,7 @@ def render_math(self, math):
         try:
             p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
         except OSError, err:
-            if err.errno != 2:   # No such file or directory
+            if err.errno != ENOENT:   # No such file or directory
                 raise
             self.builder.warn('LaTeX command %r cannot be run (needed for math '
                               'display), check the pngmath_latex setting' %
@@ -147,7 +147,7 @@ def render_math(self, math):
     try:
         p = Popen(dvipng_args, stdout=PIPE, stderr=PIPE)
     except OSError, err:
-        if err.errno != 2:   # No such file or directory
+        if err.errno != ENOENT:   # No such file or directory
             raise
         self.builder.warn('dvipng command %r cannot be run (needed for math '
                           'display), check the pngmath_dvipng setting' %

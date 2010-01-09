@@ -1,3 +1,12 @@
+{#
+    basic/layout.html
+    ~~~~~~~~~~~~~~~~~
+
+    Master layout template for Sphinx themes.
+
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+#}
 {%- block doctype -%}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -37,53 +46,29 @@
             </a></p>
           {%- endif %}
           {%- endblock %}
-          {%- block sidebartoc %}
-          {%- if display_toc %}
-            <h3><a href="{{ pathto(master_doc) }}">{{ _('Table Of Contents') }}</a></h3>
-            {{ toc }}
+          {%- if sidebars %}
+            {#- new style sidebar: explicitly include/exclude templates #}
+            {%- for sidebartemplate in sidebars %}
+            {%- include sidebartemplate %}
+            {%- endfor %}
+          {%- else %}
+            {#- old style sidebars: using blocks -- should be deprecated #}
+            {%- block sidebartoc %}
+            {%- include "localtoc.html" %}
+            {%- endblock %}
+            {%- block sidebarrel %}
+            {%- include "relations.html" %}
+            {%- endblock %}
+            {%- block sidebarsourcelink %}
+            {%- include "sourcelink.html" %}
+            {%- endblock %}
+            {%- if customsidebar %}
+            {%- include customsidebar %}
+            {%- endif %}
+            {%- block sidebarsearch %}
+            {%- include "searchbox.html" %}
+            {%- endblock %}
           {%- endif %}
-          {%- endblock %}
-          {%- block sidebarrel %}
-          {%- if prev %}
-            <h4>{{ _('Previous topic') }}</h4>
-            <p class="topless"><a href="{{ prev.link|e }}"
-                                  title="{{ _('previous chapter') }}">{{ prev.title }}</a></p>
-          {%- endif %}
-          {%- if next %}
-            <h4>{{ _('Next topic') }}</h4>
-            <p class="topless"><a href="{{ next.link|e }}"
-                                  title="{{ _('next chapter') }}">{{ next.title }}</a></p>
-          {%- endif %}
-          {%- endblock %}
-          {%- block sidebarsourcelink %}
-          {%- if show_source and has_source and sourcename %}
-            <h3>{{ _('This Page') }}</h3>
-            <ul class="this-page-menu">
-              <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}"
-                     rel="nofollow">{{ _('Show Source') }}</a></li>
-            </ul>
-          {%- endif %}
-          {%- endblock %}
-          {%- if customsidebar %}
-          {% include customsidebar %}
-          {%- endif %}
-          {%- block sidebarsearch %}
-          {%- if pagename != "search" %}
-          <div id="searchbox" style="display: none">
-            <h3>{{ _('Quick search') }}</h3>
-              <form class="search" action="{{ pathto('search') }}" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="{{ _('Go') }}" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              {{ _('Enter search terms or a module, class or function name.') }}
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
-          {%- endif %}
-          {%- endblock %}
         </div>
       </div>
       {%- endif %}{% endif %}

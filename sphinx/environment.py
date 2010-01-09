@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -35,7 +35,7 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict, url_re
+     docname_join, FilenameUniqDict, url_re, clean_astext, compile_matchers
 from sphinx.errors import SphinxError
 from sphinx.directives import additional_xref_types
 
@@ -51,7 +51,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 30
+ENV_VERSION = 31
 
 
 default_substitutions = set([
@@ -393,14 +393,15 @@ class BuildEnvironment:
         """
         Find all source files in the source dir and put them in self.found_docs.
         """
-        exclude_dirs  = [d.replace(SEP, path.sep) for d in config.exclude_dirs]
-        exclude_trees = [d.replace(SEP, path.sep) for d in config.exclude_trees]
+        matchers = compile_matchers(
+            config.exclude_patterns[:] +
+            config.exclude_trees +
+            [d + config.source_suffix for d in config.unused_docs] +
+            ['**/' + d for d in config.exclude_dirnames] +
+            ['**/_sources']
+        )
         self.found_docs = set(get_matching_docs(
-            self.srcdir, config.source_suffix,
-            exclude_docs=set(config.unused_docs),
-            exclude_dirs=exclude_dirs,
-            exclude_trees=exclude_trees,
-            exclude_dirnames=['_sources'] + config.exclude_dirnames))
+            self.srcdir, config.source_suffix, exclude_matchers=matchers))
 
     def get_outdated_files(self, config_changed):
         """
@@ -821,11 +822,11 @@ class BuildEnvironment:
                           node.line)
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
-                sectname = node[0].astext() # node[0] == title node
+                sectname = clean_astext(node[0]) # node[0] == title node
             elif node.tagname == 'figure':
                 for n in node:
                     if n.tagname == 'caption':
-                        sectname = n.astext()
+                        sectname = clean_astext(n)
                         break
                 else:
                     continue
@@ -931,7 +932,7 @@ class BuildEnvironment:
         """Return a TOC nodetree -- for use on the same page only!"""
         toc = self.tocs[docname].deepcopy()
         for node in toc.traverse(nodes.reference):
-            node['refuri'] = node['anchorname']
+            node['refuri'] = node['anchorname'] or '#'
         return toc
 
     def get_toctree_for(self, docname, builder, collapse):
@@ -1075,7 +1076,7 @@ class BuildEnvironment:
                         # toctree originates
                         ref = toctreenode['parent']
                         if not title:
-                            title = self.titles[ref].astext()
+                            title = clean_astext(self.titles[ref])
                         reference = nodes.reference('', '',
                                                     refuri=ref,
                                                     anchorname='',
@@ -1180,7 +1181,7 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            self.warn(fromdocname, 'undefined label: %s' %
+                            self.warn(node['refdoc'], 'undefined label: %s' %
                                       target, node.line)
                     else:
                         # reference to the named label; the final node will
@@ -1189,7 +1190,7 @@ class BuildEnvironment:
                                                                      ('','',''))
                         if not docname:
                             self.warn(
-                                fromdocname,
+                                node['refdoc'],
                                 'undefined label: %s' % target + ' -- if you '
                                 'don\'t give a link caption the label must '
                                 'precede a section header.', node.line)
@@ -1215,17 +1216,17 @@ class BuildEnvironment:
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
-                    docname = docname_join(fromdocname, target)
+                    docname = docname_join(node['refdoc'], target)
                     if docname not in self.all_docs:
-                        self.warn(fromdocname, 'unknown document: %s' % docname,
-                                  node.line)
+                        self.warn(node['refdoc'],
+                                  'unknown document: %s' % docname, node.line)
                         newnode = contnode
                     else:
                         if node['refcaption']:
                             # reference with explicit title
                             caption = node.astext()
                         else:
-                            caption = self.titles[docname].astext()
+                            caption = clean_astext(self.titles[docname])
                         innernode = nodes.emphasis(caption, caption)
                         newnode = nodes.reference('', '')
                         newnode['refuri'] = builder.get_relative_uri(
@@ -1235,7 +1236,8 @@ class BuildEnvironment:
                     # keywords are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
-                        #self.warn(fromdocname, 'unknown keyword: %s' % target)
+                        #self.warn(node['refdoc'],
+                        #          'unknown keyword: %s' % target)
                         newnode = contnode
                     else:
                         newnode = nodes.reference('', '')
@@ -1264,11 +1266,11 @@ class BuildEnvironment:
                                                            ('', ''))
                     if not docname:
                         if typ == 'term':
-                            self.warn(fromdocname,
+                            self.warn(node['refdoc'],
                                       'term not in glossary: %s' % target,
                                       node.line)
                         elif typ == 'citation':
-                            self.warn(fromdocname,
+                            self.warn(node['refdoc'],
                                       'citation not found: %s' % target,
                                       node.line)
                         newnode = contnode

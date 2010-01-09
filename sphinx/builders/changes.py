@@ -5,7 +5,7 @@
 
     Changelog builder.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -139,11 +139,10 @@ class ChangesBuilder(Builder):
                         self.theme.get_options({}).iteritems())
         copy_static_entry(path.join(package_dir, 'themes', 'default',
                                     'static', 'default.css_t'),
-                          path.join(self.outdir, 'default.css_t'),
-                          self, themectx)
+                          self.outdir, self, themectx)
         copy_static_entry(path.join(package_dir, 'themes', 'basic',
                                     'static', 'basic.css'),
-                          path.join(self.outdir, 'basic.css'), self)
+                          self.outdir, self)
 
     def hl(self, text, version):
         text = escape(text)

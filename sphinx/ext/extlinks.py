@@ -8,10 +8,10 @@
 
     This adds a new config value called ``extlinks`` that is created like this::
 
-       extlinks = {'exmpl': ('http://example.com/', prefix), ...}
+       extlinks = {'exmpl': ('http://example.com/%s.html', prefix), ...}
 
     Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
-    link to ``http://example.com/foo``.  The link caption depends on the
+    link to ``http://example.com/foo.html``.  The link caption depends on the
     *prefix* value given:
 
     - If it is ``None``, the caption will be the full URL.
@@ -20,7 +20,7 @@
 
     You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -32,15 +32,20 @@ from sphinx.util import split_explicit_title
 def make_link_role(base_url, prefix):
     def role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         text = utils.unescape(text)
-        has_explicit_title, title, url = split_explicit_title(text)
-        # NOTE: not using urlparse.urljoin() here, to allow something like
-        # base_url = 'bugs.python.org/issue'  and  url = '1024'
-        full_url = base_url + url
+        has_explicit_title, title, part = split_explicit_title(text)
+        try:
+            full_url = base_url % part
+        except (TypeError, ValueError):
+            env = inliner.document.settings.env
+            env.warn(env.docname, 'unable to expand %s extlink with base '
+                     'URL %r, please make sure the base contains \'%%s\' '
+                     'exactly once' % (typ, base_url))
+            full_url = base_url + part
         if not has_explicit_title:
             if prefix is None:
                 title = full_url
             else:
-                title = prefix + url
+                title = prefix + part
         pnode = nodes.reference(title, title, refuri=full_url)
         return [pnode], []
     return role

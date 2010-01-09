@@ -4,9 +4,9 @@ import sys, os
 
 sys.path.append(os.path.abspath('.'))
 
-extensions = ['ext', 'sphinx.ext.autodoc', 'sphinx.ext.jsmath',
-              'sphinx.ext.coverage', 'sphinx.ext.todo',
-              'sphinx.ext.autosummary']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
+              'sphinx.ext.coverage', 'sphinx.ext.autosummary',
+              'sphinx.ext.doctest', 'sphinx.ext.extlinks', 'ext']
 
 jsmath_path = 'dummy.js'
 
@@ -16,13 +16,13 @@ master_doc = 'contents'
 source_suffix = '.txt'
 
 project = 'Sphinx <Tests>'
-copyright = '2008, Georg Brandl & Team'
+copyright = '2010, Georg Brandl & Team'
 # If this is changed, remember to update the versionchanges!
 version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
 #unused_docs = []
-exclude_trees = ['_build']
+exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
 
@@ -31,11 +31,11 @@ rst_epilog = '.. |subst| replace:: global substitution'
 html_theme = 'testtheme'
 html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
-
+html_sidebars = {'**': 'customsb.html', 'contents': 'contentssb.html'}
 html_style = 'default.css'
-html_static_path = ['_static']
+html_static_path = ['_static', 'templated.css_t']
 html_last_updated_fmt = '%b %d, %Y'
-html_context = {'hckey': 'hcval'}
+html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
 htmlhelp_basename = 'SphinxTestsdoc'
 
@@ -52,6 +52,9 @@ coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'cfunction': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
 autosummary_generate = ['autosummary']
+
+extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
+            'pyurl': ('http://python.org/%s', None)}
 
 # modify tags from conf.py
 tags.add('confpytag')

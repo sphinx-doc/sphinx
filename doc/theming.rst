@@ -65,9 +65,13 @@ Builtin themes
 |                    |                    |
 | *scrolls*          | *agogo*            |
 +--------------------+--------------------+
-| |traditional|      |                    |
+| |traditional|      | |nature|           |
 |                    |                    |
-| *traditional*      |                    |
+| *traditional*      | *nature*           |
++--------------------+--------------------+
+| |haiku|            |                    |
+|                    |                    |
+| *haiku*            |                    |
 +--------------------+--------------------+
 
 .. |default|     image:: themes/default.png
@@ -75,15 +79,17 @@ Builtin themes
 .. |scrolls|     image:: themes/scrolls.png
 .. |agogo|       image:: themes/agogo.png
 .. |traditional| image:: themes/traditional.png
+.. |nature|      image:: themes/nature.png
+.. |haiku|       image:: themes/haiku.png
 
 Sphinx comes with a selection of themes to choose from.
 
 These themes are:
 
 * **basic** -- This is a basically unstyled layout used as the base for the
-  *default* and *sphinxdoc* themes, and usable as the base for custom themes as
-  well.  The HTML contains all important elements like sidebar and relation bar.
-  There is one option (which is inherited by *default* and *sphinxdoc*):
+  other themes, and usable as the base for custom themes as well.  The HTML
+  contains all important elements like sidebar and relation bar.  There is one
+  option (which is inherited by the other themes):
 
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     false.
@@ -128,7 +134,7 @@ These themes are:
   on the right side.  There are currently no options beyond *nosidebar*.
 
 * **scrolls** -- A more lightweight theme, based on `the Jinja documentation
-  <http://jinja.pocoo.org/documentation/2>`_.  The following color options are
+  <http://jinja.pocoo.org/2/documentation/>`_.  The following color options are
   available:
 
   - **headerbordercolor**
@@ -157,12 +163,26 @@ These themes are:
   - **headerlinkcolor** (CSS color): Color for the backreference link in
     headings.
 
+* **nature** -- A greenish theme.  There are currently no options beyond
+  *nosidebar*.
+
+* **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
+  <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
+  options are supported:
+
+  - **full_logo** (true or false, default false): If this is true, the header
+    will only show the :confval:`html_logo`.  Use this for large logos.  If this
+    is false, the logo (if present) will be shown floating right, and the
+    documentation title will be put in the header.
+  - **textcolor**, **headingcolor**, **linkcolor**, **visitedlinkcolor**,
+    **hoverlinkcolor** (CSS colors): Colors for various body elements.
+
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar*.
 
-* **epub** -- A theme for the epub formatter. There are currently no
-  options. This theme tries to reduce visual space which is a sparse
-  resource on ebook readers.
+* **epub** -- A theme for the epub builder.  There are currently no options.
+  This theme tries to save visual space which is a sparse resource on ebook
+  readers.
 
 
 Creating themes

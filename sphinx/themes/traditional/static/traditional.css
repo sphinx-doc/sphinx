@@ -1,5 +1,12 @@
-/**
- * Sphinx Doc Design -- traditional python.org style
+/*
+ * traditional.css
+ * ~~~~~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- traditional docs.python.org theme.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
  */
 
 body {
@@ -635,6 +642,18 @@ tt.xref, a tt {
 }
 
 .footnote:target  { background-color: #ffa }
+
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
+}
 
 h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
     background-color: transparent;

@@ -5,7 +5,7 @@
 
     TeX escaping helper.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -99,8 +99,9 @@ tex_replacements = [
 ]
 
 tex_escape_map = {}
-tex_hl_escape_map = {}
-_new_cmd_chars = {ord(u'\\'): u'@', ord(u'{'): u'[', ord(u'}'): u']'}
+tex_hl_escape_map_old = {}  # replacement map for Pygments <= 1.1
+tex_hl_escape_map_new = {}  # replacement map for Pygments >= 1.2
+_old_cmd_chars = {ord(u'\\'): u'@', ord(u'{'): u'[', ord(u'}'): u']'}
 
 def init():
     for a, b in tex_replacements:
@@ -108,4 +109,5 @@ def init():
 
     for a, b in tex_replacements:
         if a in u'[]{}\\': continue
-        tex_hl_escape_map[ord(a)] = b.translate(_new_cmd_chars)
+        tex_hl_escape_map_new[ord(a)] = b
+        tex_hl_escape_map_old[ord(a)] = b.translate(_old_cmd_chars)

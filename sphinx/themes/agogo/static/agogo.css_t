@@ -1,3 +1,14 @@
+/*
+ * agogo.css_t
+ * ~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- agogo theme.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 * {
   margin: 0px;
   padding: 0px;
@@ -42,6 +53,18 @@ a {
 
 .right {
   float: right;
+}
+
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
 }
 
 h1, h2, h3, h4 {
@@ -257,7 +280,7 @@ div.footer .left {
 }
 
 
-/* Styles copied form basic theme */
+/* Styles copied from basic theme */
 
 /* -- search page ----------------------------------------------------------- */
 

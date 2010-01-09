@@ -1,0 +1,28 @@
+Test for diverse extensions
+===========================
+
+extlinks
+--------
+
+Test diverse links: :issue:`1000` and :pyurl:`dev/`, also with
+:issue:`explicit caption <1042>`.
+
+
+todo
+----
+
+.. todo::
+
+   Test the todo extension.
+
+.. todo::
+
+   Test with |sub| (see #286).
+
+.. |sub| replace:: substitution references
+
+
+list of all todos
+^^^^^^^^^^^^^^^^^
+
+.. todolist::

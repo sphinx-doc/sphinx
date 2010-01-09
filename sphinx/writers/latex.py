@@ -8,7 +8,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -180,8 +180,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
             'title':        document.settings.title,
-            'date':         ustrftime(builder.config.today_fmt
-                                      or _('%B %d, %Y')),
             'release':      builder.config.release,
             'author':       document.settings.author,
             'releasename':  _('Release'),
@@ -194,6 +192,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             docclass = builder.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
+        if builder.config.today:
+            self.elements['date'] = builder.config.today
+        else:
+            self.elements['date'] = ustrftime(builder.config.today_fmt
+                                              or _('%B %d, %Y'))
         if builder.config.latex_logo:
             self.elements['logo'] = '\\includegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
@@ -249,6 +252,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def astext(self):
         return (HEADER % self.elements + self.highlighter.get_stylesheet() +
                 u''.join(self.body) + FOOTER % self.elements)
+
+    def idescape(self, id):
+        return str(unicode(id).translate(tex_escape_map))
 
     def visit_document(self, node):
         self.footnotestack.append(self.collect_footnotes(node))
@@ -463,7 +469,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         d = self.descstack[-1]
         d.cls = d.cls.rstrip('.')
         if node.parent['desctype'] != 'describe' and node['ids']:
-            hyper = '\\hypertarget{%s}{}' % node['ids'][0]
+            hyper = '\\hypertarget{%s}{}' % self.idescape(node['ids'][0])
         else:
             hyper = ''
         if d.count == 0:
@@ -754,7 +760,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_term(self, node):
         ctx = '] \\leavevmode'
         if node.has_key('ids') and node['ids']:
-            ctx += '\\hypertarget{%s}{}' % node['ids'][0]
+            ctx += '\\hypertarget{%s}{}' % self.idescape(node['ids'][0])
         self.body.append('\\item[')
         self.context.append(ctx)
     def depart_term(self, node):

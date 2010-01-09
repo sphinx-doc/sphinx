@@ -5,7 +5,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -45,21 +45,32 @@ _eq = nodes.Leaf(token.EQUAL, '=')
 class AttrDocVisitor(nodes.NodeVisitor):
     """
     Visitor that collects docstrings for attribute assignments on toplevel and
-    in classes.
+    in classes (class attributes and attributes set in __init__).
 
     The docstrings can either be in special '#:' comments before the assignment
     or in a docstring after it.
     """
     def init(self, scope, encoding):
         self.scope = scope
+        self.in_init = 0
         self.encoding = encoding
         self.namespace = []
         self.collected = {}
 
     def visit_classdef(self, node):
+        """Visit a class."""
         self.namespace.append(node[1].value)
         self.generic_visit(node)
         self.namespace.pop()
+
+    def visit_funcdef(self, node):
+        """Visit a function (or method)."""
+        # usually, don't descend into functions -- nothing interesting there
+        if node[1].value == '__init__':
+            # however, collect attributes set in __init__ methods
+            self.in_init += 1
+            self.generic_visit(node)
+            self.in_init -= 1
 
     def visit_expr_stmt(self, node):
         """Visit an assignment which may have a special comment before it."""
@@ -97,20 +108,32 @@ class AttrDocVisitor(nodes.NodeVisitor):
             docstring = prepare_docstring(docstring)
             self.add_docstring(prev[0], docstring)
 
-    def visit_funcdef(self, node):
-        # don't descend into functions -- nothing interesting there
-        return
-
     def add_docstring(self, node, docstring):
         # add an item for each assignment target
         for i in range(0, len(node) - 1, 2):
             target = node[i]
-            if target.type != token.NAME:
-                # don't care about complex targets
+            if self.in_init and self.number2name[target.type] == 'power':
+                # maybe an attribute assignment -- check necessary conditions
+                if (# node must have two children
+                    len(target) != 2 or
+                    # first child must be "self"
+                    target[0].type != token.NAME or target[0].value != 'self' or
+                    # second child must be a "trailer" with two children
+                    self.number2name[target[1].type] != 'trailer' or
+                    len(target[1]) != 2 or
+                    # first child must be a dot, second child a name
+                    target[1][0].type != token.DOT or
+                    target[1][1].type != token.NAME):
+                    continue
+                name = target[1][1].value
+            elif target.type != token.NAME:
+                # don't care about other complex targets
                 continue
+            else:
+                name = target.value
             namespace = '.'.join(self.namespace)
             if namespace.startswith(self.scope):
-                self.collected[namespace, target.value] = docstring
+                self.collected[namespace, name] = docstring
 
 
 class PycodeError(Exception):

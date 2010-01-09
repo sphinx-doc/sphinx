@@ -25,8 +25,9 @@ It adds these directives:
             "bar" -> "baz";
          }
 
-   In HTML output, the code will be rendered to a PNG image.  In LaTeX output,
-   the code will be rendered to an embeddable PDF file.
+   In HTML output, the code will be rendered to a PNG or SVG image (see
+   :confval:`graphviz_output_format`).  In LaTeX output, the code will be
+   rendered to an embeddable PDF file.
 
 
 .. directive:: graph
@@ -55,6 +56,12 @@ It adds these directives:
          "bar" -> "baz" -> "quux";
 
 
+.. versionadded:: 1.0
+   All three directives support an ``alt`` option that determines the image's
+   alternate text for HTML output.  If not given, the alternate text defaults to
+   the graphviz code.
+
+
 There are also these new config values:
 
 .. confval:: graphviz_dot
@@ -75,3 +82,11 @@ There are also these new config values:
    Additional command-line arguments to give to dot, as a list.  The default is
    an empty list.  This is the right place to set global graph, node or edge
    attributes via dot's ``-G``, ``-N`` and ``-E`` options.
+
+.. confval:: graphviz_output_format
+
+   The output format for Graphviz when building HTML files.  This must be either
+   ``'png'`` or ``'svg'``; the default is ``'png'``.
+
+   .. versionadded:: 1.0
+      Previously, output always was PNG.

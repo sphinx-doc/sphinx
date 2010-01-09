@@ -5,7 +5,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -84,12 +84,9 @@ release = '%(release_str)s'
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%%B %%d, %%Y'
 
-# List of documents that shouldn't be included in the build.
-#unused_docs = []
-
-# List of directories, relative to source directory, that shouldn't be searched
-# for source files.
-exclude_trees = [%(exclude_trees)s]
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+exclude_patterns = [%(exclude_patterns)s]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -227,38 +224,22 @@ latex_documents = [
 
 # -- Options for Epub output ---------------------------------------------------
 
-# Please also set the html_theme to 'epub' or any other approriate theme.
-# The display size is quite small for ebook readers.
-# The default themes may take too much space.
-
-# bibliographic Dublin Core description of the content.opf and
-# in the toc.ncx file. It defaults to the html_title option.
+# Bibliographic Dublin Core info.
 #epub_title = ''
-
-# The author of the text. The author is inserted into the
-# bibliographic Dublin Core description of the content.opf file.
 #epub_author = ''
+#epub_publisher = ''
+#epub_copyright = ''
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
 #epub_language = ''
 
-# The publisher of the text. The publisher is inserted  into the
-# bibliographic Dublin Core description of the content.opf file.
-# You may use the project homepage.
-#epub_publisher = ''
-
-# The copyright of the text. The copyright is inserted into the
-# bibliographci Dublin Core description of the content.opf file.
-# It defaults to the copyright option.
-#epub_copyright = ''
+# The scheme of the identifier. Typical schemes are ISBN or URL.
+#epub_scheme = ''
 
 # The unique identifier of the text. This can be a ISBN number
 # or the project homepage.
 #epub_identifier = ''
-
-# The scheme of the identifier. Typical schemes are ISBN or URL.
-#epub_scheme = ''
 
 # A unique identification for the text.
 #epub_uid = ''
@@ -759,10 +740,10 @@ directly.'''
     mkdir_p(srcdir)
     if d['sep']:
         builddir = path.join(d['path'], 'build')
-        d['exclude_trees'] = ''
+        d['exclude_patterns'] = ''
     else:
         builddir = path.join(srcdir, d['dot'] + 'build')
-        d['exclude_trees'] = repr(d['dot'] + 'build')
+        d['exclude_patterns'] = repr(d['dot'] + 'build')
     mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))

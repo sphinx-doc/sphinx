@@ -9,8 +9,6 @@ import sys, os, re
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary']
 
-extlinks = {'issue': ('http://bugs.python.org/issue', 'issue ')}
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -20,9 +18,11 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'contents'
 
+exclude_patterns = ['_build']
+
 # General substitutions.
 project = 'Sphinx'
-copyright = '2007-2009, Georg Brandl'
+copyright = '2007-2010, Georg Brandl'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -34,7 +34,7 @@ release = version
 show_authors = True
 
 # The HTML template theme.
-html_theme = 'epub'
+html_theme = 'sphinxdoc'
 
 # A list of ignored prefixes names for module index sorting.
 modindex_common_prefix = ['sphinx.']
@@ -52,7 +52,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
-html_sidebars = {'index': 'indexsidebar.html'}
+html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 
 # Additional templates that should be rendered to pages, maps page names to
 # templates.
@@ -65,12 +65,13 @@ html_use_opensearch = 'http://sphinx.pocoo.org'
 htmlhelp_basename = 'Sphinxdoc'
 
 # Epub fields
+epub_theme = 'epub'
 epub_basename = 'sphinx'
-epub_author = 'Georg  Brandl'
+epub_author = 'Georg Brandl'
 epub_publisher = 'http://sphinx.pocoo.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
-epub_pre_files = [ ('index', 'Welcome')]
+epub_pre_files = [('index', 'Welcome')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js',
     '_static/basic.css', 'search.html']

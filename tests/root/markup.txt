@@ -162,6 +162,7 @@ Index markup
 .. index::
    single: entry
    pair: entry; pair
+   double: entry; double
    triple: index; entry; triple
    keyword: with
 

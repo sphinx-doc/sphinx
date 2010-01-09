@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2009 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -498,6 +498,13 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         try:
             # this raises SkipNode
             HTMLTranslator.visit_literal(self, node)
+        finally:
+            self.no_smarty -= 1
+
+    def visit_literal_block(self, node):
+        self.no_smarty += 1
+        try:
+            HTMLTranslator.visit_literal_block(self, node)
         finally:
             self.no_smarty -= 1
 

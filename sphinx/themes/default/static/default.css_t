@@ -1,6 +1,12 @@
-/**
- * Sphinx stylesheet -- default theme
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/*
+ * default.css_t
+ * ~~~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- default theme.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
  */
 
 @import url("basic.css");
@@ -249,4 +255,12 @@ tt {
 
 th {
     background-color: #ede;
+}
+
+.warning tt {
+    background: #efc2c2;
+}
+
+.note tt {
+    background: #d6d6d6;
 }
