@@ -204,7 +204,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 self.env.titles[self.config.master_doc], []
             ))),
         })
-        # XXX: is reversed ok?
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
                 'level': 1,
