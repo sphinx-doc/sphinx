@@ -355,6 +355,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
             file = node['refuri'].split('#')[0]
             if file in self.ignored_files:
                 continue
+            if node['level'] > self.config.epub_tocdepth:
+                continue
             if node['level'] == level:
                 navlist.append(self.new_navpoint(node, level))
             elif node['level'] == level + 1:

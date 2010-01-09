@@ -254,6 +254,9 @@ latex_documents = [
 
 # A list of files that should not be packed into the epub file.
 #epub_exclude_files = []
+
+# The depth of the table of contents in toc.ncx.
+#epub_tocdepth = 3
 '''
 
 INTERSPHINX_CONFIG = '''

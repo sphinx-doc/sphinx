@@ -701,6 +701,12 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    A list of files that are generated/copied in the build directory but should
    not be included in the epub file.  The default value is ``[]``.
 
+.. confval:: epub_tocdepth
+
+   The depth of the table of contents in the file :file:`toc.ncx`.  It should
+   be an integer greater than zero.  The default value is 3.  Note: A deeply
+   nested table of contents may be difficult to navigate.
+
 
 .. _latex-options:
 
