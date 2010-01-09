@@ -383,6 +383,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         navpoints = self.build_navpoints(self.refnodes)
         level = max(item['level'] for item in self.refnodes)
+        level = min(level, self.config.epub_tocdepth)
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
             f.write(_toc_template % self.toc_metadata(level, navpoints))
