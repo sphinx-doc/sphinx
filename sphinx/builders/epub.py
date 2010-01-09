@@ -177,7 +177,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if isinstance(doctree, nodes.reference):
             classes = doctree.parent.attributes['classes']
             level = 1
-            for l in range(8,0,-1): # or range(1,8)?
+            for l in range(8, 0, -1): # or range(1, 8)?
                 if (_toctree_template % l) in classes:
                     level = l
             result.append({
@@ -357,7 +357,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if file in self.ignored_files:
                 continue
             if node['level'] == level:
-                navlist.append(self.new_navpoint(node,level))
+                navlist.append(self.new_navpoint(node, level))
             elif node['level'] == level + 1:
                 navstack.append(navlist)
                 navlist = []
