@@ -16,6 +16,7 @@ from os import path
 import zipfile
 
 from docutils import nodes
+from docutils.transforms import Transform
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 
@@ -111,6 +112,29 @@ _media_types = {
 }
 
 
+# The transform to show link targets
+
+class VisibleLinksTransform(Transform):
+    """
+    Add the link target of referances to the text, unless it is already
+    present in the description.
+    """
+
+    # This transform must run after the references transforms
+    default_priority = 680
+
+    def apply(self):
+        for ref in self.document.traverse(nodes.reference):
+            uri = ref.get('refuri', '')
+            if ( uri.startswith('http:') or uri.startswith('https:') or \
+                    uri.startswith('ftp:') ) and uri not in ref.astext():
+                uri = ' [%s]' % uri
+                idx = ref.parent.index(ref) + 1
+                link = nodes.inline(uri, uri)
+                link['classes'].append('link-target')
+                ref.parent.insert(idx, link)
+
+
 # The epub publisher
 
 class EpubBuilder(StandaloneHTMLBuilder):
@@ -137,6 +161,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
+        self.app.add_transform(VisibleLinksTransform)
 
     def get_theme_config(self):
         return self.config.epub_theme, {}

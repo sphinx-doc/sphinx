@@ -71,6 +71,11 @@ The builder's "name" must be given to the **-b** command-line option of
    details about it.  For definition of the epub format, have a look at
    `<http://www.idpf.org/specs.htm>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
 
+   Some ebook readers do not show the link targets of references.  Therefore
+   this builder adds the targets after the link when necessary.  The display
+   of the URLs can be customized by adding CSS rules for the class
+   ``link-target``.
+
    Its name is ``epub``.
 
 .. module:: sphinx.builders.latex
