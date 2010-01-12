@@ -79,6 +79,11 @@ Release 1.0 (in development)
 Release 0.6.4 (in development)
 ==============================
 
+* Improve the handling of non-Unicode strings in the configuration.
+
+* #316: Catch OSErrors occurring when calling graphviz with
+  arguments it doesn't understand.
+
 * Restore compatibility with Pygments >= 1.2.
 
 * #295: Fix escaping of hyperref targets in LaTeX output.

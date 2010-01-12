@@ -44,5 +44,9 @@ class ExtensionError(SphinxError):
         return parent_str
 
 
+class ConfigError(SphinxError):
+    category = 'Configuration error'
+
+
 class ThemeError(SphinxError):
     category = 'Theme error'

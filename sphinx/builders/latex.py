@@ -102,7 +102,13 @@ class LaTeXBuilder(Builder):
             doctree.settings.title = title
             doctree.settings.docname = docname
             doctree.settings.docclass = docclass
-            docwriter.write(doctree, destination)
+            try:
+                docwriter.write(doctree, destination)
+            except UnicodeError:
+                self.warn("a Unicode error occurred when writing the output. "
+                          "Please make sure all config values that contain "
+                          "non-ASCII content are Unicode strings." % pagename)
+                return
             self.info("done")
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
