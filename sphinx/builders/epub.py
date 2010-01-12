@@ -306,11 +306,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
             for fn in files:
                 filename = path.join(root, fn)[olen:]
                 if filename in self.ignored_files:
-                    # self.warn("ignoring %s" % filename)
                     continue
                 ext = path.splitext(filename)[-1]
                 if ext not in _media_types:
-                    self.warn("unknown mimetype for %s, ignoring" % filename)
+                    self.warn('unknown mimetype for %s, ignoring' % filename)
                     continue
                 projectfiles.append(_file_template % {
                     'href': self.esc(filename),
