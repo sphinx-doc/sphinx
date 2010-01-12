@@ -1,5 +1,5 @@
-Release 0.6.4 (in development)
-==============================
+Release 0.6.4 (Jan 12, 2010)
+============================
 
 * Improve the handling of non-Unicode strings in the configuration.
 
