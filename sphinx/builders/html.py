@@ -70,7 +70,8 @@ class StandaloneHTMLBuilder(Builder):
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
-    script_files = ['_static/jquery.js', '_static/doctools.js']
+    script_files = ['_static/jquery.js', '_static/underscore.js',
+                    '_static/doctools.js']
     # Dito for this one.
     css_files = []
 

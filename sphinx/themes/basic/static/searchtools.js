@@ -312,7 +312,7 @@ var Search = {
     var tmp = query.split(/\s+/);
     var object = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
     for (var i = 0; i < tmp.length; i++) {
-      if (stopwords.indexOf(tmp[i]) != -1 || tmp[i].match(/^\d+$/)) {
+      if ($u.indexOf(stopwords, tmp[i]) != -1 || tmp[i].match(/^\d+$/)) {
         // skip this word
         continue;
       }

@@ -10,6 +10,11 @@
  */
 
 /**
+ * select a different prefix for underscore
+ */
+$u = _.noConflict();
+
+/**
  * make the code below compatible with browsers without
  * an installed firebug like debugger
  */
@@ -18,7 +23,7 @@ if (!window.console || !console.firebug) {
       "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
   window.console = {};
   for (var i = 0; i < names.length; ++i)
-    window.console[names[i]] = function() {}
+    window.console[names[i]] = function() {};
 }
 
 /**
@@ -53,7 +58,7 @@ jQuery.getQueryParameters = function(s) {
       result[key] = [value];
   }
   return result;
-}
+};
 
 /**
  * small function to check if an array contains
@@ -65,7 +70,7 @@ jQuery.contains = function(arr, item) {
       return true;
   }
   return false;
-}
+};
 
 /**
  * highlight a given string on a jquery object by wrapping it in
@@ -88,14 +93,14 @@ jQuery.fn.highlightText = function(text, className) {
     }
     else if (!jQuery(node).is("button, select, textarea")) {
       jQuery.each(node.childNodes, function() {
-        highlight(this)
+        highlight(this);
       });
     }
   }
   return this.each(function() {
     highlight(this);
   });
-}
+};
 
 /**
  * Small JavaScript module for the documentation.
