@@ -712,5 +712,10 @@ class TextTranslator(nodes.NodeVisitor):
         # only valid for HTML
         raise nodes.SkipNode
 
+    def visit_raw(self, node):
+        if 'text' in node.get('format', '').split():
+            self.body.append(node.astext())
+        raise nodes.SkipNode
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
