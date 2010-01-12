@@ -107,7 +107,7 @@ class LaTeXBuilder(Builder):
             except UnicodeError:
                 self.warn("a Unicode error occurred when writing the output. "
                           "Please make sure all config values that contain "
-                          "non-ASCII content are Unicode strings." % pagename)
+                          "non-ASCII content are Unicode strings.")
                 return
             self.info("done")
 

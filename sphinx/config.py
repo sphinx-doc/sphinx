@@ -121,11 +121,12 @@ class Config(object):
             config['tags'] = tags
             olddir = os.getcwd()
             try:
-                os.chdir(dirname)
-                execfile(config['__file__'], config)
-            except SyntaxError, err:
-                raise ConfigError('There is a syntax error in your '
-                                  'configuration file: ' + str(err))
+                try:
+                    os.chdir(dirname)
+                    execfile(config['__file__'], config)
+                except SyntaxError, err:
+                    raise ConfigError('There is a syntax error in your '
+                                      'configuration file: ' + str(err))
             finally:
                 os.chdir(olddir)
 
