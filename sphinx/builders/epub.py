@@ -23,6 +23,9 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
 # mimetype, and META-INF/container.xml are created.
+# This template section also defines strings that are embedded in the html
+# output but that may be customized by (re-)setting module attributes,
+# e.g. from conf.py.
 
 _mimetype_template = 'application/epub+zip' # no EOL!
 
@@ -99,6 +102,10 @@ _spine_template = u'''\
 
 _toctree_template = u'toctree-l%d'
 
+_link_target_template = u' [%(uri)s]'
+
+_css_link_target_class = u'link-target'
+
 _media_types = {
     '.html': 'application/xhtml+xml',
     '.css': 'text/css',
@@ -128,11 +135,12 @@ class VisibleLinksTransform(Transform):
             uri = ref.get('refuri', '')
             if ( uri.startswith('http:') or uri.startswith('https:') or \
                     uri.startswith('ftp:') ) and uri not in ref.astext():
-                uri = ' [%s]' % uri
-                idx = ref.parent.index(ref) + 1
-                link = nodes.inline(uri, uri)
-                link['classes'].append('link-target')
-                ref.parent.insert(idx, link)
+                uri = _link_target_template % {'uri': uri}
+                if uri:
+                    idx = ref.parent.index(ref) + 1
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    ref.parent.insert(idx, link)
 
 
 # The epub publisher
