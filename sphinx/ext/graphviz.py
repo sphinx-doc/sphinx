@@ -142,7 +142,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
     try:
-        fname, outfn = render_dot(self, code, options, 'pnf', prefix)
+        fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError, exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
