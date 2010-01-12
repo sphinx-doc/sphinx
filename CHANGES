@@ -1,6 +1,8 @@
 Release 0.6.4 (in development)
 ==============================
 
+* Improve the handling of non-Unicode strings in the configuration.
+
 * #316: Catch OSErrors occurring when calling graphviz with
   arguments it doesn't understand.
 

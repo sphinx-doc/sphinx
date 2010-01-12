@@ -656,7 +656,14 @@ class StandaloneHTMLBuilder(Builder):
         self.app.emit('html-page-context', pagename, templatename,
                       ctx, event_arg)
 
-        output = self.templates.render(templatename, ctx)
+        try:
+            output = self.templates.render(templatename, ctx)
+        except UnicodeError:
+            self.warn("a Unicode error occurred when rendering the page %s. "
+                      "Please make sure all config values that contain "
+                      "non-ASCII content are Unicode strings." % pagename)
+            return
+
         if not outfilename:
             outfilename = self.get_outfilename(pagename)
         # outfilename's path is in general different from self.outdir

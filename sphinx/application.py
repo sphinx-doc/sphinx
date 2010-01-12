@@ -92,6 +92,7 @@ class Sphinx(object):
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME, confoverrides, self.tags)
+        self.config.check_unicode(self.warn)
 
         # load all extension modules
         for extension in self.config.extensions:
