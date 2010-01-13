@@ -100,7 +100,8 @@ def collect_pages(app):
             backlink = urito(pagename, docname) + '#' + modname + '.' + name
             lines[start] = (
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
-                'href="%s">%s</a>' % (name, backlink, _('[docs]')) + lines[start])
+                'href="%s">%s</a>' % (name, backlink, _('[docs]'))
+                + lines[start])
             lines[end - 1] += '</div>'
         # try to find parents (for submodules)
         parents = []
@@ -119,14 +120,15 @@ def collect_pages(app):
         context = {
             'parents': parents,
             'title': modname,
-            'body': _('<h2>Source code for %s</h2>') % modname + '\n'.join(lines)
+            'body': _('<h2>Source code for %s</h2>') % modname + \
+                    '\n'.join(lines)
         }
         app.builder.info(' '+pagename, nonl=1)
         yield (pagename, context, 'page.html')
 
     if not modnames:
         return
-        
+
     app.builder.info(' _modules/index')
     html = ['\n']
     # the stack logic is needed for using nested lists for submodules
