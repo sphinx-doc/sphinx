@@ -35,7 +35,7 @@ class GenericObject(ObjectDescription):
     indextemplate = ''
     parse_node = None
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         if self.parse_node:
             name = self.parse_node(self.env, sig, signode)
         else:

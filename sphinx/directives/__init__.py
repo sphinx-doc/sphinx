@@ -190,7 +190,7 @@ class ObjectDescription(Directive):
         return [strip_backslash_re.sub('', sig.strip())
                 for sig in self.arguments[0].split('\n')]
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -242,8 +242,10 @@ class ObjectDescription(Directive):
             signode['first'] = False
             node.append(signode)
             try:
-                # name can also be a tuple, e.g. (classname, objname)
-                name = self.parse_signature(sig, signode)
+                # name can also be a tuple, e.g. (classname, objname);
+                # this is strictly domain-specific (i.e. no assumptions may
+                # be made in this base class)
+                name = self.handle_signature(sig, signode)
             except ValueError, err:
                 # signature parsing failed
                 signode.clear()

@@ -53,7 +53,7 @@ class PyObject(ObjectDescription):
         """
         return False
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         """
         Transform a Python signature into RST nodes.
         Returns (fully qualified name of the thing, classname if any).
@@ -65,32 +65,43 @@ class PyObject(ObjectDescription):
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
-        classname, name, arglist, retann = m.groups()
+        name_prefix, name, arglist, retann = m.groups()
 
-        currclass = self.env.doc_read_data.get('py:class')
-        if currclass:
+        # determine module and class name (if applicable), as well as full name
+        modname = self.options.get(
+            'module', self.env.doc_read_data.get('py:module'))
+        classname = self.env.doc_read_data.get('py:class')
+        if classname:
             add_module = False
-            if classname and classname.startswith(currclass):
-                fullname = classname + name
+            if name_prefix and name_prefix.startswith(classname):
+                fullname = name_prefix + name
                 # class name is given again in the signature
-                classname = classname[len(currclass):].lstrip('.')
-            elif classname:
+                name_prefix = name_prefix[len(classname):].lstrip('.')
+            elif name_prefix:
                 # class name is given in the signature, but different
                 # (shouldn't happen)
-                fullname = currclass + '.' + classname + name
+                fullname = classname + '.' + name_prefix + name
             else:
                 # class name is not given in the signature
-                fullname = currclass + '.' + name
+                fullname = classname + '.' + name
         else:
             add_module = True
-            fullname = classname and classname + name or name
+            if name_prefix:
+                classname = name_prefix.rstrip('.')
+                fullname = name_prefix + name
+            else:
+                classname = ''
+                fullname = name
 
-        prefix = self.get_signature_prefix(sig)
-        if prefix:
-            signode += addnodes.desc_annotation(prefix, prefix)
+        signode['module'] = modname
+        signode['class'] = classname
 
-        if classname:
-            signode += addnodes.desc_addname(classname, classname)
+        sig_prefix = self.get_signature_prefix(sig)
+        if sig_prefix:
+            signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
+
+        if name_prefix:
+            signode += addnodes.desc_addname(name_prefix, name_prefix)
         # exceptions are a special case, since they are documented in the
         # 'exceptions' module.
         elif add_module and self.env.config.add_module_names:
@@ -107,7 +118,7 @@ class PyObject(ObjectDescription):
                 signode += addnodes.desc_parameterlist()
             if retann:
                 signode += addnodes.desc_returns(retann, retann)
-            return fullname, classname
+            return fullname, name_prefix
         signode += addnodes.desc_parameterlist()
 
         stack = [signode[-1]]
@@ -130,7 +141,7 @@ class PyObject(ObjectDescription):
             raise ValueError
         if retann:
             signode += addnodes.desc_returns(retann, retann)
-        return fullname, classname
+        return fullname, name_prefix
 
     def get_index_text(self, modname, name):
         """
