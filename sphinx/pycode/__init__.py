@@ -14,8 +14,10 @@ import sys
 from os import path
 from cStringIO import StringIO
 
+from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
+from sphinx.util import get_module_source
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -136,14 +138,6 @@ class AttrDocVisitor(nodes.NodeVisitor):
                 self.collected[namespace, name] = docstring
 
 
-class PycodeError(Exception):
-    def __str__(self):
-        res = self.args[0]
-        if len(self.args) > 1:
-            res += ' (exception was: %r)' % self.args[1]
-        return res
-
-
 class ModuleAnalyzer(object):
     # cache for analyzer objects -- caches both by module and file name
     cache = {}
@@ -173,33 +167,11 @@ class ModuleAnalyzer(object):
             return entry
 
         try:
-            if modname not in sys.modules:
-                try:
-                    __import__(modname)
-                except ImportError, err:
-                    raise PycodeError('error importing %r' % modname, err)
-            mod = sys.modules[modname]
-            if hasattr(mod, '__loader__'):
-                try:
-                    source = mod.__loader__.get_source(modname)
-                except Exception, err:
-                    raise PycodeError('error getting source for %r' % modname,
-                                      err)
+            type, source = get_module_source(modname)
+            if type == 'string':
                 obj = cls.for_string(source, modname)
-                cls.cache['module', modname] = obj
-                return obj
-            filename = getattr(mod, '__file__', None)
-            if filename is None:
-                raise PycodeError('no source found for module %r' % modname)
-            filename = path.normpath(path.abspath(filename))
-            lfilename = filename.lower()
-            if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
-                filename = filename[:-1]
-            elif not lfilename.endswith('.py'):
-                raise PycodeError('source is not a .py file: %r' % filename)
-            if not path.isfile(filename):
-                raise PycodeError('source file is not present: %r' % filename)
-            obj = cls.for_file(filename, modname)
+            else:
+                obj = cls.for_file(source, modname)
         except PycodeError, err:
             cls.cache['module', modname] = err
             raise
@@ -213,6 +185,11 @@ class ModuleAnalyzer(object):
         self.srcname = srcname
         # file-like object yielding source lines
         self.source = source
+
+        # cache the source code as well
+        pos = self.source.tell()
+        self.code = self.source.read()
+        self.source.seek(pos)
 
         # will be filled by tokenize()
         self.tokens = None
