@@ -46,3 +46,11 @@ class ExtensionError(SphinxError):
 
 class ThemeError(SphinxError):
     category = 'Theme error'
+
+
+class PycodeError(Exception):
+    def __str__(self):
+        res = self.args[0]
+        if len(self.args) > 1:
+            res += ' (exception was: %r)' % self.args[1]
+        return res

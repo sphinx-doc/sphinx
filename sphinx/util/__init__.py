@@ -508,6 +508,38 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     return node
 
 
+def get_module_source(modname):
+    """Try to find the source code for a module.
+
+    Can return ('file', 'filename') in which case the source is in the given
+    file, or ('string', 'source') which which case the source is the string.
+    """
+    if modname not in sys.modules:
+        try:
+            __import__(modname)
+        except Exception, err:
+            raise PycodeError('error importing %r' % modname, err)
+    mod = sys.modules[modname]
+    if hasattr(mod, '__loader__'):
+        try:
+            source = mod.__loader__.get_source(modname)
+        except Exception, err:
+            raise PycodeError('error getting source for %r' % modname, err)
+        return 'string', source
+    filename = getattr(mod, '__file__', None)
+    if filename is None:
+        raise PycodeError('no source found for module %r' % modname)
+    filename = path.normpath(path.abspath(filename))
+    lfilename = filename.lower()
+    if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
+        filename = filename[:-1]
+    elif not lfilename.endswith('.py'):
+        raise PycodeError('source is not a .py file: %r' % filename)
+    if not path.isfile(filename):
+        raise PycodeError('source file is not present: %r' % filename)
+    return 'file', filename
+
+
 try:
     any = any
 except NameError:

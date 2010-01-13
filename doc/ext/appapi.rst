@@ -360,7 +360,15 @@ registered event handlers.
 
    .. versionadded:: 0.5
 
-.. event:: page-context (app, pagename, templatename, context, doctree)
+.. event:: html-collect-pages (app)
+
+   Emitted when the HTML builder is starting to write non-document pages.  You
+   can add pages to write by returning an iterable from this event consisting of
+   ``(pagename, context, templatename)``.
+
+   .. versionadded:: 1.0
+
+.. event:: html-page-context (app, pagename, templatename, context, doctree)
 
    Emitted when the HTML builder has created a context dictionary to render a
    template with -- this can be used to add custom elements to the context.

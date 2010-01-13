@@ -66,7 +66,7 @@ class CObject(ObjectDescription):
             else:
                 node += tnode
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         """Transform a C (or C++) signature into RST nodes."""
         # first try the function pointer signature regex, it's more specific
         m = c_funcptr_sig_re.match(sig)

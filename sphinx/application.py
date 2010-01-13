@@ -47,6 +47,7 @@ events = {
     'missing-reference': 'env, node, contnode',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
+    'html-collect-pages': 'builder',
     'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }

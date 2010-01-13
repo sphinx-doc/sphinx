@@ -53,7 +53,7 @@ class PyObject(ObjectDescription):
         """
         return False
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         """
         Transform a Python signature into RST nodes.
         Returns (fully qualified name of the thing, classname if any).
@@ -65,37 +65,49 @@ class PyObject(ObjectDescription):
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
-        classname, name, arglist, retann = m.groups()
+        name_prefix, name, arglist, retann = m.groups()
 
-        currclass = self.env.doc_read_data.get('py_class')
-        if currclass:
+        # determine module and class name (if applicable), as well as full name
+        modname = self.options.get(
+            'module', self.env.doc_read_data.get('py:module'))
+        classname = self.env.doc_read_data.get('py:class')
+        if classname:
             add_module = False
-            if classname and classname.startswith(currclass):
-                fullname = classname + name
+            if name_prefix and name_prefix.startswith(classname):
+                fullname = name_prefix + name
                 # class name is given again in the signature
-                classname = classname[len(currclass):].lstrip('.')
-            elif classname:
+                name_prefix = name_prefix[len(classname):].lstrip('.')
+            elif name_prefix:
                 # class name is given in the signature, but different
                 # (shouldn't happen)
-                fullname = currclass + '.' + classname + name
+                fullname = classname + '.' + name_prefix + name
             else:
                 # class name is not given in the signature
-                fullname = currclass + '.' + name
+                fullname = classname + '.' + name
         else:
             add_module = True
-            fullname = classname and classname + name or name
+            if name_prefix:
+                classname = name_prefix.rstrip('.')
+                fullname = name_prefix + name
+            else:
+                classname = ''
+                fullname = name
 
-        prefix = self.get_signature_prefix(sig)
-        if prefix:
-            signode += addnodes.desc_annotation(prefix, prefix)
+        signode['module'] = modname
+        signode['class'] = classname
+        signode['fullname'] = fullname
 
-        if classname:
-            signode += addnodes.desc_addname(classname, classname)
+        sig_prefix = self.get_signature_prefix(sig)
+        if sig_prefix:
+            signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
+
+        if name_prefix:
+            signode += addnodes.desc_addname(name_prefix, name_prefix)
         # exceptions are a special case, since they are documented in the
         # 'exceptions' module.
         elif add_module and self.env.config.add_module_names:
             modname = self.options.get(
-                'module', self.env.doc_read_data.get('py_module'))
+                'module', self.env.doc_read_data.get('py:module'))
             if modname and modname != 'exceptions':
                 nodetext = modname + '.'
                 signode += addnodes.desc_addname(nodetext, nodetext)
@@ -107,7 +119,7 @@ class PyObject(ObjectDescription):
                 signode += addnodes.desc_parameterlist()
             if retann:
                 signode += addnodes.desc_returns(retann, retann)
-            return fullname, classname
+            return fullname, name_prefix
         signode += addnodes.desc_parameterlist()
 
         stack = [signode[-1]]
@@ -130,7 +142,7 @@ class PyObject(ObjectDescription):
             raise ValueError
         if retann:
             signode += addnodes.desc_returns(retann, retann)
-        return fullname, classname
+        return fullname, name_prefix
 
     def get_index_text(self, modname, name):
         """
@@ -140,7 +152,7 @@ class PyObject(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         modname = self.options.get(
-            'module', self.env.doc_read_data.get('py_module'))
+            'module', self.env.doc_read_data.get('py:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -169,7 +181,7 @@ class PyObject(ObjectDescription):
 
     def after_content(self):
         if self.clsname_set:
-            self.env.doc_read_data['py_class'] = None
+            self.env.doc_read_data['py:class'] = None
 
 
 class PyModulelevel(PyObject):
@@ -214,7 +226,7 @@ class PyClasslike(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         if self.names:
-            self.env.doc_read_data['py_class'] = self.names[0][0]
+            self.env.doc_read_data['py:class'] = self.names[0][0]
             self.clsname_set = True
 
 
@@ -292,8 +304,8 @@ class PyClassmember(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         lastname = self.names and self.names[-1][1]
-        if lastname and not self.env.doc_read_data.get('py_class'):
-            self.env.doc_read_data['py_class'] = lastname.strip('.')
+        if lastname and not self.env.doc_read_data.get('py:class'):
+            self.env.doc_read_data['py:class'] = lastname.strip('.')
             self.clsname_set = True
 
 
@@ -317,7 +329,7 @@ class PyModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
-        env.doc_read_data['py_module'] = modname
+        env.doc_read_data['py:module'] = modname
         env.domaindata['py']['modules'][modname] = \
             (env.docname, self.options.get('synopsis', ''),
              self.options.get('platform', ''), 'deprecated' in self.options)
@@ -361,16 +373,16 @@ class PyCurrentModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
-            env.doc_read_data['py_module'] = None
+            env.doc_read_data['py:module'] = None
         else:
-            env.doc_read_data['py_module'] = modname
+            env.doc_read_data['py:module'] = modname
         return []
 
 
 class PyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['py_module'] = env.doc_read_data.get('py_module')
-        refnode['py_class'] = env.doc_read_data.get('py_class')
+        refnode['py:module'] = env.doc_read_data.get('py:module')
+        refnode['py:class'] = env.doc_read_data.get('py:class')
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~') # only has a meaning for the title
@@ -497,8 +509,8 @@ class PythonDomain(Domain):
                 return make_refnode(builder, fromdocname, docname,
                                     'module-' + target, contnode, title)
         else:
-            modname = node.get('py_module')
-            clsname = node.get('py_class')
+            modname = node.get('py:module')
+            clsname = node.get('py:class')
             searchorder = node.hasattr('refspecific') and 1 or 0
             name, obj = self.find_obj(env, modname, clsname,
                                       target, typ, searchorder)

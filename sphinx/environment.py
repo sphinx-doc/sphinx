@@ -713,12 +713,12 @@ class BuildEnvironment:
     @property
     def currmodule(self):
         """Backwards compatible alias."""
-        return self.doc_read_data.get('py_module')
+        return self.doc_read_data.get('py:module')
 
     @property
     def currclass(self):
         """Backwards compatible alias."""
-        return self.doc_read_data.get('py_class')
+        return self.doc_read_data.get('py:class')
 
     def new_serialno(self, category=''):
         """Return a serial number, e.g. for index entry targets."""

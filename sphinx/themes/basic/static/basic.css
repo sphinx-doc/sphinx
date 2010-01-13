@@ -368,6 +368,22 @@ dl.glossary dt {
     margin-left: 1.5em;
 }
 
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family: sans-serif;
+}
+
+div.viewcode-block:target {
+    background-color: #f4debf;
+    border: 1px solid #D5BB73;
+    margin: -1px -10px;
+    padding: 0 10px;
+}
+
 /* -- code displays --------------------------------------------------------- */
 
 pre {

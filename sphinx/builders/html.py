@@ -381,8 +381,12 @@ class StandaloneHTMLBuilder(Builder):
     def finish(self):
         self.info(bold('writing additional files...'), nonl=1)
 
-        # the global general index
+        # pages from extensions
+        for pagelist in self.app.emit('html-collect-pages'):
+            for pagename, context, template in pagelist:
+                self.handle_page(pagename, context, template)
 
+        # the global general index
         if self.config.html_use_index:
             # the total count of lines for each index letter, used to distribute
             # the entries into two columns

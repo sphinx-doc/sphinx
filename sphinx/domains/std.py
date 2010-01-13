@@ -35,7 +35,7 @@ class GenericObject(ObjectDescription):
     indextemplate = ''
     parse_node = None
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         if self.parse_node:
             name = self.parse_node(self.env, sig, signode)
         else:
@@ -146,7 +146,7 @@ class Cmdoption(ObjectDescription):
 
     def add_target_and_index(self, name, sig, signode):
         targetname = name.replace('/', '-')
-        currprogram = self.env.doc_read_data.get('std_program')
+        currprogram = self.env.doc_read_data.get('std:program')
         if currprogram:
             targetname = '-' + currprogram + targetname
         targetname = 'cmdoption' + targetname
@@ -175,9 +175,9 @@ class Program(Directive):
         env = self.state.document.settings.env
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
-            env.doc_read_data['std_program'] = None
+            env.doc_read_data['std:program'] = None
         else:
-            env.doc_read_data['std_program'] = program
+            env.doc_read_data['std:program'] = program
         return []
 
 
@@ -185,7 +185,7 @@ class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        program = env.doc_read_data.get('std_program')
+        program = env.doc_read_data.get('std:program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):
