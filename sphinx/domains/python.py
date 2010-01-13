@@ -95,6 +95,7 @@ class PyObject(ObjectDescription):
 
         signode['module'] = modname
         signode['class'] = classname
+        signode['fullname'] = fullname
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
