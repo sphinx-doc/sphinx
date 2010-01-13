@@ -14,7 +14,7 @@ from util import *
 
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import AutoDirective, Documenter, add_documenter, \
+from sphinx.ext.autodoc import AutoDirective, add_documenter, \
      ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 
