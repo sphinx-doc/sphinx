@@ -97,28 +97,28 @@ def test_parse_name():
     verify('function', 'util.raises', ('util', ['raises'], None, None))
     verify('function', 'util.raises(exc) -> None',
            ('util', ['raises'], 'exc', 'None'))
-    directive.env.doc_read_data['autodoc_module'] = 'util'
+    directive.env.doc_read_data['autodoc:module'] = 'util'
     verify('function', 'raises', ('util', ['raises'], None, None))
-    del directive.env.doc_read_data['autodoc_module']
-    directive.env.doc_read_data['py_module'] = 'util'
+    del directive.env.doc_read_data['autodoc:module']
+    directive.env.doc_read_data['py:module'] = 'util'
     verify('function', 'raises', ('util', ['raises'], None, None))
     verify('class', 'TestApp', ('util', ['TestApp'], None, None))
 
     # for members
-    directive.env.doc_read_data['py_module'] = 'foo'
+    directive.env.doc_read_data['py:module'] = 'foo'
     verify('method', 'util.TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
-    directive.env.doc_read_data['py_module'] = 'util'
-    directive.env.doc_read_data['py_class'] = 'Foo'
-    directive.env.doc_read_data['autodoc_class'] = 'TestApp'
+    directive.env.doc_read_data['py:module'] = 'util'
+    directive.env.doc_read_data['py:class'] = 'Foo'
+    directive.env.doc_read_data['autodoc:class'] = 'TestApp'
     verify('method', 'cleanup', ('util', ['TestApp', 'cleanup'], None, None))
     verify('method', 'TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
 
     # and clean up
-    del directive.env.doc_read_data['py_module']
-    del directive.env.doc_read_data['py_class']
-    del directive.env.doc_read_data['autodoc_class']
+    del directive.env.doc_read_data['py:module']
+    del directive.env.doc_read_data['py:class']
+    del directive.env.doc_read_data['autodoc:class']
 
 
 def test_format_signature():
@@ -353,7 +353,7 @@ def test_generate():
                  'function', 'util.foobar', more_content=None)
 
     # test auto and given content mixing
-    directive.env.doc_read_data['py_module'] = 'test_autodoc'
+    directive.env.doc_read_data['py:module'] = 'test_autodoc'
     assert_result_contains('   Function.', 'method', 'Class.meth')
     add_content = ViewList()
     add_content.append('Content.', '', 0)
@@ -437,7 +437,7 @@ def test_generate():
                            'attribute', 'test_autodoc.Class.descr')
 
     # test generation for C modules (which have no source file)
-    directive.env.doc_read_data['py_module'] = 'time'
+    directive.env.doc_read_data['py:module'] = 'time'
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
 

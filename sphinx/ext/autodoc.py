@@ -562,9 +562,9 @@ class Documenter(object):
         do all members, else those given by *self.options.members*.
         """
         # set current namespace for finding members
-        self.env.doc_read_data['autodoc_module'] = self.modname
+        self.env.doc_read_data['autodoc:module'] = self.modname
         if self.objpath:
-            self.env.doc_read_data['autodoc_class'] = self.objpath[0]
+            self.env.doc_read_data['autodoc:class'] = self.objpath[0]
 
         want_all = all_members or self.options.inherited_members or \
                    self.options.members is ALL
@@ -605,8 +605,8 @@ class Documenter(object):
                                 check_module=members_check_module)
 
         # reset current objects
-        self.env.doc_read_data['autodoc_module'] = None
-        self.env.doc_read_data['autodoc_class'] = None
+        self.env.doc_read_data['autodoc:module'] = None
+        self.env.doc_read_data['autodoc:class'] = None
 
     def generate(self, more_content=None, real_modname=None,
                  check_module=False, all_members=False):
@@ -764,10 +764,10 @@ class ModuleLevelDocumenter(Documenter):
             else:
                 # if documenting a toplevel object without explicit module,
                 # it can be contained in another auto directive ...
-                modname = self.env.doc_read_data.get('autodoc_module')
+                modname = self.env.doc_read_data.get('autodoc:module')
                 # ... or in the scope of a module directive
                 if not modname:
-                    modname = self.env.doc_read_data.get('py_module')
+                    modname = self.env.doc_read_data.get('py:module')
                 # ... else, it stays None, which means invalid
         return modname, parents + [base]
 
@@ -786,10 +786,10 @@ class ClassLevelDocumenter(Documenter):
                 # if documenting a class-level object without path,
                 # there must be a current class, either from a parent
                 # auto directive ...
-                mod_cls = self.env.doc_read_data.get('autodoc_class')
+                mod_cls = self.env.doc_read_data.get('autodoc:class')
                 # ... or from a class directive
                 if mod_cls is None:
-                    mod_cls = self.env.doc_read_data.get('py_class')
+                    mod_cls = self.env.doc_read_data.get('py:class')
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
@@ -797,9 +797,9 @@ class ClassLevelDocumenter(Documenter):
             parents = [cls]
             # if the module name is still missing, get it like above
             if not modname:
-                modname = self.env.doc_read_data.get('autodoc_module')
+                modname = self.env.doc_read_data.get('autodoc:module')
             if not modname:
-                modname = self.env.doc_read_data.get('py_module')
+                modname = self.env.doc_read_data.get('py:module')
             # ... else, it stays None, which means invalid
         return modname, parents + [base]
 
