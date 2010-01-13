@@ -127,7 +127,7 @@ class Cmdoption(ObjectDescription):
     Description of a command-line option (.. cmdoption).
     """
 
-    def parse_signature(self, sig, signode):
+    def handle_signature(self, sig, signode):
         """Transform an option description into RST nodes."""
         count = 0
         firstname = ''

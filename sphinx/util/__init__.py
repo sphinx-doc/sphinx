@@ -29,6 +29,7 @@ from docutils.utils import relative_path
 import jinja2
 
 import sphinx
+from sphinx.errors import PycodeError
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
