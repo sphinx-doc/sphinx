@@ -43,7 +43,9 @@ def doctree_read(app, doctree):
         if objnode['domain'] != 'py':
             continue
         names = set()
-        for signode in objnode.traverse(addnodes.desc_signature):
+        for signode in objnode:
+            if not isinstance(signode, addnodes.desc_signature):
+                continue
             modname = signode['module']
             if not modname:
                 continue
