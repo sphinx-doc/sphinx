@@ -361,7 +361,6 @@ class Sphinx(object):
         roles.register_local_role(name, role)
 
     def add_domain(self, domain):
-        # XXX needs to be documented
         # XXX what about subclassing and overriding?
         if domain.name in all_domains:
             raise ExtensionError('domain %s already registered' % domain.name)
@@ -369,14 +368,12 @@ class Sphinx(object):
 
     def add_directive_to_domain(self, domain, name, obj,
                                 content=None, arguments=None, **options):
-        # XXX needs to be documented
         if domain not in all_domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         all_domains[domain].directives[name] = \
             self._directive_helper(obj, content, arguments, **options)
 
     def add_role_to_domain(self, domain, name, role):
-        # XXX needs to be documented
         if domain not in all_domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         all_domains[domain].roles[name] = role

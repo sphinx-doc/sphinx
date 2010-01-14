@@ -43,6 +43,15 @@ the following public API:
       ``'env'``) to a string.  However, booleans are still accepted and
       converted internally.
 
+.. method:: Sphinx.add_domain(domain)
+
+   Make the given *domain* (which must be a subclass of
+   :class:`sphinx.domains.Domain`) known to Sphinx.
+
+   .. XXX where is Domain documented?
+
+   .. versionadded:: 1.0
+
 .. method:: Sphinx.add_event(name)
 
    Register an event called *name*.
@@ -81,10 +90,10 @@ the following public API:
    Register a Docutils directive.  *name* must be the prospective directive
    name.  There are two possible ways to write a directive:
 
-   * In the docutils 0.4 style, *func* is the directive function.  *content*,
+   * In the docutils 0.4 style, *obj* is the directive function.  *content*,
      *arguments* and *options* are set as attributes on the function and
      determine whether the directive has content, arguments and options,
-     respectively.
+     respectively.  **This style is deprecated.**
 
    * In the docutils 0.5 style, *directiveclass* is the directive class.  It
      must already have attributes named *has_content*, *required_arguments*,
@@ -114,11 +123,25 @@ the following public API:
    .. versionchanged:: 0.6
       Docutils 0.5-style directive classes are now supported.
 
+.. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, **options)
+            Sphinx.add_directive_to_domain(domain, name, directiveclass)
+
+   Like :meth:`add_directive`, but the directive is added to the domain named
+   *domain*.
+
+   .. versionadded:: 1.0
+
 .. method:: Sphinx.add_role(name, role)
 
    Register a Docutils role.  *name* must be the role name that occurs in the
    source, *role* the role function (see the `Docutils documentation
    <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ on details).
+
+.. method:: Sphinx.add_role_to_domain(domain, name, role)
+
+   Like :meth:`add_role`, but the role is added to the domain named *domain*.
+
+   .. versionadded:: 1.0
 
 .. method:: Sphinx.add_generic_role(name, nodeclass)
 
