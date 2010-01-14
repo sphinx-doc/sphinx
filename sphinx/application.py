@@ -274,11 +274,11 @@ class Sphinx(object):
             event.pop(listener_id, None)
 
     def emit(self, event, *args):
-        result = []
+        results = []
         if event in self._listeners:
             for _, callback in self._listeners[event].iteritems():
-                result.append(callback(self, *args))
-        return result
+                results.append(callback(self, *args))
+        return results
 
     def emit_firstresult(self, event, *args):
         for result in self.emit(event, *args):

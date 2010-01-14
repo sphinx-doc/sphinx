@@ -269,8 +269,7 @@ the following public API:
 .. method:: Sphinx.emit_firstresult(event, *arguments)
 
    Emit *event* and pass *arguments* to the callback functions.  Return the
-   result of the first callback that doesn't return ``None`` (and don't call
-   the rest of the callbacks).
+   result of the first callback that doesn't return ``None``.
 
    .. versionadded:: 0.5
 
