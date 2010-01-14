@@ -122,7 +122,7 @@ def collect_pages(app):
         context = {
             'parents': parents,
             'title': modname,
-            'body': _('<h2>Source code for %s</h2>') % modname + \
+            'body': _('<h1>Source code for %s</h1>') % modname + \
                     '\n'.join(lines)
         }
         app.builder.info(' '+pagename, nonl=1)
@@ -151,7 +151,7 @@ def collect_pages(app):
     html.append('</ul>' * (len(stack) - 1))
     context = {
         'title': _('Overview: module code'),
-        'body': _('<h2>All modules for which code is available</h2>') + \
+        'body': _('<h1>All modules for which code is available</h1>') + \
             ''.join(html),
     }
 
