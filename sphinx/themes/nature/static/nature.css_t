@@ -233,3 +233,13 @@ tt {
     font-size: 1.1em;
     font-family: monospace;
 }
+
+.viewcode-back {
+    font-family: Arial, sans-serif;
+}
+
+div.viewcode-block:target {
+    background-color: #f4debf;
+    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;
+}

@@ -412,3 +412,20 @@ span.highlight {
     margin-bottom: 0;
     margin-left: 1.5em;
 }
+
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family: 'Georgia', serif;
+}
+
+div.viewcode-block:target {
+    background-color: #f4debf;
+    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;
+    margin: -1px -5px;
+    padding: 0 5px;
+}

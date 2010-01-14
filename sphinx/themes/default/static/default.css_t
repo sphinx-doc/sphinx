@@ -264,3 +264,13 @@ th {
 .note tt {
     background: #d6d6d6;
 }
+
+.viewcode-back {
+    font-family: {{ theme_bodyfont }};
+}
+
+div.viewcode-block:target {
+    background-color: #f4debf;
+    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;
+}

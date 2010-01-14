@@ -717,3 +717,20 @@ form.comment textarea {
         display: none;
     }
 }
+
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family: serif;
+}
+
+div.viewcode-block:target {
+    background-color: #f4debf;
+    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;
+    margin: -1px -10px;
+    padding: 0 10px;
+}

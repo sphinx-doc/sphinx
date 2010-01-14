@@ -357,3 +357,21 @@ img.toggler {
     cursor: pointer;
 }
 
+/* -- viewcode extension ---------------------------------------------------- */
+
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family:: {{ theme_bodyfont }};
+}
+
+div.viewcode-block:target {
+    margin: -1px -3px;
+    padding: 0 3px;
+    background-color: #f4debf;
+    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;
+}
