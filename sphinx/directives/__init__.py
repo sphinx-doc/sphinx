@@ -32,6 +32,10 @@ except AttributeError:
         directives.length_or_percentage_or_unitless
 
 
+# RE to strip backslash escapes
+strip_backslash_re = re.compile(r'\\(?=[^\\])')
+
+
 def _is_only_paragraph(node):
     """True if the node only contains one paragraph (and system messages)."""
     if len(node) == 0:
@@ -45,8 +49,164 @@ def _is_only_paragraph(node):
     return False
 
 
-# RE to strip backslash escapes
-strip_backslash_re = re.compile(r'\\(?=[^\\])')
+class FieldType(object):
+    def __init__(self, name, names=(), label=None, grouplabel=None,
+                 objtype=None, has_arg=True):
+        self.name = name
+        self.names = names
+        self.label = label
+        self.grouplabel = grouplabel
+        self.objtype = objtype
+        self.has_arg = has_arg
+
+
+class TypedFieldType(FieldType):
+    def __init__(self, name, names=(), typefields=(), label=None,
+                 grouplabel=None, objtype=None, has_arg=True):
+        FieldType.__init__(self, name, names, label,
+                           grouplabel, objtype, has_arg)
+        self.typefields = typefields
+
+
+class DocFieldTransformer(object):
+    """
+    Transforms field lists in "doc field" syntax into better-looking
+    equivalents, using the field type definitions given on a domain.
+    """
+
+    def __init__(self, directive):
+        self.domain = directive.domain
+        if not hasattr(directive, '_doc_field_type_map'):
+            directive._doc_field_type_map = \
+                self.preprocess_fieldtypes(directive.doc_field_types)
+        self.typemap = directive._doc_field_type_map
+
+    def preprocess_fieldtypes(self, types):
+        typemap = {}
+        for fieldtype in types:
+            for name in fieldtype.names:
+                typemap[name] = fieldtype, 0
+            if isinstance(fieldtype, TypedFieldType):
+                for name in fieldtype.typefields:
+                    typemap[name] = fieldtype, 1
+        return typemap
+
+    def transform_all(self, node):
+        """Transform all field list children of a node."""
+        # don't traverse, only handle field lists that are immediate children
+        for child in node:
+            if isinstance(child, nodes.field_list):
+                self.transform(child)
+
+    def transform(self, node):
+        """Transform a single field list *node*."""
+        typemap = self.typemap
+
+        entries = []
+        groupindices = {}
+        types = {}
+
+        for field in node:
+            fieldname, fieldbody = field
+            try:
+                fieldtype, arg = fieldname.astext().split(None, 1)
+            except ValueError:
+                # argument-less field type?
+                fieldtype, arg = fieldname.astext(), ''
+            typedesc, is_typefield = typemap.get(fieldtype, (None, None))
+            if typedesc is None or \
+                    typedesc.has_arg != bool(arg):
+                # capitalize field name and be done with it
+                new_fieldname = fieldtype.capitalize() + ' ' + arg
+                fieldname[0] = nodes.Text(new_fieldname)
+                entries.append(field)
+                continue
+
+            typename = typedesc.name
+
+            if _is_only_paragraph(fieldbody):
+                content = fieldbody.children[0].children
+            else:
+                content = fieldbody.children
+
+            if is_typefield:
+                types.setdefault(typename, {})[arg] = content
+                continue
+
+            # support syntax like ``:param type name:``
+            try:
+                argtype, argname = arg.split(None, 1)
+            except ValueError:
+                pass
+            else:
+                types.setdefault(typename, {})[arg] = nodes.Text(argtype)
+                arg = argname
+
+            if typedesc.grouplabel:
+                if typename in groupindices:
+                    group = entries[groupindices[typename]]
+                else:
+                    group = [typedesc]
+                    groupindices[typename] = len(entries)
+                    entries.append(group)
+                group.append((arg, content))
+            else:
+                entries.append((typedesc, arg, content))
+
+        # now that all entries are collected, construct the new field list
+        new_list = nodes.field_list()
+        for entry in entries:
+            if isinstance(entry, nodes.field):
+                # pass-through old field
+                new_list += entry
+            elif isinstance(entry, tuple):
+                # single entry
+                entrytype, arg, content = entry
+                fieldname = nodes.field_name()
+                para = nodes.paragraph('', entrytype.label)
+                if arg:
+                    para += nodes.Text(' ')
+                    if entrytype.objtype:
+                        para += addnodes.pending_xref(
+                            '', arg, refdomain=self.domain,
+                            reftype=entrytype.objtype, refexplicit=False,
+                            reftarget=arg)
+                    else:
+                        para += nodes.Text(arg)
+                fieldname += para
+                fieldbody = nodes.field_body('', nodes.paragraph('', *content))
+                new_list += nodes.field('', fieldname, fieldbody)
+            else:
+                # group entry
+                grouptype = entry[0]
+                groupitems = entry[1:]
+                grouptypes = types.get(grouptype.name, {})
+                fieldname = nodes.field_name()
+                fieldname += nodes.paragraph('', grouptype.grouplabel)
+                bullets = nodes.bullet_list()
+                for name, content in groupitems:
+                    par = nodes.paragraph()
+                    par += nodes.emphasis('', name)
+                    if name in grouptypes:
+                        typenodes = grouptypes[name]
+                        par += nodes.Text(' (')
+                        if grouptype.objtype and len(typenodes) == 1:
+                            typename = typenodes[0].astext()
+                            par += addnodes.pending_xref(
+                                '', refdomain=self.domain,
+                                reftype=grouptype.objtype, refexplicit=False,
+                                reftarget=typename)
+                            par[-1] += nodes.emphasis('', typename)
+                        else:
+                            par += typenodes
+                        par += nodes.Text(')')
+                    par += nodes.Text(' -- ')
+                    par += content
+                    bullets += nodes.list_item('', par)
+                fieldbody = nodes.field_body('', bullets)
+                new_list += nodes.field('', fieldname, fieldbody)
+
+        node.replace_self(new_list)
 
 
 class ObjectDescription(Directive):
@@ -63,6 +223,22 @@ class ObjectDescription(Directive):
         'noindex': directives.flag,
         'module': directives.unchanged,
     }
+
+    doc_field_types = [
+        TypedFieldType('parameter',
+                       names=('param', 'parameter', 'arg', 'argument',
+                              'keyword', 'kwarg', 'kwparam', 'type'),
+                       label=l_('Parameter'), grouplabel=l_('Parameters'),
+                       objtype='obj', typefields=('type',)),
+        TypedFieldType('variable', names=('var', 'ivar', 'cvar'), objtype='obj',
+                       label=l_('Variable'), grouplabel=l_('Variables')),
+        FieldType('exceptions', names=('raises', 'raise', 'exception', 'except'),
+                  label=l_('Raises'), grouplabel=l_('Raises'), objtype='exc'),
+        FieldType('returnvalue', names=('returns', 'return'),
+                  label=l_('Returns'), has_arg=False),
+        FieldType('returntype', names=('rtype',),
+                  label=l_('Return type'), has_arg=False),
+    ]
 
     # XXX make this more domain specific
 
@@ -264,7 +440,8 @@ class ObjectDescription(Directive):
             self.env.doc_read_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
-        self.handle_doc_fields(contentnode)
+        #self.handle_doc_fields(contentnode)
+        DocFieldTransformer(self).transform_all(contentnode)
         self.env.doc_read_data['object'] = None
         self.after_content()
         return [self.indexnode, node]
