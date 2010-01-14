@@ -117,7 +117,7 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
    (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
    HTML documentation.  The pickle builder is a subclass of it.
 
-   A concreate subclass of this builder serializing to the `PHP serialization`_
+   A concrete subclass of this builder serializing to the `PHP serialization`_
    format could look like this::
 
         import phpserialize
