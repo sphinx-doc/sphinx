@@ -177,7 +177,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     # generic support functions
     def make_id(self, name):
         """Replace all characters not allowed for (X)HTML ids."""
-        return name.replace('/', '_')
+        return name.replace('/', '_').replace(' ', '')
 
     def esc(self, name):
         """Replace all characters not allowed in text an attribute values."""
