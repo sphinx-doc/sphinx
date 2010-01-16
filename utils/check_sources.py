@@ -154,8 +154,7 @@ def check_whitespace_and_spelling(fn, lines):
                 yield lno+1, '"%s" used' % word
 
 
-bad_tags = ('<u>', '<s>', '<strike>'
-            '<center>', '<big>', '<small>', '<font')
+bad_tags = ('<u>', '<s>', '<strike>', '<center>', '<font')
 
 @checker('.html')
 def check_xhtml(fn, lines):
