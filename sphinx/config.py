@@ -61,6 +61,7 @@ class Config(object):
         rst_epilog = (None, 'env'),
         trim_doctest_flags = (True, 'env'),
         default_domain = ('py', 'env'),
+        needs_sphinx = (None, None),
 
         # HTML options
         html_theme = ('default', 'html'),

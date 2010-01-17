@@ -52,6 +52,10 @@ class ThemeError(SphinxError):
     category = 'Theme error'
 
 
+class VersionRequirementError(SphinxError):
+    category = 'Sphinx version error'
+
+
 class PycodeError(Exception):
     def __str__(self):
         res = self.args[0]

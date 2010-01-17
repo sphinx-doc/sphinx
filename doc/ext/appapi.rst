@@ -296,6 +296,14 @@ the following public API:
 
    .. versionadded:: 0.5
 
+.. method:: Sphinx.require_sphinx(version)
+
+   Compare *version* (which must be a ``major.minor`` version string,
+   e.g. ``'1.1'``) with the version of the running Sphinx, and abort the build
+   when it is too old.
+
+   .. versionadded:: 1.0
+
 
 .. exception:: ExtensionError
 

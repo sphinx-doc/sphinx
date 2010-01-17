@@ -224,6 +224,13 @@ General configuration
 
    .. versionadded:: 1.0
 
+.. confval:: needs_sphinx
+
+   If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will
+   compare it with its version and refuse to build if it is too old.
+
+   .. versionadded:: 1.0
+
 
 Project information
 -------------------

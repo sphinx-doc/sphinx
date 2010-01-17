@@ -12,8 +12,9 @@
 
 from util import *
 
+import sphinx
 from sphinx.config import Config
-from sphinx.errors import ExtensionError, ConfigError
+from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 
 
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
@@ -94,3 +95,8 @@ def test_errors_warnings(dir):
         warned[0] = True
     cfg.check_unicode(warn)
     assert warned[0]
+
+
+def test_needs_sphinx():
+    raises(VersionRequirementError, TestApp,
+           confoverrides={'needs_sphinx': '9.9'})
