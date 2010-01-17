@@ -1,3 +1,9 @@
+Release 0.6.5 (in development)
+==============================
+
+* #321: Fix link generation in the LaTeX builder.
+
+
 Release 0.6.4 (Jan 12, 2010)
 ============================
 
