@@ -7,16 +7,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
-from sphinx.util import patfilter, ws_re, url_re, docname_join, \
-     explicit_title_re
+from sphinx.util import url_re, docname_join
+from sphinx.util.nodes import explicit_title_re
 from sphinx.util.compat import make_admonition
+from sphinx.util.matching import patfilter
 
 
 class TocTree(Directive):
@@ -47,7 +46,6 @@ class TocTree(Directive):
         # and title may be None if the document's title is to be used
         entries = []
         includefiles = []
-        includetitles = {}
         all_docnames = env.found_docs.copy()
         # don't add the currently visited file in catch-all patterns
         all_docnames.remove(env.docname)

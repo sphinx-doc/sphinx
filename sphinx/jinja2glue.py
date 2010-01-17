@@ -17,7 +17,7 @@ from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
 from jinja2.utils import open_if_exists
 from jinja2.sandbox import SandboxedEnvironment
 
-from sphinx.util import mtimes_of_files
+from sphinx.util.os import mtimes_of_files
 from sphinx.application import TemplateBridge
 
 

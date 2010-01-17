@@ -34,9 +34,11 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import movefile, get_matching_docs, SEP, ustrftime, \
-     docname_join, FilenameUniqDict, url_re, make_refnode, clean_astext, \
-     compile_matchers
+from sphinx.util import url_re, get_matching_docs, docname_join, \
+     FilenameUniqDict
+from sphinx.util.os import movefile, SEP, ustrftime
+from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.matching import compile_matchers
 from sphinx.errors import SphinxError, ExtensionError
 
 
@@ -71,7 +73,6 @@ def lookup_domain_element(env, type, name):
     if element is not None:
         return element, []
     raise ElementLookupError
-
 
 default_settings = {
     'embed_stylesheet': False,

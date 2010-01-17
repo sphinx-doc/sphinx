@@ -13,6 +13,17 @@ import sys
 import codecs
 import encodings
 
+
+try:
+    any = any
+except NameError:
+    def any(gen):
+        for i in gen:
+            if i:
+                return True
+        return False
+
+
 if sys.version_info < (2, 5):
     # Python 2.4 doesn't know the utf-8-sig encoding, so deliver it here
 

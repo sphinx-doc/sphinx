@@ -13,8 +13,8 @@ import os
 import re
 from os import path
 
-from sphinx.util import make_filename
 from sphinx.errors import ConfigError
+from sphinx.util.os import make_filename
 
 nonascii_re = re.compile(r'[\x80-\xff]')
 

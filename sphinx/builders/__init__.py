@@ -15,7 +15,7 @@ from os import path
 
 from docutils import nodes
 
-from sphinx.util import SEP, relative_uri
+from sphinx.util.os import SEP, relative_uri
 from sphinx.util.console import bold, purple, darkgreen, term_width_line
 
 # side effect: registers roles and directives

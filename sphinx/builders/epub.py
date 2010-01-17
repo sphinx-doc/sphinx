@@ -18,6 +18,7 @@ import zipfile
 from docutils import nodes
 
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util.os import EEXIST
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -244,7 +245,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         try:
             os.mkdir(path.dirname(fn))
         except OSError, err:
-            if err.errno != os.errno.EEXIST:
+            if err.errno != EEXIST:
                 raise
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
