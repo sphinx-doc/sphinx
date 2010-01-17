@@ -96,7 +96,7 @@ class InheritanceGraph(object):
 
         # two possibilities: either it is a module, then import it
         try:
-            module = __import__(fullname)
+            __import__(fullname)
             todoc = sys.modules[fullname]
         except ImportError:
             # else it is a class, then import the module
@@ -109,7 +109,7 @@ class InheritanceGraph(object):
                         'Could not import class %r specified for '
                         'inheritance diagram' % base)
             try:
-                module = __import__(path)
+                __import__(path)
                 todoc = getattr(sys.modules[path], base)
             except (ImportError, AttributeError):
                 raise InheritanceException(

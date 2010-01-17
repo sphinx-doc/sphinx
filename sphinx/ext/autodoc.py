@@ -21,6 +21,7 @@ from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
 
 from sphinx.util import rpartition, force_decode
+from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
@@ -868,7 +869,6 @@ class ClassDocumenter(ModuleLevelDocumenter):
         return ret
 
     def format_args(self):
-        args = None
         # for classes, the relevant signature is the __init__ method's
         initmeth = self.get_attr(self.object, '__init__', None)
         # classes without __init__ method, default __init__ or

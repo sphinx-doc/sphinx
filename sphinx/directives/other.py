@@ -11,7 +11,7 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
-from sphinx.locale import pairindextypes
+from sphinx.locale import pairindextypes, _
 from sphinx.util import url_re, docname_join
 from sphinx.util.nodes import explicit_title_re
 from sphinx.util.compat import make_admonition

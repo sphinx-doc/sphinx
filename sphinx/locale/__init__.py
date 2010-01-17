@@ -11,8 +11,6 @@
 import gettext
 import UserString
 
-from sphinx import package_dir
-
 
 class _TranslationProxy(UserString.UserString, object):
     """Class for proxy strings from gettext translations.  This is a helper
@@ -163,10 +161,14 @@ pairindextypes = {
     'builtin':   l_('built-in function'),
 }
 
+translator = None
+
+def _(message):
+    return translator.gettext(message)
 
 def init(locale_dirs, language):
+    global translator
     # the None entry is the system's default locale path
-    translator = None
     has_translation = True
     for dir_ in locale_dirs:
         try:
@@ -182,5 +184,4 @@ def init(locale_dirs, language):
     if translator is None:
         translator = gettext.NullTranslations()
         has_translation = False
-    translator.install(unicode=True)
     return translator, has_translation

@@ -11,10 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
-import cgi
-import sys
 from os import path
 
 from docutils import nodes

@@ -16,6 +16,7 @@ from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
 from sphinx import addnodes
+from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title
 
@@ -105,7 +106,7 @@ class XRefRole(object):
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
             if self.fix_parens:
-                text, _ = self._fix_parens(env, False, text[1:], "")
+                text, tgt = self._fix_parens(env, False, text[1:], "")
             innernode = self.innernodeclass(rawtext, text, classes=['xref'])
             return self.result_nodes(inliner.document, env, innernode,
                                      is_ref=False)

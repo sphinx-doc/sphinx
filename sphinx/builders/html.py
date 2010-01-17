@@ -36,6 +36,7 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
 from sphinx.util.pycompat import any
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.search import js_index
 from sphinx.theming import Theme
 from sphinx.builders import Builder

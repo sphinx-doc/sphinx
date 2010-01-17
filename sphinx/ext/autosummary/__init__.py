@@ -63,7 +63,7 @@ from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
 
-from sphinx import addnodes, roles
+from sphinx import addnodes
 from sphinx.util.compat import Directive
 
 
@@ -192,7 +192,6 @@ class Autosummary(Directive):
 
         if 'toctree' in self.options:
             suffix = env.config.source_suffix
-            all_docnames = env.found_docs.copy()
             dirname = posixpath.dirname(env.docname)
 
             tree_prefix = self.options['toctree'].strip()

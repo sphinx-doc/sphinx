@@ -16,7 +16,7 @@ import os
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
-from sphinx.locale import admonitionlabels, versionlabels
+from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 try:

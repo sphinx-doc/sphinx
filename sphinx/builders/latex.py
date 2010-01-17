@@ -19,6 +19,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes
 from sphinx.util import texescape
+from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees

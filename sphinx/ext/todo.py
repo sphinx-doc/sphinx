@@ -14,6 +14,7 @@
 
 from docutils import nodes
 
+from sphinx.locale import _
 from sphinx.environment import NoUri
 from sphinx.util.compat import Directive, make_admonition
 

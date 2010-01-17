@@ -40,6 +40,7 @@ from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.locale import _
 
 
 orig_role_function = roles.role

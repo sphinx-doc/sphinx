@@ -15,7 +15,7 @@ import textwrap
 from docutils import nodes, writers
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels
+from sphinx.locale import admonitionlabels, versionlabels, _
 
 
 class TextWriter(writers.Writer):
