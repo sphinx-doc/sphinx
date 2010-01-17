@@ -48,32 +48,6 @@ orig_directive_function = directives.directive
 
 class ElementLookupError(Exception): pass
 
-# XXX why isn't this a method of env?
-def lookup_domain_element(env, type, name):
-    """Lookup a markup element (directive or role), given its name which can
-    be a full name (with domain).
-    """
-    name = name.lower()
-    # explicit domain given?
-    if ':' in name:
-        domain_name, name = name.split(':', 1)
-        if domain_name in env.domains:
-            domain = env.domains[domain_name]
-            element = getattr(domain, type)(name)
-            if element is not None:
-                return element, []
-    # else look in the default domain
-    else:
-        def_domain = env.doc_read_data.get('default_domain')
-        if def_domain is not None:
-            element = getattr(def_domain, type)(name)
-            if element is not None:
-                return element, []
-    # always look in the std domain
-    element = getattr(env.domains['std'], type)(name)
-    if element is not None:
-        return element, []
-    raise ElementLookupError
 
 default_settings = {
     'embed_stylesheet': False,
@@ -341,7 +315,6 @@ class BuildEnvironment:
         self.dlfiles = FilenameUniqDict()
 
         # temporary data storage while reading a document
-        # XXX find a better name
         self.doc_read_data = {}
 
         # Some magically present labels
@@ -396,7 +369,6 @@ class BuildEnvironment:
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
 
-        # XXX why does this not work inside the if?
         for domain in self.domains.values():
             domain.clear_doc(docname)
 
@@ -558,9 +530,7 @@ class BuildEnvironment:
     # --------- SINGLE FILE READING --------------------------------------------
 
     def warn_and_replace(self, error):
-        """
-        Custom decoding error handler that warns and replaces.
-        """
+        """Custom decoding error handler that warns and replaces."""
         linestart = error.object.rfind('\n', 0, error.start)
         lineend = error.object.find('\n', error.start)
         if lineend == -1: lineend = len(error.object)
@@ -572,20 +542,45 @@ class BuildEnvironment:
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)
 
-    def patch_lookup_functions(self):
+    def lookup_domain_element(self, type, name):
+        """Lookup a markup element (directive or role), given its name which can
+        be a full name (with domain).
         """
-        Monkey-patch directive and role dispatch, so that domain-specific
+        name = name.lower()
+        # explicit domain given?
+        if ':' in name:
+            domain_name, name = name.split(':', 1)
+            if domain_name in self.domains:
+                domain = self.domains[domain_name]
+                element = getattr(domain, type)(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            def_domain = self.doc_read_data.get('default_domain')
+            if def_domain is not None:
+                element = getattr(def_domain, type)(name)
+                if element is not None:
+                    return element, []
+        # always look in the std domain
+        element = getattr(self.domains['std'], type)(name)
+        if element is not None:
+            return element, []
+        raise ElementLookupError
+
+    def patch_lookup_functions(self):
+        """Monkey-patch directive and role dispatch, so that domain-specific
         markup takes precedence.
         """
         def directive(name, lang_module, document):
             try:
-                return lookup_domain_element(self, 'directive', name)
+                return self.lookup_domain_element('directive', name)
             except ElementLookupError:
                 return orig_directive_function(name, lang_module, document)
 
         def role(name, lang_module, lineno, reporter):
             try:
-                return lookup_domain_element(self, 'role', name)
+                return self.lookup_domain_element('role', name)
             except ElementLookupError:
                 return orig_role_function(name, lang_module, lineno, reporter)
 
