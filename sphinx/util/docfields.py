@@ -200,7 +200,6 @@ class DocFieldTransformer(object):
                 # maybe an argument-less field type?
                 fieldtype, fieldarg = fieldname.astext(), ''
             typedesc, is_typefield = typemap.get(fieldtype, (None, None))
-            typename = typedesc.name
 
             # sort out unknown fields
             if typedesc is None or typedesc.has_arg != bool(fieldarg):
@@ -210,6 +209,8 @@ class DocFieldTransformer(object):
                 fieldname[0] = nodes.Text(new_fieldname)
                 entries.append(field)
                 continue
+
+            typename = typedesc.name
 
             # collect the content, trying not to keep unnecessary paragraphs
             if _is_single_paragraph(fieldbody):
