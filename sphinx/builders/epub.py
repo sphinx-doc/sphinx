@@ -18,7 +18,7 @@ import zipfile
 from docutils import nodes
 
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.os import EEXIST
+from sphinx.util.osutil import EEXIST
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,

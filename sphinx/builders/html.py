@@ -30,8 +30,8 @@ from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
 from sphinx.util import copy_static_entry
-from sphinx.util.os import SEP, os_path, relative_uri, ensuredir, movefile, \
-     ustrftime, copyfile
+from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
+     movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
 from sphinx.util.pycompat import any

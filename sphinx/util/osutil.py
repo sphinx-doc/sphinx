@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.util.os
-    ~~~~~~~~~~~~~~
+    sphinx.util.osutil
+    ~~~~~~~~~~~~~~~~~~
 
     Operating system-related utility functions for Sphinx.
 

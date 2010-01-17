@@ -12,8 +12,8 @@
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util import make_refnode
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.util.nodes import make_refnode
 
 
 def doctree_read(app, doctree):

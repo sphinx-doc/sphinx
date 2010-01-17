@@ -11,7 +11,7 @@
 
 import re
 
-from docutils import nodes, utils
+from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
@@ -19,7 +19,8 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util import make_refnode, ws_re
+from sphinx.util import ws_re
+from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
 
 

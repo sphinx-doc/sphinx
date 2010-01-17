@@ -30,8 +30,9 @@ from sphinx.domains import ObjType, all_domains
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
-from sphinx.util import ENOENT, pycompat  # pycompat imported for side-effects
+from sphinx.util import pycompat  # pycompat imported for side-effects
 from sphinx.util.tags import Tags
+from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold
 
 

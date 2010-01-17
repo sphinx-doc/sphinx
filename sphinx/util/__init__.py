@@ -29,7 +29,7 @@ from sphinx.errors import PycodeError
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.os import SEP, os_path, relative_uri, ensuredir, walk, \
+from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, walk, \
      mtimes_of_files, movefile, copyfile, copytimes, make_filename, ustrftime
 from sphinx.util.nodes import nested_parse_with_titles, split_explicit_title, \
      explicit_title_re, caption_ref_re

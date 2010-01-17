@@ -14,8 +14,8 @@ from os import path
 
 from docutils.io import StringOutput
 
-from sphinx.util.os import ensuredir, os_path
 from sphinx.builders import Builder
+from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextWriter
 
 

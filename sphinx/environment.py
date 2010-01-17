@@ -36,8 +36,8 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, \
      FilenameUniqDict
-from sphinx.util.os import movefile, SEP, ustrftime
 from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
 from sphinx.errors import SphinxError, ExtensionError
 
