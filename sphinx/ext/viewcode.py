@@ -84,6 +84,9 @@ def collect_pages(app):
 
     modnames = set(env._viewcode_modules)
 
+    app.builder.info(' (%d module code pages)' %
+                     len(env._viewcode_modules), nonl=1)
+
     for modname, (code, tags, used) in env._viewcode_modules.iteritems():
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
@@ -126,7 +129,6 @@ def collect_pages(app):
             'body': _('<h1>Source code for %s</h1>') % modname + \
                     '\n'.join(lines)
         }
-        app.builder.info(' '+pagename, nonl=1)
         yield (pagename, context, 'page.html')
 
     if not modnames:
