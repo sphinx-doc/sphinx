@@ -245,6 +245,8 @@ Info field lists
 
 .. versionadded:: 0.4
 
+.. XXX this is only for Python
+
 Inside object description directives, reST field lists with these fields are
 recognized and formatted nicely:
 
@@ -271,6 +273,11 @@ explained by an example::
       :param limit: maximum number of stack frames to show
       :type limit: integer or None
       :rtype: list of strings
+
+It is also possible to combine parameter type and description, if the type is a
+single word, like this::
+
+   :param integer limit: maximum number of stack frames to show
 
 This will render like this:
 
