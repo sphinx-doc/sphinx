@@ -718,6 +718,8 @@ Please indicate if you want to use one of the following Sphinx extensions:'''
 pngmath has been deselected.'''
     do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
               'content based on config values (y/N)', 'n', boolean)
+    do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source code '
+              'of documented Python objects (y/N)', 'n', boolean)
     print '''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
@@ -732,7 +734,7 @@ directly.'''
     d['extensions'] = ', '.join(
         repr('sphinx.ext.' + name)
         for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-                     'pngmath', 'jsmath', 'ifconfig')
+                     'pngmath', 'jsmath', 'ifconfig', 'viewcode')
         if d['ext_' + name])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = unicode(d['author']).\
