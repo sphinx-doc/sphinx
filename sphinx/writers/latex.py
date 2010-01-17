@@ -121,14 +121,6 @@ class Table(object):
         self.longtable = False
 
 
-class Desc(object):
-    def __init__(self, node):
-        self.env = LaTeXTranslator.desc_map.get(node['objtype'], 'describe')
-        self.type = self.cls = self.name = self.params = \
-                    self.annotation = self.returns = ''
-        self.count = 0
-
-
 class LaTeXTranslator(nodes.NodeVisitor):
     sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
@@ -248,6 +240,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.literal_whitespace = 0
         self.no_contractions = 0
         self.compact_list = 0
+        self.first_param = 0
 
     def astext(self):
         return (HEADER % self.elements + self.highlighter.get_stylesheet() +
@@ -434,139 +427,76 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_subtitle(self, node):
         self.body.append(self.context.pop())
 
-    # XXX update this
-    desc_map = {
-        'function' : 'funcdesc',
-        'class': 'classdesc',
-        'method': 'methoddesc',
-        'classmethod': 'classmethoddesc',
-        'staticmethod': 'staticmethoddesc',
-        'exception': 'excdesc',
-        'data': 'datadesc',
-        'attribute': 'memberdesc',
-        'opcode': 'opcodedesc',
-
-        'cfunction': 'cfuncdesc',
-        'cmember': 'cmemberdesc',
-        'cmacro': 'csimplemacrodesc',
-        'ctype': 'ctypedesc',
-        'cvar': 'cvardesc',
-
-        'describe': 'describe',
-        # and all others are 'describe' too
-    }
-
     def visit_desc(self, node):
-        self.descstack.append(Desc(node))
+        self.body.append('\n\n\\begin{fulllineitems}\n')
     def depart_desc(self, node):
-        d = self.descstack.pop()
-        self.body.append("\\end{%s}\n" % d.env)
+        self.body.append('\n\\end{fulllineitems}\n\n')
 
     def visit_desc_signature(self, node):
-        d = self.descstack[-1]
-        # reset these for every signature
-        d.type = d.cls = d.name = d.params = ''
-    def depart_desc_signature(self, node):
-        d = self.descstack[-1]
-        d.cls = d.cls.rstrip('.')
         if node.parent['objtype'] != 'describe' and node['ids']:
             hyper = '\\hypertarget{%s}{}' % self.idescape(node['ids'][0])
         else:
             hyper = ''
-        if d.count == 0:
-            t1 = "\n\n%s\\begin{%s}" % (hyper, d.env)
+        self.body.append(hyper)
+        for child in node:
+            if isinstance(child, addnodes.desc_parameterlist):
+                self.body.append(r'\pysiglinewithargs{')
+                break
         else:
-            t1 = "\n%s\\%sline" % (hyper, d.env[:-4])
-        d.count += 1
-        if d.env in ('funcdesc', 'classdesc', 'excclassdesc'):
-            t2 = "{%s}{%s}" % (d.name, d.params)
-        elif d.env in ('datadesc', 'excdesc', 'csimplemacrodesc'):
-            t2 = "{%s}" % (d.name)
-        elif d.env in ('methoddesc', 'classmethoddesc', 'staticmethoddesc'):
-            if d.cls:
-                t2 = "[%s]{%s}{%s}" % (d.cls, d.name, d.params)
-            else:
-                t2 = "{%s}{%s}" % (d.name, d.params)
-        elif d.env == 'memberdesc':
-            if d.cls:
-                t2 = "[%s]{%s}" % (d.cls, d.name)
-            else:
-                t2 = "{%s}" % d.name
-        elif d.env == 'cfuncdesc':
-            if d.cls:
-                # C++ class names
-                d.name = '%s::%s' % (d.cls, d.name)
-            t2 = "{%s}{%s}{%s}" % (d.type, d.name, d.params)
-        elif d.env == 'cmemberdesc':
-            try:
-                type, container = d.type.rsplit(' ', 1)
-                container = container.rstrip('.')
-            except ValueError:
-                container = ''
-                type = d.type
-            t2 = "{%s}{%s}{%s}" % (container, type, d.name)
-        elif d.env == 'cvardesc':
-            t2 = "{%s}{%s}" % (d.type, d.name)
-        elif d.env == 'ctypedesc':
-            t2 = "{%s}" % (d.name)
-        elif d.env == 'opcodedesc':
-            t2 = "{%s}{%s}" % (d.name, d.params)
-        elif d.env == 'describe':
-            t2 = "{%s}" % d.name
-        self.body.append(t1 + t2)
-
-    def visit_desc_type(self, node):
-        d = self.descstack[-1]
-        if d.env == 'describe':
-            d.name += self.encode(node.astext())
-        else:
-            self.descstack[-1].type = self.encode(node.astext().strip())
-        raise nodes.SkipNode
-
-    def visit_desc_returns(self, node):
-        d = self.descstack[-1]
-        if d.env == 'describe':
-            d.name += ' $\\rightarrow$ ' + self.encode(node.astext())
-        else:
-            self.descstack[-1].returns = self.encode(node.astext().strip())
-        raise nodes.SkipNode
-
-    def visit_desc_name(self, node):
-        d = self.descstack[-1]
-        if d.env == 'describe':
-            d.name += self.encode(node.astext())
-        else:
-            self.descstack[-1].name = self.encode(node.astext().strip())
-        raise nodes.SkipNode
+            self.body.append(r'\pysigline{')
+    def depart_desc_signature(self, node):
+        self.body.append('}')
 
     def visit_desc_addname(self, node):
-        d = self.descstack[-1]
-        if d.env == 'describe':
-            d.name += self.encode(node.astext())
-        else:
-            self.descstack[-1].cls = self.encode(node.astext().strip())
-        raise nodes.SkipNode
+        self.body.append(r'\code{')
+        self.literal_whitespace += 1
+    def depart_desc_addname(self, node):
+        self.body.append('}')
+        self.literal_whitespace -= 1
+
+    def visit_desc_type(self, node):
+        pass
+    def depart_desc_type(self, node):
+        pass
+
+    def visit_desc_returns(self, node):
+        self.body.append(r' $\rightarrow$ ')
+    def depart_desc_returns(self, node):
+        pass
+
+    def visit_desc_name(self, node):
+        self.body.append(r'\bfcode{')
+        self.literal_whitespace += 1
+    def depart_desc_name(self, node):
+        self.body.append('}')
+        self.literal_whitespace -= 1
 
     def visit_desc_parameterlist(self, node):
-        d = self.descstack[-1]
-        if d.env == 'describe':
-            d.name += self.encode(node.astext())
+        self.body.append('}{')
+        self.first_param = 1
+    def depart_desc_parameterlist(self, node):
+        pass
+
+    def visit_desc_parameter(self, node):
+        if not self.first_param:
+            self.body.append(', ')
         else:
-            self.descstack[-1].params = self.encode(node.astext().strip())
-        raise nodes.SkipNode
+            self.first_param = 0
+        if not node.hasattr('noemph'):
+            self.body.append(r'\emph{')
+    def depart_desc_parameter(self, node):
+        if not node.hasattr('noemph'):
+            self.body.append('}')
+
+    def visit_desc_optional(self, node):
+        self.body.append(r'\optional{')
+    def depart_desc_optional(self, node):
+        self.body.append('}')
 
     def visit_desc_annotation(self, node):
-        d = self.descstack[-1]
-        if d.env == 'describe':
-            d.name += self.encode(node.astext())
-        else:
-            self.descstack[-1].annotation = self.encode(node.astext().strip())
-        raise nodes.SkipNode
-
-    def visit_refcount(self, node):
-        self.body.append("\\emph{")
-    def depart_refcount(self, node):
-        self.body.append("}\\\\")
+        self.body.append(r'\strong{')
+    def depart_desc_annotation(self, node):
+        self.body.append('}')
 
     def visit_desc_content(self, node):
         if node.children and not isinstance(node.children[0], nodes.paragraph):
@@ -574,6 +504,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('~')
     def depart_desc_content(self, node):
         pass
+
+    def visit_refcount(self, node):
+        self.body.append("\\emph{")
+    def depart_refcount(self, node):
+        self.body.append("}\\\\")
 
     def visit_seealso(self, node):
         self.body.append("\n\n\\strong{%s:}\n\n" % admonitionlabels['seealso'])
@@ -884,7 +819,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 pre.append(align_prepost[is_inline, attrs['align']][0])
                 post.append(align_prepost[is_inline, attrs['align']][1])
             except KeyError:
-                pass                    # XXX complain here?
+                pass
         if not is_inline:
             pre.append('\n')
             post.append('\n')
@@ -1194,9 +1129,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         * serif typeface
         """
         self.body.append('{\\raggedright{}')
-        self.literal_whitespace = 1
+        self.literal_whitespace += 1
     def depart_line_block(self, node):
-        self.literal_whitespace = 0
+        self.literal_whitespace -= 1
         # remove the last \\
         del self.body[-1]
         self.body.append('}\n')
