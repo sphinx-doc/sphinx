@@ -12,9 +12,6 @@
 import os
 import re
 import sys
-import time
-import errno
-import types
 import shutil
 import fnmatch
 import tempfile
@@ -28,82 +25,25 @@ from docutils.utils import relative_path
 import jinja2
 
 import sphinx
-from sphinx import addnodes
 
-# Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)
-ENOENT = getattr(errno, 'ENOENT', 0)
-EPIPE  = getattr(errno, 'EPIPE', 0)
+# import other utilities; partly for backwards compatibility, so don't
+# prune unused ones indiscriminately
+from sphinx.util.os import SEP, os_path, relative_uri, ensuredir, walk, \
+     mtimes_of_files, movefile, copyfile, copytimes, make_filename, ustrftime
+from sphinx.util.nodes import nested_parse_with_titles, split_explicit_title, \
+     explicit_title_re, caption_ref_re
+from sphinx.util.matching import patfilter
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
-explicit_title_re = re.compile('^(.+?)\s*<(.*?)>$', re.DOTALL)
-caption_ref_re = explicit_title_re  # b/w compat alias
 url_re = re.compile(r'(?P<schema>.+)://.*')
 
-# SEP separates path elements in the canonical file names
-#
-# Define SEP as a manifest constant, not so much because we expect it to change
-# in the future as to avoid the suspicion that a stray "/" in the code is a
-# hangover from more *nix-oriented origins.
-SEP = "/"
 
-def os_path(canonicalpath):
-    return canonicalpath.replace(SEP, os.path.sep)
-
-
-def relative_uri(base, to):
-    """Return a relative URL from ``base`` to ``to``."""
-    if to.startswith(SEP):
-        return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
-    # remove common segments
-    for x, y in zip(b2, t2):
-        if x != y:
-            break
-        b2.pop(0)
-        t2.pop(0)
-    return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
-
+# High-level utility functions.
 
 def docname_join(basedocname, docname):
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
-
-
-def ensuredir(path):
-    """Ensure that a path exists."""
-    try:
-        os.makedirs(path)
-    except OSError, err:
-        # 0 for Jython/Win32
-        if err.errno not in [0, EEXIST]:
-            raise
-
-
-def walk(top, topdown=True, followlinks=False):
-    """
-    Backport of os.walk from 2.6, where the followlinks argument was added.
-    """
-    names = os.listdir(top)
-
-    dirs, nondirs = [], []
-    for name in names:
-        if path.isdir(path.join(top, name)):
-            dirs.append(name)
-        else:
-            nondirs.append(name)
-
-    if topdown:
-        yield top, dirs, nondirs
-    for name in dirs:
-        fullpath = path.join(top, name)
-        if followlinks or not path.islink(fullpath):
-            for x in walk(fullpath, topdown, followlinks):
-                yield x
-    if not topdown:
-        yield top, dirs, nondirs
 
 
 def get_matching_files(dirname, exclude_matchers=()):
@@ -147,204 +87,6 @@ def get_matching_docs(dirname, suffix, exclude_matchers=()):
         yield filename[:-len(suffix)]
 
 
-def mtimes_of_files(dirnames, suffix):
-    for dirname in dirnames:
-        for root, dirs, files in os.walk(dirname):
-            for sfile in files:
-                if sfile.endswith(suffix):
-                    try:
-                        yield path.getmtime(path.join(root, sfile))
-                    except EnvironmentError:
-                        pass
-
-
-def shorten_result(text='', keywords=[], maxlen=240, fuzz=60):
-    if not text:
-        text = ''
-    text_low = text.lower()
-    beg = -1
-    for k in keywords:
-        i = text_low.find(k.lower())
-        if (i > -1 and i < beg) or beg == -1:
-            beg = i
-    excerpt_beg = 0
-    if beg > fuzz:
-        for sep in ('.', ':', ';', '='):
-            eb = text.find(sep, beg - fuzz, beg - 1)
-            if eb > -1:
-                eb += 1
-                break
-        else:
-            eb = beg - fuzz
-        excerpt_beg = eb
-    if excerpt_beg < 0:
-        excerpt_beg = 0
-    msg = text[excerpt_beg:beg+maxlen]
-    if beg > fuzz:
-        msg = '... ' + msg
-    if beg < len(text)-maxlen:
-        msg = msg + ' ...'
-    return msg
-
-
-class attrdict(dict):
-    def __getattr__(self, key):
-        return self[key]
-    def __setattr__(self, key, val):
-        self[key] = val
-    def __delattr__(self, key):
-        del self[key]
-
-
-def fmt_ex(ex):
-    """Format a single line with an exception description."""
-    return traceback.format_exception_only(ex.__class__, ex)[-1].strip()
-
-
-def rpartition(s, t):
-    """Similar to str.rpartition from 2.5, but doesn't return the separator."""
-    i = s.rfind(t)
-    if i != -1:
-        return s[:i], s[i+len(t):]
-    return '', s
-
-
-def format_exception_cut_frames(x=1):
-    """
-    Format an exception with traceback, but only the last x frames.
-    """
-    typ, val, tb = sys.exc_info()
-    #res = ['Traceback (most recent call last):\n']
-    res = []
-    tbres = traceback.format_tb(tb)
-    res += tbres[-x:]
-    res += traceback.format_exception_only(typ, val)
-    return ''.join(res)
-
-
-def save_traceback():
-    """
-    Save the current exception's traceback in a temporary file.
-    """
-    exc = traceback.format_exc()
-    fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
-    os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
-                                                  docutils.__version_details__))
-    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
-    os.write(fd, exc)
-    os.close(fd)
-    return path
-
-
-def _translate_pattern(pat):
-    """
-    Translate a shell-style glob pattern to a regular expression.
-
-    Adapted from the fnmatch module, but enhanced so that single stars don't
-    match slashes.
-    """
-    i, n = 0, len(pat)
-    res = ''
-    while i < n:
-        c = pat[i]
-        i += 1
-        if c == '*':
-            if i < n and pat[i] == '*':
-                # double star matches slashes too
-                i += 1
-                res = res + '.*'
-            else:
-                # single star doesn't match slashes
-                res = res + '[^/]*'
-        elif c == '?':
-            # question mark doesn't match slashes too
-            res = res + '[^/]'
-        elif c == '[':
-            j = i
-            if j < n and pat[j] == '!':
-                j += 1
-            if j < n and pat[j] == ']':
-                j += 1
-            while j < n and pat[j] != ']':
-                j += 1
-            if j >= n:
-                res = res + '\\['
-            else:
-                stuff = pat[i:j].replace('\\', '\\\\')
-                i = j + 1
-                if stuff[0] == '!':
-                    # negative pattern mustn't match slashes too
-                    stuff = '^/' + stuff[1:]
-                elif stuff[0] == '^':
-                    stuff = '\\' + stuff
-                res = '%s[%s]' % (res, stuff)
-        else:
-            res += re.escape(c)
-    return res + '$'
-
-def compile_matchers(patterns):
-    return [re.compile(_translate_pattern(pat)).match for pat in patterns]
-
-
-_pat_cache = {}
-
-def patmatch(name, pat):
-    """
-    Return if name matches pat.  Adapted from fnmatch module.
-    """
-    if pat not in _pat_cache:
-        _pat_cache[pat] = re.compile(_translate_pattern(pat))
-    return _pat_cache[pat].match(name)
-
-def patfilter(names, pat):
-    """
-    Return the subset of the list NAMES that match PAT.
-    Adapted from fnmatch module.
-    """
-    if pat not in _pat_cache:
-        _pat_cache[pat] = re.compile(_translate_pattern(pat))
-    match = _pat_cache[pat].match
-    return filter(match, names)
-
-
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-
-def make_filename(string):
-    return no_fn_re.sub('', string)
-
-
-def nested_parse_with_titles(state, content, node):
-    # hack around title style bookkeeping
-    surrounding_title_styles = state.memo.title_styles
-    surrounding_section_level = state.memo.section_level
-    state.memo.title_styles = []
-    state.memo.section_level = 0
-    try:
-        return state.nested_parse(content, 0, node, match_titles=1)
-    finally:
-        state.memo.title_styles = surrounding_title_styles
-        state.memo.section_level = surrounding_section_level
-
-
-def ustrftime(format, *args):
-    # strftime for unicode strings
-    return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
-
-
-class Tee(object):
-    """
-    File-like object writing to two streams.
-    """
-    def __init__(self, stream1, stream2):
-        self.stream1 = stream1
-        self.stream2 = stream2
-
-    def write(self, text):
-        self.stream1.write(text)
-        self.stream2.write(text)
-
-
 class FilenameUniqDict(dict):
     """
     A dictionary that automatically generates unique names for its keys,
@@ -382,72 +124,12 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def parselinenos(spec, total):
-    """
-    Parse a line number spec (such as "1,2,4-6") and return a list of
-    wanted line numbers.
-    """
-    items = list()
-    parts = spec.split(',')
-    for part in parts:
-        try:
-            begend = part.strip().split('-')
-            if len(begend) > 2:
-                raise ValueError
-            if len(begend) == 1:
-                items.append(int(begend[0])-1)
-            else:
-                start = (begend[0] == '') and 0 or int(begend[0])-1
-                end = (begend[1] == '') and total or int(begend[1])
-                items.extend(xrange(start, end))
-        except Exception, err:
-            raise ValueError('invalid line number spec: %r' % spec)
-    return items
-
-
-def force_decode(string, encoding):
-    if isinstance(string, str):
-        if encoding:
-            string = string.decode(encoding)
-        else:
-            try:
-                # try decoding with utf-8, should only work for real UTF-8
-                string = string.decode('utf-8')
-            except UnicodeError:
-                # last resort -- can't fail
-                string = string.decode('latin1')
-    return string
-
-
-def movefile(source, dest):
-    """Move a file, removing the destination if it exists."""
-    if os.path.exists(dest):
-        try:
-            os.unlink(dest)
-        except OSError:
-            pass
-    os.rename(source, dest)
-
-
-def copytimes(source, dest):
-    """Copy a file's modification times."""
-    st = os.stat(source)
-    if hasattr(os, 'utime'):
-        os.utime(dest, (st.st_atime, st.st_mtime))
-
-
-def copyfile(source, dest):
-    """Copy a file and its modification times, if possible."""
-    shutil.copyfile(source, dest)
-    try:
-        # don't do full copystat because the source may be read-only
-        copytimes(source, dest)
-    except OSError:
-        pass
-
-
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
+    """Copy a HTML builder static_path entry from source to targetdir.
+
+    Handles all possible cases of files, directories and subdirectories.
+    """
     if exclude_matchers:
         relpath = relative_path(builder.srcdir, source)
         for matcher in exclude_matchers:
@@ -479,90 +161,99 @@ def copy_static_entry(source, targetdir, builder, context={},
             shutil.copytree(source, target)
 
 
-def clean_astext(node):
-    """Like node.astext(), but ignore images."""
-    node = node.deepcopy()
-    for img in node.traverse(docutils.nodes.image):
-        img['alt'] = ''
-    return node.astext()
-
-
-def split_explicit_title(text):
-    """Split role content into title and target, if given."""
-    match = explicit_title_re.match(text)
-    if match:
-        return True, match.group(1), match.group(2)
-    return False, text, text
-
-
-try:
-    any = any
-except NameError:
-    def any(gen):
-        for i in gen:
-            if i:
-                return True
-        return False
-
-
-def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
-    """Inline all toctrees in the *tree*.
-
-    Record all docnames in *docnameset*, and output docnames with *colorfunc*.
+def save_traceback():
     """
-    tree = tree.deepcopy()
-    for toctreenode in tree.traverse(addnodes.toctree):
-        newnodes = []
-        includefiles = map(str, toctreenode['includefiles'])
-        for includefile in includefiles:
-            try:
-                builder.info(colorfunc(includefile) + " ", nonl=1)
-                subtree = inline_all_toctrees(builder, docnameset, includefile,
-                    builder.env.get_doctree(includefile), colorfunc)
-                docnameset.add(includefile)
-            except Exception:
-                builder.warn('toctree contains ref to nonexisting '
-                             'file %r' % includefile,
-                             builder.env.doc2path(docname))
+    Save the current exception's traceback in a temporary file.
+    """
+    exc = traceback.format_exc()
+    fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
+    os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
+    os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
+                                                  docutils.__version_details__))
+    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
+    os.write(fd, exc)
+    os.close(fd)
+    return path
+
+
+# Low-level utility functions and classes.
+
+class Tee(object):
+    """
+    File-like object writing to two streams.
+    """
+    def __init__(self, stream1, stream2):
+        self.stream1 = stream1
+        self.stream2 = stream2
+
+    def write(self, text):
+        self.stream1.write(text)
+        self.stream2.write(text)
+
+
+def parselinenos(spec, total):
+    """
+    Parse a line number spec (such as "1,2,4-6") and return a list of
+    wanted line numbers.
+    """
+    items = list()
+    parts = spec.split(',')
+    for part in parts:
+        try:
+            begend = part.strip().split('-')
+            if len(begend) > 2:
+                raise ValueError
+            if len(begend) == 1:
+                items.append(int(begend[0])-1)
             else:
-                sof = addnodes.start_of_file(docname=includefile)
-                sof.children = subtree.children
-                newnodes.append(sof)
-        toctreenode.parent.replace(toctreenode, newnodes)
-    return tree
+                start = (begend[0] == '') and 0 or int(begend[0])-1
+                end = (begend[1] == '') and total or int(begend[1])
+                items.extend(xrange(start, end))
+        except Exception:
+            raise ValueError('invalid line number spec: %r' % spec)
+    return items
 
 
-# monkey-patch Node.traverse to get more speed
-# traverse() is called so many times during a build that it saves
-# on average 20-25% overall build time!
+def force_decode(string, encoding):
+    """Forcibly get a unicode string out of a bytestring."""
+    if isinstance(string, str):
+        if encoding:
+            string = string.decode(encoding)
+        else:
+            try:
+                # try decoding with utf-8, should only work for real UTF-8
+                string = string.decode('utf-8')
+            except UnicodeError:
+                # last resort -- can't fail
+                string = string.decode('latin1')
+    return string
 
-def _all_traverse(self, result):
-    """Version of Node.traverse() that doesn't need a condition."""
-    result.append(self)
-    for child in self.children:
-        child._all_traverse(result)
-    return result
 
-def _fast_traverse(self, cls, result):
-    """Version of Node.traverse() that only supports instance checks."""
-    if isinstance(self, cls):
-        result.append(self)
-    for child in self.children:
-        child._fast_traverse(cls, result)
-    return result
+class attrdict(dict):
+    def __getattr__(self, key):
+        return self[key]
+    def __setattr__(self, key, val):
+        self[key] = val
+    def __delattr__(self, key):
+        del self[key]
 
-def _new_traverse(self, condition=None,
-                 include_self=1, descend=1, siblings=0, ascend=0):
-    if include_self and descend and not siblings and not ascend:
-        if condition is None:
-            return self._all_traverse([])
-        elif isinstance(condition, (types.ClassType, type)):
-            return self._fast_traverse(condition, [])
-    return self._old_traverse(condition, include_self,
-                              descend, siblings, ascend)
 
-import docutils.nodes
-docutils.nodes.Node._old_traverse = docutils.nodes.Node.traverse
-docutils.nodes.Node._all_traverse = _all_traverse
-docutils.nodes.Node._fast_traverse = _fast_traverse
-docutils.nodes.Node.traverse = _new_traverse
+def rpartition(s, t):
+    """Similar to str.rpartition from 2.5, but doesn't return the separator."""
+    i = s.rfind(t)
+    if i != -1:
+        return s[:i], s[i+len(t):]
+    return '', s
+
+
+def format_exception_cut_frames(x=1):
+    """
+    Format an exception with traceback, but only the last x frames.
+    """
+    typ, val, tb = sys.exc_info()
+    #res = ['Traceback (most recent call last):\n']
+    res = []
+    tbres = traceback.format_tb(tb)
+    res += tbres[-x:]
+    res += traceback.format_exception_only(typ, val)
+    return ''.join(res)

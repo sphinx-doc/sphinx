@@ -15,7 +15,8 @@ from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
 from sphinx import addnodes
-from sphinx.util import ws_re, split_explicit_title
+from sphinx.util import ws_re
+from sphinx.util.nodes import split_explicit_title
 
 
 generic_docroles = {

@@ -14,7 +14,8 @@ from os import path
 from cgi import escape
 
 from sphinx import package_dir
-from sphinx.util import ensuredir, os_path, copy_static_entry
+from sphinx.util import copy_static_entry
+from sphinx.util.os import ensuredir, os_path
 from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.util.console import bold

@@ -23,7 +23,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, versionlabels
-from sphinx.util import ustrftime
+from sphinx.util.os import ustrftime
 from sphinx.util.texescape import tex_escape_map
 from sphinx.util.smartypants import educateQuotesLatex
 

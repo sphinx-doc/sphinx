@@ -20,15 +20,14 @@
 import os
 import re
 import sys
-import optparse
-import inspect
 import pydoc
+import optparse
 
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx.ext.autosummary import import_by_name, get_documenter
-from sphinx.util import ensuredir
+from sphinx.util.os import ensuredir
 from sphinx.jinja2glue import BuiltinTemplateLoader
 
 def main(argv=sys.argv):

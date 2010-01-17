@@ -16,7 +16,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import package_dir, locale
-from sphinx.util import SEP, ENOENT, relative_uri
+from sphinx.util.os import SEP, ENOENT, relative_uri
 from sphinx.environment import BuildEnvironment
 from sphinx.util.console import bold, purple, darkgreen, term_width_line
 

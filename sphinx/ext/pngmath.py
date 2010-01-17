@@ -23,7 +23,7 @@ except ImportError:
 from docutils import nodes
 
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir, ENOENT
+from sphinx.util.os import ensuredir, ENOENT
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 

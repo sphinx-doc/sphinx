@@ -58,14 +58,12 @@ import re
 import sys
 import inspect
 import posixpath
-from os import path
 
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
 
 from sphinx import addnodes, roles
-from sphinx.util import patfilter
 from sphinx.util.compat import Directive
 
 

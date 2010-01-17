@@ -14,9 +14,10 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
-from sphinx.util import patfilter, ws_re, url_re, docname_join, \
-     explicit_title_re
+from sphinx.util import ws_re, url_re, docname_join
+from sphinx.util.nodes import explicit_title_re
 from sphinx.util.compat import Directive, directive_dwim, make_admonition
+from sphinx.util.matching import patfilter
 
 
 class TocTree(Directive):

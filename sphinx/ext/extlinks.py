@@ -26,7 +26,7 @@
 
 from docutils import nodes, utils
 
-from sphinx.util import split_explicit_title
+from sphinx.util.nodes import split_explicit_title
 
 
 def make_link_role(base_url, prefix):

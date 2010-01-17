@@ -28,10 +28,12 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
-from sphinx import addnodes
-from sphinx.util import SEP, os_path, relative_uri, ensuredir, patmatch, \
-    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers, any, \
-    inline_all_toctrees
+from sphinx.util import copy_static_entry
+from sphinx.util.os import SEP, os_path, relative_uri, ensuredir, movefile, \
+     ustrftime, copyfile
+from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.matching import patmatch, compile_matchers
+from sphinx.util.pycompat import any
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
