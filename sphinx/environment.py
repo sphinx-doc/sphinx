@@ -1243,7 +1243,7 @@ class BuildEnvironment:
                             self.warn(node['refdoc'], 'undefined label: %s' %
                                       target, node.line)
                     else:
-                        # reference to the named label; the final node will
+                        # reference to named label; the final node will
                         # contain the section name after the label
                         docname, labelid, sectname = self.labels.get(target,
                                                                      ('','',''))
@@ -1270,8 +1270,6 @@ class BuildEnvironment:
                             if labelid:
                                 newnode['refuri'] += '#' + labelid
                         newnode.append(innernode)
-                    else:
-                        newnode = contnode
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
@@ -1279,7 +1277,6 @@ class BuildEnvironment:
                     if docname not in self.all_docs:
                         self.warn(node['refdoc'],
                                   'unknown document: %s' % docname, node.line)
-                        newnode = contnode
                     else:
                         if node['refexplicit']:
                             # reference with explicit title
@@ -1296,7 +1293,6 @@ class BuildEnvironment:
                     if not docname:
                         self.warn(node['refdoc'],
                                   'citation not found: %s' % target, node.line)
-                        newnode = None
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
@@ -1306,7 +1302,7 @@ class BuildEnvironment:
                     if not docname:
                         #self.warn(node['refdoc'],
                         #          'unknown keyword: %s' % target)
-                        newnode = None
+                        pass
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
@@ -1484,7 +1480,7 @@ class BuildEnvironment:
             i += 1
 
         # group the entries by letter
-        def keyfunc((k, v), letters=string.ascii_uppercase + '_'):
+        def keyfunc2((k, v), letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
             v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
             # now calculate the key
@@ -1495,7 +1491,7 @@ class BuildEnvironment:
                 # get all other symbols under one heading
                 return 'Symbols'
         return [(key, list(group))
-                for (key, group) in groupby(newlist, keyfunc)]
+                for (key, group) in groupby(newlist, keyfunc2)]
 
     def collect_relations(self):
         relations = {}
