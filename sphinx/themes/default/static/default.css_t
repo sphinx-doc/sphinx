@@ -199,6 +199,18 @@ div.admonition p.admonition-title + p {
     display: inline;
 }
 
+div.admonition p {
+    margin-bottom: 5px;
+}
+
+div.admonition pre {
+    margin-bottom: 5px;
+}
+
+div.admonition ul, div.admonition ol {
+    margin-bottom: 5px;
+}
+
 div.note {
     background-color: #eee;
     border: 1px solid #ccc;
