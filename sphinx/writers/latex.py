@@ -276,7 +276,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # cite_key: underscores must not be escaped
                 cite_key = bi[0].replace(r"\_", "_")
                 self.body.append('\\bibitem[%s]{%s}{\hypertarget{%s}{} %s}\n' %
-                                 (bi[0], cite_key, cite_key.lower(), bi[1]))
+                                 (bi[0], cite_key,
+                                  self.idescape(cite_key.lower()), bi[1]))
             self.body.append('\\end{thebibliography}\n')
             self.bibitems = []
 
@@ -321,7 +322,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.sectionlevel += 1
         self.body.append('\n\n')
         if self.next_section_target:
-            self.body.append(r'\hypertarget{%s}{}' % self.next_section_target)
+            self.body.append(r'\hypertarget{%s}{}' %
+                             self.idescape(self.next_section_target))
             self.next_section_target = None
         #if node.get('ids'):
         #    for id in node['ids']:
@@ -815,7 +817,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_module(self, node):
         modname = node['modname']
         self.body.append('\n\\hypertarget{module-%s}{}' %
-                         (modname.replace(' ','')))
+                         self.idescape(modname.replace(' ','')))
         self.body.append('\n\\declaremodule[%s]{}{%s}' % (
             modname.replace('_', ''), self.encode(modname)))
         self.body.append('\n\\modulesynopsis{%s}' %
@@ -980,7 +982,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # indexing uses standard LaTeX index markup, so the targets
             # will be generated differently
             if not id.startswith('index-'):
-                self.body.append(r'\hypertarget{%s}{}' % id)
+                self.body.append(r'\hypertarget{%s}{}' % self.idescape(id))
 
         if node.has_key('refid') and node['refid'] not in self.written_ids:
             parindex = node.parent.index(node)
