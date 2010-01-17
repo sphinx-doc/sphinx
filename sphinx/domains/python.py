@@ -424,13 +424,15 @@ class PythonDomain(Domain):
     name = 'py'
     label = 'Python'
     object_types = {
-        'function':  ObjType(l_('function'),  'func', 'obj'),
-        'data':      ObjType(l_('data'),      'data', 'obj'),
-        'class':     ObjType(l_('class'),     'class', 'obj'),
-        'exception': ObjType(l_('exception'), 'exc', 'obj'),
-        'method':    ObjType(l_('method'),    'meth', 'obj'),
-        'attribute': ObjType(l_('attribute'), 'attr', 'obj'),
-        'module':    ObjType(l_('module'),    'mod', 'obj'),
+        'function':     ObjType(l_('function'),      'func', 'obj'),
+        'data':         ObjType(l_('data'),          'data', 'obj'),
+        'class':        ObjType(l_('class'),         'class', 'obj'),
+        'exception':    ObjType(l_('exception'),     'exc', 'obj'),
+        'method':       ObjType(l_('method'),        'meth', 'obj'),
+        'classmethod':  ObjType(l_('class method'),  'meth', 'obj'),
+        'staticmethod': ObjType(l_('static method'), 'meth', 'obj'),
+        'attribute':    ObjType(l_('attribute'),     'attr', 'obj'),
+        'module':       ObjType(l_('module'),        'mod', 'obj'),
     }
 
     directives = {

@@ -13,7 +13,17 @@
 
 class ObjType(object):
     """
-    XXX add docstring
+    An ObjType is the description for a type of object that a domain can
+    document.  In the object_types attribute of Domain subclasses, object type
+    names are mapped to instances of this class.
+
+    Constructor arguments:
+
+    - *lname*: localized name of the type
+    - *roles*: all the roles that can refer to an object of this type
+    - *attrs*: object attributes -- currently only "searchprio" is known,
+      which defines the object's priority in the full-text search index,
+      see `Domain.get_objects`.
     """
 
     known_attrs = {

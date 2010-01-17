@@ -158,7 +158,13 @@ class DefaultDomain(Directive):
 
     def run(self):
         env = self.state.document.settings.env
-        domain_name = self.arguments[0]
+        domain_name = self.arguments[0].lower()
+        # if domain_name not in env.domains:
+        #     # try searching by label
+        #     for domain in env.domains.itervalues():
+        #         if domain.label.lower() == domain_name:
+        #             domain_name = domain.name
+        #             break
         env.temp_data['default_domain'] = env.domains.get(domain_name)
 
 
