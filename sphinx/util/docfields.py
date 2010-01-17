@@ -260,6 +260,7 @@ class DocFieldTransformer(object):
             else:
                 fieldtype, content = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                new_list += fieldtype.make_field(fieldtypes, self.domain, content)
+                new_list += fieldtype.make_field(fieldtypes, self.domain,
+                                                 content)
 
         node.replace_self(new_list)
