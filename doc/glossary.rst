@@ -19,6 +19,31 @@ Glossary
       the :term:`source directory`, but can be set differently with the **-c**
       command-line option.
 
+   directive
+      A reStructuredText markup element that allows marking a block of content
+      with special meaning.  Directives are supplied not only by docutils, but
+      Sphinx and custom extensions can add their own.  The basic directive
+      syntax looks like this::
+
+         .. directivename:: argument ...
+            :option: value
+
+            Content of the directive.
+
+      See :ref:`directives` for more information.
+
+   domain
+      A domain is a collection of markup (reStructuredText :term:`directive`\ s
+      and :term:`role`\ s) to describe and link to :term:`object`\ s belonging
+      together, e.g. elements of a programming language.  Directive and role
+      names in a domain have names like ``domain:name``, e.g. ``py:function``.
+
+      Having domains means that there are no naming problems when one set of
+      documentation wants to refer to e.g. C++ and Python classes.  It also
+      means that extensions that support the documentation of whole new
+      languages are much easier to write.  For more information about domains,
+      see the chapter :ref:`domains`.
+
    environment
       A structure where information about all documents under the root is saved,
       and used for cross-referencing.  The environment is pickled after the
@@ -29,6 +54,11 @@ Glossary
       The basic building block of Sphinx documentation.  Every "object
       directive" (e.g. :dir:`function` or :dir:`object`) creates such a block;
       and most objects can be cross-referenced to.
+
+   role
+      A reStructuredText markup element that allows marking a piece of text.
+      Like directives, roles are extensible.  The basic syntax looks like this:
+      ``:rolename:`content```.  See :ref:`inlinemarkup` for details.
 
    source directory
       The directory which, including its subdirectories, contains all source

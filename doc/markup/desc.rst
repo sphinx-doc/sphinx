@@ -245,7 +245,7 @@ Info field lists
 
 .. versionadded:: 0.4
 
-.. XXX this is only for Python
+.. XXX this is only correct for Python
 
 Inside object description directives, reST field lists with these fields are
 recognized and formatted nicely:

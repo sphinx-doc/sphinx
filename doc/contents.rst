@@ -10,6 +10,7 @@ Sphinx documentation contents
    concepts
    rest
    markup/index
+   domains
    builders
    config
    theming
