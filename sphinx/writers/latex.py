@@ -261,7 +261,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\n\\appendix\n')
             self.first_document = -1
         if node.has_key('docname'):
-            self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
+            self.body.append('\\hypertarget{--doc-%s}{}' %
+                             self.idescape(node['docname']))
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
     def depart_document(self, node):
@@ -286,7 +287,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # and also, new footnotes
         self.footnotestack.append(self.collect_footnotes(node))
         # also add a document target
-        self.body.append('\\hypertarget{--doc-%s}{}' % node['docname'])
+        self.body.append('\\hypertarget{--doc-%s}{}' %
+                         self.idescape(node['docname']))
         self.curfilestack.append(node['docname'])
 
     def collect_footnotes(self, node):
