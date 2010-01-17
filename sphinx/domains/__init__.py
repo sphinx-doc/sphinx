@@ -138,8 +138,6 @@ class Domain(object):
         """
         pass
 
-    # XXX way for individual docs to override methods in an existing domain?
-
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         """
