@@ -36,6 +36,16 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 0.6
 
+.. class:: SingleFileHTMLBuilder
+
+   This is an HTML builder that combines the whole project in one output file.
+   (Obviously this only works with smaller projects.)  The file is named like
+   the master document.  No indices will be generated.
+
+   Its name is ``singlehtml``.
+
+   .. versionadded:: 1.0
+
 .. module:: sphinx.builders.htmlhelp
 .. class:: HTMLHelpBuilder
 

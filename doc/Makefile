@@ -37,6 +37,11 @@ dirhtml:
 	@echo
 	@echo "Build finished. The HTML pages are in _build/dirhtml."
 
+singlehtml:
+	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) _build/singlehtml
+	@echo
+	@echo "Build finished. The HTML page is in _build/singlehtml."
+
 text:
 	$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) _build/text
 	@echo

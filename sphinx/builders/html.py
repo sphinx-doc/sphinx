@@ -28,14 +28,16 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
+from sphinx import addnodes
 from sphinx.util import SEP, os_path, relative_uri, ensuredir, patmatch, \
-    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers, any
+    movefile, ustrftime, copy_static_entry, copyfile, compile_matchers, any, \
+    inline_all_toctrees
 from sphinx.errors import SphinxError
 from sphinx.search import js_index
 from sphinx.theming import Theme
 from sphinx.builders import Builder, ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
-from sphinx.util.console import bold
+from sphinx.util.console import bold, darkgreen
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
      SmartyPantsHTMLTranslator
 
@@ -379,127 +381,12 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('writing additional files...'), nonl=1)
 
         # the global general index
-
         if self.config.html_use_index:
-            # the total count of lines for each index letter, used to distribute
-            # the entries into two columns
-            genindex = self.env.create_index(self)
-            indexcounts = []
-            for _, entries in genindex:
-                indexcounts.append(sum(1 + len(subitems)
-                                       for _, (_, subitems) in entries))
-
-            genindexcontext = dict(
-                genindexentries = genindex,
-                genindexcounts = indexcounts,
-                split_index = self.config.html_split_index,
-            )
-            self.info(' genindex', nonl=1)
-
-            if self.config.html_split_index:
-                self.handle_page('genindex', genindexcontext,
-                                 'genindex-split.html')
-                self.handle_page('genindex-all', genindexcontext,
-                                 'genindex.html')
-                for (key, entries), count in zip(genindex, indexcounts):
-                    ctx = {'key': key, 'entries': entries, 'count': count,
-                           'genindexentries': genindex}
-                    self.handle_page('genindex-' + key, ctx,
-                                     'genindex-single.html')
-            else:
-                self.handle_page('genindex', genindexcontext, 'genindex.html')
+            self.write_genindex()
 
         # the global module index
-
         if self.config.html_use_modindex and self.env.modules:
-            # the sorted list of all modules, for the global module index
-            modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
-                                    '#module-' + mn, sy, pl, dep))
-                              for (mn, (fn, sy, pl, dep)) in
-                              self.env.modules.iteritems()),
-                             key=lambda x: x[0].lower())
-            # collect all platforms
-            platforms = set()
-            # sort out collapsable modules
-            modindexentries = []
-            letters = []
-            pmn = ''
-            num_toplevels = 0
-            num_collapsables = 0
-            cg = 0 # collapse group
-            fl = '' # first letter
-            for mn, (fn, sy, pl, dep) in modules:
-                pl = pl and pl.split(', ') or []
-                platforms.update(pl)
-
-                ignore = self.env.config['modindex_common_prefix']
-                ignore = sorted(ignore, key=len, reverse=True)
-                for i in ignore:
-                    if mn.startswith(i):
-                        mn = mn[len(i):]
-                        stripped = i
-                        break
-                else:
-                    stripped = ''
-
-                # we stripped the whole module name
-                if not mn:
-                    continue
-
-                if fl != mn[0].lower() and mn[0] != '_':
-                    # heading
-                    letter = mn[0].upper()
-                    if letter not in letters:
-                        modindexentries.append(['', False, 0, False,
-                                                letter, '', [], False, ''])
-                        letters.append(letter)
-                tn = mn.split('.')[0]
-                if tn != mn:
-                    # submodule
-                    if pmn == tn:
-                        # first submodule - make parent collapsable
-                        modindexentries[-1][1] = True
-                        num_collapsables += 1
-                    elif not pmn.startswith(tn):
-                        # submodule without parent in list, add dummy entry
-                        cg += 1
-                        modindexentries.append([tn, True, cg, False, '', '',
-                                                [], False, stripped])
-                else:
-                    num_toplevels += 1
-                    cg += 1
-                modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl,
-                                        dep, stripped])
-                pmn = mn
-                fl = mn[0].lower()
-            platforms = sorted(platforms)
-
-            # apply heuristics when to collapse modindex at page load:
-            # only collapse if number of toplevel modules is larger than
-            # number of submodules
-            collapse = len(modules) - num_toplevels < num_toplevels
-
-            # As some parts of the module names may have been stripped, those
-            # names have changed, thus it is necessary to sort the entries.
-            if ignore:
-                def sorthelper(entry):
-                    name = entry[0]
-                    if name == '':
-                        # heading
-                        name = entry[4]
-                    return name.lower()
-
-                modindexentries.sort(key=sorthelper)
-                letters.sort()
-
-            modindexcontext = dict(
-                modindexentries = modindexentries,
-                platforms = platforms,
-                letters = letters,
-                collapse_modindex = collapse,
-            )
-            self.info(' modindex', nonl=1)
-            self.handle_page('modindex', modindexcontext, 'modindex.html')
+            self.write_modindex()
 
         # the search page
         if self.name != 'htmlhelp':
@@ -518,6 +405,134 @@ class StandaloneHTMLBuilder(Builder):
 
         self.info()
 
+        self.copy_image_files()
+        self.copy_download_files()
+        self.copy_static_files()
+        self.write_buildinfo()
+
+        # dump the search index
+        self.handle_finish()
+
+    def write_genindex(self):
+        # the total count of lines for each index letter, used to distribute
+        # the entries into two columns
+        genindex = self.env.create_index(self)
+        indexcounts = []
+        for _, entries in genindex:
+            indexcounts.append(sum(1 + len(subitems)
+                                   for _, (_, subitems) in entries))
+
+        genindexcontext = dict(
+            genindexentries = genindex,
+            genindexcounts = indexcounts,
+            split_index = self.config.html_split_index,
+        )
+        self.info(' genindex', nonl=1)
+
+        if self.config.html_split_index:
+            self.handle_page('genindex', genindexcontext,
+                             'genindex-split.html')
+            self.handle_page('genindex-all', genindexcontext,
+                             'genindex.html')
+            for (key, entries), count in zip(genindex, indexcounts):
+                ctx = {'key': key, 'entries': entries, 'count': count,
+                       'genindexentries': genindex}
+                self.handle_page('genindex-' + key, ctx,
+                                 'genindex-single.html')
+        else:
+            self.handle_page('genindex', genindexcontext, 'genindex.html')
+
+    def write_modindex(self):
+        # the sorted list of all modules, for the global module index
+        modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
+                                '#module-' + mn, sy, pl, dep))
+                          for (mn, (fn, sy, pl, dep)) in
+                          self.env.modules.iteritems()),
+                         key=lambda x: x[0].lower())
+        # collect all platforms
+        platforms = set()
+        # sort out collapsable modules
+        modindexentries = []
+        letters = []
+        pmn = ''
+        num_toplevels = 0
+        num_collapsables = 0
+        cg = 0 # collapse group
+        fl = '' # first letter
+        for mn, (fn, sy, pl, dep) in modules:
+            pl = pl and pl.split(', ') or []
+            platforms.update(pl)
+
+            ignore = self.env.config['modindex_common_prefix']
+            ignore = sorted(ignore, key=len, reverse=True)
+            for i in ignore:
+                if mn.startswith(i):
+                    mn = mn[len(i):]
+                    stripped = i
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole module name
+            if not mn:
+                continue
+
+            if fl != mn[0].lower() and mn[0] != '_':
+                # heading
+                letter = mn[0].upper()
+                if letter not in letters:
+                    modindexentries.append(['', False, 0, False,
+                                            letter, '', [], False, ''])
+                    letters.append(letter)
+            tn = mn.split('.')[0]
+            if tn != mn:
+                # submodule
+                if pmn == tn:
+                    # first submodule - make parent collapsable
+                    modindexentries[-1][1] = True
+                    num_collapsables += 1
+                elif not pmn.startswith(tn):
+                    # submodule without parent in list, add dummy entry
+                    cg += 1
+                    modindexentries.append([tn, True, cg, False, '', '',
+                                            [], False, stripped])
+            else:
+                num_toplevels += 1
+                cg += 1
+            modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl,
+                                    dep, stripped])
+            pmn = mn
+            fl = mn[0].lower()
+        platforms = sorted(platforms)
+
+        # apply heuristics when to collapse modindex at page load:
+        # only collapse if number of toplevel modules is larger than
+        # number of submodules
+        collapse = len(modules) - num_toplevels < num_toplevels
+
+        # As some parts of the module names may have been stripped, those
+        # names have changed, thus it is necessary to sort the entries.
+        if ignore:
+            def sorthelper(entry):
+                name = entry[0]
+                if name == '':
+                    # heading
+                    name = entry[4]
+                return name.lower()
+
+            modindexentries.sort(key=sorthelper)
+            letters.sort()
+
+        modindexcontext = dict(
+            modindexentries = modindexentries,
+            platforms = platforms,
+            letters = letters,
+            collapse_modindex = collapse,
+        )
+        self.info(' modindex', nonl=1)
+        self.handle_page('modindex', modindexcontext, 'modindex.html')
+
+    def copy_image_files(self):
         # copy image files
         if self.images:
             self.info(bold('copying images...'), nonl=True)
@@ -532,6 +547,7 @@ class StandaloneHTMLBuilder(Builder):
                               (path.join(self.srcdir, src), err))
             self.info()
 
+    def copy_download_files(self):
         # copy downloadable files
         if self.env.dlfiles:
             self.info(bold('copying downloadable files...'), nonl=True)
@@ -546,6 +562,7 @@ class StandaloneHTMLBuilder(Builder):
                               (path.join(self.srcdir, src), err))
             self.info()
 
+    def copy_static_files(self):
         # copy static files
         self.info(bold('copying static files... '), nonl=True)
         ensuredir(path.join(self.outdir, '_static'))
@@ -593,7 +610,9 @@ class StandaloneHTMLBuilder(Builder):
             if not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
+        self.info('done')
 
+    def write_buildinfo(self):
         # write build info file
         fp = open(path.join(self.outdir, '.buildinfo'), 'w')
         try:
@@ -604,11 +623,6 @@ class StandaloneHTMLBuilder(Builder):
                      (self.config_hash, self.tags_hash))
         finally:
             fp.close()
-
-        self.info('done')
-
-        # dump the search index
-        self.handle_finish()
 
     def cleanup(self):
         # clean up theme stuff
@@ -751,19 +765,10 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
-        self.info(bold('dumping search index... '), nonl=True)
-        self.indexer.prune(self.env.all_docs)
-        searchindexfn = path.join(self.outdir, self.searchindex_filename)
-        # first write to a temporary file, so that if dumping fails,
-        # the existing index won't be overwritten
-        f = open(searchindexfn + '.tmp', 'wb')
-        try:
-            self.indexer.dump(f, self.indexer_format)
-        finally:
-            f.close()
-        movefile(searchindexfn + '.tmp', searchindexfn)
-        self.info('done')
+        self.dump_search_index()
+        self.dump_inventory()
 
+    def dump_inventory(self):
         self.info(bold('dumping object inventory... '), nonl=True)
         f = open(path.join(self.outdir, INVENTORY_FILENAME), 'w')
         try:
@@ -777,6 +782,20 @@ class StandaloneHTMLBuilder(Builder):
                                         self.get_target_uri(docname)))
         finally:
             f.close()
+        self.info('done')
+
+    def dump_search_index(self):
+        self.info(bold('dumping search index... '), nonl=True)
+        self.indexer.prune(self.env.all_docs)
+        searchindexfn = path.join(self.outdir, self.searchindex_filename)
+        # first write to a temporary file, so that if dumping fails,
+        # the existing index won't be overwritten
+        f = open(searchindexfn + '.tmp', 'wb')
+        try:
+            self.indexer.dump(f, self.indexer_format)
+        finally:
+            f.close()
+        movefile(searchindexfn + '.tmp', searchindexfn)
         self.info('done')
 
 
@@ -804,6 +823,110 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
                                     'index' + self.out_suffix)
 
         return outfilename
+
+
+class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
+    """
+    A StandaloneHTMLBuilder subclass that puts the whole document tree on one
+    HTML page.
+    """
+    name = 'singlehtml'
+    copysource = False
+
+    def get_outdated_docs(self):
+        return 'all documents'
+
+    def get_target_uri(self, docname, typ=None):
+        if docname in self.env.all_docs:
+            # all references are on the same page...
+            return self.config.master_doc + self.out_suffix + \
+                   '#document-' + docname
+        else:
+            # chances are this is a html_additional_page
+            return docname + self.out_suffix
+
+    def get_relative_uri(self, from_, to, typ=None):
+        # ignore source
+        return self.get_target_uri(to, typ)
+
+    def fix_refuris(self, tree):
+        # fix refuris with double anchor
+        fname = self.config.master_doc + self.out_suffix
+        for refnode in tree.traverse(nodes.reference):
+            if 'refuri' not in refnode:
+                continue
+            refuri = refnode['refuri']
+            hashindex = refuri.find('#')
+            if hashindex < 0:
+                continue
+            hashindex = refuri.find('#', hashindex+1)
+            if hashindex >= 0:
+                refnode['refuri'] = fname + refuri[hashindex:]
+
+    def assemble_doctree(self):
+        master = self.config.master_doc
+        tree = self.env.get_doctree(master)
+        tree = inline_all_toctrees(self, set(), master, tree, darkgreen)
+        tree['docname'] = master
+        self.env.resolve_references(tree, master, self)
+        self.fix_refuris(tree)
+        return tree
+
+    def get_doc_context(self, docname, body, metatags):
+        # no relation links...
+        toc = self.env.get_toctree_for(self.config.master_doc, self, False)
+        self.fix_refuris(toc)
+        toc = self.render_partial(toc)['fragment']
+        return dict(
+            parents = [],
+            prev = None,
+            next = None,
+            docstitle = None,
+            title = self.config.html_title,
+            meta = None,
+            body = body,
+            metatags = metatags,
+            rellinks = [],
+            sourcename = '',
+            toc = toc,
+            display_toc = True,
+        )
+
+    def write(self, *ignored):
+        docnames = self.env.all_docs
+
+        self.info(bold('preparing documents... '), nonl=True)
+        self.prepare_writing(docnames)
+        self.info('done')
+
+        self.info(bold('assembling single document... '), nonl=True)
+        doctree = self.assemble_doctree()
+        self.info()
+        self.info(bold('writing... '), nonl=True)
+        self.write_doc(self.config.master_doc, doctree)
+        self.info('done')
+
+    def finish(self):
+        # no indices or search pages are supported
+        self.info(bold('writing additional files...'), nonl=1)
+
+        # additional pages from conf.py
+        for pagename, template in self.config.html_additional_pages.items():
+            self.info(' '+pagename, nonl=1)
+            self.handle_page(pagename, {}, template)
+
+        if self.config.html_use_opensearch:
+            self.info(' opensearch', nonl=1)
+            fn = path.join(self.outdir, '_static', 'opensearch.xml')
+            self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
+
+        self.info()
+
+        self.copy_image_files()
+        self.copy_download_files()
+        self.copy_static_files()
+        self.write_buildinfo()
+        self.dump_inventory()
 
 
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):

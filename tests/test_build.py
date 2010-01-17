@@ -128,6 +128,10 @@ def test_qthelp(app):
 def test_epub(app):
     app.builder.build_all()
 
-@with_app(buildername='changes', cleanenv=True)
+@with_app(buildername='changes')
 def test_changes(app):
+    app.builder.build_all()
+
+@with_app(buildername='singlehtml', cleanenv=True)
+def test_singlehtml(app):
     app.builder.build_all()
