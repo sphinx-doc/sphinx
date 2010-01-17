@@ -1,9 +1,10 @@
 Release 1.0 (in development)
 ============================
 
-.. XXX add short info about domains
-
-* Support for domains has been added.
+* Support for domains has been added.  A domain is a collection of
+  directives and roles that all describe objects belonging together,
+  e.g. elements of a programming language.  Builtin domains are
+  provided for Python and C objects.
 
 * Support for docutils 0.4 has been removed.
 
