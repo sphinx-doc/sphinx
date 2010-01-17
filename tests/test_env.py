@@ -11,7 +11,6 @@
 
 from util import *
 
-from sphinx.environment import BuildEnvironment
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 

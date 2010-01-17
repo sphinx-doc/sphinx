@@ -17,7 +17,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
-     fetch_inventory, load_mappings, missing_reference
+     load_mappings, missing_reference
 
 from util import *
 

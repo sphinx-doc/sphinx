@@ -8,7 +8,6 @@
 """
 
 import sys
-import os
 import StringIO
 import tempfile
 import shutil

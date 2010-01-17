@@ -9,11 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import frontend, utils, nodes
+from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
+
+settings = parser = None
 
 def setup_module():
     global settings, parser

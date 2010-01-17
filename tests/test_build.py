@@ -10,13 +10,11 @@
 """
 
 import os
-import re
 import sys
 import difflib
 from StringIO import StringIO
 from subprocess import Popen, PIPE
 
-from sphinx.builders.latex import LaTeXBuilder
 from sphinx.writers.latex import LaTeXTranslator
 
 from util import *
@@ -59,7 +57,7 @@ def test_latex(app):
     def kpsetest(filename):
         try:
             p = Popen(['kpsewhich', filename], stdout=PIPE)
-        except OSError, err:
+        except OSError:
             # no kpsewhich... either no tex distribution is installed or it is
             # a "strange" one -- don't bother running latex
             return None
@@ -91,7 +89,7 @@ def test_latex(app):
         try:
             p = Popen(['pdflatex', '--interaction=nonstopmode',
                        'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
-        except OSError, err:
+        except OSError:
             pass  # most likely pdflatex was not found
         else:
             stdout, stderr = p.communicate()

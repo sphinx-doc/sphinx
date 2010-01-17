@@ -16,7 +16,6 @@ from util import *
 
 from nose.tools import assert_equals
 
-from sphinx.environment import BuildEnvironment
 
 app = env = None
 warnings = []
