@@ -50,3 +50,7 @@ class ConfigError(SphinxError):
 
 class ThemeError(SphinxError):
     category = 'Theme error'
+
+
+class VersionRequirementError(SphinxError):
+    category = 'Sphinx version error'

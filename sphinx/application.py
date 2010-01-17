@@ -22,7 +22,8 @@ from docutils.parsers.rst import directives, roles
 import sphinx
 from sphinx.roles import xfileref_role, innernodetypes
 from sphinx.config import Config
-from sphinx.errors import SphinxError, SphinxWarning, ExtensionError
+from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
+     VersionRequirementError
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.directives import GenericDesc, Target, additional_xref_types
 from sphinx.environment import SphinxStandaloneReader
@@ -104,6 +105,13 @@ class Sphinx(object):
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
 
+        # check the Sphinx version if requested
+        if self.config.needs_sphinx and \
+           self.config.needs_sphinx > sphinx.__version__[:3]:
+            raise VersionRequirementError(
+                'This project needs at least Sphinx v%s and therefore cannot '
+                'be built with this version.' % self.config.needs_sphinx)
+
         if buildername is None:
             print >>status, 'No builder selected, using default: html'
             buildername = 'html'
@@ -173,8 +181,20 @@ class Sphinx(object):
             self.warn('extension %r has no setup() function; is it really '
                       'a Sphinx extension module?' % extension)
         else:
-            mod.setup(self)
+            try:
+                mod.setup(self)
+            except VersionRequirementError, err:
+                # add the extension name to the version required
+                raise VersionRequirementError(
+                    'The %s extension used by this project needs at least '
+                    'Sphinx v%s; it therefore cannot be built with this '
+                    'version.' % (extension, err))
         self._extensions[extension] = mod
+
+    def require_sphinx(self, version):
+        # check the Sphinx version if requested
+        if version > sphinx.__version__[:3]:
+            raise VersionRequirementError(version)
 
     def import_object(self, objname, source=None):
         """Import an object from a 'module.name' string."""

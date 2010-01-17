@@ -1,6 +1,9 @@
 Release 1.0 (in development)
 ============================
 
+* Added ``needs_sphinx`` config value and ``Sphinx.require_sphinx``
+  application API function.
+
 * Added single-file HTML builder.
 
 * Added ``tab-width`` option to ``literalinclude`` directive.
