@@ -273,7 +273,7 @@ ignore-docstrings=yes
 
 
 # checks for:
-# * warning notes in the code like FIXME, XXX
+# * warning notes in the code
 # * PEP 263: source code with non ascii character but no encoding declaration
 # 
 [MISCELLANEOUS]

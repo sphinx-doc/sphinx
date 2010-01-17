@@ -36,8 +36,7 @@ def test_build(app):
     undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').text())
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
-    # XXX this should fail right now
-    assert undoc_c.values()[0] == [('cfunction', 'Py_SphinxTest')]
+    assert undoc_c.values()[0] == [('function', 'Py_SphinxTest')]
 
     assert 'test_autodoc' in undoc_py
     assert 'funcs' in undoc_py['test_autodoc']

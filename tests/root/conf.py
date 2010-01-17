@@ -51,8 +51,7 @@ latex_additional_files = ['svgimg.svg']
 value_from_conf_py = 84
 
 coverage_c_path = ['special/*.h']
-# XXX cfunction?
-coverage_c_regexes = {'cfunction': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
+coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
 autosummary_generate = ['autosummary']
 
