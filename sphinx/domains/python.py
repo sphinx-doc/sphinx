@@ -45,16 +45,17 @@ class PyObject(ObjectDescription):
         TypedField('parameter', label=l_('Parameters'),
                    names=('param', 'parameter', 'arg', 'argument',
                           'keyword', 'kwarg', 'kwparam'),
-                   typerolename='obj', typenames=('type',)),
+                   typerolename='obj', typenames=('paramtype', 'type')),
         TypedField('variable', label=l_('Variables'), rolename='obj',
-                   names=('var', 'ivar', 'cvar')),
+                   names=('var', 'ivar', 'cvar'),
+                   typerolename='obj', typenames=('vartype',)),
         GroupedField('exceptions', label=l_('Raises'), rolename='exc',
                      names=('raises', 'raise', 'exception', 'except'),
                      can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
         Field('returntype', label=l_('Return type'), has_arg=False,
-              names=('rtype',), rolename='obj'),
+              names=('rtype',)),
     ]
 
     def get_signature_prefix(self, sig):

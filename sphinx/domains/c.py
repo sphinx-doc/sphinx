@@ -50,11 +50,11 @@ class CObject(ObjectDescription):
     doc_field_types = [
         TypedField('parameter', label=l_('Parameters'),
                    names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='obj', typenames=('type',)),
+                   typerolename='type', typenames=('type',)),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
         Field('returntype', label=l_('Return type'), has_arg=False,
-              names=('rtype',), rolename='obj'),
+              names=('rtype',)),
     ]
 
     # These C types aren't described anywhere, so don't try to create
