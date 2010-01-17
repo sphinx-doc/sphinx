@@ -21,6 +21,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util import make_refnode
 from sphinx.util.compat import Directive
+from sphinx.util.docfields import Field, GroupedField, TypedField
 
 
 # REs for Python signatures
@@ -39,6 +40,22 @@ class PyObject(ObjectDescription):
     """
     Description of a general Python object.
     """
+
+    doc_field_types = [
+        TypedField('parameter', label=l_('Parameters'),
+                   names=('param', 'parameter', 'arg', 'argument',
+                          'keyword', 'kwarg', 'kwparam'),
+                   typerolename='obj', typenames=('type',)),
+        TypedField('variable', label=l_('Variables'), rolename='obj',
+                   names=('var', 'ivar', 'cvar')),
+        GroupedField('exceptions', label=l_('Raises'), rolename='exc',
+                     names=('raises', 'raise', 'exception', 'except'),
+                     can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+        Field('returntype', label=l_('Return type'), has_arg=False,
+              names=('rtype',), rolename='obj'),
+    ]
 
     def get_signature_prefix(self, sig):
         """

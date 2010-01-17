@@ -13,7 +13,6 @@ import re
 import string
 
 from docutils import nodes
-from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -21,7 +20,7 @@ from sphinx.locale import l_
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util import make_refnode
-from sphinx.util.compat import Directive
+from sphinx.util.docfields import Field, TypedField
 
 
 # RE to split at word boundaries
@@ -47,6 +46,16 @@ class CObject(ObjectDescription):
     """
     Description of a C language object.
     """
+
+    doc_field_types = [
+        TypedField('parameter', label=l_('Parameters'),
+                   names=('param', 'parameter', 'arg', 'argument'),
+                   typerolename='obj', typenames=('type',)),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+        Field('returntype', label=l_('Return type'), has_arg=False,
+              names=('rtype',), rolename='obj'),
+    ]
 
     # These C types aren't described anywhere, so don't try to create
     # a cross-reference to them

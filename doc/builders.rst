@@ -292,23 +292,3 @@ The special files are located in the root output directory.  They are:
 
    Unlike the other pickle files this pickle file requires that the sphinx
    module is available on unpickling.
-
-
-.. class:: Blah
-
-   :param app: the Sphinx application object
-   :type app: sphinx.builders.Builder
-   :param what: the type of the object which the docstring belongs to (one of
-      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
-      ``"attribute"``)
-   :param name: the fully qualified name of the object
-   :param obj: the object itself
-   :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
-      auto directive
-   :param lines: the lines of the docstring, see above
-   :raises foo: why?
-   :raises sphinx.builders.Builder: why not...
-   :returns: me
-   :rtype: sphinx.builders.Builder

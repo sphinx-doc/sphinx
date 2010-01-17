@@ -7,6 +7,9 @@ Release 1.0 (in development)
 
 * Support for docutils 0.4 has been removed.
 
+* New more compact doc field syntax is now recognized:
+  ``:param type name: description``.
+
 * Added the ``viewcode`` extension.
 
 * Added ``html-collect-pages`` event.
