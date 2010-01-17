@@ -19,10 +19,10 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes
 from sphinx.util import texescape
-from sphinx.util.os import SEP, copyfile
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import SEP, copyfile
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.latex import LaTeXWriter
 

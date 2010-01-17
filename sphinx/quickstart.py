@@ -15,7 +15,7 @@ from os import path
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
 from sphinx import __version__
-from sphinx.util.os import make_filename
+from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
