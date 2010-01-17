@@ -225,7 +225,7 @@ class Autosummary(Directive):
         env = self.state.document.settings.env
 
         prefixes = ['']
-        currmodule = env.doc_read_data.get('py:module')
+        currmodule = env.temp_data.get('py:module')
         if currmodule:
             prefixes.insert(0, currmodule)
 

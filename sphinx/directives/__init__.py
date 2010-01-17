@@ -132,12 +132,12 @@ class ObjectDescription(Directive):
         node.append(contentnode)
         if self.names:
             # needed for association of version{added,changed} directives
-            self.env.doc_read_data['object'] = self.names[0]
+            self.env.temp_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
         #self.handle_doc_fields(contentnode)
         DocFieldTransformer(self).transform_all(contentnode)
-        self.env.doc_read_data['object'] = None
+        self.env.temp_data['object'] = None
         self.after_content()
         return [self.indexnode, node]
 
@@ -159,7 +159,7 @@ class DefaultDomain(Directive):
     def run(self):
         env = self.state.document.settings.env
         domain_name = self.arguments[0]
-        env.doc_read_data['default_domain'] = env.domains.get(domain_name)
+        env.temp_data['default_domain'] = env.domains.get(domain_name)
 
 
 directives.register_directive('default-domain', DefaultDomain)

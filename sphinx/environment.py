@@ -315,7 +315,7 @@ class BuildEnvironment:
         self.dlfiles = FilenameUniqDict()
 
         # temporary data storage while reading a document
-        self.doc_read_data = {}
+        self.temp_data = {}
 
         # Some magically present labels
         def add_magic_label(name, description):
@@ -557,7 +557,7 @@ class BuildEnvironment:
                     return element, []
         # else look in the default domain
         else:
-            def_domain = self.doc_read_data.get('default_domain')
+            def_domain = self.temp_data.get('default_domain')
             if def_domain is not None:
                 element = getattr(def_domain, type)(name)
                 if element is not None:
@@ -610,9 +610,9 @@ class BuildEnvironment:
                 self.warn(docname, 'default role %s not found' %
                           self.config.default_role)
 
-        self.doc_read_data['docname'] = docname
+        self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
-        self.doc_read_data['default_domain'] = \
+        self.temp_data['default_domain'] = \
             self.domains.get(self.config.default_domain)
 
         self.settings['input_encoding'] = self.config.source_encoding
@@ -683,7 +683,7 @@ class BuildEnvironment:
             metanode.__class__ = addnodes.meta
 
         # cleanup
-        self.doc_read_data.clear()
+        self.temp_data.clear()
 
         if save_parsed:
             # save the parsed doctree
@@ -705,23 +705,23 @@ class BuildEnvironment:
     @property
     def docname(self):
         """Backwards compatible alias."""
-        return self.doc_read_data['docname']
+        return self.temp_data['docname']
 
     @property
     def currmodule(self):
         """Backwards compatible alias."""
-        return self.doc_read_data.get('py:module')
+        return self.temp_data.get('py:module')
 
     @property
     def currclass(self):
         """Backwards compatible alias."""
-        return self.doc_read_data.get('py:class')
+        return self.temp_data.get('py:class')
 
     def new_serialno(self, category=''):
         """Return a serial number, e.g. for index entry targets."""
         key = category + 'serialno'
-        cur = self.doc_read_data.get(key, 0)
-        self.doc_read_data[key] = cur + 1
+        cur = self.temp_data.get(key, 0)
+        self.temp_data[key] = cur + 1
         return cur
 
     def note_dependency(self, filename):

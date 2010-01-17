@@ -147,7 +147,7 @@ class Cmdoption(ObjectDescription):
 
     def add_target_and_index(self, name, sig, signode):
         targetname = name.replace('/', '-')
-        currprogram = self.env.doc_read_data.get('std:program')
+        currprogram = self.env.temp_data.get('std:program')
         if currprogram:
             targetname = '-' + currprogram + targetname
         targetname = 'cmdoption' + targetname
@@ -176,9 +176,9 @@ class Program(Directive):
         env = self.state.document.settings.env
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
-            env.doc_read_data['std:program'] = None
+            env.temp_data['std:program'] = None
         else:
-            env.doc_read_data['std:program'] = program
+            env.temp_data['std:program'] = program
         return []
 
 
@@ -186,7 +186,7 @@ class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        program = env.doc_read_data.get('std:program')
+        program = env.temp_data.get('std:program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):
@@ -217,7 +217,7 @@ class Glossary(Directive):
     def run(self):
         env = self.state.document.settings.env
         objects = env.domaindata['std']['objects']
-        gloss_entries = env.doc_read_data.setdefault('gloss_entries', set())
+        gloss_entries = env.temp_data.setdefault('gloss_entries', set())
         node = addnodes.glossary()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
