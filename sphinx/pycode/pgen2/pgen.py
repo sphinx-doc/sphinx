@@ -54,12 +54,12 @@ class ParserGenerator(object):
         first = {}
         for label in rawfirst:
             ilabel = self.make_label(c, label)
-            ##assert ilabel not in first # XXX failed on <> ... !=
+            ##assert ilabel not in first # X X X failed on <> ... !=
             first[ilabel] = 1
         return first
 
     def make_label(self, c, label):
-        # XXX Maybe this should be a method on a subclass of converter?
+        # X X X Maybe this should be a method on a subclass of converter?
         ilabel = len(c.labels)
         if label[0].isalpha():
             # Either a symbol name or a named token

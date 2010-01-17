@@ -35,7 +35,7 @@ class Driver(object):
 
     def parse_tokens(self, tokens, debug=False):
         """Parse a series of tokens and return the syntax tree."""
-        # XXX Move the prefix computation into a wrapper around tokenize.
+        # X X X Move the prefix computation into a wrapper around tokenize.
         p = parse.Parser(self.grammar, self.convert)
         p.setup()
         lineno = 1
