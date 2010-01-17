@@ -29,7 +29,7 @@ def setup_module():
     settings = optparser.get_default_values()
     settings.env = app.builder.env
     settings.env.patch_lookup_functions()
-    settings.env.doc_read_data['docname'] = 'dummy'
+    settings.env.temp_data['docname'] = 'dummy'
     parser = rst.Parser()
 
 def teardown_module():
