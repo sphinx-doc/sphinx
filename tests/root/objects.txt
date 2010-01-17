@@ -39,6 +39,23 @@ Testing object descriptions
 
 .. function:: func_without_module2() -> annotation
 
+.. class:: TimeInt
+
+.. class:: Time(hour, minute, isdst)
+
+   :param hour: The year.
+   :type hour: TimeInt
+   :param TimeInt minute: The minute.
+   :param isdst: whether it's DST
+   :type isdst: * some complex
+                * expression
+   :returns: a new :class:`Time` instance
+   :rtype: :class:`Time`
+   :raises ValueError: if the values are out of range
+   :ivar int hour: like *hour*
+   :ivar minute: like *minute*
+   :vartype minute: int
+
 
 C items
 =======

@@ -15,7 +15,7 @@ from docutils import nodes
 from sphinx import addnodes
 
 
-def _is_only_paragraph(node):
+def _is_single_paragraph(node):
     """True if the node only contains one paragraph (and system messages)."""
     if len(node) == 0:
         return False
@@ -141,9 +141,7 @@ class TypedField(GroupedField):
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
             if fieldarg in types:
-                typename = types[fieldarg]
-                if isinstance(typename, list):
-                    typename = u''.join(n.astext() for n in typename)
+                typename = u''.join(n.astext() for n in types[fieldarg])
                 par += nodes.Text(' (')
                 par += self.make_xref(self.typerolename, domain, typename)
                 par += nodes.Text(')')
@@ -171,10 +169,10 @@ class DocFieldTransformer(object):
         typemap = {}
         for fieldtype in types:
             for name in fieldtype.names:
-                typemap[name] = fieldtype, 0
+                typemap[name] = fieldtype, False
             if fieldtype.is_typed:
                 for name in fieldtype.typenames:
-                    typemap[name] = fieldtype, 1
+                    typemap[name] = fieldtype, True
         return typemap
 
     def transform_all(self, node):
@@ -202,8 +200,10 @@ class DocFieldTransformer(object):
                 # maybe an argument-less field type?
                 fieldtype, fieldarg = fieldname.astext(), ''
             typedesc, is_typefield = typemap.get(fieldtype, (None, None))
-            if typedesc is None or \
-                    typedesc.has_arg != bool(fieldarg):
+            typename = typedesc.name
+
+            # sort out unknown fields
+            if typedesc is None or typedesc.has_arg != bool(fieldarg):
                 # either the field name is unknown, or the argument doesn't
                 # match the spec; capitalize field name and be done with it
                 new_fieldname = fieldtype.capitalize() + ' ' + fieldarg
@@ -211,26 +211,34 @@ class DocFieldTransformer(object):
                 entries.append(field)
                 continue
 
-            typename = typedesc.name
-
-            if _is_only_paragraph(fieldbody):
+            # collect the content, trying not to keep unnecessary paragraphs
+            if _is_single_paragraph(fieldbody):
                 content = fieldbody.children[0].children
             else:
                 content = fieldbody.children
 
+            # if the field specifies a type, put it in the types collection
             if is_typefield:
-                types.setdefault(typename, {})[fieldarg] = content
+                # filter out only inline nodes; others will result in invalid
+                # markup being written out
+                content = filter(lambda n: isinstance(n, nodes.Inline), content)
+                if content:
+                    types.setdefault(typename, {})[fieldarg] = content
                 continue
 
             # also support syntax like ``:param type name:``
-            try:
-                argtype, argname = fieldarg.split(None, 1)
-            except ValueError:
-                pass
-            else:
-                types.setdefault(typename, {})[argname] = nodes.Text(argtype)
-                fieldarg = argname
+            if typedesc.is_typed:
+                try:
+                    argtype, argname = fieldarg.split(None, 1)
+                except ValueError:
+                    pass
+                else:
+                    types.setdefault(typename, {})[argname] = \
+                                               [nodes.Text(argtype)]
+                    fieldarg = argname
 
+            # grouped entries need to be collected in one entry, while others
+            # get one entry per field
             if typedesc.is_grouped:
                 if typename in groupindices:
                     group = entries[groupindices[typename]]
