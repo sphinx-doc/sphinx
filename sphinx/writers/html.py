@@ -60,6 +60,12 @@ class HTMLTranslator(BaseTranslator):
         self.protect_literal_text = 0
         self.add_permalinks = builder.config.html_add_permalinks
 
+    def visit_start_of_file(self, node):
+        # only occurs in the single-file builder
+        self.body.append('<span id="document-%s"></span>' % node['docname'])
+    def depart_start_of_file(self, node):
+        pass
+
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
     def depart_desc(self, node):

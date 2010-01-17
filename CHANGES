@@ -14,6 +14,8 @@ Release 1.0 (in development)
 
 * Added ``html-collect-pages`` event.
 
+* Added single-file HTML builder.
+
 * Added ``tab-width`` option to ``literalinclude`` directive.
 
 * The ``html_sidebars`` config value can now contain patterns as

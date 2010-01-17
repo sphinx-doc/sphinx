@@ -14,6 +14,7 @@ from os import path
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
+from sphinx import __version__
 from sphinx.util import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
@@ -301,24 +302,25 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html dirhtml pickle json htmlhelp qthelp epub \
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp epub \
 latex changes linkcheck doctest
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
-\t@echo "  html      to make standalone HTML files"
-\t@echo "  dirhtml   to make HTML files named index.html in directories"
-\t@echo "  pickle    to make pickle files"
-\t@echo "  json      to make JSON files"
-\t@echo "  htmlhelp  to make HTML files and a HTML help project"
-\t@echo "  qthelp    to make HTML files and a qthelp project"
-\t@echo "  devhelp   to make HTML files and a Devhelp project"
-\t@echo "  epub      to make an epub"
-\t@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-\t@echo "  latexpdf  to make LaTeX files and run them through pdflatex"
-\t@echo "  changes   to make an overview of all changed/added/deprecated items"
-\t@echo "  linkcheck to check all external links for integrity"
-\t@echo "  doctest   to run all doctests embedded in the documentation \
+\t@echo "  html       to make standalone HTML files"
+\t@echo "  dirhtml    to make HTML files named index.html in directories"
+\t@echo "  singlehtml to make a single large HTML file"
+\t@echo "  pickle     to make pickle files"
+\t@echo "  json       to make JSON files"
+\t@echo "  htmlhelp   to make HTML files and a HTML help project"
+\t@echo "  qthelp     to make HTML files and a qthelp project"
+\t@echo "  devhelp    to make HTML files and a Devhelp project"
+\t@echo "  epub       to make an epub"
+\t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+\t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+\t@echo "  changes    to make an overview of all changed/added/deprecated items"
+\t@echo "  linkcheck  to check all external links for integrity"
+\t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
 
 clean:
@@ -333,6 +335,11 @@ dirhtml:
 \t$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 \t@echo
 \t@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
+
+singlehtml:
+\t$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
+\t@echo
+\t@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
 
 pickle:
 \t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle
@@ -421,18 +428,19 @@ if "%%1" == "" goto help
 if "%%1" == "help" (
 \t:help
 \techo.Please use `make ^<target^>` where ^<target^> is one of
-\techo.  html      to make standalone HTML files
-\techo.  dirhtml   to make HTML files named index.html in directories
-\techo.  pickle    to make pickle files
-\techo.  json      to make JSON files
-\techo.  htmlhelp  to make HTML files and a HTML help project
-\techo.  qthelp    to make HTML files and a qthelp project
-\techo.  devhelp   to make HTML files and a Devhelp project
-\techo.  epub      to make an epub
-\techo.  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
-\techo.  changes   to make an overview over all changed/added/deprecated items
-\techo.  linkcheck to check all external links for integrity
-\techo.  doctest   to run all doctests embedded in the documentation if enabled
+\techo.  html       to make standalone HTML files
+\techo.  dirhtml    to make HTML files named index.html in directories
+\techo.  singlehtml to make a single large HTML file
+\techo.  pickle     to make pickle files
+\techo.  json       to make JSON files
+\techo.  htmlhelp   to make HTML files and a HTML help project
+\techo.  qthelp     to make HTML files and a qthelp project
+\techo.  devhelp    to make HTML files and a Devhelp project
+\techo.  epub       to make an epub
+\techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+\techo.  changes    to make an overview over all changed/added/deprecated items
+\techo.  linkcheck  to check all external links for integrity
+\techo.  doctest    to run all doctests embedded in the documentation if enabled
 \tgoto end
 )
 
@@ -453,6 +461,13 @@ if "%%1" == "dirhtml" (
 \t%%SPHINXBUILD%% -b dirhtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/dirhtml
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/dirhtml.
+\tgoto end
+)
+
+if "%%1" == "singlehtml" (
+\t%%SPHINXBUILD%% -b singlehtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/singlehtml
+\techo.
+\techo.Build finished. The HTML pages are in %%BUILDDIR%%/singlehtml.
 \tgoto end
 )
 
@@ -614,7 +629,7 @@ def inner_main(args):
     if not color_terminal():
         nocolor()
 
-    print bold('Welcome to the Sphinx quickstart utility.')
+    print bold('Welcome to the Sphinx %s quickstart utility.') % __version__
     print '''
 Please enter values for the following settings (just press Enter to
 accept a default value, if one is given in brackets).'''
