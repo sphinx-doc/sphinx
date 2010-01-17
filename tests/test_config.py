@@ -12,7 +12,8 @@
 
 from util import *
 
-from sphinx.application import ExtensionError
+from sphinx.config import Config
+from sphinx.errors import ExtensionError, ConfigError
 
 
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
@@ -77,3 +78,19 @@ def test_extension_values(app):
                'html_title', 'x', True)
     raises_msg(ExtensionError, 'already present', app.add_config_value,
                'value_from_ext', 'x', True)
+
+
+@with_tempdir
+def test_errors_warnings(dir):
+    # test the error for syntax errors in the config file
+    write_file(dir / 'conf.py', 'project = \n')
+    raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
+
+    # test the warning for bytestrings with non-ascii content
+    write_file(dir / 'conf.py', '# -*- coding: latin-1\nproject = "foo\xe4"\n')
+    cfg = Config(dir, 'conf.py', {}, None)
+    warned = [False]
+    def warn(msg):
+        warned[0] = True
+    cfg.check_unicode(warn)
+    assert warned[0]

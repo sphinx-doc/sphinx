@@ -24,7 +24,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir, ENOENT
+from sphinx.util import ensuredir, ENOENT, EPIPE
 from sphinx.util.compat import Directive
 
 
@@ -113,6 +113,10 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
     ensuredir(path.dirname(outfn))
 
+    # graphviz expects UTF-8 by default
+    if isinstance(code, unicode):
+        code = code.encode('utf-8')
+
     dot_args = [self.builder.config.graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
     dot_args.extend(options)
@@ -129,10 +133,17 @@ def render_dot(self, code, options, format, prefix='graphviz'):
                           self.builder.config.graphviz_dot)
         self.builder._graphviz_warned_dot = True
         return None, None
-    # graphviz expects UTF-8 by default
-    if isinstance(code, unicode):
-        code = code.encode('utf-8')
-    stdout, stderr = p.communicate(code)
+    try:
+        # Graphviz may close standard input when an error occurs,
+        # resulting in a broken pipe on communicate()
+        stdout, stderr = p.communicate(code)
+    except OSError, err:
+        if err.errno != EPIPE:
+            raise
+        # in this case, read the standard output and standard error streams
+        # directly, to get the error message(s)
+        stdout, stderr = p.stdout.read(), p.stderr.read()
+        p.wait()
     if p.returncode != 0:
         raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
                             '[stdout]\n%s' % (stderr, stdout))

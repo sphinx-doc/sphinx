@@ -72,7 +72,8 @@ class StandaloneHTMLBuilder(Builder):
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
-    script_files = ['_static/jquery.js', '_static/doctools.js']
+    script_files = ['_static/jquery.js', '_static/underscore.js',
+                    '_static/doctools.js']
     # Dito for this one.
     css_files = []
 
@@ -731,7 +732,14 @@ class StandaloneHTMLBuilder(Builder):
         self.app.emit('html-page-context', pagename, templatename,
                       ctx, event_arg)
 
-        output = self.templates.render(templatename, ctx)
+        try:
+            output = self.templates.render(templatename, ctx)
+        except UnicodeError:
+            self.warn("a Unicode error occurred when rendering the page %s. "
+                      "Please make sure all config values that contain "
+                      "non-ASCII content are Unicode strings." % pagename)
+            return
+
         if not outfilename:
             outfilename = self.get_outfilename(pagename)
         # outfilename's path is in general different from self.outdir

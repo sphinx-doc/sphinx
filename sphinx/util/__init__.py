@@ -34,6 +34,7 @@ from sphinx.errors import PycodeError
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
 ENOENT = getattr(errno, 'ENOENT', 0)
+EPIPE  = getattr(errno, 'EPIPE', 0)
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')

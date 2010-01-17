@@ -198,10 +198,13 @@ def main(argv):
                 tbpath = save_traceback()
                 print >>error, red('The full traceback has been saved '
                                    'in %s, if you want to report the '
-                                   'issue to the author.' % tbpath)
+                                   'issue to the developers.' % tbpath)
                 print >>error, ('Please also report this if it was a user '
                                 'error, so that a better error message '
                                 'can be provided next time.')
-                print >>error, ('Send reports to sphinx-dev@googlegroups.com. '
-                                'Thanks!')
+                print >>error, (
+                    'Either send bugs to the mailing list at '
+                    '<http://groups.google.com/group/sphinx-dev/>,\n'
+                    'or report them in the tracker at '
+                    '<http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!')
             return 1

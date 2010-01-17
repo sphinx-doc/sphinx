@@ -1046,13 +1046,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
             self.context.append('}')
         elif uri.startswith('#'):
-            self.body.append('\\hyperlink{%s}{' % uri[1:])
+            # references to labels
+            self.body.append('\\hyperlink{%s}{' % self.idescape(uri[1:]))
             self.context.append('}')
         elif uri.startswith('%'):
+            # references to documents or labels inside documents
             hashindex = uri.find('#')
             targetname = (hashindex == -1) and '--doc-' + uri[1:] \
                                            or uri[hashindex+1:]
-            self.body.append('\\hyperlink{%s}{' % targetname)
+            self.body.append('\\hyperlink{%s}{' % self.idescape(targetname))
             self.context.append('}')
         elif uri.startswith('@token'):
             if self.in_production_list:

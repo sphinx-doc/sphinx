@@ -10,9 +10,13 @@
 """
 
 import os
+import re
 from os import path
 
 from sphinx.util import make_filename
+from sphinx.errors import ConfigError
+
+nonascii_re = re.compile(r'[\x80-\xff]')
 
 
 class Config(object):
@@ -140,19 +144,34 @@ class Config(object):
         self.values = Config.config_values.copy()
         config = {}
         if dirname is not None:
-            config['__file__'] = path.join(dirname, filename)
+            config_file = path.join(dirname, filename)
+            config['__file__'] = config_file
             config['tags'] = tags
             olddir = os.getcwd()
             try:
-                os.chdir(dirname)
-                execfile(config['__file__'], config)
+                try:
+                    os.chdir(dirname)
+                    execfile(config['__file__'], config)
+                except SyntaxError, err:
+                    raise ConfigError('There is a syntax error in your '
+                                      'configuration file: ' + str(err))
             finally:
                 os.chdir(olddir)
+
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
         # own config values
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
+
+    def check_unicode(self, warn):
+        # check all string values for non-ASCII characters in
+        # bytestrings, since that can
+        for name, value in self._raw_config.iteritems():
+            if isinstance(value, str) and nonascii_re.search(value):
+                warn('the config value %r is set to a string with non-ASCII '
+                     'characters; this can lead to Unicode errors occurring. '
+                     'Please use Unicode strings, e.g. u"Content".' % name)
 
     def init_values(self):
         config = self._raw_config

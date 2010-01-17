@@ -30,7 +30,7 @@
    .. rubric:: Exceptions
 
    .. autosummary::
-   {% for item in classes %}
+   {% for item in exceptions %}
       {{ item }}
    {%- endfor %}
    {% endif %}

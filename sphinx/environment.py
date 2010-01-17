@@ -1222,6 +1222,7 @@ class BuildEnvironment:
 
             typ = node['reftype']
             target = node['reftarget']
+            refdoc = node.get('refdoc', fromdocname)
 
             try:
                 if node.has_key('refdomain') and node['refdomain']:
@@ -1240,7 +1241,7 @@ class BuildEnvironment:
                         docname, labelid = self.anonlabels.get(target, ('',''))
                         sectname = node.astext()
                         if not docname:
-                            self.warn(node['refdoc'], 'undefined label: %s' %
+                            self.warn(refdoc, 'undefined label: %s' %
                                       target, node.line)
                     else:
                         # reference to named label; the final node will
@@ -1248,8 +1249,7 @@ class BuildEnvironment:
                         docname, labelid, sectname = self.labels.get(target,
                                                                      ('','',''))
                         if not docname:
-                            self.warn(
-                                node['refdoc'],
+                            self.warn(refdoc,
                                 'undefined label: %s' % target + ' -- if you '
                                 'don\'t give a link caption the label must '
                                 'precede a section header.', node.line)
@@ -1273,9 +1273,9 @@ class BuildEnvironment:
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
-                    docname = docname_join(node['refdoc'], target)
+                    docname = docname_join(refdoc, target)
                     if docname not in self.all_docs:
-                        self.warn(node['refdoc'],
+                        self.warn(refdoc,
                                   'unknown document: %s' % docname, node.line)
                     else:
                         if node['refexplicit']:
@@ -1300,8 +1300,7 @@ class BuildEnvironment:
                     # keywords are oddballs: they are referenced by named labels
                     docname, labelid, _ = self.labels.get(target, ('','',''))
                     if not docname:
-                        #self.warn(node['refdoc'],
-                        #          'unknown keyword: %s' % target)
+                        #self.warn(refdoc, 'unknown keyword: %s' % target)
                         pass
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
