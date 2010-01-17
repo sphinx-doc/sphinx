@@ -27,11 +27,11 @@ from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
      VersionRequirementError
-from sphinx.domains import ObjType, all_domains
+from sphinx.domains import ObjType, BUILTIN_DOMAINS
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
-from sphinx.util import pycompat  # pycompat imported for side-effects
+from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold
@@ -66,6 +66,7 @@ class Sphinx(object):
         self.next_listener_id = 0
         self._extensions = {}
         self._listeners = {}
+        self.domains = BUILTIN_DOMAINS.copy()
         self.builderclasses = BUILTIN_BUILDERS.copy()
         self.builder = None
         self.env = None
@@ -151,17 +152,17 @@ class Sphinx(object):
             self.env = BuildEnvironment(self.srcdir, self.doctreedir,
                                         self.config)
             self.env.find_files(self.config)
-            for domain in all_domains.keys():
-                self.env.domains[domain] = all_domains[domain](self.env)
+            for domain in self.domains.keys():
+                self.env.domains[domain] = self.domains[domain](self.env)
         else:
             try:
                 self.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(self.config,
                     path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.env.domains = {}
-                for domain in all_domains.keys():
+                for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
-                    self.env.domains[domain] = all_domains[domain](self.env)
+                    self.env.domains[domain] = self.domains[domain](self.env)
                 self.info('done')
             except Exception, err:
                 if type(err) is IOError and err.errno == ENOENT:
@@ -384,21 +385,21 @@ class Sphinx(object):
 
     def add_domain(self, domain):
         # XXX what about subclassing and overriding?
-        if domain.name in all_domains:
+        if domain.name in self.domains:
             raise ExtensionError('domain %s already registered' % domain.name)
-        all_domains[domain.name] = domain
+        self.domains[domain.name] = domain
 
     def add_directive_to_domain(self, domain, name, obj,
                                 content=None, arguments=None, **options):
-        if domain not in all_domains:
+        if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
-        all_domains[domain].directives[name] = \
+        self.domains[domain].directives[name] = \
             self._directive_helper(obj, content, arguments, **options)
 
     def add_role_to_domain(self, domain, name, role):
-        if domain not in all_domains:
+        if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
-        all_domains[domain].roles[name] = role
+        self.domains[domain].roles[name] = role
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname=''):
