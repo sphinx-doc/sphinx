@@ -44,6 +44,12 @@ Literalinclude options
    :start-after: coding: utf-8
    :end-before: class Foo
 
+.. literalinclude:: literal.inc
+   :start-after: utf-8
+
+.. literalinclude:: literal.inc
+   :end-before: class Foo
+
 Test if dedenting before parsing works.
 
 .. highlight:: python
