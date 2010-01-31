@@ -13,6 +13,8 @@
 {%- endblock %}
 {%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
+{%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
+                         (not sidebars == []) %}
 
 {%- macro relbar() %}
     <div class="related">
@@ -36,7 +38,7 @@
 {%- endmacro %}
 
 {%- macro sidebar() %}
-      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
+      {%- if render_sidebar %}
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
@@ -46,7 +48,7 @@
             </a></p>
           {%- endif %}
           {%- endblock %}
-          {%- if sidebars %}
+          {%- if sidebars != None %}
             {#- new style sidebar: explicitly include/exclude templates #}
             {%- for sidebartemplate in sidebars %}
             {%- include sidebartemplate %}
@@ -71,7 +73,7 @@
           {%- endif %}
         </div>
       </div>
-      {%- endif %}{% endif %}
+      {%- endif %}
 {%- endmacro %}
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -150,15 +152,15 @@
     <div class="document">
   {%- block document %}
       <div class="documentwrapper">
-      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
+      {%- if render_sidebar %}
         <div class="bodywrapper">
-      {%- endif %}{% endif %}
+      {%- endif %}
           <div class="body">
             {% block body %} {% endblock %}
           </div>
-      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
+      {%- if render_sidebar %}
         </div>
-      {%- endif %}{% endif %}
+      {%- endif %}
       </div>
   {%- endblock %}
 
