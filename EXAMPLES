@@ -53,7 +53,8 @@ Documentation using the default theme
 Documentation using a customized version of the default theme
 -------------------------------------------------------------
 
-* Advanced Generic Widgets: http://xoomer.virgilio.it/infinity77/AGW_Docs/index.html
+* Advanced Generic Widgets:
+  http://xoomer.virgilio.it/infinity77/AGW_Docs/index.html
 * Bazaar: http://doc.bazaar.canonical.com/en/
 * Chaco: http://code.enthought.com/projects/chaco/docs/html/
 * Djagios: http://djagios.org/
@@ -85,7 +86,8 @@ Documentation using the sphinxdoc theme
 * MyHDL: http://www.myhdl.org/doc/0.6/
 * NetworkX: http://networkx.lanl.gov/
 * Pysparse: http://pysparse.sourceforge.net/
-* PyTango: http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
+* PyTango:
+  http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
 * Reteisi: http://docs.argolinux.org/reteisi/
 * Satchmo: http://www.satchmoproject.com/docs/svn/
 * Sphinx: http://sphinx.pocoo.org/
@@ -100,8 +102,10 @@ Documentation using another builtin theme
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/2/documentation/ (scrolls)
 * pip: http://pip.openplans.org/ (nature)
-* Programmieren mit PyGTK und Glade (German): http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
-* sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html (agogo)
+* Programmieren mit PyGTK und Glade (German):
+  http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
+* sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
+  (agogo)
 
 
 Documentation using a custom theme/integrated in a site
