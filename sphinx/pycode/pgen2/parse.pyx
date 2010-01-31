@@ -29,9 +29,16 @@ class ParseError(Exception):
 
 
 cdef class Parser:
-    cdef public grammar, stack, rootnode, used_names
-    cdef _grammar_dfas, _grammar_labels, _grammar_keywords, _grammar_tokens
-    cdef _grammar_number2symbol
+    cdef public object grammar
+    cdef public object rootnode
+    cdef public list stack
+    cdef public set used_names
+    cdef int  _grammar_start
+    cdef list _grammar_labels
+    cdef dict _grammar_dfas
+    cdef dict _grammar_keywords
+    cdef dict _grammar_tokens
+    cdef dict _grammar_number2symbol
 
     def __init__(self, grammar, convert=None):
         self.grammar = grammar
@@ -42,10 +49,11 @@ cdef class Parser:
         self._grammar_keywords = grammar.keywords
         self._grammar_tokens = grammar.tokens
         self._grammar_number2symbol = grammar.number2symbol
+        self._grammar_start = grammar.start
 
     def setup(self, start=None):
         if start is None:
-            start = self.grammar.start
+            start = self._grammar_start
         # Each stack entry is a tuple: (dfa, state, node).
         # A node is a tuple: (type, value, context, children),
         # where children is a list of nodes or None, and context may be None.
@@ -55,7 +63,7 @@ cdef class Parser:
         self.rootnode = None
         self.used_names = set() # Aliased to self.rootnode.used_names in pop()
 
-    def addtoken(self, type, value, context):
+    def addtoken(self, int type, value, context):
         """Add a token; return True iff this is the end of the program."""
         cdef int ilabel, i, t, state, newstate
         # Map from token to label
@@ -104,22 +112,21 @@ cdef class Parser:
                     # No success finding a transition
                     raise ParseError("bad input", type, value, context)
 
-    cdef int classify(self, type, value, context):
+    cdef int classify(self, int type, value, context):
         """Turn a token into a label.  (Internal)"""
         if type == NAME:
             # Keep a listing of all used names
             self.used_names.add(value)
             # Check for reserved words
-            ilabel = self._grammar_keywords.get(value)
-            if ilabel is not None:
-                return ilabel
-        ilabel = self._grammar_tokens.get(type)
-        if ilabel is None:
+            if value in self._grammar_keywords:
+                return self._grammar_keywords[value]
+        if type not in self._grammar_tokens:
             raise ParseError("bad token", type, value, context)
-        return ilabel
+        return self._grammar_tokens[type]
 
     cdef void shift(self, type, value, newstate, context):
         """Shift a token.  (Internal)"""
+        cdef tuple node
         dfa, state, node = self.stack[-1]
         newnode = (type, value, context, None)
         newnode = self.convert(newnode)
@@ -146,7 +153,7 @@ cdef class Parser:
                 self.rootnode = newnode
                 self.rootnode.used_names = self.used_names
 
-    cdef convert(self, raw_node):
+    cdef convert(self, tuple raw_node):
         type, value, context, children = raw_node
         if children or type in self._grammar_number2symbol:
             # If there's exactly one child, return that child instead of

@@ -321,8 +321,8 @@ if __name__ == '__main__':
     import time, pprint
     x0 = time.time()
     #ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
-    ma = ModuleAnalyzer.for_file('sphinx/builders/html.py',
-                                 'sphinx.builders.html')
+    ma = ModuleAnalyzer.for_file('sphinx/environment.py',
+                                 'sphinx.environment')
     ma.tokenize()
     x1 = time.time()
     ma.parse()
