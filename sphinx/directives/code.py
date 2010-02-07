@@ -160,9 +160,9 @@ class LiteralInclude(Directive):
             use = not startafter
             res = []
             for line in lines:
-                if not use and startafter in line:
+                if not use and startafter and startafter in line:
                     use = True
-                elif use and endbefore in line:
+                elif use and endbefore and endbefore in line:
                     use = False
                     break
                 elif use:
