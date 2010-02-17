@@ -15,6 +15,8 @@ Release 1.0 (in development)
 
 * Added ``html-collect-pages`` event.
 
+* Sphinx now requires Jinja2 version 2.2 or greater.
+
 * Added ``needs_sphinx`` config value and ``Sphinx.require_sphinx``
   application API function.
 
@@ -102,6 +104,9 @@ Release 1.0 (in development)
 
 Release 0.6.5 (in development)
 ==============================
+
+* Make the ``start-after`` and ``end-before`` options to the
+  ``literalinclude`` directive work correctly if not used together.
 
 * #321: Fix link generation in the LaTeX builder.
 

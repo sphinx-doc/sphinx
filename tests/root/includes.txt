@@ -49,6 +49,12 @@ Literalinclude options
    :prepend: START CODE
    :append: END CODE
 
+.. literalinclude:: literal.inc
+   :start-after: utf-8
+
+.. literalinclude:: literal.inc
+   :end-before: class Foo
+
 .. cssclass:: inc-tab3
 .. literalinclude:: tabs.inc
    :tab-width: 3

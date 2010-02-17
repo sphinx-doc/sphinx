@@ -106,14 +106,15 @@ def process_todo_nodes(app, doctree, fromdocname):
         for todo_info in env.todo_all_todos:
             para = nodes.paragraph(classes=['todo-source'])
             filename = env.doc2path(todo_info['docname'], base=None)
-            description = (
-                _('(The original entry is located in %s, line %d and '
-                  'can be found ') % (filename, todo_info['lineno']))
-            para += nodes.Text(description, description)
+            description = _('(The <<original entry>> is located in '
+                            ' %s, line %d.)') % (filename, todo_info['lineno'])
+            desc1 = description[:description.find('<<')]
+            desc2 = description[description.find('>>')+2:]
+            para += nodes.Text(desc1, desc1)
 
             # Create a reference
             newnode = nodes.reference('', '')
-            innernode = nodes.emphasis(_('here'), _('here'))
+            innernode = nodes.emphasis(_('original entry'), _('original entry'))
             newnode['refdocname'] = todo_info['docname']
             try:
                 newnode['refuri'] = app.builder.get_relative_uri(
@@ -124,7 +125,7 @@ def process_todo_nodes(app, doctree, fromdocname):
                 pass
             newnode.append(innernode)
             para += newnode
-            para += nodes.Text('.)', '.)')
+            para += nodes.Text(desc2, desc2)
 
             # (Recursively) resolve references in the todo content
             todo_entry = todo_info['todo']
