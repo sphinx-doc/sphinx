@@ -1,6 +1,8 @@
 Release 1.0 (in development)
 ============================
 
+* Sphinx now requires Jinja2 version 2.2 or greater.
+
 * Added ``needs_sphinx`` config value and ``Sphinx.require_sphinx``
   application API function.
 
