@@ -16,6 +16,7 @@ from os import path
 import zipfile
 
 from docutils import nodes
+from docutils.transforms import Transform
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
@@ -23,6 +24,9 @@ from sphinx.util.osutil import EEXIST
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
 # mimetype, and META-INF/container.xml are created.
+# This template section also defines strings that are embedded in the html
+# output but that may be customized by (re-)setting module attributes,
+# e.g. from conf.py.
 
 _mimetype_template = 'application/epub+zip' # no EOL!
 
@@ -99,6 +103,10 @@ _spine_template = u'''\
 
 _toctree_template = u'toctree-l%d'
 
+_link_target_template = u' [%(uri)s]'
+
+_css_link_target_class = u'link-target'
+
 _media_types = {
     '.html': 'application/xhtml+xml',
     '.css': 'text/css',
@@ -110,6 +118,30 @@ _media_types = {
     '.otf': 'application/x-font-otf',
     '.ttf': 'application/x-font-ttf',
 }
+
+
+# The transform to show link targets
+
+class VisibleLinksTransform(Transform):
+    """
+    Add the link target of referances to the text, unless it is already
+    present in the description.
+    """
+
+    # This transform must run after the references transforms
+    default_priority = 680
+
+    def apply(self):
+        for ref in self.document.traverse(nodes.reference):
+            uri = ref.get('refuri', '')
+            if ( uri.startswith('http:') or uri.startswith('https:') or \
+                    uri.startswith('ftp:') ) and uri not in ref.astext():
+                uri = _link_target_template % {'uri': uri}
+                if uri:
+                    idx = ref.parent.index(ref) + 1
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    ref.parent.insert(idx, link)
 
 
 # The epub publisher
@@ -138,6 +170,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
+        self.app.add_transform(VisibleLinksTransform)
 
     def get_theme_config(self):
         return self.config.epub_theme, {}
@@ -145,7 +178,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     # generic support functions
     def make_id(self, name):
         """Replace all characters not allowed for (X)HTML ids."""
-        return name.replace('/', '_')
+        return name.replace('/', '_').replace(' ', '')
 
     def esc(self, name):
         """Replace all characters not allowed in text an attribute values."""
@@ -157,34 +190,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         name = name.replace('\'', '&apos;')
         return name
 
-    def collapse_text(self, doctree, result):
-       """Remove all HTML markup and return only the text nodes."""
-       for c in doctree.children:
-            if isinstance(c, nodes.Text):
-                try:
-                    # docutils 0.4 and 0.5: Text is a UserString subclass
-                    result.append(c.data)
-                except AttributeError:
-                    # docutils 0.6: Text is a unicode subclass
-                    result.append(c)
-            else:
-                result = self.collapse_text(c, result)
-       return result
-
     def get_refnodes(self, doctree, result):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
-        # toctree-l[1-6] on the parent node?
+        # toctree-l[1-8] on the parent node?
         if isinstance(doctree, nodes.reference):
             classes = doctree.parent.attributes['classes']
             level = 1
-            for l in range(5,0,-1): # or range(1,6)?
+            for l in range(8, 0, -1): # or range(1, 8)?
                 if (_toctree_template % l) in classes:
                     level = l
             result.append({
                 'level': level,
                 'refuri': self.esc(doctree['refuri']),
-                'text': self.esc(''.join(self.collapse_text(doctree, [])))
+                'text': self.esc(doctree.astext())
             })
         else:
             for elem in doctree.children:
@@ -195,16 +214,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Get the total table of contents, containg the master_doc
         and pre and post files not managed by sphinx.
         """
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc, self)
+        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+            self, prune_toctrees=False)
         self.refnodes = self.get_refnodes(doctree, [])
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
-            'text': self.esc(''.join(self.collapse_text(
-                self.env.titles[self.config.master_doc], []
-            ))),
+            'text': self.esc(self.env.titles[self.config.master_doc].astext())
         })
-        # XXX: is reversed ok?
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
                 'level': 1,
@@ -290,11 +307,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
             for fn in files:
                 filename = path.join(root, fn)[olen:]
                 if filename in self.ignored_files:
-                    # self.warn("ignoring %s" % filename)
                     continue
                 ext = path.splitext(filename)[-1]
                 if ext not in _media_types:
-                    self.warn("unknown mimetype for %s, ignoring" % filename)
+                    self.warn('unknown mimetype for %s, ignoring' % filename)
                     continue
                 projectfiles.append(_file_template % {
                     'href': self.esc(filename),
@@ -338,7 +354,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Insert nested navpoints for given node.
         The node and subnav are already rendered to text.
         """
-        nlist = node.split('\n')
+        nlist = node.rsplit('\n', 1)
         nlist.insert(-1, subnav)
         return '\n'.join(nlist)
 
@@ -356,8 +372,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
             file = node['refuri'].split('#')[0]
             if file in self.ignored_files:
                 continue
+            if node['level'] > self.config.epub_tocdepth:
+                continue
             if node['level'] == level:
-                navlist.append(self.new_navpoint(node,level))
+                navlist.append(self.new_navpoint(node, level))
             elif node['level'] == level + 1:
                 navstack.append(navlist)
                 navlist = []
@@ -398,6 +416,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         navpoints = self.build_navpoints(self.refnodes)
         level = max(item['level'] for item in self.refnodes)
+        level = min(level, self.config.epub_tocdepth)
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
             f.write(_toc_template % self.toc_metadata(level, navpoints))

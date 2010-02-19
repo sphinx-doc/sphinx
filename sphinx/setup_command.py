@@ -22,7 +22,41 @@ from sphinx.util.console import darkred, nocolor, color_terminal
 
 
 class BuildDoc(Command):
-    """Distutils command to build Sphinx documentation."""
+    """Distutils command to build Sphinx documentation.
+
+    The Sphinx build can then be triggered from distutils, and some Sphinx
+    options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx own
+    configuration file.
+
+    For instance, from `setup.py`::
+
+       # this is only necessary when not using setuptools/distribute
+       from sphinx.setup_command import BuildDoc
+       cmdclass = {'build_sphinx': BuildDoc}
+
+       name = 'My project'
+       version = 1.2
+       release = 1.2.0
+       setup(
+           name=name,
+           author='Bernard Montgomery',
+           version=release,
+           cmdclass={'build_sphinx': BuildDoc},
+           # these are optional and override conf.py settings
+           command_options={
+               'build_sphinx': {
+                   'project': ('setup.py', name),
+                   'version': ('setup.py', version),
+                   'release': ('setup.py', release)}},
+       )
+
+    Or add this section in ``setup.cfg``::
+
+       [build_sphinx]
+       project = 'My project'
+       version = 1.2
+       release = 1.2.0
+    """
 
     description = 'Build Sphinx documentation'
     user_options = [
@@ -31,15 +65,22 @@ class BuildDoc(Command):
         ('source-dir=', 's', 'Source directory'),
         ('build-dir=', None, 'Build directory'),
         ('builder=', 'b', 'The builder to use. Defaults to "html"'),
-        ]
+        ('project=', None, 'The documented project\'s name'),
+        ('version=', None, 'The short X.Y version'),
+        ('release=', None, 'The full version, including alpha/beta/rc tags'),
+        ('today=', None, 'How to format the current date, used as the '
+         'replacement for |today|'),
+    ]
     boolean_options = ['fresh-env', 'all-files']
 
 
     def initialize_options(self):
         self.fresh_env = self.all_files = False
         self.source_dir = self.build_dir = None
-        self.conf_file_name = 'conf.py'
         self.builder = 'html'
+        self.version = ''
+        self.release = ''
+        self.today = ''
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -74,9 +115,16 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout
+        confoverrides = {}
+        if self.version:
+             confoverrides['version'] = self.version
+        if self.release:
+             confoverrides['release'] = self.release
+        if self.today:
+             confoverrides['today'] = self.today
         app = Sphinx(self.source_dir, self.source_dir,
                      self.builder_target_dir, self.doctree_dir,
-                     self.builder, {}, status_stream,
+                     self.builder, confoverrides, status_stream,
                      freshenv=self.fresh_env)
 
         try:

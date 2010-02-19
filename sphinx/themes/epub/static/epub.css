@@ -420,6 +420,19 @@ div.footer a {
     text-decoration: underline;
 }
 
+/* -- link-target ----------------------------------------------------------- */
+
+.link-target {
+    font-size: 80%;
+}
+
+table .link-target {
+    /* Do not show links in tables, there is not enough space */
+    display: none;
+}
+
+/* -- font-face ------------------------------------------------------------- */
+
 @font-face {
     font-family: "LiberationNarrow";
     font-style: normal;
