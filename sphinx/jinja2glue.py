@@ -30,7 +30,7 @@ def accesskey(context, key):
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
         context.vars['_accesskeys'] = {}
-    if key not in context.vars['_accesskeys']:
+    if key and key not in context.vars['_accesskeys']:
         context.vars['_accesskeys'][key] = 1
         return 'accesskey="%s"' % key
     return ''
