@@ -268,7 +268,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if entry[4]:
                         # add "extra" info
                         ret.append(' \\emph{(%s)}' % self.encode(entry[4]))
-                    ret.append(', \\pageref{%s}' % self.idescape(entry[3]))
+                    ret.append(', \\pageref{%s}\n' % self.idescape(entry[3]))
             ret.append('\\end{theindex}\n')
 
         ret = []
@@ -281,6 +281,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
+                    # deprecated config value
+                    if indexname == 'py-modindex' and \
+                           not self.builder.config.latex_use_modindex:
+                        continue
                     if not domain.has_index_entries(indexinfo[0],
                                                     self.builder.docnames):
                         continue

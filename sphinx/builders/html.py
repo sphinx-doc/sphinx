@@ -241,6 +241,10 @@ class StandaloneHTMLBuilder(Builder):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
+                    # deprecated config value
+                    if indexname == 'py-modindex' and \
+                           not self.config.html_use_modindex:
+                        continue
                     if domain.has_index_entries(indexinfo[0]):
                         self.domain_indices.append((domain.name,) + indexinfo)
 
