@@ -59,10 +59,12 @@ The builder's "name" must be given to the **-b** command-line option of
 .. class:: QtHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
-   also generates Qt help collection support files that allow
+   also generates `Qt help`_ collection support files that allow
    the Qt collection generator to compile them.
 
    Its name is ``qthelp``.
+
+   .. _Qt help: http://doc.trolltech.com/4.6/qthelp-framework.html
 
 .. module:: sphinx.builders.devhelp
 .. class:: DevhelpBuilder
