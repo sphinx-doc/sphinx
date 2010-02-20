@@ -352,11 +352,6 @@ class HTMLTranslator(BaseTranslator):
     def depart_acks(self, node):
         pass
 
-    def visit_module(self, node):
-        pass
-    def depart_module(self, node):
-        pass
-
     def visit_hlist(self, node):
         self.body.append('<table class="hlist"><tr>')
     def depart_hlist(self, node):

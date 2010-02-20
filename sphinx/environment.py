@@ -109,7 +109,8 @@ class DefaultSubstitutions(Transform):
 
 class MoveModuleTargets(Transform):
     """
-    Move module targets to their nearest enclosing section title.
+    Move module targets that are the first thing in a section to the section
+    title.
 
     XXX Python specific
     """
@@ -119,9 +120,10 @@ class MoveModuleTargets(Transform):
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
-            if node['ids'][0].startswith('module-') and \
-                   node.parent.__class__ is nodes.section and \
-                   node.has_key('ismod'):
+            if (node.has_key('ismod') and
+                node.parent.__class__ is nodes.section and
+                # index 0 is the section title node
+                node.parent.index(node) == 1):
                 node.parent['ids'][0:0] = node['ids']
                 node.parent.remove(node)
 

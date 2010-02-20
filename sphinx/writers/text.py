@@ -160,13 +160,6 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_attribution(self, node):
         pass
 
-    def visit_module(self, node):
-        if node.has_key('platform'):
-            self.new_state(0)
-            self.add_text(_('Platform: %s') % node['platform'])
-            self.end_state()
-        raise nodes.SkipNode
-
     def visit_desc(self, node):
         pass
     def depart_desc(self, node):

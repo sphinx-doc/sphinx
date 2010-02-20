@@ -220,7 +220,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.top_sectionlevel = 0
             else:
                 self.top_sectionlevel = 1
-        self.next_section_target = None
+        self.next_section_ids = []
         # flags
         self.verbatim = None
         self.in_title = 0
@@ -240,14 +240,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.generate_indices() +
                 FOOTER % self.elements)
 
-    def hypertarget(self, target, text='', anchor=True):
-        #return '\\hypertarget{%s}{%s}' % (self.idescape(target), text)
+    def hypertarget(self, id, text='', anchor=True):
+        #return '\\hypertarget{%s}{%s}' % (self.idescape(id), text)
         return (anchor and '\\phantomsection' or '') + \
-               '\\label{%s}%s' % (self.idescape(target), text)
+               '\\label{%s}%s' % (self.idescape(id), text)
 
-    def hyperlink(self, target):
-        #return '\\hyperlink{%s}{' % (self.idescape(target))
-        return '\\hyperref[%s]{' % (self.idescape(target))
+    def hyperlink(self, id):
+        #return '\\hyperlink{%s}{' % (self.idescape(id))
+        return '\\hyperref[%s]{' % (self.idescape(id))
 
     def idescape(self, id):
         return str(unicode(id).translate(tex_replace_map))
@@ -362,7 +362,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.this_is_the_title:
             self.sectionlevel += 1
         self.body.append('\n\n')
-        #if node.get('ids'):
+        if node.get('ids'):
+            self.next_section_ids.extend(node['ids'])
         #    for id in node['ids']:
         #        if id not in self.written_ids:
         #            self.body.append(self.hypertarget(id))
@@ -438,10 +439,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append(r'\%s{' % self.sectionnames[-1])
             self.context.append('}\n')
 
-            if self.next_section_target:
-                self.context[-1] += self.hypertarget(self.next_section_target,
-                                                     anchor=False)
-                self.next_section_target = None
+            if self.next_section_ids:
+                for id in self.next_section_ids:
+                    if id not in self.written_ids:
+                        self.context[-1] += self.hypertarget(id, anchor=False)
+                        self.written_ids.add(id)
+                self.next_section_ids = []
 
         elif isinstance(parent, (nodes.topic, nodes.sidebar)):
             self.body.append(r'\textbf{')
@@ -800,19 +803,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_hlistcol(self, node):
         pass
 
-    def visit_module(self, node):
-        modname = node['modname']
-        self.body.append('\n' +
-                         self.hypertarget('module-' + modname.replace(' ','')))
-        #self.body.append('\n\\declaremodule[%s]{}{%s}' % (
-        #    modname.replace('_', ''), self.encode(modname)))
-        #self.body.append('\n\\modulesynopsis{%s}' %
-        #                 self.encode(node['synopsis']))
-        #if node.has_key('platform'):
-        #    self.body.append('\\platform{%s}' % self.encode(node['platform']))
-    def depart_module(self, node):
-        pass
-
     def latex_image_length(self, width_str):
         match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
         if not match:
@@ -976,7 +966,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 next = node.parent[parindex+1]
                 if isinstance(next, nodes.section):
                     # postpone the label until after the sectioning command
-                    self.next_section_target = node['refid']
+                    self.next_section_ids.append(node['refid'])
                     return
             except IndexError:
                 pass
@@ -1035,9 +1025,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
-            targetname = (hashindex == -1) and '--doc-' + uri[1:] \
-                                           or uri[hashindex+1:]
-            self.body.append(self.hyperlink(targetname))
+            id = (hashindex == -1) and '--doc-' + uri[1:] or uri[hashindex+1:]
+            self.body.append(self.hyperlink(id))
             self.context.append('}')
         elif uri.startswith('@token'):
             if self.in_production_list:

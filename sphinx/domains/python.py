@@ -351,16 +351,12 @@ class PyModule(Directive):
         env.domaindata['py']['modules'][modname] = \
             (env.docname, self.options.get('synopsis', ''),
              self.options.get('platform', ''), 'deprecated' in self.options)
-        modulenode = addnodes.module()
-        modulenode['modname'] = modname
-        modulenode['synopsis'] = self.options.get('synopsis', '')
         targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
         self.state.document.note_explicit_target(targetnode)
-        ret = [modulenode, targetnode]
+        ret = [targetnode]
         # XXX this behavior of the module directive is a mess...
         if 'platform' in self.options:
             platform = self.options['platform']
-            modulenode['platform'] = platform
             node = nodes.paragraph()
             node += nodes.emphasis('', _('Platforms: '))
             node += nodes.Text(platform, platform)
@@ -371,7 +367,7 @@ class PyModule(Directive):
             indextext = _('%s (module)') % modname
             inode = addnodes.index(entries=[('single', indextext,
                                              'module-' + modname, modname)])
-            ret.insert(0, inode)
+            ret.append(inode)
         return ret
 
 
