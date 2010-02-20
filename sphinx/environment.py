@@ -155,7 +155,8 @@ class SortIds(Transform):
 
 class CitationReferences(Transform):
     """
-    Handle citation references before the default docutils transform does.
+    Replace citation references by pending_xref nodes before the default
+    docutils transform tries to resolve them.
     """
     default_priority = 619
 

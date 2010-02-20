@@ -209,7 +209,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.next_table_colspec = None
         self.highlightlang = builder.config.highlight_language
         self.highlightlinenothreshold = sys.maxint
-        self.written_ids = set()
         self.footnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
@@ -220,7 +219,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.top_sectionlevel = 0
             else:
                 self.top_sectionlevel = 1
-        self.next_section_ids = []
+        self.next_section_ids = set()
         # flags
         self.verbatim = None
         self.in_title = 0
@@ -240,13 +239,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.generate_indices() +
                 FOOTER % self.elements)
 
-    def hypertarget(self, id, text='', anchor=True):
-        #return '\\hypertarget{%s}{%s}' % (self.idescape(id), text)
+    def hypertarget(self, id, withdoc=True, anchor=True):
+        if withdoc:
+            id = self.curfilestack[-1] + ':' + id
         return (anchor and '\\phantomsection' or '') + \
-               '\\label{%s}%s' % (self.idescape(id), text)
+               '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
-        #return '\\hyperlink{%s}{' % (self.idescape(id))
         return '\\hyperref[%s]{' % (self.idescape(id))
 
     def idescape(self, id):
@@ -268,7 +267,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if entry[4]:
                         # add "extra" info
                         ret.append(' \\emph{(%s)}' % self.encode(entry[4]))
-                    ret.append(', \\pageref{%s}\n' % self.idescape(entry[3]))
+                    ret.append(', \\pageref{%s:%s}\n' %
+                               (entry[2], self.idescape(entry[3])))
             ret.append('\\end{theindex}\n')
 
         ret = []
@@ -307,7 +307,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\n\\appendix\n')
             self.first_document = -1
         if node.has_key('docname'):
-            self.body.append(self.hypertarget('--doc-' + node['docname']))
+            self.body.append(self.hypertarget(':doc'))
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
     def depart_document(self, node):
@@ -318,11 +318,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     widest_label = bi[0]
             self.body.append('\n\\begin{thebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
-                # cite_key: underscores must not be escaped
-                cite_key = bi[0].replace(r"\_", "_")
+                target = self.hypertarget(bi[2] + ':' + bi[0].lower(),
+                                          withdoc=False)
                 self.body.append('\\bibitem[%s]{%s}{%s %s}\n' %
-                                 (bi[0], cite_key,
-                                  self.hypertarget(cite_key.lower()), bi[1]))
+                    (bi[0], self.idescape(bi[0]), target, bi[1]))
             self.body.append('\\end{thebibliography}\n')
             self.bibitems = []
 
@@ -330,7 +329,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # collect new footnotes
         self.footnotestack.append(self.collect_footnotes(node))
         # also add a document target
-        self.body.append(self.hypertarget('--doc-' + node['docname']))
+        self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
 
     def collect_footnotes(self, node):
@@ -363,11 +362,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.sectionlevel += 1
         self.body.append('\n\n')
         if node.get('ids'):
-            self.next_section_ids.extend(node['ids'])
-        #    for id in node['ids']:
-        #        if id not in self.written_ids:
-        #            self.body.append(self.hypertarget(id))
-        #            self.written_ids.add(id)
+            self.next_section_ids.update(node['ids'])
     def depart_section(self, node):
         self.sectionlevel = max(self.sectionlevel - 1,
                                 self.top_sectionlevel - 1)
@@ -441,10 +436,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
             if self.next_section_ids:
                 for id in self.next_section_ids:
-                    if id not in self.written_ids:
-                        self.context[-1] += self.hypertarget(id, anchor=False)
-                        self.written_ids.add(id)
-                self.next_section_ids = []
+                    self.context[-1] += self.hypertarget(id, anchor=False)
+                self.next_section_ids.clear()
 
         elif isinstance(parent, (nodes.topic, nodes.sidebar)):
             self.body.append(r'\textbf{')
@@ -585,6 +578,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_label(self, node):
         if isinstance(node.parent, nodes.citation):
             self.bibitems[-1][0] = node.astext()
+            self.bibitems[-1][2] = self.curfilestack[-1]
         raise nodes.SkipNode
 
     def visit_tabular_col_spec(self, node):
@@ -960,18 +954,28 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if not id.startswith('index-'):
                 self.body.append(self.hypertarget(id))
 
-        if node.has_key('refid') and node['refid'] not in self.written_ids:
-            parindex = node.parent.index(node)
+        # postpone the labels until after the sectioning command
+        parindex = node.parent.index(node)
+        try:
             try:
                 next = node.parent[parindex+1]
-                if isinstance(next, nodes.section):
-                    # postpone the label until after the sectioning command
-                    self.next_section_ids.append(node['refid'])
-                    return
             except IndexError:
-                pass
+                # last node in parent, look at next after parent
+                # (for section of equal level)
+                next = node.parent.parent[node.parent.parent.index(node.parent)]
+            if isinstance(next, nodes.section):
+                if node.get('refid'):
+                    self.next_section_ids.add(node['refid'])
+                self.next_section_ids.update(node['ids'])
+                return
+        except IndexError:
+            pass
+        if 'refuri' in node:
+            return
+        if node.get('refid'):
             add_target(node['refid'])
-            self.written_ids.add(node['refid'])
+        for id in node['ids']:
+            add_target(id)
     def depart_target(self, node):
         pass
 
@@ -1019,13 +1023,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
             self.context.append('}')
         elif uri.startswith('#'):
-            # references to labels
-            self.body.append(self.hyperlink(uri[1:]))
+            # references to labels in the same document
+            self.body.append(self.hyperlink(self.curfilestack[-1] +
+                                            ':' + uri[1:]))
             self.context.append('}')
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
-            id = (hashindex == -1) and '--doc-' + uri[1:] or uri[hashindex+1:]
+            if hashindex == -1:
+                # reference to the document
+                id = uri[1:] + '::doc'
+            else:
+                # reference to a label
+                id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
             self.context.append('}')
         elif uri.startswith('@token'):
@@ -1089,7 +1099,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # TODO maybe use cite bibitems
-        self.bibitems.append(['', ''])
+        self.bibitems.append(['', '', ''])  # [citeid, citetext, docname]
         self.context.append(len(self.body))
     def depart_citation(self, node):
         size = self.context.pop()
@@ -1098,8 +1108,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.bibitems[-1][1] = text
 
     def visit_citation_reference(self, node):
-        citeid = node.astext()
-        self.body.append('\\cite{%s}' % citeid)
+        # This is currently never encountered, since citation_reference nodes
+        # are already replaced by pending_xref nodes in the environment.
+        self.body.append('\\cite{%s}' % self.idescape(node.astext()))
         raise nodes.SkipNode
 
     def visit_literal(self, node):
@@ -1249,7 +1260,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_description(self, node):
-        self.body.append( ' ' )
+        self.body.append(' ')
     def depart_description(self, node):
         pass
 
