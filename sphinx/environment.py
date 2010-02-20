@@ -122,7 +122,7 @@ class MoveModuleTargets(Transform):
             if node['ids'][0].startswith('module-') and \
                    node.parent.__class__ is nodes.section and \
                    node.has_key('ismod'):
-                node.parent['ids'] = node['ids']
+                node.parent['ids'][0:0] = node['ids']
                 node.parent.remove(node)
 
 
