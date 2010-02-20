@@ -121,4 +121,4 @@ def test_latex_escaping():
            u'\\end{Verbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
-           ur'\href{http://example.com/~me/}{test}.*')
+           ur'\\href{http://example.com/~me/}{test}.*')
