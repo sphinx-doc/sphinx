@@ -277,8 +277,8 @@ The special files are located in the root output directory.  They are:
    ``project``, ``copyright``, ``release``, ``version``
       The same values as given in the configuration file.
 
-   ``style``, ``use_modindex``
-      :confval:`html_style` and :confval:`html_use_modindex`, respectively.
+   ``style``
+      :confval:`html_style`.
 
    ``last_updated``
       Date of last build.

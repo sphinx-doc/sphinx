@@ -70,6 +70,8 @@ class Domain(object):
     directives = {}
     #: role name -> role callable
     roles = {}
+    #: (index identifier, localized index name, localized short name) tuples
+    indices = []
 
     #: data value for a fresh environment
     initial_data = {}
@@ -174,6 +176,22 @@ class Domain(object):
           -1: object should not show up in search at all
         """
         return []
+
+    def has_index_entries(self, name, docnames=None):
+        """
+        Return True if there are entries for the index given by *name*.  If
+        *docnames* is given, restrict to entries referring to these docnames.
+        """
+        return False
+
+    def get_index(self, name, docnames=None):
+        """
+        Return entries for the index given by *name*.  If *docnames* is given,
+        restrict to entries referring to these docnames.
+
+        XXX document return format
+        """
+        return [], False
 
 
 from sphinx.domains.c import CDomain

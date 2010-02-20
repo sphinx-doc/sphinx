@@ -162,8 +162,8 @@ The special document names (and pages generated for them) are:
 
 * ``genindex``, ``modindex``, ``search``
 
-  These are used for the general index, the module index, and the search page,
-  respectively.
+  These are used for the general index, the Python module index, and the search
+  page, respectively.
 
   The general index is populated with entries from modules, all index-generating
   :ref:`object descriptions <desc-units>`, and from :dir:`index` directives.

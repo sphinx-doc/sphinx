@@ -111,7 +111,7 @@ var Documentation = {
   init : function() {
     this.fixFirefoxAnchorBug();
     this.highlightSearchWords();
-    this.initModIndex();
+    this.initIndexTable();
   },
 
   /**
@@ -192,9 +192,9 @@ var Documentation = {
   },
 
   /**
-   * init the modindex toggle buttons
+   * init the domain index toggle buttons
    */
-  initModIndex : function() {
+  initIndexTable : function() {
     var togglers = $('img.toggler').click(function() {
       var src = $(this).attr('src');
       var idnum = $(this).attr('id').substr(7);
@@ -204,7 +204,7 @@ var Documentation = {
       else
         $(this).attr('src', src.substr(0, src.length-8) + 'minus.png');
     }).css('display', '');
-    if (DOCUMENTATION_OPTIONS.COLLAPSE_MODINDEX) {
+    if (DOCUMENTATION_OPTIONS.COLLAPSE_INDEX) {
         togglers.click();
     }
   },

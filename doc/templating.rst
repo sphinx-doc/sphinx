@@ -318,9 +318,9 @@ in the future.
 .. data:: rellinks
 
    A list of links to put at the left side of the relbar, next to "next" and
-   "prev".  This usually contains links to the index and the modindex.  If you
-   add something yourself, it must be a tuple ``(pagename, link title,
-   accesskey, link text)``.
+   "prev".  This usually contains links to the general index and other indices,
+   such as the Python module index.  If you add something yourself, it must be a
+   tuple ``(pagename, link title, accesskey, link text)``.
 
 .. data:: shorttitle
 

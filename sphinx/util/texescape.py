@@ -99,6 +99,7 @@ tex_replacements = [
 ]
 
 tex_escape_map = {}
+tex_replace_map = {}
 tex_hl_escape_map_old = {}  # replacement map for Pygments <= 1.1
 tex_hl_escape_map_new = {}  # replacement map for Pygments >= 1.2
 _old_cmd_chars = {ord(u'\\'): u'@', ord(u'{'): u'[', ord(u'}'): u']'}
@@ -106,6 +107,7 @@ _old_cmd_chars = {ord(u'\\'): u'@', ord(u'{'): u'[', ord(u'}'): u']'}
 def init():
     for a, b in tex_replacements:
         tex_escape_map[ord(a)] = b
+        tex_replace_map[ord(a)] = u'_'
 
     for a, b in tex_replacements:
         if a in u'[]{}\\': continue

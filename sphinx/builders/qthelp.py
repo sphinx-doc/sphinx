@@ -130,9 +130,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for node in tocdoc.traverse(istoctree):
             sections.extend(self.write_toc(node))
 
-        if self.config.html_use_modindex:
-            item = section_template % {'title': _('Global Module Index'),
-                                       'ref': 'modindex.html'}
+        for index in self.domain_indices:
+            item = section_template % {'title': index[2],
+                                       'ref': '%s-%s.html' % index[0:2]}
             sections.append(' '*4*4 + item)
         sections = '\n'.join(sections)
 

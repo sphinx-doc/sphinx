@@ -130,8 +130,6 @@
 \newcommand{\samp}[1]{`\code{#1}'}
 \newcommand{\email}[1]{\textsf{#1}}
 
-\newcommand{\py@modulebadkey}{{--just-some-junk--}}
-
 % Redefine the Verbatim environment to allow border and background colors.
 % The original environment is still used for verbatims within tables.
 \let\OriginalVerbatim=\Verbatim
@@ -193,88 +191,11 @@
 \index{#4!#1 #2 #3}
 }
 
-
-% Support for the module index.
-%
-\newif\ifpy@UseModuleIndex
-\py@UseModuleIndexfalse
-
-\newcommand{\makemodindex}{
-  \newwrite\modindexfile
-  \openout\modindexfile=mod\jobname.idx
-  \py@UseModuleIndextrue
-}
-
-\newcommand{\printmodindex}{
-  \@input@{mod\jobname.ind}
-}
-
-% Add the defining entry for a module.
-\newcommand{\py@modindex}[2]{%
-  \renewcommand{\py@thismodule}{#1}
-  \ifpy@UseModuleIndex%
-    \@ifundefined{py@modplat@\py@thismodulekey}{
-      \write\modindexfile{\protect\indexentry{#1@{\texttt{#1}}|hyperpage}{\thepage}}%
-    }{\write\modindexfile{\protect\indexentry{#1@{\texttt{#1 }%
-        \emph{(\platformof{\py@thismodulekey})}}|hyperpage}{\thepage}}%
-    }
-  \fi%
-}
-
-% "Current" keys
-\newcommand{\py@thismodule}{}
-\newcommand{\py@thismodulekey}{}
-\newcommand{\py@thismoduletype}{}
-\newcommand{\py@emptymodule}{}
-
-% \declaremodule[key]{type}{name}
-\newcommand{\declaremodule}[3][\py@modulebadkey]{
-  \renewcommand{\py@thismoduletype}{#2}
-  \ifx\py@modulebadkey#1
-    \renewcommand{\py@thismodulekey}{#3}
-  \else
-    \renewcommand{\py@thismodulekey}{#1}
-  \fi
-  \py@modindex{#3}{}
-  %\label{module-\py@thismodulekey}
-}
-
-% Record module platforms for the Module Index.
-\newif\ifpy@ModPlatformFileIsOpen \py@ModPlatformFileIsOpenfalse
-\long\def\py@writeModPlatformFile#1{%
-  \protected@write\py@ModPlatformFile%
-    {\let\label\@gobble \let\index\@gobble \let\glossary\@gobble}%
-    {\string#1}%
-}
-\newcommand{\py@ModPlatformFilename}{\jobname.pla}
-\newcommand{\platform}[1]{
-  \ifpy@ModPlatformFileIsOpen\else
-    \newwrite\py@ModPlatformFile
-    \openout\py@ModPlatformFile=\py@ModPlatformFilename
-    \py@ModPlatformFileIsOpentrue
-  \fi
-  \py@writeModPlatformFile{\py@defplatform{\py@thismodulekey}{#1}}
-}
-\newcommand{\py@defplatform}[2]{\expandafter\def\csname py@modplat@#1\endcsname{#2}}
-\newcommand{\platformof}[1]{\csname py@modplat@#1\endcsname}
-
-\InputIfFileExists{\jobname.pla}{}{}
-
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
 
 % \sectionauthor{name}{email}
 \newcommand{\sectionauthor}[2]{}
-
-% Ignore module synopsis.
-\newcommand{\modulesynopsis}[1]{}
-
-% Reset "current" objects.
-\newcommand{\resetcurrentobjects}{
-  \renewcommand{\py@thismodule}{}
-  \renewcommand{\py@thismodulekey}{}
-  \renewcommand{\py@thismoduletype}{}
-}
 
 % Augment the sectioning commands used to get our own font family in place,
 % and reset some internal data items:
@@ -301,8 +222,6 @@
                  \let\makelabel=\py@itemnewline}
 }{\end{list}}
 
-\let\py@badkey=\@undefined
-
 % \optional is used for ``[, arg]``, i.e. desc_optional nodes.
 \newcommand{\optional}[1]{%
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
@@ -325,7 +244,7 @@
 % the example completely.
 %
 \newcommand{\grammartoken}[1]{\texttt{#1}}
-\newenvironment{productionlist}[1][\py@badkey]{
+\newenvironment{productionlist}[1][\@undefined]{
   \def\optional##1{{\Large[}##1{\Large]}}
   \def\production##1##2{\hypertarget{grammar-token-##1}{}%
     \code{##1}&::=&\code{##2}\\}

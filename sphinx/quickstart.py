@@ -164,7 +164,7 @@ html_static_path = ['%(dot)sstatic']
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_use_modindex = True
+#html_domain_indices = True
 
 # If false, no index is generated.
 #html_use_index = True
@@ -223,7 +223,7 @@ latex_documents = [
 #latex_appendices = []
 
 # If false, no module index is generated.
-#latex_use_modindex = True
+#latex_domain_indices = True
 
 
 # -- Options for Epub output ---------------------------------------------------

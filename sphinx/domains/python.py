@@ -462,6 +462,9 @@ class PythonDomain(Domain):
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
+    indices = [
+        ('modindex', l_('Global Module Index'), l_('modules')),
+    ]
 
     def clear_doc(self, docname):
         for fullname, (fn, _) in self.data['objects'].items():
@@ -545,3 +548,80 @@ class PythonDomain(Domain):
             yield (modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.data['objects'].iteritems():
             yield (refname, type, docname, refname, 1)
+
+    def has_index_entries(self, name, docnames=None):
+        if name != 'modindex':
+            return False
+        if not docnames:
+            return bool(self.data['modules'])
+        else:
+            for modname, info in self.data['modules'].iteritems():
+                if info[0] in docnames:
+                    return True
+            return False
+
+    def get_index(self, name, docnames=None):
+        if name != 'modindex':
+            return None, None
+
+        content = {}
+        # list of prefixes to ignore
+        ignores = self.env.config['modindex_common_prefix']
+        ignores = sorted(ignores, key=len, reverse=True)
+        # list of all modules, sorted by module name
+        modules = sorted(self.data['modules'].iteritems(),
+                         key=lambda x: x[0].lower())
+        # sort out collapsable modules
+        prev_modname = ''
+        num_toplevels = 0
+        current_group = 0 # collapse group
+        for modname, (docname, synopsis, platforms, deprecated) in modules:
+            if docnames and docname not in docnames:
+                continue
+
+            for ignore in ignores:
+                if modname.startswith(ignore):
+                    modname = modname[len(ignore):]
+                    stripped = ignore
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole module name?
+            if not modname:
+                modname, stripped = stripped, ''
+
+            entries = content.setdefault(modname[0].lower(), [])
+
+            package = modname.split('.')[0]
+            if package != modname:
+                # it's a submodule
+                if prev_modname == package:
+                    # first submodule - make parent a group head
+                    entries[-1][1] = 1
+                elif not prev_modname.startswith(package):
+                    # submodule without parent in list, add dummy entry
+                    current_group += 1
+                    entries.append([stripped + package, 1, current_group,
+                                    '', '', '', '', ''])
+                grouptype = 2
+            else:
+                num_toplevels += 1
+                current_group += 1
+                grouptype = 0
+
+            qualifier = deprecated and _('Deprecated') or ''
+            entries.append([stripped + modname, grouptype, current_group,
+                            docname, 'module-' + stripped + modname,
+                            platforms, qualifier, synopsis])
+            prev_modname = modname
+
+        # apply heuristics when to collapse modindex at page load:
+        # only collapse if number of toplevel modules is larger than
+        # number of submodules
+        collapse = len(modules) - num_toplevels < num_toplevels
+
+        # sort by first letter
+        content = sorted(content.iteritems())
+
+        return content, collapse

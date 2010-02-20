@@ -170,7 +170,7 @@ HTML_XPATH = {
         ".//div[@class='footer']": 'Georg Brandl & Team',
         ".//a[@href='http://python.org/']": '',
         ".//li/a[@href='genindex.html']/em": 'Index',
-        ".//li/a[@href='modindex.html']/em": 'Module Index',
+        ".//li/a[@href='py-modindex.html']/em": 'Module Index',
         ".//li/a[@href='search.html']/em": 'Search Page',
         # custom sidebar only for contents
         ".//h4": 'Contents sidebar',

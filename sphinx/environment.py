@@ -110,6 +110,8 @@ class DefaultSubstitutions(Transform):
 class MoveModuleTargets(Transform):
     """
     Move module targets to their nearest enclosing section title.
+
+    XXX Python specific
     """
     default_priority = 210
 
@@ -318,11 +320,13 @@ class BuildEnvironment:
         self.temp_data = {}
 
         # Some magically present labels
-        def add_magic_label(name, description):
-            self.labels[name] = (name, '', description)
-            self.anonlabels[name] = (name, '')
+        def add_magic_label(name, description, target=None):
+            self.labels[name] = (target or name, '', description)
+            self.anonlabels[name] = (target or name, '')
         add_magic_label('genindex', _('Index'))
-        add_magic_label('modindex', _('Module Index'))
+        # XXX add per domain?
+        # compatibility alias
+        add_magic_label('modindex', _('Module Index'), 'py-modindex')
         add_magic_label('search', _('Search Page'))
 
     def set_warnfunc(self, func):

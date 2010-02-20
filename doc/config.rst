@@ -208,10 +208,11 @@ General configuration
 
 .. confval:: modindex_common_prefix
 
-   A list of prefixes that are ignored for sorting the module index (e.g.,
-   if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``, not
-   ``F``). This can be handy if you document a project that consists of a single
-   package.  Works only for the HTML builder currently.   Default is ``[]``.
+   A list of prefixes that are ignored for sorting the Python module index
+   (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
+   not ``F``). This can be handy if you document a project that consists of a
+   single package.  Works only for the HTML builder currently.  Default is
+   ``[]``.
 
    .. versionadded:: 0.6
 
@@ -528,9 +529,24 @@ that use Sphinx' HTMLWriter class.
          ... old template content ...
          {% endblock %}
 
+.. confval:: html_domain_indices
+
+   If true, generate domain-specific indices in addition to the general index.
+   For e.g. the Python domain, this is the global module index.  Default is
+   ``True``.
+
+   This value can be a bool or a list of index names that should be generated.
+   To find out the index name for a specific index, look at the HTML file name.
+   For example, the Python module index has the name ``'py-modindex'``.
+
+   .. versionadded:: 1.0
+
 .. confval:: html_use_modindex
 
    If true, add a module index to the HTML documents.   Default is ``True``.
+
+   .. deprecated:: 1.0
+      Use :confval:`html_domain_indices`.
 
 .. confval:: html_use_index
 
@@ -769,9 +785,23 @@ These options influence LaTeX output.
 
    A list of document names to append as an appendix to all manuals.
 
+.. confval:: latex_domain_indices
+
+   If true, generate domain-specific indices in addition to the general index.
+   For e.g. the Python domain, this is the global module index.  Default is
+   ``True``.
+
+   This value can be a bool or a list of index names that should be generated,
+   like for :confval:`html_domain_indices`.
+
+   .. versionadded:: 1.0
+
 .. confval:: latex_use_modindex
 
    If true, add a module index to LaTeX documents.   Default is ``True``.
+
+   .. deprecated:: 1.0
+      Use :confval:`latex_domain_indices`.
 
 .. confval:: latex_elements
 
@@ -839,9 +869,7 @@ These options influence LaTeX output.
      ``'logo'``
      ``'releasename'``
      ``'makeindex'``
-     ``'makemodindex'``
      ``'shorthandoff'``
-     ``'printmodindex'``
 
 .. confval:: latex_docclass
 

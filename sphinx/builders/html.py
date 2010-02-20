@@ -230,6 +230,20 @@ class StandaloneHTMLBuilder(Builder):
             defaults=self.env.settings,
             components=(self.docwriter,)).get_default_values()
 
+        # determine the additional indices to include
+        self.domain_indices = []
+        # html_domain_indices can be False/True or a list of index names
+        indices_config = self.config.html_domain_indices
+        if indices_config:
+            for domain in self.env.domains.itervalues():
+                for indexinfo in domain.indices:
+                    indexname = '%s-%s' % (domain.name, indexinfo[0])
+                    if isinstance(indices_config, list):
+                        if indexname not in indices_config:
+                            continue
+                    if domain.has_index_entries(indexinfo[0]):
+                        self.domain_indices.append((domain.name,) + indexinfo)
+
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
         lufmt = self.config.html_last_updated_fmt
@@ -254,11 +268,8 @@ class StandaloneHTMLBuilder(Builder):
         rellinks = []
         if self.config.html_use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        # XXX generalization of modindex?
-        if self.config.html_use_modindex and \
-                self.env.domaindata['py']['modules']:
-            rellinks.append(('modindex', _('Global Module Index'),
-                             'M', _('modules')))
+        for index in self.domain_indices:
+            rellinks.append(('%s-%s' % index[0:2], index[2], '', index[3]))
 
         if self.config.html_style is not None:
             stylename = self.config.html_style
@@ -396,9 +407,8 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_use_index:
             self.write_genindex()
 
-        # the global module index
-        if self.config.html_use_modindex:
-            self.write_modindex()
+        # the global domain-specific indices
+        self.write_domain_indices()
 
         # the search page
         if self.name != 'htmlhelp':
@@ -454,98 +464,17 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
-    def write_modindex(self):
-        moduleindex = self.env.domaindata['py']['modules']
-        if not moduleindex:
-            return
-        # the sorted list of all modules, for the global module index
-        modules = sorted(((mn, (self.get_relative_uri('modindex', fn) +
-                                '#module-' + mn, sy, pl, dep))
-                          for (mn, (fn, sy, pl, dep)) in
-                          moduleindex.iteritems()),
-                         key=lambda x: x[0].lower())
-        # collect all platforms
-        platforms = set()
-        # sort out collapsable modules
-        modindexentries = []
-        letters = []
-        pmn = ''
-        num_toplevels = 0
-        num_collapsables = 0
-        cg = 0 # collapse group
-        fl = '' # first letter
-        for mn, (fn, sy, pl, dep) in modules:
-            pl = pl and pl.split(', ') or []
-            platforms.update(pl)
-
-            ignore = self.env.config['modindex_common_prefix']
-            ignore = sorted(ignore, key=len, reverse=True)
-            for i in ignore:
-                if mn.startswith(i):
-                    mn = mn[len(i):]
-                    stripped = i
-                    break
-            else:
-                stripped = ''
-
-            # we stripped the whole module name
-            if not mn:
-                continue
-
-            if fl != mn[0].lower() and mn[0] != '_':
-                # heading
-                letter = mn[0].upper()
-                if letter not in letters:
-                    modindexentries.append(['', False, 0, False,
-                                            letter, '', [], False, ''])
-                    letters.append(letter)
-            tn = mn.split('.')[0]
-            if tn != mn:
-                # submodule
-                if pmn == tn:
-                    # first submodule - make parent collapsable
-                    modindexentries[-1][1] = True
-                    num_collapsables += 1
-                elif not pmn.startswith(tn):
-                    # submodule without parent in list, add dummy entry
-                    cg += 1
-                    modindexentries.append([tn, True, cg, False, '', '',
-                                            [], False, stripped])
-            else:
-                num_toplevels += 1
-                cg += 1
-            modindexentries.append([mn, False, cg, (tn != mn), fn, sy, pl,
-                                    dep, stripped])
-            pmn = mn
-            fl = mn[0].lower()
-        platforms = sorted(platforms)
-
-        # apply heuristics when to collapse modindex at page load:
-        # only collapse if number of toplevel modules is larger than
-        # number of submodules
-        collapse = len(modules) - num_toplevels < num_toplevels
-
-        # As some parts of the module names may have been stripped, those
-        # names have changed, thus it is necessary to sort the entries.
-        if ignore:
-            def sorthelper(entry):
-                name = entry[0]
-                if name == '':
-                    # heading
-                    name = entry[4]
-                return name.lower()
-
-            modindexentries.sort(key=sorthelper)
-            letters.sort()
-
-        modindexcontext = dict(
-            modindexentries = modindexentries,
-            platforms = platforms,
-            letters = letters,
-            collapse_modindex = collapse,
-        )
-        self.info(' modindex', nonl=1)
-        self.handle_page('modindex', modindexcontext, 'modindex.html')
+    def write_domain_indices(self):
+        for index in self.domain_indices:
+            content, collapse = self.env.domains[index[0]].get_index(index[1])
+            indexcontext = dict(
+                indextitle = index[2],
+                content = content,
+                collapse_index = collapse,
+            )
+            indexname = '%s-%s' % index[0:2]
+            self.info(' ' + indexname, nonl=1)
+            self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self):
         # copy image files
