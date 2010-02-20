@@ -189,7 +189,29 @@ class Domain(object):
         Return entries for the index given by *name*.  If *docnames* is given,
         restrict to entries referring to these docnames.
 
-        XXX document return format
+        The return value is a tuple of ``(content, collapse)``, where *collapse*
+        is a boolean that determines if sub-entries should start collapsed (for
+        output formats that support collapsing sub-entries).
+
+        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
+        is the "heading" for the given *entries*, usually the starting letter.
+
+        *entries* is a sequence of single entries, where a single entry is a
+        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
+        The items in this sequence have the following meaning:
+
+        - `name` -- the name of the index entry to be displayed
+        - `subtype` -- sub-entry related type:
+          0 -- normal entry
+          1 -- entry with sub-entries
+          2 -- sub-entry
+        - `docname` -- docname where the entry is located
+        - `anchor` -- anchor for the entry within `docname`
+        - `extra` -- extra info for the entry
+        - `qualifier` -- qualifier for the description
+        - `descr` -- description for the entry
+
+        Qualifier and description are not rendered e.g. in LaTeX output.
         """
         return [], False
 

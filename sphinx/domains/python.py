@@ -574,7 +574,6 @@ class PythonDomain(Domain):
         # sort out collapsable modules
         prev_modname = ''
         num_toplevels = 0
-        current_group = 0 # collapse group
         for modname, (docname, synopsis, platforms, deprecated) in modules:
             if docnames and docname not in docnames:
                 continue
@@ -601,19 +600,16 @@ class PythonDomain(Domain):
                     entries[-1][1] = 1
                 elif not prev_modname.startswith(package):
                     # submodule without parent in list, add dummy entry
-                    current_group += 1
-                    entries.append([stripped + package, 1, current_group,
-                                    '', '', '', '', ''])
-                grouptype = 2
+                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                subtype = 2
             else:
                 num_toplevels += 1
-                current_group += 1
-                grouptype = 0
+                subtype = 0
 
             qualifier = deprecated and _('Deprecated') or ''
-            entries.append([stripped + modname, grouptype, current_group,
-                            docname, 'module-' + stripped + modname,
-                            platforms, qualifier, synopsis])
+            entries.append([stripped + modname, subtype, docname,
+                            'module-' + stripped + modname, platforms,
+                            qualifier, synopsis])
             prev_modname = modname
 
         # apply heuristics when to collapse modindex at page load:

@@ -19,6 +19,8 @@
 {% endblock %}
 {% block body %}
 
+   {%- set curr_group = 0 %}
+
    <h1>{{ indextitle }}</h1>
 
    <div class="modindex-jumpbox">
@@ -33,11 +35,12 @@
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
      <tr class="cap"><td></td><td><a name="cap-{{ letter }}">
            <strong>{{ letter }}</strong></a></td><td></td></tr>
-     {%- for (name, grouptype, group, page, anchor, extra, qualifier, description)
+     {%- for (name, grouptype, page, anchor, extra, qualifier, description)
              in entries %}
-     <tr{% if grouptype == 2 %} class="cg-{{ cgroup }}"{% endif %}>
+     {%- if grouptype == 1 %}{% set curr_group = curr_group + 1 %}{% endif %}
+     <tr{% if grouptype == 2 %} class="cg-{{ curr_group }}"{% endif %}>
        <td>{% if grouptype == 1 -%}
-         <img src="{{ pathto('_static/minus.png', 1) }}" id="toggle-{{ group }}"
+         <img src="{{ pathto('_static/minus.png', 1) }}" id="toggle-{{ curr_group }}"
               class="toggler" style="display: none" alt="-" />
            {%- endif %}</td>
        <td>{% if grouptype == 2 %}&nbsp;&nbsp;&nbsp;{% endif %}

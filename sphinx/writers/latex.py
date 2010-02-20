@@ -262,10 +262,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     ret.append('\\indexspace\n')
                 ret.append('\\bigletter{%s}\n' % letter)
                 for entry in entries:
-                    if not entry[4]:
+                    if not entry[3]:
                         continue
-                    ret.append('\\item {\\texttt{%s}}, \\pageref{%s}' %
-                               (self.encode(entry[0]), entry[4]))
+                    ret.append('\\item {\\texttt{%s}}' % self.encode(entry[0]))
+                    if entry[4]:
+                        # add "extra" info
+                        ret.append(' \\emph{(%s)}' % self.encode(entry[4]))
+                    ret.append(', \\pageref{%s}' % self.idescape(entry[3]))
             ret.append('\\end{theindex}\n')
 
         ret = []
@@ -968,6 +971,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             try:
                 next = node.parent[parindex+1]
                 if isinstance(next, nodes.section):
+                    # postpone the label until after the sectioning command
                     self.next_section_target = node['refid']
                     return
             except IndexError:
