@@ -1,6 +1,9 @@
 Release 0.6.5 (in development)
 ==============================
 
+* In autodoc, allow customizing the signature of an object where
+  the built-in mechanism fails.
+
 * #331: Fix output for enumerated lists with start values in LaTeX.
 
 * Make the ``start-after`` and ``end-before`` options to the
