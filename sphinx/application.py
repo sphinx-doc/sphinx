@@ -352,7 +352,8 @@ class Sphinx(object):
             elif key == 'text':
                 from sphinx.writers.text import TextTranslator as translator
             elif key == 'man':
-                from sphinx.writers.manpage import ManualPageTranslator as translator
+                from sphinx.writers.manpage import ManualPageTranslator \
+                    as translator
             else:
                 # ignore invalid keys for compatibility
                 continue
