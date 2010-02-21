@@ -20,11 +20,7 @@ from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.console import bold, darkgreen
-try:
-    from sphinx.writers.manpage import ManualPageWriter
-    has_manpage_writer = True
-except ImportError:
-    has_manpage_writer = False
+from sphinx.writers.manpage import ManualPageWriter, has_manpage_writer
 
 
 class ManualPageBuilder(Builder):
