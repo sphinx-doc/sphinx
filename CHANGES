@@ -8,6 +8,9 @@ Release 1.0 (in development)
 
 * Added single-file HTML builder.
 
+* Added ``autodoc_default_flags`` config value, which can be used
+  to select default flags for all autodoc directives.
+
 * Added ``tab-width`` option to ``literalinclude`` directive.
 
 * The ``html_sidebars`` config value can now contain patterns as

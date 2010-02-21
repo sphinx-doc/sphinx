@@ -228,6 +228,24 @@ There are also new config values that you can set:
 
    .. versionadded:: 0.6
 
+.. confval:: autodoc_default_flags
+
+   This value is a list of autodoc directive flags that should be automatically
+   applied to all autodoc directives.  The supported flags are ``'members'``,
+   ``'undoc-members'``, ``'inherited-members'`` and ``'show-inheritance'``.
+
+   If you set one of these flags in this config value, you can use a negated
+   form, :samp:`'no-{flag}'`, in an autodoc directive, to disable it once.
+   For example, if ``autodoc_default_flags`` is set to ``['members',
+   'undoc-members']``, and you write a directive like this::
+
+      .. automodule:: foo
+         :no-undoc-members:
+
+   the directive will be interpreted as if only ``:members:`` was given.
+
+   .. versionadded:: 1.0
+
 
 Docstring preprocessing
 -----------------------
