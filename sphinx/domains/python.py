@@ -459,7 +459,7 @@ class PythonDomain(Domain):
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
     indices = [
-        ('modindex', l_('Global Module Index'), l_('modules')),
+        ('modindex', l_('Python Module Index'), l_('modules')),
     ]
 
     def clear_doc(self, docname):
@@ -545,9 +545,7 @@ class PythonDomain(Domain):
         for refname, (docname, type) in self.data['objects'].iteritems():
             yield (refname, type, docname, refname, 1)
 
-    def has_index_entries(self, name, docnames=None):
-        if name != 'modindex':
-            return False
+    def has_modindex_entries(self, docnames=None):
         if not docnames:
             return bool(self.data['modules'])
         else:
@@ -556,10 +554,7 @@ class PythonDomain(Domain):
                     return True
             return False
 
-    def get_index(self, name, docnames=None):
-        if name != 'modindex':
-            return None, None
-
+    def get_modindex_index(self, docnames=None):
         content = {}
         # list of prefixes to ignore
         ignores = self.env.config['modindex_common_prefix']

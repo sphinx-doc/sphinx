@@ -273,7 +273,8 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for index in self.domain_indices:
-            rellinks.append(('%s-%s' % index[0:2], index[2], '', index[3]))
+            if index[3]:
+                rellinks.append(('%s-%s' % index[0:2], index[2], '', index[3]))
 
         if self.config.html_style is not None:
             stylename = self.config.html_style

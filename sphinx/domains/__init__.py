@@ -181,8 +181,14 @@ class Domain(object):
         """
         Return True if there are entries for the index given by *name*.  If
         *docnames* is given, restrict to entries referring to these docnames.
+
+        Do not overwrite this method, add a method ``has_<name>_entries(self,
+        docnames=None)`` method for every index.
         """
-        return False
+        func = getattr(self, 'has_%s_entries' % name, None)
+        if not func:
+            return bool(self.get_index(name, docnames))
+        return func(docnames)
 
     def get_index(self, name, docnames=None):
         """
@@ -212,8 +218,14 @@ class Domain(object):
         - `descr` -- description for the entry
 
         Qualifier and description are not rendered e.g. in LaTeX output.
+
+        Do not overwrite this method, add a method ``get_<name>_index(self,
+        docnames=None)`` method for every index.
         """
-        return [], False
+        func = getattr(self, 'get_%s_index' % name, None)
+        if not func:
+            return []
+        return func(docnames)
 
 
 from sphinx.domains.c import CDomain
