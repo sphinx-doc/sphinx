@@ -89,8 +89,8 @@ def main(argv):
     if err:
         return 1
 
-    buildername = all_files = None
-    freshenv = warningiserror = use_pdb = False
+    buildername = None
+    force_all = freshenv = warningiserror = use_pdb = False
     status = sys.stdout
     warning = sys.stderr
     error = sys.stderr
@@ -105,7 +105,7 @@ def main(argv):
             if filenames:
                 usage(argv, 'Cannot combine -a option and filenames.')
                 return 1
-            all_files = True
+            force_all = True
         elif opt == '-t':
             tags.append(val)
         elif opt == '-d':
@@ -167,7 +167,7 @@ def main(argv):
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv,
                      warningiserror, tags)
-        app.build(all_files, filenames)
+        app.build(force_all, filenames)
         return app.statuscode
     except KeyboardInterrupt:
         if use_pdb:

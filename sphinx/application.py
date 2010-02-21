@@ -61,8 +61,8 @@ ENV_PICKLE_FILENAME = 'environment.pickle'
 class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
-                 confoverrides, status, warning=sys.stderr, freshenv=False,
-                 warningiserror=False, tags=None):
+                 confoverrides=None, status=sys.stdout, warning=sys.stderr,
+                 freshenv=False, warningiserror=False, tags=None):
         self.next_listener_id = 0
         self._extensions = {}
         self._listeners = {}
@@ -100,7 +100,8 @@ class Sphinx(object):
 
         # read config
         self.tags = Tags(tags)
-        self.config = Config(confdir, CONFIG_FILENAME, confoverrides, self.tags)
+        self.config = Config(confdir, CONFIG_FILENAME,
+                             confoverrides or {}, self.tags)
         self.config.check_unicode(self.warn)
 
         # load all extension modules
@@ -189,9 +190,9 @@ class Sphinx(object):
         self.builder = builderclass(self)
         self.emit('builder-inited')
 
-    def build(self, all_files, filenames):
+    def build(self, force_all=False, filenames=None):
         try:
-            if all_files:
+            if force_all:
                 self.builder.build_all()
             elif filenames:
                 self.builder.build_specific(filenames)
