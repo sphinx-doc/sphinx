@@ -377,7 +377,12 @@ class Documenter(object):
             args = "(%s)" % self.args
         else:
             # try to introspect the signature
-            args = self.format_args()
+            try:
+                args = self.format_args()
+            except Exception, err:
+                self.directive.warn('error while formatting arguments for '
+                                    '%s: %s' % (self.fullname, err))
+                args = None
 
         retann = self.retann
 
@@ -663,12 +668,7 @@ class Documenter(object):
         self.add_line(u'', '')
 
         # format the object's signature, if any
-        try:
-            sig = self.format_signature()
-        except Exception, err:
-            self.directive.warn('error while formatting signature for '
-                                '%s: %s' % (self.fullname, err))
-            sig = ''
+        sig = self.format_signature()
 
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
@@ -868,7 +868,6 @@ class ClassDocumenter(ModuleLevelDocumenter):
         return ret
 
     def format_args(self):
-        args = None
         # for classes, the relevant signature is the __init__ method's
         initmeth = self.get_attr(self.object, '__init__', None)
         # classes without __init__ method, default __init__ or
