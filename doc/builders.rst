@@ -127,6 +127,22 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. versionadded:: 0.4
 
+.. module:: sphinx.builders.manpage
+.. class:: ManualPageBuilder
+
+   This builder produces manual pages in the groff format.  You have to specify
+   which documents are to be included in which manual pages via the
+   :confval:`man_pages` configuration value.
+
+   Its name is ``man``.
+
+   .. note::
+
+      This builder requires the docutils manual page writer, which is only
+      available as of docutils 0.6.
+
+   .. versionadded:: 1.0
+
 .. currentmodule:: sphinx.builders.html
 .. class:: SerializingHTMLBuilder
 

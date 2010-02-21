@@ -159,7 +159,8 @@ def setup(app):
     app.add_node(todo_node,
                  html=(visit_todo_node, depart_todo_node),
                  latex=(visit_todo_node, depart_todo_node),
-                 text=(visit_todo_node, depart_todo_node))
+                 text=(visit_todo_node, depart_todo_node),
+                 man=(visit_todo_node, depart_todo_node))
 
     app.add_directive('todo', Todo)
     app.add_directive('todolist', TodoList)

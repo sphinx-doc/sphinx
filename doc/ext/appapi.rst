@@ -61,11 +61,11 @@ the following public API:
    Register a Docutils node class.  This is necessary for Docutils internals.
    It may also be used in the future to validate nodes in the parsed documents.
 
-   Node visitor functions for the Sphinx HTML, LaTeX and text writers can be
-   given as keyword arguments: the keyword must be one or more of ``'html'``,
-   ``'latex'``, ``'text'``, the value a 2-tuple of ``(visit, depart)`` methods.
-   ``depart`` can be ``None`` if the ``visit`` function raises
-   :exc:`docutils.nodes.SkipNode`.  Example:
+   Node visitor functions for the Sphinx HTML, LaTeX, text and manpage writers
+   can be given as keyword arguments: the keyword must be one or more of
+   ``'html'``, ``'latex'``, ``'text'``, ``'man'``, the value a 2-tuple of
+   ``(visit, depart)`` methods.  ``depart`` can be ``None`` if the ``visit``
+   function raises :exc:`docutils.nodes.SkipNode`.  Example:
 
    .. code-block:: python
 

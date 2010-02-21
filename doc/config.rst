@@ -914,6 +914,35 @@ These options influence LaTeX output.
       Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
 
 
+.. _man-options:
+
+Options for manual page output
+------------------------------
+
+These options influence manual page output.
+
+.. confval:: man_pages
+
+   This value determines how to group the document tree into manual pages.  It
+   must be a list of tuples ``(startdocname, name, description, authors,
+   section)``, where the items are:
+
+   * *startdocname*: document name that is the "root" of the manual page.  All
+     documents referenced by it in TOC trees will be included in the manual file
+     too.  (If you want one master manual page, use your :confval:`master_doc`
+     here.)
+   * *name*: name of the manual page.  This should be a short string without
+     spaces or special characters.  It is used to determine the file name as
+     well as the name of the manual page (in the NAME section).
+   * *description*: description of the manual page.  This is used in the NAME
+     section.
+   * *authors*: A list of strings with authors, or a single string.
+   * *section*: The manual page section.  Used for the output file name as well
+     as in the manual page header.
+
+   .. versionadded:: 1.0
+
+
 .. rubric:: Footnotes
 
 .. [1] A note on available globbing syntax: you can use the standard shell

@@ -49,6 +49,11 @@ latex_elements = {
 
 todo_include_todos = True
 
+man_pages = [
+    ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
+     'Georg Brandl', 1),
+]
+
 
 # -- Extension interface -------------------------------------------------------
 

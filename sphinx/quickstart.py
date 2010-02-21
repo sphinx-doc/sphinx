@@ -226,13 +226,25 @@ latex_documents = [
 #latex_domain_indices = True
 
 
+# -- Options for manual page output --------------------------------------------
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    ('%(master_str)s', '%(project_manpage)s', u'%(project_doc)s',
+     [u'%(author_str)s'], 1)
+]
+'''
+
+EPUB_CONFIG = '''
+
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-#epub_title = ''
-#epub_author = ''
-#epub_publisher = ''
-#epub_copyright = ''
+epub_title = u'%(project_str)s'
+epub_author = u'%(author_str)s'
+epub_publisher = u'%(author_str)s'
+epub_copyright = u'%(copyright_str)s'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
@@ -324,6 +336,8 @@ help:
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+\t@echo "  text       to make text files"
+\t@echo "  man        to make manual pages"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
@@ -400,6 +414,16 @@ latexpdf: latex
 \tmake -C %(rbuilddir)s/latex all-pdf
 \t@echo "pdflatex finished; the PDF files are in %(rbuilddir)s/latex."
 
+text:
+\t$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
+\t@echo
+\t@echo "Build finished. The text files are in $(BUILDDIR)/text."
+
+man:
+\t$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(BUILDDIR)/man
+\t@echo
+\t@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
+
 changes:
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 \t@echo
@@ -444,6 +468,8 @@ if "%%1" == "help" (
 \techo.  devhelp    to make HTML files and a Devhelp project
 \techo.  epub       to make an epub
 \techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+\techo.  text       to make text files
+\techo.  man        to make manual pages
 \techo.  changes    to make an overview over all changed/added/deprecated items
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
@@ -528,6 +554,20 @@ if "%%1" == "latex" (
 \t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
 \techo.
 \techo.Build finished; the LaTeX files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
+if "%%1" == "text" (
+\t%%SPHINXBUILD%% -b text %%ALLSPHINXOPTS%% %%BUILDDIR%%/text
+\techo.
+\techo.Build finished. The text files are in %%BUILDDIR%%/text.
+\tgoto end
+)
+
+if "%%1" == "man" (
+\t%%SPHINXBUILD%% -b man %%ALLSPHINXOPTS%% %%BUILDDIR%%/man
+\techo.
+\techo.Build finished. The manual pages are in %%BUILDDIR%%/man.
 \tgoto end
 )
 
@@ -704,6 +744,11 @@ document is a custom template, you can also set this to another filename.'''
                   'existing file and press Enter', d['master'])
 
     print '''
+Sphinx can also add configuration for epub output:'''
+    do_prompt(d, 'epub', 'Do you want to use the epub builder (y/N)',
+              'n', boolean)
+
+    print '''
 Please indicate if you want to use one of the following Sphinx extensions:'''
     do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
               'from modules (y/N)', 'n', boolean)
@@ -735,6 +780,7 @@ directly.'''
               'y', boolean)
 
     d['project_fn'] = make_filename(d['project'])
+    d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['underline'] = len(d['project']) * '='
     d['extensions'] = ', '.join(
@@ -751,7 +797,7 @@ directly.'''
 
     # escape backslashes and single quotes in strings that are put into
     # a Python string literal
-    for key in ('project', 'copyright', 'author_texescaped',
+    for key in ('project', 'copyright', 'author', 'author_texescaped',
                 'project_doc_texescaped', 'version', 'release', 'master'):
         d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
@@ -772,6 +818,8 @@ directly.'''
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
     conf_text = QUICKSTART_CONF % d
+    if d['epub']:
+        conf_text += EPUB_CONFIG % d
     if d['ext_intersphinx']:
         conf_text += INTERSPHINX_CONFIG
 

@@ -129,6 +129,7 @@ def test_quickstart_all_answers(tempdir):
         'viewcode': 'no',
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
+        'Do you want to use the epub builder': 'yes',
     }
     qs.raw_input = mock_raw_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
@@ -151,6 +152,10 @@ def test_quickstart_all_answers(tempdir):
     assert ns['latex_documents'] == [
         ('contents', 'STASI.tex', u'STASI™ Documentation',
          u'Wolfgang Schäuble \\& G\'Beckstein', 'manual')]
+    assert ns['epub_author'] == u'Wolfgang Schäuble & G\'Beckstein'
+    assert ns['man_pages'] == [
+        ('contents', 'stasi', u'STASI™ Documentation',
+         [u'Wolfgang Schäuble & G\'Beckstein'], 1)]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()

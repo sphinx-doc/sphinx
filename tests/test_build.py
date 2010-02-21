@@ -45,6 +45,15 @@ def test_epub(app):
 def test_changes(app):
     app.builder.build_all()
 
+try:
+    from docutils.writers.manpage import Writer
+except ImportError:
+    pass
+else:
+    @with_app(buildername='man')
+    def test_man(app):
+        app.builder.build_all()
+
 @with_app(buildername='singlehtml', cleanenv=True)
 def test_singlehtml(app):
     app.builder.build_all()

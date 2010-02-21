@@ -141,6 +141,9 @@ class Config(object):
         # text options
         text_sectionchars = ('*=-~"+`', 'text'),
         text_windows_newlines = (False, 'text'),
+
+        # manpage options
+        man_pages = ([], None),
     )
 
     def __init__(self, dirname, filename, overrides, tags):

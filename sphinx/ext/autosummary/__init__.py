@@ -486,11 +486,13 @@ def setup(app):
     app.add_node(autosummary_toc,
                  html=(autosummary_toc_visit_html, autosummary_noop),
                  latex=(autosummary_noop, autosummary_noop),
-                 text=(autosummary_noop, autosummary_noop))
+                 text=(autosummary_noop, autosummary_noop),
+                 man=(autosummary_noop, autosummary_noop))
     app.add_node(autosummary_table,
                  html=(autosummary_table_visit_html, autosummary_noop),
                  latex=(autosummary_noop, autosummary_noop),
-                 text=(autosummary_noop, autosummary_noop))
+                 text=(autosummary_noop, autosummary_noop),
+                 man=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)

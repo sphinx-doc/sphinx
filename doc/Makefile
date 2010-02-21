@@ -21,6 +21,7 @@ help:
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
 	@echo "  epub      to make an epub file"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	@echo "  man       to make manual pages"
 	@echo "  changes   to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck to check all external links for integrity"
 
@@ -44,6 +45,11 @@ singlehtml:
 
 text:
 	$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) _build/text
+	@echo
+	@echo "Build finished."
+
+man:
+	$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) _build/man
 	@echo
 	@echo "Build finished."
 

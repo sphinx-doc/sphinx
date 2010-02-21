@@ -326,6 +326,7 @@ BUILTIN_BUILDERS = {
     'epub':       ('epub', 'EpubBuilder'),
     'latex':      ('latex', 'LaTeXBuilder'),
     'text':       ('text', 'TextBuilder'),
+    'man':        ('manpage', 'ManualPageBuilder'),
     'changes':    ('changes', 'ChangesBuilder'),
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
 }
