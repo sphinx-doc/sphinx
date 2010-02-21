@@ -717,6 +717,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_enumerated_list(self, node):
         self.body.append('\\begin{enumerate}\n' )
+        if 'start' in node:
+            self.body.append('\\setcounter{enumi}{%d}\n' % (node['start'] - 1))
     def depart_enumerated_list(self, node):
         self.body.append('\\end{enumerate}\n' )
 
