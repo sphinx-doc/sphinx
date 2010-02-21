@@ -387,12 +387,12 @@ qthelp:
 \t@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/%(project_fn)s.qhc"
 
 devhelp:
-\t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) %(rbuilddir)s/devhelp
+\t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 \t@echo
 \t@echo "Build finished."
 \t@echo "To view the help file:"
 \t@echo "# mkdir -p $$HOME/.local/share/devhelp/%(project_fn)s"
-\t@echo "# ln -s %(rbuilddir)s/devhelp\
+\t@echo "# ln -s $(BUILDDIR)/devhelp\
  $$HOME/.local/share/devhelp/%(project_fn)s"
 \t@echo "# devhelp"
 
@@ -409,10 +409,10 @@ latex:
 \t      "run these through (pdf)latex."
 
 latexpdf: latex
-\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) %(rbuilddir)s/latex
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
-\tmake -C %(rbuilddir)s/latex all-pdf
-\t@echo "pdflatex finished; the PDF files are in %(rbuilddir)s/latex."
+\tmake -C $(BUILDDIR)/latex all-pdf
+\t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
 text:
 \t$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
@@ -537,7 +537,7 @@ if "%%1" == "qthelp" (
 )
 
 if "%%1" == "devhelp" (
-\t%%SPHINXBUILD%% -b devhelp %%ALLSPHINXOPTS%% %(rbuilddir)s/devhelp
+\t%%SPHINXBUILD%% -b devhelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/devhelp
 \techo.
 \techo.Build finished.
 \tgoto end
