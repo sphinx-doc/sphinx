@@ -420,7 +420,7 @@ BATCHFILE = '''\
 REM Command file for Sphinx documentation
 
 if "%%SPHINXBUILD%%" == "" (
-	set SPHINXBUILD=sphinx-build
+\tset SPHINXBUILD=sphinx-build
 )
 set BUILDDIR=%(rbuilddir)s
 set ALLSPHINXOPTS=-d %%BUILDDIR%%/doctrees %%SPHINXOPTS%% %(rsrcdir)s
