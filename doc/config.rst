@@ -271,9 +271,8 @@ Project information
 
 .. confval:: pygments_style
 
-   The style name to use for Pygments highlighting of source code.  Default is
-   ``'sphinx'``, which is a builtin style designed to match Sphinx' default
-   style.
+   The style name to use for Pygments highlighting of source code.  The default
+   style is selected by the theme for HTML output, and ``'sphinx'`` otherwise.
 
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
