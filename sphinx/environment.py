@@ -616,8 +616,8 @@ class BuildEnvironment:
         self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
 
-        # store time of reading, used to find outdated files
-        self.all_docs[docname] = time.time()
+        # store file modification time, for outdated files detection
+        self.all_docs[docname] = path.getmtime(src_path)
 
         if app:
             app.emit('doctree-read', doctree)
