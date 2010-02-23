@@ -308,9 +308,8 @@ Project information
 
 .. confval:: pygments_style
 
-   The style name to use for Pygments highlighting of source code.  Default is
-   ``'sphinx'``, which is a builtin style designed to match Sphinx' default
-   style.
+   The style name to use for Pygments highlighting of source code.  The default
+   style is selected by the theme for HTML output, and ``'sphinx'`` otherwise.
 
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
@@ -707,6 +706,12 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    A list of files that are generated/copied in the build directory but should
    not be included in the epub file.  The default value is ``[]``.
+
+.. confval:: epub_tocdepth
+
+   The depth of the table of contents in the file :file:`toc.ncx`.  It should
+   be an integer greater than zero.  The default value is 3.  Note: A deeply
+   nested table of contents may be difficult to navigate.
 
 
 .. _latex-options:

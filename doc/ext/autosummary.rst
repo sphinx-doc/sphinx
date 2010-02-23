@@ -97,6 +97,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      :confval:`templates_path` to generate the pages for all entries
      listed. See `Customizing templates`_ below.
 
+     .. versionadded:: 1.0
+
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
 --------------------------------------------------------
@@ -141,6 +143,8 @@ also use this new config value:
 
 Customizing templates
 ---------------------
+
+.. versionadded:: 1.0
 
 You can customize the stub page templates, in a similar way as the HTML Jinja
 templates, see :ref:`templating`. (:class:`~sphinx.application.TemplateBridge`
