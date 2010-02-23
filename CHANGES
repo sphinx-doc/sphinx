@@ -1,6 +1,8 @@
 Release 0.6.5 (in development)
 ==============================
 
+* #338: Fix running with ``-C`` under Windows.
+
 * Make the ``start-after`` and ``end-before`` options to the
   ``literalinclude`` directive work correctly if not used together.
 
