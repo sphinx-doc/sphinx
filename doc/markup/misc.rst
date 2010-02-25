@@ -29,6 +29,12 @@ At the moment, these metadata fields are recognized:
    If set, the web application won't display a comment form for a page generated
    from this source file.
 
+``orphan``
+   If set, warnings about this file not being included in any toctree will be
+   suppressed.
+
+   .. versionadded:: 1.0
+
 
 Meta-information markup
 -----------------------

@@ -1,3 +1,5 @@
+:orphan:
+
 sphinx-quickstart manual page
 =============================
 
@@ -19,6 +21,7 @@ See also
 --------
 
 :manpage:`sphinx-build(1)`
+
 
 Author
 ------

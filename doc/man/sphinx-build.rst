@@ -1,3 +1,5 @@
+:orphan:
+
 sphinx-build manual page
 ========================
 
@@ -72,10 +74,9 @@ Options
                       <sourcedir>.
 -C                    Specifies that no conf.py file at all is to be used.
                       Configuration can only be set with the -D option.
--D <setting>=<value>  Overrides a setting from the configuration file.
+-D <setting=value>    Overrides a setting from the configuration file.
 -d <path>             Path to cached files; defaults to <outdir>/.doctrees.
--A <name>=<value>     Passes a value into the HTML templates (only for HTML
-                      builders).
+-A <name=value>       Passes a value into the HTML templates (only for HTML builders).
 -N                    Prevents colored output.
 -q                    Quiet operation, just prints warnings and errors on stderr.
 -Q                    Very quiet operation, doesn't print anything except for
