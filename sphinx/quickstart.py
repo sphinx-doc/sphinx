@@ -320,8 +320,8 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp epub \
-latex changes linkcheck doctest
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
+epub latex latexpdf text man changes linkcheck doctest
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
