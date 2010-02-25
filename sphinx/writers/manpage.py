@@ -53,7 +53,9 @@ class ManualPageTranslator(BaseTranslator):
         # docinfo set by man_pages config value
         self._docinfo['title'] = self.document.settings.title
         self._docinfo['subtitle'] = self.document.settings.subtitle
-        self._docinfo['author'] = self.document.settings.authors
+        if self.document.settings.authors:
+            # don't set it if no author given
+            self._docinfo['author'] = self.document.settings.authors
         self._docinfo['manual_section'] = self.document.settings.section
 
         # docinfo set by other config values

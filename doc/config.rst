@@ -935,7 +935,9 @@ These options influence manual page output.
      well as the name of the manual page (in the NAME section).
    * *description*: description of the manual page.  This is used in the NAME
      section.
-   * *authors*: A list of strings with authors, or a single string.
+   * *authors*: A list of strings with authors, or a single string.  Can be
+     an empty string or list if you do not want to automatically generate
+     an AUTHORS section in the manual page.
    * *section*: The manual page section.  Used for the output file name as well
      as in the manual page header.
 

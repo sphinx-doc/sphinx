@@ -58,7 +58,10 @@ class ManualPageBuilder(Builder):
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
             if isinstance(authors, basestring):
-                authors = [authors]
+                if authors:
+                    authors = [authors]
+                else:
+                    authors = []
 
             targetname = '%s.%s' % (name, section)
             self.info(darkgreen(targetname) + ' { ', nonl=True)
