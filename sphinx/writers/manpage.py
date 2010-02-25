@@ -223,6 +223,13 @@ class ManualPageTranslator(BaseTranslator):
     def depart_production(self, node):
         pass
 
+    # overwritten -- don't emit a warning for images
+    def visit_image(self, node):
+        if 'alt' in node.attributes:
+            self.body.append('[image: %s]\n' % node['alt'])
+        self.body.append('[image]\n')
+        raise nodes.SkipNode
+
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):
         self.body.append(self.defs['reference'][0])
