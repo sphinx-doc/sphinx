@@ -52,6 +52,10 @@ todo_include_todos = True
 man_pages = [
     ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
      'Georg Brandl', 1),
+    ('man/sphinx-build', 'sphinx-build', 'Sphinx documentation generator tool',
+     '', 1),
+    ('man/sphinx-quickstart', 'sphinx-quickstart', 'Sphinx documentation '
+     'template generator', '', 1),
 ]
 
 
