@@ -38,7 +38,8 @@ strip_backslash_re = re.compile(r'\\(?=[^\\])')
 class ObjectDescription(Directive):
     """
     Directive to describe a class, function or similar object.  Not used
-    directly, but subclassed to add custom behavior.
+    directly, but subclassed (in domain-specific directives) to add custom
+    behavior.
     """
 
     has_content = True
@@ -54,7 +55,8 @@ class ObjectDescription(Directive):
 
     def get_signatures(self):
         """
-        Retrieve the signatures to document from the directive arguments.
+        Retrieve the signatures to document from the directive arguments.  By
+        default, signatures are given as arguments, one per line.
         """
         # remove backslashes to support (dummy) escapes; helps Vim highlighting
         return [strip_backslash_re.sub('', sig.strip())
@@ -89,6 +91,23 @@ class ObjectDescription(Directive):
         pass
 
     def run(self):
+        """
+        Main directive entry function, called by docutils upon encountering the
+        directive.
+
+        This directive is meant to be quite easily subclassable, so it delegates
+        to several additional methods.  What it does:
+
+        * find out if called as a domain-specific directive, set self.domain
+        * create a `desc` node to fit all description inside
+        * parse standard options, currently `noindex`
+        * create an index node if needed as self.indexnode
+        * parse all given signatures (as returned by self.get_signatures())
+          using self.handle_signature(), which should either return a name
+          or raise ValueError
+        * add index entries using self.add_target_and_index()
+        * parse the content and handle doc fields in it
+        """
         if ':' in self.name:
             self.domain, self.objtype = self.name.split(':', 1)
         else:
