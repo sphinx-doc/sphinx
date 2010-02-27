@@ -388,9 +388,16 @@ class Sphinx(object):
         roles.register_local_role(name, role)
 
     def add_domain(self, domain):
-        # XXX what about subclassing and overriding?
         if domain.name in self.domains:
             raise ExtensionError('domain %s already registered' % domain.name)
+        self.domains[domain.name] = domain
+
+    def override_domain(self, domain):
+        if domain.name not in self.domains:
+            raise ExtensionError('domain %s not yet registered' % domain.name)
+        if not issubclass(domain, self.domains[domain.name]):
+            raise ExtensionError('new domain not a subclass of registered '
+                                 'domain' % domain.name)
         self.domains[domain.name] = domain
 
     def add_directive_to_domain(self, domain, name, obj,

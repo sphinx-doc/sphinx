@@ -45,16 +45,24 @@ the following public API:
 
 .. method:: Sphinx.add_domain(domain)
 
-   Make the given *domain* (which must be a subclass of
+   Make the given *domain* (which must be a class; more precisely, a subclass of
    :class:`sphinx.domains.Domain`) known to Sphinx.
 
    .. XXX where is Domain documented?
 
    .. versionadded:: 1.0
 
+.. method:: Sphinx.override_domain(domain)
+
+   Make the given *domain* known to Sphinx, assuming that there is already a
+   domain with its ``.name``.  The new domain must be a subclass of the existing
+   one.
+
+   .. versionadded:: 1.0
+
 .. method:: Sphinx.add_event(name)
 
-   Register an event called *name*.
+   Register an event called *name*.  This is needed to be able to emit it.
 
 .. method:: Sphinx.add_node(node, **kwds)
 
