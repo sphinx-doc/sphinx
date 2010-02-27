@@ -1,6 +1,8 @@
 Release 0.6.5 (in development)
 ==============================
 
+* #341: Always generate UNIX newlines in the quickstart Makefile.
+
 * #338: Fix running with ``-C`` under Windows.
 
 * In autodoc, allow customizing the signature of an object where
