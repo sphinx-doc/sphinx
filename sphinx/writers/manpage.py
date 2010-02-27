@@ -53,7 +53,9 @@ class ManualPageTranslator(BaseTranslator):
         # docinfo set by man_pages config value
         self._docinfo['title'] = self.document.settings.title
         self._docinfo['subtitle'] = self.document.settings.subtitle
-        self._docinfo['author'] = self.document.settings.authors
+        if self.document.settings.authors:
+            # don't set it if no author given
+            self._docinfo['author'] = self.document.settings.authors
         self._docinfo['manual_section'] = self.document.settings.section
 
         # docinfo set by other config values
@@ -220,6 +222,13 @@ class ManualPageTranslator(BaseTranslator):
         pass
     def depart_production(self, node):
         pass
+
+    # overwritten -- don't emit a warning for images
+    def visit_image(self, node):
+        if 'alt' in node.attributes:
+            self.body.append('[image: %s]\n' % node['alt'])
+        self.body.append('[image]\n')
+        raise nodes.SkipNode
 
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):

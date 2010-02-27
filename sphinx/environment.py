@@ -1549,4 +1549,6 @@ class BuildEnvironment:
                 if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
                     continue
+                if 'orphan' in self.metadata[docname]:
+                    continue
                 self.warn(docname, 'document isn\'t included in any toctree')
