@@ -378,7 +378,12 @@ class Documenter(object):
             args = "(%s)" % self.args
         else:
             # try to introspect the signature
-            args = self.format_args()
+            try:
+                args = self.format_args()
+            except Exception, err:
+                self.directive.warn('error while formatting arguments for '
+                                    '%s: %s' % (self.fullname, err))
+                args = None
 
         retann = self.retann
 
@@ -666,12 +671,7 @@ class Documenter(object):
         self.add_line(u'', '')
 
         # format the object's signature, if any
-        try:
-            sig = self.format_signature()
-        except Exception, err:
-            self.directive.warn('error while formatting signature for '
-                                '%s: %s' % (self.fullname, err))
-            sig = ''
+        sig = self.format_signature()
 
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
@@ -1098,6 +1098,10 @@ class AutoDirective(Directive):
     # a registry of type -> getattr function
     _special_attrgetters = {}
 
+    # flags that can be given in autodoc_default_flags
+    _default_flags = set(['members', 'undoc-members', 'inherited-members',
+                          'show-inheritance'])
+
     # standard docutils directive settings
     has_content = True
     required_arguments = 1
@@ -1120,6 +1124,14 @@ class AutoDirective(Directive):
         # find out what documenter to call
         objtype = self.name[4:]
         doc_class = self._registry[objtype]
+        # add default flags
+        for flag in self._default_flags:
+            if flag not in doc_class.option_spec:
+                continue
+            negated = self.options.pop('no-' + flag, 'not given') is None
+            if flag in self.env.config.autodoc_default_flags and \
+               not negated:
+                self.options[flag] = None
         # process the options with the selected documenter's option_spec
         self.genopt = Options(assemble_option_dict(
             self.options.items(), doc_class.option_spec))
@@ -1177,6 +1189,7 @@ def setup(app):
 
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
+    app.add_config_value('autodoc_default_flags', [], True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

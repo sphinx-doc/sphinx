@@ -169,8 +169,9 @@ def test_format_signature():
     assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(b, *c)'
 
-    # test exception handling
-    raises(TypeError, formatsig, 'function', 'int', int, None, None)
+    # test exception handling (exception is caught and args is '')
+    assert formatsig('function', 'int', int, None, None) == ''
+    del _warnings[:]
 
     # test processing by event handler
     assert formatsig('method', 'bar', H.foo1, None, None) == '42'

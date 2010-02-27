@@ -24,6 +24,9 @@ Release 1.0 (in development)
 
 * Added single-file HTML builder.
 
+* Added ``autodoc_default_flags`` config value, which can be used
+  to select default flags for all autodoc directives.
+
 * Added ``tab-width`` option to ``literalinclude`` directive.
 
 * The ``html_sidebars`` config value can now contain patterns as
@@ -106,6 +109,9 @@ Release 1.0 (in development)
 
 Release 0.6.5 (in development)
 ==============================
+
+* In autodoc, allow customizing the signature of an object where
+  the built-in mechanism fails.
 
 * #331: Fix output for enumerated lists with start values in LaTeX.
 
