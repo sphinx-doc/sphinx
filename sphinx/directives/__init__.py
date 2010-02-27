@@ -47,7 +47,6 @@ class ObjectDescription(Directive):
     final_argument_whitespace = True
     option_spec = {
         'noindex': directives.flag,
-        'module': directives.unchanged,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
