@@ -676,7 +676,7 @@ class BuildEnvironment:
         if app:
             app.emit('doctree-read', doctree)
 
-        # store time of reading, used to find outdated files
+        # store time of build, for outdated files detection
         self.all_docs[docname] = time.time()
 
         # make it picklable

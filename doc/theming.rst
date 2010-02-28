@@ -162,6 +162,8 @@ These themes are:
     headings.
   - **headerlinkcolor** (CSS color): Color for the backreference link in
     headings.
+  - **textalign** (CSS *text-align* value): Text alignment for the body, default
+    is ``justify``.
 
 * **nature** -- A greenish theme.  There are currently no options beyond
   *nosidebar*.

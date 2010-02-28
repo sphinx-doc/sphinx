@@ -837,7 +837,8 @@ directly.'''
     if d['makefile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        f = open(path.join(d['path'], 'Makefile'), 'w')
+        # use binary mode, to avoid writing \r\n on Windows
+        f = open(path.join(d['path'], 'Makefile'), 'wb')
         f.write((MAKEFILE % d).encode('utf-8'))
         f.close()
 

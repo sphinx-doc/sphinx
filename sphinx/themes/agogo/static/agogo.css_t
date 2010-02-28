@@ -39,8 +39,11 @@ div.header-wrapper {
 
 /* Default body styles */
 a {
-  text-decoration: none;
   color: {{ theme_linkcolor }};
+}
+
+div.bodywrapper a, div.footer a {
+  text-decoration: underline;
 }
 
 .clearer {
@@ -99,7 +102,21 @@ dt:hover > a.headerlink {
   visibility: visible;
 }
 
+img {
+  border: 0;
+}
 
+div.admonition {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 2px 7px 1px 7px;
+  border-left: 0.2em solid black;
+}
+
+p.admonition-title {
+  margin: 0px 10px 5px 0px;
+  font-weight: bold;
+}
 
 /* Header */
 
@@ -152,7 +169,7 @@ div.document {
 
 div.body {
   padding-right: 2em;
-  text-align: justify;
+  text-align: {{ theme_textalign }};
 }
 
 div.document ul {
@@ -217,6 +234,14 @@ div.sidebar {
   font-size: .9em;
 }
 
+div.sidebar a, div.header a {
+  text-decoration: none;
+}
+
+div.sidebar a:hover, div.header a:hover {
+  text-decoration: underline;
+}
+
 div.sidebar h3 {
   color: #2e3436;
   text-transform: uppercase;
@@ -241,6 +266,14 @@ div.sidebar li.toctree-l1 a {
 div.sidebar li.toctree-l2 a {
   background-color: transparent;
   border: none;
+  margin-left: 1em;
+  border-bottom: 1px solid #dddddd;
+}
+
+div.sidebar li.toctree-l3 a {
+  background-color: transparent;
+  border: none;
+  margin-left: 2em;
   border-bottom: 1px solid #dddddd;
 }
 
