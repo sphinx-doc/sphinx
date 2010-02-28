@@ -1590,6 +1590,8 @@ class BuildEnvironment:
         else:
             if name in self.descrefs:
                 newname = name
+            elif classname and classname + '.' + name in self.descrefs:
+                newname = classname + '.' + name
             elif modname and modname + '.' + name in self.descrefs:
                 newname = modname + '.' + name
             elif modname and classname and \
