@@ -10,17 +10,19 @@ language, this will not take too long.
 
 .. seealso::
 
-    The authoritative `reStructuredText User
-    Documentation <http://docutils.sourceforge.net/rst.html>`_.
+   The authoritative `reStructuredText User Documentation
+   <http://docutils.sourceforge.net/rst.html>`_.  The "ref" links in this
+   document link to the description of the individual constructs in the reST
+   reference.
 
 
 Paragraphs
 ----------
 
-The paragraph is the most basic block in a reST document.  Paragraphs are simply
-chunks of text separated by one or more blank lines.  As in Python, indentation
-is significant in reST, so all lines of the same paragraph must be left-aligned
-to the same level of indentation.
+The paragraph (:rstref:`ref <paragraphs>`) is the most basic block in a reST
+document.  Paragraphs are simply chunks of text separated by one or more blank
+lines.  As in Python, indentation is significant in reST, so all lines of the
+same paragraph must be left-aligned to the same level of indentation.
 
 
 .. _inlinemarkup:
@@ -52,12 +54,12 @@ provide semantic markup and cross-referencing of identifiers, as described in
 the appropriate section.  The general syntax is ``:rolename:`content```.
 
 
-Lists and Quotes
-----------------
+Lists and Quote-like blocks
+---------------------------
 
-List markup is natural: just place an asterisk at the start of a paragraph and
-indent properly.  The same goes for numbered lists; they can also be
-autonumbered using a ``#`` sign::
+List markup (:rstref:`ref <bullet-lists>`) is natural: just place an asterisk at
+the start of a paragraph and indent properly.  The same goes for numbered lists;
+they can also be autonumbered using a ``#`` sign::
 
    * This is a bulleted list.
    * It has two items, the second
@@ -81,7 +83,7 @@ parent list items by blank lines::
 
    * and here the parent list continues
 
-Definition lists are created as follows::
+Definition lists (:rstref:`ref <definition-lists>`) are created as follows::
 
    term (up to a line of text)
       Definition of the term, which must be indented
@@ -91,17 +93,31 @@ Definition lists are created as follows::
    next term
       Description.
 
+Note that the term cannot have more than one line of text.
 
-Paragraphs are quoted by just indenting them more than the surrounding
-paragraphs.
+Quoted paragraphs (:rstref:`ref <block-quotes>`) are created by just indenting
+them more than the surrounding paragraphs.
+
+Line blocks (:rstref:`ref <line-blocks>`) are a way of preserving line breaks::
+
+   | These lines are
+   | broken exactly like in
+   | the source file.
+
+There are also several more special blocks available:
+
+* field lists (:rstref:`ref <field-lists>`)
+* option lists (:rstref:`ref <option-lists>`)
+* quoted literal blocks (:rstref:`ref <quoted-literal-blocks>`)
+* doctest blocks (:rstref:`ref <doctest-blocks>`)
 
 
 Source Code
 -----------
 
-Literal code blocks are introduced by ending a paragraph with the special marker
-``::``.  The literal block must be indented (and, like all paragraphs, separated
-from the surrounding ones by blank lines)::
+Literal code blocks (:rstref:`ref <literal-blocks>`) are introduced by ending a
+paragraph with the special marker ``::``.  The literal block must be indented
+(and, like all paragraphs, separated from the surrounding ones by blank lines)::
 
    This is a normal text paragraph. The next paragraph is a code sample::
 
@@ -124,28 +140,67 @@ That way, the second sentence in the above example's first paragraph would be
 rendered as "The next paragraph is a code sample:".
 
 
+Tables
+------
+
+Two forms of tables are supported.  For *grid tables* (:rstref:`ref
+<grid-tables>`), you have to "paint" the cell grid yourself.  They look like
+this::
+
+   +------------------------+------------+----------+----------+
+   | Header row, column 1   | Header 2   | Header 3 | Header 4 |
+   | (header rows optional) |            |          |          |
+   +========================+============+==========+==========+
+   | body row 1, column 1   | column 2   | column 3 | column 4 |
+   +------------------------+------------+----------+----------+
+   | body row 2             | ...        | ...      |          |
+   +------------------------+------------+---------------------+
+
+*Simple tables* (:rstref:`ref <simple-tables>`) are easier to write, but
+limited: they must contain more than one row, and the first column cannot
+contain multiple lines.  They look like this::
+
+   =====  =====  =======
+   A      B      A and B
+   =====  =====  =======
+   False  False  False
+   True   False  False
+   False  True   False
+   True   True   True
+   =====  =====  =======
+
+
 Hyperlinks
 ----------
 
 External links
 ^^^^^^^^^^^^^^
 
-Use ```Link text <http://target>`_`` for inline web links.  If the link text
-should be the web address, you don't need special markup at all, the parser
+Use ```Link text <http://example.com/>`_`` for inline web links.  If the link
+text should be the web address, you don't need special markup at all, the parser
 finds links and mail addresses in ordinary text.
+
+You can also separate the link and the target definition (:rstref:`ref
+<hyperlink-targets>`), like this::
+
+   This is a paragraph that contains `a link`_.
+
+   .. _a link: http://example.com/
+
 
 Internal links
 ^^^^^^^^^^^^^^
 
-Internal linking is done via a special reST role, see the section on specific
-markup, :ref:`ref-role`.
+Internal linking is done via a special reST role provided by Sphinx, see the
+section on specific markup, :ref:`ref-role`.
 
 
 Sections
 --------
 
-Section headers are created by underlining (and optionally overlining) the
-section title with a punctuation character, at least as long as the text::
+Section headers (:rstref:`ref <sections>`) are created by underlining (and
+optionally overlining) the section title with a punctuation character, at least
+as long as the text::
 
    =================
    This is a heading
@@ -170,9 +225,9 @@ target formats (HTML, LaTeX) have a limited supported nesting depth.
 Explicit Markup
 ---------------
 
-"Explicit markup" is used in reST for most constructs that need special
-handling, such as footnotes, specially-highlighted paragraphs, comments, and
-generic directives.
+"Explicit markup" (:rstref:`ref <explicit-markup-blocks>`) is used in reST for
+most constructs that need special handling, such as footnotes,
+specially-highlighted paragraphs, comments, and generic directives.
 
 An explicit markup block begins with a line starting with ``..`` followed by
 whitespace and is terminated by the next paragraph at the same level of
@@ -186,8 +241,17 @@ when you write it.)
 Directives
 ----------
 
-A directive is a generic block of explicit markup.  Besides roles, it is one of
-the extension mechanisms of reST, and Sphinx makes heavy use of it.
+A directive (:rstref:`ref <directives>`) is a generic block of explicit markup.
+Besides roles, it is one of the extension mechanisms of reST, and Sphinx makes
+heavy use of it.
+
+Docutils supports the following directives:
+
+.. hlist::
+
+   * XXX
+
+Directives added by Sphinx are described in :ref:`sphinxmarkup`.
 
 Basically, a directive consists of a name, arguments, options and content. (Keep
 this terminology in mind, it is used in the next chapter describing custom
@@ -211,7 +275,7 @@ directive start.
 Images
 ------
 
-reST supports an image directive, used like so::
+reST supports an image directive (:rstdir:`ref <image>`), used like so::
 
    .. image:: gnu.png
       (options)
@@ -251,9 +315,9 @@ the former, while the HTML builder would prefer the latter.
 Footnotes
 ---------
 
-For footnotes, use ``[#name]_`` to mark the footnote location, and add the
-footnote body at the bottom of the document after a "Footnotes" rubric heading,
-like so::
+For footnotes (:rstref:`ref <footnotes>`), use ``[#name]_`` to mark the footnote
+location, and add the footnote body at the bottom of the document after a
+"Footnotes" rubric heading, like so::
 
    Lorem ipsum [#f1]_ dolor sit amet ... [#f2]_
 
@@ -269,9 +333,9 @@ footnotes without names (``[#]_``).
 Citations
 ---------
 
-Standard reST citations are supported, with the additional feature that they are
-"global", i.e. all citations can be referenced from all files.  Use them like
-so::
+Standard reST citations (:rstref:`ref <citations>`) are supported, with the
+additional feature that they are "global", i.e. all citations can be referenced
+from all files.  Use them like so::
 
    Lorem ipsum [Ref]_ dolor sit amet.
 
@@ -284,14 +348,13 @@ numeric or begins with ``#``.
 Substitutions
 -------------
 
-reST supports "substitutions", which are pieces of text and/or markup referred
-to in the text by ``|name|``.  They are defined like footnotes with explicit
-markup blocks, like this::
+reST supports "substitutions" (:rstref:`ref <substitution-definitions>`), which
+are pieces of text and/or markup referred to in the text by ``|name|``.  They
+are defined like footnotes with explicit markup blocks, like this::
 
    .. |name| replace:: replacement *text*
 
-See the `reST reference for substitutions
-<http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions>`_
+See the :rstref:`reST reference for substitutions <substitution-definitions>`
 for details.
 
 If you want to use some substitutions for all documents, put them into a
@@ -307,7 +370,8 @@ Comments
 --------
 
 Every explicit markup block which isn't a valid markup construct (like the
-footnotes above) is regarded as a comment.  For example::
+footnotes above) is regarded as a comment (:rstref:`ref <comments>`).  For
+example::
 
    .. This is a comment.
 

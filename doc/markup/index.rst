@@ -1,3 +1,5 @@
+.. _sphinxmarkup:
+
 Sphinx Markup Constructs
 ========================
 
