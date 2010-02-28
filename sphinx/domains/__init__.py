@@ -238,6 +238,7 @@ class Domain(object):
 
 
 from sphinx.domains.c import CDomain
+from sphinx.domains.cpp import CPPDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.domains.python import PythonDomain
 
@@ -245,4 +246,5 @@ BUILTIN_DOMAINS = {
     'std': StandardDomain,
     'py': PythonDomain,
     'c': CDomain,
+    'cpp': CPPDomain
 }
