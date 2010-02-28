@@ -187,10 +187,6 @@ The directives are:
 
    The first way is the preferred one.
 
-   .. versionadded:: 0.4
-      The standard reST directive ``class`` is now provided by Sphinx under
-      the name ``cssclass``.
-
 .. directive:: .. attribute:: name
 
    Describes an object data attribute.  The description should include

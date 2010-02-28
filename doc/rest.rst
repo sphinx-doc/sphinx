@@ -281,6 +281,7 @@ Docutils supports the following directives:
 
   - :rstdir:`raw` (include raw target-format markup)
   - :rstdir:`include` (include reStructuredText from another file)
+  - :rstdir:`class` (assign a class attribute to the next element) [1]_
 
 * HTML specifics:
 
@@ -451,3 +452,9 @@ There are some problems one commonly runs into while authoring reST documents:
 
 * **No nested inline markup:** Something like ``*see :func:`foo`*`` is not
   possible.
+
+
+.. rubric:: Footnotes
+
+.. [1] When the default domain contains a :dir:`class` directive, this directive
+       will be shadowed.  Therefore, Sphinx re-exports it as :dir:`rst-class`.

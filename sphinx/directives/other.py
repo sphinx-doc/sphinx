@@ -380,6 +380,8 @@ directives.register_directive('hlist', HList)
 directives.register_directive('only', Only)
 
 # register the standard rst class directive under a different name
-# only for backwards compatibility now
 from docutils.parsers.rst.directives.misc import Class
+# only for backwards compatibility now
 directives.register_directive('cssclass', Class)
+# new standard name when default-domain with "class" is in effect
+directives.register_directive('rst-class', Class)
