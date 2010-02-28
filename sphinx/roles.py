@@ -36,7 +36,8 @@ generic_docroles = {
 }
 
 for rolename, nodeclass in generic_docroles.iteritems():
-    role = roles.GenericRole(rolename, nodeclass)
+    generic = roles.GenericRole(rolename, nodeclass)
+    role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
     roles.register_local_role(rolename, role)
 
 
@@ -102,12 +103,13 @@ class XRefRole(object):
             domain, role = '', typ
         else:
             domain, role = typ.split(':', 1)
+        classes = ['xref', domain, '%s-%s' % (domain, role)]
         text = utils.unescape(text)
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text[1:], "")
-            innernode = self.innernodeclass(rawtext, text, classes=['xref'])
+            innernode = self.innernodeclass(rawtext, text, classes=classes)
             return self.result_nodes(inliner.document, env, innernode,
                                      is_ref=False)
         # split title and target in role content
@@ -127,7 +129,7 @@ class XRefRole(object):
             env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
         refnode['reftarget'] = target
-        refnode += self.innernodeclass(rawtext, title, classes=['xref'])
+        refnode += self.innernodeclass(rawtext, title, classes=classes)
         # we also need the source document
         refnode['refdoc'] = env.docname
         # result_nodes allow further modification of return values
@@ -179,7 +181,7 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
         sn = nodes.strong('PEP '+text, 'PEP '+text)
-        rn = nodes.reference('', '', refuri=ref)
+        rn = nodes.reference('', '', refuri=ref, classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
@@ -194,15 +196,15 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
         sn = nodes.strong('RFC '+text, 'RFC '+text)
-        rn = nodes.reference('', '', refuri=ref)
+        rn = nodes.reference('', '', refuri=ref, classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [nodes.emphasis(
-        rawtext,
-        utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'))], []
+        rawtext, utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'),
+        classes=[typ])], []
     return role
 
 
@@ -212,7 +214,7 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     text = utils.unescape(text)
     pos = 0
-    retnode = nodes.literal(role=typ.lower())
+    retnode = nodes.literal(role=typ.lower(), classes=[typ])
     for m in _litvar_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]
