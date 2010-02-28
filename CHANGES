@@ -20,6 +20,10 @@ Release 1.0 (in development)
 * New more compact doc field syntax is now recognized:
   ``:param type name: description``.
 
+* Added a "nitpicky" mode that emits warnings for all missing
+  references.  It is activated by the ``-n`` command-line switch
+  or the ``nitpicky`` config value.
+
 * Added the ``viewcode`` extension.
 
 * Added ``html-collect-pages`` event.

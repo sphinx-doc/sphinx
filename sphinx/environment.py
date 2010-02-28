@@ -1227,6 +1227,7 @@ class BuildEnvironment:
             typ = node['reftype']
             target = node['reftarget']
             refdoc = node.get('refdoc', fromdocname)
+            warned = False
 
             try:
                 if node.has_key('refdomain') and node['refdomain']:
@@ -1247,6 +1248,7 @@ class BuildEnvironment:
                         if not docname:
                             self.warn(refdoc, 'undefined label: %s' %
                                       target, node.line)
+                            warned = True
                     else:
                         # reference to named label; the final node will
                         # contain the section name after the label
@@ -1257,6 +1259,7 @@ class BuildEnvironment:
                                 'undefined label: %s' % target + ' -- if you '
                                 'don\'t give a link caption the label must '
                                 'precede a section header.', node.line)
+                            warned = True
                     if docname:
                         newnode = nodes.reference('', '')
                         innernode = nodes.emphasis(sectname, sectname)
@@ -1281,6 +1284,7 @@ class BuildEnvironment:
                     if docname not in self.all_docs:
                         self.warn(refdoc,
                                   'unknown document: %s' % docname, node.line)
+                        warned = True
                     else:
                         if node['refexplicit']:
                             # reference with explicit title
@@ -1295,8 +1299,9 @@ class BuildEnvironment:
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
                     if not docname:
-                        self.warn(node['refdoc'],
+                        self.warn(refdoc,
                                   'citation not found: %s' % target, node.line)
+                        warned = True
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
@@ -1317,6 +1322,13 @@ class BuildEnvironment:
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
+                    # still not found? warn if in nit-picky mode
+                    if newnode is None and not warned and self.config.nitpicky:
+                        self.warn(refdoc,
+                            'reference target not found: %stype %s, target %s'
+                            % (node.get('refdomain') and
+                               'domain %s, ' % node['refdomain'] or '',
+                               typ, target))
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)

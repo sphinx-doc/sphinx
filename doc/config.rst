@@ -206,29 +206,19 @@ General configuration
 
    .. versionadded:: 0.5
 
-.. confval:: modindex_common_prefix
-
-   A list of prefixes that are ignored for sorting the Python module index
-   (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
-   not ``F``). This can be handy if you document a project that consists of a
-   single package.  Works only for the HTML builder currently.  Default is
-   ``[]``.
-
-   .. versionadded:: 0.6
-
-.. confval:: trim_doctest_flags
-
-   If true, doctest flags (comments looking like ``# doctest: FLAG, ...``) at
-   the ends of lines are removed for all code blocks showing interactive Python
-   sessions (i.e. doctests).  Default is true.  See the extension
-   :mod:`~sphinx.ext.doctest` for more possibilities of including doctests.
-
-   .. versionadded:: 1.0
-
 .. confval:: needs_sphinx
 
    If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will
-   compare it with its version and refuse to build if it is too old.
+   compare it with its version and refuse to build if it is too old.  Default is
+   no requirement.
+
+   .. versionadded:: 1.0
+
+.. confval:: nitpicky
+
+   If true, Sphinx will warn about *all* references where the target cannot be
+   found.  Default is ``False``.  You can activate this mode temporarily using
+   the :option:`-n` command-line switch.
 
    .. versionadded:: 1.0
 
@@ -334,12 +324,31 @@ Project information
    A boolean that decides whether :dir:`moduleauthor` and :dir:`sectionauthor`
    directives produce any output in the built files.
 
+.. confval:: modindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python module index
+   (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
+   not ``F``). This can be handy if you document a project that consists of a
+   single package.  Works only for the HTML builder currently.  Default is
+   ``[]``.
+
+   .. versionadded:: 0.6
+
 .. confval:: trim_footnote_reference_space
 
    Trim spaces before footnote references that are necessary for the reST parser
    to recognize the footnote, but do not look too nice in the output.
 
    .. versionadded:: 0.6
+
+.. confval:: trim_doctest_flags
+
+   If true, doctest flags (comments looking like ``# doctest: FLAG, ...``) at
+   the ends of lines are removed for all code blocks showing interactive Python
+   sessions (i.e. doctests).  Default is true.  See the extension
+   :mod:`~sphinx.ext.doctest` for more possibilities of including doctests.
+
+   .. versionadded:: 1.0
 
 
 .. _html-options:

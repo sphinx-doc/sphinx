@@ -66,25 +66,25 @@ Options
 
 -b <builder>          Builder to use; defaults to html. See the full list
                       of builders above.
--a                    Generates output for all files; without this option only
+-a                    Generate output for all files; without this option only
                       output for new and changed files is generated.
--E                    Ignores cached files, forces to re-read all source files
+-E                    Ignore cached files, forces to re-read all source files
                       from disk.
--c <path>             Locates the conf.py file in the specified path instead of
+-c <path>             Locate the conf.py file in the specified path instead of
                       <sourcedir>.
--C                    Specifies that no conf.py file at all is to be used.
+-C                    Specify that no conf.py file at all is to be used.
                       Configuration can only be set with the -D option.
--D <setting=value>    Overrides a setting from the configuration file.
+-D <setting=value>    Override a setting from the configuration file.
 -d <path>             Path to cached files; defaults to <outdir>/.doctrees.
--A <name=value>       Passes a value into the HTML templates (only for HTML builders).
--N                    Prevents colored output.
--q                    Quiet operation, just prints warnings and errors on stderr.
--Q                    Very quiet operation, doesn't print anything except for
-                      errors.
+-A <name=value>       Pass a value into the HTML templates (only for HTML builders).
+-n                    Run in nit-picky mode, warn about all missing references.
+-N                    Prevent colored output.
+-q                    Quiet operation, just print warnings and errors on stderr.
+-Q                    Very quiet operation, don't print anything except for errors.
 -w <file>             Write warnings and errors into the given file, in addition
                       to stderr.
 -W                    Turn warnings into errors.
--P                    Runs Pdb on exception.
+-P                    Run Pdb on exception.
 
 
 See also

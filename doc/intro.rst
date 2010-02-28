@@ -130,6 +130,10 @@ The :program:`sphinx-build` script has several more options:
 **-A** *name=value*
    Make the *name* assigned to *value* in the HTML templates.
 
+**-n**
+   Run in nit-picky mode.  Currently, this generates warnings for all missing
+   references.
+
 **-N**
    Do not do colored output.  (On Windows, colored output is disabled in any
    case.)
