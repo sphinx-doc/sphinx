@@ -599,12 +599,19 @@ class Documenter(object):
                               '.'.join(self.objpath + [mname])
             memberdocumenters.append(
                 classes[-1](self.directive, full_mname, self.indent))
-
-        if (self.options.member_order or self.env.config.autodoc_member_order) \
-               == 'groupwise':
+        member_order = self.options.member_order or \
+                       self.env.config.autodoc_member_order
+        if member_order == 'groupwise':
             # sort by group; relies on stable sort to keep items in the
             # same group sorted alphabetically
             memberdocumenters.sort(key=lambda d: d.member_order)
+        elif member_order == 'bysource' and self.analyzer:
+            # sort by source order, by virtue of the module analyzer
+            tagorder = self.analyzer.tagorder
+            def keyfunc(documenter):
+                fullname = documenter.name.split('::')[1]
+                return tagorder.get(fullname, len(tagorder))
+            memberdocumenters.sort(key=keyfunc)
 
         for documenter in memberdocumenters:
             documenter.generate(all_members=True,

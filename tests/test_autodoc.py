@@ -341,6 +341,26 @@ def test_generate():
         assert item in directive.result
         del directive.result[:]
 
+    def assert_order(items, objtype, name, member_order, **kw):
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.options.member_order = member_order
+        inst.generate(**kw)
+        assert len(_warnings) == 0, _warnings
+        items = list(reversed(items))
+        lineiter = iter(directive.result)
+        #for line in directive.result:
+        #    if line.strip():
+        #        print repr(line)
+        while items:
+            item = items.pop()
+            for line in lineiter:
+                if line == item:
+                    break
+            else:  # ran out of items!
+                assert False, 'item %r not found in result or not in the ' \
+                       ' correct order' % item
+        del directive.result[:]
+
     options.members = []
 
     # no module found?
@@ -441,6 +461,22 @@ def test_generate():
     directive.env.temp_data['py:module'] = 'time'
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
+
+    # test autodoc_member_order == 'source'
+    directive.env.temp_data['py:module'] = 'test_autodoc'
+    assert_order(['.. py:class:: Class(arg)',
+                  '   .. py:attribute:: Class.descr',
+                  '   .. py:method:: Class.meth()',
+                  '   .. py:method:: Class.undocmeth()',
+                  '   .. py:attribute:: Class.attr',
+                  '   .. py:attribute:: Class.prop',
+                  '   .. py:attribute:: Class.docattr',
+                  '   .. py:attribute:: Class.udocattr',
+                  '   .. py:attribute:: Class.inst_attr_comment',
+                  '   .. py:attribute:: Class.inst_attr_string',
+                  '   .. py:method:: Class.inheritedmeth()',
+                  ],
+                 'class', 'Class', member_order='bysource', all_members=True)
 
 
 # --- generate fodder ------------

@@ -58,9 +58,17 @@ class AttrDocVisitor(nodes.NodeVisitor):
         self.encoding = encoding
         self.namespace = []
         self.collected = {}
+        self.tagnumber = 0
+        self.tagorder = {}
+
+    def add_tag(self, name):
+        name = '.'.join(self.namespace + [name])
+        self.tagorder[name] = self.tagnumber
+        self.tagnumber += 1
 
     def visit_classdef(self, node):
         """Visit a class."""
+        self.add_tag(node[1].value)
         self.namespace.append(node[1].value)
         self.generic_visit(node)
         self.namespace.pop()
@@ -68,6 +76,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
     def visit_funcdef(self, node):
         """Visit a function (or method)."""
         # usually, don't descend into functions -- nothing interesting there
+        self.add_tag(node[1].value)
         if node[1].value == '__init__':
             # however, collect attributes set in __init__ methods
             self.in_init += 1
@@ -91,8 +100,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
             prefix = pnode.get_prefix()
         prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
-        if docstring:
-            self.add_docstring(node, docstring)
+        self.add_docstring(node, docstring)
 
     def visit_simple_stmt(self, node):
         """Visit a docstring statement which may have an assignment before."""
@@ -133,9 +141,11 @@ class AttrDocVisitor(nodes.NodeVisitor):
                 continue
             else:
                 name = target.value
-            namespace = '.'.join(self.namespace)
-            if namespace.startswith(self.scope):
-                self.collected[namespace, name] = docstring
+            self.add_tag(name)
+            if docstring:
+                namespace = '.'.join(self.namespace)
+                if namespace.startswith(self.scope):
+                    self.collected[namespace, name] = docstring
 
 
 class ModuleAnalyzer(object):
@@ -197,6 +207,7 @@ class ModuleAnalyzer(object):
         self.parsetree = None
         # will be filled by find_attr_docs()
         self.attr_docs = None
+        self.tagorder = None
         # will be filled by find_tags()
         self.tags = None
 
@@ -234,6 +245,7 @@ class ModuleAnalyzer(object):
         attr_visitor = AttrDocVisitor(number2name, scope, self.encoding)
         attr_visitor.visit(self.parsetree)
         self.attr_docs = attr_visitor.collected
+        self.tagorder = attr_visitor.tagorder
         # now that we found everything we could in the tree, throw it away
         # (it takes quite a bit of memory for large modules)
         self.parsetree = None

@@ -10,6 +10,9 @@ Release 1.0 (in development)
 
 * Added a manual page builder.
 
+* Added support for source ordering of members in autodoc, with
+  ``autodoc_member_order = 'bysource'``.
+
 * In HTML output, inline roles now get a CSS class with their name,
   allowing styles to customize their appearance.  Domain-specific
   roles get two classes, ``domain`` and ``domain-rolename``.
