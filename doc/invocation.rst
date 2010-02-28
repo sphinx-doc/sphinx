@@ -1,22 +1,23 @@
 .. _invocation:
 
-sphinx-build Invocation
-=======================
+Invocation of sphinx-build
+==========================
 
-A build is started with the :program:`sphinx-build` script.  It is called like
-this::
+The :program:`sphinx-build` script builds a Sphinx documentation set.  It is
+called like this::
 
      $ sphinx-build [options] sourcedir builddir [filenames]
 
 where *sourcedir* is the :term:`source directory`, and *builddir* is the
-directory in which you want to place the built documentation (it must be an
-existing directory).
+directory in which you want to place the built documentation.  Most of the time,
+you don't need to specify any *filenames*.
 
 The :program:`sphinx-build` script has several options:
 
 .. cmdoption:: -b buildername
 
-   Select a builder.  The most common builders are:
+   The most important option: it selects a builder.  The most common builders
+   are:
 
    **html**
       Build HTML pages.  This is the default builder.
