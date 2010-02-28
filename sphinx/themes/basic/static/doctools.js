@@ -182,7 +182,7 @@ var Documentation = {
       var body = $('div.body');
       window.setTimeout(function() {
         $.each(terms, function() {
-          body.highlightText(this.toLowerCase(), 'highlight');
+          body.highlightText(this.toLowerCase(), 'highlighted');
         });
       }, 10);
       $('<li class="highlight-link"><a href="javascript:Documentation.' +
@@ -214,7 +214,7 @@ var Documentation = {
    */
   hideSearchWords : function() {
     $('.sidebar .this-page-menu li.highlight-link').fadeOut(300);
-    $('span.highlight').removeClass('highlight');
+    $('span.highlighted').removeClass('highlighted');
   },
 
   /**

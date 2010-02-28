@@ -298,7 +298,7 @@ dd {
     margin-left: 30px;
 }
 
-dt:target, .highlight {
+dt:target, .highlighted {
     background-color: #ddd;
 }
 

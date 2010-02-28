@@ -118,6 +118,10 @@ p.admonition-title {
   font-weight: bold;
 }
 
+dt:target, .highlighted {
+  background-color: #fbe54e;
+}
+
 /* Header */
 
 div.header {

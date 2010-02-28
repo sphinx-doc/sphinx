@@ -31,7 +31,7 @@ jQuery.makeSearchSummary = function(text, keywords, hlwords) {
   ((start + 240 - text.length) ? '...' : '');
   var rv = $('<div class="context"></div>').text(excerpt);
   $.each(hlwords, function() {
-    rv = rv.highlightText(this, 'highlight');
+    rv = rv.highlightText(this, 'highlighted');
   });
   return rv;
 }
