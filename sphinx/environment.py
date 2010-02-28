@@ -608,15 +608,6 @@ class BuildEnvironment:
         if src_path is None:
             src_path = self.doc2path(docname)
 
-        if self.config.default_role:
-            role_fn, messages = roles.role(self.config.default_role, english,
-                                           0, dummy_reporter)
-            if role_fn:
-                roles._roles[''] = role_fn
-            else:
-                self.warn(docname, 'default role %s not found' %
-                          self.config.default_role)
-
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_domain'] = \
@@ -627,6 +618,15 @@ class BuildEnvironment:
             self.config.trim_footnote_reference_space
 
         self.patch_lookup_functions()
+
+        if self.config.default_role:
+            role_fn, messages = roles.role(self.config.default_role, english,
+                                           0, dummy_reporter)
+            if role_fn:
+                roles._roles[''] = role_fn
+            else:
+                self.warn(docname, 'default role %s not found' %
+                          self.config.default_role)
 
         codecs.register_error('sphinx', self.warn_and_replace)
 
