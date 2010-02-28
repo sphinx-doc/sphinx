@@ -569,6 +569,8 @@ class PythonDomain(Domain):
         else:
             if name in objects:
                 newname = name
+            elif classname and classname + '.' + name in objects:
+                newname = classname + '.' + name
             elif modname and modname + '.' + name in objects:
                 newname = modname + '.' + name
             elif modname and classname and \
