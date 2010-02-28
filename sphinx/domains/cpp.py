@@ -23,10 +23,16 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, TypedField
 
 
-_identifier_re = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*')
+_identifier_re = re.compile(r'(~?[a-zA-Z_][a-zA-Z0-9_]*)')
 _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+_operator_re = re.compile(r'''(?x)
+        \[\s*\]
+    |   \(\s*\)
+    |   [!<>=/*%+-|&^]=?
+    |   <<=? | >>=? | ~ | ^ | & | && | \| | \|\|
+''')
 
 
 class DefinitionError(Exception):
@@ -99,6 +105,15 @@ class _RefDefExpr(_DefExpr):
         return u'%s&' % self.typename
 
 
+class _CastOpDefExpr(_DefExpr):
+
+    def __init__(self, typename):
+        self.typename = typename
+
+    def __unicode__(self):
+        return u'operator %s' % self.typename
+
+
 class _TemplateDefExpr(_DefExpr):
 
     def __init__(self, typename, args):
@@ -153,7 +168,7 @@ class DefinitionParser(object):
         'typename':     None,
         'unsigned':     set(('char', 'int', 'long')),
         'signed':       set(('char', 'int', 'long')),
-        'short':        set(('int',)),
+        'short':        set(('int', 'short')),
         'long':         set(('int', 'long'))
     }
 
@@ -206,10 +221,30 @@ class DefinitionParser(object):
         if self.last_match is not None:
             return self.last_match.group()
 
+    def _parse_operator(self):
+        # thank god, a regular operator definition
+        if self.match(_operator_re):
+            return _NameDefExpr('operator' +
+                                _whitespace_re.sub('', self.matched_text))
+
+        # oh well, looks like a cast operator definition.
+        # In that case, eat another type.
+        type = self._parse_type()
+        return _CastOpDefExpr(type)
+
     def _parse_name(self):
         if not self.match(_identifier_re):
             self.fail('expected name')
-        return _NameDefExpr(self.matched_text)
+        identifier = self.matched_text
+
+        # strictly speaking, operators are not regular identifiers
+        # but because operator is a keyword, it might not be used
+        # for variable names anyways, so we can safely parse the
+        # operator here as identifier
+        if identifier == 'operator':
+            return self._parse_operator()
+
+        return _NameDefExpr(identifier)
 
     def _parse_type_expr(self):
         typename = self._parse_name()
@@ -387,6 +422,9 @@ class DefinitionParser(object):
         name = self._parse_type()
         return rv, _FunctionDefExpr(name, *self._parse_signature())
 
+    def parse_typename(self):
+        return self._parse_type()
+
     def assert_end(self):
         self.skip_ws()
         if not self.eof:
@@ -397,11 +435,49 @@ class DefinitionParser(object):
 class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
-    def _attach_return_type(self, node, return_type):
+    def _attach_type(self, node, type):
         # XXX: link? how could we do that
-        text = unicode(return_type) + u' '
-        tnode = nodes.Text(text, text)
-        node += tnode
+        text = unicode(type) + u' '
+        pnode = addnodes.pending_xref(
+            '', refdomain='cpp', reftype='type',
+            reftarget=text, modname=None, classname=None)
+        pnode += nodes.Text(text)
+        node += pnode
+
+    def handle_signature(self, sig, signode):
+        """Transform a C++ signature into RST nodes."""
+        parser = DefinitionParser(sig)
+        typename = parser.parse_typename()
+        parser.assert_end()
+
+        signode += addnodes.desc_type('', '')
+        self._attach_type(signode, typename)
+        return unicode(typename)
+
+
+class CPPTypedObject(CPPObject):
+
+    def _attach_var(self, node, var):
+        owner, name = var.name.split_owner()
+        varname = unicode(name)
+        if owner is not None:
+            owner = unicode(owner) + '::'
+            node += addnodes.desc_addname(owner, owner)
+        node += addnodes.desc_name(varname, varname)
+
+    def handle_signature(self, sig, signode):
+        """Transform a C++ signature into RST nodes."""
+        parser = DefinitionParser(sig)
+        rv, var = parser.parse_variable()
+        parser.assert_end()
+
+        signode += addnodes.desc_type('', '')
+        self._attach_type(signode, rv)
+        self._attach_var(signode, var)
+        return str(func.name)
+
+
+class CPPFunctionObject(CPPTypedObject):
 
     def _attach_function(self, node, func):
         owner, name = func.name.split_owner()
@@ -409,16 +485,17 @@ class CPPObject(ObjectDescription):
         if owner is not None:
             owner = unicode(owner) + '::'
             node += addnodes.desc_addname(owner, owner)
-            node += addnodes.desc_name(funcname, funcname)
-        else:
-            node += addnodes.desc_name(funcname, funcname)
+        node += addnodes.desc_name(funcname, funcname)
 
         paramlist = addnodes.desc_parameterlist()
         for arg in func.signature:
-            # XXX: is that okay? maybe more semantic here
-            strarg = unicode(arg)
             param = addnodes.desc_parameter('', '', noemph=True)
-            param += nodes.emphasis(strarg, strarg)
+            if arg.type is not None:
+                self._attach_type(param, arg.type)
+            param += nodes.emphasis(unicode(arg.name), unicode(arg.name))
+            if arg.default is not None:
+                def_ = u'=' + unicode(arg.default)
+                param += nodes.emphasis(def_, def_)
             paramlist += param
 
         node += paramlist
@@ -428,13 +505,13 @@ class CPPObject(ObjectDescription):
             node += addnodes.desc_addname(' = 0', ' = 0')
 
     def handle_signature(self, sig, signode):
-        """Transform a C (or C++) signature into RST nodes."""
+        """Transform a C++ signature into RST nodes."""
         parser = DefinitionParser(sig)
         rv, func = parser.parse_function()
         parser.assert_end()
 
         signode += addnodes.desc_type('', '')
-        self._attach_return_type(signode, rv)
+        self._attach_type(signode, rv)
         self._attach_function(signode, func)
         return str(func.name)
 
@@ -447,18 +524,16 @@ class CPPDomain(Domain):
         'class':    ObjType(l_('C++ class'),    'class'),
         'function': ObjType(l_('C++ function'), 'func'),
         'member':   ObjType(l_('C++ member'),   'member'),
-        'macro':    ObjType(l_('C++ macro'),    'macro'),
         'type':     ObjType(l_('C++ type'),     'type'),
         'var':      ObjType(l_('C++ variable'), 'data'),
     }
 
     directives = {
         'class':    CPPObject,
-        'function': CPPObject,
-        'member':   CPPObject,
-        'macro':    CPPObject,
-        'type':     CPPObject,
-        'var':      CPPObject,
+        'function': CPPFunctionObject,
+        'member':   CPPTypedObject,
+        'type':     CPPTypedObject,
+        'var':      CPPTypedObject,
     }
     roles = {
         'class':  XRefRole(),
