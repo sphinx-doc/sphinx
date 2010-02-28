@@ -16,7 +16,6 @@ project = 'Sphinx'
 copyright = '2007-2010, Georg Brandl'
 version = sphinx.__released__
 release = version
-
 show_authors = True
 
 html_theme = 'sphinxdoc'

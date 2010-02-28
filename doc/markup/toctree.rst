@@ -1,27 +1,8 @@
-.. highlight:: rest
-
-.. _concepts:
-
-Sphinx concepts
-===============
-
-Document names
---------------
-
-Since the reST source files can have different extensions (some people like
-``.txt``, some like ``.rst`` -- the extension can be configured with
-:confval:`source_suffix`) and different OSes have different path separators,
-Sphinx abstracts them: all "document names" are relative to the :term:`source
-directory`, the extension is stripped, and path separators are converted to
-slashes.  All values, parameters and suchlike referring to "documents" expect
-such a document name.
-
-Examples for document names are ``index``, ``library/zipfile``, or
-``reference/datamodel/types``.  Note that there is no leading slash.
-
+.. highlight:: rst
+.. _toctree-directive:
 
 The TOC tree
-------------
+============
 
 .. index:: pair: table of; contents
 

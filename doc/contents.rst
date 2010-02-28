@@ -7,7 +7,8 @@ Sphinx documentation contents
    :maxdepth: 2
 
    intro
-   concepts
+   tutorial
+   invocation
    rest
    markup/index
    domains

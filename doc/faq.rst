@@ -37,6 +37,8 @@ How do I...
    come through cleanly.
 
 
+.. _usingwith:
+
 Using Sphinx with...
 --------------------
 

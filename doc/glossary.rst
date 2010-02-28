@@ -32,6 +32,19 @@ Glossary
 
       See :ref:`directives` for more information.
 
+   document name
+      Since reST source files can have different extensions (some people like
+      ``.txt``, some like ``.rst`` -- the extension can be configured with
+      :confval:`source_suffix`) and different OSes have different path separators,
+      Sphinx abstracts them: :dfn:`document names` are always relative to the
+      :term:`source directory`, the extension is stripped, and path separators
+      are converted to slashes.  All values, parameters and such referring to
+      "documents" expect such document names.
+
+      Examples for document names are ``index``, ``library/zipfile``, or
+      ``reference/datamodel/types``.  Note that there is no leading or trailing
+      slash.
+
    domain
       A domain is a collection of markup (reStructuredText :term:`directive`\ s
       and :term:`role`\ s) to describe and link to :term:`object`\ s belonging
@@ -49,6 +62,9 @@ Glossary
       and used for cross-referencing.  The environment is pickled after the
       parsing stage, so that successive runs only need to read and parse new and
       changed documents.
+
+   master document
+      The document that contains the root :dir:`toctree` directive.
 
    object
       The basic building block of Sphinx documentation.  Every "object
