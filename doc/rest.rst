@@ -247,9 +247,56 @@ heavy use of it.
 
 Docutils supports the following directives:
 
-.. hlist::
+* Admonitions: :rstdir:`attention`, :rstdir:`caution`, :rstdir:`danger`,
+  :rstdir:`error`, :rstdir:`hint`, :rstdir:`important`, :rstdir:`note`,
+  :rstdir:`tip`, :rstdir:`warning` and the generic :rstdir:`admonition`.
+  (Most themes style only "note" and "warning" specially.)
 
-   * XXX
+* Images:
+
+  - :rstdir:`image` (see also Images_ below)
+  - :rstdir:`figure` (an image with caption and optional legend)
+
+* Additional body elements:
+
+  - :rstdir:`contents` (a local, i.e. for the current file only, table of
+    contents)
+  - :rstdir:`container` (a container with a custom class, useful to generate an
+    outer ``<div>`` in HTML)
+  - :rstdir:`rubric` (a heading without relation to the document sectioning)
+  - :rstdir:`topic`, :rstdir:`sidebar` (special highlighted body elements)
+  - :rstdir:`parsed-literal` (literal block that supports inline markup)
+  - :rstdir:`epigraph` (a block quote with optional attribution line)
+  - :rstdir:`highlights`, :rstdir:`pull-quote` (block quotes with their own
+    class attribute)
+  - :rstdir:`compound` (a compound paragraph)
+
+* Special tables:
+
+  - :rstdir:`table` (a table with title)
+  - :rstdir:`csv-table` (a table generated from comma-separated values)
+  - :rstdir:`list-table` (a table generated from a list of lists)
+
+* Special directives:
+
+  - :rstdir:`raw` (include raw target-format markup)
+  - :rstdir:`include` (include reStructuredText from another file)
+
+* HTML specifics:
+
+  - :rstdir:`meta` (generation of HTML ``<meta>`` tags)
+  - :rstdir:`title` (override document title)
+
+* Influencing markup:
+
+  - :rstdir:`default-role` (set a new default role)
+  - :rstdir:`role` (create a new role)
+
+  Since these are only per-file, better use Sphinx' facilities for setting the
+  :confval:`default_role`.
+
+Do *not* use the directives :rstdir:`sectnum`, :rstdir:`header` and
+:rstdir:`footer`.
 
 Directives added by Sphinx are described in :ref:`sphinxmarkup`.
 
