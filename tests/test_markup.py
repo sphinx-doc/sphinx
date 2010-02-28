@@ -99,7 +99,7 @@ def test_inline():
 
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',
-           '<p><em( class="xref std-option")?>--with-option</em></p>$',
+           '<p><em( class="xref std std-option")?>--with-option</em></p>$',
            r'\\emph{\\texttt{-{-}with-option}}$')
 
     # verify smarty-pants quotes
