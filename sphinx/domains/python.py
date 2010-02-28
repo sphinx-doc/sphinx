@@ -40,6 +40,10 @@ class PyObject(ObjectDescription):
     """
     Description of a general Python object.
     """
+    option_spec = {
+        'noindex': directives.flag,
+        'module': directives.unchanged,
+    }
 
     doc_field_types = [
         TypedField('parameter', label=l_('Parameters'),

@@ -10,6 +10,8 @@ Testing object descriptions
 .. function:: func_noindex
    :noindex:
 
+.. function:: func_with_module
+   :module: foolib
 
 .. module:: mod
    :synopsis: Module synopsis.
