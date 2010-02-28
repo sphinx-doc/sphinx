@@ -46,17 +46,22 @@ the following public API:
 .. method:: Sphinx.add_domain(domain)
 
    Make the given *domain* (which must be a class; more precisely, a subclass of
-   :class:`sphinx.domains.Domain`) known to Sphinx.
-
-   .. XXX where is Domain documented?
+   :class:`~sphinx.domains.Domain`) known to Sphinx.
 
    .. versionadded:: 1.0
 
 .. method:: Sphinx.override_domain(domain)
 
-   Make the given *domain* known to Sphinx, assuming that there is already a
-   domain with its ``.name``.  The new domain must be a subclass of the existing
-   one.
+   Make the given *domain* class known to Sphinx, assuming that there is already
+   a domain with its ``.name``.  The new domain must be a subclass of the
+   existing one.
+
+   .. versionadded:: 1.0
+
+.. method:: Sphinx.add_index_to_domain(domain, index)
+
+   Add a custom *index* class to the domain named *domain*.  *index* must be a
+   subclass of :class:`~sphinx.domains.Index`.
 
    .. versionadded:: 1.0
 
@@ -444,4 +449,20 @@ The template bridge
 -------------------
 
 .. autoclass:: TemplateBridge
+   :members:
+
+
+.. _domain-api:
+
+Domain API
+----------
+
+.. module:: sphinx.domains
+
+.. autoclass:: Domain
+   :members:
+
+.. autoclass:: ObjType
+
+.. autoclass:: Index
    :members:

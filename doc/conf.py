@@ -47,6 +47,7 @@ latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
 }
 
+autodoc_member_order = 'groupwise'
 todo_include_todos = True
 
 man_pages = [

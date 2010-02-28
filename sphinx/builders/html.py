@@ -236,8 +236,8 @@ class StandaloneHTMLBuilder(Builder):
         indices_config = self.config.html_domain_indices
         if indices_config:
             for domain in self.env.domains.itervalues():
-                for indexinfo in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexinfo[0])
+                for indexcls in domain.indices:
+                    indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -245,8 +245,10 @@ class StandaloneHTMLBuilder(Builder):
                     if indexname == 'py-modindex' and \
                            not self.config.html_use_modindex:
                         continue
-                    if domain.has_index_entries(indexinfo[0]):
-                        self.domain_indices.append((domain.name,) + indexinfo)
+                    content, collapse = indexcls(domain).generate()
+                    if content:
+                        self.domain_indices.append(
+                            (indexname, indexcls, content, collapse))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
@@ -272,9 +274,11 @@ class StandaloneHTMLBuilder(Builder):
         rellinks = []
         if self.config.html_use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for index in self.domain_indices:
-            if index[3]:
-                rellinks.append(('%s-%s' % index[0:2], index[2], '', index[3]))
+        for indexname, indexcls, content, collapse in self.domain_indices:
+            # if it has a short name
+            if indexcls.shortname:
+                rellinks.append((indexname, indexcls.localname,
+                                 '', indexcls.shortname))
 
         if self.config.html_style is not None:
             stylename = self.config.html_style
@@ -470,14 +474,12 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
     def write_domain_indices(self):
-        for index in self.domain_indices:
-            content, collapse = self.env.domains[index[0]].get_index(index[1])
+        for indexname, indexcls, content, collapse in self.domain_indices:
             indexcontext = dict(
-                indextitle = index[2],
+                indextitle = indexcls.localname,
                 content = content,
                 collapse_index = collapse,
             )
-            indexname = '%s-%s' % index[0:2]
             self.info(' ' + indexname, nonl=1)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 

@@ -10,6 +10,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from sphinx.errors import SphinxError
+
 
 class ObjType(object):
     """
@@ -23,7 +25,7 @@ class ObjType(object):
     - *roles*: all the roles that can refer to an object of this type
     - *attrs*: object attributes -- currently only "searchprio" is known,
       which defines the object's priority in the full-text search index,
-      see `Domain.get_objects`.
+      see :meth:`Domain.get_objects()`.
     """
 
     known_attrs = {
@@ -37,6 +39,63 @@ class ObjType(object):
         self.attrs.update(attrs)
 
 
+class Index(object):
+    """
+    An Index is the description for a domain-specific index.  To add an index to
+    a domain, subclass Index, overriding the three name attributes:
+
+    * `name` is an identifier used for generating file names.
+    * `localname` is the section title for the index.
+    * `shortname` is a short name for the index, for use in the relation bar in
+      HTML output.  Can be empty to disable entries in the relation bar.
+
+    and providing a :meth:`generate()` method.  Then, add the index class to
+    your domain's `indices` list.  Extensions can add indices to existing
+    domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
+    """
+
+    name = None
+    localname = None
+    shortname = None
+
+    def __init__(self, domain):
+        if self.name is None or self.localname is None:
+            raise SphinxError('Index subclass %s has no valid name or localname'
+                              % self.__class__.__name__)
+        self.domain = domain
+
+    def generate(self, docnames=None):
+        """
+        Return entries for the index given by *name*.  If *docnames* is given,
+        restrict to entries referring to these docnames.
+
+        The return value is a tuple of ``(content, collapse)``, where *collapse*
+        is a boolean that determines if sub-entries should start collapsed (for
+        output formats that support collapsing sub-entries).
+
+        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
+        is the "heading" for the given *entries*, usually the starting letter.
+
+        *entries* is a sequence of single entries, where a single entry is a
+        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
+        The items in this sequence have the following meaning:
+
+        - `name` -- the name of the index entry to be displayed
+        - `subtype` -- sub-entry related type:
+          0 -- normal entry
+          1 -- entry with sub-entries
+          2 -- sub-entry
+        - `docname` -- docname where the entry is located
+        - `anchor` -- anchor for the entry within `docname`
+        - `extra` -- extra info for the entry
+        - `qualifier` -- qualifier for the description
+        - `descr` -- description for the entry
+
+        Qualifier and description are not rendered e.g. in LaTeX output.
+        """
+        return []
+
+
 class Domain(object):
     """
     A Domain is meant to be a group of "object" description directives for
@@ -45,9 +104,9 @@ class Domain(object):
     of a templating language, Sphinx roles and directives, etc.
 
     Each domain has a separate storage for information about existing objects
-    and how to reference them in `data`, which must be a dictionary.  It also
-    must implement several functions that expose the object information in a
-    uniform way to parts of Sphinx that allow the user to reference or search
+    and how to reference them in `self.data`, which must be a dictionary.  It
+    also must implement several functions that expose the object information in
+    a uniform way to parts of Sphinx that allow the user to reference or search
     for objects in a domain-agnostic way.
 
     About `self.data`: since all object and cross-referencing information is
@@ -56,8 +115,8 @@ class Domain(object):
     build process starts, every active domain is instantiated and given the
     environment object; the `domaindata` dict must then either be nonexistent or
     a dictionary whose 'version' key is equal to the domain class'
-    `data_version` attribute.  Otherwise, `IOError` is raised and the pickled
-    environment is discarded.
+    :attr:`data_version` attribute.  Otherwise, `IOError` is raised and the
+    pickled environment is discarded.
     """
 
     #: domain name: should be short, but unique
@@ -70,12 +129,12 @@ class Domain(object):
     directives = {}
     #: role name -> role callable
     roles = {}
-    #: (index identifier, localized index name, localized short name) tuples
+    #: a list of Index subclasses
     indices = []
 
     #: data value for a fresh environment
     initial_data = {}
-    #: data version
+    #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
     def __init__(self, env):
@@ -153,8 +212,8 @@ class Domain(object):
         then given to the 'missing-reference' event, and if that yields no
         resolution, replaced by *contnode*.
 
-        The method can also raise `sphinx.environment.NoUri` to suppress the
-        'missing-reference' event being emitted.
+        The method can also raise :exc:`sphinx.environment.NoUri` to suppress
+        the 'missing-reference' event being emitted.
         """
         pass
 
@@ -170,62 +229,12 @@ class Domain(object):
         * `priority` -- how "important" the object is (determines placement
           in search results)
 
-          1: default priority (placed before full-text matches)
-          0: object is important (placed before default-priority objects)
-          2: object is unimportant (placed after full-text matches)
-          -1: object should not show up in search at all
+          - 1: default priority (placed before full-text matches)
+          - 0: object is important (placed before default-priority objects)
+          - 2: object is unimportant (placed after full-text matches)
+          - -1: object should not show up in search at all
         """
         return []
-
-    def has_index_entries(self, name, docnames=None):
-        """
-        Return True if there are entries for the index given by *name*.  If
-        *docnames* is given, restrict to entries referring to these docnames.
-
-        Do not overwrite this method, add a method ``has_<name>_entries(self,
-        docnames=None)`` method for every index.
-        """
-        func = getattr(self, 'has_%s_entries' % name, None)
-        if not func:
-            return bool(self.get_index(name, docnames))
-        return func(docnames)
-
-    def get_index(self, name, docnames=None):
-        """
-        Return entries for the index given by *name*.  If *docnames* is given,
-        restrict to entries referring to these docnames.
-
-        The return value is a tuple of ``(content, collapse)``, where *collapse*
-        is a boolean that determines if sub-entries should start collapsed (for
-        output formats that support collapsing sub-entries).
-
-        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
-        is the "heading" for the given *entries*, usually the starting letter.
-
-        *entries* is a sequence of single entries, where a single entry is a
-        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
-        The items in this sequence have the following meaning:
-
-        - `name` -- the name of the index entry to be displayed
-        - `subtype` -- sub-entry related type:
-          0 -- normal entry
-          1 -- entry with sub-entries
-          2 -- sub-entry
-        - `docname` -- docname where the entry is located
-        - `anchor` -- anchor for the entry within `docname`
-        - `extra` -- extra info for the entry
-        - `qualifier` -- qualifier for the description
-        - `descr` -- description for the entry
-
-        Qualifier and description are not rendered e.g. in LaTeX output.
-
-        Do not overwrite this method, add a method ``get_<name>_index(self,
-        docnames=None)`` method for every index.
-        """
-        func = getattr(self, 'get_%s_index' % name, None)
-        if not func:
-            return []
-        return func(docnames)
 
 
 from sphinx.domains.c import CDomain

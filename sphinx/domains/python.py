@@ -17,7 +17,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType
+from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
@@ -419,6 +419,75 @@ class PyXRefRole(XRefRole):
         return title, target
 
 
+class PythonModuleIndex(Index):
+    """
+    Index subclass to provide the Python module index.
+    """
+
+    name = 'modindex'
+    localname = l_('Python Module Index')
+    shortname = l_('modules')
+
+    def generate(self, docnames=None):
+        content = {}
+        # list of prefixes to ignore
+        ignores = self.domain.env.config['modindex_common_prefix']
+        ignores = sorted(ignores, key=len, reverse=True)
+        # list of all modules, sorted by module name
+        modules = sorted(self.domain.data['modules'].iteritems(),
+                         key=lambda x: x[0].lower())
+        # sort out collapsable modules
+        prev_modname = ''
+        num_toplevels = 0
+        for modname, (docname, synopsis, platforms, deprecated) in modules:
+            if docnames and docname not in docnames:
+                continue
+
+            for ignore in ignores:
+                if modname.startswith(ignore):
+                    modname = modname[len(ignore):]
+                    stripped = ignore
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole module name?
+            if not modname:
+                modname, stripped = stripped, ''
+
+            entries = content.setdefault(modname[0].lower(), [])
+
+            package = modname.split('.')[0]
+            if package != modname:
+                # it's a submodule
+                if prev_modname == package:
+                    # first submodule - make parent a group head
+                    entries[-1][1] = 1
+                elif not prev_modname.startswith(package):
+                    # submodule without parent in list, add dummy entry
+                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                subtype = 2
+            else:
+                num_toplevels += 1
+                subtype = 0
+
+            qualifier = deprecated and _('Deprecated') or ''
+            entries.append([stripped + modname, subtype, docname,
+                            'module-' + stripped + modname, platforms,
+                            qualifier, synopsis])
+            prev_modname = modname
+
+        # apply heuristics when to collapse modindex at page load:
+        # only collapse if number of toplevel modules is larger than
+        # number of submodules
+        collapse = len(modules) - num_toplevels < num_toplevels
+
+        # sort by first letter
+        content = sorted(content.iteritems())
+
+        return content, collapse
+
+
 class PythonDomain(Domain):
     """Python language domain."""
     name = 'py'
@@ -463,7 +532,7 @@ class PythonDomain(Domain):
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
     indices = [
-        ('modindex', l_('Python Module Index'), l_('modules')),
+        PythonModuleIndex,
     ]
 
     def clear_doc(self, docname):
@@ -548,71 +617,3 @@ class PythonDomain(Domain):
             yield (modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.data['objects'].iteritems():
             yield (refname, type, docname, refname, 1)
-
-    def has_modindex_entries(self, docnames=None):
-        if not docnames:
-            return bool(self.data['modules'])
-        else:
-            for modname, info in self.data['modules'].iteritems():
-                if info[0] in docnames:
-                    return True
-            return False
-
-    def get_modindex_index(self, docnames=None):
-        content = {}
-        # list of prefixes to ignore
-        ignores = self.env.config['modindex_common_prefix']
-        ignores = sorted(ignores, key=len, reverse=True)
-        # list of all modules, sorted by module name
-        modules = sorted(self.data['modules'].iteritems(),
-                         key=lambda x: x[0].lower())
-        # sort out collapsable modules
-        prev_modname = ''
-        num_toplevels = 0
-        for modname, (docname, synopsis, platforms, deprecated) in modules:
-            if docnames and docname not in docnames:
-                continue
-
-            for ignore in ignores:
-                if modname.startswith(ignore):
-                    modname = modname[len(ignore):]
-                    stripped = ignore
-                    break
-            else:
-                stripped = ''
-
-            # we stripped the whole module name?
-            if not modname:
-                modname, stripped = stripped, ''
-
-            entries = content.setdefault(modname[0].lower(), [])
-
-            package = modname.split('.')[0]
-            if package != modname:
-                # it's a submodule
-                if prev_modname == package:
-                    # first submodule - make parent a group head
-                    entries[-1][1] = 1
-                elif not prev_modname.startswith(package):
-                    # submodule without parent in list, add dummy entry
-                    entries.append([stripped + package, 1, '', '', '', '', ''])
-                subtype = 2
-            else:
-                num_toplevels += 1
-                subtype = 0
-
-            qualifier = deprecated and _('Deprecated') or ''
-            entries.append([stripped + modname, subtype, docname,
-                            'module-' + stripped + modname, platforms,
-                            qualifier, synopsis])
-            prev_modname = modname
-
-        # apply heuristics when to collapse modindex at page load:
-        # only collapse if number of toplevel modules is larger than
-        # number of submodules
-        collapse = len(modules) - num_toplevels < num_toplevels
-
-        # sort by first letter
-        content = sorted(content.iteritems())
-
-        return content, collapse

@@ -147,9 +147,9 @@ General configuration
 
    Directories in which to search for additional Sphinx message catalogs (see
    :confval:`language`), relative to the source directory.  The directories on
-   this path are searched by the standard :mod:`gettext` module for a domain of
-   ``sphinx``; so if you add the directory :file:`./locale` to this settting,
-   the message catalogs must be in
+   this path are searched by the standard :mod:`gettext` module for a text
+   domain of ``sphinx``; so if you add the directory :file:`./locale` to this
+   settting, the message catalogs must be in
    :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
 
    The default is ``[]``.
@@ -188,8 +188,8 @@ General configuration
 
    The name of a reST role (builtin or Sphinx extension) to use as the default
    role, that is, for text marked up ```like this```.  This can be set to
-   ``'obj'`` to make ```filter``` a cross-reference to the function "filter".
-   The default is ``None``, which doesn't reassign the default role.
+   ``'py:obj'`` to make ```filter``` a cross-reference to the Python function
+   "filter".  The default is ``None``, which doesn't reassign the default role.
 
    The default role can always be set within individual documents using the
    standard reST :dir:`default-role` directive.

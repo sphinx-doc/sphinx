@@ -276,8 +276,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         indices_config = self.builder.config.latex_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.itervalues():
-                for indexinfo in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexinfo[0])
+                for indexcls in domain.indices:
+                    indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -285,13 +285,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if indexname == 'py-modindex' and \
                            not self.builder.config.latex_use_modindex:
                         continue
-                    if not domain.has_index_entries(indexinfo[0],
-                                                    self.builder.docnames):
+                    content, collapsed = indexcls(domain).generate(
+                        self.builder.docnames)
+                    if not content:
                         continue
                     ret.append('\\renewcommand{\\indexname}{%s}\n' %
-                               indexinfo[1])
-                    generate(*domain.get_index(indexinfo[0],
-                                               self.builder.docnames))
+                               indexcls.localname)
+                    generate(content, collapsed)
 
         return ''.join(ret)
 
