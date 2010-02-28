@@ -1,6 +1,9 @@
 Release 0.6.5 (in development)
 ==============================
 
+* In autodoc, fix the omission of some module members explicitly
+  documented using documentation comments.
+
 * #345: Fix cropping of sidebar scroll bar with ``stickysidebar``
   option of the default theme.
 

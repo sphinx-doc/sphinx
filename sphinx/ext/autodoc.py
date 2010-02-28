@@ -574,19 +574,19 @@ class Documenter(object):
             # of inner classes can be documented
             full_mname = self.modname + '::' + \
                               '.'.join(self.objpath + [mname])
-            memberdocumenters.append(
-                classes[-1](self.directive, full_mname, self.indent))
+            documenter = classes[-1](self.directive, full_mname, self.indent)
+            memberdocumenters.append((documenter, isattr))
 
         if (self.options.member_order or self.env.config.autodoc_member_order) \
                == 'groupwise':
             # sort by group; relies on stable sort to keep items in the
             # same group sorted alphabetically
-            memberdocumenters.sort(key=lambda d: d.member_order)
+            memberdocumenters.sort(key=lambda d: d[0].member_order)
 
-        for documenter in memberdocumenters:
-            documenter.generate(all_members=True,
-                                real_modname=self.real_modname,
-                                check_module=members_check_module)
+        for documenter, isattr in memberdocumenters:
+            documenter.generate(
+                all_members=True, real_modname=self.real_modname,
+                check_module=members_check_module and not isattr)
 
         # reset current objects
         self.env.autodoc_current_module = None
