@@ -1,11 +1,13 @@
 .. highlight:: rst
 
-Sphinx Tutorial -- your first documentation
-===========================================
+First Steps with Sphinx
+=======================
 
-This document is meant to give an overview of all common tasks while using
-Sphinx.  The green arrows designate "more info" links leading to advanced
-sections about the described task.
+This document is meant to give a tutorial-like overview of all common tasks
+while using Sphinx.
+
+The green arrows designate "more info" links leading to advanced sections about
+the described task.
 
 
 Setting up the documentation sources
@@ -22,7 +24,7 @@ configuration values from a few questions it asks you.  Just run ::
 
    $ sphinx-quickstart
 
-and answer its questions.
+and answer its questions.  (Be sure to say yes to the "autodoc" extension.)
 
 
 Adding some content
@@ -85,14 +87,17 @@ means you can create deeply nested hierarchies if necessary.)
 Running the build
 -----------------
 
-A build is started with the :program:`sphinx-build` script.  It is called
-like this::
+Now that you have added some files and content, let's build the docs.  A build
+is started with the :program:`sphinx-build` script, called like this::
 
    $ sphinx-build -b html sourcedir builddir
 
 where *sourcedir* is the :term:`source directory`, and *builddir* is the
 directory in which you want to place the built documentation.  The :option:`-b`
-option selects a builder; in this example Sphinx will build LaTeX files.
+option selects a builder; in this example Sphinx will build HTML files.
+
+|more| See :ref:`invocation` for all options that :program:`sphinx-build`
+supports.
 
 However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you:  with them you only need
@@ -100,10 +105,12 @@ to run ::
 
    $ make html
 
-to build HTML docs in the build directory you chose.
+to build HTML docs in the build directory you chose.  Execute ``make`` without
+an argument to see which targets are available.
 
-|more| See :ref:`invocation` for all options that :program:`sphinx-build`
-supports.
+
+Documenting objects
+-------------------
 
 
 Topics to be covered
@@ -112,6 +119,7 @@ Topics to be covered
 - Autodoc
 - Domains
 - Basic configuration
+- Static files
 - Selecting a theme
 - Templating
 - Using extensions

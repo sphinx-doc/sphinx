@@ -154,7 +154,7 @@ this::
    | body row 1, column 1   | column 2   | column 3 | column 4 |
    +------------------------+------------+----------+----------+
    | body row 2             | ...        | ...      |          |
-   +------------------------+------------+---------------------+
+   +------------------------+------------+----------+----------+
 
 *Simple tables* (:rstref:`ref <simple-tables>`) are easier to write, but
 limited: they must contain more than one row, and the first column cannot
@@ -401,6 +401,11 @@ are pieces of text and/or markup referred to in the text by ``|name|``.  They
 are defined like footnotes with explicit markup blocks, like this::
 
    .. |name| replace:: replacement *text*
+
+or this::
+
+   .. |caution| image:: warning.png
+                :alt: Warning!
 
 See the :rstref:`reST reference for substitutions <substitution-definitions>`
 for details.
