@@ -29,7 +29,7 @@ _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
 
-class DefinitionError(ValueError):
+class DefinitionError(Exception):
     pass
 
 
@@ -69,6 +69,34 @@ class _PathDefExpr(_DefExpr):
 
     def __unicode__(self):
         return u'::'.join(map(unicode, self.path))
+
+
+class _ModifierDefExpr(_DefExpr):
+
+    def __init__(self, modifiers, typename):
+        self.modifiers = modifiers
+        self.typename = typename
+
+    def __unicode__(self):
+        return u' '.join(map(unicode, list(self.modifiers) + [self.typename]))
+
+
+class _PtrDefExpr(_DefExpr):
+
+    def __init__(self, typename):
+        self.typename = typename
+
+    def __unicode__(self):
+        return u'%s*' % self.typename
+
+
+class _RefDefExpr(_DefExpr):
+
+    def __init__(self, typename):
+        self.typename = typename
+
+    def __unicode__(self):
+        return u'%s&' % self.typename
 
 
 class _TemplateDefExpr(_DefExpr):
@@ -113,6 +141,22 @@ class _FunctionDefExpr(_DefExpr):
 
 class DefinitionParser(object):
 
+    # mapping of valid type modifiers.  if the set is None it means
+    # the modifier can prefix all types, otherwise only the types
+    # (actually more keywords) in the set.  Also check
+    # _guess_typename when changing this
+    _modifiers = {
+        'volatile':     None,
+        'register':     None,
+        'const':        None,
+        'mutable':      None,
+        'typename':     None,
+        'unsigned':     set(('char', 'int', 'long')),
+        'signed':       set(('char', 'int', 'long')),
+        'short':        set(('int',)),
+        'long':         set(('int', 'long'))
+    }
+
     def __init__(self, definition):
         self.definition = definition.strip()
         self.pos = 0
@@ -121,8 +165,8 @@ class DefinitionParser(object):
         self._previous_state = (0, None)
 
     def fail(self, msg):
-        raise DefinitionError('Invalid definition: "%s", %s [error at %d]' %
-            (self.definition, msg, self.pos))
+        raise DefinitionError('Invalid definition: %s [error at %d]\n  %s' %
+            (msg, self.pos, self.definition))
 
     def match(self, regex):
         match = regex.match(self.definition, self.pos)
@@ -185,12 +229,69 @@ class DefinitionParser(object):
             args.append(self._parse_type(True))
         return _TemplateDefExpr(typename, args)
 
+    def _guess_typename(self, path):
+        if not path:
+            return [], 'int'
+        # for the long type, we don't want the int in there
+        if 'long' in path:
+            path = [x for x in path if x != 'int']
+            # remove one long
+            path.remove('long')
+            return path, 'long'
+        if path[-1] in ('int', 'char'):
+            return path[:-1], path[-1]
+        return path, 'int'
+
+    def _attach_refptr(self, expr):
+        self.skip_ws()
+        if self.skip_string('*'):
+            return _PtrDefExpr(expr)
+        elif self.skip_string('&'):
+            return _RefDefExpr(expr)
+        return expr
+
+    def _parse_builtin(self, modifier):
+        path = [modifier]
+        following = self._modifiers[modifier]
+        while 1:
+            self.skip_ws()
+            if not self.match(_identifier_re):
+                break
+            identifier = self.matched_text
+            if identifier in following:
+                path.append(identifier)
+                following = self._modifiers[modifier]
+                assert following
+            else:
+                self.backout()
+                break
+        modifiers, typename = self._guess_typename(path)
+        rv = _ModifierDefExpr(modifiers, _NameDefExpr(typename))
+        return self._attach_refptr(rv)
+
     def _parse_type(self, in_template=False):
         result = []
+        modifiers = []
 
         # if there is a leading :: or not, we don't care because we
-        # treat them exactly the same
-        self.skip_string('::')
+        # treat them exactly the same.  Buf *if* there is one, we
+        # don't have to check for type modifiers
+        if not self.skip_string('::'):
+            self.skip_ws()
+            if self.match(_identifier_re):
+                modifier = self.matched_text
+                if modifier in self._modifiers:
+                    following = self._modifiers[modifier]
+                    # if the set is not none, there is a limited set
+                    # of types that might follow.  It is technically
+                    # impossible for a template to follow, so what
+                    # we do is go to a different function that just
+                    # eats types
+                    if following is not None:
+                        return self._parse_builtin(modifier)
+                    modifiers.append(modifier)
+                else:
+                    self.backout()
 
         while 1:
             self.skip_ws()
@@ -203,8 +304,12 @@ class DefinitionParser(object):
         if not result:
             self.fail('expected type')
         if len(result) == 1:
-            return result[0]
-        return _PathDefExpr(result)
+            rv = result[0]
+        else:
+            rv = _PathDefExpr(result)
+        if modifiers:
+            rv = _ModifierDefExpr(modifiers, rv)
+        return self._attach_refptr(rv)
 
     def _parse_default_expr(self):
         self.skip_ws()
@@ -282,9 +387,56 @@ class DefinitionParser(object):
         name = self._parse_type()
         return rv, _FunctionDefExpr(name, *self._parse_signature())
 
+    def assert_end(self):
+        self.skip_ws()
+        if not self.eof:
+            self.fail('expected end of definition, got %r' %
+                      self.definition[self.pos:])
+
 
 class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
+
+    def _attach_return_type(self, node, return_type):
+        # XXX: link? how could we do that
+        text = unicode(return_type) + u' '
+        tnode = nodes.Text(text, text)
+        node += tnode
+
+    def _attach_function(self, node, func):
+        owner, name = func.name.split_owner()
+        funcname = unicode(name)
+        if owner is not None:
+            owner = unicode(owner) + '::'
+            node += addnodes.desc_addname(owner, owner)
+            node += addnodes.desc_name(funcname, funcname)
+        else:
+            node += addnodes.desc_name(funcname, funcname)
+
+        paramlist = addnodes.desc_parameterlist()
+        for arg in func.signature:
+            # XXX: is that okay? maybe more semantic here
+            strarg = unicode(arg)
+            param = addnodes.desc_parameter('', '', noemph=True)
+            param += nodes.emphasis(strarg, strarg)
+            paramlist += param
+
+        node += paramlist
+        if func.const:
+            node += addnodes.desc_addname(' const', ' const')
+        if func.pure_virtual:
+            node += addnodes.desc_addname(' = 0', ' = 0')
+
+    def handle_signature(self, sig, signode):
+        """Transform a C (or C++) signature into RST nodes."""
+        parser = DefinitionParser(sig)
+        rv, func = parser.parse_function()
+        parser.assert_end()
+
+        signode += addnodes.desc_type('', '')
+        self._attach_return_type(signode, rv)
+        self._attach_function(signode, func)
+        return str(func.name)
 
 
 class CPPDomain(Domain):
