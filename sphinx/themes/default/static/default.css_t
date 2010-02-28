@@ -67,10 +67,11 @@ div.related a {
 div.sphinxsidebar {
     {%- if theme_stickysidebar|tobool %}
     top: 30px;
+    bottom: 0;
     margin: 0;
     position: fixed;
     overflow: auto;
-    height: 100%;
+    height: auto;
     {%- endif %}
     {%- if theme_rightsidebar|tobool %}
     float: right;

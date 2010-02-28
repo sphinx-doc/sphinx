@@ -1,6 +1,9 @@
 Release 0.6.5 (in development)
 ==============================
 
+* #345: Fix cropping of sidebar scroll bar with ``stickysidebar``
+  option of the default theme.
+
 * #341: Always generate UNIX newlines in the quickstart Makefile.
 
 * #338: Fix running with ``-C`` under Windows.
