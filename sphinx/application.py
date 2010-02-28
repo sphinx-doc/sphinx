@@ -95,6 +95,11 @@ class Sphinx(object):
         self.config = Config(confdir, CONFIG_FILENAME, confoverrides, self.tags)
         self.config.check_unicode(self.warn)
 
+        # set confdir to srcdir if -C given (!= no confdir); a few pieces
+        # of code expect a confdir to be set
+        if self.confdir is None:
+            self.confdir = self.srcdir
+
         # load all extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
