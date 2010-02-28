@@ -111,6 +111,7 @@ Documentation using another builtin theme
 Documentation using a custom theme/integrated in a site
 -------------------------------------------------------
 
+* Blinker: http://discorporate.us/projects/Blinker/docs/
 * Django: http://docs.djangoproject.com/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
