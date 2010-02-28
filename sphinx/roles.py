@@ -101,9 +101,10 @@ class XRefRole(object):
             typ = typ.lower()
         if ':' not in typ:
             domain, role = '', typ
+            classes = ['xref', role]
         else:
             domain, role = typ.split(':', 1)
-        classes = ['xref', domain, '%s-%s' % (domain, role)]
+            classes = ['xref', domain, '%s-%s' % (domain, role)]
         text = utils.unescape(text)
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
