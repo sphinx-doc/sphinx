@@ -361,7 +361,8 @@ def setup(app):
         inheritance_diagram,
         latex=(latex_visit_inheritance_diagram, None),
         html=(html_visit_inheritance_diagram, None),
-        text=(skip, None))
+        text=(skip, None),
+        man=(skip, None))
     app.add_directive('inheritance-diagram', InheritanceDiagram)
     app.add_config_value('inheritance_graph_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs', {}, False),
