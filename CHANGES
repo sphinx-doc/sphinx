@@ -1,5 +1,5 @@
-Release 0.6.5 (in development)
-==============================
+Release 0.6.5 (Mar 01, 2010)
+============================
 
 * In autodoc, fix the omission of some module members explicitly
   documented using documentation comments.
