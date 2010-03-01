@@ -39,7 +39,7 @@ class DefinitionError(Exception):
     pass
 
 
-class _DefExpr(object):
+class DefExpr(object):
 
     def __unicode__(self):
         raise NotImplementedError()
@@ -54,7 +54,7 @@ class _DefExpr(object):
         return '<defexpr %s>' % self
 
 
-class _NameDefExpr(_DefExpr):
+class NameDefExpr(DefExpr):
 
     def __init__(self, name):
         self.name = name
@@ -63,21 +63,21 @@ class _NameDefExpr(_DefExpr):
         return unicode(self.name)
 
 
-class _PathDefExpr(_DefExpr):
+class PathDefExpr(DefExpr):
 
     def __init__(self, parts):
         self.path = parts
 
     def split_owner(self):
         if len(self.path) > 1:
-            return _PathDefExpr(self.path[:-1]), self.path[-1]
-        return _DefExpr.split_owner(self)
+            return PathDefExpr(self.path[:-1]), self.path[-1]
+        return DefExpr.split_owner(self)
 
     def __unicode__(self):
         return u'::'.join(map(unicode, self.path))
 
 
-class _ModifierDefExpr(_DefExpr):
+class ModifierDefExpr(DefExpr):
 
     def __init__(self, modifiers, typename):
         self.modifiers = modifiers
@@ -87,7 +87,7 @@ class _ModifierDefExpr(_DefExpr):
         return u' '.join(map(unicode, list(self.modifiers) + [self.typename]))
 
 
-class _PtrDefExpr(_DefExpr):
+class PtrDefExpr(DefExpr):
 
     def __init__(self, typename):
         self.typename = typename
@@ -96,7 +96,7 @@ class _PtrDefExpr(_DefExpr):
         return u'%s*' % self.typename
 
 
-class _RefDefExpr(_DefExpr):
+class RefDefExpr(DefExpr):
 
     def __init__(self, typename):
         self.typename = typename
@@ -105,7 +105,7 @@ class _RefDefExpr(_DefExpr):
         return u'%s&' % self.typename
 
 
-class _CastOpDefExpr(_DefExpr):
+class CastOpDefExpr(DefExpr):
 
     def __init__(self, typename):
         self.typename = typename
@@ -114,7 +114,7 @@ class _CastOpDefExpr(_DefExpr):
         return u'operator %s' % self.typename
 
 
-class _TemplateDefExpr(_DefExpr):
+class TemplateDefExpr(DefExpr):
 
     def __init__(self, typename, args):
         self.typename = typename
@@ -124,7 +124,7 @@ class _TemplateDefExpr(_DefExpr):
         return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
 
 
-class _ArgumentDefExpr(_DefExpr):
+class ArgumentDefExpr(DefExpr):
 
     def __init__(self, type, name, default=None):
         self.type = type
@@ -137,7 +137,7 @@ class _ArgumentDefExpr(_DefExpr):
                                           u'=%s' % self.default or u'')
 
 
-class _FunctionDefExpr(_DefExpr):
+class FunctionDefExpr(DefExpr):
 
     def __init__(self, name, signature, const, pure_virtual):
         self.name = name
@@ -224,13 +224,13 @@ class DefinitionParser(object):
     def _parse_operator(self):
         # thank god, a regular operator definition
         if self.match(_operator_re):
-            return _NameDefExpr('operator' +
+            return NameDefExpr('operator' +
                                 _whitespace_re.sub('', self.matched_text))
 
         # oh well, looks like a cast operator definition.
         # In that case, eat another type.
         type = self._parse_type()
-        return _CastOpDefExpr(type)
+        return CastOpDefExpr(type)
 
     def _parse_name(self):
         if not self.match(_identifier_re):
@@ -244,7 +244,7 @@ class DefinitionParser(object):
         if identifier == 'operator':
             return self._parse_operator()
 
-        return _NameDefExpr(identifier)
+        return NameDefExpr(identifier)
 
     def _parse_type_expr(self):
         typename = self._parse_name()
@@ -262,7 +262,7 @@ class DefinitionParser(object):
                     self.fail('"," or ">" in template expected')
                 self.skip_ws()
             args.append(self._parse_type(True))
-        return _TemplateDefExpr(typename, args)
+        return TemplateDefExpr(typename, args)
 
     def _guess_typename(self, path):
         if not path:
@@ -280,9 +280,9 @@ class DefinitionParser(object):
     def _attach_refptr(self, expr):
         self.skip_ws()
         if self.skip_string('*'):
-            return _PtrDefExpr(expr)
+            return PtrDefExpr(expr)
         elif self.skip_string('&'):
-            return _RefDefExpr(expr)
+            return RefDefExpr(expr)
         return expr
 
     def _parse_builtin(self, modifier):
@@ -301,7 +301,7 @@ class DefinitionParser(object):
                 self.backout()
                 break
         modifiers, typename = self._guess_typename(path)
-        rv = _ModifierDefExpr(modifiers, _NameDefExpr(typename))
+        rv = ModifierDefExpr(modifiers, _NameDefExpr(typename))
         return self._attach_refptr(rv)
 
     def _parse_type(self, in_template=False):
@@ -341,9 +341,9 @@ class DefinitionParser(object):
         if len(result) == 1:
             rv = result[0]
         else:
-            rv = _PathDefExpr(result)
+            rv = PathDefExpr(result)
         if modifiers:
-            rv = _ModifierDefExpr(modifiers, rv)
+            rv = ModifierDefExpr(modifiers, rv)
         return self._attach_refptr(rv)
 
     def _parse_default_expr(self):
@@ -394,7 +394,7 @@ class DefinitionParser(object):
                 if self.skip_string('='):
                     default = self._parse_default_expr()
 
-            args.append(_ArgumentDefExpr(argtype, argname, default))
+            args.append(ArgumentDefExpr(argtype, argname, default))
         self.skip_ws()
         const = self.skip_string('const')
         if const:
@@ -419,8 +419,12 @@ class DefinitionParser(object):
 
     def parse_function(self):
         rv = self._parse_type()
-        name = self._parse_type()
-        return rv, _FunctionDefExpr(name, *self._parse_signature())
+        if isinstance(rv, CastOpDefExpr):
+            name = rv
+            rv = None
+        else:
+            name = self._parse_type()
+        return rv, FunctionDefExpr(name, *self._parse_signature())
 
     def parse_typename(self):
         return self._parse_type()
@@ -435,24 +439,72 @@ class DefinitionParser(object):
 class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
-    def _attach_type(self, node, type):
+    def attach_type(self, node, type):
         # XXX: link? how could we do that
-        text = unicode(type) + u' '
-        pnode = addnodes.pending_xref(
-            '', refdomain='cpp', reftype='type',
-            reftarget=text, modname=None, classname=None)
-        pnode += nodes.Text(text)
-        node += pnode
+        if type is not None:
+            text = unicode(type)
+            pnode = addnodes.pending_xref(
+                '', refdomain='cpp', reftype='type',
+                reftarget=text, modname=None, classname=None)
+            pnode += nodes.Text(text)
+            node += pnode
+
+    def add_target_and_index(self, name, sig, signode):
+        if name not in self.state.document.ids:
+            # XXX: how to handle method overloading?
+            signode['names'].append(name)
+            signode['ids'].append(name)
+            signode['first'] = (not self.names)
+            self.state.document.note_explicit_target(signode)
+            self.env.domaindata['cpp']['objects'][name] = \
+                (self.env.docname, self.objtype)
+
+        indextext = self.get_index_text(name)
+        if indextext:
+            self.indexnode['entries'].append(('single', indextext, name, name))
+
+    def before_content(self):
+        lastname = self.names and self.names[-1]
+        if lastname and not self.env.temp_data.get('cpp:parent'):
+            self.env.temp_data['cpp:parent'] = lastname
+            self.parentname_set = True
+        else:
+            self.parentname_set = False
+
+    def after_content(self):
+        if self.parentname_set:
+            self.env.temp_data['cpp:parent'] = None
+
+    def parse_definition(self, parser):
+        raise NotImplementedError()
+
+    def describe_signature(self, signode, arg):
+        raise NotImplementedError()
 
     def handle_signature(self, sig, signode):
-        """Transform a C++ signature into RST nodes."""
         parser = DefinitionParser(sig)
-        typename = parser.parse_typename()
+        rv = self.parse_definition(parser)
         parser.assert_end()
+        name = self.describe_signature(signode, rv)
 
+        parentname = self.env.temp_data.get('cpp:parent')
+        if parentname:
+            return u'%s::%s' % (parentname, name)
+        return unicode(name)
+
+
+class CPPClassObject(CPPObject):
+
+    def get_index_text(self, name):
+        return _('%s (C++ class)') % name
+
+    def parse_definition(self, parser):
+        return parser.parse_typename()
+
+    def describe_signature(self, signode, typename):
         signode += addnodes.desc_type('', '')
-        self._attach_type(signode, typename)
-        return unicode(typename)
+        self.attach_type(signode, typename)
+        return typename
 
 
 class CPPTypedObject(CPPObject):
@@ -465,33 +517,48 @@ class CPPTypedObject(CPPObject):
             node += addnodes.desc_addname(owner, owner)
         node += addnodes.desc_name(varname, varname)
 
-    def handle_signature(self, sig, signode):
-        """Transform a C++ signature into RST nodes."""
-        parser = DefinitionParser(sig)
-        rv, var = parser.parse_variable()
-        parser.assert_end()
+    def get_index_text(self, name):
+        if self.objtype == 'member':
+            return _('%s (C++ member)') % name
+        elif self.objtype == 'type':
+            return _('%s (C++ type)') % name
+        elif self.objtype == 'var':
+            return _('%s (C++ variable)') % name
+        return ''
 
+    def parse_definition(self, parser):
+        return parser.parse_variable()
+
+    def describe_signature(self, signode, (rv, var)):
         signode += addnodes.desc_type('', '')
-        self._attach_type(signode, rv)
+        self.attach_type(signode, rv)
+        signode += nodes.Text(' ')
         self._attach_var(signode, var)
-        return str(func.name)
+        return var.name
 
 
 class CPPFunctionObject(CPPTypedObject):
 
     def _attach_function(self, node, func):
         owner, name = func.name.split_owner()
-        funcname = unicode(name)
         if owner is not None:
             owner = unicode(owner) + '::'
             node += addnodes.desc_addname(owner, owner)
-        node += addnodes.desc_name(funcname, funcname)
+
+        if isinstance(name, CastOpDefExpr):
+            node += addnodes.desc_name('operator', 'operator')
+            node += nodes.Text(u' ')
+            self.attach_type(node, name.typename)
+        else:
+            funcname = unicode(name)
+            node += addnodes.desc_name(funcname, funcname)
 
         paramlist = addnodes.desc_parameterlist()
         for arg in func.signature:
             param = addnodes.desc_parameter('', '', noemph=True)
             if arg.type is not None:
-                self._attach_type(param, arg.type)
+                self.attach_type(param, arg.type)
+                param += nodes.Text(u' ')
             param += nodes.emphasis(unicode(arg.name), unicode(arg.name))
             if arg.default is not None:
                 def_ = u'=' + unicode(arg.default)
@@ -504,16 +571,18 @@ class CPPFunctionObject(CPPTypedObject):
         if func.pure_virtual:
             node += addnodes.desc_addname(' = 0', ' = 0')
 
-    def handle_signature(self, sig, signode):
-        """Transform a C++ signature into RST nodes."""
-        parser = DefinitionParser(sig)
-        rv, func = parser.parse_function()
-        parser.assert_end()
+    def get_index_text(self, name):
+        return _('%s (C++ function)') % name
 
+    def parse_definition(self, parser):
+        return parser.parse_function()
+
+    def describe_signature(self, signode, (rv, func)):
         signode += addnodes.desc_type('', '')
-        self._attach_type(signode, rv)
+        self.attach_type(signode, rv)
+        signode += nodes.Text(u' ')
         self._attach_function(signode, func)
-        return str(func.name)
+        return func.name
 
 
 class CPPDomain(Domain):
@@ -529,7 +598,7 @@ class CPPDomain(Domain):
     }
 
     directives = {
-        'class':    CPPObject,
+        'class':    CPPClassObject,
         'function': CPPFunctionObject,
         'member':   CPPTypedObject,
         'type':     CPPTypedObject,
