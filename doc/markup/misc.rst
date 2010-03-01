@@ -11,12 +11,12 @@ File-wide metadata
 reST has the concept of "field lists"; these are a sequence of fields marked up
 like this::
 
-   :Field name: Field content
+   :fieldname: Field content
 
-A field list at the very top of a file is parsed as the "docinfo", which in
-normal documents can be used to record the author, date of publication and
-other metadata.  In Sphinx, the docinfo is used as metadata, too, but not
-displayed in the output.
+A field list at the very top of a file is parsed by docutils as the "docinfo",
+which is normally used to record the author, date of publication and other
+metadata.  *In Sphinx*, the docinfo is used as metadata, too, but not displayed
+in the output.
 
 At the moment, these metadata fields are recognized:
 

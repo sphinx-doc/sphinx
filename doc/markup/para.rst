@@ -9,7 +9,7 @@ Paragraph-level markup
 These directives create short paragraphs and can be used inside information
 units as well as normal text:
 
-.. directive:: note
+.. directive:: .. note::
 
    An especially important bit of information about an API that a user should be
    aware of when using whatever bit of API the note pertains to.  The content of
@@ -22,13 +22,13 @@ units as well as normal text:
 
          This function is not suitable for sending spam e-mails.
 
-.. directive:: warning
+.. directive:: .. warning::
 
    An important bit of information about an API that a user should be very aware
    of when using whatever bit of API the warning pertains to.  The content of
    the directive should be written in complete sentences and include all
-   appropriate punctuation. This differs from ``note`` in that it is recommended
-   over ``note`` for information regarding security.
+   appropriate punctuation. This differs from :dir:`note` in that it is
+   recommended over :dir:`note` for information regarding security.
 
 .. directive:: .. versionadded:: version
 
@@ -49,7 +49,7 @@ units as well as normal text:
 
 .. directive:: .. versionchanged:: version
 
-   Similar to ``versionadded``, but describes when and what changed in the named
+   Similar to :dir:`versionadded`, but describes when and what changed in the named
    feature in some way (new parameters, changed side effects, etc.).
 
 --------------
@@ -57,26 +57,27 @@ units as well as normal text:
 .. directive:: seealso
 
    Many sections include a list of references to module documentation or
-   external documents.  These lists are created using the ``seealso`` directive.
+   external documents.  These lists are created using the :dir:`seealso`
+   directive.
 
-   The ``seealso`` directive is typically placed in a section just before any
+   The :dir:`seealso` directive is typically placed in a section just before any
    sub-sections.  For the HTML output, it is shown boxed off from the main flow
    of the text.
 
-   The content of the ``seealso`` directive should be a reST definition list.
+   The content of the :dir:`seealso` directive should be a reST definition list.
    Example::
 
       .. seealso::
 
-         Module :mod:`zipfile`
-            Documentation of the :mod:`zipfile` standard module.
+         Module :py:mod:`zipfile`
+            Documentation of the :py:mod:`zipfile` standard module.
 
          `GNU tar manual, Basic Tar Format <http://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
    There's also a "short form" allowed that looks like this::
 
-      .. seealso:: modules :mod:`zipfile`, :mod:`tarfile`
+      .. seealso:: modules :py:mod:`zipfile`, :py:mod:`tarfile`
 
    .. versionadded:: 0.5
       The short form.
@@ -96,7 +97,8 @@ units as well as normal text:
 
 .. directive:: centered
 
-   This directive creates a centered boldfaced line of text.  Use it as follows::
+   This directive creates a centered boldfaced line of text.  Use it as
+   follows::
 
       .. centered:: LICENSE AGREEMENT
 
@@ -126,16 +128,17 @@ Table-of-contents markup
 ------------------------
 
 The :dir:`toctree` directive, which generates tables of contents of
-subdocuments, is described in "Sphinx concepts".
+subdocuments, is described in :ref:`toctree-directive`.
 
-For local tables of contents, use the standard reST :dir:`contents` directive.
+For local tables of contents, use the standard reST :rstdir:`contents directive
+<contents>`.
 
 
 Index-generating markup
 -----------------------
 
-Sphinx automatically creates index entries from all information units (like
-functions, classes or attributes) like discussed before.
+Sphinx automatically creates index entries from all object descriptions (like
+functions, classes or attributes) like discussed in :ref:`domains`.
 
 However, there is also an explicit directive available, to make the index more
 comprehensive and enable index entries in documents where information is not
@@ -159,9 +162,9 @@ mainly contained in information units, such as the language reference.
 
       ...
 
-   This directive contains five entries, which will be converted to entries in the
-   generated index which link to the exact location of the index statement (or, in
-   case of offline media, the corresponding page number).
+   This directive contains five entries, which will be converted to entries in
+   the generated index which link to the exact location of the index statement
+   (or, in case of offline media, the corresponding page number).
 
    Since index directives generate cross-reference targets at their location in
    the source, it makes sense to put them *before* the thing they refer to --
@@ -171,18 +174,19 @@ mainly contained in information units, such as the language reference.
 
    single
       Creates a single index entry.  Can be made a subentry by separating the
-      subentry text with a semicolon (this notation is also used below to describe
-      what entries are created).
+      subentry text with a semicolon (this notation is also used below to
+      describe what entries are created).
    pair
       ``pair: loop; statement`` is a shortcut that creates two index entries,
       namely ``loop; statement`` and ``statement; loop``.
    triple
-      Likewise, ``triple: module; search; path`` is a shortcut that creates three
-      index entries, which are ``module; search path``, ``search; path, module`` and
-      ``path; module search``.
+      Likewise, ``triple: module; search; path`` is a shortcut that creates
+      three index entries, which are ``module; search path``, ``search; path,
+      module`` and ``path; module search``.
    module, keyword, operator, object, exception, statement, builtin
-      These all create two index entries.  For example, ``module: hashlib`` creates
-      the entries ``module; hashlib`` and ``hashlib; module``.
+      These all create two index entries.  For example, ``module: hashlib``
+      creates the entries ``module; hashlib`` and ``hashlib; module``.  (These
+      are Python-specific and therefore deprecated.)
 
    For index directives containing only "single" entries, there is a shorthand
    notation::
@@ -195,7 +199,7 @@ mainly contained in information units, such as the language reference.
 Glossary
 --------
 
-.. directive:: glossary
+.. directive:: .. glossary::
 
    This directive must contain a reST definition list with terms and
    definitions.  The definitions will then be referencable with the :role:`term`
