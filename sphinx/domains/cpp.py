@@ -29,6 +29,7 @@ _identifier_re = re.compile(r'\b(~?[a-zA-Z_][a-zA-Z0-9_]*)\b')
 _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+_visibility_re = re.compile(r'\b(public|private|protected)\b')
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
@@ -268,14 +269,24 @@ class PrefixedNameDefExpr(DefExpr):
 
 class NamedDefExpr(DefExpr):
 
-    def __init__(self, name):
+    def __init__(self, name, visibility, static):
         self.name = name
+        self.visibility = visibility
+        self.static = static
+
+    def get_modifiers(self):
+        rv = []
+        if self.visibility != 'public':
+            rv.append(self.visibility)
+        if self.static:
+            rv.append(u'static')
+        return rv
 
 
 class TypeObjDefExpr(NamedDefExpr):
 
-    def __init__(self, typename, name):
-        NamedDefExpr.__init__(self, name)
+    def __init__(self, name, visibility, static, typename):
+        NamedDefExpr.__init__(self, name, visibility, static)
         self.typename = typename
 
     def get_id(self):
@@ -284,15 +295,18 @@ class TypeObjDefExpr(NamedDefExpr):
         return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
 
     def __unicode__(self):
+        buf = self.get_modifiers()
         if self.typename is None:
-            return unicode(self.name)
-        return u'%s %s' % (self.typename, self.name)
+            buf.append(unicode(self.name))
+        else:
+            buf.extend(map(unicode, (self.typename, self.name)))
+        return u' '.join(buf)
 
 
 class MemberObjDefExpr(NamedDefExpr):
 
-    def __init__(self, typename, name, value):
-        NamedDefExpr.__init__(self, name)
+    def __init__(self, name, visibility, static, typename, value):
+        NamedDefExpr.__init__(self, name, visibility, static)
         self.typename = typename
         self.value = value
 
@@ -300,16 +314,18 @@ class MemberObjDefExpr(NamedDefExpr):
         return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
 
     def __unicode__(self):
-        rv = u'%s %s' % (self.typename, self.name)
+        buf = self.get_modifiers()
+        buf.append(u'%s %s' % (self.typename, self.name))
         if self.value is not None:
-            rv = u'%s = %s' % (rv, self.value)
-        return rv
+            buf.append(u'%s = %s' % (rv, self.value))
+        return u' '.join(buf)
 
 
 class FuncDefExpr(NamedDefExpr):
 
-    def __init__(self, name, rv, signature, const, pure_virtual):
-        NamedDefExpr.__init__(self, name)
+    def __init__(self, name, visibility, static, rv, signature,
+                 const, pure_virtual):
+        NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
         self.const = const
@@ -324,25 +340,30 @@ class FuncDefExpr(NamedDefExpr):
         )
 
     def __unicode__(self):
-        return u'%s%s(%s)%s%s' % (
-            self.rv is not None and unicode(self.rv) + u' ' or u'',
-            self.name,
-            u', '.join(map(unicode, self.signature)),
-            self.const and u' const' or u'',
-            self.pure_virtual and ' = 0' or ''
-        )
+        buf = self.get_modifiers()
+        if self.rv is not None:
+            buf.append(unicode(self.rv))
+        buf.append(u'%s(%s)' % (self.name, u', '.join(
+            map(unicode, self.signature))))
+        if self.const:
+            buf.append(u'const')
+        if self.pure_virtual:
+            buf.append(u'= 0')
+        return u' '.join(buf)
 
 
 class ClassDefExpr(NamedDefExpr):
 
-    def __init__(self, name):
-        NamedDefExpr.__init__(self, name)
+    def __init__(self, name, visibility, static):
+        NamedDefExpr.__init__(self, name, visibility, static)
 
     def get_id(self):
         return self.name.get_id()
 
     def __unicode__(self):
-        return unicode(self.name)
+        buf = self.get_modifiers()
+        buf.append(unicode(self.name))
+        return u' '.join(buf)
 
 
 class DefinitionParser(object):
@@ -514,6 +535,7 @@ class DefinitionParser(object):
         return TemplateDefExpr(typename, args)
 
     def _parse_type(self, in_template=False):
+        self.skip_ws()
         result = []
         modifiers = []
 
@@ -623,10 +645,18 @@ class DefinitionParser(object):
             pure_virtual = False
         return args, const, pure_virtual
 
+    def _parse_visibility_static(self):
+        visibility =  'public'
+        if self.match(_visibility_re):
+            visibility = self.matched_text
+        static = self.skip_word('static')
+        return visibility, static
+
     def parse_type(self):
         return self._parse_type()
 
     def parse_type_object(self):
+        visibility, static = self._parse_visibility_static()
         typename = self._parse_type()
         self.skip_ws()
         if not self.eof:
@@ -634,9 +664,10 @@ class DefinitionParser(object):
         else:
             name = typename
             typename = None
-        return TypeObjDefExpr(typename, name)
+        return TypeObjDefExpr(name, visibility, static, typename)
 
     def parse_member_object(self):
+        visibility, static = self._parse_visibility_static()
         typename = self._parse_type()
         name = self._parse_type()
         self.skip_ws()
@@ -644,9 +675,10 @@ class DefinitionParser(object):
             value = self.read_rest().strip()
         else:
             value = None
-        return MemberObjDefExpr(typename, name, value)
+        return MemberObjDefExpr(name, visibility, static, typename, value)
 
     def parse_function(self):
+        visibility, static = self._parse_visibility_static()
         rv = self._parse_type()
         self.skip_ws()
         # some things just don't have return values
@@ -655,10 +687,12 @@ class DefinitionParser(object):
             rv = None
         else:
             name = self._parse_type()
-        return FuncDefExpr(name, rv, *self._parse_signature())
+        return FuncDefExpr(name, visibility, static, rv,
+                           *self._parse_signature())
 
     def parse_class(self):
-        return ClassDefExpr(self._parse_type())
+        visibility, static = self._parse_visibility_static()
+        return ClassDefExpr(self._parse_type(), visibility, static)
 
     def read_rest(self):
         rv = self.definition[self.pos:]
@@ -691,6 +725,15 @@ class CPPObject(ObjectDescription):
             reftarget=text, modname=None, classname=None)
         pnode += nodes.Text(text)
         node += pnode
+
+    def attach_modifiers(self, node, obj):
+        if obj.visibility != 'public':
+            node += addnodes.desc_annotation(obj.visibility,
+                                             obj.visibility)
+            node += nodes.Text(' ')
+        if obj.static:
+            node += addnodes.desc_annotation('static', 'static')
+            node += nodes.Text(' ')
 
     def add_target_and_index(self, sigobj, sig, signode):
         theid = sigobj.get_id()
@@ -752,6 +795,7 @@ class CPPClassObject(CPPObject):
         return parser.parse_class()
 
     def describe_signature(self, signode, cls):
+        self.attach_modifiers(signode, cls)
         signode += addnodes.desc_annotation('class ', 'class ')
         self.attach_name(signode, cls.name)
 
@@ -767,6 +811,7 @@ class CPPTypeObject(CPPObject):
         return parser.parse_type_object()
 
     def describe_signature(self, signode, obj):
+        self.attach_modifiers(signode, obj)
         signode += addnodes.desc_annotation('type ', 'type ')
         if obj.typename is not None:
             self.attach_type(signode, obj.typename)
@@ -785,6 +830,7 @@ class CPPMemberObject(CPPObject):
         return parser.parse_member_object()
 
     def describe_signature(self, signode, obj):
+        self.attach_modifiers(signode, obj)
         self.attach_type(signode, obj.typename)
         signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
@@ -835,6 +881,7 @@ class CPPFunctionObject(CPPObject):
         return parser.parse_function()
 
     def describe_signature(self, signode, func):
+        self.attach_modifiers(signode, func)
         # return value is None for things with a reverse return value
         # such as casting operator definitions or constructors
         # and destructors.
