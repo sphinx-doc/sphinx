@@ -23,7 +23,7 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, TypedField
 
 
-_identifier_re = re.compile(r'(~?[a-zA-Z_][a-zA-Z0-9_]*)')
+_identifier_re = re.compile(r'\b(~?[a-zA-Z_][a-zA-Z0-9_]*)\b')
 _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
@@ -31,8 +31,63 @@ _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
     |   [!<>=/*%+-|&^]=?
-    |   <<=? | >>=? | ~ | ^ | & | && | \| | \|\|
+    |   \+\+ | --
+    |   <<=? | >>=? | ~ | && | \| | \|\|
 ''')
+
+_id_shortwords = {
+    'char':             'c',
+    'signed char':      'c',
+    'unsigned char':    'C',
+    'int':              'i',
+    'signed int':       'i',
+    'unsigned int':     'U',
+    'long':             'l',
+    'signed long':      'l',
+    'unsigned long':    'L',
+    'bool':             'b',
+    'size_t':           's',
+    'std::string':      'ss',
+    'std::ostream':     'os',
+    'std::istream':     'is',
+    'std::iostream':    'ios',
+    'std::vector':      'v',
+    'std::map':         'm',
+    'operator[]':       'subscript-operator',
+    'operator()':       'call-operator',
+    'operator!':        'not-operator',
+    'operator<':        'lt-operator',
+    'operator<=':       'lte-operator',
+    'operator>':        'gt-operator',
+    'operator>=':       'gte-operator',
+    'operator=':        'assign-operator',
+    'operator/':        'div-operator',
+    'operator*':        'mul-operator',
+    'operator%':        'mod-operator',
+    'operator+':        'add-operator',
+    'operator-':        'sub-operator',
+    'operator|':        'or-operator',
+    'operator&':        'and-operator',
+    'operator^':        'xor-operator',
+    'operator&&':       'sand-operator',
+    'operator||':       'sor-operator',
+    'operator==':       'eq-operator',
+    'operator!=':       'neq-operator',
+    'operator<<':       'lshift-operator',
+    'operator>>':       'rshift-operator',
+    'operator-=':       'sub-assign-operator',
+    'operator+=':       'add-assign-operator',
+    'operator*-':       'mul-assign-operator',
+    'operator/=':       'div-assign-operator',
+    'operator%=':       'mod-assign-operator',
+    'operator&=':       'and-assign-operator',
+    'operator|=':       'or-assign-operator',
+    'operator<<=':      'lshift-assign-operator',
+    'operator>>=':      'rshift-assign-operator',
+    'operator~':        'inv-operator',
+    'operator++':       'inc-operator',
+    'operator--':       'dec-operator'
+}
 
 
 class DefinitionError(Exception):
@@ -43,6 +98,9 @@ class DefExpr(object):
 
     def __unicode__(self):
         raise NotImplementedError()
+
+    def to_id(self):
+        return u''
 
     def split_owner(self):
         return None, self
@@ -59,6 +117,12 @@ class NameDefExpr(DefExpr):
     def __init__(self, name):
         self.name = name
 
+    def to_id(self):
+        name = _id_shortwords.get(self.name)
+        if name is not None:
+            return name
+        return self.name.replace(u' ', u'-')
+
     def __unicode__(self):
         return unicode(self.name)
 
@@ -67,6 +131,10 @@ class PathDefExpr(DefExpr):
 
     def __init__(self, parts):
         self.path = parts
+
+    def to_id(self):
+        rv = u'::'.join(x.to_id() for x in self.path)
+        return _id_shortwords.get(rv, rv)
 
     def split_owner(self):
         if len(self.path) > 1:
@@ -83,6 +151,12 @@ class ModifierDefExpr(DefExpr):
         self.modifiers = modifiers
         self.typename = typename
 
+    def to_id(self):
+        pieces = [_id_shortwords.get(unicode(x), unicode(x))
+                  for x in self.modifiers]
+        pieces.append(self.typename.to_id())
+        return u'-'.join(pieces)
+
     def __unicode__(self):
         return u' '.join(map(unicode, list(self.modifiers) + [self.typename]))
 
@@ -91,6 +165,9 @@ class PtrDefExpr(DefExpr):
 
     def __init__(self, typename):
         self.typename = typename
+
+    def to_id(self):
+        return self.typename.to_id() + u'P'
 
     def __unicode__(self):
         return u'%s*' % self.typename
@@ -101,14 +178,33 @@ class RefDefExpr(DefExpr):
     def __init__(self, typename):
         self.typename = typename
 
+    def to_id(self):
+        return self.typename.to_id() + u'R'
+
     def __unicode__(self):
         return u'%s&' % self.typename
+
+
+class ConstDefExpr(DefExpr):
+
+    def __init__(self, typename, prefix=False):
+        self.typename = typename
+        self.prefix = prefix
+
+    def to_id(self):
+        return self.typename.to_id() + u'C'
+
+    def __unicode__(self):
+        return (self.prefix and u'const %s' or u'%s const') % self.typename
 
 
 class CastOpDefExpr(DefExpr):
 
     def __init__(self, typename):
         self.typename = typename
+
+    def to_id(self):
+        return u'to-%s-operator' % self.typename.to_id()
 
     def __unicode__(self):
         return u'operator %s' % self.typename
@@ -120,6 +216,10 @@ class TemplateDefExpr(DefExpr):
         self.typename = typename
         self.args = args
 
+    def to_id(self):
+        return u'%s:%s:' % (self.typename.to_id(),
+                            u'.'.join(x.to_id() for x in self.args))
+
     def __unicode__(self):
         return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
 
@@ -130,6 +230,9 @@ class ArgumentDefExpr(DefExpr):
         self.type = type
         self.name = name
         self.default = default
+
+    def to_id(self):
+        return self.type.to_id()
 
     def __unicode__(self):
         return (self.type is not None and u'%s %s' % (self.type, self.name)
@@ -143,11 +246,14 @@ class TypedObjDefExpr(DefExpr):
         self.typename = typename
         self.name = name
 
+    def to_id(self):
+        return u'%s__%s' % (self.name.to_id(), self.typename.to_id())
+
     def __unicode__(self):
-        return u'%s %s' % (self.typename, name)
+        return u'%s %s' % (self.typename, self.name)
 
 
-class FunctionDefExpr(DefExpr):
+class FuncDefExpr(DefExpr):
 
     def __init__(self, name, rv, signature, const, pure_virtual):
         self.name = name
@@ -156,9 +262,17 @@ class FunctionDefExpr(DefExpr):
         self.const = const
         self.pure_virtual = pure_virtual
 
+    def to_id(self):
+        return u'%s%s%s' % (
+            self.name.to_id(),
+            self.signature and u'__' +
+                u'.'.join(x.to_id() for x in self.signature) or u'',
+            self.const and u'C' or u''
+        )
+
     def __unicode__(self):
         return u'%s%s(%s)%s%s' % (
-            self.rv is not None and self.rv + u' ' or u'',
+            self.rv is not None and unicode(self.rv) + u' ' or u'',
             self.name,
             u', '.join(map(unicode, self.signature)),
             self.const and u' const' or u'',
@@ -171,12 +285,12 @@ class DefinitionParser(object):
     # mapping of valid type modifiers.  if the set is None it means
     # the modifier can prefix all types, otherwise only the types
     # (actually more keywords) in the set.  Also check
-    # _guess_typename when changing this
+    # _guess_typename when changing this.
     _modifiers = {
         'volatile':     None,
         'register':     None,
-        'const':        None,
         'mutable':      None,
+        'const':        None,
         'typename':     None,
         'unsigned':     set(('char', 'int', 'long')),
         'signed':       set(('char', 'int', 'long')),
@@ -214,8 +328,11 @@ class DefinitionParser(object):
             return True
         return False
 
+    def skip_word(self, word):
+        return self.match(re.compile(r'\b%s\b' % re.escape(word)))
+
     def skip_ws(self):
-        return self.match(_whitespace_re) is not None
+        return self.match(_whitespace_re)
 
     @property
     def eof(self):
@@ -289,13 +406,26 @@ class DefinitionParser(object):
             return path[:-1], path[-1]
         return path, 'int'
 
-    def _attach_refptr(self, expr):
-        self.skip_ws()
-        if self.skip_string('*'):
-            return PtrDefExpr(expr)
-        elif self.skip_string('&'):
-            return RefDefExpr(expr)
-        return expr
+    def _attach_crefptr(self, expr, is_const=False):
+        if is_const:
+            expr = ConstDefExpr(expr, prefix=True)
+        while 1:
+            self.skip_ws()
+            if self.skip_word('const'):
+                expr = ConstDefExpr(expr)
+            elif self.skip_string('*'):
+                expr = PtrDefExpr(expr)
+            elif self.skip_string('&'):
+                expr = RefDefExpr(expr)
+            else:
+                return expr
+
+    def _peek_const(self, path):
+        try:
+            path.remove('const')
+            return True
+        except ValueError:
+            return False
 
     def _parse_builtin(self, modifier):
         path = [modifier]
@@ -312,9 +442,11 @@ class DefinitionParser(object):
             else:
                 self.backout()
                 break
+
+        is_const = self._peek_const(path)
         modifiers, typename = self._guess_typename(path)
         rv = ModifierDefExpr(modifiers, _NameDefExpr(typename))
-        return self._attach_refptr(rv)
+        return self._attach_crefptr(rv, is_const)
 
     def _parse_type(self, in_template=False):
         result = []
@@ -325,7 +457,7 @@ class DefinitionParser(object):
         # don't have to check for type modifiers
         if not self.skip_string('::'):
             self.skip_ws()
-            if self.match(_identifier_re):
+            while self.match(_identifier_re):
                 modifier = self.matched_text
                 if modifier in self._modifiers:
                     following = self._modifiers[modifier]
@@ -339,6 +471,7 @@ class DefinitionParser(object):
                     modifiers.append(modifier)
                 else:
                     self.backout()
+                    break
 
         while 1:
             self.skip_ws()
@@ -354,9 +487,10 @@ class DefinitionParser(object):
             rv = result[0]
         else:
             rv = PathDefExpr(result)
+        is_const = self._peek_const(modifiers)
         if modifiers:
             rv = ModifierDefExpr(modifiers, rv)
-        return self._attach_refptr(rv)
+        return self._attach_crefptr(rv, is_const)
 
     def _parse_default_expr(self):
         self.skip_ws()
@@ -408,14 +542,14 @@ class DefinitionParser(object):
 
             args.append(ArgumentDefExpr(argtype, argname, default))
         self.skip_ws()
-        const = self.skip_string('const')
+        const = self.skip_word('const')
         if const:
             self.skip_ws()
         if self.skip_string('='):
             self.skip_ws()
             if not (self.skip_string('0') or \
-                    self.skip_string('NULL') or \
-                    self.skip_string('nullptr')):
+                    self.skip_word('NULL') or \
+                    self.skip_word('nullptr')):
                 self.fail('pure virtual functions must be defined with '
                           'either 0, NULL or nullptr, other macros are '
                           'not allowed')
@@ -440,7 +574,7 @@ class DefinitionParser(object):
             rv = None
         else:
             name = self._parse_type()
-        return FunctionDefExpr(name, rv, *self._parse_signature())
+        return FuncDefExpr(name, rv, *self._parse_signature())
 
     def parse_typename(self):
         return self._parse_type()
@@ -472,26 +606,21 @@ class CPPObject(ObjectDescription):
         pnode += nodes.Text(text)
         node += pnode
 
-    def make_id(self, name, sig):
-        return name
-
-    def add_target_and_index(self, name, sig, signode):
-        if name not in self.state.document.ids:
-            # XXX: how to handle method overloading?
-            theid = self.make_id(name, sig)
-            signode['names'].append(theid)
-            signode['ids'].append(theid)
-            signode['first'] = (not self.names)
-            self.state.document.note_explicit_target(signode)
-            self.env.domaindata['cpp']['objects'][name] = \
-                (self.env.docname, self.objtype)
+    def add_target_and_index(self, (name, sigobj), sig, signode):
+        theid = sigobj.to_id()
+        signode['names'].append(theid)
+        signode['ids'].append(theid)
+        signode['first'] = (not self.names)
+        self.state.document.note_explicit_target(signode)
+        self.env.domaindata['cpp']['objects'][name] = \
+            (self.env.docname, self.objtype)
 
         indextext = self.get_index_text(name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext, name, name))
 
     def before_content(self):
-        lastname = self.names and self.names[-1]
+        lastname = self.names and self.names[-1][0]
         if lastname and not self.env.temp_data.get('cpp:parent'):
             self.env.temp_data['cpp:parent'] = lastname
             self.parentname_set = True
@@ -516,8 +645,8 @@ class CPPObject(ObjectDescription):
 
         parentname = self.env.temp_data.get('cpp:parent')
         if parentname:
-            return u'%s::%s' % (parentname, name)
-        return unicode(name)
+            return u'%s::%s' % (parentname, name), rv
+        return unicode(name), rv
 
 
 class CPPClassObject(CPPObject):
@@ -588,18 +717,6 @@ class CPPFunctionObject(CPPTypedObject):
             node += addnodes.desc_addname(' const', ' const')
         if func.pure_virtual:
             node += addnodes.desc_addname(' = 0', ' = 0')
-
-    def make_id(self, name, sig):
-        # XXX: can we reuse somehow the parsed definition here?  ideally
-        # what we could do would be checking if a function is overloaded
-        # after we found everything and if it is, go over all parsed
-        # signatures and find a short code.
-        #
-        # eg:
-        #   ns::foo(int a, int b) --> ns::foo__i.i
-        #   ns::foo(char a, std::string b) --> ns::foo__c.std::string
-        #   ns::foo(char a, std::string b, int c) --> ns::foo__c.std::string.i
-        return name
 
     def get_index_text(self, name):
         return _('%s (C++ function)') % name
