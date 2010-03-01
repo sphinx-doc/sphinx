@@ -240,17 +240,38 @@ class ArgumentDefExpr(DefExpr):
                                           u'=%s' % self.default or u'')
 
 
-class TypedObjDefExpr(DefExpr):
+class TypeObjDefExpr(DefExpr):
 
     def __init__(self, typename, name):
         self.typename = typename
         self.name = name
 
     def to_id(self):
+        if self.typename is None:
+            return self.name.to_id()
         return u'%s__%s' % (self.name.to_id(), self.typename.to_id())
 
     def __unicode__(self):
+        if self.typename is None:
+            return unicode(self.name)
         return u'%s %s' % (self.typename, self.name)
+
+
+class MemberObjDefExpr(DefExpr):
+
+    def __init__(self, typename, name, value):
+        self.typename = typename
+        self.name = name
+        self.value = value
+
+    def to_id(self):
+        return u'%s__%s' % (self.name.to_id(), self.typename.to_id())
+
+    def __unicode__(self):
+        rv = u'%s %s' % (self.typename, self.name)
+        if value is not None:
+            rv = u'%s = %s' % (rv, self.value)
+        return rv
 
 
 class FuncDefExpr(DefExpr):
@@ -558,12 +579,25 @@ class DefinitionParser(object):
             pure_virtual = False
         return args, const, pure_virtual
 
-    def parse_typed_object(self):
+    def parse_type_object(self):
+        typename = self._parse_type()
+        self.skip_ws()
+        if not self.eof:
+            name = self._parse_type()
+        else:
+            name = typename
+            typename = None
+        return TypeObjDefExpr(typename, name)
+
+    def parse_member_object(self):
         typename = self._parse_type()
         name = self._parse_type()
-        # XXX: for constants it would be useful to be able to parse
-        # an assigned value here as well.
-        return TypedObjDefExpr(typename, name)
+        self.skip_ws()
+        if self.skip_string('='):
+            value = self.read_rest().strip()
+        else:
+            value = None
+        return MemberObjDefExpr(typename, name, value)
 
     def parse_function(self):
         rv = self._parse_type()
@@ -578,6 +612,11 @@ class DefinitionParser(object):
 
     def parse_typename(self):
         return self._parse_type()
+
+    def read_rest(self):
+        rv = self.definition[self.pos:]
+        self.pos = self.end
+        return rv
 
     def assert_end(self):
         self.skip_ws()
@@ -663,26 +702,45 @@ class CPPClassObject(CPPObject):
         return typename
 
 
-class CPPTypedObject(CPPObject):
+class CPPTypeObject(CPPObject):
 
     def get_index_text(self, name):
-        if self.objtype == 'member':
-            return _('%s (C++ member)') % name
-        elif self.objtype == 'type':
+        if self.objtype == 'type':
             return _('%s (C++ type)') % name
         return ''
 
     def parse_definition(self, parser):
-        return parser.parse_typed_object()
+        return parser.parse_type_object()
+
+    def describe_signature(self, signode, obj):
+        signode += addnodes.desc_annotation('type ', 'type ')
+        if obj.typename is not None:
+            self.attach_type(signode, obj.typename)
+            signode += nodes.Text(' ')
+        self.attach_name(signode, obj.name)
+        return obj.name
+
+
+class CPPMemberObject(CPPObject):
+
+    def get_index_text(self, name):
+        if self.objtype == 'member':
+            return _('%s (C++ member)') % name
+        return ''
+
+    def parse_definition(self, parser):
+        return parser.parse_member_object()
 
     def describe_signature(self, signode, obj):
         self.attach_type(signode, obj.typename)
         signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
+        if obj.value is not None:
+            signode += nodes.Text(u' = ' + obj.value)
         return obj.name
 
 
-class CPPFunctionObject(CPPTypedObject):
+class CPPFunctionObject(CPPObject):
 
     def attach_function(self, node, func):
         owner, name = func.name.split_owner()
@@ -749,8 +807,8 @@ class CPPDomain(Domain):
     directives = {
         'class':    CPPClassObject,
         'function': CPPFunctionObject,
-        'member':   CPPTypedObject,
-        'type':     CPPTypedObject
+        'member':   CPPMemberObject,
+        'type':     CPPTypeObject
     }
     roles = {
         'class':  XRefRole(),
