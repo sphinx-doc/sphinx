@@ -111,13 +111,30 @@ class DefExpr(object):
         raise NotImplementedError()
 
     def clone(self):
+        """Close a definition expression node"""
         return deepcopy(self)
 
     def get_id(self):
+        """Returns the id for the node"""
         return u''
 
+    def get_name(self):
+        """Returns the name.  Returns either `None` or a node with
+        a name you might call :meth:`split_owner` on.
+        """
+        return None
+
     def split_owner(self):
-        return None, self
+        """Nodes returned by :meth:`get_name` can split off their
+        owning parent.  This function returns the owner and the
+        name as a tuple of two items.  If a node does not support
+        it, :exc:`NotImplementedError` is raised.
+        """
+        raise NotImplementedError()
+
+    def prefix(self, prefix):
+        """Prefixes a name node (a node returned by :meth:`get_name`)."""
+        raise NotImplementedError()
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -126,7 +143,23 @@ class DefExpr(object):
         return '<defexpr %s>' % self
 
 
-class NameDefExpr(DefExpr):
+class PrimaryDefExpr(DefExpr):
+
+    def get_name(self):
+        return self
+
+    def split_owner(self):
+        return None, self
+
+    def prefix(self, prefix):
+        if isinstance(prefix, PathDefExpr):
+            prefix = prefix.clone()
+            prefix.path.append(self)
+            return prefix
+        return PathDefExpr([prefix, self])
+
+
+class NameDefExpr(PrimaryDefExpr):
 
     def __init__(self, name):
         self.name = name
@@ -141,7 +174,7 @@ class NameDefExpr(DefExpr):
         return unicode(self.name)
 
 
-class PathDefExpr(DefExpr):
+class PathDefExpr(PrimaryDefExpr):
 
     def __init__(self, parts):
         self.path = parts
@@ -153,17 +186,51 @@ class PathDefExpr(DefExpr):
     def split_owner(self):
         if len(self.path) > 1:
             return PathDefExpr(self.path[:-1]), self.path[-1]
-        return DefExpr.split_owner(self)
+        return None, self
+
+    def prefix(self, prefix):
+        if isinstance(prefix, PathDefExpr):
+            prefix = prefix.clone()
+            prefix.path.extend(self.path)
+            return prefix
+        return PathDefExpr([prefix] + self.path)
 
     def __unicode__(self):
         return u'::'.join(map(unicode, self.path))
 
 
-class ModifierDefExpr(DefExpr):
+class TemplateDefExpr(PrimaryDefExpr):
 
-    def __init__(self, modifiers, typename):
-        self.modifiers = modifiers
+    def __init__(self, typename, args):
         self.typename = typename
+        self.args = args
+
+    def split_owner(self):
+        owner, typename = self.typename.split_owner()
+        return owner, TemplateDefExpr(typename, self.args)
+
+    def get_id(self):
+        return u'%s:%s:' % (self.typename.get_id(),
+                            u'.'.join(x.get_id() for x in self.args))
+
+    def __unicode__(self):
+        return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
+
+
+class WrappingDefExpr(DefExpr):
+
+    def __init__(self, typename):
+        self.typename = typename
+
+    def get_name(self):
+        return self.typename
+
+
+class ModifierDefExpr(WrappingDefExpr):
+
+    def __init__(self, typename, modifiers):
+        WrappingDefExpr.__init__(self, typename)
+        self.modifiers = modifiers
 
     def get_id(self):
         pieces = [_id_shortwords.get(unicode(x), unicode(x))
@@ -175,10 +242,7 @@ class ModifierDefExpr(DefExpr):
         return u' '.join(map(unicode, list(self.modifiers) + [self.typename]))
 
 
-class PtrDefExpr(DefExpr):
-
-    def __init__(self, typename):
-        self.typename = typename
+class PtrDefExpr(WrappingDefExpr):
 
     def get_id(self):
         return self.typename.get_id() + u'P'
@@ -187,10 +251,7 @@ class PtrDefExpr(DefExpr):
         return u'%s*' % self.typename
 
 
-class RefDefExpr(DefExpr):
-
-    def __init__(self, typename):
-        self.typename = typename
+class RefDefExpr(WrappingDefExpr):
 
     def get_id(self):
         return self.typename.get_id() + u'R'
@@ -199,10 +260,10 @@ class RefDefExpr(DefExpr):
         return u'%s&' % self.typename
 
 
-class ConstDefExpr(DefExpr):
+class ConstDefExpr(WrappingDefExpr):
 
     def __init__(self, typename, prefix=False):
-        self.typename = typename
+        WrappingDefExpr.__init__(self, typename)
         self.prefix = prefix
 
     def get_id(self):
@@ -212,7 +273,7 @@ class ConstDefExpr(DefExpr):
         return (self.prefix and u'const %s' or u'%s const') % self.typename
 
 
-class CastOpDefExpr(DefExpr):
+class CastOpDefExpr(PrimaryDefExpr):
 
     def __init__(self, typename):
         self.typename = typename
@@ -224,26 +285,15 @@ class CastOpDefExpr(DefExpr):
         return u'operator %s' % self.typename
 
 
-class TemplateDefExpr(DefExpr):
-
-    def __init__(self, typename, args):
-        self.typename = typename
-        self.args = args
-
-    def get_id(self):
-        return u'%s:%s:' % (self.typename.get_id(),
-                            u'.'.join(x.get_id() for x in self.args))
-
-    def __unicode__(self):
-        return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
-
-
 class ArgumentDefExpr(DefExpr):
 
     def __init__(self, type, name, default=None):
         self.name = name
         self.type = type
         self.default = default
+
+    def get_name(self):
+        return self.name
 
     def get_id(self):
         return self.type.get_id()
@@ -254,25 +304,15 @@ class ArgumentDefExpr(DefExpr):
                                           u'=%s' % self.default or u'')
 
 
-class PrefixedNameDefExpr(DefExpr):
-
-    def __init__(self, prefix, name):
-        self.prefix = prefix
-        self.name = name
-
-    def get_id(self):
-        return u'%s::%s' % (self.prefix.get_id(), self.name.get_id())
-
-    def __unicode__(self):
-        return u'%s::%s' % (self.prefix, self.name)
-
-
 class NamedDefExpr(DefExpr):
 
     def __init__(self, name, visibility, static):
         self.name = name
         self.visibility = visibility
         self.static = static
+
+    def get_name(self):
+        return self.name
 
     def get_modifiers(self):
         rv = []
@@ -513,7 +553,7 @@ class DefinitionParser(object):
 
         is_const = self._peek_const(path)
         modifiers, typename = self._guess_typename(path)
-        rv = ModifierDefExpr(modifiers, NameDefExpr(typename))
+        rv = ModifierDefExpr(NameDefExpr(typename), modifiers)
         return self._attach_crefptr(rv, is_const)
 
     def _parse_type_expr(self):
@@ -576,7 +616,7 @@ class DefinitionParser(object):
             rv = PathDefExpr(result)
         is_const = self._peek_const(modifiers)
         if modifiers:
-            rv = ModifierDefExpr(modifiers, rv)
+            rv = ModifierDefExpr(rv, modifiers)
         return self._attach_crefptr(rv, is_const)
 
     def _parse_default_expr(self):
@@ -779,10 +819,10 @@ class CPPObject(ObjectDescription):
             raise ValueError
         self.describe_signature(signode, rv)
 
-        parentname = self.env.temp_data.get('cpp:parent')
-        if parentname is not None:
+        parent = self.env.temp_data.get('cpp:parent')
+        if parent is not None:
             rv = rv.clone()
-            rv.name = PrefixedNameDefExpr(parentname, rv.name)
+            rv.name = rv.name.prefix(parent)
         return rv
 
 
@@ -919,6 +959,22 @@ class CPPCurrentNamespace(Directive):
         return []
 
 
+class CPPXRefRole(XRefRole):
+
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        refnode['cpp:parent'] = env.temp_data.get('cpp:parent')
+        if not has_explicit_title:
+            target = target.lstrip('~') # only has a meaning for the title
+            # if the first character is a tilde, don't display the module/class
+            # parts of the contents
+            if title[:1] == '~':
+                title = title[1:]
+                dcolon = title.rfind('::')
+                if dcolon != -1:
+                    title = title[dot + 2:]
+        return title, target
+
+
 class CPPDomain(Domain):
     """C++ language domain."""
     name = 'cpp'
@@ -938,10 +994,10 @@ class CPPDomain(Domain):
         'namespace':    CPPCurrentNamespace
     }
     roles = {
-        'class':  XRefRole(),
-        'func' :  XRefRole(fix_parens=True),
-        'member': XRefRole(),
-        'type':   XRefRole()
+        'class':  CPPXRefRole(),
+        'func' :  CPPXRefRole(fix_parens=True),
+        'member': CPPXRefRole(),
+        'type':   CPPXRefRole()
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
@@ -954,21 +1010,39 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
+        def _create_refnode(expr):
+            target = unicode(expr)
+            if target not in self.data['objects']:
+                return None
+            obj = self.data['objects'][target]
+            if obj[1] != typ:
+                return None
+            return make_refnode(builder, fromdocname, obj[0], target,
+                                contnode, target)
+
         parser = DefinitionParser(target)
         # XXX: warn?
         try:
-            expr = parser.parse_type()
+            expr = parser.parse_type().get_name()
             parser.skip_ws()
-            if not parser.eof:
+            if not parser.eof or expr is None:
                 return None
         except DefinitionError:
             return None
-        target = unicode(expr)
-        if target not in self.data['objects']:
-            return None
-        obj = self.data['objects'][target]
-        return make_refnode(builder, fromdocname, obj[0], target,
-                            contnode, target)
+
+        parent = node.get('cpp:parent')
+
+        rv = _create_refnode(expr)
+        if rv is not None or parent is None:
+            return rv
+        parent = parent.get_name()
+
+        rv = _create_refnode(expr.prefix(parent))
+        if rv is not None:
+            return rv
+
+        parent, name = parent.split_owner()
+        return _create_refnode(expr.prefix(parent))
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
