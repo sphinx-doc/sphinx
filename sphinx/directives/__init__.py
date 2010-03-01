@@ -67,12 +67,18 @@ class ObjectDescription(Directive):
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
         *sig* is put into a single desc_name node.
+
+        The return value should be a value that identifies the object.  It is
+        passed to :meth:`add_target_and_index()` unchanged, and otherwise only
+        used to skip duplicates.
         """
         raise ValueError
 
     def add_target_and_index(self, name, sig, signode):
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
+
+        *name* is whatever :meth:`handle_signature()` returned.
         """
         return  # do nothing by default
 
