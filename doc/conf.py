@@ -50,6 +50,8 @@ autodoc_member_order = 'groupwise'
 todo_include_todos = True
 extlinks = {'rstref': ('http://docutils.sourceforge.net/docs/ref/rst/'
                        'restructuredtext.html#%s', ''),
+            'rstrole': ('http://docutils.sourceforge.net/docs/ref/rst/'
+                        'roles.html#%s', ''),
             'rstdir': ('http://docutils.sourceforge.net/docs/ref/rst/'
                        'directives.html#%s', '')}
 

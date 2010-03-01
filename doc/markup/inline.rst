@@ -1,5 +1,7 @@
 .. highlight:: rest
 
+.. _inline-markup:
+
 Inline markup
 =============
 

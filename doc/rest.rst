@@ -53,6 +53,18 @@ enclosed text should be interpreted in a specific way.  Sphinx uses this to
 provide semantic markup and cross-referencing of identifiers, as described in
 the appropriate section.  The general syntax is ``:rolename:`content```.
 
+Standard reST provides the following roles:
+
+* :rstrole:`emphasis` -- alternate spelling for ``*emphasis*``
+* :rstrole:`strong` -- alternate spelling for ``**strong**``
+* :rstrole:`literal` -- alternate spelling for ````literal````
+* :rstrole:`subscript` -- subscript text
+* :rstrole:`superscript` -- superscript text
+* :rstrole:`title-reference` -- for titles of books, periodicals, and other
+  materials
+
+See :ref:`inline-markup` for roles added by Sphinx.
+
 
 Lists and Quote-like blocks
 ---------------------------
