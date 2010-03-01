@@ -21,6 +21,7 @@ from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
+from sphinx.util.compat import Directive
 from sphinx.util.docfields import Field, TypedField
 
 
@@ -92,7 +93,15 @@ _id_shortwords = {
 
 
 class DefinitionError(Exception):
-    pass
+
+    def __init__(self, description):
+        self.description = description
+
+    def __unicode__(self):
+        return self.description
+
+    def __str__(self):
+        return unicode(self.encode('utf-8'))
 
 
 class DefExpr(object):
@@ -431,24 +440,6 @@ class DefinitionParser(object):
 
         return NameDefExpr(identifier)
 
-    def _parse_type_expr(self):
-        typename = self._parse_name()
-        self.skip_ws()
-        if not self.skip_string('<'):
-            return typename
-
-        args = []
-        while 1:
-            self.skip_ws()
-            if self.skip_string('>'):
-                break
-            if args:
-                if not self.skip_string(','):
-                    self.fail('"," or ">" in template expected')
-                self.skip_ws()
-            args.append(self._parse_type(True))
-        return TemplateDefExpr(typename, args)
-
     def _guess_typename(self, path):
         if not path:
             return [], 'int'
@@ -501,8 +492,26 @@ class DefinitionParser(object):
 
         is_const = self._peek_const(path)
         modifiers, typename = self._guess_typename(path)
-        rv = ModifierDefExpr(modifiers, _NameDefExpr(typename))
+        rv = ModifierDefExpr(modifiers, NameDefExpr(typename))
         return self._attach_crefptr(rv, is_const)
+
+    def _parse_type_expr(self):
+        typename = self._parse_name()
+        self.skip_ws()
+        if not self.skip_string('<'):
+            return typename
+
+        args = []
+        while 1:
+            self.skip_ws()
+            if self.skip_string('>'):
+                break
+            if args:
+                if not self.skip_string(','):
+                    self.fail('"," or ">" in template expected')
+                self.skip_ws()
+            args.append(self._parse_type(True))
+        return TemplateDefExpr(typename, args)
 
     def _parse_type(self, in_template=False):
         result = []
@@ -718,8 +727,13 @@ class CPPObject(ObjectDescription):
 
     def handle_signature(self, sig, signode):
         parser = DefinitionParser(sig)
-        rv = self.parse_definition(parser)
-        parser.assert_end()
+        try:
+            rv = self.parse_definition(parser)
+            parser.assert_end()
+        except DefinitionError, e:
+            self.env.warn(self.env.docname,
+                          e.description, self.lineno)
+            raise ValueError
         self.describe_signature(signode, rv)
 
         parentname = self.env.temp_data.get('cpp:parent')
@@ -830,6 +844,34 @@ class CPPFunctionObject(CPPObject):
         self.attach_function(signode, func)
 
 
+class CPPCurrentNamespace(Directive):
+    """This directive is just to tell Sphinx that we're documenting
+    stuff in namespace foo.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}
+
+    def run(self):
+        env = self.state.document.settings.env
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            env.temp_data['cpp:prefix'] = None
+        else:
+            parser = DefinitionParser(self.arguments[0])
+            try:
+                prefix = parser.parse_type()
+                parser.assert_end()
+            except DefinitionError, e:
+                self.env.warn(self.env.docname,
+                              e.description, self.lineno)
+            else:
+                env.temp_data['cpp:prefix'] = prefix
+        return []
+
+
 class CPPDomain(Domain):
     """C++ language domain."""
     name = 'cpp'
@@ -842,10 +884,11 @@ class CPPDomain(Domain):
     }
 
     directives = {
-        'class':    CPPClassObject,
-        'function': CPPFunctionObject,
-        'member':   CPPMemberObject,
-        'type':     CPPTypeObject
+        'class':        CPPClassObject,
+        'function':     CPPFunctionObject,
+        'member':       CPPMemberObject,
+        'type':         CPPTypeObject,
+        'namespace':    CPPCurrentNamespace
     }
     roles = {
         'class':  XRefRole(),
@@ -865,9 +908,13 @@ class CPPDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         parser = DefinitionParser(target)
-        expr = parser.parse_type()
-        parser.skip_ws()
-        if not parser.eof:
+        # XXX: warn?
+        try:
+            expr = parser.parse_type()
+            parser.skip_ws()
+            if not parser.eof:
+                return None
+        except DefinitionError:
             return None
         target = unicode(expr)
         if target not in self.data['objects']:
