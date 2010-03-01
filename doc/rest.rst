@@ -140,6 +140,8 @@ That way, the second sentence in the above example's first paragraph would be
 rendered as "The next paragraph is a code sample:".
 
 
+.. _rst-tables:
+
 Tables
 ------
 

@@ -231,7 +231,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. directive:: productionlist
+.. directive:: .. productionlist:: [name]
 
    This directive is used to enclose a group of productions.  Each production is
    given on a single line and consists of a name, separated by a colon from the
@@ -239,16 +239,18 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in the
    first line.
 
+   The argument to :dir:`productionlist` serves to distinguish different sets of
+   production lists that belong to different grammars.
+
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
    The definition can contain token names which are marked as interpreted text
    (e.g. ``sum ::= `integer` "+" `integer```) -- this generates cross-references
-   to the productions of these tokens.
+   to the productions of these tokens.  Outside of the production list, you can
+   reference to token productions using :role:`token`.
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.
-
-.. XXX describe optional first parameter
 
 The following is an example taken from the Python Reference Manual::
 

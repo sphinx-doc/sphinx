@@ -87,10 +87,10 @@ Including content based on tags
 Tables
 ------
 
-Use standard reStructuredText tables.  They work fine in HTML output, however
-there are some gotchas when using tables in LaTeX: the column width is hard to
-determine correctly automatically.  For this reason, the following directive
-exists:
+Use :ref:`standard reStructuredText tables <rst-tables>`.  They work fine in
+HTML output, however there are some gotchas when using tables in LaTeX: the
+column width is hard to determine correctly automatically.  For this reason, the
+following directive exists:
 
 .. directive:: .. tabularcolumns:: column spec
 

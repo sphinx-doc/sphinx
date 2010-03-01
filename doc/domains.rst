@@ -90,6 +90,24 @@ giving the domain name, i.e. ::
    Reference to :func:`pyfunc`.
 
 
+Cross-referencing syntax
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+For cross-reference roles provided by domains, the same facilities exist as for
+general cross-references.  See :ref:`xref-syntax`.
+
+In short:
+
+* You may supply an explicit title and reference target: ``:role:`title
+  <target>``` will refer to *target*, but the link text will be *title*.
+
+* If you prefix the content with ``!``, no reference/hyperlink will be created.
+
+* If you prefix the content with ``~``, the link text will only be the last
+  component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
+  refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
+
+
 The Python Domain
 -----------------
 
@@ -280,6 +298,75 @@ This will render like this:
       :rtype: list of strings
 
 
+Cross-referencing Python objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following roles refer to objects in modules and are possibly hyperlinked if
+a matching identifier is found:
+
+.. role:: py:mod
+
+   Reference a module; a dotted name may be used.  This should also be used for
+   package names.
+
+.. role:: py:func
+
+   Reference a Python function; dotted names may be used.  The role text needs
+   not include trailing parentheses to enhance readability; they will be added
+   automatically by Sphinx if the :confval:`add_function_parentheses` config
+   value is true (the default).
+
+.. role:: py:data
+
+   Reference a module-level variable.
+
+.. role:: py:const
+
+   Reference a "defined" constant.  This may be a C-language ``#define`` or a
+   Python variable that is not intended to be changed.
+
+.. role:: py:class
+
+   Reference a class; a dotted name may be used.
+
+.. role:: py:meth
+
+   Reference a method of an object.  The role text can include the type name and
+   the method name; if it occurs within the description of a type, the type name
+   can be omitted.  A dotted name may be used.
+
+.. role:: py:attr
+
+   Reference a data attribute of an object.
+
+.. role:: py:exc
+
+   Reference an exception.  A dotted name may be used.
+
+.. role:: py:obj
+
+   Reference an object of unspecified type.  Useful e.g. as the
+   :confval:`default_role`.
+
+   .. versionadded:: 0.4
+
+The name enclosed in this markup can include a module name and/or a class name.
+For example, ``:py:func:`filter``` could refer to a function named ``filter`` in
+the current module, or the built-in function of that name.  In contrast,
+``:py:func:`foo.filter``` clearly refers to the ``filter`` function in the
+``foo`` module.
+
+Normally, names in these roles are searched first without any further
+qualification, then with the current module name prepended, then with the
+current module and class name (if any) prepended.  If you prefix the name with a
+dot, this order is reversed.  For example, in the documentation of Python's
+:mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
+function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
+
+A similar heuristic is used to determine whether the name is an attribute of the
+currently documented class.
+
+
 The C Domain
 ------------
 
@@ -326,6 +413,29 @@ The C domain (name **c**) is suited for documentation of C API.
    as::
 
       .. c:var:: PyObject* PyClass_Type
+
+
+Cross-referencing C constructs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following roles create cross-references to C-language constructs if they are
+defined in the documentation:
+
+.. role:: c:data
+
+   Reference a C-language variable.
+
+.. role:: c:func
+
+   Reference a C-language function. Should include trailing parentheses.
+
+.. role:: c:macro
+
+   Reference a "simple" C macro, as defined above.
+
+.. role:: c:type
+
+   Reference a C-language type.
 
 
 The Standard Domain

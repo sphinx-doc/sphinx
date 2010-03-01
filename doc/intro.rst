@@ -56,5 +56,5 @@ or some (not broken) SVN trunk snapshot.
 Usage
 -----
 
-See :doc:`the tutorial <tutorial>` for an introduction.  It also contains links
-to more advanced sections in this manual for the topics it discusses.
+See :doc:`tutorial` for an introduction.  It also contains links to more
+advanced sections in this manual for the topics it discusses.
