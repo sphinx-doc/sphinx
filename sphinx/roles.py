@@ -116,7 +116,7 @@ class XRefRole(object):
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
         title = utils.unescape(title)
-        text = utils.unescape(text)
+        target = utils.unescape(target)
         # fix-up title and target
         if self.lowercase:
             target = target.lower()
