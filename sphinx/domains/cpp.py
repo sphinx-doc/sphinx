@@ -137,16 +137,28 @@ class ArgumentDefExpr(DefExpr):
                                           u'=%s' % self.default or u'')
 
 
+class TypedObjDefExpr(DefExpr):
+
+    def __init__(self, typename, name):
+        self.typename = typename
+        self.name = name
+
+    def __unicode__(self):
+        return u'%s %s' % (self.typename, name)
+
+
 class FunctionDefExpr(DefExpr):
 
-    def __init__(self, name, signature, const, pure_virtual):
+    def __init__(self, name, rv, signature, const, pure_virtual):
         self.name = name
+        self.rv = rv
         self.signature = signature
         self.const = const
         self.pure_virtual = pure_virtual
 
     def __unicode__(self):
-        return u'%s(%s)%s%s' % (
+        return u'%s%s(%s)%s%s' % (
+            self.rv is not None and self.rv + u' ' or u'',
             self.name,
             u', '.join(map(unicode, self.signature)),
             self.const and u' const' or u'',
@@ -412,19 +424,23 @@ class DefinitionParser(object):
             pure_virtual = False
         return args, const, pure_virtual
 
-    def parse_variable(self):
-        type = self._parse_type()
+    def parse_typed_object(self):
+        typename = self._parse_type()
         name = self._parse_type()
-        return type, name
+        # XXX: for constants it would be useful to be able to parse
+        # an assigned value here as well.
+        return TypedObjDefExpr(typename, name)
 
     def parse_function(self):
         rv = self._parse_type()
-        if isinstance(rv, CastOpDefExpr):
+        self.skip_ws()
+        # some things just don't have return values
+        if self.current_char == '(':
             name = rv
             rv = None
         else:
             name = self._parse_type()
-        return rv, FunctionDefExpr(name, *self._parse_signature())
+        return FunctionDefExpr(name, rv, *self._parse_signature())
 
     def parse_typename(self):
         return self._parse_type()
@@ -439,21 +455,32 @@ class DefinitionParser(object):
 class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
+    def attach_name(self, node, name):
+        owner, name = name.split_owner()
+        varname = unicode(name)
+        if owner is not None:
+            owner = unicode(owner) + '::'
+            node += addnodes.desc_addname(owner, owner)
+        node += addnodes.desc_name(varname, varname)
+
     def attach_type(self, node, type):
-        # XXX: link? how could we do that
-        if type is not None:
-            text = unicode(type)
-            pnode = addnodes.pending_xref(
-                '', refdomain='cpp', reftype='type',
-                reftarget=text, modname=None, classname=None)
-            pnode += nodes.Text(text)
-            node += pnode
+        # XXX: link to c?
+        text = unicode(type)
+        pnode = addnodes.pending_xref(
+            '', refdomain='cpp', reftype='type',
+            reftarget=text, modname=None, classname=None)
+        pnode += nodes.Text(text)
+        node += pnode
+
+    def make_id(self, name, sig):
+        return name
 
     def add_target_and_index(self, name, sig, signode):
         if name not in self.state.document.ids:
             # XXX: how to handle method overloading?
-            signode['names'].append(name)
-            signode['ids'].append(name)
+            theid = self.make_id(name, sig)
+            signode['names'].append(theid)
+            signode['ids'].append(theid)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
             self.env.domaindata['cpp']['objects'][name] = \
@@ -503,19 +530,11 @@ class CPPClassObject(CPPObject):
 
     def describe_signature(self, signode, typename):
         signode += addnodes.desc_annotation('class ', 'class ')
-        self.attach_type(signode, typename)
+        self.attach_name(signode, typename)
         return typename
 
 
 class CPPTypedObject(CPPObject):
-
-    def _attach_var(self, node, var):
-        owner, name = var.name.split_owner()
-        varname = unicode(name)
-        if owner is not None:
-            owner = unicode(owner) + '::'
-            node += addnodes.desc_addname(owner, owner)
-        node += addnodes.desc_name(varname, varname)
 
     def get_index_text(self, name):
         if self.objtype == 'member':
@@ -525,23 +544,25 @@ class CPPTypedObject(CPPObject):
         return ''
 
     def parse_definition(self, parser):
-        return parser.parse_variable()
+        return parser.parse_typed_object()
 
-    def describe_signature(self, signode, (rv, var)):
-        self.attach_type(signode, rv)
+    def describe_signature(self, signode, obj):
+        self.attach_type(signode, obj.typename)
         signode += nodes.Text(' ')
-        self._attach_var(signode, var)
-        return var.name
+        self.attach_name(signode, obj.name)
+        return obj.name
 
 
 class CPPFunctionObject(CPPTypedObject):
 
-    def _attach_function(self, node, func):
+    def attach_function(self, node, func):
         owner, name = func.name.split_owner()
         if owner is not None:
             owner = unicode(owner) + '::'
             node += addnodes.desc_addname(owner, owner)
 
+        # cast operator is special.  in this case the return value
+        # is reversed.
         if isinstance(name, CastOpDefExpr):
             node += addnodes.desc_name('operator', 'operator')
             node += nodes.Text(u' ')
@@ -568,16 +589,32 @@ class CPPFunctionObject(CPPTypedObject):
         if func.pure_virtual:
             node += addnodes.desc_addname(' = 0', ' = 0')
 
+    def make_id(self, name, sig):
+        # XXX: can we reuse somehow the parsed definition here?  ideally
+        # what we could do would be checking if a function is overloaded
+        # after we found everything and if it is, go over all parsed
+        # signatures and find a short code.
+        #
+        # eg:
+        #   ns::foo(int a, int b) --> ns::foo__i.i
+        #   ns::foo(char a, std::string b) --> ns::foo__c.std::string
+        #   ns::foo(char a, std::string b, int c) --> ns::foo__c.std::string.i
+        return name
+
     def get_index_text(self, name):
         return _('%s (C++ function)') % name
 
     def parse_definition(self, parser):
         return parser.parse_function()
 
-    def describe_signature(self, signode, (rv, func)):
-        self.attach_type(signode, rv)
+    def describe_signature(self, signode, func):
+        # return value is None for things with a reverse return value
+        # such as casting operator definitions or constructors
+        # and destructors.
+        if func.rv is not None:
+            self.attach_type(signode, func.rv)
         signode += nodes.Text(u' ')
-        self._attach_function(signode, func)
+        self.attach_function(signode, func)
         return func.name
 
 
