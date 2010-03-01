@@ -502,7 +502,7 @@ class CPPClassObject(CPPObject):
         return parser.parse_typename()
 
     def describe_signature(self, signode, typename):
-        signode += addnodes.desc_type('', '')
+        signode += addnodes.desc_annotation('class ', 'class ')
         self.attach_type(signode, typename)
         return typename
 
@@ -522,15 +522,12 @@ class CPPTypedObject(CPPObject):
             return _('%s (C++ member)') % name
         elif self.objtype == 'type':
             return _('%s (C++ type)') % name
-        elif self.objtype == 'var':
-            return _('%s (C++ variable)') % name
         return ''
 
     def parse_definition(self, parser):
         return parser.parse_variable()
 
     def describe_signature(self, signode, (rv, var)):
-        signode += addnodes.desc_type('', '')
         self.attach_type(signode, rv)
         signode += nodes.Text(' ')
         self._attach_var(signode, var)
@@ -578,7 +575,6 @@ class CPPFunctionObject(CPPTypedObject):
         return parser.parse_function()
 
     def describe_signature(self, signode, (rv, func)):
-        signode += addnodes.desc_type('', '')
         self.attach_type(signode, rv)
         signode += nodes.Text(u' ')
         self._attach_function(signode, func)
@@ -593,24 +589,20 @@ class CPPDomain(Domain):
         'class':    ObjType(l_('C++ class'),    'class'),
         'function': ObjType(l_('C++ function'), 'func'),
         'member':   ObjType(l_('C++ member'),   'member'),
-        'type':     ObjType(l_('C++ type'),     'type'),
-        'var':      ObjType(l_('C++ variable'), 'data'),
+        'type':     ObjType(l_('C++ type'),     'type')
     }
 
     directives = {
         'class':    CPPClassObject,
         'function': CPPFunctionObject,
         'member':   CPPTypedObject,
-        'type':     CPPTypedObject,
-        'var':      CPPTypedObject,
+        'type':     CPPTypedObject
     }
     roles = {
         'class':  XRefRole(),
         'func' :  XRefRole(fix_parens=True),
         'member': XRefRole(),
-        'macro':  XRefRole(),
-        'data':   XRefRole(),
-        'type':   XRefRole(),
+        'type':   XRefRole()
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
@@ -623,8 +615,8 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        # strip pointer asterisk
-        target = target.rstrip(' *')
+        # strip pointer and reference info
+        target = target.rstrip(' *&')
         if target not in self.data['objects']:
             return None
         obj = self.data['objects'][target]
