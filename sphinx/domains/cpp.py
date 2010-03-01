@@ -11,6 +11,7 @@
 
 import re
 import string
+from copy import deepcopy
 
 from docutils import nodes
 
@@ -99,7 +100,10 @@ class DefExpr(object):
     def __unicode__(self):
         raise NotImplementedError()
 
-    def to_id(self):
+    def clone(self):
+        return deepcopy(self)
+
+    def get_id(self):
         return u''
 
     def split_owner(self):
@@ -117,7 +121,7 @@ class NameDefExpr(DefExpr):
     def __init__(self, name):
         self.name = name
 
-    def to_id(self):
+    def get_id(self):
         name = _id_shortwords.get(self.name)
         if name is not None:
             return name
@@ -132,8 +136,8 @@ class PathDefExpr(DefExpr):
     def __init__(self, parts):
         self.path = parts
 
-    def to_id(self):
-        rv = u'::'.join(x.to_id() for x in self.path)
+    def get_id(self):
+        rv = u'::'.join(x.get_id() for x in self.path)
         return _id_shortwords.get(rv, rv)
 
     def split_owner(self):
@@ -151,10 +155,10 @@ class ModifierDefExpr(DefExpr):
         self.modifiers = modifiers
         self.typename = typename
 
-    def to_id(self):
+    def get_id(self):
         pieces = [_id_shortwords.get(unicode(x), unicode(x))
                   for x in self.modifiers]
-        pieces.append(self.typename.to_id())
+        pieces.append(self.typename.get_id())
         return u'-'.join(pieces)
 
     def __unicode__(self):
@@ -166,8 +170,8 @@ class PtrDefExpr(DefExpr):
     def __init__(self, typename):
         self.typename = typename
 
-    def to_id(self):
-        return self.typename.to_id() + u'P'
+    def get_id(self):
+        return self.typename.get_id() + u'P'
 
     def __unicode__(self):
         return u'%s*' % self.typename
@@ -178,8 +182,8 @@ class RefDefExpr(DefExpr):
     def __init__(self, typename):
         self.typename = typename
 
-    def to_id(self):
-        return self.typename.to_id() + u'R'
+    def get_id(self):
+        return self.typename.get_id() + u'R'
 
     def __unicode__(self):
         return u'%s&' % self.typename
@@ -191,8 +195,8 @@ class ConstDefExpr(DefExpr):
         self.typename = typename
         self.prefix = prefix
 
-    def to_id(self):
-        return self.typename.to_id() + u'C'
+    def get_id(self):
+        return self.typename.get_id() + u'C'
 
     def __unicode__(self):
         return (self.prefix and u'const %s' or u'%s const') % self.typename
@@ -203,8 +207,8 @@ class CastOpDefExpr(DefExpr):
     def __init__(self, typename):
         self.typename = typename
 
-    def to_id(self):
-        return u'to-%s-operator' % self.typename.to_id()
+    def get_id(self):
+        return u'castto-%s-operator' % self.typename.get_id()
 
     def __unicode__(self):
         return u'operator %s' % self.typename
@@ -216,9 +220,9 @@ class TemplateDefExpr(DefExpr):
         self.typename = typename
         self.args = args
 
-    def to_id(self):
-        return u'%s:%s:' % (self.typename.to_id(),
-                            u'.'.join(x.to_id() for x in self.args))
+    def get_id(self):
+        return u'%s:%s:' % (self.typename.get_id(),
+                            u'.'.join(x.get_id() for x in self.args))
 
     def __unicode__(self):
         return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
@@ -227,12 +231,12 @@ class TemplateDefExpr(DefExpr):
 class ArgumentDefExpr(DefExpr):
 
     def __init__(self, type, name, default=None):
-        self.type = type
         self.name = name
+        self.type = type
         self.default = default
 
-    def to_id(self):
-        return self.type.to_id()
+    def get_id(self):
+        return self.type.get_id()
 
     def __unicode__(self):
         return (self.type is not None and u'%s %s' % (self.type, self.name)
@@ -240,16 +244,35 @@ class ArgumentDefExpr(DefExpr):
                                           u'=%s' % self.default or u'')
 
 
-class TypeObjDefExpr(DefExpr):
+class PrefixedNameDefExpr(DefExpr):
 
-    def __init__(self, typename, name):
-        self.typename = typename
+    def __init__(self, prefix, name):
+        self.prefix = prefix
         self.name = name
 
-    def to_id(self):
+    def get_id(self):
+        return u'%s::%s' % (self.prefix.get_id(), self.name.get_id())
+
+    def __unicode__(self):
+        return u'%s::%s' % (self.prefix, self.name)
+
+
+class NamedDefExpr(DefExpr):
+
+    def __init__(self, name):
+        self.name = name
+
+
+class TypeObjDefExpr(NamedDefExpr):
+
+    def __init__(self, typename, name):
+        NamedDefExpr.__init__(self, name)
+        self.typename = typename
+
+    def get_id(self):
         if self.typename is None:
-            return self.name.to_id()
-        return u'%s__%s' % (self.name.to_id(), self.typename.to_id())
+            return self.name.get_id()
+        return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
 
     def __unicode__(self):
         if self.typename is None:
@@ -257,37 +280,37 @@ class TypeObjDefExpr(DefExpr):
         return u'%s %s' % (self.typename, self.name)
 
 
-class MemberObjDefExpr(DefExpr):
+class MemberObjDefExpr(NamedDefExpr):
 
     def __init__(self, typename, name, value):
+        NamedDefExpr.__init__(self, name)
         self.typename = typename
-        self.name = name
         self.value = value
 
-    def to_id(self):
-        return u'%s__%s' % (self.name.to_id(), self.typename.to_id())
+    def get_id(self):
+        return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
 
     def __unicode__(self):
         rv = u'%s %s' % (self.typename, self.name)
-        if value is not None:
+        if self.value is not None:
             rv = u'%s = %s' % (rv, self.value)
         return rv
 
 
-class FuncDefExpr(DefExpr):
+class FuncDefExpr(NamedDefExpr):
 
     def __init__(self, name, rv, signature, const, pure_virtual):
-        self.name = name
+        NamedDefExpr.__init__(self, name)
         self.rv = rv
         self.signature = signature
         self.const = const
         self.pure_virtual = pure_virtual
 
-    def to_id(self):
+    def get_id(self):
         return u'%s%s%s' % (
-            self.name.to_id(),
+            self.name.get_id(),
             self.signature and u'__' +
-                u'.'.join(x.to_id() for x in self.signature) or u'',
+                u'.'.join(x.get_id() for x in self.signature) or u'',
             self.const and u'C' or u''
         )
 
@@ -299,6 +322,18 @@ class FuncDefExpr(DefExpr):
             self.const and u' const' or u'',
             self.pure_virtual and ' = 0' or ''
         )
+
+
+class ClassDefExpr(NamedDefExpr):
+
+    def __init__(self, name):
+        NamedDefExpr.__init__(self, name)
+
+    def get_id(self):
+        return self.name.get_id()
+
+    def __unicode__(self):
+        return unicode(self.name)
 
 
 class DefinitionParser(object):
@@ -610,8 +645,8 @@ class DefinitionParser(object):
             name = self._parse_type()
         return FuncDefExpr(name, rv, *self._parse_signature())
 
-    def parse_typename(self):
-        return self._parse_type()
+    def parse_class(self):
+        return ClassDefExpr(self._parse_type())
 
     def read_rest(self):
         rv = self.definition[self.pos:]
@@ -645,8 +680,9 @@ class CPPObject(ObjectDescription):
         pnode += nodes.Text(text)
         node += pnode
 
-    def add_target_and_index(self, (name, sigobj), sig, signode):
-        theid = sigobj.to_id()
+    def add_target_and_index(self, sigobj, sig, signode):
+        theid = sigobj.get_id()
+        name = unicode(sigobj.name)
         signode['names'].append(theid)
         signode['ids'].append(theid)
         signode['first'] = (not self.names)
@@ -659,9 +695,10 @@ class CPPObject(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext, name, name))
 
     def before_content(self):
-        lastname = self.names and self.names[-1][0]
+        lastname = self.names and self.names[-1]
         if lastname and not self.env.temp_data.get('cpp:parent'):
-            self.env.temp_data['cpp:parent'] = lastname
+            assert isinstance(lastname, NamedDefExpr)
+            self.env.temp_data['cpp:parent'] = lastname.name
             self.parentname_set = True
         else:
             self.parentname_set = False
@@ -680,12 +717,13 @@ class CPPObject(ObjectDescription):
         parser = DefinitionParser(sig)
         rv = self.parse_definition(parser)
         parser.assert_end()
-        name = self.describe_signature(signode, rv)
+        self.describe_signature(signode, rv)
 
         parentname = self.env.temp_data.get('cpp:parent')
-        if parentname:
-            return u'%s::%s' % (parentname, name), rv
-        return unicode(name), rv
+        if parentname is not None:
+            rv = rv.clone()
+            rv.name = PrefixedNameDefExpr(parentname, rv.name)
+        return rv
 
 
 class CPPClassObject(CPPObject):
@@ -694,12 +732,11 @@ class CPPClassObject(CPPObject):
         return _('%s (C++ class)') % name
 
     def parse_definition(self, parser):
-        return parser.parse_typename()
+        return parser.parse_class()
 
-    def describe_signature(self, signode, typename):
+    def describe_signature(self, signode, cls):
         signode += addnodes.desc_annotation('class ', 'class ')
-        self.attach_name(signode, typename)
-        return typename
+        self.attach_name(signode, cls.name)
 
 
 class CPPTypeObject(CPPObject):
@@ -718,7 +755,6 @@ class CPPTypeObject(CPPObject):
             self.attach_type(signode, obj.typename)
             signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
-        return obj.name
 
 
 class CPPMemberObject(CPPObject):
@@ -737,7 +773,6 @@ class CPPMemberObject(CPPObject):
         self.attach_name(signode, obj.name)
         if obj.value is not None:
             signode += nodes.Text(u' = ' + obj.value)
-        return obj.name
 
 
 class CPPFunctionObject(CPPObject):
@@ -790,7 +825,6 @@ class CPPFunctionObject(CPPObject):
             self.attach_type(signode, func.rv)
         signode += nodes.Text(u' ')
         self.attach_function(signode, func)
-        return func.name
 
 
 class CPPDomain(Domain):
