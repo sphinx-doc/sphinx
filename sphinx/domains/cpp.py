@@ -614,6 +614,9 @@ class DefinitionParser(object):
             pure_virtual = False
         return args, const, pure_virtual
 
+    def parse_type(self):
+        return self._parse_type()
+
     def parse_type_object(self):
         typename = self._parse_type()
         self.skip_ws()
@@ -861,8 +864,12 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        # strip pointer and reference info
-        target = target.rstrip(' *&')
+        parser = DefinitionParser(target)
+        expr = parser.parse_type()
+        parser.skip_ws()
+        if not parser.eof:
+            return None
+        target = unicode(expr)
         if target not in self.data['objects']:
             return None
         obj = self.data['objects'][target]
