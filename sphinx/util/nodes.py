@@ -17,7 +17,8 @@ from docutils import nodes
 from sphinx import addnodes
 
 
-explicit_title_re = re.compile('^(.+?)\s*<(.*?)>$', re.DOTALL)
+# \x00 means the "<" was backslash-escaped
+explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 

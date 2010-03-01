@@ -105,9 +105,9 @@ class XRefRole(object):
         else:
             domain, role = typ.split(':', 1)
             classes = ['xref', domain, '%s-%s' % (domain, role)]
-        text = utils.unescape(text)
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
+            text = utils.unescape(text)
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text[1:], "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
@@ -115,6 +115,8 @@ class XRefRole(object):
                                      is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
+        title = utils.unescape(title)
+        text = utils.unescape(text)
         # fix-up title and target
         if self.lowercase:
             target = target.lower()
