@@ -357,7 +357,7 @@ class MemberObjDefExpr(NamedDefExpr):
         buf = self.get_modifiers()
         buf.append(u'%s %s' % (self.typename, self.name))
         if self.value is not None:
-            buf.append(u'%s = %s' % (rv, self.value))
+            buf.append(u'= %s' % self.value)
         return u' '.join(buf)
 
 
@@ -971,7 +971,7 @@ class CPPXRefRole(XRefRole):
                 title = title[1:]
                 dcolon = title.rfind('::')
                 if dcolon != -1:
-                    title = title[dot + 2:]
+                    title = title[dcolon + 2:]
         return title, target
 
 
