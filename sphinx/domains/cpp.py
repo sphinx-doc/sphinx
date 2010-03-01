@@ -223,7 +223,7 @@ class WrappingDefExpr(DefExpr):
         self.typename = typename
 
     def get_name(self):
-        return self.typename
+        return self.typename.get_name()
 
 
 class ModifierDefExpr(WrappingDefExpr):
@@ -293,7 +293,7 @@ class ArgumentDefExpr(DefExpr):
         self.default = default
 
     def get_name(self):
-        return self.name
+        return self.name.get_name()
 
     def get_id(self):
         return self.type.get_id()
@@ -312,7 +312,7 @@ class NamedDefExpr(DefExpr):
         self.static = static
 
     def get_name(self):
-        return self.name
+        return self.name.get_name()
 
     def get_modifiers(self):
         rv = []
@@ -763,6 +763,7 @@ class CPPObject(ObjectDescription):
         pnode = addnodes.pending_xref(
             '', refdomain='cpp', reftype='type',
             reftarget=text, modname=None, classname=None)
+        pnode['cpp:parent'] = self.env.temp_data.get('cpp:parent')
         pnode += nodes.Text(text)
         node += pnode
 
@@ -1011,14 +1012,14 @@ class CPPDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         def _create_refnode(expr):
-            target = unicode(expr)
-            if target not in self.data['objects']:
+            name = unicode(expr)
+            if name not in self.data['objects']:
                 return None
-            obj = self.data['objects'][target]
+            obj = self.data['objects'][name]
             if obj[1] != typ:
                 return None
-            return make_refnode(builder, fromdocname, obj[0], target,
-                                contnode, target)
+            return make_refnode(builder, fromdocname, obj[0], expr.get_id(),
+                                contnode, name)
 
         parser = DefinitionParser(target)
         # XXX: warn?
@@ -1030,7 +1031,7 @@ class CPPDomain(Domain):
         except DefinitionError:
             return None
 
-        parent = node.get('cpp:parent')
+        parent = node['cpp:parent']
 
         rv = _create_refnode(expr)
         if rv is not None or parent is None:
