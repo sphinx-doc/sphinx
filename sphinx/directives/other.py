@@ -127,6 +127,8 @@ class Author(Directive):
             text = _('Section author: ')
         elif self.name == 'moduleauthor':
             text = _('Module author: ')
+        elif self.name == 'codeauthor':
+            text = _('Code author: ')
         else:
             text = _('Author: ')
         emph += nodes.Text(text, text)
@@ -368,6 +370,7 @@ class Only(Directive):
 directives.register_directive('toctree', TocTree)
 directives.register_directive('sectionauthor', Author)
 directives.register_directive('moduleauthor', Author)
+directives.register_directive('codeauthor', Author)
 directives.register_directive('index', Index)
 directives.register_directive('deprecated', VersionChange)
 directives.register_directive('versionadded', VersionChange)

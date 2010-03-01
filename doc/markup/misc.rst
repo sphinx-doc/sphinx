@@ -39,7 +39,7 @@ At the moment, these metadata fields are recognized:
 Meta-information markup
 -----------------------
 
-.. directive:: sectionauthor
+.. directive:: .. sectionauthor:: name <email>
 
    Identifies the author of the current section.  The argument should include
    the author's name such that it can be used for presentation and email
@@ -52,6 +52,14 @@ Meta-information markup
    keep track of contributions), but you can set the configuration value
    :confval:`show_authors` to True to make them produce a paragraph in the
    output.
+
+
+.. directive:: .. codeauthor:: name <email>
+
+   The :dir:`codeauthor` directive, which can appear multiple times, names the
+   authors of the described code, just like :dir:`sectionauthor` names the
+   author(s) of a piece of documentation.  It too only produces output if the
+   :confval:`show_authors` configuration value is True.
 
 
 .. _tags:

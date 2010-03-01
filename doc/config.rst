@@ -182,6 +182,15 @@ General configuration
 
    .. versionadded:: 0.6
 
+.. confval:: default_domain
+
+   .. index:: default; domain
+
+   The name of the default :ref:`domain <domains>`.  Can also be ``None`` to
+   disable a default domain.  The default is ``'py'``.
+
+   .. versionadded:: 1.0
+
 .. confval:: default_role
 
    .. index:: default; role

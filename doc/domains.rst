@@ -1,6 +1,404 @@
+.. highlight:: rst
+
 .. _domains:
 
 Sphinx Domains
 ==============
 
-.. todo:: Write this section.
+.. versionadded:: 1.0
+
+What is a Domain?
+-----------------
+
+Originally, Sphinx was conceived for a single project, the documentation of the
+Python language.  Shortly afterwards, it was made available for everyone as a
+documentation tool, but the documentation of Python modules remained deeply
+built in -- the most fundamental directives, like ``function``, were designed
+for Python objects.  Since Sphinx has become somewhat popular, interest
+developed in using it for many different purposes: C/C++ projects, JavaScript,
+or even reStructuredText markup (like in this documentation).
+
+While this was always possible, it is now much easier to easily support
+documentation of projects using different programming languages or even ones not
+supported by the main Sphinx distribution, by providing a **domain** for every
+such purpose.
+
+A domain is a collection of markup (reStructuredText :term:`directive`\ s and
+:term:`role`\ s) to describe and link to :term:`object`\ s belonging together,
+e.g. elements of a programming language.  Directive and role names in a domain
+have names like ``domain:name``, e.g. ``py:function``.  Domains can also provide
+custom indices (like the Python Module Index).
+
+Having domains means that there are no naming problems when one set of
+documentation wants to refer to e.g. C++ and Python classes.  It also means that
+extensions that support the documentation of whole new languages are much easier
+to write.
+
+This section describes what the domains that come with Sphinx provide.  The
+domain API is documented as well, in the section :ref:`domain-api`.
+
+
+.. _basic-domain-markup:
+
+Basic Markup
+------------
+
+Most domains provide a number of :dfn:`object description directives`, used to
+describe specific objects provided by modules.  Each directive requires one or
+more signatures to provide basic information about what is being described, and
+the content should be the description.  The basic version makes entries in the
+general index; if no index entry is desired, you can give the directive option
+flag ``:noindex:``.  An example using a Python domain directive::
+
+   .. py:function:: spam(eggs)
+                    ham(eggs)
+      :noindex:
+
+      Spam or ham the foo.
+
+The domains also provide roles that link back to these object descriptions.  For
+example, to link to one of the functions described in the example above, you
+could say ::
+
+   The function :py:func:`spam` does a similar thing.
+
+As you can see, both directive and role names contain the domain name and the
+directive name.
+
+.. rubric:: Default Domain
+
+To avoid having to writing the domain name all the time when you e.g. only
+describe Python objects, a default domain can be selected with either the config
+value :confval:`default_domain` or this directive:
+
+.. directive:: .. default-domain:: name
+
+   Select a new default domain.  While the :confval:`default_domain` selects a
+   global default, this only has an effect within the same file.
+
+If no other default is selected, the Python domain (named ``py``) is the default
+one, mostly for compatibility with documentation written for older versions of
+Sphinx.
+
+Directives and roles that belong to the default domain can be mentioned without
+giving the domain name, i.e. ::
+
+   .. function:: pyfunc()
+
+      Describes a Python function.
+
+   Reference to :func:`pyfunc`.
+
+
+The Python Domain
+-----------------
+
+The Python domain (name **py**) provides the following directives for module
+declarations:
+
+.. directive:: .. py:module:: name
+
+   This directive marks the beginning of the description of a module (or package
+   submodule, in which case the name should be fully qualified, including the
+   package name).  It does not create content (like e.g. :dir:`py:class` does).
+
+   This directive will also cause an entry in the global module index.
+
+   The ``platform`` option, if present, is a comma-separated list of the
+   platforms on which the module is available (if it is available on all
+   platforms, the option should be omitted).  The keys are short identifiers;
+   examples that are in use include "IRIX", "Mac", "Windows", and "Unix".  It is
+   important to use a key which has already been used when applicable.
+
+   The ``synopsis`` option should consist of one sentence describing the
+   module's purpose -- it is currently only used in the Global Module Index.
+
+   The ``deprecated`` option can be given (with no value) to mark a module as
+   deprecated; it will be designated as such in various locations then.
+
+
+.. directive:: .. py:currentmodule:: name
+
+   This directive tells Sphinx that the classes, functions etc. documented from
+   here are in the given module (like :dir:`py:module`), but it will not create
+   index entries, an entry in the Global Module Index, or a link target for
+   :role:`mod`.  This is helpful in situations where documentation for things in
+   a module is spread over multiple files or sections -- one location has the
+   :dir:`py:module` directive, the others only :dir:`py:currentmodule`.
+
+
+The following directives are provided for module and class contents:
+
+.. directive:: .. py:data:: name
+
+   Describes global data in a module, including both variables and values used
+   as "defined constants."  Class and object attributes are not documented
+   using this environment.
+
+.. directive:: .. py:exception:: name
+
+   Describes an exception class.  The signature can, but need not include
+   parentheses with constructor arguments.
+
+.. directive:: .. py:function:: name(signature)
+
+   Describes a module-level function.  The signature should include the
+   parameters, enclosing optional parameters in brackets.  Default values can be
+   given if it enhances clarity; see :ref:`signatures`.  For example::
+
+      .. py:function:: Timer.repeat([repeat=3[, number=1000000]])
+
+   Object methods are not documented using this directive. Bound object methods
+   placed in the module namespace as part of the public interface of the module
+   are documented using this, as they are equivalent to normal functions for
+   most purposes.
+
+   The description should include information about the parameters required and
+   how they are used (especially whether mutable objects passed as parameters
+   are modified), side effects, and possible exceptions.  A small example may be
+   provided.
+
+.. directive:: .. py:class:: name[(signature)]
+
+   Describes a class.  The signature can include parentheses with parameters
+   which will be shown as the constructor arguments.  See also
+   :ref:`signatures`.
+
+   Methods and attributes belonging to the class should be placed in this
+   directive's body.  If they are placed outside, the supplied name should
+   contain the class name so that cross-references still work.  Example::
+
+      .. py:class:: Foo
+         .. py:method:: quux()
+
+      -- or --
+
+      .. py:class:: Bar
+
+      .. py:method:: Bar.quux()
+
+   The first way is the preferred one.
+
+.. directive:: .. py:attribute:: name
+
+   Describes an object data attribute.  The description should include
+   information about the type of the data to be expected and whether it may be
+   changed directly.
+
+.. directive:: .. py:method:: name(signature)
+
+   Describes an object method.  The parameters should not include the ``self``
+   parameter.  The description should include similar information to that
+   described for ``function``.  See also :ref:`signatures`.
+
+.. directive:: .. py:staticmethod:: name(signature)
+
+   Like :dir:`py:method`, but indicates that the method is a static method.
+
+   .. versionadded:: 0.4
+
+.. directive:: .. py:classmethod:: name(signature)
+
+   Like :dir:`py:method`, but indicates that the method is a class method.
+
+   .. versionadded:: 0.6
+
+
+.. _signatures:
+
+Python Signatures
+~~~~~~~~~~~~~~~~~
+
+Signatures of functions, methods and class constructors can be given like they
+would be written in Python, with the exception that optional parameters can be
+indicated by brackets::
+
+   .. py:function:: compile(source[, filename[, symbol]])
+
+It is customary to put the opening bracket before the comma.  In addition to
+this "nested" bracket style, a "flat" style can also be used, due to the fact
+that most optional parameters can be given independently::
+
+   .. py:function:: compile(source[, filename, symbol])
+
+Default values for optional arguments can be given (but if they contain commas,
+they will confuse the signature parser).  Python 3-style argument annotations
+can also be given as well as return type annotations::
+
+   .. py:function:: compile(source : string[, filename, symbol]) -> ast object
+
+
+Info field lists
+~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.4
+
+Inside Python object description directives, reST field lists with these fields
+are recognized and formatted nicely:
+
+* ``param``, ``parameter``, ``arg``, ``argument``, ``key``, ``keyword``:
+  Description of a parameter.
+* ``type``: Type of a parameter.
+* ``raises``, ``raise``, ``except``, ``exception``: That (and when) a specific
+  exception is raised.
+* ``var``, ``ivar``, ``cvar``: Description of a variable.
+* ``returns``, ``return``: Description of the return value.
+* ``rtype``: Return type.
+
+The field names must consist of one of these keywords and an argument (except
+for ``returns`` and ``rtype``, which do not need an argument).  This is best
+explained by an example::
+
+   .. py:function:: format_exception(etype, value, tb[, limit=None])
+
+      Format the exception with a traceback.
+
+      :param etype: exception type
+      :param value: exception value
+      :param tb: traceback object
+      :param limit: maximum number of stack frames to show
+      :type limit: integer or None
+      :rtype: list of strings
+
+It is also possible to combine parameter type and description, if the type is a
+single word, like this::
+
+   :param integer limit: maximum number of stack frames to show
+
+This will render like this:
+
+   .. py:function:: format_exception(etype, value, tb[, limit=None])
+      :noindex:
+
+      Format the exception with a traceback.
+
+      :param etype: exception type
+      :param value: exception value
+      :param tb: traceback object
+      :param limit: maximum number of stack frames to show
+      :type limit: integer or None
+      :rtype: list of strings
+
+
+The C Domain
+------------
+
+The C domain (name **c**) is suited for documentation of C API.
+
+.. directive:: .. c:function:: type name(signature)
+
+   Describes a C function. The signature should be given as in C, e.g.::
+
+      .. c:function:: PyObject* PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
+
+   This is also used to describe function-like preprocessor macros.  The names
+   of the arguments should be given so they may be used in the description.
+
+   Note that you don't have to backslash-escape asterisks in the signature, as
+   it is not parsed by the reST inliner.
+
+.. directive:: .. c:member:: type name
+
+   Describes a C struct member. Example signature::
+
+      .. c:member:: PyObject* PyTypeObject.tp_bases
+
+   The text of the description should include the range of values allowed, how
+   the value should be interpreted, and whether the value can be changed.
+   References to structure members in text should use the ``member`` role.
+
+.. directive:: .. c:macro:: name
+
+   Describes a "simple" C macro.  Simple macros are macros which are used for
+   code expansion, but which do not take arguments so cannot be described as
+   functions.  This is not to be used for simple constant definitions.  Examples
+   of its use in the Python documentation include :c:macro:`PyObject_HEAD` and
+   :c:macro:`Py_BEGIN_ALLOW_THREADS`.
+
+.. directive:: .. c:type:: name
+
+   Describes a C type (whether defined by a typedef or struct). The signature
+   should just be the type name.
+
+.. directive:: .. c:var:: type name
+
+   Describes a global C variable.  The signature should include the type, such
+   as::
+
+      .. c:var:: PyObject* PyClass_Type
+
+
+The Standard Domain
+-------------------
+
+The so-called "standard" domain collects all markup that doesn't warrant a
+domain of its own.  Its directives and roles are not prefixed with a domain
+name.
+
+The standard domain is also where custom object descriptions, added using the
+:func:`~sphinx.application.Sphinx.add_object_type` API, are placed.
+
+There is a set of directives allowing documenting command-line programs:
+
+.. directive:: .. option:: name args, name args, ...
+
+   Describes a command line option or switch.  Option argument names should be
+   enclosed in angle brackets.  Example::
+
+      .. option:: -m <module>, --module <module>
+
+         Run a module as a script.
+
+   The directive will create a cross-reference target named after the *first*
+   option, referencable by :role:`option` (in the example case, you'd use
+   something like ``:option:`-m```).
+
+.. directive:: .. envvar:: name
+
+   Describes an environment variable that the documented code or program uses or
+   defines.  Referencable by :role:`envvar`.
+
+.. directive:: .. program:: name
+
+   Like :dir:`py:currentmodule`, this directive produces no output.  Instead, it
+   serves to notify Sphinx that all following :dir:`option` directives
+   document options for the program called *name*.
+
+   If you use :dir:`program`, you have to qualify the references in your
+   :role:`option` roles by the program name, so if you have the following
+   situation ::
+
+      .. program:: rm
+
+      .. option:: -r
+
+         Work recursively.
+
+      .. program:: svn
+
+      .. option:: -r revision
+
+         Specify the revision to work upon.
+
+   then ``:option:`rm -r``` would refer to the first option, while
+   ``:option:`svn -r``` would refer to the second one.
+
+   The program name may contain spaces (in case you want to document subcommands
+   like ``svn add`` and ``svn commit`` separately).
+
+   .. versionadded:: 0.5
+
+
+There is also a very generic object description directive, which is not tied to
+any domain:
+
+.. directive:: .. describe:: text
+               .. object:: text
+
+   This directive produces the same formatting as the specific ones provided by
+   domains, but does not create index entries or cross-referencing targets.
+   Example::
+
+      .. describe:: PAPER
+
+         You can set this variable to select a paper size.

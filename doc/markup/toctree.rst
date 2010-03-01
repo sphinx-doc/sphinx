@@ -147,7 +147,8 @@ The special document names (and pages generated for them) are:
   page, respectively.
 
   The general index is populated with entries from modules, all index-generating
-  :ref:`object descriptions <desc-units>`, and from :dir:`index` directives.
+  :ref:`object descriptions <basic-domain-markup>`, and from :dir:`index`
+  directives.
 
   The module index contains one entry per :dir:`module` directive.
 

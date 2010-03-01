@@ -67,7 +67,7 @@ man_pages = [
 
 from sphinx import addnodes
 
-dir_sig_re = re.compile(r'\.\. ([^:]+)::(.*)$')
+dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 def parse_directive(env, sig, signode):
     if not sig.startswith('.'):

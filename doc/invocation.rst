@@ -14,7 +14,7 @@ you don't need to specify any *filenames*.
 
 The :program:`sphinx-build` script has several options:
 
-.. cmdoption:: -b buildername
+.. option:: -b buildername
 
    The most important option: it selects a builder.  The most common builders
    are:
@@ -53,26 +53,26 @@ The :program:`sphinx-build` script has several options:
    See :ref:`builders` for a list of all builders shipped with Sphinx.
    Extensions can add their own builders.
 
-.. cmdoption:: -a
+.. option:: -a
 
    If given, always write all output files.  The default is to only write output
    files for new and changed source files.  (This may not apply to all
    builders.)
 
-.. cmdoption:: -E
+.. option:: -E
 
    Don't use a saved :term:`environment` (the structure caching all
    cross-references), but rebuild it completely.  The default is to only read
    and parse source files that are new or have changed since the last run.
 
-.. cmdoption:: -t tag
+.. option:: -t tag
 
    Define the tag *tag*.  This is relevant for :dir:`only` directives that only
    include their content if this tag is set.
 
    .. versionadded:: 0.6
 
-.. cmdoption:: -d path
+.. option:: -d path
 
    Since Sphinx has to read and parse all source files before it can write an
    output file, the parsed source files are cached as "doctree pickles".
@@ -80,7 +80,7 @@ The :program:`sphinx-build` script has several options:
    the build directory; with this option you can select a different cache
    directory (the doctrees can be shared between all builders).
 
-.. cmdoption:: -c path
+.. option:: -c path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given
    configuration directory instead.  Note that various other files and paths
@@ -90,13 +90,13 @@ The :program:`sphinx-build` script has several options:
 
    .. versionadded:: 0.3
 
-.. cmdoption:: -C
+.. option:: -C
 
    Don't look for a configuration file; only take options via the ``-D`` option.
 
    .. versionadded:: 0.5
 
-.. cmdoption:: -D setting=value
+.. option:: -D setting=value
 
    Override a configuration value set in the :file:`conf.py` file.  The value
    must be a string or dictionary value.  For the latter, supply the setting
@@ -106,42 +106,42 @@ The :program:`sphinx-build` script has several options:
    .. versionchanged:: 0.6
       The value can now be a dictionary value.
 
-.. cmdoption:: -A name=value
+.. option:: -A name=value
 
    Make the *name* assigned to *value* in the HTML templates.
 
    .. versionadded:: 0.5
 
-.. cmdoption:: -n
+.. option:: -n
 
    Run in nit-picky mode.  Currently, this generates warnings for all missing
    references.
 
-.. cmdoption:: -N
+.. option:: -N
 
    Do not emit colored output.  (On Windows, colored output is disabled in any
    case.)
 
-.. cmdoption:: -q
+.. option:: -q
 
    Do not output anything on standard output, only write warnings and errors to
    standard error.
 
-.. cmdoption:: -Q
+.. option:: -Q
 
    Do not output anything on standard output, also suppress warnings.  Only
    errors are written to standard error.
 
-.. cmdoption:: -w file
+.. option:: -w file
 
    Write warnings (and errors) to the given file, in addition to standard error.
 
-.. cmdoption:: -W
+.. option:: -W
 
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.
 
-.. cmdoption:: -P
+.. option:: -P
 
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an
    unhandled exception occurs while building.

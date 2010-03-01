@@ -330,7 +330,8 @@ class StandardDomain(Domain):
 
     directives = {
         'program': Program,
-        'cmdoption': Cmdoption,
+        'cmdoption': Cmdoption,  # old name for backwards compatibility
+        'option': Cmdoption,
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,

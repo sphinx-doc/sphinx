@@ -113,11 +113,13 @@ Documenting objects
 -------------------
 
 
+
+
 Topics to be covered
 --------------------
 
 - Autodoc
-- Domains
+- Other Domains
 - Basic configuration
 - Static files
 - Selecting a theme
