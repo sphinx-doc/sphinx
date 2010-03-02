@@ -33,63 +33,72 @@ _visibility_re = re.compile(r'\b(public|private|protected)\b')
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
-    |   [!<>=/*%+-|&^]=?
+    |   [!<>=/*%+|&^-]=?
     |   \+\+ | --
-    |   <<=? | >>=? | ~ | && | \| | \|\|
+    |   (<<|>>)=? | ~ | && | \| | \|\|
+    |   ->\*? | \,
 ''')
 
 _id_shortwords = {
-    'char':             'c',
-    'signed char':      'c',
-    'unsigned char':    'C',
-    'int':              'i',
-    'signed int':       'i',
-    'unsigned int':     'U',
-    'long':             'l',
-    'signed long':      'l',
-    'unsigned long':    'L',
-    'bool':             'b',
-    'size_t':           's',
-    'std::string':      'ss',
-    'std::ostream':     'os',
-    'std::istream':     'is',
-    'std::iostream':    'ios',
-    'std::vector':      'v',
-    'std::map':         'm',
-    'operator[]':       'subscript-operator',
-    'operator()':       'call-operator',
-    'operator!':        'not-operator',
-    'operator<':        'lt-operator',
-    'operator<=':       'lte-operator',
-    'operator>':        'gt-operator',
-    'operator>=':       'gte-operator',
-    'operator=':        'assign-operator',
-    'operator/':        'div-operator',
-    'operator*':        'mul-operator',
-    'operator%':        'mod-operator',
-    'operator+':        'add-operator',
-    'operator-':        'sub-operator',
-    'operator|':        'or-operator',
-    'operator&':        'and-operator',
-    'operator^':        'xor-operator',
-    'operator&&':       'sand-operator',
-    'operator||':       'sor-operator',
-    'operator==':       'eq-operator',
-    'operator!=':       'neq-operator',
-    'operator<<':       'lshift-operator',
-    'operator>>':       'rshift-operator',
-    'operator-=':       'sub-assign-operator',
-    'operator+=':       'add-assign-operator',
-    'operator*-':       'mul-assign-operator',
-    'operator/=':       'div-assign-operator',
-    'operator%=':       'mod-assign-operator',
-    'operator&=':       'and-assign-operator',
-    'operator|=':       'or-assign-operator',
-    'operator<<=':      'lshift-assign-operator',
-    'operator>>=':      'rshift-assign-operator',
-    'operator~':        'inv-operator',
-    'operator++':       'inc-operator',
-    'operator--':       'dec-operator'
+    'char':                 'c',
+    'signed char':          'c',
+    'unsigned char':        'C',
+    'int':                  'i',
+    'signed int':           'i',
+    'unsigned int':         'U',
+    'long':                 'l',
+    'signed long':          'l',
+    'unsigned long':        'L',
+    'bool':                 'b',
+    'size_t':               's',
+    'std::string':          'ss',
+    'std::ostream':         'os',
+    'std::istream':         'is',
+    'std::iostream':        'ios',
+    'std::vector':          'v',
+    'std::map':             'm',
+    'operator[]':           'subscript-operator',
+    'operator()':           'call-operator',
+    'operator!':            'not-operator',
+    'operator<':            'lt-operator',
+    'operator<=':           'lte-operator',
+    'operator>':            'gt-operator',
+    'operator>=':           'gte-operator',
+    'operator=':            'assign-operator',
+    'operator/':            'div-operator',
+    'operator*':            'mul-operator',
+    'operator%':            'mod-operator',
+    'operator+':            'add-operator',
+    'operator-':            'sub-operator',
+    'operator|':            'or-operator',
+    'operator&':            'and-operator',
+    'operator^':            'xor-operator',
+    'operator&&':           'sand-operator',
+    'operator||':           'sor-operator',
+    'operator==':           'eq-operator',
+    'operator!=':           'neq-operator',
+    'operator<<':           'lshift-operator',
+    'operator>>':           'rshift-operator',
+    'operator-=':           'sub-assign-operator',
+    'operator+=':           'add-assign-operator',
+    'operator*-':           'mul-assign-operator',
+    'operator/=':           'div-assign-operator',
+    'operator%=':           'mod-assign-operator',
+    'operator&=':           'and-assign-operator',
+    'operator|=':           'or-assign-operator',
+    'operator<<=':          'lshift-assign-operator',
+    'operator>>=':          'rshift-assign-operator',
+    'operator^=':           'xor-assign-operator',
+    'operator,':            'comma-operator',
+    'operator->':           'pointer-operator',
+    'operator->*':          'pointer-by-pointer-operator',
+    'operator~':            'inv-operator',
+    'operator++':           'inc-operator',
+    'operator--':           'dec-operator',
+    'operator new':         'new-operator',
+    'operator new[]':       'new-array-operator',
+    'operator delete':      'delete-operator',
+    'operator delete[]':    'delete-array-operator'
 }
 
 
@@ -491,10 +500,23 @@ class DefinitionParser(object):
             return self.last_match.group()
 
     def _parse_operator(self):
+        self.skip_ws()
         # thank god, a regular operator definition
         if self.match(_operator_re):
             return NameDefExpr('operator' +
                                 _whitespace_re.sub('', self.matched_text))
+
+        # new/delete operator?
+        for allocop in 'new', 'delete':
+            if not self.skip_word(allocop):
+                continue
+            self.skip_ws()
+            if self.skip_string('['):
+                self.skip_ws()
+                if not self.skip_string(']'):
+                    self.fail('expected "]" for ' + allocop)
+                allocop += '[]'
+            return NameDefExpr('operator ' + allocop)
 
         # oh well, looks like a cast operator definition.
         # In that case, eat another type.

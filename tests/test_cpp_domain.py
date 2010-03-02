@@ -19,7 +19,6 @@ def parse(name, string):
 
 
 def test_type_definitions():
-    """Tests the type definition parsing"""
     rv = parse('member_object', '  const  std::string  &  name = 42')
     assert unicode(rv) == 'const std::string& name = 42'
 
@@ -40,3 +39,8 @@ def test_type_definitions():
     assert unicode(parse('type_object', x)) == x
 
     assert unicode(parse('type_object', 'long long int foo')) == 'long long foo'
+
+
+def test_operators():
+    x = parse('function', 'void operator new [  ] ()')
+    assert unicode(x) == 'void operator new[]()'
