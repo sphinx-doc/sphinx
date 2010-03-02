@@ -110,6 +110,20 @@ class DefExpr(object):
     def __unicode__(self):
         raise NotImplementedError()
 
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        try:
+            for key, value in self.__dict__.iteritems():
+                if value != getattr(other, value):
+                    return False
+        except AttributeError:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def clone(self):
         """Close a definition expression node"""
         return deepcopy(self)
