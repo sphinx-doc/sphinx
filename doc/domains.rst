@@ -438,6 +438,40 @@ defined in the documentation:
    Reference a C-language type.
 
 
+The C++ Domain
+--------------
+
+The C++ domain (name **cpp**) supports documenting C++ projects.
+
+The following directives are available:
+
+.. directive:: .. cpp:class:: signatures
+               .. cpp:function:: signatures
+               .. cpp:member:: signatures
+               .. cpp:type:: signatures
+
+   Describe a C++ object.  Full signature specification is supported -- give the
+   signature as you would in the declaration.  Example::
+
+      .. cpp:function:: const int IntArray::operator[]
+
+         Describes the indexing operator of IntArrays.
+
+.. directive:: .. cpp:namespace:: namespace
+
+   Select the current C++ namespace for the following objects.
+
+These roles link to the given object types:
+
+.. role:: cpp:class
+          cpp:func
+          cpp:member
+          cpp:type
+
+   Reference a C++ object.  You can give the full signature (and need to, for
+   overloaded functions.)
+
+
 The Standard Domain
 -------------------
 
