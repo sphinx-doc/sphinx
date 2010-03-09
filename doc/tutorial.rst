@@ -27,8 +27,8 @@ configuration values from a few questions it asks you.  Just run ::
 and answer its questions.  (Be sure to say yes to the "autodoc" extension.)
 
 
-Adding some content
--------------------
+Defining document structure
+---------------------------
 
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
 directory with :file:`conf.py` and a master document, :file:`index.rst` (if you
@@ -77,11 +77,27 @@ leave off the file name extension and use slashes as directory separators.
 
 |more| Read more about :ref:`the toctree directive <toctree-directive>`.
 
-You can now create the files you listed in the toctree, and their section titles
-will be inserted (up to the "maxdepth" level) at the place where the toctree
-directive is placed.  Also, Sphinx now knows about the order and hierarchy of
-your documents.  (They may contain ``toctree`` directives themselves, which
-means you can create deeply nested hierarchies if necessary.)
+You can now create the files you listed in the toctree and add content, and
+their section titles will be inserted (up to the "maxdepth" level) at the place
+where the toctree directive is placed.  Also, Sphinx now knows about the order
+and hierarchy of your documents.  (They may contain ``toctree`` directives
+themselves, which means you can create deeply nested hierarchies if necessary.)
+
+
+Adding content
+--------------
+
+In Sphinx source files, you can use most features of standard reStructuredText.
+There are also several features added by Sphinx.  For example, you can add
+cross-file references in a portable way (which works for all output types) using
+the :role:`ref` role.  Here is a small example of how a source file could look
+like::
+
+   XXX
+
+|more| See :ref:`rst-primer` for a more in-depth introduction to
+reStructuredText and :ref:`sphinxmarkup` for a full list of markup added by
+Sphinx.
 
 
 Running the build
@@ -112,15 +128,106 @@ an argument to see which targets are available.
 Documenting objects
 -------------------
 
+One of Sphinx' main objectives is easy documentation of :dfn:`objects` (in a
+very general sense) in any :dfn:`domain`.  A domain is a collection of object
+types that belong together, complete with markup to create and reference
+descriptions of these objects.
 
+The most prominent domain is the Python domain.  To e.g. document the Python
+built-in function ``enumerate()``, you would add this to one of your source
+files::
+
+   .. py:function:: enumerate(sequence[, start=0])
+
+      Return an iterator that yields tuples of an index and an item of the
+      *sequence*. (And so on.)
+
+This is rendered like this:
+
+.. py:function:: enumerate(sequence[, start=0])
+
+   Return an iterator that yields tuples of an index and an item of the
+   *sequence*. (And so on.)
+
+The argument of the directive is the :dfn:`signature` of the object you
+describe, the content is the documentation for it.  Multiple signatures can be
+given, each in its own line.
+
+The Python domain also happens to be the default domain, so you don't need to
+prefix the markup with the domain name::
+
+   .. function:: enumerate(sequence[, start=0])
+
+      ...
+
+does the same job if you keep the default setting for the default domain.
+
+There are several more directives for documenting other types of Python objects,
+for example :dir:`py:class` or :dir:`py:method`.  There is also a
+cross-referencing :dfn:`role` for each of these object types.  This markup will
+create a link to the documentation of ``enumerate()``::
+
+   The :py:func:`enumerate` function can be used for ...
+
+And here is the proof: A link to :func:`enumerate`.
+
+Again, the ``py:`` can be left out if the Python domain is the default one.  It
+doesn't matter which file contains the actual documentation for ``enumerate()``;
+Sphinx will find it and create a link to it.
+
+Each domain will have special rules for how the signatures can look like, and
+make the formatted output look pretty, or add specific features like links to
+parameter types, e.g. in the C/C++ domains.
+
+|more| See :ref:`domains` for all the available domains and their
+directives/roles.
+
+
+Basic configuration
+-------------------
+
+Earlier we mentioned that the :file:`conf.py` file controls how Sphinx processes
+your documents.  In that file, which is executed as a Python source file, you
+assign configuration values.  For advanced users: since it is executed by
+Sphinx, you can do non-trivial tasks in it, like extending :data:`sys.path` or
+importing a module to find out the version your are documenting.
+
+The config values that you probably want to change are already put into the
+:file:`conf.py` by :program:`sphinx-quickstart` and initially commented out
+(with standard Python syntax: a ``#`` comments the rest of the line).  To change
+the default value, remove the hash sign and modify the value.  To customize a
+config value that is not automatically added by :program:`sphinx-quickstart`,
+just add an additional assignment.
+
+Keep in mind that the file uses Python syntax for strings, numbers, lists and so
+on.  The file is saved in UTF-8 by default, as indicated by the encoding
+declaration in the first line.  If you use non-ASCII characters in any string
+value, you need to use Python Unicode strings (like ``project = u'Exposé'``).
+
+|more| See :ref:`build-config` for documentation of all available config values.
+
+
+Autodoc
+-------
+
+When documenting Python code, it is common to put a lot of documentation in the
+source files, in documentation strings.  Sphinx supports the inclusion of
+docstrings from your modules with an :dfn:`extension` (an extension is a Python
+module that provides additional features for Sphinx projects) called "autodoc".
+
+In order to use autodoc, you need to activate it in :file:`conf.py` by putting
+the string ``'sphinx.ext.autodoc'`` into the list assigned to the
+:confval:`extensions` config value.  Then, you have a few additional directives
+at your disposal.
+
+|more| See :mod:`sphinx.ext.autodoc` for the complete description of the
+features of autodoc.
 
 
 Topics to be covered
 --------------------
 
-- Autodoc
-- Other Domains
-- Basic configuration
+- Other extensions (math, intersphinx, viewcode, doctest)
 - Static files
 - Selecting a theme
 - Templating

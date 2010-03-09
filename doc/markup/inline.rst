@@ -49,47 +49,47 @@ more versatile:
 Cross-referencing arbitrary locations
 -------------------------------------
 
-.. index:: pair: ref; role
+.. role:: ref
 
-To support cross-referencing to arbitrary locations in any document, the
-standard reST labels are used.  For this to work label names must be unique
-throughout the entire documentation.  There are two ways in which you can refer
-to labels:
+   To support cross-referencing to arbitrary locations in any document, the
+   standard reST labels are used.  For this to work label names must be unique
+   throughout the entire documentation.  There are two ways in which you can
+   refer to labels:
 
-* If you place a label directly before a section title, you can reference to it
-  with ``:ref:`label-name```.  Example::
+   * If you place a label directly before a section title, you can reference to
+     it with ``:ref:`label-name```.  Example::
 
-     .. _my-reference-label:
+        .. _my-reference-label:
 
-     Section to cross-reference
-     --------------------------
+        Section to cross-reference
+        --------------------------
 
-     This is the text of the section.
+        This is the text of the section.
 
-     It refers to the section itself, see :ref:`my-reference-label`.
+        It refers to the section itself, see :ref:`my-reference-label`.
 
-  The ``:ref:`` role would then generate a link to the section, with the link
-  title being "Section to cross-reference".  This works just as well when
-  section and reference are in different source files.
+     The ``:ref:`` role would then generate a link to the section, with the link
+     title being "Section to cross-reference".  This works just as well when
+     section and reference are in different source files.
 
-  Automatic labels also work with figures: given ::
+     Automatic labels also work with figures: given ::
 
-     .. _my-figure:
+        .. _my-figure:
 
-     .. figure:: whatever
+        .. figure:: whatever
 
-        Figure caption
+           Figure caption
 
-  a reference ``:ref:`my-figure``` would insert a reference to the figure with
-  link text "Figure caption".
+     a reference ``:ref:`my-figure``` would insert a reference to the figure
+     with link text "Figure caption".
 
-* Labels that aren't placed before a section title can still be referenced to,
-  but you must give the link an explicit title, using this syntax: ``:ref:`Link
-  title <label-name>```.
+   * Labels that aren't placed before a section title can still be referenced
+     to, but you must give the link an explicit title, using this syntax:
+     ``:ref:`Link title <label-name>```.
 
-Using :role:`ref` is advised over standard reStructuredText links to sections
-(like ```Section title`_``) because it works across files, when section headings
-are changed, and for all builders that support cross-references.
+   Using :role:`ref` is advised over standard reStructuredText links to sections
+   (like ```Section title`_``) because it works across files, when section
+   headings are changed, and for all builders that support cross-references.
 
 
 Cross-referencing documents

@@ -1,5 +1,7 @@
 .. highlightlang:: python
 
+.. _build-config:
+
 The build configuration file
 ============================
 
