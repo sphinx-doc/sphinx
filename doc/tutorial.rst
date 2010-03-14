@@ -90,10 +90,10 @@ Adding content
 In Sphinx source files, you can use most features of standard reStructuredText.
 There are also several features added by Sphinx.  For example, you can add
 cross-file references in a portable way (which works for all output types) using
-the :role:`ref` role.  Here is a small example of how a source file could look
-like::
+the :role:`ref` role.
 
-   XXX
+For an example, if you are viewing the HTML version you can look at the source
+for this document -- use the "Show Source" link in the sidebar.
 
 |more| See :ref:`rst-primer` for a more in-depth introduction to
 reStructuredText and :ref:`sphinxmarkup` for a full list of markup added by
@@ -103,8 +103,9 @@ Sphinx.
 Running the build
 -----------------
 
-Now that you have added some files and content, let's build the docs.  A build
-is started with the :program:`sphinx-build` script, called like this::
+Now that you have added some files and content, let's make a first build of the
+docs.  A build is started with the :program:`sphinx-build` program, called like
+this::
 
    $ sphinx-build -b html sourcedir builddir
 
@@ -220,12 +221,27 @@ the string ``'sphinx.ext.autodoc'`` into the list assigned to the
 :confval:`extensions` config value.  Then, you have a few additional directives
 at your disposal.
 
+For example, to document the function ``io.open()``, reading its
+signature and docstring from the source file, you'd write this::
+
+   .. autofunction:: io.open
+
+You can also document whole classes or even modules automatically, using member
+options for the auto directives, like ::
+
+   .. automodule:: io
+      :members:
+
+autodoc needs to import your modules in order to extract the docstrings.
+Therefore, you must add the appropriate path to :py:data:`sys.path` in your
+:file:`conf.py`.
+
 |more| See :mod:`sphinx.ext.autodoc` for the complete description of the
 features of autodoc.
 
 
-Topics to be covered
---------------------
+More topics to be covered
+-------------------------
 
 - Other extensions (math, intersphinx, viewcode, doctest)
 - Static files

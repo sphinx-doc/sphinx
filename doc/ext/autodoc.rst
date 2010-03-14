@@ -89,6 +89,9 @@ directive.
         .. autoclass:: Noodle
            :members: eat, slurp
 
+   * If you want to make the ``members`` option the default, see
+     :confval:`autodoc_default_flags`.
+
    * Members without docstrings will be left out, unless you give the
      ``undoc-members`` flag option::
 
