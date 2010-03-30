@@ -84,20 +84,20 @@ class JSCallable(JSObject):
 
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
-    name = "js"
-    label= "JavaScript"
+    name = 'js'
+    label= 'JavaScript'
     object_types = {
-        "function"  : ObjType(l_("js function"), "func"),
-        "data"      : ObjType(l_("js data"), "data"),
-        "attribute" : ObjType(l_("js attribute"), "attr"),
+        'function'  : ObjType(l_('js function'), 'func'),
+        'data'      : ObjType(l_('js data'), 'data'),
+        'attribute' : ObjType(l_('js attribute'), 'attr'),
     }
     directives = {
-        "function"  : JSCallable,
-        "data"      : JSObject,
-        "attribute" : JSObject,
+        'function'  : JSCallable,
+        'data'      : JSObject,
+        'attribute' : JSObject,
     }
     roles = {
-        "func": XRefRole(fix_parens=True),
-        "data": XRefRole(),
-        "attr": XRefRole()
+        'func': XRefRole(fix_parens=True),
+        'data': XRefRole(),
+        'attr': XRefRole()
     }
