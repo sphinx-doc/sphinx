@@ -553,15 +553,20 @@ The JavaScript domain (name **js**) provides the following directives:
 
 .. directive:: .. js:function:: name(signature)
 
-   Describe a JavaScript function, method or constructor. If you want to
+   Describes a JavaScript function, method or constructor. If you want to
    document optional arguments use square brackets as
    :ref:`documented <signatures>` for Python signatures.
 
 .. directive:: .. js:data:: name
 
-   Describe a global variable or constant.
+   Describes a global variable or constant.
+
+.. directive:: .. js:attribute:: object.name
+
+   Describes the attribute `name` of `object`.
 
 These roles are provided to refer to the described objects:
 
 .. role:: js:func
           js:data
+          js:attr

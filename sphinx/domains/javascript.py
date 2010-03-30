@@ -23,10 +23,12 @@ js_sig_re = re.compile(
         \((.*)\)$ # arguments
 ''', re.VERBOSE)
 
-class JSCallable(ObjectDescription):
+class JSObject(ObjectDescription):
     """
-    Description of a JavaScript function.
+    Description of a JavaScript object.
     """
+    has_arguments = False
+
     def handle_signature(self, sig, signode):
         match = js_sig_re.match(sig)
         if match is None:
@@ -50,11 +52,11 @@ class JSCallable(ObjectDescription):
         signode['object'] = objectname
         signode['fullname'] = fullname
 
-
         signode += addnodes.desc_name(name, name)
-        if not arglist:
+        if self.has_arguments:
             signode += addnodes.desc_parameterlist()
-            return name
+        if not arglist:
+            return fullname, nameprefix
 
         stack = [signode[-1]]
         for token in js_paramlist_re.split(arglist):
@@ -74,26 +76,28 @@ class JSCallable(ObjectDescription):
                 stack[-1] += addnodes.desc_parameter(token, token)
         if len(stack) != 1:
             raise ValueError()
-        return name
+        return fullname, nameprefix
 
-class JSData(ObjectDescription):
-    """Describes a global variable or constant."""
-    def handle_signature(self, sig, signode):
-        return sig.strip()
+class JSCallable(JSObject):
+    """Description of a JavaScript function, method or constructor."""
+    has_arguments = True
 
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
     name = "js"
     label= "JavaScript"
     object_types = {
-        "function": ObjType(l_("js function"), "func"),
-        "data": ObjType(l_("js data"), "data"),
+        "function"  : ObjType(l_("js function"), "func"),
+        "data"      : ObjType(l_("js data"), "data"),
+        "attribute" : ObjType(l_("js attribute"), "attr"),
     }
     directives = {
-        "function": JSCallable,
-        "data": JSData,
+        "function"  : JSCallable,
+        "data"      : JSObject,
+        "attribute" : JSObject,
     }
     roles = {
         "func": XRefRole(fix_parens=True),
         "data": XRefRole(),
+        "attr": XRefRole()
     }

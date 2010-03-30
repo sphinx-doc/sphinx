@@ -83,6 +83,8 @@ Javascript items
 .. documenting the method of any object
 .. js:function:: bar.baz()
 
+.. js:attribute:: bar.spam
+
 
 References
 ==========
@@ -101,6 +103,8 @@ Without target: :c:func:`CFunction`. :c:func:`!malloc`.
 :js:data:`bar`
 :js:func:`bar.baz()`
 :js:func:`bar.baz`
+
+:js:attr:`bar.baz`
 
 
 Others
