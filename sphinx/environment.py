@@ -589,9 +589,10 @@ class BuildEnvironment:
                     app.emit('source-read', docname, arg)
                     data = arg[0]
                 if self.config.rst_epilog:
-                    return data + '\n' + self.config.rst_epilog + '\n'
-                else:
-                    return data
+                    data = data + '\n' + self.config.rst_epilog + '\n'
+                if self.config.rst_prologue:
+                    data = self.config.rst_prologue + '\n' + data
+                return data
 
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),

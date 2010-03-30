@@ -59,6 +59,7 @@ class Config(object):
         keep_warnings = (False, 'env'),
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env'),
+        rst_prologue = (None, 'env'),
         trim_doctest_flags = (True, 'env'),
         needs_sphinx = (None, None),
         secnumber_suffix = ('. ', 'html'),
