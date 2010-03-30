@@ -31,7 +31,25 @@ class JSCallable(ObjectDescription):
         match = js_sig_re.match(sig)
         if match is None:
             raise ValueError()
-        obj, name, arglist = match.groups()
+        nameprefix, name, arglist = match.groups()
+
+        objectname = self.env.temp_data.get('js:object')
+        if objectname and nameprefix:
+            # someone documenting the method of an attribute of the current
+            # object? shouldn't happen but who knows...
+            fullname = objectname + '.' + nameprefix + name
+        elif objectname:
+            fullname = objectname + '.' + name
+        elif nameprefix:
+            fullname = nameprefix + '.' + name
+        else:
+            # just a function or constructor
+            objectname = ''
+            fullname = ''
+
+        signode['object'] = objectname
+        signode['fullname'] = fullname
+
 
         signode += addnodes.desc_name(name, name)
         if not arglist:

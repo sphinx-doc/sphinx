@@ -553,9 +553,9 @@ The JavaScript domain (name **js**) provides the following directives:
 
 .. directive:: .. js:function:: name(signature)
 
-   Describe a JavaScript function. If you want to document optional
-   arguments use square brackets as :ref:`documented <signatures>` for Python
-   signatures.
+   Describe a JavaScript function, method or constructor. If you want to
+   document optional arguments use square brackets as
+   :ref:`documented <signatures>` for Python signatures.
 
 .. directive:: .. js:data:: name
 

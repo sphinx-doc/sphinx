@@ -80,6 +80,9 @@ Javascript items
 
 .. js:data:: bar
 
+.. documenting the method of any object
+.. js:function:: bar.baz()
+
 
 References
 ==========
@@ -96,6 +99,8 @@ Without target: :c:func:`CFunction`. :c:func:`!malloc`.
 :js:func:`foo`
 
 :js:data:`bar`
+:js:func:`bar.baz()`
+:js:func:`bar.baz`
 
 
 Others
