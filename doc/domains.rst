@@ -107,7 +107,6 @@ In short:
   component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
   refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
 
-
 The Python Domain
 -----------------
 
@@ -546,3 +545,14 @@ any domain:
       .. describe:: PAPER
 
          You can set this variable to select a paper size.
+
+The JavaScript Domain
+---------------------
+
+The JavaScript domain (name **js**) provides the following directives:
+
+.. directive:: .. js:function:: name(signature)
+
+   Describe a JavaScript function. If you want to document optional
+   arguments use square brackets as :ref:`documented <signatures>` for Python
+   signatures.

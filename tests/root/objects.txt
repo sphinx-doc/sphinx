@@ -73,6 +73,12 @@ C items
 .. c:var:: sphinx_global
 
 
+Javascript items
+================
+
+.. js:function:: foo()
+
+
 References
 ==========
 

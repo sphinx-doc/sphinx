@@ -241,10 +241,12 @@ from sphinx.domains.c import CDomain
 from sphinx.domains.cpp import CPPDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.domains.python import PythonDomain
+from sphinx.domains.javascript import JavaScriptDomain
 
 BUILTIN_DOMAINS = {
     'std': StandardDomain,
     'py': PythonDomain,
     'c': CDomain,
-    'cpp': CPPDomain
+    'cpp': CPPDomain,
+    "js": JavaScriptDomain,
 }
