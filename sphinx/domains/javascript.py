@@ -17,9 +17,13 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains.python import py_paramlist_re as js_paramlist_re
 from sphinx.roles import XRefRole
 
-js_sig_re = re.compile(r'(\w+)\s*\((.*)\)')
+js_sig_re = re.compile(
+    r'''([^ .]+\.)? # object name
+        ([^ .]+\s*) # name
+        \((.*)\)$ # arguments
+''', re.VERBOSE)
 
-class JSFunction(ObjectDescription):
+class JSCallable(ObjectDescription):
     """
     Description of a JavaScript function.
     """
@@ -27,7 +31,7 @@ class JSFunction(ObjectDescription):
         match = js_sig_re.match(sig)
         if match is None:
             raise ValueError()
-        name, arglist = match.groups()
+        obj, name, arglist = match.groups()
 
         signode += addnodes.desc_name(name, name)
         if not arglist:
@@ -68,7 +72,7 @@ class JavaScriptDomain(Domain):
         "data": ObjType(l_("js data"), "data"),
     }
     directives = {
-        "function": JSFunction,
+        "function": JSCallable,
         "data": JSData,
     }
     roles = {
