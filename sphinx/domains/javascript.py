@@ -54,16 +54,24 @@ class JSFunction(ObjectDescription):
             raise ValueError()
         return name
 
+class JSData(ObjectDescription):
+    """Describes a global variable or constant."""
+    def handle_signature(self, sig, signode):
+        return sig.strip()
+
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
     name = "js"
     label= "JavaScript"
     object_types = {
         "function": ObjType(l_("js function"), "func"),
+        "data": ObjType(l_("js data"), "data"),
     }
     directives = {
         "function": JSFunction,
+        "data": JSData,
     }
     roles = {
         "func": XRefRole(fix_parens=True),
+        "data": XRefRole(),
     }

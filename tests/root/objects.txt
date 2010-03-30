@@ -78,6 +78,8 @@ Javascript items
 
 .. js:function:: foo()
 
+.. js:data:: bar
+
 
 References
 ==========
@@ -92,6 +94,8 @@ Without target: :c:func:`CFunction`. :c:func:`!malloc`.
 
 :js:func:`foo()`
 :js:func:`foo`
+
+:js:data:`bar`
 
 
 Others

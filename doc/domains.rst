@@ -557,6 +557,11 @@ The JavaScript domain (name **js**) provides the following directives:
    arguments use square brackets as :ref:`documented <signatures>` for Python
    signatures.
 
+.. directive:: .. js:data:: name
+
+   Describe a global variable or constant.
+
 These roles are provided to refer to the described objects:
 
 .. role:: js:func
+          js:data
