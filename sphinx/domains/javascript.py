@@ -15,6 +15,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.directives import ObjectDescription
 from sphinx.domains.python import py_paramlist_re as js_paramlist_re
+from sphinx.roles import XRefRole
 
 js_sig_re = re.compile(r'(\w+)\s*\((.*)\)')
 
@@ -62,4 +63,7 @@ class JavaScriptDomain(Domain):
     }
     directives = {
         "function": JSFunction,
+    }
+    roles = {
+        "func": XRefRole(fix_parens=True),
     }

@@ -556,3 +556,7 @@ The JavaScript domain (name **js**) provides the following directives:
    Describe a JavaScript function. If you want to document optional
    arguments use square brackets as :ref:`documented <signatures>` for Python
    signatures.
+
+These roles are provided to refer to the described objects:
+
+.. role:: js:func

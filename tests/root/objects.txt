@@ -90,6 +90,9 @@ With target: :c:func:`Sphinx_DoSomething()` (parentheses are handled),
 
 Without target: :c:func:`CFunction`. :c:func:`!malloc`.
 
+:js:func:`foo()`
+:js:func:`foo`
+
 
 Others
 ======
