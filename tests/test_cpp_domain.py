@@ -34,6 +34,8 @@ def test_type_definitions():
 
     x = 'module::myclass::operator std::vector<std::string>()'
     assert unicode(parse('function', x)) == x
+    x = 'explicit module::myclass::foo::foo()'
+    assert unicode(parse('function', x)) == x
 
     x = 'std::vector<std::pair<std::string, long long>> module::blah'
     assert unicode(parse('type_object', x)) == x
@@ -44,3 +46,10 @@ def test_type_definitions():
 def test_operators():
     x = parse('function', 'void operator new [  ] ()')
     assert unicode(x) == 'void operator new[]()'
+
+    x = parse('function', 'void operator delete ()')
+    assert unicode(x) == 'void operator delete()'
+
+    for op in '*-+=/%!':
+        x = parse('function', 'void operator %s ()' % op)
+        assert unicode(x) == 'void operator%s()' % op

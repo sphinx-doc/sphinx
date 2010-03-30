@@ -386,11 +386,12 @@ class MemberObjDefExpr(NamedDefExpr):
 
 class FuncDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, rv, signature,
-                 const, pure_virtual):
+    def __init__(self, name, visibility, static, explicit, rv,
+                 signature, const, pure_virtual):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
+        self.explicit = explicit
         self.const = const
         self.pure_virtual = pure_virtual
 
@@ -404,6 +405,8 @@ class FuncDefExpr(NamedDefExpr):
 
     def __unicode__(self):
         buf = self.get_modifiers()
+        if self.explicit:
+            buf.append(u'explicit')
         if self.rv is not None:
             buf.append(unicode(self.rv))
         buf.append(u'%s(%s)' % (self.name, u', '.join(
@@ -444,7 +447,7 @@ class DefinitionParser(object):
         'unsigned':     set(('char', 'int', 'long')),
         'signed':       set(('char', 'int', 'long')),
         'short':        set(('int', 'short')),
-        'long':         set(('int', 'long'))
+        'long':         set(('int', 'long', 'double'))
     }
 
     def __init__(self, definition):
@@ -755,6 +758,11 @@ class DefinitionParser(object):
 
     def parse_function(self):
         visibility, static = self._parse_visibility_static()
+        if self.skip_word('explicit'):
+            explicit = True
+            self.skip_ws()
+        else:
+            explicit = False
         rv = self._parse_type()
         self.skip_ws()
         # some things just don't have return values
@@ -763,7 +771,7 @@ class DefinitionParser(object):
             rv = None
         else:
             name = self._parse_type()
-        return FuncDefExpr(name, visibility, static, rv,
+        return FuncDefExpr(name, visibility, static, explicit, rv,
                            *self._parse_signature())
 
     def parse_class(self):
@@ -959,6 +967,9 @@ class CPPFunctionObject(CPPObject):
 
     def describe_signature(self, signode, func):
         self.attach_modifiers(signode, func)
+        if func.explicit:
+            signode += addnodes.desc_annotation('explicit', 'explicit')
+            signode += nodes.Text(' ')
         # return value is None for things with a reverse return value
         # such as casting operator definitions or constructors
         # and destructors.
