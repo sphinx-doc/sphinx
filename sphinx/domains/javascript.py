@@ -17,6 +17,7 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains.python import py_paramlist_re as js_paramlist_re
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
+from sphinx.util.docfields import Field, GroupedField, TypedField
 
 js_sig_re = re.compile(
     r'''([^ .]+\.)? # object name
@@ -122,6 +123,17 @@ class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
     has_arguments = True
 
+    doc_field_types = [
+        TypedField("arguments", label=l_('Arguments'),
+                   names=('argument', 'arg', 'parameter', 'param'),
+                   typerolename='func', typenames=('paramtype', 'type')),
+        GroupedField('errors', label=l_('Throws'), rolename='err',
+                     names=('throws', ),
+                     can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+    ]
+
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # basically what sphinx.domains.python.PyXRefRole does
@@ -143,6 +155,7 @@ class JavaScriptDomain(Domain):
     """JavaScript language domain."""
     name = 'js'
     label= 'JavaScript'
+    # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
         'function'  : ObjType(l_('js function'), 'func'),
         'data'      : ObjType(l_('js data'), 'data'),

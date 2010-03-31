@@ -554,8 +554,34 @@ The JavaScript domain (name **js**) provides the following directives:
 .. directive:: .. js:function:: name(signature)
 
    Describes a JavaScript function, method or constructor. If you want to
-   document optional arguments use square brackets as
+   describe arguments as optional use square brackets as
    :ref:`documented <signatures>` for Python signatures.
+
+   You can use fields to give more details about arguments and their expected
+   types, errors which may be thrown by the function, and the value being
+   returned::
+
+        .. js:function:: $.getJSON(href, callback[, errback])
+
+           :param string href: An URI to the location of the resource.
+           :param callback: Get's called with the object.
+           :param errback:
+                Get's called in case the request fails. And a lot of other
+                text so we need multiple lines
+           :throws SomeError: For whatever reason in that case.
+           :returns: Something
+
+   This is rendered as:
+
+         .. js:function:: $.getJSON(href, callback[, errback])
+
+           :param string href: An URI to the location of the resource.
+           :param callback: Get's called with the object.
+           :param errback:
+                 Get's called in case the request fails. And a lot of other
+                 text so we need multiple lines.
+           :throws SomeError: For whatever reason in that case.
+           :returns: Something
 
 .. directive:: .. js:data:: name
 
