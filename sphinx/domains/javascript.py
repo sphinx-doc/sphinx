@@ -56,7 +56,8 @@ class JSObject(ObjectDescription):
         signode['object'] = objectname
         signode['fullname'] = fullname
 
-        signode += addnodes.desc_addname(nameprefix, nameprefix)
+        if nameprefix:
+            signode += addnodes.desc_addname(nameprefix, nameprefix)
         signode += addnodes.desc_name(name, name)
         if self.has_arguments:
             signode += addnodes.desc_parameterlist()
