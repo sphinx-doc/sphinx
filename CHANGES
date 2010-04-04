@@ -1,6 +1,9 @@
 Release 0.6.6 (in development)
 ==============================
 
+* #353: Strip leading and trailing whitespace when extracting
+  search words in the search function.
+
 
 Release 0.6.5 (Mar 01, 2010)
 ============================

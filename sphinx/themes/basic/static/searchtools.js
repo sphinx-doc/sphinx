@@ -296,6 +296,9 @@ var Search = {
     var tmp = query.split(/\s+/);
     var object = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
     for (var i = 0; i < tmp.length; i++) {
+      // ignore leading/trailing whitespace
+      if (tmp[i] == "")
+        continue;
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
       // select the correct list
