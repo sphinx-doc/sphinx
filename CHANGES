@@ -1,6 +1,9 @@
 Release 0.6.6 (in development)
 ==============================
 
+* #362: In autodoc, check for the existence of ``__self__`` on
+  function objects before accessing it.
+
 * #353: Strip leading and trailing whitespace when extracting
   search words in the search function.
 
