@@ -483,12 +483,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(hyper)
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
-                self.body.append(r'\pysiglinewithargs{')
+                self.body.append(r'\pysiglinewithargsret{')
                 break
         else:
             self.body.append(r'\pysigline{')
     def depart_desc_signature(self, node):
-        self.body.append('}')
+        self.body.append('}{}')
 
     def visit_desc_addname(self, node):
         self.body.append(r'\code{')
@@ -503,7 +503,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_desc_returns(self, node):
-        self.body.append(r' $\rightarrow$ ')
+        self.body.append(r'}{ $\rightarrow$ ')
     def depart_desc_returns(self, node):
         pass
 
