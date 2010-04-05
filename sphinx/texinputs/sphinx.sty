@@ -227,14 +227,14 @@
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
 \newlength{\py@argswidth}
-\newcommand{\py@sigparams}[1]{%
-  \parbox[t]{\py@argswidth}{#1\code{)}}}
+\newcommand{\py@sigparams}[2]{%
+  \parbox[t]{\py@argswidth}{#1\code{)}#2}}
 \newcommand{\pysigline}[1]{\item[#1]\nopagebreak}
-\newcommand{\pysiglinewithargs}[2]{%
+\newcommand{\pysiglinewithargsret}[3]{%
   \settowidth{\py@argswidth}{#1\code{(}}%
   \addtolength{\py@argswidth}{-2\py@argswidth}%
   \addtolength{\py@argswidth}{\textwidth}%
-  \item[#1\code{(}\py@sigparams{#2}]}
+  \item[#1\code{(}\py@sigparams{#2}{#3}]}
 
 % This version is being checked in for the historical record; it shows
 % how I've managed to get some aspects of this to work.  It will not
