@@ -757,10 +757,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
-        ctx = '] \\leavevmode'
+        ctx = '}] \\leavevmode'
         if node.has_key('ids') and node['ids']:
             ctx += '\\hypertarget{%s}{}' % self.idescape(node['ids'][0])
-        self.body.append('\\item[')
+        self.body.append('\\item[{')
         self.context.append(ctx)
     def depart_term(self, node):
         self.body.append(self.context.pop())

@@ -1,6 +1,8 @@
 Release 0.6.6 (in development)
 ==============================
 
+* #370: Fix handling of complex list item labels in LaTeX output.
+
 * #374: Make the ``doctest_path`` config value of the doctest
   extension actually work.
 
