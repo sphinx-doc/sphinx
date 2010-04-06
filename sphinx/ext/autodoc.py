@@ -1002,6 +1002,7 @@ class MethodDocumenter(ClassLevelDocumenter):
             self.member_order = self.member_order - 1
         elif isinstance(self.object, FunctionType) or \
              (isinstance(self.object, BuiltinFunctionType) and
+              hasattr(self.object, '__self__') and
               self.object.__self__ is not None):
             self.directivetype = 'staticmethod'
             # document class and static members before ordinary ones

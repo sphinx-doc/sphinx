@@ -112,7 +112,8 @@ The builder's "name" must be given to the **-b** command-line option of
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
 <http://rst2pdf.googlecode.com>`_ version 0.12 or greater.  You need to add
 ``'rst2pdf.pdfbuilder'`` to your :confval:`extensions` to enable it, its name is
-``pdf``.
+``pdf``.  Refer to the `rst2pdf manual
+<http://lateral.netmanagers.com.ar/static/manual.pdf>`_ for details.
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
