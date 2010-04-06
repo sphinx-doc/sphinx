@@ -54,6 +54,7 @@ class TextTranslator(nodes.NodeVisitor):
 
         self.states = [[]]
         self.stateindent = [0]
+        self.list_counter = []
         self.sectionlevel = 0
         self.table = None
 
@@ -429,38 +430,38 @@ class TextTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_bullet_list(self, node):
-        self._list_counter = -1
+        self.list_counter.append(-1)
     def depart_bullet_list(self, node):
-        pass
+        self.list_counter.pop()
 
     def visit_enumerated_list(self, node):
-        self._list_counter = 0
+        self.list_counter.append(0)
     def depart_enumerated_list(self, node):
-        pass
+        self.list_counter.pop()
 
     def visit_definition_list(self, node):
-        self._list_counter = -2
+        self.list_counter.append(-2)
     def depart_definition_list(self, node):
-        pass
+        self.list_counter.pop()
 
     def visit_list_item(self, node):
-        if self._list_counter == -1:
+        if self.list_counter[-1] == -1:
             # bullet list
             self.new_state(2)
-        elif self._list_counter == -2:
+        elif self.list_counter[-1] == -2:
             # definition list
             pass
         else:
             # enumerated list
-            self._list_counter += 1
-            self.new_state(len(str(self._list_counter)) + 2)
+            self.list_counter[-1] += 1
+            self.new_state(len(str(self.list_counter[-1])) + 2)
     def depart_list_item(self, node):
-        if self._list_counter == -1:
+        if self.list_counter[-1] == -1:
             self.end_state(first='* ', end=None)
-        elif self._list_counter == -2:
+        elif self.list_counter[-1] == -2:
             pass
         else:
-            self.end_state(first='%s. ' % self._list_counter, end=None)
+            self.end_state(first='%s. ' % self.list_counter[-1], end=None)
 
     def visit_definition_list_item(self, node):
         self._li_has_classifier = len(node) >= 2 and \
