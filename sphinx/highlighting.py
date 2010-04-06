@@ -34,6 +34,7 @@ try:
     from pygments.styles import get_style_by_name
     from pygments.styles.friendly import FriendlyStyle
     from pygments.token import Generic, Comment, Number
+    from pygments.util import ClassNotFound
 except ImportError:
     pygments = None
     lexers = None
@@ -173,7 +174,7 @@ class PygmentsBridge(object):
         else:
             return True
 
-    def highlight_block(self, source, lang, linenos=False):
+    def highlight_block(self, source, lang, linenos=False, warn=None):
         if isinstance(source, str):
             source = source.decode()
         if not pygments:
@@ -202,8 +203,16 @@ class PygmentsBridge(object):
             if lang in lexers:
                 lexer = lexers[lang]
             else:
-                lexer = lexers[lang] = get_lexer_by_name(lang)
-                lexer.add_filter('raiseonerror')
+                try:
+                    lexer = lexers[lang] = get_lexer_by_name(lang)
+                except ClassNotFound:
+                    if warn:
+                        warn('Pygments lexer name %s is not known' % lang)
+                        return self.unhighlighted(source)
+                    else:
+                        raise
+                else:
+                    lexer.add_filter('raiseonerror')
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:

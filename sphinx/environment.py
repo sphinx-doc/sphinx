@@ -1022,12 +1022,19 @@ class BuildEnvironment:
     def get_toctree_for(self, docname, builder, collapse, maxdepth=0):
         """Return the global TOC nodetree."""
         doctree = self.get_doctree(self.config.master_doc)
+        toctrees = []
         for toctreenode in doctree.traverse(addnodes.toctree):
-            result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=True, collapse=collapse,
-                                          maxdepth=maxdepth)
-            if result is not None:
-                return result
+            toctree = self.resolve_toctree(docname, builder, toctreenode,
+                                           prune=True, collapse=collapse,
+                                           maxdepth=maxdepth,
+                                           includehidden=True)
+            toctrees.append(toctree)
+        if not toctrees:
+            return None
+        result = toctrees[0]
+        for toctree in toctrees[1:]:
+            result.extend(toctree.children)
+        return result
 
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
@@ -1075,7 +1082,7 @@ class BuildEnvironment:
         return doctree
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
-                        titles_only=False, collapse=False):
+                        titles_only=False, collapse=False, includehidden=False):
         """
         Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
@@ -1088,7 +1095,7 @@ class BuildEnvironment:
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        if toctree.get('hidden', False):
+        if toctree.get('hidden', False) and not includehidden:
             return None
 
         def _walk_depth(node, depth, maxdepth):

@@ -58,6 +58,7 @@ Documentation using a customized version of the default theme
 * Bazaar: http://doc.bazaar.canonical.com/en/
 * Chaco: http://code.enthought.com/projects/chaco/docs/html/
 * Djagios: http://djagios.org/
+* GetFEM++: http://home.gna.org/getfem/
 * GPAW: https://wiki.fysik.dtu.dk/gpaw/
 * Grok: http://grok.zope.org/doc/current/
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
@@ -99,6 +100,7 @@ Documentation using the sphinxdoc theme
 Documentation using another builtin theme
 -----------------------------------------
 
+* C/C++ Development with Eclipse: http://book.dehlia.in/c-cpp-eclipse/ (agogo)
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/2/documentation/ (scrolls)
 * pip: http://pip.openplans.org/ (nature)
