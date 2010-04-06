@@ -1,6 +1,12 @@
 Release 0.6.6 (in development)
 ==============================
 
+* Fix the handling of multiple toctrees when creating the global
+  TOC for the ``toctree()`` template function.
+
+* Fix the handling of hidden toctrees when creating the global TOC
+  for the ``toctree()`` template function.
+
 * Fix the handling of nested lists in the text writer.
 
 * #362: In autodoc, check for the existence of ``__self__`` on

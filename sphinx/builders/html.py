@@ -177,6 +177,8 @@ class StandaloneHTMLBuilder(Builder):
 
     def render_partial(self, node):
         """Utility: Render a lone doctree node."""
+        if node is None:
+            return {'fragment': ''}
         doc = new_document('<partial node>')
         doc.append(node)
         return publish_parts(
