@@ -280,6 +280,7 @@ Project information
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
    * ``sl`` -- Slovenian
+   * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
