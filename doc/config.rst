@@ -614,6 +614,21 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 1.0
 
+.. confval:: html_compact_lists
+
+   If true, list items containing only a single paragraph will not be rendered
+   with a ``<p>`` element.  This is standard docutils behavior.  Default:
+   ``True``.
+
+   .. versionadded:: 1.0
+
+.. confval:: html_secnumber_suffix
+
+   Suffix for section numbers.  Default: ``". "``.  Set to ``" "`` to suppress
+   the final dot on section numbers.
+
+   .. versionadded:: 1.0
+
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.

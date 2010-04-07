@@ -15,6 +15,12 @@ Release 1.0 (in development)
 
 * Added ``tab-width`` option to ``literalinclude`` directive.
 
+* Added ``html_secnumber_suffix`` config value to control section
+  numbering format.
+
+* Added ``html_compact_lists`` config value to control docutils'
+  compact lists feature.
+
 * The ``html_sidebars`` config value can now contain patterns as
   keys, and the values can be lists that explicitly select which
   sidebar templates should be rendered.  That means that the builtin

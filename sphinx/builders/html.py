@@ -228,6 +228,7 @@ class StandaloneHTMLBuilder(Builder):
         self.docsettings = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,)).get_default_values()
+        self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day

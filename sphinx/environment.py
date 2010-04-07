@@ -786,21 +786,19 @@ class BuildEnvironment:
     def process_refonly_bullet_lists(self, docname, doctree):
         """Change refonly bullet lists to use compact_paragraphs.
 
-        Specifically implemented for 'Indices and Tables' section, which
-        looks odd in --no-compact-lists mode.
-
+        Specifically implemented for 'Indices and Tables' section, which looks
+        odd when html_compact_lists is false.
         """
         if self.config.html_compact_lists:
             return
 
         class RefOnlyListChecker(nodes.GenericNodeVisitor):
-            """Raise `nodes.NodeFound` if non-simple list item is
-            encountered.
+            """Raise `nodes.NodeFound` if non-simple list item is encountered.
 
-            Here 'simple' means a list item containing only a paragraph
-            with a single reference in it.
-
+            Here 'simple' means a list item containing only a paragraph with a
+            single reference in it.
             """
+
             def default_visit(self, node):
                 raise nodes.NodeFound
 
@@ -833,9 +831,9 @@ class BuildEnvironment:
             try:
                 node.walk(visitor)
             except nodes.NodeFound:
-                return None
+                return False
             else:
-                return 1
+                return True
 
         for node in doctree.traverse(nodes.bullet_list):
             if check_refonly_list(node):

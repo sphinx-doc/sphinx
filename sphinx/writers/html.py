@@ -59,7 +59,7 @@ class HTMLTranslator(BaseTranslator):
         self.highlightlinenothreshold = sys.maxint
         self.protect_literal_text = 0
         self.add_permalinks = builder.config.html_add_permalinks
-        self.secnumber_suffix = builder.config.secnumber_suffix
+        self.secnumber_suffix = builder.config.html_secnumber_suffix
 
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder

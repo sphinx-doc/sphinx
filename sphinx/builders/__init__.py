@@ -300,19 +300,6 @@ class Builder(object):
         else:
             self.info('none found')
 
-        #%%%%% Don't know where else to put this???  Change
-        #env.settings since that seems to be the only way to change
-        #the StandaloneHTMLBuilder(Builder)'s docsettings.  These
-        #docsettings are stored in doctree.settings, which eventually
-        #get passed to HTMLWriter, which actually creates
-        #docutils/writers/html4css1/__init__.py/HTMLTranslator(nodes.NodeVisitor).
-        #It's here that these settings are then used to configure the
-        #actual HTML output.
-        if self.config.html_compact_lists:
-            self.env.settings['compact_lists'] = 1
-        else:
-            self.env.settings['compact_lists'] = 0
-
         if updated_docnames:
             # save the environment
             self.info(bold('pickling environment... '), nonl=True)
