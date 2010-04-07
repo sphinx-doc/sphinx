@@ -590,8 +590,8 @@ class BuildEnvironment:
                     data = arg[0]
                 if self.config.rst_epilog:
                     data = data + '\n' + self.config.rst_epilog + '\n'
-                if self.config.rst_prologue:
-                    data = self.config.rst_prologue + '\n' + data
+                if self.config.rst_prolog:
+                    data = self.config.rst_prolog + '\n' + data
                 return data
 
         # publish manually

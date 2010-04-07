@@ -182,6 +182,13 @@ General configuration
 
    .. versionadded:: 0.6
 
+.. confval:: rst_prolog
+
+   A string of reStructuredText that will be included at the beginning of every
+   source file that is read.
+
+   .. versionadded:: 1.0
+
 .. confval:: default_role
 
    .. index:: default; role
