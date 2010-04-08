@@ -248,5 +248,5 @@ BUILTIN_DOMAINS = {
     'py': PythonDomain,
     'c': CDomain,
     'cpp': CPPDomain,
-    "js": JavaScriptDomain,
+    'js': JavaScriptDomain,
 }

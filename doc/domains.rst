@@ -107,6 +107,7 @@ In short:
   component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
   refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
 
+
 The Python Domain
 -----------------
 
@@ -546,6 +547,7 @@ any domain:
 
          You can set this variable to select a paper size.
 
+
 The JavaScript Domain
 ---------------------
 
@@ -553,35 +555,35 @@ The JavaScript domain (name **js**) provides the following directives:
 
 .. directive:: .. js:function:: name(signature)
 
-   Describes a JavaScript function, method or constructor. If you want to
-   describe arguments as optional use square brackets as
-   :ref:`documented <signatures>` for Python signatures.
+   Describes a JavaScript function, method or constructor.  If you want to
+   describe arguments as optional use square brackets as :ref:`documented
+   <signatures>` for Python signatures.
 
    You can use fields to give more details about arguments and their expected
    types, errors which may be thrown by the function, and the value being
    returned::
 
-        .. js:function:: $.getJSON(href, callback[, errback])
+      .. js:function:: $.getJSON(href, callback[, errback])
 
-           :param string href: An URI to the location of the resource.
-           :param callback: Get's called with the object.
-           :param errback:
-                Get's called in case the request fails. And a lot of other
-                text so we need multiple lines
-           :throws SomeError: For whatever reason in that case.
-           :returns: Something
+         :param string href: An URI to the location of the resource.
+         :param callback: Get's called with the object.
+         :param errback:
+             Get's called in case the request fails. And a lot of other
+             text so we need multiple lines
+         :throws SomeError: For whatever reason in that case.
+         :returns: Something
 
    This is rendered as:
 
-         .. js:function:: $.getJSON(href, callback[, errback])
+      .. js:function:: $.getJSON(href, callback[, errback])
 
-           :param string href: An URI to the location of the resource.
-           :param callback: Get's called with the object.
-           :param errback:
-                 Get's called in case the request fails. And a lot of other
-                 text so we need multiple lines.
-           :throws SomeError: For whatever reason in that case.
-           :returns: Something
+        :param string href: An URI to the location of the resource.
+        :param callback: Get's called with the object.
+        :param errback:
+            Get's called in case the request fails. And a lot of other
+            text so we need multiple lines.
+        :throws SomeError: For whatever reason in that case.
+        :returns: Something
 
 .. directive:: .. js:data:: name
 
@@ -589,7 +591,7 @@ The JavaScript domain (name **js**) provides the following directives:
 
 .. directive:: .. js:attribute:: object.name
 
-   Describes the attribute `name` of `object`.
+   Describes the attribute *name* of *object*.
 
 These roles are provided to refer to the described objects:
 

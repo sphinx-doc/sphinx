@@ -19,11 +19,13 @@ from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
+
 js_sig_re = re.compile(
     r'''([^ .]+\.)? # object name
         ([^ .]+\s*) # name
         \((.*)\)$   # arguments
 ''', re.VERBOSE)
+
 
 class JSObject(ObjectDescription):
     """
@@ -120,12 +122,13 @@ class JSObject(ObjectDescription):
             return _('%s (%s attribute)') % (name, obj)
         return ''
 
+
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
     has_arguments = True
 
     doc_field_types = [
-        TypedField("arguments", label=l_('Arguments'),
+        TypedField('arguments', label=l_('Arguments'),
                    names=('argument', 'arg', 'parameter', 'param'),
                    typerolename='func', typenames=('paramtype', 'type')),
         GroupedField('errors', label=l_('Throws'), rolename='err',
@@ -134,6 +137,7 @@ class JSCallable(JSObject):
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
     ]
+
 
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
@@ -152,20 +156,21 @@ class JSXRefRole(XRefRole):
             refnode['refspecific'] = True
         return title, target
 
+
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
     name = 'js'
-    label= 'JavaScript'
+    label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
-        'function'  : ObjType(l_('js function'), 'func'),
-        'data'      : ObjType(l_('js data'), 'data'),
-        'attribute' : ObjType(l_('js attribute'), 'attr'),
+        'function':  ObjType(l_('JavaScript function'),  'func'),
+        'data':      ObjType(l_('JavaScript data'),      'data'),
+        'attribute': ObjType(l_('JavaScript attribute'), 'attr'),
     }
     directives = {
-        'function'  : JSCallable,
-        'data'      : JSObject,
-        'attribute' : JSObject,
+        'function':  JSCallable,
+        'data':      JSObject,
+        'attribute': JSObject,
     }
     roles = {
         'func': JSXRefRole(fix_parens=True),
