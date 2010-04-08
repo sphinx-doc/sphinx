@@ -6,6 +6,8 @@ Release 1.0 (in development)
   e.g. elements of a programming language.  Builtin domains are
   provided for Python and C objects.
 
+* Added a JavaScript domain.
+
 * Support for docutils 0.4 has been removed.
 
 * Added a manual page builder.
