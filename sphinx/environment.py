@@ -1321,9 +1321,6 @@ class BuildEnvironment:
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
-                else:
-                    raise RuntimeError('unknown xfileref node encountered: %s'
-                                       % node)
 
                 # no new node found? try the missing-reference event
                 if newnode is None:
