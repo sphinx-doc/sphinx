@@ -118,7 +118,10 @@ class Target(Directive):
             inode = addnodes.index(entries=[(indextype, indexentry,
                                              targetname, targetname)])
             ret.insert(0, inode)
-        env.domaindata['std']['objects'][self.name, fullname] = \
+        name = self.name
+        if ':' in self.name:
+            _, name = self.name.split(':', 1)
+        env.domaindata['std']['objects'][name, fullname] = \
             env.docname, targetname
         return ret
 
