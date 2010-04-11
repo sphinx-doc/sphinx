@@ -190,6 +190,7 @@ class DefaultDomain(Directive):
         #             domain_name = domain.name
         #             break
         env.temp_data['default_domain'] = env.domains.get(domain_name)
+        return []
 
 
 directives.register_directive('default-domain', DefaultDomain)
