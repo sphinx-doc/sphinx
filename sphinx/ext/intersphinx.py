@@ -158,8 +158,9 @@ def load_mappings(app):
     if update:
         env.intersphinx_inventory = {}
         for _, invdata in cache.itervalues():
-            if invdata:
-                env.intersphinx_inventory.update(invdata)
+            for type, objects in invdata.iteritems():
+                env.intersphinx_inventory.setdefault(
+                    type, {}).update(objects)
 
 
 def missing_reference(app, env, node, contnode):
