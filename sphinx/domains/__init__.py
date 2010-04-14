@@ -242,6 +242,7 @@ from sphinx.domains.cpp import CPPDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.domains.python import PythonDomain
 from sphinx.domains.javascript import JavaScriptDomain
+from sphinx.domains.rst import ReSTDomain
 
 BUILTIN_DOMAINS = {
     'std': StandardDomain,
@@ -249,4 +250,5 @@ BUILTIN_DOMAINS = {
     'c': CDomain,
     'cpp': CPPDomain,
     'js': JavaScriptDomain,
+    'rst': ReSTDomain
 }
