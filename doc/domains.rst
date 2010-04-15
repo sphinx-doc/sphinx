@@ -598,3 +598,41 @@ These roles are provided to refer to the described objects:
 .. role:: js:func
           js:data
           js:attr
+
+The reStructuredText domain
+---------------------------
+
+The reStructuredText domain (**rst**) provides the following directives:
+
+.. directive:: .. rst:directive:: name
+
+   Describes a reST directive. The directive syntax (`..` prefix and 
+   `::` suffix) is optional and will be automatically added if not 
+   present. For example::
+
+      .. rst:directive:: foo
+      
+      .. rst:directive:: .. bar:: baz
+     
+   will be rendered as:
+     
+      .. rst:directive:: foo
+      
+      .. rst:directive:: .. bar:: baz
+
+.. directive:: .. rst:role:: name
+   
+   Describes a reST role. For example::
+   
+      .. rst:role:: foo
+      
+   
+   will be rendered as:
+   
+      .. rst:role:: foo
+      
+These roles are provided to refer to the described objects:
+
+.. rst:role:: rst:dir
+              rst:role
+

@@ -30,7 +30,6 @@ class ReSTMarkup(ObjectDescription):
             self.state.document.note_explicit_target(signode)
         
             objects = self.env.domaindata['rst']['objects']
-            print objects
             if name in objects:
                 self.env.warn(
                     self.env.docname,
