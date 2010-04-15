@@ -20,11 +20,9 @@ from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
+dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
+
 class ReSTMarkup(ObjectDescription):
-    def handle_signature(self, sig, signode):
-        signode.clear()
-        signode += addnodes.desc_name(sig, sig)
-        return sig
         
     def add_target_and_index(self, name, sig, signode):
         if name not in self.state.document.ids:
@@ -51,10 +49,25 @@ class ReSTMarkup(ObjectDescription):
 
 
 class ReSTDirective(ReSTMarkup):
-    pass
+    def handle_signature(self, sig, signode):
+        if not sig.startswith('.'):
+            dec_sig = '.. %s::' % sig
+            signode += addnodes.desc_name(dec_sig, dec_sig)
+            return sig
+        m = dir_sig_re.match(sig)
+        if not m:
+            signode += addnodes.desc_name(sig, sig)
+            return sig
+        name, args = m.groups()
+        dec_name = '.. %s::' % name
+        signode += addnodes.desc_name(dec_name, dec_name)
+        signode += addnodes.desc_addname(args, args)
+        return name
 
 class ReSTRole(ReSTMarkup):
-    pass
+    def handle_signature(self, sig, signode):
+        signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
+        return sig
     
 class ReSTXRefRole(XRefRole):
     pass
