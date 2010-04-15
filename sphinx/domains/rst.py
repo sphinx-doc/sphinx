@@ -15,10 +15,8 @@ from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.directives import ObjectDescription
-from sphinx.domains.python import py_paramlist_re as js_paramlist_re
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
-from sphinx.util.docfields import Field, GroupedField, TypedField
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
@@ -34,7 +32,6 @@ class ReSTMarkup(ObjectDescription):
             objects = self.env.domaindata['rst']['objects']
             #XXX add warning for duplicate definitions
             objects[name] = self.env.docname, self.objtype
-        print self.objtype, name
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
