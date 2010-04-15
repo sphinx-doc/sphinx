@@ -103,7 +103,7 @@ class Target(Directive):
     def run(self):
         env = self.state.document.settings.env
         # normalize whitespace in fullname like XRefRole does
-        fullname = ws_re.sub('', self.arguments[0].strip())
+        fullname = ws_re.sub(' ', self.arguments[0].strip())
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
@@ -118,7 +118,10 @@ class Target(Directive):
             inode = addnodes.index(entries=[(indextype, indexentry,
                                              targetname, targetname)])
             ret.insert(0, inode)
-        env.domaindata['std']['objects'][self.name, fullname] = \
+        name = self.name
+        if ':' in self.name:
+            _, name = self.name.split(':', 1)
+        env.domaindata['std']['objects'][name, fullname] = \
             env.docname, targetname
         return ret
 
