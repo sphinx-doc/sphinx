@@ -21,7 +21,10 @@ from sphinx.util.nodes import make_refnode
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 class ReSTMarkup(ObjectDescription):
-        
+    """
+    Description of generic reST markup.
+    """
+    
     def add_target_and_index(self, name, sig, signode):
         if name not in self.state.document.ids:
             signode['names'].append(name)
@@ -52,6 +55,9 @@ class ReSTMarkup(ObjectDescription):
 
 
 class ReSTDirective(ReSTMarkup):
+    """
+    Description of reST directive.
+    """
     def handle_signature(self, sig, signode):
         if not sig.startswith('.'):
             dec_sig = '.. %s::' % sig
@@ -68,13 +74,13 @@ class ReSTDirective(ReSTMarkup):
         return name
 
 class ReSTRole(ReSTMarkup):
+    """
+    Description of reST role.
+    """
     def handle_signature(self, sig, signode):
         signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
         return sig
     
-class ReSTXRefRole(XRefRole):
-    pass
-
 class ReSTDomain(Domain):
     """ReStructuredText domain."""
     name = 'rst'
@@ -89,8 +95,8 @@ class ReSTDomain(Domain):
         'role':      ReSTRole,
     }
     roles = {
-        'dir':  ReSTXRefRole(),
-        'role': ReSTXRefRole(),
+        'dir':  XRefRole(),
+        'role': XRefRole(),
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
