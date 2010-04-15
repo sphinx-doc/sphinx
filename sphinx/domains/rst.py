@@ -109,6 +109,9 @@ class ReSTDomain(Domain):
             return None
         return make_refnode(builder, fromdocname, objects[target][0], target,
                contnode, target)
-
     
+    def get_objects(self):
+        for name, (docname, type) in self.data['objects'].iteritems():
+            yield name, type, docname, name, 1
+
 
