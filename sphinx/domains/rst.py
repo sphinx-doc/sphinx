@@ -30,7 +30,14 @@ class ReSTMarkup(ObjectDescription):
             self.state.document.note_explicit_target(signode)
         
             objects = self.env.domaindata['rst']['objects']
-            #XXX add warning for duplicate definitions
+            print objects
+            if name in objects:
+                self.env.warn(
+                    self.env.docname,
+                    'duplicate object description of %s, ' % name +
+                    'other instance in ' +
+                    self.env.doc2path(objects[name][0]),
+                    self.lineno)
             objects[name] = self.env.docname, self.objtype
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
@@ -89,6 +96,11 @@ class ReSTDomain(Domain):
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
     }
+    
+    def clear_doc(self, docname):
+        for name, (doc, _) in self.data['objects'].items():
+            if doc == docname:
+                del self.data['objects'][name]
     
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
