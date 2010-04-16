@@ -53,24 +53,31 @@ class ReSTMarkup(ObjectDescription):
             return _('%s (role)') % name
         return ''
 
+def parse_directive(d):
+    """
+    Parses a directive. Returns (directive, arguments) string tuple. 
+    if no arguments are given, returns (directive, '').
+    """
+    dir = d.strip()
+    if not dir.startswith('.'):
+        # Assume it is a directive without syntax
+        return (dir, '')
+    m = dir_sig_re.match(dir)
+    if not m:
+        return (dir, '')
+    parsed_dir, parsed_args = m.groups()
+    return (parsed_dir.strip(), parsed_args.strip())
 
 class ReSTDirective(ReSTMarkup):
     """
     Description of reST directive.
     """
     def handle_signature(self, sig, signode):
-        if not sig.startswith('.'):
-            dec_sig = '.. %s::' % sig
-            signode += addnodes.desc_name(dec_sig, dec_sig)
-            return sig
-        m = dir_sig_re.match(sig)
-        if not m:
-            signode += addnodes.desc_name(sig, sig)
-            return sig
-        name, args = m.groups()
+        name, args = parse_directive(sig)
         dec_name = '.. %s::' % name
         signode += addnodes.desc_name(dec_name, dec_name)
-        signode += addnodes.desc_addname(args, args)
+        if len(args) > 0:
+            signode += addnodes.desc_addname(args, args)
         return name
 
 class ReSTRole(ReSTMarkup):
