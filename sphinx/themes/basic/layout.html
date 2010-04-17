@@ -4,6 +4,8 @@
 {%- endblock %}
 {%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
+{%- set url_root = pathto('', 1) %}
+{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 
 {%- macro relbar() %}
     <div class="related">
@@ -104,7 +106,7 @@
     {%- if not embedded %}
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '{{ pathto("", 1) }}',
+        URL_ROOT:    '{{ url_root }}',
         VERSION:     '{{ release|e }}',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '{{ file_suffix }}',
