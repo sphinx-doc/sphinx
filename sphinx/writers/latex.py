@@ -374,7 +374,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_topic(self, node):
         self.body.append('\\setbox0\\vbox{\n'
-                         '\\begin{minipage}{0.95\\textwidth}\n')
+                         '\\begin{minipage}{0.95\\linewidth}\n')
     def depart_topic(self, node):
         self.body.append('\\end{minipage}}\n'
                          '\\begin{center}\\setlength{\\fboxsep}{5pt}'
@@ -608,13 +608,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif self.table.has_verbatim:
             self.body.append('\n\\begin{tabular}')
         else:
-            self.body.append('\n\\begin{tabulary}{\\textwidth}')
+            self.body.append('\n\\begin{tabulary}{\\linewidth}')
         if self.table.colspec:
             self.body.append(self.table.colspec)
         else:
             if self.table.has_verbatim:
                 colwidth = 0.95 / self.table.colcount
-                colspec = ('p{%.3f\\textwidth}|' % colwidth) * \
+                colspec = ('p{%.3f\\linewidth}|' % colwidth) * \
                           self.table.colcount
                 self.body.append('{|' + colspec + '}\n')
             elif self.table.longtable:

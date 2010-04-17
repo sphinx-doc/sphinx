@@ -140,7 +140,7 @@
 \newlength\leftsidespace
 \def\mycolorbox#1{%
   \setlength\leftsidespace{\@totalleftmargin}%
-  \setlength\distancetoright{\textwidth}%
+  \setlength\distancetoright{\linewidth}%
   \advance\distancetoright -\@totalleftmargin %
   \noindent\hspace*{\@totalleftmargin}%
   \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
@@ -233,7 +233,7 @@
 \newcommand{\pysiglinewithargsret}[3]{%
   \settowidth{\py@argswidth}{#1\code{(}}%
   \addtolength{\py@argswidth}{-2\py@argswidth}%
-  \addtolength{\py@argswidth}{\textwidth}%
+  \addtolength{\py@argswidth}{\linewidth}%
   \item[#1\code{(}\py@sigparams{#2}{#3}]}
 
 % This version is being checked in for the historical record; it shows
