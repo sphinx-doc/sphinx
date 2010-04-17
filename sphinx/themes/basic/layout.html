@@ -15,6 +15,8 @@
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
                          (not sidebars == []) %}
+{%- set url_root = pathto('', 1) %}
+{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 
 {%- macro relbar() %}
     <div class="related">
@@ -96,7 +98,7 @@
     {%- if not embedded %}
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '{{ pathto("", 1) }}',
+        URL_ROOT:    '{{ url_root }}',
         VERSION:     '{{ release|e }}',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '{{ file_suffix }}',

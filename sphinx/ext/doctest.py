@@ -196,6 +196,8 @@ class DocTestBuilder(Builder):
         # that code nevertheless, we monkey-patch the "compile" it uses.
         doctest.compile = self.compile
 
+        sys.path[0:0] = self.config.doctest_path
+
         self.type = 'single'
 
         self.total_failures = 0
@@ -245,8 +247,6 @@ Doctest summary
 
         if self.total_failures or self.setup_failures:
             self.app.statuscode = 1
-
-        sys.path[0:0] = self.config.doctest_path
 
     def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None:

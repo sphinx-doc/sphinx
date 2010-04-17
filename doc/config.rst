@@ -149,8 +149,8 @@ General configuration
    :confval:`language`), relative to the source directory.  The directories on
    this path are searched by the standard :mod:`gettext` module for a domain of
    ``sphinx``; so if you add the directory :file:`./locale` to this settting,
-   the message catalogs must be in
-   :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
+   the message catalogs (compiled from ``.po`` format using :program:`msgfmt`)
+   must be in :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
 
    The default is ``[]``.
 

@@ -89,6 +89,16 @@ Release 1.0 (in development)
 Release 0.6.6 (in development)
 ==============================
 
+* #387: Fix the display of search results in ``dirhtml`` output.
+
+* #376: In autodoc, fix display of parameter defaults containing
+  backslashes.
+
+* #370: Fix handling of complex list item labels in LaTeX output.
+
+* #374: Make the ``doctest_path`` config value of the doctest
+  extension actually work.
+
 * Fix the handling of multiple toctrees when creating the global
   TOC for the ``toctree()`` template function.
 
