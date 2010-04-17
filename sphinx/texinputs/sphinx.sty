@@ -145,7 +145,6 @@
   \noindent\hspace*{\@totalleftmargin}%
   \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
   \begin{minipage}{\distancetoright}%
-    \smallskip%
     \noindent\hspace*{-\leftsidespace}%
     #1
   \end{minipage}%
@@ -154,6 +153,9 @@
 \def\FrameCommand{\mycolorbox}
 
 \renewcommand{\Verbatim}[1][1]{%
+  % list starts new par, but we don't want it to be set apart vertically
+  \bgroup\parskip=0pt%
+  \smallskip%
   % The list environement is needed to control perfectly the vertical
   % space.
   \list{}{%
@@ -171,6 +173,8 @@
     \endOriginalVerbatim%
   \endMakeFramed%
   \endlist%
+  % close group to restore \parskip
+  \egroup%
 }
 
 
