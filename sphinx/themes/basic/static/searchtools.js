@@ -465,7 +465,8 @@ var Search = {
             displayNextItem();
           });
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
-          $.get('_sources/' + item[0] + '.txt', function(data) {
+          $.get(DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' +
+                item[0] + '.txt', function(data) {
             listItem.append($.makeSearchSummary(data, searchterms, hlterms));
             Search.output.append(listItem);
             listItem.slideDown(5, function() {

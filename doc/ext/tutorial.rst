@@ -201,7 +201,7 @@ The ``todo`` directive function looks like this::
        def run(self):
            env = self.state.document.settings.env
 
-           targetid = "todo-%s" % env.new_serialno('todo')
+           targetid = "todo-%d" % env.new_serialno('todo')
            targetnode = nodes.target('', '', ids=[targetid])
 
            ad = make_admonition(todo, self.name, [_('Todo')], self.options,

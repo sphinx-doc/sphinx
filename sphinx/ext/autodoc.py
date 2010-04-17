@@ -841,7 +841,10 @@ class FunctionDocumenter(ModuleLevelDocumenter):
                 argspec = inspect.getargspec(self.object.__init__)
                 if argspec[0]:
                     del argspec[0][0]
-        return inspect.formatargspec(*argspec)
+        args = inspect.formatargspec(*argspec)
+        # escape backslashes for reST
+        args = args.replace('\\', '\\\\')
+        return args
 
     def document_members(self, all_members=False):
         pass
