@@ -201,7 +201,7 @@ The ``todo`` directive function looks like this::
        def run(self):
            env = self.state.document.settings.env
 
-           targetid = "todo-%s" % env.index_num
+           targetid = "todo-%d" % env.index_num
            env.index_num += 1
            targetnode = nodes.target('', '', ids=[targetid])
 
