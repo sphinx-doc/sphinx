@@ -27,13 +27,13 @@ further translation is necessary when building LaTeX output.
 
 :mod:`mathbase` defines these new markup elements:
 
-.. role:: math
+.. rst:role:: math
 
    Role for inline math.  Use like this::
 
       Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
 
-.. directive:: math
+.. rst:directive:: math
 
    Directive for displayed math (math that takes the whole line for itself).
 
@@ -66,7 +66,7 @@ further translation is necessary when building LaTeX output.
    Normally, equations are not numbered.  If you want your equation to get a
    number, use the ``label`` option.  When given, it selects a label for the
    equation, by which it can be cross-referenced, and causes an equation number
-   to be issued.  See :role:`eqref` for an example.  The numbering style depends
+   to be issued.  See :rst:role:`eqref` for an example.  The numbering style depends
    on the output format.
 
    There is also an option ``nowrap`` that prevents any wrapping of the given
@@ -81,7 +81,7 @@ further translation is necessary when building LaTeX output.
             f(x) & = & x^2 + 2xy + y^2
          \end{eqnarray}
 
-.. role:: eq
+.. rst:role:: eq
 
    Role for cross-referencing equations via their label.  This currently works
    only within the same document.  Example::

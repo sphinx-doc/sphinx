@@ -223,8 +223,8 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 .. module:: sphinx.builders.changes
 .. class:: ChangesBuilder
 
-   This builder produces an HTML overview of all :dir:`versionadded`,
-   :dir:`versionchanged` and :dir:`deprecated` directives for the current
+   This builder produces an HTML overview of all :rst:dir:`versionadded`,
+   :rst:dir:`versionchanged` and :rst:dir:`deprecated` directives for the current
    :confval:`version`.  This is useful to generate a ChangeLog file, for
    example.
 

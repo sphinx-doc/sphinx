@@ -90,7 +90,7 @@ Adding content
 In Sphinx source files, you can use most features of standard reStructuredText.
 There are also several features added by Sphinx.  For example, you can add
 cross-file references in a portable way (which works for all output types) using
-the :role:`ref` role.
+the :rst:role:`ref` role.
 
 For an example, if you are viewing the HTML version you can look at the source
 for this document -- use the "Show Source" link in the sidebar.
@@ -164,7 +164,7 @@ prefix the markup with the domain name::
 does the same job if you keep the default setting for the default domain.
 
 There are several more directives for documenting other types of Python objects,
-for example :dir:`py:class` or :dir:`py:method`.  There is also a
+for example :rst:dir:`py:class` or :rst:dir:`py:method`.  There is also a
 cross-referencing :dfn:`role` for each of these object types.  This markup will
 create a link to the documentation of ``enumerate()``::
 

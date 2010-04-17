@@ -49,7 +49,7 @@ more versatile:
 Cross-referencing arbitrary locations
 -------------------------------------
 
-.. role:: ref
+.. rst:role:: ref
 
    To support cross-referencing to arbitrary locations in any document, the
    standard reST labels are used.  For this to work label names must be unique
@@ -87,7 +87,7 @@ Cross-referencing arbitrary locations
      to, but you must give the link an explicit title, using this syntax:
      ``:ref:`Link title <label-name>```.
 
-   Using :role:`ref` is advised over standard reStructuredText links to sections
+   Using :rst:role:`ref` is advised over standard reStructuredText links to sections
    (like ```Section title`_``) because it works across files, when section
    headings are changed, and for all builders that support cross-references.
 
@@ -99,7 +99,7 @@ Cross-referencing documents
 
 There is also a way to directly link to documents:
 
-.. role:: doc
+.. rst:role:: doc
 
    Link to the specified document; the document name can be specified in
    absolute or relative fashion.  For example, if the reference
@@ -116,7 +116,7 @@ Referencing downloadable files
 
 .. versionadded:: 0.6
 
-.. role:: download
+.. rst:role:: download
 
    This role lets you link to files within your source tree that are not reST
    documents that can be viewed, but files that can be downloaded.
@@ -144,7 +144,7 @@ Other semantic markup
 The following roles don't do anything special except formatting the text
 in a different style:
 
-.. role:: abbr
+.. rst:role:: abbr
 
    An abbreviation.  If the role content contains a parenthesized explanation,
    it will be treated specially: it will be shown in a tool-tip in HTML, and
@@ -154,16 +154,16 @@ in a different style:
 
    .. versionadded:: 0.6
 
-.. role:: command
+.. rst:role:: command
 
    The name of an OS-level command, such as ``rm``.
 
-.. role:: dfn
+.. rst:role:: dfn
 
    Mark the defining instance of a term in the text.  (No index entries are
    generated.)
 
-.. role:: file
+.. rst:role:: file
 
    The name of a file or directory.  Within the contents, you can use curly
    braces to indicate a "variable" part, for example::
@@ -173,7 +173,7 @@ in a different style:
    In the built documentation, the ``x`` will be displayed differently to
    indicate that it is to be replaced by the Python minor version.
 
-.. role:: guilabel
+.. rst:role:: guilabel
 
    Labels presented as part of an interactive user interface should be marked
    using ``guilabel``.  This includes labels from text-based interfaces such as
@@ -182,7 +182,7 @@ in a different style:
    labels, window titles, field names, menu and menu selection names, and even
    values in selection lists.
 
-.. role:: kbd
+.. rst:role:: kbd
 
    Mark a sequence of keystrokes.  What form the key sequence takes may depend
    on platform- or application-specific conventions.  When there are no relevant
@@ -192,7 +192,7 @@ in a different style:
    reference to a specific application or platform, the same sequence should be
    marked as ``:kbd:`Control-x Control-f```.
 
-.. role:: mailheader
+.. rst:role:: mailheader
 
    The name of an RFC 822-style mail header.  This markup does not imply that
    the header is being used in an email message, but can be used to refer to any
@@ -202,16 +202,16 @@ in a different style:
    being preferred where there is more than one common usage. For example:
    ``:mailheader:`Content-Type```.
 
-.. role:: makevar
+.. rst:role:: makevar
 
    The name of a :command:`make` variable.
 
-.. role:: manpage
+.. rst:role:: manpage
 
    A reference to a Unix manual page including the section,
    e.g. ``:manpage:`ls(1)```.
 
-.. role:: menuselection
+.. rst:role:: menuselection
 
    Menu selections should be marked using the ``menuselection`` role.  This is
    used to mark a complete sequence of menu selections, including selecting
@@ -227,26 +227,26 @@ in a different style:
    ellipsis some operating systems use to indicate that the command opens a
    dialog, the indicator should be omitted from the selection name.
 
-.. role:: mimetype
+.. rst:role:: mimetype
 
    The name of a MIME type, or a component of a MIME type (the major or minor
    portion, taken alone).
 
-.. role:: newsgroup
+.. rst:role:: newsgroup
 
    The name of a Usenet newsgroup.
 
-.. role:: program
+.. rst:role:: program
 
    The name of an executable program.  This may differ from the file name for
    the executable for some platforms.  In particular, the ``.exe`` (or other)
    extension should be omitted for Windows programs.
 
-.. role:: regexp
+.. rst:role:: regexp
 
    A regular expression. Quotes should not be included.
 
-.. role:: samp
+.. rst:role:: samp
 
    A piece of literal text, such as code.  Within the contents, you can use
    curly braces to indicate a "variable" part, as in ``:file:``.
@@ -257,13 +257,13 @@ in a different style:
 
 The following roles generate external links:
 
-.. role:: pep
+.. rst:role:: pep
 
    A reference to a Python Enhancement Proposal.  This generates appropriate
    index entries. The text "PEP *number*\ " is generated; in the HTML output,
    this text is a hyperlink to an online copy of the specified PEP.
 
-.. role:: rfc
+.. rst:role:: rfc
 
    A reference to an Internet Request for Comments.  This generates appropriate
    index entries. The text "RFC *number*\ " is generated; in the HTML output,
@@ -280,31 +280,31 @@ Cross-referencing other items of interest
 The following roles do possibly create a cross-reference, but do not refer to
 objects:
 
-.. role:: envvar
+.. rst:role:: envvar
 
    An environment variable.  Index entries are generated.  Also generates a link
-   to the matching :dir:`envvar` directive, if it exists.
+   to the matching :rst:dir:`envvar` directive, if it exists.
 
-.. role:: token
+.. rst:role:: token
 
    The name of a grammar token (used to create links between
-   :dir:`productionlist` directives).
+   :rst:dir:`productionlist` directives).
 
-.. role:: keyword
+.. rst:role:: keyword
 
    The name of a keyword in Python.  This creates a link to a reference label
    with that name, if it exists.
 
-.. role:: option
+.. rst:role:: option
 
    A command-line option to an executable program.  The leading hyphen(s) must
-   be included.  This generates a link to a :dir:`option` directive, if it
+   be included.  This generates a link to a :rst:dir:`option` directive, if it
    exists.
 
 
 The following role creates a cross-reference to the term in the glossary:
 
-.. role:: term
+.. rst:role:: term
 
    Reference to a term in the glossary.  The glossary is created using the
    ``glossary`` directive containing a definition list with terms and

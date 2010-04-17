@@ -27,18 +27,18 @@ two locations for documentation, while at the same time avoiding
 auto-generated-looking pure API documentation.
 
 :mod:`autodoc` provides several directives that are versions of the usual
-:dir:`module`, :dir:`class` and so forth.  On parsing time, they import the
+:rst:dir:`module`, :rst:dir:`class` and so forth.  On parsing time, they import the
 corresponding module and extract the docstring of the given objects, inserting
-them into the page source under a suitable :dir:`module`, :dir:`class` etc.
+them into the page source under a suitable :rst:dir:`module`, :rst:dir:`class` etc.
 directive.
 
 .. note::
 
-   Just as :dir:`class` respects the current :dir:`module`, :dir:`autoclass`
-   will also do so, and likewise with :dir:`method` and :dir:`class`.
+   Just as :rst:dir:`class` respects the current :rst:dir:`module`, :rst:dir:`autoclass`
+   will also do so, and likewise with :rst:dir:`method` and :rst:dir:`class`.
 
 
-.. directive:: automodule
+.. rst:directive:: automodule
                autoclass
                autoexception
 
@@ -127,27 +127,27 @@ directive.
 
      .. versionadded:: 0.4
 
-   * The :dir:`automodule`, :dir:`autoclass` and :dir:`autoexception` directives
+   * The :rst:dir:`automodule`, :rst:dir:`autoclass` and :rst:dir:`autoexception` directives
      also support a flag option called ``show-inheritance``.  When given, a list
      of base classes will be inserted just below the class signature (when used
-     with :dir:`automodule`, this will be inserted for every class that is
+     with :rst:dir:`automodule`, this will be inserted for every class that is
      documented in the module).
 
      .. versionadded:: 0.4
 
    * All autodoc directives support the ``noindex`` flag option that has the
-     same effect as for standard :dir:`function` etc. directives: no index
+     same effect as for standard :rst:dir:`function` etc. directives: no index
      entries are generated for the documented object (and all autodocumented
      members).
 
      .. versionadded:: 0.4
 
-   * :dir:`automodule` also recognizes the ``synopsis``, ``platform`` and
-     ``deprecated`` options that the standard :dir:`module` directive supports.
+   * :rst:dir:`automodule` also recognizes the ``synopsis``, ``platform`` and
+     ``deprecated`` options that the standard :rst:dir:`module` directive supports.
 
      .. versionadded:: 0.5
 
-   * :dir:`automodule` and :dir:`autoclass` also has an ``member-order`` option
+   * :rst:dir:`automodule` and :rst:dir:`autoclass` also has an ``member-order`` option
      that can be used to override the global value of
      :confval:`autodoc_member_order` for one directive.
 
@@ -161,18 +161,18 @@ directive.
 
    .. note::
 
-      In an :dir:`automodule` directive with the ``members`` option set, only
+      In an :rst:dir:`automodule` directive with the ``members`` option set, only
       module members whose ``__module__`` attribute is equal to the module name
       as given to ``automodule`` will be documented.  This is to prevent
       documentation of imported classes or functions.
 
 
-.. directive:: autofunction
+.. rst:directive:: autofunction
                autodata
                automethod
                autoattribute
 
-   These work exactly like :dir:`autoclass` etc., but do not offer the options
+   These work exactly like :rst:dir:`autoclass` etc., but do not offer the options
    used for automatic member documentation.
 
    For module data members and class attributes, documentation can either be put
@@ -190,7 +190,7 @@ directive.
           """Docstring for attribute Foo.baz."""
 
    .. versionchanged:: 0.6
-      :dir:`autodata` and :dir:`autoattribute` can now extract docstrings.
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract docstrings.
 
    .. note::
 
@@ -209,12 +209,12 @@ There are also new config values that you can set:
 .. confval:: autoclass_content
 
    This value selects what content will be inserted into the main body of an
-   :dir:`autoclass` directive.  The possible values are:
+   :rst:dir:`autoclass` directive.  The possible values are:
 
    ``"class"``
       Only the class' docstring is inserted.  This is the default.  You can
-      still document ``__init__`` as a separate method using :dir:`automethod`
-      or the ``members`` option to :dir:`autoclass`.
+      still document ``__init__`` as a separate method using :rst:dir:`automethod`
+      or the ``members`` option to :rst:dir:`autoclass`.
    ``"both"``
       Both the class' and the ``__init__`` method's docstring are concatenated
       and inserted.

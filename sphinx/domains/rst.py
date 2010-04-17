@@ -35,14 +35,14 @@ class ReSTMarkup(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             objects = self.env.domaindata['rst']['objects']
-            if name in objects:
-                self.env.warn(
-                    self.env.docname,
-                    'duplicate object description of %s, ' % name +
-                    'other instance in ' +
-                    self.env.doc2path(objects[name][0]),
-                    self.lineno)
-            objects[name] = self.env.docname, self.objtype
+            if (self.objtype, name) in objects:
+                self.env.warn(self.env.docname,
+                              'duplicate description of %s %s, ' %
+                              (self.objtype, name) +
+                              'other instance in ' +
+                              self.env.doc2path(objects[name][0]),
+                              self.lineno)
+            objects[self.objtype, name] = self.env.docname
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
@@ -116,19 +116,19 @@ class ReSTDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for name, (doc, _) in self.data['objects'].items():
+        for (typ, name), doc in self.data['objects'].items():
             if doc == docname:
-                del self.data['objects'][name]
+                del self.data['objects'][typ, name]
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
         objects = self.data['objects']
 
-        if not target in objects:
+        if not (typ, target) in objects:
             return None
-        return make_refnode(builder, fromdocname, objects[target][0], target,
-               contnode, target)
+        return make_refnode(builder, fromdocname, objects[typ, target][0],
+                            target, contnode, target)
 
     def get_objects(self):
-        for name, (docname, type) in self.data['objects'].iteritems():
-            yield name, type, docname, name, 1
+        for (typ, name), docname in self.data['objects'].iteritems():
+            yield name, typ, docname, name, 1

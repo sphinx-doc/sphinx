@@ -64,11 +64,11 @@ Glossary
       changed documents.
 
    master document
-      The document that contains the root :dir:`toctree` directive.
+      The document that contains the root :rst:dir:`toctree` directive.
 
    object
       The basic building block of Sphinx documentation.  Every "object
-      directive" (e.g. :dir:`function` or :dir:`object`) creates such a block;
+      directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a block;
       and most objects can be cross-referenced to.
 
    role

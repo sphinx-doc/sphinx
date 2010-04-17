@@ -9,14 +9,14 @@
 
 There are two additional directives when using this extension:
 
-.. directive:: todo
+.. rst:directive:: todo
 
-   Use this directive like, for example, :dir:`note`.
+   Use this directive like, for example, :rst:dir:`note`.
 
    It will only show up in the output if :confval:`todo_include_todos` is true.
 
 
-.. directive:: todolist
+.. rst:directive:: todolist
 
    This directive is replaced by a list of all todo directives in the whole
    documentation, if :confval:`todo_include_todos` is true.
@@ -26,5 +26,5 @@ There is also an additional config value:
 
 .. confval:: todo_include_todos
 
-   If this is ``True``, :dir:`todo` and :dir:`todolist` produce output, else
+   If this is ``True``, :rst:dir:`todo` and :rst:dir:`todolist` produce output, else
    they produce nothing.  The default is ``False``.

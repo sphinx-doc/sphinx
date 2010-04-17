@@ -39,7 +39,7 @@ At the moment, these metadata fields are recognized:
 Meta-information markup
 -----------------------
 
-.. directive:: .. sectionauthor:: name <email>
+.. rst:directive:: .. sectionauthor:: name <email>
 
    Identifies the author of the current section.  The argument should include
    the author's name such that it can be used for presentation and email
@@ -54,10 +54,10 @@ Meta-information markup
    output.
 
 
-.. directive:: .. codeauthor:: name <email>
+.. rst:directive:: .. codeauthor:: name <email>
 
-   The :dir:`codeauthor` directive, which can appear multiple times, names the
-   authors of the described code, just like :dir:`sectionauthor` names the
+   The :rst:dir:`codeauthor` directive, which can appear multiple times, names the
+   authors of the described code, just like :rst:dir:`sectionauthor` names the
    author(s) of a piece of documentation.  It too only produces output if the
    :confval:`show_authors` configuration value is True.
 
@@ -67,7 +67,7 @@ Meta-information markup
 Including content based on tags
 -------------------------------
 
-.. directive:: .. only:: <expression>
+.. rst:directive:: .. only:: <expression>
 
    Include the content of the directive only if the *expression* is true.  The
    expression should consist of tags, like this::
@@ -92,7 +92,7 @@ HTML output, however there are some gotchas when using tables in LaTeX: the
 column width is hard to determine correctly automatically.  For this reason, the
 following directive exists:
 
-.. directive:: .. tabularcolumns:: column spec
+.. rst:directive:: .. tabularcolumns:: column spec
 
    This directive gives a "column spec" for the next table occurring in the
    source file.  The spec is the second argument to the LaTeX ``tabulary``
@@ -128,5 +128,5 @@ following directive exists:
    therefore set with the standard LaTeX ``tabular`` environment.  Also, the
    verbatim environment used for literal blocks only works in ``p{width}``
    columns, which means that by default, Sphinx generates such column specs for
-   such tables.  Use the :dir:`tabularcolumns` directive to get finer control
+   such tables.  Use the :rst:dir:`tabularcolumns` directive to get finer control
    over such tables.

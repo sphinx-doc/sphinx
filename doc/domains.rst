@@ -71,7 +71,7 @@ To avoid having to writing the domain name all the time when you e.g. only
 describe Python objects, a default domain can be selected with either the config
 value :confval:`default_domain` or this directive:
 
-.. directive:: .. default-domain:: name
+.. rst:directive:: .. default-domain:: name
 
    Select a new default domain.  While the :confval:`default_domain` selects a
    global default, this only has an effect within the same file.
@@ -114,11 +114,11 @@ The Python Domain
 The Python domain (name **py**) provides the following directives for module
 declarations:
 
-.. directive:: .. py:module:: name
+.. rst:directive:: .. py:module:: name
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
-   package name).  It does not create content (like e.g. :dir:`py:class` does).
+   package name).  It does not create content (like e.g. :rst:dir:`py:class` does).
 
    This directive will also cause an entry in the global module index.
 
@@ -135,30 +135,30 @@ declarations:
    deprecated; it will be designated as such in various locations then.
 
 
-.. directive:: .. py:currentmodule:: name
+.. rst:directive:: .. py:currentmodule:: name
 
    This directive tells Sphinx that the classes, functions etc. documented from
-   here are in the given module (like :dir:`py:module`), but it will not create
+   here are in the given module (like :rst:dir:`py:module`), but it will not create
    index entries, an entry in the Global Module Index, or a link target for
-   :role:`mod`.  This is helpful in situations where documentation for things in
+   :rst:role:`mod`.  This is helpful in situations where documentation for things in
    a module is spread over multiple files or sections -- one location has the
-   :dir:`py:module` directive, the others only :dir:`py:currentmodule`.
+   :rst:dir:`py:module` directive, the others only :rst:dir:`py:currentmodule`.
 
 
 The following directives are provided for module and class contents:
 
-.. directive:: .. py:data:: name
+.. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
    as "defined constants."  Class and object attributes are not documented
    using this environment.
 
-.. directive:: .. py:exception:: name
+.. rst:directive:: .. py:exception:: name
 
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
 
-.. directive:: .. py:function:: name(signature)
+.. rst:directive:: .. py:function:: name(signature)
 
    Describes a module-level function.  The signature should include the
    parameters, enclosing optional parameters in brackets.  Default values can be
@@ -176,7 +176,7 @@ The following directives are provided for module and class contents:
    are modified), side effects, and possible exceptions.  A small example may be
    provided.
 
-.. directive:: .. py:class:: name[(signature)]
+.. rst:directive:: .. py:class:: name[(signature)]
 
    Describes a class.  The signature can include parentheses with parameters
    which will be shown as the constructor arguments.  See also
@@ -197,27 +197,27 @@ The following directives are provided for module and class contents:
 
    The first way is the preferred one.
 
-.. directive:: .. py:attribute:: name
+.. rst:directive:: .. py:attribute:: name
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
    changed directly.
 
-.. directive:: .. py:method:: name(signature)
+.. rst:directive:: .. py:method:: name(signature)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
    described for ``function``.  See also :ref:`signatures`.
 
-.. directive:: .. py:staticmethod:: name(signature)
+.. rst:directive:: .. py:staticmethod:: name(signature)
 
-   Like :dir:`py:method`, but indicates that the method is a static method.
+   Like :rst:dir:`py:method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
 
-.. directive:: .. py:classmethod:: name(signature)
+.. rst:directive:: .. py:classmethod:: name(signature)
 
-   Like :dir:`py:method`, but indicates that the method is a class method.
+   Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
    .. versionadded:: 0.6
 
@@ -304,46 +304,46 @@ Cross-referencing Python objects
 The following roles refer to objects in modules and are possibly hyperlinked if
 a matching identifier is found:
 
-.. role:: py:mod
+.. rst:role:: py:mod
 
    Reference a module; a dotted name may be used.  This should also be used for
    package names.
 
-.. role:: py:func
+.. rst:role:: py:func
 
    Reference a Python function; dotted names may be used.  The role text needs
    not include trailing parentheses to enhance readability; they will be added
    automatically by Sphinx if the :confval:`add_function_parentheses` config
    value is true (the default).
 
-.. role:: py:data
+.. rst:role:: py:data
 
    Reference a module-level variable.
 
-.. role:: py:const
+.. rst:role:: py:const
 
    Reference a "defined" constant.  This may be a C-language ``#define`` or a
    Python variable that is not intended to be changed.
 
-.. role:: py:class
+.. rst:role:: py:class
 
    Reference a class; a dotted name may be used.
 
-.. role:: py:meth
+.. rst:role:: py:meth
 
    Reference a method of an object.  The role text can include the type name and
    the method name; if it occurs within the description of a type, the type name
    can be omitted.  A dotted name may be used.
 
-.. role:: py:attr
+.. rst:role:: py:attr
 
    Reference a data attribute of an object.
 
-.. role:: py:exc
+.. rst:role:: py:exc
 
    Reference an exception.  A dotted name may be used.
 
-.. role:: py:obj
+.. rst:role:: py:obj
 
    Reference an object of unspecified type.  Useful e.g. as the
    :confval:`default_role`.
@@ -372,7 +372,7 @@ The C Domain
 
 The C domain (name **c**) is suited for documentation of C API.
 
-.. directive:: .. c:function:: type name(signature)
+.. rst:directive:: .. c:function:: type name(signature)
 
    Describes a C function. The signature should be given as in C, e.g.::
 
@@ -384,7 +384,7 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-.. directive:: .. c:member:: type name
+.. rst:directive:: .. c:member:: type name
 
    Describes a C struct member. Example signature::
 
@@ -394,7 +394,7 @@ The C domain (name **c**) is suited for documentation of C API.
    the value should be interpreted, and whether the value can be changed.
    References to structure members in text should use the ``member`` role.
 
-.. directive:: .. c:macro:: name
+.. rst:directive:: .. c:macro:: name
 
    Describes a "simple" C macro.  Simple macros are macros which are used for
    code expansion, but which do not take arguments so cannot be described as
@@ -402,12 +402,12 @@ The C domain (name **c**) is suited for documentation of C API.
    of its use in the Python documentation include :c:macro:`PyObject_HEAD` and
    :c:macro:`Py_BEGIN_ALLOW_THREADS`.
 
-.. directive:: .. c:type:: name
+.. rst:directive:: .. c:type:: name
 
    Describes a C type (whether defined by a typedef or struct). The signature
    should just be the type name.
 
-.. directive:: .. c:var:: type name
+.. rst:directive:: .. c:var:: type name
 
    Describes a global C variable.  The signature should include the type, such
    as::
@@ -421,19 +421,19 @@ Cross-referencing C constructs
 The following roles create cross-references to C-language constructs if they are
 defined in the documentation:
 
-.. role:: c:data
+.. rst:role:: c:data
 
    Reference a C-language variable.
 
-.. role:: c:func
+.. rst:role:: c:func
 
    Reference a C-language function. Should include trailing parentheses.
 
-.. role:: c:macro
+.. rst:role:: c:macro
 
    Reference a "simple" C macro, as defined above.
 
-.. role:: c:type
+.. rst:role:: c:type
 
    Reference a C-language type.
 
@@ -445,7 +445,7 @@ The C++ domain (name **cpp**) supports documenting C++ projects.
 
 The following directives are available:
 
-.. directive:: .. cpp:class:: signatures
+.. rst:directive:: .. cpp:class:: signatures
                .. cpp:function:: signatures
                .. cpp:member:: signatures
                .. cpp:type:: signatures
@@ -457,13 +457,13 @@ The following directives are available:
 
          Describes the indexing operator of IntArrays.
 
-.. directive:: .. cpp:namespace:: namespace
+.. rst:directive:: .. cpp:namespace:: namespace
 
    Select the current C++ namespace for the following objects.
 
 These roles link to the given object types:
 
-.. role:: cpp:class
+.. rst:role:: cpp:class
           cpp:func
           cpp:member
           cpp:type
@@ -484,7 +484,7 @@ The standard domain is also where custom object descriptions, added using the
 
 There is a set of directives allowing documenting command-line programs:
 
-.. directive:: .. option:: name args, name args, ...
+.. rst:directive:: .. option:: name args, name args, ...
 
    Describes a command line option or switch.  Option argument names should be
    enclosed in angle brackets.  Example::
@@ -494,22 +494,22 @@ There is a set of directives allowing documenting command-line programs:
          Run a module as a script.
 
    The directive will create a cross-reference target named after the *first*
-   option, referencable by :role:`option` (in the example case, you'd use
+   option, referencable by :rst:role:`option` (in the example case, you'd use
    something like ``:option:`-m```).
 
-.. directive:: .. envvar:: name
+.. rst:directive:: .. envvar:: name
 
    Describes an environment variable that the documented code or program uses or
-   defines.  Referencable by :role:`envvar`.
+   defines.  Referencable by :rst:role:`envvar`.
 
-.. directive:: .. program:: name
+.. rst:directive:: .. program:: name
 
-   Like :dir:`py:currentmodule`, this directive produces no output.  Instead, it
-   serves to notify Sphinx that all following :dir:`option` directives
+   Like :rst:dir:`py:currentmodule`, this directive produces no output.  Instead, it
+   serves to notify Sphinx that all following :rst:dir:`option` directives
    document options for the program called *name*.
 
-   If you use :dir:`program`, you have to qualify the references in your
-   :role:`option` roles by the program name, so if you have the following
+   If you use :rst:dir:`program`, you have to qualify the references in your
+   :rst:role:`option` roles by the program name, so if you have the following
    situation ::
 
       .. program:: rm
@@ -536,7 +536,7 @@ There is a set of directives allowing documenting command-line programs:
 There is also a very generic object description directive, which is not tied to
 any domain:
 
-.. directive:: .. describe:: text
+.. rst:directive:: .. describe:: text
                .. object:: text
 
    This directive produces the same formatting as the specific ones provided by
@@ -553,7 +553,7 @@ The JavaScript Domain
 
 The JavaScript domain (name **js**) provides the following directives:
 
-.. directive:: .. js:function:: name(signature)
+.. rst:directive:: .. js:function:: name(signature)
 
    Describes a JavaScript function, method or constructor.  If you want to
    describe arguments as optional use square brackets as :ref:`documented
@@ -585,17 +585,17 @@ The JavaScript domain (name **js**) provides the following directives:
         :throws SomeError: For whatever reason in that case.
         :returns: Something
 
-.. directive:: .. js:data:: name
+.. rst:directive:: .. js:data:: name
 
    Describes a global variable or constant.
 
-.. directive:: .. js:attribute:: object.name
+.. rst:directive:: .. js:attribute:: object.name
 
    Describes the attribute *name* of *object*.
 
 These roles are provided to refer to the described objects:
 
-.. role:: js:func
+.. rst:role:: js:func
           js:data
           js:attr
 
@@ -605,7 +605,7 @@ The reStructuredText domain
 
 The reStructuredText domain (name **rst**) provides the following directives:
 
-.. directive:: .. rst:directive:: name
+.. rst:directive:: .. rst:directive:: name
 
    Describes a reST directive.  The *name* can be a single directive name or
    actual directive syntax (`..` prefix and `::` suffix) with arguments that
@@ -629,7 +629,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
          Bar description.
 
-.. directive:: .. rst:role:: name
+.. rst:directive:: .. rst:role:: name
 
    Describes a reST role.  For example::
 

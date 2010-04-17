@@ -87,7 +87,7 @@ General configuration
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that
-   contains the root :dir:`toctree` directive.  Default is ``'contents'``.
+   contains the root :rst:dir:`toctree` directive.  Default is ``'contents'``.
 
 .. confval:: exclude_patterns
 
@@ -203,7 +203,7 @@ General configuration
    "filter".  The default is ``None``, which doesn't reassign the default role.
 
    The default role can always be set within individual documents using the
-   standard reST :dir:`default-role` directive.
+   standard reST :rst:dir:`default-role` directive.
 
    .. versionadded:: 0.4
 
@@ -328,11 +328,11 @@ Project information
 
    A boolean that decides whether module names are prepended to all
    :term:`object` names (for object types where a "module" of some kind is
-   defined), e.g. for :dir:`function` directives.  Default is ``True``.
+   defined), e.g. for :rst:dir:`function` directives.  Default is ``True``.
 
 .. confval:: show_authors
 
-   A boolean that decides whether :dir:`moduleauthor` and :dir:`sectionauthor`
+   A boolean that decides whether :rst:dir:`moduleauthor` and :rst:dir:`sectionauthor`
    directives produce any output in the built files.
 
 .. confval:: modindex_common_prefix

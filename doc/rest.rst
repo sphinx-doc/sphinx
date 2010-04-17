@@ -428,7 +428,7 @@ for details.
 
 If you want to use some substitutions for all documents, put them into a
 separate file and include it into all documents you want to use them in, using
-the :dir:`include` directive.  Be sure to give the include file a file name
+the :rst:dir:`include` directive.  Be sure to give the include file a file name
 extension differing from that of other source files, to avoid Sphinx finding it
 as a standalone document.
 
@@ -479,5 +479,5 @@ There are some problems one commonly runs into while authoring reST documents:
 
 .. rubric:: Footnotes
 
-.. [1] When the default domain contains a :dir:`class` directive, this directive
-       will be shadowed.  Therefore, Sphinx re-exports it as :dir:`rst-class`.
+.. [1] When the default domain contains a :rst:dir:`class` directive, this directive
+       will be shadowed.  Therefore, Sphinx re-exports it as :rst:dir:`rst-class`.

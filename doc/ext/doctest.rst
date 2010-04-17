@@ -39,13 +39,13 @@ interpreted as follows: if it is empty, the block is assigned to the group named
 ``default`` group).  Otherwise, it must be a comma-separated list of group
 names.
 
-.. directive:: .. testsetup:: [group]
+.. rst:directive:: .. testsetup:: [group]
 
    A setup code block.  This code is not shown in the output for other builders,
    but executed before the doctests of the group(s) it belongs to.
 
 
-.. directive:: .. doctest:: [group]
+.. rst:directive:: .. doctest:: [group]
 
    A doctest-style code block.  You can use standard :mod:`doctest` flags for
    controlling how actual output is compared with what you give as output.  By
@@ -78,7 +78,7 @@ names.
    output.
 
 
-.. directive:: .. testcode:: [group]
+.. rst:directive:: .. testcode:: [group]
 
    A code block for a code-output-style test.
 
@@ -107,10 +107,10 @@ names.
       applies to testcode/testoutput as well.
 
 
-.. directive:: .. testoutput:: [group]
+.. rst:directive:: .. testoutput:: [group]
 
    The corresponding output, or the exception message, for the last
-   :dir:`testcode` block.
+   :rst:dir:`testcode` block.
 
    This directive supports two options:
 
@@ -134,7 +134,7 @@ names.
 
 
 The following is an example for the usage of the directives.  The test via
-:dir:`doctest` and the test via :dir:`testcode` and :dir:`testoutput` are
+:rst:dir:`doctest` and the test via :rst:dir:`testcode` and :rst:dir:`testoutput` are
 equivalent. ::
 
    The parrot module
@@ -220,5 +220,5 @@ There are also these config values for customizing the doctest extension:
    Note though that you can't have blank lines in reST doctest blocks.  They
    will be interpreted as one block ending and another one starting.  Also,
    removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
-   :dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags` to
+   :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags` to
    achieve the latter in all code blocks with Python console content.

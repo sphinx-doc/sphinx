@@ -8,7 +8,7 @@
 
 This extension is quite simple, and features only one directive:
 
-.. directive:: ifconfig
+.. rst:directive:: ifconfig
 
    Include content of the directive only if the Python expression given as an
    argument is ``True``, evaluated in the namespace of the project's

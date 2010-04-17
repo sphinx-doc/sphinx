@@ -121,7 +121,7 @@ the following public API:
      instead which does the right thing even on docutils 0.4 (which doesn't
      support directive classes otherwise).
 
-   For example, the (already existing) :dir:`literalinclude` directive would be
+   For example, the (already existing) :rst:dir:`literalinclude` directive would be
    added like this:
 
    .. code-block:: python
@@ -188,13 +188,13 @@ the following public API:
 
    you can use this markup in your documents::
 
-      .. directive:: function
+      .. rst:directive:: function
 
          Document a function.
 
       <...>
 
-      See also the :dir:`function` directive.
+      See also the :rst:dir:`function` directive.
 
    For the directive, an index entry will be generated as if you had prepended ::
 
@@ -218,7 +218,7 @@ the following public API:
    directive it generates must be empty, and will produce no output.
 
    That means that you can add semantic targets to your sources, and refer to
-   them using custom roles instead of generic ones (like :role:`ref`).  Example
+   them using custom roles instead of generic ones (like :rst:role:`ref`).  Example
    call::
 
       app.add_crossref_type('topic', 'topic', 'single: %s', docutils.nodes.emphasis)

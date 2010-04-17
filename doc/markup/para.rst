@@ -9,7 +9,7 @@ Paragraph-level markup
 These directives create short paragraphs and can be used inside information
 units as well as normal text:
 
-.. directive:: .. note::
+.. rst:directive:: .. note::
 
    An especially important bit of information about an API that a user should be
    aware of when using whatever bit of API the note pertains to.  The content of
@@ -22,15 +22,15 @@ units as well as normal text:
 
          This function is not suitable for sending spam e-mails.
 
-.. directive:: .. warning::
+.. rst:directive:: .. warning::
 
    An important bit of information about an API that a user should be very aware
    of when using whatever bit of API the warning pertains to.  The content of
    the directive should be written in complete sentences and include all
-   appropriate punctuation. This differs from :dir:`note` in that it is
-   recommended over :dir:`note` for information regarding security.
+   appropriate punctuation. This differs from :rst:dir:`note` in that it is
+   recommended over :rst:dir:`note` for information regarding security.
 
-.. directive:: .. versionadded:: version
+.. rst:directive:: .. versionadded:: version
 
    This directive documents the version of the project which added the described
    feature to the library or C API. When this applies to an entire module, it
@@ -47,24 +47,24 @@ units as well as normal text:
    Note that there must be no blank line between the directive head and the
    explanation; this is to make these blocks visually continuous in the markup.
 
-.. directive:: .. versionchanged:: version
+.. rst:directive:: .. versionchanged:: version
 
-   Similar to :dir:`versionadded`, but describes when and what changed in the named
+   Similar to :rst:dir:`versionadded`, but describes when and what changed in the named
    feature in some way (new parameters, changed side effects, etc.).
 
 --------------
 
-.. directive:: seealso
+.. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
-   external documents.  These lists are created using the :dir:`seealso`
+   external documents.  These lists are created using the :rst:dir:`seealso`
    directive.
 
-   The :dir:`seealso` directive is typically placed in a section just before any
+   The :rst:dir:`seealso` directive is typically placed in a section just before any
    sub-sections.  For the HTML output, it is shown boxed off from the main flow
    of the text.
 
-   The content of the :dir:`seealso` directive should be a reST definition list.
+   The content of the :rst:dir:`seealso` directive should be a reST definition list.
    Example::
 
       .. seealso::
@@ -82,7 +82,7 @@ units as well as normal text:
    .. versionadded:: 0.5
       The short form.
 
-.. directive:: .. rubric:: title
+.. rst:directive:: .. rubric:: title
 
    This directive creates a paragraph heading that is not used to create a
    table of contents node.
@@ -95,7 +95,7 @@ units as well as normal text:
       empty heading.
 
 
-.. directive:: centered
+.. rst:directive:: centered
 
    This directive creates a centered boldfaced line of text.  Use it as
    follows::
@@ -103,7 +103,7 @@ units as well as normal text:
       .. centered:: LICENSE AGREEMENT
 
 
-.. directive:: hlist
+.. rst:directive:: hlist
 
    This directive must contain a bullet list.  It will transform it into a more
    compact list by either distributing more than one item horizontally, or
@@ -127,7 +127,7 @@ units as well as normal text:
 Table-of-contents markup
 ------------------------
 
-The :dir:`toctree` directive, which generates tables of contents of
+The :rst:dir:`toctree` directive, which generates tables of contents of
 subdocuments, is described in :ref:`toctree-directive`.
 
 For local tables of contents, use the standard reST :rstdir:`contents directive
@@ -144,7 +144,7 @@ However, there is also an explicit directive available, to make the index more
 comprehensive and enable index entries in documents where information is not
 mainly contained in information units, such as the language reference.
 
-.. directive:: .. index:: <entries>
+.. rst:directive:: .. index:: <entries>
 
    This directive contains one or more index entries.  Each entry consists of a
    type and a value, separated by a colon.
@@ -199,10 +199,10 @@ mainly contained in information units, such as the language reference.
 Glossary
 --------
 
-.. directive:: .. glossary::
+.. rst:directive:: .. glossary::
 
    This directive must contain a reST definition list with terms and
-   definitions.  The definitions will then be referencable with the :role:`term`
+   definitions.  The definitions will then be referencable with the :rst:role:`term`
    role.  Example::
 
       .. glossary::
@@ -231,7 +231,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. directive:: .. productionlist:: [name]
+.. rst:directive:: .. productionlist:: [name]
 
    This directive is used to enclose a group of productions.  Each production is
    given on a single line and consists of a name, separated by a colon from the
@@ -239,7 +239,7 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in the
    first line.
 
-   The argument to :dir:`productionlist` serves to distinguish different sets of
+   The argument to :rst:dir:`productionlist` serves to distinguish different sets of
    production lists that belong to different grammars.
 
    Blank lines are not allowed within ``productionlist`` directive arguments.
@@ -247,7 +247,7 @@ the definition of the symbol.  There is this directive:
    The definition can contain token names which are marked as interpreted text
    (e.g. ``sum ::= `integer` "+" `integer```) -- this generates cross-references
    to the productions of these tokens.  Outside of the production list, you can
-   reference to token productions using :role:`token`.
+   reference to token productions using :rst:role:`token`.
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.

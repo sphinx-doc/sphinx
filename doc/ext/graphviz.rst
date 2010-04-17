@@ -14,7 +14,7 @@ your documents.
 It adds these directives:
 
 
-.. directive:: graphviz
+.. rst:directive:: graphviz
 
    Directive to embed graphviz code.  The input code for ``dot`` is given as the
    content.  For example::
@@ -30,7 +30,7 @@ It adds these directives:
    rendered to an embeddable PDF file.
 
 
-.. directive:: graph
+.. rst:directive:: graph
 
    Directive for embedding a single undirected graph.  The name is given as a
    directive argument, the contents of the graph are the directive content.
@@ -43,7 +43,7 @@ It adds these directives:
          "bar" -- "baz";
 
 
-.. directive:: digraph
+.. rst:directive:: digraph
 
    Directive for embedding a single directed graph.  The name is given as a
    directive argument, the contents of the graph are the directive content.

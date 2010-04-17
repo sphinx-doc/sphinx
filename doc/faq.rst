@@ -16,7 +16,7 @@ How do I...
 
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
-   the :dir:`toctree` directive where you want to start numbering.
+   the :rst:dir:`toctree` directive where you want to start numbering.
 
 ... customize the look of the built HTML files?
    Use themes, see :doc:`theming`.

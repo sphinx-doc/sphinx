@@ -11,7 +11,7 @@ documents into multiple output files, Sphinx uses a custom directive to add
 relations between the single files the documentation is made of, as well as
 tables of contents.  The ``toctree`` directive is the central element.
 
-.. directive:: toctree
+.. rst:directive:: toctree
 
    This directive inserts a "TOC tree" at the current location, using the
    individual TOCs (including "sub-TOC trees") of the documents given in the
@@ -40,7 +40,7 @@ tables of contents.  The ``toctree`` directive is the central element.
      document, the library index.  From this information it generates "next
      chapter", "previous chapter" and "parent chapter" links.
 
-   Document titles in the :dir:`toctree` will be automatically read from the
+   Document titles in the :rst:dir:`toctree` will be automatically read from the
    title of the referenced document. If that isn't what you want, you can
    specify an explicit title and target using a similar syntax to reST
    hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
@@ -147,10 +147,10 @@ The special document names (and pages generated for them) are:
   page, respectively.
 
   The general index is populated with entries from modules, all index-generating
-  :ref:`object descriptions <basic-domain-markup>`, and from :dir:`index`
+  :ref:`object descriptions <basic-domain-markup>`, and from :rst:dir:`index`
   directives.
 
-  The module index contains one entry per :dir:`module` directive.
+  The module index contains one entry per :rst:dir:`module` directive.
 
   The search page contains a form that uses the generated JSON search index and
   JavaScript to full-text search the generated documents for search words; it

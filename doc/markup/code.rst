@@ -43,14 +43,14 @@ installed) and handled in a smart way:
   This language is used until the next ``highlight`` directive is encountered.
 
 * For documents that have to show snippets in different languages, there's also
-  a :dir:`code-block` directive that is given the highlighting language
+  a :rst:dir:`code-block` directive that is given the highlighting language
   directly::
 
      .. code-block:: ruby
 
         Some Ruby code.
 
-  The directive's alias name :dir:`sourcecode` works as well.
+  The directive's alias name :rst:dir:`sourcecode` works as well.
 
 * The valid values for the highlighting language are:
 
@@ -70,7 +70,7 @@ Line numbers
 
 If installed, Pygments can generate line numbers for code blocks.  For
 automatically-highlighted blocks (those started by ``::``), line numbers must be
-switched on in a :dir:`highlight` directive, with the ``linenothreshold``
+switched on in a :rst:dir:`highlight` directive, with the ``linenothreshold``
 option::
 
    .. highlight:: python
@@ -78,7 +78,7 @@ option::
 
 This will produce line numbers for all code blocks longer than five lines.
 
-For :dir:`code-block` blocks, a ``linenos`` flag option can be given to switch
+For :rst:dir:`code-block` blocks, a ``linenos`` flag option can be given to switch
 on line numbers for the individual block::
 
    .. code-block:: ruby
@@ -90,7 +90,7 @@ on line numbers for the individual block::
 Includes
 ^^^^^^^^
 
-.. directive:: .. literalinclude:: filename
+.. rst:directive:: .. literalinclude:: filename
 
    Longer displays of verbatim text may be included by storing the example text in
    an external file containing only plain text.  The file may be included using the
