@@ -65,8 +65,10 @@ class CheckExternalLinksBuilder(Builder):
             return
 
         lineno = None
-        while lineno is None and node:
+        while lineno is None:
             node = node.parent
+            if node is None:
+                break
             lineno = node.line
 
         if uri[0:5] == 'http:' or uri[0:6] == 'https:':

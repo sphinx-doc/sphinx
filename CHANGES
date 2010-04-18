@@ -1,6 +1,8 @@
 Release 0.6.6 (in development)
 ==============================
 
+* #377: Fix crash in linkcheck builder.
+
 * #387: Fix the display of search results in ``dirhtml`` output.
 
 * #376: In autodoc, fix display of parameter defaults containing
