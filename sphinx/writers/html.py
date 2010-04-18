@@ -59,6 +59,7 @@ class HTMLTranslator(BaseTranslator):
         self.highlightlinenothreshold = sys.maxint
         self.protect_literal_text = 0
         self.add_permalinks = builder.config.html_add_permalinks
+        self.secnumber_suffix = builder.config.html_secnumber_suffix
 
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder
@@ -165,7 +166,8 @@ class HTMLTranslator(BaseTranslator):
             self.body[-1] = '<a title="%s"' % self.attval(node['reftitle']) + \
                             starttag[2:]
         if node.hasattr('secnumber'):
-            self.body.append('%s. ' % '.'.join(map(str, node['secnumber'])))
+            self.body.append(('%s' + self.secnumber_suffix) %
+                             '.'.join(map(str, node['secnumber'])))
 
     # overwritten -- we don't want source comments to show up in the HTML
     def visit_comment(self, node):
@@ -186,14 +188,16 @@ class HTMLTranslator(BaseTranslator):
 
     def add_secnumber(self, node):
         if node.hasattr('secnumber'):
-            self.body.append('.'.join(map(str, node['secnumber'])) + '. ')
+            self.body.append('.'.join(map(str, node['secnumber'])) +
+                             self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
             anchorname = '#' + node.parent['ids'][0]
             if anchorname not in self.builder.secnumbers:
                 anchorname = ''  # try first heading which has no anchor
             if anchorname in self.builder.secnumbers:
                 numbers = self.builder.secnumbers[anchorname]
-                self.body.append('.'.join(map(str, numbers)) + '. ')
+                self.body.append('.'.join(map(str, numbers)) +
+                                 self.secnumber_suffix)
 
     # overwritten
     def visit_title(self, node):

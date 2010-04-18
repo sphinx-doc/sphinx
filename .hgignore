@@ -12,3 +12,5 @@
 ^TAGS
 ^\.ropeproject/
 ^env/
+\.DS_Store$
+~$

@@ -22,6 +22,7 @@ Other contributors, listed alphabetically, are:
 * Daniel Neuhäuser -- JavaScript domain
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
+* T. Powers -- HTML output improvements
 * Stefan Seefeld -- toctree improvements
 * Antonio Valentino -- qthelp builder
 * Pauli Virtanen -- autodoc improvements, autosummary extension

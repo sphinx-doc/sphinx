@@ -59,6 +59,7 @@ class Config(object):
         keep_warnings = (False, 'env'),
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env'),
+        rst_prolog = (None, 'env'),
         trim_doctest_flags = (True, 'env'),
         default_domain = ('py', 'env'),
         needs_sphinx = (None, None),
@@ -96,6 +97,8 @@ class Config(object):
         html_show_sphinx = (True, 'html'),
         html_context = ({}, 'html'),
         html_output_encoding = ('utf-8', 'html'),
+        html_compact_lists = (True, 'html'),
+        html_secnumber_suffix = ('. ', 'html'),
 
         # HTML help only options
         htmlhelp_basename = (lambda self: make_filename(self.project), None),

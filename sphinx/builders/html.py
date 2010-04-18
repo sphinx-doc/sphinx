@@ -231,6 +231,7 @@ class StandaloneHTMLBuilder(Builder):
         self.docsettings = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,)).get_default_values()
+        self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
         self.domain_indices = []

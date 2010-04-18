@@ -185,6 +185,13 @@ General configuration
 
    .. versionadded:: 0.6
 
+.. confval:: rst_prolog
+
+   A string of reStructuredText that will be included at the beginning of every
+   source file that is read.
+
+   .. versionadded:: 1.0
+
 .. confval:: default_domain
 
    .. index:: default; domain
@@ -284,6 +291,7 @@ Project information
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
    * ``sl`` -- Slovenian
+   * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
@@ -648,6 +656,21 @@ that use Sphinx' HTMLWriter class.
    Encoding of HTML output files. Default is ``'utf-8'``.  Note that this
    encoding name must both be a valid Python encoding name and a valid HTML
    ``charset`` value.
+
+   .. versionadded:: 1.0
+
+.. confval:: html_compact_lists
+
+   If true, list items containing only a single paragraph will not be rendered
+   with a ``<p>`` element.  This is standard docutils behavior.  Default:
+   ``True``.
+
+   .. versionadded:: 1.0
+
+.. confval:: html_secnumber_suffix
+
+   Suffix for section numbers.  Default: ``". "``.  Set to ``" "`` to suppress
+   the final dot on section numbers.
 
    .. versionadded:: 1.0
 
