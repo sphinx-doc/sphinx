@@ -20,13 +20,6 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
 
-js_sig_re = re.compile(
-    r'''([^ .]+\.)? # object name
-        ([^ .]+\s*) # name
-        \((.*)\)$   # arguments
-''', re.VERBOSE)
-
-
 class JSObject(ObjectDescription):
     """
     Description of a JavaScript object.
@@ -36,10 +29,18 @@ class JSObject(ObjectDescription):
     has_arguments = False
 
     def handle_signature(self, sig, signode):
-        match = js_sig_re.match(sig)
-        if match is None:
-            raise ValueError()
-        nameprefix, name, arglist = match.groups()
+        sig = sig.strip()
+        if '(' in sig and sig[-1:] == ')':
+            prefix, arglist = sig.split('(', 1)
+            arglist = arglist[:-1].strip()
+        else:
+            prefix = sig
+            arglist = None
+        if '.' in prefix:
+            nameprefix, name = prefix.rsplit('.', 1)
+        else:
+            nameprefix = None
+            name = prefix
 
         objectname = self.env.temp_data.get('js:object')
         if nameprefix:
@@ -47,7 +48,7 @@ class JSObject(ObjectDescription):
                 # someone documenting the method of an attribute of the current
                 # object? shouldn't happen but who knows...
                 nameprefix = objectname + '.' + nameprefix
-            fullname = nameprefix + name
+            fullname = nameprefix + '.' + name
         elif objectname:
             fullname = objectname + '.' + name
         else:
@@ -59,7 +60,7 @@ class JSObject(ObjectDescription):
         signode['fullname'] = fullname
 
         if nameprefix:
-            signode += addnodes.desc_addname(nameprefix, nameprefix)
+            signode += addnodes.desc_addname(nameprefix + '.', nameprefix + '.')
         signode += addnodes.desc_name(name, name)
         if self.has_arguments:
             signode += addnodes.desc_parameterlist()
