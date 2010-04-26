@@ -250,5 +250,5 @@ BUILTIN_DOMAINS = {
     'c': CDomain,
     'cpp': CPPDomain,
     'js': JavaScriptDomain,
-    'rst': ReSTDomain
+    'rst': ReSTDomain,
 }
