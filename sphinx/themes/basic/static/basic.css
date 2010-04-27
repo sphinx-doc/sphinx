@@ -368,6 +368,28 @@ dl.glossary dt {
     margin-left: 1.5em;
 }
 
+.command,
+.guilabel,
+.makevar,
+.program
+{
+  font-weight: bold;
+}
+
+.kbd,
+.regexp
+{
+  font-family: monospace;
+  white-space: pre-wrap;
+  background-color: #ecf0f3;
+  padding: 0 1px 0 1px;
+  font-size: 0.95em;
+}
+
+.dfn {
+  font-style: italic;
+}
+
 /* -- code displays --------------------------------------------------------- */
 
 pre {

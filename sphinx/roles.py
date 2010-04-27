@@ -22,23 +22,36 @@ from sphinx.util.nodes import split_explicit_title
 
 
 generic_docroles = {
-    'command' : nodes.strong,
-    'dfn' : nodes.emphasis,
-    'guilabel' : nodes.strong,
-    'kbd' : nodes.literal,
     'mailheader' : addnodes.literal_emphasis,
-    'makevar' : nodes.strong,
     'manpage' : addnodes.literal_emphasis,
     'mimetype' : addnodes.literal_emphasis,
     'newsgroup' : addnodes.literal_emphasis,
-    'program' : nodes.strong,  # XXX should be an x-ref
-    'regexp' : nodes.literal,
 }
 
 for rolename, nodeclass in generic_docroles.iteritems():
     generic = roles.GenericRole(rolename, nodeclass)
     role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
     roles.register_local_role(rolename, role)
+
+simple_docroles = [
+    'command',
+    'dfn',
+    'guilabel',
+    'kbd',
+    'makevar',
+    'program',
+    'regexp',
+    ]
+
+def simple_docrole(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    node = nodes.inline()
+    textnode = nodes.Text(text, rawtext)
+    node += textnode
+    node["classes"].append(typ)
+    return [node], []
+
+for rolename in simple_docroles:
+    roles.register_local_role(rolename, simple_docrole)
 
 
 # -- generic cross-reference role ----------------------------------------------
