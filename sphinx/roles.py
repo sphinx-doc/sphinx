@@ -36,7 +36,6 @@ for rolename, nodeclass in generic_docroles.iteritems():
 simple_docroles = [
     'command',
     'dfn',
-    'guilabel',
     'kbd',
     'makevar',
     'program',
@@ -217,12 +216,31 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
         return [indexnode, targetnode, rn], []
 
 
-def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    return [nodes.emphasis(
-        rawtext, utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}'),
-        classes=[typ])], []
-    return role
+_amp_re = re.compile(r'&(?![&\s])')
 
+def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    if typ == 'menuselection':
+        text = utils.unescape(text).replace('-->', u'\N{TRIANGULAR BULLET}')
+    spans = _amp_re.split(text)
+
+    node = nodes.inline(rawtext=rawtext)
+    for i, span in enumerate(spans):
+        span = span.replace('&&', '&')
+        if i == 0:
+            if len(span) > 0:
+                textnode = nodes.Text(span)
+                node += textnode
+            continue
+        underline_node = nodes.inline()
+        letter_node = nodes.Text(span[0])
+        underline_node += letter_node
+        underline_node['classes'].append('underline')
+        node += underline_node
+        textnode = nodes.Text(span[1:])
+        node += textnode
+
+    node['classes'].append(typ)
+    return [node], []
 
 _litvar_re = re.compile('{([^}]+)}')
 
@@ -266,6 +284,7 @@ specific_docroles = {
 
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,
+    'guilabel': menusel_role,
     'menuselection': menusel_role,
     'file': emph_literal_role,
     'samp': emph_literal_role,

@@ -369,25 +369,37 @@ dl.glossary dt {
 }
 
 .command,
-.guilabel,
 .makevar,
 .program
 {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .kbd,
 .regexp
 {
-  font-family: monospace;
-  white-space: pre-wrap;
-  background-color: #ecf0f3;
-  padding: 0 1px 0 1px;
-  font-size: 0.95em;
+    font-family: monospace;
+    white-space: pre-wrap;
+    background-color: #ecf0f3;
+    padding: 0 1px 0 1px;
+    font-size: 0.95em;
 }
 
 .dfn {
-  font-style: italic;
+    font-style: italic;
+}
+
+.guilabel {
+    font-weight: bold;
+}
+
+.menuselection {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.underline {
+    text-decoration: underline;
 }
 
 /* -- code displays --------------------------------------------------------- */
