@@ -168,13 +168,26 @@ class CitationReferences(Transform):
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
+class CategorizeReferences(Transform):
+    """Categorize references (hyperlinks) as link outside or link inside"""
+
+    default_priority = 619
+    def apply(self):
+        for reference in self.document.traverse(nodes.reference):
+            if reference.hasattr('refuri'):
+                refuri = reference['refuri']
+                if re.match(r"(?:http|https|ftp)://", refuri):
+                    classes = ("link", "outside")
+                else:
+                    classes = ("link", "inside")
+                reference["classes"].extend(classes)
 
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
     transforms = [CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, SortIds]
+                  HandleCodeBlocks, SortIds, CategorizeReferences]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms

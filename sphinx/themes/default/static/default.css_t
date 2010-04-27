@@ -147,7 +147,8 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
-/* -- body styles ----------------------------------------------------------- */
+
+/* -- hyperlink styles ------------------------------------------------------ */
 
 a {
     color: {{ theme_linkcolor }};
@@ -162,6 +163,48 @@ a:visited {
 a:hover {
     text-decoration: underline;
 }
+
+div.toctree-wrapper a,
+div.toctree-wrapper a:visited,
+div#indices-and-tables a,
+div#indices-and-tables a:visited,
+div.sphinxsidebar a,
+div.sphinxsidebar a:visited,
+div.related a,
+div.related a:visited {
+    text-decoration: none;
+}
+
+div.toctree-wrapper a:hover,
+div#indices-and-tables a:hover,
+div.sphinxsidebar a:hover,
+div.related a:hover {
+ text-decoration: underline;
+ }
+
+a.link.outside {
+   text-decoration: none;
+   border-bottom: 1px dashed {{ theme_linkcolor }};
+} 
+
+a.link.outside:hover {
+   text-decoration: none;
+   border-bottom: none;
+} 
+
+/* To distinguish between internal & external references uncomment following */
+/*
+a.reference,
+a.reference em {
+    font-style: normal;
+}
+
+a.reference.internal em {
+    font-style: italic;
+}
+*/
+
+/* -- body styles ----------------------------------------------------------- */
 
 div.body h1,
 div.body h2,
