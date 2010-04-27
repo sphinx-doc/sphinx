@@ -390,10 +390,12 @@ dl.glossary dt {
 }
 
 .guilabel {
+    font-family: sans-serif;
     font-weight: bold;
 }
 
 .menuselection {
+    font-family: sans-serif;
     font-style: italic;
     font-weight: bold;
 }
