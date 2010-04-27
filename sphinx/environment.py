@@ -176,7 +176,7 @@ class CategorizeReferences(Transform):
         for reference in self.document.traverse(nodes.reference):
             if reference.hasattr('refuri'):
                 refuri = reference['refuri']
-                if re.match(r"(?:http|https|ftp)://", refuri):
+                if re.match(r"(?i)(?:http|https|ftp)://", refuri):
                     classes = ("link", "outside")
                 else:
                     classes = ("link", "inside")
