@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
     sphinx.roles
@@ -231,11 +232,11 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
                 textnode = nodes.Text(span)
                 node += textnode
             continue
-        underline_node = nodes.inline()
+        accel_node = nodes.inline()
         letter_node = nodes.Text(span[0])
-        underline_node += letter_node
-        underline_node['classes'].append('underline')
-        node += underline_node
+        accel_node += letter_node
+        accel_node['classes'].append('accelerator')
+        node += accel_node
         textnode = nodes.Text(span[1:])
         node += textnode
 
