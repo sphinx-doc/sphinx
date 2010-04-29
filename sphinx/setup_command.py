@@ -85,18 +85,21 @@ class BuildDoc(Command):
         self.config_dir = None
 
     def _guess_source_dir(self):
-        for guess in ('doc', 'docs', '.'):
+        for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
             for root, dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
+        return None
 
     def finalize_options(self):
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
             self.announce('Using source directory %s' % self.source_dir)
         self.ensure_dirname('source_dir')
+        if self.source_dir is None:
+            self.source_dir = os.curdir
         self.source_dir = os.path.abspath(self.source_dir)
         if self.config_dir is None:
             self.config_dir = self.source_dir
