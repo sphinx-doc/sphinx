@@ -85,7 +85,7 @@ class BuildDoc(Command):
         self.config_dir = None
 
     def _guess_source_dir(self):
-        for guess in ('doc', 'docs'):
+        for guess in ('doc', 'docs', '.'):
             if not os.path.isdir(guess):
                 continue
             for root, dirnames, filenames in os.walk(guess):
