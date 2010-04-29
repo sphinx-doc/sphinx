@@ -64,6 +64,7 @@ class BuildDoc(Command):
         ('all-files', 'a', 'build all files'),
         ('source-dir=', 's', 'Source directory'),
         ('build-dir=', None, 'Build directory'),
+        ('config-dir=', 'c', 'Location of the configuration directory'),
         ('builder=', 'b', 'The builder to use. Defaults to "html"'),
         ('project=', None, 'The documented project\'s name'),
         ('version=', None, 'The short X.Y version'),
@@ -81,6 +82,7 @@ class BuildDoc(Command):
         self.version = ''
         self.release = ''
         self.today = ''
+        self.config_dir = None
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -96,6 +98,8 @@ class BuildDoc(Command):
             self.announce('Using source directory %s' % self.source_dir)
         self.ensure_dirname('source_dir')
         self.source_dir = os.path.abspath(self.source_dir)
+        if self.config_dir is None:
+            self.config_dir = self.source_dir
 
         if self.build_dir is None:
             build = self.get_finalized_command('build')
@@ -122,7 +126,7 @@ class BuildDoc(Command):
              confoverrides['release'] = self.release
         if self.today:
              confoverrides['today'] = self.today
-        app = Sphinx(self.source_dir, self.source_dir,
+        app = Sphinx(self.source_dir, self.config_dir,
                      self.builder_target_dir, self.doctree_dir,
                      self.builder, confoverrides, status_stream,
                      freshenv=self.fresh_env)
