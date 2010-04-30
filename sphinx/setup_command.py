@@ -71,8 +71,9 @@ class BuildDoc(Command):
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
         ('today=', None, 'How to format the current date, used as the '
          'replacement for |today|'),
+        ('link-index', 'i', 'Link index.html to the master doc'),
     ]
-    boolean_options = ['fresh-env', 'all-files']
+    boolean_options = ['fresh-env', 'all-files', 'link-index']
 
 
     def initialize_options(self):
@@ -83,6 +84,7 @@ class BuildDoc(Command):
         self.release = ''
         self.today = ''
         self.config_dir = None
+        self.link_index = False
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -147,3 +149,8 @@ class BuildDoc(Command):
                                                        'backslashreplace')
             else:
                 raise
+
+        if self.link_index:
+            src = app.config.master_doc + app.builder.out_suffix
+            dst = app.builder.get_outfilename('index')
+            os.symlink(src, dst)
