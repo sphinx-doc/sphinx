@@ -132,6 +132,8 @@ class DefExpr(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    __hash__ = None
+
     def clone(self):
         """Close a definition expression node"""
         return deepcopy(self)
