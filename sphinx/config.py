@@ -165,8 +165,8 @@ class Config(object):
             try:
                 try:
                     os.chdir(dirname)
+                    f = open(config_file, 'U')
                     try:
-                        f = open(config_file, 'U')
                         exec f in config
                     finally:
                         f.close()
