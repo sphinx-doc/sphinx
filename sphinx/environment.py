@@ -1488,8 +1488,9 @@ class BuildEnvironment:
             i += 1
 
         # group the entries by letter
-        def keyfunc2((k, v), letters=string.ascii_uppercase + '_'):
+        def keyfunc2(item, letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
+            k, v = item
             v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
             # now calculate the key
             letter = k[0].upper()
