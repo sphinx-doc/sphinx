@@ -1,0 +1,19 @@
+Changes
+=======
+
+This file contains changes made by Daniel Neuhäuser, during the Google Summer
+of Code 2010, to port Sphinx to Python 3.x. Changes are ordered descending by
+date.
+
+May 1: - Removed deprecated tuple parameter unpacking.
+       - Removed a pre-2.3 workaround for booleans because this creates a
+         deprecation warning for 3.x, in which you can't assign values to
+         booleans.
+       - Moved :func:`open()` calls out of the try-blocks, which fixes revision
+         c577c25bd44b.
+
+April 30: Made :cls:`sphinx.domains.cpp.DefExpr` unhashable as described by the
+          documentation because classes in 3.x don't inherit ``__hash__`` if
+	  they implement ``__eq__``.
+
+April 29: Removed several deprecated function/method calls.
