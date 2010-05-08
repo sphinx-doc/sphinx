@@ -64,8 +64,13 @@ except NameError:
 
 # Universal newline support
 _textmode = 'r'
-if hasattr(file, 'newlines'):
+try:
+    file
+except NameError:
     _textmode = 'U'
+else:
+    if hasattr(file, 'newlines'):
+        _textmode = 'U'
 
 
 class TreeWalkWarning(Warning):
