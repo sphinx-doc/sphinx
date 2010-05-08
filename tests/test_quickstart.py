@@ -87,9 +87,10 @@ def test_quickstart_defaults(tempdir):
     ns = {}
     f = open(conffile, 'U')
     try:
-        exec f in ns
+        code = compile(f.read(), conffile, 'exec')
     finally:
         f.close()
+    exec code in ns
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['source_suffix'] == '.rst'
@@ -144,9 +145,10 @@ def test_quickstart_all_answers(tempdir):
     ns = {}
     f = open(conffile, 'U')
     try:
-        exec f in ns
+        code = compile(f.read(), conffile, 'exec')
     finally:
         f.close()
+    exec code in ns
     assert ns['extensions'] == ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'

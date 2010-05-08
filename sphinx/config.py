@@ -167,9 +167,10 @@ class Config(object):
                     os.chdir(dirname)
                     f = open(config_file, 'U')
                     try:
-                        exec f in config
+                        code = compile(f.read(), config_file, 'exec')
                     finally:
                         f.close()
+                    exec code in config
                 except SyntaxError, err:
                     raise ConfigError('There is a syntax error in your '
                                       'configuration file: ' + str(err))
