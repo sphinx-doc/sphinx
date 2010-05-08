@@ -168,11 +168,14 @@ def save_traceback():
     """
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
-    os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
-                                                  docutils.__version_details__))
-    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
-    os.write(fd, exc)
+    os.write(fd,
+        (('# Sphinx version: %s\n'
+          '# Docutils version: %s %s\n'
+          '# Jinja2 version: %s\n') % (sphinx.__version__,
+                                       docutils.__version__,
+                                       docutils.__version_details__,
+                                       jinja2.__version__)).encode('utf-8'))
+    os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
 
