@@ -11,6 +11,7 @@
 
 import sys, os, time
 from os import path
+from codecs import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -659,17 +660,20 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
         x = raw_input(prompt)
         if default and not x:
             x = default
-        if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
-            if TERM_ENCODING:
-                x = x.decode(TERM_ENCODING)
-            else:
-                print turquoise('* Note: non-ASCII characters entered '
-                                'and terminal encoding unknown -- assuming '
-                                'UTF-8 or Latin-1.')
-                try:
-                    x = x.decode('utf-8')
-                except UnicodeDecodeError:
-                    x = x.decode('latin1')
+        # in 3.x raw_input returns a unicode string, those have no decode
+        # method
+        if not isinstance(x, unicode):
+            if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
+                if TERM_ENCODING:
+                    x = x.decode(TERM_ENCODING)
+                else:
+                    print turquoise('* Note: non-ASCII characters entered '
+                                    'and terminal encoding unknown -- assuming '
+                                    'UTF-8 or Latin-1.')
+                    try:
+                        x = x.decode('utf-8')
+                    except UnicodeDecodeError:
+                        x = x.decode('latin1')
         try:
             x = validator(x)
         except ValidationError, err:
@@ -834,28 +838,28 @@ directly.'''
     if d['ext_intersphinx']:
         conf_text += INTERSPHINX_CONFIG
 
-    f = open(path.join(srcdir, 'conf.py'), 'w')
-    f.write(conf_text.encode('utf-8'))
+    f = open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
+    f.write(conf_text)
     f.close()
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    f = open(masterfile, 'w')
-    f.write((MASTER_FILE % d).encode('utf-8'))
+    f = open(masterfile, 'w', encoding='utf-8')
+    f.write(MASTER_FILE % d)
     f.close()
 
     if d['makefile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        f = open(path.join(d['path'], 'Makefile'), 'wb')
-        f.write((MAKEFILE % d).encode('utf-8'))
+        f = open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
+        f.write(MAKEFILE % d)
         f.close()
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        f = open(path.join(d['path'], 'make.bat'), 'w')
-        f.write((BATCHFILE % d).encode('utf-8'))
+        f = open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
+        f.write(BATCHFILE % d)
         f.close()
 
     print
