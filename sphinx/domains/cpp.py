@@ -110,7 +110,7 @@ class DefinitionError(Exception):
         return self.description
 
     def __str__(self):
-        return unicode(self.encode('utf-8'))
+        return unicode(self).encode('utf-8')
 
 
 class DefExpr(object):
