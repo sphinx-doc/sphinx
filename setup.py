@@ -199,4 +199,5 @@ setup(
     install_requires=requires,
     cmdclass=cmdclass,
     use_2to3=True,
+    use_2to3_fixers=['custom_fixers'],
 )
