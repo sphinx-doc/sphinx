@@ -12,16 +12,19 @@ check:
 		-i doc/_build -i ez_setup.py -i tests/path.py -i tests/coverage.py \
 		-i env -i .tox .
 
-clean: clean-pyc clean-patchfiles
+clean: clean-pyc clean-patchfiles clean-backupfiles
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
 
 clean-patchfiles:
 	find . -name '*.orig' -exec rm -f {} +
 	find . -name '*.rej' -exec rm -f {} +
+
+clean-backupfiles:
+	find . -name '*~' -exec rm -f {} +
+	find . -name '*.bak' -exec rm -f {} +
 
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
