@@ -2,12 +2,14 @@ PYTHON ?= python
 
 export PYTHONPATH = $(shell echo "$$PYTHONPATH"):./sphinx
 
-.PHONY: all check clean clean-pyc clean-patchfiles clean-generated pylint reindent test
+.PHONY: all check clean clean-pyc clean-patchfiles clean-generated pylint \
+        reindent test
 
-DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js -i sphinx/pycode/pgen2 \
-             -i sphinx/util/smartypants.py -i .ropeproject -i doc/_build -i tests/path.py \
-             -i tests/coverage.py -i env -i utils/convert.py -i utils/reindent3.py \
-             -i utils/check_sources3.py
+DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
+             -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
+             -i .ropeproject -i doc/_build -i tests/path.py \
+             -i tests/coverage.py -i env -i utils/convert.py \
+             -i utils/reindent3.py -i utils/check_sources3.py -i .tox
 
 all: clean-pyc check test
 
@@ -49,7 +51,8 @@ test: build
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
 
 covertest: build
-	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage --cover-package=sphinx $(TEST)
+	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage \
+		--cover-package=sphinx $(TEST)
 
 build:
 	@$(PYTHON) setup.py build
