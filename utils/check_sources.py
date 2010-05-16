@@ -12,8 +12,8 @@
 """
 
 import sys, os, re
-import getopt
 import cStringIO
+from optparse import OptionParser
 from os.path import join, splitext, abspath
 
 
@@ -165,34 +165,32 @@ def check_xhtml(fn, lines):
 
 
 def main(argv):
-    try:
-        gopts, args = getopt.getopt(argv[1:], "vi:")
-    except getopt.GetoptError:
-        print "Usage: %s [-v] [-i ignorepath]* [path]" % argv[0]
-        return 2
-    opts = {}
-    for opt, val in gopts:
-        if opt == '-i':
-            val = abspath(val)
-        opts.setdefault(opt, []).append(val)
+    parser = OptionParser(usage='Usage: %prog [-v] [-i ignorepath]* [path]')
+    parser.add_option('-v', '--verbose', dest='verbose', default=False,
+                      action='store_true')
+    parser.add_option('-i', '--ignore-path', dest='ignored_paths',
+                      default=[], action='append')
+    options, args = parser.parse_args(argv[1:])
 
     if len(args) == 0:
         path = '.'
     elif len(args) == 1:
         path = args[0]
     else:
-        print "Usage: %s [-v] [-i ignorepath]* [path]" % argv[0]
-        return 2
+        print args
+        parser.error('No more then one path supported')
 
-    verbose = '-v' in opts
+    verbose = options.verbose
+    ignored_paths = set(abspath(p) for p in options.ignored_paths)
 
     num = 0
     out = cStringIO.StringIO()
 
     for root, dirs, files in os.walk(path):
-        if '.svn' in dirs:
-            dirs.remove('.svn')
-        if '-i' in opts and abspath(root) in opts['-i']:
+        for vcs_dir in ['.svn', '.hg', '.git']:
+            if vcs_dir in dirs:
+                dirs.remove(vcs_dir)
+        if abspath(root) in ignored_paths:
             del dirs[:]
             continue
         in_check_pkg = root.startswith('./sphinx')
@@ -201,7 +199,7 @@ def main(argv):
             fn = join(root, fn)
             if fn[:2] == './': fn = fn[2:]
 
-            if '-i' in opts and abspath(fn) in opts['-i']:
+            if abspath(fn) in ignored_paths:
                 continue
 
             ext = splitext(fn)[1]
