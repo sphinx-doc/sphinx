@@ -47,6 +47,17 @@ recurse = 0
 dryrun  = 0
 no_backup = 0
 
+if sys.version_info >= (3, 0):
+    def tokens(readline, tokeneater):
+        for token in tokenize.tokenize(readline):
+            tokeneater(*token)
+
+    def b(s):
+        return s.encode('utf-8')
+else:
+    tokens = tokenize.tokenize
+    b = str
+
 def usage(msg=None):
     if msg is not None:
         print >> sys.stderr, msg
@@ -106,7 +117,7 @@ def check(file):
     if verbose:
         print "checking", file, "...",
     try:
-        f = open(file)
+        f = open(file, 'rb')
     except IOError, msg:
         errprint("%s: I/O Error: %s" % (file, str(msg)))
         return
@@ -129,7 +140,7 @@ def check(file):
                 os.rename(file, bak)
                 if verbose:
                     print "renamed", file, "to", bak
-            f = open(file, "w")
+            f = open(file, "wb")
             r.write(f)
             f.close()
             if verbose:
@@ -151,7 +162,7 @@ class Reindenter:
         # File lines, rstripped & tab-expanded.  Dummy at start is so
         # that we can use tokenize's 1-based line numbering easily.
         # Note that a line is all-blank iff it's "\n".
-        self.lines = [line.rstrip('\n \t').expandtabs() + "\n"
+        self.lines = [line.rstrip(b('\n \t')).expandtabs() + b("\n")
                       for line in self.raw]
         self.lines.insert(0, None)
         self.index = 1  # index into self.lines of next line
@@ -163,10 +174,10 @@ class Reindenter:
         self.stats = []
 
     def run(self):
-        tokenize.tokenize(self.getline, self.tokeneater)
+        tokens(self.getline, self.tokeneater)
         # Remove trailing empty lines.
         lines = self.lines
-        while lines and lines[-1] == "\n":
+        while lines and lines[-1] == b("\n"):
             lines.pop()
         # Sentinel.
         stats = self.stats
@@ -222,10 +233,10 @@ class Reindenter:
             else:
                 for line in lines[thisstmt:nextstmt]:
                     if diff > 0:
-                        if line == "\n":
+                        if line == b("\n"):
                             after.append(line)
                         else:
-                            after.append(" " * diff + line)
+                            after.append(b(" ") * diff + line)
                     else:
                         remove = min(getlspace(line), -diff)
                         after.append(line[remove:])
@@ -237,7 +248,7 @@ class Reindenter:
     # Line-getter for tokenize.
     def getline(self):
         if self.index >= len(self.lines):
-            line = ""
+            line = b("")
         else:
             line = self.lines[self.index]
             self.index += 1
@@ -286,7 +297,7 @@ class Reindenter:
 # Count number of leading blanks.
 def getlspace(line):
     i, n = 0, len(line)
-    while i < n and line[i] == " ":
+    while i < n and line[i] == b(" "):
         i += 1
     return i
 
