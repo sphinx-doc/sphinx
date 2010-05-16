@@ -1,7 +1,5 @@
 PYTHON ?= python3
 
-export PYTHONPATH = $(shell echo "$$PYTHONPATH"):./sphinx
-
 .PHONY: all check clean clean-pyc clean-patchfiles clean-generated pylint \
         reindent test
 
