@@ -32,8 +32,11 @@ pylint:
 reindent:
 	@$(PYTHON) utils/reindent.py -r -B .
 
-test:
+test: build
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
 
-covertest:
+covertest: build
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage --cover-package=sphinx $(TEST)
+
+build:
+	@$(PYTHON) setup.py build
