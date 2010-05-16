@@ -24,7 +24,7 @@ def main(argv):
                       action='append', default=[])
     options, args = parser.parse_args(argv)
 
-    ignored_paths = set(options.ignored_paths)
+    ignored_paths = {os.path.abspath(p) for p in options.ignored_paths}
 
     path = os.path.abspath(args[0]) if args else os.getcwd()
     convertables = []
