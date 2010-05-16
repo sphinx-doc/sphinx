@@ -1,4 +1,4 @@
-PYTHON ?= python
+PYTHON ?= python3
 
 export PYTHONPATH = $(shell echo "$$PYTHONPATH"):./sphinx
 
