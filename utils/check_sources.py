@@ -212,7 +212,10 @@ def main(argv):
 
             try:
                 f = open(fn, 'r')
-                lines = list(f)
+                try:
+                    lines = list(f)
+                finally:
+                    f.close()
             except (IOError, OSError), err:
                 print "%s: cannot open: %s" % (fn, err)
                 num += 1
