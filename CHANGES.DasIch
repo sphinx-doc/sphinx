@@ -5,6 +5,12 @@ This file contains changes made by Daniel Neuhäuser, during the Google Summer
 of Code 2010, to port Sphinx to Python 3.x. Changes are ordered descending by
 date.
 
+May 16: - Added utils/convert.py which converts entire directories of python
+          files with 2to3 and names the converted files foo3.py.
+        - Modified the Makefile so that in case Python 3 is used the scripts in
+          utils get converted with utils/convert.py and are used instead of the
+          Python 2 scripts.
+
 May 10: Fixed a couple of tests and made several small changes.
 
 May 9: - Removed ez_setup.py which does not work with Python 3.x. and replaced
