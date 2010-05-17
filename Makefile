@@ -42,9 +42,9 @@ pylint:
 
 reindent: convert-utils
 ifeq ($(PYTHON), python3)
-	@$(PYTHON) utils/reindent3.py -r -B .
+	@$(PYTHON) utils/reindent3.py -r -n .
 else
-	@$(PYTHON) utils/reindent.py -r -B .
+	@$(PYTHON) utils/reindent.py -r -n .
 endif
 
 test: build
