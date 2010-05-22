@@ -222,7 +222,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # the first item here is the default and must not be changed
         # the second item is the default for the master file and can be changed
         # by .. highlight:: directive in the master file
-        self.hlsettingstack = 2 * [[builder.config.highlight_language, sys.maxint]]
+        self.hlsettingstack = 2 * [[builder.config.highlight_language,
+                                    sys.maxint]]
         self.written_ids = set()
         self.footnotestack = []
         self.curfilestack = []
