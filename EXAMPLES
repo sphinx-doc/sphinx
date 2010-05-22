@@ -86,6 +86,7 @@ Documentation using the sphinxdoc theme
 * Matplotlib: http://matplotlib.sourceforge.net/
 * MyHDL: http://www.myhdl.org/doc/0.6/
 * NetworkX: http://networkx.lanl.gov/
+* Pweave: http://mpastell.com/pweave/
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
