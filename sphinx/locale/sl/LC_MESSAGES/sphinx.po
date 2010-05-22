@@ -1,11 +1,10 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2009-08-06 22:48+0200\n"
-"Last-Translator: Rok Garbas <rok.garbas@gmail.com>\n"
+"PO-Revision-Date: 2010-04-20 09:19+0100\n"
+"Last-Translator: Luka Marinko <luka.marinko@simt.si>\n"
 "Language-Team: Rok Garbas <rok.garbas@gmail.com>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
@@ -13,29 +12,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:103 sphinx/writers/latex.py:182
+#: sphinx/environment.py:103
+#: sphinx/writers/latex.py:182
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d %B, %Y"
 
-#: sphinx/environment.py:324 sphinx/themes/basic/genindex-single.html:2
+#: sphinx/environment.py:324
+#: sphinx/themes/basic/genindex-single.html:2
 #: sphinx/themes/basic/genindex-split.html:2
 #: sphinx/themes/basic/genindex-split.html:5
-#: sphinx/themes/basic/genindex.html:2 sphinx/themes/basic/genindex.html:5
-#: sphinx/themes/basic/genindex.html:48 sphinx/themes/basic/layout.html:131
+#: sphinx/themes/basic/genindex.html:2
+#: sphinx/themes/basic/genindex.html:5
+#: sphinx/themes/basic/genindex.html:48
+#: sphinx/themes/basic/layout.html:131
 #: sphinx/writers/latex.py:188
 msgid "Index"
 msgstr "Abecedni seznam"
 
-#: sphinx/environment.py:325 sphinx/writers/latex.py:187
+#: sphinx/environment.py:325
+#: sphinx/writers/latex.py:187
 msgid "Module Index"
 msgstr "Seznam modulov"
 
-#: sphinx/environment.py:326 sphinx/themes/basic/defindex.html:16
+#: sphinx/environment.py:326
+#: sphinx/themes/basic/defindex.html:16
 msgid "Search Page"
 msgstr "Iskalna stran"
 
-#: sphinx/roles.py:55 sphinx/directives/desc.py:747
+#: sphinx/roles.py:55
+#: sphinx/directives/desc.py:747
 #, python-format
 msgid "environment variable; %s"
 msgstr "globalna spremenljivka; %s"
@@ -58,7 +64,8 @@ msgstr "Nivo modula"
 msgid "%b %d, %Y"
 msgstr "%d %b, %Y"
 
-#: sphinx/builders/html.py:224 sphinx/themes/basic/defindex.html:21
+#: sphinx/builders/html.py:224
+#: sphinx/themes/basic/defindex.html:21
 msgid "General Index"
 msgstr "Splošni abecedni seznam"
 
@@ -66,9 +73,12 @@ msgstr "Splošni abecedni seznam"
 msgid "index"
 msgstr "abecedni seznam"
 
-#: sphinx/builders/html.py:226 sphinx/builders/htmlhelp.py:219
-#: sphinx/builders/qthelp.py:133 sphinx/themes/basic/defindex.html:19
-#: sphinx/themes/basic/modindex.html:2 sphinx/themes/basic/modindex.html:13
+#: sphinx/builders/html.py:226
+#: sphinx/builders/htmlhelp.py:219
+#: sphinx/builders/qthelp.py:133
+#: sphinx/themes/basic/defindex.html:19
+#: sphinx/themes/basic/modindex.html:2
+#: sphinx/themes/basic/modindex.html:13
 msgid "Global Module Index"
 msgstr "Splošen Seznam Modulov"
 
@@ -105,9 +115,8 @@ msgid "Return type"
 msgstr "Vrne tip"
 
 #: sphinx/directives/desc.py:186
-#, fuzzy
 msgid "Parameter"
-msgstr "Parametri"
+msgstr "Parameter"
 
 #: sphinx/directives/desc.py:190
 msgid "Parameters"
@@ -118,7 +127,8 @@ msgstr "Parametri"
 msgid "%s() (built-in function)"
 msgstr "%s() (vgrajene funkcije)"
 
-#: sphinx/directives/desc.py:419 sphinx/directives/desc.py:476
+#: sphinx/directives/desc.py:419
+#: sphinx/directives/desc.py:476
 #: sphinx/directives/desc.py:488
 #, python-format
 msgid "%s() (in module %s)"
@@ -129,7 +139,8 @@ msgstr "%s() (v modulu %s)"
 msgid "%s (built-in variable)"
 msgstr "%s (vgrajene spremenljivke)"
 
-#: sphinx/directives/desc.py:423 sphinx/directives/desc.py:514
+#: sphinx/directives/desc.py:423
+#: sphinx/directives/desc.py:514
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (v modulu %s)"
@@ -232,12 +243,12 @@ msgstr "Poglej tudi"
 #: sphinx/ext/autodoc.py:883
 #, python-format
 msgid "   Bases: %s"
-msgstr ""
+msgstr "Baza: %s"
 
 #: sphinx/ext/autodoc.py:916
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr ""
+msgstr "alias od :class:`%s`"
 
 #: sphinx/ext/todo.py:41
 msgid "Todo"
@@ -424,9 +435,8 @@ msgid "Go"
 msgstr "Potrdi"
 
 #: sphinx/themes/basic/layout.html:81
-#, fuzzy
 msgid "Enter search terms or a module, class or function name."
-msgstr "Vnesi ime mudla, razreda ali funkcije."
+msgstr "Vnesi ime modula, razreda ali funkcije."
 
 #: sphinx/themes/basic/layout.html:119
 #, python-format
@@ -437,7 +447,8 @@ msgstr "Išči med %(docstitle)s"
 msgid "About these documents"
 msgstr "O teh dokumentih"
 
-#: sphinx/themes/basic/layout.html:134 sphinx/themes/basic/search.html:2
+#: sphinx/themes/basic/layout.html:134
+#: sphinx/themes/basic/search.html:2
 #: sphinx/themes/basic/search.html:5
 msgid "Search"
 msgstr "Išči"
@@ -463,12 +474,8 @@ msgstr "Zadnjič posodobljeno na %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:191
 #, python-format
-msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
-msgstr ""
-"Narejeno s <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "Narejeno s <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
 
 #: sphinx/themes/basic/modindex.html:36
 msgid "Deprecated"
@@ -484,9 +491,10 @@ msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
 msgstr ""
+"Za pravilno delovanje Iskanja morete vklopiti\n"
+"    JavaScrip."
 
 #: sphinx/themes/basic/search.html:14
-#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
@@ -539,12 +547,14 @@ msgstr "C API spremembe"
 msgid "Other changes"
 msgstr "Ostale spremembe"
 
-#: sphinx/themes/basic/static/doctools.js:139 sphinx/writers/html.py:473
+#: sphinx/themes/basic/static/doctools.js:139
+#: sphinx/writers/html.py:473
 #: sphinx/writers/html.py:478
 msgid "Permalink to this headline"
 msgstr "Povezava na naslov"
 
-#: sphinx/themes/basic/static/doctools.js:145 sphinx/writers/html.py:80
+#: sphinx/themes/basic/static/doctools.js:145
+#: sphinx/writers/html.py:80
 msgid "Permalink to this definition"
 msgstr "Povezava na to definicijo"
 
@@ -569,12 +579,8 @@ msgid ", in "
 msgstr ", v "
 
 #: sphinx/themes/basic/static/searchtools.js:455
-msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
-"Za vaše iskanje ni rezultatov. Prosimo preglejte ali so vse besede "
-"pravilno črkovane in ali ste izbrali dovolj kategorij."
+msgid "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
+msgstr "Za vaše iskanje ni rezultatov. Prosimo preglejte ali so vse besede pravilno črkovane in ali ste izbrali dovolj kategorij."
 
 #: sphinx/themes/basic/static/searchtools.js:457
 #, python-format
@@ -587,16 +593,15 @@ msgstr "Izdaja"
 
 #: sphinx/writers/latex.py:571
 msgid "Footnotes"
-msgstr ""
+msgstr "Opombe"
 
 #: sphinx/writers/latex.py:639
 msgid "continued from previous page"
-msgstr ""
+msgstr "nadaljevanje iz prejšnje strani"
 
 #: sphinx/writers/latex.py:644
-#, fuzzy
 msgid "Continued on next page"
-msgstr "Poln indeks na eni strani"
+msgstr "Nadaljevanje na naslednji strani"
 
 #: sphinx/writers/text.py:166
 #, python-format
