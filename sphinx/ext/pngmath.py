@@ -10,6 +10,7 @@
 """
 
 import re
+import codecs
 import shutil
 import tempfile
 import posixpath
@@ -33,7 +34,7 @@ class MathExtError(SphinxError):
 
 DOC_HEAD = r'''
 \documentclass[12pt]{article}
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
@@ -89,8 +90,6 @@ def render_math(self, math):
 
     latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
     latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
-    if isinstance(latex, unicode):
-        latex = latex.encode('utf-8')
 
     # use only one tempdir per build -- the use of a directory is cleaner
     # than using temporary files, since we can clean up everything at once
@@ -100,7 +99,7 @@ def render_math(self, math):
     else:
         tempdir = self.builder._mathpng_tempdir
 
-    tf = open(path.join(tempdir, 'math.tex'), 'w')
+    tf = codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8')
     tf.write(latex)
     tf.close()
 
@@ -183,7 +182,8 @@ def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
     except MathExtError, exc:
-        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+        msg = unicode(str(exc), 'utf-8', 'replace')
+        sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
         self.builder.warn('display latex %r: ' % node['latex'] + str(exc))
