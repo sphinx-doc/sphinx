@@ -589,12 +589,12 @@ msgstr ""
 #: sphinx/writers/latex.py:644
 #, fuzzy
 msgid "Continued on next page"
-msgstr "Hakemisto yhtenä luettelona"
+msgstr ""
 
 #: sphinx/writers/text.py:166
-#, fuzzy, python-format
+#, python-format
 msgid "Platform: %s"
-msgstr "Ympäristö"
+msgstr "Ympäristö: %s"
 
 #: sphinx/writers/text.py:428
 msgid "[image]"

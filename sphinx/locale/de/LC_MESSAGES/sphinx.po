@@ -248,7 +248,7 @@ msgstr "Zu tun"
 #: sphinx/ext/todo.py:99
 #, python-format
 msgid "(The original entry is located in %s, line %d and can be found "
-msgstr "(Der ursprüngliche Eintrag steht in %s, Zeile %s, siehe "
+msgstr "(Der ursprüngliche Eintrag steht in %s, Zeile %d, siehe "
 
 #: sphinx/ext/todo.py:105
 msgid "here"
