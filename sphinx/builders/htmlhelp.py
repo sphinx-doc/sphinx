@@ -217,9 +217,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             # special books
             f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
                                                 'index.html'))
-            for index in self.domain_indices:
-                f.write('<LI> ' + object_sitemap % (index[2],
-                                                    '%s-%s.html' % index[0:2]))
+            for indexname, indexcls, content, collapse in self.domain_indices:
+                f.write('<LI> ' + object_sitemap % (indexcls.localname,
+                                                    '%s.html' % indexname))
             # the TOC
             tocdoc = self.env.get_and_resolve_doctree(
                 self.config.master_doc, self, prune_toctrees=False)
