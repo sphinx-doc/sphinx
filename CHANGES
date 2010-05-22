@@ -135,6 +135,9 @@ Release 1.0 (in development)
 Release 0.6.6 (in development)
 ==============================
 
+* #393: Fix the usage of Unicode characters in mathematic formulas
+  when using the ``pngmath`` extension.
+
 * #404: Make ``\and`` work properly in the author field of the
   ``latex_documents`` setting.
 
