@@ -1,6 +1,9 @@
 Release 0.6.6 (in development)
 ==============================
 
+* #409: Make the ``highlight_language`` config value work properly
+  in the LaTeX builder.
+
 * #418: Allow relocation of the translation JavaScript files to
   the system directory on Unix systems.
 

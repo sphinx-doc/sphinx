@@ -218,8 +218,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.bibitems = []
         self.table = None
         self.next_table_colspec = None
-        self.highlightlang = builder.config.highlight_language
-        self.highlightlinenothreshold = sys.maxint
+        # stack of [language, linenothreshold] settings per file
+        # the first item here is the default and must not be changed
+        # the second item is the default for the master file and can be changed
+        # by .. highlight:: directive in the master file
+        self.hlsettingstack = 2 * [[builder.config.highlight_language, sys.maxint]]
         self.written_ids = set()
         self.footnotestack = []
         self.curfilestack = []
@@ -291,6 +294,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\hypertarget{--doc-%s}{}' %
                          self.idescape(node['docname']))
         self.curfilestack.append(node['docname'])
+        # use default highlight settings for new file
+        self.hlsettingstack.append(self.hlsettingstack[0])
 
     def collect_footnotes(self, node):
         fnotes = {}
@@ -311,10 +316,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_start_of_file(self, node):
         self.footnotestack.pop()
         self.curfilestack.pop()
+        self.hlsettingstack.pop()
 
     def visit_highlightlang(self, node):
-        self.highlightlang = node['lang']
-        self.highlightlinenothreshold = node['linenothreshold']
+        self.hlsettingstack[-1] = [node['lang'], node['linenothreshold']]
         raise nodes.SkipNode
 
     def visit_section(self, node):
@@ -1161,8 +1166,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.verbatim = ''
     def depart_literal_block(self, node):
         code = self.verbatim.rstrip('\n')
-        lang = self.highlightlang
-        linenos = code.count('\n') >= self.highlightlinenothreshold - 1
+        lang = self.hlsettingstack[-1][0]
+        linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
         if node.has_key('language'):
             # code-block directives
             lang = node['language']
