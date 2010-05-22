@@ -115,8 +115,10 @@ class LiteralInclude(Directive):
                 line=self.lineno)]
 
         encoding = self.options.get('encoding', env.config.source_encoding)
+        codec_info = codecs.lookup(encoding)
         try:
-            f = codecs.EncodedFile(open(fn, 'U'), encoding)
+            f = codecs.StreamReaderWriter(open(fn, 'U'),
+                    codec_info.streamreader, codec_info.streamwriter, 'strict')
             lines = f.readlines()
             f.close()
         except (IOError, OSError):
