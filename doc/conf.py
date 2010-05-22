@@ -65,7 +65,7 @@ htmlhelp_basename = 'Sphinxdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
-                    'Georg Brandl', 'manual', 1)]
+                    'Georg Brandl \\and Me Myself', 'manual', 1)]
 
 # Add our logo to the LaTeX file.
 latex_logo = '_static/sphinx.png'

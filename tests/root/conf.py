@@ -41,7 +41,7 @@ htmlhelp_basename = 'SphinxTestsdoc'
 
 latex_documents = [
   ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-   'Georg Brandl', 'manual'),
+   'Georg Brandl \\and someone else', 'manual'),
 ]
 
 latex_additional_files = ['svgimg.svg']
