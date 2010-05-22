@@ -1,6 +1,9 @@
 Release 0.6.6 (in development)
 ==============================
 
+* #418: Allow relocation of the translation JavaScript files to
+  the system directory on Unix systems.
+
 * #414: Fix handling of Windows newlines in files included with
   the ``literalinclude`` directive.
 
