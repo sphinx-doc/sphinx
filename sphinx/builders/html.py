@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 import zlib
 import codecs
 import posixpath
@@ -107,10 +108,15 @@ class StandaloneHTMLBuilder(Builder):
             self.link_suffix = self.out_suffix
 
         if self.config.language is not None:
-            jsfile = path.join(package_dir, 'locale', self.config.language,
-                               'LC_MESSAGES', 'sphinx.js')
-            if path.isfile(jsfile):
-                self.script_files.append('_static/translations.js')
+            jsfile_list = [path.join(package_dir, 'locale',
+                self.config.language, 'LC_MESSAGES', 'sphinx.js'),
+                path.join(sys.prefix, 'share/sphinx/locale',
+                    self.config.language, 'sphinx.js')]
+
+            for jsfile in jsfile_list:
+                if path.isfile(jsfile):
+                    self.script_files.append('_static/translations.js')
+                    break
 
     def get_theme_config(self):
         return self.config.html_theme, self.config.html_theme_options
@@ -526,11 +532,15 @@ class StandaloneHTMLBuilder(Builder):
         f.close()
         # then, copy translations JavaScript file
         if self.config.language is not None:
-            jsfile = path.join(package_dir, 'locale', self.config.language,
-                               'LC_MESSAGES', 'sphinx.js')
-            if path.isfile(jsfile):
-                copyfile(jsfile, path.join(self.outdir, '_static',
-                                           'translations.js'))
+            jsfile_list = [path.join(package_dir, 'locale',
+                self.config.language, 'LC_MESSAGES', 'sphinx.js'),
+                path.join(sys.prefix, 'share/sphinx/locale',
+                    self.config.language, 'sphinx.js')]
+            for jsfile in jsfile_list:
+                if path.isfile(jsfile):
+                    copyfile(jsfile, path.join(self.outdir, '_static',
+                                               'translations.js'))
+                    break
         # then, copy over theme-supplied static files
         if self.theme:
             themeentries = [path.join(themepath, 'static')

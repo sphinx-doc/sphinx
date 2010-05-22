@@ -18,6 +18,7 @@ help:
 	@echo "  html      to make standalone HTML files"
 	@echo "  dirhtml   to make HTML files called index.html in directories"
 	@echo "  pickle    to make pickle files"
+	@echo "  json      to make json files"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
 	@echo "  epub      to make an epub file"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
@@ -55,6 +56,10 @@ man:
 
 pickle:
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) _build/pickle
+
+json:
+	mkdir -p _build/json _build/doctrees
+	$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) _build/json
 
 htmlhelp:
 	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) _build/htmlhelp
