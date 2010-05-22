@@ -116,7 +116,7 @@ class LiteralInclude(Directive):
 
         encoding = self.options.get('encoding', env.config.source_encoding)
         try:
-            f = codecs.open(fn, 'rU', encoding)
+            f = codecs.EncodedFile(open(fn, 'U'), encoding)
             lines = f.readlines()
             f.close()
         except (IOError, OSError):
