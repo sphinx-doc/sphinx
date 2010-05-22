@@ -135,6 +135,9 @@ Release 1.0 (in development)
 Release 0.6.6 (in development)
 ==============================
 
+* #404: Make ``\and`` work properly in the author field of the
+  ``latex_documents`` setting.
+
 * #409: Make the ``highlight_language`` config value work properly
   in the LaTeX builder.
 

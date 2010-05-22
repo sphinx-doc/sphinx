@@ -40,10 +40,11 @@
     \rule{\textwidth}{1pt}%
     \ifsphinxpdfoutput
       \begingroup
-      % This \def is required to deal with multi-line authors; it
+      % These \defs are required to deal with multi-line authors; it
       % changes \\ to ', ' (comma-space), making it pass muster for
       % generating document info in the PDF file.
       \def\\{, }
+      \def\and{and }
       \pdfinfo{
         /Author (\@author)
         /Title (\@title)
@@ -55,7 +56,11 @@
       {\rm\Huge\py@HeaderFamily \@title \par}%
       {\em\LARGE\py@HeaderFamily \py@release\releaseinfo \par}
       \vfill
-      {\LARGE\py@HeaderFamily \@author \par}
+      {\LARGE\py@HeaderFamily
+        \begin{tabular}[t]{c}
+          \@author
+        \end{tabular}
+        \par}
       \vfill\vfill
       {\large
        \@date \par
