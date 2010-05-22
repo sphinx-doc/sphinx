@@ -14,7 +14,6 @@ Documentation using the default theme
 
 * APSW: http://apsw.googlecode.com/svn/publish/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
-* Blender: http://www.blender.org/documentation/250PythonDoc/
 * boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
 * CodePy: http://documen.tician.de/codepy/
@@ -114,6 +113,7 @@ Documentation using another builtin theme
 Documentation using a custom theme/integrated in a site
 -------------------------------------------------------
 
+* Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
 * Django: http://docs.djangoproject.com/
 * GeoServer: http://docs.geoserver.org/
