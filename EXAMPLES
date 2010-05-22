@@ -115,7 +115,10 @@ Documentation using a custom theme/integrated in a site
 
 * Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
+* Classy: classy: http://classy.pocoo.org/
 * Django: http://docs.djangoproject.com/
+* Flask: http://flask.pocoo.org/docs/
+* Flask-OpenID: http://packages.python.org/Flask-OpenID/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
 * MirrorBrain: http://mirrorbrain.org/docs/
