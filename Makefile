@@ -11,12 +11,13 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i tests/coverage.py -i env -i utils/convert.py \
              -i utils/reindent3.py -i utils/check_sources3.py -i .tox
 
-all: clean-pyc check test
+all: clean-pyc clean-backupfiles check test
 
-check: convert-utils
 ifeq ($(PYTHON), python3)
+check: convert-utils
 	@$(PYTHON) utils/check_sources3.py $(DONT_CHECK) .
 else
+check:
 	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 endif
 
@@ -40,10 +41,11 @@ clean-generated:
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
 
-reindent: convert-utils
 ifeq ($(PYTHON), python3)
+reindent: convert-utils
 	@$(PYTHON) utils/reindent3.py -r -n .
 else
+reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 endif
 
@@ -57,5 +59,7 @@ covertest: build
 build:
 	@$(PYTHON) setup.py build
 
+ifeq ($(PYTHON), python3)
 convert-utils:
 	@python3 utils/convert.py -i utils/convert.py utils/
+endif
