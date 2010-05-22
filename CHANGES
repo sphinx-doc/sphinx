@@ -10,6 +10,8 @@ Release 1.0 (in development)
 
 * Support for docutils 0.4 has been removed.
 
+* Added Croatian translation, thanks to Bojan Mihelač.
+
 * Added a manual page builder.
 
 * Added support for source ordering of members in autodoc, with

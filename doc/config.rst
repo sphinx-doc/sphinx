@@ -285,6 +285,7 @@ Project information
    * ``es`` -- Spanish
    * ``fi`` -- Finnish
    * ``fr`` -- French
+   * ``hr`` -- Croatian
    * ``it`` -- Italian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
