@@ -304,12 +304,8 @@ class BuildEnvironment:
         # domain-specific inventories, here to be pickled
         self.domaindata = {}        # domainname -> domain-specific dict
 
-        # X-ref target inventory
-        self.labels = {}            # labelname -> docname, labelid, sectionname
-        self.anonlabels = {}        # labelname -> docname, labelid
-        self.citations = {}         # citation name -> docname, labelid
-
         # Other inventories
+        self.citations = {}         # citation name -> docname, labelid
         self.indexentries = {}      # docname -> list of
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of (type, docname,
@@ -321,16 +317,6 @@ class BuildEnvironment:
 
         # temporary data storage while reading a document
         self.temp_data = {}
-
-        # Some magically present labels
-        def add_magic_label(name, description, target=None):
-            self.labels[name] = (target or name, '', description)
-            self.anonlabels[name] = (target or name, '')
-        add_magic_label('genindex', _('Index'))
-        # XXX add per domain?
-        # compatibility alias
-        add_magic_label('modindex', _('Module Index'), 'py-modindex')
-        add_magic_label('search', _('Search Page'))
 
     def set_warnfunc(self, func):
         self._warnfunc = func
@@ -366,9 +352,6 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for labelname, (fn, _, _) in self.labels.items():
-                if fn == docname:
-                    del self.labels[labelname]
             for key, (fn, _) in self.citations.items():
                 if fn == docname:
                     del self.citations[key]
@@ -669,10 +652,11 @@ class BuildEnvironment:
         self.process_metadata(docname, doctree)
         self.process_refonly_bullet_lists(docname, doctree)
         self.create_title_from(docname, doctree)
-        self.note_labels_from(docname, doctree)
         self.note_indexentries_from(docname, doctree)
         self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
+        for domain in self.domains.itervalues():
+            domain.process_doc(self, docname, doctree)
 
         # allow extension-specific post-processing
         if app:
@@ -948,39 +932,6 @@ class BuildEnvironment:
             titlenode += nodes.Text('<no title>')
         self.titles[docname] = titlenode
         self.longtitles[docname] = longtitlenode
-
-    def note_labels_from(self, docname, document):
-        for name, explicit in document.nametypes.iteritems():
-            if not explicit:
-                continue
-            labelid = document.nameids[name]
-            if labelid is None:
-                continue
-            node = document.ids[labelid]
-            if name.isdigit() or node.has_key('refuri') or \
-                   node.tagname.startswith('desc_'):
-                # ignore footnote labels, labels automatically generated from a
-                # link and object descriptions
-                continue
-            if name in self.labels:
-                self.warn(docname, 'duplicate label %s, ' % name +
-                          'other instance in ' +
-                          self.doc2path(self.labels[name][0]),
-                          node.line)
-            self.anonlabels[name] = docname, labelid
-            if node.tagname == 'section':
-                sectname = clean_astext(node[0]) # node[0] == title node
-            elif node.tagname == 'figure':
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            else:
-                # anonymous-only labels
-                continue
-            self.labels[name] = docname, labelid, sectname
 
     def note_indexentries_from(self, docname, document):
         entries = self.indexentries[docname] = []
@@ -1309,44 +1260,6 @@ class BuildEnvironment:
                     newnode = domain.resolve_xref(self, fromdocname, builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
-                elif typ == 'ref':
-                    if node['refexplicit']:
-                        # reference to anonymous label; the reference uses
-                        # the supplied link caption
-                        docname, labelid = self.anonlabels.get(target, ('',''))
-                        sectname = node.astext()
-                        if not docname:
-                            self.warn(refdoc, 'undefined label: %s' %
-                                      target, node.line)
-                            warned = True
-                    else:
-                        # reference to named label; the final node will
-                        # contain the section name after the label
-                        docname, labelid, sectname = self.labels.get(target,
-                                                                     ('','',''))
-                        if not docname:
-                            self.warn(refdoc,
-                                'undefined label: %s' % target + ' -- if you '
-                                'don\'t give a link caption the label must '
-                                'precede a section header.', node.line)
-                            warned = True
-                    if docname:
-                        newnode = nodes.reference('', '')
-                        innernode = nodes.emphasis(sectname, sectname)
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            # set more info in contnode; in case the
-                            # get_relative_uri call raises NoUri,
-                            # the builder will then have to resolve these
-                            contnode = addnodes.pending_xref('')
-                            contnode['refdocname'] = docname
-                            contnode['refsectname'] = sectname
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname)
-                            if labelid:
-                                newnode['refuri'] += '#' + labelid
-                        newnode.append(innernode)
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
@@ -1375,16 +1288,6 @@ class BuildEnvironment:
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
-                elif typ == 'keyword':
-                    # keywords are oddballs: they are referenced by named labels
-                    docname, labelid, _ = self.labels.get(target, ('','',''))
-                    if not docname:
-                        #self.warn(refdoc, 'unknown keyword: %s' % target)
-                        pass
-                    else:
-                        newnode = make_refnode(builder, fromdocname, docname,
-                                               labelid, contnode)
-
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(

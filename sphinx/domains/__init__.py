@@ -199,6 +199,12 @@ class Domain(object):
         """
         pass
 
+    def process_doc(self, env, docname, document):
+        """
+        Process a document after it is read by the environment.
+        """
+        pass
+
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         """

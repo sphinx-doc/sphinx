@@ -244,12 +244,8 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 specific_docroles = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
-    # links to headings or arbitrary labels
-    'ref': XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
     # links to documents
     'doc': XRefRole(),
-    # links to labels, without a different title
-    'keyword': XRefRole(),
 
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,
