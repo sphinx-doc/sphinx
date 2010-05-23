@@ -55,7 +55,7 @@ linking:
 
       intersphinx_mapping = {'http://docs.python.org/dev': 'python-inv.txt'}
 
-   This will read the inventory from :file:`python.inv` in the source
+   This will read the inventory from :file:`python-inv.txt` in the source
    directory, but still generate links to the pages under
    ``http://docs.python.org/dev``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
