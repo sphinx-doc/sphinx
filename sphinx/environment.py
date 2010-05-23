@@ -957,7 +957,8 @@ class BuildEnvironment:
             self.warn(self.docname,
                       'duplicate canonical description name %s, ' % fullname +
                       'other instance in ' +
-                      self.doc2path(self.descrefs[fullname][0]),
+                      self.doc2path(self.descrefs[fullname][0]) +
+                      ', use :noindex: for one of them',
                       line)
         self.descrefs[fullname] = (self.docname, desctype)
 
