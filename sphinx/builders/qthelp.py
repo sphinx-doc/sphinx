@@ -11,9 +11,10 @@
 
 import os
 import re
-import cgi
 import codecs
+import posixpath
 from os import path
+from cgi import escape
 
 from docutils import nodes
 
@@ -33,6 +34,11 @@ _idpattern = re.compile(
 collection_template = u'''\
 <?xml version="1.0" encoding="utf-8" ?>
 <QHelpCollectionProject version="1.0">
+    <assistant>
+        <title>%(title)s</title>
+        <homePage>%(homepage)s</homePage>
+        <startPage>%(startpage)s</startPage>
+    </assistant>
     <docFiles>
         <generate>
             <file>
@@ -53,9 +59,9 @@ collection_template = u'''\
 # actual documentation files (*.html).
 # In addition it defines a unique namespace for the documentation.
 project_template = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <QtHelpProject version="1.0">
-    <namespace>%(outname)s.org.%(outname)s.%(nversion)s</namespace>
+    <namespace>%(namespace)s</namespace>
     <virtualFolder>doc</virtualFolder>
     <customFilter name="%(project)s %(version)s">
         <filterAttribute>%(outname)s</filterAttribute>
@@ -106,16 +112,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         #self.config.html_style = 'traditional.css'
 
     def handle_finish(self):
-        self.build_qhcp(self.outdir, self.config.qthelp_basename)
         self.build_qhp(self.outdir, self.config.qthelp_basename)
-
-    def build_qhcp(self, outdir, outname):
-        self.info('writing collection project file...')
-        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
-        try:
-            f.write(collection_template % {'outname': outname})
-        finally:
-            f.close()
 
     def build_qhp(self, outdir, outname):
         self.info('writing project file...')
@@ -158,24 +155,45 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 if (resourcedir and not fn.endswith('.js')) or \
                        fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
-                    #filename = filename.replace(os.sep, '\\') # XXX
-                    projectfiles.append(file_template % {'filename': filename})
+                    projectfiles.append(file_template %
+                                        {'filename': escape(filename)})
         projectfiles = '\n'.join(projectfiles)
+
+        # it seems that the "namespace" may not contain non-alphanumeric
+        # characters, and more than one successive dot, or leading/trailing
+        # dots, are also forbidden
+        nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
+        nspace = re.sub('[^a-zA-Z0-9.]', '', nspace)
+        nspace = re.sub(r'\.+', '.', nspace).strip('.')
 
         # write the project file
         f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
         try:
-            nversion = self.config.version.replace('.', '_')
-            nversion = nversion.replace(' ', '_')
-            f.write(project_template % {'outname': outname,
-                                        'title': self.config.html_title,
-                                        'version': self.config.version,
-                                        'project': self.config.project,
-                                        'nversion': nversion,
-                                        'masterdoc': self.config.master_doc,
-                                        'sections': sections,
-                                        'keywords': keywords,
-                                        'files': projectfiles})
+            f.write(project_template % {
+                'outname': escape(outname),
+                'title': escape(self.config.html_title),
+                'version': escape(self.config.version),
+                'project': escape(self.config.project),
+                'namespace': escape(nspace),
+                'masterdoc': escape(self.config.master_doc),
+                'sections': sections,
+                'keywords': keywords,
+                'files': projectfiles})
+        finally:
+            f.close()
+
+        homepage = 'qthelp://' + posixpath.join(
+            nspace, 'doc', self.get_target_uri(self.config.master_doc))
+        startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
+
+        self.info('writing collection project file...')
+        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
+        try:
+            f.write(collection_template % {
+                'outname': escape(outname),
+                'title': escape(self.config.html_short_title),
+                'homepage': escape(homepage),
+                'startpage': escape(startpage)})
         finally:
             f.close()
 
@@ -197,7 +215,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         if self.isdocnode(node):
             refnode = node.children[0][0]
             link = refnode['refuri']
-            title = cgi.escape(refnode.astext()).replace('"','&quot;')
+            title = escape(refnode.astext()).replace('"','&quot;')
             item = '<section title="%(title)s" ref="%(ref)s">' % {
                                                                 'title': title,
                                                                 'ref': link}
@@ -210,7 +228,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 parts.extend(self.write_toc(subnode, indentlevel))
         elif isinstance(node, nodes.reference):
             link = node['refuri']
-            title = cgi.escape(node.astext()).replace('"','&quot;')
+            title = escape(node.astext()).replace('"','&quot;')
             item = section_template % {'title': title, 'ref': link}
             item = ' '*4*indentlevel + item.encode('ascii', 'xmlcharrefreplace')
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
@@ -247,7 +265,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     def build_keywords(self, title, refs, subitems):
         keywords = []
 
-        title = cgi.escape(title)
+        title = escape(title)
 #        if len(refs) == 0: # XXX
 #            write_param('See Also', title)
         if len(refs) == 1:
