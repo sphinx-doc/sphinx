@@ -188,7 +188,8 @@ class PyObject(ObjectDescription):
                     self.env.docname,
                     'duplicate object description of %s, ' % fullname +
                     'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]),
+                    self.env.doc2path(objects[fullname][0]) +
+                    ', use :noindex: for one of them',
                     self.lineno)
             objects[fullname] = (self.env.docname, self.objtype)
 
