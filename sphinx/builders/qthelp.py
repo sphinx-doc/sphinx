@@ -127,9 +127,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for node in tocdoc.traverse(istoctree):
             sections.extend(self.write_toc(node))
 
-        for index in self.domain_indices:
-            item = section_template % {'title': index[2],
-                                       'ref': '%s-%s.html' % index[0:2]}
+        for indexname, indexcls, content, collapse in self.domain_indices:
+            item = section_template % {'title': indexcls.localname,
+                                       'ref': '%s.html' % indexname}
             sections.append(' '*4*4 + item)
         sections = '\n'.join(sections)
 
