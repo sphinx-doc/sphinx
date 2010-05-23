@@ -131,4 +131,4 @@ class ReSTDomain(Domain):
 
     def get_objects(self):
         for (typ, name), docname in self.data['objects'].iteritems():
-            yield name, typ, docname, name, 1
+            yield name, name, typ, docname, name, 1

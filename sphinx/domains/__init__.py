@@ -229,6 +229,7 @@ class Domain(object):
         five items:
 
         * `name`     -- fully qualified name
+        * `dispname` -- name to display when searching/linking
         * `type`     -- object type, a key in ``self.object_types``
         * `docname`  -- the document where it is to be found
         * `anchor`   -- the anchor name for the object

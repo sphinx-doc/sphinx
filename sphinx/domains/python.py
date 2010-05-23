@@ -617,6 +617,6 @@ class PythonDomain(Domain):
 
     def get_objects(self):
         for modname, info in self.data['modules'].iteritems():
-            yield (modname, 'module', info[0], 'module-' + modname, 0)
+            yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, type, docname, refname, 1)
+            yield (refname, refname, type, docname, refname, 1)

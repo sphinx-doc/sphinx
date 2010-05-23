@@ -742,13 +742,17 @@ class StandaloneHTMLBuilder(Builder):
             f.write('# The remainder of this file is compressed using zlib.\n')
             compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
-                for name, type, docname, anchor, prio in domain.get_objects():
+                for name, dispname, type, docname, anchor, prio in \
+                        domain.get_objects():
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
                         anchor = anchor[:-len(name)] + '$'
+                    uri = self.get_target_uri(docname) + '#' + anchor
+                    if dispname == name:
+                        dispname = '-'
                     f.write(compressor.compress(
-                        '%s %s:%s %s %s\n' % (name, domainname, type, prio,
-                        self.get_target_uri(docname) + '#' + anchor)))
+                        '%s %s:%s %s %s %s\n' % (name, domainname, type, prio,
+                                                 uri, dispname)))
             f.write(compressor.flush())
         finally:
             f.close()

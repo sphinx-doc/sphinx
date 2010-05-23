@@ -18,8 +18,8 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.builders.html import StandaloneHTMLBuilder
+
 
 _idpattern = re.compile(
     r'(?P<title>.+) (\((?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')

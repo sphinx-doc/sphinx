@@ -418,25 +418,27 @@ class StandardDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         if typ == 'ref':
-            refdoc = node.get('refdoc', fromdocname)
+            #refdoc = node.get('refdoc', fromdocname)
             if node['refexplicit']:
                 # reference to anonymous label; the reference uses
                 # the supplied link caption
                 docname, labelid = self.data['anonlabels'].get(target, ('',''))
                 sectname = node.astext()
-                if not docname:
-                    env.warn(refdoc, 'undefined label: %s' %
-                              target, node.line)
+                # XXX warn somehow if not resolved by intersphinx
+                #if not docname:
+                #    env.warn(refdoc, 'undefined label: %s' %
+                #              target, node.line)
             else:
                 # reference to named label; the final node will
                 # contain the section name after the label
                 docname, labelid, sectname = self.data['labels'].get(target,
                                                                      ('','',''))
-                if not docname:
-                    env.warn(refdoc,
-                        'undefined label: %s' % target + ' -- if you '
-                        'don\'t give a link caption the label must '
-                        'precede a section header.', node.line)
+                # XXX warn somehow if not resolved by intersphinx
+                #if not docname:
+                #    env.warn(refdoc,
+                #        'undefined label: %s' % target + ' -- if you '
+                #        'don\'t give a link caption the label must '
+                #        'precede a section header.', node.line)
             if not docname:
                 return None
             newnode = nodes.reference('', '')
@@ -487,9 +489,9 @@ class StandardDomain(Domain):
 
     def get_objects(self):
         for (prog, option), info in self.data['progoptions'].iteritems():
-            yield (option, 'option', info[0], info[1], 1)
+            yield (option, option, 'option', info[0], info[1], 1)
         for (type, name), info in self.data['objects'].iteritems():
-            yield (name, type, info[0], info[1],
+            yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
         for name, info in self.data['labels'].iteritems():
-            yield (name, 'label', info[0], info[1], -1)
+            yield (name, info[2], 'label', info[0], info[1], -1)

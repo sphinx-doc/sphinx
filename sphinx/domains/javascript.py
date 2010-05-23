@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 
 from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
@@ -215,4 +214,4 @@ class JavaScriptDomain(Domain):
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield refname, type, docname, refname, 1
+            yield refname, refname, type, docname, refname, 1
