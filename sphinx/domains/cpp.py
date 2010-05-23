@@ -10,7 +10,6 @@
 """
 
 import re
-import string
 from copy import deepcopy
 
 from docutils import nodes
@@ -22,7 +21,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import TypedField
 
 
 _identifier_re = re.compile(r'\b(~?[a-zA-Z_][a-zA-Z0-9_]*)\b')
@@ -1028,10 +1027,10 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':    ObjType(l_('C++ class'),    'class'),
-        'function': ObjType(l_('C++ function'), 'func'),
-        'member':   ObjType(l_('C++ member'),   'member'),
-        'type':     ObjType(l_('C++ type'),     'type')
+        'class':    ObjType(l_('class'),    'class'),
+        'function': ObjType(l_('function'), 'func'),
+        'member':   ObjType(l_('member'),   'member'),
+        'type':     ObjType(l_('type'),     'type')
     }
 
     directives = {

@@ -163,9 +163,9 @@ class JavaScriptDomain(Domain):
     label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
-        'function':  ObjType(l_('JavaScript function'),  'func'),
-        'data':      ObjType(l_('JavaScript data'),      'data'),
-        'attribute': ObjType(l_('JavaScript attribute'), 'attr'),
+        'function':  ObjType(l_('function'),  'func'),
+        'data':      ObjType(l_('data'),      'data'),
+        'attribute': ObjType(l_('attribute'), 'attr'),
     }
     directives = {
         'function':  JSCallable,

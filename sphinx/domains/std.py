@@ -495,3 +495,7 @@ class StandardDomain(Domain):
                    self.object_types[type].attrs['searchprio'])
         for name, info in self.data['labels'].iteritems():
             yield (name, info[2], 'label', info[0], info[1], -1)
+
+    def get_type_name(self, type, primary=False):
+        # never prepend "Default"
+        return type.lname

@@ -11,6 +11,7 @@
 """
 
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 
 
 class ObjType(object):
@@ -21,7 +22,7 @@ class ObjType(object):
 
     Constructor arguments:
 
-    - *lname*: localized name of the type
+    - *lname*: localized name of the type (do not include domain name)
     - *roles*: all the roles that can refer to an object of this type
     - *attrs*: object attributes -- currently only "searchprio" is known,
       which defines the object's priority in the full-text search index,
@@ -242,6 +243,14 @@ class Domain(object):
           - -1: object should not show up in search at all
         """
         return []
+
+    def get_type_name(self, type, primary=False):
+        """
+        Return full name for given ObjType.
+        """
+        if primary:
+            return type.lname
+        return _('%s %s') % (self.label, type.lname)
 
 
 from sphinx.domains.c import CDomain

@@ -168,11 +168,11 @@ class CDomain(Domain):
     name = 'c'
     label = 'C'
     object_types = {
-        'function': ObjType(l_('C function'), 'func'),
-        'member':   ObjType(l_('C member'),   'member'),
-        'macro':    ObjType(l_('C macro'),    'macro'),
-        'type':     ObjType(l_('C type'),     'type'),
-        'var':      ObjType(l_('C variable'), 'data'),
+        'function': ObjType(l_('function'), 'func'),
+        'member':   ObjType(l_('member'),   'member'),
+        'macro':    ObjType(l_('macro'),    'macro'),
+        'type':     ObjType(l_('type'),     'type'),
+        'var':      ObjType(l_('variable'), 'data'),
     }
 
     directives = {

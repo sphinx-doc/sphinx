@@ -61,7 +61,7 @@ class Config(object):
         rst_epilog = (None, 'env'),
         rst_prolog = (None, 'env'),
         trim_doctest_flags = (True, 'env'),
-        default_domain = ('py', 'env'),
+        primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),
         nitpicky = (False, 'env'),
 

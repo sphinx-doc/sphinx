@@ -170,7 +170,8 @@ class IndexBuilder(object):
                     otypes[domainname, type] = i
                     otype = domain.object_types.get(type)
                     if otype:
-                        onames[i] = str(otype.lname)  # fire translation proxies
+                        # use str() to fire translation proxies
+                        onames[i] = str(domain.get_type_name(otype))
                     else:
                         onames[i] = type
                 pdict[name] = (fn2index[docname], i, prio)

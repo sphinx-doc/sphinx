@@ -594,7 +594,7 @@ class BuildEnvironment:
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_domain'] = \
-            self.domains.get(self.config.default_domain)
+            self.domains.get(self.config.primary_domain)
 
         self.settings['input_encoding'] = self.config.source_encoding
         self.settings['trim_footnote_reference_space'] = \

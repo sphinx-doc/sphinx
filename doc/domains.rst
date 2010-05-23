@@ -69,11 +69,11 @@ directive name.
 
 To avoid having to writing the domain name all the time when you e.g. only
 describe Python objects, a default domain can be selected with either the config
-value :confval:`default_domain` or this directive:
+value :confval:`primary_domain` or this directive:
 
 .. rst:directive:: .. default-domain:: name
 
-   Select a new default domain.  While the :confval:`default_domain` selects a
+   Select a new default domain.  While the :confval:`primary_domain` selects a
    global default, this only has an effect within the same file.
 
 If no other default is selected, the Python domain (named ``py``) is the default
