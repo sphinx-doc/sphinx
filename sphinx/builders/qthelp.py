@@ -13,6 +13,7 @@ import os
 import re
 import cgi
 import codecs
+import posixpath
 from os import path
 
 from docutils import nodes
@@ -32,6 +33,11 @@ _idpattern = re.compile(
 collection_template = u'''\
 <?xml version="1.0" encoding="utf-8" ?>
 <QHelpCollectionProject version="1.0">
+    <assistant>
+        <title>%(project)s %(version)s</title>
+        <homePage>%(homepage)s</homePage>
+        <startPage>%(startpage)s</startPage>
+    </assistant>
     <docFiles>
         <generate>
             <file>
@@ -52,9 +58,9 @@ collection_template = u'''\
 # actual documentation files (*.html).
 # In addition it defines a unique namespace for the documentation.
 project_template = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <QtHelpProject version="1.0">
-    <namespace>%(outname)s.org.%(outname)s.%(nversion)s</namespace>
+    <namespace>%(namespace)s</namespace>
     <virtualFolder>doc</virtualFolder>
     <customFilter name="%(project)s %(version)s">
         <filterAttribute>%(outname)s</filterAttribute>
@@ -105,16 +111,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         #self.config.html_style = 'traditional.css'
 
     def handle_finish(self):
-        self.build_qhcp(self.outdir, self.config.qthelp_basename)
         self.build_qhp(self.outdir, self.config.qthelp_basename)
-
-    def build_qhcp(self, outdir, outname):
-        self.info('writing collection project file...')
-        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
-        try:
-            f.write(collection_template % {'outname': outname})
-        finally:
-            f.close()
 
     def build_qhp(self, outdir, outname):
         self.info('writing project file...')
@@ -161,20 +158,40 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                     projectfiles.append(file_template % {'filename': filename})
         projectfiles = '\n'.join(projectfiles)
 
+        # it seems that the "namespace" may not contain non-alphanumeric
+        # characters, and more than one successive dot, or leading/trailing
+        # dots, are also forbidden
+        nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
+        nspace = re.sub('[^a-zA-Z0-9.]', '', nspace)
+        nspace = re.sub(r'\.+', '.', nspace).strip('.')
+
         # write the project file
         f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
         try:
-            nversion = self.config.version.replace('.', '_')
-            nversion = nversion.replace(' ', '_')
             f.write(project_template % {'outname': outname,
                                         'title': self.config.html_title,
                                         'version': self.config.version,
                                         'project': self.config.project,
-                                        'nversion': nversion,
+                                        'namespace': nspace,
                                         'masterdoc': self.config.master_doc,
                                         'sections': sections,
                                         'keywords': keywords,
                                         'files': projectfiles})
+        finally:
+            f.close()
+
+        homepage = 'qthelp://' + posixpath.join(
+            nspace, 'doc', self.get_target_uri(self.config.master_doc))
+        startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
+
+        self.info('writing collection project file...')
+        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
+        try:
+            f.write(collection_template % {'outname': outname,
+                                           'project': self.config.project,
+                                           'version': self.config.version,
+                                           'homepage': homepage,
+                                           'startpage': startpage})
         finally:
             f.close()
 
