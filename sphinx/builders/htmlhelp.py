@@ -57,7 +57,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 
 project_template = '''\
 [OPTIONS]
-Binary TOC=Yes
+Binary TOC=No
 Binary Index=No
 Compiled file=%(outname)s.chm
 Contents file=%(outname)s.hhc
