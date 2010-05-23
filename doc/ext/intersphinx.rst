@@ -44,7 +44,7 @@ linking:
    An example, to add links to modules and objects in the Python standard
    library documentation::
 
-      intersphinx_mapping = {'http://docs.python.org/dev': None}
+      intersphinx_mapping = {'http://docs.python.org/': None}
 
    This will download the corresponding :file:`objects.inv` file from the
    Internet and generate links to the pages under the given URI.  The downloaded
@@ -53,11 +53,11 @@ linking:
 
    A second example, showing the meaning of a non-``None`` value::
 
-      intersphinx_mapping = {'http://docs.python.org/dev': 'python-inv.txt'}
+      intersphinx_mapping = {'http://docs.python.org/': 'python-inv.txt'}
 
    This will read the inventory from :file:`python-inv.txt` in the source
    directory, but still generate links to the pages under
-   ``http://docs.python.org/dev``.  It is up to you to update the inventory file
+   ``http://docs.python.org/``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
 
    When fetching remote inventory files, proxy settings will be read from
