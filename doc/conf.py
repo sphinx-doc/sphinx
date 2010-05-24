@@ -18,7 +18,8 @@ version = sphinx.__released__
 release = version
 show_authors = True
 
-html_theme = 'sphinxdoc'
+html_theme = 'default'
+html_theme_options = {'collapsiblesidebar': True, 'stickysidebar': False}
 modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_index = 'index.html'

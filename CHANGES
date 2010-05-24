@@ -87,6 +87,10 @@ Features added
     ``domain`` and ``domain-rolename``.
   - References now get the class ``internal`` if they are internal to
     the whole project, as opposed to internal to the current page.
+  - External references can be styled differently with the new
+    ``externalrefs`` theme option for the default theme.
+  - In the default theme, the sidebar can experimentally now be made
+    collapsible using the new ``collapsiblesidebar`` theme option.
   - #129: Toctrees are now wrapped in a ``div`` tag with class
     ``toctree-wrapper`` in HTML output.
   - The ``toctree()`` callable in templates now has a ``maxdepth``

@@ -164,7 +164,7 @@ a:hover {
     text-decoration: underline;
 }
 
-{% if theme_externalrefs %}
+{% if theme_externalrefs|tobool %}
 a.external {
    text-decoration: none;
    border-bottom: 1px dashed {{ theme_linkcolor }};

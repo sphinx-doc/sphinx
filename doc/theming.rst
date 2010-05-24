@@ -105,6 +105,11 @@ These themes are:
     doesn't scroll out of view for long body content.  This may not work well
     with all browsers.  Defaults to false.
 
+  - **collapsiblesidebar** (true or false): Add an *experimental* JavaScript
+    snippet that makes the sidebar collapsible via a button on its side.
+    *Doesn't work together with "rightsidebar" or "stickysidebar".* Defaults to
+    false.
+
   - **externalrefs** (true or false): Display external links differently from
     internal links.  Defaults to false.
 
