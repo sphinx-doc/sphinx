@@ -14,6 +14,7 @@ import re
 import time
 import errno
 import shutil
+import sys
 from os import path
 
 # Errnos that we need.
@@ -124,7 +125,9 @@ no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 def make_filename(string):
     return no_fn_re.sub('', string)
 
-
-def ustrftime(format, *args):
-    # strftime for unicode strings
-    return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
+if sys.version_info < (3, 0):
+    def ustrftime(format, *args):
+        # strftime for unicode strings
+        return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
+else:
+    ustrftime = time.strftime

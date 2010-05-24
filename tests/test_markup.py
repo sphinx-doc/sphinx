@@ -10,6 +10,7 @@
 """
 
 import re
+import sys
 
 from util import *
 
@@ -19,6 +20,12 @@ from docutils.parsers import rst
 from sphinx.util import texescape
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+
+if sys.version_info > (3, 0):
+    def b(s):
+        return s.encode('utf-8')
+else:
+    b = str
 
 def setup_module():
     global app, settings, parser
@@ -50,7 +57,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 
 
 def verify_re(rst, html_expected, latex_expected):
-    document = utils.new_document('test data', settings)
+    document = utils.new_document(b('test data'), settings)
     document['file'] = 'dummy'
     parser.parse(rst, document)
     for msg in document.traverse(nodes.system_message):
