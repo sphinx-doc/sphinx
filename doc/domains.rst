@@ -650,3 +650,12 @@ These roles are provided to refer to the described objects:
 .. rst:role:: rst:dir
               rst:role
 
+
+More domains
+------------
+
+The sphinx-contrib_ repository contains more domains available as extensions;
+currently a Ruby and an Erlang domain.
+
+
+.. _sphinx-contrib: http://bitbucket.org/birkenfeld/sphinx-contrib/
