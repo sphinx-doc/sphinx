@@ -200,7 +200,7 @@ General configuration
    The name of the default :ref:`domain <domains>`.  Can also be ``None`` to
    disable a default domain.  The default is ``'py'``.  Those objects in other
    domains (whether the domain name is given explicitly, or selected by a
-   :dir:`default-domain` directive) will have the domain name explicitly
+   :rst:dir:`default-domain` directive) will have the domain name explicitly
    prepended when named (e.g., when the default domain is C, Python functions
    will be named "Python function", not just "function").
 

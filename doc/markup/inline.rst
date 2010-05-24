@@ -182,6 +182,11 @@ in a different style:
    labels, window titles, field names, menu and menu selection names, and even
    values in selection lists.
 
+   .. versionchanged:: 1.0
+      An accelerator key for the GUI label can be included using an ampersand;
+      this will be stripped and displayed underlined in the output (example:
+      ``:guilabel:`&Cancel```).  To include a literal ampersand, double it.
+
 .. rst:role:: kbd
 
    Mark a sequence of keystrokes.  What form the key sequence takes may depend
@@ -226,6 +231,9 @@ in a different style:
    When including a selection that includes some trailing indicator, such as the
    ellipsis some operating systems use to indicate that the command opens a
    dialog, the indicator should be omitted from the selection name.
+
+   ``menuselection`` also supports ampersand accelerators just like
+   :rst:role:`guilabel`.
 
 .. rst:role:: mimetype
 

@@ -157,14 +157,28 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_reference(self, node):
-        BaseTranslator.visit_reference(self, node)
-        if node.hasattr('reftitle'):
-            # ugly hack to add a title attribute
-            starttag = self.body[-1]
-            if not starttag.startswith('<a '):
-                return
-            self.body[-1] = '<a title="%s"' % self.attval(node['reftitle']) + \
-                            starttag[2:]
+        atts = {'class': 'reference'}
+        if node.get('internal'):
+            atts['class'] += ' internal'
+        else:
+            atts['class'] += ' external'
+        if 'refuri' in node:
+            atts['href'] = node['refuri']
+            if self.settings.cloak_email_addresses and \
+               atts['href'].startswith('mailto:'):
+                atts['href'] = self.cloak_mailto(atts['href'])
+                self.in_mailto = 1
+        else:
+            assert 'refid' in node, \
+                   'References must have "refuri" or "refid" attribute.'
+            atts['href'] = '#' + node['refid']
+        if not isinstance(node.parent, nodes.TextElement):
+            assert len(node) == 1 and isinstance(node[0], nodes.image)
+            atts['class'] += ' image-reference'
+        if 'reftitle' in node:
+            atts['title'] = node['reftitle']
+        self.body.append(self.starttag(node, 'a', '', **atts))
+
         if node.hasattr('secnumber'):
             self.body.append(('%s' + self.secnumber_suffix) %
                              '.'.join(map(str, node['secnumber'])))
@@ -283,8 +297,9 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_download_reference(self, node):
         if node.hasattr('filename'):
-            self.body.append('<a href="%s">' % posixpath.join(
-                self.builder.dlpath, node['filename']))
+            self.body.append(
+                '<a class="reference download internal" href="%s">' %
+                posixpath.join(self.builder.dlpath, node['filename']))
             self.context.append('</a>')
         else:
             self.context.append('')

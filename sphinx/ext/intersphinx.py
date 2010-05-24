@@ -201,10 +201,8 @@ def missing_reference(app, env, node, contnode):
             if objtype not in inventory or target not in inventory[objtype]:
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
-            newnode = nodes.reference('', '')
-            newnode['refuri'] = uri
-            newnode['reftitle'] = '(in %s v%s)' % (proj, version)
-            newnode['class'] = 'external-xref'
+            newnode = nodes.reference('', '', internal=False, refuri=uri,
+                                      reftitle='(in %s v%s)' % (proj, version))
             if dispname == '-':
                 newnode.append(contnode)
             else:

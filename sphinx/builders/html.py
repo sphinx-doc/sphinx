@@ -607,7 +607,7 @@ class StandaloneHTMLBuilder(Builder):
                 # the parent node here.
                 continue
             uri = node['uri']
-            reference = nodes.reference()
+            reference = nodes.reference('', '', internal=True)
             if uri in self.images:
                 reference['refuri'] = posixpath.join(self.imgpath,
                                                      self.images[uri])

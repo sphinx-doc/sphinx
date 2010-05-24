@@ -368,6 +368,14 @@ dl.glossary dt {
     margin-left: 1.5em;
 }
 
+.guilabel, .menuselection {
+    font-family: sans-serif;
+}
+
+.accelerator {
+    text-decoration: underline;
+}
+
 /* -- code displays --------------------------------------------------------- */
 
 pre {

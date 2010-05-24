@@ -1008,9 +1008,9 @@ class BuildEnvironment:
                 else:
                     anchorname = '#' + sectionnode['ids'][0]
                 numentries[0] += 1
-                reference = nodes.reference('', '', refuri=docname,
-                                            anchorname=anchorname,
-                                            *nodetext)
+                reference = nodes.reference(
+                    '', '', internal=True, refuri=docname,
+                    anchorname=anchorname, *nodetext)
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
                 if maxdepth == 0 or depth < maxdepth:
@@ -1148,7 +1148,7 @@ class BuildEnvironment:
             for (title, ref) in refs:
                 try:
                     if url_re.match(ref):
-                        reference = nodes.reference('', '',
+                        reference = nodes.reference('', '', internal=False,
                                                     refuri=ref, anchorname='',
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)
@@ -1160,7 +1160,7 @@ class BuildEnvironment:
                         ref = toctreenode['parent']
                         if not title:
                             title = clean_astext(self.titles[ref])
-                        reference = nodes.reference('', '',
+                        reference = nodes.reference('', '', internal=True,
                                                     refuri=ref,
                                                     anchorname='',
                                                     *[nodes.Text(title)])
@@ -1275,7 +1275,7 @@ class BuildEnvironment:
                         else:
                             caption = clean_astext(self.titles[docname])
                         innernode = nodes.emphasis(caption, caption)
-                        newnode = nodes.reference('', '')
+                        newnode = nodes.reference('', '', internal=True)
                         newnode['refuri'] = builder.get_relative_uri(
                             fromdocname, docname)
                         newnode.append(innernode)

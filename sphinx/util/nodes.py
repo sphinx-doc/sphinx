@@ -80,7 +80,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     """Shortcut to create a reference node."""
-    node = nodes.reference('', '')
+    node = nodes.reference('', '', internal=True)
     if fromdocname == todocname:
         node['refid'] = targetid
     else:

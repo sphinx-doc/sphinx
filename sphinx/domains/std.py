@@ -441,7 +441,7 @@ class StandardDomain(Domain):
                 #        'precede a section header.', node.line)
             if not docname:
                 return None
-            newnode = nodes.reference('', '')
+            newnode = nodes.reference('', '', internal=True)
             innernode = nodes.emphasis(sectname, sectname)
             if docname == fromdocname:
                 newnode['refid'] = labelid
