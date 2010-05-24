@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2009-08-06 23:04+0200\n"
+"PO-Revision-Date: 2010-04-13 18:38+0900\n"
 "Last-Translator: Yasushi MASUDA <whosaysni@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -109,7 +109,6 @@ msgid "Return type"
 msgstr "戻り値の型"
 
 #: sphinx/directives/desc.py:186
-#, fuzzy
 msgid "Parameter"
 msgstr "パラメタ"
 
@@ -139,7 +138,7 @@ msgid "%s (in module %s)"
 msgstr "%s (%s モジュール)"
 
 #: sphinx/directives/desc.py:439
-#, fuzzy, python-format
+#, python-format
 msgid "%s (built-in class)"
 msgstr "%s (組み込み変数)"
 
@@ -204,7 +203,7 @@ msgid "%s (C variable)"
 msgstr "%s (C の変数)"
 
 #: sphinx/directives/desc.py:665
-#, fuzzy, python-format
+#, python-format
 msgid "%scommand line option; %s"
 msgstr "%sコマンドラインオプション; %s"
 
@@ -236,16 +235,16 @@ msgstr "参考"
 #: sphinx/ext/autodoc.py:889
 #, python-format
 msgid "   Bases: %s"
-msgstr ""
+msgstr "   ベースクラス: %s"
 
 #: sphinx/ext/autodoc.py:922
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr ""
+msgstr ":class:`%s` のエイリアス"
 
 #: sphinx/ext/todo.py:41
 msgid "Todo"
-msgstr ""
+msgstr "課題"
 
 #: sphinx/ext/todo.py:99
 #, python-format
@@ -428,7 +427,6 @@ msgid "Go"
 msgstr "検索"
 
 #: sphinx/themes/basic/layout.html:81
-#, fuzzy
 msgid "Enter search terms or a module, class or function name."
 msgstr "モジュール、クラス、または関数名を入力してください"
 
@@ -488,9 +486,9 @@ msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
 msgstr ""
+"検索機能を使うには JavaScript を有効にしてください。"
 
 #: sphinx/themes/basic/search.html:14
-#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
@@ -561,7 +559,6 @@ msgid "Preparing search..."
 msgstr "検索の準備中..."
 
 #: sphinx/themes/basic/static/searchtools.js:347
-#, fuzzy
 msgid "module, in "
 msgstr "モジュール"
 
@@ -586,14 +583,13 @@ msgstr "リリース"
 
 #: sphinx/writers/latex.py:578
 msgid "Footnotes"
-msgstr ""
+msgstr "注記"
 
 #: sphinx/writers/latex.py:646
 msgid "continued from previous page"
-msgstr ""
+msgstr "前のページからの続き"
 
 #: sphinx/writers/latex.py:651
-#, fuzzy
 msgid "Continued on next page"
 msgstr "総索引"
 
