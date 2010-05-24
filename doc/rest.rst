@@ -21,7 +21,7 @@ language, this will not take too long.
 Paragraphs
 ----------
 
-The paragraph (:rstref:`ref <paragraphs>`) is the most basic block in a reST
+The paragraph (:duref:`ref <paragraphs>`) is the most basic block in a reST
 document.  Paragraphs are simply chunks of text separated by one or more blank
 lines.  As in Python, indentation is significant in reST, so all lines of the
 same paragraph must be left-aligned to the same level of indentation.
@@ -57,12 +57,12 @@ the appropriate section.  The general syntax is ``:rolename:`content```.
 
 Standard reST provides the following roles:
 
-* :rstrole:`emphasis` -- alternate spelling for ``*emphasis*``
-* :rstrole:`strong` -- alternate spelling for ``**strong**``
-* :rstrole:`literal` -- alternate spelling for ````literal````
-* :rstrole:`subscript` -- subscript text
-* :rstrole:`superscript` -- superscript text
-* :rstrole:`title-reference` -- for titles of books, periodicals, and other
+* :durole:`emphasis` -- alternate spelling for ``*emphasis*``
+* :durole:`strong` -- alternate spelling for ``**strong**``
+* :durole:`literal` -- alternate spelling for ````literal````
+* :durole:`subscript` -- subscript text
+* :durole:`superscript` -- superscript text
+* :durole:`title-reference` -- for titles of books, periodicals, and other
   materials
 
 See :ref:`inline-markup` for roles added by Sphinx.
@@ -71,7 +71,7 @@ See :ref:`inline-markup` for roles added by Sphinx.
 Lists and Quote-like blocks
 ---------------------------
 
-List markup (:rstref:`ref <bullet-lists>`) is natural: just place an asterisk at
+List markup (:duref:`ref <bullet-lists>`) is natural: just place an asterisk at
 the start of a paragraph and indent properly.  The same goes for numbered lists;
 they can also be autonumbered using a ``#`` sign::
 
@@ -97,7 +97,7 @@ parent list items by blank lines::
 
    * and here the parent list continues
 
-Definition lists (:rstref:`ref <definition-lists>`) are created as follows::
+Definition lists (:duref:`ref <definition-lists>`) are created as follows::
 
    term (up to a line of text)
       Definition of the term, which must be indented
@@ -109,10 +109,10 @@ Definition lists (:rstref:`ref <definition-lists>`) are created as follows::
 
 Note that the term cannot have more than one line of text.
 
-Quoted paragraphs (:rstref:`ref <block-quotes>`) are created by just indenting
+Quoted paragraphs (:duref:`ref <block-quotes>`) are created by just indenting
 them more than the surrounding paragraphs.
 
-Line blocks (:rstref:`ref <line-blocks>`) are a way of preserving line breaks::
+Line blocks (:duref:`ref <line-blocks>`) are a way of preserving line breaks::
 
    | These lines are
    | broken exactly like in
@@ -120,16 +120,16 @@ Line blocks (:rstref:`ref <line-blocks>`) are a way of preserving line breaks::
 
 There are also several more special blocks available:
 
-* field lists (:rstref:`ref <field-lists>`)
-* option lists (:rstref:`ref <option-lists>`)
-* quoted literal blocks (:rstref:`ref <quoted-literal-blocks>`)
-* doctest blocks (:rstref:`ref <doctest-blocks>`)
+* field lists (:duref:`ref <field-lists>`)
+* option lists (:duref:`ref <option-lists>`)
+* quoted literal blocks (:duref:`ref <quoted-literal-blocks>`)
+* doctest blocks (:duref:`ref <doctest-blocks>`)
 
 
 Source Code
 -----------
 
-Literal code blocks (:rstref:`ref <literal-blocks>`) are introduced by ending a
+Literal code blocks (:duref:`ref <literal-blocks>`) are introduced by ending a
 paragraph with the special marker ``::``.  The literal block must be indented
 (and, like all paragraphs, separated from the surrounding ones by blank lines)::
 
@@ -159,7 +159,7 @@ rendered as "The next paragraph is a code sample:".
 Tables
 ------
 
-Two forms of tables are supported.  For *grid tables* (:rstref:`ref
+Two forms of tables are supported.  For *grid tables* (:duref:`ref
 <grid-tables>`), you have to "paint" the cell grid yourself.  They look like
 this::
 
@@ -172,7 +172,7 @@ this::
    | body row 2             | ...        | ...      |          |
    +------------------------+------------+----------+----------+
 
-*Simple tables* (:rstref:`ref <simple-tables>`) are easier to write, but
+*Simple tables* (:duref:`ref <simple-tables>`) are easier to write, but
 limited: they must contain more than one row, and the first column cannot
 contain multiple lines.  They look like this::
 
@@ -196,7 +196,7 @@ Use ```Link text <http://example.com/>`_`` for inline web links.  If the link
 text should be the web address, you don't need special markup at all, the parser
 finds links and mail addresses in ordinary text.
 
-You can also separate the link and the target definition (:rstref:`ref
+You can also separate the link and the target definition (:duref:`ref
 <hyperlink-targets>`), like this::
 
    This is a paragraph that contains `a link`_.
@@ -214,7 +214,7 @@ section on specific markup, :ref:`ref-role`.
 Sections
 --------
 
-Section headers (:rstref:`ref <sections>`) are created by underlining (and
+Section headers (:duref:`ref <sections>`) are created by underlining (and
 optionally overlining) the section title with a punctuation character, at least
 as long as the text::
 
@@ -241,7 +241,7 @@ target formats (HTML, LaTeX) have a limited supported nesting depth.
 Explicit Markup
 ---------------
 
-"Explicit markup" (:rstref:`ref <explicit-markup-blocks>`) is used in reST for
+"Explicit markup" (:duref:`ref <explicit-markup-blocks>`) is used in reST for
 most constructs that need special handling, such as footnotes,
 specially-highlighted paragraphs, comments, and generic directives.
 
@@ -257,63 +257,63 @@ when you write it.)
 Directives
 ----------
 
-A directive (:rstref:`ref <directives>`) is a generic block of explicit markup.
+A directive (:duref:`ref <directives>`) is a generic block of explicit markup.
 Besides roles, it is one of the extension mechanisms of reST, and Sphinx makes
 heavy use of it.
 
 Docutils supports the following directives:
 
-* Admonitions: :rstdir:`attention`, :rstdir:`caution`, :rstdir:`danger`,
-  :rstdir:`error`, :rstdir:`hint`, :rstdir:`important`, :rstdir:`note`,
-  :rstdir:`tip`, :rstdir:`warning` and the generic :rstdir:`admonition`.
+* Admonitions: :dudir:`attention`, :dudir:`caution`, :dudir:`danger`,
+  :dudir:`error`, :dudir:`hint`, :dudir:`important`, :dudir:`note`,
+  :dudir:`tip`, :dudir:`warning` and the generic :dudir:`admonition`.
   (Most themes style only "note" and "warning" specially.)
 
 * Images:
 
-  - :rstdir:`image` (see also Images_ below)
-  - :rstdir:`figure` (an image with caption and optional legend)
+  - :dudir:`image` (see also Images_ below)
+  - :dudir:`figure` (an image with caption and optional legend)
 
 * Additional body elements:
 
-  - :rstdir:`contents` (a local, i.e. for the current file only, table of
+  - :dudir:`contents` (a local, i.e. for the current file only, table of
     contents)
-  - :rstdir:`container` (a container with a custom class, useful to generate an
+  - :dudir:`container` (a container with a custom class, useful to generate an
     outer ``<div>`` in HTML)
-  - :rstdir:`rubric` (a heading without relation to the document sectioning)
-  - :rstdir:`topic`, :rstdir:`sidebar` (special highlighted body elements)
-  - :rstdir:`parsed-literal` (literal block that supports inline markup)
-  - :rstdir:`epigraph` (a block quote with optional attribution line)
-  - :rstdir:`highlights`, :rstdir:`pull-quote` (block quotes with their own
+  - :dudir:`rubric` (a heading without relation to the document sectioning)
+  - :dudir:`topic`, :dudir:`sidebar` (special highlighted body elements)
+  - :dudir:`parsed-literal` (literal block that supports inline markup)
+  - :dudir:`epigraph` (a block quote with optional attribution line)
+  - :dudir:`highlights`, :dudir:`pull-quote` (block quotes with their own
     class attribute)
-  - :rstdir:`compound` (a compound paragraph)
+  - :dudir:`compound` (a compound paragraph)
 
 * Special tables:
 
-  - :rstdir:`table` (a table with title)
-  - :rstdir:`csv-table` (a table generated from comma-separated values)
-  - :rstdir:`list-table` (a table generated from a list of lists)
+  - :dudir:`table` (a table with title)
+  - :dudir:`csv-table` (a table generated from comma-separated values)
+  - :dudir:`list-table` (a table generated from a list of lists)
 
 * Special directives:
 
-  - :rstdir:`raw` (include raw target-format markup)
-  - :rstdir:`include` (include reStructuredText from another file)
-  - :rstdir:`class` (assign a class attribute to the next element) [1]_
+  - :dudir:`raw` (include raw target-format markup)
+  - :dudir:`include` (include reStructuredText from another file)
+  - :dudir:`class` (assign a class attribute to the next element) [1]_
 
 * HTML specifics:
 
-  - :rstdir:`meta` (generation of HTML ``<meta>`` tags)
-  - :rstdir:`title` (override document title)
+  - :dudir:`meta` (generation of HTML ``<meta>`` tags)
+  - :dudir:`title` (override document title)
 
 * Influencing markup:
 
-  - :rstdir:`default-role` (set a new default role)
-  - :rstdir:`role` (create a new role)
+  - :dudir:`default-role` (set a new default role)
+  - :dudir:`role` (create a new role)
 
   Since these are only per-file, better use Sphinx' facilities for setting the
   :confval:`default_role`.
 
-Do *not* use the directives :rstdir:`sectnum`, :rstdir:`header` and
-:rstdir:`footer`.
+Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
+:dudir:`footer`.
 
 Directives added by Sphinx are described in :ref:`sphinxmarkup`.
 
@@ -339,7 +339,7 @@ directive start.
 Images
 ------
 
-reST supports an image directive (:rstdir:`ref <image>`), used like so::
+reST supports an image directive (:dudir:`ref <image>`), used like so::
 
    .. image:: gnu.png
       (options)
@@ -379,7 +379,7 @@ the former, while the HTML builder would prefer the latter.
 Footnotes
 ---------
 
-For footnotes (:rstref:`ref <footnotes>`), use ``[#name]_`` to mark the footnote
+For footnotes (:duref:`ref <footnotes>`), use ``[#name]_`` to mark the footnote
 location, and add the footnote body at the bottom of the document after a
 "Footnotes" rubric heading, like so::
 
@@ -397,7 +397,7 @@ footnotes without names (``[#]_``).
 Citations
 ---------
 
-Standard reST citations (:rstref:`ref <citations>`) are supported, with the
+Standard reST citations (:duref:`ref <citations>`) are supported, with the
 additional feature that they are "global", i.e. all citations can be referenced
 from all files.  Use them like so::
 
@@ -412,7 +412,7 @@ numeric or begins with ``#``.
 Substitutions
 -------------
 
-reST supports "substitutions" (:rstref:`ref <substitution-definitions>`), which
+reST supports "substitutions" (:duref:`ref <substitution-definitions>`), which
 are pieces of text and/or markup referred to in the text by ``|name|``.  They
 are defined like footnotes with explicit markup blocks, like this::
 
@@ -423,7 +423,7 @@ or this::
    .. |caution| image:: warning.png
                 :alt: Warning!
 
-See the :rstref:`reST reference for substitutions <substitution-definitions>`
+See the :duref:`reST reference for substitutions <substitution-definitions>`
 for details.
 
 If you want to use some substitutions for all documents, put them into a
@@ -439,7 +439,7 @@ Comments
 --------
 
 Every explicit markup block which isn't a valid markup construct (like the
-footnotes above) is regarded as a comment (:rstref:`ref <comments>`).  For
+footnotes above) is regarded as a comment (:duref:`ref <comments>`).  For
 example::
 
    .. This is a comment.
