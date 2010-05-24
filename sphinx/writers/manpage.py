@@ -319,5 +319,10 @@ class ManualPageTranslator(BaseTranslator):
             return
         return BaseTranslator.depart_title(self, node)
 
+    def visit_raw(self, node):
+        if 'manpage' in node.get('format', '').split():
+            self.body.append(node.astext())
+        raise nodes.SkipNode
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
