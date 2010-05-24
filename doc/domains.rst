@@ -367,6 +367,8 @@ A similar heuristic is used to determine whether the name is an attribute of the
 currently documented class.
 
 
+.. _c-domain:
+
 The C Domain
 ------------
 
