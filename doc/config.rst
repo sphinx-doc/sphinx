@@ -852,6 +852,20 @@ These options influence LaTeX output.
    .. deprecated:: 1.0
       Use :confval:`latex_domain_indices`.
 
+.. confval:: latex_show_pagerefs
+
+   If true, add page references after internal references.  This is very useful
+   for printed copies of the manual.  Default is ``False``.
+
+   .. versionadded:: 1.0
+
+.. confval:: latex_show_urls
+
+   If true, add URL addresses after links.  This is very useful for printed
+   copies of the manual.  Default is ``False``.
+
+   .. versionadded:: 1.0
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5

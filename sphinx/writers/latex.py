@@ -252,6 +252,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def hyperlink(self, id):
         return '\\hyperref[%s]{' % (self.idescape(id))
 
+    def hyperpageref(self, id):
+        return '\\autopageref*{%s}' % (self.idescape(id))
+
     def idescape(self, id):
         return str(unicode(id).translate(tex_replace_map))
 
@@ -1027,14 +1030,24 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_title or not uri:
             self.context.append('')
         elif uri.startswith('mailto:') or uri.startswith('http:') or \
-             uri.startswith('https:') or uri.startswith('ftp:'):
+                 uri.startswith('https:') or uri.startswith('ftp:'):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
-            self.context.append('}')
+            # if configured, put the URL after the link
+            if self.builder.config.latex_show_urls and \
+                   node.astext() != uri:
+                if uri.startswith('mailto:'):
+                    uri = uri[7:]
+                self.context.append('} (%s)' % self.encode_uri(uri))
+            else:
+                self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
-            self.body.append(self.hyperlink(self.curfilestack[-1] +
-                                            ':' + uri[1:]))
-            self.context.append('}')
+            id = self.curfilestack[-1] + ':' + uri[1:]
+            self.body.append(self.hyperlink(id))
+            if self.builder.config.latex_show_pagerefs:
+                self.context.append('} (%s)' % self.hyperpageref(id))
+            else:
+                self.context.append('}')
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
@@ -1045,7 +1058,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # reference to a label
                 id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
-            self.context.append('}')
+            if len(node) and 'std-term' in node[0].get('classes', []):
+                # don't add a pageref for glossary terms
+                self.context.append('}')
+            else:
+                if self.builder.config.latex_show_pagerefs:
+                    self.context.append('} (%s)' % self.hyperpageref(id))
+                else:
+                    self.context.append('}')
         elif uri.startswith('@token'):
             if self.in_production_list:
                 self.body.append('\\token{')

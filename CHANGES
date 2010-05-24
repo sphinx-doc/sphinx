@@ -72,6 +72,7 @@ Features added
   - Added the ``trim_doctest_flags`` config value, which is true by
     default.
   - Added ``html_show_copyright`` config value.
+  - Added ``latex_show_pagerefs`` and ``latex_show_urls`` config values.
 
 * New builders:
 
