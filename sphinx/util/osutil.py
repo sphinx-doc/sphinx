@@ -128,6 +128,7 @@ def make_filename(string):
 if sys.version_info < (3, 0):
     def ustrftime(format, *args):
         # strftime for unicode strings
-        return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
+        return time.strftime(unicode(format).encode('utf-8'), *args) \
+                .decode('utf-8')
 else:
     ustrftime = time.strftime
