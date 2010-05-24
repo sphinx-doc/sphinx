@@ -411,9 +411,11 @@ class Documenter(object):
     def get_doc(self, encoding=None):
         """Decode and return lines of the docstring(s) for the object."""
         docstring = self.get_attr(self.object, '__doc__', None)
-        if docstring:
-            # make sure we have Unicode docstrings, then sanitize and split
-            # into lines
+        # make sure we have Unicode docstrings, then sanitize and split
+        # into lines
+        if isinstance(docstring, unicode):
+            return [prepare_docstring(docstring)]
+        elif docstring:
             return [prepare_docstring(force_decode(docstring, encoding))]
         return []
 
@@ -934,9 +936,12 @@ class ClassDocumenter(ModuleLevelDocumenter):
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
-
-        return [prepare_docstring(force_decode(docstring, encoding))
-                for docstring in docstrings]
+        doc = []
+        for docstring in docstrings:
+            if not isinstance(docstring, unicode):
+                docstring = force_decode(docstring, encoding)
+            doc.append(prepare_docstring(docstring))
+        return doc
 
     def add_content(self, more_content, no_docstring=False):
         if self.doc_as_attr:
