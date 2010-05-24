@@ -65,16 +65,16 @@ msgstr ""
 
 #: sphinx/directives/other.py:127
 msgid "Section author: "
-msgstr "Autor de la sección"
+msgstr "Autor de la sección: "
 
 #: sphinx/directives/other.py:129
 msgid "Module author: "
-msgstr "Autor del módulo"
+msgstr "Autor del módulo: "
 
 #: sphinx/directives/other.py:131
 #, fuzzy
 msgid "Code author: "
-msgstr "Autor del módulo"
+msgstr "Autor del módulo: "
 
 #: sphinx/directives/other.py:133
 msgid "Author: "
@@ -130,14 +130,12 @@ msgstr "%s (variable C)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (función C)"
+msgstr "función"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (miembro C)"
+msgstr "miembro"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
@@ -145,7 +143,7 @@ msgstr ""
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "tipo"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
@@ -153,28 +151,28 @@ msgid "variable"
 msgstr "Variable"
 
 #: sphinx/domains/cpp.py:876
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
-msgstr "%s (clase en %s)"
+msgstr "%s (clase C++)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (tipo C)"
+msgstr "%s (tipo C++)"
 
 #: sphinx/domains/cpp.py:910
 #, fuzzy, python-format
 msgid "%s (C++ member)"
-msgstr "%s (miembro C)"
+msgstr "%s (miembro C++)"
 
 #: sphinx/domains/cpp.py:962
 #, fuzzy, python-format
 msgid "%s (C++ function)"
-msgstr "%s (función C)"
+msgstr "%s (función C++)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
-msgstr ""
+msgstr "clase"
 
 #: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
 #, fuzzy, python-format
@@ -210,9 +208,8 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
 msgid "attribute"
-msgstr "%s (%s atributo)"
+msgstr "atributo"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -315,9 +312,8 @@ msgid "class method"
 msgstr "%s() (%s método)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (%s método estático)"
+msgstr "método estático"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -365,9 +361,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "variables de entorno; %s"
+msgstr "variables de entorno"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
@@ -532,7 +527,7 @@ msgstr "Ir a"
 #: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
 #, fuzzy
 msgid "Enter search terms or a module, class or function name."
-msgstr "Introducir en nombre de un módulo, clase o función"
+msgstr "Introducir en nombre de un módulo, clase o función."
 
 #: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
@@ -796,19 +791,3 @@ msgstr "Índice completo en una página"
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[imagen]"
-
-#~ msgid "Parameter"
-#~ msgstr "Parámetros"
-
-#~ msgid "(The original entry is located in %s, line %d and can be found "
-#~ msgstr ""
-
-#~ msgid "here"
-#~ msgstr ""
-
-#~ msgid "module, in "
-#~ msgstr "módulo"
-
-#~ msgid "Platform: %s"
-#~ msgstr "Plataforma: %s"
-

@@ -127,22 +127,21 @@ msgstr "%s (C 變數)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
+#, python-format
 msgid "function"
-msgstr "%s (C 函式)"
+msgstr "函式"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (C 成員)"
+msgstr "成員"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
-msgstr ""
+msgstr "巨集"
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "類別"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
@@ -155,19 +154,19 @@ msgid "%s (C++ class)"
 msgstr "%s (內建類別)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (C 類別)"
+msgstr "%s (C++ 類別)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (C 成員)"
+msgstr "%s (C++ 成員)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (C 函式)"
+msgstr "%s (C++ 函式)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
@@ -207,9 +206,9 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
+#, python-format
 msgid "attribute"
-msgstr "%s (%s 屬性)"
+msgstr "屬性"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -312,9 +311,9 @@ msgid "class method"
 msgstr "%s() (%s 方法)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
+#, python-format
 msgid "static method"
-msgstr "%s() (%s 靜態方法)"
+msgstr "靜態方法"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -362,9 +361,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "環境變數; %s"
+msgstr "環境變數"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
@@ -777,19 +775,3 @@ msgstr ""
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[圖片]"
-
-#~ msgid "Parameter"
-#~ msgstr "參數"
-
-#~ msgid "(The original entry is located in %s, line %d and can be found "
-#~ msgstr ""
-
-#~ msgid "here"
-#~ msgstr ""
-
-#~ msgid "module, in "
-#~ msgstr ""
-
-#~ msgid "Platform: %s"
-#~ msgstr "平台：%s"
-

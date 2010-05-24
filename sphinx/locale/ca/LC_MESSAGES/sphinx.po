@@ -127,22 +127,20 @@ msgstr "%s (variable de C)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (funció de C)"
+msgstr "funció"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (membre de C)"
+msgstr "membre"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
-msgstr ""
+msgstr "macro"
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "tipus"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
@@ -150,28 +148,28 @@ msgid "variable"
 msgstr "Variable"
 
 #: sphinx/domains/cpp.py:876
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
-msgstr "%s (class a %s)"
+msgstr "%s (class de C++)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (tipus de C)"
+msgstr "%s (tipus de C++)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (membre de C)"
+msgstr "%s (membre de C++)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (funció de C)"
+msgstr "%s (funció de C++)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
-msgstr ""
+msgstr "class"
 
 #: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
 #, python-format
@@ -207,9 +205,8 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
 msgid "attribute"
-msgstr "%s (atribut %s)"
+msgstr "atribut"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -312,9 +309,8 @@ msgid "class method"
 msgstr "%s() (mètode %s)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (mètode estàtic %s)"
+msgstr "mètode estàtic"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -362,9 +358,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "variable d'entorn; %s"
+msgstr "variable d'entorn"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
@@ -402,9 +397,9 @@ msgid "Todo"
 msgstr "Pendent"
 
 #: sphinx/ext/todo.py:109
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr "(La entrada original està a %s, línia %d i es pot trobar "
+msgstr "(La <<entrada original>> està a %s, línia %d i.)"
 
 #: sphinx/ext/todo.py:117
 msgid "original entry"
@@ -786,16 +781,3 @@ msgstr "Continua a la pàgina següent"
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[imatge]"
-
-#~ msgid "Parameter"
-#~ msgstr "Paràmetre"
-
-#~ msgid "here"
-#~ msgstr "aquí"
-
-#~ msgid "module, in "
-#~ msgstr "mòdule, a "
-
-#~ msgid "Platform: %s"
-#~ msgstr "Plataforma: %s"
-

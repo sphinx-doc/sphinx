@@ -127,22 +127,20 @@ msgstr "%s (C の変数)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (C の関数)"
+msgstr "の関数"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (C のメンバ変数)"
+msgstr "のメンバ変数"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
-msgstr ""
+msgstr "のマクロ"
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "のデータ型"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
@@ -152,22 +150,22 @@ msgstr "変数"
 #: sphinx/domains/cpp.py:876
 #, fuzzy, python-format
 msgid "%s (C++ class)"
-msgstr "%s (%s のクラス)"
+msgstr "%s (のクラス)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (C のデータ型)"
+msgstr "%s (C++ のデータ型)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (C のメンバ変数)"
+msgstr "%s (C++ のメンバ変数)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (C の関数)"
+msgstr "%s (C++ の関数)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
@@ -207,9 +205,8 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
 msgid "attribute"
-msgstr "%s (%s の属性)"
+msgstr "の属性"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -312,9 +309,8 @@ msgid "class method"
 msgstr "%s() (%s のメソッド)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (%s の静的メソッド)"
+msgstr "の静的メソッド"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -362,9 +358,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "環境変数; %s"
+msgstr "環境変数"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
@@ -778,19 +773,3 @@ msgstr "総索引"
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[画像]"
-
-#~ msgid "Parameter"
-#~ msgstr "パラメタ"
-
-#~ msgid "(The original entry is located in %s, line %d and can be found "
-#~ msgstr ""
-
-#~ msgid "here"
-#~ msgstr ""
-
-#~ msgid "module, in "
-#~ msgstr "モジュール"
-
-#~ msgid "Platform: %s"
-#~ msgstr "プラットフォーム: %s"
-

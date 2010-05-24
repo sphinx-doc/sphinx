@@ -128,14 +128,12 @@ msgstr "%s (C 变量)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (C 函数)"
+msgstr "函数"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (C 成员)"
+msgstr "成员"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
@@ -156,19 +154,19 @@ msgid "%s (C++ class)"
 msgstr "%s (內置类)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (C 类型)"
+msgstr "%s (C++ 类型)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (C 成员)"
+msgstr "%s (C++ 成员)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (C 函数)"
+msgstr "%s (C++ 函数)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
@@ -208,9 +206,8 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
 msgid "attribute"
-msgstr "%s (%s 属性)"
+msgstr "属性"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -313,9 +310,8 @@ msgid "class method"
 msgstr "%s() (%s 方法)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (%s 静态方法)"
+msgstr "静态方法"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -363,9 +359,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "环境变量; %s"
+msgstr "环境变量"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
@@ -778,16 +773,3 @@ msgstr "一页的全部索引"
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[图片]"
-
-#~ msgid "Parameter"
-#~ msgstr "参数"
-
-#~ msgid "here"
-#~ msgstr "这里"
-
-#~ msgid "module, in "
-#~ msgstr "模块，位于"
-
-#~ msgid "Platform: %s"
-#~ msgstr "平台：%s"
-

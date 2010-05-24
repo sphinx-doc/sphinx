@@ -127,14 +127,12 @@ msgstr "%s (переменная C)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (функция C)"
+msgstr "функция"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (поле C)"
+msgstr "поле"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
@@ -142,7 +140,7 @@ msgstr ""
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "тип"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
@@ -150,28 +148,28 @@ msgid "variable"
 msgstr "Переменная"
 
 #: sphinx/domains/cpp.py:876
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
-msgstr "%s (класс в %s)"
+msgstr "%s (класс C++)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (тип C)"
+msgstr "%s (тип C++)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (поле C)"
+msgstr "%s (поле C++)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (функция C)"
+msgstr "%s (функция C++)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
-msgstr ""
+msgstr "класс"
 
 #: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
 #, python-format
@@ -207,9 +205,8 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
 msgid "attribute"
-msgstr "%s (атрибут %s)"
+msgstr "атрибут"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -312,9 +309,8 @@ msgid "class method"
 msgstr "%s() (метод %s)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (статический метод %s)"
+msgstr "статический метод"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -362,9 +358,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "переменная окружения; %s"
+msgstr "переменная окружения"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
@@ -786,16 +781,3 @@ msgstr "Полный алфавитный указатель на одной с�
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[рисунок]"
-
-#~ msgid "Parameter"
-#~ msgstr "Параметр"
-
-#~ msgid "here"
-#~ msgstr "здесь"
-
-#~ msgid "module, in "
-#~ msgstr ", модуль в "
-
-#~ msgid "Platform: %s"
-#~ msgstr "Платформа: %s"
-

@@ -770,21 +770,3 @@ msgstr ""
 msgid "[image]"
 msgstr ""
 
-#~ msgid "Variable"
-#~ msgstr ""
-
-#~ msgid "Parameter"
-#~ msgstr ""
-
-#~ msgid "(The original entry is located in %s, line %d and can be found "
-#~ msgstr ""
-
-#~ msgid "here"
-#~ msgstr "tässä"
-
-#~ msgid "module, in "
-#~ msgstr ""
-
-#~ msgid "Platform: %s"
-#~ msgstr "Ympäristö: %s"
-

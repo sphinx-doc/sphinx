@@ -124,14 +124,12 @@ msgstr "%s (zmienna C)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (funkcja C)"
+msgstr "funkcja"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (pole C)"
+msgstr "pole"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
@@ -139,7 +137,7 @@ msgstr ""
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "typ"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
@@ -147,28 +145,28 @@ msgid "variable"
 msgstr "Zmienna"
 
 #: sphinx/domains/cpp.py:876
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
-msgstr "%s (w klasie %s)"
+msgstr "%s (klasie C++)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (typ C)"
+msgstr "%s (typ C++)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (pole C)"
+msgstr "%s (pole C++)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (funkcja C)"
+msgstr "%s (funkcja C++)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
-msgstr ""
+msgstr "klasie"
 
 #: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
 #, python-format
@@ -204,9 +202,8 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
 msgid "attribute"
-msgstr "%s (%s atrybut)"
+msgstr "atrybut"
 
 #: sphinx/domains/python.py:53
 #, fuzzy
@@ -309,9 +306,8 @@ msgid "class method"
 msgstr "%s() (%s metoda)"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (%s statyczna metoda)"
+msgstr "statyczna metoda"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -359,9 +355,8 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
 msgid "environment variable"
-msgstr "zmienna środowiskowa; %s"
+msgstr "zmienna środowiskowa"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
