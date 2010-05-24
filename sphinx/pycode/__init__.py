@@ -98,7 +98,8 @@ class AttrDocVisitor(nodes.NodeVisitor):
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
             prefix = pnode.get_prefix()
-        prefix = prefix.decode(self.encoding)
+        if not isinstance(prefix, unicode):
+            prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
         self.add_docstring(node, docstring)
 
