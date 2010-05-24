@@ -124,3 +124,15 @@ nodes.Node._old_traverse = nodes.Node.traverse
 nodes.Node._all_traverse = _all_traverse
 nodes.Node._fast_traverse = _fast_traverse
 nodes.Node.traverse = _new_traverse
+
+# monkey-patch Node.__contains__ to get consistent "in" operator behavior
+# across docutils versions
+
+def _new_contains(self, key):
+    # support both membership test for children and attributes
+    # (has_key is translated to "in" by 2to3)
+    if isinstance(key, basestring):
+        return key in self.attributes
+    return key in self.children
+
+nodes.Node.__contains__ = _new_contains
