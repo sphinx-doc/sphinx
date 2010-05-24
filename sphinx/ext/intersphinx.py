@@ -36,8 +36,10 @@ from sphinx.builders.html import INVENTORY_FILENAME
 
 handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
             urllib2.HTTPHandler()]
-if hasattr(urllib2, 'HTTPSHandler'):
+try:
     handlers.append(urllib2.HTTPSHandler)
+except NameError:
+    pass
 
 urllib2.install_opener(urllib2.build_opener(*handlers))
 
