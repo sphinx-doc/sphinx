@@ -122,7 +122,7 @@ var Documentation = {
   LOCALE : 'unknown',
 
   // gettext and ngettext don't access this so that the functions
-  // can savely bound to a different name (_ = Documentation.gettext)
+  // can safely bound to a different name (_ = Documentation.gettext)
   gettext : function(string) {
     var translated = Documentation.TRANSLATIONS[string];
     if (typeof translated == 'undefined')
