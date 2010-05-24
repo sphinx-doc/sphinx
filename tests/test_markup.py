@@ -101,7 +101,7 @@ def test_inline():
     yield (verify, ':guilabel:`&Foo -&&- &Bar`',
            u'<p><em class="guilabel"><span class="accelerator">F</span>oo '
            '-&amp;- <span class="accelerator">B</span>ar</em></p>',
-           '\\emph{\\DUspan{accelerator}{F}oo -\\&- \\DUspan{accelerator}{B}ar}')
+           r'\emph{\DUspan{accelerator}{F}oo -\&- \DUspan{accelerator}{B}ar}')
 
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',
