@@ -63,7 +63,7 @@ $(function() {
         'height': bodywrapper.height()
     });
     sidebarbutton.find('span').text('»');
-    sidebarbutton.attr('title', 'Expand sidebar');
+    sidebarbutton.attr('title', _('Expand sidebar'));
     document.cookie = 'sidebar=collapsed';
   }
 
@@ -76,7 +76,7 @@ $(function() {
         'height': bodywrapper.height()
     });
     sidebarbutton.find('span').text('«');
-    sidebarbutton.attr('title', 'Collapse sidebar');
+    sidebarbutton.attr('title', _('Collapse sidebar'));
     document.cookie = 'sidebar=expanded';
   }
 
@@ -103,7 +103,7 @@ $(function() {
     });
 
     sidebarbutton.click(toggle_sidebar);
-    sidebarbutton.attr('title', 'Collapse sidebar');
+    sidebarbutton.attr('title', _('Collapse sidebar'));
     sidebarbutton.css({
         'color': '#FFFFFF',
         'border-left': '1px solid ' + dark_color,
