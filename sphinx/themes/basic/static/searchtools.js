@@ -467,11 +467,13 @@ var Search = {
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
           $.get(DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' +
                 item[0] + '.txt', function(data) {
-            listItem.append($.makeSearchSummary(data, searchterms, hlterms));
-            Search.output.append(listItem);
-            listItem.slideDown(5, function() {
-              displayNextItem();
-            });
+            if (data != '') {
+              listItem.append($.makeSearchSummary(data, searchterms, hlterms));
+              Search.output.append(listItem);
+              listItem.slideDown(5, function() {
+                displayNextItem();
+              });
+            }
           });
         } else {
           // no source available, just display title
