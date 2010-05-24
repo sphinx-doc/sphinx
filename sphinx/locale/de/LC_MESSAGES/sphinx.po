@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-08-07 21:40+0200\n"
 "PO-Revision-Date: 2010-05-24 23:54+0200\n"
-"Last-Translator: Horst Gutmann <zerok@zerokspot.com>\n"
+"Last-Translator: Georg Brandl <georg@python.org>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
@@ -69,9 +69,8 @@ msgid "Module author: "
 msgstr "Autor des Moduls: "
 
 #: sphinx/directives/other.py:131
-#, fuzzy
 msgid "Code author: "
-msgstr "Autor des Moduls: "
+msgstr "Autor des Quellcode: "
 
 #: sphinx/directives/other.py:133
 msgid "Author: "
@@ -84,7 +83,7 @@ msgstr "Siehe auch"
 #: sphinx/domains/__init__.py:253
 #, python-format
 msgid "%s %s"
-msgstr ""
+msgstr "%s-%s"
 
 #: sphinx/domains/c.py:51 sphinx/domains/python.py:49
 msgid "Parameters"
@@ -126,51 +125,48 @@ msgstr "%s (C-Variable)"
 
 #: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
-#, fuzzy, python-format
 msgid "function"
-msgstr "%s (C-Funktion)"
+msgstr "Funktion"
 
 #: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
-#, fuzzy, python-format
 msgid "member"
-msgstr "%s (C-Member)"
+msgstr "Member"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
-msgstr ""
+msgstr "Makro"
 
 #: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
 msgid "type"
-msgstr ""
+msgstr "Typ"
 
 #: sphinx/domains/c.py:175
-#, fuzzy
 msgid "variable"
 msgstr "Variable"
 
 #: sphinx/domains/cpp.py:876
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
-msgstr "%s (Klasse in %s)"
+msgstr "%s (C++-Klasse)"
 
 #: sphinx/domains/cpp.py:891
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ type)"
-msgstr "%s (C-Typ)"
+msgstr "%s (C++-Typ)"
 
 #: sphinx/domains/cpp.py:910
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ member)"
-msgstr "%s (C-Member)"
+msgstr "%s (C++-Member)"
 
 #: sphinx/domains/cpp.py:962
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ function)"
-msgstr "%s (C-Funktion)"
+msgstr "%s (C++-Funktion)"
 
 #: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
 msgid "class"
-msgstr ""
+msgstr "Klasse"
 
 #: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
 #, python-format
@@ -185,7 +181,7 @@ msgstr "%s() (Methode von %s)"
 #: sphinx/domains/javascript.py:120
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr ""
+msgstr "%s (globale Variable oder Konstante)"
 
 #: sphinx/domains/javascript.py:122 sphinx/domains/python.py:323
 #, python-format
@@ -193,31 +189,29 @@ msgid "%s (%s attribute)"
 msgstr "%s (Attribut von %s)"
 
 #: sphinx/domains/javascript.py:131
-#, fuzzy
 msgid "Arguments"
 msgstr "Parameter"
 
 #: sphinx/domains/javascript.py:134
 msgid "Throws"
-msgstr ""
+msgstr "Wirft"
 
 #: sphinx/domains/javascript.py:167 sphinx/domains/python.py:498
 msgid "data"
-msgstr ""
+msgstr "Daten"
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
-#, fuzzy, python-format
+#, python-format
 msgid "attribute"
-msgstr "%s (Attribut von %s)"
+msgstr "Attribut"
 
 #: sphinx/domains/python.py:53
-#, fuzzy
 msgid "Variables"
-msgstr "Variable"
+msgstr "Variablen"
 
 #: sphinx/domains/python.py:56
 msgid "Raises"
-msgstr "Verursacht:"
+msgstr "Verursacht"
 
 #: sphinx/domains/python.py:222 sphinx/domains/python.py:279
 #: sphinx/domains/python.py:291 sphinx/domains/python.py:304
@@ -261,14 +255,14 @@ msgid "%s() (%s static method)"
 msgstr "%s() (statische Methode von %s)"
 
 #: sphinx/domains/python.py:308
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (Methode von %s.%s)"
+msgstr "%s() (Klassenmethode von %s.%s)"
 
 #: sphinx/domains/python.py:311
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (Methode von %s)"
+msgstr "%s() (Klassenmethode von %s)"
 
 #: sphinx/domains/python.py:321
 #, python-format
@@ -285,9 +279,8 @@ msgid "%s (module)"
 msgstr "%s (Modul)"
 
 #: sphinx/domains/python.py:429
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Modulindex"
+msgstr "Python-Modulindex"
 
 #: sphinx/domains/python.py:430
 msgid "modules"
@@ -303,17 +296,16 @@ msgstr "Exception"
 
 #: sphinx/domains/python.py:501
 msgid "method"
-msgstr ""
+msgstr "Methode"
 
 #: sphinx/domains/python.py:502
-#, fuzzy, python-format
+#, python-format
 msgid "class method"
-msgstr "%s() (Methode von %s)"
+msgstr "Klassenmethode"
 
 #: sphinx/domains/python.py:503
-#, fuzzy, python-format
 msgid "static method"
-msgstr "%s() (statische Methode von %s)"
+msgstr "statische Methode"
 
 #: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
 msgid "module"
@@ -322,21 +314,20 @@ msgstr "Module"
 #: sphinx/domains/rst.py:53
 #, python-format
 msgid "%s (directive)"
-msgstr ""
+msgstr "%s (Direktive)"
 
 #: sphinx/domains/rst.py:55
-#, fuzzy, python-format
+#, python-format
 msgid "%s (role)"
-msgstr "%s (Modul)"
+msgstr "%s (Rolle)"
 
 #: sphinx/domains/rst.py:103
 msgid "directive"
-msgstr ""
+msgstr "Direktive"
 
 #: sphinx/domains/rst.py:104
-#, fuzzy
 msgid "role"
-msgstr "Module"
+msgstr "Rolle"
 
 #: sphinx/domains/std.py:68 sphinx/domains/std.py:84
 #, python-format
@@ -350,24 +341,24 @@ msgstr "%sKommandozeilenoption; %s"
 
 #: sphinx/domains/std.py:328
 msgid "glossary term"
-msgstr ""
+msgstr "Glossareintrag"
 
 #: sphinx/domains/std.py:329
 msgid "grammar token"
-msgstr ""
+msgstr "Grammatik-Token"
 
 #: sphinx/domains/std.py:330
 msgid "reference label"
-msgstr ""
+msgstr "Referenz-Label"
 
 #: sphinx/domains/std.py:331
-#, fuzzy, python-format
+#, python-format
 msgid "environment variable"
-msgstr "Umgebungsvariable; %s"
+msgstr "Umgebungsvariable"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
-msgstr ""
+msgstr "Programmoption"
 
 #: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
 #: sphinx/themes/basic/genindex-split.html:11
@@ -401,39 +392,38 @@ msgid "Todo"
 msgstr "Zu tun"
 
 #: sphinx/ext/todo.py:109
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr "(Der ursprüngliche Eintrag steht in %s, Zeile %d, siehe "
+msgstr "(Der <<ursprüngliche Eintrag>> steht in %s, Zeile %d.)"
 
 #: sphinx/ext/todo.py:117
 msgid "original entry"
-msgstr ""
+msgstr "ursprüngliche Eintrag"
 
 #: sphinx/ext/viewcode.py:66
 msgid "[source]"
-msgstr ""
+msgstr "[Quelle]"
 
 #: sphinx/ext/viewcode.py:109
 msgid "[docs]"
-msgstr ""
+msgstr "[Doku]"
 
 #: sphinx/ext/viewcode.py:123
-#, fuzzy
 msgid "Module code"
-msgstr "Module"
+msgstr "Modul-Quellcode"
 
 #: sphinx/ext/viewcode.py:129
 #, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr ""
+msgstr "<h1>Quellcode für %s</h1>"
 
 #: sphinx/ext/viewcode.py:156
 msgid "Overview: module code"
-msgstr ""
+msgstr "Überblick: Modul-Quellcode"
 
 #: sphinx/ext/viewcode.py:157
 msgid "<h1>All modules for which code is available</h1>"
-msgstr ""
+msgstr "<h1>Alle Module, für die Quellcode verfügbar ist</h1>"
 
 #: sphinx/locale/__init__.py:139
 msgid "Attention"
@@ -756,16 +746,16 @@ msgstr "Suche beendet, %s zutreffende Seite(n) gefunden."
 
 #: sphinx/themes/default/static/sidebar.js:66
 msgid "Expand sidebar"
-msgstr ""
+msgstr "Sidebar ausklappen"
 
 #: sphinx/themes/default/static/sidebar.js:79
 #: sphinx/themes/default/static/sidebar.js:106
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "Sidebar einklappen"
 
 #: sphinx/themes/haiku/layout.html:26
 msgid "Contents"
-msgstr ""
+msgstr "Inhalt"
 
 #: sphinx/writers/latex.py:171
 msgid "Release"
@@ -773,7 +763,7 @@ msgstr "Release"
 
 #: sphinx/writers/latex.py:572 sphinx/writers/manpage.py:178
 msgid "Footnotes"
-msgstr ""
+msgstr "Fußnoten"
 
 #: sphinx/writers/latex.py:641
 msgid "continued from previous page"
@@ -786,16 +776,4 @@ msgstr "Fortsetzung auf der nächsten Seite"
 #: sphinx/writers/text.py:422
 msgid "[image]"
 msgstr "[Bild]"
-
-#~ msgid "Parameter"
-#~ msgstr "Parameter"
-
-#~ msgid "here"
-#~ msgstr "hier"
-
-#~ msgid "module, in "
-#~ msgstr "Modul, in "
-
-#~ msgid "Platform: %s"
-#~ msgstr "Plattform: %s"
 
