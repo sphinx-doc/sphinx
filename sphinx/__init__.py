@@ -49,7 +49,7 @@ def main(argv=sys.argv):
             if whichmod.startswith('docutils'):
                 whichmod = 'Docutils library'
             elif whichmod.startswith('jinja'):
-                whichmod = 'Jinja library'
+                whichmod = 'Jinja2 library'
             elif whichmod == 'roman':
                 whichmod = 'roman module (which is distributed with Docutils)'
                 hint = ('This can happen if you upgraded docutils using\n'
