@@ -13,7 +13,7 @@ import os
 import sys
 import re
 
-_strip_core_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+_ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}
 
 def get_terminal_width():
@@ -38,8 +38,8 @@ def term_width_line(text):
         # if no coloring, don't output fancy backspaces
         return text + '\n'
     else:
-        # codes are not displayed and must be taken into account by introducing the correction factor
-        return text.ljust(_tw + len(text) - len(_strip_core_re.sub('', text))) + '\r'
+        # codes are not displayed, this must be taken into account
+        return text.ljust(_tw + len(text) - len(_ansi_re.sub('', text))) + '\r'
 
 def color_terminal():
     if not hasattr(sys.stdout, 'isatty'):
