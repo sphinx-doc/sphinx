@@ -167,7 +167,7 @@ pairindextypes = {
 translator = None
 
 def _(message):
-    return translator.gettext(message)
+    return translator.ugettext(message)
 
 def init(locale_dirs, language):
     global translator
