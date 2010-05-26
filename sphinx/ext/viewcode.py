@@ -104,6 +104,7 @@ def collect_pages(app):
         # now that we have code lines (starting at index 1), insert anchors for
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
+        maxindex = len(lines)
         for name, docname in used.iteritems():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + modname + '.' + name
@@ -111,7 +112,7 @@ def collect_pages(app):
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
                 'href="%s">%s</a>' % (name, backlink, _('[docs]'))
                 + lines[start])
-            lines[end - 1] += '</div>'
+            lines[min(end - 1, maxindex)] += '</div>'
         # try to find parents (for submodules)
         parents = []
         parent = modname
