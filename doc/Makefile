@@ -56,10 +56,13 @@ man:
 
 pickle:
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) _build/pickle
+	@echo
+	@echo "Build finished."
 
 json:
-	mkdir -p _build/json _build/doctrees
 	$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) _build/json
+	@echo
+	@echo "Build finished."
 
 htmlhelp:
 	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) _build/htmlhelp
