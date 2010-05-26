@@ -67,7 +67,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
-    version = line.rstrip()[11:]
+    version = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
     if 'zlib' not in line:
         raise ValueError
@@ -84,14 +84,14 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
             buf += chunk
             lineend = buf.find('\n')
             while lineend != -1:
-                yield buf[:lineend]
+                yield buf[:lineend].decode('utf-8')
                 buf = buf[lineend+1:]
                 lineend = buf.find('\n')
         assert not buf
 
     for line in split_lines(read_chunks()):
         name, type, prio, location, dispname = line.rstrip().split(None, 4)
-        if location.endswith('$'):
+        if location.endswith(u'$'):
             location = location[:-1] + name
         location = join(uri, location)
         invdata.setdefault(type, {})[name] = (projname, version,

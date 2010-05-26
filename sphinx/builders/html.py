@@ -738,7 +738,7 @@ class StandaloneHTMLBuilder(Builder):
         try:
             f.write('# Sphinx inventory version 2\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
-            f.write('# Version: %s\n' % self.config.version)
+            f.write('# Version: %s\n' % self.config.version.encode('utf-8'))
             f.write('# The remainder of this file is compressed using zlib.\n')
             compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
@@ -749,10 +749,13 @@ class StandaloneHTMLBuilder(Builder):
                         anchor = anchor[:-len(name)] + '$'
                     uri = self.get_target_uri(docname) + '#' + anchor
                     if dispname == name:
-                        dispname = '-'
+                        dispname = u'-'
                     f.write(compressor.compress(
-                        '%s %s:%s %s %s %s\n' % (name, domainname, type, prio,
-                                                 uri, dispname)))
+                        '%s %s:%s %s %s %s\n' % (name.encode('utf-8'),
+                                                 domainname.encode('utf-8'),
+                                                 type.encode('utf-8'), prio,
+                                                 uri.encode('utf-8'),
+                                                 dispname.encode('utf-8'))))
             f.write(compressor.flush())
         finally:
             f.close()

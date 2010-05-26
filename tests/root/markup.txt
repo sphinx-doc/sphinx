@@ -246,6 +246,8 @@ Invalid index markup...
    keyword:
 
 
+.. _ölabel:
+
 Ö... Some strange characters
 ----------------------------
 
