@@ -27,6 +27,9 @@ class JSObject(ObjectDescription):
     #: added
     has_arguments = False
 
+    #: what is displayed right before the documentation entry
+    display_prefix = None
+
     def handle_signature(self, sig, signode):
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
@@ -58,6 +61,9 @@ class JSObject(ObjectDescription):
         signode['object'] = objectname
         signode['fullname'] = fullname
 
+        if self.display_prefix:
+            signode += addnodes.desc_annotation(self.display_prefix,
+                                                self.display_prefix)
         if nameprefix:
             signode += addnodes.desc_addname(nameprefix + '.', nameprefix + '.')
         signode += addnodes.desc_name(name, name)
@@ -116,6 +122,8 @@ class JSObject(ObjectDescription):
             if not obj:
                 return _('%s() (built-in function)') % name
             return _('%s() (%s method)') % (name, obj)
+        elif self.objtype == 'class':
+            return _('%s() (class)') % name
         elif self.objtype == 'data':
             return _('%s (global variable or constant)') % name
         elif self.objtype == 'attribute':
@@ -137,6 +145,11 @@ class JSCallable(JSObject):
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
     ]
+
+
+class JSConstructor(JSCallable):
+    """Like a callable but with a different prefix"""
+    display_prefix = 'class '
 
 
 class JSXRefRole(XRefRole):
@@ -164,18 +177,21 @@ class JavaScriptDomain(Domain):
     # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
         'function':  ObjType(l_('function'),  'func'),
+        'class':     ObjType(l_('class'),     'class'),
         'data':      ObjType(l_('data'),      'data'),
         'attribute': ObjType(l_('attribute'), 'attr'),
     }
     directives = {
         'function':  JSCallable,
+        'class':     JSConstructor,
         'data':      JSObject,
         'attribute': JSObject,
     }
     roles = {
-        'func': JSXRefRole(fix_parens=True),
-        'data': JSXRefRole(),
-        'attr': JSXRefRole(),
+        'func':  JSXRefRole(fix_parens=True),
+        'class': JSXRefRole(fix_parens=True),
+        'data':  JSXRefRole(),
+        'attr':  JSXRefRole(),
     }
     initial_data = {
         'objects': {}, # fullname -> docname, objtype
