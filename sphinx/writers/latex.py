@@ -1058,7 +1058,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # reference to a label
                 id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
-            if len(node) and 'std-term' in node[0].get('classes', []):
+            if len(node) and hasattr(node[0], 'attributes') and \
+                   'std-term' in node[0].get('classes', []):
                 # don't add a pageref for glossary terms
                 self.context.append('}')
             else:
