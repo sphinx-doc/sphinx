@@ -649,7 +649,7 @@ msgstr "Chapitre suivant"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "Activez le JavaScript pour que la recherche fonctionne"
+msgstr "Activez le JavaScript pour que la recherche fonctionne\n"
 
 #: sphinx/themes/basic/search.html:23
 #, fuzzy
