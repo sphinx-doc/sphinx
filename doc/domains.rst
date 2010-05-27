@@ -653,6 +653,7 @@ The JavaScript domain (name **js**) provides the following directives:
 These roles are provided to refer to the described objects:
 
 .. rst:role:: js:func
+          js:class
           js:data
           js:attr
 
