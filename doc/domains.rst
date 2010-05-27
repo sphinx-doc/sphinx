@@ -455,9 +455,9 @@ The following directives are available:
    Describe a C++ object.  Full signature specification is supported -- give the
    signature as you would in the declaration.  Example::
 
-      .. cpp:function:: const int IntArray::operator[]
+      .. cpp:function:: const T &Array<T>::operator[]() const
 
-         Describes the indexing operator of IntArrays.
+         Describes the constant indexing operator of a templated array.
 
 .. rst:directive:: .. cpp:namespace:: namespace
 
