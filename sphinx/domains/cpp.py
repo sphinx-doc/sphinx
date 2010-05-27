@@ -318,6 +318,8 @@ class ArgumentDefExpr(DefExpr):
         return self.name.get_name()
 
     def get_id(self):
+        if self.type is None:
+            return 'X'
         return self.type.get_id()
 
     def __unicode__(self):
