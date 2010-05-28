@@ -16,6 +16,7 @@ import os
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
+from sphinx import addnodes
 from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
@@ -283,6 +284,14 @@ class HTMLTranslator(BaseTranslator):
                          + '<strong>')
     def depart_centered(self, node):
         self.body.append('</strong></p>')
+
+    # overwritten
+    def should_be_compact_paragraph(self, node):
+        """Determine if the <p> tags around paragraph can be omitted."""
+        if isinstance(node.parent, addnodes.desc_content):
+            # Never compact desc_content items.
+            return False
+        return BaseTranslator.should_be_compact_paragraph(self, node)
 
     def visit_compact_paragraph(self, node):
         pass
