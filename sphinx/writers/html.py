@@ -16,6 +16,7 @@ import os
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
+from sphinx import addnodes
 from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
@@ -283,6 +284,47 @@ class HTMLTranslator(BaseTranslator):
                          + '<strong>')
     def depart_centered(self, node):
         self.body.append('</strong></p>')
+
+    def should_be_compact_paragraph(self, node):
+        """
+        Determine if the <p> tags around paragraph ``node`` can be omitted.
+        """
+        if (isinstance(node.parent, nodes.document) or
+            isinstance(node.parent, nodes.compound) or
+            isinstance(node.parent, addnodes.desc_content)):
+            # Never compact paragraphs in document or compound.
+            # or desc_content items either.
+            return 0
+        for key, value in node.attlist():
+            if (node.is_not_default(key) and
+                not (key == 'classes' and value in
+                     ([], ['first'], ['last'], ['first', 'last']))):
+                # Attribute which needs to survive.
+                return 0
+        first = isinstance(node.parent[0], nodes.label) # skip label
+        for child in node.parent.children[first:]:
+            # only first paragraph can be compact
+            if isinstance(child, nodes.Invisible):
+                continue
+            if child is node:
+                break
+            return 0
+        parent_length = len([n for n in node.parent if not isinstance(
+            n, (nodes.Invisible, nodes.label))])
+        if ( self.compact_simple
+             or self.compact_field_list
+             or self.compact_p and parent_length == 1):
+            return 1
+        return 0
+
+    def visit_paragraph(self, node):
+        if self.should_be_compact_paragraph(node):
+            self.context.append('')
+        else:
+            self.body.append(self.starttag(node, 'p', ''))
+            self.context.append('</p>\n')
+    def depart_paragraph(self, node):
+        self.body.append(self.context.pop())
 
     def visit_compact_paragraph(self, node):
         pass
