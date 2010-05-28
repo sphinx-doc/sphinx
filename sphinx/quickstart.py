@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys, os, time
+import sys, os, time, re
 from os import path
 from codecs import open
 
@@ -683,6 +683,18 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             continue
         break
     d[key] = x
+
+
+if sys.version_info >= (3, 0):
+    # remove Unicode literal prefixes
+    _unicode_string_re = re.compile(r"[uU]('.*?')")
+    def _convert_python_source(source):
+        return _unicode_string_re.sub('\\1', source)
+
+    for f in ['QUICKSTART_CONF', 'EPUB_CONFIG', 'INTERSPHINX_CONFIG']:
+        globals()[f] = convert_python_source(globals()[f])
+
+    del _unicode_string_re, _convert_python_source
 
 
 def inner_main(args):
