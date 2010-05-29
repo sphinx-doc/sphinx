@@ -713,11 +713,11 @@ msgstr "Andere veranderingen"
 #: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:482
 #: sphinx/writers/html.py:487
 msgid "Permalink to this headline"
-msgstr "Permanente link naar deze titel"
+msgstr "Permalink naar deze titel"
 
 #: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:87
 msgid "Permalink to this definition"
-msgstr "Permanente link naar deze definitie"
+msgstr "Permalink naar deze definitie"
 
 #: sphinx/themes/basic/static/doctools.js:189
 msgid "Hide Search Matches"
