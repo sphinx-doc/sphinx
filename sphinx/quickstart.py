@@ -321,7 +321,7 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
-epub latex latexpdf text man changes linkcheck doctest
+epub latex latexpdf text man changes linkcheck doctest gettext
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
@@ -338,6 +338,7 @@ help:
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
+\t@echo "  gettext    to make PO message catalogs"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
@@ -424,6 +425,11 @@ man:
 \t@echo
 \t@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
 
+gettext:
+\t$(SPHINXBUILD) -b gettext $(ALLSPHINXOPTS) $(BUILDDIR)/locale
+\t@echo
+\t@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
+
 changes:
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 \t@echo
@@ -472,6 +478,7 @@ if "%%1" == "help" (
 \techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  text       to make text files
 \techo.  man        to make manual pages
+\techo.  gettext    to make PO message catalogs
 \techo.  changes    to make an overview over all changed/added/deprecated items
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
@@ -570,6 +577,13 @@ if "%%1" == "man" (
 \t%%SPHINXBUILD%% -b man %%ALLSPHINXOPTS%% %%BUILDDIR%%/man
 \techo.
 \techo.Build finished. The manual pages are in %%BUILDDIR%%/man.
+\tgoto end
+)
+
+if "%%1" == "gettext" (
+\t%%SPHINXBUILD%% -b gettext %%ALLSPHINXOPTS%% %%BUILDDIR%%/locale
+\techo.
+\techo.Build finished. The message catalogs are in %%BUILDDIR%%/locale.
 \tgoto end
 )
 
