@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-08-06 23:04+0200\n"
-"PO-Revision-Date: 2010-05-24 23:54+0200\n"
+"PO-Revision-Date: 2010-05-29 16:22+0100\n"
 "Last-Translator: Marijn van der Zee <marijn.vanderzee@gmail.com>\n"
 "Language-Team: nl <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -16,7 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: sphinx/environment.py:106 sphinx/writers/latex.py:184
+#: sphinx/environment.py:106
+#: sphinx/writers/latex.py:184
 #: sphinx/writers/manpage.py:67
 #, python-format
 msgid "%B %d, %Y"
@@ -40,7 +41,8 @@ msgstr "Moduleniveau"
 msgid "%b %d, %Y"
 msgstr "%d.%b.%Y"
 
-#: sphinx/builders/html.py:285 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:285
+#: sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Algemene index"
 
@@ -86,16 +88,19 @@ msgstr "Zie ook"
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/python.py:49
+#: sphinx/domains/c.py:51
+#: sphinx/domains/python.py:49
 msgid "Parameters"
 msgstr "Parameters"
 
-#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:137
+#: sphinx/domains/c.py:54
+#: sphinx/domains/javascript.py:137
 #: sphinx/domains/python.py:59
 msgid "Returns"
 msgstr "Returns"
 
-#: sphinx/domains/c.py:56 sphinx/domains/python.py:61
+#: sphinx/domains/c.py:56
+#: sphinx/domains/python.py:61
 msgid "Return type"
 msgstr "Return type"
 
@@ -124,27 +129,31 @@ msgstr "%s (C type)"
 msgid "%s (C variable)"
 msgstr "%s (C-variabele)"
 
-#: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
-#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
+#: sphinx/domains/c.py:171
+#: sphinx/domains/cpp.py:1031
+#: sphinx/domains/javascript.py:166
+#: sphinx/domains/python.py:497
 msgid "function"
 msgstr "functie"
 
-#: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
+#: sphinx/domains/c.py:172
+#: sphinx/domains/cpp.py:1032
 msgid "member"
 msgstr "member"
 
 #: sphinx/domains/c.py:173
 msgid "macro"
-msgstr ""
+msgstr "macro"
 
-#: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
+#: sphinx/domains/c.py:174
+#: sphinx/domains/cpp.py:1033
 msgid "type"
 msgstr "type"
 
 #: sphinx/domains/c.py:175
 #, fuzzy
 msgid "variable"
-msgstr "Variabele"
+msgstr "variabele"
 
 #: sphinx/domains/cpp.py:876
 #, python-format
@@ -166,16 +175,19 @@ msgstr "%s (C++ member)"
 msgid "%s (C++ function)"
 msgstr "%s (C++ functie)"
 
-#: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
+#: sphinx/domains/cpp.py:1030
+#: sphinx/domains/python.py:499
 msgid "class"
 msgstr "klasse"
 
-#: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
+#: sphinx/domains/javascript.py:117
+#: sphinx/domains/python.py:221
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (geïntegreerde functie)"
 
-#: sphinx/domains/javascript.py:118 sphinx/domains/python.py:285
+#: sphinx/domains/javascript.py:118
+#: sphinx/domains/python.py:285
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s methode)"
@@ -183,9 +195,10 @@ msgstr "%s() (%s methode)"
 #: sphinx/domains/javascript.py:120
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr ""
+msgstr "%s (globale variabele of constante)"
 
-#: sphinx/domains/javascript.py:122 sphinx/domains/python.py:323
+#: sphinx/domains/javascript.py:122
+#: sphinx/domains/python.py:323
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s attribuut)"
@@ -199,11 +212,13 @@ msgstr "Parameters"
 msgid "Throws"
 msgstr ""
 
-#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:498
+#: sphinx/domains/javascript.py:167
+#: sphinx/domains/python.py:498
 msgid "data"
 msgstr ""
 
-#: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
+#: sphinx/domains/javascript.py:168
+#: sphinx/domains/python.py:504
 msgid "attribute"
 msgstr "attribuut"
 
@@ -216,8 +231,10 @@ msgstr "Variabele"
 msgid "Raises"
 msgstr "Veroorzaakt"
 
-#: sphinx/domains/python.py:222 sphinx/domains/python.py:279
-#: sphinx/domains/python.py:291 sphinx/domains/python.py:304
+#: sphinx/domains/python.py:222
+#: sphinx/domains/python.py:279
+#: sphinx/domains/python.py:291
+#: sphinx/domains/python.py:304
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (in module %s)"
@@ -227,7 +244,8 @@ msgstr "%s() (in module %s)"
 msgid "%s (built-in variable)"
 msgstr "%s (geïntegreerde variabele)"
 
-#: sphinx/domains/python.py:226 sphinx/domains/python.py:317
+#: sphinx/domains/python.py:226
+#: sphinx/domains/python.py:317
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (in module %s)"
@@ -294,9 +312,10 @@ msgstr "modules"
 msgid "Deprecated"
 msgstr "Verouderd"
 
-#: sphinx/domains/python.py:500 sphinx/locale/__init__.py:162
+#: sphinx/domains/python.py:500
+#: sphinx/locale/__init__.py:162
 msgid "exception"
-msgstr "foutmelding"
+msgstr "exceptie"
 
 #: sphinx/domains/python.py:501
 msgid "method"
@@ -311,7 +330,8 @@ msgstr "%s() (%s methode)"
 msgid "static method"
 msgstr "statische methode"
 
-#: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
+#: sphinx/domains/python.py:505
+#: sphinx/locale/__init__.py:158
 msgid "module"
 msgstr "module"
 
@@ -334,7 +354,8 @@ msgstr ""
 msgid "role"
 msgstr "module"
 
-#: sphinx/domains/std.py:68 sphinx/domains/std.py:84
+#: sphinx/domains/std.py:68
+#: sphinx/domains/std.py:84
 #, python-format
 msgid "environment variable; %s"
 msgstr "omgevingsvariabele; %s"
@@ -364,11 +385,14 @@ msgstr "omgevingsvariabele"
 msgid "program option"
 msgstr ""
 
-#: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
+#: sphinx/domains/std.py:360
+#: sphinx/themes/basic/genindex-single.html:11
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
-#: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:14
-#: sphinx/themes/basic/genindex.html:50 sphinx/themes/basic/layout.html:125
+#: sphinx/themes/basic/genindex.html:11
+#: sphinx/themes/basic/genindex.html:14
+#: sphinx/themes/basic/genindex.html:50
+#: sphinx/themes/basic/layout.html:125
 #: sphinx/writers/latex.py:173
 msgid "Index"
 msgstr "Index"
@@ -377,7 +401,8 @@ msgstr "Index"
 msgid "Module Index"
 msgstr "Module-index"
 
-#: sphinx/domains/std.py:362 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:362
+#: sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Zoekpagina"
 
@@ -432,11 +457,11 @@ msgstr ""
 
 #: sphinx/locale/__init__.py:139
 msgid "Attention"
-msgstr "Let op!"
+msgstr "Let op"
 
 #: sphinx/locale/__init__.py:140
 msgid "Caution"
-msgstr "Pas op!"
+msgstr "Pas op"
 
 #: sphinx/locale/__init__.py:141
 msgid "Danger"
@@ -503,27 +528,33 @@ msgstr "statement"
 
 #: sphinx/locale/__init__.py:164
 msgid "built-in function"
-msgstr "geïntegreerde functie"
+msgstr "ingebouwde functie"
 
-#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/agogo/layout.html:45
+#: sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11
 msgid "Table Of Contents"
 msgstr "Inhoudsopgave"
 
-#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:128
-#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:14
+#: sphinx/themes/agogo/layout.html:49
+#: sphinx/themes/basic/layout.html:128
+#: sphinx/themes/basic/search.html:11
+#: sphinx/themes/basic/search.html:14
 msgid "Search"
 msgstr "Zoeken"
 
-#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+#: sphinx/themes/agogo/layout.html:52
+#: sphinx/themes/basic/searchbox.html:15
 msgid "Go"
 msgstr "Ga"
 
-#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+#: sphinx/themes/agogo/layout.html:57
+#: sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
 msgstr "Geef zoekterm of de naam van een module, klasse of functie."
 
-#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+#: sphinx/themes/agogo/layout.html:78
+#: sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
 msgstr "Broncode weergeven"
 
@@ -613,12 +644,8 @@ msgstr "Laatste aanpassing op %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:189
 #, python-format
-msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
-msgstr ""
-"Aangemaakt met <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "Aangemaakt met <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -655,10 +682,8 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr ""
 "Hier kan u de documenten doorzoeken.  Geef enkele trefwoorden\n"
-"    in het veld hieronder en klik \"zoeken\".  Merk op dat de zoekfunctie"
-"\n"
-"    steeds naar alle woorden zoekt.  Pagina's die minder woorden bevatten"
-"\n"
+"    in het veld hieronder en klik \"zoeken\".  Merk op dat de zoekfunctie\n"
+"    steeds naar alle woorden zoekt.  Pagina's die minder woorden bevatten\n"
 "    zullen niet tussen de resultaten verschijnen."
 
 #: sphinx/themes/basic/search.html:30
@@ -696,7 +721,7 @@ msgstr "%(filename)s &mdash; %(docstitle)s"
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Automatisch genereerde lijst van veranderingen in versie %(version)s"
+msgstr "Automatisch gegenereerde lijst van veranderingen in versie %(version)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
@@ -710,12 +735,14 @@ msgstr "Veranderingen in de C-API"
 msgid "Other changes"
 msgstr "Andere veranderingen"
 
-#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:482
+#: sphinx/themes/basic/static/doctools.js:154
+#: sphinx/writers/html.py:482
 #: sphinx/writers/html.py:487
 msgid "Permalink to this headline"
 msgstr "Permalink naar deze titel"
 
-#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:87
+#: sphinx/themes/basic/static/doctools.js:160
+#: sphinx/writers/html.py:87
 msgid "Permalink to this definition"
 msgstr "Permalink naar deze definitie"
 
@@ -736,12 +763,8 @@ msgid ", in "
 msgstr ", in "
 
 #: sphinx/themes/basic/static/searchtools.js:491
-msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
-"Uw zoekopdracht leverde geen resultaten op.  Controleer of alle woorden "
-"correct gespeld zijn en dat u genoeg categoriën hebt geselecteerd."
+msgid "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
+msgstr "Uw zoekopdracht leverde geen resultaten op.  Controleer of alle woorden correct gespeld zijn en dat u genoeg categoriën hebt geselecteerd."
 
 #: sphinx/themes/basic/static/searchtools.js:493
 #, python-format
@@ -759,13 +782,14 @@ msgstr ""
 
 #: sphinx/themes/haiku/layout.html:26
 msgid "Contents"
-msgstr ""
+msgstr "Inhoud"
 
 #: sphinx/writers/latex.py:171
 msgid "Release"
 msgstr "Release"
 
-#: sphinx/writers/latex.py:572 sphinx/writers/manpage.py:178
+#: sphinx/writers/latex.py:572
+#: sphinx/writers/manpage.py:178
 msgid "Footnotes"
 msgstr "Voetnoten"
 
@@ -783,13 +807,10 @@ msgstr "[afbeelding]"
 
 #~ msgid "Parameter"
 #~ msgstr "Parameter"
-
 #~ msgid "here"
 #~ msgstr "hier"
-
 #~ msgid "module, in "
 #~ msgstr "module, in"
-
 #~ msgid "Platform: %s"
 #~ msgstr "Platform: %s"
 
