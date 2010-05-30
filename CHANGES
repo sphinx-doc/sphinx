@@ -107,6 +107,8 @@ Features added
   - Added new theme ``scrolls``, created by Armin Ronacher.
   - #193: Added a ``visitedlinkcolor`` theme option to the default
     theme.
+  - The ``toctree`` callable in templates now accepts a ``titles_only``
+    keyword argument.
 
 * Extension API:
 

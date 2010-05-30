@@ -384,3 +384,6 @@ are in HTML form), these variables are also available:
 
    * ``maxdepth`` (defaults to the max depth selected in the toctree directive):
      the maximum depth of the tree; set it to ``-1`` to allow unlimited depth
+
+   * ``titles_only`` (false by default): if true, put only toplevel document
+     titles in the tree
