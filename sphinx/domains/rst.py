@@ -126,7 +126,7 @@ class ReSTDomain(Domain):
 
         if not (typ, target) in objects:
             return None
-        return make_refnode(builder, fromdocname, objects[typ, target][0],
+        return make_refnode(builder, fromdocname, objects[typ, target],
                             target, contnode, target)
 
     def get_objects(self):
