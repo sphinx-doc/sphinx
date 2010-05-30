@@ -175,7 +175,7 @@ class PygmentsBridge(object):
             return True
 
     def highlight_block(self, source, lang, linenos=False, warn=None):
-        if isinstance(source, str):
+        if not isinstance(source, unicode):
             source = source.decode()
         if not pygments:
             return self.unhighlighted(source)
