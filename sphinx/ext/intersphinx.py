@@ -58,7 +58,7 @@ def read_inventory_v1(f, uri, join):
         else:
             type = 'py:' + type
             location += '#' + name
-        invdata.setdefault(type, {})[name] = (projname, version, location)
+        invdata.setdefault(type, {})[name] = (projname, version, location, '-')
     return invdata
 
 
@@ -67,7 +67,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
-    version = line.rstrip()[11:]
+    version = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
     if 'zlib' not in line:
         raise ValueError
@@ -84,17 +84,18 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
             buf += chunk
             lineend = buf.find('\n')
             while lineend != -1:
-                yield buf[:lineend]
+                yield buf[:lineend].decode('utf-8')
                 buf = buf[lineend+1:]
                 lineend = buf.find('\n')
         assert not buf
 
     for line in split_lines(read_chunks()):
-        name, type, prio, location = line.rstrip().split(None, 3)
-        if location.endswith('$'):
+        name, type, prio, location, dispname = line.rstrip().split(None, 4)
+        if location.endswith(u'$'):
             location = location[:-1] + name
         location = join(uri, location)
-        invdata.setdefault(type, {})[name] = (projname, version, location)
+        invdata.setdefault(type, {})[name] = (projname, version,
+                                              location, dispname)
     return invdata
 
 
@@ -142,7 +143,15 @@ def load_mappings(app):
         env.intersphinx_cache = {}
     cache = env.intersphinx_cache
     update = False
-    for uri, inv in app.config.intersphinx_mapping.iteritems():
+    for key, value in app.config.intersphinx_mapping.iteritems():
+        if isinstance(value, tuple):
+            # new format
+            name, (uri, inv) = key, value
+            if not name.isalnum():
+                env.warn('intersphinx identifier %r is not alphanumeric' % name)
+        else:
+            # old format, no name
+            name, uri, inv = None, key, value
         # we can safely assume that the uri<->inv mapping is not changed
         # during partial rebuilds since a changed intersphinx_mapping
         # setting will cause a full environment reread
@@ -152,12 +161,19 @@ def load_mappings(app):
         # files; remote ones only if the cache time is expired
         if '://' not in inv or uri not in cache \
                or cache[uri][0] < cache_time:
+            app.info('loading intersphinx inventory from %s...' % inv)
             invdata = fetch_inventory(app, uri, inv)
-            cache[uri] = (now, invdata)
+            if invdata:
+                cache[uri] = (name, now, invdata)
+            else:
+                cache.pop(uri, None)
             update = True
     if update:
         env.intersphinx_inventory = {}
-        for _, invdata in cache.itervalues():
+        env.intersphinx_named_inventory = {}
+        for name, _, invdata in cache.itervalues():
+            if name:
+                env.intersphinx_named_inventory[name] = invdata
             for type, objects in invdata.iteritems():
                 env.intersphinx_inventory.setdefault(
                     type, {}).update(objects)
@@ -173,20 +189,25 @@ def missing_reference(app, env, node, contnode):
     objtypes = env.domains[domain].objtypes_for_role(node['reftype'])
     if not objtypes:
         return
-    for objtype in objtypes:
-        fulltype = '%s:%s' % (domain, objtype)
-        if fulltype in env.intersphinx_inventory and \
-           target in env.intersphinx_inventory[fulltype]:
-            break
-    else:
-        return
-    proj, version, uri = env.intersphinx_inventory[fulltype][target]
-    newnode = nodes.reference('', '')
-    newnode['refuri'] = uri
-    newnode['reftitle'] = '(in %s v%s)' % (proj, version)
-    newnode['class'] = 'external-xref'
-    newnode.append(contnode)
-    return newnode
+    objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
+    to_try = [(env.intersphinx_inventory, target)]
+    if ':' in target:
+        # first part may be the foreign doc set name
+        setname, newtarget = target.split(':', 1)
+        if setname in env.intersphinx_named_inventory:
+            to_try.append((env.intersphinx_named_inventory[setname], newtarget))
+    for inventory, target in to_try:
+        for objtype in objtypes:
+            if objtype not in inventory or target not in inventory[objtype]:
+                continue
+            proj, version, uri, dispname = inventory[objtype][target]
+            newnode = nodes.reference('', '', internal=False, refuri=uri,
+                                      reftitle='(in %s v%s)' % (proj, version))
+            if dispname == '-':
+                newnode.append(contnode)
+            else:
+                newnode.append(contnode.__class__(dispname, dispname))
+            return newnode
 
 
 def setup(app):

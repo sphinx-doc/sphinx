@@ -11,7 +11,9 @@
 
 import os
 import sys
+import re
 
+_ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}
 
 def get_terminal_width():
@@ -29,14 +31,15 @@ def get_terminal_width():
         terminal_width = int(os.environ.get('COLUMNS', 80)) - 1
     return terminal_width
 
-_tw = get_terminal_width()
 
+_tw = get_terminal_width()
 def term_width_line(text):
     if not codes:
         # if no coloring, don't output fancy backspaces
         return text + '\n'
     else:
-        return text.ljust(_tw) + '\r'
+        # codes are not displayed, this must be taken into account
+        return text.ljust(_tw + len(text) - len(_ansi_re.sub('', text))) + '\r'
 
 def color_terminal():
     if not hasattr(sys.stdout, 'isatty'):

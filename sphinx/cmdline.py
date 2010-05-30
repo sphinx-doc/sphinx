@@ -21,7 +21,7 @@ from sphinx import __version__
 from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import red, nocolor, init_color
+from sphinx.util.console import red, nocolor, color_terminal
 
 
 def usage(argv, msg=None):
@@ -57,7 +57,10 @@ Modi:
 
 
 def main(argv):
-    init_color()
+    if not color_terminal():
+        # Windows' poor cmd box doesn't understand ANSI sequences
+        nocolor()
+
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:P')
         allopts = set(opt[0] for opt in opts)

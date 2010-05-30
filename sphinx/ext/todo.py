@@ -113,9 +113,8 @@ def process_todo_nodes(app, doctree, fromdocname):
             para += nodes.Text(desc1, desc1)
 
             # Create a reference
-            newnode = nodes.reference('', '')
+            newnode = nodes.reference('', '', internal=True)
             innernode = nodes.emphasis(_('original entry'), _('original entry'))
-            newnode['refdocname'] = todo_info['docname']
             try:
                 newnode['refuri'] = app.builder.get_relative_uri(
                     fromdocname, todo_info['docname'])

@@ -61,7 +61,7 @@ class Config(object):
         rst_epilog = (None, 'env'),
         rst_prolog = (None, 'env'),
         trim_doctest_flags = (True, 'env'),
-        default_domain = ('py', 'env'),
+        primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),
         nitpicky = (False, 'env'),
 
@@ -132,6 +132,8 @@ class Config(object):
         latex_use_parts = (False, None),
         latex_use_modindex = (True, None),  # deprecated
         latex_domain_indices = (True, None),
+        latex_show_urls = (False, None),
+        latex_show_pagerefs = (False, None),
         # paper_size and font_size are still separate values
         # so that you can give them easily on the command line
         latex_paper_size = ('letter', None),

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-import ez_setup
-ez_setup.use_setuptools()
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    import ez_setup
+    ez_setup.use_setuptools()
+    from setuptools import setup, find_packages
 
 import os
 import sys
-from setuptools import setup, find_packages
 from distutils import log
 
 import sphinx
@@ -41,7 +44,7 @@ A development egg can be found `here
 <http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
-requires = ['Pygments>=0.8', 'Jinja2>=2.2', 'docutils>=0.4']
+requires = ['Pygments>=0.8', 'Jinja2>=2.2', 'docutils>=0.5']
 
 if sys.version_info < (2, 4):
     print 'ERROR: Sphinx requires at least Python 2.4 to run.'
@@ -167,14 +170,16 @@ setup(
     long_description=long_desc,
     zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
+        'Intended Audience :: Education',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Documentation',
+        'Topic :: Text Processing',
         'Topic :: Utilities',
     ],
     platforms='any',

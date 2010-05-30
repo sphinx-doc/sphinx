@@ -100,8 +100,8 @@ class ReSTDomain(Domain):
     label = 'reStructuredText'
 
     object_types = {
-        'directive': ObjType(l_('reStructuredText directive'), 'dir'),
-        'role':      ObjType(l_('reStructuredText role'),      'role'),
+        'directive': ObjType(l_('directive'), 'dir'),
+        'role':      ObjType(l_('role'),      'role'),
     }
     directives = {
         'directive': ReSTDirective,
@@ -131,4 +131,4 @@ class ReSTDomain(Domain):
 
     def get_objects(self):
         for (typ, name), docname in self.data['objects'].iteritems():
-            yield name, typ, docname, name, 1
+            yield name, name, typ, docname, name, 1

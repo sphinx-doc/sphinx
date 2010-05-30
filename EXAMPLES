@@ -14,7 +14,6 @@ Documentation using the default theme
 
 * APSW: http://apsw.googlecode.com/svn/publish/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
-* Blender: http://www.blender.org/documentation/250PythonDoc/
 * boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
 * CodePy: http://documen.tician.de/codepy/
@@ -86,6 +85,7 @@ Documentation using the sphinxdoc theme
 * Matplotlib: http://matplotlib.sourceforge.net/
 * MyHDL: http://www.myhdl.org/doc/0.6/
 * NetworkX: http://networkx.lanl.gov/
+* Pweave: http://mpastell.com/pweave/
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
@@ -108,13 +108,18 @@ Documentation using another builtin theme
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
+* libLAS: http://liblas.org/ (nature)
 
 
 Documentation using a custom theme/integrated in a site
 -------------------------------------------------------
 
+* Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
+* Classy: classy: http://classy.pocoo.org/
 * Django: http://docs.djangoproject.com/
+* Flask: http://flask.pocoo.org/docs/
+* Flask-OpenID: http://packages.python.org/Flask-OpenID/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
 * MirrorBrain: http://mirrorbrain.org/docs/

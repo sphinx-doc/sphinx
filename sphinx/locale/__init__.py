@@ -32,11 +32,26 @@ class _TranslationProxy(UserString.UserString, object):
             return unicode(func)
         return object.__new__(cls)
 
+    def __getnewargs__(self):
+        return (self._func,) + self._args
+
     def __init__(self, func, *args):
         self._func = func
         self._args = args
 
     data = property(lambda x: x._func(*x._args))
+
+    # replace function from UserString; it instantiates a self.__class__
+    # for the encoding result
+
+    def encode(self, encoding=None, errors=None):
+        if encoding:
+            if errors:
+                return self.data.encode(encoding, errors)
+            else:
+                return self.data.encode(encoding)
+        else:
+            return self.data.encode()
 
     def __contains__(self, key):
         return key in self.data
@@ -164,7 +179,7 @@ pairindextypes = {
 translator = None
 
 def _(message):
-    return translator.gettext(message)
+    return translator.ugettext(message)
 
 def init(locale_dirs, language):
     global translator

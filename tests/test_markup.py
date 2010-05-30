@@ -97,6 +97,12 @@ def test_inline():
            u'<p><em class="menuselection">a \N{TRIANGULAR BULLET} b</em></p>',
            '\\emph{a \\(\\rightarrow\\) b}')
 
+    # interpolation of ampersands in guilabel/menuselection
+    yield (verify, ':guilabel:`&Foo -&&- &Bar`',
+           u'<p><em class="guilabel"><span class="accelerator">F</span>oo '
+           '-&amp;- <span class="accelerator">B</span>ar</em></p>',
+           r'\emph{\DUspan{accelerator}{F}oo -\&- \DUspan{accelerator}{B}ar}')
+
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',
            '<p><em( class="xref std std-option")?>--with-option</em></p>$',

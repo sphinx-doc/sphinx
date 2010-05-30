@@ -153,7 +153,9 @@ class IndexBuilder(object):
         otypes = self._objtypes
         onames = self._objnames
         for domainname, domain in self.env.domains.iteritems():
-            for fullname, type, docname, anchor, prio in domain.get_objects():
+            for fullname, dispname, type, docname, anchor, prio in \
+                    domain.get_objects():
+                # XXX use dispname?
                 if docname not in fn2index:
                     continue
                 if prio < 0:
@@ -168,7 +170,8 @@ class IndexBuilder(object):
                     otypes[domainname, type] = i
                     otype = domain.object_types.get(type)
                     if otype:
-                        onames[i] = str(otype.lname)  # fire translation proxies
+                        # use unicode() to fire translation proxies
+                        onames[i] = unicode(domain.get_type_name(otype))
                     else:
                         onames[i] = type
                 pdict[name] = (fn2index[docname], i, prio)

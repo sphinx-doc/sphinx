@@ -192,12 +192,17 @@ General configuration
 
    .. versionadded:: 1.0
 
-.. confval:: default_domain
+.. confval:: primary_domain
 
    .. index:: default; domain
+              primary; domain
 
    The name of the default :ref:`domain <domains>`.  Can also be ``None`` to
-   disable a default domain.  The default is ``'py'``.
+   disable a default domain.  The default is ``'py'``.  Those objects in other
+   domains (whether the domain name is given explicitly, or selected by a
+   :rst:dir:`default-domain` directive) will have the domain name explicitly
+   prepended when named (e.g., when the default domain is C, Python functions
+   will be named "Python function", not just "function").
 
    .. versionadded:: 1.0
 
@@ -285,6 +290,7 @@ Project information
    * ``es`` -- Spanish
    * ``fi`` -- Finnish
    * ``fr`` -- French
+   * ``hr`` -- Croatian
    * ``it`` -- Italian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
@@ -845,6 +851,20 @@ These options influence LaTeX output.
 
    .. deprecated:: 1.0
       Use :confval:`latex_domain_indices`.
+
+.. confval:: latex_show_pagerefs
+
+   If true, add page references after internal references.  This is very useful
+   for printed copies of the manual.  Default is ``False``.
+
+   .. versionadded:: 1.0
+
+.. confval:: latex_show_urls
+
+   If true, add URL addresses after links.  This is very useful for printed
+   copies of the manual.  Default is ``False``.
+
+   .. versionadded:: 1.0
 
 .. confval:: latex_elements
 

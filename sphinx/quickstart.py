@@ -216,6 +216,12 @@ latex_documents = [
 # not chapters.
 #latex_use_parts = False
 
+# If true, show page references after internal links.
+#latex_show_pagerefs = False
+
+# If true, show URL addresses after external links.
+#latex_show_urls = False
+
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
 
@@ -406,10 +412,10 @@ latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo
 \t@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
-\t@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
-\t      "run these through (pdf)latex."
+\t@echo "Run \\`make' in that directory to run these through (pdf)latex" \\
+\t      "(use \\`make latexpdf' here to do that automatically)."
 
-latexpdf: latex
+latexpdf:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
 \tmake -C $(BUILDDIR)/latex all-pdf

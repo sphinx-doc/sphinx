@@ -188,7 +188,8 @@ class PyObject(ObjectDescription):
                     self.env.docname,
                     'duplicate object description of %s, ' % fullname +
                     'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]),
+                    self.env.doc2path(objects[fullname][0]) +
+                    ', use :noindex: for one of them',
                     self.lineno)
             objects[fullname] = (self.env.docname, self.objtype)
 
@@ -616,6 +617,6 @@ class PythonDomain(Domain):
 
     def get_objects(self):
         for modname, info in self.data['modules'].iteritems():
-            yield (modname, 'module', info[0], 'module-' + modname, 0)
+            yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, type, docname, refname, 1)
+            yield (refname, refname, type, docname, refname, 1)

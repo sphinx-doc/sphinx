@@ -72,7 +72,7 @@ HTML_XPATH = {
     'autodoc.html': {
         ".//dt[@id='test_autodoc.Class']": '',
         ".//dt[@id='test_autodoc.function']/em": r'\*\*kwds',
-        ".//dd": r'Return spam\.',
+        ".//dd/p": r'Return spam\.',
     },
     'extapi.html': {
         ".//strong": 'from function: Foo',
@@ -104,13 +104,20 @@ HTML_XPATH = {
         ".//li/tt/span[@class='pre']": '^a/$',
         ".//li/tt/em/span[@class='pre']": '^varpart$',
         ".//li/tt/em/span[@class='pre']": '^i$',
-        ".//a[@href='http://www.python.org/dev/peps/pep-0008']/strong": 'PEP 8',
-        ".//a[@href='http://tools.ietf.org/html/rfc1.html']/strong": 'RFC 1',
-        ".//a[@href='objects.html#envvar-HOME']/tt/span[@class='pre']": 'HOME',
-        ".//a[@href='#with']/tt/span[@class='pre']": '^with$',
-        ".//a[@href='#grammar-token-try_stmt']/tt/span": '^statement$',
-        ".//a[@href='subdir/includes.html']/em": 'Including in subdir',
-        ".//a[@href='objects.html#cmdoption-python-c']/em": 'Python -c option',
+        ".//a[@href='http://www.python.org/dev/peps/pep-0008']"
+            "[@class='pep reference external']/strong": 'PEP 8',
+        ".//a[@href='http://tools.ietf.org/html/rfc1.html']"
+            "[@class='rfc reference external']/strong": 'RFC 1',
+        ".//a[@href='objects.html#envvar-HOME']"
+            "[@class='reference internal']/tt/span[@class='pre']": 'HOME',
+        ".//a[@href='#with']"
+            "[@class='reference internal']/tt/span[@class='pre']": '^with$',
+        ".//a[@href='#grammar-token-try_stmt']"
+            "[@class='reference internal']/tt/span": '^statement$',
+        ".//a[@href='subdir/includes.html']"
+            "[@class='reference internal']/em": 'Including in subdir',
+        ".//a[@href='objects.html#cmdoption-python-c']"
+            "[@class='reference internal']/em": 'Python -c option',
         # abbreviations
         ".//abbr[@title='abbreviation']": '^abbr$',
         # version stuff
@@ -139,7 +146,7 @@ HTML_XPATH = {
     'objects.html': {
         ".//dt[@id='mod.Cls.meth1']": '',
         ".//dt[@id='errmod.Error']": '',
-        ".//a[@href='#mod.Cls']": '',
+        ".//a[@href='#mod.Cls'][@class='reference internal']": '',
         ".//dl[@class='userdesc']": '',
         ".//dt[@id='userdesc-myobj']": '',
         ".//a[@href='#userdesc-myobj']": '',
@@ -150,6 +157,8 @@ HTML_XPATH = {
         ".//a[@href='#SPHINX_USE_PYTHON']": '',
         ".//a[@href='#SphinxType']": '',
         ".//a[@href='#sphinx_global']": '',
+        # reference from old C markup extension
+        ".//a[@href='#Sphinx_Func']": '',
         # test global TOC created by toctree()
         ".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']":
             'Testing object descriptions',
@@ -168,7 +177,8 @@ HTML_XPATH = {
         ".//li[@class='toctree-l2']/a": 'Inline markup',
         ".//title": 'Sphinx <Tests>',
         ".//div[@class='footer']": 'Georg Brandl & Team',
-        ".//a[@href='http://python.org/']": '',
+        ".//a[@href='http://python.org/']"
+            "[@class='reference external']": '',
         ".//li/a[@href='genindex.html']/em": 'Index',
         ".//li/a[@href='py-modindex.html']/em": 'Module Index',
         ".//li/a[@href='search.html']/em": 'Search Page',
