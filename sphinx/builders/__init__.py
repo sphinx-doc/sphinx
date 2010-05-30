@@ -329,4 +329,5 @@ BUILTIN_BUILDERS = {
     'man':        ('manpage', 'ManualPageBuilder'),
     'changes':    ('changes', 'ChangesBuilder'),
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
+    'gettext':    ('intl', 'MessageCatalogBuilder'),
 }
