@@ -156,7 +156,7 @@ class PygmentsBridge(object):
         if sys.version_info >= (2, 5):
             src = 'from __future__ import with_statement\n' + src
 
-        if isinstance(src, unicode):
+        if sys.version_info < (3, 0) and isinstance(src, unicode):
             # Non-ASCII chars will only occur in string literals
             # and comments.  If we wanted to give them to the parser
             # correctly, we'd have to find out the correct source
