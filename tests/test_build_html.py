@@ -72,7 +72,7 @@ HTML_XPATH = {
     'autodoc.html': {
         ".//dt[@id='test_autodoc.Class']": '',
         ".//dt[@id='test_autodoc.function']/em": r'\*\*kwds',
-        ".//dd": r'Return spam\.',
+        ".//dd/p": r'Return spam\.',
     },
     'extapi.html': {
         ".//strong": 'from function: Foo',
