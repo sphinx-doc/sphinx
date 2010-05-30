@@ -414,7 +414,7 @@ latex:
 \t@echo "Run \\`make' in that directory to run these through (pdf)latex" \\
 \t      "(use \\`make latexpdf' here to do that automatically)."
 
-latexpdf: latex
+latexpdf:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
 \tmake -C $(BUILDDIR)/latex all-pdf

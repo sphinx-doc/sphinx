@@ -80,6 +80,15 @@ qthelp:
 	@echo "To view the help collection:"
 	@echo "# assistant -collectionFile _build/qthelp/Sphinx.qhc"
 
+devhelp:
+	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) _build/devhelp
+	@echo
+	@echo "Build finished."
+	@echo "To view the help file:"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/sphinx"
+	@echo "# ln -s _build/devhelp $$HOME/.local/share/devhelp/sphinx"
+	@echo "# devhelp"
+
 epub:
 	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) _build/epub
 	@echo
@@ -91,6 +100,12 @@ latex:
 	@echo "Build finished; the LaTeX files are in _build/latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
 	      "run these through (pdf)latex."
+
+latexpdf:
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) _build/latex
+	@echo "Running LaTeX files through pdflatex..."
+	make -C _build/latex all-pdf
+	@echo "pdflatex finished; the PDF files are in _build/latex."
 
 changes:
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) _build/changes
