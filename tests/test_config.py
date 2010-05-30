@@ -84,11 +84,12 @@ def test_extension_values(app):
 @with_tempdir
 def test_errors_warnings(dir):
     # test the error for syntax errors in the config file
-    write_file(dir / 'conf.py', 'project = \n')
+    write_file(dir / 'conf.py', u'project = \n', 'ascii')
     raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
 
     # test the warning for bytestrings with non-ascii content
-    write_file(dir / 'conf.py', '# -*- coding: latin-1\nproject = "foo\xe4"\n')
+    write_file(dir / 'conf.py',
+               u'# -*- coding: latin-1\nproject = "fooä"\n', 'latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
     warned = [False]
     def warn(msg):

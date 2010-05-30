@@ -11,6 +11,7 @@ import sys
 import StringIO
 import tempfile
 import shutil
+from codecs import open
 
 try:
     from functools import wraps
@@ -191,8 +192,14 @@ def with_tempdir(func):
     return new_func
 
 
-def write_file(name, contents):
-    f = open(str(name), 'wb')
+def write_file(name, contents, encoding=None):
+    if encoding is None:
+        mode = 'wb'
+        if isinstance(contents, unicode):
+            contents = contents.encode('ascii')
+    else:
+        mode = 'w'
+    f = open(str(name), 'wb', encoding=encoding)
     f.write(contents)
     f.close()
 
