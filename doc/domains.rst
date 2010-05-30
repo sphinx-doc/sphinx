@@ -511,6 +511,15 @@ These roles link to the given object types:
    Reference a C++ object.  You can give the full signature (and need to, for
    overloaded functions.)
 
+.. admonition:: Note on References
+
+   It is currently impossible to link to a specific version of an
+   overloaded method.  Currently the C++ domain is the first domain
+   that has basic support for overloaded methods and until there is more
+   data for comparison we don't want to select a bad syntax to reference a
+   specific overload.  Currently Sphinx will link to the first overloaded
+   version of the method / function.
+
 
 The Standard Domain
 -------------------
