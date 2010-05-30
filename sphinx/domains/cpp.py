@@ -829,12 +829,8 @@ class CPPObject(ObjectDescription):
         signode['first'] = (not self.names)
         self.state.document.note_explicit_target(signode)
 
-        # XXX: why is objtype function?  How to get to func?
-        typ = self.objtype
-        if typ == 'function':
-            typ = 'func'
         self.env.domaindata['cpp']['objects'].setdefault(name,
-            (self.env.docname, typ, theid))
+            (self.env.docname, self.objtype, theid))
 
         indextext = self.get_index_text(name)
         if indextext:
@@ -1069,7 +1065,7 @@ class CPPDomain(Domain):
             if name not in self.data['objects']:
                 return None
             obj = self.data['objects'][name]
-            if obj[1] != typ:
+            if obj[1] not in self.objtypes_for_role(typ):
                 return None
             return make_refnode(builder, fromdocname, obj[0], obj[2],
                                 contnode, name)
