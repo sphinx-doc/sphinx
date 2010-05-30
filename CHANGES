@@ -50,6 +50,7 @@ Features added
     ``literalinclude`` directive.
   - #284: All docinfo metadata is now put into the document metadata, not
     just the author.
+  - The ``ref`` role can now also reference tables by caption.
 
 * Configuration:
 

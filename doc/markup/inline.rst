@@ -83,6 +83,9 @@ Cross-referencing arbitrary locations
      a reference ``:ref:`my-figure``` would insert a reference to the figure
      with link text "Figure caption".
 
+     The same works for tables that are given an explicit caption using the
+     :dudir:`table` directive.
+
    * Labels that aren't placed before a section title can still be referenced
      to, but you must give the link an explicit title, using this syntax:
      ``:ref:`Link title <label-name>```.
