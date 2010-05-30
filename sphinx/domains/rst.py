@@ -35,14 +35,15 @@ class ReSTMarkup(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             objects = self.env.domaindata['rst']['objects']
-            if (self.objtype, name) in objects:
+            key = (self.objtype, name)
+            if key in objects:
                 self.env.warn(self.env.docname,
                               'duplicate description of %s %s, ' %
                               (self.objtype, name) +
                               'other instance in ' +
-                              self.env.doc2path(objects[name][0]),
+                              self.env.doc2path(objects[key]),
                               self.lineno)
-            objects[self.objtype, name] = self.env.docname
+            objects[key] = self.env.docname
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
@@ -123,11 +124,12 @@ class ReSTDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
         objects = self.data['objects']
-
-        if not (typ, target) in objects:
-            return None
-        return make_refnode(builder, fromdocname, objects[typ, target],
-                            target, contnode, target)
+        objtypes = self.objtypes_for_role(typ)
+        for objtype in objtypes:
+            if (objtype, target) in objects:
+                return make_refnode(builder, fromdocname,
+                                    objects[objtype, target],
+                                    target, contnode, target)
 
     def get_objects(self):
         for (typ, name), docname in self.data['objects'].iteritems():
