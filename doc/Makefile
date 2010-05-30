@@ -11,19 +11,24 @@ PAPEROPT_letter  = -D latex_paper_size=letter
 ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
                 $(SPHINXOPTS) $(O) .
 
-.PHONY: help clean html dirhtml pickle htmlhelp qthelp latex changes linkcheck \
-        doctest man devhelp epub json latexpdf singlehtml text
+.PHONY: help clean html dirhtml singlehtml text man pickle json htmlhelp \
+	qthelp devhelp epub latex latexpdf changes linkcheck doctest
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html      to make standalone HTML files"
 	@echo "  dirhtml   to make HTML files called index.html in directories"
+	@echo "  singlehtml to make one big HTML file"
+	@echo "  text      to make text files"
+	@echo "  man       to make manual pages"
 	@echo "  pickle    to make pickle files"
 	@echo "  json      to make json files"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  qthelp    to make Qt help files and project"
+	@echo "  devhelp   to make Devhelp files and project"
 	@echo "  epub      to make an epub file"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-	@echo "  man       to make manual pages"
+	@echo "  latexpdf  to make LaTeX files and run pdflatex"
 	@echo "  changes   to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck to check all external links for integrity"
 
