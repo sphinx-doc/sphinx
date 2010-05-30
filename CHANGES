@@ -109,6 +109,8 @@ Features added
     theme.
   - The ``toctree`` callable in templates now accepts a ``titles_only``
     keyword argument.
+  - #322: Improved responsiveness of the search page by loading the
+    search index asynchronously.
 
 * Extension API:
 
