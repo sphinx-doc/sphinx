@@ -62,6 +62,7 @@ HTML_XPATH = {
     'subdir/includes.html': {
         ".//a[@href='../_downloads/img.png']": '',
         ".//img[@src='../_images/img.png']": '',
+        ".//p": 'This is an include file.',
     },
     'includes.html': {
         ".//pre": u'Max Strauß',

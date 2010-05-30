@@ -51,6 +51,8 @@ Features added
   - #284: All docinfo metadata is now put into the document metadata, not
     just the author.
   - The ``ref`` role can now also reference tables by caption.
+  - The ``include`` directive now supports absolute paths, which are
+    interpreted as relative to the source directory.
 
 * Configuration:
 

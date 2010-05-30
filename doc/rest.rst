@@ -297,6 +297,8 @@ Docutils supports the following directives:
 
   - :dudir:`raw` (include raw target-format markup)
   - :dudir:`include` (include reStructuredText from another file)
+    -- in Sphinx, when given an absolute include file path, this directive takes
+    it as relative to the source directory
   - :dudir:`class` (assign a class attribute to the next element) [1]_
 
 * HTML specifics:
@@ -426,11 +428,11 @@ or this::
 See the :duref:`reST reference for substitutions <substitution-definitions>`
 for details.
 
-If you want to use some substitutions for all documents, put them into a
-separate file and include it into all documents you want to use them in, using
-the :rst:dir:`include` directive.  Be sure to give the include file a file name
-extension differing from that of other source files, to avoid Sphinx finding it
-as a standalone document.
+If you want to use some substitutions for all documents, put them into
+:confval:`rst_prolog` or put them into a separate file and include it into all
+documents you want to use them in, using the :rst:dir:`include` directive.  (Be
+sure to give the include file a file name extension differing from that of other
+source files, to avoid Sphinx finding it as a standalone document.)
 
 Sphinx defines some default substitutions, see :ref:`default-substitutions`.
 

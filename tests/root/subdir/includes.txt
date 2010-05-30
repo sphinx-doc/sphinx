@@ -13,3 +13,6 @@ Absolute :download:`/img.png` download.
 
 .. absolute image filename
 .. image:: /img.png
+
+.. absolute include filename
+.. include:: /test.inc
