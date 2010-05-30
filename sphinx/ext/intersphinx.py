@@ -160,7 +160,7 @@ def load_mappings(app):
         # decide whether the inventory must be read: always read local
         # files; remote ones only if the cache time is expired
         if '://' not in inv or uri not in cache \
-               or cache[uri][0] < cache_time:
+               or cache[uri][1] < cache_time:
             app.info('loading intersphinx inventory from %s...' % inv)
             invdata = fetch_inventory(app, uri, inv)
             if invdata:
