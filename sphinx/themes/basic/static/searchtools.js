@@ -237,9 +237,11 @@ var Search = {
       }
   },
 
-  /**
-   * Sets the index
-   */
+  loadIndex : function(url) {
+    $.ajax({type: "GET", url: url, data: null, success: null,
+            dataType: "script", cache: true});
+  },
+
   setIndex : function(index) {
     var q;
     this._index = index;
