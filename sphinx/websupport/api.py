@@ -12,17 +12,14 @@
 import cPickle as pickle
 from os import path
 
-from jinja2 import Template
-
 from sphinx.application import Sphinx
 
 class WebSupport(object):
     
-    def init(self, srcdir, outdir='', comment_html=''):
+    def init(self, srcdir, outdir=''):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
-        self.comment_template = Template(comment_html)
 
     def build(self, **kwargs):
         doctreedir = kwargs.pop('doctreedir', 
@@ -35,6 +32,4 @@ class WebSupport(object):
         infilename = path.join(self.outdir, docname + '.fpickle')
         f = open(infilename, 'rb')
         document = pickle.load(f)
-        # The document renders the comment_template.
-        document.comment_template = self.comment_template
         return document

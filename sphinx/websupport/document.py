@@ -18,20 +18,14 @@ from sphinx import addnodes
 class Document(object):
     """A single Document such as 'index'."""
     def __init__(self):
-        self.commentable_nodes = []
-        self.template = None
+        self.slices = []
 
-    def add_commentable(self, node_id, rst_source=''):
-        node = CommentableNode(node_id, rst_source)
+    def add_slice(self, html, id=None, commentable=False):
+        slice = HTMLSlice(html, id, commentable)
+        self.slices.append(slice)
 
-    def render_comment(self, id):
-        return self.comment_template.render(id=id)
-
-    def render_html(self, comments=False):
-        template = Template(self.body)
-        return template.render(render_comment=self.render_comment)
-
-class CommentableNode(object):
-    def __init__(self, id, rst_source=''):
+class HTMLSlice(object):
+    def __init__(self, html, id, commentable):
+        self.html = html
         self.id = id
-        self.rst_source=''
+        self.commentable = commentable

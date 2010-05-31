@@ -18,12 +18,27 @@ class WebSupportTranslator(HTMLTranslator):
     """
     def __init__(self, builder, *args, **kwargs):
         HTMLTranslator.__init__(self, builder, *args, **kwargs)
+        self.init_support()
+
+    def init_support(self):
         self.support_document = Document()
         self.current_id = 0
+        
+    def handle_visit_commentable(self, node):
+        self.support_document.add_slice(''.join(self.body))
+        self.body = []
+
+    def handle_depart_commentable(self, node):
+        slice_id = '%s-%s' % (self.builder.docname, self.current_id)
+        self.support_document.add_slice(''.join(self.body),
+                                        slice_id, commentable=True)
+        self.body = []
+        self.current_id += 1
+
+    def visit_paragraph(self, node):
+        HTMLTranslator.visit_paragraph(self, node)
+        self.handle_visit_commentable(node)
 
     def depart_paragraph(self, node):
         HTMLTranslator.depart_paragraph(self, node)
-        self.support_document.add_commentable(self.current_id)
-        self.body.append("{{ render_comment('%s-p%s') }}" % 
-                         (self.builder.docname, self.current_id))
-        self.current_id += 1
+        self.handle_depart_commentable(node)

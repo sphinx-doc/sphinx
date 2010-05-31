@@ -26,7 +26,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.translator_class = WebSupportTranslator
         
     def write_doc(self, docname, doctree):
-        # The translator needs the docuname to generate ids.
+        # The translator needs the docname to generate ids.
         self.docname = docname
         PickleHTMLBuilder.write_doc(self, docname, doctree)
 
@@ -38,10 +38,8 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.app.emit('html-page-context', pagename, ctx)
 
         # Instead of pickling ctx as PickleHTMLBuilder does, we
-        # create a Document object and pickle that.
+        # have created a Document object and pickle that.
         document = self.docwriter.visitor.support_document
-        document.body = ctx['body'] if 'body' in ctx else ''
-        document.title = ctx['title'] if 'title' in ctx else ''
 
         doc_filename = path.join(self.outdir,
                                  os_path(pagename) + self.out_suffix)
