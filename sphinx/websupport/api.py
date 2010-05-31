@@ -20,8 +20,8 @@ class WebSupport(object):
     
     def init(self, srcdir, outdir='', comment_html=''):
         self.srcdir = srcdir
-        self.outdir = outdir or os.path.join(self.srcdir, '_build',
-                                             'websupport')
+        self.outdir = outdir or path.join(self.srcdir, '_build',
+                                          'websupport')
         self.comment_template = Template(comment_html)
 
     def build(self, **kwargs):
