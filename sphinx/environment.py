@@ -39,6 +39,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, \
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
+from sphinx.util.pycompat import all
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 
@@ -130,15 +131,26 @@ class MoveModuleTargets(Transform):
 
 class HandleCodeBlocks(Transform):
     """
-    Move doctest blocks out of blockquotes.
+    Several code block related transformations.
     """
     default_priority = 210
 
     def apply(self):
+        # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
-            if len(node.children) == 1 and isinstance(node.children[0],
-                                                      nodes.doctest_block):
-                node.replace_self(node.children[0])
+            if all(isinstance(child, nodes.doctest_block) for child
+                     in node.children):
+                node.replace_self(node.children)
+        # combine successive doctest blocks
+        #for node in self.document.traverse(nodes.doctest_block):
+        #    if node not in node.parent.children:
+        #        continue
+        #    parindex = node.parent.index(node)
+        #    while len(node.parent) > parindex+1 and \
+        #            isinstance(node.parent[parindex+1], nodes.doctest_block):
+        #        node[0] = nodes.Text(node[0] + '\n\n' +
+        #                             node.parent[parindex+1][0])
+        #        del node.parent[parindex+1]
 
 
 class SortIds(Transform):
