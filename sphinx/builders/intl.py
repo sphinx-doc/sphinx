@@ -30,6 +30,8 @@ class MessageCatalogBuilder(Builder):
     def write_doc(self, docname, doctree):
         catalog = self.catalogs[docname.split('/')[0]]
         for node in doctree.traverse(nodes.TextElement):
+            if isinstance(node, (nodes.Invisible, nodes.Inline)):
+                continue
             msg = node.astext().replace('\n', ' ')
             catalog.append(msg)
 
