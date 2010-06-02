@@ -16,6 +16,27 @@ from docutils import nodes
 
 from sphinx.builders import Builder
 
+POHEADER = r"""
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) %(copyright)s
+# This file is distributed under the same license as the %(project)s package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-05-08 18:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+"""[1:]
+
 class MessageCatalogBuilder(Builder):
     def init(self):
         self.catalogs = collections.defaultdict(list)
@@ -40,6 +61,7 @@ class MessageCatalogBuilder(Builder):
     def finish(self):
         for section, messages in self.catalogs.iteritems():
             pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
+            pofile.write(POHEADER % self.config)
             for message in messages:
                 pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
                 pofile.write(pomsg.encode('utf-8'))
