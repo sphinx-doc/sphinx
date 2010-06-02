@@ -10,6 +10,8 @@
 """
 
 import collections
+from os import path
+
 from docutils import nodes
 
 from sphinx.builders import Builder
@@ -36,4 +38,8 @@ class MessageCatalogBuilder(Builder):
             catalog.append(msg)
 
     def finish(self):
-        return
+        for section, messages in self.catalogs.iteritems():
+            pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
+            for message in messages:
+                pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
+                pofile.write(pomsg.encode('utf-8'))
