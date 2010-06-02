@@ -9,10 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import collections
+from docutils import nodes
+
 from sphinx.builders import Builder
 
 class MessageCatalogBuilder(Builder):
-    pass
+    def init(self):
+        self.catalogs = collections.defaultdict(list)
 
     def get_target_uri(self, docname, typ=None):
         return ''
@@ -24,7 +28,9 @@ class MessageCatalogBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        return
+        catalog = self.catalogs[docname.split('/')[0]]
+        for node in doctree.traverse(nodes.TextElement):
+            catalog.append(node.astext())
 
     def finish(self):
         return
