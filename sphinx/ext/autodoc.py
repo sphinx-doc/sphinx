@@ -435,8 +435,11 @@ class Documenter(object):
         # set sourcename and add content from attribute documentation
         if self.analyzer:
             # prevent encoding errors when the file name is non-ASCII
-            filename = unicode(self.analyzer.srcname,
-                               sys.getfilesystemencoding(), 'replace')
+            if not isinstance(self.analyzer.srcname, unicode):
+                filename = unicode(self.analyzer.srcname,
+                                   sys.getfilesystemencoding(), 'replace')
+            else:
+                filename = self.analyzer.srcname
             sourcename = u'%s:docstring of %s' % (filename, self.fullname)
 
             attr_docs = self.analyzer.find_attr_docs()
