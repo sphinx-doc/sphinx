@@ -20,6 +20,7 @@ from docutils.transforms import Transform
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
+from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -207,7 +208,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             result.append({
                 'level': level,
                 'refuri': self.esc(refuri),
-                'text': self.esc(doctree.astext())
+                'text': ssp(self.esc(doctree.astext()))
             })
         else:
             for elem in doctree.children:
@@ -224,19 +225,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
-            'text': self.esc(self.env.titles[self.config.master_doc].astext())
+            'text': ssp(self.esc(
+                    self.env.titles[self.config.master_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
                 'level': 1,
                 'refuri': self.esc(file + '.html'),
-                'text': self.esc(text)
+                'text': ssp(self.esc(text))
             })
         for file, text in self.config.epub_post_files:
             self.refnodes.append({
                 'level': 1,
                 'refuri': self.esc(file + '.html'),
-                'text': self.esc(text)
+                'text': ssp(self.esc(text))
             })
 
 
