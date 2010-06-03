@@ -59,3 +59,8 @@ class WebSupportTranslator(HTMLTranslator):
             self.in_commentable = False
             self.body = []
 
+    def depart_document(self, node):
+        assert(not self.in_commentable)
+        self.support_document.add_slice(''.join(self.body))
+                
+
