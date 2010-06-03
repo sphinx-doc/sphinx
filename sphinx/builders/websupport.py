@@ -32,7 +32,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
 
     def handle_page(self, pagename, ctx, templatename='', **ignored):
         # Mostly copied from PickleHTMLBuilder.
-        ctx['current_page_name'] = pagename
+        ctx['current_page_name'] = ctx['pagename'] = pagename
         self.add_sidebars(pagename, ctx)
 
         self.app.emit('html-page-context', pagename, ctx)
@@ -40,13 +40,14 @@ class WebSupportBuilder(PickleHTMLBuilder):
         # Instead of pickling ctx as PickleHTMLBuilder does, we
         # have created a Document object and pickle that.
         document = self.docwriter.visitor.support_document
+        document.__dict__.update(ctx)
 
         doc_filename = path.join(self.outdir,
                                  os_path(pagename) + self.out_suffix)
         ensuredir(path.dirname(doc_filename))
         f = open(doc_filename, 'wb')
         try:
-            self.implementation.dump(document, f, 2)
+            self.implementation.dump(document, f)
         finally:
             f.close()
 
