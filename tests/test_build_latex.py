@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import sys
 import difflib
 from StringIO import StringIO
@@ -28,7 +29,7 @@ def teardown_module():
 latex_warnfile = StringIO()
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
-None:None: WARNING: no matching candidate for image URI u'foo.*'
+None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
 """
 
@@ -39,7 +40,8 @@ def test_latex(app):
     app.builder.build_all()
     latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
     latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
-    assert latex_warnings == latex_warnings_exp, 'Warnings don\'t match:\n' + \
+    assert re.match(latex_warnings_exp + '$', latex_warnings), \
+           'Warnings don\'t match:\n' + \
            '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
                                    latex_warnings.splitlines()))
     # file from latex_additional_files
