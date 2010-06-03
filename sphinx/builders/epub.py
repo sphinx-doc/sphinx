@@ -195,6 +195,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
         if isinstance(doctree, nodes.reference):
+            refuri = doctree['refuri']
+            if refuri.startswith('http://') or refuri.startswith('https://') \
+                or refuri.startswith('irc:') or refuri.startswith('mailto:'):
+                return result
             classes = doctree.parent.attributes['classes']
             level = 1
             for l in range(8, 0, -1): # or range(1, 8)?
@@ -202,7 +206,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     level = l
             result.append({
                 'level': level,
-                'refuri': self.esc(doctree['refuri']),
+                'refuri': self.esc(refuri),
                 'text': self.esc(doctree.astext())
             })
         else:
