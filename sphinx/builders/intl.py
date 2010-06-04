@@ -65,5 +65,6 @@ class MessageCatalogBuilder(Builder):
             pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
             pofile.write(POHEADER % self.config)
             for message in messages:
+                message = message.replace(u'"', ur'\"')
                 pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
                 pofile.write(pomsg.encode('utf-8'))
