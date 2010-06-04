@@ -1,2 +1,6 @@
 May 30: Added files builders/websupport.py, writers/websupport.py,
-websupport/api.py, and websupport/document.api. Provides a rudimentary method of building websupport data, and rendering it as html.
+websupport/api.py, and websupport/document.api. Provides a rudimentary 
+method of building websupport data, and rendering it as html.
+
+May 31-June 4: Continued changing way web support data is represented
+and accessed.
