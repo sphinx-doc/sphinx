@@ -16,7 +16,7 @@ from sphinx.application import Sphinx
 
 class WebSupport(object):
     
-    def init(self, srcdir, outdir=''):
+    def init(self, srcdir='', outdir=''):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
