@@ -68,3 +68,4 @@ class MessageCatalogBuilder(Builder):
                 message = message.replace(u'"', ur'\"')
                 pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
                 pofile.write(pomsg.encode('utf-8'))
+            pofile.close()
