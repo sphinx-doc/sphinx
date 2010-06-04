@@ -38,6 +38,8 @@ msgstr ""
 """[1:]
 
 class MessageCatalogBuilder(Builder):
+    name = 'gettext'
+
     def init(self):
         self.catalogs = collections.defaultdict(list)
 
