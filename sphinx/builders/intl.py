@@ -66,9 +66,11 @@ class MessageCatalogBuilder(Builder):
                 self.catalogs.iteritems(), "writing message catalogs... ",
                 lambda (section, _):darkgreen(section), len(self.catalogs)):
             pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
-            pofile.write(POHEADER % self.config)
-            for message in messages:
-                message = message.replace(u'"', ur'\"')
-                pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
-                pofile.write(pomsg.encode('utf-8'))
-            pofile.close()
+            try:
+                pofile.write(POHEADER % self.config)
+                for message in messages:
+                    message = message.replace(u'"', ur'\"')
+                    pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
+                    pofile.write(pomsg.encode('utf-8'))
+            finally:
+                pofile.close()
