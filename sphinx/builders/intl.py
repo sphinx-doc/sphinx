@@ -69,7 +69,8 @@ class MessageCatalogBuilder(Builder):
             try:
                 pofile.write(POHEADER % self.config)
                 for message in messages:
-                    message = message.replace(u'"', ur'\"')
+                    # message contains *one* line of text ready for translation
+                    message = message.replace(u'\\', ur'\\').replace(u'"', ur'\"')
                     pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
                     pofile.write(pomsg.encode('utf-8'))
             finally:
