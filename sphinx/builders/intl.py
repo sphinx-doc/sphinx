@@ -39,6 +39,9 @@ msgstr ""
 """[1:]
 
 class MessageCatalogBuilder(Builder):
+    """
+    Builds gettext-style message catalogs (.pot files).
+    """
     name = 'gettext'
 
     def init(self):
@@ -54,6 +57,11 @@ class MessageCatalogBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
+        """
+        Store a document's translatable strings in the message catalog of its
+        section. For this purpose a document's *top-level directory* -- or
+        otherwise its *name* -- is considered its section.
+        """
         catalog = self.catalogs[docname.split('/')[0]]
         for node in doctree.traverse(nodes.TextElement):
             if isinstance(node, (nodes.Invisible, nodes.Inline)):
