@@ -15,6 +15,7 @@ from os import path
 from docutils import nodes
 
 from sphinx.builders import Builder
+from sphinx.util.console import darkgreen
 
 POHEADER = r"""
 # SOME DESCRIPTIVE TITLE.
@@ -61,7 +62,9 @@ class MessageCatalogBuilder(Builder):
             catalog.append(msg)
 
     def finish(self):
-        for section, messages in self.catalogs.iteritems():
+        for section, messages in self.status_iterator(
+                self.catalogs.iteritems(), "writing message catalogs... ",
+                lambda (section, _):darkgreen(section), len(self.catalogs)):
             pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
             pofile.write(POHEADER % self.config)
             for message in messages:
