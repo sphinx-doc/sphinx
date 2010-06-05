@@ -1,6 +1,9 @@
 Release 0.6.7 (in development)
 ==============================
 
+* #440: Remove usage of a Python >= 2.5 API in the ``literalinclude``
+  directive.
+
 
 Release 0.6.6 (May 25, 2010)
 ============================

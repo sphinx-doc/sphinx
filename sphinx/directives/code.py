@@ -118,7 +118,7 @@ class LiteralInclude(Directive):
         codec_info = codecs.lookup(encoding)
         try:
             f = codecs.StreamReaderWriter(open(fn, 'U'),
-                    codec_info.streamreader, codec_info.streamwriter, 'strict')
+                    codec_info[2], codec_info[3], 'strict')
             lines = f.readlines()
             f.close()
         except (IOError, OSError):
