@@ -285,6 +285,7 @@ Project information
 
    * ``ca`` -- Catalan
    * ``cs`` -- Czech
+   * ``da`` -- Danish
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
