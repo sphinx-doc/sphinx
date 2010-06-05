@@ -511,6 +511,15 @@ These roles link to the given object types:
    Reference a C++ object.  You can give the full signature (and need to, for
    overloaded functions.)
 
+   .. note::
+
+      Sphinx' syntax to give references a custom title can interfere with
+      linking to template classes, if nothing follows the closing angle
+      bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
+      This is interpreted as a link to ``T`` with a title of ``MyClass``.
+      In this case, please escape the opening angle bracket with a backslash,
+      like this: ``:cpp:class:`MyClass\<T>```.
+
 .. admonition:: Note on References
 
    It is currently impossible to link to a specific version of an
