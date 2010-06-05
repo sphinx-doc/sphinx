@@ -34,9 +34,10 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    This directive inserts a "TOC tree" at the current location, using the
    individual TOCs (including "sub-TOC trees") of the documents given in the
-   directive body (whose path is relative to the document the directive occurs
-   in).  A numeric ``maxdepth`` option may be given to indicate the depth of the
-   tree; by default, all levels are included. [#]_
+   directive body.  Relative document names (not beginning with a slash) are
+   relative to the document the directive occurs in, absolute names are relative
+   to the source directory.  A numeric ``maxdepth`` option may be given to
+   indicate the depth of the tree; by default, all levels are included. [#]_
 
    Consider this example (taken from the Python docs' library reference index)::
 
