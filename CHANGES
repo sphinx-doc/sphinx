@@ -151,8 +151,8 @@ Features added
   - Added Danish translation, thanks to Hjorth Larsen.
 
 
-Release 0.6.7 (in development)
-==============================
+Release 0.6.7 (Jun 05, 2010)
+============================
 
 * #440: Remove usage of a Python >= 2.5 API in the ``literalinclude``
   directive.
