@@ -262,7 +262,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.first_document = 0
         elif self.first_document == 0:
             # ... and all others are the appendices
-            self.body.append('\n\\appendix\n')
+            self.body.append(u'\n\\appendix\n')
             self.first_document = -1
         if node.has_key('docname'):
             self.body.append('\\hypertarget{--doc-%s}{}' %
@@ -275,14 +275,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for bi in self.bibitems:
                 if len(widest_label) < len(bi[0]):
                     widest_label = bi[0]
-            self.body.append('\n\\begin{thebibliography}{%s}\n' % widest_label)
+            self.body.append(u'\n\\begin{thebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
                 # cite_key: underscores must not be escaped
                 cite_key = bi[0].replace(r"\_", "_")
-                self.body.append('\\bibitem[%s]{%s}{\hypertarget{%s}{} %s}\n' %
+                self.body.append(u'\\bibitem[%s]{%s}{\hypertarget{%s}{} %s}\n' %
                                  (bi[0], cite_key,
                                   self.idescape(cite_key.lower()), bi[1]))
-            self.body.append('\\end{thebibliography}\n')
+            self.body.append(u'\\end{thebibliography}\n')
             self.bibitems = []
 
     def visit_start_of_file(self, node):
@@ -578,7 +578,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_seealso(self, node):
-        self.body.append("\n\n\\strong{%s:}\n\n" % admonitionlabels['seealso'])
+        self.body.append(u'\n\n\\strong{%s:}\n\n' % admonitionlabels['seealso'])
     def depart_seealso(self, node):
         self.body.append("\n\n")
 
@@ -624,8 +624,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.table.longtable = True
         self.body = self._body
         if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\n\\begin{threeparttable}\n'
-                             '\\caption{%s}\n' % self.table.caption)
+            self.body.append(u'\n\\begin{threeparttable}\n'
+                             u'\\caption{%s}\n' % self.table.caption)
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
         elif self.table.has_verbatim:
@@ -645,7 +645,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append('\\caption{%s} \\\\\n' % self.table.caption)
+            self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
 
         if self.table.longtable:
             self.body.append('\\hline\n')
@@ -655,7 +655,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              % _('continued from previous page'))
             self.body.append('\n\\hline\n')
             self.body.append('\\endhead\n\n')
-            self.body.append(r'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
+            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
                              % (self.table.colcount,
                                 _('Continued on next page')))
             self.body.append('\n\\endfoot\n\n')
@@ -950,7 +950,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def _make_visit_admonition(name):
         def visit_admonition(self, node):
-            self.body.append('\n\\begin{notice}{%s}{%s:}' %
+            self.body.append(u'\n\\begin{notice}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
     def _depart_named_admonition(self, node):
@@ -1305,7 +1305,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_inline(self, node):
         classes = node.get('classes', [])
-        self.body.append(r'\DUspan{%s}{' %','.join(classes))
+        self.body.append(r'\DUspan{%s}{' % ','.join(classes))
     def depart_inline(self, node):
         self.body.append('}')
 

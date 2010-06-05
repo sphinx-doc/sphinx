@@ -9,6 +9,8 @@ Release 0.6.7 (in development)
 
 * #428: Add some missing CSS styles for standard docutils classes.
 
+* #432: Fix UnicodeErrors while building LaTeX in translated locale.
+
 
 Release 0.6.6 (May 25, 2010)
 ============================
