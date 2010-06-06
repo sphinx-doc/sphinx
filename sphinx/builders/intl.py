@@ -17,7 +17,7 @@ from docutils import nodes
 from sphinx.builders import Builder
 from sphinx.util.console import darkgreen
 
-POHEADER = r"""
+POHEADER = ur"""
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) %(copyright)s
 # This file is distributed under the same license as the %(project)s package.
@@ -26,7 +26,7 @@ POHEADER = r"""
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.0\n"
+"Project-Id-Version: %(version)s\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-08 18:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
