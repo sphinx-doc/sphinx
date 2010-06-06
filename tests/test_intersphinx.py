@@ -11,7 +11,10 @@
 
 import zlib
 import posixpath
-from cStringIO import StringIO
+try:
+    from io import BytesIO
+except ImportError:
+    from cStringIO import StringIO as BytesIO
 
 from docutils import nodes
 
@@ -28,23 +31,23 @@ inventory_v1 = '''\
 # Version: 1.0
 module mod foo.html
 module.cls class foo.html
-'''
+'''.encode('utf-8')
 
 inventory_v2 = '''\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-''' + zlib.compress('''\
+'''.encode('utf-8') + zlib.compress('''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
-''')
+'''.encode('utf-8'))
 
 
 def test_read_inventory_v1():
-    f = StringIO(inventory_v1)
+    f = BytesIO(inventory_v1)
     f.readline()
     invdata = read_inventory_v1(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
@@ -54,12 +57,12 @@ def test_read_inventory_v1():
 
 
 def test_read_inventory_v2():
-    f = StringIO(inventory_v2)
+    f = BytesIO(inventory_v2)
     f.readline()
     invdata1 = read_inventory_v2(f, '/util', posixpath.join)
 
     # try again with a small buffer size to test the chunking algorithm
-    f = StringIO(inventory_v2)
+    f = BytesIO(inventory_v2)
     f.readline()
     invdata2 = read_inventory_v2(f, '/util', posixpath.join, bufsize=5)
 
