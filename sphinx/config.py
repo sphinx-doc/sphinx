@@ -11,6 +11,7 @@
 
 import os
 import re
+from datetime import datetime
 from os import path
 
 from sphinx.errors import ConfigError
@@ -150,6 +151,11 @@ class Config(object):
 
         # manpage options
         man_pages = ([], None),
+
+        # gettext options
+        gettext_ctime = (lambda self:datetime.now() # should supply tz
+                                     .strftime('%Y-%m-%d %H:%M%z'),
+                         'gettext'),
     )
 
     def __init__(self, dirname, filename, overrides, tags):
