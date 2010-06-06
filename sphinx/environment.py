@@ -649,7 +649,7 @@ class BuildEnvironment:
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path)
+        pub.set_source(None, src_path.encode(FILESYSTEMENCODING))
         pub.set_destination(None, None)
         try:
             pub.publish()
