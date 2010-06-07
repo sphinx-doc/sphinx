@@ -201,15 +201,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 or refuri.startswith('irc:') or refuri.startswith('mailto:'):
                 return result
             classes = doctree.parent.attributes['classes']
-            level = 1
-            for l in range(8, 0, -1): # or range(1, 8)?
-                if (_toctree_template % l) in classes:
-                    level = l
-            result.append({
-                'level': level,
-                'refuri': self.esc(refuri),
-                'text': ssp(self.esc(doctree.astext()))
-            })
+            for level in range(8, 0, -1): # or range(1, 8)?
+                if (_toctree_template % level) in classes:
+                    result.append({
+                        'level': level,
+                        'refuri': self.esc(refuri),
+                        'text': ssp(self.esc(doctree.astext()))
+                    })
+                    break
         else:
             for elem in doctree.children:
                 result = self.get_refnodes(elem, result)

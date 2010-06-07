@@ -140,6 +140,10 @@ some notes:
   ``sphinx/themes/epub/static/`` directory to your local ``_static/``
   directory and remove the float settings.
 
+* Files that are inserted outside of the ``toctree`` directive must be manually
+  included. This sometimes applies to appendixes, e.g. the glossary or
+  the indices.  You can add them with the :confval:`epub_post_files` option.
+
 .. _Epubcheck: http://code.google.com/p/epubcheck/
 .. _Calibre: http://calibre-ebook.com/
 .. _FBreader: http://www.fbreader.org/
