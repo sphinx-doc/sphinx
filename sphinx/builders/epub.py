@@ -230,13 +230,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
                 'level': 1,
-                'refuri': self.esc(file + '.html'),
+                'refuri': self.esc(file),
                 'text': ssp(self.esc(text))
             })
         for file, text in self.config.epub_post_files:
             self.refnodes.append({
                 'level': 1,
-                'refuri': self.esc(file + '.html'),
+                'refuri': self.esc(file),
                 'text': ssp(self.esc(text))
             })
 
