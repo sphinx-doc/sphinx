@@ -32,6 +32,9 @@ class _TranslationProxy(UserString.UserString, object):
             return unicode(func)
         return object.__new__(cls)
 
+    def __getnewargs__(self):
+        return (self._func,) + self._args
+
     def __init__(self, func, *args):
         self._func = func
         self._args = args

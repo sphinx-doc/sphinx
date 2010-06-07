@@ -10,7 +10,6 @@
 """
 
 from sphinx.writers.html import HTMLTranslator
-from sphinx.websupport.document import Document
 
 class WebSupportTranslator(HTMLTranslator):
     """
@@ -23,7 +22,6 @@ class WebSupportTranslator(HTMLTranslator):
         self.init_support()
 
     def init_support(self):
-        self.support_document = Document()
         self.in_commentable = False
         self.current_id = 0
         
@@ -38,29 +36,27 @@ class WebSupportTranslator(HTMLTranslator):
             self.handle_depart_commentable(node)
 
     def handle_visit_commentable(self, node):
-        # If we are already recording a commentable slice we don't do
-        # anything. We can't handle nesting.
-        if not self.in_commentable:
-            self.support_document.add_slice(''.join(self.body))
-            node.commented = self.in_commentable = True
-            self.body = []
-        else:
+        # If this node is nested inside another commentable node this
+        # node will not be commented.
+        if self.in_commentable:
             node.commented = False
+        else:
+            node.commented = self.in_commentable = True
+            node.id = self.create_id(node)
+            # We will place the node in the HTML id attribute. If the node
+            # already has another id (for indexing purposes) put an empty
+            # span with the existing id directly before this node's HTML.
+            if node.attributes['ids']:
+                self.body.append('<span id="%s"></span>'
+                                 % node.attributes['ids'][0])
+            node.attributes['ids'] = [node.id]
+            node.attributes['classes'].append('spxcmt')
 
     def handle_depart_commentable(self, node):
         assert(self.in_commentable)
         if node.commented:
-            slice_id = '%s-%s' % (self.builder.docname, self.current_id)
-            self.current_id += 1
-
-            body = ''.join(self.body)
-            self.support_document.add_slice(body, slice_id, commentable=True)
-
             self.in_commentable = False
-            self.body = []
 
-    def depart_document(self, node):
-        assert(not self.in_commentable)
-        self.support_document.add_slice(''.join(self.body))
-                
-
+    def create_id(self, node):
+        self.current_id += 1
+        return '%s_%s' % (node.__class__.__name__, self.current_id)
