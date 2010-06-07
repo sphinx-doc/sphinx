@@ -125,7 +125,7 @@ _media_types = {
 
 class VisibleLinksTransform(Transform):
     """
-    Add the link target of referances to the text, unless it is already
+    Add the link target of references to the text, unless it is already
     present in the description.
     """
 
@@ -171,7 +171,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
-        self.app.add_transform(VisibleLinksTransform)
+        # Disable transform until the issue with cached doctrees is solved.
+        # Building the html file after the epub file shows the
+        # visible links also in the HTML output.
+        #self.app.add_transform(VisibleLinksTransform)
 
     def get_theme_config(self):
         return self.config.epub_theme, {}
