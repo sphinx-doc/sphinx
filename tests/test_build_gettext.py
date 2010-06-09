@@ -26,6 +26,7 @@ def test_gettext(app):
     # group into sections
     assert (app.outdir / 'subdir.pot').isfile()
 
+    (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
     cwd = os.getcwd()
     os.chdir(app.outdir)
     try:
@@ -42,5 +43,19 @@ def test_gettext(app):
                 del app.cleanup_trees[:]
                 assert False, 'msginit exited with return code %s' % p.returncode
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
+        try:
+            p = Popen(['msgfmt', 'en_US.po', '-o',
+                os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
+                stdout=PIPE, stderr=PIPE)
+        except OSError:
+            return  # most likely msgfmt was not found
+        else:
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                print stdout
+                print stderr
+                del app.cleanup_trees[:]
+                assert False, 'msgfmt exited with return code %s' % p.returncode
+        assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), 'msgfmt failed'
     finally:
         os.chdir(cwd)
