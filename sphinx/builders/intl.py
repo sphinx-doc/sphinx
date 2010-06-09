@@ -15,6 +15,7 @@ from os import path
 from docutils import nodes
 
 from sphinx.builders import Builder
+from sphinx.util.nodes import extract_messages
 from sphinx.util.console import darkgreen
 
 POHEADER = ur"""
@@ -63,15 +64,10 @@ class MessageCatalogBuilder(Builder):
         otherwise its *name* -- is considered its section.
         """
         catalog = self.catalogs[docname.split('/')[0]]
-        for node in doctree.traverse(nodes.TextElement):
-            if isinstance(node, (nodes.Invisible, nodes.Inline)):
-                continue
-            msg = node.astext().replace('\n', ' ').strip()
-            # XXX nodes rendering empty are likely a bug in sphinx.addnodes
-            # XXX msgctxt for duplicate messages?
-            if not msg or msg in catalog:
-                continue
-            catalog.append(msg)
+        for msg in extract_messages(doctree):
+            # XXX msgctxt for duplicate messages
+            if msg not in catalog:
+                catalog.append(msg)
 
     def finish(self):
         for section, messages in self.status_iterator(
