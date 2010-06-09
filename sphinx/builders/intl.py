@@ -66,7 +66,11 @@ class MessageCatalogBuilder(Builder):
         for node in doctree.traverse(nodes.TextElement):
             if isinstance(node, (nodes.Invisible, nodes.Inline)):
                 continue
-            msg = node.astext().replace('\n', ' ')
+            msg = node.astext().replace('\n', ' ').strip()
+            # XXX nodes rendering empty are likely a bug in sphinx.addnodes
+            # XXX msgctxt for duplicate messages?
+            if not msg or msg in catalog:
+                continue
             catalog.append(msg)
 
     def finish(self):
