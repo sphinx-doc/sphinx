@@ -40,7 +40,6 @@ def test_gettext(app):
             if p.returncode != 0:
                 print stdout
                 print stderr
-                del app.cleanup_trees[:]
                 assert False, 'msginit exited with return code %s' % p.returncode
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
@@ -54,7 +53,6 @@ def test_gettext(app):
             if p.returncode != 0:
                 print stdout
                 print stderr
-                del app.cleanup_trees[:]
                 assert False, 'msgfmt exited with return code %s' % p.returncode
         assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), 'msgfmt failed'
     finally:
