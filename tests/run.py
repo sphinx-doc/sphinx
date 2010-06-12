@@ -14,10 +14,10 @@ import sys
 from os import path, chdir
 
 if sys.version_info >= (3,):
-    print('Copying and converting sources to build/lib/test...')
+    print('Copying and converting sources to build/lib/tests...')
     from distutils.util import copydir_run_2to3
     testroot = path.dirname(__file__) or '.'
-    newroot = path.join(testroot, path.pardir, 'build', 'lib', 'test')
+    newroot = path.join(testroot, path.pardir, 'build', 'lib', 'tests')
     copydir_run_2to3(testroot, newroot)
     # switch to the converted dir so nose tests the right tests
     chdir(newroot)
