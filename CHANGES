@@ -54,6 +54,8 @@ Features added
   - The :rst:role:`ref` role can now also reference tables by caption.
   - The :rst:dir:`include` directive now supports absolute paths, which
     are interpreted as relative to the source directory.
+  - In the Python domain, references like ``:func:`.name``` now look for
+    matching names with any prefix if no direct match is found.
 
 * Configuration:
 
