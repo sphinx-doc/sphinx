@@ -16,9 +16,6 @@ Though there is support for that kind of docs as well (which is intended to be
 freely mixed with hand-written content), if you need pure API docs have a look
 at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
 
-.. function:: Sphinxy.add_domain()
-
-:func:`.add_domain`
 
 Conversion from other systems
 -----------------------------

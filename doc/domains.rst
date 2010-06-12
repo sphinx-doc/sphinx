@@ -363,6 +363,13 @@ dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
+Also, if the name is prefixed with a dot, and no exact match is found, the
+target is taken as a suffix and all object names with that suffix are
+searched.  For example, ``:py:meth:`.TarFile.close``` references the
+``tarfile.TarFile.close()`` function, even if the current module is not
+``tarfile``.  Since this can get ambiguous, if there is more than one possible
+match, you will get a warning from Sphinx.
+
 A similar heuristic is used to determine whether the name is an attribute of the
 currently documented class.
 
