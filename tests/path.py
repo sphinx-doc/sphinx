@@ -21,12 +21,9 @@ class path(str):
     Represents a path which behaves like a string.
     """
     if sys.version_info < (3, 0):
-        def __new__(cls, s, encoding=FILESYSTEMENCODING, errors=None):
+        def __new__(cls, s, encoding=FILESYSTEMENCODING, errors='strict'):
             if isinstance(s, unicode):
-                if errors is None:
-                    s = s.encode(encoding)
-                else:
-                    s = s.encode(encoding, errors=errors)
+                s = s.encode(encoding, errors=errors)
                 return str.__new__(cls, s)
             return str.__new__(cls, s)
 
