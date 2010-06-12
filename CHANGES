@@ -143,6 +143,7 @@ Features added
     instead of PNG images, controlled by the
     :confval:`graphviz_output_format` config value.
   - Added ``alt`` option to :rst:dir:`graphviz` extension directives.
+  - Added ``exclude`` argument to :func:`.autodoc.between`.
 
 * Translations:
 
