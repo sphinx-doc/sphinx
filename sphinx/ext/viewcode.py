@@ -104,7 +104,7 @@ def collect_pages(app):
         # now that we have code lines (starting at index 1), insert anchors for
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
-        maxindex = len(lines)
+        maxindex = len(lines) - 1
         for name, docname in used.iteritems():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + modname + '.' + name
