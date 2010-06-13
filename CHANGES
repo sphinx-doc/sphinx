@@ -1,3 +1,10 @@
+Release 0.6.8 (in development)
+==============================
+
+* #444: In templates, properly re-escape values treated with the
+  "striptags" Jinja filter.
+
+
 Release 0.6.7 (Jun 05, 2010)
 ============================
 
