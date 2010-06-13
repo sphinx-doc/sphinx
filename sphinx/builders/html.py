@@ -750,6 +750,10 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
 
         return outfilename
 
+    def prepare_writing(self, docnames):
+        StandaloneHTMLBuilder.prepare_writing(self, docnames)
+        self.globalcontext['no_search_suffix'] = True
+
 
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     """

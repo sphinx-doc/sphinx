@@ -109,7 +109,7 @@
         URL_ROOT:    '{{ url_root }}',
         VERSION:     '{{ release|e }}',
         COLLAPSE_MODINDEX: false,
-        FILE_SUFFIX: '{{ file_suffix }}',
+        FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
         HAS_SOURCE:  {{ has_source|lower }}
       };
     </script>
