@@ -362,7 +362,7 @@ are in HTML form), these variables are also available:
 
 .. data:: meta
 
-   Document metadata, see :ref:`metadata`.
+   Document metadata (a dictionary), see :ref:`metadata`.
 
 .. data:: sourcename
 

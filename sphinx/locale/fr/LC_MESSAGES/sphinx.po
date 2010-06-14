@@ -4,6 +4,7 @@
 # David Larlet <larlet@gmail.com>, 2008.
 # Sebastien Douche <sdouche@gmail.com>, 2008.
 # Jean-Daniel Browne <jeandaniel.browne@gmail.com>, 2010.
+# Florent Gallaire <fgallaire@gmail.com>, 2010.
 #
 msgid ""
 msgstr ""
@@ -186,7 +187,7 @@ msgstr "%s() (méthode %s)"
 #: sphinx/domains/javascript.py:120
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr "%s (variable globale or constant)"
+msgstr "%s (variable globale ou constante)"
 
 #: sphinx/domains/javascript.py:122 sphinx/domains/python.py:323
 #, python-format
@@ -357,7 +358,7 @@ msgstr "élément de grammaire"
 
 #: sphinx/domains/std.py:330
 msgid "reference label"
-msgstr "étiquette de reference"
+msgstr "étiquette de référence"
 
 #: sphinx/domains/std.py:331
 msgid "environment variable"
@@ -365,7 +366,7 @@ msgstr "variable d'environnement"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
-msgstr "option de programme"
+msgstr "option du programme"
 
 #: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
 #: sphinx/themes/basic/genindex-split.html:11
@@ -396,7 +397,7 @@ msgstr "alias de :class:`%s`"
 
 #: sphinx/ext/todo.py:41
 msgid "Todo"
-msgstr "A faire"
+msgstr "À faire"
 
 #: sphinx/ext/todo.py:109
 #, python-format
@@ -431,7 +432,7 @@ msgstr "Vue d'ensemble : code du module"
 
 #: sphinx/ext/viewcode.py:157
 msgid "<h1>All modules for which code is available</h1>"
-msgstr "<h1>Modules pour lesquelles le code est disponible</h1>"
+msgstr "<h1>Modules pour lesquels le code est disponible</h1>"
 
 #: sphinx/locale/__init__.py:139
 msgid "Attention"

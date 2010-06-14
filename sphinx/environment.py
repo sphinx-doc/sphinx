@@ -818,9 +818,10 @@ class BuildEnvironment:
                                 imgtype = imghdr.what(f)
                             finally:
                                 f.close()
-                        except (OSError, IOError):
-                            self.warn(docname,
-                                      'image file %s not readable' % filename)
+                        except (OSError, IOError), err:
+                            self.warn(docname, 'image file %s not '
+                                      'readable: %s' % (filename, err),
+                                      node.line)
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:

@@ -54,6 +54,8 @@ Features added
   - The :rst:role:`ref` role can now also reference tables by caption.
   - The :rst:dir:`include` directive now supports absolute paths, which
     are interpreted as relative to the source directory.
+  - In the Python domain, references like ``:func:`.name``` now look for
+    matching names with any prefix if no direct match is found.
 
 * Configuration:
 
@@ -141,6 +143,7 @@ Features added
     instead of PNG images, controlled by the
     :confval:`graphviz_output_format` config value.
   - Added ``alt`` option to :rst:dir:`graphviz` extension directives.
+  - Added ``exclude`` argument to :func:`.autodoc.between`.
 
 * Translations:
 
@@ -148,10 +151,31 @@ Features added
   - Added Turkish translation, thanks to Firat Ozgul.
   - Added Catalan translation, thanks to Pau Fernández.
   - Added simplified Chinese translation.
+  - Added Danish translation, thanks to Hjorth Larsen.
 
 
-Release 0.6.7 (in development)
+Release 0.6.8 (in development)
 ==============================
+
+* #445: Fix links to result pages when using the search function
+  of HTML built with the ``dirhtml`` builder.
+
+* #444: In templates, properly re-escape values treated with the
+  "striptags" Jinja filter.
+
+
+Release 0.6.7 (Jun 05, 2010)
+============================
+
+* #440: Remove usage of a Python >= 2.5 API in the ``literalinclude``
+  directive.
+
+* Fix a bug that prevented some references being generated in the
+  LaTeX builder.
+
+* #428: Add some missing CSS styles for standard docutils classes.
+
+* #432: Fix UnicodeErrors while building LaTeX in translated locale.
 
 
 Release 0.6.6 (May 25, 2010)

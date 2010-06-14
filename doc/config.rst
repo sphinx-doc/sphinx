@@ -285,6 +285,7 @@ Project information
 
    * ``ca`` -- Catalan
    * ``cs`` -- Czech
+   * ``da`` -- Danish
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
@@ -806,9 +807,11 @@ These options influence LaTeX output.
    * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
      for *title* applies.  Use ``\and`` to separate multiple authors, as in:
      ``'John \and Sarah'``.
-   * *documentclass*: Must be one of ``'manual'`` or ``'howto'``.  Only "manual"
-     documents will get appendices.  Also, howtos will have a simpler title
-     page.
+   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided by
+     Sphinx).  Other document classes can be given, but they must include the
+     "sphinx" package in order to define Sphinx' custom LaTeX commands.
+     "howto" documents will not get appendices.  Also, howtos will have a simpler
+     title page.
    * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff

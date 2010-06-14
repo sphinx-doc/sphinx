@@ -18,7 +18,7 @@
     <div id="content">
       <div class="header">
         <h1 class="heading"><a href="{{ pathto('index') }}"
-          title="back to the documentation overview"><span>{{ title|striptags }}</span></a></h1>
+          title="back to the documentation overview"><span>{{ title|striptags|e }}</span></a></h1>
       </div>
       <div class="relnav">
         {%- if prev %}
