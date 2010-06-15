@@ -178,6 +178,11 @@ def cleanup_tempdir(app, exc):
     except Exception:
         pass
 
+def get_tooltip(self, node):
+    if self.builder.config.pngmath_use_tooltips :
+        return ' alt="%s"' % self.encode(node['latex']).strip()
+    return ''
+
 def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
@@ -193,15 +198,12 @@ def html_visit_math(self, node):
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node['latex']).strip())
     else:
-        if depth is None:
-            self.body.append(
-                '<img class="math" src="%s" alt="%s"/>' %
-                (fname, self.encode(node['latex']).strip()))
-        else:
-            self.body.append(
-                '<img class="math" src="%s" alt="%s" '
-                'style="vertical-align: %dpx"/>' %
-                (fname, self.encode(node['latex']).strip(), -depth))
+        c  = '<img class="math" src="%s"' % fname
+        c += get_tooltip(self, node)
+        if depth:
+            c += ' style="vertical-align: %dpx"' % -depth
+        c += '/>'
+        self.body.append(c)
     raise nodes.SkipNode
 
 def html_visit_displaymath(self, node):
@@ -226,8 +228,10 @@ def html_visit_displaymath(self, node):
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node['latex']).strip())
     else:
-        self.body.append('<img src="%s" alt="%s" /></p>\n</div>' %
-                         (fname, self.encode(node['latex']).strip()))
+        c  = '<img src="%s"' % fname
+        c += get_tooltip(self, node)
+        c += '/></p>\n</div>'
+        self.body.append(c)
     raise nodes.SkipNode
 
 
@@ -240,4 +244,5 @@ def setup(app):
                          ['-gamma 1.5', '-D 110'], 'html')
     app.add_config_value('pngmath_latex_args', [], 'html')
     app.add_config_value('pngmath_latex_preamble', '', 'html')
+    app.add_config_value('pngmath_use_tooltips', True, 'html')
     app.connect('build-finished', cleanup_tempdir)
