@@ -46,7 +46,7 @@ except ImportError:
             args = [quote(arg) for arg in args]
         return os.spawnl(os.P_WAIT, sys.executable, *args) == 0
 
-DEFAULT_VERSION = "0.6.12"
+DEFAULT_VERSION = "0.6.13"
 DEFAULT_URL = "http://pypi.python.org/packages/source/d/distribute/"
 SETUPTOOLS_FAKED_VERSION = "0.6c11"
 
@@ -227,7 +227,6 @@ def _no_sandbox(function):
 
     return __no_sandbox
 
-@_no_sandbox
 def _patch_file(path, content):
     """Will backup the file then patch it"""
     existing_content = open(path).read()
@@ -244,6 +243,7 @@ def _patch_file(path, content):
         f.close()
     return True
 
+_patch_file = _no_sandbox(_patch_file)
 
 def _same_content(path, content):
     return open(path).read() == content
@@ -254,7 +254,6 @@ def _rename_path(path):
     os.rename(path, new_name)
     return new_name
 
-@_no_sandbox
 def _remove_flat_installation(placeholder):
     if not os.path.isdir(placeholder):
         log.warn('Unkown installation at %s', placeholder)
@@ -288,13 +287,13 @@ def _remove_flat_installation(placeholder):
                      'Setuptools distribution', element)
     return True
 
+_remove_flat_installation = _no_sandbox(_remove_flat_installation)
 
 def _after_install(dist):
     log.warn('After install bootstrap.')
     placeholder = dist.get_command_obj('install').install_purelib
     _create_fake_setuptools_pkg_info(placeholder)
 
-@_no_sandbox
 def _create_fake_setuptools_pkg_info(placeholder):
     if not placeholder or not os.path.exists(placeholder):
         log.warn('Could not find the install location')
@@ -322,7 +321,8 @@ def _create_fake_setuptools_pkg_info(placeholder):
     finally:
         f.close()
 
-@_no_sandbox
+_create_fake_setuptools_pkg_info = _no_sandbox(_create_fake_setuptools_pkg_info)
+
 def _patch_egg_dir(path):
     # let's check if it's already patched
     pkg_info = os.path.join(path, 'EGG-INFO', 'PKG-INFO')
@@ -341,6 +341,7 @@ def _patch_egg_dir(path):
         f.close()
     return True
 
+_patch_egg_dir = _no_sandbox(_patch_egg_dir)
 
 def _before_install():
     log.warn('Before install bootstrap.')
@@ -360,8 +361,8 @@ def _under_prefix(location):
                 if len(args) > index:
                     top_dir = args[index+1]
                     return location.startswith(top_dir)
-            elif option == '--user' and USER_SITE is not None:
-                return location.startswith(USER_SITE)
+        if arg == '--user' and USER_SITE is not None:
+            return location.startswith(USER_SITE)
     return True
 
 
@@ -420,6 +421,9 @@ def _fake_setuptools():
 def _relaunch():
     log.warn('Relaunching...')
     # we have to relaunch the process
+    # pip marker to avoid a relaunch bug
+    if sys.argv[:3] == ['-c', 'install', '--single-version-externally-managed']:
+        sys.argv[0] = 'setup.py'
     args = [sys.executable] + sys.argv
     sys.exit(subprocess.call(args))
 
