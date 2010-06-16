@@ -64,7 +64,7 @@ class MessageCatalogBuilder(Builder):
         otherwise its *name* -- is considered its section.
         """
         catalog = self.catalogs[docname.split('/')[0]]
-        for msg in extract_messages(doctree):
+        for _, msg in extract_messages(doctree):
             # XXX msgctxt for duplicate messages
             if msg not in catalog:
                 catalog.append(msg)

@@ -30,7 +30,7 @@ def extract_messages(doctree):
         msg = node.astext().replace('\n', ' ').strip()
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
-            yield msg
+            yield node, msg
 
 
 def nested_parse_with_titles(state, content, node):
