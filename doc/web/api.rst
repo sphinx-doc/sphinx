@@ -7,7 +7,7 @@ Web Support API
 .. class:: WebSupport
 
    The :class:`WebSupport` class provides a central interface for 
-   working with :class:`~sphinx.websupport.document.Document`'s.
+   working Sphinx documentation.
 
 .. method:: init(srcdir='', outdir='')
 
@@ -15,12 +15,4 @@ Web Support API
 
 .. method:: get_document(docname)
 
-   Retrieve the :class:`~sphinx.websupport.document.Document` object
-   corresponding to the *docname*.
-
-.. module:: sphinx.websupport.document
-.. class:: Document
-   
-   The :class:`Document` provides access to a single document. It
-   is not instantiated directly, but is returned by methods of the
-   :class:`~sphinx.websupport.api.WebSupport` object.
+   Retrieve the context dictionary corresponding to the *docname*.
