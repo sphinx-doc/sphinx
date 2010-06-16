@@ -7,7 +7,7 @@ Web Support API
 .. class:: WebSupport
 
    The :class:`WebSupport` class provides a central interface for 
-   working Sphinx documentation.
+   working with Sphinx documentation.
 
 .. method:: init(srcdir='', outdir='')
 
