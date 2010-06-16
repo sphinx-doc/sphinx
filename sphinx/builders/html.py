@@ -727,10 +727,12 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('dumping object inventory... '), nonl=True)
         f = open(path.join(self.outdir, INVENTORY_FILENAME), 'wb')
         try:
-            f.write('# Sphinx inventory version 2\n')
-            f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
-            f.write('# Version: %s\n' % self.config.version.encode('utf-8'))
-            f.write('# The remainder of this file is compressed using zlib.\n')
+            f.write((u'# Sphinx inventory version 2\n'
+                     u'# Project: %s\n'
+                     u'# Version: %s\n'
+                     u'# The remainder of this file is compressed using zlib.\n'
+                     % (self.config.project, self.config.version))\
+                             .encode('utf-8'))
             compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
                 for name, dispname, type, docname, anchor, prio in \
@@ -742,11 +744,9 @@ class StandaloneHTMLBuilder(Builder):
                     if dispname == name:
                         dispname = u'-'
                     f.write(compressor.compress(
-                        '%s %s:%s %s %s %s\n' % (name.encode('utf-8'),
-                                                 domainname.encode('utf-8'),
-                                                 type.encode('utf-8'), prio,
-                                                 uri.encode('utf-8'),
-                                                 dispname.encode('utf-8'))))
+                        (u'%s %s:%s %s %s %s\n' % (name, domainname, type, prio,
+                                                  uri, dispname))\
+                                                          .encode('utf-8')))
             f.write(compressor.flush())
         finally:
             f.close()
