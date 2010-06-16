@@ -630,6 +630,8 @@ class BuildEnvironment:
 
         class SphinxSourceClass(FileInput):
             def decode(self_, data):
+                if isinstance(data, unicode):
+                    return data
                 return data.decode(self_.encoding, 'sphinx')
 
             def read(self_):
