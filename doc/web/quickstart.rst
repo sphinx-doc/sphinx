@@ -20,12 +20,14 @@ You only need to provide a srcdir if you are building documentation::
     support.build()
 
 This will create the data the web support package needs and place
-it in *outdir*. You can then access 
-:class:`~sphinx.websupport.document.Document` objects by calling
-the get_document(docname) method. For example, to retrieve the "contents" 
+it in *outdir*. You can then access this data by calling the 
+get_document(docname) method. For example, to retrieve the "contents" 
 document, do this::
 
     contents_doc = support.get_document('contents')
+
+This will return a dictionary containing the context you need to render
+a document.
 
 A more useful example, in the form of a `Flask <http://flask.pocoo.org/>`_
 application is::
@@ -42,15 +44,6 @@ application is::
         document = support.get_document(docname)
         return render_template('doc.html', document=document)
 
-This simple application will return a 
-:class:`~sphinx.websupport.document.Document` object corresponding 
-to the *docname* variable. This object will have *title* attribute,
-as well as a list of HTML "slices". Each slice contains some HTML,
-and when joined they form the body of a Sphinx document. Each slice
-may or may not be commentable. If a slice is commentable, it will
-have an *id* attribute which is used to associate a comment with
-part of a document.
-
 In the previous example the doc.html template would look something 
 like this::
 
@@ -60,13 +53,25 @@ like this::
       {{ document.title }}
     {% endblock %}
 
+    {% block extra_js %}
+      <script type="text/javascript" src="/static/jquery.js"></script>
+      <script type="text/javascript">
+        <!--
+        $(document).ready(function() {
+          $(".spxcmt").append(' <a href="#" class="sphinx_comment"><img src="/static/comment.png" /></a>');
+          $("a.sphinx_comment").click(function() {
+            id = $(this).parent().attr('id');
+            alert('[ comment stub ' + id + ' ]');
+            return false;
+          });
+        });
+        -->
+      </script>
+    {% endblock %}
+
     {% block body %}
-      {% for slice in document.slices -%}
-        {{ slice.html|safe }}
-        {% if slice.commentable -%}
-          <a href="#" onclick="alert('[ comment stub for <{{ slice.id }}> ]'); return false;">
-            comment
-          </a>
-        {%- endif %}
-      {%- endfor %}
+      {{ document.body|safe }}
+    {% endblock %}
+
+    {% block sidebar %}
     {% endblock %}
