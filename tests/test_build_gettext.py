@@ -19,7 +19,7 @@ def teardown_module():
     (test_root / '_build').rmtree(True)
 
 
-@with_app(buildername='gettext', cleanenv=True)
+@with_app(buildername='gettext')
 def test_build(app):
     app.builder.build_all()
     # documents end up in a message catalog
@@ -27,7 +27,7 @@ def test_build(app):
     # ..and are grouped into sections
     assert (app.outdir / 'subdir.pot').isfile()
 
-@with_app(buildername='gettext', cleanenv=True)
+@with_app(buildername='gettext')
 def test_gettext(app):
     app.builder.build_all()
 
