@@ -20,11 +20,16 @@ def teardown_module():
 
 
 @with_app(buildername='gettext', cleanenv=True)
+def test_build(app):
+    app.builder.build_all()
+    # documents end up in a message catalog
+    assert (app.outdir / 'contents.pot').isfile()
+    # ..and are grouped into sections
+    assert (app.outdir / 'subdir.pot').isfile()
+
+@with_app(buildername='gettext', cleanenv=True)
 def test_gettext(app):
     app.builder.build_all()
-    assert (app.outdir / 'contents.pot').isfile()
-    # group into sections
-    assert (app.outdir / 'subdir.pot').isfile()
 
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
     cwd = os.getcwd()
