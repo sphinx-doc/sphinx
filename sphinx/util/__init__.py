@@ -18,6 +18,7 @@ import tempfile
 import posixpath
 import traceback
 from os import path
+from codecs import open
 
 import docutils
 from docutils.utils import relative_path
@@ -140,8 +141,8 @@ def copy_static_entry(source, targetdir, builder, context={},
         target = path.join(targetdir, path.basename(source))
         if source.lower().endswith('_t') and builder.templates:
             # templated!
-            fsrc = open(source, 'rb')
-            fdst = open(target[:-2], 'wb')
+            fsrc = open(source, 'r', encoding='utf-8')
+            fdst = open(target[:-2], 'w', encoding='utf-8')
             fdst.write(builder.templates.render_string(fsrc.read(), context))
             fsrc.close()
             fdst.close()
