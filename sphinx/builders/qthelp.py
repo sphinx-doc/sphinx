@@ -130,8 +130,16 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for indexname, indexcls, content, collapse in self.domain_indices:
             item = section_template % {'title': indexcls.localname,
                                        'ref': '%s.html' % indexname}
-            sections.append(' '*4*4 + item)
-        sections = '\n'.join(sections)
+            sections.append((' ' * 4 * 4 + item).encode('utf-8'))
+        # sections may be unicode strings or byte strings, we have to make sure
+        # they are all byte strings before joining them
+        new_sections = []
+        for section in sections:
+            if isinstance(section, unicode):
+                new_sections.append(section.encode('utf-8'))
+            else:
+                new_sections.append(section)
+        sections = u'\n'.encode('utf-8').join(new_sections)
 
         # keywords
         keywords = []
