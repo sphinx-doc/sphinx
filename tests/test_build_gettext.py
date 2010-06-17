@@ -21,22 +21,22 @@ def teardown_module():
 
 @with_app(buildername='gettext')
 def test_build(app):
-    app.builder.build_all()
+    app.builder.build(['extapi', 'subdir/includes'])
     # documents end up in a message catalog
-    assert (app.outdir / 'contents.pot').isfile()
+    assert (app.outdir / 'extapi.pot').isfile()
     # ..and are grouped into sections
     assert (app.outdir / 'subdir.pot').isfile()
 
 @with_app(buildername='gettext')
 def test_gettext(app):
-    app.builder.build_all()
+    app.builder.build(['markup'])
 
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
     cwd = os.getcwd()
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['msginit', '--no-translator', '-i', 'contents.pot'],
+            p = Popen(['msginit', '--no-translator', '-i', 'markup.pot'],
                         stdout=PIPE, stderr=PIPE)
         except OSError:
             return  # most likely msginit was not found
