@@ -24,7 +24,7 @@ from itertools import izip, groupby
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path
+from docutils.utils import Reporter, relative_path, new_document
 from docutils.readers import standalone
 from docutils.parsers.rst import roles, directives
 from docutils.parsers.rst.languages import en as english
@@ -36,7 +36,7 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, \
      FilenameUniqDict
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
 from sphinx.errors import SphinxError, ExtensionError
@@ -168,13 +168,26 @@ class CitationReferences(Transform):
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
+class Locale(Transform):
+    """
+    Replace translatable nodes with their translated doctree.
+    """
+    default_priority = 0
+
+    def apply(self):
+        settings = self.document.settings
+        for node, msg in extract_messages(self.document):
+            ctx = node.parent
+            patch = new_document(msg, settings)
+            ctx.replace(node, patch.children)
+
 
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, SortIds]
+    transforms = [Locale, CitationReferences, DefaultSubstitutions,
+                  MoveModuleTargets, HandleCodeBlocks, SortIds]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
