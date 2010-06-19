@@ -251,6 +251,9 @@ class Documenter(object):
         self.retann = None
         # the object to document (set after import_object succeeds)
         self.object = None
+        self.object_name = None
+        # the parent/owner of the object to document
+        self.parent = None
         # the module analyzer to get at attribute docs, or None
         self.analyzer = None
 
@@ -316,9 +319,13 @@ class Documenter(object):
         """
         try:
             __import__(self.modname)
+            parent = None
             obj = self.module = sys.modules[self.modname]
             for part in self.objpath:
+                parent = obj
                 obj = self.get_attr(obj, part)
+                self.object_name = part
+            self.parent = parent
             self.object = obj
             return True
         # this used to only catch SyntaxError, ImportError and AttributeError,
@@ -1007,24 +1014,38 @@ class MethodDocumenter(ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
-    def import_object(self):
-        ret = ClassLevelDocumenter.import_object(self)
-        if isinstance(self.object, classmethod) or \
-               (isinstance(self.object, MethodType) and
-                self.object.im_self is not None):
-            self.directivetype = 'classmethod'
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-        elif isinstance(self.object, FunctionType) or \
-             (isinstance(self.object, BuiltinFunctionType) and
-              hasattr(self.object, '__self__') and
-              self.object.__self__ is not None):
-            self.directivetype = 'staticmethod'
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-        else:
-            self.directivetype = 'method'
-        return ret
+    if sys.version_info >= (3, 0):
+        def import_object(self):
+            ret = ClassLevelDocumenter.import_object(self)
+            obj_from_parent = self.parent.__dict__.get(self.object_name)
+            if isinstance(obj_from_parent, classmethod):
+                self.directivetype = 'classmethod'
+                self.member_order = self.member_order - 1
+            elif isinstance(obj_from_parent, staticmethod):
+                self.directivetype = 'staticmethod'
+                self.member_order = self.member_order - 1
+            else:
+                self.directivetype = 'method'
+            return ret
+    else:
+        def import_object(self):
+            ret = ClassLevelDocumenter.import_object(self)
+            if isinstance(self.object, classmethod) or \
+                   (isinstance(self.object, MethodType) and
+                    self.object.im_self is not None):
+                self.directivetype = 'classmethod'
+                # document class and static members before ordinary ones
+                self.member_order = self.member_order - 1
+            elif isinstance(self.object, FunctionType) or \
+                 (isinstance(self.object, BuiltinFunctionType) and
+                  hasattr(self.object, '__self__') and
+                  self.object.__self__ is not None):
+                self.directivetype = 'staticmethod'
+                # document class and static members before ordinary ones
+                self.member_order = self.member_order - 1
+            else:
+                self.directivetype = 'method'
+            return ret
 
     def format_args(self):
         if inspect.isbuiltin(self.object) or \
