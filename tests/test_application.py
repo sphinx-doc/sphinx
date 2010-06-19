@@ -45,9 +45,11 @@ def test_output():
     app = TestApp(status=status, warning=warnings)
     try:
         status.truncate(0) # __init__ writes to status
+        status.seek(0)
         app.info("Nothing here...")
         assert status.getvalue() == "Nothing here...\n"
         status.truncate(0)
+        status.seek(0)
         app.info("Nothing here...", True)
         assert status.getvalue() == "Nothing here..."
 
