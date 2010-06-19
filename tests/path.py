@@ -142,6 +142,33 @@ class path(str):
         finally:
             f.close()
 
+    def bytes(self):
+        """
+        Returns the bytes in the file.
+        """
+        f = open(self, mode='rb')
+        try:
+            return f.read()
+        finally:
+            f.close()
+
+    def write_bytes(self, bytes, append=False):
+        """
+        Writes the given `bytes` to the file.
+
+        :param append:
+            If ``True`` given `bytes` are added at the end of the file.
+        """
+        if append:
+            mode = 'ab'
+        else:
+            mode = 'wb'
+        f = open(self, mode=mode)
+        try:
+            f.write(bytes)
+        finally:
+            f.close()
+
     def exists(self):
         """
         Returns ``True`` if the path exist.
