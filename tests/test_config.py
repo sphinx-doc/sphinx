@@ -9,6 +9,7 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import sys
 
 from util import *
 
@@ -88,8 +89,12 @@ def test_errors_warnings(dir):
     raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
 
     # test the warning for bytestrings with non-ascii content
-    write_file(dir / 'conf.py',
-               u'# -*- coding: latin-1\nproject = "fooä"\n', 'latin-1')
+    # bytestrings with non-ascii content are a syntax error in python3 so we
+    # skip the test there
+    if sys.version_info >= (3, 0):
+        return
+    write_file(dir / 'conf.py', u'# -*- coding: latin-1\nproject = "fooä"\n',
+            'latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
     warned = [False]
     def warn(msg):

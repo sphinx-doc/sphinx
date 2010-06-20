@@ -11,12 +11,18 @@
 
 import os
 import re
+import sys
 from os import path
 
 from sphinx.errors import ConfigError
 from sphinx.util.osutil import make_filename
 
-nonascii_re = re.compile(r'[\x80-\xff]')
+nonascii_re = re.compile(ur'[\x80-\xff]'.encode('ascii'))
+
+try:
+    bytes
+except NameError:
+    bytes = str
 
 
 class Config(object):
@@ -187,10 +193,10 @@ class Config(object):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in self._raw_config.iteritems():
-            if isinstance(value, str) and nonascii_re.search(value):
+            if isinstance(value, bytes) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
-                     'Please use Unicode strings, e.g. u"Content".' % name)
+                     'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
     def init_values(self):
         config = self._raw_config
