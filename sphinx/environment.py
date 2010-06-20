@@ -80,7 +80,7 @@ class WarningStream(object):
         self.warnfunc = warnfunc
     def write(self, text):
         if text.strip():
-            self.warnfunc(text, None, '')
+            self.warnfunc(text.strip(), None, '')
 
 
 class NoUri(Exception):

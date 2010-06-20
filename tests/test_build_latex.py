@@ -32,6 +32,9 @@ None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
 """
 
+if sys.version_info >= (3, 0):
+    LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
+
 
 @with_app(buildername='latex', warning=latex_warnfile, cleanenv=True)
 def test_latex(app):

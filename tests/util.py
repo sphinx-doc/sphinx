@@ -11,6 +11,7 @@ import sys
 import StringIO
 import tempfile
 import shutil
+import re
 from codecs import open
 
 try:
@@ -32,7 +33,7 @@ __all__ = [
     'raises', 'raises_msg', 'Struct',
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir', 'write_file',
-    'sprint',
+    'sprint', 'remove_unicode_literals',
 ]
 
 
@@ -206,3 +207,7 @@ def write_file(name, contents, encoding=None):
 
 def sprint(*args):
     sys.stderr.write(' '.join(map(str, args)) + '\n')
+
+_unicode_literals_re = re.compile(r'u(".*")|u(\'.*\')')
+def remove_unicode_literals(s):
+    return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)

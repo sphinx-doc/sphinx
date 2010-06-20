@@ -12,6 +12,7 @@
 import os
 import re
 import htmlentitydefs
+import sys
 from StringIO import StringIO
 
 try:
@@ -59,6 +60,10 @@ def tail_check(check):
         assert False, '%r not found in tail of any nodes %s' % (check, nodes)
     return checker
 
+
+if sys.version_info >= (3, 0):
+    ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
+    HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 HTML_XPATH = {
     'images.html': [
