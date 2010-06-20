@@ -146,8 +146,9 @@ class StandaloneHTMLBuilder(Builder):
         cfgdict = dict((name, self.config[name])
                        for (name, desc) in self.config.values.iteritems()
                        if desc[1] == 'html')
-        self.config_hash = md5(str(cfgdict)).hexdigest()
-        self.tags_hash = md5(str(sorted(self.tags))).hexdigest()
+        self.config_hash = md5(unicode(cfgdict).encode('ascii')).hexdigest()
+        self.tags_hash = md5(unicode(sorted(self.tags)).encode('ascii')) \
+                .hexdigest()
         old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
