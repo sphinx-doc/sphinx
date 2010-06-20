@@ -192,7 +192,8 @@ class Config(object):
             if isinstance(value, bytes) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
-                     'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
+                     'Please use Unicode strings, e.g. %r.' % (name, u'Content')
+                )
 
     def init_values(self):
         config = self._raw_config
