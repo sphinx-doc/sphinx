@@ -190,6 +190,8 @@ class ModuleAnalyzer(object):
         self.srcname = srcname
         # file-like object yielding source lines
         self.source = source
+        # will be changed when found by parse()
+        self.encoding = sys.getdefaultencoding()
 
         # will be filled by tokenize()
         self.tokens = None
@@ -216,15 +218,13 @@ class ModuleAnalyzer(object):
             self.parsetree = pydriver.parse_tokens(self.tokens)
         except parse.ParseError, err:
             raise PycodeError('parsing failed', err)
-        # find the source code encoding
-        encoding = sys.getdefaultencoding()
+        # find the source code encoding, if present
         comments = self.parsetree.get_prefix()
         for line in comments.splitlines()[:2]:
             match = _coding_re.search(line)
             if match is not None:
-                encoding = match.group(1)
+                self.encoding = match.group(1)
                 break
-        self.encoding = encoding
 
     def find_attr_docs(self, scope=''):
         """Find class and module-level attributes and their documentation."""
