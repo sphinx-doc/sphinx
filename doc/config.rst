@@ -293,6 +293,7 @@ Project information
    * ``fr`` -- French
    * ``hr`` -- Croatian
    * ``it`` -- Italian
+   * ``lt`` -- Lithuanian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
