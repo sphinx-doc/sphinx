@@ -178,8 +178,8 @@ class Config(object):
         self.extensions = config.get('extensions', [])
 
     def check_unicode(self, warn):
-        # check all string values for non-ASCII characters in
-        # bytestrings, since that can
+        # check all string values for non-ASCII characters in bytestrings,
+        # since that can result in UnicodeErrors all over the place
         for name, value in self._raw_config.iteritems():
             if isinstance(value, str) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
