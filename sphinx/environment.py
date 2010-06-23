@@ -175,11 +175,11 @@ class Locale(Transform):
     default_priority = 0
 
     def apply(self):
-        settings = self.document.settings
+        settings, source = self.document.settings, self.document['source']
         parser = RSTParser()
         for node, msg in extract_messages(self.document):
             ctx = node.parent
-            patch = new_document(msg, settings)
+            patch = new_document(source, settings)
             msgstr = "Insert translation **here**."
             parser.parse(msgstr, patch)
             ctx.replace(node, patch.children)
