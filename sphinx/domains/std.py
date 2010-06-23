@@ -410,6 +410,13 @@ class StandardDomain(Domain):
                         break
                 else:
                     continue
+            elif node.tagname == 'table':
+                for n in node:
+                    if n.tagname == 'title':
+                        sectname = clean_astext(n)
+                        break
+                else:
+                    continue
             else:
                 # anonymous-only labels
                 continue

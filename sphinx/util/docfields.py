@@ -67,7 +67,7 @@ class Field(object):
             fieldname += nodes.Text(' ')
             fieldname += self.make_xref(self.rolename, domain,
                                         fieldarg, nodes.Text)
-        fieldbody = nodes.field_body('', nodes.paragraph('', *content))
+        fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
         return nodes.field('', fieldname, fieldbody)
 
 

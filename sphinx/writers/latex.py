@@ -266,7 +266,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
-                ret.append('\\bigletter{%s}\n' % letter)
+                ret.append('\\bigletter{%s}\n' %
+                           letter.translate(tex_escape_map))
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -1027,6 +1028,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         uri = node.get('refuri', '')
+        if not uri and node.get('refid'):
+            uri = '%' + self.curfilestack[-1] + '#' + node['refid']
         if self.in_title or not uri:
             self.context.append('')
         elif uri.startswith('mailto:') or uri.startswith('http:') or \

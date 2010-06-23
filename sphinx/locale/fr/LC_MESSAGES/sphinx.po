@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the Sphinx project.
 # David Larlet <larlet@gmail.com>, 2008.
 # Sebastien Douche <sdouche@gmail.com>, 2008.
+# Jean-Daniel Browne <jeandaniel.browne@gmail.com>, 2010.
+# Florent Gallaire <fgallaire@gmail.com>, 2010.
 #
 msgid ""
 msgstr ""
@@ -185,7 +187,7 @@ msgstr "%s() (méthode %s)"
 #: sphinx/domains/javascript.py:120
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr ""
+msgstr "%s (variable globale ou constante)"
 
 #: sphinx/domains/javascript.py:122 sphinx/domains/python.py:323
 #, python-format
@@ -199,11 +201,11 @@ msgstr "Paramètres"
 
 #: sphinx/domains/javascript.py:134
 msgid "Throws"
-msgstr ""
+msgstr "Lance"
 
 #: sphinx/domains/javascript.py:167 sphinx/domains/python.py:498
 msgid "data"
-msgstr ""
+msgstr "données"
 
 #: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
 msgid "attribute"
@@ -302,7 +304,7 @@ msgstr "exception"
 
 #: sphinx/domains/python.py:501
 msgid "method"
-msgstr ""
+msgstr "méthode"
 
 #: sphinx/domains/python.py:502
 #, fuzzy, python-format
@@ -348,15 +350,15 @@ msgstr "%soption de ligne de commande; %s"
 
 #: sphinx/domains/std.py:328
 msgid "glossary term"
-msgstr ""
+msgstr "terme du glossaire"
 
 #: sphinx/domains/std.py:329
 msgid "grammar token"
-msgstr ""
+msgstr "élément de grammaire"
 
 #: sphinx/domains/std.py:330
 msgid "reference label"
-msgstr ""
+msgstr "étiquette de référence"
 
 #: sphinx/domains/std.py:331
 msgid "environment variable"
@@ -364,7 +366,7 @@ msgstr "variable d'environnement"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
-msgstr ""
+msgstr "option du programme"
 
 #: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
 #: sphinx/themes/basic/genindex-split.html:11
@@ -391,11 +393,11 @@ msgstr ""
 #: sphinx/ext/autodoc.py:950
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr ""
+msgstr "alias de :class:`%s`"
 
 #: sphinx/ext/todo.py:41
 msgid "Todo"
-msgstr "A faire"
+msgstr "À faire"
 
 #: sphinx/ext/todo.py:109
 #, python-format
@@ -422,15 +424,15 @@ msgstr "module"
 #: sphinx/ext/viewcode.py:129
 #, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr ""
+msgstr "<h1>Code source de %s</h1>"
 
 #: sphinx/ext/viewcode.py:156
 msgid "Overview: module code"
-msgstr ""
+msgstr "Vue d'ensemble : code du module"
 
 #: sphinx/ext/viewcode.py:157
 msgid "<h1>All modules for which code is available</h1>"
-msgstr ""
+msgstr "<h1>Modules pour lesquels le code est disponible</h1>"
 
 #: sphinx/locale/__init__.py:139
 msgid "Attention"
@@ -648,7 +650,7 @@ msgstr "Chapitre suivant"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
+msgstr "Activez le JavaScript pour que la recherche fonctionne\n"
 
 #: sphinx/themes/basic/search.html:23
 #, fuzzy
@@ -756,16 +758,16 @@ msgstr "La recherche est terminée, %s page(s) correspond(ent) à la requête."
 
 #: sphinx/themes/default/static/sidebar.js:66
 msgid "Expand sidebar"
-msgstr ""
+msgstr "Agrandir le menu"
 
 #: sphinx/themes/default/static/sidebar.js:79
 #: sphinx/themes/default/static/sidebar.js:106
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "Réduire le menu"
 
 #: sphinx/themes/haiku/layout.html:26
 msgid "Contents"
-msgstr ""
+msgstr "Contenu"
 
 #: sphinx/writers/latex.py:171
 msgid "Release"
@@ -773,16 +775,16 @@ msgstr "Version"
 
 #: sphinx/writers/latex.py:572 sphinx/writers/manpage.py:178
 msgid "Footnotes"
-msgstr ""
+msgstr "Notes de bas de page"
 
 #: sphinx/writers/latex.py:641
 msgid "continued from previous page"
-msgstr ""
+msgstr "Suite de la page précédente"
 
 #: sphinx/writers/latex.py:646
 #, fuzzy
 msgid "Continued on next page"
-msgstr "Index complet sur une seule page"
+msgstr "Suite sur la page suivante"
 
 #: sphinx/writers/text.py:422
 msgid "[image]"

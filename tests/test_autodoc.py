@@ -271,7 +271,7 @@ def test_docstring_processing():
     app.disconnect(lid)
 
     lid = app.connect('autodoc-process-docstring', between('---', ['function']))
-    def f():
+    def g():
         """
         first line
         ---
@@ -279,9 +279,21 @@ def test_docstring_processing():
         ---
         third line
         """
-    assert process('function', 'f', f) == ['second line', '']
+    assert process('function', 'g', g) == ['second line', '']
     app.disconnect(lid)
 
+    lid = app.connect('autodoc-process-docstring', between('---', ['function'],
+                                                           exclude=True))
+    def h():
+        """
+        first line
+        ---
+        second line
+        ---
+        third line
+        """
+    assert process('function', 'h', h) == ['first line', 'third line', '']
+    app.disconnect(lid)
 
 def test_new_documenter():
     class MyDocumenter(ModuleLevelDocumenter):

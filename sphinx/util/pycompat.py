@@ -16,7 +16,14 @@ import encodings
 
 try:
     any = any
+    all = all
 except NameError:
+    def all(gen):
+        for i in gen:
+            if not i:
+                return False
+        return True
+
     def any(gen):
         for i in gen:
             if i:

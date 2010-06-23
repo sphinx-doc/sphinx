@@ -39,6 +39,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, \
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
+from sphinx.util.pycompat import all
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 
@@ -57,6 +58,7 @@ default_settings = {
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
+    'halt_level': 5,
 }
 
 # This is increased every time an environment attribute is added
@@ -130,15 +132,26 @@ class MoveModuleTargets(Transform):
 
 class HandleCodeBlocks(Transform):
     """
-    Move doctest blocks out of blockquotes.
+    Several code block related transformations.
     """
     default_priority = 210
 
     def apply(self):
+        # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
-            if len(node.children) == 1 and isinstance(node.children[0],
-                                                      nodes.doctest_block):
-                node.replace_self(node.children[0])
+            if all(isinstance(child, nodes.doctest_block) for child
+                     in node.children):
+                node.replace_self(node.children)
+        # combine successive doctest blocks
+        #for node in self.document.traverse(nodes.doctest_block):
+        #    if node not in node.parent.children:
+        #        continue
+        #    parindex = node.parent.index(node)
+        #    while len(node.parent) > parindex+1 and \
+        #            isinstance(node.parent[parindex+1], nodes.doctest_block):
+        #        node[0] = nodes.Text(node[0] + '\n\n' +
+        #                             node.parent[parindex+1][0])
+        #        del node.parent[parindex+1]
 
 
 class SortIds(Transform):
@@ -822,9 +835,10 @@ class BuildEnvironment:
                                 imgtype = imghdr.what(f)
                             finally:
                                 f.close()
-                        except (OSError, IOError):
-                            self.warn(docname,
-                                      'image file %s not readable' % filename)
+                        except (OSError, IOError), err:
+                            self.warn(docname, 'image file %s not '
+                                      'readable: %s' % (filename, err),
+                                      node.line)
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:
@@ -1049,15 +1063,18 @@ class BuildEnvironment:
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
-    def get_toctree_for(self, docname, builder, collapse, maxdepth=0):
+    def get_toctree_for(self, docname, builder, collapse, **kwds):
         """Return the global TOC nodetree."""
         doctree = self.get_doctree(self.config.master_doc)
         toctrees = []
+        if 'includehidden' not in kwds:
+            kwds['includehidden'] = True
+        if 'maxdepth' not in kwds:
+            kwds['maxdepth'] = 0
+        kwds['collapse'] = collapse
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve_toctree(docname, builder, toctreenode,
-                                           prune=True, collapse=collapse,
-                                           maxdepth=maxdepth,
-                                           includehidden=True)
+                                           prune=True, **kwds)
             toctrees.append(toctree)
         if not toctrees:
             return None
@@ -1085,7 +1102,7 @@ class BuildEnvironment:
         finally:
             f.close()
         doctree.settings.env = self
-        doctree.reporter = Reporter(self.doc2path(docname), 2, 4,
+        doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
                                     stream=WarningStream(self._warnfunc))
         return doctree
 

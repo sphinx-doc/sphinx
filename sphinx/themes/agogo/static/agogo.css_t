@@ -17,7 +17,6 @@
 body {
   font-family: {{ theme_bodyfont }};
   line-height: 1.4em;
-  font-size: 14px;
   color: black;
   background-color: {{ theme_bgcolor }};
 }
@@ -132,7 +131,7 @@ div.header {
 div.header h1 {
   font-family: {{ theme_headerfont }};
   font-weight: normal;
-  font-size: 160%;
+  font-size: 180%;
   letter-spacing: .08em;
 }
 

@@ -828,8 +828,9 @@ class CPPObject(ObjectDescription):
         signode['ids'].append(theid)
         signode['first'] = (not self.names)
         self.state.document.note_explicit_target(signode)
-        self.env.domaindata['cpp']['objects'][name] = \
-            (self.env.docname, self.objtype)
+
+        self.env.domaindata['cpp']['objects'].setdefault(name,
+            (self.env.docname, self.objtype, theid))
 
         indextext = self.get_index_text(name)
         if indextext:
@@ -1053,7 +1054,7 @@ class CPPDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for fullname, (fn, _) in self.data['objects'].items():
+        for fullname, (fn, _, _) in self.data['objects'].items():
             if fn == docname:
                 del self.data['objects'][fullname]
 
@@ -1064,9 +1065,9 @@ class CPPDomain(Domain):
             if name not in self.data['objects']:
                 return None
             obj = self.data['objects'][name]
-            if obj[1] != typ:
+            if obj[1] not in self.objtypes_for_role(typ):
                 return None
-            return make_refnode(builder, fromdocname, obj[0], expr.get_id(),
+            return make_refnode(builder, fromdocname, obj[0], obj[2],
                                 contnode, name)
 
         parser = DefinitionParser(target)
@@ -1094,5 +1095,5 @@ class CPPDomain(Domain):
         return _create_refnode(expr.prefix(parent))
 
     def get_objects(self):
-        for refname, (docname, type) in self.data['objects'].iteritems():
+        for refname, (docname, type, theid) in self.data['objects'].iteritems():
             yield (refname, refname, type, docname, refname, 1)

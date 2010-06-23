@@ -46,7 +46,7 @@
         {%- endif -%}
         <h1 class="heading"><a href="{{ pathto('index') }}">
           <span>{{ shorttitle|e }}</span></a></h1>
-        <h2 class="heading"><span>{{ title|striptags }}</span></h2>
+        <h2 class="heading"><span>{{ title|striptags|e }}</span></h2>
         {%- endif %}
         {%- endblock %}
       </div>

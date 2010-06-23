@@ -363,6 +363,13 @@ dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
+Also, if the name is prefixed with a dot, and no exact match is found, the
+target is taken as a suffix and all object names with that suffix are
+searched.  For example, ``:py:meth:`.TarFile.close``` references the
+``tarfile.TarFile.close()`` function, even if the current module is not
+``tarfile``.  Since this can get ambiguous, if there is more than one possible
+match, you will get a warning from Sphinx.
+
 A similar heuristic is used to determine whether the name is an attribute of the
 currently documented class.
 
@@ -510,6 +517,24 @@ These roles link to the given object types:
 
    Reference a C++ object.  You can give the full signature (and need to, for
    overloaded functions.)
+
+   .. note::
+
+      Sphinx' syntax to give references a custom title can interfere with
+      linking to template classes, if nothing follows the closing angle
+      bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
+      This is interpreted as a link to ``T`` with a title of ``MyClass``.
+      In this case, please escape the opening angle bracket with a backslash,
+      like this: ``:cpp:class:`MyClass\<T>```.
+
+.. admonition:: Note on References
+
+   It is currently impossible to link to a specific version of an
+   overloaded method.  Currently the C++ domain is the first domain
+   that has basic support for overloaded methods and until there is more
+   data for comparison we don't want to select a bad syntax to reference a
+   specific overload.  Currently Sphinx will link to the first overloaded
+   version of the method / function.
 
 
 The Standard Domain

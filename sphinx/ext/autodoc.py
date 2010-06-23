@@ -164,11 +164,12 @@ def cut_lines(pre, post=0, what=None):
             lines.append('')
     return process
 
-def between(marker, what=None, keepempty=False):
+def between(marker, what=None, keepempty=False, exclude=False):
     """
-    Return a listener that only keeps lines between lines that match the
-    *marker* regular expression.  If no line matches, the resulting docstring
-    would be empty, so no change will be made unless *keepempty* is true.
+    Return a listener that either keeps, or if *exclude* is True excludes, lines
+    between lines that match the *marker* regular expression.  If no line
+    matches, the resulting docstring would be empty, so no change will be made
+    unless *keepempty* is true.
 
     If *what* is a sequence of strings, only docstrings of a type in *what* will
     be processed.
@@ -178,7 +179,7 @@ def between(marker, what=None, keepempty=False):
         if what and what_ not in what:
             return
         deleted = 0
-        delete = True
+        delete = not exclude
         orig_lines = lines[:]
         for i, line in enumerate(orig_lines):
             if delete:
