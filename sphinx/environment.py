@@ -26,7 +26,7 @@ from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, relative_path, new_document
 from docutils.readers import standalone
-from docutils.parsers.rst import roles, directives
+from docutils.parsers.rst import roles, directives, Parser as RSTParser
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
 from docutils.writers import UnfilteredWriter
@@ -176,9 +176,12 @@ class Locale(Transform):
 
     def apply(self):
         settings = self.document.settings
+        parser = RSTParser()
         for node, msg in extract_messages(self.document):
             ctx = node.parent
             patch = new_document(msg, settings)
+            msgstr = "Insert translation **here**."
+            parser.parse(msgstr, patch)
             ctx.replace(node, patch.children)
 
 
