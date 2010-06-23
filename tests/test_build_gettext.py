@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import gettext
 import os
 from subprocess import Popen, PIPE
 
@@ -62,3 +63,6 @@ def test_gettext(app):
         assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), 'msgfmt failed'
     finally:
         os.chdir(cwd)
+
+    _ = gettext.translation('test_root', app.outdir, languages=['en']).ugettext
+    assert _("Testing various markup") == u"Testing various markup"
