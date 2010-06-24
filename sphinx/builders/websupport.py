@@ -23,12 +23,26 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     name = 'websupport'
     out_suffix = '.fpickle'
 
+    def init(self):
+        self.init_search()
+        StandaloneHTMLBuilder.init(self)
+
+    def init_search(self):
+        self.search = self.app.search
+        if self.search is not None:
+            self.search.create_index()
+
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
         
     def write_doc(self, docname, doctree):
         # The translator needs the docname to generate ids.
         self.docname = docname
+        # Index the page if search is enabled.
+        if self.search is not None:
+            doc_contents = doctree.astext()
+            title = doc_contents[:20]
+            self.search.add_document(docname, title, doc_contents) 
         StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def get_target_uri(self, docname, typ=None):
@@ -59,7 +73,8 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
                       ctx, event_arg)
 
         # Create a dict that will be pickled and used by webapps.
-        doc_ctx = {'body': ctx.get('body', '')}
+        doc_ctx = {'body': ctx.get('body', ''),
+                   'title': ctx.get('title', '')}
         # Partially render the html template to proved a more useful ctx.
         template = self.templates.environment.get_template(templatename)
         template_module = template.make_module(ctx)
@@ -86,4 +101,3 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
-
