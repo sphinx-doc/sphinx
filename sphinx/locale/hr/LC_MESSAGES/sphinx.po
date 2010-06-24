@@ -1,0 +1,795 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version:  Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-09-11 23:58+0200\n"
+"PO-Revision-Date: 2010-05-24 23:54+0200\n"
+"Last-Translator: Bojan Mihelač <bmihelac@mihelac.org>\n"
+"Language-Team: Bojan Mihelač <bmihelac@mihelac.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: sphinx/environment.py:106 sphinx/writers/latex.py:184
+#: sphinx/writers/manpage.py:67
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%d %B, %Y"
+
+#: sphinx/roles.py:174
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr "Python Enhancement Proposals!PEP %s"
+
+#: sphinx/builders/changes.py:72
+msgid "Builtins"
+msgstr "Ugrađeni dijelovi"
+
+#: sphinx/builders/changes.py:74
+msgid "Module level"
+msgstr "Nivo modula"
+
+#: sphinx/builders/html.py:266
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%d %b, %Y"
+
+#: sphinx/builders/html.py:285 sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr "Opceniti abecedni indeks"
+
+#: sphinx/builders/html.py:285
+msgid "index"
+msgstr "abecedni indeks"
+
+#: sphinx/builders/html.py:345
+msgid "next"
+msgstr "naprijed"
+
+#: sphinx/builders/html.py:354
+msgid "previous"
+msgstr "nazad"
+
+#: sphinx/builders/latex.py:151
+msgid " (in "
+msgstr " (u "
+
+#: sphinx/directives/other.py:127
+msgid "Section author: "
+msgstr "Autor sekcije:"
+
+#: sphinx/directives/other.py:129
+msgid "Module author: "
+msgstr "Autor modula:"
+
+#: sphinx/directives/other.py:131
+#, fuzzy
+msgid "Code author: "
+msgstr "Autor modula:"
+
+#: sphinx/directives/other.py:133
+msgid "Author: "
+msgstr "Autor:"
+
+#: sphinx/directives/other.py:238
+msgid "See also"
+msgstr "Pogledaj i"
+
+#: sphinx/domains/__init__.py:253
+#, python-format
+msgid "%s %s"
+msgstr ""
+
+#: sphinx/domains/c.py:51 sphinx/domains/python.py:49
+msgid "Parameters"
+msgstr "Parametri"
+
+#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:137
+#: sphinx/domains/python.py:59
+msgid "Returns"
+msgstr "Vraća"
+
+#: sphinx/domains/c.py:56 sphinx/domains/python.py:61
+msgid "Return type"
+msgstr "Vraća tip"
+
+#: sphinx/domains/c.py:133
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (C funkcija)"
+
+#: sphinx/domains/c.py:135
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (C član)"
+
+#: sphinx/domains/c.py:137
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (C makro)"
+
+#: sphinx/domains/c.py:139
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (C tip)"
+
+#: sphinx/domains/c.py:141
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (C varijabla)"
+
+#: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
+#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
+msgid "function"
+msgstr "funkcija"
+
+#: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
+msgid "member"
+msgstr "član"
+
+#: sphinx/domains/c.py:173
+msgid "macro"
+msgstr ""
+
+#: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
+msgid "type"
+msgstr "tip"
+
+#: sphinx/domains/c.py:175
+#, fuzzy
+msgid "variable"
+msgstr "Varijabla"
+
+#: sphinx/domains/cpp.py:876
+#, python-format
+msgid "%s (C++ class)"
+msgstr "%s (C++ razred)"
+
+#: sphinx/domains/cpp.py:891
+#, python-format
+msgid "%s (C++ type)"
+msgstr "%s (C++ tip)"
+
+#: sphinx/domains/cpp.py:910
+#, python-format
+msgid "%s (C++ member)"
+msgstr "%s (C++ član)"
+
+#: sphinx/domains/cpp.py:962
+#, python-format
+msgid "%s (C++ function)"
+msgstr "%s (C++ funkcija)"
+
+#: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
+#, fuzzy
+msgid "class"
+msgstr "razred"
+
+#: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (ugrađene funkcije)"
+
+#: sphinx/domains/javascript.py:118 sphinx/domains/python.py:285
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s metoda)"
+
+#: sphinx/domains/javascript.py:120
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr ""
+
+#: sphinx/domains/javascript.py:122 sphinx/domains/python.py:323
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s atribut)"
+
+#: sphinx/domains/javascript.py:131
+#, fuzzy
+msgid "Arguments"
+msgstr "Parametri"
+
+#: sphinx/domains/javascript.py:134
+msgid "Throws"
+msgstr ""
+
+#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:498
+msgid "data"
+msgstr ""
+
+#: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
+msgid "attribute"
+msgstr "atribut"
+
+#: sphinx/domains/python.py:53
+#, fuzzy
+msgid "Variables"
+msgstr "Varijabla"
+
+#: sphinx/domains/python.py:56
+msgid "Raises"
+msgstr "Podiže"
+
+#: sphinx/domains/python.py:222 sphinx/domains/python.py:279
+#: sphinx/domains/python.py:291 sphinx/domains/python.py:304
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (u modulu %s)"
+
+#: sphinx/domains/python.py:225
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (ugrađene variable)"
+
+#: sphinx/domains/python.py:226 sphinx/domains/python.py:317
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (u modulu %s)"
+
+#: sphinx/domains/python.py:242
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (ugrađen razred)"
+
+#: sphinx/domains/python.py:243
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (razred u %s)"
+
+#: sphinx/domains/python.py:283
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s metoda)"
+
+#: sphinx/domains/python.py:295
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s statična metoda)"
+
+#: sphinx/domains/python.py:298
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s statična metoda)"
+
+#: sphinx/domains/python.py:308
+#, fuzzy, python-format
+msgid "%s() (%s.%s class method)"
+msgstr "%s() (%s.%s metoda)"
+
+#: sphinx/domains/python.py:311
+#, fuzzy, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s metoda)"
+
+#: sphinx/domains/python.py:321
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s atribut)"
+
+#: sphinx/domains/python.py:366
+msgid "Platforms: "
+msgstr "Platforme:"
+
+#: sphinx/domains/python.py:372
+#, python-format
+msgid "%s (module)"
+msgstr "%s (modul)"
+
+#: sphinx/domains/python.py:429
+#, fuzzy
+msgid "Python Module Index"
+msgstr "Popis modula"
+
+#: sphinx/domains/python.py:430
+msgid "modules"
+msgstr "Moduli"
+
+#: sphinx/domains/python.py:475
+msgid "Deprecated"
+msgstr "Zastarjelo"
+
+#: sphinx/domains/python.py:500 sphinx/locale/__init__.py:162
+msgid "exception"
+msgstr "izuzetak"
+
+#: sphinx/domains/python.py:501
+msgid "method"
+msgstr ""
+
+#: sphinx/domains/python.py:502
+#, fuzzy, python-format
+msgid "class method"
+msgstr "%s() (%s metoda)"
+
+#: sphinx/domains/python.py:503
+msgid "static method"
+msgstr "statična metoda"
+
+#: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
+msgid "module"
+msgstr "modul"
+
+#: sphinx/domains/rst.py:53
+#, python-format
+msgid "%s (directive)"
+msgstr ""
+
+#: sphinx/domains/rst.py:55
+#, fuzzy, python-format
+msgid "%s (role)"
+msgstr "%s (modul)"
+
+#: sphinx/domains/rst.py:103
+msgid "directive"
+msgstr ""
+
+#: sphinx/domains/rst.py:104
+#, fuzzy
+msgid "role"
+msgstr "modul"
+
+#: sphinx/domains/std.py:68 sphinx/domains/std.py:84
+#, python-format
+msgid "environment variable; %s"
+msgstr "varijabla okruženja; %s"
+
+#: sphinx/domains/std.py:160
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "%scommand line parameter; %s"
+
+#: sphinx/domains/std.py:328
+msgid "glossary term"
+msgstr ""
+
+#: sphinx/domains/std.py:329
+msgid "grammar token"
+msgstr ""
+
+#: sphinx/domains/std.py:330
+msgid "reference label"
+msgstr ""
+
+#: sphinx/domains/std.py:331
+msgid "environment variable"
+msgstr "varijabla okruženja"
+
+#: sphinx/domains/std.py:332
+msgid "program option"
+msgstr ""
+
+#: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
+#: sphinx/themes/basic/genindex-split.html:11
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:14
+#: sphinx/themes/basic/genindex.html:50 sphinx/themes/basic/layout.html:125
+#: sphinx/writers/latex.py:173
+msgid "Index"
+msgstr "Abecedni popis"
+
+#: sphinx/domains/std.py:361
+msgid "Module Index"
+msgstr "Popis modula"
+
+#: sphinx/domains/std.py:362 sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr "Tražilica"
+
+#: sphinx/ext/autodoc.py:917
+#, python-format
+msgid "   Bases: %s"
+msgstr "   Osnove: %s"
+
+#: sphinx/ext/autodoc.py:950
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr "nadimak za :class:`%s`"
+
+#: sphinx/ext/todo.py:41
+msgid "Todo"
+msgstr "Todo"
+
+#: sphinx/ext/todo.py:109
+#, fuzzy, python-format
+msgid "(The <<original entry>> is located in  %s, line %d.)"
+msgstr "(Originalan unos se nalazi u %s, u retku %d, i može biti pronađen "
+
+#: sphinx/ext/todo.py:117
+msgid "original entry"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:66
+msgid "[source]"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:109
+msgid "[docs]"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:123
+#, fuzzy
+msgid "Module code"
+msgstr "modul"
+
+#: sphinx/ext/viewcode.py:129
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:156
+msgid "Overview: module code"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:157
+msgid "<h1>All modules for which code is available</h1>"
+msgstr ""
+
+#: sphinx/locale/__init__.py:139
+msgid "Attention"
+msgstr "Pozor"
+
+#: sphinx/locale/__init__.py:140
+msgid "Caution"
+msgstr "Pažnja"
+
+#: sphinx/locale/__init__.py:141
+msgid "Danger"
+msgstr "Opasnost"
+
+#: sphinx/locale/__init__.py:142
+msgid "Error"
+msgstr "Greška"
+
+#: sphinx/locale/__init__.py:143
+msgid "Hint"
+msgstr "Savjet"
+
+#: sphinx/locale/__init__.py:144
+msgid "Important"
+msgstr "Važno"
+
+#: sphinx/locale/__init__.py:145
+msgid "Note"
+msgstr "Napomena"
+
+#: sphinx/locale/__init__.py:146
+msgid "See Also"
+msgstr "Pogledaj i"
+
+#: sphinx/locale/__init__.py:147
+msgid "Tip"
+msgstr "Savjet"
+
+#: sphinx/locale/__init__.py:148
+msgid "Warning"
+msgstr "Upozorenje"
+
+#: sphinx/locale/__init__.py:152
+#, python-format
+msgid "New in version %s"
+msgstr "Novo u verziji %s"
+
+#: sphinx/locale/__init__.py:153
+#, python-format
+msgid "Changed in version %s"
+msgstr "Promijenjeno u verziji %s"
+
+#: sphinx/locale/__init__.py:154
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Zastarijelo od verzije %s"
+
+#: sphinx/locale/__init__.py:159
+msgid "keyword"
+msgstr "ključna riječ"
+
+#: sphinx/locale/__init__.py:160
+msgid "operator"
+msgstr "operator"
+
+#: sphinx/locale/__init__.py:161
+msgid "object"
+msgstr "objekt"
+
+#: sphinx/locale/__init__.py:163
+msgid "statement"
+msgstr "izjava"
+
+#: sphinx/locale/__init__.py:164
+msgid "built-in function"
+msgstr "ugrađen funkcije"
+
+#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11
+msgid "Table Of Contents"
+msgstr "Pregled sadržaja"
+
+#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:128
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:14
+msgid "Search"
+msgstr "Traži"
+
+#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+msgid "Go"
+msgstr "Naprijed"
+
+#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+msgid "Enter search terms or a module, class or function name."
+msgstr "Unesi ime modula, razreda ili funkcije."
+
+#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+msgid "Show Source"
+msgstr "Prikaži izvorni kod"
+
+#: sphinx/themes/basic/defindex.html:11
+msgid "Overview"
+msgstr "Pregled"
+
+#: sphinx/themes/basic/defindex.html:20
+msgid "Indices and tables:"
+msgstr "Kazala i tabele:"
+
+#: sphinx/themes/basic/defindex.html:23
+msgid "Complete Table of Contents"
+msgstr "Potpuna tabela sadržaja"
+
+#: sphinx/themes/basic/defindex.html:24
+msgid "lists all sections and subsections"
+msgstr "prikaži sve sekcije i podsekcije"
+
+#: sphinx/themes/basic/defindex.html:26
+msgid "search this documentation"
+msgstr "traži po dokumentaciji"
+
+#: sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr "Općeniti popis modula"
+
+#: sphinx/themes/basic/defindex.html:29
+msgid "quick access to all modules"
+msgstr "brz dostup do svih modulov"
+
+#: sphinx/themes/basic/defindex.html:31
+msgid "all functions, classes, terms"
+msgstr "sve funkcije, razredi, izrazi"
+
+#: sphinx/themes/basic/genindex-single.html:14
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "Index &ndash; %(key)s"
+
+#: sphinx/themes/basic/genindex-single.html:46
+#: sphinx/themes/basic/genindex-split.html:24
+#: sphinx/themes/basic/genindex-split.html:38
+#: sphinx/themes/basic/genindex.html:56
+msgid "Full index on one page"
+msgstr "Potpun indeks na jednoj strani"
+
+#: sphinx/themes/basic/genindex-split.html:16
+msgid "Index pages by letter"
+msgstr "Indeksiraj stranice po slovu"
+
+#: sphinx/themes/basic/genindex-split.html:25
+msgid "can be huge"
+msgstr "može biti veliko"
+
+#: sphinx/themes/basic/layout.html:23
+msgid "Navigation"
+msgstr "Navigacija"
+
+#: sphinx/themes/basic/layout.html:113
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Traži između %(docstitle)s"
+
+#: sphinx/themes/basic/layout.html:122
+msgid "About these documents"
+msgstr "O ovim dokumentima"
+
+#: sphinx/themes/basic/layout.html:131
+msgid "Copyright"
+msgstr "Sva prava zadržana"
+
+#: sphinx/themes/basic/layout.html:180
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Sva prava zadržana</a> %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:182
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; Sva prava zadržana %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:186
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Zadnji put ažurirano %(last_updated)s."
+
+#: sphinx/themes/basic/layout.html:189
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+"Izrađeno sa <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+
+#: sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Traži %(docstitle)s"
+
+#: sphinx/themes/basic/relations.html:11
+msgid "Previous topic"
+msgstr "Prijašnja tema"
+
+#: sphinx/themes/basic/relations.html:13
+msgid "previous chapter"
+msgstr "Prijašnje poglavje"
+
+#: sphinx/themes/basic/relations.html:16
+msgid "Next topic"
+msgstr "Slijedeća tema"
+
+#: sphinx/themes/basic/relations.html:18
+msgid "next chapter"
+msgstr "slijedeće poglavje"
+
+#: sphinx/themes/basic/search.html:18
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+"Molimo omogućite JavaScript\n"
+"    za djelovanje tražilice."
+
+#: sphinx/themes/basic/search.html:23
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+
+#: sphinx/themes/basic/search.html:30
+msgid "search"
+msgstr "traži"
+
+#: sphinx/themes/basic/search.html:34
+#: sphinx/themes/basic/static/searchtools.js:489
+msgid "Search Results"
+msgstr "Rezultati pretrage"
+
+#: sphinx/themes/basic/search.html:36
+msgid "Your search did not match any results."
+msgstr "Your search did not match any results."
+
+#: sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "Brzo pretraživanje"
+
+#: sphinx/themes/basic/sourcelink.html:11
+msgid "This Page"
+msgstr "Trenutna stranica"
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "Changes in Version %(version)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Automatically generated list of changes in version %(version)s"
+
+#: sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Library changes"
+
+#: sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "C API changes"
+
+#: sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Ostale promjene"
+
+#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:482
+#: sphinx/writers/html.py:487
+msgid "Permalink to this headline"
+msgstr "Link na taj naslov"
+
+#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:87
+msgid "Permalink to this definition"
+msgstr "Link na tu definiciju"
+
+#: sphinx/themes/basic/static/doctools.js:189
+msgid "Hide Search Matches"
+msgstr "Sakrij rezultate pretrage"
+
+#: sphinx/themes/basic/static/searchtools.js:285
+msgid "Searching"
+msgstr "Tražim"
+
+#: sphinx/themes/basic/static/searchtools.js:290
+msgid "Preparing search..."
+msgstr "Pripremam pretraživanje..."
+
+#: sphinx/themes/basic/static/searchtools.js:364
+msgid ", in "
+msgstr ", u "
+
+#: sphinx/themes/basic/static/searchtools.js:491
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr ""
+"Za vašu pretragu nema rezultata. Molimo pregledajte da li so sve riječi "
+"ispravno napisane i da li ste izbrali dovoljno kategorija."
+
+#: sphinx/themes/basic/static/searchtools.js:493
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr ""
+"Pretraživanje je zaključeno, pronađeno %s stranica, koje odgovaraju "
+"traženom nizu."
+
+#: sphinx/themes/default/static/sidebar.js:66
+msgid "Expand sidebar"
+msgstr ""
+
+#: sphinx/themes/default/static/sidebar.js:79
+#: sphinx/themes/default/static/sidebar.js:106
+msgid "Collapse sidebar"
+msgstr ""
+
+#: sphinx/themes/haiku/layout.html:26
+msgid "Contents"
+msgstr ""
+
+#: sphinx/writers/latex.py:171
+msgid "Release"
+msgstr "Distribucija"
+
+#: sphinx/writers/latex.py:572 sphinx/writers/manpage.py:178
+msgid "Footnotes"
+msgstr ""
+
+#: sphinx/writers/latex.py:641
+msgid "continued from previous page"
+msgstr "nastavak sa prethodne stranice"
+
+#: sphinx/writers/latex.py:646
+msgid "Continued on next page"
+msgstr "nastavak na slijedećoj stranici"
+
+#: sphinx/writers/text.py:422
+msgid "[image]"
+msgstr "[slika]"
+
+#~ msgid "Parameter"
+#~ msgstr "Parametar"
+
+#~ msgid "here"
+#~ msgstr "ovdje"
+
+#~ msgid "module, in "
+#~ msgstr "modul, u "
+
+#~ msgid "Platform: %s"
+#~ msgstr "Platforma: %s"
+

@@ -8,7 +8,8 @@ you have a directory containing a bunch of reST-formatted documents (and
 possibly subdirectories of docs in there as well), Sphinx can generate a
 nicely-organized arrangement of HTML files (in some other directory) for easy
 browsing and navigation.  But from the same source, it can also generate a
-LaTeX file that you can compile into a PDF version of the documents.
+LaTeX file that you can compile into a PDF version of the documents, or a
+PDF file directly using `rst2pdf <http://rst2pdf.googlecode.com>`_.
 
 The focus is on hand-written documentation, rather than auto-generated API docs.
 Though there is support for that kind of docs as well (which is intended to be

@@ -80,7 +80,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     """Shortcut to create a reference node."""
-    node = nodes.reference('', '')
+    node = nodes.reference('', '', internal=True)
     if fromdocname == todocname:
         node['refid'] = targetid
     else:
@@ -124,3 +124,22 @@ nodes.Node._old_traverse = nodes.Node.traverse
 nodes.Node._all_traverse = _all_traverse
 nodes.Node._fast_traverse = _fast_traverse
 nodes.Node.traverse = _new_traverse
+
+# monkey-patch Node.__contains__ to get consistent "in" operator behavior
+# across docutils versions
+
+def _new_contains(self, key):
+    # support both membership test for children and attributes
+    # (has_key is translated to "in" by 2to3)
+    if isinstance(key, basestring):
+        return key in self.attributes
+    return key in self.children
+
+nodes.Node.__contains__ = _new_contains
+
+# monkey-patch Element.copy to copy the rawsource
+
+def _new_copy(self):
+    return self.__class__(self.rawsource, **self.attributes)
+
+nodes.Element.copy = _new_copy

@@ -192,12 +192,17 @@ General configuration
 
    .. versionadded:: 1.0
 
-.. confval:: default_domain
+.. confval:: primary_domain
 
    .. index:: default; domain
+              primary; domain
 
    The name of the default :ref:`domain <domains>`.  Can also be ``None`` to
-   disable a default domain.  The default is ``'py'``.
+   disable a default domain.  The default is ``'py'``.  Those objects in other
+   domains (whether the domain name is given explicitly, or selected by a
+   :rst:dir:`default-domain` directive) will have the domain name explicitly
+   prepended when named (e.g., when the default domain is C, Python functions
+   will be named "Python function", not just "function").
 
    .. versionadded:: 1.0
 
@@ -280,12 +285,15 @@ Project information
 
    * ``ca`` -- Catalan
    * ``cs`` -- Czech
+   * ``da`` -- Danish
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
    * ``fi`` -- Finnish
    * ``fr`` -- French
+   * ``hr`` -- Croatian
    * ``it`` -- Italian
+   * ``lt`` -- Lithuanian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
@@ -800,9 +808,11 @@ These options influence LaTeX output.
    * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
      for *title* applies.  Use ``\and`` to separate multiple authors, as in:
      ``'John \and Sarah'``.
-   * *documentclass*: Must be one of ``'manual'`` or ``'howto'``.  Only "manual"
-     documents will get appendices.  Also, howtos will have a simpler title
-     page.
+   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided by
+     Sphinx).  Other document classes can be given, but they must include the
+     "sphinx" package in order to define Sphinx' custom LaTeX commands.
+     "howto" documents will not get appendices.  Also, howtos will have a simpler
+     title page.
    * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff
@@ -845,6 +855,20 @@ These options influence LaTeX output.
 
    .. deprecated:: 1.0
       Use :confval:`latex_domain_indices`.
+
+.. confval:: latex_show_pagerefs
+
+   If true, add page references after internal references.  This is very useful
+   for printed copies of the manual.  Default is ``False``.
+
+   .. versionadded:: 1.0
+
+.. confval:: latex_show_urls
+
+   If true, add URL addresses after links.  This is very useful for printed
+   copies of the manual.  Default is ``False``.
+
+   .. versionadded:: 1.0
 
 .. confval:: latex_elements
 

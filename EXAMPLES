@@ -14,7 +14,6 @@ Documentation using the default theme
 
 * APSW: http://apsw.googlecode.com/svn/publish/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
-* Blender: http://www.blender.org/documentation/250PythonDoc/
 * boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
 * CodePy: http://documen.tician.de/codepy/
@@ -23,6 +22,8 @@ Documentation using the default theme
 * Director: http://packages.python.org/director/
 * F2py: http://www.f2py.org/html/
 * GeoDjango: http://geodjango.org/docs/
+* gevent: http://www.gevent.org/
+* Google Wave API: http://wave-robot-python-client.googlecode.com/svn/trunk/pydocs/index.html
 * GSL Shell: http://www.nongnu.org/gsl-shell/
 * Hedge: http://documen.tician.de/hedge/
 * Kaa: http://doc.freevo.org/api/kaa/
@@ -37,6 +38,7 @@ Documentation using the default theme
 * PyCuda: http://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
 * Pylo: http://documen.tician.de/pylo/
+* PyMQI: http://packages.python.org/pymqi/
 * PyPubSub: http://pubsub.sourceforge.net/
 * pyrticle: http://documen.tician.de/pyrticle/
 * Python: http://docs.python.org/
@@ -84,8 +86,10 @@ Documentation using the sphinxdoc theme
 * Fityk: http://www.unipress.waw.pl/fityk/
 * MapServer: http://mapserver.org/
 * Matplotlib: http://matplotlib.sourceforge.net/
+* Music21: http://mit.edu/music21/doc/html/contents.html
 * MyHDL: http://www.myhdl.org/doc/0.6/
 * NetworkX: http://networkx.lanl.gov/
+* Pweave: http://mpastell.com/pweave/
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
@@ -106,15 +110,22 @@ Documentation using another builtin theme
 * pip: http://pip.openplans.org/ (nature)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
+* Spring Python: http://springpython.webfactional.com/current/sphinx/index.html
+  (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
+* libLAS: http://liblas.org/ (nature)
 
 
 Documentation using a custom theme/integrated in a site
 -------------------------------------------------------
 
+* Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
+* Classy: classy: http://classy.pocoo.org/
 * Django: http://docs.djangoproject.com/
+* Flask: http://flask.pocoo.org/docs/
+* Flask-OpenID: http://packages.python.org/Flask-OpenID/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
 * MirrorBrain: http://mirrorbrain.org/docs/
@@ -125,11 +136,13 @@ Documentation using a custom theme/integrated in a site
 * PyEphem: http://rhodesmill.org/pyephem/
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
+* qooxdoo: http://manual.qooxdoo.org/current
 * Roundup: http://www.roundup-tracker.org/
 * Selenium: http://seleniumhq.org/docs/
 * Self: http://selflanguage.org/
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
+* tipfy: http://www.tipfy.org/docs/
 * Werkzeug: http://werkzeug.pocoo.org/documentation/dev/
 * WFront: http://discorporate.us/projects/WFront/
 

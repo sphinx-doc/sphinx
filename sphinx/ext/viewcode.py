@@ -31,7 +31,7 @@ def doctree_read(app, doctree):
                 env._viewcode_modules[modname] = False
                 return
             analyzer.find_tags()
-            entry = analyzer.code, analyzer.tags, {}
+            entry = analyzer.code.decode(analyzer.encoding), analyzer.tags, {}
             env._viewcode_modules[modname] = entry
         elif entry is False:
             return
@@ -41,7 +41,7 @@ def doctree_read(app, doctree):
             return True
 
     for objnode in doctree.traverse(addnodes.desc):
-        if objnode['domain'] != 'py':
+        if objnode.get('domain') != 'py':
             continue
         names = set()
         for signode in objnode:
@@ -87,7 +87,10 @@ def collect_pages(app):
     app.builder.info(' (%d module code pages)' %
                      len(env._viewcode_modules), nonl=1)
 
-    for modname, (code, tags, used) in env._viewcode_modules.iteritems():
+    for modname, entry in env._viewcode_modules.iteritems():
+        if not entry:
+            continue
+        code, tags, used = entry
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
@@ -101,6 +104,7 @@ def collect_pages(app):
         # now that we have code lines (starting at index 1), insert anchors for
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
+        maxindex = len(lines) - 1
         for name, docname in used.iteritems():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + modname + '.' + name
@@ -108,7 +112,7 @@ def collect_pages(app):
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
                 'href="%s">%s</a>' % (name, backlink, _('[docs]'))
                 + lines[start])
-            lines[end - 1] += '</div>'
+            lines[min(end - 1, maxindex)] += '</div>'
         # try to find parents (for submodules)
         parents = []
         parent = modname

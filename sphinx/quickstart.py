@@ -42,7 +42,7 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.append(os.path.abspath('.'))
+#sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -115,8 +115,8 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  Major themes that come with
-# Sphinx are currently 'default' and 'sphinxdoc'.
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
 html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -215,6 +215,12 @@ latex_documents = [
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
 #latex_use_parts = False
+
+# If true, show page references after internal links.
+#latex_show_pagerefs = False
+
+# If true, show URL addresses after external links.
+#latex_show_urls = False
 
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
@@ -405,10 +411,10 @@ latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo
 \t@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
-\t@echo "Run \\`make all-pdf' or \\`make all-ps' in that directory to" \\
-\t      "run these through (pdf)latex."
+\t@echo "Run \\`make' in that directory to run these through (pdf)latex" \\
+\t      "(use \\`make latexpdf' here to do that automatically)."
 
-latexpdf: latex
+latexpdf:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
 \tmake -C $(BUILDDIR)/latex all-pdf

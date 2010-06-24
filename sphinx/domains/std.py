@@ -20,7 +20,7 @@ from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util import ws_re
-from sphinx.util.nodes import make_refnode
+from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.compat import Directive
 
 
@@ -327,6 +327,7 @@ class StandardDomain(Domain):
     object_types = {
         'term': ObjType(l_('glossary term'), 'term', searchprio=-1),
         'token': ObjType(l_('grammar token'), 'token', searchprio=-1),
+        'label': ObjType(l_('reference label'), 'ref', searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
     }
@@ -340,15 +341,31 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option': OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
-        'envvar': EnvVarXRefRole(),
-        'token':  XRefRole(),
-        'term':   XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        'option':  OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
+        'envvar':  EnvVarXRefRole(),
+        # links to tokens in grammar productions
+        'token':   XRefRole(),
+        # links to terms in glossary
+        'term':    XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        # links to headings or arbitrary labels
+        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        # links to labels, without a different title
+        'keyword': XRefRole(),
     }
 
     initial_data = {
         'progoptions': {},  # (program, name) -> docname, labelid
         'objects': {},      # (type, name) -> docname, labelid
+        'labels': {         # labelname -> docname, labelid, sectionname
+            'genindex': ('genindex', '', l_('Index')),
+            'modindex': ('py-modindex', '', l_('Module Index')),
+            'search':   ('search', '', l_('Search Page')),
+        },
+        'anonlabels': {     # labelname -> docname, labelid
+            'genindex': ('genindex', ''),
+            'modindex': ('py-modindex', ''),
+            'search':   ('search', ''),
+        },
     }
 
     def clear_doc(self, docname):
@@ -358,10 +375,106 @@ class StandardDomain(Domain):
         for key, (fn, _) in self.data['objects'].items():
             if fn == docname:
                 del self.data['objects'][key]
+        for key, (fn, _, _) in self.data['labels'].items():
+            if fn == docname:
+                del self.data['labels'][key]
+        for key, (fn, _) in self.data['anonlabels'].items():
+            if fn == docname:
+                del self.data['anonlabels'][key]
+
+    def process_doc(self, env, docname, document):
+        labels, anonlabels = self.data['labels'], self.data['anonlabels']
+        for name, explicit in document.nametypes.iteritems():
+            if not explicit:
+                continue
+            labelid = document.nameids[name]
+            if labelid is None:
+                continue
+            node = document.ids[labelid]
+            if name.isdigit() or node.has_key('refuri') or \
+                   node.tagname.startswith('desc_'):
+                # ignore footnote labels, labels automatically generated from a
+                # link and object descriptions
+                continue
+            if name in labels:
+                env.warn(docname, 'duplicate label %s, ' % name +
+                         'other instance in ' + env.doc2path(labels[name][0]),
+                         node.line)
+            anonlabels[name] = docname, labelid
+            if node.tagname == 'section':
+                sectname = clean_astext(node[0]) # node[0] == title node
+            elif node.tagname == 'figure':
+                for n in node:
+                    if n.tagname == 'caption':
+                        sectname = clean_astext(n)
+                        break
+                else:
+                    continue
+            elif node.tagname == 'table':
+                for n in node:
+                    if n.tagname == 'title':
+                        sectname = clean_astext(n)
+                        break
+                else:
+                    continue
+            else:
+                # anonymous-only labels
+                continue
+            labels[name] = docname, labelid, sectname
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        if typ == 'option':
+        if typ == 'ref':
+            #refdoc = node.get('refdoc', fromdocname)
+            if node['refexplicit']:
+                # reference to anonymous label; the reference uses
+                # the supplied link caption
+                docname, labelid = self.data['anonlabels'].get(target, ('',''))
+                sectname = node.astext()
+                # XXX warn somehow if not resolved by intersphinx
+                #if not docname:
+                #    env.warn(refdoc, 'undefined label: %s' %
+                #              target, node.line)
+            else:
+                # reference to named label; the final node will
+                # contain the section name after the label
+                docname, labelid, sectname = self.data['labels'].get(target,
+                                                                     ('','',''))
+                # XXX warn somehow if not resolved by intersphinx
+                #if not docname:
+                #    env.warn(refdoc,
+                #        'undefined label: %s' % target + ' -- if you '
+                #        'don\'t give a link caption the label must '
+                #        'precede a section header.', node.line)
+            if not docname:
+                return None
+            newnode = nodes.reference('', '', internal=True)
+            innernode = nodes.emphasis(sectname, sectname)
+            if docname == fromdocname:
+                newnode['refid'] = labelid
+            else:
+                # set more info in contnode; in case the
+                # get_relative_uri call raises NoUri,
+                # the builder will then have to resolve these
+                contnode = addnodes.pending_xref('')
+                contnode['refdocname'] = docname
+                contnode['refsectname'] = sectname
+                newnode['refuri'] = builder.get_relative_uri(
+                    fromdocname, docname)
+                if labelid:
+                    newnode['refuri'] += '#' + labelid
+            newnode.append(innernode)
+            return newnode
+        elif typ == 'keyword':
+            # keywords are oddballs: they are referenced by named labels
+            docname, labelid, _ = self.data['labels'].get(target, ('','',''))
+            if not docname:
+                #env.warn(refdoc, 'unknown keyword: %s' % target)
+                return None
+            else:
+                return make_refnode(builder, fromdocname, docname,
+                                    labelid, contnode)
+        elif typ == 'option':
             progname = node['refprogram']
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
@@ -383,7 +496,13 @@ class StandardDomain(Domain):
 
     def get_objects(self):
         for (prog, option), info in self.data['progoptions'].iteritems():
-            yield (option, 'option', info[0], info[1], 1)
+            yield (option, option, 'option', info[0], info[1], 1)
         for (type, name), info in self.data['objects'].iteritems():
-            yield (name, type, info[0], info[1],
+            yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
+        for name, info in self.data['labels'].iteritems():
+            yield (name, info[2], 'label', info[0], info[1], -1)
+
+    def get_type_name(self, type, primary=False):
+        # never prepend "Default"
+        return type.lname

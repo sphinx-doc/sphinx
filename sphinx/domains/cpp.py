@@ -10,7 +10,6 @@
 """
 
 import re
-import string
 from copy import deepcopy
 
 from docutils import nodes
@@ -22,7 +21,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import TypedField
 
 
 _identifier_re = re.compile(r'\b(~?[a-zA-Z_][a-zA-Z0-9_]*)\b')
@@ -319,6 +318,8 @@ class ArgumentDefExpr(DefExpr):
         return self.name.get_name()
 
     def get_id(self):
+        if self.type is None:
+            return 'X'
         return self.type.get_id()
 
     def __unicode__(self):
@@ -827,8 +828,9 @@ class CPPObject(ObjectDescription):
         signode['ids'].append(theid)
         signode['first'] = (not self.names)
         self.state.document.note_explicit_target(signode)
-        self.env.domaindata['cpp']['objects'][name] = \
-            (self.env.docname, self.objtype)
+
+        self.env.domaindata['cpp']['objects'].setdefault(name,
+            (self.env.docname, self.objtype, theid))
 
         indextext = self.get_index_text(name)
         if indextext:
@@ -1028,10 +1030,10 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':    ObjType(l_('C++ class'),    'class'),
-        'function': ObjType(l_('C++ function'), 'func'),
-        'member':   ObjType(l_('C++ member'),   'member'),
-        'type':     ObjType(l_('C++ type'),     'type')
+        'class':    ObjType(l_('class'),    'class'),
+        'function': ObjType(l_('function'), 'func'),
+        'member':   ObjType(l_('member'),   'member'),
+        'type':     ObjType(l_('type'),     'type')
     }
 
     directives = {
@@ -1052,7 +1054,7 @@ class CPPDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for fullname, (fn, _) in self.data['objects'].items():
+        for fullname, (fn, _, _) in self.data['objects'].items():
             if fn == docname:
                 del self.data['objects'][fullname]
 
@@ -1063,9 +1065,9 @@ class CPPDomain(Domain):
             if name not in self.data['objects']:
                 return None
             obj = self.data['objects'][name]
-            if obj[1] != typ:
+            if obj[1] not in self.objtypes_for_role(typ):
                 return None
-            return make_refnode(builder, fromdocname, obj[0], expr.get_id(),
+            return make_refnode(builder, fromdocname, obj[0], obj[2],
                                 contnode, name)
 
         parser = DefinitionParser(target)
@@ -1093,5 +1095,5 @@ class CPPDomain(Domain):
         return _create_refnode(expr.prefix(parent))
 
     def get_objects(self):
-        for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, type, docname, refname, 1)
+        for refname, (docname, type, theid) in self.data['objects'].iteritems():
+            yield (refname, refname, type, docname, refname, 1)

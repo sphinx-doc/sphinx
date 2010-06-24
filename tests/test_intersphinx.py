@@ -36,10 +36,10 @@ inventory_v2 = '''\
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
 ''' + zlib.compress('''\
-module1 py:module 0 foo.html#module-module1
-module2 py:module 0 foo.html#module-$
-module1.func py:function 1 sub/foo.html#$
-CFunc c:function 2 cfunc.html#CFunc
+module1 py:module 0 foo.html#module-module1 Long Module desc
+module2 py:module 0 foo.html#module-$ -
+module1.func py:function 1 sub/foo.html#$ -
+CFunc c:function 2 cfunc.html#CFunc -
 ''')
 
 
@@ -48,9 +48,9 @@ def test_read_inventory_v1():
     f.readline()
     invdata = read_inventory_v1(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
-           ('foo', '1.0', '/util/foo.html#module-module')
+           ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
-           ('foo', '1.0', '/util/foo.html#module.cls')
+           ('foo', '1.0', '/util/foo.html#module.cls', '-')
 
 
 def test_read_inventory_v2():
@@ -67,9 +67,9 @@ def test_read_inventory_v2():
 
     assert len(invdata1['py:module']) == 2
     assert invdata1['py:module']['module1'] == \
-           ('foo', '2.0', '/util/foo.html#module-module1')
+           ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
     assert invdata1['py:module']['module2'] == \
-           ('foo', '2.0', '/util/foo.html#module-module2')
+           ('foo', '2.0', '/util/foo.html#module-module2', '-')
     assert invdata1['py:function']['module1.func'][2] == \
            '/util/sub/foo.html#module1.func'
     assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
@@ -88,7 +88,7 @@ def test_missing_reference(tempdir, app):
     inv = app.env.intersphinx_inventory
 
     assert inv['py:module']['module2'] == \
-           ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2')
+           ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2', '-')
 
     # create fake nodes and check referencing
     contnode = nodes.emphasis('foo')

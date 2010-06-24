@@ -96,7 +96,7 @@ class LaTeXBuilder(Builder):
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(docname, toctree_only,
-                appendices=((docclass == 'manual') and
+                appendices=((docclass != 'howto') and
                             self.config.latex_appendices or []))
             self.post_process_images(doctree)
             self.info("writing... ", nonl=1)
@@ -105,13 +105,7 @@ class LaTeXBuilder(Builder):
             doctree.settings.title = title
             doctree.settings.docname = docname
             doctree.settings.docclass = docclass
-            try:
-                docwriter.write(doctree, destination)
-            except UnicodeError:
-                self.warn("a Unicode error occurred when writing the output. "
-                          "Please make sure all config values that contain "
-                          "non-ASCII content are Unicode strings.")
-                return
+            docwriter.write(doctree, destination)
             self.info("done")
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):

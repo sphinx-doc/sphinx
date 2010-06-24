@@ -69,11 +69,11 @@ directive name.
 
 To avoid having to writing the domain name all the time when you e.g. only
 describe Python objects, a default domain can be selected with either the config
-value :confval:`default_domain` or this directive:
+value :confval:`primary_domain` or this directive:
 
 .. rst:directive:: .. default-domain:: name
 
-   Select a new default domain.  While the :confval:`default_domain` selects a
+   Select a new default domain.  While the :confval:`primary_domain` selects a
    global default, this only has an effect within the same file.
 
 If no other default is selected, the Python domain (named ``py``) is the default
@@ -363,9 +363,18 @@ dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
+Also, if the name is prefixed with a dot, and no exact match is found, the
+target is taken as a suffix and all object names with that suffix are
+searched.  For example, ``:py:meth:`.TarFile.close``` references the
+``tarfile.TarFile.close()`` function, even if the current module is not
+``tarfile``.  Since this can get ambiguous, if there is more than one possible
+match, you will get a warning from Sphinx.
+
 A similar heuristic is used to determine whether the name is an attribute of the
 currently documented class.
 
+
+.. _c-domain:
 
 The C Domain
 ------------
@@ -451,11 +460,49 @@ The following directives are available:
                .. cpp:type:: signatures
 
    Describe a C++ object.  Full signature specification is supported -- give the
-   signature as you would in the declaration.  Example::
+   signature as you would in the declaration.  Here some examples::
 
-      .. cpp:function:: const int IntArray::operator[]
+      .. cpp:function:: bool namespaced::theclass::method(int arg1, std::string arg2)
 
-         Describes the indexing operator of IntArrays.
+         Describes a method with parameters and types.
+
+      .. cpp:function:: bool namespaced::theclass::method(arg1, arg2)
+
+         Describes a method without types.
+
+      .. cpp:function:: const T &array<T>::operator[]() const
+
+         Describes the constant indexing operator of a templated array.
+
+      .. cpp:function:: operator bool() const
+
+         Describe a casting operator here.
+
+      .. cpp:member:: std::string theclass::name
+
+      .. cpp:type:: theclass::const_iterator
+
+   Will be rendered like this:
+
+      .. cpp:function:: bool namespaced::theclass::method(int arg1, std::string arg2)
+
+         Describes a method with parameters and types.
+
+      .. cpp:function:: bool namespaced::theclass::method(arg1, arg2)
+
+         Describes a method without types.
+
+      .. cpp:function:: const T &array<T>::operator[]() const
+
+         Describes the constant indexing operator of a templated array.
+
+      .. cpp:function:: operator bool() const
+
+         Describe a casting operator here.
+
+      .. cpp:member:: std::string theclass::name
+
+      .. cpp:type:: theclass::const_iterator
 
 .. rst:directive:: .. cpp:namespace:: namespace
 
@@ -470,6 +517,24 @@ These roles link to the given object types:
 
    Reference a C++ object.  You can give the full signature (and need to, for
    overloaded functions.)
+
+   .. note::
+
+      Sphinx' syntax to give references a custom title can interfere with
+      linking to template classes, if nothing follows the closing angle
+      bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
+      This is interpreted as a link to ``T`` with a title of ``MyClass``.
+      In this case, please escape the opening angle bracket with a backslash,
+      like this: ``:cpp:class:`MyClass\<T>```.
+
+.. admonition:: Note on References
+
+   It is currently impossible to link to a specific version of an
+   overloaded method.  Currently the C++ domain is the first domain
+   that has basic support for overloaded methods and until there is more
+   data for comparison we don't want to select a bad syntax to reference a
+   specific overload.  Currently Sphinx will link to the first overloaded
+   version of the method / function.
 
 
 The Standard Domain
@@ -555,8 +620,8 @@ The JavaScript domain (name **js**) provides the following directives:
 
 .. rst:directive:: .. js:function:: name(signature)
 
-   Describes a JavaScript function, method or constructor.  If you want to
-   describe arguments as optional use square brackets as :ref:`documented
+   Describes a JavaScript function or method.  If you want to describe
+   arguments as optional use square brackets as :ref:`documented
    <signatures>` for Python signatures.
 
    You can use fields to give more details about arguments and their expected
@@ -585,6 +650,23 @@ The JavaScript domain (name **js**) provides the following directives:
         :throws SomeError: For whatever reason in that case.
         :returns: Something
 
+.. rst:directive:: .. js:class:: name
+
+   Describes a constructor that creates an object.  This is basically like
+   a function but will show up with a `class` prefix::
+
+      .. js:class:: MyAnimal(name[, age])
+
+         :param string name: The name of the animal
+         :param number age: an optional age for the animal
+
+   This is rendered as:
+
+      .. js:class:: MyAnimal(name[, age])
+
+         :param string name: The name of the animal
+         :param number age: an optional age for the animal
+
 .. rst:directive:: .. js:data:: name
 
    Describes a global variable or constant.
@@ -596,6 +678,7 @@ The JavaScript domain (name **js**) provides the following directives:
 These roles are provided to refer to the described objects:
 
 .. rst:role:: js:func
+          js:class
           js:data
           js:attr
 
@@ -648,3 +731,12 @@ These roles are provided to refer to the described objects:
 .. rst:role:: rst:dir
               rst:role
 
+
+More domains
+------------
+
+The sphinx-contrib_ repository contains more domains available as extensions;
+currently a Ruby and an Erlang domain.
+
+
+.. _sphinx-contrib: http://bitbucket.org/birkenfeld/sphinx-contrib/

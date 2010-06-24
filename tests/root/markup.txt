@@ -70,6 +70,8 @@ Body directives
    b
 
 
+.. _admonition-section:
+
 Admonitions
 ^^^^^^^^^^^
 
@@ -84,6 +86,8 @@ Admonitions
 
    Warning text.
 
+.. _some-label:
+
 .. tip::
    Tip text.
 
@@ -95,7 +99,7 @@ Inline markup
 
 * :command:`command`
 * :dfn:`dfn`
-* :guilabel:`guilabel`
+* :guilabel:`guilabel with &accelerator`
 * :kbd:`kbd`
 * :mailheader:`mailheader`
 * :makevar:`makevar`
@@ -105,6 +109,7 @@ Inline markup
 * :program:`program`
 * :regexp:`regexp`
 * :menuselection:`File --> Close`
+* :menuselection:`&File --> &Print`
 * :file:`a/{varpart}/b`
 * :samp:`print {i}`
 
@@ -115,6 +120,10 @@ Inline markup
 * :envvar:`HOME`
 * :keyword:`with`
 * :token:`try statement <try_stmt>`
+* :ref:`admonition-section`
+* :ref:`here <some-label>`
+* :ref:`my-figure`
+* :ref:`my-table`
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
@@ -135,12 +144,24 @@ Tables
 
 .. tabularcolumns:: |L|p{5cm}|R|
 
-+----+----------------+----+
-| 1  | * Block elems  |  x |
-|    | * In table     |    |
-+----+----------------+----+
-| 2  | Empty cells:   |    |
-+----+----------------+----+
+.. table:: my table
+
+   +----+----------------+----+
+   | 1  | * Block elems  |  x |
+   |    | * In table     |    |
+   +----+----------------+----+
+   | 2  | Empty cells:   |    |
+   +----+----------------+----+
+
+
+Figures
+-------
+
+.. _my-figure:
+
+.. figure:: img.png
+
+   My caption of the figure
 
 
 Version markup
@@ -238,6 +259,8 @@ Invalid index markup...
    pair:
    keyword:
 
+
+.. _ölabel:
 
 Ö... Some strange characters
 ----------------------------

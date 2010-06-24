@@ -188,7 +188,8 @@ class PyObject(ObjectDescription):
                     self.env.docname,
                     'duplicate object description of %s, ' % fullname +
                     'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]),
+                    self.env.doc2path(objects[fullname][0]) +
+                    ', use :noindex: for one of them',
                     self.lineno)
             objects[fullname] = (self.env.docname, self.objtype)
 
@@ -546,7 +547,7 @@ class PythonDomain(Domain):
     def find_obj(self, env, modname, classname, name, type, searchorder=0):
         """
         Find a Python object for "name", perhaps using the given module and/or
-        classname.
+        classname.  Returns a list of (name, object entry) tuples.
         """
         # skip parens
         if name[-2:] == '()':
@@ -556,6 +557,7 @@ class PythonDomain(Domain):
             return None, None
 
         objects = self.data['objects']
+        matches = []
 
         newname = None
         if searchorder == 1:
@@ -566,6 +568,11 @@ class PythonDomain(Domain):
                 newname = modname + '.' + name
             elif name in objects:
                 newname = name
+            else:
+                # "fuzzy" searching mode
+                searchname = '.' + name
+                matches = [(name, objects[name]) for name in objects
+                           if name.endswith(searchname)]
         else:
             if name in objects:
                 newname = name
@@ -584,14 +591,14 @@ class PythonDomain(Domain):
             elif type in ('func', 'meth') and '.' not in name and \
                  'object.' + name in objects:
                 newname = 'object.' + name
-        if newname is None:
-            return None, None
-        return newname, objects[newname]
+        if newname is not None:
+            matches.append((newname, objects[newname]))
+        return matches
 
     def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
-        if (typ == 'mod' or
-            typ == 'obj' and target in self.data['modules']):
+                     type, target, node, contnode):
+        if (type == 'mod' or
+            type == 'obj' and target in self.data['modules']):
             docname, synopsis, platform, deprecated = \
                 self.data['modules'].get(target, ('','','', ''))
             if not docname:
@@ -606,16 +613,22 @@ class PythonDomain(Domain):
             modname = node.get('py:module')
             clsname = node.get('py:class')
             searchorder = node.hasattr('refspecific') and 1 or 0
-            name, obj = self.find_obj(env, modname, clsname,
-                                      target, typ, searchorder)
-            if not obj:
+            matches = self.find_obj(env, modname, clsname, target,
+                                    type, searchorder)
+            if not matches:
                 return None
-            else:
-                return make_refnode(builder, fromdocname, obj[0], name,
-                                    contnode, name)
+            elif len(matches) > 1:
+                env.warn(fromdocname,
+                         'more than one target found for cross-reference '
+                         '%r: %s' % (target,
+                                     ', '.join(match[0] for match in matches)),
+                         node.line)
+            name, obj = matches[0]
+            return make_refnode(builder, fromdocname, obj[0], name,
+                                contnode, name)
 
     def get_objects(self):
         for modname, info in self.data['modules'].iteritems():
-            yield (modname, 'module', info[0], 'module-' + modname, 0)
+            yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, type, docname, refname, 1)
+            yield (refname, refname, type, docname, refname, 1)

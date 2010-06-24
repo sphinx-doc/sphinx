@@ -83,6 +83,9 @@ Cross-referencing arbitrary locations
      a reference ``:ref:`my-figure``` would insert a reference to the figure
      with link text "Figure caption".
 
+     The same works for tables that are given an explicit caption using the
+     :dudir:`table` directive.
+
    * Labels that aren't placed before a section title can still be referenced
      to, but you must give the link an explicit title, using this syntax:
      ``:ref:`Link title <label-name>```.
@@ -182,6 +185,11 @@ in a different style:
    labels, window titles, field names, menu and menu selection names, and even
    values in selection lists.
 
+   .. versionchanged:: 1.0
+      An accelerator key for the GUI label can be included using an ampersand;
+      this will be stripped and displayed underlined in the output (example:
+      ``:guilabel:`&Cancel```).  To include a literal ampersand, double it.
+
 .. rst:role:: kbd
 
    Mark a sequence of keystrokes.  What form the key sequence takes may depend
@@ -227,6 +235,9 @@ in a different style:
    ellipsis some operating systems use to indicate that the command opens a
    dialog, the indicator should be omitted from the selection name.
 
+   ``menuselection`` also supports ampersand accelerators just like
+   :rst:role:`guilabel`.
+
 .. rst:role:: mimetype
 
    The name of a MIME type, or a component of a MIME type (the major or minor
@@ -249,7 +260,9 @@ in a different style:
 .. rst:role:: samp
 
    A piece of literal text, such as code.  Within the contents, you can use
-   curly braces to indicate a "variable" part, as in ``:file:``.
+   curly braces to indicate a "variable" part, as in :rst:dir:`file`.  For
+   example, in ``:samp:`print 1+{variable}```, the part ``variable`` would be
+   emphasized.
 
    If you don't need the "variable part" indication, use the standard
    ````code```` instead.

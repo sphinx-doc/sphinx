@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 import zlib
 import codecs
 import posixpath
@@ -42,7 +43,7 @@ from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
-from sphinx.util.console import bold, darkgreen
+from sphinx.util.console import bold, darkgreen, brown
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
      SmartyPantsHTMLTranslator
 
@@ -107,10 +108,15 @@ class StandaloneHTMLBuilder(Builder):
             self.link_suffix = self.out_suffix
 
         if self.config.language is not None:
-            jsfile = path.join(package_dir, 'locale', self.config.language,
-                               'LC_MESSAGES', 'sphinx.js')
-            if path.isfile(jsfile):
-                self.script_files.append('_static/translations.js')
+            jsfile_list = [path.join(package_dir, 'locale',
+                self.config.language, 'LC_MESSAGES', 'sphinx.js'),
+                path.join(sys.prefix, 'share/sphinx/locale',
+                    self.config.language, 'sphinx.js')]
+
+            for jsfile in jsfile_list:
+                if path.isfile(jsfile):
+                    self.script_files.append('_static/translations.js')
+                    break
 
     def get_theme_config(self):
         return self.config.html_theme, self.config.html_theme_options
@@ -489,32 +495,31 @@ class StandaloneHTMLBuilder(Builder):
     def copy_image_files(self):
         # copy image files
         if self.images:
-            self.info(bold('copying images...'), nonl=True)
             ensuredir(path.join(self.outdir, '_images'))
-            for src, dest in self.images.iteritems():
-                self.info(' '+src, nonl=1)
+            for src in self.status_iterator(self.images, 'copying images... ',
+                                            brown, len(self.images)):
+                dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
                 except Exception, err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
-            self.info()
 
     def copy_download_files(self):
         # copy downloadable files
         if self.env.dlfiles:
-            self.info(bold('copying downloadable files...'), nonl=True)
             ensuredir(path.join(self.outdir, '_downloads'))
-            for src, (_, dest) in self.env.dlfiles.iteritems():
-                self.info(' '+src, nonl=1)
+            for src in self.status_iterator(self.env.dlfiles,
+                                            'copying downloadable files... ',
+                                            brown, len(self.env.dlfiles)):
+                dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
                 except Exception, err:
                     self.warn('cannot copy downloadable file %r: %s' %
                               (path.join(self.srcdir, src), err))
-            self.info()
 
     def copy_static_files(self):
         # copy static files
@@ -526,11 +531,15 @@ class StandaloneHTMLBuilder(Builder):
         f.close()
         # then, copy translations JavaScript file
         if self.config.language is not None:
-            jsfile = path.join(package_dir, 'locale', self.config.language,
-                               'LC_MESSAGES', 'sphinx.js')
-            if path.isfile(jsfile):
-                copyfile(jsfile, path.join(self.outdir, '_static',
-                                           'translations.js'))
+            jsfile_list = [path.join(package_dir, 'locale',
+                self.config.language, 'LC_MESSAGES', 'sphinx.js'),
+                path.join(sys.prefix, 'share/sphinx/locale',
+                    self.config.language, 'sphinx.js')]
+            for jsfile in jsfile_list:
+                if path.isfile(jsfile):
+                    copyfile(jsfile, path.join(self.outdir, '_static',
+                                               'translations.js'))
+                    break
         # then, copy over theme-supplied static files
         if self.theme:
             themeentries = [path.join(themepath, 'static')
@@ -597,7 +606,7 @@ class StandaloneHTMLBuilder(Builder):
                 # the parent node here.
                 continue
             uri = node['uri']
-            reference = nodes.reference()
+            reference = nodes.reference('', '', internal=True)
             if uri in self.images:
                 reference['refuri'] = posixpath.join(self.imgpath,
                                                      self.images[uri])
@@ -627,9 +636,9 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             self.indexer.feed(pagename, title, doctree)
 
-    def _get_local_toctree(self, docname, collapse=True, maxdepth=0):
+    def _get_local_toctree(self, docname, collapse=True, **kwds):
         return self.render_partial(self.env.get_toctree_for(
-            docname, self, collapse))['fragment']
+            docname, self, collapse, **kwds))['fragment']
 
     def get_outfilename(self, pagename):
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
@@ -728,17 +737,24 @@ class StandaloneHTMLBuilder(Builder):
         try:
             f.write('# Sphinx inventory version 2\n')
             f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
-            f.write('# Version: %s\n' % self.config.version)
+            f.write('# Version: %s\n' % self.config.version.encode('utf-8'))
             f.write('# The remainder of this file is compressed using zlib.\n')
             compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
-                for name, type, docname, anchor, prio in domain.get_objects():
+                for name, dispname, type, docname, anchor, prio in \
+                        domain.get_objects():
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
                         anchor = anchor[:-len(name)] + '$'
+                    uri = self.get_target_uri(docname) + '#' + anchor
+                    if dispname == name:
+                        dispname = u'-'
                     f.write(compressor.compress(
-                        '%s %s:%s %s %s\n' % (name, domainname, type, prio,
-                        self.get_target_uri(docname) + '#' + anchor)))
+                        '%s %s:%s %s %s %s\n' % (name.encode('utf-8'),
+                                                 domainname.encode('utf-8'),
+                                                 type.encode('utf-8'), prio,
+                                                 uri.encode('utf-8'),
+                                                 dispname.encode('utf-8'))))
             f.write(compressor.flush())
         finally:
             f.close()
@@ -783,6 +799,10 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
                                     'index' + self.out_suffix)
 
         return outfilename
+
+    def prepare_writing(self, docnames):
+        StandaloneHTMLBuilder.prepare_writing(self, docnames)
+        self.globalcontext['no_search_suffix'] = True
 
 
 class SingleFileHTMLBuilder(StandaloneHTMLBuilder):

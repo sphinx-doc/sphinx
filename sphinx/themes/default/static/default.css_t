@@ -147,7 +147,8 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
-/* -- body styles ----------------------------------------------------------- */
+
+/* -- hyperlink styles ------------------------------------------------------ */
 
 a {
     color: {{ theme_linkcolor }};
@@ -162,6 +163,20 @@ a:visited {
 a:hover {
     text-decoration: underline;
 }
+
+{% if theme_externalrefs|tobool %}
+a.external {
+   text-decoration: none;
+   border-bottom: 1px dashed {{ theme_linkcolor }};
+}
+
+a.external:hover {
+   text-decoration: none;
+   border-bottom: none;
+}
+{% endif %}
+
+/* -- body styles ----------------------------------------------------------- */
 
 div.body h1,
 div.body h2,

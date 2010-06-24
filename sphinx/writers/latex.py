@@ -207,8 +207,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.bibitems = []
         self.table = None
         self.next_table_colspec = None
-        self.highlightlang = builder.config.highlight_language
-        self.highlightlinenothreshold = sys.maxint
+        # stack of [language, linenothreshold] settings per file
+        # the first item here is the default and must not be changed
+        # the second item is the default for the master file and can be changed
+        # by .. highlight:: directive in the master file
+        self.hlsettingstack = 2 * [[builder.config.highlight_language,
+                                    sys.maxint]]
         self.footnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
@@ -248,6 +252,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def hyperlink(self, id):
         return '\\hyperref[%s]{' % (self.idescape(id))
 
+    def hyperpageref(self, id):
+        return '\\autopageref*{%s}' % (self.idescape(id))
+
     def idescape(self, id):
         return str(unicode(id).translate(tex_replace_map))
 
@@ -259,7 +266,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
-                ret.append('\\bigletter{%s}\n' % letter)
+                ret.append('\\bigletter{%s}\n' %
+                           letter.translate(tex_escape_map))
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -289,7 +297,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         self.builder.docnames)
                     if not content:
                         continue
-                    ret.append('\\renewcommand{\\indexname}{%s}\n' %
+                    ret.append(u'\\renewcommand{\\indexname}{%s}\n' %
                                indexcls.localname)
                     generate(content, collapsed)
 
@@ -304,7 +312,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.first_document = 0
         elif self.first_document == 0:
             # ... and all others are the appendices
-            self.body.append('\n\\appendix\n')
+            self.body.append(u'\n\\appendix\n')
             self.first_document = -1
         if node.has_key('docname'):
             self.body.append(self.hypertarget(':doc'))
@@ -316,13 +324,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for bi in self.bibitems:
                 if len(widest_label) < len(bi[0]):
                     widest_label = bi[0]
-            self.body.append('\n\\begin{thebibliography}{%s}\n' % widest_label)
+            self.body.append(u'\n\\begin{thebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
                 target = self.hypertarget(bi[2] + ':' + bi[0].lower(),
                                           withdoc=False)
-                self.body.append('\\bibitem[%s]{%s}{%s %s}\n' %
+                self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
                     (bi[0], self.idescape(bi[0]), target, bi[1]))
-            self.body.append('\\end{thebibliography}\n')
+            self.body.append(u'\\end{thebibliography}\n')
             self.bibitems = []
 
     def visit_start_of_file(self, node):
@@ -331,6 +339,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # also add a document target
         self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
+        # use default highlight settings for new file
+        self.hlsettingstack.append(self.hlsettingstack[0])
 
     def collect_footnotes(self, node):
         fnotes = {}
@@ -351,10 +361,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_start_of_file(self, node):
         self.footnotestack.pop()
         self.curfilestack.pop()
+        self.hlsettingstack.pop()
 
     def visit_highlightlang(self, node):
-        self.highlightlang = node['lang']
-        self.highlightlinenothreshold = node['linenothreshold']
+        self.hlsettingstack[-1] = [node['lang'], node['linenothreshold']]
         raise nodes.SkipNode
 
     def visit_section(self, node):
@@ -554,7 +564,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append("}\\\\")
 
     def visit_seealso(self, node):
-        self.body.append("\n\n\\strong{%s:}\n\n" % admonitionlabels['seealso'])
+        self.body.append(u'\n\n\\strong{%s:}\n\n' % admonitionlabels['seealso'])
     def depart_seealso(self, node):
         self.body.append("\n\n")
 
@@ -601,8 +611,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.table.longtable = True
         self.body = self._body
         if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\n\\begin{threeparttable}\n'
-                             '\\caption{%s}\n' % self.table.caption)
+            self.body.append(u'\n\\begin{threeparttable}\n'
+                             u'\\caption{%s}\n' % self.table.caption)
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
         elif self.table.has_verbatim:
@@ -622,7 +632,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append('\\caption{%s} \\\\\n' % self.table.caption)
+            self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
 
         if self.table.longtable:
             self.body.append('\\hline\n')
@@ -632,7 +642,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              % _('continued from previous page'))
             self.body.append('\n\\hline\n')
             self.body.append('\\endhead\n\n')
-            self.body.append(r'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
+            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
                              % (self.table.colcount,
                                 _('Continued on next page')))
             self.body.append('\n\\endfoot\n\n')
@@ -914,7 +924,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def _make_visit_admonition(name):
         def visit_admonition(self, node):
-            self.body.append('\n\\begin{notice}{%s}{%s:}' %
+            self.body.append(u'\n\\begin{notice}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
     def _depart_named_admonition(self, node):
@@ -1018,17 +1028,29 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         uri = node.get('refuri', '')
+        if not uri and node.get('refid'):
+            uri = '%' + self.curfilestack[-1] + '#' + node['refid']
         if self.in_title or not uri:
             self.context.append('')
         elif uri.startswith('mailto:') or uri.startswith('http:') or \
-             uri.startswith('https:') or uri.startswith('ftp:'):
+                 uri.startswith('https:') or uri.startswith('ftp:'):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
-            self.context.append('}')
+            # if configured, put the URL after the link
+            if self.builder.config.latex_show_urls and \
+                   node.astext() != uri:
+                if uri.startswith('mailto:'):
+                    uri = uri[7:]
+                self.context.append('} (%s)' % self.encode_uri(uri))
+            else:
+                self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
-            self.body.append(self.hyperlink(self.curfilestack[-1] +
-                                            ':' + uri[1:]))
-            self.context.append('}')
+            id = self.curfilestack[-1] + ':' + uri[1:]
+            self.body.append(self.hyperlink(id))
+            if self.builder.config.latex_show_pagerefs:
+                self.context.append('} (%s)' % self.hyperpageref(id))
+            else:
+                self.context.append('}')
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
@@ -1039,7 +1061,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # reference to a label
                 id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
-            self.context.append('}')
+            if len(node) and hasattr(node[0], 'attributes') and \
+                   'std-term' in node[0].get('classes', []):
+                # don't add a pageref for glossary terms
+                self.context.append('}')
+            else:
+                if self.builder.config.latex_show_pagerefs:
+                    self.context.append('} (%s)' % self.hyperpageref(id))
+                else:
+                    self.context.append('}')
         elif uri.startswith('@token'):
             if self.in_production_list:
                 self.body.append('\\token{')
@@ -1148,8 +1178,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.verbatim = ''
     def depart_literal_block(self, node):
         code = self.verbatim.rstrip('\n')
-        lang = self.highlightlang
-        linenos = code.count('\n') >= self.highlightlinenothreshold - 1
+        lang = self.hlsettingstack[-1][0]
+        linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
         if node.has_key('language'):
             # code-block directives
             lang = node['language']
@@ -1284,7 +1314,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_inline(self, node):
         classes = node.get('classes', [])
-        self.body.append(r'\DUspan{%s}{' %','.join(classes))
+        self.body.append(r'\DUspan{%s}{' % ','.join(classes))
     def depart_inline(self, node):
         self.body.append('}')
 

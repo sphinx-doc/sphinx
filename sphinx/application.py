@@ -18,7 +18,7 @@ from os import path
 from cStringIO import StringIO
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, convert_directive_function, \
+from docutils.parsers.rst import convert_directive_function, \
      directives, roles
 
 import sphinx
@@ -368,16 +368,16 @@ class Sphinx(object):
                 setattr(translator, 'depart_'+node.__name__, depart)
 
     def _directive_helper(self, obj, content=None, arguments=None, **options):
-        if isinstance(obj, clstypes) and issubclass(obj, Directive):
-            if content or arguments or options:
-                raise ExtensionError('when adding directive classes, no '
-                                     'additional arguments may be given')
-            return obj
-        else:
+        if isinstance(obj, (types.FunctionType, types.MethodType)):
             obj.content = content
             obj.arguments = arguments or (0, 0, False)
             obj.options = options
             return convert_directive_function(obj)
+        else:
+            if content or arguments or options:
+                raise ExtensionError('when adding directive classes, no '
+                                     'additional arguments may be given')
+            return obj
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         directives.register_directive(

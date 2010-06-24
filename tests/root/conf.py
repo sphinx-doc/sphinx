@@ -6,7 +6,8 @@ sys.path.append(os.path.abspath('.'))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.autosummary',
-              'sphinx.ext.doctest', 'sphinx.ext.extlinks', 'ext']
+              'sphinx.ext.doctest', 'sphinx.ext.extlinks',
+              'sphinx.ext.viewcode', 'sphinx.ext.oldcmarkup', 'ext']
 
 jsmath_path = 'dummy.js'
 
@@ -43,7 +44,7 @@ htmlhelp_basename = 'SphinxTestsdoc'
 
 latex_documents = [
   ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-   'Georg Brandl', 'manual'),
+   'Georg Brandl \\and someone else', 'manual'),
 ]
 
 latex_additional_files = ['svgimg.svg']

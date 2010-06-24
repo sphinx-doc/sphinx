@@ -39,6 +39,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, \
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
+from sphinx.util.pycompat import all
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 
@@ -57,11 +58,12 @@ default_settings = {
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
+    'halt_level': 5,
 }
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 35
+ENV_VERSION = 36
 
 
 default_substitutions = set([
@@ -130,15 +132,26 @@ class MoveModuleTargets(Transform):
 
 class HandleCodeBlocks(Transform):
     """
-    Move doctest blocks out of blockquotes.
+    Several code block related transformations.
     """
     default_priority = 210
 
     def apply(self):
+        # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
-            if len(node.children) == 1 and isinstance(node.children[0],
-                                                      nodes.doctest_block):
-                node.replace_self(node.children[0])
+            if all(isinstance(child, nodes.doctest_block) for child
+                     in node.children):
+                node.replace_self(node.children)
+        # combine successive doctest blocks
+        #for node in self.document.traverse(nodes.doctest_block):
+        #    if node not in node.parent.children:
+        #        continue
+        #    parindex = node.parent.index(node)
+        #    while len(node.parent) > parindex+1 and \
+        #            isinstance(node.parent[parindex+1], nodes.doctest_block):
+        #        node[0] = nodes.Text(node[0] + '\n\n' +
+        #                             node.parent[parindex+1][0])
+        #        del node.parent[parindex+1]
 
 
 class SortIds(Transform):
@@ -304,12 +317,8 @@ class BuildEnvironment:
         # domain-specific inventories, here to be pickled
         self.domaindata = {}        # domainname -> domain-specific dict
 
-        # X-ref target inventory
-        self.labels = {}            # labelname -> docname, labelid, sectionname
-        self.anonlabels = {}        # labelname -> docname, labelid
-        self.citations = {}         # citation name -> docname, labelid
-
         # Other inventories
+        self.citations = {}         # citation name -> docname, labelid
         self.indexentries = {}      # docname -> list of
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of (type, docname,
@@ -321,16 +330,6 @@ class BuildEnvironment:
 
         # temporary data storage while reading a document
         self.temp_data = {}
-
-        # Some magically present labels
-        def add_magic_label(name, description, target=None):
-            self.labels[name] = (target or name, '', description)
-            self.anonlabels[name] = (target or name, '')
-        add_magic_label('genindex', _('Index'))
-        # XXX add per domain?
-        # compatibility alias
-        add_magic_label('modindex', _('Module Index'), 'py-modindex')
-        add_magic_label('search', _('Search Page'))
 
     def set_warnfunc(self, func):
         self._warnfunc = func
@@ -366,9 +365,6 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for labelname, (fn, _, _) in self.labels.items():
-                if fn == docname:
-                    del self.labels[labelname]
             for key, (fn, _) in self.citations.items():
                 if fn == docname:
                     del self.citations[key]
@@ -611,7 +607,7 @@ class BuildEnvironment:
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_domain'] = \
-            self.domains.get(self.config.default_domain)
+            self.domains.get(self.config.primary_domain)
 
         self.settings['input_encoding'] = self.config.source_encoding
         self.settings['trim_footnote_reference_space'] = \
@@ -669,10 +665,11 @@ class BuildEnvironment:
         self.process_metadata(docname, doctree)
         self.process_refonly_bullet_lists(docname, doctree)
         self.create_title_from(docname, doctree)
-        self.note_labels_from(docname, doctree)
         self.note_indexentries_from(docname, doctree)
         self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
+        for domain in self.domains.itervalues():
+            domain.process_doc(self, docname, doctree)
 
         # allow extension-specific post-processing
         if app:
@@ -822,9 +819,10 @@ class BuildEnvironment:
                                 imgtype = imghdr.what(f)
                             finally:
                                 f.close()
-                        except (OSError, IOError):
-                            self.warn(docname,
-                                      'image file %s not readable' % filename)
+                        except (OSError, IOError), err:
+                            self.warn(docname, 'image file %s not '
+                                      'readable: %s' % (filename, err),
+                                      node.line)
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:
@@ -949,39 +947,6 @@ class BuildEnvironment:
         self.titles[docname] = titlenode
         self.longtitles[docname] = longtitlenode
 
-    def note_labels_from(self, docname, document):
-        for name, explicit in document.nametypes.iteritems():
-            if not explicit:
-                continue
-            labelid = document.nameids[name]
-            if labelid is None:
-                continue
-            node = document.ids[labelid]
-            if name.isdigit() or node.has_key('refuri') or \
-                   node.tagname.startswith('desc_'):
-                # ignore footnote labels, labels automatically generated from a
-                # link and object descriptions
-                continue
-            if name in self.labels:
-                self.warn(docname, 'duplicate label %s, ' % name +
-                          'other instance in ' +
-                          self.doc2path(self.labels[name][0]),
-                          node.line)
-            self.anonlabels[name] = docname, labelid
-            if node.tagname == 'section':
-                sectname = clean_astext(node[0]) # node[0] == title node
-            elif node.tagname == 'figure':
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            else:
-                # anonymous-only labels
-                continue
-            self.labels[name] = docname, labelid, sectname
-
     def note_indexentries_from(self, docname, document):
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
@@ -1057,9 +1022,9 @@ class BuildEnvironment:
                 else:
                     anchorname = '#' + sectionnode['ids'][0]
                 numentries[0] += 1
-                reference = nodes.reference('', '', refuri=docname,
-                                            anchorname=anchorname,
-                                            *nodetext)
+                reference = nodes.reference(
+                    '', '', internal=True, refuri=docname,
+                    anchorname=anchorname, *nodetext)
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
                 if maxdepth == 0 or depth < maxdepth:
@@ -1082,15 +1047,18 @@ class BuildEnvironment:
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
-    def get_toctree_for(self, docname, builder, collapse, maxdepth=0):
+    def get_toctree_for(self, docname, builder, collapse, **kwds):
         """Return the global TOC nodetree."""
         doctree = self.get_doctree(self.config.master_doc)
         toctrees = []
+        if 'includehidden' not in kwds:
+            kwds['includehidden'] = True
+        if 'maxdepth' not in kwds:
+            kwds['maxdepth'] = 0
+        kwds['collapse'] = collapse
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve_toctree(docname, builder, toctreenode,
-                                           prune=True, collapse=collapse,
-                                           maxdepth=maxdepth,
-                                           includehidden=True)
+                                           prune=True, **kwds)
             toctrees.append(toctree)
         if not toctrees:
             return None
@@ -1118,7 +1086,7 @@ class BuildEnvironment:
         finally:
             f.close()
         doctree.settings.env = self
-        doctree.reporter = Reporter(self.doc2path(docname), 2, 4,
+        doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
                                     stream=WarningStream(self._warnfunc))
         return doctree
 
@@ -1197,7 +1165,7 @@ class BuildEnvironment:
             for (title, ref) in refs:
                 try:
                     if url_re.match(ref):
-                        reference = nodes.reference('', '',
+                        reference = nodes.reference('', '', internal=False,
                                                     refuri=ref, anchorname='',
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)
@@ -1209,7 +1177,7 @@ class BuildEnvironment:
                         ref = toctreenode['parent']
                         if not title:
                             title = clean_astext(self.titles[ref])
-                        reference = nodes.reference('', '',
+                        reference = nodes.reference('', '', internal=True,
                                                     refuri=ref,
                                                     anchorname='',
                                                     *[nodes.Text(title)])
@@ -1309,44 +1277,6 @@ class BuildEnvironment:
                     newnode = domain.resolve_xref(self, fromdocname, builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
-                elif typ == 'ref':
-                    if node['refexplicit']:
-                        # reference to anonymous label; the reference uses
-                        # the supplied link caption
-                        docname, labelid = self.anonlabels.get(target, ('',''))
-                        sectname = node.astext()
-                        if not docname:
-                            self.warn(refdoc, 'undefined label: %s' %
-                                      target, node.line)
-                            warned = True
-                    else:
-                        # reference to named label; the final node will
-                        # contain the section name after the label
-                        docname, labelid, sectname = self.labels.get(target,
-                                                                     ('','',''))
-                        if not docname:
-                            self.warn(refdoc,
-                                'undefined label: %s' % target + ' -- if you '
-                                'don\'t give a link caption the label must '
-                                'precede a section header.', node.line)
-                            warned = True
-                    if docname:
-                        newnode = nodes.reference('', '')
-                        innernode = nodes.emphasis(sectname, sectname)
-                        if docname == fromdocname:
-                            newnode['refid'] = labelid
-                        else:
-                            # set more info in contnode; in case the
-                            # get_relative_uri call raises NoUri,
-                            # the builder will then have to resolve these
-                            contnode = addnodes.pending_xref('')
-                            contnode['refdocname'] = docname
-                            contnode['refsectname'] = sectname
-                            newnode['refuri'] = builder.get_relative_uri(
-                                fromdocname, docname)
-                            if labelid:
-                                newnode['refuri'] += '#' + labelid
-                        newnode.append(innernode)
                 elif typ == 'doc':
                     # directly reference to document by source name;
                     # can be absolute or relative
@@ -1362,7 +1292,7 @@ class BuildEnvironment:
                         else:
                             caption = clean_astext(self.titles[docname])
                         innernode = nodes.emphasis(caption, caption)
-                        newnode = nodes.reference('', '')
+                        newnode = nodes.reference('', '', internal=True)
                         newnode['refuri'] = builder.get_relative_uri(
                             fromdocname, docname)
                         newnode.append(innernode)
@@ -1375,16 +1305,6 @@ class BuildEnvironment:
                     else:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
-                elif typ == 'keyword':
-                    # keywords are oddballs: they are referenced by named labels
-                    docname, labelid, _ = self.labels.get(target, ('','',''))
-                    if not docname:
-                        #self.warn(refdoc, 'unknown keyword: %s' % target)
-                        pass
-                    else:
-                        newnode = make_refnode(builder, fromdocname, docname,
-                                               labelid, contnode)
-
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(

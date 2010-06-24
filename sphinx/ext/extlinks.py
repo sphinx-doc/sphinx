@@ -46,7 +46,7 @@ def make_link_role(base_url, prefix):
                 title = full_url
             else:
                 title = prefix + part
-        pnode = nodes.reference(title, title, refuri=full_url)
+        pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
     return role
 

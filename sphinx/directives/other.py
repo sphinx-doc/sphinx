@@ -7,6 +7,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
@@ -367,6 +369,22 @@ class Only(Directive):
         return [node]
 
 
+from docutils.parsers.rst.directives.misc import Include as BaseInclude
+
+class Include(BaseInclude):
+    """
+    Like the standard "Include" directive, but interprets absolute paths
+    correctly.
+    """
+
+    def run(self):
+        if self.arguments[0].startswith('/') or \
+               self.arguments[0].startswith(os.sep):
+            env = self.state.document.settings.env
+            self.arguments[0] = os.path.join(env.srcdir, self.arguments[0][1:])
+        return BaseInclude.run(self)
+
+
 directives.register_directive('toctree', TocTree)
 directives.register_directive('sectionauthor', Author)
 directives.register_directive('moduleauthor', Author)
@@ -381,6 +399,7 @@ directives.register_directive('centered', Centered)
 directives.register_directive('acks', Acks)
 directives.register_directive('hlist', HList)
 directives.register_directive('only', Only)
+directives.register_directive('include', Include)
 
 # register the standard rst class directive under a different name
 from docutils.parsers.rst.directives.misc import Class
