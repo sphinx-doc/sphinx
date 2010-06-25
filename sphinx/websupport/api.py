@@ -64,7 +64,8 @@ class WebSupport(object):
     def get_search_results(self, q):
         results, results_found, results_displayed = self.search.query(q)
         ctx = {'search_performed': True,
-               'search_results': results}
+               'search_results': results,
+               'q': q}
         document = self.get_document('search')
         document['body'] = self.results_template.render(ctx)
         document['title'] = 'Search Results'

@@ -25,9 +25,9 @@
 {% endif %}
 <div id="search-results">
   {% if search_results %}
-  <ul>
+  <ul class="search">
     {% for href, caption, context in search_results %}
-    <li><a href="{{ href }}">{{ caption }}</a>
+    <li><a href="{{ href }}?highlight={{ q }}">{{ caption }}</a>
       <div class="context">{{ context|e }}</div>
     </li>
     {% endfor %}
