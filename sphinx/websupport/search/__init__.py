@@ -15,21 +15,31 @@ class BaseSearch(object):
     def create_index(self, path):
         raise NotImplemented
 
+    def feed(self, pagename, title, doctree):
+        self.add_document(pagename, title, doctree.astext())
+
     def add_document(self, path, title, text):
         raise NotImplemented
 
+    def prune(self, keep):
+        raise NotImplemented
+
     def query(self, q):
+        self.context_re = re.compile(q, re.I)
+        return self.handle_query(q)
+
+    def handle_query(self, q):
         raise NotImplemented
 
     def extract_context(self, text, query_string):
-        # From GSOC 2009
-        with_context_re = '([\W\w]{0,80})(%s)([\W\w]{0,80})' % (query_string)
-        try:
-            res = re.findall(with_context_re, text, re.I|re.U)[0]
-            return tuple((unicode(i, errors='ignore') for i in res))
-        except IndexError:
-            return '', '', ''
-
+        res = self.context_re.search(text)
+        start = max(res.start() - 120, 0)
+        end = start + 240
+        context = ['...' if start > 0 else '',
+                   text[start:end],
+                   '...' if end < len(text) else '']
+        return ''.join(context)
+    
 search_adapters = {
     'xapian': ('xapiansearch', 'XapianSearch'),
     'whoosh': ('whooshsearch', 'WhooshSearch'),

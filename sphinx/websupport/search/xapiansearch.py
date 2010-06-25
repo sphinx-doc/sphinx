@@ -47,7 +47,10 @@ class XapianSearch(BaseSearch):
         self.database.add_document(doc)
         self.database.commit_transaction()
 
-    def query(self, q):
+    def prune(self, keep):
+        pass
+
+    def handle_query(self, q):
         database = xapian.Database(self.db_path)
         enquire = xapian.Enquire(database)
         qp = xapian.QueryParser()
