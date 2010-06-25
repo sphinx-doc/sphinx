@@ -37,10 +37,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     def load_indexer(self, docnames):
         keep = set(self.env.all_docs) - set(docnames)
         self.indexer = self.app.search
-        if self.indexer is not None:
-            self.indexer.create_index()
-        # delete all entries for files that will be rebuilt
-        self.indexer.prune(keep)
+        self.indexer.init_indexing()
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
@@ -97,4 +94,4 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def dump_search_index(self):
-        pass
+        self.indexer.finish_indexing()

@@ -12,16 +12,16 @@
 import re
 
 class BaseSearch(object):
-    def create_index(self, path):
-        raise NotImplemented
+    def init_indexing(self):
+        pass
+
+    def finish_indexing(self):
+        pass
 
     def feed(self, pagename, title, doctree):
         self.add_document(pagename, title, doctree.astext())
 
     def add_document(self, path, title, text):
-        raise NotImplemented
-
-    def prune(self, keep):
         raise NotImplemented
 
     def query(self, q):
@@ -33,12 +33,14 @@ class BaseSearch(object):
 
     def extract_context(self, text, query_string):
         res = self.context_re.search(text)
+        if res is None:
+            return ''
         start = max(res.start() - 120, 0)
         end = start + 240
         context = ['...' if start > 0 else '',
                    text[start:end],
                    '...' if end < len(text) else '']
-        return ''.join(context)
+        return unicode(''.join(context), errors='ignore')
     
 search_adapters = {
     'xapian': ('xapiansearch', 'XapianSearch'),
