@@ -57,7 +57,3 @@ else:
 @with_app(buildername='singlehtml', cleanenv=True)
 def test_singlehtml(app):
     app.builder.build_all()
-
-@with_app(buildername='gettext')
-def test_gettext(app):
-    app.builder.build_all()

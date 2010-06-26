@@ -66,3 +66,7 @@ def test_gettext(app):
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).ugettext
     assert _("Testing various markup") == u"Testing various markup"
+
+@with_app(buildername='gettext')
+def test_all(app):
+    app.builder.build_all()
