@@ -35,9 +35,8 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         return docname
 
     def load_indexer(self, docnames):
-        keep = set(self.env.all_docs) - set(docnames)
         self.indexer = self.app.search
-        self.indexer.init_indexing()
+        self.indexer.init_indexing(changed=docnames)
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):

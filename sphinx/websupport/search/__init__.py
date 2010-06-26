@@ -12,7 +12,7 @@
 import re
 
 class BaseSearch(object):
-    def init_indexing(self):
+    def init_indexing(self, changed=[]):
         pass
 
     def finish_indexing(self):
@@ -37,10 +37,14 @@ class BaseSearch(object):
             return ''
         start = max(res.start() - 120, 0)
         end = start + 240
-        context = ['...' if start > 0 else '',
-                   text[start:end],
-                   '...' if end < len(text) else '']
-        return unicode(''.join(context), errors='ignore')
+        context = ''.join(['...' if start > 0 else '',
+                           text[start:end],
+                           '...' if end < len(text) else ''])
+        
+        try:
+            return unicode(context, errors='ignore')
+        except TypeError:
+            return context
     
 search_adapters = {
     'xapian': ('xapiansearch', 'XapianSearch'),

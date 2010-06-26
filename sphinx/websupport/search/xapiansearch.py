@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.websupport.search.xapian
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.websupport.search.xapiansearch
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Xapian search adapter.
 
@@ -26,7 +26,7 @@ class XapianSearch(BaseSearch):
     def __init__(self, db_path):
         self.db_path = db_path
 
-    def init_indexing(self):
+    def init_indexing(self, changed=[]):
         ensuredir(self.db_path)
         self.database = xapian.WritableDatabase(self.db_path, 
                                                 xapian.DB_CREATE_OR_OPEN)
