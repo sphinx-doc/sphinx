@@ -17,6 +17,7 @@ from docutils import nodes
 
 from sphinx.builders import Builder
 from sphinx.util.nodes import extract_messages
+from sphinx.util.osutil import SEP
 from sphinx.util.console import darkgreen
 
 POHEADER = ur"""
@@ -64,7 +65,7 @@ class MessageCatalogBuilder(Builder):
         section. For this purpose a document's *top-level directory* -- or
         otherwise its *name* -- is considered its section.
         """
-        catalog = self.catalogs[docname.split('/')[0]]
+        catalog = self.catalogs[docname.split(SEP, 1)[0]]
         for _, msg in extract_messages(doctree):
             # XXX msgctxt for duplicate messages
             if msg not in catalog:
