@@ -13,6 +13,10 @@ Web Support API
 
    Initialize attributes.
 
+.. method:: build()
+
+   Build the data used by the web support package.
+
 .. method:: get_document(docname)
 
    Retrieve the context dictionary corresponding to the *docname*.
