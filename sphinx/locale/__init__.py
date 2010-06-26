@@ -176,18 +176,19 @@ pairindextypes = {
     'builtin':   l_('built-in function'),
 }
 
-translator = None
+translators = {}
 
 def _(message):
-    return translator.ugettext(message)
+    return translators['sphinx'].ugettext(message)
 
-def init(locale_dirs, language):
-    global translator
+def init(locale_dirs, language, catalog='sphinx'):
+    global translators
+    translator = translators.get(catalog)
     # the None entry is the system's default locale path
     has_translation = True
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation('sphinx', localedir=dir_,
+            trans = gettext.translation(catalog, localedir=dir_,
                     languages=[language])
             if translator is None:
                 translator = trans
@@ -199,4 +200,5 @@ def init(locale_dirs, language):
     if translator is None:
         translator = gettext.NullTranslations()
         has_translation = False
+    translators[catalog] = translator
     return translator, has_translation
