@@ -10,6 +10,7 @@
 """
 
 import collections
+from datetime import datetime
 from os import path
 
 from docutils import nodes
@@ -29,7 +30,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: %(version)s\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: %(gettext_ctime)s\n"
+"POT-Creation-Date: %(ctime)s\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,12 +71,20 @@ class MessageCatalogBuilder(Builder):
                 catalog.append(msg)
 
     def finish(self):
+        data = dict(
+            version = self.config.version,
+            copyright = self.config.copyright,
+            project = self.config.project,
+            # XXX should supply tz
+            ctime = datetime.now().strftime('%Y-%m-%d %H:%M%z'),
+        )
         for section, messages in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
                 lambda (section, _):darkgreen(section), len(self.catalogs)):
+
             pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
             try:
-                pofile.write(POHEADER % self.config)
+                pofile.write(POHEADER % data)
                 for message in messages:
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\').replace(u'"', ur'\"')
