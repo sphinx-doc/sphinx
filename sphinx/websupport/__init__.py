@@ -10,5 +10,3 @@
 """
 
 from sphinx.websupport.api import WebSupport
-
-support = WebSupport()

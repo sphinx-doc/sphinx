@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     sphinx.websupport.api
-    ~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~
 
     All API functions.
 
@@ -23,14 +23,14 @@ class WebSupportApp(Sphinx):
         Sphinx.__init__(self, *args, **kwargs)
 
 class WebSupport(object):
-    def init(self, srcdir='', outdir='', search=None):
+    def __init__(self, srcdir='', outdir='', search=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
         self.init_templating()        
         if search is not None:
             self.init_search(search)
-        
+
     def init_templating(self):
         import sphinx
         template_path = path.join(path.dirname(sphinx.__file__),
