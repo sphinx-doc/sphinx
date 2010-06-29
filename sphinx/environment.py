@@ -736,7 +736,8 @@ class BuildEnvironment:
         self.dependencies.setdefault(self.docname, set()).add(filename)
 
     def get_translation(self, section):
-        translation, has_trans = init_locale(self.config.locale_dirs,
+        dirs = [path.join(self.srcdir, x) for x in self.config.locale_dirs]
+        translation, has_trans = init_locale(dirs,
                                              self.config.language, section)
         if not has_trans:
             return None
@@ -764,7 +765,7 @@ class BuildEnvironment:
         for node, msg in extract_messages(doctree):
             ctx = node.parent
             patch = new_document(source, settings)
-            msgstr = translation.gettext(msg)
+            msgstr = translation.ugettext(msg)
             parser.parse(msgstr, patch)
             ctx.replace(node, patch.children)
 
