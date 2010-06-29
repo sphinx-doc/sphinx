@@ -70,3 +70,30 @@ def test_gettext(app):
 @with_app(buildername='gettext')
 def test_all(app):
     app.builder.build_all()
+
+@with_app(buildername='text',
+        confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+def test_patch(app):
+    app.builder.build(['bom'])
+    res = (app.outdir / 'bom.txt').text('utf-8')
+    assert res == u"Datei mit UTF-8 BOM\n\nThis file has umlauts: äöü.\n"
+
+def setup_patch():
+    (test_root / 'xx' / 'LC_MESSAGES').makedirs()
+    try:
+        p = Popen(['msgfmt', test_root / 'bom.po', '-o',
+            test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo'],
+            stdout=PIPE, stderr=PIPE)
+    except OSError:
+        return  # most likely msgfmt was not found
+    else:
+        stdout, stderr = p.communicate()
+        if p.returncode != 0:
+            print stdout
+            print stderr
+            assert False, 'msgfmt exited with return code %s' % p.returncode
+    assert (test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo').isfile(), 'msgfmt failed'
+def teardown_patch():
+    (test_root / 'xx').rmtree()
+test_patch.setup = setup_patch
+test_patch.teardown = teardown_patch
