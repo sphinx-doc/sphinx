@@ -25,7 +25,7 @@ class BaseSearch(object):
         raise NotImplemented
 
     def query(self, q):
-        self.context_re = re.compile(q, re.I)
+        self.context_re = re.compile('|'.join(q.split()), re.I)
         return self.handle_query(q)
 
     def handle_query(self, q):
