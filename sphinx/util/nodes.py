@@ -30,7 +30,7 @@ def extract_messages(doctree):
         # <field_name>orphan</field_name>
         if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
             continue
-        msg = node.astext().replace('\n', ' ').strip()
+        msg = node.rawsource.replace('\n', ' ').strip()
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
