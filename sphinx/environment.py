@@ -766,6 +766,9 @@ class BuildEnvironment:
             ctx = node.parent
             patch = new_document(source, settings)
             msgstr = translation.ugettext(msg)
+            #XXX add marker to untranslated parts
+            if not msgstr: # as-of-yet untranslated
+                continue
             parser.parse(msgstr, patch)
             assert isinstance(patch[0], nodes.paragraph)
             node.children = patch[0].children
