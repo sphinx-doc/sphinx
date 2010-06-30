@@ -767,7 +767,7 @@ class BuildEnvironment:
             patch = new_document(source, settings)
             msgstr = translation.ugettext(msg)
             #XXX add marker to untranslated parts
-            if not msgstr: # as-of-yet untranslated
+            if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
             parser.parse(msgstr, patch)
             assert isinstance(patch[0], nodes.paragraph)
