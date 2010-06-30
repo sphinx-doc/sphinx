@@ -767,7 +767,8 @@ class BuildEnvironment:
             patch = new_document(source, settings)
             msgstr = translation.ugettext(msg)
             parser.parse(msgstr, patch)
-            ctx.replace(node, patch.children)
+            assert isinstance(patch[0], nodes.paragraph)
+            node.children = patch[0].children
 
 
     def process_dependencies(self, docname, doctree):
