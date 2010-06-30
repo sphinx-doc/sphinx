@@ -58,6 +58,7 @@ default_settings = {
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
+    'halt_level': 5,
 }
 
 # This is increased every time an environment attribute is added
@@ -1085,7 +1086,7 @@ class BuildEnvironment:
         finally:
             f.close()
         doctree.settings.env = self
-        doctree.reporter = Reporter(self.doc2path(docname), 2, 4,
+        doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
                                     stream=WarningStream(self._warnfunc))
         return doctree
 

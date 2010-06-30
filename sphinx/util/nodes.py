@@ -136,3 +136,10 @@ def _new_contains(self, key):
     return key in self.children
 
 nodes.Node.__contains__ = _new_contains
+
+# monkey-patch Element.copy to copy the rawsource
+
+def _new_copy(self):
+    return self.__class__(self.rawsource, **self.attributes)
+
+nodes.Element.copy = _new_copy

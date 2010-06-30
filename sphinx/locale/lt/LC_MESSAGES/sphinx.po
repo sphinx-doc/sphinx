@@ -1,0 +1,770 @@
+# Lithuanian translations for Sphinx.
+# This file is distributed under the same license as the Sphinx project.
+# DALIUS DOBRAVOLSKAS <DALIUS@SANDBOX.LT>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx 1.0pre/8b971dbc7d36\n"
+"Report-Msgid-Bugs-To: dalius@sandbox.lt\n"
+"POT-Creation-Date: 2010-05-24 23:53+0200\n"
+"PO-Revision-Date: 2010-06-19 12:02+0300\n"
+"Last-Translator: Dalius Dobravolskas <dalius@sandbox.lt>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"(n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: sphinx/environment.py:106 sphinx/writers/latex.py:184
+#: sphinx/writers/manpage.py:67
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%Y-%m-%d"
+
+#: sphinx/roles.py:174
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr ""
+
+#: sphinx/builders/changes.py:72
+msgid "Builtins"
+msgstr "Įtaisytieji"
+
+#: sphinx/builders/changes.py:74
+msgid "Module level"
+msgstr "Modulio lygis"
+
+#: sphinx/builders/html.py:266
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%Y-%m-%d"
+
+#: sphinx/builders/html.py:285 sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr "Bendras indeksas"
+
+#: sphinx/builders/html.py:285
+msgid "index"
+msgstr "indeksas"
+
+#: sphinx/builders/html.py:345
+msgid "next"
+msgstr "kitas"
+
+#: sphinx/builders/html.py:354
+msgid "previous"
+msgstr "praeitas"
+
+#: sphinx/builders/latex.py:151
+msgid " (in "
+msgstr " (kuris yra "
+
+#: sphinx/directives/other.py:127
+msgid "Section author: "
+msgstr "Skyriaus autorius: "
+
+#: sphinx/directives/other.py:129
+msgid "Module author: "
+msgstr "Modulio autorius: "
+
+#: sphinx/directives/other.py:131
+msgid "Code author: "
+msgstr "Kodo autorius: "
+
+#: sphinx/directives/other.py:133
+msgid "Author: "
+msgstr "Autorius: "
+
+#: sphinx/directives/other.py:238
+msgid "See also"
+msgstr "Taip pat žiūrėkite"
+
+#: sphinx/domains/__init__.py:253
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: sphinx/domains/c.py:51 sphinx/domains/python.py:49
+msgid "Parameters"
+msgstr "Parametrai"
+
+#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:137
+#: sphinx/domains/python.py:59
+msgid "Returns"
+msgstr "Grąžinamos reikšmės"
+
+#: sphinx/domains/c.py:56 sphinx/domains/python.py:61
+msgid "Return type"
+msgstr "Grąžinamos reikšmės tipas"
+
+#: sphinx/domains/c.py:133
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (C funkcija)"
+
+#: sphinx/domains/c.py:135
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (C narys)"
+
+#: sphinx/domains/c.py:137
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (C makrokomanda)"
+
+#: sphinx/domains/c.py:139
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (C tipas)"
+
+#: sphinx/domains/c.py:141
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (C kintamasis)"
+
+#: sphinx/domains/c.py:171 sphinx/domains/cpp.py:1031
+#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:497
+msgid "function"
+msgstr "funkcija"
+
+#: sphinx/domains/c.py:172 sphinx/domains/cpp.py:1032
+msgid "member"
+msgstr "narys"
+
+#: sphinx/domains/c.py:173
+msgid "macro"
+msgstr "makrokomanda"
+
+#: sphinx/domains/c.py:174 sphinx/domains/cpp.py:1033
+msgid "type"
+msgstr "tipas"
+
+#: sphinx/domains/c.py:175
+msgid "variable"
+msgstr "kintamasis"
+
+#: sphinx/domains/cpp.py:876
+#, python-format
+msgid "%s (C++ class)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:891
+#, python-format
+msgid "%s (C++ type)"
+msgstr "%s (C++ tipas)"
+
+#: sphinx/domains/cpp.py:910
+#, python-format
+msgid "%s (C++ member)"
+msgstr "%s (C++ narys)"
+
+#: sphinx/domains/cpp.py:962
+#, python-format
+msgid "%s (C++ function)"
+msgstr "%s (C++ funkcija)"
+
+#: sphinx/domains/cpp.py:1030 sphinx/domains/python.py:499
+msgid "class"
+msgstr "klasė"
+
+#: sphinx/domains/javascript.py:117 sphinx/domains/python.py:221
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (itaisytoji funkcija)"
+
+#: sphinx/domains/javascript.py:118 sphinx/domains/python.py:285
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s metodas)"
+
+#: sphinx/domains/javascript.py:120
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (globalus kintamasis arba konstanta)"
+
+#: sphinx/domains/javascript.py:122 sphinx/domains/python.py:323
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s atributas)"
+
+#: sphinx/domains/javascript.py:131
+msgid "Arguments"
+msgstr "Argumentais"
+
+#: sphinx/domains/javascript.py:134
+msgid "Throws"
+msgstr "Išmeta"
+
+#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:498
+msgid "data"
+msgstr "duomenys"
+
+#: sphinx/domains/javascript.py:168 sphinx/domains/python.py:504
+msgid "attribute"
+msgstr "atribudas"
+
+#: sphinx/domains/python.py:53
+msgid "Variables"
+msgstr "Kintamieji"
+
+#: sphinx/domains/python.py:56
+msgid "Raises"
+msgstr "Sukelia"
+
+#: sphinx/domains/python.py:222 sphinx/domains/python.py:279
+#: sphinx/domains/python.py:291 sphinx/domains/python.py:304
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (modulyje %s)"
+
+#: sphinx/domains/python.py:225
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (įtaisytasis kintamasis)"
+
+#: sphinx/domains/python.py:226 sphinx/domains/python.py:317
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (modulje %s)"
+
+#: sphinx/domains/python.py:242
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (įtaisytoji klasė)"
+
+#: sphinx/domains/python.py:243
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (klasė iš %s)"
+
+#: sphinx/domains/python.py:283
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s metodas)"
+
+#: sphinx/domains/python.py:295
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s statinis metodas)"
+
+#: sphinx/domains/python.py:298
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s statinis metodas)"
+
+#: sphinx/domains/python.py:308
+#, python-format
+msgid "%s() (%s.%s class method)"
+msgstr "%s() (%s.%s klasės metodas)"
+
+#: sphinx/domains/python.py:311
+#, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s klasės metodas)"
+
+#: sphinx/domains/python.py:321
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s atributas)"
+
+#: sphinx/domains/python.py:366
+msgid "Platforms: "
+msgstr "Platformos: "
+
+#: sphinx/domains/python.py:372
+#, python-format
+msgid "%s (module)"
+msgstr "%s (modulis)"
+
+#: sphinx/domains/python.py:429
+msgid "Python Module Index"
+msgstr ""
+
+#: sphinx/domains/python.py:430
+msgid "modules"
+msgstr "moduliai"
+
+#: sphinx/domains/python.py:475
+msgid "Deprecated"
+msgstr "Atmestas"
+
+#: sphinx/domains/python.py:500 sphinx/locale/__init__.py:162
+msgid "exception"
+msgstr "išimtis"
+
+#: sphinx/domains/python.py:501
+msgid "method"
+msgstr "metodas"
+
+#: sphinx/domains/python.py:502
+msgid "class method"
+msgstr "klasės metodas"
+
+#: sphinx/domains/python.py:503
+msgid "static method"
+msgstr "statinis metodas"
+
+#: sphinx/domains/python.py:505 sphinx/locale/__init__.py:158
+msgid "module"
+msgstr "modulis"
+
+#: sphinx/domains/rst.py:53
+#, python-format
+msgid "%s (directive)"
+msgstr "%s (direktyva)"
+
+#: sphinx/domains/rst.py:55
+#, python-format
+msgid "%s (role)"
+msgstr "%s (rolė)"
+
+#: sphinx/domains/rst.py:103
+msgid "directive"
+msgstr "direktyva"
+
+#: sphinx/domains/rst.py:104
+msgid "role"
+msgstr "rolė"
+
+#: sphinx/domains/std.py:68 sphinx/domains/std.py:84
+#, python-format
+msgid "environment variable; %s"
+msgstr "aplinkos kintamasis; %s"
+
+#: sphinx/domains/std.py:160
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "%skomandinės eilutės parinktis; %s"
+
+#: sphinx/domains/std.py:328
+msgid "glossary term"
+msgstr "aiškinamasis terminas"
+
+#: sphinx/domains/std.py:329
+msgid "grammar token"
+msgstr "gramatinė leksema"
+
+#: sphinx/domains/std.py:330
+msgid "reference label"
+msgstr "nuorodos požymis"
+
+#: sphinx/domains/std.py:331
+msgid "environment variable"
+msgstr "aplinkos kintamasis"
+
+#: sphinx/domains/std.py:332
+msgid "program option"
+msgstr "programos parinktis"
+
+#: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
+#: sphinx/themes/basic/genindex-split.html:11
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:14
+#: sphinx/themes/basic/genindex.html:50 sphinx/themes/basic/layout.html:125
+#: sphinx/writers/latex.py:173
+msgid "Index"
+msgstr "Indeksas"
+
+#: sphinx/domains/std.py:361
+msgid "Module Index"
+msgstr "Modulio indeksas"
+
+#: sphinx/domains/std.py:362 sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr "Paieškos puslapis"
+
+#: sphinx/ext/autodoc.py:917
+#, python-format
+msgid "   Bases: %s"
+msgstr "   Bazės: %s"
+
+#: sphinx/ext/autodoc.py:950
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr ":class:`%s` alternatyvus vardas"
+
+#: sphinx/ext/todo.py:41
+msgid "Todo"
+msgstr "Padaryti"
+
+#: sphinx/ext/todo.py:109
+#, python-format
+msgid "(The <<original entry>> is located in  %s, line %d.)"
+msgstr "(<<original entry>> galima rasti %s, eilutėje %d.)"
+
+#: sphinx/ext/todo.py:117
+msgid "original entry"
+msgstr "originalus įrašas"
+
+#: sphinx/ext/viewcode.py:66
+msgid "[source]"
+msgstr "[šaltinis]"
+
+#: sphinx/ext/viewcode.py:109
+msgid "[docs]"
+msgstr "[dokumentai]"
+
+#: sphinx/ext/viewcode.py:123
+msgid "Module code"
+msgstr "Modulio kodas"
+
+#: sphinx/ext/viewcode.py:129
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>Kodas %s</h1>"
+
+#: sphinx/ext/viewcode.py:156
+msgid "Overview: module code"
+msgstr "Apžvalga: modulio kodas"
+
+#: sphinx/ext/viewcode.py:157
+msgid "<h1>All modules for which code is available</h1>"
+msgstr "<h1>Visi moduliai turintys kodą</h1>"
+
+#: sphinx/locale/__init__.py:139
+msgid "Attention"
+msgstr "Dėmesio"
+
+#: sphinx/locale/__init__.py:140
+msgid "Caution"
+msgstr "Atsargiai"
+
+#: sphinx/locale/__init__.py:141
+msgid "Danger"
+msgstr "Pavojinga"
+
+#: sphinx/locale/__init__.py:142
+msgid "Error"
+msgstr "Klaida"
+
+#: sphinx/locale/__init__.py:143
+msgid "Hint"
+msgstr "Patarimas"
+
+#: sphinx/locale/__init__.py:144
+msgid "Important"
+msgstr "Svarbu"
+
+#: sphinx/locale/__init__.py:145
+msgid "Note"
+msgstr "Pastaba"
+
+#: sphinx/locale/__init__.py:146
+msgid "See Also"
+msgstr "Taip pat žiūrėkite"
+
+#: sphinx/locale/__init__.py:147
+msgid "Tip"
+msgstr "Patarimas"
+
+#: sphinx/locale/__init__.py:148
+msgid "Warning"
+msgstr "Įspėjimas"
+
+#: sphinx/locale/__init__.py:152
+#, python-format
+msgid "New in version %s"
+msgstr "Nauja %s versijoje"
+
+#: sphinx/locale/__init__.py:153
+#, python-format
+msgid "Changed in version %s"
+msgstr "Pakeista %s versijoje"
+
+#: sphinx/locale/__init__.py:154
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Nebepalaikoma nuo %s versijos"
+
+#: sphinx/locale/__init__.py:159
+msgid "keyword"
+msgstr "bazinis žodis"
+
+#: sphinx/locale/__init__.py:160
+msgid "operator"
+msgstr "operatorius"
+
+#: sphinx/locale/__init__.py:161
+msgid "object"
+msgstr "objektas"
+
+#: sphinx/locale/__init__.py:163
+msgid "statement"
+msgstr "sakinis"
+
+#: sphinx/locale/__init__.py:164
+msgid "built-in function"
+msgstr "įtaisytoji funkcija"
+
+#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11
+msgid "Table Of Contents"
+msgstr "Turinys"
+
+#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:128
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:14
+msgid "Search"
+msgstr "Paieška"
+
+#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+msgid "Go"
+msgstr "Pirmyn"
+
+#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+msgid "Enter search terms or a module, class or function name."
+msgstr "Įveskite paieškos terminą arba modulio, klasės ar funkcijos vardą."
+
+#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+msgid "Show Source"
+msgstr "Rodyti pirminį kodą"
+
+#: sphinx/themes/basic/defindex.html:11
+msgid "Overview"
+msgstr "Apžvalga"
+
+#: sphinx/themes/basic/defindex.html:20
+msgid "Indices and tables:"
+msgstr "Indeksai ir lentelės:"
+
+#: sphinx/themes/basic/defindex.html:23
+msgid "Complete Table of Contents"
+msgstr "Pilnas Turinys"
+
+#: sphinx/themes/basic/defindex.html:24
+msgid "lists all sections and subsections"
+msgstr "surašyti visus skyrius ir poskyrius"
+
+#: sphinx/themes/basic/defindex.html:26
+msgid "search this documentation"
+msgstr "ieškoti šiame dokumente"
+
+#: sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr "Globalus Modulio Indeksas"
+
+#: sphinx/themes/basic/defindex.html:29
+msgid "quick access to all modules"
+msgstr "greitas visų modulių pasiekimas"
+
+#: sphinx/themes/basic/defindex.html:31
+msgid "all functions, classes, terms"
+msgstr "visos funkcijos, klasės ir terminai"
+
+#: sphinx/themes/basic/genindex-single.html:14
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "Indeksas &ndash; %(key)s"
+
+#: sphinx/themes/basic/genindex-single.html:46
+#: sphinx/themes/basic/genindex-split.html:24
+#: sphinx/themes/basic/genindex-split.html:38
+#: sphinx/themes/basic/genindex.html:56
+msgid "Full index on one page"
+msgstr "Pilnas indeksas viename puslapyje"
+
+#: sphinx/themes/basic/genindex-split.html:16
+msgid "Index pages by letter"
+msgstr "Indekso puslapiai pagal raidę"
+
+#: sphinx/themes/basic/genindex-split.html:25
+msgid "can be huge"
+msgstr "gali būti didelis"
+
+#: sphinx/themes/basic/layout.html:23
+msgid "Navigation"
+msgstr "Navigacija"
+
+#: sphinx/themes/basic/layout.html:113
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Ieškoti tarp %(docstitle)s"
+
+#: sphinx/themes/basic/layout.html:122
+msgid "About these documents"
+msgstr "Apie šiuos dokumentus"
+
+#: sphinx/themes/basic/layout.html:131
+msgid "Copyright"
+msgstr "Autoriaus teisės"
+
+#: sphinx/themes/basic/layout.html:180
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Autoriaus teisės</a> %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:182
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; Autoriaus teisės %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:186
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Paskutinis atnaujinimas %(last_updated)s."
+
+#: sphinx/themes/basic/layout.html:189
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+"Sukurta naudojant <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+
+#: sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Ieškoti %(docstitle)s"
+
+#: sphinx/themes/basic/relations.html:11
+msgid "Previous topic"
+msgstr "Praeita tema"
+
+#: sphinx/themes/basic/relations.html:13
+msgid "previous chapter"
+msgstr "praeita dalis"
+
+#: sphinx/themes/basic/relations.html:16
+msgid "Next topic"
+msgstr "Kita tema"
+
+#: sphinx/themes/basic/relations.html:18
+msgid "next chapter"
+msgstr "kita dalis"
+
+#: sphinx/themes/basic/search.html:18
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+"Prašome aktyvuoti JavaScript, kad veiktų paieškos\n"
+"    funkcionalumas."
+
+#: sphinx/themes/basic/search.html:23
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr ""
+"Čia jūs galite ieškoti šiuose dokumentuose. Įveskite savo paieškos\n    žodžius į lauką apačioje ir paspauskite \"ieškoti\". Pastebėsime, kad paieškos\n    funkcija automatiškai ieškos visų žodžių. Puslapiai,\n    kuriuose yra mažiau žodžių nepasirodys tarp paieškos rezultatų."
+
+#: sphinx/themes/basic/search.html:30
+msgid "search"
+msgstr "ieškoti"
+
+#: sphinx/themes/basic/search.html:34
+#: sphinx/themes/basic/static/searchtools.js:489
+msgid "Search Results"
+msgstr "Paieškos rezultatai"
+
+#: sphinx/themes/basic/search.html:36
+msgid "Your search did not match any results."
+msgstr "Jūsų paieška neatitiko jokių rezultatų"
+
+#: sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "Greitoji paieška"
+
+#: sphinx/themes/basic/sourcelink.html:11
+msgid "This Page"
+msgstr "Šis puslapis"
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "Pasikeitimai versijoje %(version)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Automatiškai sugeneruotas pakeitimų %(version)s versijoje sąrašas"
+
+#: sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Bibliotekos pakeitimai"
+
+#: sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "C API pakeitimai"
+
+#: sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Kiti pakeitimai"
+
+#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:482
+#: sphinx/writers/html.py:487
+msgid "Permalink to this headline"
+msgstr "Nuoroda į šią antraštę"
+
+#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:87
+msgid "Permalink to this definition"
+msgstr "Nuoroda į šį apibrėžimą"
+
+#: sphinx/themes/basic/static/doctools.js:189
+msgid "Hide Search Matches"
+msgstr "Paslėpti paieškos rezultatus"
+
+#: sphinx/themes/basic/static/searchtools.js:285
+msgid "Searching"
+msgstr "Ieškoma"
+
+#: sphinx/themes/basic/static/searchtools.js:290
+msgid "Preparing search..."
+msgstr "Ruošiama paieška..."
+
+#: sphinx/themes/basic/static/searchtools.js:364
+msgid ", in "
+msgstr ", kuris yra "
+
+#: sphinx/themes/basic/static/searchtools.js:491
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr "Jūsų paieška neatitiko jokių dokumentų. Prašom patikrinti ar visi žodžiai teisingai įvesti ir ar pasirinkote pakankamai kategorijų."
+
+#: sphinx/themes/basic/static/searchtools.js:493
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "Paieška baigta, paieškos rezultatus atitiko %s puslapis(-iai,-ių)"
+
+#: sphinx/themes/default/static/sidebar.js:66
+msgid "Expand sidebar"
+msgstr "Išplėsti šoninę juostą"
+
+#: sphinx/themes/default/static/sidebar.js:79
+#: sphinx/themes/default/static/sidebar.js:106
+msgid "Collapse sidebar"
+msgstr "Paslėpti šoninę juostą"
+
+#: sphinx/themes/haiku/layout.html:26
+msgid "Contents"
+msgstr "Turinys"
+
+#: sphinx/writers/latex.py:171
+msgid "Release"
+msgstr "Leidimas"
+
+#: sphinx/writers/latex.py:572 sphinx/writers/manpage.py:178
+msgid "Footnotes"
+msgstr "Išnašos"
+
+#: sphinx/writers/latex.py:641
+msgid "continued from previous page"
+msgstr "tęsinys iš praeito puslapio"
+
+#: sphinx/writers/latex.py:646
+msgid "Continued on next page"
+msgstr "Tęsinys kitame puslapyje"
+
+#: sphinx/writers/text.py:422
+msgid "[image]"
+msgstr "[paveiksliukas]"
+
