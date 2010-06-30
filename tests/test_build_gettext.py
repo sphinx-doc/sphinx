@@ -75,8 +75,11 @@ def test_all(app):
         confoverrides={'language': 'xx', 'locale_dirs': ['.']})
 def test_patch(app):
     app.builder.build(['bom'])
-    res = (app.outdir / 'bom.txt').text('utf-8')
-    assert res == u"Datei mit UTF-8 BOM\n\nThis file has umlauts: äöü.\n"
+    result = (app.outdir / 'bom.txt').text('utf-8')
+    expect = (u"\nDatei mit UTF-8"
+              u"\n***************\n" # underline matches new translation
+              u"\nThis file has umlauts: äöü.\n")
+    assert result == expect
 
 def setup_patch():
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
