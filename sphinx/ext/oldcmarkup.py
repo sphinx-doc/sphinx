@@ -13,6 +13,10 @@ from docutils.parsers.rst import directives
 
 from sphinx.util.compat import Directive
 
+_warned_oldcmarkup = False
+WARNING_MSG = 'using old C markup; please migrate to new-style markup ' \
+              '(e.g. c:function instead of cfunction), see ' \
+              'http://sphinx.pocoo.org/domains.html'
 
 class OldCDirective(Directive):
     has_content = True
@@ -26,6 +30,9 @@ class OldCDirective(Directive):
 
     def run(self):
         env = self.state.document.settings.env
+        if not env.app._oldcmarkup_warned:
+            env.warn(env.docname, WARNING_MSG, self.lineno)
+            env.app._oldcmarkup_warned = True
         newname = 'c:' + self.name[1:]
         newdir = env.lookup_domain_element('directive', newname)[0]
         return newdir(newname, self.arguments, self.options,
@@ -35,12 +42,16 @@ class OldCDirective(Directive):
 
 def old_crole(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
+    if not env.app._oldcmarkup_warned:
+        env.warn(env.docname, WARNING_MSG)
+        env.app._oldcmarkup_warned = True
     newtyp = 'c:' + typ[1:]
     newrole = env.lookup_domain_element('role', newtyp)[0]
     return newrole(newtyp, rawtext, text, lineno, inliner, options, content)
 
 
 def setup(app):
+    app._oldcmarkup_warned = False
     app.add_directive('cfunction', OldCDirective)
     app.add_directive('cmember', OldCDirective)
     app.add_directive('cmacro', OldCDirective)
