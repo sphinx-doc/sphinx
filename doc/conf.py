@@ -34,9 +34,9 @@ epub_author = 'Georg Brandl'
 epub_publisher = 'http://sphinx.pocoo.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
-epub_pre_files = [('index', 'Welcome')]
+epub_pre_files = [('index.html', 'Welcome')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
-    '_static/jquery.js', '_static/searchtools.js',
+    '_static/jquery.js', '_static/searchtools.js', '_static/underscore.js',
     '_static/basic.css', 'search.html']
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
