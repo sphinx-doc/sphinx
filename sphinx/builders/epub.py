@@ -17,7 +17,6 @@ import zipfile
 import re
 
 from docutils import nodes
-from docutils.transforms import Transform
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
@@ -123,29 +122,6 @@ _media_types = {
 }
 
 
-# The transform to show link targets
-
-class VisibleLinksTransform(Transform):
-    """
-    Add the link target of references to the text, unless it is already
-    present in the description.
-    """
-
-    # This transform must run after the references transforms
-    default_priority = 680
-
-    def apply(self):
-        for ref in self.document.traverse(nodes.reference):
-            uri = ref.get('refuri', '')
-            if ( uri.startswith('http:') or uri.startswith('https:') or \
-                    uri.startswith('ftp:') ) and uri not in ref.astext():
-                uri = _link_target_template % {'uri': uri}
-                if uri:
-                    idx = ref.parent.index(ref) + 1
-                    link = nodes.inline(uri, uri)
-                    link['classes'].append(_css_link_target_class)
-                    ref.parent.insert(idx, link)
-
 # The epub publisher
 
 class EpubBuilder(StandaloneHTMLBuilder):
@@ -172,10 +148,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
-        # Disable transform until the issue with cached doctrees is solved.
-        # Building the html file after the epub file shows the
-        # visible links also in the HTML output.
-        #self.app.add_transform(VisibleLinksTransform)
 
     def get_theme_config(self):
         return self.config.epub_theme, {}
@@ -265,11 +237,26 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 newids.append(id)
             node.attributes['ids'] = newids
 
+    def add_visible_links(self, tree):
+        """Append visible link targets after external links.
+        """
+        for node in tree.traverse(nodes.reference):
+            uri = node.get('refuri', '')
+            if ( uri.startswith('http:') or uri.startswith('https:') or \
+                    uri.startswith('ftp:') ) and uri not in node.astext():
+                uri = _link_target_template % {'uri': uri}
+                if uri:
+                    idx = node.parent.index(node) + 1
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    node.parent.insert(idx, link)
+
     def write_doc(self, docname, doctree):
         """Write one document file.
-        This method is overwritten in order to fix the URIs.
+        This method is overwritten in order to fix a few things.
         """
         self.fix_ids(doctree)
+        self.add_visible_links(doctree)
         return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     # Finish by building the epub file
