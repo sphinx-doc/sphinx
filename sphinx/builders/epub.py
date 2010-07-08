@@ -14,6 +14,7 @@ import os
 import codecs
 from os import path
 import zipfile
+import re
 
 from docutils import nodes
 from docutils.transforms import Transform
@@ -21,6 +22,7 @@ from docutils.transforms import Transform
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
+from sphinx import addnodes
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -144,7 +146,6 @@ class VisibleLinksTransform(Transform):
                     link['classes'].append(_css_link_target_class)
                     ref.parent.insert(idx, link)
 
-
 # The epub publisher
 
 class EpubBuilder(StandaloneHTMLBuilder):
@@ -243,6 +244,33 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 'text': ssp(self.esc(text))
             })
 
+    def fix_ids(self, tree):
+        """Replace colons with hyphens in href and id attributes.
+        Some readers crash because they interpret the part as a
+        transport protocol specification.
+        """
+        refuri_pat = re.compile("([^#:]*)#([^:]*):(.*)")
+        refid_pat = re.compile("([^:]*):(.*)")
+
+        for node in tree.traverse(nodes.reference):
+            if 'refuri' in node:
+                node['refuri'] = refuri_pat.sub("\\1#\\2-\\3", node['refuri'])
+            if 'refid' in node:
+                node['refid'] = refid_pat.sub("\\1-\\2", node['refid'])
+        for node in tree.traverse(addnodes.desc_signature):
+            ids = node.attributes['ids']
+            newids = []
+            for id in ids:
+                id = refid_pat.sub("\\1-\\2", id)
+                newids.append(id)
+            node.attributes['ids'] = newids
+
+    def write_doc(self, docname, doctree):
+        """Write one document file.
+        This method is overwritten in order to fix the URIs.
+        """
+        self.fix_ids(doctree)
+        return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     # Finish by building the epub file
     def handle_finish(self):
