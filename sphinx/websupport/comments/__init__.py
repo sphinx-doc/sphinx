@@ -24,7 +24,8 @@ class CommentBackend(object):
 
 
 class SQLAlchemyComments(CommentBackend):
-    def __init__(self, engine):
+    def __init__(self, engine, get_user):
+        self.get_user = get_user
         self.engine = engine
         Base.metadata.bind = engine
         Base.metadata.create_all()
@@ -84,7 +85,7 @@ class SQLAlchemyComments(CommentBackend):
                 'delta': self.pretty_delta(comment)}
 
         return {'text': comment.text,
-                'user_id': comment.user_id,
+                'user': self.get_user(comment.user_id),
                 'id': comment.id,
                 'rating': self.pretty_rating(comment),
                 'time': time,

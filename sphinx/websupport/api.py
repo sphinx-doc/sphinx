@@ -28,7 +28,7 @@ class WebSupportApp(Sphinx):
 
 class WebSupport(object):
     def __init__(self, srcdir='', outdir='', search=None,
-                 comments=None):
+                 comments=None, get_user=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
@@ -36,9 +36,9 @@ class WebSupport(object):
         if search is not None:
             self.init_search(search)
 
-        self.init_comments(comments)
+        self.init_comments(comments, get_user)
     
-    def init_comments(self, comments):
+    def init_comments(self, comments, get_user):
         if isinstance(comments, sphinxcomments.CommentBackend):
             self.comments = comments
         elif comments is not None:
@@ -49,7 +49,7 @@ class WebSupport(object):
             db_path = path.join(self.outdir, 'comments', 'comments.db')
             ensuredir(path.dirname(db_path))
             engine = create_engine('sqlite:///%s' % db_path)
-            self.comments = SQLAlchemyComments(engine)
+            self.comments = SQLAlchemyComments(engine, get_user)
         
     def init_templating(self):
         import sphinx
