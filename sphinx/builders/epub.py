@@ -20,6 +20,7 @@ from docutils.transforms import Transform
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
+from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -124,7 +125,7 @@ _media_types = {
 
 class VisibleLinksTransform(Transform):
     """
-    Add the link target of referances to the text, unless it is already
+    Add the link target of references to the text, unless it is already
     present in the description.
     """
 
@@ -170,7 +171,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
-        self.app.add_transform(VisibleLinksTransform)
+        # Disable transform until the issue with cached doctrees is solved.
+        # Building the html file after the epub file shows the
+        # visible links also in the HTML output.
+        #self.app.add_transform(VisibleLinksTransform)
 
     def get_theme_config(self):
         return self.config.epub_theme, {}
@@ -194,17 +198,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
-        if isinstance(doctree, nodes.reference):
+        if isinstance(doctree, nodes.reference) and hasattr(doctree, 'refuri'):
+            refuri = doctree['refuri']
+            if refuri.startswith('http://') or refuri.startswith('https://') \
+                or refuri.startswith('irc:') or refuri.startswith('mailto:'):
+                return result
             classes = doctree.parent.attributes['classes']
-            level = 1
-            for l in range(8, 0, -1): # or range(1, 8)?
-                if (_toctree_template % l) in classes:
-                    level = l
-            result.append({
-                'level': level,
-                'refuri': self.esc(doctree['refuri']),
-                'text': self.esc(doctree.astext())
-            })
+            for level in range(8, 0, -1): # or range(1, 8)?
+                if (_toctree_template % level) in classes:
+                    result.append({
+                        'level': level,
+                        'refuri': self.esc(refuri),
+                        'text': ssp(self.esc(doctree.astext()))
+                    })
+                    break
         else:
             for elem in doctree.children:
                 result = self.get_refnodes(elem, result)
@@ -220,19 +227,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
-            'text': self.esc(self.env.titles[self.config.master_doc].astext())
+            'text': ssp(self.esc(
+                    self.env.titles[self.config.master_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
                 'level': 1,
-                'refuri': self.esc(file + '.html'),
-                'text': self.esc(text)
+                'refuri': self.esc(file),
+                'text': ssp(self.esc(text))
             })
         for file, text in self.config.epub_post_files:
             self.refnodes.append({
                 'level': 1,
-                'refuri': self.esc(file + '.html'),
-                'text': self.esc(text)
+                'refuri': self.esc(file),
+                'text': ssp(self.esc(text))
             })
 
 

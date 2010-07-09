@@ -134,6 +134,16 @@ some notes:
   and Bookworm_.  For bookworm you can download the source from
   http://code.google.com/p/threepress/ and run your own local server.
 
+* Large floating divs are not displayed properly.
+  If they cover more than one page, the div is only shown on the first page.
+  In that case you can copy the :file:`epub.css` from the
+  ``sphinx/themes/epub/static/`` directory to your local ``_static/``
+  directory and remove the float settings.
+
+* Files that are inserted outside of the ``toctree`` directive must be manually
+  included. This sometimes applies to appendixes, e.g. the glossary or
+  the indices.  You can add them with the :confval:`epub_post_files` option.
+
 .. _Epubcheck: http://code.google.com/p/epubcheck/
 .. _Calibre: http://calibre-ebook.com/
 .. _FBreader: http://www.fbreader.org/
