@@ -31,10 +31,18 @@ class SQLAlchemyComments(CommentBackend):
         Session.configure(bind=engine)
         self.session = Session()
 
+    def pre_build(self):
+        self.current_pk = None
+
     def add_node(self, document, line, source, treeloc):
         node = Node(document, line, source, treeloc)
         self.session.add(node)
-        return node.id
+        if self.current_pk is None:
+            self.session.commit()
+            self.current_pk = node.id
+        else:
+            self.current_pk += 1
+        return self.current_pk
 
     def post_build(self):
         self.session.commit()
