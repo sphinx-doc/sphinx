@@ -11,26 +11,46 @@
 
 import cPickle as pickle
 from os import path
+from datetime import datetime
 
 from jinja2 import Environment, FileSystemLoader
 
 from sphinx.application import Sphinx
+from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import search_adapters
+from sphinx.websupport import comments as sphinxcomments
 
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
         self.search = kwargs.pop('search', None)
+        self.comments = kwargs.pop('comments', None)
         Sphinx.__init__(self, *args, **kwargs)
 
 class WebSupport(object):
-    def __init__(self, srcdir='', outdir='', search=None):
+    def __init__(self, srcdir='', outdir='', search=None,
+                 comments=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
-        self.init_templating()        
+        self.init_templating()
         if search is not None:
             self.init_search(search)
 
+        self.init_comments(comments)
+    
+    def init_comments(self, comments):
+        if isinstance(comments, sphinxcomments.CommentBackend):
+            self.comments = comments
+        elif comments is not None:
+            # If a CommentBackend isn't provided, use the default
+            # SQLAlchemy backend with an SQLite db.
+            from sphinx.websupport.comments import SQLAlchemyComments
+            from sqlalchemy import create_engine
+            db_path = path.join(self.outdir, 'comments', 'comments.db')
+            ensuredir(path.dirname(db_path))
+            engine = create_engine('sqlite:///%s' % db_path)
+            self.comments = SQLAlchemyComments(engine)
+        
     def init_templating(self):
         import sphinx
         template_path = path.join(path.dirname(sphinx.__file__),
@@ -52,8 +72,11 @@ class WebSupport(object):
                                 path.join(self.outdir, 'doctrees'))
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
-                            search=self.search)
+                            search=self.search,
+                            comments=self.comments)
+        self.comments.pre_build()
         app.build()
+        self.comments.post_build()
 
     def get_document(self, docname):
         infilename = path.join(self.outdir, docname + '.fpickle')
@@ -70,3 +93,11 @@ class WebSupport(object):
         document['body'] = self.results_template.render(ctx)
         document['title'] = 'Search Results'
         return document
+
+    def get_comments(self, node_id):
+        return self.comments.get_comments(node_id)
+
+    def add_comment(self, parent_id, text, displayed=True, user_id=None,
+                    rating=0, time=None):
+        return self.comments.add_comment(parent_id, text, displayed, user_id,
+                                         rating, time)

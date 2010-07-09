@@ -41,14 +41,14 @@ class WebSupportTranslator(HTMLTranslator):
         # node will not be commented.
         if not self.in_commentable:
             self.in_commentable = True
-            id = self.create_id(node)
+            node_id = self.add_db_node(node)
             # We will place the node in the HTML id attribute. If the node
-            # already has another id (for indexing purposes) put an empty
+            # already has an id (for indexing purposes) put an empty
             # span with the existing id directly before this node's HTML.
             if node.attributes['ids']:
                 self.body.append('<span id="%s"></span>'
                                  % node.attributes['ids'][0])
-            node.attributes['ids'] = [id]
+            node.attributes['ids'] = ['s%s' % node_id]
             node.attributes['classes'].append(self.comment_class)
 
     def handle_depart_commentable(self, node):
@@ -56,6 +56,10 @@ class WebSupportTranslator(HTMLTranslator):
         if self.comment_class in node.attributes['classes']:
             self.in_commentable = False
 
-    def create_id(self, node):
-        self.current_id += 1
-        return '%s_%s' % (node.__class__.__name__, self.current_id)
+    def add_db_node(self, node):
+        comments = self.builder.app.comments
+        db_node_id = comments.add_node(document=self.builder.cur_docname,
+                                       line=node.line,
+                                       source=node.rawsource,
+                                       treeloc='???')
+        return db_node_id

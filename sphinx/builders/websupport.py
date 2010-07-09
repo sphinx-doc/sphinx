@@ -28,7 +28,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         
     def write_doc(self, docname, doctree):
         # The translator needs the docname to generate ids.
-        self.docname = docname
+        self.cur_docname = docname
         StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def get_target_uri(self, docname, typ=None):
