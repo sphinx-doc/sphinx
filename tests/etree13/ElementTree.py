@@ -1425,12 +1425,16 @@ class XMLParser(object):
         err.position = value.lineno, value.offset
         raise err
 
-    def _fixtext(self, text):
-        # convert text string to ascii, if possible
-        try:
-            return text.encode("ascii")
-        except UnicodeError:
+    if sys.version_info >= (3, 0):
+        def _fixtext(self, text):
             return text
+    else:
+        def _fixtext(self, text):
+            # convert text string to ascii, if possible
+            try:
+                return text.encode("ascii")
+            except UnicodeError:
+                return text
 
     def _fixname(self, key):
         # expand qname, and convert name string to ascii, if possible
