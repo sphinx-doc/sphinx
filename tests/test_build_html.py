@@ -258,7 +258,7 @@ class NslessParser(ET.XMLParser):
             br = name.find('}')
             if br > 0:
                 name = name[br+1:]
-            self._names[key] = name = self._fixtext(name)
+            self._names[key] = name
             return name
 
 

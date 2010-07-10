@@ -1425,13 +1425,6 @@ class XMLParser(object):
         err.position = value.lineno, value.offset
         raise err
 
-    def _fixtext(self, text):
-        # convert text string to ascii, if possible
-        try:
-            return text.encode("ascii")
-        except UnicodeError:
-            return text
-
     def _fixname(self, key):
         # expand qname, and convert name string to ascii, if possible
         try:
@@ -1440,30 +1433,28 @@ class XMLParser(object):
             name = key
             if "}" in name:
                 name = "{" + name
-            self._names[key] = name = self._fixtext(name)
+            self._names[key]
         return name
 
     def _start(self, tag, attrib_in):
         fixname = self._fixname
-        fixtext = self._fixtext
         tag = fixname(tag)
         attrib = {}
         for key, value in attrib_in.items():
-            attrib[fixname(key)] = fixtext(value)
+            attrib[fixname(key)] = value
         return self.target.start(tag, attrib)
 
     def _start_list(self, tag, attrib_in):
         fixname = self._fixname
-        fixtext = self._fixtext
         tag = fixname(tag)
         attrib = {}
         if attrib_in:
             for i in range(0, len(attrib_in), 2):
-                attrib[fixname(attrib_in[i])] = fixtext(attrib_in[i+1])
+                attrib[fixname(attrib_in[i])] = attrib_in[i+1]
         return self.target.start(tag, attrib)
 
     def _data(self, text):
-        return self.target.data(self._fixtext(text))
+        return self.target.data(text)
 
     def _end(self, tag):
         return self.target.end(self._fixname(tag))
