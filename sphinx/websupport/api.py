@@ -28,7 +28,7 @@ class WebSupportApp(Sphinx):
 
 class WebSupport(object):
     def __init__(self, srcdir='', outdir='', search=None,
-                 comments=None, get_user=None):
+                 comments=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
@@ -36,9 +36,9 @@ class WebSupport(object):
         if search is not None:
             self.init_search(search)
 
-        self.init_comments(comments, get_user)
+        self.init_comments(comments)
     
-    def init_comments(self, comments, get_user):
+    def init_comments(self, comments):
         if isinstance(comments, sphinxcomments.CommentBackend):
             self.comments = comments
         elif comments is not None:
@@ -49,7 +49,7 @@ class WebSupport(object):
             db_path = path.join(self.outdir, 'comments', 'comments.db')
             ensuredir(path.dirname(db_path))
             engine = create_engine('sqlite:///%s' % db_path)
-            self.comments = SQLAlchemyComments(engine, get_user)
+            self.comments = SQLAlchemyComments(engine)
         
     def init_templating(self):
         import sphinx
@@ -94,10 +94,14 @@ class WebSupport(object):
         document['title'] = 'Search Results'
         return document
 
-    def get_comments(self, node_id):
-        return self.comments.get_comments(node_id)
+    def get_comments(self, node_id, user_id):
+        return self.comments.get_comments(node_id, user_id)
 
-    def add_comment(self, parent_id, text, displayed=True, user_id=None,
+    def add_comment(self, parent_id, text, displayed=True, username=None,
                     rating=0, time=None):
-        return self.comments.add_comment(parent_id, text, displayed, user_id,
-                                         rating, time)
+        return self.comments.add_comment(parent_id, text, displayed, 
+                                         username, rating, time)
+    
+    def process_vote(self, comment_id, user_id, value):
+        value = int(value)
+        self.comments.process_vote(comment_id, user_id, value)
