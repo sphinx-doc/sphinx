@@ -406,7 +406,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 navstack.append(navlist)
                 navlist = []
                 level += 1
-                if lastnode:
+                if lastnode and self.config.epub_tocdup:
                     # Insert starting point in subtoc with same playOrder
                     navlist.append(self.new_navpoint(lastnode, level, False))
                 navlist.append(self.new_navpoint(node, level))

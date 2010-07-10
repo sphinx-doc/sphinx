@@ -279,6 +279,9 @@ epub_copyright = u'%(copyright_str)s'
 
 # The depth of the table of contents in toc.ncx.
 #epub_tocdepth = 3
+
+# Allow duplicate toc entries.
+#epub_tocdup = True
 '''
 
 INTERSPHINX_CONFIG = '''
