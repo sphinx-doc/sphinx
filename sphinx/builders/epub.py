@@ -221,20 +221,23 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
-        refuri_pat = re.compile("([^#:]*)#([^:]*):(.*)")
-        refid_pat = re.compile("([^:]*):(.*)")
+        # Replace colons only in local fragment identifiers.
+        # If the URI contains a colon before the #, 
+        # it is an external link that should not change.
+        refuri_pat = re.compile("([^#:]*#)(.*)")
 
         for node in tree.traverse(nodes.reference):
             if 'refuri' in node:
-                node['refuri'] = refuri_pat.sub("\\1#\\2-\\3", node['refuri'])
+                m = refuri_pat.match(node['refuri'])
+                if m:
+                    node['refuri'] = m.group(1) + m.group(2).replace(':', '-')
             if 'refid' in node:
-                node['refid'] = refid_pat.sub("\\1-\\2", node['refid'])
+                node['refid'] = node['refid'].replace(':', '-')
         for node in tree.traverse(addnodes.desc_signature):
             ids = node.attributes['ids']
             newids = []
             for id in ids:
-                id = refid_pat.sub("\\1-\\2", id)
-                newids.append(id)
+                newids.append(id.replace(':', '-'))
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree):
