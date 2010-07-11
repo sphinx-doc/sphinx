@@ -41,7 +41,7 @@ class WebSupport(object):
     def init_comments(self, comments):
         if isinstance(comments, sphinxcomments.CommentBackend):
             self.comments = comments
-        elif comments is not None:
+        else:
             # If a CommentBackend isn't provided, use the default
             # SQLAlchemy backend with an SQLite db.
             from sphinx.websupport.comments import SQLAlchemyComments
