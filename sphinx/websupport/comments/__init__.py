@@ -93,6 +93,8 @@ class SQLAlchemyComments(CommentBackend):
         self.session.commit()
 
     def serializable(self, comment, user_id=None):
+        delta = datetime.now() - comment.time
+
         time = {'year': comment.time.year,
                 'month': comment.time.month,
                 'day': comment.time.day,
@@ -100,7 +102,7 @@ class SQLAlchemyComments(CommentBackend):
                 'minute': comment.time.minute,
                 'second': comment.time.second,
                 'iso': comment.time.isoformat(),
-                'delta': self.pretty_delta(comment)}
+                'delta': self.pretty_delta(delta)}
 
         vote = ''
         if user_id is not None:
@@ -114,6 +116,7 @@ class SQLAlchemyComments(CommentBackend):
                 'username': comment.username or 'Anonymous',
                 'id': comment.id,
                 'rating': comment.rating,
+                'age': delta.seconds,
                 'time': time,
                 'vote': vote or 0,
                 'node': comment.node.id if comment.node else None,
@@ -121,8 +124,7 @@ class SQLAlchemyComments(CommentBackend):
                 'children': [self.serializable(child, user_id) 
                              for child in comment.children]}
 
-    def pretty_delta(self, comment):
-        delta = datetime.now() - comment.time
+    def pretty_delta(self, delta):
         days = delta.days
         seconds = delta.seconds
         hours = seconds / 3600
