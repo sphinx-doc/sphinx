@@ -6,10 +6,10 @@ Web Support Quick Start
 Building Documentation Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To make use of the web support package in your application you will
+To make use of the web support package in your application you'll
 need to build that data it uses. This data includes pickle files representing
 documents, search indices, and node data that is used to track where
-comments and other things are in a document. Do do this you will need
+comments and other things are in a document. To do this you will need
 to create an instance of the :class:`~sphinx.websupport.api.WebSupport` 
 class and call it's :meth:`~sphinx.websupport.WebSupport.build` method::
 
@@ -29,7 +29,7 @@ documents.
 Integrating Sphinx Documents Into Your Webapp
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that you have the data, it's time to use it for something useful.
+Now that you have the data, it's time to do something useful with it.
 Start off by creating a :class:`~sphinx.websupport.WebSupport` object
 for your application::
     
@@ -41,7 +41,7 @@ for your application::
 You'll only need one of these for each set of documentation you will be
 working with. You can then call it's 
 :meth:`~sphinx.websupport.WebSupport.get_document` method to access
-individual documents.
+individual documents::
 
     contents = support.get_document('contents')
 
@@ -86,7 +86,7 @@ that performs this is::
         return render_template('doc.html', document=document)
 
 This captures the request path, and passes it directly to 
-:meth:`~sphinx.websupport.WebSupport.get_document`, which retrieves
+:meth:`~sphinx.websupport.WebSupport.get_document`, which then retrieves
 the correct document.
 
 .. note::
@@ -116,8 +116,8 @@ would be like this::
 Note that we used the same template to render our search results as we
 did to render our documents. That's because 
 :meth:`~sphinx.websupport.WebSupport.get_search_results` returns a context
-dict in the same format as 
-:meth:`~sphinx.websupport.WebSupport.get_document`.
+dict in the same format that
+:meth:`~sphinx.websupport.WebSupport.get_document` does.
 
 Comments
 ~~~~~~~~
@@ -125,13 +125,32 @@ Comments
 The web support package provides a way to attach comments to some nodes
 in your document. It marks these nodes by adding a class and id to these
 nodes. A client side script can then locate these nodes, and manipulate
-them to allow commenting. A jquery script is also being developed that will
-be included when it's complete. For now you can find the script here:
-`websupport.js <http://bit.ly/cyaRaF>`_.
+them to allow commenting. A `jQuery <http://jquery.com>`_ script is also 
+being developed that will be included when it's complete. For now you can 
+find the script here: `websupport.js <http://bit.ly/cyaRaF>`_. This script 
+will use AJAX for all communications with the server. You can create your 
+own script for the front end if this doesn't meet your needs. More 
+information on that can be found :ref:`here <websupportfrontend>`.
 
-If you use the script that is included, you will have to define some
-simple templates that the script uses to display comments. The first 
-template defines the layout for the popup div used to display comments:
+Before loading this script in your page, you need to create a COMMENT_OPTIONS
+object describing how the script should function. In the simplest case you
+will just need tell the script whether the current user is allowed to vote.
+Once this is done you can import the script as you would any other:
+
+.. sourcecode:: guess
+
+    <script type="text/javascript">
+      var COMMENT_OPTIONS =  {
+        {%- if g.user %}
+	  voting: true,
+	{%- endif %}
+      }
+    </script>
+    <script type="text/javascript" src="/static/websupport.js></script>
+
+You will then need to define some templates that the script uses to 
+display comments. The first template defines the layout for the popup 
+div used to display comments:
 
 .. sourcecode:: guess
 
@@ -156,7 +175,7 @@ template defines the layout for the popup div used to display comments:
      <div id="focuser"></div>
    </script> 
 
-The next templat is an `li` that contains the form used to 
+The next template is an `li` that contains the form used to 
 reply to a comment:
 
 .. sourcecode:: guess
@@ -215,3 +234,50 @@ in the comment tree:
      </div>
    </script>
 
+Now that this is done it's time to define the functions that handle
+the AJAX calls from the script. You will need three functions. The first
+function is used to add a new comment, and will call the web support method
+:meth:`~sphinx.websupport.WebSupport.add_comment`::
+
+    @app.route('/docs/add_comment', methods=['POST'])
+    def add_comment():
+        parent_id = request.form.get('parent', '')
+        text = request.form.get('text', '')
+        username = g.user.name if g.user is not None else 'Anonymous'
+        comment = support.add_comment(parent_id, text, username=username)
+        return jsonify(comment=comment)
+
+Then next function handles the retrieval of comments for a specific node, 
+and is aptly named :meth:`~sphinx.websupport.WebSupport.get_comments`::
+
+    @app.route('/docs/get_comments')
+    def get_comments():
+        user_id = g.user.id if g.user else None
+        parent_id = request.args.get('parent', '')
+        comments = support.get_comments(parent_id, user_id)
+        return jsonify(comments=comments)
+
+The final function that is needed will call
+:meth:`~sphinx.websupport.WebSupport.process_vote`, and will handle user
+votes on comments::
+
+    @app.route('/docs/process_vote', methods=['POST'])
+    def process_vote():
+        if g.user is None:
+            abort(401)
+        comment_id = request.form.get('comment_id')
+        value = request.form.get('value')
+        if value is None or comment_id is None:
+            abort(400)
+        support.process_vote(comment_id, g.user.id, value)
+        return "success"
+
+.. note::
+
+   Authentication is left up to your existing web application. If you do
+   not have an existing authentication system there are many readily 
+   available for different frameworks. The web support system stores only
+   the user's unique integer `user_id` and uses this both for storing votes 
+   and retrieving vote information. It is up to you to ensure that the 
+   user_id passed in is unique, and that the user is authenticated. The 
+   default backend will only allow one vote per comment per `user_id`.
