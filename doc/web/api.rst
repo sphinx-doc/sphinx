@@ -1,22 +1,32 @@
 .. _websupportapi:
 
-Web Support API
-===============
+.. currentmodule:: sphinx.websupport
 
-.. module:: sphinx.websupport.api
+The WebSupport Class
+====================
+
 .. class:: WebSupport
 
-   The :class:`WebSupport` class provides a central interface for 
-   working with Sphinx documentation.
+   The main API class for the web support package. All interactions
+   with the web support package should occur through this class.
 
-.. method:: init(srcdir='', outdir='')
+   :param srcdir: the directory containing the reStructuredText files
+   :param outdir: the directory in which to place the built data
+   :param search: the search system to use
+   :param comments: an instance of a CommentBackend
+    
+Methods
+~~~~~~~
 
-   Initialize attributes.
+.. automethod:: sphinx.websupport.WebSupport.build
 
-.. method:: build()
+.. automethod:: sphinx.websupport.WebSupport.get_document
 
-   Build the data used by the web support package.
+.. automethod:: sphinx.websupport.WebSupport.get_comments
 
-.. method:: get_document(docname)
+.. automethod:: sphinx.websupport.WebSupport.add_comment
 
-   Retrieve the context dictionary corresponding to the *docname*.
+.. automethod:: sphinx.websupport.WebSupport.process_vote
+
+.. automethod:: sphinx.websupport.WebSupport.get_search_results
+

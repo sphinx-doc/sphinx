@@ -27,18 +27,25 @@ class WebSupportApp(Sphinx):
         Sphinx.__init__(self, *args, **kwargs)
 
 class WebSupport(object):
-    def __init__(self, srcdir='', outdir='', search=None,
+    """The main API class for the web support package. All interactions
+    with the web support package should occur through this class.
+    """
+
+    def __init__(self, srcdir='', outdir='', datadir='', search=None,
                  comments=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
-        self.init_templating()
-        if search is not None:
-            self.init_search(search)
+        self._init_templating()
 
-        self.init_comments(comments)
+        self.outdir = outdir or datadir
+
+        if search is not None:
+            self._init_search(search)
+
+        self._init_comments(comments)
     
-    def init_comments(self, comments):
+    def _init_comments(self, comments):
         if isinstance(comments, sphinxcomments.CommentBackend):
             self.comments = comments
         else:
@@ -51,14 +58,14 @@ class WebSupport(object):
             engine = create_engine('sqlite:///%s' % db_path)
             self.comments = SQLAlchemyComments(engine)
         
-    def init_templating(self):
+    def _init_templating(self):
         import sphinx
         template_path = path.join(path.dirname(sphinx.__file__),
                                   'themes', 'basic')
         loader = FileSystemLoader(template_path)
         self.template_env = Environment(loader=loader)
 
-    def init_search(self, search):
+    def _init_search(self, search):
         mod, cls = search_adapters[search]
         search_class = getattr(__import__('sphinx.websupport.search.' + mod, 
                                           None, None, [cls]), cls)
@@ -67,24 +74,65 @@ class WebSupport(object):
         self.results_template = \
             self.template_env.get_template('searchresults.html')
 
-    def build(self, **kwargs):
-        doctreedir = kwargs.pop('doctreedir', 
-                                path.join(self.outdir, 'doctrees'))
+    def build(self):
+        """Build the documentation. Places the data into the `outdir`
+        directory. Use it like this::
+
+            support = WebSupport(srcdir, outdir, search)
+            support.build()
+
+        This will read reStructured text files from `srcdir`. Then it
+        build the pickles and search index, placing them into `outdir`.
+        It will also save node data to the database.
+        """
+        doctreedir = path.join(self.outdir, 'doctrees')
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
                             search=self.search,
                             comments=self.comments)
+        # TODO:
+        # Hook comments into Sphinx signals.
         self.comments.pre_build()
         app.build()
         self.comments.post_build()
 
     def get_document(self, docname):
+        """Load and return a document from a pickle. The document will
+        be a dict object which can be used to render a template::
+
+            support = WebSupport(outdir=outdir)
+            support.get_document('index')
+            
+        In most cases `docname` will be taken from the request path and 
+        passed directly to this function. In Flask, that would be something
+        like this::
+
+            @app.route('/<path:docname>')
+            def index(docname):
+                q = request.args.get('q')
+                document = support.get_search_results(q)
+                render_template('doc.html', document=document)
+
+        The document dict that is returned contains the following items
+        to be used during template rendering.
+
+        :param docname: the name of the document to load.
+        """
         infilename = path.join(self.outdir, docname + '.fpickle')
         f = open(infilename, 'rb')
         document = pickle.load(f)
         return document
 
     def get_search_results(self, q):
+        """Perform a search for the query `q`, and create a set
+        of search results. Then render the search results as html and
+        return a context dict like the one created by
+        :meth:`get_document`::
+        
+            document = support.get_search_results(q)
+
+        :param q: the search query
+        """
         results, results_found, results_displayed = self.search.query(q)
         ctx = {'search_performed': True,
                'search_results': results,
@@ -94,14 +142,89 @@ class WebSupport(object):
         document['title'] = 'Search Results'
         return document
 
-    def get_comments(self, node_id, user_id):
+    def get_comments(self, node_id, user_id=None):
+        """Get the comments associated with `node_id`. If `user_id` is
+        given vote information will be included with the returned comments.
+        The default CommentBackend returns a list of dicts. Each dict
+        represents a comment, and has the following items:
+
+        ============ ======================================================
+        Key          Contents
+        ============ ======================================================
+        text         The comment text.
+        username     The username that was stored with the comment.
+        id           The comment's unique identifier.
+        rating       The comment's current rating.
+        age          The time in seconds since the comment was added.
+        time         A dict containing time information. It contains the
+                     following keys: year, month, day, hour, minute, second,
+                     iso, and delta. `iso` is the time formatted in ISO
+                     8601 format. `delta` is a printable form of how old
+                     the comment is (e.g. "3 hours ago").
+        vote         If `user_id` was given, this will be an integer
+                     representing the vote. 1 for an upvote, -1 for a 
+                     downvote, or 0 if unvoted.
+        node         The node that the comment is attached to. If the
+                     comment's parent is another comment rather than a
+                     node, this will be null.
+        parent       The id of the comment that this comment is attached 
+                     to if it is not attached to a node.
+        children     A list of all children, in this format.
+        ============ ======================================================
+
+        :param node_id: the id of the node to get comments for.
+        :param user_id: the id of the user viewing the comments.
+        """
         return self.comments.get_comments(node_id, user_id)
 
     def add_comment(self, parent_id, text, displayed=True, username=None,
                     rating=0, time=None):
+        """Add a comment to a node or another comment. `parent_id` will have
+        a one letter prefix, distinguishing between node parents and 
+        comment parents, 'c' and 's' respectively. This function will
+        return the comment in the same format as :meth:`get_comments`.
+        Usage is simple::
+
+            comment = support.add_comment(parent_id, text)
+        
+        If you would like to store a username with the comment, pass
+        in the optional `username` keyword argument::
+
+            comment = support.add_comment(parent_id, text, username=username)
+
+        :param parent_id: the prefixed id of the comment's parent.
+        :param text: the text of the comment.
+        :param displayed: for future use...
+        :param username: the username of the user making the comment.
+        :param rating: the starting rating of the comment, defaults to 0.
+        :param time: the time the comment was created, defaults to now.
+        """
         return self.comments.add_comment(parent_id, text, displayed, 
                                          username, rating, time)
     
     def process_vote(self, comment_id, user_id, value):
+        """Process a user's vote. The web support package relies
+        on the API user to perform authentication. The API user will 
+        typically receive a comment_id and value from a form, and then
+        make sure the user is authenticated. A unique integer `user_id` 
+        (usually the User primary key) must be passed in, which will 
+        also be used to retrieve the user's past voting information. 
+        An example, once again in Flask::
+
+            @app.route('/docs/process_vote', methods=['POST'])
+            def process_vote():
+                if g.user is None:
+                    abort(401)
+                comment_id = request.form.get('comment_id')
+                value = request.form.get('value')
+                if value is None or comment_id is None:
+                    abort(400)
+                support.process_vote(comment_id, g.user.id, value)
+                return "success"
+
+        :param comment_id: the comment being voted on
+        :param user_id: the unique integer id of the user voting
+        :param value: 1 for an upvote, -1 for a downvote, 0 for an unvote.
+        """
         value = int(value)
         self.comments.process_vote(comment_id, user_id, value)
