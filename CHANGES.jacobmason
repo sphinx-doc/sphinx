@@ -2,5 +2,14 @@ May 30: Added files builders/websupport.py, writers/websupport.py,
 websupport/api.py, and websupport/document.api. Provides a rudimentary 
 method of building websupport data, and rendering it as html.
 
-May 31-June 4: Continued changing way web support data is represented
+May 31-June 10: Continued changing way web support data is represented
 and accessed.
+
+June 14 - June 17: Continued making improvements to the web support package 
+and demo web application. Included sidebars, navlinks etc...
+
+June 21 - June 26: Implement server side search with two search adapters,
+one for Xapian and one for Whoosh
+
+June 28 - July 12: Implement voting system on the backend, and created a
+jQuery script to handle voting on the frontend.
