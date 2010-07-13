@@ -103,11 +103,11 @@ class BaseSearch(object):
         if res is None:
             return ''
         context_start = max(res.start() - length/2, 0)
-        context_end = start + length
+        context_end = context_start + length
         context = ''.join(['...' if context_start > 0 else '',
                            text[context_start:context_end],
                            '...' if context_end < len(text) else ''])
-        
+
         try:
             return unicode(context, errors='ignore')
         except TypeError:

@@ -18,6 +18,9 @@ from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch
 
 class WhooshSearch(BaseSearch):
+    """The whoosh search adapter for sphinx web support."""
+
+    # Define the Whoosh Schema for the search index.
     schema = Schema(path=ID(stored=True, unique=True),
                     title=TEXT(field_boost=2.0, stored=True),
                     text=TEXT(analyzer=StemmingAnalyzer(), stored=True))
@@ -33,24 +36,22 @@ class WhooshSearch(BaseSearch):
     def init_indexing(self, changed=[]):
         for changed_path in changed:
             self.index.delete_by_term('path', changed_path)
-        self.writer = self.index.writer()
+        self.index_writer = self.index.writer()
 
     def finish_indexing(self):
-        self.writer.commit()
+        self.index_writer.commit()
        
     def add_document(self, pagename, title, text):
-        self.writer.add_document(path=unicode(pagename),
-                                 title=title, 
-                                 text=text)
+        self.index_writer.add_document(path=unicode(pagename),
+                                       title=title, 
+                                       text=text)
 
     def handle_query(self, q):
-        res = self.searcher.find('text', q)
+        whoosh_results = self.searcher.find('text', q)
         results = []
-        for result in res:
+        for result in whoosh_results:
             context = self.extract_context(result['text'])
-            
             results.append((result['path'],
                             result.get('title', ''),
                             context))
-        
         return results
