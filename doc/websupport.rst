@@ -12,3 +12,4 @@ into your web application. To learn more read the
    web/quickstart
    web/api
    web/frontend
+   web/searchadapters

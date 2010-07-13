@@ -38,8 +38,8 @@ class WhooshSearch(BaseSearch):
     def finish_indexing(self):
         self.writer.commit()
        
-    def add_document(self, path, title, text):
-        self.writer.add_document(path=unicode(path),
+    def add_document(self, pagename, title, text):
+        self.writer.add_document(path=unicode(pagename),
                                  title=title, 
                                  text=text)
 
@@ -47,10 +47,10 @@ class WhooshSearch(BaseSearch):
         res = self.searcher.find('text', q)
         results = []
         for result in res:
-            context = self.extract_context(result['text'], q)
+            context = self.extract_context(result['text'])
             
             results.append((result['path'],
                             result.get('title', ''),
                             context))
         
-        return results, len(res), res.scored_length()
+        return results

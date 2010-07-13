@@ -70,15 +70,13 @@ class XapianSearch(BaseSearch):
         # Find the top 100 results for the query.
         enquire.set_query(query)
         matches = enquire.get_mset(0, 100)
-        results_found = matches.get_matches_estimated()
-        results_displayed = matches.size()
 
         results = []
 
         for m in matches:
-            context = self.extract_context(m.document.get_data(), q)
+            context = self.extract_context(m.document.get_data())
             results.append((m.document.get_value(self.DOC_PATH),
                             m.document.get_value(self.DOC_TITLE),
                             ''.join(context) ))
 
-        return results, results_found, results_displayed
+        return results

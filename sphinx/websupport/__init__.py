@@ -17,7 +17,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
-from sphinx.websupport.search import search_adapters
+from sphinx.websupport.search import BaseSearch, search_adapters
 from sphinx.websupport import comments as sphinxcomments
 
 class WebSupportApp(Sphinx):
@@ -66,11 +66,14 @@ class WebSupport(object):
         self.template_env = Environment(loader=loader)
 
     def _init_search(self, search):
-        mod, cls = search_adapters[search]
-        search_class = getattr(__import__('sphinx.websupport.search.' + mod, 
+        if isinstance(search, BaseSearch):
+            self.search = search
+        else:
+            mod, cls = search_adapters[search]
+            search_class = getattr(__import__('sphinx.websupport.search.' + mod, 
                                           None, None, [cls]), cls)
-        search_path = path.join(self.outdir, 'search')
-        self.search = search_class(search_path)
+            search_path = path.join(self.outdir, 'search')
+            self.search = search_class(search_path)
         self.results_template = \
             self.template_env.get_template('searchresults.html')
 
@@ -133,7 +136,7 @@ class WebSupport(object):
 
         :param q: the search query
         """
-        results, results_found, results_displayed = self.search.query(q)
+        results = self.search.query(q)
         ctx = {'search_performed': True,
                'search_results': results,
                'q': q}
