@@ -121,6 +121,11 @@ _media_types = {
     '.ttf': 'application/x-font-ttf',
 }
 
+# Regular expression to match colons only in local fragment identifiers.
+# If the URI contains a colon before the #,
+# it is an external link that should not change.
+_refuri_re = re.compile("([^#:]*#)(.*)")
+
 
 # The epub publisher
 
@@ -221,14 +226,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
-        # Replace colons only in local fragment identifiers.
-        # If the URI contains a colon before the #, 
-        # it is an external link that should not change.
-        refuri_pat = re.compile("([^#:]*#)(.*)")
-
         for node in tree.traverse(nodes.reference):
             if 'refuri' in node:
-                m = refuri_pat.match(node['refuri'])
+                m = _refuri_re.match(node['refuri'])
                 if m:
                     node['refuri'] = m.group(1) + m.group(2).replace(':', '-')
             if 'refid' in node:
@@ -256,11 +256,42 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def write_doc(self, docname, doctree):
         """Write one document file.
-        This method is overwritten in order to fix a few things.
+        This method is overwritten in order to fix fragment identifiers
+        and to add visible external links.
         """
         self.fix_ids(doctree)
         self.add_visible_links(doctree)
         return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+
+    def fix_genindex(self, tree):
+        """Fix href attributes for genindex pages.
+        """
+        # XXX: modifies tree inline
+        # Logic modeled from themes/basic/genindex.html
+        for key, columns in tree:
+            for entryname, (links, subitems) in columns:
+                for (i, link) in enumerate(links):
+                    m = _refuri_re.match(link)
+                    if m:
+                        links[i] = m.group(1) + m.group(2).replace(':', '-')
+                for subentryname, subentrylinks in subitems:
+                    for (i, link) in enumerate(subentrylinks):
+                        m = _refuri_re.match(link)
+                        if m:
+                            subentrylinks[i] = \
+                                    m.group(1) + m.group(2).replace(':', '-')
+
+    def handle_page(self, pagename, addctx, templatename='page.html',
+                    outfilename=None, event_arg=None):
+        """Create a rendered page.
+        This method is overwritten for genindex pages in order to fix
+        href link attributes.
+        """
+        if pagename.startswith('genindex'):
+            self.fix_genindex(addctx['genindexentries'])
+        StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
+            outfilename, event_arg)
+
 
     # Finish by building the epub file
     def handle_finish(self):
