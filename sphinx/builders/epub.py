@@ -221,6 +221,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 'text': ssp(self.esc(text))
             })
 
+    def fix_fragment(self, match):
+        """Return a href attribute with colons replaced by hyphens.
+        """
+        return match.group(1) + match.group(2).replace(':', '-')
+
     def fix_ids(self, tree):
         """Replace colons with hyphens in href and id attributes.
         Some readers crash because they interpret the part as a
@@ -230,7 +235,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if 'refuri' in node:
                 m = _refuri_re.match(node['refuri'])
                 if m:
-                    node['refuri'] = m.group(1) + m.group(2).replace(':', '-')
+                    node['refuri'] = self.fix_fragment(m)
             if 'refid' in node:
                 node['refid'] = node['refid'].replace(':', '-')
         for node in tree.traverse(addnodes.desc_signature):
@@ -273,13 +278,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 for (i, link) in enumerate(links):
                     m = _refuri_re.match(link)
                     if m:
-                        links[i] = m.group(1) + m.group(2).replace(':', '-')
+                        links[i] = self.fix_fragment(m)
                 for subentryname, subentrylinks in subitems:
                     for (i, link) in enumerate(subentrylinks):
                         m = _refuri_re.match(link)
                         if m:
-                            subentrylinks[i] = \
-                                    m.group(1) + m.group(2).replace(':', '-')
+                            subentrylinks[i] = self.fix_fragment(m)
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
