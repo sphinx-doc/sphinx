@@ -16,6 +16,7 @@ import types
 import codecs
 import imghdr
 import string
+import posixpath
 import cPickle as pickle
 from os import path
 from glob import glob
@@ -181,12 +182,48 @@ class CitationReferences(Transform):
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
+class Locale(Transform):
+    """
+    Replace translatable nodes with their translated doctree.
+    """
+    default_priority = 0
+    def apply(self):
+        env = self.document.settings.env
+        settings, source = self.document.settings, self.document['source']
+        # XXX check if this is reliable
+        docname = posixpath.splitext(posixpath.basename(source))[0]
+        section = docname.split(SEP, 1)[0]
+
+        # fetch translations
+        dirs = [path.join(env.srcdir, x)
+                for x in env.config.locale_dirs]
+        catalog, empty = init_locale(dirs, env.config.language, section)
+        if not empty:
+            return
+
+        parser = RSTParser()
+
+        for node, msg in extract_messages(self.document):
+            ctx = node.parent
+            patch = new_document(source, settings)
+            msgstr = catalog.ugettext(msg)
+            #XXX add marker to untranslated parts
+            if not msgstr or msgstr == msg: # as-of-yet untranslated
+                continue
+            parser.parse(msgstr, patch)
+            patch = patch[0]
+            assert isinstance(patch, nodes.paragraph)
+            for child in patch.children: # update leaves
+                child.parent = node
+            node.children = patch.children
+
+
 
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [CitationReferences, DefaultSubstitutions,
+    transforms = [Locale, CitationReferences, DefaultSubstitutions,
                   MoveModuleTargets, HandleCodeBlocks, SortIds]
 
     def get_transforms(self):
@@ -595,7 +632,6 @@ class BuildEnvironment:
         Parse a file and add/update inventory entries for the doctree.
         If srcpath is given, read from a different source file.
         """
-        section = docname.split(SEP, 1)[0]
         # remove all inventory entries for that file
         if app:
             app.emit('env-purge-doc', self, docname)
@@ -660,7 +696,6 @@ class BuildEnvironment:
 
         # post-processing
         self.filter_messages(doctree)
-        self.process_translations(doctree, self.get_translation(section))
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
         self.process_downloads(docname, doctree)
@@ -735,14 +770,6 @@ class BuildEnvironment:
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
 
-    def get_translation(self, section):
-        dirs = [path.join(self.srcdir, x) for x in self.config.locale_dirs]
-        translation, has_trans = init_locale(dirs,
-                                             self.config.language, section)
-        if not has_trans:
-            return None
-        return translation
-
     # post-processing of read doctrees
 
     def filter_messages(self, doctree):
@@ -753,25 +780,6 @@ class BuildEnvironment:
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 node.parent.remove(node)
-
-    def process_translations(self, doctree, translation):
-        """
-        Replace translatable nodes with their translated doctree.
-        """
-        if not translation:
-            return
-        settings, source = doctree.settings, doctree['source']
-        parser = RSTParser()
-        for node, msg in extract_messages(doctree):
-            ctx = node.parent
-            patch = new_document(source, settings)
-            msgstr = translation.ugettext(msg)
-            #XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg: # as-of-yet untranslated
-                continue
-            parser.parse(msgstr, patch)
-            assert isinstance(patch[0], nodes.paragraph)
-            node.children = patch[0].children
 
 
     def process_dependencies(self, docname, doctree):
