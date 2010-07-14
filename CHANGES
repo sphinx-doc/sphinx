@@ -15,9 +15,10 @@ Incompatible changes
   - JavaScript
   - reStructuredText
 
-* The old markup for defining and linking to C directives will not work
-  anymore without activating the :mod:`~sphinx.ext.oldcmarkup`
-  extension.
+* The old markup for defining and linking to C directives is now
+  deprecated.  It will not work anymore in future versions without
+  activating the :mod:`~sphinx.ext.oldcmarkup` extension; in Sphinx
+  1.0, it is activated by default.
 
 * Removed support for old dependency versions; requirements are now:
 
