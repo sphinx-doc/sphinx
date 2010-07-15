@@ -13,3 +13,4 @@ into your web application. To learn more read the
    web/api
    web/frontend
    web/searchadapters
+   web/storagebackends

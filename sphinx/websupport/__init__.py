@@ -18,7 +18,7 @@ from jinja2 import Environment, FileSystemLoader
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch, search_adapters
-from sphinx.websupport import comments as sphinxcomments
+from sphinx.websupport.comments import StorageBackend
 
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
@@ -46,17 +46,18 @@ class WebSupport(object):
         self._init_comments(comments)
     
     def _init_comments(self, comments):
-        if isinstance(comments, sphinxcomments.CommentBackend):
+        if isinstance(comments, StorageBackend):
             self.comments = comments
         else:
-            # If a CommentBackend isn't provided, use the default
+            # If a StorageBackend isn't provided, use the default
             # SQLAlchemy backend with an SQLite db.
-            from sphinx.websupport.comments import SQLAlchemyComments
+            from sphinx.websupport.comments.sqlalchemystorage \
+                import SQLAlchemyStorage
             from sqlalchemy import create_engine
             db_path = path.join(self.outdir, 'comments', 'comments.db')
             ensuredir(path.dirname(db_path))
             engine = create_engine('sqlite:///%s' % db_path)
-            self.comments = SQLAlchemyComments(engine)
+            self.comments = SQLAlchemyStorage(engine)
         
     def _init_templating(self):
         import sphinx
@@ -93,8 +94,7 @@ class WebSupport(object):
                             self.outdir, doctreedir, 'websupport',
                             search=self.search,
                             comments=self.comments)
-        # TODO:
-        # Hook comments into Sphinx signals.
+
         self.comments.pre_build()
         app.build()
         self.comments.post_build()
