@@ -33,6 +33,8 @@ class SQLAlchemyStorage(StorageBackend):
         
         session = Session()
 
+        
+        
         id = parent_id[1:]
         if parent_id[0] == 's':
             node = session.query(Node).filter(Node.id == id).first()
