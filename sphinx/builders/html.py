@@ -99,7 +99,7 @@ class StandaloneHTMLBuilder(Builder):
         self.init_templates()
         self.init_highlighter()
         self.init_translator_class()
-        if self.config.html_file_suffix:
+        if self.config.html_file_suffix is not None:
             self.out_suffix = self.config.html_file_suffix
 
         if self.config.html_link_suffix is not None:
