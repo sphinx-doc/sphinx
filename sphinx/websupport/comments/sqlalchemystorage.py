@@ -1,11 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy.orm import sessionmaker
-
 from sphinx.websupport.comments import StorageBackend
-from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote
-
-Session = sessionmaker()
+from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote, Session
 
 class SQLAlchemyStorage(StorageBackend):
     def __init__(self, engine):
@@ -45,7 +41,7 @@ class SQLAlchemyStorage(StorageBackend):
             
         session.add(comment)
         session.commit()
-        comment = self.serializable(session, comment)
+        comment = comment.serializable()
         session.close()
         return comment
         
@@ -55,7 +51,7 @@ class SQLAlchemyStorage(StorageBackend):
         node = session.query(Node).filter(Node.id == parent_id).first()
         comments = []
         for comment in node.comments:
-            comments.append(self.serializable(session, comment, user_id))
+            comments.append(comment.serializable(user_id))
 
         session.close()
         return comments
@@ -102,47 +98,3 @@ class SQLAlchemyStorage(StorageBackend):
         session.commit()
         session.close()
 
-    def serializable(self, session, comment, user_id=None):
-        delta = datetime.now() - comment.time
-
-        time = {'year': comment.time.year,
-                'month': comment.time.month,
-                'day': comment.time.day,
-                'hour': comment.time.hour,
-                'minute': comment.time.minute,
-                'second': comment.time.second,
-                'iso': comment.time.isoformat(),
-                'delta': self.pretty_delta(delta)}
-
-        vote = ''
-        if user_id is not None:
-            vote = session.query(CommentVote).filter(
-                CommentVote.comment_id == comment.id).filter(
-                CommentVote.user_id == user_id).first()
-            if vote is not None:
-                vote = vote.value 
-
-        return {'text': comment.text,
-                'username': comment.username or 'Anonymous',
-                'id': comment.id,
-                'rating': comment.rating,
-                'age': delta.seconds,
-                'time': time,
-                'vote': vote or 0,
-                'node': comment.node.id if comment.node else None,
-                'parent': comment.parent.id if comment.parent else None,
-                'children': [self.serializable(session, child, user_id) 
-                             for child in comment.children]}
-
-    def pretty_delta(self, delta):
-        days = delta.days
-        seconds = delta.seconds
-        hours = seconds / 3600
-        minutes = seconds / 60
-
-        if days == 0:
-            dt = (minutes, 'minute') if hours == 0 else (hours, 'hour')
-        else:
-            dt = (days, 'day')
-
-        return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
