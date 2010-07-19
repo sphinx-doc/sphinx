@@ -16,7 +16,7 @@ from urllib2 import build_opener, HTTPError
 from docutils import nodes
 
 from sphinx.builders import Builder
-from sphinx.util.console import purple, red, darkgreen
+from sphinx.util.console import purple, red, darkgreen, darkgray
 
 # create an opener that will simulate a browser user-agent
 opener = build_opener()
@@ -71,9 +71,12 @@ class CheckExternalLinksBuilder(Builder):
                 break
             lineno = node.line
 
+        if len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
+            return
+
+        if lineno:
+            self.info('(line %3d) ' % lineno, nonl=1)
         if uri[0:5] == 'http:' or uri[0:6] == 'https:':
-            if lineno:
-                self.info('(line %3d) ' % lineno, nonl=1)
             self.info(uri, nonl=1)
 
             if uri in self.broken:
@@ -98,15 +101,9 @@ class CheckExternalLinksBuilder(Builder):
                 self.write_entry('redirected', docname,
                                  lineno, uri + ' to ' + s)
                 self.redirected[uri] = (r, s)
-        elif len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
-            return
         else:
-            self.warn(uri + ' - ' + red('malformed!'))
-            self.write_entry('malformed', docname, lineno, uri)
-            if self.app.quiet:
-                self.warn('malformed link: %s' % uri,
-                          '%s:%s' % (self.env.doc2path(docname), lineno))
-            self.app.statuscode = 1
+            self.info(uri + ' - ' + darkgray('local'))
+            self.write_entry('local', docname, lineno, uri)
 
         if self.broken:
             self.app.statuscode = 1

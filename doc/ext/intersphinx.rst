@@ -9,7 +9,21 @@
 .. versionadded:: 0.5
 
 This extension can generate automatic links to the documentation of objects in
-other projects.  This works as follows:
+other projects.
+
+Usage is simple: whenever Sphinx encounters a cross-reference that has no
+matching target in the current documentation set, it looks for targets in the
+documentation sets configured in :confval:`intersphinx_mapping`.  A reference
+like ``:py:class:`zipfile.ZipFile``` can then link to the Python documentation
+for the ZipFile class, without you having to specify where it is located
+exactly.
+
+When using the "new" format (see below), you can even force lookup in a foreign
+set by prefixing the link target appropriately.  A link like ``:ref:`comparison
+manual <python:comparisons>``` will then link to the label "comparisons" in the
+doc set "python", if it exists.
+
+Behind the scenes, this works as follows:
 
 * Each Sphinx HTML build creates a file named :file:`objects.inv` that contains
   a mapping from object names to URIs relative to the HTML set's root.

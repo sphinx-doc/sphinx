@@ -963,8 +963,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         def add_target(id):
             # indexing uses standard LaTeX index markup, so the targets
             # will be generated differently
-            if not id.startswith('index-'):
-                self.body.append(self.hypertarget(id))
+            if id.startswith('index-'):
+                return
+            # do not generate \phantomsection in \section{}
+            anchor = not self.in_title
+            self.body.append(self.hypertarget(id, anchor=anchor))
 
         # postpone the labels until after the sectioning command
         parindex = node.parent.index(node)
