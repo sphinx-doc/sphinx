@@ -111,8 +111,6 @@ class CommentVote(Base):
                         primary_key=True)
     comment = relation(Comment, backref="votes")
 
-    __table_args__ = (UniqueConstraint(comment_id, user_id), {}) 
-
     def __init__(self, comment_id, user_id, value):
         self.value = value
         self.user_id = user_id
@@ -139,3 +137,19 @@ class Proposal(Base):
         self.time = time
         self.node = node
     
+class ProposalVote(Base):
+    __tablename__ = db_prefix + 'proposalvote'
+
+    user_id = Column(Integer, primary_key=True)
+    # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
+    value = Column(Integer, nullable=False)
+
+    proposal_id = Column(Integer, ForeignKey(db_prefix + 'proposals.id'),
+                         primary_key=True)
+    proposal = relation(Proposal, backref="votes")
+
+    def __init__(self, proposal_id, user_id, value):
+        self.value = value
+        self.user_id = user_id
+        self.proposal_id = proposal_id
+
