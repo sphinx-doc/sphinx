@@ -32,8 +32,6 @@ class SQLAlchemyStorage(StorageBackend):
         time = time or datetime.now()
         
         session = Session()
-
-        
         
         id = parent_id[1:]
         if parent_id[0] == 's':
