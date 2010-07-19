@@ -23,7 +23,7 @@ from sphinx.websupport.comments import StorageBackend
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
         self.search = kwargs.pop('search', None)
-        self.comments = kwargs.pop('comments', None)
+        self.storage = kwargs.pop('storage', None)
         Sphinx.__init__(self, *args, **kwargs)
 
 class WebSupport(object):
@@ -32,7 +32,7 @@ class WebSupport(object):
     """
 
     def __init__(self, srcdir='', outdir='', datadir='', search=None,
-                 comments=None):
+                 storage=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
@@ -43,21 +43,21 @@ class WebSupport(object):
         if search is not None:
             self._init_search(search)
 
-        self._init_comments(comments)
+        self._init_storage(storage)
     
-    def _init_comments(self, comments):
-        if isinstance(comments, StorageBackend):
-            self.comments = comments
+    def _init_storage(self, storage):
+        if isinstance(storage, StorageBackend):
+            self.storage = storage
         else:
             # If a StorageBackend isn't provided, use the default
             # SQLAlchemy backend with an SQLite db.
             from sphinx.websupport.comments.sqlalchemystorage \
                 import SQLAlchemyStorage
             from sqlalchemy import create_engine
-            db_path = path.join(self.outdir, 'comments', 'comments.db')
+            db_path = path.join(self.outdir, 'db', 'websupport.db')
             ensuredir(path.dirname(db_path))
             engine = create_engine('sqlite:///%s' % db_path)
-            self.comments = SQLAlchemyStorage(engine)
+            self.storage = SQLAlchemyStorage(engine)
         
     def _init_templating(self):
         import sphinx
@@ -93,11 +93,11 @@ class WebSupport(object):
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
                             search=self.search,
-                            comments=self.comments)
+                            storage=self.storage)
 
-        self.comments.pre_build()
+        self.storage.pre_build()
         app.build()
-        self.comments.post_build()
+        self.storage.post_build()
 
     def get_document(self, docname):
         """Load and return a document from a pickle. The document will
@@ -178,7 +178,7 @@ class WebSupport(object):
         :param node_id: the id of the node to get comments for.
         :param user_id: the id of the user viewing the comments.
         """
-        return self.comments.get_comments(node_id, user_id)
+        return self.storage.get_comments(node_id, user_id)
 
     def add_comment(self, parent_id, text, displayed=True, username=None,
                     rating=0, time=None):
@@ -202,9 +202,17 @@ class WebSupport(object):
         :param rating: the starting rating of the comment, defaults to 0.
         :param time: the time the comment was created, defaults to now.
         """
-        return self.comments.add_comment(parent_id, text, displayed, 
+        return self.storage.add_comment(parent_id, text, displayed, 
                                          username, rating, time)
     
+    def get_proposals(self, node_id, user_id=None):
+        return self.storage.get_proposals(node_id, user_id)
+
+    def add_proposal(self, parent_id, text, displayed=True, username=None,
+                    rating=0, time=None):
+        return self.storage.add_proposal(parent_id, text, displayed, 
+                                          username, rating, time)
+
     def process_vote(self, comment_id, user_id, value):
         """Process a user's vote. The web support package relies
         on the API user to perform authentication. The API user will 
@@ -230,4 +238,4 @@ class WebSupport(object):
         :param value: 1 for an upvote, -1 for a downvote, 0 for an unvote.
         """
         value = int(value)
-        self.comments.process_vote(comment_id, user_id, value)
+        self.storage.process_vote(comment_id, user_id, value)

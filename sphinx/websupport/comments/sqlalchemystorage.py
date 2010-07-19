@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import sessionmaker
 
 from sphinx.websupport.comments import StorageBackend
-from sphinx.websupport.comments.db import Base, Node, Comment, Vote
+from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote
 
 Session = sessionmaker()
 
@@ -60,17 +60,40 @@ class SQLAlchemyStorage(StorageBackend):
         session.close()
         return comments
 
+    def add_proposal(self, parent_id, text, displayed, username, 
+                    rating, time):
+        time = time or datetime.now()
+        
+        session = Session()
+        
+        node = session.query(Node).filter(Node.id == parent_id).first()
+        proposal= Proposal(text, displayed, username, rating, time, node)
+            
+        session.add(proposal)
+        session.commit()
+        session.close()
+        return proposal
+
+    def get_proposals(self, parent_id):
+        session = Session()
+        node = session.query(Node).filter(Node.id == parent_id).first()
+        proposals = []
+
+        # TODO
+
+        return proposals
+
     def process_vote(self, comment_id, user_id, value):
         session = Session()
-        vote = session.query(Vote).filter(
-            Vote.comment_id == comment_id).filter(
-            Vote.user_id == user_id).first()
+        vote = session.query(CommentVote).filter(
+            CommentVote.comment_id == comment_id).filter(
+            CommentVote.user_id == user_id).first()
         
         comment = session.query(Comment).filter(
             Comment.id == comment_id).first()
 
         if vote is None:
-            vote = Vote(comment_id, user_id, value)
+            vote = CommentVote(comment_id, user_id, value)
             comment.rating += value
         else:
             comment.rating += value - vote.value
@@ -93,9 +116,9 @@ class SQLAlchemyStorage(StorageBackend):
 
         vote = ''
         if user_id is not None:
-            vote = session.query(Vote).filter(
-                Vote.comment_id == comment.id).filter(
-                Vote.user_id == user_id).first()
+            vote = session.query(CommentVote).filter(
+                CommentVote.comment_id == comment.id).filter(
+                CommentVote.user_id == user_id).first()
             if vote is not None:
                 vote = vote.value 
 

@@ -57,9 +57,9 @@ class WebSupportTranslator(HTMLTranslator):
             self.in_commentable = False
 
     def add_db_node(self, node):
-        comments = self.builder.app.comments
-        db_node_id = comments.add_node(document=self.builder.cur_docname,
-                                       line=node.line,
-                                       source=node.rawsource,
-                                       treeloc='???')
+        storage = self.builder.app.storage
+        db_node_id = storage.add_node(document=self.builder.cur_docname,
+                                      line=node.line,
+                                      source=node.rawsource,
+                                      treeloc='???')
         return db_node_id

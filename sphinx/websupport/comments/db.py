@@ -50,7 +50,7 @@ class Comment(Base):
         self.node = node
         self.parent = parent
 
-class Vote(Base):
+class CommentVote(Base):
     __tablename__ = db_prefix + 'vote'
 
     id = Column(Integer, primary_key=True)
@@ -68,4 +68,25 @@ class Vote(Base):
         self.value = value
         self.user_id = user_id
         self.comment_id = comment_id
+
+class Proposal(Base):
+    __tablename__ = db_prefix + 'proposals'
+
+    id = Column(Integer, primary_key=True)
+    rating = Column(Integer, nullable=False)
+    time = Column(DateTime, nullable=False)
+    text = Column(Text, nullable=False)
+    displayed = Column(Boolean, index=True, default=False)
+    username = Column(String(64))
+
+    node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
+    node = relation(Node, backref='proposals')
+
+    def __init__(self, text, displayed, username, rating, time, node):
+        self.text = text
+        self.displayed = displayed
+        self.username = username
+        self.rating = rating
+        self.time = time
+        self.node = node
     
