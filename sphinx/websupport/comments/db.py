@@ -103,13 +103,12 @@ class Comment(Base):
 class CommentVote(Base):
     __tablename__ = db_prefix + 'commentvote'
 
-    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True)
     # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
     value = Column(Integer, nullable=False)
-    user_id = Column(Integer, index=True, nullable=False)
 
     comment_id = Column(Integer, ForeignKey(db_prefix + 'comments.id'),
-                        nullable=False)
+                        primary_key=True)
     comment = relation(Comment, backref="votes")
 
     __table_args__ = (UniqueConstraint(comment_id, user_id), {}) 
