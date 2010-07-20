@@ -12,16 +12,17 @@ Session = sessionmaker()
 
 db_prefix = 'sphinx_'
 
+
 class Node(Base):
     """Data about a Node in a doctree."""
     __tablename__ = db_prefix + 'nodes'
-    
+
     id = Column(Integer, primary_key=True)
     document = Column(String(256), nullable=False)
     line = Column(Integer)
     source = Column(Text, nullable=False)
     treeloc = Column(String(32), nullable=False)
-    
+
     def __init__(self, document, line, source, treeloc):
         self.document = document
         self.line = line
@@ -44,7 +45,7 @@ class Comment(Base):
     parent_id = Column(Integer, ForeignKey(db_prefix + 'comments.id'))
     parent = relation('Comment', backref='children', remote_side=[id])
 
-    def __init__(self, text, displayed, username, rating, time, 
+    def __init__(self, text, displayed, username, rating, time,
                  node=None, parent=None):
         self.text = text
         self.displayed = displayed
@@ -84,7 +85,7 @@ class Comment(Base):
                 'vote': vote or 0,
                 'node': self.node.id if self.node else None,
                 'parent': self.parent.id if self.parent else None,
-                'children': [child.serializable(user_id) 
+                'children': [child.serializable(user_id)
                              for child in self.children]}
 
     def pretty_delta(self, delta):
@@ -99,7 +100,7 @@ class Comment(Base):
             dt = (days, 'day')
 
         return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
-    
+
 class CommentVote(Base):
     __tablename__ = db_prefix + 'commentvote'
 
@@ -136,7 +137,7 @@ class Proposal(Base):
         self.rating = rating
         self.time = time
         self.node = node
-    
+
 class ProposalVote(Base):
     __tablename__ = db_prefix + 'proposalvote'
 
