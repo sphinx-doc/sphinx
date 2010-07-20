@@ -28,7 +28,7 @@ class XapianSearch(BaseSearch):
 
     def init_indexing(self, changed=[]):
         ensuredir(self.db_path)
-        self.database = xapian.WritableDatabase(self.db_path, 
+        self.database = xapian.WritableDatabase(self.db_path,
                                                 xapian.DB_CREATE_OR_OPEN)
         self.indexer = xapian.TermGenerator()
         stemmer = xapian.Stem("english")
@@ -37,7 +37,7 @@ class XapianSearch(BaseSearch):
     def finish_indexing(self):
         # Ensure the db lock is removed.
         del self.database
-       
+
     def add_document(self, path, title, text):
         self.database.begin_transaction()
         # sphinx_page_path is used to easily retrieve documents by path.

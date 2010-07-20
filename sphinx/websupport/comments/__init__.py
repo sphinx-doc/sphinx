@@ -10,22 +10,22 @@ class StorageBackend(object):
         """Add a node to the StorageBackend.
 
         `document` is the name of the document the node belongs to.
-        
+
         `line` is the line in the source where the node begins.
 
         `source` is the source files name.
-        
+
         `treeloc` is for future use.
         """
         raise NotImplementedError()
-    
+
     def post_build(self):
         """Called after a build has completed. Use this to finalize the
         addition of nodes if needed.
         """
         pass
 
-    def add_comment(self, parent_id, text, displayed, username, 
+    def add_comment(self, parent_id, text, displayed, username,
                     rating, time):
         """Called when a comment is being added."""
         raise NotImplementedError()
@@ -34,7 +34,7 @@ class StorageBackend(object):
         """Called to retrieve all comments for a node."""
         raise NotImplementedError()
 
-    def add_proposal(self, parent_id, text, displayed, username, 
+    def add_proposal(self, parent_id, text, displayed, username,
                     rating, time):
         raise NotImplementedError()
 
