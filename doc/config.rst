@@ -782,6 +782,12 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    be an integer greater than zero.  The default value is 3.  Note: A deeply
    nested table of contents may be difficult to navigate.
 
+.. confval:: epub_tocdup
+
+   This flag determines if a toc entry is inserted again at the beginning of
+   it's nested toc listing.  This allows easier navitation to the top of
+   a chapter, but can be confusing because it mixes entries of differnet
+   depth in one list.  The default value is ``True``.
 
 .. _latex-options:
 
