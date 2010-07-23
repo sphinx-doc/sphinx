@@ -61,3 +61,4 @@ def setup(app):
     app.add_role('cfunc', old_crole)
     app.add_role('cmacro', old_crole)
     app.add_role('ctype', old_crole)
+    app.add_role('cmember', old_crole)
