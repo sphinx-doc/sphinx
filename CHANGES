@@ -23,6 +23,8 @@ Release 1.0.1 (Jul 27, 2010)
 
 * Fix hyperrefs in object descriptions for LaTeX.
 
+ * Added Python 3.x support.
+
 
 Release 1.0 (Jul 23, 2010)
 ==========================
