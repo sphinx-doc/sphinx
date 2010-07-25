@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from sphinx.websupport.comments import StorageBackend
-from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote, Session
+from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote,\
+                                          Session
 
 class SQLAlchemyStorage(StorageBackend):
     def __init__(self, engine):
