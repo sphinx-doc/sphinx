@@ -5,6 +5,8 @@ Release 1.1 (in development)
 Release 1.0.1 (in development)
 ==============================
 
+* Fix building with the JSON builder.
+
 * Fix hyperrefs in object descriptions for LaTeX.
 
 
