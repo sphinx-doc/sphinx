@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+    sphinx.websupport.comments.db
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    SQLAlchemy table and mapper definitions used by the
+    :class:`sphinx.websupport.comments.SQLAlchemyStorage`.
+
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+"""
+
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, ForeignKey,\
@@ -152,4 +164,3 @@ class ProposalVote(Base):
         self.value = value
         self.user_id = user_id
         self.proposal_id = proposal_id
-
