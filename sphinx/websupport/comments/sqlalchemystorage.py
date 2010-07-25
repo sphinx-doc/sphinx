@@ -23,28 +23,28 @@ class SQLAlchemyStorage(StorageBackend):
         self.build_session.commit()
         self.build_session.close()
 
-    def add_comment(self, parent_id, text, displayed, 
+    def add_comment(self, parent_id, text, displayed,
                     username, rating, time):
         time = time or datetime.now()
-        
+
         session = Session()
-        
+
         id = parent_id[1:]
         if parent_id[0] == 's':
             node = session.query(Node).filter(Node.id == id).first()
-            comment = Comment(text, displayed, username, rating, 
+            comment = Comment(text, displayed, username, rating,
                               time, node=node)
         elif parent_id[0] == 'c':
             parent = session.query(Comment).filter(Comment.id == id).first()
-            comment = Comment(text, displayed, username, rating, 
+            comment = Comment(text, displayed, username, rating,
                               time, parent=parent)
-            
+
         session.add(comment)
         session.commit()
         comment = comment.serializable()
         session.close()
         return comment
-        
+
     def get_comments(self, parent_id, user_id):
         parent_id = parent_id[1:]
         session = Session()
@@ -56,15 +56,15 @@ class SQLAlchemyStorage(StorageBackend):
         session.close()
         return comments
 
-    def add_proposal(self, parent_id, text, displayed, username, 
+    def add_proposal(self, parent_id, text, displayed, username,
                     rating, time):
         time = time or datetime.now()
-        
+
         session = Session()
-        
+
         node = session.query(Node).filter(Node.id == parent_id).first()
         proposal= Proposal(text, displayed, username, rating, time, node)
-            
+
         session.add(proposal)
         session.commit()
         session.close()
@@ -84,7 +84,7 @@ class SQLAlchemyStorage(StorageBackend):
         vote = session.query(CommentVote).filter(
             CommentVote.comment_id == comment_id).filter(
             CommentVote.user_id == user_id).first()
-        
+
         comment = session.query(Comment).filter(
             Comment.id == comment_id).first()
 
@@ -97,4 +97,3 @@ class SQLAlchemyStorage(StorageBackend):
         session.add(vote)
         session.commit()
         session.close()
-

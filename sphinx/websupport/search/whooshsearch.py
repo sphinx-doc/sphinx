@@ -40,10 +40,10 @@ class WhooshSearch(BaseSearch):
 
     def finish_indexing(self):
         self.index_writer.commit()
-       
+
     def add_document(self, pagename, title, text):
         self.index_writer.add_document(path=unicode(pagename),
-                                       title=title, 
+                                       title=title,
                                        text=text)
 
     def handle_query(self, q):

@@ -44,7 +44,7 @@ class WebSupport(object):
             self._init_search(search)
 
         self._init_storage(storage)
-    
+
     def _init_storage(self, storage):
         if isinstance(storage, StorageBackend):
             self.storage = storage
@@ -58,7 +58,7 @@ class WebSupport(object):
             ensuredir(path.dirname(db_path))
             engine = create_engine('sqlite:///%s' % db_path)
             self.storage = SQLAlchemyStorage(engine)
-        
+
     def _init_templating(self):
         import sphinx
         template_path = path.join(path.dirname(sphinx.__file__),
@@ -71,7 +71,7 @@ class WebSupport(object):
             self.search = search
         else:
             mod, cls = search_adapters[search]
-            search_class = getattr(__import__('sphinx.websupport.search.' + mod, 
+            search_class = getattr(__import__('sphinx.websupport.search.' + mod,
                                           None, None, [cls]), cls)
             search_path = path.join(self.outdir, 'search')
             self.search = search_class(search_path)
@@ -202,15 +202,15 @@ class WebSupport(object):
         :param rating: the starting rating of the comment, defaults to 0.
         :param time: the time the comment was created, defaults to now.
         """
-        return self.storage.add_comment(parent_id, text, displayed, 
+        return self.storage.add_comment(parent_id, text, displayed,
                                          username, rating, time)
-    
+
     def get_proposals(self, node_id, user_id=None):
         return self.storage.get_proposals(node_id, user_id)
 
     def add_proposal(self, parent_id, text, displayed=True, username=None,
                     rating=0, time=None):
-        return self.storage.add_proposal(parent_id, text, displayed, 
+        return self.storage.add_proposal(parent_id, text, displayed,
                                           username, rating, time)
 
     def process_vote(self, comment_id, user_id, value):

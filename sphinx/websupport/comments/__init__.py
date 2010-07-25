@@ -18,14 +18,14 @@ class StorageBackend(object):
         `treeloc` is for future use.
         """
         raise NotImplementedError()
-    
+
     def post_build(self):
         """Called after a build has completed. Use this to finalize the
         addition of nodes if needed.
         """
         pass
 
-    def add_comment(self, parent_id, text, displayed, username, 
+    def add_comment(self, parent_id, text, displayed, username,
                     rating, time):
         """Called when a comment is being added."""
         raise NotImplementedError()
@@ -34,7 +34,7 @@ class StorageBackend(object):
         """Called to retrieve all comments for a node."""
         raise NotImplementedError()
 
-    def add_proposal(self, parent_id, text, displayed, username, 
+    def add_proposal(self, parent_id, text, displayed, username,
                     rating, time):
         raise NotImplementedError()
 
