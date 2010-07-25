@@ -49,6 +49,7 @@ class Comment(Base):
     text = Column(Text, nullable=False)
     displayed = Column(Boolean, index=True, default=False)
     username = Column(String(64))
+    proposal = Column(Text)
 
     node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
     node = relation(Node, backref='comments')
@@ -57,7 +58,7 @@ class Comment(Base):
     parent = relation('Comment', backref='children', remote_side=[id])
 
     def __init__(self, text, displayed, username, rating, time,
-                 node=None, parent=None):
+                 node=None, parent=None, proposal=None):
         self.text = text
         self.displayed = displayed
         self.username = username
@@ -65,6 +66,7 @@ class Comment(Base):
         self.time = time
         self.node = node
         self.parent = parent
+        self.proposal = proposal
 
     def serializable(self, user_id=None):
         delta = datetime.now() - self.time
@@ -127,40 +129,3 @@ class CommentVote(Base):
         self.value = value
         self.user_id = user_id
         self.comment_id = comment_id
-
-class Proposal(Base):
-    __tablename__ = db_prefix + 'proposals'
-
-    id = Column(Integer, primary_key=True)
-    rating = Column(Integer, nullable=False)
-    time = Column(DateTime, nullable=False)
-    text = Column(Text, nullable=False)
-    displayed = Column(Boolean, index=True, default=False)
-    username = Column(String(64))
-
-    node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
-    node = relation(Node, backref='proposals')
-
-    def __init__(self, text, displayed, username, rating, time, node):
-        self.text = text
-        self.displayed = displayed
-        self.username = username
-        self.rating = rating
-        self.time = time
-        self.node = node
-
-class ProposalVote(Base):
-    __tablename__ = db_prefix + 'proposalvote'
-
-    user_id = Column(Integer, primary_key=True)
-    # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
-    value = Column(Integer, nullable=False)
-
-    proposal_id = Column(Integer, ForeignKey(db_prefix + 'proposals.id'),
-                         primary_key=True)
-    proposal = relation(Proposal, backref="votes")
-
-    def __init__(self, proposal_id, user_id, value):
-        self.value = value
-        self.user_id = user_id
-        self.proposal_id = proposal_id
