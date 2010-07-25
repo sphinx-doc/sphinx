@@ -30,7 +30,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
-from sphinx.util import copy_static_entry
+from sphinx.util import jsonimpl, copy_static_entry
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
      movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
@@ -46,14 +46,6 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen, brown
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
      SmartyPantsHTMLTranslator
-
-try:
-    import json
-except ImportError:
-    try:
-        import simplejson as json
-    except ImportError:
-        json = None
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -1007,15 +999,15 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     """
     A builder that dumps the generated HTML into JSON files.
     """
-    implementation = json
-    indexer_format = json
+    implementation = jsonimpl
+    indexer_format = jsonimpl
     name = 'json'
     out_suffix = '.fjson'
     globalcontext_filename = 'globalcontext.json'
     searchindex_filename = 'searchindex.json'
 
     def init(self):
-        if json is None:
+        if jsonimpl.json is None:
             raise SphinxError(
                 'The module simplejson (or json in Python >= 2.6) '
                 'is not available. The JSONHTMLBuilder builder will not work.')
