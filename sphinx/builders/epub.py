@@ -11,17 +11,17 @@
 """
 
 import os
-import codecs
-from os import path
-import zipfile
 import re
+import codecs
+import zipfile
+from os import path
 
 from docutils import nodes
 
+from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
-from sphinx import addnodes
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -250,8 +250,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
-            if ( uri.startswith('http:') or uri.startswith('https:') or \
-                    uri.startswith('ftp:') ) and uri not in node.astext():
+            if (uri.startswith('http:') or uri.startswith('https:') or
+                    uri.startswith('ftp:')) and uri not in node.astext():
                 uri = _link_target_template % {'uri': uri}
                 if uri:
                     idx = node.parent.index(node) + 1

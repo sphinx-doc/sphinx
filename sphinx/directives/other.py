@@ -215,12 +215,7 @@ class VersionChange(Directive):
         else:
             ret = [node]
         env = self.state.document.settings.env
-        env.versionchanges.setdefault(node['version'], []).append(
-            (node['type'], env.temp_data['docname'], self.lineno,
-             # XXX: python domain specific
-             env.temp_data.get('py:module'),
-             env.temp_data.get('object'),
-             node.astext()))
+        env.note_versionchange(node['type'], node['version'], node, self.lineno)
         return ret
 
 

@@ -21,6 +21,10 @@ def teardown_module():
 def test_pickle(app):
     app.builder.build_all()
 
+@with_app(buildername='json')
+def test_json(app):
+    app.builder.build_all()
+
 @with_app(buildername='linkcheck')
 def test_linkcheck(app):
     app.builder.build_all()

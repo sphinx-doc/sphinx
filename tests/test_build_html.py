@@ -52,182 +52,182 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 """
 
 HTML_XPATH = {
-    'images.html': {
-        ".//img[@src='_images/img.png']": '',
-        ".//img[@src='_images/img1.png']": '',
-        ".//img[@src='_images/simg.png']": '',
-        ".//object[@data='_images/svgimg.svg']": '',
-        ".//embed[@src='_images/svgimg.svg']": '',
-    },
-    'subdir/images.html': {
-        ".//img[@src='../_images/img1.png']": '',
-        ".//img[@src='../_images/rimg.png']": '',
-    },
-    'subdir/includes.html': {
-        ".//a[@href='../_downloads/img.png']": '',
-        ".//img[@src='../_images/img.png']": '',
-        ".//p": 'This is an include file.',
-    },
-    'includes.html': {
-        ".//pre": u'Max Strauß',
-        ".//a[@href='_downloads/img.png']": '',
-        ".//a[@href='_downloads/img1.png']": '',
-        ".//pre": u'"quotes"',
-        ".//pre": u"'included'",
-    },
-    'autodoc.html': {
-        ".//dt[@id='test_autodoc.Class']": '',
-        ".//dt[@id='test_autodoc.function']/em": r'\*\*kwds',
-        ".//dd/p": r'Return spam\.',
-    },
-    'extapi.html': {
-        ".//strong": 'from function: Foo',
-        ".//strong": 'from class: Bar',
-    },
-    'markup.html': {
-        ".//title": 'set by title directive',
-        ".//p/em": 'Section author: Georg Brandl',
-        ".//p/em": 'Module author: Georg Brandl',
+    'images.html': [
+        (".//img[@src='_images/img.png']", ''),
+        (".//img[@src='_images/img1.png']", ''),
+        (".//img[@src='_images/simg.png']", ''),
+        (".//object[@data='_images/svgimg.svg']", ''),
+        (".//embed[@src='_images/svgimg.svg']", ''),
+    ],
+    'subdir/images.html': [
+        (".//img[@src='../_images/img1.png']", ''),
+        (".//img[@src='../_images/rimg.png']", ''),
+    ],
+    'subdir/includes.html': [
+        (".//a[@href='../_downloads/img.png']", ''),
+        (".//img[@src='../_images/img.png']", ''),
+        (".//p", 'This is an include file.'),
+    ],
+    'includes.html': [
+        (".//pre", u'Max Strauß'),
+        (".//a[@href='_downloads/img.png']", ''),
+        (".//a[@href='_downloads/img1.png']", ''),
+        (".//pre", u'"quotes"'),
+        (".//pre", u"'included'"),
+    ],
+    'autodoc.html': [
+        (".//dt[@id='test_autodoc.Class']", ''),
+        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dd/p", r'Return spam\.'),
+    ],
+    'extapi.html': [
+        (".//strong", 'from function: Foo'),
+        (".//strong", 'from class: Bar'),
+    ],
+    'markup.html': [
+        (".//title", 'set by title directive'),
+        (".//p/em", 'Section author: Georg Brandl'),
+        (".//p/em", 'Module author: Georg Brandl'),
         # created by the meta directive
-        ".//meta[@name='author'][@content='Me']": '',
-        ".//meta[@name='keywords'][@content='docs, sphinx']": '',
+        (".//meta[@name='author'][@content='Me']", ''),
+        (".//meta[@name='keywords'][@content='docs, sphinx']", ''),
         # a label created by ``.. _label:``
-        ".//div[@id='label']": '',
+        (".//div[@id='label']", ''),
         # code with standard code blocks
-        ".//pre": '^some code$',
+        (".//pre", '^some code$'),
         # an option list
-        ".//span[@class='option']": '--help',
+        (".//span[@class='option']", '--help'),
         # admonitions
-        ".//p[@class='first admonition-title']": 'My Admonition',
-        ".//p[@class='last']": 'Note text.',
-        ".//p[@class='last']": 'Warning text.',
+        (".//p[@class='first admonition-title']", 'My Admonition'),
+        (".//p[@class='last']", 'Note text.'),
+        (".//p[@class='last']", 'Warning text.'),
         # inline markup
-        ".//li/strong": '^command$',
-        ".//li/strong": '^program$',
-        ".//li/em": '^dfn$',
-        ".//li/tt/span[@class='pre']": '^kbd$',
-        ".//li/em": u'File \N{TRIANGULAR BULLET} Close',
-        ".//li/tt/span[@class='pre']": '^a/$',
-        ".//li/tt/em/span[@class='pre']": '^varpart$',
-        ".//li/tt/em/span[@class='pre']": '^i$',
-        ".//a[@href='http://www.python.org/dev/peps/pep-0008']"
-            "[@class='pep reference external']/strong": 'PEP 8',
-        ".//a[@href='http://tools.ietf.org/html/rfc1.html']"
-            "[@class='rfc reference external']/strong": 'RFC 1',
-        ".//a[@href='objects.html#envvar-HOME']"
-            "[@class='reference internal']/tt/span[@class='pre']": 'HOME',
-        ".//a[@href='#with']"
-            "[@class='reference internal']/tt/span[@class='pre']": '^with$',
-        ".//a[@href='#grammar-token-try_stmt']"
-            "[@class='reference internal']/tt/span": '^statement$',
-        ".//a[@href='subdir/includes.html']"
-            "[@class='reference internal']/em": 'Including in subdir',
-        ".//a[@href='objects.html#cmdoption-python-c']"
-            "[@class='reference internal']/em": 'Python -c option',
+        (".//li/strong", r'^command\\n$'),
+        (".//li/strong", r'^program\\n$'),
+        (".//li/em", r'^dfn\\n$'),
+        (".//li/tt/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/em", u'File \N{TRIANGULAR BULLET} Close'),
+        (".//li/tt/span[@class='pre']", '^a/$'),
+        (".//li/tt/em/span[@class='pre']", '^varpart$'),
+        (".//li/tt/em/span[@class='pre']", '^i$'),
+        (".//a[@href='http://www.python.org/dev/peps/pep-0008']"
+            "[@class='pep reference external']/strong", 'PEP 8'),
+        (".//a[@href='http://tools.ietf.org/html/rfc1.html']"
+            "[@class='rfc reference external']/strong", 'RFC 1'),
+        (".//a[@href='objects.html#envvar-HOME']"
+            "[@class='reference internal']/tt/span[@class='pre']", 'HOME'),
+        (".//a[@href='#with']"
+            "[@class='reference internal']/tt/span[@class='pre']", '^with$'),
+        (".//a[@href='#grammar-token-try_stmt']"
+            "[@class='reference internal']/tt/span", '^statement$'),
+        (".//a[@href='subdir/includes.html']"
+            "[@class='reference internal']/em", 'Including in subdir'),
+        (".//a[@href='objects.html#cmdoption-python-c']"
+            "[@class='reference internal']/em", 'Python -c option'),
         # abbreviations
-        ".//abbr[@title='abbreviation']": '^abbr$',
+        (".//abbr[@title='abbreviation']", '^abbr$'),
         # version stuff
-        ".//span[@class='versionmodified']": 'New in version 0.6',
+        (".//span[@class='versionmodified']", 'New in version 0.6'),
         # footnote reference
-        ".//a[@class='footnote-reference']": r'\[1\]',
+        (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
-        ".//a[@href='contents.html#ref1']": '',
+        (".//a[@href='contents.html#ref1']", ''),
         # ``seealso`` directive
-        ".//div/p[@class='first admonition-title']": 'See also',
+        (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
-        ".//table[@class='hlist']/tr/td/ul/li": '^This$',
+        (".//table[@class='hlist']/tr/td/ul/li", '^This$'),
         # a ``centered`` directive
-        ".//p[@class='centered']/strong": 'LICENSE',
+        (".//p[@class='centered']/strong", 'LICENSE'),
         # a glossary
-        ".//dl/dt[@id='term-boson']": 'boson',
+        (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
-        ".//pre/strong": 'try_stmt',
-        ".//pre/a[@href='#grammar-token-try1_stmt']/tt/span": 'try1_stmt',
+        (".//pre/strong", 'try_stmt'),
+        (".//pre/a[@href='#grammar-token-try1_stmt']/tt/span", 'try1_stmt'),
         # tests for ``only`` directive
-        ".//p": 'A global substitution.',
-        ".//p": 'In HTML.',
-        ".//p": 'In both.',
-        ".//p": 'Always present',
-    },
-    'objects.html': {
-        ".//dt[@id='mod.Cls.meth1']": '',
-        ".//dt[@id='errmod.Error']": '',
-        ".//a[@href='#mod.Cls'][@class='reference internal']": '',
-        ".//dl[@class='userdesc']": '',
-        ".//dt[@id='userdesc-myobj']": '',
-        ".//a[@href='#userdesc-myobj']": '',
+        (".//p", 'A global substitution.'),
+        (".//p", 'In HTML.'),
+        (".//p", 'In both.'),
+        (".//p", 'Always present'),
+    ],
+    'objects.html': [
+        (".//dt[@id='mod.Cls.meth1']", ''),
+        (".//dt[@id='errmod.Error']", ''),
+        (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
+        (".//dl[@class='userdesc']", ''),
+        (".//dt[@id='userdesc-myobj']", ''),
+        (".//a[@href='#userdesc-myobj']", ''),
         # C references
-        ".//span[@class='pre']": 'CFunction()',
-        ".//a[@href='#Sphinx_DoSomething']": '',
-        ".//a[@href='#SphinxStruct.member']": '',
-        ".//a[@href='#SPHINX_USE_PYTHON']": '',
-        ".//a[@href='#SphinxType']": '',
-        ".//a[@href='#sphinx_global']": '',
+        (".//span[@class='pre']", 'CFunction()'),
+        (".//a[@href='#Sphinx_DoSomething']", ''),
+        (".//a[@href='#SphinxStruct.member']", ''),
+        (".//a[@href='#SPHINX_USE_PYTHON']", ''),
+        (".//a[@href='#SphinxType']", ''),
+        (".//a[@href='#sphinx_global']", ''),
         # reference from old C markup extension
-        ".//a[@href='#Sphinx_Func']": '',
+        (".//a[@href='#Sphinx_Func']", ''),
         # test global TOC created by toctree()
-        ".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']":
-            'Testing object descriptions',
-        ".//li[@class='toctree-l1']/a[@href='markup.html']":
-            'Testing various markup',
+        (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']",
+            'Testing object descriptions'),
+        (".//li[@class='toctree-l1']/a[@href='markup.html']",
+            'Testing various markup'),
         # custom sidebar
-        ".//h4": 'Custom sidebar',
-    },
-    'contents.html': {
-        ".//meta[@name='hc'][@content='hcval']": '',
-        ".//meta[@name='hc_co'][@content='hcval_co']": '',
-        ".//meta[@name='testopt'][@content='testoverride']": '',
-        ".//td[@class='label']": r'\[Ref1\]',
-        ".//td[@class='label']": '',
-        ".//li[@class='toctree-l1']/a": 'Testing various markup',
-        ".//li[@class='toctree-l2']/a": 'Inline markup',
-        ".//title": 'Sphinx <Tests>',
-        ".//div[@class='footer']": 'Georg Brandl & Team',
-        ".//a[@href='http://python.org/']"
-            "[@class='reference external']": '',
-        ".//li/a[@href='genindex.html']/em": 'Index',
-        ".//li/a[@href='py-modindex.html']/em": 'Module Index',
-        ".//li/a[@href='search.html']/em": 'Search Page',
+        (".//h4", 'Custom sidebar'),
+    ],
+    'contents.html': [
+        (".//meta[@name='hc'][@content='hcval']", ''),
+        (".//meta[@name='hc_co'][@content='hcval_co']", ''),
+        (".//meta[@name='testopt'][@content='testoverride']", ''),
+        (".//td[@class='label']", r'\[Ref1\]'),
+        (".//td[@class='label']", ''),
+        (".//li[@class='toctree-l1']/a", 'Testing various markup'),
+        (".//li[@class='toctree-l2']/a", 'Inline markup'),
+        (".//title", 'Sphinx <Tests>'),
+        (".//div[@class='footer']", 'Georg Brandl & Team'),
+        (".//a[@href='http://python.org/']"
+            "[@class='reference external']", ''),
+        (".//li/a[@href='genindex.html']/em", 'Index'),
+        (".//li/a[@href='py-modindex.html']/em", 'Module Index'),
+        (".//li/a[@href='search.html']/em", 'Search Page'),
         # custom sidebar only for contents
-        ".//h4": 'Contents sidebar',
-    },
-    'bom.html': {
-        ".//title": " File with UTF-8 BOM",
-    },
-    'extensions.html': {
-        ".//a[@href='http://python.org/dev/']": "http://python.org/dev/",
-        ".//a[@href='http://bugs.python.org/issue1000']": "issue 1000",
-        ".//a[@href='http://bugs.python.org/issue1042']": "explicit caption",
-    },
-    '_static/statictmpl.html': {
-        ".//project": 'Sphinx <Tests>',
-    },
+        (".//h4", 'Contents sidebar'),
+    ],
+    'bom.html': [
+        (".//title", " File with UTF-8 BOM"),
+    ],
+    'extensions.html': [
+        (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
+        (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
+        (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
+    ],
+    '_static/statictmpl.html': [
+        (".//project", 'Sphinx <Tests>'),
+    ],
 }
 
 if pygments:
-    HTML_XPATH['includes.html'].update({
-        ".//pre/span[@class='s']": u'üöä',
-        ".//div[@class='inc-pyobj1 highlight-text']//pre":
-            r'^class Foo:\n    pass\n\s*$',
-        ".//div[@class='inc-pyobj2 highlight-text']//pre":
-            r'^    def baz\(\):\n        pass\n\s*$',
-        ".//div[@class='inc-lines highlight-text']//pre":
-            r'^class Foo:\n    pass\nclass Bar:\n$',
-        ".//div[@class='inc-startend highlight-text']//pre":
-            ur'^foo = u"Including Unicode characters: üöä"\n$',
-        ".//div[@class='inc-preappend highlight-text']//pre":
-            r'(?m)^START CODE$',
-        ".//div[@class='inc-pyobj-dedent highlight-python']//span":
-            r'def',
-        ".//div[@class='inc-tab3 highlight-text']//pre":
-            r'-| |-',
-        ".//div[@class='inc-tab8 highlight-python']//pre":
-            r'-|      |-',
-    })
-    HTML_XPATH['subdir/includes.html'].update({
-        ".//pre/span": 'line 1',
-        ".//pre/span": 'line 2',
-    })
+    HTML_XPATH['includes.html'].extend([
+        (".//pre/span[@class='s']", u'üöä'),
+        (".//div[@class='inc-pyobj1 highlight-text']//pre",
+            r'^class Foo:\n    pass\n\s*$'),
+        (".//div[@class='inc-pyobj2 highlight-text']//pre",
+            r'^    def baz\(\):\n        pass\n\s*$'),
+        (".//div[@class='inc-lines highlight-text']//pre",
+            r'^class Foo:\n    pass\nclass Bar:\n$'),
+        (".//div[@class='inc-startend highlight-text']//pre",
+            ur'^foo = u"Including Unicode characters: üöä"\n$'),
+        (".//div[@class='inc-preappend highlight-text']//pre",
+            r'(?m)^START CODE$'),
+        (".//div[@class='inc-pyobj-dedent highlight-python']//span",
+            r'def'),
+        (".//div[@class='inc-tab3 highlight-text']//pre",
+            r'-| |-'),
+        (".//div[@class='inc-tab8 highlight-python']//pre",
+            r'-|      |-'),
+    ])
+    HTML_XPATH['subdir/includes.html'].extend([
+        (".//pre/span", 'line 1'),
+        (".//pre/span", 'line 2'),
+    ])
 
 class NslessParser(ET.XMLParser):
     """XMLParser that throws away namespaces in tag names."""
@@ -292,7 +292,7 @@ def test_html(app):
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
         etree = ET.parse(os.path.join(app.outdir, fname), parser)
-        for path, check in paths.iteritems():
+        for path, check in paths:
             yield check_xpath, etree, fname, path, check
 
     check_static_entries(app.builder.outdir)

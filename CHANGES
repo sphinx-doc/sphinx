@@ -1,5 +1,17 @@
-Release 1.0 (in development)
+Release 1.1 (in development)
 ============================
+
+
+Release 1.0.1 (in development)
+==============================
+
+* Fix building with the JSON builder.
+
+* Fix hyperrefs in object descriptions for LaTeX.
+
+
+Release 1.0 (Jul 23, 2010)
+==========================
 
 Incompatible changes
 --------------------
@@ -81,6 +93,9 @@ Features added
   - Added :confval:`html_show_copyright` config value.
   - Added :confval:`latex_show_pagerefs` and :confval:`latex_show_urls`
     config values.
+  - The behavior of :confval:`html_file_suffix` changed slightly: the
+    empty string now means "no suffix" instead of "default suffix", use
+    ``None`` for "default suffix".
 
 * New builders:
 
