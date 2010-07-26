@@ -146,10 +146,11 @@ class WebSupport(object):
         return document
 
     def get_comments(self, node_id, user_id=None):
-        """Get the comments associated with `node_id`. If `user_id` is
-        given vote information will be included with the returned comments.
-        The default CommentBackend returns a list of dicts. Each dict
-        represents a comment, and has the following items:
+        """Get the comments and source associated with `node_id`. If 
+        `user_id` is given vote information will be included with the 
+        returned comments. The default CommentBackend returns dict with
+        two keys, *source*, and *comments*. *comments* is a list of
+        dicts that represent a comment, each having the following items:
 
         ============ ======================================================
         Key          Contents
@@ -181,7 +182,7 @@ class WebSupport(object):
         return self.storage.get_comments(node_id, user_id)
 
     def add_comment(self, parent_id, text, displayed=True, username=None,
-                    rating=0, time=None):
+                    rating=0, time=None, proposal=None):
         """Add a comment to a node or another comment. `parent_id` will have
         a one letter prefix, distinguishing between node parents and 
         comment parents, 'c' and 's' respectively. This function will
@@ -203,7 +204,7 @@ class WebSupport(object):
         :param time: the time the comment was created, defaults to now.
         """
         return self.storage.add_comment(parent_id, text, displayed, 
-                                         username, rating, time)
+                                         username, rating, time, proposal)
     
     def get_proposals(self, node_id, user_id=None):
         return self.storage.get_proposals(node_id, user_id)

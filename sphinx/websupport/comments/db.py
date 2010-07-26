@@ -46,7 +46,7 @@ class Comment(Base):
     parent = relation('Comment', backref='children', remote_side=[id])
 
     def __init__(self, text, displayed, username, rating, time, 
-                 node=None, parent=None, proposal=None):
+                 proposal, node=None, parent=None):
         self.text = text
         self.displayed = displayed
         self.username = username

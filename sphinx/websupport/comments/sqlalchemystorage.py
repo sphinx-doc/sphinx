@@ -24,7 +24,7 @@ class SQLAlchemyStorage(StorageBackend):
         self.build_session.close()
 
     def add_comment(self, parent_id, text, displayed, 
-                    username, rating, time):
+                    username, rating, time, proposal):
         time = time or datetime.now()
         
         session = Session()
@@ -33,11 +33,11 @@ class SQLAlchemyStorage(StorageBackend):
         if parent_id[0] == 's':
             node = session.query(Node).filter(Node.id == id).first()
             comment = Comment(text, displayed, username, rating, 
-                              time, node=node)
+                              time, proposal, node=node)
         elif parent_id[0] == 'c':
             parent = session.query(Comment).filter(Comment.id == id).first()
             comment = Comment(text, displayed, username, rating, 
-                              time, parent=parent)
+                              time,proposal, parent=parent)
             
         session.add(comment)
         session.commit()
@@ -49,35 +49,11 @@ class SQLAlchemyStorage(StorageBackend):
         parent_id = parent_id[1:]
         session = Session()
         node = session.query(Node).filter(Node.id == parent_id).first()
-        comments = []
-        for comment in node.comments:
-            comments.append(comment.serializable(user_id))
-
+        data = {'source': node.source,
+                'comments': [comment.serializable(user_id)
+                             for comment in node.comments]}
         session.close()
-        return comments
-
-    def add_proposal(self, parent_id, text, displayed, username, 
-                    rating, time):
-        time = time or datetime.now()
-        
-        session = Session()
-        
-        node = session.query(Node).filter(Node.id == parent_id).first()
-        proposal= Proposal(text, displayed, username, rating, time, node)
-            
-        session.add(proposal)
-        session.commit()
-        session.close()
-        return proposal
-
-    def get_proposals(self, parent_id):
-        session = Session()
-        node = session.query(Node).filter(Node.id == parent_id).first()
-        proposals = []
-
-        # TODO
-
-        return proposals
+        return data
 
     def process_vote(self, comment_id, user_id, value):
         session = Session()

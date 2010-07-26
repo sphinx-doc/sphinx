@@ -25,20 +25,13 @@ class StorageBackend(object):
         """
         pass
 
-    def add_comment(self, parent_id, text, displayed, username, 
-                    rating, time):
+    def add_comment(self, parent_id, text, displayed, 
+                    username, rating, time, proposal):
         """Called when a comment is being added."""
         raise NotImplementedError()
 
     def get_comments(self, parent_id):
         """Called to retrieve all comments for a node."""
-        raise NotImplementedError()
-
-    def add_proposal(self, parent_id, text, displayed, username, 
-                    rating, time):
-        raise NotImplementedError()
-
-    def get_proposals(self, parent_id):
         raise NotImplementedError()
 
     def process_vote(self, comment_id, user_id, value):
