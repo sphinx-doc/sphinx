@@ -221,10 +221,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 'text': ssp(self.esc(text))
             })
 
-    def fix_fragment(self, match):
-        """Return a href attribute with colons replaced by hyphens.
+    def fix_fragment(self, prefix, fragment):
+        """Return a href/id attribute with colons replaced by hyphens.
         """
-        return match.group(1) + match.group(2).replace(':', '-')
+        return prefix + fragment.replace(':', '-')
 
     def fix_ids(self, tree):
         """Replace colons with hyphens in href and id attributes.
@@ -235,14 +235,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if 'refuri' in node:
                 m = _refuri_re.match(node['refuri'])
                 if m:
-                    node['refuri'] = self.fix_fragment(m)
+                    node['refuri'] = self.fix_fragment(m.group(1), m.group(2))
             if 'refid' in node:
-                node['refid'] = node['refid'].replace(':', '-')
+                node['refid'] = self.fix_fragment('', node['refid'])
         for node in tree.traverse(addnodes.desc_signature):
             ids = node.attributes['ids']
             newids = []
             for id in ids:
-                newids.append(id.replace(':', '-'))
+                newids.append(self.fix_fragment('', id))
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree):
@@ -278,12 +278,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 for (i, link) in enumerate(links):
                     m = _refuri_re.match(link)
                     if m:
-                        links[i] = self.fix_fragment(m)
+                        links[i] = self.fix_fragment(m.group(1), m.group(2))
                 for subentryname, subentrylinks in subitems:
                     for (i, link) in enumerate(subentrylinks):
                         m = _refuri_re.match(link)
                         if m:
-                            subentrylinks[i] = self.fix_fragment(m)
+                            subentrylinks[i] = \
+                                self.fix_fragment(m.group(1), m.group(2))
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
