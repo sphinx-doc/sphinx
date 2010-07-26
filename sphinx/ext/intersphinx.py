@@ -191,10 +191,12 @@ def missing_reference(app, env, node, contnode):
         return
     objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
     to_try = [(env.intersphinx_inventory, target)]
+    in_set = None
     if ':' in target:
         # first part may be the foreign doc set name
         setname, newtarget = target.split(':', 1)
         if setname in env.intersphinx_named_inventory:
+            in_set = setname
             to_try.append((env.intersphinx_named_inventory[setname], newtarget))
     for inventory, target in to_try:
         for objtype in objtypes:
@@ -204,10 +206,13 @@ def missing_reference(app, env, node, contnode):
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                                       reftitle='(in %s v%s)' % (proj, version))
             if dispname == '-':
-                newnode.append(contnode)
-            else:
-                newnode.append(contnode.__class__(dispname, dispname))
+                dispname = target
+            newnode.append(contnode.__class__(dispname, dispname))
             return newnode
+    # at least get rid of the ':' in the target
+    if in_set is not None:
+        if len(contnode) and isinstance(contnode[0], nodes.Text):
+            contnode[0] = nodes.Text(newtarget, contnode[0].rawsource)
 
 
 def setup(app):
