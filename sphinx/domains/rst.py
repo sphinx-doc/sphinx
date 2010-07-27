@@ -29,8 +29,9 @@ class ReSTMarkup(ObjectDescription):
 
     def add_target_and_index(self, name, sig, signode):
         if name not in self.state.document.ids:
-            signode['names'].append(name)
-            signode['ids'].append(name)
+            targetname = name + '-' + self.objtype
+            signode['names'].append(targetname)
+            signode['ids'].append(targetname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
@@ -47,7 +48,7 @@ class ReSTMarkup(ObjectDescription):
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              name, name))
+                                              targetname, targetname))
 
     def get_index_text(self, objectname, name):
         if self.objtype == 'directive':
