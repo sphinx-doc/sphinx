@@ -847,8 +847,14 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_doc_context(self, docname, body, metatags):
         # no relation links...
         toc = self.env.get_toctree_for(self.config.master_doc, self, False)
-        self.fix_refuris(toc)
-        toc = self.render_partial(toc)['fragment']
+        # if there is no toctree, toc is None
+        if toc:
+            self.fix_refuris(toc)
+            toc = self.render_partial(toc)['fragment']
+            display_toc = True
+        else:
+            toc = ''
+            display_toc = False
         return dict(
             parents = [],
             prev = None,
@@ -861,7 +867,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             rellinks = [],
             sourcename = '',
             toc = toc,
-            display_toc = True,
+            display_toc = display_toc,
         )
 
     def write(self, *ignored):
