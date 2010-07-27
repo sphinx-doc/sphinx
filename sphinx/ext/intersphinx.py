@@ -209,8 +209,8 @@ def missing_reference(app, env, node, contnode):
                 dispname = target
             newnode.append(contnode.__class__(dispname, dispname))
             return newnode
-    # at least get rid of the ':' in the target
-    if in_set is not None:
+    # at least get rid of the ':' in the target if no explicit title given
+    if in_set is not None and not node.get('refexplicit', True):
         if len(contnode) and isinstance(contnode[0], nodes.Text):
             contnode[0] = nodes.Text(newtarget, contnode[0].rawsource)
 
