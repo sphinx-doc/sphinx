@@ -12,7 +12,7 @@
 import sys
 from os import path
 
-__version__ = '1.0.1'
+__version__ = '1.0.1+'
 __released__ = '1.0.1'  # used when Sphinx builds its own docs
 
 package_dir = path.abspath(path.dirname(__file__))
