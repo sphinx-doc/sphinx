@@ -1,0 +1,698 @@
+# Translations template for Sphinx.
+# Copyright (C) 2009 ORGANIZATION
+# This file is distributed under the same license as the Sphinx project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx 1.0pre/[?1034h2e1ab15e035e\n"
+"Report-Msgid-Bugs-To: nasim.haque@gmail.com\n"
+"POT-Creation-Date: 2009-11-08 16:28+0100\n"
+"PO-Revision-Date: 2009-11-10 13:42+0100\n"
+"Last-Translator: Nasimul Haque <nasim.haque@gmail.com>\n"
+"Language-Team: Nasimul Haque <nasim.haque@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: sphinx/environment.py:130
+#: sphinx/writers/latex.py:184
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%B %d, %Y"
+
+#: sphinx/environment.py:348
+#: sphinx/themes/basic/genindex-single.html:2
+#: sphinx/themes/basic/genindex-split.html:2
+#: sphinx/themes/basic/genindex-split.html:5
+#: sphinx/themes/basic/genindex.html:2
+#: sphinx/themes/basic/genindex.html:5
+#: sphinx/themes/basic/genindex.html:48
+#: sphinx/themes/basic/layout.html:134
+#: sphinx/writers/latex.py:190
+msgid "Index"
+msgstr "ইনডেক্স"
+
+#: sphinx/environment.py:349
+#: sphinx/writers/latex.py:189
+msgid "Module Index"
+msgstr "মডিউল ইনডেক্স"
+
+#: sphinx/environment.py:350
+#: sphinx/themes/basic/defindex.html:16
+msgid "Search Page"
+msgstr "অনুসন্ধান পাতা"
+
+#: sphinx/roles.py:167
+#, python-format
+msgid "Python Enhancement Proposals!PEP %s"
+msgstr "পাইথন উন্নয়ন পরামর্শ!PEP %s"
+
+#: sphinx/builders/changes.py:70
+msgid "Builtins"
+msgstr "বিল্টইন সমূহ"
+
+#: sphinx/builders/changes.py:72
+msgid "Module level"
+msgstr "মডিউল লেভেল"
+
+#: sphinx/builders/html.py:224
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%b %d, %Y"
+
+#: sphinx/builders/html.py:243
+#: sphinx/themes/basic/defindex.html:21
+msgid "General Index"
+msgstr "সাধারণ ইনডেক্স"
+
+#: sphinx/builders/html.py:243
+msgid "index"
+msgstr "ইনডেক্স"
+
+#: sphinx/builders/html.py:247
+#: sphinx/builders/htmlhelp.py:220
+#: sphinx/builders/qthelp.py:133
+#: sphinx/themes/basic/defindex.html:19
+#: sphinx/themes/basic/modindex.html:2
+#: sphinx/themes/basic/modindex.html:13
+#: sphinx/themes/scrolls/modindex.html:2
+#: sphinx/themes/scrolls/modindex.html:13
+msgid "Global Module Index"
+msgstr "গ্লোবাল মডিউল ইনডেক্স"
+
+#: sphinx/builders/html.py:248
+msgid "modules"
+msgstr "মডিউল সমূহ"
+
+#: sphinx/builders/html.py:304
+msgid "next"
+msgstr "পরবর্তী"
+
+#: sphinx/builders/html.py:313
+msgid "previous"
+msgstr "পূর্ববর্তী"
+
+#: sphinx/builders/latex.py:162
+msgid " (in "
+msgstr "(-"
+
+#: sphinx/directives/__init__.py:78
+#: sphinx/directives/__init__.py:79
+#: sphinx/directives/__init__.py:80
+#: sphinx/directives/__init__.py:81
+msgid "Raises"
+msgstr "রেইজেস"
+
+#: sphinx/directives/__init__.py:82
+#: sphinx/directives/__init__.py:83
+#: sphinx/directives/__init__.py:84
+msgid "Variable"
+msgstr "ভ্যারিয়েবল"
+
+#: sphinx/directives/__init__.py:85
+#: sphinx/directives/__init__.py:86
+#: sphinx/directives/__init__.py:92
+#: sphinx/directives/__init__.py:93
+msgid "Returns"
+msgstr "রিটার্নস"
+
+#: sphinx/directives/__init__.py:94
+msgid "Return type"
+msgstr "রিটার্ন টাইপ"
+
+#: sphinx/directives/__init__.py:169
+msgid "Parameter"
+msgstr "প্যারামিটার"
+
+#: sphinx/directives/__init__.py:173
+msgid "Parameters"
+msgstr "প্যারামিটার"
+
+#: sphinx/directives/other.py:127
+msgid "Section author: "
+msgstr "অনুচ্ছেদ লেখক:"
+
+#: sphinx/directives/other.py:129
+msgid "Module author: "
+msgstr "মডিউল লেখক:"
+
+#: sphinx/directives/other.py:131
+msgid "Author: "
+msgstr "লেখক:"
+
+#: sphinx/directives/other.py:233
+msgid "See also"
+msgstr "আরও দেখুন"
+
+#: sphinx/domains/c.py:124
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (C ফাংশন)"
+
+#: sphinx/domains/c.py:126
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (C মেম্বার)"
+
+#: sphinx/domains/c.py:128
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (C ম্যাক্রো)"
+
+#: sphinx/domains/c.py:130
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (C টাইপ)"
+
+#: sphinx/domains/c.py:132
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (C ভ্যারিয়েবল)"
+
+#: sphinx/domains/c.py:162
+msgid "C function"
+msgstr "C ফাংশন"
+
+#: sphinx/domains/c.py:163
+msgid "C member"
+msgstr "C মেম্বার"
+
+#: sphinx/domains/c.py:164
+msgid "C macro"
+msgstr "C ম্যাক্রো"
+
+#: sphinx/domains/c.py:165
+msgid "C type"
+msgstr "C টাইপ"
+
+#: sphinx/domains/c.py:166
+msgid "C variable"
+msgstr "C ভ্যারিয়েবল"
+
+#: sphinx/domains/python.py:186
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (বিল্ট-ইন ফাংশন)"
+
+#: sphinx/domains/python.py:187
+#: sphinx/domains/python.py:244
+#: sphinx/domains/python.py:256
+#: sphinx/domains/python.py:269
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (%s মডিউলে)"
+
+#: sphinx/domains/python.py:190
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (বিল্ট-ইন ভ্যারিয়েবল)"
+
+#: sphinx/domains/python.py:191
+#: sphinx/domains/python.py:282
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (%s মডিউলে)"
+
+#: sphinx/domains/python.py:207
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (বিল্ট-ইন ক্লাস)"
+
+#: sphinx/domains/python.py:208
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (%s ক্লাসে)"
+
+#: sphinx/domains/python.py:248
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s (%s.%s মেথড)"
+
+#: sphinx/domains/python.py:250
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s মেথড)"
+
+#: sphinx/domains/python.py:260
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s (%s.%s স্ট্যাটিক মেথড)"
+
+#: sphinx/domains/python.py:263
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s স্ট্যাটিক মেথড)"
+
+#: sphinx/domains/python.py:273
+#, python-format
+msgid "%s() (%s.%s class method)"
+msgstr "%s() (%s.%s ক্লাস মেথড)"
+
+#: sphinx/domains/python.py:276
+#, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s ক্লাস মেথড)"
+
+#: sphinx/domains/python.py:286
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s এ্যট্রিবিউট)"
+
+#: sphinx/domains/python.py:288
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s এ্যট্রিবিউট)"
+
+#: sphinx/domains/python.py:334
+msgid "Platforms: "
+msgstr "প্লাটফরম:"
+
+#: sphinx/domains/python.py:340
+#, python-format
+msgid "%s (module)"
+msgstr "%s (মডিউল)"
+
+#: sphinx/domains/python.py:396
+msgid "function"
+msgstr "ফাংশন"
+
+#: sphinx/domains/python.py:397
+msgid "data"
+msgstr "ডাটা"
+
+#: sphinx/domains/python.py:398
+msgid "class"
+msgstr "ক্লাস"
+
+#: sphinx/domains/python.py:399
+#: sphinx/locale/__init__.py:161
+msgid "exception"
+msgstr "এক্সেপশন"
+
+#: sphinx/domains/python.py:400
+msgid "method"
+msgstr "মেথড"
+
+#: sphinx/domains/python.py:401
+msgid "attribute"
+msgstr "এ্যট্রিবিউট"
+
+#: sphinx/domains/python.py:402
+#: sphinx/locale/__init__.py:157
+msgid "module"
+msgstr "মডিউল"
+
+#: sphinx/domains/std.py:67
+#: sphinx/domains/std.py:83
+#, python-format
+msgid "environment variable; %s"
+msgstr "এনভায়রনমেন্ট ভ্যারিয়েবল; %s"
+
+#: sphinx/domains/std.py:156
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "%sকমান্ড লাইন অপশন; %s"
+
+#: sphinx/domains/std.py:324
+msgid "glossary term"
+msgstr "শব্দকোষ"
+
+#: sphinx/domains/std.py:325
+msgid "grammar token"
+msgstr "ব্যকরণ টোকেন"
+
+#: sphinx/domains/std.py:326
+msgid "environment variable"
+msgstr "এনভায়রনমেন্ট ভ্যারিয়েবল"
+
+#: sphinx/domains/std.py:327
+msgid "program option"
+msgstr "প্রোগ্রাম অপশন"
+
+#: sphinx/ext/autodoc.py:892
+#, python-format
+msgid "   Bases: %s"
+msgstr "বেস: %s"
+
+#: sphinx/ext/autodoc.py:925
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr ":class:`%s` এর উপনাম"
+
+#: sphinx/ext/todo.py:40
+msgid "Todo"
+msgstr "অসমাপ্ত কাজ"
+
+#: sphinx/ext/todo.py:98
+#, python-format
+msgid "(The original entry is located in %s, line %d and can be found "
+msgstr "(%s, %d লাইনে মূল অন্তর্ভুক্তিটি রয়েছে, যা পাওয়া যাবে"
+
+#: sphinx/ext/todo.py:104
+msgid "here"
+msgstr "এখানে"
+
+#: sphinx/locale/__init__.py:138
+msgid "Attention"
+msgstr "দৃষ্টি আকর্ষণ"
+
+#: sphinx/locale/__init__.py:139
+msgid "Caution"
+msgstr "সতর্কীকরণ"
+
+#: sphinx/locale/__init__.py:140
+msgid "Danger"
+msgstr "বিপজ্জনক"
+
+#: sphinx/locale/__init__.py:141
+msgid "Error"
+msgstr "ভুল (এরর)"
+
+#: sphinx/locale/__init__.py:142
+msgid "Hint"
+msgstr "আভাস"
+
+#: sphinx/locale/__init__.py:143
+msgid "Important"
+msgstr "গুরুত্বপূর্ণ"
+
+#: sphinx/locale/__init__.py:144
+msgid "Note"
+msgstr "নোট"
+
+#: sphinx/locale/__init__.py:145
+msgid "See Also"
+msgstr "আরও দেখুন"
+
+#: sphinx/locale/__init__.py:146
+msgid "Tip"
+msgstr "পরামর্শ"
+
+#: sphinx/locale/__init__.py:147
+msgid "Warning"
+msgstr "সতর্কতা"
+
+#: sphinx/locale/__init__.py:151
+#, python-format
+msgid "New in version %s"
+msgstr "%s ভার্সনে নতুন"
+
+#: sphinx/locale/__init__.py:152
+#, python-format
+msgid "Changed in version %s"
+msgstr "%s ভার্সনে পরিবর্তিত"
+
+#: sphinx/locale/__init__.py:153
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "%s ভার্সন থেকে ডেপ্রিকেটেড"
+
+#: sphinx/locale/__init__.py:158
+msgid "keyword"
+msgstr "কিওয়ার্ড"
+
+#: sphinx/locale/__init__.py:159
+msgid "operator"
+msgstr "অপারেটর"
+
+#: sphinx/locale/__init__.py:160
+msgid "object"
+msgstr "অবজেক্ট"
+
+#: sphinx/locale/__init__.py:162
+msgid "statement"
+msgstr "স্ট্যাটমেন্ট"
+
+#: sphinx/locale/__init__.py:163
+msgid "built-in function"
+msgstr "বিল্ট-ইন ফাংশন"
+
+#: sphinx/themes/basic/defindex.html:2
+msgid "Overview"
+msgstr "ভুমিকা"
+
+#: sphinx/themes/basic/defindex.html:11
+msgid "Indices and tables:"
+msgstr "ইনডেক্স ও টেবিল সমূহ:"
+
+#: sphinx/themes/basic/defindex.html:14
+msgid "Complete Table of Contents"
+msgstr "পূর্ণাঙ্গ সূচীপত্র"
+
+#: sphinx/themes/basic/defindex.html:15
+msgid "lists all sections and subsections"
+msgstr "সকল অনুচ্ছেদ সমূহের তালিকা"
+
+#: sphinx/themes/basic/defindex.html:17
+msgid "search this documentation"
+msgstr "এই সহায়িকাতে অনুসন্ধা করুন"
+
+#: sphinx/themes/basic/defindex.html:20
+msgid "quick access to all modules"
+msgstr "সকল মডিউলে দ্রুত প্রবেশ"
+
+#: sphinx/themes/basic/defindex.html:22
+msgid "all functions, classes, terms"
+msgstr "সকল ফাংশন, ক্লাস, টার্ম"
+
+#: sphinx/themes/basic/genindex-single.html:5
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "ইনডেক্স &ndash; %(key)s"
+
+#: sphinx/themes/basic/genindex-single.html:44
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex-split.html:27
+#: sphinx/themes/basic/genindex.html:54
+msgid "Full index on one page"
+msgstr "এক পাতায় সম্পূর্ণ ইনডেক্স"
+
+#: sphinx/themes/basic/genindex-split.html:7
+msgid "Index pages by letter"
+msgstr "বর্ণানুসারে ইনডেক্স পাতা"
+
+#: sphinx/themes/basic/genindex-split.html:15
+msgid "can be huge"
+msgstr "খুব বড় হতে পারে"
+
+#: sphinx/themes/basic/layout.html:10
+msgid "Navigation"
+msgstr "নেভিগেশন"
+
+#: sphinx/themes/basic/layout.html:42
+msgid "Table Of Contents"
+msgstr "সূচীপত্র"
+
+#: sphinx/themes/basic/layout.html:48
+msgid "Previous topic"
+msgstr "পূর্ববর্তী টপিক"
+
+#: sphinx/themes/basic/layout.html:50
+msgid "previous chapter"
+msgstr "পূর্ববর্তী অধ্যায়"
+
+#: sphinx/themes/basic/layout.html:53
+msgid "Next topic"
+msgstr "পরবর্তী টপিক"
+
+#: sphinx/themes/basic/layout.html:55
+msgid "next chapter"
+msgstr "পরবর্তী অধ্যায়"
+
+#: sphinx/themes/basic/layout.html:60
+msgid "This Page"
+msgstr "এই পাতা"
+
+#: sphinx/themes/basic/layout.html:63
+msgid "Show Source"
+msgstr "সোর্স দেখুন"
+
+#: sphinx/themes/basic/layout.html:73
+msgid "Quick search"
+msgstr "দ্রুত অনুসন্ধান"
+
+#: sphinx/themes/basic/layout.html:76
+msgid "Go"
+msgstr "যান"
+
+#: sphinx/themes/basic/layout.html:81
+msgid "Enter search terms or a module, class or function name."
+msgstr "অনুসন্ধানের জন্য টার্ম, মডিউল, ক্লাস অথবা ফাংশনের নাম দিন।"
+
+#: sphinx/themes/basic/layout.html:122
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "%(docstitle)s এর মধ্যে খুঁজুন"
+
+#: sphinx/themes/basic/layout.html:131
+msgid "About these documents"
+msgstr "এই ডকুমেন্ট সম্পর্কে"
+
+#: sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:2
+#: sphinx/themes/basic/search.html:5
+msgid "Search"
+msgstr "অনুসন্ধান"
+
+#: sphinx/themes/basic/layout.html:140
+msgid "Copyright"
+msgstr "কপিরাইট"
+
+#: sphinx/themes/basic/layout.html:187
+#: sphinx/themes/scrolls/layout.html:83
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">কপিরাইট</a> %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:189
+#: sphinx/themes/scrolls/layout.html:85
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; কপিরাইট %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:193
+#: sphinx/themes/scrolls/layout.html:89
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "%(last_updated)s সর্বশেষ পরিবর্তন করা হয়েছে।"
+
+#: sphinx/themes/basic/layout.html:196
+#: sphinx/themes/scrolls/layout.html:92
+#, python-format
+msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "<a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s দিয়ে তৈরী।"
+
+#: sphinx/themes/basic/modindex.html:36
+#: sphinx/themes/scrolls/modindex.html:37
+msgid "Deprecated"
+msgstr "ডেপ্রিকেটেড"
+
+#: sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "%(docstitle)s-এ খুঁজুন"
+
+#: sphinx/themes/basic/search.html:9
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+"অনুসন্ধান করার জন্য অনুগ্রহপূর্বক জাভাস্ক্রিপ্ট \n"
+"   সক্রিয় করুন।"
+
+#: sphinx/themes/basic/search.html:14
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr ""
+"এখান থেকে এই নথিগুলোতে আপনি অনুসন্ধান করতে পারবেন। \n"
+"   আপনার কাঙ্ক্ষিত শব্দসমূহ নিচের বাক্সে লিখুন এবং \"অনুসন্ধান\" বাটনে ক্লিক করুন।\n"
+"   উল্লেখ্য, সকল শব্দসমূহের উপস্থিতি নিয়ে অনুসন্ধান করা হবে। যেসব পাতায় সকল\n"
+"   শব্দ নেই সেগুলো বাদ দেয়া হবে।"
+
+#: sphinx/themes/basic/search.html:21
+msgid "search"
+msgstr "খুঁজুন"
+
+#: sphinx/themes/basic/search.html:25
+#: sphinx/themes/basic/static/searchtools.js:473
+msgid "Search Results"
+msgstr "অনুসন্ধানের ফলাফল"
+
+#: sphinx/themes/basic/search.html:27
+msgid "Your search did not match any results."
+msgstr "আপনার অনুসন্ধানে কোন ফলাফল পাওয়া যায়নি।"
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "%(version)s &mdash; %(docstitle)s-এ পরিবর্তন সমূহ"
+
+#: sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "স্বয়ংক্রিয়ভাবে তৈরী %(version)s-এ পরিবর্তন সমূহের তালিকা।"
+
+#: sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "লাইব্রেরির পরিবর্তন"
+
+#: sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "C API পরিবর্তন"
+
+#: sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "অন্যান্য পরিবর্তন"
+
+#: sphinx/themes/basic/static/doctools.js:138
+#: sphinx/writers/html.py:462
+#: sphinx/writers/html.py:467
+msgid "Permalink to this headline"
+msgstr "এই শিরোনামের পার্মালিঙ্ক"
+
+#: sphinx/themes/basic/static/doctools.js:144
+#: sphinx/writers/html.py:80
+msgid "Permalink to this definition"
+msgstr "এই সংজ্ঞার পার্মালিঙ্ক"
+
+#: sphinx/themes/basic/static/doctools.js:173
+msgid "Hide Search Matches"
+msgstr "অনুসন্ধানের ম্যাচগুলো লুকান"
+
+#: sphinx/themes/basic/static/searchtools.js:274
+msgid "Searching"
+msgstr "অনুসন্ধান চলছে"
+
+#: sphinx/themes/basic/static/searchtools.js:279
+msgid "Preparing search..."
+msgstr "অনুসন্ধানের প্রস্তুতি চলছে..."
+
+#: sphinx/themes/basic/static/searchtools.js:352
+msgid ", in "
+msgstr ", -"
+
+#: sphinx/themes/basic/static/searchtools.js:475
+msgid "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
+msgstr "আপনার অনুসন্ধানে কোন ফলাফল পাওয়া যায়নি। আপনার অনুসন্ধানের শব্দগুলোর সঠিক বানান ও বিভাগ নির্বাচন নিশ্চিত করুন।"
+
+#: sphinx/themes/basic/static/searchtools.js:477
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "অনুসন্ধান শেষ হয়েছে, ফলাফলে %s-টি পাতা পাওয়া গেছে।"
+
+#: sphinx/writers/latex.py:187
+msgid "Release"
+msgstr "রিলিজ"
+
+#: sphinx/writers/latex.py:579
+msgid "Footnotes"
+msgstr "পাদটীকা"
+
+#: sphinx/writers/latex.py:647
+msgid "continued from previous page"
+msgstr "পূর্ববর্তী পাতা হতে চলমান"
+
+#: sphinx/writers/latex.py:652
+msgid "Continued on next page"
+msgstr "পরবর্তী পাতাতে চলমান"
+
+#: sphinx/writers/text.py:166
+#, python-format
+msgid "Platform: %s"
+msgstr "প্লাটফরম: %s"
+
+#: sphinx/writers/text.py:428
+msgid "[image]"
+msgstr "[ছবি]"
+

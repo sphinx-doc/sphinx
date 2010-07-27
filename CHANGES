@@ -1,6 +1,8 @@
 Release 1.0.1 (in development)
 ==============================
 
+* #266: Add Bengali language.
+
 * #473: Fix a bug in parsing JavaScript object names.
 
 * #474: Fix building with SingleHTMLBuilder when there is no toctree.
