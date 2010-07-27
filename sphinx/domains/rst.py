@@ -28,8 +28,8 @@ class ReSTMarkup(ObjectDescription):
     """
 
     def add_target_and_index(self, name, sig, signode):
-        if name not in self.state.document.ids:
-            targetname = name + '-' + self.objtype
+        targetname = name + '-' + self.objtype
+        if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
             signode['ids'].append(targetname)
             signode['first'] = (not self.names)
