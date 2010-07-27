@@ -1,7 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+    sphinx.websupport.comments.db
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    SQLAlchemy table and mapper definitions used by the
+    :class:`sphinx.websupport.comments.SQLAlchemyStorage`.
+
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+"""
+
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, ForeignKey,\
-DateTime
+                       DateTime
 from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, sessionmaker
@@ -15,13 +27,13 @@ db_prefix = 'sphinx_'
 class Node(Base):
     """Data about a Node in a doctree."""
     __tablename__ = db_prefix + 'nodes'
-    
+
     id = Column(Integer, primary_key=True)
     document = Column(String(256), nullable=False)
     line = Column(Integer)
     source = Column(Text, nullable=False)
     treeloc = Column(String(32), nullable=False)
-    
+
     def __init__(self, document, line, source, treeloc):
         self.document = document
         self.line = line
@@ -89,7 +101,7 @@ class Comment(Base):
                 'node': self.node.id if self.node else None,
                 'parent': self.parent.id if self.parent else None,
                 'proposal_diff': self.proposal_diff,
-                'children': [child.serializable(user_id) 
+                'children': [child.serializable(user_id)
                              for child in self.children]}
 
     def pretty_delta(self, delta):
@@ -104,7 +116,7 @@ class Comment(Base):
             dt = (days, 'day')
 
         return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
-    
+
 class CommentVote(Base):
     __tablename__ = db_prefix + 'commentvote'
 

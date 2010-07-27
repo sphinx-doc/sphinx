@@ -47,7 +47,7 @@ class WebSupport(object):
             self._init_search(search)
 
         self._init_storage(storage)
-    
+
     def _init_storage(self, storage):
         if isinstance(storage, StorageBackend):
             self.storage = storage
@@ -61,7 +61,7 @@ class WebSupport(object):
             ensuredir(path.dirname(db_path))
             engine = create_engine('sqlite:///%s' % db_path)
             self.storage = SQLAlchemyStorage(engine)
-        
+
     def _init_templating(self):
         import sphinx
         template_path = path.join(path.dirname(sphinx.__file__),
@@ -74,7 +74,7 @@ class WebSupport(object):
             self.search = search
         else:
             mod, cls = search_adapters[search]
-            search_class = getattr(__import__('sphinx.websupport.search.' + mod, 
+            search_class = getattr(__import__('sphinx.websupport.search.' + mod,
                                           None, None, [cls]), cls)
             search_path = path.join(self.outdir, 'search')
             self.search = search_class(search_path)
@@ -208,14 +208,12 @@ class WebSupport(object):
         """
         id = parent_id[1:]
         is_node = parent_id[0] == 's'
-
         node = self.storage.get_node(id) if is_node else None
         parent = self.storage.get_comment(id) if not is_node else None
         diff = get_diff_html(node.source, proposal) if proposal else None
-
-        return self.storage.add_comment(text, displayed, username, rating, 
+        return self.storage.add_comment(text, displayed, username, rating,
                                         time, proposal, diff, node, parent)
-    
+
     def process_vote(self, comment_id, user_id, value):
         """Process a user's vote. The web support package relies
         on the API user to perform authentication. The API user will 

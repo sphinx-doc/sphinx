@@ -25,7 +25,7 @@ class WebSupportTranslator(HTMLTranslator):
     def init_support(self):
         self.in_commentable = False
         self.current_id = 0
-        
+
     def dispatch_visit(self, node):
         if node.__class__.__name__ in self.commentable_nodes:
             self.handle_visit_commentable(node)

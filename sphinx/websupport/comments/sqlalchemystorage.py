@@ -1,7 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+    sphinx.websupport.comments.sqlalchemystorage
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    A SQLAlchemy storage backend.
+
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+"""
+
 from datetime import datetime
 
 from sphinx.websupport.comments import StorageBackend
-from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote, Session
+from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote,\
+                                          Session
 
 class SQLAlchemyStorage(StorageBackend):
     def __init__(self, engine):
@@ -29,28 +41,26 @@ class SQLAlchemyStorage(StorageBackend):
         self.build_session.commit()
         self.build_session.close()
 
-    def add_comment(self, text, displayed, username, rating, time, 
+    def add_comment(self, text, displayed, username, rating, time,
                     proposal, proposal_diff, node=None, parent=None):
         time = time or datetime.now()
-        
+
         session = Session()
         
         comment = Comment(text, displayed, username, rating, time,
                           proposal, proposal_diff, node, parent)
-
         session.add(comment)
         session.commit()
         comment = comment.serializable()
         session.close()
         return comment
-        
+
     def get_comment(self, comment_id):
         session = Session()
         comment = session.query(Comment) \
             .filter(Comment.id == comment_id).first()
         session.close()
-        return comment 
-
+        return comment
 
     def get_comments(self, parent_id, user_id):
         parent_id = parent_id[1:]
@@ -67,7 +77,7 @@ class SQLAlchemyStorage(StorageBackend):
         vote = session.query(CommentVote).filter(
             CommentVote.comment_id == comment_id).filter(
             CommentVote.user_id == user_id).first()
-        
+
         comment = session.query(Comment).filter(
             Comment.id == comment_id).first()
 

@@ -25,7 +25,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
-        
+
     def write_doc(self, docname, doctree):
         # The translator needs the docname to generate ids.
         self.cur_docname = docname
