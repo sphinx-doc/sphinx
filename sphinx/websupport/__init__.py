@@ -10,7 +10,10 @@
 """
 
 import cPickle as pickle
+import re
 from os import path
+from cgi import escape
+from difflib import Differ
 from datetime import datetime
 
 from jinja2 import Environment, FileSystemLoader
@@ -203,17 +206,16 @@ class WebSupport(object):
         :param rating: the starting rating of the comment, defaults to 0.
         :param time: the time the comment was created, defaults to now.
         """
-        return self.storage.add_comment(parent_id, text, displayed, 
-                                         username, rating, time, proposal)
+        id = parent_id[1:]
+        is_node = parent_id[0] == 's'
+
+        node = self.storage.get_node(id) if is_node else None
+        parent = self.storage.get_comment(id) if not is_node else None
+        diff = get_diff_html(node.source, proposal) if proposal else None
+
+        return self.storage.add_comment(text, displayed, username, rating, 
+                                        time, proposal, diff, node, parent)
     
-    def get_proposals(self, node_id, user_id=None):
-        return self.storage.get_proposals(node_id, user_id)
-
-    def add_proposal(self, parent_id, text, displayed=True, username=None,
-                    rating=0, time=None):
-        return self.storage.add_proposal(parent_id, text, displayed, 
-                                          username, rating, time)
-
     def process_vote(self, comment_id, user_id, value):
         """Process a user's vote. The web support package relies
         on the API user to perform authentication. The API user will 
@@ -240,3 +242,55 @@ class WebSupport(object):
         """
         value = int(value)
         self.storage.process_vote(comment_id, user_id, value)
+
+highlight_regex = re.compile(r'([\+\-\^]+)')
+
+def highlight_text(text, next, tag):
+    next = next[2:]
+    new_text = []
+    start = 0
+    for match in highlight_regex.finditer(next):
+        new_text.append(text[start:match.start()])
+        new_text.append('<%s>' % tag)
+        new_text.append(text[match.start():match.end()])
+        new_text.append('</%s>' % tag)
+        start = match.end()
+    new_text.append(text[start:])
+    return ''.join(new_text)
+
+def get_diff_html(source, proposal):
+    proposal = escape(proposal)
+
+    def handle_line(line, next=None):
+        prefix = line[0]
+        text = line[2:]
+
+        if prefix == ' ':
+            return text
+        elif prefix == '?':
+            return ''
+        
+        if next[0] == '?':
+            tag = 'ins' if prefix == '+' else 'del'
+            text = highlight_text(text, next, tag)
+        css_class = 'prop_added' if prefix == '+' else 'prop_removed'
+        
+        return '<span class="%s">%s</span>\n' % (css_class, text.rstrip())
+
+    differ = Differ()
+    diff = list(differ.compare(source.splitlines(1), proposal.splitlines(1)))
+
+    html = []
+    line = diff.pop(0)
+    next = diff.pop(0)
+    while True:
+        html.append(handle_line(line, next))
+        line = next
+        try:
+            next = diff.pop(0)
+        except IndexError:
+            handle_line(line)
+            break
+
+    return ''.join(html)
+
