@@ -11,7 +11,6 @@
 
 import os
 import re
-import difflib
 import htmlentitydefs
 from StringIO import StringIO
 
@@ -285,8 +284,8 @@ def test_html(app):
     html_warnings_exp = HTML_WARNINGS % {'root': re.escape(app.srcdir)}
     assert re.match(html_warnings_exp + '$', html_warnings), \
            'Warnings don\'t match:\n' + \
-           '\n'.join(difflib.ndiff(html_warnings_exp.splitlines(),
-                                   html_warnings.splitlines()))
+           '--- Expected (regex):\n' + html_warnings_exp + \
+           '--- Got:\n' + html_warnings
 
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
