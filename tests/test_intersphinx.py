@@ -80,7 +80,10 @@ def test_read_inventory_v2():
 def test_missing_reference(tempdir, app):
     inv_file = tempdir / 'inventory'
     write_file(inv_file, inventory_v2)
-    app.config.intersphinx_mapping = {'http://docs.python.org/': inv_file}
+    app.config.intersphinx_mapping = {
+        'http://docs.python.org/': inv_file,
+        'py3k': ('http://docs.python.org/py3k/', inv_file),
+    }
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
@@ -91,7 +94,7 @@ def test_missing_reference(tempdir, app):
            ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2', '-')
 
     # create fake nodes and check referencing
-    contnode = nodes.emphasis('foo')
+    contnode = nodes.emphasis('foo', 'foo')
     refnode = addnodes.pending_xref('')
     refnode['reftarget'] = 'module1.func'
     refnode['reftype'] = 'func'
@@ -101,7 +104,7 @@ def test_missing_reference(tempdir, app):
     assert isinstance(rn, nodes.reference)
     assert rn['refuri'] == 'http://docs.python.org/sub/foo.html#module1.func'
     assert rn['reftitle'] == '(in foo v2.0)'
-    assert rn[0] is contnode
+    assert rn[0].astext() == 'module1.func'
 
     # create unresolvable nodes and check None return value
     refnode['reftype'] = 'foo'
@@ -110,3 +113,27 @@ def test_missing_reference(tempdir, app):
     refnode['reftype'] = 'function'
     refnode['reftarget'] = 'foo.func'
     assert missing_reference(app, app.env, refnode, contnode) is None
+
+    # check handling of prefixes
+
+    # prefix given, target found: prefix is stripped
+    refnode['reftype'] = 'mod'
+    refnode['reftarget'] = 'py3k:module2'
+    rn = missing_reference(app, app.env, refnode, contnode)
+    assert rn[0].astext() == 'module2'
+
+    # prefix given, target not found and nonexplicit title: prefix is stripped
+    refnode['reftarget'] = 'py3k:unknown'
+    refnode['refexplicit'] = False
+    contnode[0] = nodes.Text('py3k:unknown')
+    rn = missing_reference(app, app.env, refnode, contnode)
+    assert rn is None
+    assert contnode[0].astext() == 'unknown'
+
+    # prefix given, target not found and explicit title: nothing is changed
+    refnode['reftarget'] = 'py3k:unknown'
+    refnode['refexplicit'] = True
+    contnode[0] = nodes.Text('py3k:unknown')
+    rn = missing_reference(app, app.env, refnode, contnode)
+    assert rn is None
+    assert contnode[0].astext() == 'py3k:unknown'

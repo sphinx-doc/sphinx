@@ -102,7 +102,7 @@ class LiteralInclude(Directive):
             rel_fn = filename[1:]
         else:
             docdir = path.dirname(env.doc2path(env.docname, base=None))
-            rel_fn = path.normpath(path.join(docdir, filename))
+            rel_fn = path.join(docdir, filename)
         try:
             fn = path.join(env.srcdir, rel_fn)
         except UnicodeDecodeError:

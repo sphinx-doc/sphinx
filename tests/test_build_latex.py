@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import difflib
 from StringIO import StringIO
 from subprocess import Popen, PIPE
 
@@ -42,8 +41,9 @@ def test_latex(app):
     latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
            'Warnings don\'t match:\n' + \
-           '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
-                                   latex_warnings.splitlines()))
+           '--- Expected (regex):\n' + latex_warnings_exp + \
+           '--- Got:\n' + latex_warnings
+
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 

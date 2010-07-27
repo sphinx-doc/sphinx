@@ -250,7 +250,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
-        return '\\hyperref[%s]{' % (self.idescape(id))
+        return '{\\hyperref[%s]{' % (self.idescape(id))
 
     def hyperpageref(self, id):
         return '\\autopageref*{%s}' % (self.idescape(id))
@@ -1051,9 +1051,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
             if self.builder.config.latex_show_pagerefs:
-                self.context.append('} (%s)' % self.hyperpageref(id))
+                self.context.append('}} (%s)' % self.hyperpageref(id))
             else:
-                self.context.append('}')
+                self.context.append('}}')
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
@@ -1067,12 +1067,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if len(node) and hasattr(node[0], 'attributes') and \
                    'std-term' in node[0].get('classes', []):
                 # don't add a pageref for glossary terms
-                self.context.append('}')
+                self.context.append('}}')
             else:
                 if self.builder.config.latex_show_pagerefs:
-                    self.context.append('} (%s)' % self.hyperpageref(id))
+                    self.context.append('}} (%s)' % self.hyperpageref(id))
                 else:
-                    self.context.append('}')
+                    self.context.append('}}')
         elif uri.startswith('@token'):
             if self.in_production_list:
                 self.body.append('\\token{')

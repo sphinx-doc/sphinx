@@ -63,7 +63,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 36
+ENV_VERSION = 37
 
 
 default_substitutions = set([
@@ -732,6 +732,12 @@ class BuildEnvironment:
 
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    def note_versionchange(self, type, version, node, lineno):
+        self.versionchanges.setdefault(version, []).append(
+            (type, self.temp_data['docname'], lineno,
+             self.temp_data.get('py:module'),
+             self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
 

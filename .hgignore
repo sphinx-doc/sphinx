@@ -2,6 +2,7 @@
 .*\.egg
 .*\.so
 .dir-locals.el
+^\.tox
 \.DS_Store$
 ^build/
 ^dist/

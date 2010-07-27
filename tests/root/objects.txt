@@ -43,6 +43,11 @@ Testing object descriptions
 
 .. class:: TimeInt
 
+   :param moo: |test|
+   :type moo: |test|
+
+.. |test| replace:: Moo
+
 .. class:: Time(hour, minute, isdst)
 
    :param hour: The year.
