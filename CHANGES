@@ -1,7 +1,9 @@
 Release 1.0.1 (in development)
 ==============================
 
-* Fix building with SingleHTMLBuilder when there is no toctree.
+* #473: Fix a bug in parsing JavaScript object names.
+
+* #474: Fix building with SingleHTMLBuilder when there is no toctree.
 
 * Fix display names for objects linked to by intersphinx with
   explicit targets.
