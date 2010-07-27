@@ -754,6 +754,10 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
     def dump_search_index(self):
+        # NOTE: If you change this code you have to change it in
+        #       JSONHTMLBuilder.dump_search_index as well because the code is
+        #       mostly copied from here for reasons explained in a comment in
+        #       said method.
         self.info(bold('dumping search index... '), nonl=True)
         self.indexer.prune(self.env.all_docs)
         searchindexfn = path.join(self.outdir, self.searchindex_filename)
@@ -938,6 +942,13 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
             return docname[:-5] # up to sep
         return docname + SEP
 
+    def dump_context(self, context, filename):
+        f = open(filename, 'wb')
+        try:
+            self.implementation.dump(context, f, 2)
+        finally:
+            f.close()
+
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         ctx['current_page_name'] = pagename
@@ -951,11 +962,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
                       ctx, event_arg)
 
         ensuredir(path.dirname(outfilename))
-        f = open(outfilename, 'wb')
-        try:
-            self.implementation.dump(ctx, f, 2)
-        finally:
-            f.close()
+        self.dump_context(ctx, outfilename)
 
         # if there is a source file, copy the source file for the
         # "show source" link
@@ -968,11 +975,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def handle_finish(self):
         # dump the global context
         outfilename = path.join(self.outdir, self.globalcontext_filename)
-        f = open(outfilename, 'wb')
-        try:
-            self.implementation.dump(self.globalcontext, f, 2)
-        finally:
-            f.close()
+        self.dump_context(self.globalcontext, outfilename)
 
         # super here to dump the search index
         StandaloneHTMLBuilder.handle_finish(self)
@@ -1019,3 +1022,29 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
                 'The module simplejson (or json in Python >= 2.6) '
                 'is not available. The JSONHTMLBuilder builder will not work.')
         SerializingHTMLBuilder.init(self)
+
+    def dump_context(self, context, filename):
+        # json operates entirely on "unicode" but the filesystem doesn't so we
+        # have to specify an encoding.
+        f = codecs.open(filename, 'w', encoding='utf-8')
+        try:
+            self.implementation.dump(context, f, 2)
+        finally:
+            f.close()
+
+    def dump_search_index(self):
+        # this code is nearly completely copied from the super class, in which
+        # this method was initially defined, the only difference is that we
+        # specify an encoding for the file.
+        self.info(bold('dumping search index...'), nonl=True)
+        self.indexer.prune(self.env.all_docs)
+        searchindexfn = path.join(self.outdir, self.searchindex_filename)
+        # first write to a temporary file, so that if dumping fails,
+        # the existing index won't be overwritten
+        f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')
+        try:
+            self.indexer.dump(f, self.indexer_format)
+        finally:
+            f.close()
+        movefile(searchindexfn + '.tmp', searchindexfn)
+        self.info('done')
