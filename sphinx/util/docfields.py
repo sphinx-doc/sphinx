@@ -141,9 +141,12 @@ class TypedField(GroupedField):
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
             if fieldarg in types:
-                typename = u''.join(n.astext() for n in types[fieldarg])
                 par += nodes.Text(' (')
-                par += self.make_xref(self.typerolename, domain, typename)
+                if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
+                    typename = u''.join(n.astext() for n in types[fieldarg])
+                    par += self.make_xref(self.typerolename, domain, typename)
+                else:
+                    par += fieldtype
                 par += nodes.Text(')')
             par += nodes.Text(' -- ')
             par += content
