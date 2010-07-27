@@ -283,6 +283,7 @@ Project information
 
    Currently supported languages are:
 
+   * ``bn`` -- Bengali
    * ``ca`` -- Catalan
    * ``cs`` -- Czech
    * ``da`` -- Danish
