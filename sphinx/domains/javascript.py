@@ -31,7 +31,6 @@ class JSObject(ObjectDescription):
     display_prefix = None
 
     def handle_signature(self, sig, signode):
-        import pdb; pdb.set_trace()
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
             prefix, arglist = sig.split('(', 1)
