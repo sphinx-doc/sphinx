@@ -2,8 +2,8 @@ Release 1.1 (in development)
 ============================
 
 
-Release 1.0.1 (in development)
-==============================
+Release 1.0.1 (Jul 27, 2010)
+============================
 
 * #470: Fix generated target names for reST domain objects; they
   are not in the same namespace.

@@ -11,7 +11,6 @@
 
 import os
 import re
-import difflib
 import htmlentitydefs
 from StringIO import StringIO
 
@@ -37,9 +36,9 @@ ENV_WARNINGS = """\
 http://www.python.org/logo.png
 %(root)s/includes.txt:\\d*: \\(WARNING/2\\) Encoding 'utf-8-sig' used for \
 reading included file u'wrongenc.inc' seems to be wrong, try giving an \
-:encoding: option
+:encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: nonexisting.png
-%(root)s/objects.txt:79: WARNING: using old C markup; please migrate to \
+%(root)s/objects.txt:84: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
 http://sphinx.pocoo.org/domains.html
 """
@@ -50,6 +49,16 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
+
+def tail_check(check):
+    rex = re.compile(check)
+    def checker(nodes):
+        for node in nodes:
+            if node.tail and rex.search(node.tail):
+                return True
+        assert False, '%r not found in tail of any nodes %s' % (check, nodes)
+    return checker
+
 
 HTML_XPATH = {
     'images.html': [
@@ -172,6 +181,10 @@ HTML_XPATH = {
             'Testing various markup'),
         # custom sidebar
         (".//h4", 'Custom sidebar'),
+        # docfields
+        (".//td[@class='field-body']/ul/li/strong", '^moo$'),
+        (".//td[@class='field-body']/ul/li/strong",
+             tail_check(r'\(Moo\) .* Moo')),
     ],
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
@@ -285,8 +298,8 @@ def test_html(app):
     html_warnings_exp = HTML_WARNINGS % {'root': re.escape(app.srcdir)}
     assert re.match(html_warnings_exp + '$', html_warnings), \
            'Warnings don\'t match:\n' + \
-           '\n'.join(difflib.ndiff(html_warnings_exp.splitlines(),
-                                   html_warnings.splitlines()))
+           '--- Expected (regex):\n' + html_warnings_exp + \
+           '--- Got:\n' + html_warnings
 
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
