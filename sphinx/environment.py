@@ -11,6 +11,7 @@
 
 import re
 import os
+import sys
 import time
 import types
 import codecs
@@ -43,6 +44,7 @@ from sphinx.util.pycompat import all, class_types
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
@@ -649,7 +651,7 @@ class BuildEnvironment:
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path.encode(FILESYSTEMENCODING))
+        pub.set_source(None, src_path.encode(fs_encoding))
         pub.set_destination(None, None)
         try:
             pub.publish()
