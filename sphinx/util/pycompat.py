@@ -35,6 +35,14 @@ else:
 
 
 try:
+    next
+except NameError:
+    # this is on Python 2, where the method is called "next"
+    def next(iterator):
+        return iterator.next()
+
+
+try:
     any = any
     all = all
 except NameError:
