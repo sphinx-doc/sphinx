@@ -837,12 +837,12 @@ directly.'''
     if d['ext_intersphinx']:
         conf_text += INTERSPHINX_CONFIG
 
-    f = codecs.open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
+    f = open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
     f.write(conf_text)
     f.close()
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    f = codecs.open(masterfile, 'w', encoding='utf-8')
+    f = open(masterfile, 'w', encoding='utf-8')
     f.write(MASTER_FILE % d)
     f.close()
 
@@ -850,14 +850,14 @@ directly.'''
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        f = codecs.open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
+        f = open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
         f.write(MAKEFILE % d)
         f.close()
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        f = codecs.open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
+        f = open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
         f.write(BATCHFILE % d)
         f.close()
 
