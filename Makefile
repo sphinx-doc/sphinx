@@ -1,4 +1,4 @@
-PYTHON ?= python3
+PYTHON ?= python
 
 .PHONY: all check clean clean-pyc clean-patchfiles clean-generated pylint \
         reindent test
