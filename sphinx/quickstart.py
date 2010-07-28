@@ -660,9 +660,8 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
         x = raw_input(prompt)
         if default and not x:
             x = default
-        # in 3.x raw_input returns a unicode string, those have no decode
-        # method
         if not isinstance(x, unicode):
+            # for Python 2.x, try to get a Unicode string out of it
             if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
                 if TERM_ENCODING:
                     x = x.decode(TERM_ENCODING)
@@ -838,12 +837,12 @@ directly.'''
     if d['ext_intersphinx']:
         conf_text += INTERSPHINX_CONFIG
 
-    f = open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
+    f = codecs.open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
     f.write(conf_text)
     f.close()
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    f = open(masterfile, 'w', encoding='utf-8')
+    f = codecs.open(masterfile, 'w', encoding='utf-8')
     f.write(MASTER_FILE % d)
     f.close()
 
@@ -851,14 +850,14 @@ directly.'''
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        f = open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
+        f = codecs.open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
         f.write(MAKEFILE % d)
         f.close()
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        f = open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
+        f = codecs.open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
         f.write(BATCHFILE % d)
         f.close()
 
