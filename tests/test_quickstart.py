@@ -37,7 +37,7 @@ def mock_raw_input(answers, needanswer=False):
     return raw_input
 
 def teardown_module():
-    qs.raw_input = __builtin__.raw_input
+    qs.term_input = raw_input
     qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
@@ -51,7 +51,7 @@ def test_do_prompt():
         'Q5': 'no',
         'Q6': 'foo',
     }
-    qs.raw_input = mock_raw_input(answers)
+    qs.term_input = mock_raw_input(answers)
     try:
         qs.do_prompt(d, 'k1', 'Q1')
     except AssertionError:
@@ -79,7 +79,7 @@ def test_quickstart_defaults(tempdir):
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
-    qs.raw_input = mock_raw_input(answers)
+    qs.term_input = mock_raw_input(answers)
     qs.inner_main([])
 
     conffile = tempdir / 'conf.py'
@@ -136,7 +136,7 @@ def test_quickstart_all_answers(tempdir):
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',
     }
-    qs.raw_input = mock_raw_input(answers, needanswer=True)
+    qs.term_input = mock_raw_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
     qs.inner_main([])
 

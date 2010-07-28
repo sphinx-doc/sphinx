@@ -21,6 +21,9 @@ from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
 
+# function to get input from terminal -- overridden by the test suite
+term_input = raw_input
+
 
 PROMPT_PREFIX = '> '
 
@@ -657,7 +660,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
         else:
             prompt = purple(PROMPT_PREFIX + text + ': ')
-        x = raw_input(prompt)
+        x = term_input(prompt)
         if default and not x:
             x = default
         if not isinstance(x, unicode):
