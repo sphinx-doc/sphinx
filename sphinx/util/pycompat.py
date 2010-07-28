@@ -27,7 +27,7 @@ except NameError:
 
 
 # the ubiquitous "bytes" helper function
-if sys.version_info > (3, 0):
+if sys.version_info >= (3, 0):
     def b(s):
         return s.encode('utf-8')
 else:

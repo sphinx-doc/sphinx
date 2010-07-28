@@ -13,7 +13,7 @@
 import sys
 from os import path, chdir, listdir
 
-if sys.version_info >= (3,):
+if sys.version_info >= (3, 0):
     print('Copying and converting sources to build/lib/tests...')
     from distutils.util import copydir_run_2to3
     testroot = path.dirname(__file__) or '.'
