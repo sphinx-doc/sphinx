@@ -210,7 +210,10 @@ class WebSupport(object):
         is_node = parent_id[0] == 's'
         node = self.storage.get_node(id) if is_node else None
         parent = self.storage.get_comment(id) if not is_node else None
-        diff = get_diff_html(node.source, proposal) if proposal else None
+        if node and proposal:
+            diff = get_diff_html(node.source, proposal)
+        else:
+            diff = None
         return self.storage.add_comment(text, displayed, username, rating,
                                         time, proposal, diff, node, parent)
 
