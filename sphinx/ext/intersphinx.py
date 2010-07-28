@@ -26,21 +26,16 @@
 
 import time
 import zlib
+import codecs
 import urllib2
 import posixpath
-import codecs
-import sys
 from os import path
 
 from docutils import nodes
 
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.util.pycompat import b
 
-if sys.version_info >= (3, 0):
-    def b(s):
-        return s.encode('utf-8')
-else:
-    b = str
 
 handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
             urllib2.HTTPHandler()]
