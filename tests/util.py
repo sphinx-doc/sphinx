@@ -208,6 +208,6 @@ def write_file(name, contents, encoding=None):
 def sprint(*args):
     sys.stderr.write(' '.join(map(str, args)) + '\n')
 
-_unicode_literals_re = re.compile(r'u(".*")|u(\'.*\')')
+_unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 def remove_unicode_literals(s):
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
