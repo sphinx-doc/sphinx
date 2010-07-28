@@ -63,6 +63,7 @@ class StandaloneHTMLBuilder(Builder):
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
+    indexer_dumps_unicode = True
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
@@ -754,16 +755,15 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
     def dump_search_index(self):
-        # NOTE: If you change this code you have to change it in
-        #       JSONHTMLBuilder.dump_search_index as well because the code is
-        #       mostly copied from here for reasons explained in a comment in
-        #       said method.
         self.info(bold('dumping search index... '), nonl=True)
         self.indexer.prune(self.env.all_docs)
         searchindexfn = path.join(self.outdir, self.searchindex_filename)
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
-        f = open(searchindexfn + '.tmp', 'wb')
+        if self.indexer_dumps_unicode:
+            f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')
+        else:
+            f = open(searchindexfn + '.tmp', 'wb')
         try:
             self.indexer.dump(f, self.indexer_format)
         finally:
@@ -920,6 +920,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     #: implements a `dump`, `load`, `dumps` and `loads` functions
     #: (pickle, simplejson etc.)
     implementation = None
+    implementation_dumps_unicode = False
 
     #: the filename for the global context file
     globalcontext_filename = None
@@ -943,8 +944,12 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         return docname + SEP
 
     def dump_context(self, context, filename):
-        f = open(filename, 'wb')
+        if self.implementation_dumps_unicode:
+            f = codecs.open(filename, 'w', encoding='utf-8')
+        else:
+            f = open(filename, 'wb')
         try:
+            # XXX: the third argument is pickle-specific!
             self.implementation.dump(context, f, 2)
         finally:
             f.close()
@@ -995,7 +1000,9 @@ class PickleHTMLBuilder(SerializingHTMLBuilder):
     A Builder that dumps the generated HTML into pickle files.
     """
     implementation = pickle
+    implementation_dumps_unicode = False
     indexer_format = pickle
+    indexer_dumps_unicode = False
     name = 'pickle'
     out_suffix = '.fpickle'
     globalcontext_filename = 'globalcontext.pickle'
@@ -1010,7 +1017,9 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     A builder that dumps the generated HTML into JSON files.
     """
     implementation = jsonimpl
+    implementation_dumps_unicode = True
     indexer_format = jsonimpl
+    indexer_dumps_unicode = True
     name = 'json'
     out_suffix = '.fjson'
     globalcontext_filename = 'globalcontext.json'
@@ -1022,29 +1031,3 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
                 'The module simplejson (or json in Python >= 2.6) '
                 'is not available. The JSONHTMLBuilder builder will not work.')
         SerializingHTMLBuilder.init(self)
-
-    def dump_context(self, context, filename):
-        # json operates entirely on "unicode" but the filesystem doesn't so we
-        # have to specify an encoding.
-        f = codecs.open(filename, 'w', encoding='utf-8')
-        try:
-            self.implementation.dump(context, f, 2)
-        finally:
-            f.close()
-
-    def dump_search_index(self):
-        # this code is nearly completely copied from the super class, in which
-        # this method was initially defined, the only difference is that we
-        # specify an encoding for the file.
-        self.info(bold('dumping search index...'), nonl=True)
-        self.indexer.prune(self.env.all_docs)
-        searchindexfn = path.join(self.outdir, self.searchindex_filename)
-        # first write to a temporary file, so that if dumping fails,
-        # the existing index won't be overwritten
-        f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')
-        try:
-            self.indexer.dump(f, self.indexer_format)
-        finally:
-            f.close()
-        movefile(searchindexfn + '.tmp', searchindexfn)
-        self.info('done')

@@ -58,13 +58,10 @@ class _JavaScriptIndex(object):
         return jsdump.loads(data)
 
     def dump(self, data, f):
-        f.write(self.dumps(data).encode('utf-8'))
+        f.write(self.dumps(data))
 
     def load(self, f):
-        data = f.read()
-        if isinstance(data, unicode):
-            return self.loads(data)
-        return self.loads(data.decode('utf-8'))
+        return self.loads(f.read())
 
 
 js_index = _JavaScriptIndex()
