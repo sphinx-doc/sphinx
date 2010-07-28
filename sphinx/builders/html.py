@@ -731,8 +731,8 @@ class StandaloneHTMLBuilder(Builder):
                      u'# Project: %s\n'
                      u'# Version: %s\n'
                      u'# The remainder of this file is compressed using zlib.\n'
-                     % (self.config.project, self.config.version))\
-                             .encode('utf-8'))
+                     % (self.config.project, self.config.version)
+                    ).encode('utf-8'))
             compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
                 for name, dispname, type, docname, anchor, prio in \
@@ -744,9 +744,9 @@ class StandaloneHTMLBuilder(Builder):
                     if dispname == name:
                         dispname = u'-'
                     f.write(compressor.compress(
-                        (u'%s %s:%s %s %s %s\n' % (name, domainname, type, prio,
-                                                  uri, dispname))\
-                                                          .encode('utf-8')))
+                        (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
+                                                   prio, uri, dispname)
+                        ).encode('utf-8')))
             f.write(compressor.flush())
         finally:
             f.close()
