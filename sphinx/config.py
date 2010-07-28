@@ -167,7 +167,7 @@ class Config(object):
             try:
                 try:
                     os.chdir(dirname)
-                    f = open(config_file, 'Ub')
+                    f = open(config_file, 'rb')
                     try:
                         code = compile(f.read(), config_file, 'exec')
                     finally:
