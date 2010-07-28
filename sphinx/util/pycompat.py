@@ -35,7 +35,7 @@ else:
 
 
 try:
-    next
+    next = next
 except NameError:
     # this is on Python 2, where the method is called "next"
     def next(iterator):
