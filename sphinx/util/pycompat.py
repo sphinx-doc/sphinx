@@ -26,6 +26,14 @@ except NameError:
     base_exception = Exception
 
 
+# the ubiquitous "bytes" helper function
+if sys.version_info > (3, 0):
+    def b(s):
+        return s.encode('utf-8')
+else:
+    b = str
+
+
 try:
     any = any
     all = all

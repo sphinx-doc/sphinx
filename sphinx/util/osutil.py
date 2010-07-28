@@ -11,10 +11,10 @@
 
 import os
 import re
+import sys
 import time
 import errno
 import shutil
-import sys
 from os import path
 
 # Errnos that we need.
