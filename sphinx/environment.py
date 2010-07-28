@@ -383,14 +383,14 @@ class BuildEnvironment:
         If base is a path string, return absolute path under that.
         If suffix is not None, add it instead of config.source_suffix.
         """
+        docname = docname.replace(SEP, path.sep)
         suffix = suffix or self.config.source_suffix
         if base is True:
-            return path.join(self.srcdir,
-                             docname.replace(SEP, path.sep)) + suffix
+            return path.join(self.srcdir, docname) + suffix
         elif base is None:
-            return docname.replace(SEP, path.sep) + suffix
+            return docname + suffix
         else:
-            return path.join(base, docname.replace(SEP, path.sep)) + suffix
+            return path.join(base, docname) + suffix
 
     def find_files(self, config):
         """
