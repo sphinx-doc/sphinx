@@ -39,5 +39,8 @@ def dumps(obj, *args, **kwds):
     kwds['cls'] = SphinxJSONEncoder
     return json.dumps(obj, *args, **kwds)
 
-load = json.load
-loads = json.loads
+def load(*args, **kwds):
+    return json.load(*args, **kwds)
+
+def loads(*args, **kwds):
+    return json.loads(*args, **kwds)
