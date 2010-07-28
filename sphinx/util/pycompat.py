@@ -41,6 +41,11 @@ except NameError:
     def next(iterator):
         return iterator.next()
 
+try:
+    bytes = bytes
+except NameError:
+    bytes = str
+
 
 try:
     any = any

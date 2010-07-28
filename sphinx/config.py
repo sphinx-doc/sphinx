@@ -16,13 +16,9 @@ from os import path
 
 from sphinx.errors import ConfigError
 from sphinx.util.osutil import make_filename
+from sphinx.util.pycompat import bytes, b
 
-nonascii_re = re.compile(ur'[\x80-\xff]'.encode('ascii'))
-
-try:
-    bytes
-except NameError:
-    bytes = str
+nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
 
 class Config(object):
