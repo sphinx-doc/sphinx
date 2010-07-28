@@ -1,6 +1,9 @@
 Release 1.1 (in development)
 ============================
 
+* Added Python 3.x support.
+
+
 Release 1.0.2 (in development)
 ==============================
 
@@ -22,8 +25,6 @@ Release 1.0.1 (Jul 27, 2010)
 * Fix building with the JSON builder.
 
 * Fix hyperrefs in object descriptions for LaTeX.
-
- * Added Python 3.x support.
 
 
 Release 1.0 (Jul 23, 2010)
