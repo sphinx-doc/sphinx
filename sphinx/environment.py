@@ -39,7 +39,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, \
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import all
+from sphinx.util.pycompat import all, class_types
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 
@@ -251,7 +251,7 @@ class BuildEnvironment:
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
-                   isinstance(val, (type, types.ClassType)):
+                   isinstance(val, class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)

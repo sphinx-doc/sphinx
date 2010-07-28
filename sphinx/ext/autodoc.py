@@ -14,7 +14,7 @@
 import re
 import sys
 import inspect
-from types import FunctionType, BuiltinFunctionType, MethodType, ClassType
+from types import FunctionType, BuiltinFunctionType, MethodType
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict
@@ -27,13 +27,8 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import isdescriptor, safe_getmembers, safe_getattr
+from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
-
-
-try:
-    base_exception = BaseException
-except NameError:
-    base_exception = Exception
 
 
 #: extended signature RE: with explicit module name separated by ::
@@ -866,7 +861,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, (type, ClassType))
+        return isinstance(member, class_types)
 
     def import_object(self):
         ret = ModuleLevelDocumenter.import_object(self)
@@ -972,7 +967,7 @@ class ExceptionDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, (type, ClassType)) and \
+        return isinstance(member, class_types) and \
                issubclass(member, base_exception)
 
 

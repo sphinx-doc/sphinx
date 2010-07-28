@@ -13,6 +13,18 @@ import sys
 import codecs
 import encodings
 
+try:
+    from types import ClassType
+    class_types = (type, ClassType)
+except ImportError:
+    # Python 3
+    class_types = (type,)
+
+try:
+    base_exception = BaseException
+except NameError:
+    base_exception = Exception
+
 
 try:
     any = any
