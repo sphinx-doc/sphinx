@@ -22,7 +22,11 @@ from sphinx.util.console import purple, bold, red, turquoise, \
 from sphinx.util import texescape
 
 # function to get input from terminal -- overridden by the test suite
-term_input = raw_input
+try:
+    # this raw_input is not converted by 2to3
+    term_input = raw_input
+except NameError:
+    term_input = input
 
 
 PROMPT_PREFIX = '> '
@@ -692,7 +696,7 @@ if sys.version_info >= (3, 0):
         return _unicode_string_re.sub('\\1', source)
 
     for f in ['QUICKSTART_CONF', 'EPUB_CONFIG', 'INTERSPHINX_CONFIG']:
-        globals()[f] = convert_python_source(globals()[f])
+        globals()[f] = _convert_python_source(globals()[f])
 
     del _unicode_string_re, _convert_python_source
 

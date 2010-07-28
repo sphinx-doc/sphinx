@@ -36,8 +36,13 @@ def mock_raw_input(answers, needanswer=False):
         return ''
     return raw_input
 
+try:
+    real_raw_input = raw_input
+except NameError:
+    real_raw_input = input
+
 def teardown_module():
-    qs.term_input = raw_input
+    qs.term_input = real_raw_input
     qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
