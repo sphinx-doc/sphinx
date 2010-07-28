@@ -1,7 +1,7 @@
 PYTHON ?= python
 
-.PHONY: all check clean clean-pyc clean-patchfiles clean-generated pylint \
-        reindent test
+.PHONY: all check clean clean-pyc clean-patchfiles clean-backupfiles \
+        clean-generated pylint reindent test covertest build convert-utils
 
 DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \

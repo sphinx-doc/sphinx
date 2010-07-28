@@ -31,6 +31,7 @@ class OldCDirective(Directive):
     def run(self):
         env = self.state.document.settings.env
         if not env.app._oldcmarkup_warned:
+            print 'XXXYYY'
             env.warn(env.docname, WARNING_MSG, self.lineno)
             env.app._oldcmarkup_warned = True
         newname = 'c:' + self.name[1:]
