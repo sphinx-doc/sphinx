@@ -27,7 +27,7 @@ clean-backupfiles:
 	find . -name '*.bak' -exec rm -f {} +
 
 clean-generated:
-	rm utils/*3.py*
+	-rm utils/*3.py*
 
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
