@@ -22,6 +22,7 @@ from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch, search_adapters
 from sphinx.websupport.comments import StorageBackend
+from sphinx.websupport.errors import DocumentNotFoundError
 
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
@@ -126,7 +127,13 @@ class WebSupport(object):
         :param docname: the name of the document to load.
         """
         infilename = path.join(self.outdir, docname + '.fpickle')
-        f = open(infilename, 'rb')
+
+        try:
+            f = open(infilename, 'rb')
+        except IOError:
+            raise DocumentNotFoundError(
+                'The document "%s" could not be found' % docname)
+
         document = pickle.load(f)
         return document
 

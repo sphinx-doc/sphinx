@@ -13,6 +13,7 @@ import os
 from StringIO import StringIO
 
 from sphinx.websupport import WebSupport
+from sphinx.websupport.errors import DocumentNotFoundError
 
 try:
     from functools import wraps
@@ -44,4 +45,5 @@ def with_support(*args, **kwargs):
 @with_support()
 def test_build(support):
     support.build()
+    raises(DocumentNotFoundError, support.get_document, 'nonexisting')
     
