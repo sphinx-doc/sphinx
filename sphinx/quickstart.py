@@ -31,7 +31,13 @@ except NameError:
 
 PROMPT_PREFIX = '> '
 
-QUICKSTART_CONF = '''\
+if sys.version_info >= (3, 0):
+    # prevents that the file is checked for being written in Python 2.x syntax
+    QUICKSTART_CONF = '#!/usr/bin/env python3\n'
+else:
+    QUICKSTART_CONF = ''
+
+QUICKSTART_CONF += '''\
 # -*- coding: utf-8 -*-
 #
 # %(project)s documentation build configuration file, created by

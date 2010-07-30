@@ -13,13 +13,20 @@ import os
 import re
 import sys
 from os import path
+try:
+    from distutils.util import run_2to3
+except ImportError:
+    run_2to3 = None
 
 from sphinx.errors import ConfigError
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import bytes, b
+from sphinx.util.pycompat import bytes, b, should_run_2to3, run_2to3
 
 nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
+CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
+if sys.version_info >= (3, 0):
+    CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 
 class Config(object):
     """Configuration file abstraction."""
@@ -167,15 +174,17 @@ class Config(object):
             try:
                 try:
                     os.chdir(dirname)
-                    f = open(config_file, 'rb')
-                    try:
-                        code = compile(f.read(), config_file, 'exec')
-                    finally:
-                        f.close()
-                    exec code in config
+                    if should_run_2to3(config_file):
+                        code = run_2to3(config_file)
+                    else:
+                        f = open(config_file, 'rb')
+                        try:
+                            code = f.read()
+                        finally:
+                            f.close()
+                    exec compile(code, config_file, 'exec') in config
                 except SyntaxError, err:
-                    raise ConfigError('There is a syntax error in your '
-                                      'configuration file: ' + str(err))
+                    raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:
                 os.chdir(olddir)
 
