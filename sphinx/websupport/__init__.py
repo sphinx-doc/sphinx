@@ -10,7 +10,7 @@
 """
 
 import cPickle as pickle
-import re
+import re, sys
 from os import path
 from cgi import escape
 from difflib import Differ
@@ -35,7 +35,7 @@ class WebSupport(object):
     """
 
     def __init__(self, srcdir='', outdir='', datadir='', search=None,
-                 storage=None):
+                 storage=None, status=sys.stdout, warning=sys.stderr):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
@@ -43,9 +43,10 @@ class WebSupport(object):
 
         self.outdir = outdir or datadir
 
-        if search is not None:
-            self._init_search(search)
+        self.status = status
+        self.warning = warning
 
+        self._init_search(search)            
         self._init_storage(storage)
 
     def _init_storage(self, storage):
@@ -73,11 +74,11 @@ class WebSupport(object):
         if isinstance(search, BaseSearch):
             self.search = search
         else:
-            mod, cls = search_adapters[search]
-            search_class = getattr(__import__('sphinx.websupport.search.' + mod,
-                                          None, None, [cls]), cls)
+            mod, cls = search_adapters[search or 'null']
+            mod = 'sphinx.websupport.search.' + mod
+            SearchClass = getattr(__import__(mod, None, None, [cls]), cls)
             search_path = path.join(self.outdir, 'search')
-            self.search = search_class(search_path)
+            self.search = SearchClass(search_path)
         self.results_template = \
             self.template_env.get_template('searchresults.html')
 
@@ -95,8 +96,8 @@ class WebSupport(object):
         doctreedir = path.join(self.outdir, 'doctrees')
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
-                            search=self.search,
-                            storage=self.storage)
+                            search=self.search, status=self.status, 
+                            warning=self.warning, storage=self.storage)
 
         self.storage.pre_build()
         app.build()

@@ -12,6 +12,9 @@
 import re
 
 class BaseSearch(object):
+    def __init__(self, path):
+        pass
+
     def init_indexing(self, changed=[]):
         """Called by the builder to initialize the search indexer. `changed`
         is a list of pagenames that will be reindexed. You may want to remove
@@ -117,4 +120,6 @@ class BaseSearch(object):
 search_adapters = {
     'xapian': ('xapiansearch', 'XapianSearch'),
     'whoosh': ('whooshsearch', 'WhooshSearch'),
+    'null': ('nullsearch', 'NullSearch')
     }
+
