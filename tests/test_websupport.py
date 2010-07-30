@@ -13,7 +13,7 @@ import os
 from StringIO import StringIO
 
 from sphinx.websupport import WebSupport
-from sphinx.websupport.errors import DocumentNotFoundError
+from sphinx.websupport.errors import *
 
 try:
     from functools import wraps
@@ -23,13 +23,14 @@ except ImportError:
 
 from util import *
 
+
 def teardown_module():
     (test_root / 'websupport').rmtree(True)
 
+
 def with_support(*args, **kwargs):
     """Make a WebSupport object and pass it the test."""
-    settings = {'srcdir': test_root,
-                'outdir': os.path.join(test_root, 'websupport'),
+    settings = {'outdir': os.path.join(test_root, 'websupport'),
                 'status': StringIO(),
                 'warning': StringIO()}
     settings.update(kwargs)
@@ -42,8 +43,20 @@ def with_support(*args, **kwargs):
         return new_func
     return generator
 
+
 @with_support()
+def test_no_srcdir(support):
+    """Make sure the correct exception is raised if srcdir is not given."""
+    raises(SrcdirNotSpecifiedError, support.build)
+
+@with_support(srcdir=test_root)
 def test_build(support):
     support.build()
+
+@with_support()
+def test_get_document(support):
     raises(DocumentNotFoundError, support.get_document, 'nonexisting')
     
+    contents = support.get_document('contents')
+    assert contents['title'] and contents['body'] \
+        and contents['sidebar'] and contents['relbar']

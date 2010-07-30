@@ -22,7 +22,7 @@ from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch, search_adapters
 from sphinx.websupport.comments import StorageBackend
-from sphinx.websupport.errors import DocumentNotFoundError
+from sphinx.websupport.errors import *
 
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
@@ -94,6 +94,9 @@ class WebSupport(object):
         build the pickles and search index, placing them into `outdir`.
         It will also save node data to the database.
         """
+        if not self.srcdir:
+            raise SrcdirNotSpecifiedError( \
+                'No srcdir associated with WebSupport object')
         doctreedir = path.join(self.outdir, 'doctrees')
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
