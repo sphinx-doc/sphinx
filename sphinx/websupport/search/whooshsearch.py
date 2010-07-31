@@ -40,6 +40,8 @@ class WhooshSearch(BaseSearch):
 
     def finish_indexing(self):
         self.index_writer.commit()
+        # Create a new searcher so changes can be seen immediately
+        self.searcher = self.index.searcher()
 
     def add_document(self, pagename, title, text):
         self.index_writer.add_document(path=unicode(pagename),

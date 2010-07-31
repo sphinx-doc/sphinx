@@ -78,9 +78,32 @@ def search_adapter_helper(adapter):
     settings.update({'srcdir': test_root,
                      'search': adapter})
     support = WebSupport(**settings)
-    
     support.build()
 
+    s = support.search
+
+    # Test the adapters query method. A search for "Epigraph" should return
+    # one result.
+    results = s.query(u'Epigraph')
+    assert len(results) == 1, \
+        '%s search adapter returned %s search result(s), should have been 1'\
+        % (adapter, len(results))
+
+    # Make sure documents are properly updated by the search adapter.
+    s.init_indexing(changed=['markup'])
+    s.add_document(u'markup', u'title', u'SomeLongRandomWord')
+    s.finish_indexing()
+    # Now a search for "Epigraph" should return zero results.
+    results = s.query(u'Epigraph')
+    assert len(results) == 0, \
+        '%s search adapter returned %s search result(s), should have been 0'\
+        % (adapter, len(results))
+    # A search for "SomeLongRandomWord" should return one result.
+    results = s.query(u'SomeLongRandomWord')
+    assert len(results) == 1, \
+        '%s search adapter returned %s search result(s), should have been 1'\
+        % (adapter, len(results))
+    
 
 def test_xapian():
     # Don't run tests if xapian is not installed.

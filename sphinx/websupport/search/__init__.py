@@ -83,7 +83,7 @@ class BaseSearch(object):
         query `q`. This should return an iterable containing tuples of the
         following format::
 
-            (<path>, <title> <context>)
+            (<path>, <title>, <context>)
 
         `path` and `title` are the same values that were passed to
         :meth:`add_document`, and `context` should be a short text snippet
