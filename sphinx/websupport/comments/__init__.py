@@ -29,21 +29,15 @@ class StorageBackend(object):
         """
         raise NotImplementedError()
     
-    def get_node(self, node_id):
-        raise NotImplementedError()
-
     def post_build(self):
         """Called after a build has completed. Use this to finalize the
         addition of nodes if needed.
         """
         pass
 
-    def add_comment(self, parent_id, text, displayed, 
-                    username, rating, time, proposal, proposal_diff):
+    def add_comment(self, text, displayed, username, rating, time,
+                    proposal, node, parent):
         """Called when a comment is being added."""
-        raise NotImplementedError()
-
-    def get_comment(self, comment_id):
         raise NotImplementedError()
 
     def get_comments(self, parent_id, user_id):

@@ -14,6 +14,7 @@ from datetime import datetime
 from sphinx.websupport.comments import StorageBackend
 from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote,\
                                           Session
+from sphinx.websupport.comments.differ import CombinedHtmlDiff
 
 class SQLAlchemyStorage(StorageBackend):
     def __init__(self, engine):
@@ -31,41 +32,39 @@ class SQLAlchemyStorage(StorageBackend):
         self.build_session.flush()
         return node.id
 
-    def get_node(self, node_id):
-        session = Session()
-        node = session.query(Node).filter(Node.id == node_id).first()
-        session.close()
-        return node
-
     def post_build(self):
         self.build_session.commit()
         self.build_session.close()
 
     def add_comment(self, text, displayed, username, rating, time,
-                    proposal, proposal_diff, node=None, parent=None):
-        time = time or datetime.now()
-
+                    proposal, node, parent):
         session = Session()
         
-        comment = Comment(text, displayed, username, rating, time,
-                          proposal, proposal_diff, node, parent)
+        if node:
+            node = session.query(Node).filter(Node.id == node).first()
+            parent = None
+        else:
+            node = None
+            parent = session.query(Comment).filter(
+                Comment.id == parent).first()
+        if node and proposal:
+            differ = CombinedHtmlDiff()
+            proposal_diff = differ.make_html(node.source, proposal)
+        else:
+            proposal_diff = None
+
+        comment = Comment(text, displayed, username, rating, 
+                          time or datetime.now(), proposal, proposal_diff, 
+                          node, parent)
         session.add(comment)
         session.commit()
         comment = comment.serializable()
         session.close()
         return comment
 
-    def get_comment(self, comment_id):
+    def get_comments(self, node_id, user_id):
         session = Session()
-        comment = session.query(Comment) \
-            .filter(Comment.id == comment_id).first()
-        session.close()
-        return comment
-
-    def get_comments(self, parent_id, user_id):
-        parent_id = parent_id[1:]
-        session = Session()
-        node = session.query(Node).filter(Node.id == parent_id).first()
+        node = session.query(Node).filter(Node.id == node_id).first()
         data = {'source': node.source,
                 'comments': [comment.serializable(user_id)
                              for comment in node.comments]}
