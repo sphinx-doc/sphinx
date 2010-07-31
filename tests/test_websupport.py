@@ -14,6 +14,8 @@ from StringIO import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
+from sphinx.websupport.comments.sqlalchemystorage import Session
+from sphinx.websupport.comments.db import Node
 
 try:
     from functools import wraps
@@ -116,10 +118,25 @@ def test_xapian():
 
 
 def test_whoosh():
-    # Don't run tests if xapian is not installed.
+    # Don't run tests if whoosh is not installed.
     try:
         import whoosh
         search_adapter_helper('whoosh')
     except ImportError:
-        sys.stderr.write('info: not running xapian tests, ' \
+        sys.stderr.write('info: not running whoosh tests, ' \
                          'whoosh doesn\'t seem to be installed')
+
+
+@with_support()
+def test_comments(support):
+    session = Session()
+    node = session.query(Node).first()
+    comment = support.add_comment('First test comment', node=str(node.id))
+    support.add_comment('Child test comment', parent=str(comment['id']))
+    data = support.get_comments(str(node.id))
+    comments = data['comments']
+    children = comments[0]['children']
+    assert len(comments) == 1
+    assert comments[0]['text'] == 'First test comment'
+    assert len(children) == 1
+    assert children[0]['text'] == 'Child test comment'
