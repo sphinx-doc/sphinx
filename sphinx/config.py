@@ -13,14 +13,10 @@ import os
 import re
 import sys
 from os import path
-try:
-    from distutils.util import run_2to3
-except ImportError:
-    run_2to3 = None
 
 from sphinx.errors import ConfigError
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import bytes, b, should_run_2to3, run_2to3
+from sphinx.util.pycompat import bytes, b, convert_with_2to3
 
 nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
@@ -172,17 +168,28 @@ class Config(object):
             config['tags'] = tags
             olddir = os.getcwd()
             try:
+                # we promise to have the config dir as current dir while the
+                # config file is executed
+                os.chdir(dirname)
+                # get config source
+                f = open(config_file, 'rb')
                 try:
-                    os.chdir(dirname)
-                    if should_run_2to3(config_file):
-                        code = run_2to3(config_file)
-                    else:
-                        f = open(config_file, 'rb')
-                        try:
-                            code = f.read()
-                        finally:
-                            f.close()
-                    exec compile(code, config_file, 'exec') in config
+                    source = f.read()
+                finally:
+                    f.close()
+                try:
+                    # compile to a code object, handle syntax errors
+                    try:
+                        code = compile(source, config_file, 'exec')
+                    except SyntaxError:
+                        if convert_with_2to3:
+                            # maybe the file uses 2.x syntax; try to refactor to
+                            # 3.x syntax using 2to3
+                            source = convert_with_2to3(config_file)
+                            code = compile(source, config_file, 'exec')
+                        else:
+                            raise
+                    exec code in config
                 except SyntaxError, err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:
