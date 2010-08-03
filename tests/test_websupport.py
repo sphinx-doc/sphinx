@@ -36,6 +36,7 @@ def clear_builddir():
 
 
 def teardown_module():
+    (test_root / 'generated').rmtree(True)
     clear_builddir()
 
 
@@ -130,13 +131,61 @@ def test_whoosh():
 @with_support()
 def test_comments(support):
     session = Session()
-    node = session.query(Node).first()
-    comment = support.add_comment('First test comment', node=str(node.id))
-    support.add_comment('Child test comment', parent=str(comment['id']))
-    data = support.get_comments(str(node.id))
+    nodes = session.query(Node).all()
+    first_node = nodes[0]
+    second_node = nodes[1]
+
+    # Create a displayed comment and a non displayed comment.
+    comment = support.add_comment('First test comment', 
+                                  node_id=str(first_node.id))
+    support.add_comment('Hidden comment', node_id=str(first_node.id), 
+                        displayed=False)
+    # Add a displayed and not displayed child to the displayed comment.
+    support.add_comment('Child test comment', parent_id=str(comment['id']))
+    support.add_comment('Hidden child test comment', 
+                        parent_id=str(comment['id']), displayed=False)
+    # Add a comment to another node to make sure it isn't returned later.
+    support.add_comment('Second test comment', 
+                        node_id=str(second_node.id))
+    
+    # Access the comments as a moderator.
+    data = support.get_comments(str(first_node.id), moderator=True)
+    comments = data['comments']
+    children = comments[0]['children']
+    assert len(comments) == 2
+    assert comments[1]['text'] == 'Hidden comment'
+    assert len(children) == 2
+    assert children[1]['text'] == 'Hidden child test comment'
+
+    # Access the comments without being a moderator.
+    data = support.get_comments(str(first_node.id))
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 1
     assert comments[0]['text'] == 'First test comment'
     assert len(children) == 1
     assert children[0]['text'] == 'Child test comment'
+
+    def check_rating(val):
+        data = support.get_comments(str(first_node.id))
+        comment = data['comments'][0]
+        assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
+        
+    support.process_vote(comment['id'], 'user_one', '1')
+    support.process_vote(comment['id'], 'user_two', '1')
+    support.process_vote(comment['id'], 'user_three', '1')
+    check_rating(3)
+    support.process_vote(comment['id'], 'user_one', '-1')
+    check_rating(1)
+    support.process_vote(comment['id'], 'user_one', '0')
+    check_rating(2)
+
+    # Make sure a vote with value > 1 or < -1 can't be cast.
+    raises(ValueError, support.process_vote, comment['id'], 'user_one', '2')
+    raises(ValueError, support.process_vote, comment['id'], 'user_one', '-2')
+
+    # Make sure past voting data is associated with comments when they are
+    # fetched.
+    data = support.get_comments(str(first_node.id), username='user_two')
+    comment = data['comments'][0]
+    assert comment['vote'] == 1, '%s != 1' % comment['vote']

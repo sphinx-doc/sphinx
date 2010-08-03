@@ -157,7 +157,7 @@ class WebSupport(object):
         document['title'] = 'Search Results'
         return document
 
-    def get_comments(self, node_id, user_id=None):
+    def get_comments(self, node_id, username=None, moderator=False):
         """Get the comments and source associated with `node_id`. If 
         `user_id` is given vote information will be included with the 
         returned comments. The default CommentBackend returns dict with
@@ -191,10 +191,11 @@ class WebSupport(object):
         :param node_id: the id of the node to get comments for.
         :param user_id: the id of the user viewing the comments.
         """
-        return self.storage.get_comments(node_id, user_id)
+        return self.storage.get_comments(node_id, username, moderator)
 
-    def add_comment(self, text, node='', parent='', displayed=True, 
-                    username=None, rating=0, time=None, proposal=None):
+    def add_comment(self, text, node_id='', parent_id='', displayed=True, 
+                    username=None, rating=0, time=None, proposal=None,
+                    moderator=False):
         """Add a comment to a node or another comment. Returns the comment 
         in the same format as :meth:`get_comments`. If the comment is being 
         attached to a node, pass in the node's id (as a string) with the 
@@ -215,15 +216,16 @@ class WebSupport(object):
 
         :param parent_id: the prefixed id of the comment's parent.
         :param text: the text of the comment.
-        :param displayed: for future use...
+        :param displayed: for moderation purposes
         :param username: the username of the user making the comment.
         :param rating: the starting rating of the comment, defaults to 0.
         :param time: the time the comment was created, defaults to now.
         """
         return self.storage.add_comment(text, displayed, username, rating,
-                                        time, proposal, node, parent)
+                                        time, proposal, node_id, parent_id, 
+                                        moderator)
 
-    def process_vote(self, comment_id, user_id, value):
+    def process_vote(self, comment_id, username, value):
         """Process a user's vote. The web support package relies
         on the API user to perform authentication. The API user will 
         typically receive a comment_id and value from a form, and then
@@ -248,4 +250,6 @@ class WebSupport(object):
         :param value: 1 for an upvote, -1 for a downvote, 0 for an unvote.
         """
         value = int(value)
-        self.storage.process_vote(comment_id, user_id, value)
+        if not -1 <= value <= 1:
+            raise ValueError('vote value %s out of range (-1, 1)' % value)
+        self.storage.process_vote(comment_id, username, value)

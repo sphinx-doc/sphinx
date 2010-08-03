@@ -40,7 +40,7 @@ class StorageBackend(object):
         """Called when a comment is being added."""
         raise NotImplementedError()
 
-    def get_comments(self, parent_id, user_id):
+    def get_comments(self, parent_id, user_id, moderator):
         """Called to retrieve all comments for a node."""
         raise NotImplementedError()
 

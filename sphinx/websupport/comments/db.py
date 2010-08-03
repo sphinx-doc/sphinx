@@ -32,7 +32,6 @@ class Node(Base):
     document = Column(String(256), nullable=False)
     line = Column(Integer)
     source = Column(Text, nullable=False)
-    treeloc = Column(String(32), nullable=False)
 
     def __init__(self, document, line, source, treeloc):
         self.document = document
@@ -51,26 +50,32 @@ class Comment(Base):
     username = Column(String(64))
     proposal = Column(Text)
     proposal_diff = Column(Text)
+    path = Column(String(256), index=True)
 
-    node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
-    node = relation(Node, backref='comments')
-
-    parent_id = Column(Integer, ForeignKey(db_prefix + 'comments.id'))
-    parent = relation('Comment', backref='children', remote_side=[id])
+    #node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
+    #node = relation(Node, backref='comments')
 
     def __init__(self, text, displayed, username, rating, time, 
-                 proposal, proposal_diff, node, parent):
+                 proposal, proposal_diff):
         self.text = text
         self.displayed = displayed
         self.username = username
         self.rating = rating
         self.time = time
-        self.node = node
-        self.parent = parent
         self.proposal = proposal
         self.proposal_diff = proposal_diff
 
-    def serializable(self, user_id=None):
+    def set_path(self, node_id, parent_id):
+        if node_id:
+            self.path = '%s.%s' % (node_id, self.id)
+        else:
+            session = Session()
+            parent_path = session.query(Comment.path).\
+                filter(Comment.id == parent_id).one().path
+            session.close()
+            self.path = '%s.%s' %  (parent_path, self.id)
+
+    def serializable(self, vote=0):
         delta = datetime.now() - self.time
 
         time = {'year': self.time.year,
@@ -82,15 +87,6 @@ class Comment(Base):
                 'iso': self.time.isoformat(),
                 'delta': self.pretty_delta(delta)}
 
-        vote = ''
-        if user_id is not None:
-            session = Session()
-            vote = session.query(CommentVote).filter(
-                CommentVote.comment_id == self.id).filter(
-                CommentVote.user_id == user_id).first()
-            vote = vote.value if vote is not None else 0
-            session.close()
-
         return {'text': self.text,
                 'username': self.username or 'Anonymous',
                 'id': self.id,
@@ -98,11 +94,8 @@ class Comment(Base):
                 'age': delta.seconds,
                 'time': time,
                 'vote': vote or 0,
-                'node': self.node.id if self.node else None,
-                'parent': self.parent.id if self.parent else None,
                 'proposal_diff': self.proposal_diff,
-                'children': [child.serializable(user_id)
-                             for child in self.children]}
+                'children': []}
 
     def pretty_delta(self, delta):
         days = delta.days
@@ -120,15 +113,14 @@ class Comment(Base):
 class CommentVote(Base):
     __tablename__ = db_prefix + 'commentvote'
 
-    user_id = Column(Integer, primary_key=True)
-    # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
-    value = Column(Integer, nullable=False)
-
+    username = Column(String(64), primary_key=True)
     comment_id = Column(Integer, ForeignKey(db_prefix + 'comments.id'),
                         primary_key=True)
     comment = relation(Comment, backref="votes")
+    # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
+    value = Column(Integer, nullable=False)
 
-    def __init__(self, comment_id, user_id, value):
-        self.value = value
-        self.user_id = user_id
+    def __init__(self, comment_id, username, value):
         self.comment_id = comment_id
+        self.username = username
+        self.value = value
