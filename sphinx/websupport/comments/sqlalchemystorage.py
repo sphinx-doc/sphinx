@@ -42,6 +42,7 @@ class SQLAlchemyStorage(StorageBackend):
         session = Session()
         
         if node_id and proposal:
+            node = session.query(Node).filter(Node.id == node_id).one()
             differ = CombinedHtmlDiff()
             proposal_diff = differ.make_html(node.source, proposal)
         else:

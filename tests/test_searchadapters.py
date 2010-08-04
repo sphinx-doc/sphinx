@@ -59,7 +59,9 @@ def search_adapter_helper(adapter):
     assert len(results) == 1, \
         '%s search adapter returned %s search result(s), should have been 1'\
         % (adapter, len(results))
-    
+    # Make sure it works through the WebSupport API
+    html = support.get_search_results(u'SomeLongRandomWord')
+
 
 def test_xapian():
     # Don't run tests if xapian is not installed.

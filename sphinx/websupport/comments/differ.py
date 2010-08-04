@@ -21,7 +21,7 @@ class CombinedHtmlDiff(object):
         next = next[2:]
         new_text = []
         start = 0
-        for match in highlight_regex.finditer(next):
+        for match in self.highlight_regex.finditer(next):
             new_text.append(text[start:match.start()])
             new_text.append('<%s>' % tag)
             new_text.append(text[match.start():match.end()])
@@ -30,7 +30,7 @@ class CombinedHtmlDiff(object):
         new_text.append(text[start:])
         return ''.join(new_text)
 
-    def _handle_line(line, next=None):
+    def _handle_line(self, line, next=None):
         prefix = line[0]
         text = line[2:]
 

@@ -14,7 +14,9 @@ from StringIO import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
-from sphinx.websupport.comments.sqlalchemystorage import Session
+from sphinx.websupport.comments.differ import CombinedHtmlDiff
+from sphinx.websupport.comments.sqlalchemystorage import Session, \
+    SQLAlchemyStorage
 from sphinx.websupport.comments.db import Node
 from util import *
 
@@ -25,6 +27,10 @@ except ImportError:
     wraps = lambda f: (lambda w: w)
 
 
+default_settings = {'outdir': os.path.join(test_root, 'websupport'),
+                    'status': StringIO(),
+                    'warning': StringIO()}
+
 def teardown_module():
     (test_root / 'generated').rmtree(True)
     (test_root / 'websupport').rmtree(True)
@@ -32,9 +38,7 @@ def teardown_module():
 
 def with_support(*args, **kwargs):
     """Make a WebSupport object and pass it the test."""
-    settings = {'outdir': os.path.join(test_root, 'websupport'),
-                'status': StringIO(),
-                'warning': StringIO()}
+    settings = default_settings.copy()
     settings.update(kwargs)
 
     def generator(func):
@@ -104,8 +108,17 @@ def test_comments(support):
     assert len(children) == 1
     assert children[0]['text'] == 'Child test comment'
 
+
+@with_support()
+def test_voting(support):
+    session = Session()
+    nodes = session.query(Node).all()
+    node = nodes[0]
+
+    comment = support.get_comments(str(node.id))['comments'][0]
+
     def check_rating(val):
-        data = support.get_comments(str(first_node.id))
+        data = support.get_comments(str(node.id))
         comment = data['comments'][0]
         assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
         
@@ -124,6 +137,29 @@ def test_comments(support):
 
     # Make sure past voting data is associated with comments when they are
     # fetched.
-    data = support.get_comments(str(first_node.id), username='user_two')
+    data = support.get_comments(str(node.id), username='user_two')
     comment = data['comments'][0]
     assert comment['vote'] == 1, '%s != 1' % comment['vote']
+
+@with_support()
+def test_proposals(support):
+    session = Session()
+    nodes = session.query(Node).all()
+    node = nodes[0]
+
+    data = support.get_comments(str(node.id))
+
+    source = data['source']
+    proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
+
+    comment = support.add_comment('Proposal comment', 
+                                  node_id=str(node.id),
+                                  proposal=proposal)
+
+def test_differ():
+    differ = CombinedHtmlDiff()
+    source = 'Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit,\n' \
+        'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' 
+    prop = 'Lorem dolor sit amet,\nconsectetur nihil adipisicing elit,\n' \
+        'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    differ.make_html(source, prop)
