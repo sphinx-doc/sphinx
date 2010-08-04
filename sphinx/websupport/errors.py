@@ -9,11 +9,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-__all__ = ['DocumentNotFoundError', 'SrcdirNotSpecifiedError']
+__all__ = ['DocumentNotFoundError', 'SrcdirNotSpecifiedError',
+           'UserNotAuthorizedError']
 
 class DocumentNotFoundError(Exception):
     pass
 
 
 class SrcdirNotSpecifiedError(Exception):
+    pass
+
+
+class UserNotAuthorizedError(Exception):
     pass

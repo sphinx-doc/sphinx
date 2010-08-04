@@ -85,7 +85,7 @@ class WebSupport(object):
         """Build the documentation. Places the data into the `outdir`
         directory. Use it like this::
 
-            support = WebSupport(srcdir, outdir, search)
+            support = WebSupport(srcdir, outdir, search='xapian')
             support.build()
 
         This will read reStructured text files from `srcdir`. Then it
@@ -109,7 +109,7 @@ class WebSupport(object):
         """Load and return a document from a pickle. The document will
         be a dict object which can be used to render a template::
 
-            support = WebSupport(outdir=outdir)
+            support = WebSupport(datadir=datadir)
             support.get_document('index')
             
         In most cases `docname` will be taken from the request path and 
@@ -192,6 +192,21 @@ class WebSupport(object):
         :param user_id: the id of the user viewing the comments.
         """
         return self.storage.get_data(node_id, username, moderator)
+
+    def delete_comment(self, comment_id, username='', moderator=False):
+        """Delete a comment. Doesn't actually delete the comment, but
+        instead replaces the username and text files with "[deleted]" so
+        as not to leave any comments orphaned.
+
+        If `moderator` is True, the comment will always be deleted. If 
+        `moderator` is False, the comment will only be deleted if the
+        `username` matches the `username` on the comment.
+
+        :param comment_id: the id of the comment to delete.
+        :param username: the username requesting the deletion.
+        :param moderator: whether the requestor is a moderator.
+        """
+        self.storage.delete_comment(comment_id, username, moderator)
 
     def add_comment(self, text, node_id='', parent_id='', displayed=True, 
                     username=None, rating=0, time=None, proposal=None,

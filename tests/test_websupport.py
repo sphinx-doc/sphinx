@@ -79,11 +79,13 @@ def test_comments(support):
 
     # Create a displayed comment and a non displayed comment.
     comment = support.add_comment('First test comment', 
-                                  node_id=str(first_node.id))
+                                  node_id=str(first_node.id),
+                                  username='user_one')
     support.add_comment('Hidden comment', node_id=str(first_node.id), 
                         displayed=False)
     # Add a displayed and not displayed child to the displayed comment.
-    support.add_comment('Child test comment', parent_id=str(comment['id']))
+    support.add_comment('Child test comment', parent_id=str(comment['id']),
+                        username='user_one')
     support.add_comment('Hidden child test comment', 
                         parent_id=str(comment['id']), displayed=False)
     # Add a comment to another node to make sure it isn't returned later.
@@ -144,8 +146,7 @@ def test_voting(support):
 @with_support()
 def test_proposals(support):
     session = Session()
-    nodes = session.query(Node).all()
-    node = nodes[0]
+    node = session.query(Node).first()
 
     data = support.get_data(str(node.id))
 
@@ -155,6 +156,43 @@ def test_proposals(support):
     comment = support.add_comment('Proposal comment', 
                                   node_id=str(node.id),
                                   proposal=proposal)
+
+
+@with_support()
+def test_user_delete_comments(support):
+    def get_comment():
+        session = Session()
+        node = session.query(Node).first()
+        session.close()
+        return support.get_data(str(node.id))['comments'][0]
+
+    comment = get_comment()
+    assert comment['username'] == 'user_one'
+    # Make sure other normal users can't delete someone elses comments.
+    raises(UserNotAuthorizedError, support.delete_comment,
+           comment['id'], username='user_two')
+    # Now delete the comment using the correct username.
+    support.delete_comment(comment['id'], username='user_one')
+    comment = get_comment()
+    assert comment['username'] == '[deleted]'
+    assert comment['text'] == '[deleted]'
+
+
+@with_support()
+def test_moderator_delete_comments(support):
+    def get_comment():
+        session = Session()
+        node = session.query(Node).first()
+        session.close()
+        return support.get_data(str(node.id), moderator=True)['comments'][1]
+
+    comment = get_comment()
+    support.delete_comment(comment['id'], username='user_two', 
+                           moderator=True)
+    comment = get_comment()
+    assert comment['username'] == '[deleted]'
+    assert comment['text'] == '[deleted]'
+
 
 def test_differ():
     differ = CombinedHtmlDiff()
