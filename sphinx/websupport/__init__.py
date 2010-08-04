@@ -32,7 +32,6 @@ class WebSupport(object):
     """The main API class for the web support package. All interactions
     with the web support package should occur through this class.
     """
-
     def __init__(self, srcdir='', outdir='', datadir='', search=None,
                  storage=None, status=sys.stdout, warning=sys.stderr):
         self.srcdir = srcdir
@@ -53,13 +52,14 @@ class WebSupport(object):
             self.storage = storage
         else:
             # If a StorageBackend isn't provided, use the default
-            # SQLAlchemy backend with an SQLite db.
+            # SQLAlchemy backend.
             from sphinx.websupport.storage.sqlalchemystorage \
                 import SQLAlchemyStorage
             from sqlalchemy import create_engine
             db_path = path.join(self.outdir, 'db', 'websupport.db')
             ensuredir(path.dirname(db_path))
-            engine = create_engine('sqlite:///%s' % db_path)
+            uri = storage or 'sqlite:///%s' % db_path
+            engine = create_engine(uri)
             self.storage = SQLAlchemyStorage(engine)
 
     def _init_templating(self):
