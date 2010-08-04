@@ -202,6 +202,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
             self, prune_toctrees=False)
         self.refnodes = self.get_refnodes(doctree, [])
+        master_dir = os.path.dirname(self.config.master_doc)
+        if master_dir:
+            master_dir += '/' # XXX or os.sep?
+            for item in self.refnodes:
+                item['refuri'] = master_dir + item['refuri']
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
