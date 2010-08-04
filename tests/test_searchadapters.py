@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
+import os, sys
 from StringIO import StringIO
 
 from util import *

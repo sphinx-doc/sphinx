@@ -14,10 +14,10 @@ from StringIO import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
-from sphinx.websupport.comments.differ import CombinedHtmlDiff
-from sphinx.websupport.comments.sqlalchemystorage import Session, \
+from sphinx.websupport.storage.differ import CombinedHtmlDiff
+from sphinx.websupport.storage.sqlalchemystorage import Session, \
     SQLAlchemyStorage
-from sphinx.websupport.comments.db import Node
+from sphinx.websupport.storage.db import Node
 from util import *
 
 try:

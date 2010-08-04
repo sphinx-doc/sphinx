@@ -19,7 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch, search_adapters
-from sphinx.websupport.comments import StorageBackend
+from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.errors import *
 
 class WebSupportApp(Sphinx):
@@ -54,7 +54,7 @@ class WebSupport(object):
         else:
             # If a StorageBackend isn't provided, use the default
             # SQLAlchemy backend with an SQLite db.
-            from sphinx.websupport.comments.sqlalchemystorage \
+            from sphinx.websupport.storage.sqlalchemystorage \
                 import SQLAlchemyStorage
             from sqlalchemy import create_engine
             db_path = path.join(self.outdir, 'db', 'websupport.db')
