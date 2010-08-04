@@ -9,13 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os, sys
+import os
 from StringIO import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
 from sphinx.websupport.comments.sqlalchemystorage import Session
 from sphinx.websupport.comments.db import Node
+from util import *
 
 try:
     from functools import wraps
@@ -23,26 +24,17 @@ except ImportError:
     # functools is new in 2.4
     wraps = lambda f: (lambda w: w)
 
-from util import *
-
-
-default_settings = {'outdir': os.path.join(test_root, 'websupport'),
-                    'status': StringIO(),
-                    'warning': StringIO()}
-
-
-def clear_builddir():
-    (test_root / 'websupport').rmtree(True)
-
 
 def teardown_module():
     (test_root / 'generated').rmtree(True)
-    clear_builddir()
+    (test_root / 'websupport').rmtree(True)
 
 
 def with_support(*args, **kwargs):
     """Make a WebSupport object and pass it the test."""
-    settings = default_settings.copy()
+    settings = {'outdir': os.path.join(test_root, 'websupport'),
+                'status': StringIO(),
+                'warning': StringIO()}
     settings.update(kwargs)
 
     def generator(func):
@@ -72,60 +64,6 @@ def test_get_document(support):
     contents = support.get_document('contents')
     assert contents['title'] and contents['body'] \
         and contents['sidebar'] and contents['relbar']
-
-
-def search_adapter_helper(adapter):
-    clear_builddir()
-    
-    settings = default_settings.copy()
-    settings.update({'srcdir': test_root,
-                     'search': adapter})
-    support = WebSupport(**settings)
-    support.build()
-
-    s = support.search
-
-    # Test the adapters query method. A search for "Epigraph" should return
-    # one result.
-    results = s.query(u'Epigraph')
-    assert len(results) == 1, \
-        '%s search adapter returned %s search result(s), should have been 1'\
-        % (adapter, len(results))
-
-    # Make sure documents are properly updated by the search adapter.
-    s.init_indexing(changed=['markup'])
-    s.add_document(u'markup', u'title', u'SomeLongRandomWord')
-    s.finish_indexing()
-    # Now a search for "Epigraph" should return zero results.
-    results = s.query(u'Epigraph')
-    assert len(results) == 0, \
-        '%s search adapter returned %s search result(s), should have been 0'\
-        % (adapter, len(results))
-    # A search for "SomeLongRandomWord" should return one result.
-    results = s.query(u'SomeLongRandomWord')
-    assert len(results) == 1, \
-        '%s search adapter returned %s search result(s), should have been 1'\
-        % (adapter, len(results))
-    
-
-def test_xapian():
-    # Don't run tests if xapian is not installed.
-    try:
-        import xapian
-        search_adapter_helper('xapian')
-    except ImportError:
-        sys.stderr.write('info: not running xapian tests, ' \
-                         'xapian doesn\'t seem to be installed')
-
-
-def test_whoosh():
-    # Don't run tests if whoosh is not installed.
-    try:
-        import whoosh
-        search_adapter_helper('whoosh')
-    except ImportError:
-        sys.stderr.write('info: not running whoosh tests, ' \
-                         'whoosh doesn\'t seem to be installed')
 
 
 @with_support()
