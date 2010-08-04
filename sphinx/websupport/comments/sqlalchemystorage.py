@@ -58,7 +58,7 @@ class SQLAlchemyStorage(StorageBackend):
         session.close()
         return comment
 
-    def get_comments(self, node_id, username, moderator):
+    def get_data(self, node_id, username, moderator):
         session = Session()
         node = session.query(Node).filter(Node.id == node_id).one()
         session.close()

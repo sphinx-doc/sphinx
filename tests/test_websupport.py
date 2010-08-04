@@ -91,7 +91,7 @@ def test_comments(support):
                         node_id=str(second_node.id))
     
     # Access the comments as a moderator.
-    data = support.get_comments(str(first_node.id), moderator=True)
+    data = support.get_data(str(first_node.id), moderator=True)
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 2
@@ -100,7 +100,7 @@ def test_comments(support):
     assert children[1]['text'] == 'Hidden child test comment'
 
     # Access the comments without being a moderator.
-    data = support.get_comments(str(first_node.id))
+    data = support.get_data(str(first_node.id))
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 1
@@ -115,10 +115,10 @@ def test_voting(support):
     nodes = session.query(Node).all()
     node = nodes[0]
 
-    comment = support.get_comments(str(node.id))['comments'][0]
+    comment = support.get_data(str(node.id))['comments'][0]
 
     def check_rating(val):
-        data = support.get_comments(str(node.id))
+        data = support.get_data(str(node.id))
         comment = data['comments'][0]
         assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
         
@@ -137,7 +137,7 @@ def test_voting(support):
 
     # Make sure past voting data is associated with comments when they are
     # fetched.
-    data = support.get_comments(str(node.id), username='user_two')
+    data = support.get_data(str(node.id), username='user_two')
     comment = data['comments'][0]
     assert comment['vote'] == 1, '%s != 1' % comment['vote']
 
@@ -147,7 +147,7 @@ def test_proposals(support):
     nodes = session.query(Node).all()
     node = nodes[0]
 
-    data = support.get_comments(str(node.id))
+    data = support.get_data(str(node.id))
 
     source = data['source']
     proposal = source[:5] + source[10:15] + 'asdf' + source[15:]

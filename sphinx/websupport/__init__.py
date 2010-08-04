@@ -157,7 +157,7 @@ class WebSupport(object):
         document['title'] = 'Search Results'
         return document
 
-    def get_comments(self, node_id, username=None, moderator=False):
+    def get_data(self, node_id, username=None, moderator=False):
         """Get the comments and source associated with `node_id`. If 
         `user_id` is given vote information will be included with the 
         returned comments. The default CommentBackend returns dict with
@@ -191,7 +191,7 @@ class WebSupport(object):
         :param node_id: the id of the node to get comments for.
         :param user_id: the id of the user viewing the comments.
         """
-        return self.storage.get_comments(node_id, username, moderator)
+        return self.storage.get_data(node_id, username, moderator)
 
     def add_comment(self, text, node_id='', parent_id='', displayed=True, 
                     username=None, rating=0, time=None, proposal=None,
