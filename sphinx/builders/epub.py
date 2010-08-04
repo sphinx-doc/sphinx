@@ -15,6 +15,7 @@ import codecs
 from os import path
 import zipfile
 import re
+import time
 
 from docutils import nodes
 
@@ -84,6 +85,7 @@ _content_template = u'''\
     <dc:publisher>%(publisher)s</dc:publisher>
     <dc:rights>%(copyright)s</dc:rights>
     <dc:identifier id="%(uid)s" opf:scheme="%(scheme)s">%(id)s</dc:identifier>
+    <dc:date>%(date)s</dc:date>
   </metadata>
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -350,6 +352,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
+        metadata['date'] = self.esc(time.strftime('%Y-%m-%d'))
         metadata['files'] = files
         metadata['spine'] = spine
         return metadata
