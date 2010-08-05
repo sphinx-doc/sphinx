@@ -32,6 +32,7 @@ except AttributeError:
 
 
 # RE to strip backslash escapes
+nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(?=[^\\])')
 
 
@@ -57,10 +58,12 @@ class ObjectDescription(Directive):
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
+
+        Backslash-escaping of newlines is supported.
         """
+        lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
         # remove backslashes to support (dummy) escapes; helps Vim highlighting
-        return [strip_backslash_re.sub('', sig.strip())
-                for sig in self.arguments[0].split('\n')]
+        return [strip_backslash_re.sub('', line.strip()) for line in lines]
 
     def handle_signature(self, sig, signode):
         """

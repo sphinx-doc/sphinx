@@ -1,8 +1,11 @@
 Release 1.0.2 (in development)
 ==============================
 
-* Fix unwanted styling of C domain references (because of a
-  namespace clash with Pygments styles).
+* Allow breaking long signatures, continuing with backlash-escaped
+  newlines.
+
+* Fix unwanted styling of C domain references (because of a namespace
+  clash with Pygments styles).
 
 * Allow references to PEPs and RFCs with explicit anchors.
 

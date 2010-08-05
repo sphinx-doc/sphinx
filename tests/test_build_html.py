@@ -38,7 +38,7 @@ http://www.python.org/logo.png
 reading included file u'wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: nonexisting.png
-%(root)s/objects.txt:86: WARNING: using old C markup; please migrate to \
+%(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
 http://sphinx.pocoo.org/domains.html
 """
@@ -161,6 +161,8 @@ HTML_XPATH = {
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
         (".//dt[@id='errmod.Error']", ''),
+        (".//dt/tt", r'long\(parameter,\s* list\)'),
+        (".//dt/tt", 'another one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),

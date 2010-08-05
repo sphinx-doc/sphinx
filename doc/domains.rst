@@ -52,9 +52,18 @@ flag ``:noindex:``.  An example using a Python domain directive::
 
    .. py:function:: spam(eggs)
                     ham(eggs)
-      :noindex:
 
       Spam or ham the foo.
+
+This describes the two Python functions ``spam`` and ``ham``.  (Note that when
+signatures become too long, you can break them if you add a backslash to lines
+that are continued in the next line.  Example::
+
+   .. py:function:: filterwarnings(action, message='', category=Warning, \
+                                   module='', lineno=0, append=False)
+      :noindex:
+
+(This example also shows how to use the ``:noindex:`` flag.)
 
 The domains also provide roles that link back to these object descriptions.  For
 example, to link to one of the functions described in the example above, you

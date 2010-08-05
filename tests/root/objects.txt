@@ -41,6 +41,10 @@ Testing object descriptions
 
 .. function:: func_without_module2() -> annotation
 
+.. object:: long(parameter, \
+              list)
+	    another one
+
 .. class:: TimeInt
 
    :param moo: |test|
