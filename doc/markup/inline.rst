@@ -274,13 +274,15 @@ The following roles generate external links:
 
    A reference to a Python Enhancement Proposal.  This generates appropriate
    index entries. The text "PEP *number*\ " is generated; in the HTML output,
-   this text is a hyperlink to an online copy of the specified PEP.
+   this text is a hyperlink to an online copy of the specified PEP.  You can
+   link to a specific section by saying ``:pep:`number#anchor```.
 
 .. rst:role:: rfc
 
    A reference to an Internet Request for Comments.  This generates appropriate
    index entries. The text "RFC *number*\ " is generated; in the HTML output,
-   this text is a hyperlink to an online copy of the specified RFC.
+   this text is a hyperlink to an online copy of the specified RFC.  You can
+   link to a specific section by saying ``:rfc:`number#anchor```.
 
 
 Note that there are no special roles for including hyperlinks as you can use
