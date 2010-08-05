@@ -94,46 +94,58 @@ def test_missing_reference(tempdir, app):
            ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2', '-')
 
     # create fake nodes and check referencing
-    contnode = nodes.emphasis('foo', 'foo')
-    refnode = addnodes.pending_xref('')
-    refnode['reftarget'] = 'module1.func'
-    refnode['reftype'] = 'func'
-    refnode['refdomain'] = 'py'
 
-    rn = missing_reference(app, app.env, refnode, contnode)
+    def fake_node(domain, type, target, content, **attrs):
+        contnode = nodes.emphasis(content, content)
+        node = addnodes.pending_xref('')
+        node['reftarget'] = target
+        node['reftype'] = type
+        node['refdomain'] = domain
+        node.attributes.update(attrs)
+        node += contnode
+        return node, contnode
+
+    def reference_check(*args, **kwds):
+        node, contnode = fake_node(*args, **kwds)
+        return missing_reference(app, app.env, node, contnode)
+
+    # check resolution when a target is found
+    rn = reference_check('py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)
     assert rn['refuri'] == 'http://docs.python.org/sub/foo.html#module1.func'
     assert rn['reftitle'] == '(in foo v2.0)'
-    assert rn[0].astext() == 'module1.func'
+    assert rn[0].astext() == 'foo'
 
     # create unresolvable nodes and check None return value
-    refnode['reftype'] = 'foo'
-    assert missing_reference(app, app.env, refnode, contnode) is None
-
-    refnode['reftype'] = 'function'
-    refnode['reftarget'] = 'foo.func'
-    assert missing_reference(app, app.env, refnode, contnode) is None
+    assert reference_check('py', 'foo', 'module1.func', 'foo') is None
+    assert reference_check('py', 'func', 'foo', 'foo') is None
+    assert reference_check('py', 'func', 'foo', 'foo') is None
 
     # check handling of prefixes
 
     # prefix given, target found: prefix is stripped
-    refnode['reftype'] = 'mod'
-    refnode['reftarget'] = 'py3k:module2'
-    rn = missing_reference(app, app.env, refnode, contnode)
+    rn = reference_check('py', 'mod', 'py3k:module2', 'py3k:module2')
     assert rn[0].astext() == 'module2'
 
+    # prefix given, but not in title: nothing stripped
+    rn = reference_check('py', 'mod', 'py3k:module2', 'module2')
+    assert rn[0].astext() == 'module2'
+
+    # prefix given, but explicit: nothing stripped
+    rn = reference_check('py', 'mod', 'py3k:module2', 'py3k:module2',
+                         refexplicit=True)
+    assert rn[0].astext() == 'py3k:module2'
+
     # prefix given, target not found and nonexplicit title: prefix is stripped
-    refnode['reftarget'] = 'py3k:unknown'
-    refnode['refexplicit'] = False
-    contnode[0] = nodes.Text('py3k:unknown')
-    rn = missing_reference(app, app.env, refnode, contnode)
+    node, contnode = fake_node('py', 'mod', 'py3k:unknown', 'py3k:unknown',
+                               refexplicit=False)
+    rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
     assert contnode[0].astext() == 'unknown'
 
     # prefix given, target not found and explicit title: nothing is changed
-    refnode['reftarget'] = 'py3k:unknown'
-    refnode['refexplicit'] = True
-    contnode[0] = nodes.Text('py3k:unknown')
-    rn = missing_reference(app, app.env, refnode, contnode)
+    node, contnode = fake_node('py', 'mod', 'py3k:unknown', 'py3k:unknown',
+                               refexplicit=True)
+    rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
     assert contnode[0].astext() == 'py3k:unknown'

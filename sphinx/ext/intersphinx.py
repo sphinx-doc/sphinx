@@ -205,9 +205,20 @@ def missing_reference(app, env, node, contnode):
             proj, version, uri, dispname = inventory[objtype][target]
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                                       reftitle='(in %s v%s)' % (proj, version))
-            if dispname == '-':
-                dispname = target
-            newnode.append(contnode.__class__(dispname, dispname))
+            if node.get('refexplicit'):
+                # use whatever title was given
+                newnode.append(contnode)
+            elif dispname == '-':
+                # use whatever title was given, but strip prefix
+                title = contnode.astext()
+                if in_set and title.startswith(in_set+':'):
+                    newnode.append(contnode.__class__(title[len(in_set)+1:],
+                                                      title[len(in_set)+1:]))
+                else:
+                    newnode.append(contnode)
+            else:
+                # else use the given display name (used for :ref:)
+                newnode.append(contnode.__class__(dispname, dispname))
             return newnode
     # at least get rid of the ':' in the target if no explicit title given
     if in_set is not None and not node.get('refexplicit', True):
