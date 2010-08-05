@@ -130,8 +130,9 @@ class ReSTDomain(Domain):
             if (objtype, target) in objects:
                 return make_refnode(builder, fromdocname,
                                     objects[objtype, target],
-                                    target, contnode, target)
+                                    objtype + '-' + target,
+                                    contnode, target + ' ' + objtype)
 
     def get_objects(self):
         for (typ, name), docname in self.data['objects'].iteritems():
-            yield name, name, typ, docname, name, 1
+            yield name, name, typ, docname, typ + '-' + name, 1
