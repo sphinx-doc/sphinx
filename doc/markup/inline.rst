@@ -260,7 +260,7 @@ in a different style:
 .. rst:role:: samp
 
    A piece of literal text, such as code.  Within the contents, you can use
-   curly braces to indicate a "variable" part, as in :rst:dir:`file`.  For
+   curly braces to indicate a "variable" part, as in :rst:role:`file`.  For
    example, in ``:samp:`print 1+{variable}```, the part ``variable`` would be
    emphasized.
 

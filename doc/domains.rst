@@ -138,11 +138,12 @@ declarations:
 .. rst:directive:: .. py:currentmodule:: name
 
    This directive tells Sphinx that the classes, functions etc. documented from
-   here are in the given module (like :rst:dir:`py:module`), but it will not create
-   index entries, an entry in the Global Module Index, or a link target for
-   :rst:role:`mod`.  This is helpful in situations where documentation for things in
-   a module is spread over multiple files or sections -- one location has the
-   :rst:dir:`py:module` directive, the others only :rst:dir:`py:currentmodule`.
+   here are in the given module (like :rst:dir:`py:module`), but it will not
+   create index entries, an entry in the Global Module Index, or a link target
+   for :rst:role:`py:mod`.  This is helpful in situations where documentation
+   for things in a module is spread over multiple files or sections -- one
+   location has the :rst:dir:`py:module` directive, the others only
+   :rst:dir:`py:currentmodule`.
 
 
 The following directives are provided for module and class contents:
@@ -363,6 +364,9 @@ dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
+A similar heuristic is used to determine whether the name is an attribute of the
+currently documented class.
+
 Also, if the name is prefixed with a dot, and no exact match is found, the
 target is taken as a suffix and all object names with that suffix are
 searched.  For example, ``:py:meth:`.TarFile.close``` references the
@@ -370,8 +374,9 @@ searched.  For example, ``:py:meth:`.TarFile.close``` references the
 ``tarfile``.  Since this can get ambiguous, if there is more than one possible
 match, you will get a warning from Sphinx.
 
-A similar heuristic is used to determine whether the name is an attribute of the
-currently documented class.
+Note that you can combine the ``~`` and ``.`` prefixes:
+``:py:meth:`~.TarFile.close``` will reference the ``tarfile.TarFile.close()``
+method, but the visible link caption will only be ``close()``.
 
 
 .. _c-domain:

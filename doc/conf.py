@@ -8,8 +8,6 @@ import sphinx
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks']
 
-#intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
-
 master_doc = 'contents'
 templates_path = ['_templates']
 exclude_patterns = ['_build']
@@ -65,6 +63,10 @@ man_pages = [
     ('man/sphinx-quickstart', 'sphinx-quickstart', 'Sphinx documentation '
      'template generator', '', 1),
 ]
+
+# We're not using intersphinx right now, but if we did, this would be part of
+# the mapping:
+intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
 
 
 # -- Extension interface -------------------------------------------------------

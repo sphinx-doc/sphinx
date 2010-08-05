@@ -1,6 +1,12 @@
 Release 1.0.2 (in development)
 ==============================
 
+* #482: When doing a non-exact search, match only the given type
+  of object.
+
+* #481: Apply non-exact search for Python reference targets with
+  ``.name`` for modules too.
+
 * #484: Fix crash when duplicating a parameter in an info field list.
 
 * #487: Fix setting the default role to one provided by the

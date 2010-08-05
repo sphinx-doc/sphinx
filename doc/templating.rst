@@ -21,10 +21,10 @@ No.  You have several other options:
   configuration value accordingly.
 
 * You can :ref:`write a custom builder <writing-builders>` that derives from
-  :class:`~sphinx.builders.StandaloneHTMLBuilder` and calls your template engine
-  of choice.
+  :class:`~sphinx.builders.html.StandaloneHTMLBuilder` and calls your template
+  engine of choice.
 
-* You can use the :class:`~sphinx.builders.PickleHTMLBuilder` that produces
+* You can use the :class:`~sphinx.builders.html.PickleHTMLBuilder` that produces
   pickle files with the page contents, and postprocess them using a custom tool,
   or use them in your Web application.
 
@@ -261,9 +261,9 @@ in the future.
 
 .. data:: file_suffix
 
-   The value of the builder's :attr:`out_suffix` attribute, i.e. the file name
-   extension that the output files will get.  For a standard HTML builder, this
-   is usually ``.html``.
+   The value of the builder's :attr:`~.SerializingHTMLBuilder.out_suffix`
+   attribute, i.e. the file name extension that the output files will get.  For
+   a standard HTML builder, this is usually ``.html``.
 
 .. data:: has_source
 
