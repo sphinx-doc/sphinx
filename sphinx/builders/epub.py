@@ -439,6 +439,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         level = 1
         lastnode = None
         for node in nodes:
+            if not node['text']:
+                continue
             file = node['refuri'].split('#')[0]
             if file in self.ignored_files:
                 continue
