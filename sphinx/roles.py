@@ -105,9 +105,9 @@ class XRefRole(object):
             classes = ['xref', domain, '%s-%s' % (domain, role)]
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
-            text = utils.unescape(text)
+            text = utils.unescape(text)[1:]
             if self.fix_parens:
-                text, tgt = self._fix_parens(env, False, text[1:], "")
+                text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
             return self.result_nodes(inliner.document, env, innernode,
                                      is_ref=False)
