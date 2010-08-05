@@ -62,6 +62,8 @@ Testing object descriptions
    :ivar int hour: like *hour*
    :ivar minute: like *minute*
    :vartype minute: int
+   :param hour: Duplicate param.  Should not lead to crashes.
+   :type hour: Duplicate type.
 
 
 C items
