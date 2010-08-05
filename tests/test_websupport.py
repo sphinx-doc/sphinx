@@ -81,8 +81,14 @@ def test_comments(support):
     comment = support.add_comment('First test comment', 
                                   node_id=str(first_node.id),
                                   username='user_one')
-    support.add_comment('Hidden comment', node_id=str(first_node.id), 
-                        displayed=False)
+    hidden_comment = support.add_comment('Hidden comment', 
+                                         node_id=str(first_node.id), 
+                                         displayed=False)
+    # Make sure that comments can't be added to a comment where
+    # displayed == False, since it could break the algorithm that
+    # converts a nodes comments to a tree.
+    raises(CommentNotAllowedError, support.add_comment, 'Not allowed', 
+           parent_id=str(hidden_comment['id']))
     # Add a displayed and not displayed child to the displayed comment.
     support.add_comment('Child test comment', parent_id=str(comment['id']),
                         username='user_one')
@@ -143,6 +149,7 @@ def test_voting(support):
     data = support.get_data(str(node.id), username='user_two')
     comment = data['comments'][0]
     assert comment['vote'] == 1, '%s != 1' % comment['vote']
+
 
 @with_support()
 def test_proposals(support):

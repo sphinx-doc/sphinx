@@ -10,7 +10,7 @@
 """
 
 __all__ = ['DocumentNotFoundError', 'SrcdirNotSpecifiedError',
-           'UserNotAuthorizedError']
+           'UserNotAuthorizedError', 'CommentNotAllowedError']
 
 class DocumentNotFoundError(Exception):
     pass
@@ -21,4 +21,8 @@ class SrcdirNotSpecifiedError(Exception):
 
 
 class UserNotAuthorizedError(Exception):
+    pass
+
+
+class CommentNotAllowedError(Exception):
     pass
