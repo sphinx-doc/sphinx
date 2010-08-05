@@ -224,6 +224,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.top_sectionlevel = 1
         self.next_section_ids = set()
+        self.next_figure_ids = set()
         # flags
         self.verbatim = None
         self.in_title = 0
@@ -887,11 +888,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_figure(self, node):
+        ids = ''
+        for id in self.next_figure_ids:
+            ids += self.hypertarget(id, anchor=False)
+        self.next_figure_ids.clear()
         if node.has_key('width') and node.get('align', '') in ('left', 'right'):
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l',
                               node['width']))
-            self.context.append('\\end{wrapfigure}\n')
+            self.context.append(ids + '\\end{wrapfigure}\n')
         else:
             if (not node.attributes.has_key('align') or
                 node.attributes['align'] == 'center'):
@@ -903,7 +908,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
             self.body.append('\\begin{figure}[htbp]%s\n' % align)
-            self.context.append('%s\\end{figure}\n' % align_end)
+            self.context.append(ids + align_end + '\\end{figure}\n')
     def depart_figure(self, node):
         self.body.append(self.context.pop())
 
@@ -982,6 +987,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if node.get('refid'):
                     self.next_section_ids.add(node['refid'])
                 self.next_section_ids.update(node['ids'])
+                return
+            elif isinstance(next, nodes.figure):
+                if node.get('refid'):
+                    self.next_figure_ids.add(node['refid'])
+                self.next_figure_ids.update(node['ids'])
                 return
         except IndexError:
             pass
