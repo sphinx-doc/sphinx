@@ -33,10 +33,12 @@ class WebSupport(object):
     with the web support package should occur through this class.
     """
     def __init__(self, srcdir='', outdir='', datadir='', search=None,
-                 storage=None, status=sys.stdout, warning=sys.stderr):
+                 storage=None, status=sys.stdout, warning=sys.stderr,
+                 moderation_callback=None):
         self.srcdir = srcdir
         self.outdir = outdir or path.join(self.srcdir, '_build',
                                           'websupport')
+        self.moderation_callback = moderation_callback
         self._init_templating()
 
         self.outdir = outdir or datadir
@@ -236,9 +238,12 @@ class WebSupport(object):
         :param rating: the starting rating of the comment, defaults to 0.
         :param time: the time the comment was created, defaults to now.
         """
-        return self.storage.add_comment(text, displayed, username, rating,
-                                        time, proposal, node_id, parent_id, 
-                                        moderator)
+        comment = self.storage.add_comment(text, displayed, username, rating,
+                                           time, proposal, node_id, 
+                                           parent_id, moderator)
+        if not displayed and self.moderation_callback:
+            self.moderation_callback(comment)
+        return comment
 
     def process_vote(self, comment_id, username, value):
         """Process a user's vote. The web support package relies
@@ -281,3 +286,17 @@ class WebSupport(object):
         :param new_username: The new username.
         """
         self.storage.update_username(old_username, new_username)
+
+    def accept_comment(self, comment_id):
+        """Accept a comment that is pending moderation.
+
+        :param comment_id: The id of the comment that was accepted.
+        """
+        self.storage.accept_comment(comment_id)
+
+    def reject_comment(self, comment_id):
+        """Reject a comment that is pending moderation.
+
+        :param comment_id: The id of the comment that was accepted.
+        """
+        self.storage.reject_comment(comment_id)

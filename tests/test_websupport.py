@@ -194,6 +194,7 @@ def test_moderator_delete_comments(support):
     assert comment['username'] == '[deleted]'
     assert comment['text'] == '[deleted]'
 
+
 @with_support()
 def test_update_username(support):
     support.update_username('user_two', 'new_user_two')
@@ -209,6 +210,28 @@ def test_update_username(support):
     assert len(comments) == 1
     votes = session.query(CommentVote).\
         filter(CommentVote.username == 'new_user_two')
+    assert len(comments) == 1
+
+
+called = False
+def moderation_callback(comment):
+    global called
+    called = True
+
+
+@with_support(moderation_callback=moderation_callback)
+def test_moderation(support):
+    accepted = support.add_comment('Accepted Comment', node_id=3, 
+                                   displayed=False)
+    rejected = support.add_comment('Rejected comment', node_id=3, 
+                                   displayed=False)
+    # Make sure the moderation_callback is called.
+    assert called == True
+    support.accept_comment(accepted['id'])
+    support.reject_comment(rejected['id'])
+    comments = support.get_data(3)['comments']
+    assert len(comments) == 1
+    comments = support.get_data(3, moderator=True)['comments']
     assert len(comments) == 1
 
 
