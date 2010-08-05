@@ -16,7 +16,7 @@ from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 from sphinx.websupport.storage.sqlalchemystorage import Session, \
-    SQLAlchemyStorage
+    SQLAlchemyStorage, Comment, CommentVote
 from sphinx.websupport.storage.db import Node
 from util import *
 
@@ -90,7 +90,8 @@ def test_comments(support):
                         parent_id=str(comment['id']), displayed=False)
     # Add a comment to another node to make sure it isn't returned later.
     support.add_comment('Second test comment', 
-                        node_id=str(second_node.id))
+                        node_id=str(second_node.id),
+                        username='user_two')
     
     # Access the comments as a moderator.
     data = support.get_data(str(first_node.id), moderator=True)
@@ -192,6 +193,23 @@ def test_moderator_delete_comments(support):
     comment = get_comment()
     assert comment['username'] == '[deleted]'
     assert comment['text'] == '[deleted]'
+
+@with_support()
+def test_update_username(support):
+    support.update_username('user_two', 'new_user_two')
+    session = Session()
+    comments = session.query(Comment).\
+        filter(Comment.username == 'user_two').all()
+    assert len(comments) == 0
+    votes = session.query(CommentVote).\
+        filter(CommentVote.username == 'user_two')
+    assert len(comments) == 0
+    comments = session.query(Comment).\
+        filter(Comment.username == 'new_user_two').all()
+    assert len(comments) == 1
+    votes = session.query(CommentVote).\
+        filter(CommentVote.username == 'new_user_two')
+    assert len(comments) == 1
 
 
 def test_differ():

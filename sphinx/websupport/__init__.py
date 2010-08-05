@@ -268,3 +268,16 @@ class WebSupport(object):
         if not -1 <= value <= 1:
             raise ValueError('vote value %s out of range (-1, 1)' % value)
         self.storage.process_vote(comment_id, username, value)
+
+    def update_username(self, old_username, new_username):
+        """To remain decoupled from a webapp's authentication system, the
+        web support package stores a user's username with each of their
+        comments and votes. If the authentication system allows a user to
+        change their username, this can lead to stagnate data in the web
+        support system. To avoid this, each time a username is changed, this
+        method should be called.
+
+        :param old_username: The original username.
+        :param new_username: The new username.
+        """
+        self.storage.update_username(old_username, new_username)
