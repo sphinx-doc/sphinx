@@ -255,11 +255,11 @@ All serialization builders outputs one file per source file and a few special
 files.  They also copy the reST source files in the directory ``_sources``
 under the output directory.
 
-The :class:`PickleHTMLBuilder` is a builtin subclass that implements the pickle
+The :class:`.PickleHTMLBuilder` is a builtin subclass that implements the pickle
 serialization interface.
 
 The files per source file have the extensions of
-:attr:`~SerializingHTMLBuilder.out_suffix`, and are arranged in directories
+:attr:`~.SerializingHTMLBuilder.out_suffix`, and are arranged in directories
 just as the source files are.  They unserialize to a dictionary (or dictionary
 like structure) with these keys:
 
@@ -290,7 +290,7 @@ like structure) with these keys:
 
 The special files are located in the root output directory.  They are:
 
-:attr:`SerializingHTMLBuilder.globalcontext_filename`
+:attr:`.SerializingHTMLBuilder.globalcontext_filename`
    A pickled dict with these keys:
 
    ``project``, ``copyright``, ``release``, ``version``
@@ -309,7 +309,7 @@ The special files are located in the root output directory.  They are:
    ``titles``
       A dictionary of all documents' titles, as HTML strings.
 
-:attr:`SerializingHTMLBuilder.searchindex_filename`
+:attr:`.SerializingHTMLBuilder.searchindex_filename`
    An index that can be used for searching the documentation.  It is a pickled
    list with these entries:
 

@@ -13,8 +13,10 @@ import UserString
 
 try:
     import json
+    # json-py's json module has not JSONEncoder; this will raise AttributeError
+    # if json-py is imported instead of the built-in json module
     JSONEncoder = json.JSONEncoder
-except ImportError:
+except (ImportError, AttributeError):
     try:
         import simplejson as json
         JSONEncoder = json.JSONEncoder

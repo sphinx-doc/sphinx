@@ -240,7 +240,7 @@ class PygmentsBridge(object):
             # no HTML styles needed
             return ''
         if self.dest == 'html':
-            return self.fmter[0].get_style_defs()
+            return self.fmter[0].get_style_defs('.highlight')
         else:
             styledefs = self.fmter[0].get_style_defs()
             # workaround for Pygments < 0.12

@@ -28,7 +28,7 @@ class ReSTMarkup(ObjectDescription):
     """
 
     def add_target_and_index(self, name, sig, signode):
-        targetname = name + '-' + self.objtype
+        targetname = self.objtype + '-' + name
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
             signode['ids'].append(targetname)
@@ -130,8 +130,9 @@ class ReSTDomain(Domain):
             if (objtype, target) in objects:
                 return make_refnode(builder, fromdocname,
                                     objects[objtype, target],
-                                    target, contnode, target)
+                                    objtype + '-' + target,
+                                    contnode, target + ' ' + objtype)
 
     def get_objects(self):
         for (typ, name), docname in self.data['objects'].iteritems():
-            yield name, name, typ, docname, name, 1
+            yield name, name, typ, docname, typ + '-' + name, 1

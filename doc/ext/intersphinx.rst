@@ -84,7 +84,7 @@ linking:
    To add links to modules and objects in the Python standard library
    documentation, use::
 
-      intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
+      intersphinx_mapping = {'python': ('http://docs.python.org/3.2', None)}
 
    This will download the corresponding :file:`objects.inv` file from the
    Internet and generate links to the pages under the given URI.  The downloaded
@@ -94,12 +94,12 @@ linking:
    A second example, showing the meaning of a non-``None`` value of the second
    tuple item::
 
-      intersphinx_mapping = {'python': ('http://docs.python.org/',
+      intersphinx_mapping = {'python': ('http://docs.python.org/3.2',
                                         'python-inv.txt')}
 
    This will read the inventory from :file:`python-inv.txt` in the source
    directory, but still generate links to the pages under
-   ``http://docs.python.org/``.  It is up to you to update the inventory file as
+   ``http://docs.python.org/3.2``.  It is up to you to update the inventory file as
    new objects are added to the Python documentation.
 
 .. confval:: intersphinx_cache_limit

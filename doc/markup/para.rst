@@ -42,15 +42,25 @@ units as well as normal text:
    Example::
 
       .. versionadded:: 2.5
-         The `spam` parameter.
+         The *spam* parameter.
 
    Note that there must be no blank line between the directive head and the
    explanation; this is to make these blocks visually continuous in the markup.
 
 .. rst:directive:: .. versionchanged:: version
 
-   Similar to :rst:dir:`versionadded`, but describes when and what changed in the named
-   feature in some way (new parameters, changed side effects, etc.).
+   Similar to :rst:dir:`versionadded`, but describes when and what changed in
+   the named feature in some way (new parameters, changed side effects, etc.).
+
+.. rst:directive:: .. deprecated:: vesion
+
+   Similar to :rst:dir:`versionchanged`, but describes when the feature was
+   deprecated.  An explanation can also be given, for example to inform the
+   reader what should be used instead.  Example::
+
+      .. deprecated:: 3.1
+         Use :func:`spam` instead.
+
 
 --------------
 

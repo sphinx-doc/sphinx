@@ -210,7 +210,7 @@ the following public API:
    standard Sphinx roles (see :ref:`xref-syntax`).
 
    This method is also available under the deprecated alias
-   :meth:`add_description_unit`.
+   ``add_description_unit``.
 
 .. method:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
 
@@ -271,6 +271,8 @@ the following public API:
    extension.  It must be a subclass of :class:`sphinx.ext.autodoc.Documenter`.
    This allows to auto-document new types of objects.  See the source of the
    autodoc module for examples on how to subclass :class:`Documenter`.
+
+   .. XXX add real docs for Documenter and subclassing
 
    .. versionadded:: 0.6
 

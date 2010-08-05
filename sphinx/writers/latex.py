@@ -224,6 +224,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.top_sectionlevel = 1
         self.next_section_ids = set()
+        self.next_figure_ids = set()
+        self.next_table_ids = set()
         # flags
         self.verbatim = None
         self.in_title = 0
@@ -633,7 +635,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
             self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
-
+        if self.table.caption is not None:
+            for id in self.next_table_ids:
+                self.body.append(self.hypertarget(id, anchor=False))
+            self.next_table_ids.clear()
         if self.table.longtable:
             self.body.append('\\hline\n')
             self.body.append('\\endfirsthead\n\n')
@@ -887,11 +892,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_figure(self, node):
+        ids = ''
+        for id in self.next_figure_ids:
+            ids += self.hypertarget(id, anchor=False)
+        self.next_figure_ids.clear()
         if 'width' in node and node.get('align', '') in ('left', 'right'):
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l',
                               node['width']))
-            self.context.append('\\end{wrapfigure}\n')
+            self.context.append(ids + '\\end{wrapfigure}\n')
         else:
             if (not 'align' in node.attributes or
                 node.attributes['align'] == 'center'):
@@ -903,7 +912,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
             self.body.append('\\begin{figure}[htbp]%s\n' % align)
-            self.context.append('%s\\end{figure}\n' % align_end)
+            self.context.append(ids + align_end + '\\end{figure}\n')
     def depart_figure(self, node):
         self.body.append(self.context.pop())
 
@@ -983,6 +992,20 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.next_section_ids.add(node['refid'])
                 self.next_section_ids.update(node['ids'])
                 return
+            elif isinstance(next, nodes.figure):
+                # labels for figures go in the figure body, not before
+                if node.get('refid'):
+                    self.next_figure_ids.add(node['refid'])
+                self.next_figure_ids.update(node['ids'])
+                return
+            elif isinstance(next, nodes.table):
+                # same for tables, but only if they have a caption
+                for n in node:
+                    if isinstance(n, nodes.title):
+                        if node.get('refid'):
+                            self.next_table_ids.add(node['refid'])
+                        self.next_table_ids.update(node['ids'])
+                        return
         except IndexError:
             pass
         if 'refuri' in node:

@@ -151,7 +151,7 @@ The special document names (and pages generated for them) are:
   :ref:`object descriptions <basic-domain-markup>`, and from :rst:dir:`index`
   directives.
 
-  The module index contains one entry per :rst:dir:`module` directive.
+  The Python module index contains one entry per :rst:dir:`py:module` directive.
 
   The search page contains a form that uses the generated JSON search index and
   JavaScript to full-text search the generated documents for search words; it

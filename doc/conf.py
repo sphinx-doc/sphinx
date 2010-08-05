@@ -64,6 +64,10 @@ man_pages = [
      'template generator', '', 1),
 ]
 
+# We're not using intersphinx right now, but if we did, this would be part of
+# the mapping:
+intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
+
 
 # -- Extension interface -------------------------------------------------------
 
