@@ -30,11 +30,10 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         self.translator_class = WebSupportTranslator
 
     def write_doc(self, docname, doctree):
-        # The translator needs the docname to generate ids.
-        self.cur_docname = docname
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
+        self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = '/' + posixpath.join(self.app.staticdir, '_images')
         self.post_process_images(doctree)
