@@ -24,6 +24,7 @@ from sphinx.websupport.errors import *
 
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
+        self.staticdir = kwargs.pop('staticdir', None)
         self.search = kwargs.pop('search', None)
         self.storage = kwargs.pop('storage', None)
         Sphinx.__init__(self, *args, **kwargs)
@@ -34,18 +35,15 @@ class WebSupport(object):
     """
     def __init__(self, srcdir='', outdir='', datadir='', search=None,
                  storage=None, status=sys.stdout, warning=sys.stderr,
-                 moderation_callback=None):
+                 moderation_callback=None, staticdir='static'):
         self.srcdir = srcdir
-        self.outdir = outdir or path.join(self.srcdir, '_build',
-                                          'websupport')
-        self.moderation_callback = moderation_callback
-        self._init_templating()
-
         self.outdir = outdir or datadir
-
+        self.staticdir = staticdir.strip('/')
         self.status = status
         self.warning = warning
+        self.moderation_callback = moderation_callback
 
+        self._init_templating()
         self._init_search(search)            
         self._init_storage(storage)
 
@@ -101,7 +99,8 @@ class WebSupport(object):
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
                             search=self.search, status=self.status, 
-                            warning=self.warning, storage=self.storage)
+                            warning=self.warning, storage=self.storage,
+                            staticdir=self.staticdir)
 
         self.storage.pre_build()
         app.build()
@@ -129,7 +128,7 @@ class WebSupport(object):
 
         :param docname: the name of the document to load.
         """
-        infilename = path.join(self.outdir, docname + '.fpickle')
+        infilename = path.join(self.outdir, 'pickles', docname + '.fpickle')
 
         try:
             f = open(infilename, 'rb')
