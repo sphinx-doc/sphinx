@@ -39,7 +39,7 @@ class CombinedHtmlDiff(object):
         elif prefix == '?':
             return ''
         
-        if next[0] == '?':
+        if next is not None and next[0] == '?':
             tag = 'ins' if prefix == '+' else 'del'
             text = self._highlight_text(text, next, tag)
         css_class = 'prop_added' if prefix == '+' else 'prop_removed'
