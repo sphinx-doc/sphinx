@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.websupport.comments
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.websupport.storage
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Comments for the websupport package.
+    Storage for the websupport package.
 
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -40,7 +40,7 @@ class StorageBackend(object):
         """Called when a comment is being added."""
         raise NotImplementedError()
 
-    def get_comments(self, parent_id, user_id, moderator):
+    def get_data(self, parent_id, user_id, moderator):
         """Called to retrieve all comments for a node."""
         raise NotImplementedError()
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.websupport.comments.db
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.websupport.storage.db
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     SQLAlchemy table and mapper definitions used by the
     :class:`sphinx.websupport.comments.SQLAlchemyStorage`.

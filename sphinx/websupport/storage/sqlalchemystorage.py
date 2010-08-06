@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.websupport.comments.sqlalchemystorage
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.websupport.storage.sqlalchemystorage
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    A SQLAlchemy storage backend.
+    An SQLAlchemy storage backend.
 
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -12,10 +12,11 @@
 from datetime import datetime
 
 from sqlalchemy.orm import aliased
-from sphinx.websupport.comments import StorageBackend
-from sphinx.websupport.comments.db import Base, Node, Comment, CommentVote,\
+from sphinx.websupport.errors import *
+from sphinx.websupport.storage import StorageBackend
+from sphinx.websupport.storage.db import Base, Node, Comment, CommentVote,\
                                           Session
-from sphinx.websupport.comments.differ import CombinedHtmlDiff
+from sphinx.websupport.storage.differ import CombinedHtmlDiff
 
 class SQLAlchemyStorage(StorageBackend):
     def __init__(self, engine):
@@ -45,6 +46,13 @@ class SQLAlchemyStorage(StorageBackend):
             node = session.query(Node).filter(Node.id == node_id).one()
             differ = CombinedHtmlDiff()
             proposal_diff = differ.make_html(node.source, proposal)
+        elif parent_id:
+            parent = session.query(Comment.displayed).\
+                filter(Comment.id == parent_id).one()
+            if not parent.displayed:
+                raise CommentNotAllowedError(
+                    "Can't add child to a parent that is not displayed")
+            proposal_diff = None
         else:
             proposal_diff = None
 
@@ -57,6 +65,19 @@ class SQLAlchemyStorage(StorageBackend):
         comment = comment.serializable()
         session.close()
         return comment
+
+    def delete_comment(self, comment_id, username, moderator):
+        session = Session()
+        comment = session.query(Comment).\
+            filter(Comment.id == comment_id).one()
+        if moderator or comment.username == username:
+            comment.username = '[deleted]'
+            comment.text = '[deleted]'
+            session.commit()
+            session.close()
+        else:
+            session.close()
+            raise UserNotAuthorizedError()
 
     def get_data(self, node_id, username, moderator):
         session = Session()
@@ -81,7 +102,7 @@ class SQLAlchemyStorage(StorageBackend):
             q = session.query(Comment)
 
         # Filter out all comments not descending from this node.
-        q = q.filter(Comment.path.like(node_id + '.%'))
+        q = q.filter(Comment.path.like(str(node_id) + '.%'))
         # Filter out non-displayed comments if this isn't a moderator.
         if not moderator:
             q = q.filter(Comment.displayed == True)
@@ -127,5 +148,31 @@ class SQLAlchemyStorage(StorageBackend):
             comment.rating += value - vote.value
             vote.value = value
         session.add(vote)
+        session.commit()
+        session.close()
+
+    def update_username(self, old_username, new_username):
+        session = Session()
+        session.query(Comment).filter(Comment.username == old_username).\
+            update({Comment.username: new_username})
+        session.query(CommentVote).\
+            filter(CommentVote.username == old_username).\
+            update({CommentVote.username: new_username})
+        session.commit()
+        session.close()
+
+    def accept_comment(self, comment_id):
+        session = Session()
+        comment = session.query(Comment).\
+            filter(Comment.id == comment_id).one()
+        comment.displayed = True
+        session.commit()
+        session.close()
+
+    def reject_comment(self, comment_id):
+        session = Session()
+        comment = session.query(Comment).\
+            filter(Comment.id == comment_id).one()
+        session.delete(comment)
         session.commit()
         session.close()
