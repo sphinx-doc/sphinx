@@ -93,6 +93,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     Render graphviz code into a PNG or PDF output file.
     """
     hashkey = code.encode('utf-8') + str(options) + \
+              str(self.builder.config.graphviz_dot) + \
               str(self.builder.config.graphviz_dot_args)
     fname = '%s-%s.%s' % (prefix, sha(hashkey).hexdigest(), format)
     if hasattr(self.builder, 'imgpath'):
