@@ -120,6 +120,7 @@ class Config(object):
         epub_identifier = ('unknown', 'html'),
         epub_scheme = ('unknown', 'html'),
         epub_uid = ('unknown', 'env'),
+        epub_cover = ((), 'env'),
         epub_pre_files = ([], 'env'),
         epub_post_files = ([], 'env'),
         epub_exclude_files = ([], 'env'),

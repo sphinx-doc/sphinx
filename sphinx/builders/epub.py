@@ -97,6 +97,12 @@ _content_template = u'''\
 </package>
 '''
 
+_cover_template = u'''\
+    <meta name="cover" content="%(cover)s"/>
+'''
+
+_coverpage_name = 'epub-cover.html'
+
 _file_template = u'''\
     <item id="%(id)s"
           href="%(href)s"
@@ -388,7 +394,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     'media_type': self.esc(_media_types[ext])
                 })
                 self.files.append(filename)
-        projectfiles = '\n'.join(projectfiles)
 
         # spine
         spine = []
@@ -400,12 +405,38 @@ class EpubBuilder(StandaloneHTMLBuilder):
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id(item['refuri']))
             })
+
+        # add the optional cover
+        content_tmpl = _content_template[:]
+        if self.config.epub_cover:
+            image, tmpl = self.config.epub_cover
+            mpos = content_tmpl.rfind('</metadata>')
+            cpos = content_tmpl.rfind('\n', 0 , mpos) + 1
+            content_tmpl = content_tmpl[:cpos] + \
+                _cover_template % {'cover': self.esc(self.make_id(image))} + \
+                content_tmpl[cpos:]
+            if tmpl:
+                spine.insert(0, _spine_template % {
+                    'idref': self.esc(self.make_id(_coverpage_name))})
+                if _coverpage_name not in self.files:
+                    ext = path.splitext(_coverpage_name)[-1]
+                    self.files.append(_coverpage_name)
+                    projectfiles.append(_file_template % {
+                        'href': self.esc(_coverpage_name),
+                        'id': self.esc(self.make_id(_coverpage_name)),
+                        'media_type': self.esc(_media_types[ext])
+                    })
+                ctx = {'image': self.esc(image), 'title': self.config.project}
+                self.handle_page(
+                        os.path.splitext(_coverpage_name)[0], ctx, tmpl)
+
+        projectfiles = '\n'.join(projectfiles)
         spine = '\n'.join(spine)
 
         # write the project file
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
-            f.write(_content_template % \
+            f.write(content_tmpl % \
                 self.content_metadata(projectfiles, spine))
         finally:
             f.close()
