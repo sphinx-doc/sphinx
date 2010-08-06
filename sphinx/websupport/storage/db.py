@@ -132,9 +132,15 @@ class Comment(Base):
                 'iso': self.time.isoformat(),
                 'delta': self.pretty_delta(delta)}
 
+        path = self.path.split('.')
+        node = path[0] if len(path) == 2 else None
+        parent = path[-2] if len(path) > 2 else None
+
         return {'text': self.text,
                 'username': self.username or 'Anonymous',
                 'id': self.id,
+                'node': node,
+                'parent': parent,
                 'rating': self.rating,
                 'age': delta.seconds,
                 'time': time,
