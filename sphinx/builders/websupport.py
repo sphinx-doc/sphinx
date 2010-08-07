@@ -83,7 +83,8 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         # Create a dict that will be pickled and used by webapps.
         doc_ctx = {'body': ctx.get('body', ''),
                    'title': ctx.get('title', ''),
-                   'DOCUMENTATION_OPTIONS': self._make_doc_options(ctx)}
+                   'css': self._make_css(ctx),
+                   'js': self._make_js(ctx)}
         # Partially render the html template to proved a more useful ctx.
         template = self.templates.environment.get_template(templatename)
         template_module = template.make_module(ctx)
@@ -121,16 +122,36 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     def dump_search_index(self):
         self.indexer.finish_indexing()
 
-    def _make_doc_options(self, ctx):
-        t = """
-var DOCUMENTATION_OPTIONS = {
-  URL_ROOT: '%s',
-  VERSION: '%s',
-  COLLAPSE_INDEX: false,
-  FILE_SUFFIX: '',
-  HAS_SOURCE: '%s'
-};""" 
-        return t % (ctx.get('url_root', ''), escape(ctx['release']),
-                    str(ctx['has_source']).lower())
+    def _make_css(self, ctx):
+        def make_link(file):
+            path = ctx['pathto'](file, 1)
+            return '<link rel="stylesheet" href="%s" type=text/css />' % path
 
+        links = [make_link('_static/pygments.css')]
+        for file in ctx['css_files']:
+            links.append(make_link(file))
+        return '\n'.join(links)
+
+    def _make_js(self, ctx):
+        def make_script(file):
+            path = ctx['pathto'](file, 1)
+            return '<script type="text/javascript" src="%s"></script>' % path
+
+        opts = """
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+    URL_ROOT: '%s',
+    VERSION: '%s',
+    COLLAPSE_INDEX: false,
+    FILE_SUFFIX: '',
+    HAS_SOURCE: '%s'
+  };
+</script>""" 
+        opts = opts % (ctx.get('url_root', ''), escape(ctx['release']),
+                       str(ctx['has_source']).lower())
+        scripts = []
+        for file in ctx['script_files']:
+            scripts.append(make_script(file))
+        scripts.append(make_script('_static/websupport.js'))
+        return opts + '\n' + '\n'.join(scripts)
 
