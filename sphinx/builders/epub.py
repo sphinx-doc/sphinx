@@ -101,7 +101,7 @@ _cover_template = u'''\
     <meta name="cover" content="%(cover)s"/>
 '''
 
-_coverpage_name = 'epub-cover.html'
+_coverpage_name = u'epub-cover.html'
 
 _file_template = u'''\
     <item id="%(id)s"
@@ -540,5 +540,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub.write(path.join(outdir, 'mimetype'), 'mimetype', \
             zipfile.ZIP_STORED)
         for file in projectfiles:
+            if isinstance(file, unicode):
+                file = file.encode('utf-8')
             epub.write(path.join(outdir, file), file, zipfile.ZIP_DEFLATED)
         epub.close()
