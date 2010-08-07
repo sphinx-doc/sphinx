@@ -234,8 +234,11 @@ def test_moderation(support):
                                    displayed=False)
     # Make sure the moderation_callback is called.
     assert called == True
-    support.accept_comment(accepted['id'])
-    support.reject_comment(rejected['id'])
+    # Make sure the user must be a moderator.
+    raises(UserNotAuthorizedError, support.accept_comment, accepted['id'])
+    raises(UserNotAuthorizedError, support.reject_comment, accepted['id'])
+    support.accept_comment(accepted['id'], moderator=True)
+    support.reject_comment(rejected['id'], moderator=True)
     comments = support.get_data(3)['comments']
     assert len(comments) == 1
     comments = support.get_data(3, moderator=True)['comments']

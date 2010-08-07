@@ -286,16 +286,20 @@ class WebSupport(object):
         """
         self.storage.update_username(old_username, new_username)
 
-    def accept_comment(self, comment_id):
+    def accept_comment(self, comment_id, moderator=False):
         """Accept a comment that is pending moderation.
 
         :param comment_id: The id of the comment that was accepted.
         """
+        if not moderator:
+            raise UserNotAuthorizedError()
         self.storage.accept_comment(comment_id)
 
-    def reject_comment(self, comment_id):
+    def reject_comment(self, comment_id, moderator=False):
         """Reject a comment that is pending moderation.
 
         :param comment_id: The id of the comment that was accepted.
         """
+        if not moderator:
+            raise UserNotAuthorizedError()
         self.storage.reject_comment(comment_id)

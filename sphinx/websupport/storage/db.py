@@ -142,6 +142,7 @@ class Comment(Base):
                 'node': node,
                 'parent': parent,
                 'rating': self.rating,
+                'displayed': self.displayed,
                 'age': delta.seconds,
                 'time': time,
                 'vote': vote or 0,
