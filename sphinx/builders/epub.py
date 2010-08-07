@@ -407,7 +407,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             })
 
         # add the optional cover
-        content_tmpl = _content_template[:]
+        content_tmpl = _content_template
         if self.config.epub_cover:
             image, tmpl = self.config.epub_cover
             mpos = content_tmpl.rfind('</metadata>')
