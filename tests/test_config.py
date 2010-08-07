@@ -9,6 +9,7 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import sys
 
 from util import *
 
@@ -84,11 +85,22 @@ def test_extension_values(app):
 @with_tempdir
 def test_errors_warnings(dir):
     # test the error for syntax errors in the config file
-    write_file(dir / 'conf.py', 'project = \n')
+    write_file(dir / 'conf.py', u'project = \n', 'ascii')
     raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
 
+    # test the automatic conversion of 2.x only code in configs
+    write_file(dir / 'conf.py', u'\n\nproject = u"Jägermeister"\n', 'utf-8')
+    cfg = Config(dir, 'conf.py', {}, None)
+    cfg.init_values()
+    assert cfg.project == u'Jägermeister'
+
     # test the warning for bytestrings with non-ascii content
-    write_file(dir / 'conf.py', '# -*- coding: latin-1\nproject = "foo\xe4"\n')
+    # bytestrings with non-ascii content are a syntax error in python3 so we
+    # skip the test there
+    if sys.version_info >= (3, 0):
+        return
+    write_file(dir / 'conf.py', u'# -*- coding: latin-1\nproject = "fooä"\n',
+            'latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
     warned = [False]
     def warn(msg):

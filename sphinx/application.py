@@ -37,9 +37,6 @@ from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold
 
 
-# Directive is either new-style or old-style
-clstypes = (type, types.ClassType)
-
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',

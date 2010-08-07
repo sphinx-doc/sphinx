@@ -17,7 +17,7 @@ It adds this directive:
 
    This directive has one or more arguments, each giving a module or class
    name.  Class names can be unqualified; in that case they are taken to exist
-   in the currently described module (see :rst:dir:`module`).
+   in the currently described module (see :rst:dir:`py:module`).
 
    For each given class, and each class in each given module, the base classes
    are determined.  Then, from all classes and their base classes, a graph is

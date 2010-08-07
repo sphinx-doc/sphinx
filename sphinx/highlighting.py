@@ -156,7 +156,7 @@ class PygmentsBridge(object):
         if sys.version_info >= (2, 5):
             src = 'from __future__ import with_statement\n' + src
 
-        if isinstance(src, unicode):
+        if sys.version_info < (3, 0) and isinstance(src, unicode):
             # Non-ASCII chars will only occur in string literals
             # and comments.  If we wanted to give them to the parser
             # correctly, we'd have to find out the correct source
@@ -175,7 +175,7 @@ class PygmentsBridge(object):
             return True
 
     def highlight_block(self, source, lang, linenos=False, warn=None):
-        if isinstance(source, str):
+        if not isinstance(source, unicode):
             source = source.decode()
         if not pygments:
             return self.unhighlighted(source)
@@ -240,7 +240,7 @@ class PygmentsBridge(object):
             # no HTML styles needed
             return ''
         if self.dest == 'html':
-            return self.fmter[0].get_style_defs()
+            return self.fmter[0].get_style_defs('.highlight')
         else:
             styledefs = self.fmter[0].get_style_defs()
             # workaround for Pygments < 0.12

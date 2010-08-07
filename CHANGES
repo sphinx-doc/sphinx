@@ -1,8 +1,40 @@
 Release 1.1 (in development)
 ============================
 
+* Added Python 3.x support.
+
+
 Release 1.0.2 (in development)
 ==============================
+
+* Allow breaking long signatures, continuing with backlash-escaped
+  newlines.
+
+* Fix unwanted styling of C domain references (because of a namespace
+  clash with Pygments styles).
+
+* Allow references to PEPs and RFCs with explicit anchors.
+
+* #471: Fix LaTeX references to figures.
+
+* #482: When doing a non-exact search, match only the given type
+  of object.
+
+* #481: Apply non-exact search for Python reference targets with
+  ``.name`` for modules too.
+
+* #484: Fix crash when duplicating a parameter in an info field list.
+
+* #487: Fix setting the default role to one provided by the
+  ``oldcmarkup`` extension.
+
+* #488: Fix crash when json-py is installed, which provides a
+  ``json`` module but is incompatible to simplejson.
+
+* #480: Fix handling of target naming in intersphinx.
+
+* #486: Fix removal of ``!`` for all cross-reference roles.
+
 
 Release 1.0.1 (Jul 27, 2010)
 ============================

@@ -11,13 +11,18 @@
 
 import os
 import re
+import sys
 from os import path
 
 from sphinx.errors import ConfigError
 from sphinx.util.osutil import make_filename
+from sphinx.util.pycompat import bytes, b, convert_with_2to3
 
-nonascii_re = re.compile(r'[\x80-\xff]')
+nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
+CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
+if sys.version_info >= (3, 0):
+    CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 
 class Config(object):
     """Configuration file abstraction."""
@@ -163,12 +168,30 @@ class Config(object):
             config['tags'] = tags
             olddir = os.getcwd()
             try:
+                # we promise to have the config dir as current dir while the
+                # config file is executed
+                os.chdir(dirname)
+                # get config source
+                f = open(config_file, 'rb')
                 try:
-                    os.chdir(dirname)
-                    execfile(config['__file__'], config)
+                    source = f.read()
+                finally:
+                    f.close()
+                try:
+                    # compile to a code object, handle syntax errors
+                    try:
+                        code = compile(source, config_file, 'exec')
+                    except SyntaxError:
+                        if convert_with_2to3:
+                            # maybe the file uses 2.x syntax; try to refactor to
+                            # 3.x syntax using 2to3
+                            source = convert_with_2to3(config_file)
+                            code = compile(source, config_file, 'exec')
+                        else:
+                            raise
+                    exec code in config
                 except SyntaxError, err:
-                    raise ConfigError('There is a syntax error in your '
-                                      'configuration file: ' + str(err))
+                    raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:
                 os.chdir(olddir)
 
@@ -182,10 +205,11 @@ class Config(object):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in self._raw_config.iteritems():
-            if isinstance(value, str) and nonascii_re.search(value):
+            if isinstance(value, bytes) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
-                     'Please use Unicode strings, e.g. u"Content".' % name)
+                     'Please use Unicode strings, e.g. %r.' % (name, u'Content')
+                )
 
     def init_values(self):
         config = self._raw_config

@@ -1,16 +1,14 @@
 #! /usr/bin/env python
 
 # Released to the public domain, by Tim Peters, 03 October 2000.
-# -B option added by Georg Brandl, 2006.
 
 """reindent [-d][-r][-v] [ path ... ]
 
--d (--dryrun)  Dry run.  Analyze, but don't make any changes to files.
--r (--recurse) Recurse.  Search for all .py files in subdirectories too.
--B (--no-backup)         Don't write .bak backup files.
--v (--verbose) Verbose.  Print informative msgs; else only names of \
-changed files.
--h (--help)    Help.     Print this usage information and exit.
+-d (--dryrun)   Dry run.   Analyze, but don't make any changes to, files.
+-r (--recurse)  Recurse.   Search for all .py files in subdirectories too.
+-n (--nobackup) No backup. Does not make a ".bak" file before reindenting.
+-v (--verbose)  Verbose.   Print informative msgs; else no output.
+-h (--help)     Help.      Print this usage information and exit.
 
 Change Python (.py) files to use 4-space indents and no hard tab characters.
 Also trim excess spaces and tabs from ends of lines, and remove empty lines
@@ -34,18 +32,30 @@ resulting .py file won't change it again).
 The hard part of reindenting is figuring out what to do with comment
 lines.  So long as the input files get a clean bill of health from
 tabnanny.py, reindent should do a good job.
+
+The backup file is a copy of the one that is being reindented. The ".bak"
+file is generated with shutil.copy(), but some corner cases regarding
+user/group and permissions could leave the backup file more readable that
+you'd prefer. You can always use the --nobackup option to prevent this.
 """
 
 __version__ = "1"
 
 import tokenize
-import os
+import os, shutil
 import sys
 
-verbose = 0
-recurse = 0
-dryrun  = 0
-no_backup = 0
+if sys.version_info >= (3, 0):
+    def tokens(readline, tokeneater):
+        for token in tokenize.tokenize(readline):
+            yield tokeneater(*token)
+else:
+    tokens = tokenize.tokenize
+
+verbose    = 0
+recurse    = 0
+dryrun     = 0
+makebackup = True
 
 def usage(msg=None):
     if msg is not None:
@@ -61,12 +71,10 @@ def errprint(*args):
 
 def main():
     import getopt
-    global verbose, recurse, dryrun, no_backup
-
+    global verbose, recurse, dryrun, makebackup
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "drvhB",
-                                   ["dryrun", "recurse", "verbose", "help",
-                                    "no-backup"])
+        opts, args = getopt.getopt(sys.argv[1:], "drnvh",
+                        ["dryrun", "recurse", "nobackup", "verbose", "help"])
     except getopt.error, msg:
         usage(msg)
         return
@@ -75,10 +83,10 @@ def main():
             dryrun += 1
         elif o in ('-r', '--recurse'):
             recurse += 1
+        elif o in ('-n', '--nobackup'):
+            makebackup = False
         elif o in ('-v', '--verbose'):
             verbose += 1
-        elif o in ('-B', '--no-backup'):
-            no_backup += 1
         elif o in ('-h', '--help'):
             usage()
             return
@@ -98,7 +106,8 @@ def check(file):
         for name in names:
             fullname = os.path.join(file, name)
             if ((recurse and os.path.isdir(fullname) and
-                 not os.path.islink(fullname))
+                 not os.path.islink(fullname) and
+                 not os.path.split(fullname)[1].startswith("."))
                 or name.lower().endswith(".py")):
                 check(fullname)
         return
@@ -118,26 +127,35 @@ def check(file):
             print "changed."
             if dryrun:
                 print "But this is a dry run, so leaving it alone."
-        else:
-            print "reindented", file, \
-                  (dryrun and "(dry run => not really)" or "")
         if not dryrun:
-            if not no_backup:
-                bak = file + ".bak"
-                if os.path.exists(bak):
-                    os.remove(bak)
-                os.rename(file, bak)
+            bak = file + ".bak"
+            if makebackup:
+                shutil.copyfile(file, bak)
                 if verbose:
-                    print "renamed", file, "to", bak
+                    print "backed up", file, "to", bak
             f = open(file, "w")
             r.write(f)
             f.close()
             if verbose:
                 print "wrote new", file
+        return True
     else:
         if verbose:
             print "unchanged."
+        return False
 
+def _rstrip(line, JUNK='\n \t'):
+    """Return line stripped of trailing spaces, tabs, newlines.
+
+    Note that line.rstrip() instead also strips sundry control characters,
+    but at least one known Emacs user expects to keep junk like that, not
+    mentioning Barry by name or anything <wink>.
+    """
+
+    i = len(line)
+    while i > 0 and line[i-1] in JUNK:
+        i -= 1
+    return line[:i]
 
 class Reindenter:
 
@@ -151,7 +169,7 @@ class Reindenter:
         # File lines, rstripped & tab-expanded.  Dummy at start is so
         # that we can use tokenize's 1-based line numbering easily.
         # Note that a line is all-blank iff it's "\n".
-        self.lines = [line.rstrip('\n \t').expandtabs() + "\n"
+        self.lines = [_rstrip(line).expandtabs() + "\n"
                       for line in self.raw]
         self.lines.insert(0, None)
         self.index = 1  # index into self.lines of next line
@@ -163,7 +181,7 @@ class Reindenter:
         self.stats = []
 
     def run(self):
-        tokenize.tokenize(self.getline, self.tokeneater)
+        tokens(self.getline, self.tokeneater)
         # Remove trailing empty lines.
         lines = self.lines
         while lines and lines[-1] == "\n":

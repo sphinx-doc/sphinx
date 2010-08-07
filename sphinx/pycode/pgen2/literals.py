@@ -66,7 +66,7 @@ uni_escape_re = re.compile(r"\\(\'|\"|\\|[abfnrtv]|x.{0,2}|[0-7]{1,3}|"
 def evalString(s, encoding=None):
     regex = escape_re
     repl = escape
-    if encoding:
+    if encoding and not isinstance(s, unicode):
         s = s.decode(encoding)
     if s.startswith('u') or s.startswith('U'):
         regex = uni_escape_re

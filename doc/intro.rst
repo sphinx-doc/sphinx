@@ -45,10 +45,10 @@ See the :ref:`pertinent section in the FAQ list <usingwith>`.
 Prerequisites
 -------------
 
-Sphinx needs at least **Python 2.4** to run, as well as the docutils_ and
-Jinja2_ libraries.  Sphinx should work with docutils version 0.5 or some
-(not broken) SVN trunk snapshot.  If you like to have source code highlighting
-support, you must also install the Pygments_ library.
+Sphinx needs at least **Python 2.4** or **Python 3.1** to run, as well as the
+docutils_ and Jinja2_ libraries.  Sphinx should work with docutils version 0.5
+or some (not broken) SVN trunk snapshot.  If you like to have source code
+highlighting support, you must also install the Pygments_ library.
 
 .. _reStructuredText: http://docutils.sf.net/rst.html
 .. _docutils: http://docutils.sf.net/

@@ -26,6 +26,7 @@
 
 import time
 import zlib
+import codecs
 import urllib2
 import posixpath
 from os import path
@@ -33,19 +34,26 @@ from os import path
 from docutils import nodes
 
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.util.pycompat import b
+
 
 handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
             urllib2.HTTPHandler()]
-if hasattr(urllib2, 'HTTPSHandler'):
+try:
     handlers.append(urllib2.HTTPSHandler)
+except NameError:
+    pass
 
 urllib2.install_opener(urllib2.build_opener(*handlers))
 
+UTF8StreamReader = codecs.lookup('utf-8')[2]
+
 
 def read_inventory_v1(f, uri, join):
+    f = UTF8StreamReader(f)
     invdata = {}
     line = f.next()
-    projname = line.rstrip()[11:].decode('utf-8')
+    projname = line.rstrip()[11:]
     line = f.next()
     version = line.rstrip()[11:]
     for line in f:
@@ -68,25 +76,25 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     projname = line.rstrip()[11:].decode('utf-8')
     line = f.readline()
     version = line.rstrip()[11:].decode('utf-8')
-    line = f.readline()
+    line = f.readline().decode('utf-8')
     if 'zlib' not in line:
         raise ValueError
 
     def read_chunks():
         decompressor = zlib.decompressobj()
-        for chunk in iter(lambda: f.read(bufsize), ''):
+        for chunk in iter(lambda: f.read(bufsize), b('')):
             yield decompressor.decompress(chunk)
         yield decompressor.flush()
 
     def split_lines(iter):
-        buf = ''
+        buf = b('')
         for chunk in iter:
             buf += chunk
-            lineend = buf.find('\n')
+            lineend = buf.find(b('\n'))
             while lineend != -1:
                 yield buf[:lineend].decode('utf-8')
                 buf = buf[lineend+1:]
-                lineend = buf.find('\n')
+                lineend = buf.find(b('\n'))
         assert not buf
 
     for line in split_lines(read_chunks()):
@@ -109,13 +117,13 @@ def fetch_inventory(app, uri, inv):
         if inv.find('://') != -1:
             f = urllib2.urlopen(inv)
         else:
-            f = open(path.join(app.srcdir, inv))
+            f = open(path.join(app.srcdir, inv), 'rb')
     except Exception, err:
         app.warn('intersphinx inventory %r not fetchable due to '
                  '%s: %s' % (inv, err.__class__, err))
         return
     try:
-        line = f.readline().rstrip()
+        line = f.readline().rstrip().decode('utf-8')
         try:
             if line == '# Sphinx inventory version 1':
                 invdata = read_inventory_v1(f, uri, join)
@@ -205,9 +213,20 @@ def missing_reference(app, env, node, contnode):
             proj, version, uri, dispname = inventory[objtype][target]
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                                       reftitle='(in %s v%s)' % (proj, version))
-            if dispname == '-':
-                dispname = target
-            newnode.append(contnode.__class__(dispname, dispname))
+            if node.get('refexplicit'):
+                # use whatever title was given
+                newnode.append(contnode)
+            elif dispname == '-':
+                # use whatever title was given, but strip prefix
+                title = contnode.astext()
+                if in_set and title.startswith(in_set+':'):
+                    newnode.append(contnode.__class__(title[len(in_set)+1:],
+                                                      title[len(in_set)+1:]))
+                else:
+                    newnode.append(contnode)
+            else:
+                # else use the given display name (used for :ref:)
+                newnode.append(contnode.__class__(dispname, dispname))
             return newnode
     # at least get rid of the ':' in the target if no explicit title given
     if in_set is not None and not node.get('refexplicit', True):

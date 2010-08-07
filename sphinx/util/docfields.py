@@ -142,9 +142,12 @@ class TypedField(GroupedField):
             par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
             if fieldarg in types:
                 par += nodes.Text(' (')
-                fieldtype = types[fieldarg]
+                # NOTE: using .pop() here to prevent a single type node to be
+                # inserted twice into the doctree, which leads to
+                # inconsistencies later when references are resolved
+                fieldtype = types.pop(fieldarg)
                 if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
-                    typename = u''.join(n.astext() for n in types[fieldarg])
+                    typename = u''.join(n.astext() for n in fieldtype)
                     par += self.make_xref(self.typerolename, domain, typename)
                 else:
                     par += fieldtype

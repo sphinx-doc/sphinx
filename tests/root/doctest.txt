@@ -30,7 +30,7 @@ Special directives
 
   .. testcode::
 
-     print 1+1
+     print(1+1)
 
   .. testoutput::
 
@@ -50,30 +50,30 @@ Special directives
 
   .. testsetup:: *
 
-     from math import floor
+     from math import factorial
 
   .. doctest::
 
-     >>> floor(1.2)
-     1.0
+     >>> factorial(1)
+     1
 
   .. testcode::
 
-     print floor(1.2)
+     print(factorial(1))
 
   .. testoutput::
 
-     1.0
+     1
 
-  >>> floor(1.2)
-  1.0
+  >>> factorial(1)
+  1
 
 * options for testcode/testoutput blocks
 
   .. testcode::
      :hide:
 
-     print 'Output         text.'
+     print('Output         text.')
 
   .. testoutput::
      :hide:
@@ -85,36 +85,36 @@ Special directives
 
   .. testsetup:: group1
 
-     from math import ceil
+     from math import trunc
 
-  ``ceil`` is now known in "group1", but not in others.
+  ``trunc`` is now known in "group1", but not in others.
 
   .. doctest:: group1
 
-     >>> ceil(0.8)
-     1.0
+     >>> trunc(1.1)
+     1
 
   .. doctest:: group2
 
-     >>> ceil(0.8)
+     >>> trunc(1.1)
      Traceback (most recent call last):
        ...
-     NameError: name 'ceil' is not defined
+     NameError: name 'trunc' is not defined
 
   Interleaving testcode/testoutput:
 
   .. testcode:: group1
 
-     print ceil(0.8)
+     print(factorial(3))
 
   .. testcode:: group2
 
-     print floor(0.8)
+     print(factorial(4))
 
   .. testoutput:: group1
 
-     1.0
+     6
 
   .. testoutput:: group2
 
-     0.0
+     24

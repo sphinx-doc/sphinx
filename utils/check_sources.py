@@ -12,9 +12,15 @@
 """
 
 import sys, os, re
-import getopt
 import cStringIO
+from optparse import OptionParser
 from os.path import join, splitext, abspath
+
+if sys.version_info >= (3, 0):
+    def b(s):
+        return s.encode('utf-8')
+else:
+    b = str
 
 
 checkers = {}
@@ -30,26 +36,26 @@ def checker(*suffixes, **kwds):
 
 
 name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
-                          r'by %s(, %s)*[,.]$' %
-                          (name_mail_re, name_mail_re))
-license_re = re.compile(r"    :license: (.*?).\n")
-copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
-                            (name_mail_re, name_mail_re))
-coding_re    = re.compile(r'coding[:=]\s*([-\w.]+)')
-not_ix_re    = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
-is_const_re  = re.compile(r'if.*?==\s+(None|False|True)\b')
+copyright_re = re.compile(b(r'^    :copyright: Copyright 200\d(-20\d\d)? '
+                            r'by %s(, %s)*[,.]$' %
+                            (name_mail_re, name_mail_re)))
+license_re = re.compile(b(r"    :license: (.*?).\n"))
+copyright_2_re = re.compile(b(r'^                %s(, %s)*[,.]$' %
+                             (name_mail_re, name_mail_re)))
+coding_re    = re.compile(b(r'coding[:=]\s*([-\w.]+)'))
+not_ix_re    = re.compile(b(r'\bnot\s+\S+?\s+i[sn]\s\S+'))
+is_const_re  = re.compile(b(r'if.*?==\s+(None|False|True)\b'))
 
-misspellings = ["developement", "adress", "verificate",  # ALLOW-MISSPELLING
-                "informations"]                          # ALLOW-MISSPELLING
+misspellings = [b("developement"), b("adress"), # ALLOW-MISSPELLING
+                b("verificate"), b("informations")] # ALLOW-MISSPELLING
 
-
-@checker('.py')
-def check_syntax(fn, lines):
-    try:
-        compile(''.join(lines), fn, "exec")
-    except SyntaxError, err:
-        yield 0, "not compilable: %s" % err
+if sys.version_info < (3, 0):
+    @checker('.py')
+    def check_syntax(fn, lines):
+        try:
+            compile(b('').join(lines), fn, "exec")
+        except SyntaxError, err:
+            yield 0, "not compilable: %s" % err
 
 
 @checker('.py')
@@ -61,8 +67,8 @@ def check_style_and_encoding(fn, lines):
         if lno < 2:
             co = coding_re.search(line)
             if co:
-                encoding = co.group(1)
-        if line.strip().startswith('#'):
+                encoding = co.group(1).decode('ascii')
+        if line.strip().startswith(b('#')):
             continue
         #m = not_ix_re.search(line)
         #if m:
@@ -82,7 +88,7 @@ def check_style_and_encoding(fn, lines):
 def check_fileheader(fn, lines):
     # line number correction
     c = 1
-    if lines[0:1] == ['#!/usr/bin/env python\n']:
+    if lines[0:1] == [b('#!/usr/bin/env python\n')]:
         lines = lines[1:]
         c = 2
 
@@ -91,38 +97,38 @@ def check_fileheader(fn, lines):
     for lno, l in enumerate(lines):
         llist.append(l)
         if lno == 0:
-            if l == '# -*- coding: rot13 -*-\n':
+            if l == b('# -*- coding: rot13 -*-\n'):
                 # special-case pony package
                 return
-            elif l != '# -*- coding: utf-8 -*-\n':
+            elif l != b('# -*- coding: utf-8 -*-\n'):
                 yield 1, "missing coding declaration"
         elif lno == 1:
-            if l != '"""\n' and l != 'r"""\n':
+            if l != b('"""\n') and l != b('r"""\n'):
                 yield 2, 'missing docstring begin (""")'
             else:
                 docopen = True
         elif docopen:
-            if l == '"""\n':
+            if l == b('"""\n'):
                 # end of docstring
                 if lno <= 4:
                     yield lno+c, "missing module name in docstring"
                 break
 
-            if l != "\n" and l[:4] != '    ' and docopen:
+            if l != b("\n") and l[:4] != b('    ') and docopen:
                 yield lno+c, "missing correct docstring indentation"
 
             if lno == 2:
                 # if not in package, don't check the module name
                 modname = fn[:-3].replace('/', '.').replace('.__init__', '')
                 while modname:
-                    if l.lower()[4:-1] == modname:
+                    if l.lower()[4:-1] == b(modname):
                         break
                     modname = '.'.join(modname.split('.')[1:])
                 else:
                     yield 3, "wrong module name in docstring heading"
                 modnamelen = len(l.strip())
             elif lno == 3:
-                if l.strip() != modnamelen * "~":
+                if l.strip() != modnamelen * b("~"):
                     yield 4, "wrong module name underline, should be ~~~...~"
 
     else:
@@ -145,16 +151,16 @@ def check_fileheader(fn, lines):
 @checker('.py', '.html', '.rst')
 def check_whitespace_and_spelling(fn, lines):
     for lno, line in enumerate(lines):
-        if "\t" in line:
+        if b("\t") in line:
             yield lno+1, "OMG TABS!!!1 "
-        if line[:-1].rstrip(' \t') != line[:-1]:
+        if line[:-1].rstrip(b(' \t')) != line[:-1]:
             yield lno+1, "trailing whitespace"
         for word in misspellings:
-            if word in line and 'ALLOW-MISSPELLING' not in line:
+            if word in line and b('ALLOW-MISSPELLING') not in line:
                 yield lno+1, '"%s" used' % word
 
 
-bad_tags = ('<u>', '<s>', '<strike>', '<center>', '<font')
+bad_tags = map(b, ['<u>', '<s>', '<strike>', '<center>', '<font'])
 
 @checker('.html')
 def check_xhtml(fn, lines):
@@ -165,34 +171,32 @@ def check_xhtml(fn, lines):
 
 
 def main(argv):
-    try:
-        gopts, args = getopt.getopt(argv[1:], "vi:")
-    except getopt.GetoptError:
-        print "Usage: %s [-v] [-i ignorepath]* [path]" % argv[0]
-        return 2
-    opts = {}
-    for opt, val in gopts:
-        if opt == '-i':
-            val = abspath(val)
-        opts.setdefault(opt, []).append(val)
+    parser = OptionParser(usage='Usage: %prog [-v] [-i ignorepath]* [path]')
+    parser.add_option('-v', '--verbose', dest='verbose', default=False,
+                      action='store_true')
+    parser.add_option('-i', '--ignore-path', dest='ignored_paths',
+                      default=[], action='append')
+    options, args = parser.parse_args(argv[1:])
 
     if len(args) == 0:
         path = '.'
     elif len(args) == 1:
         path = args[0]
     else:
-        print "Usage: %s [-v] [-i ignorepath]* [path]" % argv[0]
-        return 2
+        print args
+        parser.error('No more then one path supported')
 
-    verbose = '-v' in opts
+    verbose = options.verbose
+    ignored_paths = set(abspath(p) for p in options.ignored_paths)
 
     num = 0
     out = cStringIO.StringIO()
 
     for root, dirs, files in os.walk(path):
-        if '.svn' in dirs:
-            dirs.remove('.svn')
-        if '-i' in opts and abspath(root) in opts['-i']:
+        for vcs_dir in ['.svn', '.hg', '.git']:
+            if vcs_dir in dirs:
+                dirs.remove(vcs_dir)
+        if abspath(root) in ignored_paths:
             del dirs[:]
             continue
         in_check_pkg = root.startswith('./sphinx')
@@ -201,7 +205,7 @@ def main(argv):
             fn = join(root, fn)
             if fn[:2] == './': fn = fn[2:]
 
-            if '-i' in opts and abspath(fn) in opts['-i']:
+            if abspath(fn) in ignored_paths:
                 continue
 
             ext = splitext(fn)[1]
@@ -213,8 +217,11 @@ def main(argv):
                 print "Checking %s..." % fn
 
             try:
-                f = open(fn, 'r')
-                lines = list(f)
+                f = open(fn, 'rb')
+                try:
+                    lines = list(f)
+                finally:
+                    f.close()
             except (IOError, OSError), err:
                 print "%s: cannot open: %s" % (fn, err)
                 num += 1

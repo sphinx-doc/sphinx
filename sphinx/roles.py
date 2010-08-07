@@ -105,9 +105,9 @@ class XRefRole(object):
             classes = ['xref', domain, '%s-%s' % (domain, role)]
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
-            text = utils.unescape(text)
+            text = utils.unescape(text)[1:]
             if self.fix_parens:
-                text, tgt = self._fix_parens(env, False, text[1:], "")
+                text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
             return self.result_nodes(inliner.document, env, innernode,
                                      is_ref=False)
@@ -173,6 +173,10 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals!PEP %s') % text,
              targetid, 'PEP %s' % text)]
+        anchor = ''
+        anchorindex = text.find('#')
+        if anchorindex > 0:
+            text, anchor = text[:anchorindex], text[anchorindex:]
         try:
             pepnum = int(text)
         except ValueError:
@@ -182,12 +186,17 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
         sn = nodes.strong('PEP '+text, 'PEP '+text)
-        rn = nodes.reference('', '', internal=False, refuri=ref, classes=[typ])
+        rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
+                             classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
         indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
                                  targetid, 'RFC %s' % text)]
+        anchor = ''
+        anchorindex = text.find('#')
+        if anchorindex > 0:
+            text, anchor = text[:anchorindex], text[anchorindex:]
         try:
             rfcnum = int(text)
         except ValueError:
@@ -197,7 +206,8 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
         sn = nodes.strong('RFC '+text, 'RFC '+text)
-        rn = nodes.reference('', '', internal=False, refuri=ref, classes=[typ])
+        rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
+                             classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
 

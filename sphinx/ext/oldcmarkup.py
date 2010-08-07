@@ -31,6 +31,7 @@ class OldCDirective(Directive):
     def run(self):
         env = self.state.document.settings.env
         if not env.app._oldcmarkup_warned:
+            print 'XXXYYY'
             env.warn(env.docname, WARNING_MSG, self.lineno)
             env.app._oldcmarkup_warned = True
         newname = 'c:' + self.name[1:]
@@ -42,6 +43,8 @@ class OldCDirective(Directive):
 
 def old_crole(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     env = inliner.document.settings.env
+    if not typ:
+        typ = env.config.default_role
     if not env.app._oldcmarkup_warned:
         env.warn(env.docname, WARNING_MSG)
         env.app._oldcmarkup_warned = True

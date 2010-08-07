@@ -36,8 +36,13 @@ def mock_raw_input(answers, needanswer=False):
         return ''
     return raw_input
 
+try:
+    real_raw_input = raw_input
+except NameError:
+    real_raw_input = input
+
 def teardown_module():
-    qs.raw_input = __builtin__.raw_input
+    qs.term_input = real_raw_input
     qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
@@ -51,7 +56,7 @@ def test_do_prompt():
         'Q5': 'no',
         'Q6': 'foo',
     }
-    qs.raw_input = mock_raw_input(answers)
+    qs.term_input = mock_raw_input(answers)
     try:
         qs.do_prompt(d, 'k1', 'Q1')
     except AssertionError:
@@ -79,13 +84,18 @@ def test_quickstart_defaults(tempdir):
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
-    qs.raw_input = mock_raw_input(answers)
+    qs.term_input = mock_raw_input(answers)
     qs.inner_main([])
 
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    execfile(conffile, ns)
+    f = open(conffile, 'U')
+    try:
+        code = compile(f.read(), conffile, 'exec')
+    finally:
+        f.close()
+    exec code in ns
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['source_suffix'] == '.rst'
@@ -112,8 +122,8 @@ def test_quickstart_all_answers(tempdir):
         'Root path': tempdir,
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
-        'Project name': 'STASI\xe2\x84\xa2',
-        'Author name': 'Wolfgang Sch\xc3\xa4uble & G\'Beckstein',
+        'Project name': u'STASI™'.encode('utf-8'),
+        'Author name': u'Wolfgang Schäuble & G\'Beckstein'.encode('utf-8'),
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Source file suffix': '.txt',
@@ -131,14 +141,19 @@ def test_quickstart_all_answers(tempdir):
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',
     }
-    qs.raw_input = mock_raw_input(answers, needanswer=True)
+    qs.term_input = mock_raw_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
     qs.inner_main([])
 
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    execfile(conffile, ns)
+    f = open(conffile, 'U')
+    try:
+        code = compile(f.read(), conffile, 'exec')
+    finally:
+        f.close()
+    exec code in ns
     assert ns['extensions'] == ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
