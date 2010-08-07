@@ -11,6 +11,7 @@
 
 import cPickle as pickle
 from os import path
+from cgi import escape
 import posixpath
 import shutil
 from docutils.io import StringOutput
@@ -81,7 +82,8 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
         # Create a dict that will be pickled and used by webapps.
         doc_ctx = {'body': ctx.get('body', ''),
-                   'title': ctx.get('title', '')}
+                   'title': ctx.get('title', ''),
+                   'DOCUMENTATION_OPTIONS': self._make_doc_options(ctx)}
         # Partially render the html template to proved a more useful ctx.
         template = self.templates.environment.get_template(templatename)
         template_module = template.make_module(ctx)
@@ -118,3 +120,17 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
+
+    def _make_doc_options(self, ctx):
+        t = """
+var DOCUMENTATION_OPTIONS = {
+  URL_ROOT: '%s',
+  VERSION: '%s',
+  COLLAPSE_INDEX: false,
+  FILE_SUFFIX: '',
+  HAS_SOURCE: '%s'
+};""" 
+        return t % (ctx.get('url_root', ''), escape(ctx['release']),
+                    str(ctx['has_source']).lower())
+
+
