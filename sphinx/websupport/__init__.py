@@ -35,12 +35,14 @@ class WebSupport(object):
     """
     def __init__(self, srcdir='', outdir='', datadir='', search=None,
                  storage=None, status=sys.stdout, warning=sys.stderr,
-                 moderation_callback=None, staticdir='static'):
+                 moderation_callback=None, staticdir='static',
+                 docroot=''):
         self.srcdir = srcdir
         self.outdir = outdir or datadir
         self.staticdir = staticdir.strip('/')
         self.status = status
         self.warning = warning
+        self.docroot = docroot.strip('/')
         self.moderation_callback = moderation_callback
 
         self._init_templating()
@@ -106,7 +108,7 @@ class WebSupport(object):
         app.build()
         self.storage.post_build()
 
-    def get_document(self, docname):
+    def get_document(self, docname, username='', moderator=False):
         """Load and return a document from a pickle. The document will
         be a dict object which can be used to render a template::
 
@@ -137,7 +139,31 @@ class WebSupport(object):
                 'The document "%s" could not be found' % docname)
 
         document = pickle.load(f)
+        document['COMMENT_OPTIONS'] = self._make_comment_options(username,
+                                                                 moderator)
         return document
+
+    def _make_comment_options(self, username, moderator):
+        parts = ['var COMMENT_OPTIONS = {']
+        if self.docroot is not '':
+            parts.append('addCommentURL: "/%s/%s",' % (self.docroot, 
+                                                       'add_comment'))
+            parts.append('getCommentsURL: "/%s/%s",' % (self.docroot, 
+                                                        'get_comments'))
+            parts.append('processVoteURL: "/%s/%s",' % (self.docroot, 
+                                                        'process_vote'))
+            parts.append('acceptCommentURL: "/%s/%s",' % (self.docroot, 
+                                                          'accept_comment'))
+            parts.append('rejectCommentURL: "/%s/%s",' % (self.docroot, 
+                                                          'reject_comment'))
+            parts.append('deleteCommentURL: "/%s/%s",' % (self.docroot, 
+                                                          'delete_comment'))
+        if username is not '':
+            parts.append('voting: true,')
+            parts.append('username: "%s",' % username)
+        parts.append('moderator: %s' % str(moderator).lower())
+        parts.append('};')
+        return '\n'.join(parts)            
 
     def get_search_results(self, q):
         """Perform a search for the query `q`, and create a set
