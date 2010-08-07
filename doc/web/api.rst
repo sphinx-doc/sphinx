@@ -22,7 +22,7 @@ Methods
 
 .. automethod:: sphinx.websupport.WebSupport.get_document
 
-.. automethod:: sphinx.websupport.WebSupport.get_comments
+.. automethod:: sphinx.websupport.WebSupport.get_data
 
 .. automethod:: sphinx.websupport.WebSupport.add_comment
 

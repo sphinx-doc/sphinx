@@ -24,7 +24,15 @@ class and call it's :meth:`~sphinx.websupport.WebSupport.build` method::
 This will read reStructuredText sources from `srcdir` and place the
 necessary data in `outdir`. This directory contains all the data needed
 to display documents, search through documents, and add comments to
-documents.
+documents. It will also contain a subdirectory named "static", which
+contains static files. These files will be linked to by Sphinx documents,
+and should be served from "/static".
+
+.. note::
+
+    If you wish to serve static files from a path other than "/static", you
+    can do so by providing the *staticdir* keyword argument when creating
+    the :class:`~sphinx.websupport.api.WebSupport` object.
 
 Integrating Sphinx Documents Into Your Webapp
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,6 +59,8 @@ This will return a dictionary containing the following items:
 * **sidebar**: The sidebar of the document as HTML  
 * **relbar**: A div containing links to related documents
 * **title**: The title of the document
+* **DOCUMENTATION_OPTIONS**: Javascript containing documentation options
+* **COMMENT_OPTIONS**: Javascript containing comment options
 
 This dict can then be used as context for templates. The goal is to be
 easy to integrate with your existing templating system. An example using 
@@ -62,6 +72,15 @@ easy to integrate with your existing templating system. An example using
 
     {%- block title %}
       {{ document.title }}
+    {%- endblock %}
+
+    {%- block js %}
+      <script type="text/javascript">
+        {{ document.DOCUMENTATION_OPTIONS|safe }}
+	{{ document.COMMENT_OPTIONS|safe }}
+      </script>
+      {{ super() }}
+      <script type="text/javascript" src="/static/websupport.js"></script>
     {%- endblock %}
 
     {%- block relbar %}
@@ -76,18 +95,40 @@ easy to integrate with your existing templating system. An example using
       {{ document.sidebar|safe }}
     {%- endblock %}
 
-Most likely you'll want to create one function that can handle all of
-document requests. An example `Flask <http://flask.pocoo.org/>`_ function
-that performs this is::
+Authentication
+--------------
+
+To use certain features such as voting it must be possible to authenticate
+users. The details of the authentication are left to the your application.
+Once a user has been authenticated you can pass the user's details to certain
+:class:`~sphinx.websupport.WebSupport` methods using the *username* and
+*moderator* keyword arguments. The web support package will store the
+username with comments and votes. The only caveat is that if you allow users
+to change their username, you must update the websupport package's data::
+
+   support.update_username(old_username, new_username)
+
+*username* should be a unique string which identifies a user, and *moderator*
+should be a boolean representing whether the user has moderation
+privilieges. The default value for *moderator* is *False*.
+
+An example `Flask <http://flask.pocoo.org/>`_ function that checks whether
+a user is logged in, and the retrieves a document is::
 
     @app.route('/<path:docname>')
     def doc(docname):
-        document = support.get_document(docname)
+        if g.user:
+	    document = support.get_document(docname, g.user.name,
+	                                    g.user.moderator)
+	else:
+	    document = support.get_document(docname)
         return render_template('doc.html', document=document)
 
-This captures the request path, and passes it directly to 
-:meth:`~sphinx.websupport.WebSupport.get_document`, which then retrieves
-the correct document.
+The first thing to notice is that the *docname* is just the request path.
+If the user is authenticated then the username and moderation status are
+passed along with the docname to 
+:meth:`~sphinx.websupport.WebSupport.get_document`. The web support package
+will then add this data to the COMMENT_OPTIONS that are used in the template.
 
 .. note::
 
@@ -122,118 +163,6 @@ dict in the same format that
 Comments
 ~~~~~~~~
 
-The web support package provides a way to attach comments to some nodes
-in your document. It marks these nodes by adding a class and id to these
-nodes. A client side script can then locate these nodes, and manipulate
-them to allow commenting. A `jQuery <http://jquery.com>`_ script is also 
-being developed that will be included when it's complete. For now you can 
-find the script here: `websupport.js <http://bit.ly/cyaRaF>`_. This script 
-will use AJAX for all communications with the server. You can create your 
-own script for the front end if this doesn't meet your needs. More 
-information on that can be found :ref:`here <websupportfrontend>`.
-
-Before loading this script in your page, you need to create a COMMENT_OPTIONS
-object describing how the script should function. In the simplest case you
-will just need tell the script whether the current user is allowed to vote.
-Once this is done you can import the script as you would any other:
-
-.. sourcecode:: guess
-
-    <script type="text/javascript">
-      var COMMENT_OPTIONS =  {
-        {%- if g.user %}
-	  voting: true,
-	{%- endif %}
-      }
-    </script>
-    <script type="text/javascript" src="/static/websupport.js></script>
-
-You will then need to define some templates that the script uses to 
-display comments. The first template defines the layout for the popup 
-div used to display comments:
-
-.. sourcecode:: guess
-
-   <script type="text/html" id="popup_template">
-     <div class="popup_comment">
-       <a id="comment_close" href="#">x</a>
-       <h1>Comments</h1>
-       <form method="post" id="comment_form" action="/docs/add_comment">
- 	 <textarea name="comment"></textarea>
-	 <input type="submit" value="add comment" id="comment_button" />
-	 <input type="hidden" name="parent" />
-       <p class="sort_options">
-	 Sort by: 
-	 <a href="#" class="sort_option" id="rating">top</a>
-	 <a href="#" class="sort_option" id="ascage">newest</a>
-	 <a href="#" class="sort_option" id="age">oldest</a>
-       </p>
-       </form>
-       <h3 id="comment_notification">loading comments... <img src="/static/ajax-loader.gif" alt="" /></h3>
-       <ul id="comment_ul"></ul>
-     </div>
-     <div id="focuser"></div>
-   </script> 
-
-The next template is an `li` that contains the form used to 
-reply to a comment:
-
-.. sourcecode:: guess
-
-   <script type="text/html" id="reply_template">
-     <li>
-       <div class="reply_div" id="rd<%id%>">
-	 <form id="rf<%id%>">
-	   <textarea name="comment"></textarea>
-           <input type="submit" value="add reply" />
-           <input type="hidden" name="parent" value="c<%id%>" />
-         </form>
-       </div>
-     </li>
-   </script>
-
-The final template contains HTML that will be used to display comments
-in the comment tree:
-
-.. sourcecode:: guess
-
-   <script type="text/html" id="comment_template">
-     <div  id="cd<%id%>" class="spxcdiv">
-       <div class="vote">
-	 <div class="arrow">
-	   <a href="#" id="uv<%id%>" class="vote">
-	     <img src="<%upArrow%>" />
-	   </a>
-	   <a href="#" id="uu<%id%>" class="un vote">
-	     <img src="<%upArrowPressed%>" />
-	   </a>
-	 </div>
-	 <div class="arrow">
-	   <a href="#" id="dv<%id%>" class="vote">
-	     <img src="<%downArrow%>" id="da<%id%>" />
-	   </a>
-	   <a href="#" id="du<%id%>" class="un vote">
-	     <img src="<%downArrowPressed%>" />
-	   </a>
-	 </div>
-       </div>
-       <div class="comment_content">
-	 <p class="tagline comment">
-	   <span class="user_id"><%username%></span>
-	   <span class="rating"><%pretty_rating%></span>
-	   <span class="delta"><%time.delta%></span>
-	 </p>
-	 <p class="comment_text comment"><%text%></p>
-	 <p class="comment_opts comment">
-	   <a href="#" class="reply" id="rl<%id%>">reply</a>
-	   <a href="#" class="close_reply" id="cr<%id%>">hide</a>
-	 </p>
-	 <ul class="children" id="cl<%id%>"></ul>
-       </div>
-       <div class="clearleft"></div>
-     </div>
-   </script>
-
 Now that this is done it's time to define the functions that handle
 the AJAX calls from the script. You will need three functions. The first
 function is used to add a new comment, and will call the web support method
@@ -248,13 +177,13 @@ function is used to add a new comment, and will call the web support method
         return jsonify(comment=comment)
 
 Then next function handles the retrieval of comments for a specific node, 
-and is aptly named :meth:`~sphinx.websupport.WebSupport.get_comments`::
+and is aptly named :meth:`~sphinx.websupport.WebSupport.get_data`::
 
     @app.route('/docs/get_comments')
     def get_comments():
         user_id = g.user.id if g.user else None
         parent_id = request.args.get('parent', '')
-        comments = support.get_comments(parent_id, user_id)
+        comments = support.get_data(parent_id, user_id)
         return jsonify(comments=comments)
 
 The final function that is needed will call
