@@ -139,12 +139,13 @@ class WebSupport(object):
                 'The document "%s" could not be found' % docname)
 
         document = pickle.load(f)
-        document['COMMENT_OPTIONS'] = self._make_comment_options(username,
-                                                                 moderator)
+        comment_opts = self._make_comment_options(username, moderator)
+        document['js'] = comment_opts + '\n' + document['js']
         return document
 
     def _make_comment_options(self, username, moderator):
-        parts = ['var COMMENT_OPTIONS = {']
+        parts = ['<script type="text/javascript">', 
+                 'var COMMENT_OPTIONS = {']
         if self.docroot is not '':
             parts.append('addCommentURL: "/%s/%s",' % (self.docroot, 
                                                        'add_comment'))
@@ -163,6 +164,7 @@ class WebSupport(object):
             parts.append('username: "%s",' % username)
         parts.append('moderator: %s' % str(moderator).lower())
         parts.append('};')
+        parts.append('</script>')
         return '\n'.join(parts)            
 
     def get_search_results(self, q):
