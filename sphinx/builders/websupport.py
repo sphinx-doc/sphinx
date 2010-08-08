@@ -81,9 +81,11 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
                       ctx, event_arg)
 
         # Create a dict that will be pickled and used by webapps.
+        css = '<link rel="stylesheet" href="%s" type=text/css />' % \
+            pathto('_static/pygmentcs.css', 1)
         doc_ctx = {'body': ctx.get('body', ''),
                    'title': ctx.get('title', ''),
-                   'css': self._make_css(ctx),
+                   'css': css,
                    'js': self._make_js(ctx)}
         # Partially render the html template to proved a more useful ctx.
         template = self.templates.environment.get_template(templatename)
@@ -123,16 +125,6 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
-
-    def _make_css(self, ctx):
-        def make_link(file):
-            path = ctx['pathto'](file, 1)
-            return '<link rel="stylesheet" href="%s" type=text/css />' % path
-
-        links = [make_link('_static/pygments.css')]
-        for file in ctx['css_files']:
-            links.append(make_link(file))
-        return '\n'.join(links)
 
     def _make_js(self, ctx):
         def make_script(file):

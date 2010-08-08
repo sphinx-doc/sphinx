@@ -162,6 +162,15 @@ class WebSupport(object):
                                                           'reject_comment'))
             parts.append('deleteCommentURL: "/%s/%s",' % (self.docroot, 
                                                           'delete_comment'))
+
+        if self.staticdir != 'static':
+            p = lambda file: '%s/_static/%s' % (self.staticdir, file)
+            parts.append('commentImage: "/%s",' % p('comment.png') )
+            parts.append('upArrow: "/%s",' % p('up.png'))
+            parts.append('downArrow: "/%s",' % p('down.png'))
+            parts.append('upArrowPressed: "/%s",' % p('up-pressed.png'))
+            parts.append('downArrowPressed: "/%s",' % p('down-pressed.png'))
+            
         if username is not '':
             parts.append('voting: true,')
             parts.append('username: "%s",' % username)

@@ -615,7 +615,7 @@
     return this.each(function() {
       $(this).append(
 	$('<a href="#" class="sphinx_comment"></a>')
-	  .html(opts.commentHTML)
+	  .html('<img src="' + opts.commentImage + '" alt="comment" />')
 	  .click(function(event) {
 	    event.preventDefault();
 	    show($(this).parent().attr('id'));
@@ -722,11 +722,11 @@
     acceptCommentURL: '/accept_comment',
     rejectCommentURL: '/reject_comment',
     rejectCommentURL: '/delete_comment',
-    commentHTML: '<img src="/static/comment.png" alt="comment" />',
-    upArrow: '/static/up.png',
-    downArrow: '/static/down.png',
-    upArrowPressed: '/static/up-pressed.png',
-    downArrowPressed: '/static/down-pressed.png',
+    commentImage: '/static/_static/comment.png',
+    upArrow: '/static/_static/up.png',
+    downArrow: '/static/_static/down.png',
+    upArrowPressed: '/static/_static/up-pressed.png',
+    downArrowPressed: '/static/_static/down-pressed.png',
     voting: false,
     moderator: false
   }, COMMENT_OPTIONS);
