@@ -107,7 +107,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         # if there is a source file, copy the source file for the
         # "show source" link
         if ctx.get('sourcename'):
-            source_name = path.join(self.outdir, self.app.staticdir,
+            source_name = path.join(self.app.builddir, self.app.staticdir,
                                     '_sources',  os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
@@ -115,9 +115,11 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     def handle_finish(self):
         StandaloneHTMLBuilder.handle_finish(self)
         shutil.move(path.join(self.outdir, '_images'),
-                    path.join(self.outdir, self.app.staticdir, '_images'))
+                    path.join(self.app.builddir, self.app.staticdir,
+                              '_images'))
         shutil.move(path.join(self.outdir, '_static'),
-                    path.join(self.outdir, self.app.staticdir, '_static'))
+                    path.join(self.app.builddir, self.app.staticdir,
+                              '_static'))
 
     def dump_search_index(self):
         self.indexer.finish_indexing()

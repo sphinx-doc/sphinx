@@ -25,6 +25,7 @@ from sphinx.websupport.errors import *
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
         self.staticdir = kwargs.pop('staticdir', None)
+        self.builddir = kwargs.pop('builddir', None)
         self.search = kwargs.pop('search', None)
         self.storage = kwargs.pop('storage', None)
         Sphinx.__init__(self, *args, **kwargs)
@@ -33,16 +34,18 @@ class WebSupport(object):
     """The main API class for the web support package. All interactions
     with the web support package should occur through this class.
     """
-    def __init__(self, srcdir='', outdir='', datadir='', search=None,
+    def __init__(self, srcdir='', builddir='', datadir='', search=None,
                  storage=None, status=sys.stdout, warning=sys.stderr,
                  moderation_callback=None, staticdir='static',
                  docroot=''):
         self.srcdir = srcdir
-        self.outdir = outdir or datadir
+        self.builddir = builddir
+        self.outdir = path.join(builddir, 'data')
+        self.datadir = datadir or self.outdir
         self.staticdir = staticdir.strip('/')
+        self.docroot = docroot.strip('/')
         self.status = status
         self.warning = warning
-        self.docroot = docroot.strip('/')
         self.moderation_callback = moderation_callback
 
         self._init_templating()
@@ -58,7 +61,7 @@ class WebSupport(object):
             from sphinx.websupport.storage.sqlalchemystorage \
                 import SQLAlchemyStorage
             from sqlalchemy import create_engine
-            db_path = path.join(self.outdir, 'db', 'websupport.db')
+            db_path = path.join(self.datadir, 'db', 'websupport.db')
             ensuredir(path.dirname(db_path))
             uri = storage or 'sqlite:///%s' % db_path
             engine = create_engine(uri)
@@ -78,7 +81,7 @@ class WebSupport(object):
             mod, cls = search_adapters[search or 'null']
             mod = 'sphinx.websupport.search.' + mod
             SearchClass = getattr(__import__(mod, None, None, [cls]), cls)
-            search_path = path.join(self.outdir, 'search')
+            search_path = path.join(self.datadir, 'search')
             self.search = SearchClass(search_path)
         self.results_template = \
             self.template_env.get_template('searchresults.html')
@@ -102,7 +105,7 @@ class WebSupport(object):
                             self.outdir, doctreedir, 'websupport',
                             search=self.search, status=self.status, 
                             warning=self.warning, storage=self.storage,
-                            staticdir=self.staticdir)
+                            staticdir=self.staticdir, builddir=self.builddir)
 
         self.storage.pre_build()
         app.build()
@@ -130,7 +133,7 @@ class WebSupport(object):
 
         :param docname: the name of the document to load.
         """
-        infilename = path.join(self.outdir, 'pickles', docname + '.fpickle')
+        infilename = path.join(self.datadir, 'pickles', docname + '.fpickle')
 
         try:
             f = open(infilename, 'rb')
