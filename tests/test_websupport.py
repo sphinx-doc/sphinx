@@ -27,7 +27,7 @@ except ImportError:
     wraps = lambda f: (lambda w: w)
 
 
-default_settings = {'outdir': os.path.join(test_root, 'websupport'),
+default_settings = {'builddir': os.path.join(test_root, 'websupport'),
                     'status': StringIO(),
                     'warning': StringIO()}
 

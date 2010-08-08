@@ -28,7 +28,7 @@ def teardown_module():
 def search_adapter_helper(adapter):
     clear_builddir()
     
-    settings = {'outdir': os.path.join(test_root, 'websupport'),
+    settings = {'builddir': os.path.join(test_root, 'websupport'),
                 'status': StringIO(),
                 'warning': StringIO()}
     settings.update({'srcdir': test_root,
