@@ -20,7 +20,7 @@ class BaseSearch(object):
         is a list of pagenames that will be reindexed. You may want to remove
         these from the search index before indexing begins.
 
-        `param changed` is a list of pagenames that will be re-indexed
+        :param changed: a list of pagenames that will be re-indexed
         """
         pass
 
@@ -37,11 +37,9 @@ class BaseSearch(object):
         won't want to override this unless you need access to the `doctree`. 
         Override :meth:`add_document` instead.
 
-        `pagename` is the name of the page to be indexed
-
-        `title` is the title of the page to be indexed
-
-        `doctree` is the docutils doctree representation of the page
+        :param pagename: the name of the page to be indexed
+        :param title: the title of the page to be indexed
+        :param doctree: is the docutils doctree representation of the page
         """
         self.add_document(pagename, title, doctree.astext())
 
@@ -50,18 +48,16 @@ class BaseSearch(object):
         This method should should do everything necessary to add a single
         document to the search index.
 
-        `pagename` is name of the page being indexed.
-        It is the combination of the source files relative path and filename,
+        `pagename` is name of the page being indexed. It is the combination
+        of the source files relative path and filename,
         minus the extension. For example, if the source file is 
         "ext/builders.rst", the `pagename` would be "ext/builders". This
         will need to be returned with search results when processing a 
         query.
-
-        `title` is the page's title, and will need to be returned with 
-        search results.
-
-        `text` is the full text of the page. You probably want to store this
-        somehow to use while creating the context for search results.
+        
+        :param pagename: the name of the page being indexed
+        :param title: the page's title
+        :param text: the full text of the page
         """
         raise NotImplementedError()
 
@@ -73,7 +69,7 @@ class BaseSearch(object):
         don't want to use the included :meth:`extract_context` method.
         Override :meth:`handle_query` instead.
         
-        `q` is the search query string.
+        :param q: the search query string.
         """
         self.context_re = re.compile('|'.join(q.split()), re.I)
         return self.handle_query(q)
@@ -91,6 +87,8 @@ class BaseSearch(object):
 
         The :meth:`extract_context` method is provided as a simple way
         to create the `context`.
+
+        :param q: the search query
         """
         raise NotImplementedError()
 
@@ -98,9 +96,8 @@ class BaseSearch(object):
         """Extract the context for the search query from the documents
         full `text`.
 
-        `text` is the full text of the document to create the context for.
-
-        `length` is the length of the context snippet to return.
+        :param text: the full text of the document to create the context for
+        :param length: the length of the context snippet to return.
         """
         res = self.context_re.search(text)
         if res is None:

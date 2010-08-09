@@ -27,8 +27,8 @@ class SQLAlchemyStorage(StorageBackend):
     def pre_build(self):
         self.build_session = Session()
 
-    def add_node(self, document, line, source, treeloc):
-        node = Node(document, line, source, treeloc)
+    def add_node(self, document, line, source):
+        node = Node(document, line, source)
         self.build_session.add(node)
         self.build_session.flush()
         return node
@@ -37,7 +37,7 @@ class SQLAlchemyStorage(StorageBackend):
         self.build_session.commit()
         self.build_session.close()
 
-    def add_comment(self, text, displayed, username, rating, time,
+    def add_comment(self, text, displayed, username, time,
                     proposal, node_id, parent_id, moderator):
         session = Session()
         
@@ -55,7 +55,7 @@ class SQLAlchemyStorage(StorageBackend):
         else:
             proposal_diff = None
 
-        comment = Comment(text, displayed, username, rating, 
+        comment = Comment(text, displayed, username, 0, 
                           time or datetime.now(), proposal, proposal_diff)
         session.add(comment)
         session.flush()

@@ -16,16 +16,14 @@ class StorageBackend(object):
         """
         pass
 
-    def add_node(self, document, line, source, treeloc):
+    def add_node(self, document, line, source):
         """Add a node to the StorageBackend.
 
-        `document` is the name of the document the node belongs to.
+        :param document: the name of the document the node belongs to.
         
-        `line` is the line in the source where the node begins.
+        :param line: the line in the source where the node begins.
 
-        `source` is the source files name.
-        
-        `treeloc` is for future use.
+        :param source: the source files name.
         """
         raise NotImplementedError()
     
@@ -35,14 +33,77 @@ class StorageBackend(object):
         """
         pass
 
-    def add_comment(self, text, displayed, username, rating, time,
-                    proposal, node, parent):
-        """Called when a comment is being added."""
+    def add_comment(self, text, displayed, username, time,
+                    proposal, node_id, parent_id, moderator):
+        """Called when a comment is being added.
+        
+        :param text: the text of the comment
+        :param displayed: whether the comment should be displayed
+        :param username: the name of the user adding the comment
+        :param time: a date object with the time the comment was added
+        :param proposal: the text of the proposal the user made
+        :param node_id: the id of the node that the comment is being added to
+        :param parent_id: the id of the comment's parent comment.
+        :param moderator: whether the user adding the comment is a moderator
+        """
         raise NotImplementedError()
 
-    def get_data(self, parent_id, user_id, moderator):
-        """Called to retrieve all comments for a node."""
+    def delete_comment(self, comment_id, username, moderator):
+        """Delete a comment.
+
+        Raises :class:`~sphinx.websupport.errors.UserNotAuthorizedError`
+        if moderator is False and `username` doesn't match the username
+        on the comment.
+
+        :param comment_id: The id of the comment being deleted.
+        :param username: The username of the user requesting the deletion.
+        :param moderator: Whether the user is a moderator.
+        """
         raise NotImplementedError()
 
-    def process_vote(self, comment_id, user_id, value):
+    def get_data(self, node_id, username, moderator):
+        """Called to retrieve all data for a node. This should return a
+        dict with two keys, *source* and *comments* as described by
+        :class:`~sphinx.websupport.WebSupport`'s
+        :meth:`~sphinx.websupport.WebSupport.get_data` method.
+
+        :param node_id: The id of the node to get data for.
+        :param username: The name of the user requesting the data.
+        :param moderator: Whether the requestor is a moderator.
+        """
+        raise NotImplementedError()
+
+    def process_vote(self, comment_id, username, value):
+        """Process a vote that is being cast. `value` will be either -1, 0,
+        or 1.
+
+        :param comment_id: The id of the comment being voted on.
+        :param username: The username of the user casting the vote.
+        :param value: The value of the vote being cast.
+        """
+        raise NotImplementedError()
+
+    def update_username(self, old_username, new_username):
+        """If a user is allowed to change their username this method should
+        be called so that there is not stagnate data in the storage system.
+
+        :param old_username: The username being changed.
+        :param new_username: What the username is being changed to.
+        """
+        raise NotImplementedError()
+
+    def accept_comment(self, comment_id):
+        """Called when a moderator accepts a comment. After the method is
+        called the comment should be displayed to all users.
+
+        :param comment_id: The id of the comment being accepted.
+        """
+        raise NotImplementedError()
+
+    def reject_comment(self, comment_id):
+        """Called when a moderator rejects a comment. The comment should
+        then be deleted.
+
+        :param comment_id: The id of the comment being accepted.
+        """
         raise NotImplementedError()

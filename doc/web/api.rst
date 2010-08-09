@@ -10,10 +10,45 @@ The WebSupport Class
    The main API class for the web support package. All interactions
    with the web support package should occur through this class.
 
-   :param srcdir: the directory containing the reStructuredText files
-   :param outdir: the directory in which to place the built data
-   :param search: the search system to use
-   :param comments: an instance of a CommentBackend
+   The class takes the following keyword arguments:
+
+   srcdir
+       The directory containing reStructuredText source files.
+
+   builddir
+       The directory that build data and static files should be placed in.
+       This should be used when creating a :class:`WebSupport` object that
+       will be used to build data.
+
+   datadir:
+       The directory that the web support data is in. This should be used
+       when creating a :class:`WebSupport` object that will be used to
+       retrieve data.
+
+   search:
+       This may contain either a string (e.g. 'xapian') referencing a
+       built-in search adapter to use, or an instance of a subclass of
+       :class:`~sphinx.websupport.search.BaseSearch`.
+
+   storage:
+       This may contain either a string representing a database uri, or an
+       instance of a subclass of 
+       :class:`~sphinx.websupport.storage.StorageBackend`. If this is not
+       provided a new sqlite database will be created.
+
+   moderation_callback:
+       A callable to be called when a new comment is added that is not
+       displayed. It must accept one argument: a dict representing the 
+       comment that was added.
+
+   staticdir:
+       If static files are served from a location besides "/static", this
+       should be a string with the name of that location
+       (e.g. '/static_files').
+
+   docroot:
+       If the documentation is not served from the base path of a URL, this
+       should be a string specifying that path (e.g. 'docs')
     
 Methods
 ~~~~~~~

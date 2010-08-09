@@ -11,7 +11,7 @@ and pass that as the `search` keyword argument when you create the
 :class:`~sphinx.websupport.WebSupport` object::
 
    support = Websupport(srcdir=srcdir,
-                        outdir=outdir,
+                        builddir=builddir,
 			search=MySearch())
 
 For more information about creating a custom search adapter, please see

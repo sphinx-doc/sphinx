@@ -81,11 +81,10 @@ class Node(Base):
         
         return comments
 
-    def __init__(self, document, line, source, treeloc):
+    def __init__(self, document, line, source):
         self.document = document
         self.line = line
         self.source = source
-        self.treeloc = treeloc
 
 class Comment(Base):
     __tablename__ = db_prefix + 'comments'
