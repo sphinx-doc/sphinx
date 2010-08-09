@@ -18,6 +18,9 @@ from sphinx.websupport.storage.db import Base, Node, Comment, CommentVote,\
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 
 class SQLAlchemyStorage(StorageBackend):
+    """A :class:`~sphinx.websupport.storage.StorageBackend` using 
+    SQLAlchemy.
+    """
     def __init__(self, engine):
         self.engine = engine
         Base.metadata.bind = engine
@@ -40,7 +43,8 @@ class SQLAlchemyStorage(StorageBackend):
     def add_comment(self, text, displayed, username, time,
                     proposal, node_id, parent_id, moderator):
         session = Session()
-        
+        proposal_diff = None
+
         if node_id and proposal:
             node = session.query(Node).filter(Node.id == node_id).one()
             differ = CombinedHtmlDiff()
@@ -51,19 +55,18 @@ class SQLAlchemyStorage(StorageBackend):
             if not parent.displayed:
                 raise CommentNotAllowedError(
                     "Can't add child to a parent that is not displayed")
-            proposal_diff = None
-        else:
-            proposal_diff = None
 
         comment = Comment(text, displayed, username, 0, 
                           time or datetime.now(), proposal, proposal_diff)
         session.add(comment)
         session.flush()
+        # We have to flush the session before setting the path so the
+        # Comment has an id.
         comment.set_path(node_id, parent_id)
         session.commit()
-        comment = comment.serializable()
+        d = comment.serializable()
         session.close()
-        return comment
+        return d
 
     def delete_comment(self, comment_id, username, moderator):
         session = Session()
@@ -72,6 +75,7 @@ class SQLAlchemyStorage(StorageBackend):
         if moderator or comment.username == username:
             comment.username = '[deleted]'
             comment.text = '[deleted]'
+            comment.proposal = ''
             session.commit()
             session.close()
         else:

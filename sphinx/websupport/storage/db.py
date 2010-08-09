@@ -34,6 +34,12 @@ class Node(Base):
     source = Column(Text, nullable=False)
 
     def nested_comments(self, username, moderator):
+        """Create a tree of comments. First get all comments that are
+        descendents of this node, then convert them to a tree form.
+
+        :param username: the name of the user to get comments for.
+        :param moderator: whether the user is moderator.
+        """
         session = Session()
 
         if username:
@@ -45,24 +51,30 @@ class Node(Base):
             cvalias = aliased(CommentVote, sq)
             q = session.query(Comment, cvalias.value).outerjoin(cvalias)
         else:
+            # If a username is not provided, we don't need to join with
+            # CommentVote.
             q = session.query(Comment)
 
         # Filter out all comments not descending from this node.
         q = q.filter(Comment.path.like(str(self.id) + '.%'))
-        # Filter out non-displayed comments if this isn't a moderator.
+
         if not moderator:
             q = q.filter(Comment.displayed == True)
+
         # Retrieve all results. Results must be ordered by Comment.path
         # so that we can easily transform them from a flat list to a tree.
         results = q.order_by(Comment.path).all()
         session.close()
 
-        # We now need to convert the flat list of results to a nested
-        # lists to form the comment tree. Results will by ordered by
-        # the materialized path.
         return self._nest_comments(results, username)
 
     def _nest_comments(self, results, username):
+        """Given the flat list of results, convert the list into a
+        tree.
+
+        :param results: the flat list of comments
+        :param username: the name of the user requesting the comments.
+        """
         comments = []
         list_stack = [comments]
         for r in results:
@@ -87,6 +99,7 @@ class Node(Base):
         self.source = source
 
 class Comment(Base):
+    """An individual Comment being stored."""
     __tablename__ = db_prefix + 'comments'
 
     id = Column(Integer, primary_key=True)
@@ -110,6 +123,9 @@ class Comment(Base):
         self.proposal_diff = proposal_diff
 
     def set_path(self, node_id, parent_id):
+        """Set the materialized path for this comment."""
+        # This exists because the path can't be set until the session has
+        # been flushed and this Comment has an id.
         if node_id:
             self.path = '%s.%s' % (node_id, self.id)
         else:
@@ -120,6 +136,9 @@ class Comment(Base):
             self.path = '%s.%s' %  (parent_path, self.id)
 
     def serializable(self, vote=0):
+        """Creates a serializable representation of the comment. This is
+        converted to JSON, and used on the client side.
+        """
         delta = datetime.now() - self.time
 
         time = {'year': self.time.year,
@@ -149,6 +168,9 @@ class Comment(Base):
                 'children': []}
 
     def pretty_delta(self, delta):
+        """Create a pretty representation of the Comment's age.
+        (e.g. 2 minutes).
+        """
         days = delta.days
         seconds = delta.seconds
         hours = seconds / 3600
@@ -162,6 +184,7 @@ class Comment(Base):
         return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
 
 class CommentVote(Base):
+    """A vote a user has made on a Comment."""
     __tablename__ = db_prefix + 'commentvote'
 
     username = Column(String(64), primary_key=True)
