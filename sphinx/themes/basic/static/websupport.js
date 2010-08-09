@@ -630,7 +630,7 @@
   var replyTemplate = '    <li>\
       <div class="reply_div" id="rd<%id%>">\
 	<form id="rf<%id%>">\
-	  <textarea name="comment"></textarea>\
+	  <textarea name="comment" cols="80"></textarea>\
           <input type="submit" value="add reply" />\
           <input type="hidden" name="parent" value="<%id%>" />\
           <input type="hidden" name="node" value="" />\
