@@ -112,6 +112,9 @@ class Comment(Base):
     proposal_diff = Column(Text)
     path = Column(String(256), index=True)
 
+    node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
+    node = relation(Node, backref="comments")
+
     def __init__(self, text, displayed, username, rating, time, 
                  proposal, proposal_diff):
         self.text = text
@@ -127,12 +130,14 @@ class Comment(Base):
         # This exists because the path can't be set until the session has
         # been flushed and this Comment has an id.
         if node_id:
+            self.node_id = node_id
             self.path = '%s.%s' % (node_id, self.id)
         else:
             session = Session()
             parent_path = session.query(Comment.path).\
                 filter(Comment.id == parent_id).one().path
             session.close()
+            self.node_id = parent_path.split('.')[0]
             self.path = '%s.%s' %  (parent_path, self.id)
 
     def serializable(self, vote=0):

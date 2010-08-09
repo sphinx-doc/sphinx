@@ -160,7 +160,11 @@ class WebSupport(object):
 
         document = pickle.load(f)
         comment_opts = self._make_comment_options(username, moderator)
-        document['js'] = comment_opts + '\n' + document['js']
+        comment_metadata = self.storage.get_metadata(docname, moderator)
+                                                             
+        document['js'] = '\n'.join([comment_opts,
+                                    self._make_metadata(comment_metadata),
+                                    document['js']])
         return document
 
     def get_search_results(self, q):
@@ -389,4 +393,13 @@ class WebSupport(object):
         parts.append('};')
         parts.append('</script>')
         return '\n'.join(parts)            
+
+    def _make_metadata(self, data):
+        node_js = ', '.join(['%s: %s' % (node_id, comment_count) 
+                             for node_id, comment_count in data.iteritems()])
+        js = """
+<script type="text/javascript">
+  var COMMENT_METADATA = {%s};
+</script>""" % node_js
+        return js
 

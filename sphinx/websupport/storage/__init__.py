@@ -61,6 +61,15 @@ class StorageBackend(object):
         """
         raise NotImplementedError()
 
+    def get_metadata(self, docname, moderator):
+        """Get metadata for a document. This is currently just a dict
+        of node_id's with associated comment counts.
+
+        :param docname: the name of the document to get metadata for.
+        :param moderator: whether the requester is a moderator.
+        """
+        raise NotImplementedError()
+
     def get_data(self, node_id, username, moderator):
         """Called to retrieve all data for a node. This should return a
         dict with two keys, *source* and *comments* as described by

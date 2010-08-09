@@ -12,6 +12,7 @@
 from datetime import datetime
 
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql import func
 
 from sphinx.websupport.errors import *
 from sphinx.websupport.storage import StorageBackend
@@ -83,6 +84,19 @@ class SQLAlchemyStorage(StorageBackend):
         else:
             session.close()
             raise UserNotAuthorizedError()
+
+    def get_metadata(self, docname, moderator):
+        session = Session()
+        subquery = session.query(
+            Comment.id, Comment.node_id, 
+            func.count('*').label('comment_count')).group_by(
+            Comment.node_id).subquery()
+        nodes = session.query(Node.id, subquery.c.comment_count).outerjoin(
+            (subquery, Node.id==subquery.c.node_id)).filter(
+            Node.document==docname)
+        session.close()
+        session.commit()
+        return dict([(k, v or 0) for k, v in nodes])
 
     def get_data(self, node_id, username, moderator):
         session = Session()
