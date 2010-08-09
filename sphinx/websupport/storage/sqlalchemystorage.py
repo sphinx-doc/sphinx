@@ -11,6 +11,8 @@
 
 from datetime import datetime
 
+from sqlalchemy.orm import aliased
+
 from sphinx.websupport.errors import *
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.db import Base, Node, Comment, CommentVote,\
@@ -92,12 +94,13 @@ class SQLAlchemyStorage(StorageBackend):
 
     def process_vote(self, comment_id, username, value):
         session = Session()
-        vote = session.query(CommentVote).filter(
-            CommentVote.comment_id == comment_id).filter(
-            CommentVote.username == username).first()
 
-        comment = session.query(Comment).filter(
-            Comment.id == comment_id).first()
+        subquery = session.query(CommentVote).filter(
+            CommentVote.username == username).subquery()
+        vote_alias = aliased(CommentVote, subquery)
+        q = session.query(Comment, vote_alias).outerjoin(vote_alias).filter(
+            Comment.id == comment_id)
+        comment, vote = q.one()
 
         if vote is None:
             vote = CommentVote(comment_id, username, value)
@@ -105,32 +108,39 @@ class SQLAlchemyStorage(StorageBackend):
         else:
             comment.rating += value - vote.value
             vote.value = value
+
         session.add(vote)
         session.commit()
         session.close()
 
     def update_username(self, old_username, new_username):
         session = Session()
+
         session.query(Comment).filter(Comment.username == old_username).\
             update({Comment.username: new_username})
         session.query(CommentVote).\
             filter(CommentVote.username == old_username).\
             update({CommentVote.username: new_username})
+
         session.commit()
         session.close()
 
     def accept_comment(self, comment_id):
         session = Session()
-        comment = session.query(Comment).\
-            filter(Comment.id == comment_id).one()
-        comment.displayed = True
+
+        comment = session.query(Comment).filter(
+            Comment.id == comment_id).update(
+            {Comment.displayed: True})
+
         session.commit()
         session.close()
 
     def reject_comment(self, comment_id):
         session = Session()
+
         comment = session.query(Comment).\
             filter(Comment.id == comment_id).one()
         session.delete(comment)
+
         session.commit()
         session.close()
