@@ -212,18 +212,22 @@
   function addComment(form) {
     // Disable the form that is being submitted.
     form.find('textarea,input').attr('disabled', 'disabled');
+    var node_id = form.find('input[name="node"]').val();
 
     // Send the comment to the server.
     $.ajax({
       type: "POST",
       url: opts.addCommentURL,
       dataType: 'json',
-      data: {node: form.find('input[name="node"]').val(),
+      data: {node: node_id,
              parent: form.find('input[name="parent"]').val(),
 	     text: form.find('textarea[name="comment"]').val(),
 	     proposal: form.find('textarea[name="proposal"]').val()},
       success: function(data, textStatus, error) {
 	// Reset the form.
+	if (node_id) {
+	  hideProposeChange(node_id);
+	}
 	form.find('textarea')
 	  .val('')
 	    .add(form.find('input'))
@@ -378,7 +382,7 @@
     $('a.hide_propose_change').hide();
     $('a.show_propose_change').show();
     var textarea = $('textarea[name="proposal"]');
-    textarea.val('');
+    textarea.val('').removeAttr('disabled');
     textarea.slideUp('fast');
   };
 
