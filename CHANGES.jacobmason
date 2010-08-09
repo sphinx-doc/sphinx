@@ -13,3 +13,15 @@ one for Xapian and one for Whoosh
 
 June 28 - July 12: Implement voting system on the backend, and created a
 jQuery script to handle voting on the frontend.
+
+July 13 - July 19: Added documentation for the web support package.
+
+July 20 - July 27: Added a system to allow user's to propose changes to
+documentation along with comments.
+
+July 28 - August 3: Added tests for the web support package. Refactored
+sqlalchemy storage to be more efficient.
+
+August 4 - August 7: Added comment moderation system. Added more 
+documentation. General code cleanup.
+
