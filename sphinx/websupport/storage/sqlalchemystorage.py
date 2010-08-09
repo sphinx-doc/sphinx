@@ -31,7 +31,7 @@ class SQLAlchemyStorage(StorageBackend):
         node = Node(document, line, source, treeloc)
         self.build_session.add(node)
         self.build_session.flush()
-        return node.id
+        return node
 
     def post_build(self):
         self.build_session.commit()

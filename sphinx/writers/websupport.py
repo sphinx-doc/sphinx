@@ -15,7 +15,7 @@ class WebSupportTranslator(HTMLTranslator):
     """
     Our custom HTML translator.
     """
-    commentable_nodes = ['bullet_list', 'paragraph', 'desc']
+    commentable_nodes = ['paragraph']
 
     def __init__(self, builder, *args, **kwargs):
         HTMLTranslator.__init__(self, builder, *args, **kwargs)
@@ -23,8 +23,7 @@ class WebSupportTranslator(HTMLTranslator):
         self.init_support()
 
     def init_support(self):
-        self.in_commentable = False
-        self.current_id = 0
+        self.cur_node = None
 
     def dispatch_visit(self, node):
         if node.__class__.__name__ in self.commentable_nodes:
@@ -39,30 +38,25 @@ class WebSupportTranslator(HTMLTranslator):
     def handle_visit_commentable(self, node):
         # If this node is nested inside another commentable node this
         # node will not be commented.
-        if not self.in_commentable:
-            self.in_commentable = True
-            node_id = self.add_db_node(node)
+        if self.cur_node is None:
+            self.cur_node = self.add_db_node(node)
             # We will place the node in the HTML id attribute. If the node
             # already has an id (for indexing purposes) put an empty
             # span with the existing id directly before this node's HTML.
             if node.attributes['ids']:
                 self.body.append('<span id="%s"></span>'
                                  % node.attributes['ids'][0])
-            node.attributes['ids'] = ['s%s' % node_id]
+            node.attributes['ids'] = ['s%s' % self.cur_node.id]
             node.attributes['classes'].append(self.comment_class)
 
     def handle_depart_commentable(self, node):
-        assert(self.in_commentable)
         if self.comment_class in node.attributes['classes']:
-            self.in_commentable = False
+            self.cur_node = None
 
     def add_db_node(self, node):
         storage = self.builder.app.storage
         db_node_id = storage.add_node(document=self.builder.cur_docname,
                                       line=node.line,
-                                      source=node.rawsource,
+                                      source=node.rawsource or node.astext(),
                                       treeloc='???')
-        if db_node_id == 30711:
-            import pdb
-            pdb.set_trace()
         return db_node_id
