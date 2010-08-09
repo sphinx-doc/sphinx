@@ -31,7 +31,6 @@ class WhooshSearch(BaseSearch):
             self.index = index.open_dir(db_path)
         else:
             self.index = index.create_in(db_path, schema=self.schema)
-        self.searcher = self.index.searcher()
 
     def init_indexing(self, changed=[]):
         for changed_path in changed:
@@ -40,8 +39,6 @@ class WhooshSearch(BaseSearch):
 
     def finish_indexing(self):
         self.index_writer.commit()
-        # Create a new searcher so changes can be seen immediately
-        self.searcher = self.index.searcher()
 
     def add_document(self, pagename, title, text):
         self.index_writer.add_document(path=unicode(pagename),
@@ -49,7 +46,8 @@ class WhooshSearch(BaseSearch):
                                        text=text)
 
     def handle_query(self, q):
-        whoosh_results = self.searcher.find('text', q)
+        searcher = self.index.searcher()
+        whoosh_results = searcher.find('text', q)
         results = []
         for result in whoosh_results:
             context = self.extract_context(result['text'])
