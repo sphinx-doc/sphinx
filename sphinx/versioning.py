@@ -109,8 +109,7 @@ def make_diff(old, new):
 
     changed
 
-        ``True`` if the `new` string differs from the `old` one with at least
-        one character.
+        ``True`` if the `new` string is a changed version of the `old` one.
 
     replaced
 
