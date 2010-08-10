@@ -1,5 +1,5 @@
-Release 1.0.2 (in development)
-==============================
+Release 1.0.2 (Aug 05, 2010)
+============================
 
 * Allow breaking long signatures, continuing with backlash-escaped
   newlines.
