@@ -617,9 +617,14 @@
    */
   $.fn.comment = function() {
     return this.each(function() {
+      var id = $(this).attr('id').substring(1);
+      var count = COMMENT_METADATA[id]
+      var title = count + ' comment' + (count == 1 ? '' : 's');
+      var image = count > 0 ? opts.commentBrightImage : opts.commentImage;
       $(this).append(
 	$('<a href="#" class="sphinx_comment"></a>')
-	  .html('<img src="' + opts.commentImage + '" alt="comment" />')
+	  .html('<img src="' + image + '" alt="comment" />')
+	  .attr('title', title)
 	  .click(function(event) {
 	    event.preventDefault();
 	    show($(this).parent().attr('id'));
@@ -727,6 +732,7 @@
     rejectCommentURL: '/reject_comment',
     rejectCommentURL: '/delete_comment',
     commentImage: '/static/_static/comment.png',
+    commentBrightImage: '/static/_static/comment-bright.png',
     upArrow: '/static/_static/up.png',
     downArrow: '/static/_static/down.png',
     upArrowPressed: '/static/_static/up-pressed.png',

@@ -371,6 +371,8 @@ class WebSupport(object):
         if self.staticdir != 'static':
             p = lambda file: '%s/_static/%s' % (self.staticdir, file)
             parts.append('commentImage: "/%s",' % p('comment.png') )
+            parts.append(
+                'commentBrightImage: "/%s",' % p('comment-bright.png') )
             parts.append('upArrow: "/%s",' % p('up.png'))
             parts.append('downArrow: "/%s",' % p('down.png'))
             parts.append('upArrowPressed: "/%s",' % p('up-pressed.png'))
