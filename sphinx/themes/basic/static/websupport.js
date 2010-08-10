@@ -718,7 +718,8 @@
 	<a href="#" class="sort_option" id="age">oldest</a>\
       </p>\
       </form>\
-      <h3 id="comment_notification">loading comments... <img src="/static/ajax-loader.gif" alt="" /></h3>\
+      <h3 id="comment_notification">loading comments... <img src="' +
+      opts.loadingImage + '" alt="" /></h3>\
       <ul id="comment_ul"></ul>\
     </div>\
     <div id="focuser"></div>';
@@ -732,6 +733,7 @@
     rejectCommentURL: '/reject_comment',
     rejectCommentURL: '/delete_comment',
     commentImage: '/static/_static/comment.png',
+    loadingImage: '/static/_static/comment.png',
     commentBrightImage: '/static/_static/comment-bright.png',
     upArrow: '/static/_static/up.png',
     downArrow: '/static/_static/down.png',
