@@ -395,7 +395,7 @@ class WebSupport(object):
             rv.update({
                 'voting': True,
                 'username': username,
-                'moderator': str(moderator).lower(),
+                'moderator': moderator,
             })
         return '\n'.join([
             '<script type="text/javascript">',
