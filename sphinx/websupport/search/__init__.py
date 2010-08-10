@@ -34,7 +34,7 @@ class BaseSearch(object):
     def feed(self, pagename, title, doctree):
         """Called by the builder to add a doctree to the index. Converts the
         `doctree` to text and passes it to :meth:`add_document`. You probably
-        won't want to override this unless you need access to the `doctree`. 
+        won't want to override this unless you need access to the `doctree`.
         Override :meth:`add_document` instead.
 
         :param pagename: the name of the page to be indexed
@@ -50,11 +50,11 @@ class BaseSearch(object):
 
         `pagename` is name of the page being indexed. It is the combination
         of the source files relative path and filename,
-        minus the extension. For example, if the source file is 
+        minus the extension. For example, if the source file is
         "ext/builders.rst", the `pagename` would be "ext/builders". This
-        will need to be returned with search results when processing a 
+        will need to be returned with search results when processing a
         query.
-        
+
         :param pagename: the name of the page being indexed
         :param title: the page's title
         :param text: the full text of the page
@@ -62,13 +62,13 @@ class BaseSearch(object):
         raise NotImplementedError()
 
     def query(self, q):
-        """Called by the web support api to get search results. This method 
+        """Called by the web support api to get search results. This method
         compiles the regular expression to be used when
         :meth:`extracting context <extract_context>`, then calls
         :meth:`handle_query`. You won't want to override this unless you
         don't want to use the included :meth:`extract_context` method.
         Override :meth:`handle_query` instead.
-        
+
         :param q: the search query string.
         """
         self.context_re = re.compile('|'.join(q.split()), re.I)
@@ -119,4 +119,3 @@ search_adapters = {
     'whoosh': ('whooshsearch', 'WhooshSearch'),
     'null': ('nullsearch', 'NullSearch')
     }
-

@@ -64,7 +64,7 @@ def test_build(support):
 @with_support()
 def test_get_document(support):
     raises(DocumentNotFoundError, support.get_document, 'nonexisting')
-    
+
     contents = support.get_document('contents')
     assert contents['title'] and contents['body'] \
         and contents['sidebar'] and contents['relbar']
@@ -78,27 +78,27 @@ def test_comments(support):
     second_node = nodes[1]
 
     # Create a displayed comment and a non displayed comment.
-    comment = support.add_comment('First test comment', 
+    comment = support.add_comment('First test comment',
                                   node_id=str(first_node.id),
                                   username='user_one')
-    hidden_comment = support.add_comment('Hidden comment', 
-                                         node_id=str(first_node.id), 
+    hidden_comment = support.add_comment('Hidden comment',
+                                         node_id=str(first_node.id),
                                          displayed=False)
     # Make sure that comments can't be added to a comment where
     # displayed == False, since it could break the algorithm that
     # converts a nodes comments to a tree.
-    raises(CommentNotAllowedError, support.add_comment, 'Not allowed', 
+    raises(CommentNotAllowedError, support.add_comment, 'Not allowed',
            parent_id=str(hidden_comment['id']))
     # Add a displayed and not displayed child to the displayed comment.
     support.add_comment('Child test comment', parent_id=str(comment['id']),
                         username='user_one')
-    support.add_comment('Hidden child test comment', 
+    support.add_comment('Hidden child test comment',
                         parent_id=str(comment['id']), displayed=False)
     # Add a comment to another node to make sure it isn't returned later.
-    support.add_comment('Second test comment', 
+    support.add_comment('Second test comment',
                         node_id=str(second_node.id),
                         username='user_two')
-    
+
     # Access the comments as a moderator.
     data = support.get_data(str(first_node.id), moderator=True)
     comments = data['comments']
@@ -130,7 +130,7 @@ def test_voting(support):
         data = support.get_data(str(node.id))
         comment = data['comments'][0]
         assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
-        
+
     support.process_vote(comment['id'], 'user_one', '1')
     support.process_vote(comment['id'], 'user_two', '1')
     support.process_vote(comment['id'], 'user_three', '1')
@@ -161,7 +161,7 @@ def test_proposals(support):
     source = data['source']
     proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
 
-    comment = support.add_comment('Proposal comment', 
+    comment = support.add_comment('Proposal comment',
                                   node_id=str(node.id),
                                   proposal=proposal)
 
@@ -195,7 +195,7 @@ def test_moderator_delete_comments(support):
         return support.get_data(str(node.id), moderator=True)['comments'][1]
 
     comment = get_comment()
-    support.delete_comment(comment['id'], username='user_two', 
+    support.delete_comment(comment['id'], username='user_two',
                            moderator=True)
     comment = get_comment()
     assert comment['username'] == '[deleted]'
@@ -228,9 +228,9 @@ def moderation_callback(comment):
 
 @with_support(moderation_callback=moderation_callback)
 def test_moderation(support):
-    accepted = support.add_comment('Accepted Comment', node_id=3, 
+    accepted = support.add_comment('Accepted Comment', node_id=3,
                                    displayed=False)
-    rejected = support.add_comment('Rejected comment', node_id=3, 
+    rejected = support.add_comment('Rejected comment', node_id=3,
                                    displayed=False)
     # Make sure the moderation_callback is called.
     assert called == True
@@ -248,7 +248,7 @@ def test_moderation(support):
 def test_differ():
     differ = CombinedHtmlDiff()
     source = 'Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit,\n' \
-        'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' 
+        'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     prop = 'Lorem dolor sit amet,\nconsectetur nihil adipisicing elit,\n' \
         'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     differ.make_html(source, prop)

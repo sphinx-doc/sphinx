@@ -81,7 +81,7 @@ class Node(Base):
             comment, vote = r if username else (r, 0)
 
             inheritance_chain = comment.path.split('.')[1:]
-            
+
             if len(inheritance_chain) == len(list_stack) + 1:
                 parent = list_stack[-1][-1]
                 list_stack.append(parent['children'])
@@ -90,7 +90,7 @@ class Node(Base):
                     list_stack.pop()
 
             list_stack[-1].append(comment.serializable(vote=vote))
-        
+
         return comments
 
     def __init__(self, document, line, source):
@@ -115,7 +115,7 @@ class Comment(Base):
     node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
     node = relation(Node, backref="comments")
 
-    def __init__(self, text, displayed, username, rating, time, 
+    def __init__(self, text, displayed, username, rating, time,
                  proposal, proposal_diff):
         self.text = text
         self.displayed = displayed

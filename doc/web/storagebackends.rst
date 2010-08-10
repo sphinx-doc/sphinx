@@ -10,16 +10,16 @@ To create a custom storage backend you will need to subclass the
 and pass that as the `storage` keyword argument when you create the
 :class:`~sphinx.websupport.WebSupport` object::
 
-   support = Websupport(srcdir=srcdir,
-                        builddir=builddir,
-			storage=MyStorage())
+    support = Websupport(srcdir=srcdir,
+                         builddir=builddir,
+                         storage=MyStorage())
 
 For more information about creating a custom storage backend, please see
 the documentation of the :class:`StorageBackend` class below.
 
 .. class:: StorageBackend
 
-   Defines an interface for storage backends.
+    Defines an interface for storage backends.
 
 StorageBackend Methods
 ~~~~~~~~~~~~~~~~~~~~~~

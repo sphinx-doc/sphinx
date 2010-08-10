@@ -20,13 +20,13 @@ class StorageBackend(object):
         """Add a node to the StorageBackend.
 
         :param document: the name of the document the node belongs to.
-        
+
         :param line: the line in the source where the node begins.
 
         :param source: the source files name.
         """
         raise NotImplementedError()
-    
+
     def post_build(self):
         """Called after a build has completed. Use this to finalize the
         addition of nodes if needed.
@@ -36,7 +36,7 @@ class StorageBackend(object):
     def add_comment(self, text, displayed, username, time,
                     proposal, node_id, parent_id, moderator):
         """Called when a comment is being added.
-        
+
         :param text: the text of the comment
         :param displayed: whether the comment should be displayed
         :param username: the name of the user adding the comment

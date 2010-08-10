@@ -49,7 +49,7 @@ class WebSupport(object):
         self.moderation_callback = moderation_callback
 
         self._init_templating()
-        self._init_search(search)            
+        self._init_search(search)
         self._init_storage(storage)
 
         self._make_base_comment_options()
@@ -105,7 +105,7 @@ class WebSupport(object):
         doctreedir = path.join(self.outdir, 'doctrees')
         app = WebSupportApp(self.srcdir, self.srcdir,
                             self.outdir, doctreedir, 'websupport',
-                            search=self.search, status=self.status, 
+                            search=self.search, status=self.status,
                             warning=self.warning, storage=self.storage,
                             staticdir=self.staticdir, builddir=self.builddir)
 
@@ -119,8 +119,8 @@ class WebSupport(object):
 
             support = WebSupport(datadir=datadir)
             support.get_document('index', username, moderator)
-            
-        In most cases `docname` will be taken from the request path and 
+
+        In most cases `docname` will be taken from the request path and
         passed directly to this function. In Flask, that would be something
         like this::
 
@@ -139,7 +139,7 @@ class WebSupport(object):
         to be used during template rendering.
 
         * **body**: The main body of the document as HTML
-        * **sidebar**: The sidebar of the document as HTML  
+        * **sidebar**: The sidebar of the document as HTML
         * **relbar**: A div containing links to related documents
         * **title**: The title of the document
         * **css**: Links to css files used by Sphinx
@@ -161,7 +161,7 @@ class WebSupport(object):
         document = pickle.load(f)
         comment_opts = self._make_comment_options(username, moderator)
         comment_metadata = self.storage.get_metadata(docname, moderator)
-                                                             
+
         document['js'] = '\n'.join([comment_opts,
                                     self._make_metadata(comment_metadata),
                                     document['js']])
@@ -172,7 +172,7 @@ class WebSupport(object):
         of search results. Then render the search results as html and
         return a context dict like the one created by
         :meth:`get_document`::
-        
+
             document = support.get_search_results(q)
 
         :param q: the search query
@@ -187,12 +187,12 @@ class WebSupport(object):
         return document
 
     def get_data(self, node_id, username=None, moderator=False):
-        """Get the comments and source associated with `node_id`. If 
-        `username` is given vote information will be included with the 
+        """Get the comments and source associated with `node_id`. If
+        `username` is given vote information will be included with the
         returned comments. The default CommentBackend returns a dict with
         two keys, *source*, and *comments*. *source* is raw source of the
         node and is used as the starting point for proposals a user can
-        add. *comments* is a list of dicts that represent a comment, each 
+        add. *comments* is a list of dicts that represent a comment, each
         having the following items:
 
         ============= ======================================================
@@ -209,12 +209,12 @@ class WebSupport(object):
                       8601 format. `delta` is a printable form of how old
                       the comment is (e.g. "3 hours ago").
         vote          If `user_id` was given, this will be an integer
-                      representing the vote. 1 for an upvote, -1 for a 
+                      representing the vote. 1 for an upvote, -1 for a
                       downvote, or 0 if unvoted.
-        node          The id of the node that the comment is attached to. 
-                      If the comment's parent is another comment rather than 
+        node          The id of the node that the comment is attached to.
+                      If the comment's parent is another comment rather than
                       a node, this will be null.
-        parent        The id of the comment that this comment is attached 
+        parent        The id of the comment that this comment is attached
                       to if it is not attached to a node.
         children      A list of all children, in this format.
         proposal_diff An HTML representation of the differences between the
@@ -232,7 +232,7 @@ class WebSupport(object):
         instead replaces the username and text files with "[deleted]" so
         as not to leave any comments orphaned.
 
-        If `moderator` is True, the comment will always be deleted. If 
+        If `moderator` is True, the comment will always be deleted. If
         `moderator` is False, the comment will only be deleted if the
         `username` matches the `username` on the comment.
 
@@ -246,25 +246,25 @@ class WebSupport(object):
         """
         self.storage.delete_comment(comment_id, username, moderator)
 
-    def add_comment(self, text, node_id='', parent_id='', displayed=True, 
+    def add_comment(self, text, node_id='', parent_id='', displayed=True,
                     username=None, time=None, proposal=None,
                     moderator=False):
-        """Add a comment to a node or another comment. Returns the comment 
-        in the same format as :meth:`get_comments`. If the comment is being 
-        attached to a node, pass in the node's id (as a string) with the 
+        """Add a comment to a node or another comment. Returns the comment
+        in the same format as :meth:`get_comments`. If the comment is being
+        attached to a node, pass in the node's id (as a string) with the
         node keyword argument::
 
             comment = support.add_comment(text, node_id=node_id)
 
         If the comment is the child of another comment, provide the parent's
         id (as a string) with the parent keyword argument::
-            
+
             comment = support.add_comment(text, parent_id=parent_id)
 
         If you would like to store a username with the comment, pass
         in the optional `username` keyword argument::
 
-            comment = support.add_comment(text, node=node_id, 
+            comment = support.add_comment(text, node=node_id,
                                           username=username)
 
         :param parent_id: the prefixed id of the comment's parent.
@@ -274,7 +274,7 @@ class WebSupport(object):
         :param time: the time the comment was created, defaults to now.
         """
         comment = self.storage.add_comment(text, displayed, username,
-                                           time, proposal, node_id, 
+                                           time, proposal, node_id,
                                            parent_id, moderator)
         if not displayed and self.moderation_callback:
             self.moderation_callback(comment)
@@ -282,10 +282,10 @@ class WebSupport(object):
 
     def process_vote(self, comment_id, username, value):
         """Process a user's vote. The web support package relies
-        on the API user to perform authentication. The API user will 
+        on the API user to perform authentication. The API user will
         typically receive a comment_id and value from a form, and then
-        make sure the user is authenticated. A unique username  must be 
-        passed in, which will also be used to retrieve the user's past 
+        make sure the user is authenticated. A unique username  must be
+        passed in, which will also be used to retrieve the user's past
         voting data. An example, once again in Flask::
 
             @app.route('/docs/process_vote', methods=['POST'])
@@ -352,20 +352,20 @@ class WebSupport(object):
         that remains the same throughout the lifetime of the
         :class:`~sphinx.websupport.WebSupport` object.
         """
-        parts = ['<script type="text/javascript">', 
+        parts = ['<script type="text/javascript">',
                  'var COMMENT_OPTIONS = {']
         if self.docroot is not '':
-            parts.append('addCommentURL: "/%s/%s",' % (self.docroot, 
+            parts.append('addCommentURL: "/%s/%s",' % (self.docroot,
                                                        'add_comment'))
-            parts.append('getCommentsURL: "/%s/%s",' % (self.docroot, 
+            parts.append('getCommentsURL: "/%s/%s",' % (self.docroot,
                                                         'get_comments'))
-            parts.append('processVoteURL: "/%s/%s",' % (self.docroot, 
+            parts.append('processVoteURL: "/%s/%s",' % (self.docroot,
                                                         'process_vote'))
-            parts.append('acceptCommentURL: "/%s/%s",' % (self.docroot, 
+            parts.append('acceptCommentURL: "/%s/%s",' % (self.docroot,
                                                           'accept_comment'))
-            parts.append('rejectCommentURL: "/%s/%s",' % (self.docroot, 
+            parts.append('rejectCommentURL: "/%s/%s",' % (self.docroot,
                                                           'reject_comment'))
-            parts.append('deleteCommentURL: "/%s/%s",' % (self.docroot, 
+            parts.append('deleteCommentURL: "/%s/%s",' % (self.docroot,
                                                           'delete_comment'))
 
         if self.staticdir != 'static':
@@ -378,8 +378,8 @@ class WebSupport(object):
             parts.append('upArrowPressed: "/%s",' % p('up-pressed.png'))
             parts.append('downArrowPressed: "/%s",' % p('down-pressed.png'))
 
-        self.base_comment_opts = '\n'.join(parts)            
-            
+        self.base_comment_opts = '\n'.join(parts)
+
     def _make_comment_options(self, username, moderator):
         """Helper method to create the parts of the COMMENT_OPTIONS
         javascript that are unique to each request.
@@ -394,14 +394,13 @@ class WebSupport(object):
         parts.append('moderator: %s' % str(moderator).lower())
         parts.append('};')
         parts.append('</script>')
-        return '\n'.join(parts)            
+        return '\n'.join(parts)
 
     def _make_metadata(self, data):
-        node_js = ', '.join(['%s: %s' % (node_id, comment_count) 
+        node_js = ', '.join(['%s: %s' % (node_id, comment_count)
                              for node_id, comment_count in data.iteritems()])
         js = """
 <script type="text/javascript">
   var COMMENT_METADATA = {%s};
 </script>""" % node_js
         return js
-
