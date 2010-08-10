@@ -67,8 +67,8 @@ def merge_doctrees(old, new, condition):
             continue
         if not merge_node(old_node, new_node):
             if old_nodes:
-                for i, old_node in enumerate(old_nodes):
-                    if merge_node(old_node, new_node):
+                for i, very_old_node in enumerate(old_nodes):
+                    if merge_node(very_old_node, new_node):
                         del old_nodes[i]
                         # If the last identified node which has not matched the
                         # unidentified node matches the current one, we have to

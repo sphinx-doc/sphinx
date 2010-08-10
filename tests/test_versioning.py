@@ -78,8 +78,6 @@ def test_deleted_end():
     assert original_uids[:-1] == uids
 
 def test_insert():
-    from nose import SkipTest
-    raise SkipTest('The algorithm does not work at the moment')
     insert = doctrees['versioning/insert']
     new_nodes = list(merge_doctrees(original, insert, is_paragraph))
     uids = [n.uid for n in insert.traverse(is_paragraph)]
