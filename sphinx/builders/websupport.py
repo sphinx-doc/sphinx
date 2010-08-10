@@ -82,7 +82,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
         # Create a dict that will be pickled and used by webapps.
         css = '<link rel="stylesheet" href="%s" type=text/css />' % \
-            pathto('_static/pygment.css', 1)
+            pathto('_static/pygments.css', 1)
         doc_ctx = {'body': ctx.get('body', ''),
                    'title': ctx.get('title', ''),
                    'css': css,
