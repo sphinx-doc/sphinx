@@ -354,29 +354,33 @@ class WebSupport(object):
         that remains the same throughout the lifetime of the
         :class:`~sphinx.websupport.WebSupport` object.
         """
-        comment_urls = [
-            ('addCommentURL', 'add_comment'),
-            ('getCommentsURL', 'get_comments'),
-            ('processVoteURL', 'process_vote'),
-            ('acceptCommentURL', 'accept_comment'),
-            ('rejectCommentURL', 'reject_comment'),
-            ('deleteCommentURL', 'delete_comment')
-        ]
-        static_urls = [
-            ('commentImage', 'comment.png'),
-            ('loadingImage', 'ajax-loader.gif'),
-            ('commentBrightImage', 'comment-bright.png'),
-            ('upArrow', 'up.png'),
-            ('upArrowPressed', 'up-pressed.png'),
-            ('downArrow', 'down.png'),
-            ('downArrowPressed', 'down-pressed.png')
-        ]
-
         self.base_comment_opts = {}
-        for key, value in comment_urls:
-            self.base_comment_opts[key] = posixpath.join(self.docroot, value)
-        for key, value in static_urls:
-            self.base_comment_opts[key] = posixpath.join(self.staticdir, value)
+
+        if self.docroot is not '':
+            comment_urls = [
+                ('addCommentURL', 'add_comment'),
+                ('getCommentsURL', 'get_comments'),
+                ('processVoteURL', 'process_vote'),
+                ('acceptCommentURL', 'accept_comment'),
+                ('rejectCommentURL', 'reject_comment'),
+                ('deleteCommentURL', 'delete_comment')
+            ]
+            for key, value in comment_urls:
+                self.base_comment_opts[key] = \
+                    '/' + posixpath.join(self.docroot, value)
+        if self.staticdir != 'static':
+            static_urls = [
+                ('commentImage', 'comment.png'),
+                ('loadingImage', 'ajax-loader.gif'),
+                ('commentBrightImage', 'comment-bright.png'),
+                ('upArrow', 'up.png'),
+                ('upArrowPressed', 'up-pressed.png'),
+                ('downArrow', 'down.png'),
+                ('downArrowPressed', 'down-pressed.png')
+            ]
+            for key, value in static_urls:
+                self.base_comment_opts[key] = \
+                    '/' + posixpath.join(self.staticdir, '_static', value)
 
     def _make_comment_options(self, username, moderator):
         """Helper method to create the parts of the COMMENT_OPTIONS
