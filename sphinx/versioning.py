@@ -92,7 +92,6 @@ def merge_doctrees(old, new, condition):
         if merge_node(old_node, new_node):
             del new_nodes[i]
             del old_nodes[j]
-    new_nodes = [n for n in new_nodes if not hasattr(n, 'uid')]
     for node in new_nodes:
         node.uid = uuid4().hex
         # Yielding the new nodes here makes it possible to use this generator
