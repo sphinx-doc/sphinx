@@ -11,6 +11,7 @@
 
 import sys
 import cPickle as pickle
+import posixpath
 from os import path
 from datetime import datetime
 
@@ -18,6 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
+from sphinx.util.jsonimpl import dumps as dump_json
 from sphinx.websupport.search import BaseSearch, search_adapters
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.errors import *
@@ -352,33 +354,28 @@ class WebSupport(object):
         that remains the same throughout the lifetime of the
         :class:`~sphinx.websupport.WebSupport` object.
         """
-        parts = ['<script type="text/javascript">',
-                 'var COMMENT_OPTIONS = {']
-        if self.docroot is not '':
-            parts.append('addCommentURL: "/%s/%s",' % (self.docroot,
-                                                       'add_comment'))
-            parts.append('getCommentsURL: "/%s/%s",' % (self.docroot,
-                                                        'get_comments'))
-            parts.append('processVoteURL: "/%s/%s",' % (self.docroot,
-                                                        'process_vote'))
-            parts.append('acceptCommentURL: "/%s/%s",' % (self.docroot,
-                                                          'accept_comment'))
-            parts.append('rejectCommentURL: "/%s/%s",' % (self.docroot,
-                                                          'reject_comment'))
-            parts.append('deleteCommentURL: "/%s/%s",' % (self.docroot,
-                                                          'delete_comment'))
+        comment_urls = [
+            ('addCommentURL', 'add_comment'),
+            ('getCommentsURL', 'get_comments'),
+            ('processVoteURL', 'process_vote'),
+            ('acceptCommentURL', 'accept_comment'),
+            ('rejectCommentURL', 'reject_comment'),
+            ('deleteCommentURL', 'delete_comment')
+        ]
+        static_urls = [
+            ('commentImage', 'comment.png'),
+            ('commentBrightImage', 'comment-bright.png'),
+            ('upArrow', 'up.png'),
+            ('upArrowPressed', 'up-pressed.png'),
+            ('downArrow', 'down.png'),
+            ('downArrowPressed', 'down-pressed.png')
+        ]
 
-        if self.staticdir != 'static':
-            p = lambda file: '%s/_static/%s' % (self.staticdir, file)
-            parts.append('commentImage: "/%s",' % p('comment.png') )
-            parts.append(
-                'commentBrightImage: "/%s",' % p('comment-bright.png') )
-            parts.append('upArrow: "/%s",' % p('up.png'))
-            parts.append('downArrow: "/%s",' % p('down.png'))
-            parts.append('upArrowPressed: "/%s",' % p('up-pressed.png'))
-            parts.append('downArrowPressed: "/%s",' % p('down-pressed.png'))
-
-        self.base_comment_opts = '\n'.join(parts)
+        self.base_comment_opts = {}
+        for key, value in comment_urls:
+            self.base_comment_opts[key] = posixpath.join(self.docroot, value)
+        for key, value in static_urls:
+            self.base_comment_opts[key] = posixpath.join(self.staticdir, value)
 
     def _make_comment_options(self, username, moderator):
         """Helper method to create the parts of the COMMENT_OPTIONS
@@ -388,19 +385,22 @@ class WebSupport(object):
         :param moderator: Whether the user making the request is a moderator.
         """
         parts = [self.base_comment_opts]
-        if username is not '':
-            parts.append('voting: true,')
-            parts.append('username: "%s",' % username)
-        parts.append('moderator: %s' % str(moderator).lower())
-        parts.append('};')
-        parts.append('</script>')
-        return '\n'.join(parts)
+        rv = self.base_comment_opts.copy()
+        if username:
+            rv.update({
+                'voting': True,
+                'username': username,
+                'moderator': str(moderator).lower(),
+            })
+        return '\n'.join([
+            '<script type="text/javascript">',
+            'var COMMENT_OPTIONS = %s;' % dump_json(rv),
+            '</script>'
+        ])
 
     def _make_metadata(self, data):
-        node_js = ', '.join(['%s: %s' % (node_id, comment_count)
-                             for node_id, comment_count in data.iteritems()])
-        js = """
-<script type="text/javascript">
-  var COMMENT_METADATA = {%s};
-</script>""" % node_js
-        return js
+        return '\n'.join([
+            '<script type="text/javascript">',
+            'var COMMENT_METADATA = %s;' % dump_json(data),
+            '</script>'
+        ])
