@@ -632,6 +632,24 @@
     });
   };
 
+  var opts = jQuery.extend({
+    processVoteURL: '/process_vote',
+    addCommentURL: '/add_comment',
+    getCommentsURL: '/get_comments',
+    acceptCommentURL: '/accept_comment',
+    rejectCommentURL: '/reject_comment',
+    rejectCommentURL: '/delete_comment',
+    commentImage: '/static/_static/comment.png',
+    loadingImage: '/static/_static/ajax-loader.gif',
+    commentBrightImage: '/static/_static/comment-bright.png',
+    upArrow: '/static/_static/up.png',
+    downArrow: '/static/_static/down.png',
+    upArrowPressed: '/static/_static/up-pressed.png',
+    downArrowPressed: '/static/_static/down-pressed.png',
+    voting: false,
+    moderator: false
+  }, COMMENT_OPTIONS);
+
   var replyTemplate = '    <li>\
       <div class="reply_div" id="rd<%id%>">\
 	<form id="rf<%id%>">\
@@ -723,25 +741,6 @@
       <ul id="comment_ul"></ul>\
     </div>\
     <div id="focuser"></div>';
-
-
-  var opts = jQuery.extend({
-    processVoteURL: '/process_vote',
-    addCommentURL: '/add_comment',
-    getCommentsURL: '/get_comments',
-    acceptCommentURL: '/accept_comment',
-    rejectCommentURL: '/reject_comment',
-    rejectCommentURL: '/delete_comment',
-    commentImage: '/static/_static/comment.png',
-    loadingImage: '/static/_static/comment.png',
-    commentBrightImage: '/static/_static/comment-bright.png',
-    upArrow: '/static/_static/up.png',
-    downArrow: '/static/_static/down.png',
-    upArrowPressed: '/static/_static/up-pressed.png',
-    downArrowPressed: '/static/_static/down-pressed.png',
-    voting: false,
-    moderator: false
-  }, COMMENT_OPTIONS);
 
   $(document).ready(function() {
     init();
