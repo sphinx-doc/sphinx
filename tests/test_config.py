@@ -89,7 +89,8 @@ def test_errors_warnings(dir):
     raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
 
     # test the automatic conversion of 2.x only code in configs
-    write_file(dir / 'conf.py', u'\n\nproject = u"Jägermeister"\n', 'utf-8')
+    write_file(dir / 'conf.py', u'# -*- coding: utf-8\n\n'
+               u'project = u"Jägermeister"\n', 'utf-8')
     cfg = Config(dir, 'conf.py', {}, None)
     cfg.init_values()
     assert cfg.project == u'Jägermeister'
