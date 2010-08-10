@@ -25,6 +25,7 @@ def setup_module():
 
 def teardown_module():
     app.cleanup()
+    (test_root / '_build').rmtree(True)
 
 doctrees = {}
 
