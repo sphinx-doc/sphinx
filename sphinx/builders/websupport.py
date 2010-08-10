@@ -17,6 +17,7 @@ import shutil
 from docutils.io import StringOutput
 
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, copyfile
+from sphinx.util.jsonimpl import dumps as dump_json
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.writers.websupport import WebSupportTranslator
 
@@ -131,20 +132,17 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             path = ctx['pathto'](file, 1)
             return '<script type="text/javascript" src="%s"></script>' % path
 
-        opts = """
-<script type="text/javascript">
-  var DOCUMENTATION_OPTIONS = {
-    URL_ROOT: '%s',
-    VERSION: '%s',
-    COLLAPSE_INDEX: false,
-    FILE_SUFFIX: '',
-    HAS_SOURCE: '%s'
-  };
-</script>"""
-        opts = opts % (ctx.get('url_root', ''), escape(ctx['release']),
-                       str(ctx['has_source']).lower())
-        scripts = []
-        for file in ctx['script_files']:
-            scripts.append(make_script(file))
-        scripts.append(make_script('_static/websupport.js'))
-        return opts + '\n' + '\n'.join(scripts)
+        opts = {
+            'URL_ROOT': ctx.get('url_root', ''),
+            'VERSION': ctx['release'],
+            'COLLAPSE_INDEX': False,
+            'FILE_SUFFIX': '',
+            'HAS_SOURCE': ctx['has_source']
+        }
+        scripts = [make_script('_static/websupport.js')]
+        scripts += [make_script(file) for file in ctx['script_files']]
+        return '\n'.join([
+            '<script type="text/javascript">'
+            'var DOCUMENTATION_OPTIONS = %s;' % dump_json(opts),
+            '</script>'
+        ] + scripts)
