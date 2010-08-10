@@ -27,7 +27,7 @@ def teardown_module():
 
 def search_adapter_helper(adapter):
     clear_builddir()
-    
+
     settings = {'builddir': os.path.join(test_root, 'websupport'),
                 'status': StringIO(),
                 'warning': StringIO()}
@@ -81,4 +81,3 @@ def test_whoosh():
     except ImportError:
         sys.stderr.write('info: not running whoosh tests, ' \
                          'whoosh doesn\'t seem to be installed')
-

@@ -58,7 +58,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         # This is mostly copied from StandaloneHTMLBuilder. However, instead
-        # of rendering the template and saving the html, create a context 
+        # of rendering the template and saving the html, create a context
         # dict and pickle it.
         ctx = self.globalcontext.copy()
         ctx['pagename'] = pagename
@@ -140,7 +140,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     FILE_SUFFIX: '',
     HAS_SOURCE: '%s'
   };
-</script>""" 
+</script>"""
         opts = opts % (ctx.get('url_root', ''), escape(ctx['release']),
                        str(ctx['has_source']).lower())
         scripts = []
@@ -148,4 +148,3 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             scripts.append(make_script(file))
         scripts.append(make_script('_static/websupport.js'))
         return opts + '\n' + '\n'.join(scripts)
-

@@ -21,7 +21,7 @@ from sphinx.websupport.storage.db import Base, Node, Comment, CommentVote,\
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 
 class SQLAlchemyStorage(StorageBackend):
-    """A :class:`~sphinx.websupport.storage.StorageBackend` using 
+    """A :class:`~sphinx.websupport.storage.StorageBackend` using
     SQLAlchemy.
     """
     def __init__(self, engine):
@@ -59,7 +59,7 @@ class SQLAlchemyStorage(StorageBackend):
                 raise CommentNotAllowedError(
                     "Can't add child to a parent that is not displayed")
 
-        comment = Comment(text, displayed, username, 0, 
+        comment = Comment(text, displayed, username, 0,
                           time or datetime.now(), proposal, proposal_diff)
         session.add(comment)
         session.flush()
@@ -88,7 +88,7 @@ class SQLAlchemyStorage(StorageBackend):
     def get_metadata(self, docname, moderator):
         session = Session()
         subquery = session.query(
-            Comment.id, Comment.node_id, 
+            Comment.id, Comment.node_id,
             func.count('*').label('comment_count')).group_by(
             Comment.node_id).subquery()
         nodes = session.query(Node.id, subquery.c.comment_count).outerjoin(

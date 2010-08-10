@@ -10,22 +10,22 @@ To make use of the web support package in your application you'll
 need to build the data it uses. This data includes pickle files representing
 documents, search indices, and node data that is used to track where
 comments and other things are in a document. To do this you will need
-to create an instance of the :class:`~sphinx.websupport.WebSupport` 
+to create an instance of the :class:`~sphinx.websupport.WebSupport`
 class and call it's :meth:`~sphinx.websupport.WebSupport.build` method::
 
     from sphinx.websupport import WebSupport
 
     support = WebSupport(srcdir='/path/to/rst/sources/',
                          builddir='/path/to/build/outdir',
-		         search='xapian')
+                         search='xapian')
 
     support.build()
 
 This will read reStructuredText sources from `srcdir` and place the
-necessary data in `builddir`. The `builddir` will contain two 
+necessary data in `builddir`. The `builddir` will contain two
 sub-directories. One named "data" that contains all the data needed
 to display documents, search through documents, and add comments to
-documents. The other directory will be called "static" and contains static 
+documents. The other directory will be called "static" and contains static
 files that should be served from "/static".
 
 .. note::
@@ -40,14 +40,14 @@ Integrating Sphinx Documents Into Your Webapp
 Now that the data is built, it's time to do something useful with it.
 Start off by creating a :class:`~sphinx.websupport.WebSupport` object
 for your application::
-    
+
     from sphinx.websupport import WebSupport
 
     support = WebSupport(datadir='/path/to/the/data',
                          search='xapian')
 
 You'll only need one of these for each set of documentation you will be
-working with. You can then call it's 
+working with. You can then call it's
 :meth:`~sphinx.websupport.WebSupport.get_document` method to access
 individual documents::
 
@@ -56,14 +56,14 @@ individual documents::
 This will return a dictionary containing the following items:
 
 * **body**: The main body of the document as HTML
-* **sidebar**: The sidebar of the document as HTML  
+* **sidebar**: The sidebar of the document as HTML
 * **relbar**: A div containing links to related documents
 * **title**: The title of the document
 * **css**: Links to css files used by Sphinx
 * **js**: Javascript containing comment options
 
 This dict can then be used as context for templates. The goal is to be
-easy to integrate with your existing templating system. An example using 
+easy to integrate with your existing templating system. An example using
 `Jinja2 <http://jinja.pocoo.org/2/>`_ is:
 
 .. sourcecode:: html+jinja
@@ -71,30 +71,30 @@ easy to integrate with your existing templating system. An example using
     {%- extends "layout.html" %}
 
     {%- block title %}
-      {{ document.title }}
+        {{ document.title }}
     {%- endblock %}
 
     {% block css %}
-      {{ super() }}
-      {{ document.css|safe }}
-      <link rel="stylesheet" href="/static/websupport-custom.css" type="text/css">
+        {{ super() }}
+        {{ document.css|safe }}
+        <link rel="stylesheet" href="/static/websupport-custom.css" type="text/css">
     {% endblock %}
 
     {%- block js %}
-      {{ super() }}
-      {{ document.js|safe }}
+        {{ super() }}
+        {{ document.js|safe }}
     {%- endblock %}
 
     {%- block relbar %}
-      {{ document.relbar|safe }}
+        {{ document.relbar|safe }}
     {%- endblock %}
 
     {%- block body %}
-      {{ document.body|safe }}
+        {{ document.body|safe }}
     {%- endblock %}
 
     {%- block sidebar %}
-      {{ document.sidebar|safe }}
+        {{ document.sidebar|safe }}
     {%- endblock %}
 
 Authentication
@@ -108,7 +108,7 @@ Once a user has been authenticated you can pass the user's details to certain
 username with comments and votes. The only caveat is that if you allow users
 to change their username you must update the websupport package's data::
 
-   support.update_username(old_username, new_username)
+    support.update_username(old_username, new_username)
 
 *username* should be a unique string which identifies a user, and *moderator*
 should be a boolean representing whether the user has moderation
@@ -121,32 +121,32 @@ a user is logged in and then retrieves a document is::
 
     @app.route('/<path:docname>')
     def doc(docname):
-    	username = g.user.name if g.user else ''
-	moderator = g.user.moderator if g.user else False
-	try:
-	    document = support.get_document(docname, username, moderator)
-	except DocumentNotFoundError:
-	    abort(404)
+        username = g.user.name if g.user else ''
+        moderator = g.user.moderator if g.user else False
+        try:
+            document = support.get_document(docname, username, moderator)
+        except DocumentNotFoundError:
+            abort(404)
         return render_template('doc.html', document=document)
 
 The first thing to notice is that the *docname* is just the request path.
 This makes accessing the correct document easy from a single view.
 If the user is authenticated then the username and moderation status are
-passed along with the docname to 
+passed along with the docname to
 :meth:`~sphinx.websupport.WebSupport.get_document`. The web support package
 will then add this data to the COMMENT_OPTIONS that are used in the template.
 
 .. note::
 
-   This only works works if your documentation is served from your
-   document root. If it is served from another directory, you will
-   need to prefix the url route with that directory, and give the `docroot`
-   keyword argument when creating the web support object::
-   
-       support = WebSupport(...
-                            docroot='docs')
-   
-       @app.route('/docs/<path:docname>')
+    This only works works if your documentation is served from your
+    document root. If it is served from another directory, you will
+    need to prefix the url route with that directory, and give the `docroot`
+    keyword argument when creating the web support object::
+
+        support = WebSupport(...
+                             docroot='docs')
+
+        @app.route('/docs/<path:docname>')
 
 Performing Searches
 ~~~~~~~~~~~~~~~~~~~
@@ -155,7 +155,7 @@ To use the search form built-in to the Sphinx sidebar, create a function
 to handle requests to the url 'search' relative to the documentation root.
 The user's search query will be in the GET parameters, with the key `q`.
 Then use the :meth:`~sphinx.websupport.WebSupport.get_search_results` method
-to retrieve search results. In `Flask <http://flask.pocoo.org/>`_ that 
+to retrieve search results. In `Flask <http://flask.pocoo.org/>`_ that
 would be like this::
 
     @app.route('/search')
@@ -165,7 +165,7 @@ would be like this::
         return render_template('doc.html', document=document)
 
 Note that we used the same template to render our search results as we
-did to render our documents. That's because 
+did to render our documents. That's because
 :meth:`~sphinx.websupport.WebSupport.get_search_results` returns a context
 dict in the same format that
 :meth:`~sphinx.websupport.WebSupport.get_document` does.
@@ -186,22 +186,22 @@ function is used to add a new comment, and will call the web support method
         proposal = request.form.get('proposal', '')
         username = g.user.name if g.user is not None else 'Anonymous'
         comment = support.add_comment(text, node_id='node_id',
-	                              parent_id='parent_id', 
-				      username=username, proposal=proposal)
+                                      parent_id='parent_id',
+                                      username=username, proposal=proposal)
         return jsonify(comment=comment)
 
 You'll notice that both a `parent_id` and `node_id` are sent with the
 request. If the comment is being attached directly to a node, `parent_id`
 will be empty. If the comment is a child of another comment, then `node_id`
-will be empty. Then next function handles the retrieval of comments for a 
-specific node, and is aptly named 
+will be empty. Then next function handles the retrieval of comments for a
+specific node, and is aptly named
 :meth:`~sphinx.websupport.WebSupport.get_data`::
 
     @app.route('/docs/get_comments')
     def get_comments():
         username = g.user.name if g.user else None
-	moderator = g.user.moderator if g.user else False
-	node_id = request.args.get('node', '')
+        moderator = g.user.moderator if g.user else False
+        node_id = request.args.get('node', '')
         data = support.get_data(parent_id, user_id)
         return jsonify(**data)
 
@@ -223,15 +223,15 @@ votes on comments::
 Comment Moderation
 ~~~~~~~~~~~~~~~~~~
 
-By default all comments added through 
+By default all comments added through
 :meth:`~sphinx.websupport.WebSupport.add_comment` are automatically
 displayed. If you wish to have some form of moderation, you can pass
 the `displayed` keyword argument::
 
     comment = support.add_comment(text, node_id='node_id',
-                                  parent_id='parent_id', 
+                                  parent_id='parent_id',
                                   username=username, proposal=proposal,
- 				  displayed=False)
+                                  displayed=False)
 
 You can then create two new views to handle the moderation of comments. The
 first will be called when a moderator decides a comment should be accepted
@@ -240,18 +240,18 @@ and displayed::
     @app.route('/docs/accept_comment', methods=['POST'])
     def accept_comment():
         moderator = g.user.moderator if g.user else False
-	comment_id = request.form.get('id')
-	support.accept_comment(comment_id, moderator=moderator)
-	return 'OK'
+        comment_id = request.form.get('id')
+        support.accept_comment(comment_id, moderator=moderator)
+        return 'OK'
 
 The next is very similar, but used when rejecting a comment::
 
     @app.route('/docs/reject_comment', methods=['POST'])
     def reject_comment():
         moderator = g.user.moderator if g.user else False
-	comment_id = request.form.get('id')
-	support.reject_comment(comment_id, moderator=moderator)
-	return 'OK'
+        comment_id = request.form.get('id')
+        support.reject_comment(comment_id, moderator=moderator)
+        return 'OK'
 
 To perform a custom action (such as emailing a moderator) when a new comment
 is added but not displayed, you can pass callable to the

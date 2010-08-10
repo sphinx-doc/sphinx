@@ -28,7 +28,7 @@ class XapianSearch(BaseSearch):
 
     def init_indexing(self, changed=[]):
         ensuredir(self.db_path)
-        self.database = xapian.WritableDatabase(self.db_path, 
+        self.database = xapian.WritableDatabase(self.db_path,
                                                 xapian.DB_CREATE_OR_OPEN)
         self.indexer = xapian.TermGenerator()
         stemmer = xapian.Stem("english")
