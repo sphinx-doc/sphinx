@@ -87,7 +87,8 @@ def merge_doctrees(old, new, condition):
             else:
                 old_nodes.append(old_node)
                 new_nodes.append(new_node)
-    for (i, new_node), (j, old_node) in product(enumerate(new_nodes), enumerate(old_nodes)):
+    for (i, new_node), (j, old_node) in product(enumerate(new_nodes),
+                                                enumerate(old_nodes)):
         if merge_node(old_node, new_node):
             del new_nodes[i]
             del old_nodes[j]
