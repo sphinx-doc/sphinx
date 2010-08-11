@@ -55,7 +55,8 @@ class WebSupportTranslator(HTMLTranslator):
 
     def add_db_node(self, node):
         storage = self.builder.app.storage
-        db_node_id = storage.add_node(document=self.builder.cur_docname,
+        db_node_id = storage.add_node(id=node.uid,
+                                      document=self.builder.cur_docname,
                                       line=node.line,
                                       source=node.rawsource or node.astext())
         return db_node_id
