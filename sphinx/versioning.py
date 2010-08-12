@@ -12,7 +12,7 @@
 from uuid import uuid4
 from itertools import product
 try:
-    from itertools import izip_longest
+    from itertools import izip_longest as zip_longest
 except ImportError:
     from itertools import zip_longest
 from difflib import SequenceMatcher
@@ -62,7 +62,7 @@ def merge_doctrees(old, new, condition):
     new_iter = PeekableIterator(new.traverse(condition))
     old_nodes = []
     new_nodes = []
-    for old_node, new_node in izip_longest(old_iter, new_iter):
+    for old_node, new_node in zip_longest(old_iter, new_iter):
         if old_node is None:
             new_nodes.append(new_node)
             continue
