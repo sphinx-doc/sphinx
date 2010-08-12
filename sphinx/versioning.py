@@ -10,7 +10,11 @@
     :license: BSD, see LICENSE for details.
 """
 from uuid import uuid4
-from itertools import izip_longest, product
+from itertools import product
+try:
+    from itertools import izip_longest
+except ImportError:
+    from itertools import zip_longest
 from difflib import SequenceMatcher
 
 from sphinx.util import PeekableIterator
