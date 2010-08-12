@@ -15,7 +15,7 @@ class WebSupportTranslator(HTMLTranslator):
     """
     Our custom HTML translator.
     """
-    commentable_nodes = ['paragraph']
+    commentable_nodes = ['paragraph', 'literal_block']
 
     def __init__(self, builder, *args, **kwargs):
         HTMLTranslator.__init__(self, builder, *args, **kwargs)
