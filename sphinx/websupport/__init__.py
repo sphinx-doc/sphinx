@@ -376,7 +376,8 @@ class WebSupport(object):
                 ('upArrow', 'up.png'),
                 ('upArrowPressed', 'up-pressed.png'),
                 ('downArrow', 'down.png'),
-                ('downArrowPressed', 'down-pressed.png')
+                ('downArrowPressed', 'down-pressed.png'),
+                ('staticDir', '/' + self.staticdir)
             ]
             for key, value in static_urls:
                 self.base_comment_opts[key] = \
