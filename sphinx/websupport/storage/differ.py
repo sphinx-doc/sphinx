@@ -40,9 +40,9 @@ class CombinedHtmlDiff(object):
             try:
                 next = diff.pop(0)
             except IndexError:
-                self._handle_line(line)
+                html.append(self._handle_line(line))
                 break
-        return ''.join(html)
+        return ''.join(html).rstrip()
 
     def _handle_line(self, line, next=None):
         """Handle an individual line in a diff."""
