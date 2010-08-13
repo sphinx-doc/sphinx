@@ -22,13 +22,12 @@ from docutils.utils import Reporter
 
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, copyfile
 from sphinx.util.jsonimpl import dumps as dump_json
+from sphinx.util.websupport import is_commentable
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.writers.websupport import WebSupportTranslator
 from sphinx.environment import WarningStream
 from sphinx.versioning import add_uids, merge_doctrees
 
-def is_paragraph(node):
-    return node.__class__.__name__ == 'paragraph'
 
 class WebSupportBuilder(StandaloneHTMLBuilder):
     """
@@ -66,9 +65,9 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
         old_doctree = self.get_old_doctree(docname)
         if old_doctree:
-            list(merge_doctrees(old_doctree, doctree, is_paragraph))
+            list(merge_doctrees(old_doctree, doctree, is_commentable))
         else:
-            list(add_uids(doctree, is_paragraph))
+            list(add_uids(doctree, is_commentable))
 
         self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
