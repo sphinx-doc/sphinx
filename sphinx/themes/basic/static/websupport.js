@@ -265,7 +265,7 @@
   function appendComments(comments, ul) {
     $.each(comments, function() {
       var div = createCommentDiv(this);
-      ul.append($('<li></li>').html(div));
+      ul.append($(document.createElement('li')).html(div));
       appendComments(this.children, div.find('ul.children'));
       // To avoid stagnating data, don't store the comments children in data.
       this.children = null;
@@ -292,7 +292,7 @@
       var siblings = getChildren(ul);
     }
 
-    var li = $('<li></li>');
+    var li = $(document.createElement('li'));
     li.hide();
 
     // Determine where in the parents children list to insert this comment.
@@ -596,7 +596,7 @@
    by context['id']. Items are always escaped.
   */
   function renderTemplate(template, context) {
-    var esc = $('<span></span>');
+    var esc = $(document.createElement('div'));
 
     function handle(ph, escape) {
       var cur = context;
