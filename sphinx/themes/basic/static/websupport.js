@@ -5,15 +5,13 @@
 
       $.fn.autogrow.resize(textarea);
 
-      $(textarea)
-	.focus(function() {
-	  textarea.interval = setInterval(function() {
-	    $.fn.autogrow.resize(textarea);
-	  }, 500);
-	})
-	.blur(function() {
-	  clearInterval(textarea.interval);
-	});
+      $(textarea).focus(function() {
+    	  textarea.interval = setInterval(function() {
+    	    $.fn.autogrow.resize(textarea);
+    	  }, 500);
+    	}).blur(function() {
+    	  clearInterval(textarea.interval);
+    	});
     });
   };
 
@@ -127,11 +125,11 @@
     if (document.cookie.length > 0) {
       var start = document.cookie.indexOf('sortBy=');
       if (start != -1) {
-	start = start + 7;
-	var end = document.cookie.indexOf(";", start);
-	if (end == -1)
-	  end = document.cookie.length;
-	by = unescape(document.cookie.substring(start, end));
+      	start = start + 7;
+      	var end = document.cookie.indexOf(";", start);
+      	if (end == -1)
+      	  end = document.cookie.length;
+        	by = unescape(document.cookie.substring(start, end));
       }
     }
     setComparator(by);
@@ -146,24 +144,24 @@
     // Reset the main comment form, and set the value of the parent input.
     $('form#comment_form')
       .find('textarea,input')
-	.removeAttr('disabled').end()
+    	.removeAttr('disabled').end()
       .find('input[name="node"]')
-	.val(id).end()
+    	.val(id).end()
       .find('textarea[name="proposal"]')
-	.val('')
-	.hide();
+    	.val('')
+    	.hide();
 
     // Position the popup and show it.
     var clientWidth = document.documentElement.clientWidth;
     var popupWidth = $('div.popup_comment').width();
     $('div.popup_comment')
       .css({
-	'top': 100+$(window).scrollTop(),
-	'left': clientWidth/2-popupWidth/2,
-	'position': 'absolute'
+      	'top': 100+$(window).scrollTop(),
+      	'left': clientWidth/2-popupWidth/2,
+      	'position': 'absolute'
       })
       .fadeIn('fast', function() {
-	getComments(id);
+      	getComments(id);
       });
   };
 
@@ -175,9 +173,9 @@
       $('ul#comment_ul').empty();
       $('h3#comment_notification').show();
       $('form#comment_form').find('textarea')
-	.val('').end()
-	.find('textarea, input')
-	  .removeAttr('disabled');
+      	.val('').end()
+      	.find('textarea, input')
+    	  .removeAttr('disabled');
     });
   };
 
@@ -191,28 +189,27 @@
       url: opts.getCommentsURL,
       data: {node: id},
       success: function(data, textStatus, request) {
-	var ul = $('ul#comment_ul').hide();
-	$('form#comment_form')
-	  .find('textarea[name="proposal"]')
-	    .data('source', data.source);
+      	var ul = $('ul#comment_ul').hide();
+      	$('form#comment_form')
+      	  .find('textarea[name="proposal"]')
+    	    .data('source', data.source);
 
-	if (data.comments.length == 0) {
-	  ul.html('<li>No comments yet.</li>');
-	  commentListEmpty = true;
-	  var speed = 100;
-	}
-	else {
-	  // If there are comments, sort them and put them in the list.
-	  var comments = sortComments(data.comments);
-	  var speed = data.comments.length * 100;
-	  appendComments(comments, ul);
-	  commentListEmpty = false;
-	}
-	$('h3#comment_notification').slideUp(speed+200);
-	ul.slideDown(speed);
+      	if (data.comments.length == 0) {
+      	  ul.html('<li>No comments yet.</li>');
+      	  commentListEmpty = true;
+      	  var speed = 100;
+      	}	else {
+      	  // If there are comments, sort them and put them in the list.
+      	  var comments = sortComments(data.comments);
+      	  var speed = data.comments.length * 100;
+      	  appendComments(comments, ul);
+      	  commentListEmpty = false;
+      	}
+      	$('h3#comment_notification').slideUp(speed+200);
+      	ul.slideDown(speed);
       },
       error: function(request, textStatus, error) {
-	showError('Oops, there was a problem retrieving the comments.');
+      	showError('Oops, there was a problem retrieving the comments.');
       },
       dataType: 'json'
     });
@@ -231,28 +228,30 @@
       type: "POST",
       url: opts.addCommentURL,
       dataType: 'json',
-      data: {node: node_id,
-             parent: form.find('input[name="parent"]').val(),
-	     text: form.find('textarea[name="comment"]').val(),
-	     proposal: form.find('textarea[name="proposal"]').val()},
+      data: {
+        node: node_id,
+        parent: form.find('input[name="parent"]').val(),
+        text: form.find('textarea[name="comment"]').val(),
+        proposal: form.find('textarea[name="proposal"]').val()
+      },
       success: function(data, textStatus, error) {
-	// Reset the form.
-	if (node_id) {
-	  hideProposeChange(node_id);
-	}
-	form.find('textarea')
-	  .val('')
-	    .add(form.find('input'))
+      	// Reset the form.
+      	if (node_id) {
+      	  hideProposeChange(node_id);
+      	}
+      	form.find('textarea')
+    	  .val('')
+	      .add(form.find('input'))
 	      .removeAttr('disabled');
-	if (commentListEmpty) {
-	  $('ul#comment_ul').empty();
-	  commentListEmpty = false;
-	}
-	insertComment(data.comment);
+      	if (commentListEmpty) {
+      	  $('ul#comment_ul').empty();
+      	  commentListEmpty = false;
+      	}
+      	insertComment(data.comment);
       },
       error: function(request, textStatus, error) {
-	form.find('textarea,input').removeAttr('disabled');
-	showError('Oops, there was a problem adding the comment.');
+      	form.find('textarea,input').removeAttr('disabled');
+      	showError('Oops, there was a problem adding the comment.');
       }
     });
   };
@@ -286,8 +285,7 @@
     if (comment.node != null) {
       var ul = $('ul#comment_ul');
       var siblings = getChildren(ul);
-    }
-    else {
+    } else {
       var ul = $('#cl' + comment.parent);
       var siblings = getChildren(ul);
     }
@@ -298,11 +296,11 @@
     // Determine where in the parents children list to insert this comment.
     for(i=0; i < siblings.length; i++) {
       if (comp(comment, siblings[i]) <= 0) {
-	$('#cd' + siblings[i].id)
-	  .parent()
-	    .before(li.html(div));
-	li.slideDown('fast');
-	return;
+      	$('#cd' + siblings[i].id)
+    	  .parent()
+	      .before(li.html(div));
+        li.slideDown('fast');
+      	return;
       }
     }
 
@@ -318,10 +316,10 @@
       url: opts.acceptCommentURL,
       data: {id: id},
       success: function(data, textStatus, request) {
-	$('#cm' + id).fadeOut('fast');
+      	$('#cm' + id).fadeOut('fast');
       },
       error: function(request, textStatus, error) {
-	showError("Oops, there was a problem accepting the comment.");
+      	showError("Oops, there was a problem accepting the comment.");
       },
     });
   };
@@ -332,13 +330,13 @@
       url: opts.rejectCommentURL,
       data: {id: id},
       success: function(data, textStatus, request) {
-	var div = $('#cd' + id);
-	div.slideUp('fast', function() {
-	  div.remove();
-	});
+      	var div = $('#cd' + id);
+      	div.slideUp('fast', function() {
+      	  div.remove();
+      	});
       },
       error: function(request, textStatus, error) {
-	showError("Oops, there was a problem rejecting the comment.");
+      	showError("Oops, there was a problem rejecting the comment.");
       },
     });
   };
@@ -349,22 +347,22 @@
       url: opts.deleteCommentURL,
       data: {id: id},
       success: function(data, textStatus, request) {
-	var div = $('#cd' + id);
-	div
-	  .find('span.user_id:first')
-	    .text('[deleted]').end()
-	  .find('p.comment_text:first')
-	    .text('[deleted]').end()
-	  .find('#cm' + id + ', #dc' + id + ', #ac' + id + ', #rc' + id +
-		', #sp' + id + ', #hp' + id + ', #cr' + id + ', #rl' + id)
-	    .remove();
-	var comment = div.data('comment');
-	comment.username = '[deleted]';
-	comment.text = '[deleted]';
-	div.data('comment', comment);
+      	var div = $('#cd' + id);
+      	div
+    	    .find('span.user_id:first')
+  	      .text('[deleted]').end()
+      	  .find('p.comment_text:first')
+	        .text('[deleted]').end()
+      	  .find('#cm' + id + ', #dc' + id + ', #ac' + id + ', #rc' + id +
+		            ', #sp' + id + ', #hp' + id + ', #cr' + id + ', #rl' + id)
+    	    .remove();
+      	var comment = div.data('comment');
+      	comment.username = '[deleted]';
+      	comment.text = '[deleted]';
+      	div.data('comment', comment);
       },
       error: function(request, textStatus, error) {
-	showError("Oops, there was a problem deleting the comment.");
+      	showError("Oops, there was a problem deleting the comment.");
       },
     });
   };
@@ -449,10 +447,8 @@
     // If this is not an unvote, and the other vote arrow has
     // already been pressed, unpress it.
     if ((d.value != 0) && (data.vote == d.value*-1)) {
-      $('#' + (d.value == 1 ? 'd' : 'u') + 'u' + d.comment_id)
-	.hide();
-      $('#' + (d.value == 1 ? 'd' : 'u') + 'v' + d.comment_id)
-	.show();
+      $('#' + (d.value == 1 ? 'd' : 'u') + 'u' + d.comment_id).hide();
+      $('#' + (d.value == 1 ? 'd' : 'u') + 'v' + d.comment_id).show();
     }
 
     // Update the comments rating in the local data.
@@ -470,7 +466,7 @@
       url: opts.processVoteURL,
       data: d,
       error: function(request, textStatus, error) {
-	showError("Oops, there was a problem casting that vote.");
+      	showError("Oops, there was a problem casting that vote.");
       }
     });
   };
@@ -489,12 +485,12 @@
       .prepend(div)
       // Setup the submit handler for the reply form.
       .find('#rf' + id)
-	.submit(function(event) {
-	  event.preventDefault();
-	  addComment($('#rf' + id));
-	  closeReply(id);
-	});
-    div.slideDown('fast');
+    	.submit(function(event) {
+    	  event.preventDefault();
+    	  addComment($('#rf' + id));
+    	  closeReply(id);
+    	});
+      div.slideDown('fast');
   };
 
   /**
@@ -532,10 +528,10 @@
     if (by.substring(0,3) == 'asc') {
       var i = by.substring(3);
       comp = function(a, b) { return a[i] - b[i]; }
-    }
-    // Otherwise sort in descending order.
-    else
+    } else {
+      // Otherwise sort in descending order.
       comp = function(a, b) { return b[by] - a[by]; }
+    }
 
     // Reset link styles and format the selected sort option.
     $('a.sel').attr('href', '#').removeClass('sel');
@@ -548,15 +544,14 @@
    */
   function getChildren(ul, recursive) {
     var children = [];
-    ul.children().children("[id^='cd']")
-      .each(function() {
-	var comment = $(this).data('comment');
-	if (recursive) {
-	  comment.children =
-	    getChildren($(this).find('#cl' + comment.id), true);
-	}
-	children.push(comment);
-      });
+    ul.children().children("[id^='cd']").each(function() {
+    	var comment = $(this).data('comment');
+    	if (recursive) {
+    	  comment.children =
+	        getChildren($(this).find('#cl' + comment.id), true);
+    	}
+    	children.push(comment);
+    });
     return children;
   };
 
@@ -581,16 +576,15 @@
     if (comment.text != '[deleted]') {
       div.find('a.reply').show();
       if (comment.proposal_diff) {
-	div.find('#sp' + comment.id).show();
+      	div.find('#sp' + comment.id).show();
       }
       if (opts.moderator && !comment.displayed) {
-	div.find('#cm' + comment.id).show();
+      	div.find('#cm' + comment.id).show();
       }
       if (opts.moderator || (opts.username == comment.username)) {
-	div.find('#dc' + comment.id).show();
+      	div.find('#dc' + comment.id).show();
       }
     }
-
     return div;
   }
 
@@ -604,7 +598,7 @@
     function handle(ph, escape) {
       var cur = context;
       $.each(ph.split('.'), function() {
-	cur = cur[this];
+      	cur = cur[this];
       });
       return escape ? esc.text(cur || "").html() : cur;
     }
@@ -618,10 +612,10 @@
     $('<div class="popup_error">' +
       '<h1>' + message + '</h1>' +
       '</div>')
-	.appendTo('body')
-	  .fadeIn("slow")
+    	.appendTo('body')
+   	  .fadeIn("slow")
 	    .delay(2000)
-	      .fadeOut("slow");
+      .fadeOut("slow");
   };
 
   /**
@@ -634,13 +628,13 @@
       var title = count + ' comment' + (count == 1 ? '' : 's');
       var image = count > 0 ? opts.commentBrightImage : opts.commentImage;
       $(this).append(
-	$('<a href="#" class="sphinx_comment"></a>')
-	  .html('<img src="' + image + '" alt="comment" />')
-	  .attr('title', title)
-	  .click(function(event) {
-	    event.preventDefault();
-	    show($(this).parent().attr('id'));
-	  }));
+      	$('<a href="#" class="sphinx_comment"></a>')
+      	  .html('<img src="' + image + '" alt="comment" />')
+      	  .attr('title', title)
+      	  .click(function(event) {
+      	    event.preventDefault();
+      	    show($(this).parent().attr('id'));
+      	  }));
     });
   };
 
