@@ -23,9 +23,9 @@
     var columns = textarea.cols;
     var lineCount = 0;
     $.each(lines, function() {
-      lineCount += Math.ceil(this.length/columns) || 1;
+      lineCount += Math.ceil(this.length / columns) || 1;
     });
-    var height = lineHeight*(lineCount+1);
+    var height = lineHeight * (lineCount + 1);
     $(textarea).css('height', height);
   };
 })(jQuery);
@@ -158,8 +158,8 @@
     var popupWidth = $('div.popup_comment').width();
     $('div.popup_comment')
       .css({
-        'top': 100+$(window).scrollTop(),
-        'left': clientWidth/2-popupWidth/2,
+        'top': 100 + $(window).scrollTop(),
+        'left': clientWidth / 2 - popupWidth / 2,
         'position': 'absolute'
       })
       .fadeIn('fast', function() {
@@ -207,7 +207,7 @@
          appendComments(comments, ul);
          commentListEmpty = false;
        }
-       $('h3#comment_notification').slideUp(speed+200);
+       $('h3#comment_notification').slideUp(speed + 200);
        ul.slideDown(speed);
      },
      error: function(request, textStatus, error) {
@@ -448,11 +448,9 @@
 
     // If this is not an unvote, and the other vote arrow has
     // already been pressed, unpress it.
-    if ((d.value != 0) && (data.vote == d.value*-1)) {
-      $('#' + (d.value == 1 ? 'd' : 'u') + 'u' + d.comment_id)
-        .hide();
-      $('#' + (d.value == 1 ? 'd' : 'u') + 'v' + d.comment_id)
-        .show();
+    if ((d.value != 0) && (data.vote == d.value * -1)) {
+      $('#' + (d.value == 1 ? 'd' : 'u') + 'u' + d.comment_id).hide();
+      $('#' + (d.value == 1 ? 'd' : 'u') + 'v' + d.comment_id).show();
     }
 
     // Update the comments rating in the local data.
