@@ -110,9 +110,11 @@
       popup = $(renderTemplate(popupTemplate, opts));
       popup.find('textarea').autogrow();
 
-      commentTemplate = loadTemplate('#comment_template');
-      replyTemplate = loadTemplate('#reply_template');
+      commentTemplate = loadTemplate('comment_template');
+      replyTemplate = loadTemplate('reply_template');
+      var focuser = templates.find('#focuser');
       $('body').append(popup);
+      $('body').append(focuser);
       initEvents();
     });
   };
@@ -156,6 +158,7 @@
     // Position the popup and show it.
     var clientWidth = document.documentElement.clientWidth;
     var popupWidth = $('div.popup_comment').width();
+    $('div#focuser').fadeIn('fast');
     $('div.popup_comment')
       .css({
         'top': 100 + $(window).scrollTop(),
@@ -171,6 +174,7 @@
    Hide the comments popup window.
   */
   function hide() {
+    $('div#focuser').fadeOut('fast');
     $('div.popup_comment').fadeOut('fast', function() {
       $('ul#comment_ul').empty();
       $('h3#comment_notification').show();
