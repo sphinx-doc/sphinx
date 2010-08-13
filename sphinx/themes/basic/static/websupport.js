@@ -612,8 +612,8 @@
   };
 
   function showError(message) {
-    $(document.createElement('div').attr({class: 'popup_error'}))
-      .append($(document.createElement('h1').val(message)))
+    $(document.createElement('div')).attr({class: 'popup_error'})
+      .append($(document.createElement('h1')).text(message))
       .appendTo('body')
       .fadeIn("slow")
       .delay(2000)
