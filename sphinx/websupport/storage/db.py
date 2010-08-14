@@ -31,7 +31,6 @@ class Node(Base):
 
     id = Column(String(32), primary_key=True)
     document = Column(String(256), nullable=False)
-    line = Column(Integer)
     source = Column(Text, nullable=False)
 
     def nested_comments(self, username, moderator):
@@ -94,10 +93,9 @@ class Node(Base):
 
         return comments
 
-    def __init__(self, id, document, line, source):
+    def __init__(self, id, document, source):
         self.id = id
         self.document = document
-        self.line = line
         self.source = source
 
 class Comment(Base):

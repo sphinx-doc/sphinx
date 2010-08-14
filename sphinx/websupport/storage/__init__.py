@@ -16,15 +16,11 @@ class StorageBackend(object):
         """
         pass
 
-    def add_node(self, id, document, line, source):
+    def add_node(self, id, document, source):
         """Add a node to the StorageBackend.
 
         :param id: a unique id for the comment.
-
         :param document: the name of the document the node belongs to.
-
-        :param line: the line in the source where the node begins.
-
         :param source: the source files name.
         """
         raise NotImplementedError()
