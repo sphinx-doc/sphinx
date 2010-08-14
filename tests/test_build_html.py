@@ -166,7 +166,7 @@ HTML_XPATH = {
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
-        (".//a[@href='#userdesc-myobj']", ''),
+        (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#Sphinx_DoSomething']", ''),
