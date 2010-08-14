@@ -16,6 +16,13 @@ class StorageBackend(object):
         """
         pass
 
+    def has_node(self, id):
+        """Check to see if a node exists.
+
+        :param id: the id to check for.
+        """
+        raise NotImplementedError()
+
     def add_node(self, id, document, source):
         """Add a node to the StorageBackend.
 

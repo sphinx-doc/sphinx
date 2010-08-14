@@ -33,11 +33,16 @@ class SQLAlchemyStorage(StorageBackend):
     def pre_build(self):
         self.build_session = Session()
 
+    def has_node(self, id):
+        session = Session()
+        node = session.query(Node).filter(Node.id == id).first()
+        session.close()
+        return True if node else False
+
     def add_node(self, id, document, source):
         node = Node(id, document, source)
         self.build_session.add(node)
         self.build_session.flush()
-        return node
 
     def post_build(self):
         self.build_session.commit()
