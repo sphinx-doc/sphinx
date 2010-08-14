@@ -7,6 +7,11 @@ Release 1.1 (in development)
 Release 1.0.2 (in development)
 ==============================
 
+* #490: Fix cross-references to objects of types added by the
+  :func:`~.Sphinx.add_object_type` API function.
+
+* Fix handling of doc field types for different directive types.
+
 * Allow breaking long signatures, continuing with backlash-escaped
   newlines.
 
