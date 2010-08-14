@@ -163,7 +163,6 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         for f in glob(path.join(self.doctreedir, '*.doctree.old')):
             os.remove(f)
 
-
     def dump_search_index(self):
         self.indexer.finish_indexing()
 
