@@ -484,7 +484,13 @@ class StandardDomain(Domain):
                 return make_refnode(builder, fromdocname, docname,
                                     labelid, contnode)
         else:
-            docname, labelid = self.data['objects'].get((typ, target), ('', ''))
+            objtypes = self.objtypes_for_role(typ) or []
+            for objtype in objtypes:
+                if (objtype, target) in self.data['objects']:
+                    docname, labelid = self.data['objects'][objtype, target]
+                    break
+            else:
+                docname, labelid = '', ''
             if not docname:
                 if typ == 'term':
                     env.warn(node.get('refdoc', fromdocname),
