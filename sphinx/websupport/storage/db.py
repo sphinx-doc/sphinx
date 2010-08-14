@@ -11,6 +11,7 @@
 """
 
 from datetime import datetime
+from uuid import uuid4
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, ForeignKey,\
                        DateTime
@@ -28,7 +29,7 @@ class Node(Base):
     """Data about a Node in a doctree."""
     __tablename__ = db_prefix + 'nodes'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String(32), primary_key=True)
     document = Column(String(256), nullable=False)
     line = Column(Integer)
     source = Column(Text, nullable=False)
@@ -93,7 +94,8 @@ class Node(Base):
 
         return comments
 
-    def __init__(self, document, line, source):
+    def __init__(self, id, document, line, source):
+        self.id = id
         self.document = document
         self.line = line
         self.source = source
@@ -112,7 +114,7 @@ class Comment(Base):
     proposal_diff = Column(Text)
     path = Column(String(256), index=True)
 
-    node_id = Column(Integer, ForeignKey(db_prefix + 'nodes.id'))
+    node_id = Column(String, ForeignKey(db_prefix + 'nodes.id'))
     node = relation(Node, backref="comments")
 
     def __init__(self, text, displayed, username, rating, time,

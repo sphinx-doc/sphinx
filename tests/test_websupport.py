@@ -12,6 +12,8 @@
 import os
 from StringIO import StringIO
 
+from nose import SkipTest
+
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
@@ -79,10 +81,10 @@ def test_comments(support):
 
     # Create a displayed comment and a non displayed comment.
     comment = support.add_comment('First test comment',
-                                  node_id=str(first_node.id),
+                                  node_id=first_node.id,
                                   username='user_one')
     hidden_comment = support.add_comment('Hidden comment',
-                                         node_id=str(first_node.id),
+                                         node_id=first_node.id,
                                          displayed=False)
     # Make sure that comments can't be added to a comment where
     # displayed == False, since it could break the algorithm that
@@ -96,11 +98,11 @@ def test_comments(support):
                         parent_id=str(comment['id']), displayed=False)
     # Add a comment to another node to make sure it isn't returned later.
     support.add_comment('Second test comment',
-                        node_id=str(second_node.id),
+                        node_id=second_node.id,
                         username='user_two')
 
     # Access the comments as a moderator.
-    data = support.get_data(str(first_node.id), moderator=True)
+    data = support.get_data(first_node.id, moderator=True)
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 2
@@ -109,7 +111,7 @@ def test_comments(support):
     assert children[1]['text'] == 'Hidden child test comment'
 
     # Access the comments without being a moderator.
-    data = support.get_data(str(first_node.id))
+    data = support.get_data(first_node.id)
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 1
@@ -124,10 +126,10 @@ def test_voting(support):
     nodes = session.query(Node).all()
     node = nodes[0]
 
-    comment = support.get_data(str(node.id))['comments'][0]
+    comment = support.get_data(node.id)['comments'][0]
 
     def check_rating(val):
-        data = support.get_data(str(node.id))
+        data = support.get_data(node.id)
         comment = data['comments'][0]
         assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
 
@@ -156,13 +158,13 @@ def test_proposals(support):
     session = Session()
     node = session.query(Node).first()
 
-    data = support.get_data(str(node.id))
+    data = support.get_data(node.id)
 
     source = data['source']
     proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
 
     comment = support.add_comment('Proposal comment',
-                                  node_id=str(node.id),
+                                  node_id=node.id,
                                   proposal=proposal)
 
 
@@ -172,7 +174,7 @@ def test_user_delete_comments(support):
         session = Session()
         node = session.query(Node).first()
         session.close()
-        return support.get_data(str(node.id))['comments'][0]
+        return support.get_data(node.id)['comments'][0]
 
     comment = get_comment()
     assert comment['username'] == 'user_one'
@@ -192,7 +194,7 @@ def test_moderator_delete_comments(support):
         session = Session()
         node = session.query(Node).first()
         session.close()
-        return support.get_data(str(node.id), moderator=True)['comments'][1]
+        return support.get_data(node.id, moderator=True)['comments'][1]
 
     comment = get_comment()
     support.delete_comment(comment['id'], username='user_two',
@@ -228,6 +230,8 @@ def moderation_callback(comment):
 
 @with_support(moderation_callback=moderation_callback)
 def test_moderation(support):
+    raise SkipTest(
+            'test is broken, relies on order of test execution and numeric ids')
     accepted = support.add_comment('Accepted Comment', node_id=3,
                                    displayed=False)
     rejected = support.add_comment('Rejected comment', node_id=3,
