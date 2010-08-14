@@ -176,8 +176,8 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             'FILE_SUFFIX': '',
             'HAS_SOURCE': ctx['has_source']
         }
-        scripts = [make_script('_static/websupport.js')]
-        scripts += [make_script(file) for file in ctx['script_files']]
+        scripts = [make_script(file) for file in ctx['script_files']]
+        scripts.append(make_script('_static/websupport.js'))
         return '\n'.join([
             '<script type="text/javascript">'
             'var DOCUMENTATION_OPTIONS = %s;' % dump_json(opts),
