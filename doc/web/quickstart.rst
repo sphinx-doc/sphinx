@@ -143,8 +143,7 @@ will then add this data to the COMMENT_OPTIONS that are used in the template.
     need to prefix the url route with that directory, and give the `docroot`
     keyword argument when creating the web support object::
 
-        support = WebSupport(...
-                             docroot='docs')
+        support = WebSupport(..., docroot='docs')
 
         @app.route('/docs/<path:docname>')
 
@@ -259,10 +258,9 @@ is added but not displayed, you can pass callable to the
 object::
 
     def moderation_callback(comment):
-        Do something...
+        """Do something..."""
 
-    support = WebSupport(...
-                         moderation_callback=moderation_callback)
+    support = WebSupport(..., moderation_callback=moderation_callback)
 
 The moderation callback must take one argument, which will be the same
 comment dict that is returned by add_comment.
