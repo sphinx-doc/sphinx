@@ -12,7 +12,6 @@
 import cPickle as pickle
 from os import path
 from cgi import escape
-from glob import glob
 import os
 import posixpath
 import shutil
@@ -38,8 +37,11 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         StandaloneHTMLBuilder.init(self)
-        for f in glob(path.join(self.doctreedir, '*.doctree')):
-            copyfile(f, f + '.old')
+        for root, dirs, files in os.walk(self.doctreedir):
+            for fn in files:
+                fp = path.join(root, fn)
+                if fp.endswith('.doctree'):
+                    copyfile(fp, fp + '.old')
 
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
@@ -160,8 +162,11 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             except IOError:
                 # in case any of these directories don't exist
                 pass
-        for f in glob(path.join(self.doctreedir, '*.doctree.old')):
-            os.remove(f)
+        for root, dirs, files in os.walk(self.doctreedir):
+            for fn in files:
+                fp = path.join(root, fn)
+                if fp.endswith('.doctree.old'):
+                    os.remove(fp)
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
