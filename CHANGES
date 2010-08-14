@@ -4,8 +4,8 @@ Release 1.1 (in development)
 * Added Python 3.x support.
 
 
-Release 1.0.2 (in development)
-==============================
+Release 1.0.2 (Aug 14, 2010)
+============================
 
 * #490: Fix cross-references to objects of types added by the
   :func:`~.Sphinx.add_object_type` API function.
