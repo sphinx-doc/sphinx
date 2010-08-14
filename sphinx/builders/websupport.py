@@ -61,6 +61,23 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
                                     stream=WarningStream(self.env._warnfunc))
         return doctree
 
+    def resave_doctree(self, docname, doctree):
+        # make it picklable, save the reporter, it's needed later.
+        reporter = doctree.reporter
+        doctree.reporter = None
+        doctree.settings.warning_stream = None
+        doctree.settings.env = None
+        doctree.settings.record_dependencies = None
+
+        fp = self.env.doc2path(docname, self.doctreedir, '.doctree')
+        f = open(fp, 'wb')
+        try:
+            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+        finally:
+            f.close()
+
+        doctree.reporter = reporter
+
     def write_doc(self, docname, doctree):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
@@ -70,6 +87,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             list(merge_doctrees(old_doctree, doctree, is_commentable))
         else:
             list(add_uids(doctree, is_commentable))
+        self.resave_doctree(docname, doctree)
 
         self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
