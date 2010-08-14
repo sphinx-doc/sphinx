@@ -167,7 +167,7 @@ class DocFieldTransformer(object):
 
     def __init__(self, directive):
         self.domain = directive.domain
-        if not hasattr(directive, '_doc_field_type_map'):
+        if '_doc_field_type_map' not in directive.__class__.__dict__:
             directive.__class__._doc_field_type_map = \
                 self.preprocess_fieldtypes(directive.__class__.doc_field_types)
         self.typemap = directive._doc_field_type_map

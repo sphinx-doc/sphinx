@@ -162,7 +162,6 @@ class ObjectDescription(Directive):
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
-        #self.handle_doc_fields(contentnode)
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
