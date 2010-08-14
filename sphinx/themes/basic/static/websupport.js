@@ -618,7 +618,7 @@
       var title = count + ' comment' + (count == 1 ? '' : 's');
       var image = count > 0 ? opts.commentBrightImage : opts.commentImage;
       $(this).append(
-        $(document.createElement('a')).attr({href: '#', class: 'spinx_comment'})
+        $(document.createElement('a')).attr({href: '#', class: 'sphinx_comment'})
           .append($(document.createElement('img')).attr({
             src: image,
             alt: 'comment',
