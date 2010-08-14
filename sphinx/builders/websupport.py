@@ -12,13 +12,21 @@
 import cPickle as pickle
 from os import path
 from cgi import escape
+import os
 import posixpath
 import shutil
+
 from docutils.io import StringOutput
+from docutils.utils import Reporter
 
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, copyfile
+from sphinx.util.jsonimpl import dumps as dump_json
+from sphinx.util.websupport import is_commentable
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.writers.websupport import WebSupportTranslator
+from sphinx.environment import WarningStream
+from sphinx.versioning import add_uids, merge_doctrees
+
 
 class WebSupportBuilder(StandaloneHTMLBuilder):
     """
@@ -27,12 +35,41 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
     name = 'websupport'
     out_suffix = '.fpickle'
 
+    def init(self):
+        StandaloneHTMLBuilder.init(self)
+        for root, dirs, files in os.walk(self.doctreedir):
+            for fn in files:
+                fp = path.join(root, fn)
+                if fp.endswith('.doctree'):
+                    copyfile(fp, fp + '.old')
+
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
+
+    def get_old_doctree(self, docname):
+        fp = self.env.doc2path(docname, self.doctreedir, '.doctree.old')
+        try:
+            f = open(fp, 'rb')
+            try:
+                doctree = pickle.load(f)
+            finally:
+                f.close()
+        except IOError:
+            return None
+        doctree.settings.env = self.env
+        doctree.reporter = Reporter(self.env.doc2path(docname), 2, 5,
+                                    stream=WarningStream(self.env._warnfunc))
+        return doctree
 
     def write_doc(self, docname, doctree):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
+
+        old_doctree = self.get_old_doctree(docname)
+        if old_doctree:
+            list(merge_doctrees(old_doctree, doctree, is_commentable))
+        else:
+            list(add_uids(doctree, is_commentable))
 
         self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
@@ -102,7 +139,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
-            pickle.dump(doc_ctx, f, 2)
+            pickle.dump(doc_ctx, f, pickle.HIGHEST_PROTOCOL)
         finally:
             f.close()
 
@@ -116,12 +153,20 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         StandaloneHTMLBuilder.handle_finish(self)
-        shutil.move(path.join(self.outdir, '_images'),
-                    path.join(self.app.builddir, self.app.staticdir,
-                              '_images'))
-        shutil.move(path.join(self.outdir, '_static'),
-                    path.join(self.app.builddir, self.app.staticdir,
-                              '_static'))
+        directories = ['_images', '_static']
+        for directory in directories:
+            try:
+                shutil.move(path.join(self.outdir, directory),
+                            path.join(self.app.builddir, self.app.staticdir,
+                                      directory))
+            except IOError:
+                # in case any of these directories don't exist
+                pass
+        for root, dirs, files in os.walk(self.doctreedir):
+            for fn in files:
+                fp = path.join(root, fn)
+                if fp.endswith('.doctree.old'):
+                    os.remove(fp)
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
@@ -131,20 +176,17 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
             path = ctx['pathto'](file, 1)
             return '<script type="text/javascript" src="%s"></script>' % path
 
-        opts = """
-<script type="text/javascript">
-  var DOCUMENTATION_OPTIONS = {
-    URL_ROOT: '%s',
-    VERSION: '%s',
-    COLLAPSE_INDEX: false,
-    FILE_SUFFIX: '',
-    HAS_SOURCE: '%s'
-  };
-</script>"""
-        opts = opts % (ctx.get('url_root', ''), escape(ctx['release']),
-                       str(ctx['has_source']).lower())
-        scripts = []
-        for file in ctx['script_files']:
-            scripts.append(make_script(file))
+        opts = {
+            'URL_ROOT': ctx.get('url_root', ''),
+            'VERSION': ctx['release'],
+            'COLLAPSE_INDEX': False,
+            'FILE_SUFFIX': '',
+            'HAS_SOURCE': ctx['has_source']
+        }
+        scripts = [make_script(file) for file in ctx['script_files']]
         scripts.append(make_script('_static/websupport.js'))
-        return opts + '\n' + '\n'.join(scripts)
+        return '\n'.join([
+            '<script type="text/javascript">'
+            'var DOCUMENTATION_OPTIONS = %s;' % dump_json(opts),
+            '</script>'
+        ] + scripts)

@@ -575,7 +575,6 @@
         div.find('#dc' + comment.id).show();
       }
     }
-
     return div;
   }
 

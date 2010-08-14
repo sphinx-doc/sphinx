@@ -33,8 +33,8 @@ class SQLAlchemyStorage(StorageBackend):
     def pre_build(self):
         self.build_session = Session()
 
-    def add_node(self, document, line, source):
-        node = Node(document, line, source)
+    def add_node(self, id, document, line, source):
+        node = Node(id, document, line, source)
         self.build_session.add(node)
         self.build_session.flush()
         return node

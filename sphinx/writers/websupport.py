@@ -10,12 +10,12 @@
 """
 
 from sphinx.writers.html import HTMLTranslator
+from sphinx.util.websupport import is_commentable
 
 class WebSupportTranslator(HTMLTranslator):
     """
     Our custom HTML translator.
     """
-    commentable_nodes = ['paragraph', 'literal_block']
 
     def __init__(self, builder, *args, **kwargs):
         HTMLTranslator.__init__(self, builder, *args, **kwargs)
@@ -26,13 +26,13 @@ class WebSupportTranslator(HTMLTranslator):
         self.cur_node = None
 
     def dispatch_visit(self, node):
-        if node.__class__.__name__ in self.commentable_nodes:
+        if is_commentable(node):
             self.handle_visit_commentable(node)
         HTMLTranslator.dispatch_visit(self, node)
 
     def dispatch_departure(self, node):
         HTMLTranslator.dispatch_departure(self, node)
-        if node.__class__.__name__ in self.commentable_nodes:
+        if is_commentable(node):
             self.handle_depart_commentable(node)
 
     def handle_visit_commentable(self, node):
@@ -55,7 +55,8 @@ class WebSupportTranslator(HTMLTranslator):
 
     def add_db_node(self, node):
         storage = self.builder.app.storage
-        db_node_id = storage.add_node(document=self.builder.cur_docname,
+        db_node_id = storage.add_node(id=node.uid,
+                                      document=self.builder.cur_docname,
                                       line=node.line,
                                       source=node.rawsource or node.astext())
         return db_node_id
