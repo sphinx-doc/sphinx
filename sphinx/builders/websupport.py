@@ -151,12 +151,15 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         StandaloneHTMLBuilder.handle_finish(self)
-        shutil.move(path.join(self.outdir, '_images'),
-                    path.join(self.app.builddir, self.app.staticdir,
-                              '_images'))
-        shutil.move(path.join(self.outdir, '_static'),
-                    path.join(self.app.builddir, self.app.staticdir,
-                              '_static'))
+        directories = ['_images', '_static']
+        for directory in directories:
+            try:
+                shutil.move(path.join(self.outdir, directory),
+                            path.join(self.app.builddir, self.app.staticdir,
+                                      directory))
+            except IOError:
+                # in case any of these directories don't exist
+                pass
         for f in glob(path.join(self.doctreedir, '*.doctree.old')):
             os.remove(f)
 
