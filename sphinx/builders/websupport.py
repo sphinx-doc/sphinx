@@ -137,7 +137,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         ensuredir(path.dirname(outfilename))
         f = open(outfilename, 'wb')
         try:
-            pickle.dump(doc_ctx, f, 2)
+            pickle.dump(doc_ctx, f, pickle.HIGHEST_PROTOCOL)
         finally:
             f.close()
 
