@@ -78,7 +78,7 @@ def test_all(app):
         confoverrides={'language': 'xx', 'locale_dirs': ['.']})
 def test_patch(app):
     app.builder.build(['bom'])
-    result = (app.outdir / 'bom.txt').text('utf-8')
+    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
     expect = (u"\nDatei mit UTF-8"
               u"\n***************\n" # underline matches new translation
               u"\nThis file has umlauts: äöü.\n")
