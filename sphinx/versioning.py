@@ -66,12 +66,11 @@ def get_ratio(old, new):
     Returns a "similiarity ratio" representing the similarity between the two
     strings where 0 is equal and anything above less than equal.
     """
-    if old == new:
-        return 0
-    ratio = levenshtein_distance(old, new) / (len(old) / 100.0)
-    return ratio
+    return levenshtein_distance(old, new) / (len(old) / 100.0)
 
 def levenshtein_distance(a, b):
+    if a == b:
+        return 0
     if len(a) < len(b):
         a, b = b, a
     if not a:
