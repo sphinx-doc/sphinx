@@ -142,11 +142,11 @@ class MessageCatalogBuilder(I18NBuilder):
             pofile = open(pofp, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
-                for message in messages.itervalues():
+                for uid, message in messages.iteritems():
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
                                       replace(u'"', ur'\"')
-                    pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
+                    pomsg = u'#%s\nmsgid "%s"\nmsgstr ""\n\n' % (uid, message)
                     pofile.write(pomsg)
             finally:
                 pofile.close()
