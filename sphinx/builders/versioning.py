@@ -40,6 +40,7 @@ class VersioningBuilderMixin(object):
         doctree.settings.env = self.env
         doctree.reporter = Reporter(self.env.doc2path(docname), 2, 5,
                                     stream=WarningStream(self.env._warnfunc))
+        return doctree
 
     def resave_doctree(self, docname, doctree):
         reporter = doctree.reporter
