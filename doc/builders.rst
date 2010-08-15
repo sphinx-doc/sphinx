@@ -220,6 +220,18 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. versionadded:: 0.5
 
+.. module:: sphinx.builders.intl
+.. class:: MessageCatalogBuilder
+
+   This builder produces a message catalog file for each reST file or
+   subdirectory.
+
+   See the documentation on :ref:`internationalization <intl>` for further reference.
+
+   Its name is ``gettext``.
+
+   .. versionadded:: 1.XXX
+
 .. module:: sphinx.builders.changes
 .. class:: ChangesBuilder
 
