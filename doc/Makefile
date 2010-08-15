@@ -19,18 +19,19 @@ help:
 	@echo "  html       to make standalone HTML files"
 	@echo "  dirhtml    to make HTML files called index.html in directories"
 	@echo "  singlehtml to make one big HTML file"
-	@echo "  text       to make text files"
-	@echo "  man        to make manual pages"
-	@echo "  pickle     to make pickle files"
-	@echo "  json       to make json files"
-	@echo "  htmlhelp   to make HTML files and a HTML help project"
-	@echo "  qthelp     to make Qt help files and project"
-	@echo "  devhelp    to make Devhelp files and project"
-	@echo "  epub       to make an epub file"
-	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-	@echo "  latexpdf   to make LaTeX files and run pdflatex"
-	@echo "  changes    to make an overview over all changed/added/deprecated items"
-	@echo "  linkcheck  to check all external links for integrity"
+	@echo "  text      to make text files"
+	@echo "  man       to make manual pages"
+	@echo "  pickle    to make pickle files"
+	@echo "  json      to make json files"
+	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  qthelp    to make Qt help files and project"
+	@echo "  devhelp   to make Devhelp files and project"
+	@echo "  epub      to make an epub file"
+	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	@echo "  latexpdf  to make LaTeX files and run pdflatex"
+	@echo "  gettext   to make PO message catalogs"
+	@echo "  changes   to make an overview over all changed/added/deprecated items"
+	@echo "  linkcheck to check all external links for integrity"
 
 clean:
 	-rm -rf _build/*
@@ -111,6 +112,11 @@ latexpdf:
 	@echo "Running LaTeX files through pdflatex..."
 	make -C _build/latex all-pdf
 	@echo "pdflatex finished; the PDF files are in _build/latex."
+
+gettext:
+	$(SPHINXBUILD) -b gettext $(ALLSPHINXOPTS) _build/locale
+	@echo
+	@echo "Build finished. The message catalogs are in _build/locale."
 
 changes:
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) _build/changes
