@@ -10,12 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 from uuid import uuid4
+from operator import itemgetter
+from collections import defaultdict
 from itertools import product
-try:
-    from itertools import izip_longest as zip_longest
-except ImportError:
-    from itertools import zip_longest
-from difflib import SequenceMatcher
 
 from sphinx.util import PeekableIterator
 
@@ -34,19 +31,6 @@ def add_uids(doctree, condition):
         node.uid = uuid4().hex
         yield node
 
-def merge_node(old, new):
-    """
-    Merges the `old` node with the `new` one, if it's successful the `new` node
-    get's the unique identifier of the `new` one and ``True`` is returned. If
-    the merge is unsuccesful ``False`` is returned.
-    """
-    equals, changed, replaced = make_diff(old.rawsource,
-                                          new.rawsource)
-    if equals or changed:
-        new.uid = old.uid
-        return True
-    return False
-
 def merge_doctrees(old, new, condition):
     """
     Merges the `old` doctree with the `new` one while looking at nodes matching
@@ -58,78 +42,34 @@ def merge_doctrees(old, new, condition):
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    old_iter = PeekableIterator(old.traverse(condition))
-    new_iter = PeekableIterator(new.traverse(condition))
-    old_nodes = []
-    new_nodes = []
-    for old_node, new_node in zip_longest(old_iter, new_iter):
-        if old_node is None:
-            new_nodes.append(new_node)
+    old_nodes = old.traverse(condition)
+    new_nodes = new.traverse(condition)
+    ratios = defaultdict(list)
+    for old_node, new_node in product(old_nodes, new_nodes):
+        ratios[old_node, new_node] = get_ratio(old_node.rawsource,
+                                               new_node.rawsource)
+    ratios = sorted(ratios.iteritems(), key=itemgetter(1))
+    seen = set()
+    for (old_node, new_node), ratio in ratios:
+        if new_node in seen:
             continue
-        if new_node is None:
-            old_nodes.append(old_node)
-            continue
-        if not merge_node(old_node, new_node):
-            if old_nodes:
-                for i, very_old_node in enumerate(old_nodes):
-                    if merge_node(very_old_node, new_node):
-                        del old_nodes[i]
-                        # If the last identified node which has not matched the
-                        # unidentified node matches the current one, we have to
-                        # assume that the last unidentified one has been
-                        # inserted.
-                        #
-                        # As the required time multiplies with each insert, we
-                        # want to avoid that by checking if the next
-                        # unidentified node matches the current identified one
-                        # and if so we make a shift.
-                        if i == len(old_nodes):
-                            next_new_node = new_iter.next()
-                            if not merge_node(old_node, next_new_node):
-                                new_iter.push(next_new_node)
-                        break
-            else:
-                old_nodes.append(old_node)
-                new_nodes.append(new_node)
-    for (i, new_node), (j, old_node) in product(enumerate(new_nodes),
-                                                enumerate(old_nodes)):
-        if merge_node(old_node, new_node):
-            del new_nodes[i]
-            del old_nodes[j]
-    for node in new_nodes:
-        node.uid = uuid4().hex
-        # Yielding the new nodes here makes it possible to use this generator
-        # like add_uids
-        yield node
+        else:
+            seen.add(new_node)
+        if ratio < 65:
+            new_node.uid = old_node.uid
+        else:
+            new_node.uid = uuid4().hex
+            yield new_node
 
-def make_diff(old, new):
+def get_ratio(old, new):
     """
-    Takes two strings `old` and `new` and returns a :class:`tuple` of boolean
-    values ``(equals, changed, replaced)``.
-
-    equals
-
-        ``True`` if the `old` string and the `new` one are equal.
-
-    changed
-
-        ``True`` if the `new` string is a changed version of the `old` one.
-
-    replaced
-
-        ``True`` if the `new` string and the `old` string are totally
-        different.
-
-    .. note:: This assumes the two strings are human readable text or at least
-              something very similar to that, otherwise it can not detect if
-              the string has been changed or replaced. In any case the
-              detection should not be considered reliable.
+    Returns a "similiarity ratio" representing the similarity between the two
+    strings where 0 is equal and anything above less than equal.
     """
     if old == new:
-        return True, False, False
-    if new in old or levenshtein_distance(old, new) / (len(old) / 100.0) < 70:
-        return False, True, False
-    return False, False, True
+        return 0
+    ratio = levenshtein_distance(old, new) / (len(old) / 100.0)
+    return ratio
 
 def levenshtein_distance(a, b):
     if len(a) < len(b):

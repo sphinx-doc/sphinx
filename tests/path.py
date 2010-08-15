@@ -88,7 +88,7 @@ class path(str):
         """
         shutil.rmtree(self, ignore_errors=ignore_errors, onerror=onerror)
 
-    def copytree(self, destination, symlinks=False, ignore=None):
+    def copytree(self, destination, symlinks=False):
         """
         Recursively copy a directory to the given `destination`. If the given
         `destination` does not exist it will be created.
@@ -102,7 +102,7 @@ class path(str):
             A callback which gets called with the path of the directory being
             copied and a list of paths as returned by :func:`os.listdir`.
         """
-        shutil.copytree(self, destination, symlinks=symlinks, ignore=ignore)
+        shutil.copytree(self, destination, symlinks=symlinks)
 
     def movetree(self, destination):
         """

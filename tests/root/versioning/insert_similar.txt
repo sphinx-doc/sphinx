@@ -1,0 +1,17 @@
+Versioning test text
+====================
+
+So the thing is I need some kind of text - not the lorem ipsum stuff, that
+doesn't work out that well - to test :mod:`sphinx.versioning`. I couldn't find
+a good text for that under public domain so I thought the easiest solution is
+to write one by myself. It's not really interesting, in fact it is *really*
+boring.
+
+Anyway I need more
+
+Anyway I need more than one paragraph, at least three for the original
+document, I think, and another one for two different ones.
+
+So the previous paragraph was a bit short because I don't want to test this
+only on long paragraphs, I hope it was short enough to cover most stuff.
+Anyway I see this lacks ``some markup`` so I have to add a **little** bit.
