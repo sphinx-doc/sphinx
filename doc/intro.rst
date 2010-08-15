@@ -50,10 +50,14 @@ docutils_ and Jinja2_ libraries.  Sphinx should work with docutils version 0.5
 or some (not broken) SVN trunk snapshot.  If you like to have source code
 highlighting support, you must also install the Pygments_ library.
 
+If you use **Python 2.4** you also need uuid_.
+
 .. _reStructuredText: http://docutils.sf.net/rst.html
 .. _docutils: http://docutils.sf.net/
 .. _Jinja2: http://jinja.pocoo.org/2/
 .. _Pygments: http://pygments.org/
+.. The given homepage is only a directory listing so I'm using the pypi site.
+.. _uuid: http://pypi.python.org/pypi/uuid/
 
 
 Usage
