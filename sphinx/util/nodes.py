@@ -22,6 +22,20 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
+def extract_messages(doctree):
+    """Extract translatable messages from a document tree."""
+    for node in doctree.traverse(nodes.TextElement):
+        if isinstance(node, (nodes.Invisible, nodes.Inline)):
+            continue
+        # <field_name>orphan</field_name>
+        if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
+            continue
+        msg = node.rawsource.replace('\n', ' ').strip()
+        # XXX nodes rendering empty are likely a bug in sphinx.addnodes
+        if msg:
+            yield node, msg
+
+
 def nested_parse_with_titles(state, content, node):
     # hack around title style bookkeeping
     surrounding_title_styles = state.memo.title_styles
