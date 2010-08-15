@@ -108,4 +108,6 @@ def test_insert_beginning():
     new_nodes = list(merge_doctrees(original, insert_beginning, is_paragraph))
     uids = [n.uid for n in insert_beginning.traverse(is_paragraph)]
     assert len(new_nodes) == 1
+    assert len(uids) == 4
     assert original_uids == uids[1:]
+    assert original_uids[0] != uids[0]
