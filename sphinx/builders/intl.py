@@ -13,18 +13,14 @@ from collections import defaultdict
 from datetime import datetime
 from os import path
 from codecs import open
-import os
-import pickle
 
 from docutils import nodes
-from docutils.utils import Reporter
 
 from sphinx.builders import Builder
+from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.util.nodes import extract_messages
 from sphinx.util.osutil import SEP, copyfile
 from sphinx.util.console import darkgreen
-from sphinx.environment import WarningStream
-from sphinx.versioning import add_uids, merge_doctrees
 
 POHEADER = ur"""
 # SOME DESCRIPTIVE TITLE.
@@ -47,47 +43,13 @@ msgstr ""
 
 """[1:]
 
-class I18NBuilder(Builder):
+class I18NBuilder(Builder, VersioningBuilderMixin):
     name = 'i18n'
 
     def init(self):
         Builder.init(self)
+        VersioningBuilderMixin.init(self)
         self.catalogs = defaultdict(dict)
-        for root, dirs, files in os.walk(self.doctreedir):
-            for fn in files:
-                fp = path.join(root, fn)
-                if fp.endswith('.doctree'):
-                    copyfile(fp, fp + '.old')
-
-    def get_old_doctree(self, docname):
-        fp = self.env.doc2path(docname, self.doctreedir, '.doctree.old')
-        try:
-            f = open(fp, 'rb')
-            try:
-                doctree = pickle.load(f)
-            finally:
-                f.close()
-        except IOError:
-            return None
-        doctree.settings.env = self.env
-        doctree.reporter = Reporter(self.env.doc2path(docname), 2, 5,
-                                    stream=WarningStream(self.env._warnfunc))
-
-    def resave_doctree(self, docname, doctree):
-        reporter = doctree.reporter
-        doctree.reporter = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
-
-        fp = self.env.doc2path(docname, self.doctreedir, '.doctree')
-        f = open(fp, 'wb')
-        try:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            f.close()
-
-        doctree.reporter = reporter
 
     def get_target_uri(self, docname, typ=None):
         return ''
@@ -100,24 +62,15 @@ class I18NBuilder(Builder):
 
     def write_doc(self, docname, doctree):
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
-        old_doctree = self.get_old_doctree(docname)
 
-        if old_doctree:
-            list(merge_doctrees(old_doctree, doctree, nodes.TextElement))
-        else:
-            list(add_uids(doctree, nodes.TextElement))
-        self.resave_doctree(docname, doctree)
+        self.handle_versioning(docname, doctree, nodes.TextElement)
 
         for node, msg in extract_messages(doctree):
             catalog.setdefault(node.uid, msg)
 
     def finish(self):
         Builder.finish(self)
-        for root, dirs, files in os.walk(self.doctreedir):
-            for fn in files:
-                fp = path.join(root, fn)
-                if fp.endswith('.doctree.old'):
-                    os.remove(fp)
+        VersioningBuilderMixin.finish(self)
 
 class MessageCatalogBuilder(I18NBuilder):
     """
