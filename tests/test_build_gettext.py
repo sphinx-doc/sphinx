@@ -46,7 +46,8 @@ def test_gettext(app):
             if p.returncode != 0:
                 print stdout
                 print stderr
-                assert False, 'msginit exited with return code %s' % p.returncode
+                assert False, 'msginit exited with return code %s' % \
+                        p.returncode
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
@@ -59,8 +60,10 @@ def test_gettext(app):
             if p.returncode != 0:
                 print stdout
                 print stderr
-                assert False, 'msgfmt exited with return code %s' % p.returncode
-        assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), 'msgfmt failed'
+                assert False, 'msgfmt exited with return code %s' % \
+                        p.returncode
+        assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
+                'msgfmt failed'
     finally:
         os.chdir(cwd)
 
@@ -95,7 +98,8 @@ def setup_patch():
             print stdout
             print stderr
             assert False, 'msgfmt exited with return code %s' % p.returncode
-    assert (test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo').isfile(), 'msgfmt failed'
+    assert (test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo').isfile(), \
+            'msgfmt failed'
 def teardown_patch():
     (test_root / 'xx').rmtree()
 test_patch.setup = setup_patch

@@ -88,7 +88,8 @@ class MessageCatalogBuilder(Builder):
                 pofile.write(POHEADER % data)
                 for message in messages:
                     # message contains *one* line of text ready for translation
-                    message = message.replace(u'\\', ur'\\').replace(u'"', ur'\"')
+                    message = message.replace(u'\\', ur'\\'). \
+                                      replace(u'"', ur'\"')
                     pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
                     pofile.write(pomsg.encode('utf-8'))
             finally:
