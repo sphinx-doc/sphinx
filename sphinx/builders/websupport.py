@@ -173,13 +173,13 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.handle_finish(self)
         directories = ['_images', '_static']
         for directory in directories:
-            try:
-                shutil.move(path.join(self.outdir, directory),
-                            path.join(self.app.builddir, self.app.staticdir,
-                                      directory))
-            except IOError:
-                # in case any of these directories don't exist
-                pass
+            src = path.join(self.outdir, directory)
+            dst = path.join(self.app.builddir, self.app.staticdir, directory)
+            if path.isdir(src):
+                if path.isdir(dst):
+                    shutil.rmtree(dst)
+                shutil.move(src, dst)
+
         for root, dirs, files in os.walk(self.doctreedir):
             for fn in files:
                 fp = path.join(root, fn)
