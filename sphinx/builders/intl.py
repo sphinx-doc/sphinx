@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import collections
+from collections import defaultdict
 from datetime import datetime
 from os import path
 
@@ -41,14 +41,12 @@ msgstr ""
 
 """[1:]
 
-class MessageCatalogBuilder(Builder):
-    """
-    Builds gettext-style message catalogs (.pot files).
-    """
-    name = 'gettext'
+class I18NBuilder(Builder):
+    name = 'i18n'
 
     def init(self):
-        self.catalogs = collections.defaultdict(list)
+        Builder.init(self)
+        self.catalogs = defaultdict(list)
 
     def get_target_uri(self, docname, typ=None):
         return ''
@@ -60,16 +58,16 @@ class MessageCatalogBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        """
-        Store a document's translatable strings in the message catalog of its
-        section. For this purpose a document's *top-level directory* -- or
-        otherwise its *name* -- is considered its section.
-        """
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
         for _, msg in extract_messages(doctree):
-            # XXX msgctxt for duplicate messages
             if msg not in catalog:
                 catalog.append(msg)
+
+class MessageCatalogBuilder(I18NBuilder):
+    """
+    Builds gettext-style message catalogs (.pot files).
+    """
+    name = 'gettext'
 
     def finish(self):
         data = dict(
