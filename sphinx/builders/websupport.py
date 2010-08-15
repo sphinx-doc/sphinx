@@ -12,23 +12,20 @@
 import cPickle as pickle
 from os import path
 from cgi import escape
-import os
 import posixpath
 import shutil
 
 from docutils.io import StringOutput
-from docutils.utils import Reporter
 
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, copyfile
 from sphinx.util.jsonimpl import dumps as dump_json
 from sphinx.util.websupport import is_commentable
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.writers.websupport import WebSupportTranslator
-from sphinx.environment import WarningStream
-from sphinx.versioning import add_uids, merge_doctrees
 
 
-class WebSupportBuilder(StandaloneHTMLBuilder):
+class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
     """
     Builds documents for the web support package.
     """
@@ -37,57 +34,16 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         StandaloneHTMLBuilder.init(self)
-        for root, dirs, files in os.walk(self.doctreedir):
-            for fn in files:
-                fp = path.join(root, fn)
-                if fp.endswith('.doctree'):
-                    copyfile(fp, fp + '.old')
+        VersioningBuilderMixin.init(self)
 
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
-
-    def get_old_doctree(self, docname):
-        fp = self.env.doc2path(docname, self.doctreedir, '.doctree.old')
-        try:
-            f = open(fp, 'rb')
-            try:
-                doctree = pickle.load(f)
-            finally:
-                f.close()
-        except IOError:
-            return None
-        doctree.settings.env = self.env
-        doctree.reporter = Reporter(self.env.doc2path(docname), 2, 5,
-                                    stream=WarningStream(self.env._warnfunc))
-        return doctree
-
-    def resave_doctree(self, docname, doctree):
-        # make it picklable, save the reporter, it's needed later.
-        reporter = doctree.reporter
-        doctree.reporter = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
-
-        fp = self.env.doc2path(docname, self.doctreedir, '.doctree')
-        f = open(fp, 'wb')
-        try:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            f.close()
-
-        doctree.reporter = reporter
 
     def write_doc(self, docname, doctree):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
-        old_doctree = self.get_old_doctree(docname)
-        if old_doctree:
-            list(merge_doctrees(old_doctree, doctree, is_commentable))
-        else:
-            list(add_uids(doctree, is_commentable))
-        self.resave_doctree(docname, doctree)
+        self.handle_versioning(docname, doctree, is_commentable)
 
         self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
@@ -171,6 +127,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         StandaloneHTMLBuilder.handle_finish(self)
+        VersioningBuilderMixin.finish(self)
         directories = ['_images', '_static']
         for directory in directories:
             src = path.join(self.outdir, directory)
@@ -179,12 +136,6 @@ class WebSupportBuilder(StandaloneHTMLBuilder):
                 if path.isdir(dst):
                     shutil.rmtree(dst)
                 shutil.move(src, dst)
-
-        for root, dirs, files in os.walk(self.doctreedir):
-            for fn in files:
-                fp = path.join(root, fn)
-                if fp.endswith('.doctree.old'):
-                    os.remove(fp)
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
