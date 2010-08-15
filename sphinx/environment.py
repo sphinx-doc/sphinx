@@ -17,6 +17,7 @@ import types
 import codecs
 import imghdr
 import string
+import posixpath
 import cPickle as pickle
 from os import path
 from glob import glob
@@ -25,9 +26,9 @@ from itertools import izip, groupby
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path
+from docutils.utils import Reporter, relative_path, new_document
 from docutils.readers import standalone
-from docutils.parsers.rst import roles, directives
+from docutils.parsers.rst import roles, directives, Parser as RSTParser
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
 from docutils.writers import UnfilteredWriter
@@ -37,12 +38,12 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, \
      FilenameUniqDict
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import _
+from sphinx.locale import _, init as init_locale
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -183,13 +184,50 @@ class CitationReferences(Transform):
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
+class Locale(Transform):
+    """
+    Replace translatable nodes with their translated doctree.
+    """
+    default_priority = 0
+    def apply(self):
+        env = self.document.settings.env
+        settings, source = self.document.settings, self.document['source']
+        # XXX check if this is reliable
+        assert source.startswith(env.srcdir)
+        docname = posixpath.splitext(source[len(env.srcdir):].lstrip('/'))[0]
+        section = docname.split(SEP, 1)[0]
+
+        # fetch translations
+        dirs = [path.join(env.srcdir, x)
+                for x in env.config.locale_dirs]
+        catalog, empty = init_locale(dirs, env.config.language, section)
+        if not empty:
+            return
+
+        parser = RSTParser()
+
+        for node, msg in extract_messages(self.document):
+            ctx = node.parent
+            patch = new_document(source, settings)
+            msgstr = catalog.gettext(msg)
+            #XXX add marker to untranslated parts
+            if not msgstr or msgstr == msg: # as-of-yet untranslated
+                continue
+            parser.parse(msgstr, patch)
+            patch = patch[0]
+            assert isinstance(patch, nodes.paragraph)
+            for child in patch.children: # update leaves
+                child.parent = node
+            node.children = patch.children
+
+
 
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, SortIds]
+    transforms = [Locale, CitationReferences, DefaultSubstitutions,
+                  MoveModuleTargets, HandleCodeBlocks, SortIds]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -753,6 +791,7 @@ class BuildEnvironment:
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 node.parent.remove(node)
+
 
     def process_dependencies(self, docname, doctree):
         """
