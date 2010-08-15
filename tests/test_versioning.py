@@ -16,7 +16,7 @@ from docutils.statemachine import ViewList
 from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
-from sphinx.versioning import make_diff, add_uids, merge_doctrees
+from sphinx.versioning import add_uids, merge_doctrees
 
 def setup_module():
     global app, original, original_uids
@@ -35,18 +35,6 @@ doctrees = {}
 
 def on_doctree_resolved(app, doctree, docname):
     doctrees[docname] = doctree
-
-def test_make_diff():
-    tests = [
-        (('aaa', 'aaa'), (True, False, False)),
-        (('aaa', 'aab'), (False, True, False)),
-        (('aaa', 'abb'), (False, True, False)),
-        (('aaa', 'aba'), (False, True, False)),
-        (('aaa', 'baa'), (False, True, False)),
-        (('aaa', 'bbb'), (False, False, True))
-    ]
-    for args, result in tests:
-        assert make_diff(*args) == result
 
 def is_paragraph(node):
     return node.__class__.__name__ == 'paragraph'
