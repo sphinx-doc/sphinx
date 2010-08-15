@@ -23,7 +23,7 @@ class VersioningBuilderMixin(object):
                 yield os.path.join(root, fn)
 
     def init(self):
-        for fp in self.walk_doctree_files(self):
+        for fp in self.walk_doctree_files():
             if fp.endswith('.doctree'):
                 copyfile(fp, fp + '.old')
 
@@ -66,6 +66,6 @@ class VersioningBuilderMixin(object):
         self.resave_doctree(docname, doctree)
 
     def finish(self):
-        for fp in self.walk_doctree_files(self):
+        for fp in self.walk_doctree_files():
             if fp.endswith('.doctree.old'):
                 os.remove(fp)
