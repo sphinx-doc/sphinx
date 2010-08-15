@@ -67,7 +67,7 @@ def test_gettext(app):
     finally:
         os.chdir(cwd)
 
-    _ = gettext.translation('test_root', app.outdir, languages=['en']).ugettext
+    _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == u"Testing various markup"
 
 @with_app(buildername='gettext')
