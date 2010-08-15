@@ -209,7 +209,7 @@ class Locale(Transform):
         for node, msg in extract_messages(self.document):
             ctx = node.parent
             patch = new_document(source, settings)
-            msgstr = catalog.ugettext(msg)
+            msgstr = catalog.gettext(msg)
             #XXX add marker to untranslated parts
             if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
