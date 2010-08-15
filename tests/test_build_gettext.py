@@ -100,6 +100,7 @@ def setup_patch():
             assert False, 'msgfmt exited with return code %s' % p.returncode
     assert (test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo').isfile(), \
             'msgfmt failed'
+
 def teardown_patch():
     (test_root / 'xx').rmtree()
 test_patch.setup = setup_patch
