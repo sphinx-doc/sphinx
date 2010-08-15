@@ -84,6 +84,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      will document all non-private member functions and properties (that is,
      those whose name doesn't start with ``_``).
 
+     For modules, ``__all__`` will be respected when looking for members; the
+     order of the members will also be the order in ``__all__``.
+
      You can also give an explicit list of members; only these will then be
      documented::
 
