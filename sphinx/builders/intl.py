@@ -12,6 +12,7 @@
 from collections import defaultdict
 from datetime import datetime
 from os import path
+from codecs import open
 
 from docutils import nodes
 
@@ -81,7 +82,8 @@ class MessageCatalogBuilder(I18NBuilder):
                 self.catalogs.iteritems(), "writing message catalogs... ",
                 lambda (section, _):darkgreen(section), len(self.catalogs)):
 
-            pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
+            pofp = path.join(self.outdir, section + '.pot')
+            pofile = open(pofp, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
                 for message in messages:
@@ -89,6 +91,6 @@ class MessageCatalogBuilder(I18NBuilder):
                     message = message.replace(u'\\', ur'\\'). \
                                       replace(u'"', ur'\"')
                     pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
-                    pofile.write(pomsg.encode('utf-8'))
+                    pofile.write(pomsg)
             finally:
                 pofile.close()
