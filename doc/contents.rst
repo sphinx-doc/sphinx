@@ -14,6 +14,7 @@ Sphinx documentation contents
    domains
    builders
    config
+   intl
    theming
    templating
    extensions
