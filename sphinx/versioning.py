@@ -13,6 +13,10 @@ from uuid import uuid4
 from operator import itemgetter
 from collections import defaultdict
 from itertools import product
+try:
+    from itertools import izip_longest as zip_longest
+except ImportError:
+    from itertools import zip_longest
 
 from sphinx.util import PeekableIterator
 
@@ -42,12 +46,19 @@ def merge_doctrees(old, new, condition):
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    old_nodes = old.traverse(condition)
-    new_nodes = new.traverse(condition)
+    old_iter = old.traverse(condition)
+    new_iter = new.traverse(condition)
+    old_nodes = []
+    new_nodes = []
     ratios = defaultdict(list)
     seen = set()
-    for old_node, new_node in product(old_nodes, new_nodes):
-        if new_node in seen:
+    # compare the nodes each doctree in order
+    for old_node, new_node in zip_longest(old_iter, new_iter):
+        if old_node is None:
+            new_nodes.append(new_node)
+            continue
+        if new_node is None:
+            old_nodes.append(old_node)
             continue
         ratio = get_ratio(old_node.rawsource, new_node.rawsource)
         if ratio == 0:
@@ -55,6 +66,22 @@ def merge_doctrees(old, new, condition):
             seen.add(new_node)
         else:
             ratios[old_node, new_node] = ratio
+            old_nodes.append(old_node)
+            new_nodes.append(new_node)
+    # calculate the ratios for each unequal pair of nodes, should we stumble
+    # on a pair which is equal we set the uid and add it to the seen ones
+    for old_node, new_node in product(old_nodes, new_nodes):
+        if new_node in seen or (old_node, new_node) in ratios:
+            continue
+        ratio = get_ratio(old_node.rawsource, new_node.rawsource)
+        if ratio == 0:
+            new_node.uid = old_node.uid
+            seen.add(new_node)
+        else:
+            ratios[old_node, new_node] = ratio
+    # choose the old node with the best ratio for each new node and set the uid
+    # as long as the ratio is under a certain value, in which case we consider
+    # them not changed but different
     ratios = sorted(ratios.iteritems(), key=itemgetter(1))
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
@@ -66,6 +93,11 @@ def merge_doctrees(old, new, condition):
         else:
             new_node.uid = uuid4().hex
             yield new_node
+    # create new uuids for any new node we left out earlier, this happens
+    # if one or more nodes are simply added.
+    for new_node in set(new_nodes) - seen:
+        new_node.uid = uuid4().hex
+        yield new_node
 
 def get_ratio(old, new):
     """
