@@ -16,7 +16,7 @@ from docutils.statemachine import ViewList
 from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
-from sphinx.versioning import add_uids, merge_doctrees
+from sphinx.versioning import add_uids, merge_doctrees, get_ratio
 
 def setup_module():
     global app, original, original_uids
@@ -38,6 +38,10 @@ def on_doctree_resolved(app, doctree, docname):
 
 def is_paragraph(node):
     return node.__class__.__name__ == 'paragraph'
+
+def test_get_ratio():
+    assert get_ratio('', 'a')
+    assert get_ratio('a', '')
 
 def test_add_uids():
     assert len(original_uids) == 3
