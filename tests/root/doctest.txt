@@ -50,23 +50,24 @@ Special directives
 
   .. testsetup:: *
 
-     from math import factorial
+     def squared(x):
+     	return x * x
 
   .. doctest::
 
-     >>> factorial(1)
-     1
+     >>> squared(2)
+     4
 
   .. testcode::
 
-     print(factorial(1))
+     print(squared(2))
 
   .. testoutput::
 
-     1
+     4
 
-  >>> factorial(1)
-  1
+  >>> squared(2)
+  4
 
 * options for testcode/testoutput blocks
 
@@ -85,36 +86,38 @@ Special directives
 
   .. testsetup:: group1
 
-     from math import trunc
+     def add(x, y):
+         return x + y
 
-  ``trunc`` is now known in "group1", but not in others.
+
+  ``add`` is now known in "group1", but not in others.
 
   .. doctest:: group1
 
-     >>> trunc(1.1)
-     1
+     >>> add(1, 1)
+     2
 
   .. doctest:: group2
 
-     >>> trunc(1.1)
+     >>> add(1, 1)
      Traceback (most recent call last):
        ...
-     NameError: name 'trunc' is not defined
+     NameError: name 'add' is not defined
 
   Interleaving testcode/testoutput:
 
   .. testcode:: group1
 
-     print(factorial(3))
+     print(squared(3))
 
   .. testcode:: group2
 
-     print(factorial(4))
+     print(squared(4))
 
   .. testoutput:: group1
 
-     6
+     9
 
   .. testoutput:: group2
 
-     24
+     16

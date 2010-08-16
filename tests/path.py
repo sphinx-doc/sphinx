@@ -97,10 +97,6 @@ class path(str):
             If ``True`` symbolic links in the source tree result in symbolic
             links in the destination tree otherwise the contents of the files
             pointed to by the symbolic links are copied.
-
-        :param ignore:
-            A callback which gets called with the path of the directory being
-            copied and a list of paths as returned by :func:`os.listdir`.
         """
         shutil.copytree(self, destination, symlinks=symlinks)
 
