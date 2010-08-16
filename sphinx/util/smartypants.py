@@ -83,6 +83,7 @@ def sphinx_smarty_pants(t):
 # Constants for quote education.
 
 punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
+end_of_word_class = r"""[\s.,;:!?)]"""
 close_class = r"""[^\ \t\r\n\[\{\(\-]"""
 dec_dashes = r"""&#8211;|&#8212;"""
 
@@ -117,8 +118,8 @@ opening_double_quotes_regex = re.compile(r"""
 closing_double_quotes_regex = re.compile(r"""
                 #(%s)?   # character that indicates the quote should be closing
                 "
-                (?=\s)
-                """ % (close_class,), re.VERBOSE)
+                (?=%s)
+                """ % (close_class, end_of_word_class), re.VERBOSE)
 
 closing_double_quotes_regex_2 = re.compile(r"""
                 (%s)   # character that indicates the quote should be closing
