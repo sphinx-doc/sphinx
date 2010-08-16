@@ -230,11 +230,13 @@ def moderation_callback(comment):
 
 @with_support(moderation_callback=moderation_callback)
 def test_moderation(support):
-    raise SkipTest(
-            'test is broken, relies on order of test execution and numeric ids')
-    accepted = support.add_comment('Accepted Comment', node_id=3,
+    session = Session()
+    nodes = session.query(Node).all()
+    node = nodes[7]
+    session.close()
+    accepted = support.add_comment('Accepted Comment', node_id=node.id,
                                    displayed=False)
-    rejected = support.add_comment('Rejected comment', node_id=3,
+    rejected = support.add_comment('Rejected comment', node_id=node.id,
                                    displayed=False)
     # Make sure the moderation_callback is called.
     assert called == True
@@ -243,9 +245,9 @@ def test_moderation(support):
     raises(UserNotAuthorizedError, support.reject_comment, accepted['id'])
     support.accept_comment(accepted['id'], moderator=True)
     support.reject_comment(rejected['id'], moderator=True)
-    comments = support.get_data(3)['comments']
+    comments = support.get_data(node.id)['comments']
     assert len(comments) == 1
-    comments = support.get_data(3, moderator=True)['comments']
+    comments = support.get_data(node.id, moderator=True)['comments']
     assert len(comments) == 1
 
 
