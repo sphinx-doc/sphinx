@@ -20,6 +20,9 @@ except ImportError:
 
 from sphinx.util import PeekableIterator
 
+# anything below that ratio is considered equal/changed
+VERSIONING_RATIO = 65
+
 def add_uids(doctree, condition):
     """
     Adds a unique id to every node in the `doctree` which matches the condition
@@ -88,7 +91,7 @@ def merge_doctrees(old, new, condition):
             continue
         else:
             seen.add(new_node)
-        if ratio < 65:
+        if ratio < VERSIONING_RATIO:
             new_node.uid = old_node.uid
         else:
             new_node.uid = uuid4().hex
@@ -104,6 +107,8 @@ def get_ratio(old, new):
     Returns a "similiarity ratio" representing the similarity between the two
     strings where 0 is equal and anything above less than equal.
     """
+    if not all([old, new]):
+        return VERSIONING_RATIO
     return levenshtein_distance(old, new) / (len(old) / 100.0)
 
 def levenshtein_distance(a, b):
