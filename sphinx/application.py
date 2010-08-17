@@ -37,9 +37,6 @@ from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold
 
 
-# Directive is either new-style or old-style
-clstypes = (type, types.ClassType)
-
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
@@ -109,7 +106,9 @@ class Sphinx(object):
         if self.confdir is None:
             self.confdir = self.srcdir
 
-        # load all extension modules
+        # backwards compatibility: activate old C markup
+        self.setup_extension('sphinx.ext.oldcmarkup')
+        # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
         # the config file itself can be an extension

@@ -56,7 +56,7 @@ class JSObject(ObjectDescription):
         else:
             # just a function or constructor
             objectname = ''
-            fullname = ''
+            fullname = name
 
         signode['object'] = objectname
         signode['fullname'] = fullname

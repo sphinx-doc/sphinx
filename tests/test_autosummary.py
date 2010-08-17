@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import string
-
 from util import *
 
 from sphinx.ext.autosummary import mangle_signature
@@ -27,7 +25,7 @@ def test_mangle_signature():
     (a, b, c='foobar()', d=123) :: (a, b[, c, d])
     """
 
-    TEST = [map(string.strip, x.split("::")) for x in TEST.split("\n")
+    TEST = [map(lambda x: x.strip(), x.split("::")) for x in TEST.split("\n")
             if '::' in x]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace(u"\u00a0", " ")

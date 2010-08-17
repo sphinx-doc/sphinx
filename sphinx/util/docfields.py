@@ -141,9 +141,16 @@ class TypedField(GroupedField):
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
             if fieldarg in types:
-                typename = u''.join(n.astext() for n in types[fieldarg])
                 par += nodes.Text(' (')
-                par += self.make_xref(self.typerolename, domain, typename)
+                # NOTE: using .pop() here to prevent a single type node to be
+                # inserted twice into the doctree, which leads to
+                # inconsistencies later when references are resolved
+                fieldtype = types.pop(fieldarg)
+                if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
+                    typename = u''.join(n.astext() for n in fieldtype)
+                    par += self.make_xref(self.typerolename, domain, typename)
+                else:
+                    par += fieldtype
                 par += nodes.Text(')')
             par += nodes.Text(' -- ')
             par += content
@@ -160,7 +167,7 @@ class DocFieldTransformer(object):
 
     def __init__(self, directive):
         self.domain = directive.domain
-        if not hasattr(directive, '_doc_field_type_map'):
+        if '_doc_field_type_map' not in directive.__class__.__dict__:
             directive.__class__._doc_field_type_map = \
                 self.preprocess_fieldtypes(directive.__class__.doc_field_types)
         self.typemap = directive._doc_field_type_map
@@ -222,7 +229,10 @@ class DocFieldTransformer(object):
             if is_typefield:
                 # filter out only inline nodes; others will result in invalid
                 # markup being written out
-                content = filter(lambda n: isinstance(n, nodes.Inline), content)
+                content = filter(
+                    lambda n: isinstance(n, nodes.Inline) or
+                              isinstance(n, nodes.Text),
+                    content)
                 if content:
                     types.setdefault(typename, {})[fieldarg] = content
                 continue

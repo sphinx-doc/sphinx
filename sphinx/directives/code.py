@@ -102,7 +102,7 @@ class LiteralInclude(Directive):
             rel_fn = filename[1:]
         else:
             docdir = path.dirname(env.doc2path(env.docname, base=None))
-            rel_fn = path.normpath(path.join(docdir, filename))
+            rel_fn = path.join(docdir, filename)
         try:
             fn = path.join(env.srcdir, rel_fn)
         except UnicodeDecodeError:
@@ -119,7 +119,7 @@ class LiteralInclude(Directive):
         encoding = self.options.get('encoding', env.config.source_encoding)
         codec_info = codecs.lookup(encoding)
         try:
-            f = codecs.StreamReaderWriter(open(fn, 'U'),
+            f = codecs.StreamReaderWriter(open(fn, 'rb'),
                     codec_info[2], codec_info[3], 'strict')
             lines = f.readlines()
             f.close()

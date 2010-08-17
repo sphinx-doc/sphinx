@@ -30,12 +30,12 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __version__
-from sphinx.util import copy_static_entry
+from sphinx.util import jsonimpl, copy_static_entry
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
      movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
-from sphinx.util.pycompat import any
+from sphinx.util.pycompat import any, b
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.search import js_index
@@ -46,14 +46,6 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen, brown
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
      SmartyPantsHTMLTranslator
-
-try:
-    import json
-except ImportError:
-    try:
-        import simplejson as json
-    except ImportError:
-        json = None
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -71,6 +63,7 @@ class StandaloneHTMLBuilder(Builder):
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
+    indexer_dumps_unicode = True
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
@@ -99,7 +92,7 @@ class StandaloneHTMLBuilder(Builder):
         self.init_templates()
         self.init_highlighter()
         self.init_translator_class()
-        if self.config.html_file_suffix:
+        if self.config.html_file_suffix is not None:
             self.out_suffix = self.config.html_file_suffix
 
         if self.config.html_link_suffix is not None:
@@ -154,8 +147,9 @@ class StandaloneHTMLBuilder(Builder):
         cfgdict = dict((name, self.config[name])
                        for (name, desc) in self.config.values.iteritems()
                        if desc[1] == 'html')
-        self.config_hash = md5(str(cfgdict)).hexdigest()
-        self.tags_hash = md5(str(sorted(self.tags))).hexdigest()
+        self.config_hash = md5(unicode(cfgdict).encode('utf-8')).hexdigest()
+        self.tags_hash = md5(unicode(sorted(self.tags)).encode('utf-8')) \
+                .hexdigest()
         old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
@@ -207,7 +201,7 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-        doc = new_document('<partial node>')
+        doc = new_document(b('<partial node>'))
         doc.append(node)
 
         if self._publisher is None:
@@ -735,10 +729,12 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('dumping object inventory... '), nonl=True)
         f = open(path.join(self.outdir, INVENTORY_FILENAME), 'wb')
         try:
-            f.write('# Sphinx inventory version 2\n')
-            f.write('# Project: %s\n' % self.config.project.encode('utf-8'))
-            f.write('# Version: %s\n' % self.config.version.encode('utf-8'))
-            f.write('# The remainder of this file is compressed using zlib.\n')
+            f.write((u'# Sphinx inventory version 2\n'
+                     u'# Project: %s\n'
+                     u'# Version: %s\n'
+                     u'# The remainder of this file is compressed using zlib.\n'
+                     % (self.config.project, self.config.version)
+                    ).encode('utf-8'))
             compressor = zlib.compressobj(9)
             for domainname, domain in self.env.domains.iteritems():
                 for name, dispname, type, docname, anchor, prio in \
@@ -750,11 +746,9 @@ class StandaloneHTMLBuilder(Builder):
                     if dispname == name:
                         dispname = u'-'
                     f.write(compressor.compress(
-                        '%s %s:%s %s %s %s\n' % (name.encode('utf-8'),
-                                                 domainname.encode('utf-8'),
-                                                 type.encode('utf-8'), prio,
-                                                 uri.encode('utf-8'),
-                                                 dispname.encode('utf-8'))))
+                        (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
+                                                   prio, uri, dispname)
+                        ).encode('utf-8')))
             f.write(compressor.flush())
         finally:
             f.close()
@@ -766,7 +760,10 @@ class StandaloneHTMLBuilder(Builder):
         searchindexfn = path.join(self.outdir, self.searchindex_filename)
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
-        f = open(searchindexfn + '.tmp', 'wb')
+        if self.indexer_dumps_unicode:
+            f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')
+        else:
+            f = open(searchindexfn + '.tmp', 'wb')
         try:
             self.indexer.dump(f, self.indexer_format)
         finally:
@@ -855,8 +852,14 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_doc_context(self, docname, body, metatags):
         # no relation links...
         toc = self.env.get_toctree_for(self.config.master_doc, self, False)
-        self.fix_refuris(toc)
-        toc = self.render_partial(toc)['fragment']
+        # if there is no toctree, toc is None
+        if toc:
+            self.fix_refuris(toc)
+            toc = self.render_partial(toc)['fragment']
+            display_toc = True
+        else:
+            toc = ''
+            display_toc = False
         return dict(
             parents = [],
             prev = None,
@@ -869,7 +872,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             rellinks = [],
             sourcename = '',
             toc = toc,
-            display_toc = True,
+            display_toc = display_toc,
         )
 
     def write(self, *ignored):
@@ -917,6 +920,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     #: implements a `dump`, `load`, `dumps` and `loads` functions
     #: (pickle, simplejson etc.)
     implementation = None
+    implementation_dumps_unicode = False
 
     #: the filename for the global context file
     globalcontext_filename = None
@@ -939,6 +943,17 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
             return docname[:-5] # up to sep
         return docname + SEP
 
+    def dump_context(self, context, filename):
+        if self.implementation_dumps_unicode:
+            f = codecs.open(filename, 'w', encoding='utf-8')
+        else:
+            f = open(filename, 'wb')
+        try:
+            # XXX: the third argument is pickle-specific!
+            self.implementation.dump(context, f, 2)
+        finally:
+            f.close()
+
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         ctx['current_page_name'] = pagename
@@ -952,11 +967,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
                       ctx, event_arg)
 
         ensuredir(path.dirname(outfilename))
-        f = open(outfilename, 'wb')
-        try:
-            self.implementation.dump(ctx, f, 2)
-        finally:
-            f.close()
+        self.dump_context(ctx, outfilename)
 
         # if there is a source file, copy the source file for the
         # "show source" link
@@ -969,11 +980,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def handle_finish(self):
         # dump the global context
         outfilename = path.join(self.outdir, self.globalcontext_filename)
-        f = open(outfilename, 'wb')
-        try:
-            self.implementation.dump(self.globalcontext, f, 2)
-        finally:
-            f.close()
+        self.dump_context(self.globalcontext, outfilename)
 
         # super here to dump the search index
         StandaloneHTMLBuilder.handle_finish(self)
@@ -993,7 +1000,9 @@ class PickleHTMLBuilder(SerializingHTMLBuilder):
     A Builder that dumps the generated HTML into pickle files.
     """
     implementation = pickle
+    implementation_dumps_unicode = False
     indexer_format = pickle
+    indexer_dumps_unicode = False
     name = 'pickle'
     out_suffix = '.fpickle'
     globalcontext_filename = 'globalcontext.pickle'
@@ -1007,15 +1016,17 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     """
     A builder that dumps the generated HTML into JSON files.
     """
-    implementation = json
-    indexer_format = json
+    implementation = jsonimpl
+    implementation_dumps_unicode = True
+    indexer_format = jsonimpl
+    indexer_dumps_unicode = True
     name = 'json'
     out_suffix = '.fjson'
     globalcontext_filename = 'globalcontext.json'
     searchindex_filename = 'searchindex.json'
 
     def init(self):
-        if json is None:
+        if jsonimpl.json is None:
             raise SphinxError(
                 'The module simplejson (or json in Python >= 2.6) '
                 'is not available. The JSONHTMLBuilder builder will not work.')

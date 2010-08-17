@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import sys
 
 from util import *
 
@@ -54,8 +55,10 @@ def test_images():
     app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.post_process_images(tree)
-    assert "no matching candidate for image URI u'foo.*'" in \
-           app._warning.content[-1]
+    image_uri_message = "no matching candidate for image URI u'foo.*'"
+    if sys.version_info >= (3, 0):
+        image_uri_message = remove_unicode_literals(image_uri_message)
+    assert image_uri_message in app._warning.content[-1]
     assert set(htmlbuilder.images.keys()) == \
         set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg'])
     assert set(htmlbuilder.images.values()) == \
@@ -64,8 +67,7 @@ def test_images():
     app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
-    assert "no matching candidate for image URI u'foo.*'" in \
-           app._warning.content[-1]
+    assert image_uri_message in app._warning.content[-1]
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
              'svgimg.pdf'])

@@ -12,7 +12,7 @@ interesting examples.
 Documentation using the default theme
 -------------------------------------
 
-* APSW: http://apsw.googlecode.com/svn/publish/index.html
+* APSW: http://apidoc.apsw.googlecode.com/hg/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://calibre.kovidgoyal.net/user_manual/
@@ -38,6 +38,7 @@ Documentation using the default theme
 * PyCuda: http://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
 * Pylo: http://documen.tician.de/pylo/
+* PyMQI: http://packages.python.org/pymqi/
 * PyPubSub: http://pubsub.sourceforge.net/
 * pyrticle: http://documen.tician.de/pyrticle/
 * Python: http://docs.python.org/
@@ -96,6 +97,7 @@ Documentation using the sphinxdoc theme
 * Satchmo: http://www.satchmoproject.com/docs/svn/
 * Sphinx: http://sphinx.pocoo.org/
 * Sqlkit: http://sqlkit.argolinux.org/
+* Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
 * Total Open Station: http://tops.berlios.de/
 * WebFaction: http://docs.webfaction.com/
 
@@ -109,6 +111,8 @@ Documentation using another builtin theme
 * pip: http://pip.openplans.org/ (nature)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
+* Spring Python: http://springpython.webfactional.com/current/sphinx/index.html
+  (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
 * libLAS: http://liblas.org/ (nature)
@@ -139,6 +143,7 @@ Documentation using a custom theme/integrated in a site
 * Self: http://selflanguage.org/
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
+* tipfy: http://www.tipfy.org/docs/
 * Werkzeug: http://werkzeug.pocoo.org/documentation/dev/
 * WFront: http://discorporate.us/projects/WFront/
 

@@ -11,6 +11,7 @@
 
 import re
 import os
+import sys
 import time
 import types
 import codecs
@@ -40,10 +41,11 @@ from sphinx.util import url_re, get_matching_docs, docname_join, \
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import all
+from sphinx.util.pycompat import all, class_types
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _, init as init_locale
 
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
@@ -64,7 +66,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 36
+ENV_VERSION = 38
 
 
 default_substitutions = set([
@@ -81,7 +83,7 @@ class WarningStream(object):
         self.warnfunc = warnfunc
     def write(self, text):
         if text.strip():
-            self.warnfunc(text, None, '')
+            self.warnfunc(text.strip(), None, '')
 
 
 class NoUri(Exception):
@@ -289,7 +291,7 @@ class BuildEnvironment:
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
-                   isinstance(val, (type, types.ClassType)):
+                   isinstance(val, class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
@@ -421,14 +423,14 @@ class BuildEnvironment:
         If base is a path string, return absolute path under that.
         If suffix is not None, add it instead of config.source_suffix.
         """
+        docname = docname.replace(SEP, path.sep)
         suffix = suffix or self.config.source_suffix
         if base is True:
-            return path.join(self.srcdir,
-                             docname.replace(SEP, path.sep)) + suffix
+            return path.join(self.srcdir, docname) + suffix
         elif base is None:
-            return docname.replace(SEP, path.sep) + suffix
+            return docname + suffix
         else:
-            return path.join(base, docname.replace(SEP, path.sep)) + suffix
+            return path.join(base, docname) + suffix
 
     def find_files(self, config):
         """
@@ -666,6 +668,8 @@ class BuildEnvironment:
 
         class SphinxSourceClass(FileInput):
             def decode(self_, data):
+                if isinstance(data, unicode):
+                    return data
                 return data.decode(self_.encoding, 'sphinx')
 
             def read(self_):
@@ -687,7 +691,7 @@ class BuildEnvironment:
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path)
+        pub.set_source(None, src_path.encode(fs_encoding))
         pub.set_destination(None, None)
         try:
             pub.publish()
@@ -770,6 +774,12 @@ class BuildEnvironment:
 
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    def note_versionchange(self, type, version, node, lineno):
+        self.versionchanges.setdefault(version, []).append(
+            (type, self.temp_data['docname'], lineno,
+             self.temp_data.get('py:module'),
+             self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
 
@@ -1521,8 +1531,9 @@ class BuildEnvironment:
             i += 1
 
         # group the entries by letter
-        def keyfunc2((k, v), letters=string.ascii_uppercase + '_'):
+        def keyfunc2(item, letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
+            k, v = item
             v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
             # now calculate the key
             letter = k[0].upper()

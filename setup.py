@@ -2,8 +2,8 @@
 try:
     from setuptools import setup, find_packages
 except ImportError:
-    import ez_setup
-    ez_setup.use_setuptools()
+    import distribute_setup
+    distribute_setup.use_setuptools()
     from setuptools import setup, find_packages
 
 import os
@@ -47,7 +47,7 @@ A development egg can be found `here
 requires = ['Pygments>=0.8', 'Jinja2>=2.2', 'docutils>=0.5']
 
 if sys.version_info < (2, 4):
-    print 'ERROR: Sphinx requires at least Python 2.4 to run.'
+    print('ERROR: Sphinx requires at least Python 2.4 to run.')
     sys.exit(1)
 
 if sys.version_info < (2, 5):
@@ -178,6 +178,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Topic :: Documentation',
         'Topic :: Text Processing',
         'Topic :: Utilities',
@@ -197,4 +198,6 @@ setup(
     },
     install_requires=requires,
     cmdclass=cmdclass,
+    use_2to3=True,
+    use_2to3_fixers=['custom_fixers'],
 )

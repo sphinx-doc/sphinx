@@ -10,11 +10,11 @@
 """
 
 import re
-import types
 
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util.pycompat import class_types
 
 
 # \x00 means the "<" was backslash-escaped
@@ -129,7 +129,7 @@ def _new_traverse(self, condition=None,
     if include_self and descend and not siblings and not ascend:
         if condition is None:
             return self._all_traverse([])
-        elif isinstance(condition, (types.ClassType, type)):
+        elif isinstance(condition, class_types):
             return self._fast_traverse(condition, [])
     return self._old_traverse(condition, include_self,
                               descend, siblings, ascend)

@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import difflib
 from StringIO import StringIO
 from subprocess import Popen, PIPE
 
@@ -33,6 +32,9 @@ None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
 """
 
+if sys.version_info >= (3, 0):
+    LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
+
 
 @with_app(buildername='latex', warning=latex_warnfile, cleanenv=True)
 def test_latex(app):
@@ -42,8 +44,9 @@ def test_latex(app):
     latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
            'Warnings don\'t match:\n' + \
-           '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
-                                   latex_warnings.splitlines()))
+           '--- Expected (regex):\n' + latex_warnings_exp + \
+           '--- Got:\n' + latex_warnings
+
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 

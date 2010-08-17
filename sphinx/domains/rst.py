@@ -28,9 +28,10 @@ class ReSTMarkup(ObjectDescription):
     """
 
     def add_target_and_index(self, name, sig, signode):
-        if name not in self.state.document.ids:
-            signode['names'].append(name)
-            signode['ids'].append(name)
+        targetname = self.objtype + '-' + name
+        if targetname not in self.state.document.ids:
+            signode['names'].append(targetname)
+            signode['ids'].append(targetname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
@@ -47,7 +48,7 @@ class ReSTMarkup(ObjectDescription):
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              name, name))
+                                              targetname, targetname))
 
     def get_index_text(self, objectname, name):
         if self.objtype == 'directive':
@@ -129,8 +130,9 @@ class ReSTDomain(Domain):
             if (objtype, target) in objects:
                 return make_refnode(builder, fromdocname,
                                     objects[objtype, target],
-                                    target, contnode, target)
+                                    objtype + '-' + target,
+                                    contnode, target + ' ' + objtype)
 
     def get_objects(self):
         for (typ, name), docname in self.data['objects'].iteritems():
-            yield name, name, typ, docname, name, 1
+            yield name, name, typ, docname, typ + '-' + name, 1

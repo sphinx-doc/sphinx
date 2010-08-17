@@ -9,7 +9,21 @@
 .. versionadded:: 0.5
 
 This extension can generate automatic links to the documentation of objects in
-other projects.  This works as follows:
+other projects.
+
+Usage is simple: whenever Sphinx encounters a cross-reference that has no
+matching target in the current documentation set, it looks for targets in the
+documentation sets configured in :confval:`intersphinx_mapping`.  A reference
+like ``:py:class:`zipfile.ZipFile``` can then link to the Python documentation
+for the ZipFile class, without you having to specify where it is located
+exactly.
+
+When using the "new" format (see below), you can even force lookup in a foreign
+set by prefixing the link target appropriately.  A link like ``:ref:`comparison
+manual <python:comparisons>``` will then link to the label "comparisons" in the
+doc set "python", if it exists.
+
+Behind the scenes, this works as follows:
 
 * Each Sphinx HTML build creates a file named :file:`objects.inv` that contains
   a mapping from object names to URIs relative to the HTML set's root.
@@ -70,7 +84,7 @@ linking:
    To add links to modules and objects in the Python standard library
    documentation, use::
 
-      intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
+      intersphinx_mapping = {'python': ('http://docs.python.org/3.2', None)}
 
    This will download the corresponding :file:`objects.inv` file from the
    Internet and generate links to the pages under the given URI.  The downloaded
@@ -80,12 +94,12 @@ linking:
    A second example, showing the meaning of a non-``None`` value of the second
    tuple item::
 
-      intersphinx_mapping = {'python': ('http://docs.python.org/',
+      intersphinx_mapping = {'python': ('http://docs.python.org/3.2',
                                         'python-inv.txt')}
 
    This will read the inventory from :file:`python-inv.txt` in the source
    directory, but still generate links to the pages under
-   ``http://docs.python.org/``.  It is up to you to update the inventory file as
+   ``http://docs.python.org/3.2``.  It is up to you to update the inventory file as
    new objects are added to the Python documentation.
 
 .. confval:: intersphinx_cache_limit

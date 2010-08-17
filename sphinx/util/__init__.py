@@ -18,6 +18,7 @@ import tempfile
 import posixpath
 import traceback
 from os import path
+from codecs import open
 
 import docutils
 from docutils.utils import relative_path
@@ -140,8 +141,8 @@ def copy_static_entry(source, targetdir, builder, context={},
         target = path.join(targetdir, path.basename(source))
         if source.lower().endswith('_t') and builder.templates:
             # templated!
-            fsrc = open(source, 'rb')
-            fdst = open(target[:-2], 'wb')
+            fsrc = open(source, 'r', encoding='utf-8')
+            fdst = open(target[:-2], 'w', encoding='utf-8')
             fdst.write(builder.templates.render_string(fsrc.read(), context))
             fsrc.close()
             fdst.close()
@@ -162,17 +163,23 @@ def copy_static_entry(source, targetdir, builder, context={},
             shutil.copytree(source, target)
 
 
+_DEBUG_HEADER = '''\
+# Sphinx version: %s
+# Docutils version: %s %s
+# Jinja2 version: %s
+'''
+
 def save_traceback():
     """
     Save the current exception's traceback in a temporary file.
     """
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
-    os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
-                                                  docutils.__version_details__))
-    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
-    os.write(fd, exc)
+    os.write(fd, (_DEBUG_HEADER %
+                  (sphinx.__version__,
+                   docutils.__version__, docutils.__version_details__,
+                   jinja2.__version__)).encode('utf-8'))
+    os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
 

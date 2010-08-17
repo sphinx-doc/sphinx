@@ -18,6 +18,7 @@ from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util import get_module_source
+from sphinx.util.pycompat import next
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -98,7 +99,8 @@ class AttrDocVisitor(nodes.NodeVisitor):
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
             prefix = pnode.get_prefix()
-        prefix = prefix.decode(self.encoding)
+        if not isinstance(prefix, unicode):
+            prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
         self.add_docstring(node, docstring)
 
@@ -278,7 +280,7 @@ class ModuleAnalyzer(object):
                     result[fullname] = (dtype, startline, endline)
                 expect_indent = False
             if tok in ('def', 'class'):
-                name = tokeniter.next()[1]
+                name = next(tokeniter)[1]
                 namespace.append(name)
                 fullname = '.'.join(namespace)
                 stack.append((tok, fullname, spos[0], indent))

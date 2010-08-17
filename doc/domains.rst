@@ -52,9 +52,18 @@ flag ``:noindex:``.  An example using a Python domain directive::
 
    .. py:function:: spam(eggs)
                     ham(eggs)
-      :noindex:
 
       Spam or ham the foo.
+
+This describes the two Python functions ``spam`` and ``ham``.  (Note that when
+signatures become too long, you can break them if you add a backslash to lines
+that are continued in the next line.  Example::
+
+   .. py:function:: filterwarnings(action, message='', category=Warning, \
+                                   module='', lineno=0, append=False)
+      :noindex:
+
+(This example also shows how to use the ``:noindex:`` flag.)
 
 The domains also provide roles that link back to these object descriptions.  For
 example, to link to one of the functions described in the example above, you
@@ -138,11 +147,12 @@ declarations:
 .. rst:directive:: .. py:currentmodule:: name
 
    This directive tells Sphinx that the classes, functions etc. documented from
-   here are in the given module (like :rst:dir:`py:module`), but it will not create
-   index entries, an entry in the Global Module Index, or a link target for
-   :rst:role:`mod`.  This is helpful in situations where documentation for things in
-   a module is spread over multiple files or sections -- one location has the
-   :rst:dir:`py:module` directive, the others only :rst:dir:`py:currentmodule`.
+   here are in the given module (like :rst:dir:`py:module`), but it will not
+   create index entries, an entry in the Global Module Index, or a link target
+   for :rst:role:`py:mod`.  This is helpful in situations where documentation
+   for things in a module is spread over multiple files or sections -- one
+   location has the :rst:dir:`py:module` directive, the others only
+   :rst:dir:`py:currentmodule`.
 
 
 The following directives are provided for module and class contents:
@@ -363,6 +373,9 @@ dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
+A similar heuristic is used to determine whether the name is an attribute of the
+currently documented class.
+
 Also, if the name is prefixed with a dot, and no exact match is found, the
 target is taken as a suffix and all object names with that suffix are
 searched.  For example, ``:py:meth:`.TarFile.close``` references the
@@ -370,8 +383,9 @@ searched.  For example, ``:py:meth:`.TarFile.close``` references the
 ``tarfile``.  Since this can get ambiguous, if there is more than one possible
 match, you will get a warning from Sphinx.
 
-A similar heuristic is used to determine whether the name is an attribute of the
-currently documented class.
+Note that you can combine the ``~`` and ``.`` prefixes:
+``:py:meth:`~.TarFile.close``` will reference the ``tarfile.TarFile.close()``
+method, but the visible link caption will only be ``close()``.
 
 
 .. _c-domain:

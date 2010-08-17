@@ -14,7 +14,7 @@
 import re
 import sys
 import inspect
-from types import FunctionType, BuiltinFunctionType, MethodType, ClassType
+from types import FunctionType, BuiltinFunctionType, MethodType
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict
@@ -27,13 +27,8 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import isdescriptor, safe_getmembers, safe_getattr
+from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
-
-
-try:
-    base_exception = BaseException
-except NameError:
-    base_exception = Exception
 
 
 #: extended signature RE: with explicit module name separated by ::
@@ -256,6 +251,9 @@ class Documenter(object):
         self.retann = None
         # the object to document (set after import_object succeeds)
         self.object = None
+        self.object_name = None
+        # the parent/owner of the object to document
+        self.parent = None
         # the module analyzer to get at attribute docs, or None
         self.analyzer = None
 
@@ -321,9 +319,13 @@ class Documenter(object):
         """
         try:
             __import__(self.modname)
+            parent = None
             obj = self.module = sys.modules[self.modname]
             for part in self.objpath:
+                parent = obj
                 obj = self.get_attr(obj, part)
+                self.object_name = part
+            self.parent = parent
             self.object = obj
             return True
         # this used to only catch SyntaxError, ImportError and AttributeError,
@@ -416,9 +418,11 @@ class Documenter(object):
     def get_doc(self, encoding=None):
         """Decode and return lines of the docstring(s) for the object."""
         docstring = self.get_attr(self.object, '__doc__', None)
-        if docstring:
-            # make sure we have Unicode docstrings, then sanitize and split
-            # into lines
+        # make sure we have Unicode docstrings, then sanitize and split
+        # into lines
+        if isinstance(docstring, unicode):
+            return [prepare_docstring(docstring)]
+        elif docstring:
             return [prepare_docstring(force_decode(docstring, encoding))]
         return []
 
@@ -438,8 +442,11 @@ class Documenter(object):
         # set sourcename and add content from attribute documentation
         if self.analyzer:
             # prevent encoding errors when the file name is non-ASCII
-            filename = unicode(self.analyzer.srcname,
-                               sys.getfilesystemencoding(), 'replace')
+            if not isinstance(self.analyzer.srcname, unicode):
+                filename = unicode(self.analyzer.srcname,
+                                   sys.getfilesystemencoding(), 'replace')
+            else:
+                filename = self.analyzer.srcname
             sourcename = u'%s:docstring of %s' % (filename, self.fullname)
 
             attr_docs = self.analyzer.find_attr_docs()
@@ -866,7 +873,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, (type, ClassType))
+        return isinstance(member, class_types)
 
     def import_object(self):
         ret = ModuleLevelDocumenter.import_object(self)
@@ -939,9 +946,12 @@ class ClassDocumenter(ModuleLevelDocumenter):
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
-
-        return [prepare_docstring(force_decode(docstring, encoding))
-                for docstring in docstrings]
+        doc = []
+        for docstring in docstrings:
+            if not isinstance(docstring, unicode):
+                docstring = force_decode(docstring, encoding)
+            doc.append(prepare_docstring(docstring))
+        return doc
 
     def add_content(self, more_content, no_docstring=False):
         if self.doc_as_attr:
@@ -972,7 +982,7 @@ class ExceptionDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, (type, ClassType)) and \
+        return isinstance(member, class_types) and \
                issubclass(member, base_exception)
 
 
@@ -1004,24 +1014,38 @@ class MethodDocumenter(ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
-    def import_object(self):
-        ret = ClassLevelDocumenter.import_object(self)
-        if isinstance(self.object, classmethod) or \
-               (isinstance(self.object, MethodType) and
-                self.object.im_self is not None):
-            self.directivetype = 'classmethod'
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-        elif isinstance(self.object, FunctionType) or \
-             (isinstance(self.object, BuiltinFunctionType) and
-              hasattr(self.object, '__self__') and
-              self.object.__self__ is not None):
-            self.directivetype = 'staticmethod'
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-        else:
-            self.directivetype = 'method'
-        return ret
+    if sys.version_info >= (3, 0):
+        def import_object(self):
+            ret = ClassLevelDocumenter.import_object(self)
+            obj_from_parent = self.parent.__dict__.get(self.object_name)
+            if isinstance(obj_from_parent, classmethod):
+                self.directivetype = 'classmethod'
+                self.member_order = self.member_order - 1
+            elif isinstance(obj_from_parent, staticmethod):
+                self.directivetype = 'staticmethod'
+                self.member_order = self.member_order - 1
+            else:
+                self.directivetype = 'method'
+            return ret
+    else:
+        def import_object(self):
+            ret = ClassLevelDocumenter.import_object(self)
+            if isinstance(self.object, classmethod) or \
+                   (isinstance(self.object, MethodType) and
+                    self.object.im_self is not None):
+                self.directivetype = 'classmethod'
+                # document class and static members before ordinary ones
+                self.member_order = self.member_order - 1
+            elif isinstance(self.object, FunctionType) or \
+                 (isinstance(self.object, BuiltinFunctionType) and
+                  hasattr(self.object, '__self__') and
+                  self.object.__self__ is not None):
+                self.directivetype = 'staticmethod'
+                # document class and static members before ordinary ones
+                self.member_order = self.member_order - 1
+            else:
+                self.directivetype = 'method'
+            return ret
 
     def format_args(self):
         if inspect.isbuiltin(self.object) or \

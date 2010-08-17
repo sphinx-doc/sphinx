@@ -11,15 +11,17 @@
 """
 
 import os
+import re
 import codecs
-from os import path
 import zipfile
+from os import path
 
 from docutils import nodes
-from docutils.transforms import Transform
 
+from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import EEXIST
+from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -119,29 +121,10 @@ _media_types = {
     '.ttf': 'application/x-font-ttf',
 }
 
-
-# The transform to show link targets
-
-class VisibleLinksTransform(Transform):
-    """
-    Add the link target of referances to the text, unless it is already
-    present in the description.
-    """
-
-    # This transform must run after the references transforms
-    default_priority = 680
-
-    def apply(self):
-        for ref in self.document.traverse(nodes.reference):
-            uri = ref.get('refuri', '')
-            if ( uri.startswith('http:') or uri.startswith('https:') or \
-                    uri.startswith('ftp:') ) and uri not in ref.astext():
-                uri = _link_target_template % {'uri': uri}
-                if uri:
-                    idx = ref.parent.index(ref) + 1
-                    link = nodes.inline(uri, uri)
-                    link['classes'].append(_css_link_target_class)
-                    ref.parent.insert(idx, link)
+# Regular expression to match colons only in local fragment identifiers.
+# If the URI contains a colon before the #,
+# it is an external link that should not change.
+_refuri_re = re.compile("([^#:]*#)(.*)")
 
 
 # The epub publisher
@@ -170,7 +153,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
-        self.app.add_transform(VisibleLinksTransform)
 
     def get_theme_config(self):
         return self.config.epub_theme, {}
@@ -194,17 +176,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
-        if isinstance(doctree, nodes.reference):
+        if isinstance(doctree, nodes.reference) and doctree.has_key('refuri'):
+            refuri = doctree['refuri']
+            if refuri.startswith('http://') or refuri.startswith('https://') \
+                or refuri.startswith('irc:') or refuri.startswith('mailto:'):
+                return result
             classes = doctree.parent.attributes['classes']
-            level = 1
-            for l in range(8, 0, -1): # or range(1, 8)?
-                if (_toctree_template % l) in classes:
-                    level = l
-            result.append({
-                'level': level,
-                'refuri': self.esc(doctree['refuri']),
-                'text': self.esc(doctree.astext())
-            })
+            for level in range(8, 0, -1): # or range(1, 8)?
+                if (_toctree_template % level) in classes:
+                    result.append({
+                        'level': level,
+                        'refuri': self.esc(refuri),
+                        'text': ssp(self.esc(doctree.astext()))
+                    })
+                    break
         else:
             for elem in doctree.children:
                 result = self.get_refnodes(elem, result)
@@ -220,20 +205,96 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
-            'text': self.esc(self.env.titles[self.config.master_doc].astext())
+            'text': ssp(self.esc(
+                    self.env.titles[self.config.master_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
             self.refnodes.insert(0, {
                 'level': 1,
-                'refuri': self.esc(file + '.html'),
-                'text': self.esc(text)
+                'refuri': self.esc(file),
+                'text': ssp(self.esc(text))
             })
         for file, text in self.config.epub_post_files:
             self.refnodes.append({
                 'level': 1,
-                'refuri': self.esc(file + '.html'),
-                'text': self.esc(text)
+                'refuri': self.esc(file),
+                'text': ssp(self.esc(text))
             })
+
+    def fix_fragment(self, match):
+        """Return a href attribute with colons replaced by hyphens.
+        """
+        return match.group(1) + match.group(2).replace(':', '-')
+
+    def fix_ids(self, tree):
+        """Replace colons with hyphens in href and id attributes.
+        Some readers crash because they interpret the part as a
+        transport protocol specification.
+        """
+        for node in tree.traverse(nodes.reference):
+            if 'refuri' in node:
+                m = _refuri_re.match(node['refuri'])
+                if m:
+                    node['refuri'] = self.fix_fragment(m)
+            if 'refid' in node:
+                node['refid'] = node['refid'].replace(':', '-')
+        for node in tree.traverse(addnodes.desc_signature):
+            ids = node.attributes['ids']
+            newids = []
+            for id in ids:
+                newids.append(id.replace(':', '-'))
+            node.attributes['ids'] = newids
+
+    def add_visible_links(self, tree):
+        """Append visible link targets after external links.
+        """
+        for node in tree.traverse(nodes.reference):
+            uri = node.get('refuri', '')
+            if (uri.startswith('http:') or uri.startswith('https:') or
+                    uri.startswith('ftp:')) and uri not in node.astext():
+                uri = _link_target_template % {'uri': uri}
+                if uri:
+                    idx = node.parent.index(node) + 1
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    node.parent.insert(idx, link)
+
+    def write_doc(self, docname, doctree):
+        """Write one document file.
+        This method is overwritten in order to fix fragment identifiers
+        and to add visible external links.
+        """
+        self.fix_ids(doctree)
+        self.add_visible_links(doctree)
+        return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+
+    def fix_genindex(self, tree):
+        """Fix href attributes for genindex pages.
+        """
+        # XXX: modifies tree inline
+        # Logic modeled from themes/basic/genindex.html
+        for key, columns in tree:
+            for entryname, (links, subitems) in columns:
+                for (i, link) in enumerate(links):
+                    m = _refuri_re.match(link)
+                    if m:
+                        links[i] = self.fix_fragment(m)
+                for subentryname, subentrylinks in subitems:
+                    for (i, link) in enumerate(subentrylinks):
+                        m = _refuri_re.match(link)
+                        if m:
+                            subentrylinks[i] = self.fix_fragment(m)
+
+    def handle_page(self, pagename, addctx, templatename='page.html',
+                    outfilename=None, event_arg=None):
+        """Create a rendered page.
+        This method is overwritten for genindex pages in order to fix
+        href link attributes.
+        """
+        if pagename.startswith('genindex'):
+            self.fix_genindex(addctx['genindexentries'])
+        StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
+            outfilename, event_arg)
 
 
     # Finish by building the epub file
@@ -380,7 +441,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 navstack.append(navlist)
                 navlist = []
                 level += 1
-                if lastnode:
+                if lastnode and self.config.epub_tocdup:
                     # Insert starting point in subtoc with same playOrder
                     navlist.append(self.new_navpoint(lastnode, level, False))
                 navlist.append(self.new_navpoint(node, level))

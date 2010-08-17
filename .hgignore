@@ -2,6 +2,7 @@
 .*\.egg
 .*\.so
 .dir-locals.el
+^\.tox
 \.DS_Store$
 ^build/
 ^dist/
@@ -14,3 +15,5 @@
 ^env/
 \.DS_Store$
 ~$
+^utils/.*3\.py$
+^distribute-

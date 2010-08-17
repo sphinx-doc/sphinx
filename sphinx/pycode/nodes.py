@@ -29,6 +29,8 @@ class BaseNode(object):
             return NotImplemented
         return not self._eq(other)
 
+    __hash__ = None
+
     def get_prev_sibling(self):
         """Return previous child in parent's children, or None."""
         if self.parent is None:

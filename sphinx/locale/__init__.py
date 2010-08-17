@@ -8,6 +8,8 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import sys
 import gettext
 import UserString
 
@@ -178,8 +180,13 @@ pairindextypes = {
 
 translators = {}
 
-def _(message):
-    return translators['sphinx'].ugettext(message)
+if sys.version_info >= (3, 0):
+    def _(message):
+        return translators['sphinx'].gettext(message)
+else:
+    def _(message):
+        return translators['sphinx'].ugettext(message)
+
 
 def init(locale_dirs, language, catalog='sphinx'):
     """
