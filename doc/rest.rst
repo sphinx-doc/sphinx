@@ -325,14 +325,15 @@ directives.)  Looking at this example, ::
 
    .. function:: foo(x)
                  foo(y, z)
-      :bar: no
+      :module: some.module.name
 
       Return a line of text input from the user.
 
 ``function`` is the directive name.  It is given two arguments here, the
-remainder of the first line and the second line, as well as one option ``bar``
-(as you can see, options are given in the lines immediately following the
-arguments and indicated by the colons).
+remainder of the first line and the second line, as well as one option
+``module`` (as you can see, options are given in the lines immediately following
+the arguments and indicated by the colons).  Options must be indented to the
+same level as the directive content.
 
 The directive content follows after a blank line and is indented relative to the
 directive start.
