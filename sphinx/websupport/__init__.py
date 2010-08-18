@@ -371,6 +371,7 @@ class WebSupport(object):
         if self.staticdir != 'static':
             static_urls = [
                 ('commentImage', 'comment.png'),
+                ('closeCommentImage', 'comment-close.png'),
                 ('loadingImage', 'ajax-loader.gif'),
                 ('commentBrightImage', 'comment-bright.png'),
                 ('upArrow', 'up.png'),
