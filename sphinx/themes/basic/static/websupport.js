@@ -31,7 +31,7 @@
 })(jQuery);
 
 (function($) {
-  var comp;
+  var comp, by;
 
   function init() {
     initEvents();
@@ -93,7 +93,7 @@
    Set comp, which is a comparator function used for sorting and
    inserting comments into the list.
   */
-  function setComparator(by) {
+  function setComparator() {
     // If the first three letters are "asc", sort in ascending order
     // and remove the prefix.
     if (by.substring(0,3) == 'asc') {
@@ -106,7 +106,7 @@
 
     // Reset link styles and format the selected sort option.
     $('a.sel').attr('href', '#').removeClass('sel');
-    $('#' + by).removeAttr('href').addClass('sel');
+    $('a.' + by).removeAttr('href').addClass('sel');
   }
 
   /*
@@ -114,7 +114,7 @@
    the sortBy cookie, use those, otherwise use the default.
   */
   function initComparator() {
-    var by = 'rating'; // Default to sort by rating.
+    by = 'rating'; // Default to sort by rating.
     // If the sortBy cookie is set, use that instead.
     if (document.cookie.length > 0) {
       var start = document.cookie.indexOf('sortBy=');
@@ -127,7 +127,7 @@
         }
       }
     }
-    setComparator(by);
+    setComparator();
   }
 
   /*
@@ -139,6 +139,7 @@
     var context = $.extend({id: id}, opts);
     var popup = $(renderTemplate(popupTemplate, context)).hide();
     popup.find('textarea[name="proposal"]').hide();
+    popup.find('a.' + by).addClass('sel');
     var form = popup.find('#cf' + id);
     form.submit(function(event) {
       event.preventDefault();
@@ -381,13 +382,12 @@
   */
   function handleReSort(link) {
     var classes = link.attr('class').split(/\s+/);
-    var by = '';
     for (var i=0; i<classes.length; i++) {
       if (classes[i] != 'sort_option') {
 	by = classes[i];
       }
     }
-    setComparator(by);
+    setComparator();
     // Save/update the sortBy cookie.
     var expiration = new Date();
     expiration.setDate(expiration.getDate() + 365);
@@ -739,7 +739,7 @@
         </p>\
       </form>\
       <h3 id="cn<%id%>">loading comments... <img src="<%loadingImage%>" alt="" /></h3>\
-      <ul id="cl<%id%>"></ul>\
+      <ul id="cl<%id%>" class="comment_ul"></ul>\
     </div>';
 
   $(document).ready(function() {
