@@ -211,7 +211,7 @@ class Locale(Transform):
             # XXX ctx not used
             #ctx = node.parent
             patch = new_document(source, settings)
-            msgstr = catalog.ugettext(msg)
+            msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
@@ -792,6 +792,7 @@ class BuildEnvironment:
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 node.parent.remove(node)
+
 
     def process_dependencies(self, docname, doctree):
         """

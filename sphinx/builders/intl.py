@@ -5,17 +5,19 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import collections
-from datetime import datetime
 from os import path
+from codecs import open
+from datetime import datetime
+from collections import defaultdict
 
 from sphinx.builders import Builder
+from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.util.nodes import extract_messages
-from sphinx.util.osutil import SEP
+from sphinx.util.osutil import SEP, copyfile
 from sphinx.util.console import darkgreen
 
 POHEADER = ur"""
@@ -39,14 +41,17 @@ msgstr ""
 
 """[1:]
 
-class MessageCatalogBuilder(Builder):
+
+class I18nBuilder(Builder, VersioningBuilderMixin):
     """
-    Builds gettext-style message catalogs (.pot files).
+    General i18n builder.
     """
-    name = 'gettext'
+    name = 'i18n'
 
     def init(self):
-        self.catalogs = collections.defaultdict(list)
+        Builder.init(self)
+        VersioningBuilderMixin.init(self)
+        self.catalogs = defaultdict(dict)
 
     def get_target_uri(self, docname, typ=None):
         return ''
@@ -58,18 +63,26 @@ class MessageCatalogBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        """
-        Store a document's translatable strings in the message catalog of its
-        section. For this purpose a document's *top-level directory* -- or
-        otherwise its *name* -- is considered its section.
-        """
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
-        for _, msg in extract_messages(doctree):
-            # XXX msgctxt for duplicate messages
-            if msg not in catalog:
-                catalog.append(msg)
+
+        self.handle_versioning(docname, doctree, nodes.TextElement)
+
+        for node, msg in extract_messages(doctree):
+            catalog.setdefault(node.uid, msg)
 
     def finish(self):
+        Builder.finish(self)
+        VersioningBuilderMixin.finish(self)
+
+
+class MessageCatalogBuilder(I18nBuilder):
+    """
+    Builds gettext-style message catalogs (.pot files).
+    """
+    name = 'gettext'
+
+    def finish(self):
+        I18nBuilder.finish(self)
         data = dict(
             version = self.config.version,
             copyright = self.config.copyright,
@@ -81,13 +94,15 @@ class MessageCatalogBuilder(Builder):
                 self.catalogs.iteritems(), "writing message catalogs... ",
                 lambda (section, _):darkgreen(section), len(self.catalogs)):
 
-            pofile = open(path.join(self.outdir, '%s.pot' % section), 'w')
+            pofn = path.join(self.outdir, section + '.pot')
+            pofile = open(pofn, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
-                for message in messages:
+                for uid, message in messages.iteritems():
                     # message contains *one* line of text ready for translation
-                    message = message.replace(u'\\', ur'\\').replace(u'"', ur'\"')
-                    pomsg = u'msgid "%s"\nmsgstr ""\n\n' % message
-                    pofile.write(pomsg.encode('utf-8'))
+                    message = message.replace(u'\\', ur'\\'). \
+                                      replace(u'"', ur'\"')
+                    pomsg = u'#%s\nmsgid "%s"\nmsgstr ""\n\n' % (uid, message)
+                    pofile.write(pomsg)
             finally:
                 pofile.close()
