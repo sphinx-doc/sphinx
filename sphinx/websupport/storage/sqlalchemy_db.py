@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.websupport.storage.db
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.websupport.storage.sqlalchemy_db
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     SQLAlchemy table and mapper definitions used by the
-    :class:`sphinx.websupport.comments.SQLAlchemyStorage`.
+    :class:`sphinx.websupport.storage.sqlalchemystorage.SQLAlchemyStorage`.
 
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -14,14 +14,14 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, \
      ForeignKey, DateTime
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, sessionmaker, aliased
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-
 Session = sessionmaker()
 
 db_prefix = 'sphinx_'
+
 
 class Node(Base):
     """Data about a Node in a doctree."""

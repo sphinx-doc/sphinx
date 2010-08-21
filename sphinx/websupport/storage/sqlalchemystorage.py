@@ -22,8 +22,8 @@ if sqlalchemy.__version__[:3] < '0.5':
 from sphinx.websupport.errors import CommentNotAllowedError, \
      UserNotAuthorizedError
 from sphinx.websupport.storage import StorageBackend
-from sphinx.websupport.storage.db import Base, Node, Comment, \
-     CommentVote, Session
+from sphinx.websupport.storage.sqlalchemy_db import Base, Node, \
+     Comment, CommentVote, Session
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 
 

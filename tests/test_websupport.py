@@ -25,7 +25,7 @@ from sphinx.websupport.errors import *
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 from sphinx.websupport.storage.sqlalchemystorage import Session, \
     SQLAlchemyStorage, Comment, CommentVote
-from sphinx.websupport.storage.db import Node
+from sphinx.websupport.storage.sqlalchemy_db import Node
 
 from util import *
 
