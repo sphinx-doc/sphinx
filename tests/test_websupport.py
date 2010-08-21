@@ -12,6 +12,12 @@
 import os
 from StringIO import StringIO
 
+try:
+    from functools import wraps
+except ImportError:
+    # functools is new in 2.5
+    wraps = lambda f: (lambda w: w)
+
 from nose import SkipTest
 
 from sphinx.websupport import WebSupport
@@ -20,13 +26,8 @@ from sphinx.websupport.storage.differ import CombinedHtmlDiff
 from sphinx.websupport.storage.sqlalchemystorage import Session, \
     SQLAlchemyStorage, Comment, CommentVote
 from sphinx.websupport.storage.db import Node
-from util import *
 
-try:
-    from functools import wraps
-except ImportError:
-    # functools is new in 2.4
-    wraps = lambda f: (lambda w: w)
+from util import *
 
 
 default_settings = {'builddir': os.path.join(test_root, 'websupport'),
