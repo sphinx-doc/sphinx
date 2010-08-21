@@ -44,7 +44,7 @@ A development egg can be found `here
 <http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
-requires = ['Pygments>=0.8', 'Jinja2>=2.2', 'docutils>=0.5', 'uuid>=1.30']
+requires = ['Pygments>=0.8', 'Jinja2>=2.2', 'docutils>=0.5']
 
 if sys.version_info < (2, 4):
     print('ERROR: Sphinx requires at least Python 2.4 to run.')
@@ -61,10 +61,10 @@ if sys.version_info < (2, 5):
     except:
         pass
     else:
-        del requires[-2]
-elif sys.version_info >= (2, 5):
-    # An uuid module has been added to the stdlib in 2.5
-    del requires[-1]
+        del requires[-1]
+
+    # The uuid module is new in the stdlib in 2.5
+    requires.append('uuid>=1.30')
 
 
 # Provide a "compile_catalog" command that also creates the translated
