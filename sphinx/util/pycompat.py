@@ -21,6 +21,18 @@ except ImportError:
     # Python 3
     class_types = (type,)
 
+try:
+    from itertools import product
+except ImportError: # python < 2.6
+    # this code has been taken from the python documentation
+    def product(*args, **kwargs):
+        pools = map(tuple, args) * kwargs.get('repeat', 1)
+        result = [[]]
+        for pool in pools:
+            result = [x + [y] for x in result for y in pool]
+        for prod in result:
+            yield tuple(prod)
+
 
 # the ubiquitous "bytes" helper function
 if sys.version_info >= (3, 0):

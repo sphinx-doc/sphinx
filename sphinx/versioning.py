@@ -12,11 +12,12 @@
 from uuid import uuid4
 from operator import itemgetter
 from collections import defaultdict
-from itertools import product
 try:
     from itertools import izip_longest as zip_longest
 except ImportError:
     from itertools import zip_longest
+
+from sphinx.util.pycompat import product
 
 
 # anything below that ratio is considered equal/changed
