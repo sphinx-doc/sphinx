@@ -43,8 +43,8 @@ except ImportError: # Python < 2.6 or >= 3.0
     except ImportError:
         from itertools import izip, repeat, chain
         # this code has been taken from the Python itertools documentation
-        def izip_longest(*args, **kwds):
-            # izip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
+        def zip_longest(*args, **kwds):
+            # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
             fillvalue = kwds.get('fillvalue')
             def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
                 yield counter()   # yields the fillvalue, or raises IndexError
