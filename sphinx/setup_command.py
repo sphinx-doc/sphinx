@@ -144,7 +144,7 @@ class BuildDoc(Command):
         except Exception, err:
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):
-                sys.stderr, darkred('reST markup error:')
+                print >>sys.stderr, darkred('reST markup error:')
                 print >>sys.stderr, err.args[0].encode('ascii',
                                                        'backslashreplace')
             else:
