@@ -13,64 +13,17 @@ import sys
 import codecs
 import encodings
 
+# ------------------------------------------------------------------------------
+# Python 2/3 compatibility
 
-try:
-    from types import ClassType
-    class_types = (type, ClassType)
-except ImportError:
+if sys.version_info >= (3, 0):
     # Python 3
     class_types = (type,)
-
-
-try:
-    from itertools import product
-except ImportError: # Python < 2.6
-    # this code has been taken from the Python itertools documentation
-    def product(*args, **kwargs):
-        pools = map(tuple, args) * kwargs.get('repeat', 1)
-        result = [[]]
-        for pool in pools:
-            result = [x + [y] for x in result for y in pool]
-        for prod in result:
-            yield tuple(prod)
-
-
-try:
-    from itertools import izip_longest as zip_longest
-except ImportError: # Python < 2.6 or >= 3.0
-    try:
-        from itertools import zip_longest
-    except ImportError:
-        from itertools import izip, repeat, chain
-        # this code has been taken from the Python itertools documentation
-        def zip_longest(*args, **kwds):
-            # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
-            fillvalue = kwds.get('fillvalue')
-            def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
-                yield counter()   # yields the fillvalue, or raises IndexError
-            fillers = repeat(fillvalue)
-            iters = [chain(it, sentinel(), fillers) for it in args]
-            try:
-                for tup in izip(*iters):
-                    yield tup
-            except IndexError:
-                pass
-
-
-# the ubiquitous "bytes" helper function
-if sys.version_info >= (3, 0):
+    # the ubiquitous "bytes" helper functions
     def b(s):
         return s.encode('utf-8')
-else:
-    b = str
-
-
-# Support for running 2to3 over config files
-
-if sys.version_info < (3, 0):
-    # no need to refactor on 2.x versions
-    convert_with_2to3 = None
-else:
+    bytes = bytes
+    # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         from lib2to3.pgen2.parse import ParseError
@@ -86,32 +39,74 @@ else:
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
         return unicode(tree)
 
+else:
+    # Python 2
+    from types import ClassType
+    class_types = (type, ClassType)
+    b = str
+    bytes = str
+    # no need to refactor on 2.x versions
+    convert_with_2to3 = None
 
-try:
+
+# ------------------------------------------------------------------------------
+# Missing itertools in Python < 2.6
+
+if sys.version_info >= (2, 6):
+    # Python >= 2.6
+    from itertools import product
+    try:
+        from itertools import zip_longest  # Python 3 name
+    except ImportError:
+        from itertools import izip_longest as zip_longest
+
+else:
+    # Python < 2.6
+    from itertools import izip, repeat, chain
+
+    # These replacement functions have been taken from the Python 2.6
+    # itertools documentation.
+    def product(*args, **kwargs):
+        pools = map(tuple, args) * kwargs.get('repeat', 1)
+        result = [[]]
+        for pool in pools:
+            result = [x + [y] for x in result for y in pool]
+        for prod in result:
+            yield tuple(prod)
+
+    def zip_longest(*args, **kwds):
+        # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
+        fillvalue = kwds.get('fillvalue')
+        def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
+            yield counter()   # yields the fillvalue, or raises IndexError
+        fillers = repeat(fillvalue)
+        iters = [chain(it, sentinel(), fillers) for it in args]
+        try:
+            for tup in izip(*iters):
+                yield tup
+        except IndexError:
+            pass
+
+
+# ------------------------------------------------------------------------------
+# Missing builtins and codecs in Python < 2.5
+
+if sys.version_info >= (2, 5):
+    # Python >= 2.5
     base_exception = BaseException
-except NameError:
+    next = next
+    any = any
+    all = all
+
+else:
+    # Python 2.4
     base_exception = Exception
 
-
-try:
-    next = next
-except NameError:
     # this is on Python 2, where the method is called "next" (it is refactored
     # to __next__ by 2to3, but in that case never executed)
     def next(iterator):
         return iterator.next()
 
-
-try:
-    bytes = bytes
-except NameError:
-    bytes = str
-
-
-try:
-    any = any
-    all = all
-except NameError:
     def all(gen):
         for i in gen:
             if not i:
@@ -124,8 +119,6 @@ except NameError:
                 return True
         return False
 
-
-if sys.version_info < (2, 5):
     # Python 2.4 doesn't know the utf-8-sig encoding, so deliver it here
 
     def my_search_function(encoding):
