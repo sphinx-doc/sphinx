@@ -22,6 +22,7 @@ from nose import SkipTest
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
+from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 try:
     from sphinx.websupport.storage.sqlalchemystorage import Session, \
@@ -57,17 +58,23 @@ def with_support(*args, **kwargs):
     return generator
 
 
-@with_support()
+class NullStorage(StorageBackend):
+    pass
+
+
+@with_support(storage=NullStorage())
 def test_no_srcdir(support):
     """Make sure the correct exception is raised if srcdir is not given."""
     raises(SrcdirNotSpecifiedError, support.build)
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support(srcdir=test_root)
 def test_build(support):
     support.build()
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_get_document(support):
     raises(DocumentNotFoundError, support.get_document, 'nonexisting')

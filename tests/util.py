@@ -29,8 +29,8 @@ from nose import tools, SkipTest
 
 
 __all__ = [
-    'test_root',
-    'raises', 'raises_msg', 'skip_if', 'skip_unless', 'Struct',
+    'test_root', 'raises', 'raises_msg',
+    'skip_if', 'skip_unless', 'skip_unless_importable', 'Struct',
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir', 'write_file',
     'sprint', 'remove_unicode_literals',
@@ -85,6 +85,15 @@ def skip_if(condition, msg=None):
 def skip_unless(condition, msg=None):
     """Decorator to skip test if condition is false."""
     return skip_if(not condition, msg)
+
+def skip_unless_importable(module, msg=None):
+    """Decorator to skip test if module is not importable."""
+    try:
+        __import__(module)
+    except ImportError:
+        return skip_if(True, msg)
+    else:
+        return skip_if(False, msg)
 
 
 class Struct(object):

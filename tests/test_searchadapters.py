@@ -12,8 +12,12 @@
 import os, sys
 from StringIO import StringIO
 
-from util import *
+from nose import SkipTest
+
 from sphinx.websupport import WebSupport
+
+from test_websupport import sqlalchemy_missing
+from util import *
 
 
 def clear_builddir():
@@ -63,21 +67,13 @@ def search_adapter_helper(adapter):
     html = support.get_search_results(u'SomeLongRandomWord')
 
 
+@skip_unless_importable('xapian', 'needs xapian bindings installed')
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 def test_xapian():
-    # Don't run tests if xapian is not installed.
-    try:
-        import xapian
-        search_adapter_helper('xapian')
-    except ImportError:
-        sys.stderr.write('info: not running xapian tests, ' \
-                         'xapian doesn\'t seem to be installed')
+    search_adapter_helper('xapian')
 
 
+@skip_unless_importable('whoosh', 'needs whoosh package installed')
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 def test_whoosh():
-    # Don't run tests if whoosh is not installed.
-    try:
-        import whoosh
-        search_adapter_helper('whoosh')
-    except ImportError:
-        sys.stderr.write('info: not running whoosh tests, ' \
-                         'whoosh doesn\'t seem to be installed')
+    search_adapter_helper('whoosh')
