@@ -6,40 +6,41 @@ Storage Backends
 ================
 
 To create a custom storage backend you will need to subclass the
-:class:`~StorageBackend` class. Then create an instance of the new class
-and pass that as the `storage` keyword argument when you create the
-:class:`~sphinx.websupport.WebSupport` object::
+:class:`StorageBackend` class.  Then create an instance of the new class and
+pass that as the `storage` keyword argument when you create the
+:class:`~.WebSupport` object::
 
-    support = Websupport(srcdir=srcdir,
-                         builddir=builddir,
-                         storage=MyStorage())
+   support = WebSupport(srcdir=srcdir,
+                        builddir=builddir,
+                        storage=MyStorage())
 
-For more information about creating a custom storage backend, please see
-the documentation of the :class:`StorageBackend` class below.
+For more information about creating a custom storage backend, please see the
+documentation of the :class:`StorageBackend` class below.
 
 .. class:: StorageBackend
 
-    Defines an interface for storage backends.
+   Defines an interface for storage backends.
+
 
 StorageBackend Methods
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.pre_build
+.. automethod:: StorageBackend.pre_build
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.add_node
+.. automethod:: StorageBackend.add_node
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.post_build
+.. automethod:: StorageBackend.post_build
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.add_comment
+.. automethod:: StorageBackend.add_comment
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.delete_comment
+.. automethod:: StorageBackend.delete_comment
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.get_data
+.. automethod:: StorageBackend.get_data
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.process_vote
+.. automethod:: StorageBackend.process_vote
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.update_username
+.. automethod:: StorageBackend.update_username
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.accept_comment
+.. automethod:: StorageBackend.accept_comment
 
-.. automethod:: sphinx.websupport.storage.StorageBackend.reject_comment
+.. automethod:: StorageBackend.reject_comment
