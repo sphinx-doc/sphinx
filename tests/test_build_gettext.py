@@ -37,7 +37,8 @@ def test_gettext(app):
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['msginit', '--no-translator', '-i', 'markup.pot'],
+            p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
+                       '--locale', 'en_US'],
                         stdout=PIPE, stderr=PIPE)
         except OSError:
             return  # most likely msginit was not found
@@ -74,15 +75,6 @@ def test_gettext(app):
 def test_all(app):
     app.builder.build_all()
 
-@with_app(buildername='text',
-        confoverrides={'language': 'xx', 'locale_dirs': ['.']})
-def test_patch(app):
-    app.builder.build(['bom'])
-    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
-    expect = (u"\nDatei mit UTF-8"
-              u"\n***************\n" # underline matches new translation
-              u"\nThis file has umlauts: äöü.\n")
-    assert result == expect
 
 def setup_patch():
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
@@ -103,5 +95,16 @@ def setup_patch():
 
 def teardown_patch():
     (test_root / 'xx').rmtree()
+
+@with_app(buildername='text',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+def test_patch(app):
+    app.builder.build(['bom'])
+    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
+    expect = (u"\nDatei mit UTF-8"
+              u"\n***************\n" # underline matches new translation
+              u"\nThis file has umlauts: äöü.\n")
+    assert result == expect
+
 test_patch.setup = setup_patch
 test_patch.teardown = teardown_patch
