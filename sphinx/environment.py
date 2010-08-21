@@ -184,6 +184,7 @@ class CitationReferences(Transform):
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
+
 class Locale(Transform):
     """
     Replace translatable nodes with their translated doctree.
@@ -207,10 +208,11 @@ class Locale(Transform):
         parser = RSTParser()
 
         for node, msg in extract_messages(self.document):
-            ctx = node.parent
+            # XXX ctx not used
+            #ctx = node.parent
             patch = new_document(source, settings)
             msgstr = catalog.ugettext(msg)
-            #XXX add marker to untranslated parts
+            # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
             parser.parse(msgstr, patch)
@@ -219,7 +221,6 @@ class Locale(Transform):
             for child in patch.children: # update leaves
                 child.parent = node
             node.children = patch.children
-
 
 
 class SphinxStandaloneReader(standalone.Reader):
@@ -791,7 +792,6 @@ class BuildEnvironment:
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 node.parent.remove(node)
-
 
     def process_dependencies(self, docname, doctree):
         """

@@ -191,9 +191,9 @@ else:
 def init(locale_dirs, language, catalog='sphinx'):
     """
     Look for message catalogs in `locale_dirs` and *ensure* that there is at
-    least a NullTranslations catalog set in `translators`. If called multiple
-    times or several ``.mo`` files are found their contents are merged
-    together (thus making `init` reentrable).
+    least a NullTranslations catalog set in `translators`.  If called multiple
+    times or if several ``.mo`` files are found, their contents are merged
+    together (thus making ``init`` reentrable).
     """
     global translators
     translator = translators.get(catalog)

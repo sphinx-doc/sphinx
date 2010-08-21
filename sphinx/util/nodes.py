@@ -28,6 +28,7 @@ def extract_messages(doctree):
         if isinstance(node, (nodes.Invisible, nodes.Inline)):
             continue
         # <field_name>orphan</field_name>
+        # XXX ignore all metadata (== docinfo)
         if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
             continue
         msg = node.rawsource.replace('\n', ' ').strip()

@@ -13,8 +13,6 @@ import collections
 from datetime import datetime
 from os import path
 
-from docutils import nodes
-
 from sphinx.builders import Builder
 from sphinx.util.nodes import extract_messages
 from sphinx.util.osutil import SEP
