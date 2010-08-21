@@ -33,6 +33,27 @@ except ImportError: # python < 2.6
         for prod in result:
             yield tuple(prod)
 
+try:
+    from itertools import izip_longest as zip_longest
+except ImportError: # python > 2.6/2.7 or python < 2.6
+    try:
+        from itertools import zip_longest
+    except ImportError: # python < 2.6
+        # this code has been taken from the python documentation
+        from itertools import repeat, chain, izip
+
+        def zip_longest(*args, **kwargs):
+            fillvalue = kwargs.get('fillvalue')
+            def sentinel(counter=([fillvalue] * (len(args) - 1)).pop):
+                yield counter()
+            fillers = repeat(fillvalue)
+            iters = [chain(it, sentinel(), fillers) for it in args]
+            try:
+                for tup in izip(*iters):
+                    yield tup
+            except IndexError:
+                pass
+
 
 # the ubiquitous "bytes" helper function
 if sys.version_info >= (3, 0):
