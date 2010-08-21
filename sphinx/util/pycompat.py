@@ -12,7 +12,7 @@
 import sys
 import codecs
 import encodings
-import re
+
 
 try:
     from types import ClassType
@@ -21,10 +21,11 @@ except ImportError:
     # Python 3
     class_types = (type,)
 
+
 try:
     from itertools import product
-except ImportError: # python < 2.6
-    # this code has been taken from the python documentation
+except ImportError: # Python < 2.6
+    # this code has been taken from the Python itertools documentation
     def product(*args, **kwargs):
         pools = map(tuple, args) * kwargs.get('repeat', 1)
         result = [[]]
@@ -32,6 +33,28 @@ except ImportError: # python < 2.6
             result = [x + [y] for x in result for y in pool]
         for prod in result:
             yield tuple(prod)
+
+
+try:
+    from itertools import izip_longest as zip_longest
+except ImportError: # Python < 2.6 or >= 3.0
+    try:
+        from itertools import zip_longest
+    except ImportError:
+        from itertools import izip, repeat, chain
+        # this code has been taken from the Python itertools documentation
+        def izip_longest(*args, **kwds):
+            # izip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
+            fillvalue = kwds.get('fillvalue')
+            def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
+                yield counter()   # yields the fillvalue, or raises IndexError
+            fillers = repeat(fillvalue)
+            iters = [chain(it, sentinel(), fillers) for it in args]
+            try:
+                for tup in izip(*iters):
+                    yield tup
+            except IndexError:
+                pass
 
 
 # the ubiquitous "bytes" helper function
