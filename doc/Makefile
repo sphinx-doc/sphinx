@@ -29,6 +29,7 @@ help:
 	@echo "  epub       to make an epub file"
 	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  latexpdf   to make LaTeX files and run pdflatex"
+	@echo "  gettext    to make PO message catalogs"
 	@echo "  changes    to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
 
@@ -111,6 +112,11 @@ latexpdf:
 	@echo "Running LaTeX files through pdflatex..."
 	make -C _build/latex all-pdf
 	@echo "pdflatex finished; the PDF files are in _build/latex."
+
+gettext:
+	$(SPHINXBUILD) -b gettext $(ALLSPHINXOPTS) _build/locale
+	@echo
+	@echo "Build finished. The message catalogs are in _build/locale."
 
 changes:
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) _build/changes

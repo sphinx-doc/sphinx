@@ -331,4 +331,5 @@ BUILTIN_BUILDERS = {
     'changes':    ('changes', 'ChangesBuilder'),
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
     'websupport': ('websupport', 'WebSupportBuilder'),
+    'gettext':    ('intl', 'MessageCatalogBuilder'),
 }
