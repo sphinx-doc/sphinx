@@ -9,12 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
-
 import xapian
 
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch
+
 
 class XapianSearch(BaseSearch):
     # Adapted from the GSOC 2009 webapp project.

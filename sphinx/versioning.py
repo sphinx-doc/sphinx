@@ -18,15 +18,14 @@ try:
 except ImportError:
     from itertools import zip_longest
 
-from sphinx.util import PeekableIterator
 
 # anything below that ratio is considered equal/changed
 VERSIONING_RATIO = 65
 
+
 def add_uids(doctree, condition):
-    """
-    Adds a unique id to every node in the `doctree` which matches the condition
-    and yields it.
+    """Add a unique id to every node in the `doctree` which matches the
+    condition and yield the nodes.
 
     :param doctree:
         A :class:`docutils.nodes.document` instance.
@@ -38,10 +37,10 @@ def add_uids(doctree, condition):
         node.uid = uuid4().hex
         yield node
 
+
 def merge_doctrees(old, new, condition):
-    """
-    Merges the `old` doctree with the `new` one while looking at nodes matching
-    the `condition`.
+    """Merge the `old` doctree with the `new` one while looking at nodes
+    matching the `condition`.
 
     Each node which replaces another one or has been added to the `new` doctree
     will be yielded.
@@ -102,16 +101,18 @@ def merge_doctrees(old, new, condition):
         new_node.uid = uuid4().hex
         yield new_node
 
+
 def get_ratio(old, new):
-    """
-    Returns a "similiarity ratio" representing the similarity between the two
-    strings where 0 is equal and anything above less than equal.
+    """Return a "similiarity ratio" (in percent) representing the similarity
+    between the two strings where 0 is equal and anything above less than equal.
     """
     if not all([old, new]):
         return VERSIONING_RATIO
     return levenshtein_distance(old, new) / (len(old) / 100.0)
 
+
 def levenshtein_distance(a, b):
+    """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0
     if len(a) < len(b):

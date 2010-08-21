@@ -13,16 +13,16 @@ import sys
 import cPickle as pickle
 import posixpath
 from os import path
-from datetime import datetime
 
 from jinja2 import Environment, FileSystemLoader
 
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
 from sphinx.util.jsonimpl import dumps as dump_json
-from sphinx.websupport.search import BaseSearch, search_adapters
+from sphinx.websupport.search import BaseSearch, SEARCH_ADAPTERS
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.errors import *
+
 
 class WebSupportApp(Sphinx):
     def __init__(self, *args, **kwargs):
@@ -31,6 +31,7 @@ class WebSupportApp(Sphinx):
         self.search = kwargs.pop('search', None)
         self.storage = kwargs.pop('storage', None)
         Sphinx.__init__(self, *args, **kwargs)
+
 
 class WebSupport(object):
     """The main API class for the web support package. All interactions
@@ -82,7 +83,7 @@ class WebSupport(object):
         if isinstance(search, BaseSearch):
             self.search = search
         else:
-            mod, cls = search_adapters[search or 'null']
+            mod, cls = SEARCH_ADAPTERS[search or 'null']
             mod = 'sphinx.websupport.search.' + mod
             SearchClass = getattr(__import__(mod, None, None, [cls]), cls)
             search_path = path.join(self.datadir, 'search')
@@ -390,7 +391,8 @@ class WebSupport(object):
         :param username: The username of the user making the request.
         :param moderator: Whether the user making the request is a moderator.
         """
-        parts = [self.base_comment_opts]
+        # XXX parts is not used?
+        #parts = [self.base_comment_opts]
         rv = self.base_comment_opts.copy()
         if username:
             rv.update({

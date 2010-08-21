@@ -10,7 +10,8 @@
 """
 
 from sphinx.websupport.search import BaseSearch
-from sphinx.websupport.errors import *
+from sphinx.websupport.errors import NullSearchException
+
 
 class NullSearch(BaseSearch):
     """A search adapter that does nothing. Used when no search adapter

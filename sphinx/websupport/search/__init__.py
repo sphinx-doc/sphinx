@@ -11,6 +11,7 @@
 
 import re
 
+
 class BaseSearch(object):
     def __init__(self, path):
         pass
@@ -63,11 +64,10 @@ class BaseSearch(object):
 
     def query(self, q):
         """Called by the web support api to get search results. This method
-        compiles the regular expression to be used when
-        :meth:`extracting context <extract_context>`, then calls
-        :meth:`handle_query`. You won't want to override this unless you
-        don't want to use the included :meth:`extract_context` method.
-        Override :meth:`handle_query` instead.
+        compiles the regular expression to be used when :meth:`extracting
+        context <extract_context>`, then calls :meth:`handle_query`.  You
+        won't want to override this unless you don't want to use the included
+        :meth:`extract_context` method.  Override :meth:`handle_query` instead.
 
         :param q: the search query string.
         """
@@ -93,7 +93,7 @@ class BaseSearch(object):
         raise NotImplementedError()
 
     def extract_context(self, text, length=240):
-        """Extract the context for the search query from the documents
+        """Extract the context for the search query from the document's
         full `text`.
 
         :param text: the full text of the document to create the context for
@@ -113,9 +113,9 @@ class BaseSearch(object):
         except TypeError:
             return context
 
-# The build in search adapters.
-search_adapters = {
+# The built-in search adapters.
+SEARCH_ADAPTERS = {
     'xapian': ('xapiansearch', 'XapianSearch'),
     'whoosh': ('whooshsearch', 'WhooshSearch'),
-    'null': ('nullsearch', 'NullSearch')
-    }
+    'null':   ('nullsearch', 'NullSearch'),
+}

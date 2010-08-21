@@ -14,16 +14,19 @@ from datetime import datetime
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
-from sphinx.websupport.errors import *
+from sphinx.websupport.errors import CommentNotAllowedError, \
+     UserNotAuthorizedError
 from sphinx.websupport.storage import StorageBackend
-from sphinx.websupport.storage.db import Base, Node, Comment, CommentVote,\
-                                          Session
+from sphinx.websupport.storage.db import Base, Node, Comment, \
+     CommentVote, Session
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 
+
 class SQLAlchemyStorage(StorageBackend):
-    """A :class:`~sphinx.websupport.storage.StorageBackend` using
-    SQLAlchemy.
     """
+    A :class:`.StorageBackend` using SQLAlchemy.
+    """
+
     def __init__(self, engine):
         self.engine = engine
         Base.metadata.bind = engine
@@ -147,6 +150,7 @@ class SQLAlchemyStorage(StorageBackend):
     def accept_comment(self, comment_id):
         session = Session()
 
+        # XXX assignment to "comment" needed?
         comment = session.query(Comment).filter(
             Comment.id == comment_id).update(
             {Comment.displayed: True})

@@ -10,12 +10,12 @@
 """
 
 from whoosh import index
-from whoosh.fields import Schema, ID, TEXT, STORED
+from whoosh.fields import Schema, ID, TEXT
 from whoosh.analysis import StemmingAnalyzer
-from whoosh import highlight
 
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch
+
 
 class WhooshSearch(BaseSearch):
     """The whoosh search adapter for sphinx web support."""

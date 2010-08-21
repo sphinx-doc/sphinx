@@ -311,6 +311,7 @@ class Builder(object):
         """
         Cleanup any resources.  The default implementation does nothing.
         """
+        pass
 
 
 BUILTIN_BUILDERS = {

@@ -299,6 +299,7 @@ def format_exception_cut_frames(x=1):
     res += traceback.format_exception_only(typ, val)
     return ''.join(res)
 
+
 class PeekableIterator(object):
     """
     An iterator which wraps any iterable and makes it possible to peek to see
@@ -312,24 +313,19 @@ class PeekableIterator(object):
         return self
 
     def next(self):
-        """
-        Returns the next item from the iterator.
-        """
+        """Return the next item from the iterator."""
         if self.remaining:
             return self.remaining.popleft()
         return self._iterator.next()
 
     def push(self, item):
-        """
-        Pushes the `item` on the internal stack, it will be returned on the
+        """Push the `item` on the internal stack, it will be returned on the
         next :meth:`next` call.
         """
         self.remaining.append(item)
 
     def peek(self):
-        """
-        Returns the next item without changing the state of the iterator.
-        """
+        """Return the next item without changing the state of the iterator."""
         item = self.next()
         self.push(item)
         return item

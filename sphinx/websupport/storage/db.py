@@ -11,11 +11,9 @@
 """
 
 from datetime import datetime
-from uuid import uuid4
 
-from sqlalchemy import Column, Integer, Text, String, Boolean, ForeignKey,\
-                       DateTime
-from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy import Column, Integer, Text, String, Boolean, \
+     ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, sessionmaker, aliased
 
@@ -97,6 +95,7 @@ class Node(Base):
         self.id = id
         self.document = document
         self.source = source
+
 
 class Comment(Base):
     """An individual Comment being stored."""
@@ -187,6 +186,7 @@ class Comment(Base):
             dt = (days, 'day')
 
         return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
+
 
 class CommentVote(Base):
     """A vote a user has made on a Comment."""

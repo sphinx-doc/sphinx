@@ -13,6 +13,7 @@ import re
 from cgi import escape
 from difflib import Differ
 
+
 class CombinedHtmlDiff(object):
     """Create an HTML representation of the differences between two pieces
     of text.
