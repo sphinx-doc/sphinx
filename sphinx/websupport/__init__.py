@@ -65,12 +65,12 @@ class WebSupport(object):
             # SQLAlchemy backend.
             from sphinx.websupport.storage.sqlalchemystorage \
                 import SQLAlchemyStorage
-            from sqlalchemy import create_engine
-            db_path = path.join(self.datadir, 'db', 'websupport.db')
-            ensuredir(path.dirname(db_path))
-            uri = storage or 'sqlite:///%s' % db_path
-            engine = create_engine(uri)
-            self.storage = SQLAlchemyStorage(engine)
+            if not storage:
+                # no explicit DB path given; create default sqlite database
+                db_path = path.join(self.datadir, 'db', 'websupport.db')
+                ensuredir(path.dirname(db_path))
+                storage = 'sqlite:///' + db_path
+            self.storage = SQLAlchemyStorage(storage)
 
     def _init_templating(self):
         import sphinx

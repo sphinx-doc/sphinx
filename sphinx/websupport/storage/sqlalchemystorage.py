@@ -32,11 +32,11 @@ class SQLAlchemyStorage(StorageBackend):
     A :class:`.StorageBackend` using SQLAlchemy.
     """
 
-    def __init__(self, engine):
-        self.engine = engine
-        Base.metadata.bind = engine
+    def __init__(self, uri):
+        self.engine = sqlalchemy.create_engine(uri)
+        Base.metadata.bind = self.engine
         Base.metadata.create_all()
-        Session.configure(bind=engine)
+        Session.configure(bind=self.engine)
 
     def pre_build(self):
         self.build_session = Session()
