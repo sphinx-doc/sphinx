@@ -23,9 +23,13 @@ from nose import SkipTest
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
-from sphinx.websupport.storage.sqlalchemystorage import Session, \
-    SQLAlchemyStorage, Comment, CommentVote
-from sphinx.websupport.storage.sqlalchemy_db import Node
+try:
+    from sphinx.websupport.storage.sqlalchemystorage import Session, \
+         SQLAlchemyStorage, Comment, CommentVote
+    from sphinx.websupport.storage.sqlalchemy_db import Node
+    sqlalchemy_missing = False
+except ImportError:
+    sqlalchemy_missing = True
 
 from util import *
 
@@ -73,6 +77,7 @@ def test_get_document(support):
         and contents['sidebar'] and contents['relbar']
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_comments(support):
     session = Session()
@@ -121,6 +126,7 @@ def test_comments(support):
     assert children[0]['text'] == 'Child test comment'
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_voting(support):
     session = Session()
@@ -154,6 +160,7 @@ def test_voting(support):
     assert comment['vote'] == 1, '%s != 1' % comment['vote']
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_proposals(support):
     session = Session()
@@ -169,6 +176,7 @@ def test_proposals(support):
                                   proposal=proposal)
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_user_delete_comments(support):
     def get_comment():
@@ -189,6 +197,7 @@ def test_user_delete_comments(support):
     assert comment['text'] == '[deleted]'
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_moderator_delete_comments(support):
     def get_comment():
@@ -205,6 +214,7 @@ def test_moderator_delete_comments(support):
     assert comment['text'] == '[deleted]'
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_update_username(support):
     support.update_username('user_two', 'new_user_two')
@@ -229,6 +239,7 @@ def moderation_callback(comment):
     called = True
 
 
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support(moderation_callback=moderation_callback)
 def test_moderation(support):
     session = Session()
