@@ -11,8 +11,13 @@
 
 from datetime import datetime
 
+import sqlalchemy
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
+
+if sqlalchemy.__version__[:3] < '0.5':
+    raise ImportError('SQLAlchemy version 0.5 or greater is required for this '
+        'storage backend; you have version %s' % sqlalchemy.__version__)
 
 from sphinx.websupport.errors import CommentNotAllowedError, \
      UserNotAuthorizedError
