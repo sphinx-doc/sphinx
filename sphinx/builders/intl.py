@@ -14,6 +14,8 @@ from codecs import open
 from datetime import datetime
 from collections import defaultdict
 
+from docutils import nodes
+
 from sphinx.builders import Builder
 from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.util.nodes import extract_messages
