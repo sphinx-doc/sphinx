@@ -11,6 +11,7 @@
 
 from whoosh import index
 from whoosh.fields import Schema, ID, TEXT
+from whoosh.qparser import QueryParser
 from whoosh.analysis import StemmingAnalyzer
 
 from sphinx.util.osutil import ensuredir
@@ -31,6 +32,7 @@ class WhooshSearch(BaseSearch):
             self.index = index.open_dir(db_path)
         else:
             self.index = index.create_in(db_path, schema=self.schema)
+        self.qparser = QueryParser('text', self.schema)
 
     def init_indexing(self, changed=[]):
         for changed_path in changed:
@@ -47,7 +49,7 @@ class WhooshSearch(BaseSearch):
 
     def handle_query(self, q):
         searcher = self.index.searcher()
-        whoosh_results = searcher.find('text', q)
+        whoosh_results = searcher.search(self.qparser.parse(q))
         results = []
         for result in whoosh_results:
             context = self.extract_context(result['text'])
