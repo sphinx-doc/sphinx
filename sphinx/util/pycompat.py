@@ -50,10 +50,12 @@ else:
 
 
 # ------------------------------------------------------------------------------
-# Missing itertools in Python < 2.6
+# Missing builtins and itertools in Python < 2.6
 
 if sys.version_info >= (2, 6):
     # Python >= 2.6
+    next = next
+
     from itertools import product
     try:
         from itertools import zip_longest  # Python 3 name
@@ -63,6 +65,11 @@ if sys.version_info >= (2, 6):
 else:
     # Python < 2.6
     from itertools import izip, repeat, chain
+
+    # this is on Python 2, where the method is called "next" (it is refactored
+    # to __next__ by 2to3, but in that case never executed)
+    def next(iterator):
+        return iterator.next()
 
     # These replacement functions have been taken from the Python 2.6
     # itertools documentation.
@@ -94,18 +101,12 @@ else:
 if sys.version_info >= (2, 5):
     # Python >= 2.5
     base_exception = BaseException
-    next = next
     any = any
     all = all
 
 else:
     # Python 2.4
     base_exception = Exception
-
-    # this is on Python 2, where the method is called "next" (it is refactored
-    # to __next__ by 2to3, but in that case never executed)
-    def next(iterator):
-        return iterator.next()
 
     def all(gen):
         for i in gen:
