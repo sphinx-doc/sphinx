@@ -73,8 +73,7 @@ class autosummary_toc(nodes.comment):
     pass
 
 def process_autosummary_toc(app, doctree):
-    """
-    Insert items described in autosummary:: to the TOC tree, but do
+    """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
     env = app.builder.env
@@ -135,8 +134,8 @@ except AttributeError:
     isgetsetdescriptor = ismemberdescriptor
 
 def get_documenter(obj):
-    """
-    Get an autodoc.Documenter class suitable for documenting the given object
+    """Get an autodoc.Documenter class suitable for documenting the given
+    object.
     """
     import sphinx.ext.autodoc as autodoc
 
@@ -218,8 +217,7 @@ class Autosummary(Directive):
         return self.warnings + nodes
 
     def get_items(self, names):
-        """
-        Try to import the given names, and return a list of
+        """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
         env = self.state.document.settings.env
@@ -287,8 +285,7 @@ class Autosummary(Directive):
         return items
 
     def get_table(self, items):
-        """
-        Generate a proper list of table nodes for autosummary:: directive.
+        """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
         """
@@ -351,8 +348,7 @@ def mangle_signature(sig, max_chars=30):
     return u"(%s)" % sig
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
-    """
-    Join a number of strings to one, limiting the length to *max_chars*.
+    """Join a number of strings to one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
     *overflow_marker*.
@@ -377,8 +373,7 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
 # -- Importing items -----------------------------------------------------------
 
 def import_by_name(name, prefixes=[None]):
-    """
-    Import a Python object that has the given *name*, under one of the
+    """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
     tried = []
@@ -435,8 +430,7 @@ def _import_by_name(name):
 
 def autolink_role(typ, rawtext, etext, lineno, inliner,
                   options={}, content=[]):
-    """
-    Smart linking role.
+    """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.

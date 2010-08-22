@@ -61,8 +61,7 @@ DOC_BODY_PREVIEW = r'''
 depth_re = re.compile(r'\[\d+ depth=(-?\d+)\]')
 
 def render_math(self, math):
-    """
-    Render the LaTeX math expression *math* using latex and dvipng.
+    """Render the LaTeX math expression *math* using latex and dvipng.
 
     Return the filename relative to the built document and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the

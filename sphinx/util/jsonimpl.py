@@ -13,7 +13,7 @@ import UserString
 
 try:
     import json
-    # json-py's json module has not JSONEncoder; this will raise AttributeError
+    # json-py's json module has no JSONEncoder; this will raise AttributeError
     # if json-py is imported instead of the built-in json module
     JSONEncoder = json.JSONEncoder
 except (ImportError, AttributeError):

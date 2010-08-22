@@ -139,16 +139,15 @@ class XRefRole(object):
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        """
-        Called after parsing title and target text, and creating the reference
-        node (given in *refnode*).  This method can alter the reference node and
-        must return a new (or the same) ``(title, target)`` tuple.
+        """Called after parsing title and target text, and creating the
+        reference node (given in *refnode*).  This method can alter the
+        reference node and must return a new (or the same) ``(title, target)``
+        tuple.
         """
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        """
-        Called before returning the finished nodes.  *node* is the reference
+        """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
         tuple (the usual return value of a role function).

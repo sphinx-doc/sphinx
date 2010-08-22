@@ -25,7 +25,9 @@ if sys.version_info >= (3, 0):
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 
 class Config(object):
-    """Configuration file abstraction."""
+    """
+    Configuration file abstraction.
+    """
 
     # the values are: (default, what needs to be rebuilt if changed)
 

@@ -42,7 +42,6 @@ except ImportError:
 class DevhelpBuilder(StandaloneHTMLBuilder):
     """
     Builder that also outputs GNOME Devhelp file.
-
     """
     name = 'devhelp'
 

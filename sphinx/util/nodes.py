@@ -38,6 +38,12 @@ def extract_messages(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
+    """Version of state.nested_parse() that allows titles and does not require
+    titles to have the same decoration as the calling document.
+
+    This is useful when the parsed content comes from a completely different
+    context, such as docstrings.
+    """
     # hack around title style bookkeeping
     surrounding_title_styles = state.memo.title_styles
     surrounding_section_level = state.memo.section_level

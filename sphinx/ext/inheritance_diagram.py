@@ -67,8 +67,7 @@ class InheritanceGraph(object):
     graphviz dot graph from them.
     """
     def __init__(self, class_names, currmodule, show_builtins=False):
-        """
-        *class_names* is a list of child classes to show bases from.
+        """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
         in the graph.
@@ -82,9 +81,7 @@ class InheritanceGraph(object):
         self.show_builtins = show_builtins
 
     def _import_class_or_module(self, name, currmodule):
-        """
-        Import a class using its fully-qualified *name*.
-        """
+        """Import a class using its fully-qualified *name*."""
         try:
             path, base = class_sig_re.match(name).groups()
         except ValueError:
@@ -129,18 +126,14 @@ class InheritanceGraph(object):
                                    'not a class or module' % name)
 
     def _import_classes(self, class_names, currmodule):
-        """
-        Import a list of classes.
-        """
+        """Import a list of classes."""
         classes = []
         for name in class_names:
             classes.extend(self._import_class_or_module(name, currmodule))
         return classes
 
     def _all_classes(self, classes):
-        """
-        Return a list of all classes that are ancestors of *classes*.
-        """
+        """Return a list of all classes that are ancestors of *classes*."""
         all_classes = {}
 
         def recurse(cls):
@@ -155,10 +148,10 @@ class InheritanceGraph(object):
         return all_classes.keys()
 
     def class_name(self, cls, parts=0):
-        """
-        Given a class object, return a fully-qualified name.  This
-        works for things I've tested in matplotlib so far, but may not
-        be completely general.
+        """Given a class object, return a fully-qualified name.
+
+        This works for things I've tested in matplotlib so far, but may not be
+        completely general.
         """
         module = cls.__module__
         if module == '__builtin__':
@@ -171,9 +164,7 @@ class InheritanceGraph(object):
         return '.'.join(name_parts[-parts:])
 
     def get_all_class_names(self):
-        """
-        Get all of the class names involved in the graph.
-        """
+        """Get all of the class names involved in the graph."""
         return [self.class_name(x) for x in self.all_classes]
 
     # These are the default attrs for graphviz
@@ -202,9 +193,8 @@ class InheritanceGraph(object):
 
     def generate_dot(self, name, parts=0, urls={}, env=None,
                      graph_attrs={}, node_attrs={}, edge_attrs={}):
-        """
-        Generate a graphviz dot graph from the classes that
-        were passed in to __init__.
+        """Generate a graphviz dot graph from the classes that were passed in
+        to __init__.
 
         *name* is the name of the graph.
 

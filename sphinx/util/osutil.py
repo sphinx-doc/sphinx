@@ -59,8 +59,8 @@ def ensuredir(path):
 
 
 def walk(top, topdown=True, followlinks=False):
-    """
-    Backport of os.walk from 2.6, where the followlinks argument was added.
+    """Backport of os.walk from 2.6, where the *followlinks* argument was
+    added.
     """
     names = os.listdir(top)
 

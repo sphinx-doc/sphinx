@@ -135,29 +135,31 @@ class DefExpr(object):
     __hash__ = None
 
     def clone(self):
-        """Close a definition expression node"""
+        """Clone a definition expression node."""
         return deepcopy(self)
 
     def get_id(self):
-        """Returns the id for the node"""
+        """Return the id for the node."""
         return u''
 
     def get_name(self):
-        """Returns the name.  Returns either `None` or a node with
-        a name you might call :meth:`split_owner` on.
+        """Return the name.
+
+        Returns either `None` or a node with a name you might call
+        :meth:`split_owner` on.
         """
         return None
 
     def split_owner(self):
-        """Nodes returned by :meth:`get_name` can split off their
-        owning parent.  This function returns the owner and the
-        name as a tuple of two items.  If a node does not support
-        it, :exc:`NotImplementedError` is raised.
+        """Nodes returned by :meth:`get_name` can split off their owning parent.
+
+        This function returns the owner and the name as a tuple of two items.
+        If a node does not support it, :exc:`NotImplementedError` is raised.
         """
         raise NotImplementedError()
 
     def prefix(self, prefix):
-        """Prefixes a name node (a node returned by :meth:`get_name`)."""
+        """Prefix a name node (a node returned by :meth:`get_name`)."""
         raise NotImplementedError()
 
     def __str__(self):
@@ -984,8 +986,9 @@ class CPPFunctionObject(CPPObject):
 
 
 class CPPCurrentNamespace(Directive):
-    """This directive is just to tell Sphinx that we're documenting
-    stuff in namespace foo.
+    """
+    This directive is just to tell Sphinx that we're documenting stuff in
+    namespace foo.
     """
 
     has_content = False

@@ -6,5 +6,6 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
 def is_commentable(node):
     return node.__class__.__name__ in ('paragraph', 'literal_block')

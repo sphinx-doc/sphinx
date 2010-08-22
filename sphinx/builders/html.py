@@ -587,8 +587,7 @@ class StandaloneHTMLBuilder(Builder):
             self.theme.cleanup()
 
     def post_process_images(self, doctree):
-        """
-        Pick the best candidate for an image and link down-scaled images to
+        """Pick the best candidate for an image and link down-scaled images to
         their high res version.
         """
         Builder.post_process_images(self, doctree)

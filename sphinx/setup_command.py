@@ -22,7 +22,8 @@ from sphinx.util.console import darkred, nocolor, color_terminal
 
 
 class BuildDoc(Command):
-    """Distutils command to build Sphinx documentation.
+    """
+    Distutils command to build Sphinx documentation.
 
     The Sphinx build can then be triggered from distutils, and some Sphinx
     options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx own

@@ -37,6 +37,7 @@ if '+' in __version__ or 'pre' in __version__:
 
 
 def main(argv=sys.argv):
+    """Sphinx build "main" command-line entry."""
     if sys.version_info[:3] < (2, 4, 0):
         sys.stderr.write('Error: Sphinx requires at least '
                          'Python 2.4 to run.\n')

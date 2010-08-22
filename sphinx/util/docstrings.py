@@ -13,11 +13,11 @@ import sys
 
 
 def prepare_docstring(s):
-    """
-    Convert a docstring into lines of parseable reST.  Return it as a list of
-    lines usable for inserting into a docutils ViewList (used as argument
-    of nested_parse().)  An empty line is added to act as a separator between
-    this docstring and following content.
+    """Convert a docstring into lines of parseable reST.
+
+    Return it as a list of lines usable for inserting into a docutils ViewList
+    (used as argument of nested_parse().)  An empty line is added to act as a
+    separator between this docstring and following content.
     """
     lines = s.expandtabs().splitlines()
     # Find minimum indentation of any non-blank lines after first line.
@@ -42,9 +42,8 @@ def prepare_docstring(s):
 
 
 def prepare_commentdoc(s):
-    """
-    Extract documentation comment lines (starting with #:) and return them as a
-    list of lines.  Returns an empty list if there is no documentation.
+    """Extract documentation comment lines (starting with #:) and return them
+    as a list of lines.  Returns an empty list if there is no documentation.
     """
     result = []
     lines = [line.strip() for line in s.expandtabs().splitlines()]

@@ -148,7 +148,7 @@ class JSCallable(JSObject):
 
 
 class JSConstructor(JSCallable):
-    """Like a callable but with a different prefix"""
+    """Like a callable but with a different prefix."""
     display_prefix = 'class '
 
 

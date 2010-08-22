@@ -37,8 +37,10 @@ def accesskey(context, key):
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
-    """FileSystemLoader subclass that is not so strict about '..'
-    entries in template names."""
+    """
+    FileSystemLoader subclass that is not so strict about '..'  entries in
+    template names.
+    """
 
     def get_source(self, environment, template):
         for searchpath in self.searchpath:

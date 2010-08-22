@@ -17,6 +17,7 @@
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
 import os
 import re
 import sys
@@ -193,8 +194,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
 # -- Finding documented entries in files ---------------------------------------
 
 def find_autosummary_in_files(filenames):
-    """
-    Find out what items are documented in source/*.rst.
+    """Find out what items are documented in source/*.rst.
+
     See `find_autosummary_in_lines`.
     """
     documented = []
@@ -206,8 +207,8 @@ def find_autosummary_in_files(filenames):
     return documented
 
 def find_autosummary_in_docstring(name, module=None, filename=None):
-    """
-    Find out what items are documented in the given object's docstring.
+    """Find out what items are documented in the given object's docstring.
+
     See `find_autosummary_in_lines`.
     """
     try:
@@ -221,8 +222,8 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
     return []
 
 def find_autosummary_in_lines(lines, module=None, filename=None):
-    """
-    Find out what items appear in autosummary:: directives in the given lines.
+    """Find out what items appear in autosummary:: directives in the
+    given lines.
 
     Returns a list of (name, toctree, template) where *name* is a name
     of an object and *toctree* the :toctree: path of the corresponding

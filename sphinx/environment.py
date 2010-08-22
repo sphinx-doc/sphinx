@@ -417,12 +417,12 @@ class BuildEnvironment:
             domain.clear_doc(docname)
 
     def doc2path(self, docname, base=True, suffix=None):
-        """
-        Return the filename for the document name.
-        If base is True, return absolute path under self.srcdir.
-        If base is None, return relative path to self.srcdir.
-        If base is a path string, return absolute path under that.
-        If suffix is not None, add it instead of config.source_suffix.
+        """Return the filename for the document name.
+
+        If *base* is True, return absolute path under self.srcdir.
+        If *base* is None, return relative path to self.srcdir.
+        If *base* is a path string, return absolute path under that.
+        If *suffix* is not None, add it instead of config.source_suffix.
         """
         docname = docname.replace(SEP, path.sep)
         suffix = suffix or self.config.source_suffix
@@ -434,8 +434,8 @@ class BuildEnvironment:
             return path.join(base, docname) + suffix
 
     def find_files(self, config):
-        """
-        Find all source files in the source dir and put them in self.found_docs.
+        """Find all source files in the source dir and put them in
+        self.found_docs.
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
@@ -448,9 +448,7 @@ class BuildEnvironment:
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
 
     def get_outdated_files(self, config_changed):
-        """
-        Return (added, changed, removed) sets.
-        """
+        """Return (added, changed, removed) sets."""
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
 
@@ -496,12 +494,12 @@ class BuildEnvironment:
         return added, changed, removed
 
     def update(self, config, srcdir, doctreedir, app=None):
-        """
-        (Re-)read all files new or changed since last update.  Returns a
-        summary, the total count of documents to reread and an iterator that
-        yields docnames as it processes them.  Store all environment docnames in
-        the canonical format (ie using SEP as a separator in place of
-        os.path.sep).
+        """(Re-)read all files new or changed since last update.
+
+        Returns a summary, the total count of documents to reread and an
+        iterator that yields docnames as it processes them.  Store all
+        environment docnames in the canonical format (ie using SEP as a
+        separator in place of os.path.sep).
         """
         config_changed = False
         if self.config is None:
@@ -632,8 +630,8 @@ class BuildEnvironment:
         roles.role = role
 
     def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
-        """
-        Parse a file and add/update inventory entries for the doctree.
+        """Parse a file and add/update inventory entries for the doctree.
+
         If srcpath is given, read from a different source file.
         """
         # remove all inventory entries for that file
@@ -785,9 +783,7 @@ class BuildEnvironment:
     # post-processing of read doctrees
 
     def filter_messages(self, doctree):
-        """
-        Filter system messages from a doctree.
-        """
+        """Filter system messages from a doctree."""
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
@@ -795,9 +791,7 @@ class BuildEnvironment:
 
 
     def process_dependencies(self, docname, doctree):
-        """
-        Process docutils-generated dependency info.
-        """
+        """Process docutils-generated dependency info."""
         cwd = os.getcwd()
         frompath = path.join(path.normpath(self.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
@@ -811,9 +805,7 @@ class BuildEnvironment:
             self.dependencies.setdefault(docname, set()).add(relpath)
 
     def process_downloads(self, docname, doctree):
-        """
-        Process downloadable file paths.
-        """
+        """Process downloadable file paths. """
         docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
@@ -831,9 +823,7 @@ class BuildEnvironment:
             node['filename'] = uniquename
 
     def process_images(self, docname, doctree):
-        """
-        Process and rewrite image URIs.
-        """
+        """Process and rewrite image URIs."""
         docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
@@ -888,8 +878,8 @@ class BuildEnvironment:
                 self.images.add_file(docname, imgpath)
 
     def process_metadata(self, docname, doctree):
-        """
-        Process the docinfo part of the doctree as metadata.
+        """Process the docinfo part of the doctree as metadata.
+
         Keep processing minimal -- just return what docutils says.
         """
         self.metadata[docname] = md = {}
@@ -974,8 +964,7 @@ class BuildEnvironment:
                     item.replace(para, compact_para)
 
     def create_title_from(self, docname, document):
-        """
-        Add a title node to the document (just copy the first section title),
+        """Add a title node to the document (just copy the first section title),
         and store that title in the environment.
         """
         titlenode = nodes.title()
@@ -1013,7 +1002,8 @@ class BuildEnvironment:
 
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
-           file relations from it."""
+        file relations from it.
+        """
         if toctreenode['glob']:
             self.glob_toctrees.add(docname)
         if toctreenode.get('numbered'):
@@ -1119,7 +1109,9 @@ class BuildEnvironment:
 
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
-        Raises an ExtensionError if the domain is not registered."""
+
+        Raises an ExtensionError if the domain is not registered.
+        """
         try:
             return self.domains[domainname]
         except KeyError:
@@ -1144,7 +1136,8 @@ class BuildEnvironment:
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True):
         """Read the doctree from the pickle, resolve cross-references and
-           toctrees and return it."""
+        toctrees and return it.
+        """
         if doctree is None:
             doctree = self.get_doctree(docname)
 
@@ -1164,8 +1157,7 @@ class BuildEnvironment:
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
-        """
-        Resolve a *toctree* node into individual bullet lists with titles
+        """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
 
@@ -1593,7 +1585,6 @@ class BuildEnvironment:
 
     def check_consistency(self):
         """Do consistency checks."""
-
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:

@@ -50,8 +50,7 @@ def docname_join(basedocname, docname):
 
 
 def get_matching_files(dirname, exclude_matchers=()):
-    """
-    Get all file names in a directory, recursively.
+    """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
@@ -77,9 +76,8 @@ def get_matching_files(dirname, exclude_matchers=()):
 
 
 def get_matching_docs(dirname, suffix, exclude_matchers=()):
-    """
-    Get all file names (without suffix) matching a suffix in a
-    directory, recursively.
+    """Get all file names (without suffix) matching a suffix in a directory,
+    recursively.
 
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
@@ -171,9 +169,7 @@ _DEBUG_HEADER = '''\
 '''
 
 def save_traceback():
-    """
-    Save the current exception's traceback in a temporary file.
-    """
+    """Save the current exception's traceback in a temporary file."""
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
     os.write(fd, (_DEBUG_HEADER %
@@ -233,8 +229,7 @@ class Tee(object):
 
 
 def parselinenos(spec, total):
-    """
-    Parse a line number spec (such as "1,2,4-6") and return a list of
+    """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
     items = list()
@@ -288,9 +283,7 @@ def rpartition(s, t):
 
 
 def format_exception_cut_frames(x=1):
-    """
-    Format an exception with traceback, but only the last x frames.
-    """
+    """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     #res = ['Traceback (most recent call last):\n']
     res = []

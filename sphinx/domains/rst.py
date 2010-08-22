@@ -59,9 +59,10 @@ class ReSTMarkup(ObjectDescription):
 
 
 def parse_directive(d):
-    """
-    Parses a directive signature. Returns (directive, arguments) string tuple.
-    if no arguments are given, returns (directive, '').
+    """Parse a directive signature.
+
+    Returns (directive, arguments) string tuple.  If no arguments are given,
+    returns (directive, '').
     """
     dir = d.strip()
     if not dir.startswith('.'):

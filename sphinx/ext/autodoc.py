@@ -85,7 +85,8 @@ def members_set_option(arg):
 
 def bool_option(arg):
     """Used to convert flag options to auto directives.  (Instead of
-    directives.flag(), which returns None.)"""
+    directives.flag(), which returns None).
+    """
     return True
 
 
@@ -133,8 +134,7 @@ class AutodocReporter(object):
 # Some useful event listener factories for autodoc-process-docstring.
 
 def cut_lines(pre, post=0, what=None):
-    """
-    Return a listener that removes the first *pre* and last *post*
+    """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
 
@@ -160,9 +160,8 @@ def cut_lines(pre, post=0, what=None):
     return process
 
 def between(marker, what=None, keepempty=False, exclude=False):
-    """
-    Return a listener that either keeps, or if *exclude* is True excludes, lines
-    between lines that match the *marker* regular expression.  If no line
+    """Return a listener that either keeps, or if *exclude* is True excludes,
+    lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
     unless *keepempty* is true.
 
@@ -262,8 +261,7 @@ class Documenter(object):
         self.directive.result.append(self.indent + line, source, *lineno)
 
     def resolve_name(self, modname, parents, path, base):
-        """
-        Resolve the module and name of the object to document given by the
+        """Resolve the module and name of the object to document given by the
         arguments and the current module/class.
 
         Must return a pair of the module name and a chain of attributes; for
@@ -273,8 +271,7 @@ class Documenter(object):
         raise NotImplementedError('must be implemented in subclasses')
 
     def parse_name(self):
-        """
-        Determine what module to import and what attribute to document.
+        """Determine what module to import and what attribute to document.
 
         Returns True and sets *self.modname*, *self.objpath*, *self.fullname*,
         *self.args* and *self.retann* if parsing and resolving was successful.
@@ -311,8 +308,7 @@ class Documenter(object):
         return True
 
     def import_object(self):
-        """
-        Import the object given by *self.modname* and *self.objpath* and sets
+        """Import the object given by *self.modname* and *self.objpath* and set
         it as *self.object*.
 
         Returns True if successful, False if an error occurred.
@@ -338,15 +334,15 @@ class Documenter(object):
             return False
 
     def get_real_modname(self):
-        """
-        Get the real module name of an object to document.  (It can differ
-        from the name of the module through which the object was imported.)
+        """Get the real module name of an object to document.
+
+        It can differ from the name of the module through which the object was
+        imported.
         """
         return self.get_attr(self.object, '__module__', None) or self.modname
 
     def check_module(self):
-        """
-        Check if *self.object* is really defined in the module given by
+        """Check if *self.object* is really defined in the module given by
         *self.modname*.
         """
         modname = self.get_attr(self.object, '__module__', None)
@@ -355,25 +351,26 @@ class Documenter(object):
         return True
 
     def format_args(self):
-        """
-        Format the argument signature of *self.object*.  Should return None if
-        the object does not have a signature.
+        """Format the argument signature of *self.object*.
+
+        Should return None if the object does not have a signature.
         """
         return None
 
     def format_name(self):
-        """
-        Format the name of *self.object*.  This normally should be something
-        that can be parsed by the generated directive, but doesn't need to be
-        (Sphinx will display it unparsed then).
+        """Format the name of *self.object*.
+
+        This normally should be something that can be parsed by the generated
+        directive, but doesn't need to be (Sphinx will display it unparsed
+        then).
         """
         # normally the name doesn't contain the module (except for module
         # directives of course)
         return '.'.join(self.objpath) or self.modname
 
     def format_signature(self):
-        """
-        Format the signature (arguments and return annotation) of the object.
+        """Format the signature (arguments and return annotation) of the object.
+
         Let the user process it via the ``autodoc-process-signature`` event.
         """
         if self.args is not None:
@@ -473,8 +470,7 @@ class Documenter(object):
                 self.add_line(line, src[0], src[1])
 
     def get_object_members(self, want_all):
-        """
-        Return `(members_check_module, members)` where `members` is a
+        """Return `(members_check_module, members)` where `members` is a
         list of `(membername, member)` pairs of the members of *self.object*.
 
         If *want_all* is True, return all members.  Else, only return those
@@ -518,8 +514,9 @@ class Documenter(object):
         return False, sorted(members)
 
     def filter_members(self, members, want_all):
-        """
-        Filter the given member list: members are skipped if
+        """Filter the given member list.
+
+        Members are skipped if
 
         - they are private (except if given explicitly)
         - they are undocumented (except if undoc-members is given)
@@ -572,9 +569,10 @@ class Documenter(object):
         return ret
 
     def document_members(self, all_members=False):
-        """
-        Generate reST for member documentation.  If *all_members* is True,
-        do all members, else those given by *self.options.members*.
+        """Generate reST for member documentation.
+
+        If *all_members* is True, do all members, else those given by
+        *self.options.members*.
         """
         # set current namespace for finding members
         self.env.temp_data['autodoc:module'] = self.modname
@@ -632,8 +630,8 @@ class Documenter(object):
 
     def generate(self, more_content=None, real_modname=None,
                  check_module=False, all_members=False):
-        """
-        Generate reST for the object given by *self.name*, and possibly members.
+        """Generate reST for the object given by *self.name*, and possibly for
+        its members.
 
         If *more_content* is given, include that content. If *real_modname* is
         given, use that module name to find attribute docs. If *check_module* is

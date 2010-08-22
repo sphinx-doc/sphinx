@@ -3,7 +3,7 @@
     sphinx.writers.websupport
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    docutils writers handling Sphinx' custom nodes.
+    sphinx.websupport writer that adds comment-related annotations.
 
     :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -11,6 +11,7 @@
 
 from sphinx.writers.html import HTMLTranslator
 from sphinx.util.websupport import is_commentable
+
 
 class WebSupportTranslator(HTMLTranslator):
     """

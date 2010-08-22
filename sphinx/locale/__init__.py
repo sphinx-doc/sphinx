@@ -15,8 +15,9 @@ import UserString
 
 
 class _TranslationProxy(UserString.UserString, object):
-    """Class for proxy strings from gettext translations.  This is a helper
-    for the lazy_* functions from this module.
+    """
+    Class for proxy strings from gettext translations.  This is a helper for the
+    lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
@@ -137,7 +138,8 @@ class _TranslationProxy(UserString.UserString, object):
 
 def mygettext(string):
     """Used instead of _ when creating TranslationProxies, because _ is
-    not bound yet at that time."""
+    not bound yet at that time.
+    """
     return _(string)
 
 def lazy_gettext(string):
@@ -189,8 +191,7 @@ else:
 
 
 def init(locale_dirs, language, catalog='sphinx'):
-    """
-    Look for message catalogs in `locale_dirs` and *ensure* that there is at
+    """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
     times or if several ``.mo`` files are found, their contents are merged
     together (thus making ``init`` reentrable).
