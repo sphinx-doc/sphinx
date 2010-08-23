@@ -369,14 +369,13 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 class Include(BaseInclude):
     """
     Like the standard "Include" directive, but interprets absolute paths
-    correctly.
+    "correctly", i.e. relative to source directory.
     """
 
     def run(self):
-        if self.arguments[0].startswith('/') or \
-               self.arguments[0].startswith(os.sep):
-            env = self.state.document.settings.env
-            self.arguments[0] = os.path.join(env.srcdir, self.arguments[0][1:])
+        env = self.state.document.settings.env
+        rel_filename, filename = env.relfn2path(self.arguments[0])
+        self.arguments[0] = filename
         return BaseInclude.run(self)
 
 

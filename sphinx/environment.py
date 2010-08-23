@@ -433,6 +433,27 @@ class BuildEnvironment:
         else:
             return path.join(base, docname) + suffix
 
+    def relfn2path(self, filename, docname=None):
+        """Return paths to a file referenced from a document, relative to
+        documentation root and absolute.
+
+        Absolute filenames are relative to the source dir, while relative
+        filenames are relative to the dir of the containing document.
+        """
+        if filename.startswith('/') or filename.startswith(os.sep):
+            rel_fn = filename[1:]
+        else:
+            docdir = path.dirname(self.doc2path(docname or self.docname,
+                                                base=None))
+            rel_fn = path.join(docdir, filename)
+        try:
+            return rel_fn, path.join(self.srcdir, rel_fn)
+        except UnicodeDecodeError:
+            # the source directory is a bytestring with non-ASCII characters;
+            # let's try to encode the rel_fn in the file system encoding
+            enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
+            return rel_fn, path.join(self.srcdir, enc_rel_fn)
+
     def find_files(self, config):
         """Find all source files in the source dir and put them in
         self.found_docs.
@@ -806,25 +827,19 @@ class BuildEnvironment:
 
     def process_downloads(self, docname, doctree):
         """Process downloadable file paths. """
-        docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
-            if targetname.startswith('/') or targetname.startswith(os.sep):
-                # absolute
-                filepath = targetname[1:]
-            else:
-                filepath = path.normpath(path.join(docdir, node['reftarget']))
-            self.dependencies.setdefault(docname, set()).add(filepath)
-            if not os.access(path.join(self.srcdir, filepath), os.R_OK):
-                self.warn(docname, 'download file not readable: %s' % filepath,
+            rel_filename, filename = self.relfn2path(targetname, docname)
+            self.dependencies.setdefault(docname, set()).add(rel_filename)
+            if not os.access(filename, os.R_OK):
+                self.warn(docname, 'download file not readable: %s' % filename,
                           getattr(node, 'line', None))
                 continue
-            uniquename = self.dlfiles.add_file(docname, filepath)
+            uniquename = self.dlfiles.add_file(docname, filename)
             node['filename'] = uniquename
 
     def process_images(self, docname, doctree):
         """Process and rewrite image URIs."""
-        docdir = path.dirname(self.doc2path(docname, base=None))
         for node in doctree.traverse(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
             # choose the best image from these candidates.  The special key * is
@@ -837,16 +852,11 @@ class BuildEnvironment:
                           node.line)
                 candidates['?'] = imguri
                 continue
-            # imgpath is the image path *from srcdir*
-            if imguri.startswith('/') or imguri.startswith(os.sep):
-                # absolute path (= relative to srcdir)
-                imgpath = path.normpath(imguri[1:])
-            else:
-                imgpath = path.normpath(path.join(docdir, imguri))
+            rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
             # set imgpath as default URI
-            node['uri'] = imgpath
-            if imgpath.endswith(os.extsep + '*'):
-                for filename in glob(path.join(self.srcdir, imgpath)):
+            node['uri'] = rel_imgpath
+            if rel_imgpath.endswith(os.extsep + '*'):
+                for filename in glob(full_imgpath):
                     new_imgpath = relative_path(self.srcdir, filename)
                     if filename.lower().endswith('.pdf'):
                         candidates['application/pdf'] = new_imgpath
@@ -866,7 +876,7 @@ class BuildEnvironment:
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:
-                candidates['*'] = imgpath
+                candidates['*'] = rel_imgpath
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in candidates.itervalues():
