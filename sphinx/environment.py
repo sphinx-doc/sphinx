@@ -1137,32 +1137,62 @@ class BuildEnvironment:
 
         def _walk_depth(node, depth, maxdepth):
             """Utility: Cut a TOC at a specified depth."""
+
+            # For reading this function, it is useful to keep in mind the node
+            # structure of a toctree (using HTML-like node names for brevity):
+            #
+            # <ul>
+            #   <li>
+            #     <p><a></p>
+            #     <p><a></p>
+            #     ...
+            #     <ul>
+            #       ...
+            #     </ul>
+            #   </li>
+            # </ul>
+
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
+                    # for <p> and <li>, just indicate the depth level and
+                    # recurse to children
                     subnode['classes'].append('toctree-l%d' % (depth-1))
                     _walk_depth(subnode, depth, maxdepth)
+
                 elif isinstance(subnode, nodes.bullet_list):
+                    # for <ul>, determine if the depth is too large or if the
+                    # entry is to be collapsed
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
+                        # to find out what to collapse, *first* walk subitems,
+                        # since that determines which children point to the
+                        # current page
                         _walk_depth(subnode, depth+1, maxdepth)
-
                         # cull sub-entries whose parents aren't 'current'
-                        if (collapse and
-                            depth > 1 and
-                            'current' not in subnode.parent['classes']):
+                        if (collapse and depth > 1 and
+                            'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
 
                 elif isinstance(subnode, nodes.reference):
-                    # identify the toc entry pointing to the current document
-                    if subnode['refuri'] == docname and \
-                           not subnode['anchorname']:
-                        # tag the whole branch as 'current'
-                        p = subnode
-                        while p:
-                            p['classes'].append('current')
-                            p = p.parent
+                    # for <a>, identify which entries point to the current
+                    # document and therefore may not be collapsed
+                    if subnode['refuri'] == docname:
+                        if not subnode['anchorname']:
+                            # give the whole branch a 'current' class
+                            # (useful for styling it differently)
+                            branchnode = subnode
+                            while branchnode:
+                                branchnode['classes'].append('current')
+                                branchnode = branchnode.parent
+                        # mark the list_item as "on current page"
+                        if subnode.parent.parent.get('iscurrent'):
+                            # but only if it's not already done
+                            return
+                        while subnode:
+                            subnode['iscurrent'] = True
+                            subnode = subnode.parent
 
         def _entries_from_toctree(toctreenode, separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
