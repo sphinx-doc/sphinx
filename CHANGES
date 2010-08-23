@@ -1,6 +1,9 @@
 Release 1.0.3 (in development)
 ==============================
 
+* #507: Fix crash parsing Python argument lists containing brackets
+  in string literals.
+
 * #501: Fix regression when building LaTeX docs with figures that
   don't have captions.
 

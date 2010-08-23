@@ -33,7 +33,52 @@ py_sig_re = re.compile(
           )? $                   # and nothing more
           ''', re.VERBOSE)
 
-py_paramlist_re = re.compile(r'([\[\],])')  # split at '[', ']' and ','
+
+def _pseudo_parse_arglist(signode, arglist):
+    """"Parse" a list of arguments separated by commas.
+
+    Arguments can have "optional" annotations given by enclosing them in
+    brackets.  Currently, this will split at any comma, even if it's inside a
+    string literal (e.g. default argument value).
+    """
+    paramlist = addnodes.desc_parameterlist()
+    stack = [paramlist]
+    try:
+        for argument in arglist.split(','):
+            argument = argument.strip()
+            ends_open = ends_close = 0
+            while argument.startswith('['):
+                stack.append(addnodes.desc_optional())
+                stack[-2] += stack[-1]
+                argument = argument[1:].strip()
+            while argument.startswith(']'):
+                stack.pop()
+                argument = argument[1:].strip()
+            while argument.endswith(']'):
+                ends_close += 1
+                argument = argument[:-1].strip()
+            while argument.endswith('['):
+                ends_open += 1
+                argument = argument[:-1].strip()
+            if argument:
+                stack[-1] += addnodes.desc_parameter(argument, argument)
+            while ends_open:
+                stack.append(addnodes.desc_optional())
+                stack[-2] += stack[-1]
+                ends_open -= 1
+            while ends_close:
+                stack.pop()
+                ends_close -= 1
+        if len(stack) != 1:
+            raise IndexError
+    except IndexError:
+        # if there are too few or too many elements on the stack, just give up
+        # and treat the whole argument list as one argument, discarding the
+        # already partially populated paramlist node
+        signode += addnodes.desc_parameterlist()
+        signode[-1] += addnodes.desc_parameter(arglist, arglist)
+    else:
+        signode += paramlist
 
 
 class PyObject(ObjectDescription):
@@ -142,26 +187,7 @@ class PyObject(ObjectDescription):
             if retann:
                 signode += addnodes.desc_returns(retann, retann)
             return fullname, name_prefix
-        signode += addnodes.desc_parameterlist()
-
-        stack = [signode[-1]]
-        for token in py_paramlist_re.split(arglist):
-            if token == '[':
-                opt = addnodes.desc_optional()
-                stack[-1] += opt
-                stack.append(opt)
-            elif token == ']':
-                try:
-                    stack.pop()
-                except IndexError:
-                    raise ValueError
-            elif not token or token == ',' or token.isspace():
-                pass
-            else:
-                token = token.strip()
-                stack[-1] += addnodes.desc_parameter(token, token)
-        if len(stack) != 1:
-            raise ValueError
+        _pseudo_parse_arglist(signode, arglist)
         if retann:
             signode += addnodes.desc_returns(retann, retann)
         return fullname, name_prefix
