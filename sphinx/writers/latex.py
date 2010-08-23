@@ -635,7 +635,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\capstart\\caption{%s} \\\\\n' % self.table.caption)
+            self.body.append(u'\\capstart\\caption{%s} \\\\\n' %
+                             self.table.caption)
         if self.table.caption is not None:
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
