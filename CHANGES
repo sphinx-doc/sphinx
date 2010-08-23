@@ -3,6 +3,13 @@ Release 1.1 (in development)
 
 * Added Python 3.x support.
 
+* Added i18n support for content, a ``gettext`` builder and
+  related utilities.
+
+* Added the ``websupport`` library.
+
+* #443: Allow referencing external graphviz files.
+
 
 Release 1.0.2 (Aug 14, 2010)
 ============================

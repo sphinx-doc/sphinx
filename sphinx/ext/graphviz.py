@@ -11,6 +11,7 @@
 """
 
 import re
+import codecs
 import posixpath
 from os import path
 from math import ceil
@@ -46,18 +47,38 @@ class Graphviz(Directive):
     """
     has_content = True
     required_arguments = 0
-    optional_arguments = 0
+    optional_arguments = 1
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
     }
 
     def run(self):
-        dotcode = '\n'.join(self.content)
-        if not dotcode.strip():
-            return [self.state_machine.reporter.warning(
-                'Ignoring "graphviz" directive without content.',
-                line=self.lineno)]
+        if self.arguments:
+            document = self.state.document
+            if self.content:
+                return [document.reporter.warning(
+                    'Graphviz directive cannot have both content and '
+                    'a filename argument', line=self.lineno)]
+            env = self.state.document.settings.env
+            rel_filename, filename = env.relfn2path(self.arguments[0])
+            env.note_dependency(rel_filename)
+            try:
+                fp = codecs.open(filename, 'r', 'utf-8')
+                try:
+                    dotcode = fp.read()
+                finally:
+                    fp.close()
+            except (IOError, OSError):
+                return [document.reporter.warning(
+                    'External Graphviz file %r not found or reading '
+                    'it failed' % filename, line=self.lineno)]
+        else:
+            dotcode = '\n'.join(self.content)
+            if not dotcode.strip():
+                return [self.state_machine.reporter.warning(
+                    'Ignoring "graphviz" directive without content.',
+                    line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
         node['options'] = []

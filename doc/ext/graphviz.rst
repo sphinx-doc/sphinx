@@ -29,6 +29,17 @@ It adds these directives:
    :confval:`graphviz_output_format`).  In LaTeX output, the code will be
    rendered to an embeddable PDF file.
 
+   You can also embed external dot files, by giving the file name as an
+   argument to :rst:dir:`graphviz` and no additional content::
+
+      .. graphviz:: external.dot
+
+   As for all file references in Sphinx, if the filename is absolute, it is
+   taken as relative to the source directory.
+
+   .. versionchanged:: 1.1
+      Added support for external files.
+
 
 .. rst:directive:: graph
 
