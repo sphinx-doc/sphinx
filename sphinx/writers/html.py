@@ -159,7 +159,7 @@ class HTMLTranslator(BaseTranslator):
     # overwritten
     def visit_reference(self, node):
         atts = {'class': 'reference'}
-        if node.get('internal'):
+        if node.get('internal') or 'refuri' not in node:
             atts['class'] += ' internal'
         else:
             atts['class'] += ' external'

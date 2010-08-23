@@ -292,7 +292,7 @@ li {
     line-height: 1.3;
 }
 
-div.content li {
+div.content ul > li {
     -moz-background-clip:border;
     -moz-background-inline-policy:continuous;
     -moz-background-origin:padding;

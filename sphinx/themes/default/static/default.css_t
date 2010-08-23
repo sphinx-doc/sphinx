@@ -147,6 +147,12 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
+{% if theme_collapsiblesidebar|tobool %}
+/* for collapsible sidebar */
+div#sidebarbutton {
+    background-color: {{ theme_sidebarbtncolor }};
+}
+{% endif %}
 
 /* -- hyperlink styles ------------------------------------------------------ */
 
@@ -173,6 +179,11 @@ a.external {
 a.external:hover {
    text-decoration: none;
    border-bottom: none;
+}
+
+a.external:visited {
+    text-decoration: none;
+    border-bottom: 1px dashed {{ theme_visitedlinkcolor }};
 }
 {% endif %}
 

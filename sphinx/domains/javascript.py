@@ -13,8 +13,8 @@ from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.directives import ObjectDescription
-from sphinx.domains.python import py_paramlist_re as js_paramlist_re
 from sphinx.roles import XRefRole
+from sphinx.domains.python import _pseudo_parse_arglist
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
@@ -68,28 +68,10 @@ class JSObject(ObjectDescription):
             signode += addnodes.desc_addname(nameprefix + '.', nameprefix + '.')
         signode += addnodes.desc_name(name, name)
         if self.has_arguments:
-            signode += addnodes.desc_parameterlist()
-        if not arglist:
-            return fullname, nameprefix
-
-        stack = [signode[-1]]
-        for token in js_paramlist_re.split(arglist):
-            if token == '[':
-                opt = addnodes.desc_optional()
-                stack[-1] += opt
-                stack.append(opt)
-            elif token == ']':
-                try:
-                    stack.pop()
-                except IndexError:
-                    raise ValueError()
-            elif not token or token == ',' or token.isspace():
-                pass
+            if not arglist:
+                signode += addnodes.desc_parameterlist()
             else:
-                token = token.strip()
-                stack[-1] += addnodes.desc_parameter(token, token)
-        if len(stack) != 1:
-            raise ValueError()
+                _pseudo_parse_arglist(signode, arglist)
         return fullname, nameprefix
 
     def add_target_and_index(self, name_obj, sig, signode):

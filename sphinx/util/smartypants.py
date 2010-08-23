@@ -1,5 +1,6 @@
 r"""
-This is based on SmartyPants.py by `Chad Miller`_.
+This is based on SmartyPants.py by `Chad Miller`_ <smartypantspy@chad.org>,
+version 1.5_1.6.
 
 Copyright and License
 =====================
@@ -75,8 +76,8 @@ import re
 
 def sphinx_smarty_pants(t):
     t = t.replace('&quot;', '"')
-    t = educateDashesOldSchool(t)
-    t = educateQuotes(t)
+    t = educate_dashes_oldschool(t)
+    t = educate_quotes(t)
     t = t.replace('"', '&quot;')
     return t
 
@@ -152,7 +153,7 @@ closing_single_quotes_regex_2 = re.compile(r"""
                 (\s | s\b)
                 """ % (close_class,), re.VERBOSE)
 
-def educateQuotes(s):
+def educate_quotes(s):
     """
     Parameter:  String.
 
@@ -191,7 +192,7 @@ def educateQuotes(s):
     return s.replace('"', "&#8220;")
 
 
-def educateQuotesLatex(s, dquotes=("``", "''")):
+def educate_quotes_latex(s, dquotes=("``", "''")):
     """
     Parameter:  String.
 
@@ -234,7 +235,7 @@ def educateQuotesLatex(s, dquotes=("``", "''")):
            replace("\x03", "`").replace("\x04", "'")
 
 
-def educateBackticks(s):
+def educate_backticks(s):
     """
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
@@ -245,7 +246,7 @@ def educateBackticks(s):
     return s.replace("``", "&#8220;").replace("''", "&#8221;")
 
 
-def educateSingleBackticks(s):
+def educate_single_backticks(s):
     """
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
@@ -257,7 +258,7 @@ def educateSingleBackticks(s):
     return s.replace('`', "&#8216;").replace("'", "&#8217;")
 
 
-def educateDashesOldSchool(s):
+def educate_dashes_oldschool(s):
     """
     Parameter:  String.
 
@@ -268,7 +269,7 @@ def educateDashesOldSchool(s):
     return s.replace('---', "&#8212;").replace('--', "&#8211;")
 
 
-def educateDashesOldSchoolInverted(s):
+def educate_dashes_oldschool_inverted(s):
     """
     Parameter:  String.
 
@@ -276,7 +277,7 @@ def educateDashesOldSchoolInverted(s):
         an em-dash HTML entity, and each "---" translated to
         an en-dash HTML entity. Two reasons why: First, unlike the
         en- and em-dash syntax supported by
-        EducateDashesOldSchool(), it's compatible with existing
+        educate_dashes_oldschool(), it's compatible with existing
         entries written before SmartyPants 1.1, back when "--" was
         only used for em-dashes.  Second, em-dashes are more
         common than en-dashes, and so it sort of makes sense that
@@ -286,8 +287,7 @@ def educateDashesOldSchoolInverted(s):
     return s.replace('---', "&#8211;").replace('--', "&#8212;")
 
 
-
-def educateEllipses(s):
+def educate_ellipses(s):
     """
     Parameter:  String.
     Returns:    The string, with each instance of "..." translated to
@@ -297,11 +297,3 @@ def educateEllipses(s):
     Example output: Huh&#8230;?
     """
     return s.replace('...', "&#8230;").replace('. . .', "&#8230;")
-
-
-__author__ = "Chad Miller <smartypantspy@chad.org>"
-__version__ = "1.5_1.5: Sat, 13 Aug 2005 15:50:24 -0400"
-__url__ = "http://wiki.chad.org/SmartyPantsPy"
-__description__ = \
-    "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries" \
-    " in pyblosxom"
