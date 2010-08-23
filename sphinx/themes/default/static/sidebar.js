@@ -91,6 +91,7 @@ $(function() {
         '<div id="sidebarbutton"><span>&laquo;</span></div>'
     );
     var sidebarbutton = $('#sidebarbutton');
+    light_color = sidebarbutton.css('background-color');
     // find the height of the viewport to center the '<<' in the page
     var viewport_height;
     if (window.innerHeight)

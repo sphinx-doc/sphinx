@@ -15,6 +15,9 @@ Release 1.0.3 (in development)
 
 * #510: Fix inheritance diagrams for classes that are not picklable.
 
+* #497: Introduce separate background color for the sidebar collapse
+  button, making it easier to see.
+
 * #502, #503, #496: Fix small layout bugs in several builtin themes.
 
 

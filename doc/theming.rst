@@ -119,6 +119,8 @@ These themes are:
   - **footerbgcolor** (CSS color): Background color for the footer line.
   - **footertextcolor** (CSS color): Text color for the footer line.
   - **sidebarbgcolor** (CSS color): Background color for the sidebar.
+  - **sidebarbtncolor** (CSS color): Background color for the sidebar collapse
+    button (used when *collapsiblesidebar* is true).
   - **sidebartextcolor** (CSS color): Text color for the sidebar.
   - **sidebarlinkcolor** (CSS color): Link color for the sidebar.
   - **relbarbgcolor** (CSS color): Background color for the relation bar.
