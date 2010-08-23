@@ -9,7 +9,7 @@ Release 1.0.3 (in development)
 
 * #510: Fix inheritance diagrams for classes that are not picklable.
 
-* #502, #503: Fix small layout bugs in agogo and haiku themes.
+* #502, #503, #496: Fix small layout bugs in several builtin themes.
 
 
 Release 1.0.2 (Aug 14, 2010)
