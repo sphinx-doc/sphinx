@@ -24,6 +24,7 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util.osutil import ustrftime
+from sphinx.util.pycompat import any
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educateQuotesLatex
 
@@ -614,7 +615,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body = self._body
         if not self.table.longtable and self.table.caption is not None:
             self.body.append(u'\n\\begin{threeparttable}\n'
-                             u'\\caption{%s}\n' % self.table.caption)
+                             u'\\capstart\\caption{%s}\n' % self.table.caption)
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
         elif self.table.has_verbatim:
@@ -634,7 +635,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
+            self.body.append(u'\\capstart\\caption{%s} \\\\\n' % self.table.caption)
         if self.table.caption is not None:
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
@@ -912,6 +913,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
             self.body.append('\\begin{figure}[htbp]%s\n' % align)
+            if any(isinstance(child, nodes.caption) for child in node):
+                self.body.append('\\capstart\n')
             self.context.append(ids + align_end + '\\end{figure}\n')
     def depart_figure(self, node):
         self.body.append(self.context.pop())

@@ -446,7 +446,10 @@
                 linkcolor=InnerLinkColor,filecolor=OuterLinkColor,
                 menucolor=OuterLinkColor,urlcolor=OuterLinkColor,
                 citecolor=InnerLinkColor]{hyperref}
-\RequirePackage[figure,table]{hypcap}
+% Fix anchor placement for figures with captions.
+% (Note: we don't use a package option here; instead, we give an explicit
+% \capstart for figures that actually have a caption.)
+\RequirePackage{hypcap}
 
 % From docutils.writers.latex2e
 \providecommand{\DUspan}[2]{%

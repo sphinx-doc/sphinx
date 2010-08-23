@@ -1,7 +1,12 @@
 Release 1.0.3 (in development)
 ==============================
 
+* #501: Fix regression when building LaTeX docs with figures that
+  don't have captions.
+
 * #510: Fix inheritance diagrams for classes that are not picklable.
+
+* #502, #503: Fix small layout bugs in agogo and haiku themes.
 
 
 Release 1.0.2 (Aug 14, 2010)
