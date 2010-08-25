@@ -246,7 +246,8 @@ the following public API:
 
    Add *filename* to the list of JavaScript files that the default HTML template
    will include.  The filename must be relative to the HTML static path, see
-   :confval:`the docs for the config value <html_static_path>`.
+   :confval:`the docs for the config value <html_static_path>`.  A full URI with
+   scheme, like ``http://example.org/foo.js``, is also supported.
 
    .. versionadded:: 0.5
 
