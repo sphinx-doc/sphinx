@@ -165,6 +165,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
         nspace = re.sub('[^a-zA-Z0-9.]', '', nspace)
         nspace = re.sub(r'\.+', '.', nspace).strip('.')
+        nspace = nspace.lower()
 
         # write the project file
         f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
