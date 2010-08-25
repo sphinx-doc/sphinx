@@ -38,7 +38,7 @@ http://www.python.org/logo.png
 %(root)s/includes.txt:\\d*: \\(WARNING/2\\) Encoding 'utf-8-sig' used for \
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
-%(root)s/includes.txt:4: WARNING: download file not readable: nonexisting.png
+%(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
 %(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
 http://sphinx.pocoo.org/domains.html
