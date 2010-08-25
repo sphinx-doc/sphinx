@@ -141,6 +141,8 @@ def load_mappings(app):
     env = app.builder.env
     if not hasattr(env, 'intersphinx_cache'):
         env.intersphinx_cache = {}
+        env.intersphinx_inventory = {}
+        env.intersphinx_named_inventory = {}
     cache = env.intersphinx_cache
     update = False
     for key, value in app.config.intersphinx_mapping.iteritems():

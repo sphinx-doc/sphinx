@@ -1,6 +1,8 @@
 Release 1.0.4 (in development)
 ==============================
 
+* #512: Fix traceback when ``intersphinx_mapping`` is empty.
+
 
 Release 1.0.3 (Aug 23, 2010)
 ============================
