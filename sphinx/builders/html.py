@@ -678,7 +678,10 @@ class StandaloneHTMLBuilder(Builder):
 
         def pathto(otheruri, resource=False,
                    baseuri=self.get_target_uri(pagename)):
-            if not resource:
+            if resource and '://' in otheruri:
+                # allow non-local resources given by scheme
+                return otheruri
+            elif not resource:
                 otheruri = self.get_target_uri(otheruri)
             uri = relative_uri(baseuri, otheruri) or '#'
             return uri

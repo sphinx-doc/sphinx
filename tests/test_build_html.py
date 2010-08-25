@@ -205,6 +205,8 @@ HTML_XPATH = {
         (".//li/a[@href='search.html']/em", 'Search Page'),
         # custom sidebar only for contents
         (".//h4", 'Contents sidebar'),
+        # custom JavaScript
+        (".//script[@src='file://moo.js']", ''),
     ],
     'bom.html': [
         (".//title", " File with UTF-8 BOM"),

@@ -1,6 +1,9 @@
 Release 1.0.4 (in development)
 ==============================
 
+* #513: Allow giving non-local URIs for JavaScript files, e.g.
+  in the JSMath extension.
+
 * #512: Fix traceback when ``intersphinx_mapping`` is empty.
 
 

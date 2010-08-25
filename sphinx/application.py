@@ -456,8 +456,11 @@ class Sphinx(object):
 
     def add_javascript(self, filename):
         from sphinx.builders.html import StandaloneHTMLBuilder
-        StandaloneHTMLBuilder.script_files.append(
-            posixpath.join('_static', filename))
+        if '://' in filename:
+            StandaloneHTMLBuilder.script_files.append(filename)
+        else:
+            StandaloneHTMLBuilder.script_files.append(
+                posixpath.join('_static', filename))
 
     def add_stylesheet(self, filename):
         from sphinx.builders.html import StandaloneHTMLBuilder
