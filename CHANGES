@@ -10,7 +10,7 @@ Release 1.1 (in development)
 
 * #460: Allow limiting the depth of section numbers for HTML.
 
-* #504: Add an ``index`` role, to make inline index entries.
+* #138: Add an ``index`` role, to make inline index entries.
 
 * #443: Allow referencing external graphviz files.
 
