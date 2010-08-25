@@ -300,6 +300,7 @@ Project information
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
    * ``sl`` -- Slovenian
+   * ``sv`` -- Swedish
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
    * ``zh_CN`` -- Simplified Chinese
