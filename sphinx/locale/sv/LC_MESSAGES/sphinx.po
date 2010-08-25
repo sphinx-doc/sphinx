@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-05-24 23:53+0200\n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2010-08-25 12:36+0200\n"
 "Last-Translator: Henrik Holmboe <henrik@holmboe.se>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -11,7 +11,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Swedish\n"
 "X-Poedit-Country: SWEDEN\n"
-"X-Poedit-Basepath: /home/hh/Local/src/sphinx\n"
+
+# Translators (rev. chron. order):
+# Ludvig Ericson <ludvig@lericson.se>
+# Henrik Holmboe <henrik@holmboe.se>
 
 #: sphinx/environment.py:106
 #: sphinx/writers/latex.py:184
@@ -77,7 +80,7 @@ msgstr "Upphovsman:"
 
 #: sphinx/directives/other.py:238
 msgid "See also"
-msgstr "Visa även"
+msgstr "Se även"
 
 #: sphinx/domains/__init__.py:253
 #, python-format
@@ -103,27 +106,27 @@ msgstr "Returtyp"
 #: sphinx/domains/c.py:133
 #, python-format
 msgid "%s (C function)"
-msgstr "%s (C funktion)"
+msgstr "%s (C-funktion)"
 
 #: sphinx/domains/c.py:135
 #, python-format
 msgid "%s (C member)"
-msgstr "%s (C medlem)"
+msgstr "%s (C-medlem)"
 
 #: sphinx/domains/c.py:137
 #, python-format
 msgid "%s (C macro)"
-msgstr "%s (C makro)"
+msgstr "%s (C-makro)"
 
 #: sphinx/domains/c.py:139
 #, python-format
 msgid "%s (C type)"
-msgstr "%s (C typ)"
+msgstr "%s (C-typ)"
 
 #: sphinx/domains/c.py:141
 #, python-format
 msgid "%s (C variable)"
-msgstr "%s (C variabel)"
+msgstr "%s (C-variabel)"
 
 #: sphinx/domains/c.py:171
 #: sphinx/domains/cpp.py:1031
@@ -153,22 +156,22 @@ msgstr "variabel"
 #: sphinx/domains/cpp.py:876
 #, python-format
 msgid "%s (C++ class)"
-msgstr "%s (C++ klass)"
+msgstr "%s (C++-klass)"
 
 #: sphinx/domains/cpp.py:891
 #, python-format
 msgid "%s (C++ type)"
-msgstr "%s (C++ typ)"
+msgstr "%s (C++-typ)"
 
 #: sphinx/domains/cpp.py:910
 #, python-format
 msgid "%s (C++ member)"
-msgstr "%s (C++ medlem)"
+msgstr "%s (C++-medlem)"
 
 #: sphinx/domains/cpp.py:962
 #, python-format
 msgid "%s (C++ function)"
-msgstr "%s (C++ funktion)"
+msgstr "%s (C++-funktion)"
 
 #: sphinx/domains/cpp.py:1030
 #: sphinx/domains/python.py:499
@@ -271,12 +274,12 @@ msgstr "%s() (%s statisk metod)"
 #: sphinx/domains/python.py:308
 #, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s klass metod)"
+msgstr "%s() (%s.%s klassmetod)"
 
 #: sphinx/domains/python.py:311
 #, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s klass metod)"
+msgstr "%s() (%s klassmetod)"
 
 #: sphinx/domains/python.py:321
 #, python-format
@@ -294,7 +297,7 @@ msgstr "%s (modul)"
 
 #: sphinx/domains/python.py:429
 msgid "Python Module Index"
-msgstr "Python Modul Index"
+msgstr "Python Modulindex"
 
 #: sphinx/domains/python.py:430
 msgid "modules"
@@ -389,7 +392,7 @@ msgstr "Index"
 
 #: sphinx/domains/std.py:361
 msgid "Module Index"
-msgstr "Modul Index"
+msgstr "Modulindex"
 
 #: sphinx/domains/std.py:362
 #: sphinx/themes/basic/defindex.html:25
@@ -404,7 +407,7 @@ msgstr "   Baserad: %s"
 #: sphinx/ext/autodoc.py:950
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr "alias av :klass:`%s`"
+msgstr "alias för :class:`%s`"
 
 #: sphinx/ext/todo.py:41
 msgid "Todo"
@@ -446,7 +449,7 @@ msgstr "<h1>Alla moduler där källkod finns</h1>"
 
 #: sphinx/locale/__init__.py:139
 msgid "Attention"
-msgstr "Observera"
+msgstr "Uppmärksamma"
 
 #: sphinx/locale/__init__.py:140
 msgid "Caution"
@@ -474,7 +477,7 @@ msgstr "Observera"
 
 #: sphinx/locale/__init__.py:146
 msgid "See Also"
-msgstr "Visa även"
+msgstr "Se även"
 
 #: sphinx/locale/__init__.py:147
 msgid "Tip"
@@ -716,7 +719,7 @@ msgstr "Förändringar i bibliotek"
 
 #: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
-msgstr "Förändringar i C API"
+msgstr "Förändringar i C-API"
 
 #: sphinx/themes/basic/changes/versionchanges.html:25
 msgid "Other changes"
