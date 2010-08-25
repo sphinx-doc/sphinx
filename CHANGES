@@ -8,6 +8,8 @@ Release 1.1 (in development)
 
 * Added the ``websupport`` library.
 
+* #460: Allow limiting the depth of section numbers for HTML.
+
 * #443: Allow referencing external graphviz files.
 
 

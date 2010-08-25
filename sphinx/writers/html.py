@@ -180,7 +180,7 @@ class HTMLTranslator(BaseTranslator):
             atts['title'] = node['reftitle']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
-        if node.hasattr('secnumber'):
+        if node.get('secnumber'):
             self.body.append(('%s' + self.secnumber_suffix) %
                              '.'.join(map(str, node['secnumber'])))
 
@@ -202,14 +202,14 @@ class HTMLTranslator(BaseTranslator):
         self.depart_admonition(node)
 
     def add_secnumber(self, node):
-        if node.hasattr('secnumber'):
+        if node.get('secnumber'):
             self.body.append('.'.join(map(str, node['secnumber'])) +
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
             anchorname = '#' + node.parent['ids'][0]
             if anchorname not in self.builder.secnumbers:
                 anchorname = ''  # try first heading which has no anchor
-            if anchorname in self.builder.secnumbers:
+            if self.builder.secnumbers.get(anchorname):
                 numbers = self.builder.secnumbers[anchorname]
                 self.body.append('.'.join(map(str, numbers)) +
                                  self.secnumber_suffix)

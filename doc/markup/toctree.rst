@@ -41,6 +41,8 @@ tables of contents.  The ``toctree`` directive is the central element.
      document, the library index.  From this information it generates "next
      chapter", "previous chapter" and "parent chapter" links.
 
+   **Entries**
+
    Document titles in the :rst:dir:`toctree` will be automatically read from the
    title of the referenced document. If that isn't what you want, you can
    specify an explicit title and target using a similar syntax to reST
@@ -59,8 +61,10 @@ tables of contents.  The ``toctree`` directive is the central element.
    You can also add external links, by giving an HTTP URL instead of a document
    name.
 
+   **Section numbering**
+
    If you want to have section numbers even in HTML output, give the toctree a
-   ``numbered`` flag option.  For example::
+   ``numbered`` option.  For example::
 
       .. toctree::
          :numbered:
@@ -70,6 +74,11 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    Numbering then starts at the heading of ``foo``.  Sub-toctrees are
    automatically numbered (don't give the ``numbered`` flag to those).
+
+   Numbering up to a specific depth is also possible, by giving the depth as a
+   numeric argument to ``numbered``.
+
+   **Additional options**
 
    If you want only the titles of documents in the tree to show up, not other
    headings of the same level, you can use the ``titlesonly`` option::
@@ -132,6 +141,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    .. versionchanged:: 1.0
       Added "titlesonly" option.
+
+   .. versionchanged:: 1.1
+      Added numeric argument to "numbered".
 
 
 Special names

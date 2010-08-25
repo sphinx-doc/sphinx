@@ -20,6 +20,12 @@ from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
 
+def int_or_nothing(argument):
+    if not argument:
+        return 999
+    return int(argument)
+
+
 class TocTree(Directive):
     """
     Directive to notify Sphinx about the hierarchical structure of the docs,
@@ -34,7 +40,7 @@ class TocTree(Directive):
         'maxdepth': int,
         'glob': directives.flag,
         'hidden': directives.flag,
-        'numbered': directives.flag,
+        'numbered': int_or_nothing,
         'titlesonly': directives.flag,
     }
 
@@ -98,7 +104,7 @@ class TocTree(Directive):
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
-        subnode['numbered'] = 'numbered' in self.options
+        subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
