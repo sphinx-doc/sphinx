@@ -13,9 +13,9 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
-from sphinx.locale import pairindextypes, _
+from sphinx.locale import _
 from sphinx.util import url_re, docname_join
-from sphinx.util.nodes import explicit_title_re
+from sphinx.util.nodes import explicit_title_re, process_index_entry
 from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
@@ -157,10 +157,6 @@ class Index(Directive):
     final_argument_whitespace = True
     option_spec = {}
 
-    indextypes = [
-        'single', 'pair', 'double', 'triple',
-    ]
-
     def run(self):
         arguments = self.arguments[0].split('\n')
         env = self.state.document.settings.env
@@ -170,28 +166,7 @@ class Index(Directive):
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
         for entry in arguments:
-            entry = entry.strip()
-            for type in pairindextypes:
-                if entry.startswith(type+':'):
-                    value = entry[len(type)+1:].strip()
-                    value = pairindextypes[type] + '; ' + value
-                    ne.append(('pair', value, targetid, value))
-                    break
-            else:
-                for type in self.indextypes:
-                    if entry.startswith(type+':'):
-                        value = entry[len(type)+1:].strip()
-                        if type == 'double':
-                            type = 'pair'
-                        ne.append((type, value, targetid, value))
-                        break
-                # shorthand notation for single entries
-                else:
-                    for value in entry.split(','):
-                        value = value.strip()
-                        if not value:
-                            continue
-                        ne.append(('single', value, targetid, value))
+            ne.extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
 
 

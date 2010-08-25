@@ -132,6 +132,8 @@ Adding \n to test unescaping.
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
+Testing the :index:`index` role, also available with
+:index:`explicit <pair: title; explicit>` title.
 
 .. _with:
 

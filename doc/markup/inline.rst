@@ -309,6 +309,7 @@ in a different style:
    If you don't need the "variable part" indication, use the standard
    ````code```` instead.
 
+There is also an :rst:role:`index` role to generate index entries.
 
 The following roles generate external links:
 
