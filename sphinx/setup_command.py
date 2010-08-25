@@ -35,13 +35,13 @@ class BuildDoc(Command):
        cmdclass = {'build_sphinx': BuildDoc}
 
        name = 'My project'
-       version = 1.2
-       release = 1.2.0
+       version = '1.2'
+       release = '1.2.0'
        setup(
            name=name,
            author='Bernard Montgomery',
            version=release,
-           cmdclass={'build_sphinx': BuildDoc},
+           cmdclass=cmdclass,
            # these are optional and override conf.py settings
            command_options={
                'build_sphinx': {
