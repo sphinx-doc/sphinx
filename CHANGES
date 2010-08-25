@@ -247,15 +247,12 @@ Features added
   - Added Danish translation, thanks to Hjorth Larsen.
   - Added Lithuanian translation, thanks to Dalius Dobravolskas.
 
+* Bugs fixed:
 
-Release 0.6.8 (in development)
-==============================
-
-* #445: Fix links to result pages when using the search function
-  of HTML built with the ``dirhtml`` builder.
-
-* #444: In templates, properly re-escape values treated with the
-  "striptags" Jinja filter.
+  - #445: Fix links to result pages when using the search function
+    of HTML built with the ``dirhtml`` builder.
+  - #444: In templates, properly re-escape values treated with the
+    "striptags" Jinja filter.
 
 
 Release 0.6.7 (Jun 05, 2010)
