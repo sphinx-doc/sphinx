@@ -280,6 +280,9 @@ epub_copyright = u'%(copyright_str)s'
 # A unique identification for the text.
 #epub_uid = ''
 
+# A tuple containing the cover image and cover page html template filenames.
+#epub_cover = ()
+
 # HTML files that should be inserted before the pages created by sphinx.
 # The format is a list of tuples containing the path and title.
 #epub_pre_files = []

@@ -14,6 +14,7 @@ import re
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.locale import pairindextypes
 from sphinx.util.pycompat import class_types
 
 
@@ -70,6 +71,37 @@ def split_explicit_title(text):
     if match:
         return True, match.group(1), match.group(2)
     return False, text, text
+
+
+indextypes = [
+    'single', 'pair', 'double', 'triple',
+]
+
+def process_index_entry(entry, targetid):
+    indexentries = []
+    entry = entry.strip()
+    for type in pairindextypes:
+        if entry.startswith(type+':'):
+            value = entry[len(type)+1:].strip()
+            value = pairindextypes[type] + '; ' + value
+            indexentries.append(('pair', value, targetid, value))
+            break
+    else:
+        for type in indextypes:
+            if entry.startswith(type+':'):
+                value = entry[len(type)+1:].strip()
+                if type == 'double':
+                    type = 'pair'
+                indexentries.append((type, value, targetid, value))
+                break
+        # shorthand notation for single entries
+        else:
+            for value in entry.split(','):
+                value = value.strip()
+                if not value:
+                    continue
+                indexentries.append(('single', value, targetid, value))
+    return indexentries
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):

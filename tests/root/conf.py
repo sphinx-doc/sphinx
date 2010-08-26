@@ -91,3 +91,4 @@ def setup(app):
     app.add_directive('clsdir', ClassDirective)
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')
+    app.add_javascript('file://moo.js')

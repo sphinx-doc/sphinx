@@ -11,11 +11,13 @@ import os
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst.directives.misc import Class
+from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.locale import pairindextypes, _
+from sphinx.locale import _
 from sphinx.util import url_re, docname_join
-from sphinx.util.nodes import explicit_title_re
+from sphinx.util.nodes import explicit_title_re, process_index_entry
 from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
@@ -31,7 +33,6 @@ class TocTree(Directive):
     Directive to notify Sphinx about the hierarchical structure of the docs,
     and to include a table-of-contents like tree in the current document.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -117,7 +118,6 @@ class Author(Directive):
     Directive to give the name of the author of the current document
     or section. Shown in the output only if the show_authors option is on.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -150,16 +150,11 @@ class Index(Directive):
     """
     Directive to add entries to the index.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {}
-
-    indextypes = [
-        'single', 'pair', 'double', 'triple',
-    ]
 
     def run(self):
         arguments = self.arguments[0].split('\n')
@@ -170,28 +165,7 @@ class Index(Directive):
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
         for entry in arguments:
-            entry = entry.strip()
-            for type in pairindextypes:
-                if entry.startswith(type+':'):
-                    value = entry[len(type)+1:].strip()
-                    value = pairindextypes[type] + '; ' + value
-                    ne.append(('pair', value, targetid, value))
-                    break
-            else:
-                for type in self.indextypes:
-                    if entry.startswith(type+':'):
-                        value = entry[len(type)+1:].strip()
-                        if type == 'double':
-                            type = 'pair'
-                        ne.append((type, value, targetid, value))
-                        break
-                # shorthand notation for single entries
-                else:
-                    for value in entry.split(','):
-                        value = value.strip()
-                        if not value:
-                            continue
-                        ne.append(('single', value, targetid, value))
+            ne.extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
 
 
@@ -199,7 +173,6 @@ class VersionChange(Directive):
     """
     Directive to describe a change/addition/deprecation in a specific version.
     """
-
     has_content = True
     required_arguments = 1
     optional_arguments = 1
@@ -229,7 +202,6 @@ class SeeAlso(Directive):
     """
     An admonition mentioning things to look at as reference.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 1
@@ -255,7 +227,6 @@ class TabularColumns(Directive):
     """
     Directive to give an explicit tabulary column definition to LaTeX.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -272,7 +243,6 @@ class Centered(Directive):
     """
     Directive to create a centered line of bold text.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -289,12 +259,10 @@ class Centered(Directive):
         return [subnode] + messages
 
 
-
 class Acks(Directive):
     """
     Directive for a list of names.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -316,7 +284,6 @@ class HList(Directive):
     """
     Directive for a list that gets compacted horizontally.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -353,7 +320,6 @@ class Only(Directive):
     """
     Directive to only include text if the given tag(s) are enabled.
     """
-
     has_content = True
     required_arguments = 1
     optional_arguments = 0
@@ -369,8 +335,6 @@ class Only(Directive):
                                 match_titles=1)
         return [node]
 
-
-from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 class Include(BaseInclude):
     """
@@ -402,7 +366,6 @@ directives.register_directive('only', Only)
 directives.register_directive('include', Include)
 
 # register the standard rst class directive under a different name
-from docutils.parsers.rst.directives.misc import Class
 # only for backwards compatibility now
 directives.register_directive('cssclass', Class)
 # new standard name when default-domain with "class" is in effect

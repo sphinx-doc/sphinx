@@ -10,6 +10,8 @@ Release 1.1 (in development)
 
 * #460: Allow limiting the depth of section numbers for HTML.
 
+* #138: Add an ``index`` role, to make inline index entries.
+
 * #443: Allow referencing external graphviz files.
 
 * #221: Add Swedish locale.
@@ -17,6 +19,11 @@ Release 1.1 (in development)
 
 Release 1.0.4 (in development)
 ==============================
+
+* #513: Allow giving non-local URIs for JavaScript files, e.g.
+  in the JSMath extension.
+
+* #512: Fix traceback when ``intersphinx_mapping`` is empty.
 
 
 Release 1.0.3 (Aug 23, 2010)
@@ -259,15 +266,12 @@ Features added
   - Added Danish translation, thanks to Hjorth Larsen.
   - Added Lithuanian translation, thanks to Dalius Dobravolskas.
 
+* Bugs fixed:
 
-Release 0.6.8 (in development)
-==============================
-
-* #445: Fix links to result pages when using the search function
-  of HTML built with the ``dirhtml`` builder.
-
-* #444: In templates, properly re-escape values treated with the
-  "striptags" Jinja filter.
+  - #445: Fix links to result pages when using the search function
+    of HTML built with the ``dirhtml`` builder.
+  - #444: In templates, properly re-escape values treated with the
+    "striptags" Jinja filter.
 
 
 Release 0.6.7 (Jun 05, 2010)

@@ -112,6 +112,10 @@ units as well as normal text:
 
       .. centered:: LICENSE AGREEMENT
 
+   .. deprecated:: 1.1
+      This presentation-only directive is a legacy from older versions.  Use a
+      :rst:dir:`rst-class` directive instead and add an appropriate style.
+
 
 .. rst:directive:: hlist
 
@@ -142,68 +146,6 @@ subdocuments, is described in :ref:`toctree-directive`.
 
 For local tables of contents, use the standard reST :dudir:`contents directive
 <contents>`.
-
-
-Index-generating markup
------------------------
-
-Sphinx automatically creates index entries from all object descriptions (like
-functions, classes or attributes) like discussed in :ref:`domains`.
-
-However, there is also an explicit directive available, to make the index more
-comprehensive and enable index entries in documents where information is not
-mainly contained in information units, such as the language reference.
-
-.. rst:directive:: .. index:: <entries>
-
-   This directive contains one or more index entries.  Each entry consists of a
-   type and a value, separated by a colon.
-
-   For example::
-
-      .. index::
-         single: execution; context
-         module: __main__
-         module: sys
-         triple: module; search; path
-
-      The execution context
-      ---------------------
-
-      ...
-
-   This directive contains five entries, which will be converted to entries in
-   the generated index which link to the exact location of the index statement
-   (or, in case of offline media, the corresponding page number).
-
-   Since index directives generate cross-reference targets at their location in
-   the source, it makes sense to put them *before* the thing they refer to --
-   e.g. a heading, as in the example above.
-
-   The possible entry types are:
-
-   single
-      Creates a single index entry.  Can be made a subentry by separating the
-      subentry text with a semicolon (this notation is also used below to
-      describe what entries are created).
-   pair
-      ``pair: loop; statement`` is a shortcut that creates two index entries,
-      namely ``loop; statement`` and ``statement; loop``.
-   triple
-      Likewise, ``triple: module; search; path`` is a shortcut that creates
-      three index entries, which are ``module; search path``, ``search; path,
-      module`` and ``path; module search``.
-   module, keyword, operator, object, exception, statement, builtin
-      These all create two index entries.  For example, ``module: hashlib``
-      creates the entries ``module; hashlib`` and ``hashlib; module``.  (These
-      are Python-specific and therefore deprecated.)
-
-   For index directives containing only "single" entries, there is a shorthand
-   notation::
-
-      .. index:: BNF, grammar, syntax, notation
-
-   This creates four index entries.
 
 
 Glossary
