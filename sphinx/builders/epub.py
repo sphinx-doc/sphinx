@@ -12,6 +12,7 @@
 
 import os
 import re
+import time
 import codecs
 import zipfile
 from os import path
@@ -84,6 +85,7 @@ _content_template = u'''\
     <dc:publisher>%(publisher)s</dc:publisher>
     <dc:rights>%(copyright)s</dc:rights>
     <dc:identifier id="%(uid)s" opf:scheme="%(scheme)s">%(id)s</dc:identifier>
+    <dc:date>%(date)s</dc:date>
   </metadata>
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -202,6 +204,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
             self, prune_toctrees=False)
         self.refnodes = self.get_refnodes(doctree, [])
+        master_dir = os.path.dirname(self.config.master_doc)
+        if master_dir:
+            master_dir += '/' # XXX or os.sep?
+            for item in self.refnodes:
+                item['refuri'] = master_dir + item['refuri']
         self.refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
@@ -221,10 +228,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 'text': ssp(self.esc(text))
             })
 
-    def fix_fragment(self, match):
-        """Return a href attribute with colons replaced by hyphens.
+    def fix_fragment(self, prefix, fragment):
+        """Return a href/id attribute with colons replaced by hyphens.
         """
-        return match.group(1) + match.group(2).replace(':', '-')
+        return prefix + fragment.replace(':', '-')
 
     def fix_ids(self, tree):
         """Replace colons with hyphens in href and id attributes.
@@ -235,14 +242,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if 'refuri' in node:
                 m = _refuri_re.match(node['refuri'])
                 if m:
-                    node['refuri'] = self.fix_fragment(m)
+                    node['refuri'] = self.fix_fragment(m.group(1), m.group(2))
             if 'refid' in node:
-                node['refid'] = node['refid'].replace(':', '-')
+                node['refid'] = self.fix_fragment('', node['refid'])
         for node in tree.traverse(addnodes.desc_signature):
             ids = node.attributes['ids']
             newids = []
             for id in ids:
-                newids.append(id.replace(':', '-'))
+                newids.append(self.fix_fragment('', id))
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree):
@@ -278,12 +285,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 for (i, link) in enumerate(links):
                     m = _refuri_re.match(link)
                     if m:
-                        links[i] = self.fix_fragment(m)
+                        links[i] = self.fix_fragment(m.group(1), m.group(2))
                 for subentryname, subentrylinks in subitems:
                     for (i, link) in enumerate(subentrylinks):
                         m = _refuri_re.match(link)
                         if m:
-                            subentrylinks[i] = self.fix_fragment(m)
+                            subentrylinks[i] = \
+                                self.fix_fragment(m.group(1), m.group(2))
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
@@ -344,6 +352,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
+        metadata['date'] = self.esc(time.strftime('%Y-%m-%d'))
         metadata['files'] = files
         metadata['spine'] = spine
         return metadata
@@ -430,6 +439,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         level = 1
         lastnode = None
         for node in nodes:
+            if not node['text']:
+                continue
             file = node['refuri'].split('#')[0]
             if file in self.ignored_files:
                 continue
@@ -498,5 +509,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub.write(path.join(outdir, 'mimetype'), 'mimetype', \
             zipfile.ZIP_STORED)
         for file in projectfiles:
+            if isinstance(file, unicode):
+                file = file.encode('utf-8')
             epub.write(path.join(outdir, file), file, zipfile.ZIP_DEFLATED)
         epub.close()
