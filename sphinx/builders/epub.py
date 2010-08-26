@@ -12,8 +12,8 @@
 
 import os
 import re
-import codecs
 import time
+import codecs
 import zipfile
 from os import path
 
