@@ -43,6 +43,9 @@ The :program:`sphinx-build` script has several options:
    **text**
       Build plain text files.
 
+   **gettext**
+      Build gettext-style message catalogs (``.pot`` files).
+
    **doctest**
       Run all doctests in the documentation, if the :mod:`~sphinx.ext.doctest`
       extension is enabled.

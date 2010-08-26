@@ -223,10 +223,10 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 .. module:: sphinx.builders.intl
 .. class:: MessageCatalogBuilder
 
-   This builder produces a message catalog file for each reST file or
-   subdirectory.
+   This builder produces gettext-style message catalos.  Each top-level file or
+   subdirectory grows a single ``.pot`` catalog template.
 
-   See the documentation on :ref:`internationalization <intl>` for further reference.
+   See the documentation on :ref:`intl` for further reference.
 
    Its name is ``gettext``.
 
