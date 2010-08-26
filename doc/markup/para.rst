@@ -112,6 +112,10 @@ units as well as normal text:
 
       .. centered:: LICENSE AGREEMENT
 
+   .. deprecated:: 1.1
+      This presentation-only directive is a legacy from older versions.  Use a
+      :rst:dir:`rst-class` directive instead and add an appropriate style.
+
 
 .. rst:directive:: hlist
 
