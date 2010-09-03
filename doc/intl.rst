@@ -37,7 +37,7 @@ and contain messages in your original language *only*.
 
 They can be delivered to translators which will transform them to ``.po`` files
 --- so called **message catalogs** --- containing a mapping from the original
-messages to foreign-language strings.  
+messages to foreign-language strings.
 
 Gettext compiles them into a binary format known as **binary catalogs** through
 :program:`msgfmt` for efficiency reasons.  If you make these files discoverable

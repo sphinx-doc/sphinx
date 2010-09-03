@@ -384,7 +384,7 @@ documentation on :ref:`intl` for details.
    Directories in which to search for additional message catalogs (see
    :confval:`language`), relative to the source directory.  The directories on
    this path are searched by the standard :mod:`gettext` module.
-   
+
    Internal messages are fetched from a text domain of ``sphinx``; so if you
    add the directory :file:`./locale` to this settting, the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`) must be in
