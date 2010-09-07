@@ -187,8 +187,7 @@ class CoverageBuilder(Builder):
 
                             full_attr_name = '%s.%s' % (full_name, attr_name)
                             if full_attr_name not in objects:
-                                if not self._is_func_undocumented(
-                                    obj, attr_name):
+                                if len(obj.__doc__) > 0:
                                     continue
                                 attrs.append(attr_name)
 
@@ -197,19 +196,6 @@ class CoverageBuilder(Builder):
                             classes[name] = attrs
 
             self.py_undoc[mod_name] = {'funcs': funcs, 'classes': classes}
-
-    def _is_func_undocumented(self, obj, attr_name):
-        """Last check looking at the source code. Is function really not documented?"""
-        obj_source = inspect.getsource(obj) or ''
-        obj_source = obj_source.replace(' ', '').replace('\n', '')
-        if not "def%s" % attr_name in obj_source:
-            # Funktion is not defined in this class. No documentation needed.
-            return False
-        m = re.search('def%s\([^\)]*\):"""' %attr_name, obj_source)
-        if not m:
-            return True
-        else:
-            return False
 
     def write_py_coverage(self):
         output_file = path.join(self.outdir, 'python.txt')
