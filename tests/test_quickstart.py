@@ -171,6 +171,14 @@ def test_quickstart_all_answers(tempdir):
     assert ns['man_pages'] == [
         ('contents', 'stasi', u'STASI™ Documentation',
          [u'Wolfgang Schäuble & G\'Beckstein'], 1)]
+    print ns['texinfo_documents']
+    print [('contents', 'STASI', u'STASI™ Documentation',
+            u'Wolfgang Schäuble & G\'Beckstein', 'STASI',
+            'One line description of project.', 'Miscellaneous'),]
+    assert ns['texinfo_documents'] == [
+        ('contents', 'STASI', u'STASI™ Documentation',
+         u'Wolfgang Schäuble & G\'Beckstein', 'STASI',
+         'One line description of project.', 'Miscellaneous'),]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()
