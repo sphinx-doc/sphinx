@@ -51,6 +51,7 @@ class Graphviz(Directive):
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
+        'inline': directives.flag,
     }
 
     def run(self):
@@ -84,6 +85,7 @@ class Graphviz(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
+        node['inline'] = 'inline' in self.options
         return [node]
 
 
@@ -97,6 +99,7 @@ class GraphvizSimple(Directive):
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
+        'inline': directives.flag,
     }
 
     def run(self):
@@ -106,6 +109,7 @@ class GraphvizSimple(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
+        node['inline'] = 'inline' in self.options
         return [node]
 
 
@@ -213,7 +217,12 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
-    self.body.append(self.starttag(node, 'p', CLASS='graphviz'))
+    if node.get('inline', False):
+        wrapper = 'span'
+    else:
+        wrapper = 'p'
+
+    self.body.append(self.starttag(node, wrapper, CLASS='graphviz'))
     if fname is None:
         self.body.append(self.encode(code))
     else:
@@ -240,7 +249,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                  (fname, alt, mapname, imgcss))
                 self.body.extend(imgmap)
 
-    self.body.append('</p>\n')
+    self.body.append('</%s>\n' % wrapper)
     raise nodes.SkipNode
 
 
@@ -255,8 +264,13 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
+    if node.get('inline', False):
+        para_separator = ''
+    else:
+        para_separator = '\n'
+
     if fname is not None:
-        self.body.append('\\includegraphics{%s}' % fname)
+        self.body.append('%s\\includegraphics{%s}%s' % (para_separator, fname, para_separator))
     raise nodes.SkipNode
 
 
