@@ -144,6 +144,27 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. versionadded:: 1.0
 
+
+.. module:: sphinx.builders.texinfo
+.. class:: TexinfoBuilder
+
+   This builder produces Texinfo files that can be processed into Info
+   files by the :program:`makeinfo` program.  You have to specify which
+   documents are to be included in which Texinfo files via the
+   :confval:`texinfo_documents` configuration value.
+
+   The Info format is the basis of the on-line help system used by GNU
+   Emacs and the terminal-based program :program:`info`.  See
+   :ref:`texinfo-faq` for more details.  The Texinfo format is the
+   official documentation system used by the GNU project.  More
+   information on Texinfo can be found at
+   `<http://www.gnu.org/software/texinfo/>`_.
+
+   Its name is ``texinfo``.
+
+   .. versionadded:: 1.1
+
+
 .. currentmodule:: sphinx.builders.html
 .. class:: SerializingHTMLBuilder
 

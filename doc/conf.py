@@ -64,6 +64,12 @@ man_pages = [
      'template generator', '', 1),
 ]
 
+texinfo_documents = [
+    ('contents', 'sphinx', 'Sphinx Documentation', 'Georg Brandl',
+     'Sphinx', 'The Sphinx documentation builder.', 'Documentation tools',
+     1),
+]
+
 # We're not using intersphinx right now, but if we did, this would be part of
 # the mapping:
 intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
