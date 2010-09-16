@@ -254,6 +254,20 @@ man_pages = [
     ('%(master_str)s', '%(project_manpage)s', u'%(project_doc)s',
      [u'%(author_str)s'], 1)
 ]
+
+# -- Options for Texinfo output ------------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+  ('%(master_str)s', '%(project_fn)s', u'%(project_doc)s',
+   u'%(author_str)s', '%(project_fn)s',
+   'One line description of project.', 'Miscellaneous'),
+]
+
+# Documents to append as an appendix to all manuals.
+texinfo_appendices = []
 '''
 
 EPUB_CONFIG = '''
@@ -364,6 +378,8 @@ help:
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
+\t@echo "  texinfo    to make Texinfo files"
+\t@echo "  info       to make Texinfo files and run them through makeinfo"
 \t@echo "  gettext    to make PO message catalogs"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
 \t@echo "  linkcheck  to check all external links for integrity"
@@ -450,6 +466,19 @@ man:
 \t$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(BUILDDIR)/man
 \t@echo
 \t@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
+
+texinfo:
+\t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
+\t@echo
+\t@echo "Build finished. The Texinfo files are in $(BUILDDIR)/texinfo."
+\t@echo "Run \\`make' in that directory to run these through makeinfo" \\
+\t      "(use \\`make info' here to do that automatically)."
+
+info:
+\t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
+\t@echo "Running Texinfo files through makeinfo..."
+\tmake -C $(BUILDDIR)/texinfo info
+\t@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
 
 gettext:
 \t$(SPHINXBUILD) -b gettext $(ALLSPHINXOPTS) $(BUILDDIR)/locale
