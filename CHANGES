@@ -1,6 +1,9 @@
 Release 1.0.4 (in development)
 ==============================
 
+* #524: Open intersphinx inventories in binary mode on Windows,
+  since version 2 contains zlib-compressed data.
+
 * #513: Allow giving non-local URIs for JavaScript files, e.g.
   in the JSMath extension.
 
