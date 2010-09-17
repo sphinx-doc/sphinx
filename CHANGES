@@ -17,8 +17,11 @@ Release 1.1 (in development)
 * #221: Add Swedish locale.
 
 
-Release 1.0.4 (in development)
-==============================
+Release 1.0.4 (Sep 17, 2010)
+============================
+
+* #524: Open intersphinx inventories in binary mode on Windows,
+  since version 2 contains zlib-compressed data.
 
 * #513: Allow giving non-local URIs for JavaScript files, e.g.
   in the JSMath extension.
