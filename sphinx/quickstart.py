@@ -261,9 +261,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('%(master_str)s', '%(project_fn)s', u'%(project_doc)s',
-   u'%(author_str)s', '%(project_fn)s',
-   'One line description of project.', 'Miscellaneous'),
+  ('%(master_str)s', '%(project_fn)s', u'%(project_doc)s', u'%(author_str)s',
+   '%(project_fn)s', 'One line description of project.', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
