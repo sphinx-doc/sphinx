@@ -72,6 +72,11 @@ It adds these directives:
    alternate text for HTML output.  If not given, the alternate text defaults to
    the graphviz code.
 
+.. versionadded:: 1.1
+   All three directives support an ``inline`` flag that controls
+   paragraph breaks in the output.  When set, the graph is inserted
+   into the current paragraph.  If the flag is not given, paragraph
+   breaks are introduced before and after the image (the default).
 
 There are also these new config values:
 
