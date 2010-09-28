@@ -270,7 +270,8 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         para_separator = '\n'
 
     if fname is not None:
-        self.body.append('%s\\includegraphics{%s}%s' % (para_separator, fname, para_separator))
+        self.body.append('%s\\includegraphics{%s}%s' % (para_separator, fname,
+                                                        para_separator))
     raise nodes.SkipNode
 
 
