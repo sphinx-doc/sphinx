@@ -12,6 +12,7 @@
 
 import os
 import re
+import sys
 import time
 import codecs
 import zipfile
@@ -542,7 +543,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub.write(path.join(outdir, 'mimetype'), 'mimetype', \
             zipfile.ZIP_STORED)
         for file in projectfiles:
-            if isinstance(file, unicode):
-                file = file.encode('utf-8')
-            epub.write(path.join(outdir, file), file, zipfile.ZIP_DEFLATED)
+            fp = path.join(outdir, file)
+            if isinstance(fp, unicode):
+                fp = fp.encode(sys.getfilesystemencoding())
+            epub.write(fp, file, zipfile.ZIP_DEFLATED)
         epub.close()
