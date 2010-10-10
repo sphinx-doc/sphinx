@@ -59,14 +59,19 @@ These extensions are built in and can be activated by respective entries in the
 Third-party extensions
 ----------------------
 
+You can find several inofficial extensions in the `Sphinx Contrib`_
+repository which is open for anyone who wants to maintain an extension
+publicly.
+
 There are several extensions that are not (yet) maintained in the Sphinx
 distribution.  The `Wiki at BitBucket`_ maintains a list of those.
 
-If you write an extension that you think others will find useful, please write
-to the project mailing list (`join here <http://groups.google.com/group/sphinx-dev>`_)
-and we'll find the proper way of including or hosting it for the public.
+If you write an extension that you think others will find useful or you think
+should be included as a part of Sphinx, please write to the project mailing
+list (`join here <http://groups.google.com/group/sphinx-dev>`_).
 
 .. _Wiki at BitBucket: http://www.bitbucket.org/birkenfeld/sphinx/wiki/Home
+.. _Sphinx Contrib: http://www.bitbucket.org/birkenfeld/sphinx-contrib
 
 
 Where to put your own extensions?
