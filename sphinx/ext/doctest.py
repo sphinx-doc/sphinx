@@ -265,6 +265,9 @@ Doctest summary
                                                 optionflags=self.opt)
         self.test_runner = SphinxDocTestRunner(verbose=False,
                                                optionflags=self.opt)
+
+        self.test_runner._fakeout = self.setup_runner._fakeout
+
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
                 return (isinstance(node, (nodes.literal_block, nodes.comment))
