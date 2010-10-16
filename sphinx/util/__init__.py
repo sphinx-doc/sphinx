@@ -164,16 +164,19 @@ def copy_static_entry(source, targetdir, builder, context={},
 
 _DEBUG_HEADER = '''\
 # Sphinx version: %s
+# Python version: %s
 # Docutils version: %s %s
 # Jinja2 version: %s
 '''
 
 def save_traceback():
     """Save the current exception's traceback in a temporary file."""
+    import platform
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__version__,
+                   platform.python_version(),
                    docutils.__version__, docutils.__version_details__,
                    jinja2.__version__)).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
