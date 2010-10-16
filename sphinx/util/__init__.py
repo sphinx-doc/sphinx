@@ -166,9 +166,11 @@ def save_traceback():
     """
     Save the current exception's traceback in a temporary file.
     """
+    import platform
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
     os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
+    os.write(fd, '# Python version: %s\n' % platform.python_version())
     os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
                                                   docutils.__version_details__))
     os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
