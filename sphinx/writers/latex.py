@@ -1238,7 +1238,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         * inline markup is supported.
         * serif typeface
         """
-        self.body.append('{\\raggedright{}')
+        self.body.append('\n{\\raggedright{}')
         self.literal_whitespace += 1
     def depart_line_block(self, node):
         self.literal_whitespace -= 1
