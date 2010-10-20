@@ -98,7 +98,7 @@ General configuration
    Example patterns:
 
    - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
-     entry in :confval:`unused_docs`
+     entry in :confval:`unused_docs`)
    - ``'library/xml'`` -- ignores the ``library/xml`` directory (replaces entry
      in :confval:`exclude_trees`)
    - ``'library/xml*'`` -- ignores all files and directories starting with
