@@ -128,9 +128,9 @@ def texinfo_visit_math(self, node):
     raise nodes.SkipNode
 
 def texinfo_visit_displaymath(self, node):
-    self.visit_paragraph(self, node)
+    self.visit_paragraph(node)
 def texinfo_depart_displaymath(self, node):
-    self.depart_paragraph(self, node)
+    self.depart_paragraph(node)
 
 def texinfo_visit_eqref(self, node):
     self.body.append(node['target'])
