@@ -1419,7 +1419,8 @@ class BuildEnvironment:
 
         return rewrite_needed
 
-    def create_index(self, builder, _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
+    def create_index(self, builder, group_entries=True,
+                     _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         """Create the real index from the collected index entries."""
         new = {}
 
@@ -1484,34 +1485,35 @@ class BuildEnvironment:
         newlist = new.items()
         newlist.sort(key=keyfunc)
 
-        # fixup entries: transform
-        #   func() (in module foo)
-        #   func() (in module bar)
-        # into
-        #   func()
-        #     (in module foo)
-        #     (in module bar)
-        oldkey = ''
-        oldsubitems = None
-        i = 0
-        while i < len(newlist):
-            key, (targets, subitems) = newlist[i]
-            # cannot move if it has subitems; structure gets too complex
-            if not subitems:
-                m = _fixre.match(key)
-                if m:
-                    if oldkey == m.group(1):
-                        # prefixes match: add entry as subitem of the
-                        # previous entry
-                        oldsubitems.setdefault(m.group(2), [[], {}])[0].\
-                                    extend(targets)
-                        del newlist[i]
-                        continue
-                    oldkey = m.group(1)
-                else:
-                    oldkey = key
-            oldsubitems = subitems
-            i += 1
+        if group_entries:
+            # fixup entries: transform
+            #   func() (in module foo)
+            #   func() (in module bar)
+            # into
+            #   func()
+            #     (in module foo)
+            #     (in module bar)
+            oldkey = ''
+            oldsubitems = None
+            i = 0
+            while i < len(newlist):
+                key, (targets, subitems) = newlist[i]
+                # cannot move if it has subitems; structure gets too complex
+                if not subitems:
+                    m = _fixre.match(key)
+                    if m:
+                        if oldkey == m.group(1):
+                            # prefixes match: add entry as subitem of the
+                            # previous entry
+                            oldsubitems.setdefault(m.group(2), [[], {}])[0].\
+                                        extend(targets)
+                            del newlist[i]
+                            continue
+                        oldkey = m.group(1)
+                    else:
+                        oldkey = key
+                oldsubitems = subitems
+                i += 1
 
         # group the entries by letter
         def keyfunc2((k, v), letters=string.ascii_uppercase + '_'):
