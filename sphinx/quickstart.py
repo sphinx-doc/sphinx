@@ -547,6 +547,7 @@ if "%%1" == "clean" (
 
 if "%%1" == "html" (
 \t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %%BUILDDIR%%/html
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/html.
 \tgoto end
@@ -554,6 +555,7 @@ if "%%1" == "html" (
 
 if "%%1" == "dirhtml" (
 \t%%SPHINXBUILD%% -b dirhtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/dirhtml
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/dirhtml.
 \tgoto end
@@ -561,6 +563,7 @@ if "%%1" == "dirhtml" (
 
 if "%%1" == "singlehtml" (
 \t%%SPHINXBUILD%% -b singlehtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/singlehtml
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/singlehtml.
 \tgoto end
@@ -568,6 +571,7 @@ if "%%1" == "singlehtml" (
 
 if "%%1" == "pickle" (
 \t%%SPHINXBUILD%% -b pickle %%ALLSPHINXOPTS%% %%BUILDDIR%%/pickle
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can process the pickle files.
 \tgoto end
@@ -575,6 +579,7 @@ if "%%1" == "pickle" (
 
 if "%%1" == "json" (
 \t%%SPHINXBUILD%% -b json %%ALLSPHINXOPTS%% %%BUILDDIR%%/json
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can process the JSON files.
 \tgoto end
@@ -582,6 +587,7 @@ if "%%1" == "json" (
 
 if "%%1" == "htmlhelp" (
 \t%%SPHINXBUILD%% -b htmlhelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/htmlhelp
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can run HTML Help Workshop with the ^
 .hhp project file in %%BUILDDIR%%/htmlhelp.
@@ -590,6 +596,7 @@ if "%%1" == "htmlhelp" (
 
 if "%%1" == "qthelp" (
 \t%%SPHINXBUILD%% -b qthelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/qthelp
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %%BUILDDIR%%/qthelp, like this:
@@ -601,6 +608,7 @@ if "%%1" == "qthelp" (
 
 if "%%1" == "devhelp" (
 \t%%SPHINXBUILD%% -b devhelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/devhelp
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished.
 \tgoto end
@@ -608,6 +616,7 @@ if "%%1" == "devhelp" (
 
 if "%%1" == "epub" (
 \t%%SPHINXBUILD%% -b epub %%ALLSPHINXOPTS%% %%BUILDDIR%%/epub
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The epub file is in %%BUILDDIR%%/epub.
 \tgoto end
@@ -615,6 +624,7 @@ if "%%1" == "epub" (
 
 if "%%1" == "latex" (
 \t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; the LaTeX files are in %%BUILDDIR%%/latex.
 \tgoto end
@@ -622,6 +632,7 @@ if "%%1" == "latex" (
 
 if "%%1" == "text" (
 \t%%SPHINXBUILD%% -b text %%ALLSPHINXOPTS%% %%BUILDDIR%%/text
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The text files are in %%BUILDDIR%%/text.
 \tgoto end
@@ -629,6 +640,7 @@ if "%%1" == "text" (
 
 if "%%1" == "man" (
 \t%%SPHINXBUILD%% -b man %%ALLSPHINXOPTS%% %%BUILDDIR%%/man
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The manual pages are in %%BUILDDIR%%/man.
 \tgoto end
@@ -643,6 +655,7 @@ if "%%1" == "gettext" (
 
 if "%%1" == "changes" (
 \t%%SPHINXBUILD%% -b changes %%ALLSPHINXOPTS%% %%BUILDDIR%%/changes
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.The overview file is in %%BUILDDIR%%/changes.
 \tgoto end
@@ -650,6 +663,7 @@ if "%%1" == "changes" (
 
 if "%%1" == "linkcheck" (
 \t%%SPHINXBUILD%% -b linkcheck %%ALLSPHINXOPTS%% %%BUILDDIR%%/linkcheck
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Link check complete; look for any errors in the above output ^
 or in %%BUILDDIR%%/linkcheck/output.txt.
@@ -658,6 +672,7 @@ or in %%BUILDDIR%%/linkcheck/output.txt.
 
 if "%%1" == "doctest" (
 \t%%SPHINXBUILD%% -b doctest %%ALLSPHINXOPTS%% %%BUILDDIR%%/doctest
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Testing of doctests in the sources finished, look at the ^
 results in %%BUILDDIR%%/doctest/output.txt.

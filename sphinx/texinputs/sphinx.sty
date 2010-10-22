@@ -16,6 +16,7 @@
 \RequirePackage{amsmath} % for \text
 \RequirePackage{makeidx}
 \RequirePackage{framed}
+\RequirePackage{ifthen}
 \RequirePackage{color}
 % For highlighted code.
 \RequirePackage{fancyvrb}
@@ -209,7 +210,7 @@
             {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
 \titleformat{\subsubsection}{\py@HeaderFamily}%
             {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\paragraph}{\large\py@HeaderFamily}%
+\titleformat{\paragraph}{\small\py@HeaderFamily}%
             {\py@TitleColor}{0em}{\py@TitleColor}{\py@NormalColor}
 
 % {fulllineitems} is the main environment for object descriptions.
@@ -462,3 +463,21 @@
     {#2}% node content
   }% close "span"
 }
+
+\providecommand*{\DUprovidelength}[2]{
+  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+}
+
+\DUprovidelength{\DUlineblockindent}{2.5em}
+\ifthenelse{\isundefined{\DUlineblock}}{
+  \newenvironment{DUlineblock}[1]{%
+    \list{}{\setlength{\partopsep}{\parskip}
+            \addtolength{\partopsep}{\baselineskip}
+            \setlength{\topsep}{0pt}
+            \setlength{\itemsep}{0.15\baselineskip}
+            \setlength{\parsep}{0pt}
+            \setlength{\leftmargin}{#1}}
+    \raggedright
+  }
+  {\endlist}
+}{}
