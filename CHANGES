@@ -1,7 +1,13 @@
-Release 1.0.4 (Sep 17, 2010)
-============================
+Release 1.0.5 (in development)
+==============================
+
+* #535: Fix LaTeX output generated for line blocks.
 
 * #544: Allow ``.pyw`` as a source file extension.
+
+
+Release 1.0.4 (Sep 17, 2010)
+============================
 
 * #524: Open intersphinx inventories in binary mode on Windows,
   since version 2 contains zlib-compressed data.

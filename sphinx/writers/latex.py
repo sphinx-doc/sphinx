@@ -1230,31 +1230,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
-    def visit_line_block(self, node):
-        """line-block:
-        * whitespace (including linebreaks) is significant
-        * inline markup is supported.
-        * serif typeface
-        """
-        self.body.append('\n{\\raggedright{}')
-        self.literal_whitespace += 1
-    def depart_line_block(self, node):
-        self.literal_whitespace -= 1
-        # remove the last \\
-        del self.body[-1]
-        self.body.append('}\n')
-
     def visit_line(self, node):
-        self._line_start = len(self.body)
+        self.body.append('\item[] ')
     def depart_line(self, node):
-        if self._line_start == len(self.body):
-            # no output in this line -- add a nonbreaking space, else the
-            # \\ command will give an error
-            self.body.append('~')
-        if self.table is not None:
-            self.body.append('\\newline\n')
+        self.body.append('\n')
+
+    def visit_line_block(self, node):
+        if isinstance(node.parent, nodes.line_block):
+            self.body.append('\\item[]\n'
+                             '\\begin{DUlineblock}{\\DUlineblockindent}\n')
         else:
-            self.body.append('\\\\\n')
+            self.body.append('\n\\begin{DUlineblock}{0em}\n')
+    def depart_line_block(self, node):
+        self.body.append('\\end{DUlineblock}\n')
 
     def visit_block_quote(self, node):
         # If the block quote contains a single object and that object

@@ -16,6 +16,7 @@
 \RequirePackage{amsmath} % for \text
 \RequirePackage{makeidx}
 \RequirePackage{framed}
+\RequirePackage{ifthen}
 \RequirePackage{color}
 % For highlighted code.
 \RequirePackage{fancyvrb}
@@ -462,3 +463,21 @@
     {#2}% node content
   }% close "span"
 }
+
+\providecommand*{\DUprovidelength}[2]{
+  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+}
+
+\DUprovidelength{\DUlineblockindent}{2.5em}
+\ifthenelse{\isundefined{\DUlineblock}}{
+  \newenvironment{DUlineblock}[1]{%
+    \list{}{\setlength{\partopsep}{\parskip}
+            \addtolength{\partopsep}{\baselineskip}
+            \setlength{\topsep}{0pt}
+            \setlength{\itemsep}{0.15\baselineskip}
+            \setlength{\parsep}{0pt}
+            \setlength{\leftmargin}{#1}}
+    \raggedright
+  }
+  {\endlist}
+}{}
