@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import socket
 from os import path
 from urllib2 import build_opener, HTTPError
@@ -30,6 +31,7 @@ class CheckExternalLinksBuilder(Builder):
     name = 'linkcheck'
 
     def init(self):
+        self.to_ignore = map(re.compile, self.app.config.linkcheck_ignore)
         self.good = set()
         self.broken = {}
         self.redirected = {}
@@ -76,6 +78,10 @@ class CheckExternalLinksBuilder(Builder):
 
         if lineno:
             self.info('(line %3d) ' % lineno, nonl=1)
+        for rex in self.to_ignore:
+            if rex.match(uri):
+                self.info(uri + ' - ' + darkgray('ignored'))
+                return
         if uri[0:5] == 'http:' or uri[0:6] == 'https:':
             self.info(uri, nonl=1)
 

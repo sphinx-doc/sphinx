@@ -1113,6 +1113,19 @@ These options influence Texinfo output.
    .. versionadded:: 1.1
 
 
+Options for the linkcheck builder
+---------------------------------
+
+.. confval:: linkcheck_ignore
+
+   A list of regular expressions that match URIs that should not be checked
+   when doing a ``linkcheck`` build.  Example::
+
+      linkcheck_ignore = [r'http://localhost:\d+/']
+
+   .. versionadded:: 1.1
+
+
 .. rubric:: Footnotes
 
 .. [1] A note on available globbing syntax: you can use the standard shell
