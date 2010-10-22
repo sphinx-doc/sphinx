@@ -246,9 +246,6 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_literal(self, node):
-        if len(node.children) == 1 and \
-               node.children[0] in ('None', 'True', 'False'):
-            node['classes'].append('xref')
         self.body.append(self.starttag(node, 'tt', '',
                                        CLASS='docutils literal'))
         self.protect_literal_text += 1
