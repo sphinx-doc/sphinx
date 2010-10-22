@@ -532,6 +532,7 @@ if "%%1" == "help" (
 \techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  text       to make text files
 \techo.  man        to make manual pages
+\techo.  texinfo    to make Texinfo files
 \techo.  gettext    to make PO message catalogs
 \techo.  changes    to make an overview over all changed/added/deprecated items
 \techo.  linkcheck  to check all external links for integrity
@@ -646,8 +647,17 @@ if "%%1" == "man" (
 \tgoto end
 )
 
+if "%%1" == "texinfo" (
+\t%%SPHINXBUILD%% -b texinfo %%ALLSPHINXOPTS%% %%BUILDDIR%%/texinfo
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The Texinfo files are in %%BUILDDIR%%/texinfo.
+\tgoto end
+)
+
 if "%%1" == "gettext" (
 \t%%SPHINXBUILD%% -b gettext %%ALLSPHINXOPTS%% %%BUILDDIR%%/locale
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The message catalogs are in %%BUILDDIR%%/locale.
 \tgoto end
