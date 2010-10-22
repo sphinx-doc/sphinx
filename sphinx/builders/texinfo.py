@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 from os import path
 
 from docutils import nodes
@@ -17,12 +16,12 @@ from docutils.io import FileOutput
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
-from sphinx import package_dir, addnodes
+from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, copyfile
+from sphinx.util.osutil import SEP
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.texinfo import TexinfoWriter
 
@@ -49,13 +48,13 @@ pdf: $(addsuffix .pdf,$(ALLDOCS))
 install-info: info
 \tfor f in *.info; do \\
 \t  cp -t $(infodir) "$$f" && \\
-\t  $(INSTALL_INFO) --info-dir=$(infodir) "$$f" ;\\
+\t  $(INSTALL_INFO) --info-dir=$(infodir) "$$f" ; \\
 \tdone
 
 uninstall-info: info
 \tfor f in *.info; do \\
-\t  rm -f "$(infodir)/$$f"  ;\\
-\t  $(INSTALL_INFO) --delete --info-dir=$(infodir) "$$f" ;\\
+\t  rm -f "$(infodir)/$$f"  ; \\
+\t  $(INSTALL_INFO) --delete --info-dir=$(infodir) "$$f" ; \\
 \tdone
 
 %.info: %.texi
@@ -83,7 +82,7 @@ clean:
 
 class TexinfoBuilder(Builder):
     """
-    Builds Texinfo output to create Info.
+    Builds Texinfo output to create Info documentation.
     """
     name = 'texinfo'
     format = 'texinfo'

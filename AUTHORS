@@ -30,6 +30,7 @@ Other contributors, listed alphabetically, are:
 * Antonio Valentino -- qthelp builder
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Stefan van der Walt -- autosummary extension
+* John Waltman -- Texinfo builder
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support
 

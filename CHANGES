@@ -8,6 +8,8 @@ Release 1.1 (in development)
 
 * Added the ``websupport`` library.
 
+* Added a Texinfo builder.
+
 * #460: Allow limiting the depth of section numbers for HTML.
 
 * #138: Add an ``index`` role, to make inline index entries.

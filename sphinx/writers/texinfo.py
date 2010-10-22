@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import docutils
 from docutils import nodes, writers
 
 from sphinx import addnodes
@@ -564,7 +563,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         text = node.astext()
         self.add_text('@cite{%s}' % escape_arg(text))
         raise nodes.SkipNode
-    def visit_title_reference(self, node):
+    def depart_title_reference(self, node):
         pass
 
     ## Blocks

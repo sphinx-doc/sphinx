@@ -10,11 +10,10 @@
 """
 
 import os
+import re
 import sys
 from StringIO import StringIO
 from subprocess import Popen, PIPE
-
-from sphinx.writers.texinfo import TexinfoTranslator
 
 from util import *
 from test_build_html import ENV_WARNINGS
@@ -26,6 +25,8 @@ def teardown_module():
 
 texinfo_warnfile = StringIO()
 
+TEXINFO_WARNINGS = ENV_WARNINGS
+
 if sys.version_info >= (3, 0):
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
@@ -33,6 +34,12 @@ if sys.version_info >= (3, 0):
 @with_app(buildername='texinfo', warning=texinfo_warnfile, cleanenv=True)
 def test_texinfo(app):
     app.builder.build_all()
+    texinfo_warnings = texinfo_warnfile.getvalue().replace(os.sep, '/')
+    texinfo_warnings_exp = TEXINFO_WARNINGS % {'root': app.srcdir}
+    #assert re.match(texinfo_warnings_exp + '$', texinfo_warnings), \
+    #       'Warnings don\'t match:\n' + \
+    #       '--- Expected (regex):\n' + texinfo_warnings_exp + \
+    #       '--- Got:\n' + texinfo_warnings
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)
