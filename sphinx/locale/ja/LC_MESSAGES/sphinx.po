@@ -170,7 +170,7 @@ msgstr "%s (C++ の関数)"
 #: sphinx/domains/cpp.py:1038 sphinx/domains/javascript.py:162
 #: sphinx/domains/python.py:525
 msgid "class"
-msgstr ""
+msgstr "クラス"
 
 #: sphinx/domains/javascript.py:105 sphinx/domains/python.py:244
 #, python-format
@@ -190,7 +190,7 @@ msgstr "%s (のクラス)"
 #: sphinx/domains/javascript.py:110
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr ""
+msgstr "%s (グローバル変数または定数)"
 
 #: sphinx/domains/javascript.py:112 sphinx/domains/python.py:346
 #, python-format
@@ -204,11 +204,11 @@ msgstr "パラメタ"
 
 #: sphinx/domains/javascript.py:124
 msgid "Throws"
-msgstr ""
+msgstr "例外"
 
 #: sphinx/domains/javascript.py:163 sphinx/domains/python.py:524
 msgid "data"
-msgstr ""
+msgstr "データ"
 
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:530
 msgid "attribute"
@@ -307,7 +307,7 @@ msgstr "例外"
 
 #: sphinx/domains/python.py:527
 msgid "method"
-msgstr ""
+msgstr "メソッド"
 
 #: sphinx/domains/python.py:528
 #, fuzzy
@@ -330,7 +330,7 @@ msgstr "撤廃"
 #: sphinx/domains/rst.py:55
 #, python-format
 msgid "%s (directive)"
-msgstr ""
+msgstr "%s (ディレクティブ)"
 
 #: sphinx/domains/rst.py:57
 #, fuzzy, python-format
@@ -339,12 +339,12 @@ msgstr "%s (モジュール)"
 
 #: sphinx/domains/rst.py:106
 msgid "directive"
-msgstr ""
+msgstr "ディレクティブ"
 
 #: sphinx/domains/rst.py:107
 #, fuzzy
 msgid "role"
-msgstr "モジュール"
+msgstr "ロール"
 
 #: sphinx/domains/std.py:68 sphinx/domains/std.py:84
 #, python-format
@@ -358,15 +358,15 @@ msgstr "%sコマンドラインオプション; %s"
 
 #: sphinx/domains/std.py:328
 msgid "glossary term"
-msgstr ""
+msgstr "用語集の項目"
 
 #: sphinx/domains/std.py:329
 msgid "grammar token"
-msgstr ""
+msgstr "文法トークン"
 
 #: sphinx/domains/std.py:330
 msgid "reference label"
-msgstr ""
+msgstr "参照ラベル"
 
 #: sphinx/domains/std.py:331
 msgid "environment variable"
@@ -374,7 +374,7 @@ msgstr "環境変数"
 
 #: sphinx/domains/std.py:332
 msgid "program option"
-msgstr ""
+msgstr "プログラムオプション"
 
 #: sphinx/domains/std.py:360 sphinx/themes/basic/genindex-single.html:11
 #: sphinx/themes/basic/genindex-split.html:11
@@ -410,37 +410,37 @@ msgstr "課題"
 #: sphinx/ext/todo.py:109
 #, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr ""
+msgstr "(<<元のエントリ>> は、 %s の %d 行目です)"
 
 #: sphinx/ext/todo.py:117
 msgid "original entry"
-msgstr ""
+msgstr "元のエントリ"
 
 #: sphinx/ext/viewcode.py:70
 msgid "[source]"
-msgstr ""
+msgstr "[ソース]"
 
 #: sphinx/ext/viewcode.py:117
 msgid "[docs]"
-msgstr ""
+msgstr "[ドキュメント]"
 
 #: sphinx/ext/viewcode.py:131
 #, fuzzy
 msgid "Module code"
-msgstr "モジュール"
+msgstr "モジュールコード"
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr ""
+msgstr "<h1>%s のソースコード</h1>"
 
 #: sphinx/ext/viewcode.py:164
 msgid "Overview: module code"
-msgstr ""
+msgstr "概要: モジュールコード"
 
 #: sphinx/ext/viewcode.py:165
 msgid "<h1>All modules for which code is available</h1>"
-msgstr ""
+msgstr "<h1>全モジュールのうち、コードを読めるもの</h1>"
 
 #: sphinx/locale/__init__.py:155
 msgid "Attention"
@@ -754,16 +754,16 @@ msgstr "検索が終了し、条件に一致するページが %s 個みつか�
 
 #: sphinx/themes/default/static/sidebar.js:66
 msgid "Expand sidebar"
-msgstr ""
+msgstr "サイドバーを展開"
 
 #: sphinx/themes/default/static/sidebar.js:79
 #: sphinx/themes/default/static/sidebar.js:107
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "サイドバーをたたむ"
 
 #: sphinx/themes/haiku/layout.html:26
 msgid "Contents"
-msgstr ""
+msgstr "コンテンツ"
 
 #: sphinx/writers/latex.py:172
 msgid "Release"
