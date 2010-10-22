@@ -12,8 +12,8 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
+from sphinx.writers import texinfo
 from sphinx.util.compat import Directive
-from sphinx.writers.texinfo import escape
 
 
 class math(nodes.Inline, nodes.TextElement):
@@ -124,7 +124,7 @@ def man_visit_eqref(self, node):
 
 
 def texinfo_visit_math(self, node):
-    self.body.append('@math{' + escape(node['latex']) + '}')
+    self.body.append('@math{' + texinfo.escape_arg(node['latex']) + '}')
     raise nodes.SkipNode
 
 def texinfo_visit_displaymath(self, node):

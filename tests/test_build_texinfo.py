@@ -36,10 +36,10 @@ def test_texinfo(app):
     app.builder.build_all()
     texinfo_warnings = texinfo_warnfile.getvalue().replace(os.sep, '/')
     texinfo_warnings_exp = TEXINFO_WARNINGS % {'root': app.srcdir}
-    #assert re.match(texinfo_warnings_exp + '$', texinfo_warnings), \
-    #       'Warnings don\'t match:\n' + \
-    #       '--- Expected (regex):\n' + texinfo_warnings_exp + \
-    #       '--- Got:\n' + texinfo_warnings
+    assert re.match(texinfo_warnings_exp + '$', texinfo_warnings), \
+           'Warnings don\'t match:\n' + \
+           '--- Expected (regex):\n' + texinfo_warnings_exp + \
+           '--- Got:\n' + texinfo_warnings
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)

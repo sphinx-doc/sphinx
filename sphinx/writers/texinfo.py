@@ -175,6 +175,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
         self.short_ids = {}
         self.body = []
+        self.context = []
         self.previous_section = None
         self.section_level = 0
         self.seen_title = False
@@ -1182,4 +1183,35 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_desc_content(self, node):
         self.add_text("", fresh=1)
     def depart_desc_content(self, node):
+        pass
+
+    def visit_inline(self, node):
+        # stub
+        pass
+    def depart_inline(self, node):
+        pass
+
+    def visit_abbreviation(self, node):
+        self.add_text('@abbr{')
+        if node.hasattr('explanation'):
+            self.context.append(', %s}' % escape_arg(node['explanation']))
+        else:
+            self.context.append('}')
+    def depart_abbreviation(self, node):
+        self.body.append(self.context.pop())
+
+    def visit_download_reference(self, node):
+        pass
+    def depart_download_reference(self, node):
+        pass
+
+    def visit_hlist(self, node):
+        # stub
+        self.visit_bullet_list(node)
+    def depart_hlist(self, node):
+        self.depart_bullet_list(node)
+
+    def visit_hlistcol(self, node):
+        pass
+    def depart_hlistcol(self, node):
         pass
