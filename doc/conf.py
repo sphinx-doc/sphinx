@@ -21,7 +21,6 @@ show_authors = True
 html_theme = 'sphinxdoc'
 modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
-html_index = 'index.html'
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
 html_use_opensearch = 'http://sphinx.pocoo.org'

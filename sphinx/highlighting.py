@@ -207,7 +207,7 @@ class PygmentsBridge(object):
                     lexer = lexers[lang] = get_lexer_by_name(lang)
                 except ClassNotFound:
                     if warn:
-                        warn('Pygments lexer name %s is not known' % lang)
+                        warn('Pygments lexer name %r is not known' % lang)
                         return self.unhighlighted(source)
                     else:
                         raise

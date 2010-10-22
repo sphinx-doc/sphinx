@@ -88,6 +88,8 @@ class StandaloneHTMLBuilder(Builder):
         self.tags_hash = ''
         # section numbers for headings in the currently visited document
         self.secnumbers = {}
+        # currently written docname
+        self.current_docname = None
 
         self.init_templates()
         self.init_highlighter()
@@ -398,6 +400,7 @@ class StandaloneHTMLBuilder(Builder):
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.post_process_images(doctree)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
+        self.current_docname = docname
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
         body = self.docwriter.parts['fragment']
