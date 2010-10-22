@@ -336,12 +336,8 @@ class BuildEnvironment:
         self.settings['warning_stream'] = WarningStream(func)
 
     def warn(self, docname, msg, lineno=None):
-        if docname:
-            if lineno is None:
-                lineno = ''
-            self._warnfunc(msg, '%s:%s' % (self.doc2path(docname), lineno))
-        else:
-            self._warnfunc(msg)
+        # strange argument order is due to backwards compatibility
+        self._warnfunc(msg, (docname, lineno))
 
     def clear_doc(self, docname):
         """Remove all traces of a source file in the inventory."""

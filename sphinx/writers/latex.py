@@ -429,10 +429,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif self.this_is_the_title:
             if len(node.children) != 1 and not isinstance(node.children[0],
                                                           nodes.Text):
-                self.builder.warn(
-                    'document title is not a single Text node',
-                    '%s:%s' % (self.builder.env.doc2path(self.curfilestack[-1]),
-                               node.line or ''))
+                self.builder.warn('document title is not a single Text node',
+                                  (self.curfilestack[-1], node.line))
             if not self.elements['title']:
                 # text needs to be escaped since it is inserted into
                 # the output literally
@@ -465,8 +463,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.builder.warn(
                 'encountered title node not in section, topic, table, '
                 'admonition or sidebar',
-                '%s:%s' % (self.builder.env.doc2path(self.curfilestack[-1]),
-                           node.line or ''))
+                (self.curfilestack[-1], node.line or ''))
             self.body.append('\\textbf{')
             self.context.append('}\n')
         self.in_title = 1
@@ -1107,10 +1104,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\grammartoken{')
             self.context.append('}')
         else:
-            self.builder.warn(
-                'unusable reference target found: %s' % uri,
-                '%s:%s' % (self.builder.env.doc2path(self.curfilestack[-1]),
-                           node.line or ''))
+            self.builder.warn('unusable reference target found: %s' % uri,
+                              (self.curfilestack[-1], node.line))
             self.context.append('')
     def depart_reference(self, node):
         self.body.append(self.context.pop())
@@ -1215,7 +1210,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             lang = node['language']
         if node.has_key('linenos'):
             linenos = node['linenos']
-        hlcode = self.highlighter.highlight_block(code, lang, linenos)
+        def warner(msg):
+            self.builder.warn(msg, (self.curfilestack[-1], node.line))
+        hlcode = self.highlighter.highlight_block(code, lang, linenos,
+                                                  warn=warner)
         # workaround for Unicode issue
         hlcode = hlcode.replace(u'€', u'@texteuro[]')
         # must use original Verbatim environment and "tabular" environment

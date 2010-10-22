@@ -213,6 +213,12 @@ class Sphinx(object):
         self.builder.cleanup()
 
     def warn(self, message, location=None, prefix='WARNING: '):
+        if isinstance(location, tuple):
+            docname, lineno = location
+            if docname:
+                location = '%s:%s' % (self.env.doc2path(docname), lineno or '')
+            else:
+                location = None
         warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
                    '%s%s\n' % (prefix, message)
         if self.warningiserror:
