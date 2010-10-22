@@ -361,6 +361,7 @@ documentation on :ref:`intl` for details.
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
+   * ``fa`` -- Iranian
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``hr`` -- Croatian
