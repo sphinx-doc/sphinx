@@ -204,7 +204,7 @@ def get_module_source(modname):
     lfilename = filename.lower()
     if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
         filename = filename[:-1]
-    elif not lfilename.endswith('.py'):
+    elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
