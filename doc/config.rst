@@ -1040,6 +1040,79 @@ These options influence manual page output.
    .. versionadded:: 1.0
 
 
+.. _texinfo-options:
+
+Options for Texinfo output
+--------------------------
+
+These options influence Texinfo output.
+
+.. confval:: texinfo_documents
+
+   This value determines how to group the document tree into Texinfo
+   source files.  It must be a list of tuples ``(startdocname,
+   targetname, title, author, dir_entry, description, category,
+   toctree_only)``, where the items are:
+
+   * *startdocname*: document name that is the "root" of the Texinfo
+     file.  All documents referenced by it in TOC trees will be
+     included in the Texinfo file too.  (If you want only one Texinfo
+     file, use your :confval:`master_doc` here.)
+   * *targetname*: file name (no extension) of the Texinfo file in
+     the output directory.
+   * *title*: Texinfo document title.  Can be empty to use the title of the
+     *startdoc*.
+   * *author*: Author for the Texinfo document.  Use ``\and`` to
+     separate multiple authors, as in: ``'John \and Sarah'``.
+   * *dir_entry*: The name that will appear in the top-level ``DIR``
+     menu file.
+   * *description*: Descriptive text to appear in the top-level
+     ``DIR`` menu file.
+   * *category*: Specifies the section which this entry will appear in
+     the top-level ``DIR`` menu file.
+   * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the
+     *startdoc* document itself is not included in the output, only
+     the documents referenced by it via TOC trees.  With this option,
+     you can put extra stuff in the master document that shows up in
+     the HTML, but not the Texinfo output.
+
+   .. versionadded:: 1.1
+
+
+.. confval:: texinfo_appendices
+
+   A list of document names to append as an appendix to all manuals.
+
+   .. versionadded:: 1.1
+
+
+.. confval:: texinfo_elements
+
+   A dictionary that contains Texinfo snippets that override those Sphinx usually
+   puts into the generated ``.texi`` files.
+
+   * Keys that you may want to override include:
+
+     ``'paragraphindent'``
+       Number of spaces to indent the first line of each paragraph,
+       default ``2``.  Specify ``0`` for no indentation.
+
+     ``'exampleindent'``
+       Number of spaces to indent the lines for examples or literal blocks, default ``4``.
+       Specify ``0`` for no indentation.
+
+     ``'preamble'``
+        Text inserted as is near the beginning of the file.
+
+   * Keys that are set by other options and therefore should not be overridden are:
+
+     ``'filename'``
+     ``'title'``
+     ``'direntry'``
+
+   .. versionadded:: 1.1
+
+
 .. rubric:: Footnotes
 
 .. [1] A note on available globbing syntax: you can use the standard shell

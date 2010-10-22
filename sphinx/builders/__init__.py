@@ -325,6 +325,7 @@ BUILTIN_BUILDERS = {
     'latex':      ('latex', 'LaTeXBuilder'),
     'text':       ('text', 'TextBuilder'),
     'man':        ('manpage', 'ManualPageBuilder'),
+    'texinfo':    ('texinfo', 'TexinfoBuilder'),
     'changes':    ('changes', 'ChangesBuilder'),
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
     'websupport': ('websupport', 'WebSupportBuilder'),

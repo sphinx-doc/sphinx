@@ -29,6 +29,8 @@ help:
 	@echo "  epub       to make an epub file"
 	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  latexpdf   to make LaTeX files and run pdflatex"
+	@echo "  texinfo    to make Texinfo files"
+	@echo "  info       to make Texinfo files and run them through makeinfo"
 	@echo "  gettext    to make PO message catalogs"
 	@echo "  changes    to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
@@ -131,3 +133,16 @@ linkcheck:
 
 doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) _build/doctest
+
+texinfo:
+	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) _build/texinfo
+	@echo
+	@echo "Build finished. The Texinfo files are in _build/texinfo."
+	@echo "Run \`make' in that directory to run these through makeinfo" \
+	      "(use \`make info' here to do that automatically)."
+
+info:
+	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) _build/texinfo
+	@echo "Running Texinfo files through makeinfo..."
+	make -C _build/texinfo info
+	@echo "makeinfo finished; the Info files are in _build/texinfo."
