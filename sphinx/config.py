@@ -159,6 +159,7 @@ class Config(object):
 
         # manpage options
         man_pages = ([], None),
+        man_show_urls = (False, None),
 
         # Texinfo options
         texinfo_documents = ([], None),
