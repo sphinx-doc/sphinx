@@ -69,6 +69,8 @@ class I18nBuilder(Builder):
         for node, msg in extract_messages(doctree):
             if not node.source:
                 continue # built-in message
+            if isinstance(node, nodes.literal_block):
+                continue
             if not msg in catalog:
                 catalog[msg] = []
             catalog[msg].append((node.source, node.line, node.uid))
