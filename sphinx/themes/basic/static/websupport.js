@@ -39,7 +39,7 @@
   }
 
   function initEvents() {
-    $('a.comment_close').live("click", function(event) {
+    $('a.comment-close').live("click", function(event) {
       hide($(this).attr('id').substring(2));
       return false;
     });
@@ -51,39 +51,39 @@
       openReply($(this).attr('id').substring(2));
       return false;
     });
-    $('a.close_reply').live("click", function() {
+    $('a.close-reply').live("click", function() {
       closeReply($(this).attr('id').substring(2));
       return false;
     });
-    $('a.sort_option').live("click", function(event) {
+    $('a.sort-option').live("click", function(event) {
       handleReSort($(this));
       return false;
     });
-    $('a.show_proposal').live("click", function() {
+    $('a.show-proposal').live("click", function() {
       showProposal($(this).attr('id').substring(2));
       return false;
     });
-    $('a.hide_proposal').live("click", function() {
+    $('a.hide-proposal').live("click", function() {
       hideProposal($(this).attr('id').substring(2));
       return false;
     });
-    $('a.show_propose_change').live("click", function() {
+    $('a.show-propose-change').live("click", function() {
       showProposeChange($(this).attr('id').substring(2));
       return false;
     });
-    $('a.hide_propose_change').live("click", function() {
+    $('a.hide-propose-change').live("click", function() {
       hideProposeChange($(this).attr('id').substring(2));
       return false;
     });
-    $('a.accept_comment').live("click", function() {
+    $('a.accept-comment').live("click", function() {
       acceptComment($(this).attr('id').substring(2));
       return false;
     });
-    $('a.reject_comment').live("click", function() {
+    $('a.reject-comment').live("click", function() {
       rejectComment($(this).attr('id').substring(2));
       return false;
     });
-    $('a.delete_comment').live("click", function() {
+    $('a.delete-comment').live("click", function() {
       deleteComment($(this).attr('id').substring(2));
       return false;
     });
@@ -330,9 +330,9 @@
       success: function(data, textStatus, request) {
         var div = $('#cd' + id);
         div
-          .find('span.user_id:first')
+          .find('span.user-id:first')
           .text('[deleted]').end()
-          .find('p.comment_text:first')
+          .find('p.comment-text:first')
           .text('[deleted]').end()
           .find('#cm' + id + ', #dc' + id + ', #ac' + id + ', #rc' + id +
                 ', #sp' + id + ', #hp' + id + ', #cr' + id + ', #rl' + id)
@@ -383,7 +383,7 @@
   function handleReSort(link) {
     var classes = link.attr('class').split(/\s+/);
     for (var i=0; i<classes.length; i++) {
-      if (classes[i] != 'sort_option') {
+      if (classes[i] != 'sort-option') {
 	by = classes[i];
       }
     }
@@ -393,7 +393,7 @@
     expiration.setDate(expiration.getDate() + 365);
     document.cookie= 'sortBy=' + escape(by) +
                      ';expires=' + expiration.toUTCString();
-    $('ul.comment_ul').each(function(index, ul) {
+    $('ul.comment-ul').each(function(index, ul) {
       var comments = getChildren($(ul), true);
       comments = sortComments(comments);
       appendComments(comments, $(ul).empty());
@@ -577,7 +577,7 @@
   }
 
   function showError(message) {
-    $(document.createElement('div')).attr({'class': 'popup_error'})
+    $(document.createElement('div')).attr({'class': 'popup-error'})
       .append($(document.createElement('h1')).text(message))
       .appendTo('body')
       .fadeIn("slow")
@@ -598,7 +598,7 @@
         .append(
           $(document.createElement('a')).attr({
             href: '#',
-            'class': 'sphinx_comment',
+            'class': 'sphinx-comment',
             id: 'ao' + id
           })
             .append($(document.createElement('img')).attr({
@@ -614,7 +614,7 @@
         .append(
           $(document.createElement('a')).attr({
             href: '#',
-            'class': 'sphinx_comment_close hidden',
+            'class': 'sphinx-comment-close hidden',
             id: 'ah' + id
           })
             .append($(document.createElement('img')).attr({
@@ -651,7 +651,7 @@
 
   var replyTemplate = '\
     <li>\
-      <div class="reply_div" id="rd<%id%>">\
+      <div class="reply-div" id="rd<%id%>">\
         <form id="rf<%id%>">\
           <textarea name="comment" cols="80"></textarea>\
           <input type="submit" value="add reply" />\
@@ -681,28 +681,28 @@
           </a>\
         </div>\
       </div>\
-      <div class="comment_content">\
+      <div class="comment-content">\
         <p class="tagline comment">\
-          <span class="user_id"><%username%></span>\
+          <span class="user-id"><%username%></span>\
           <span class="rating"><%pretty_rating%></span>\
           <span class="delta"><%time.delta%></span>\
         </p>\
-        <p class="comment_text comment"><%text%></p>\
-        <p class="comment_opts comment">\
+        <p class="comment-text comment"><%text%></p>\
+        <p class="comment-opts comment">\
           <a href="#" class="reply hidden" id="rl<%id%>">reply &#9657;</a>\
-          <a href="#" class="close_reply" id="cr<%id%>">reply &#9663;</a>\
-          <a href="#" id="sp<%id%>" class="show_proposal">\
+          <a href="#" class="close-reply" id="cr<%id%>">reply &#9663;</a>\
+          <a href="#" id="sp<%id%>" class="show-proposal">\
             proposal &#9657;\
           </a>\
-          <a href="#" id="hp<%id%>" class="hide_proposal">\
+          <a href="#" id="hp<%id%>" class="hide-proposal">\
             proposal &#9663;\
           </a>\
-          <a href="#" id="dc<%id%>" class="delete_comment hidden">\
+          <a href="#" id="dc<%id%>" class="delete-comment hidden">\
             delete\
           </a>\
           <span id="cm<%id%>" class="moderation hidden">\
-            <a href="#" id="ac<%id%>" class="accept_comment">accept</a>\
-            <a href="#" id="rc<%id%>" class="reject_comment">reject</a>\
+            <a href="#" id="ac<%id%>" class="accept-comment">accept</a>\
+            <a href="#" id="rc<%id%>" class="reject-comment">reject</a>\
           </span>\
         </p>\
         <pre class="proposal" id="pr<%id%>">\
@@ -715,15 +715,15 @@
     </div>';
 
   var popupTemplate = '\
-    <div class="sphinx_comments" id="sc<%id%>">\
+    <div class="sphinx-comments" id="sc<%id%>">\
       <h1>Comments</h1>\
-      <form method="post" id="cf<%id%>" class="comment_form" action="/docs/add_comment">\
+      <form method="post" id="cf<%id%>" class="comment-form" action="/docs/add_comment">\
         <textarea name="comment" cols="80"></textarea>\
-        <p class="propose_button">\
-          <a href="#" id="pc<%id%>" class="show_propose_change">\
+        <p class="propose-button">\
+          <a href="#" id="pc<%id%>" class="show-propose-change">\
             Propose a change &#9657;\
           </a>\
-          <a href="#" id="hc<%id%>" class="hide_propose_change">\
+          <a href="#" id="hc<%id%>" class="hide-propose-change">\
             Propose a change &#9663;\
           </a>\
         </p>\
@@ -731,15 +731,15 @@
         <input type="submit" value="add comment" />\
         <input type="hidden" name="node" value="<%id%>" />\
         <input type="hidden" name="parent" value="" />\
-        <p class="sort_options">\
+        <p class="sort-options">\
           Sort by:\
-          <a href="#" class="sort_option rating">top</a>\
-          <a href="#" class="sort_option ascage">newest</a>\
-          <a href="#" class="sort_option age">oldest</a>\
+          <a href="#" class="sort-option rating">top</a>\
+          <a href="#" class="sort-option ascage">newest</a>\
+          <a href="#" class="sort-option age">oldest</a>\
         </p>\
       </form>\
       <h3 id="cn<%id%>">loading comments... <img src="<%loadingImage%>" alt="" /></h3>\
-      <ul id="cl<%id%>" class="comment_ul"></ul>\
+      <ul id="cl<%id%>" class="comment-ul"></ul>\
     </div>';
 
   $(document).ready(function() {
