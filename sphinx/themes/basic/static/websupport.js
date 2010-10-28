@@ -1,3 +1,14 @@
+/*
+ * websupport.js
+ * ~~~~~~~~~~~~~
+ *
+ * sphinx.websupport utilties for all documentation.
+ *
+ * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :license: BSD, see LICENSE for details.
+ *
+ */
+
 (function($) {
   $.fn.autogrow = function(){
     return this.each(function(){
@@ -89,10 +100,10 @@
     });
   }
 
-  /*
-   Set comp, which is a comparator function used for sorting and
-   inserting comments into the list.
-  */
+  /**
+   * Set comp, which is a comparator function used for sorting and
+   * inserting comments into the list.
+   */
   function setComparator() {
     // If the first three letters are "asc", sort in ascending order
     // and remove the prefix.
@@ -109,10 +120,10 @@
     $('a.' + by).removeAttr('href').addClass('sel');
   }
 
-  /*
-   Create a comp function. If the user has preferences stored in
-   the sortBy cookie, use those, otherwise use the default.
-  */
+  /**
+   * Create a comp function. If the user has preferences stored in
+   * the sortBy cookie, use those, otherwise use the default.
+   */
   function initComparator() {
     by = 'rating'; // Default to sort by rating.
     // If the sortBy cookie is set, use that instead.
@@ -130,9 +141,9 @@
     setComparator();
   }
 
-  /*
-   Show a comment div.
-  */
+  /**
+   * Show a comment div.
+   */
   function show(id) {
     $('#ao' + id).hide();
     $('#ah' + id).show();
@@ -151,9 +162,9 @@
     });
   }
 
-  /*
-   Hide a comment div.
-  */
+  /**
+   * Hide a comment div.
+   */
   function hide(id) {
     $('#ah' + id).hide();
     $('#ao' + id).show();
@@ -163,10 +174,10 @@
     });
   }
 
-  /*
-   Perform an ajax request to get comments for a node
-   and insert the comments into the comments tree.
-  */
+  /**
+   * Perform an ajax request to get comments for a node
+   * and insert the comments into the comments tree.
+   */
   function getComments(id) {
     $.ajax({
      type: 'GET',
@@ -199,9 +210,9 @@
     });
   }
 
-  /*
-   Add a comment via ajax and insert the comment into the comment tree.
-  */
+  /**
+   * Add a comment via ajax and insert the comment into the comment tree.
+   */
   function addComment(form) {
     // Disable the form that is being submitted.
     form.find('textarea,input').attr('disabled', 'disabled');
@@ -242,10 +253,10 @@
     });
   }
 
-  /*
-   Recursively append comments to the main comment list and children
-   lists, creating the comment tree.
-  */
+  /**
+   * Recursively append comments to the main comment list and children
+   * lists, creating the comment tree.
+   */
   function appendComments(comments, ul) {
     $.each(comments, function() {
       var div = createCommentDiv(this);
@@ -257,10 +268,10 @@
     });
   }
 
-  /*
-   After adding a new comment, it must be inserted in the correct
-   location in the comment tree.
-  */
+  /**
+   * After adding a new comment, it must be inserted in the correct
+   * location in the comment tree.
+   */
   function insertComment(comment) {
     var div = createCommentDiv(comment);
 
@@ -377,9 +388,9 @@
     textarea.slideUp('fast');
   }
 
-  /*
-   Handle when the user clicks on a sort by link.
-  */
+  /**
+   * Handle when the user clicks on a sort by link.
+   */
   function handleReSort(link) {
     var classes = link.attr('class').split(/\s+/);
     for (var i=0; i<classes.length; i++) {
@@ -400,9 +411,9 @@
     });
   }
 
-  /*
-   Function to process a vote when a user clicks an arrow.
-  */
+  /**
+   * Function to process a vote when a user clicks an arrow.
+   */
   function handleVote(link) {
     if (!opts.voting) {
       showError("You'll need to login to vote.");
@@ -458,9 +469,9 @@
     });
   }
 
-  /*
-   Open a reply form used to reply to an existing comment.
-  */
+  /**
+   * Open a reply form used to reply to an existing comment.
+   */
   function openReply(id) {
     // Swap out the reply link for the hide link
     $('#rl' + id).hide();
@@ -480,9 +491,9 @@
     div.slideDown('fast');
   }
 
-  /*
-   Close the reply form opened with openReply.
-  */
+  /**
+   * Close the reply form opened with openReply.
+   */
   function closeReply(id) {
     // Remove the reply div from the DOM.
     $('#rd' + id).slideUp('fast', function() {
@@ -494,9 +505,9 @@
     $('#rl' + id).show();
   }
 
-  /*
-   Recursively sort a tree of comments using the comp comparator.
-  */
+  /**
+   * Recursively sort a tree of comments using the comp comparator.
+   */
   function sortComments(comments) {
     comments.sort(comp);
     $.each(comments, function() {
@@ -505,10 +516,10 @@
     return comments;
   }
 
-  /*
-   Get the children comments from a ul. If recursive is true,
-   recursively include childrens' children.
-  */
+  /**
+   * Get the children comments from a ul. If recursive is true,
+   * recursively include childrens' children.
+   */
   function getChildren(ul, recursive) {
     var children = [];
     ul.children().children("[id^='cd']")
@@ -522,9 +533,9 @@
     return children;
   }
 
-  /*
-   Create a div to display a comment in.
-  */
+  /**
+   * Create a div to display a comment in.
+   */
   function createCommentDiv(comment) {
     // Prettify the comment rating.
     comment.pretty_rating = comment.rating + ' point' +
@@ -555,11 +566,11 @@
     return div;
   }
 
-  /*
-   A simple template renderer. Placeholders such as <%id%> are replaced
-   by context['id'] with items being escaped. Placeholders such as <#id#>
-   are not escaped.
-  */
+  /**
+   * A simple template renderer. Placeholders such as <%id%> are replaced
+   * by context['id'] with items being escaped. Placeholders such as <#id#>
+   * are not escaped.
+   */
   function renderTemplate(template, context) {
     var esc = $(document.createElement('div'));
 
@@ -585,9 +596,9 @@
       .fadeOut("slow");
   }
 
-  /*
-   Add a link the user uses to open the comments popup.
-  */
+  /**
+   * Add a link the user uses to open the comments popup.
+   */
   $.fn.comment = function() {
     return this.each(function() {
       var id = $(this).attr('id').substring(1);
