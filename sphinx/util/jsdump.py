@@ -12,6 +12,8 @@
 
 import re
 
+from sphinx.util.pycompat import u
+
 _str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re  = re.compile(r'\d+')
 _name_re = re.compile(r'[a-zA-Z]\w*')
@@ -50,7 +52,7 @@ def encode_string(s):
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 def decode_string(s):
-    return ESCAPED.sub(lambda m: eval('u"'+m.group()+'"'), s)
+    return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
 
 
 reswords = set("""\

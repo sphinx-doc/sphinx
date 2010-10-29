@@ -23,6 +23,8 @@ if sys.version_info >= (3, 0):
     def b(s):
         return s.encode('utf-8')
     bytes = bytes
+    # prefix for Unicode strings
+    u = ''
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
@@ -45,6 +47,7 @@ else:
     class_types = (type, ClassType)
     b = str
     bytes = str
+    u = 'u'
     # no need to refactor on 2.x versions
     convert_with_2to3 = None
 

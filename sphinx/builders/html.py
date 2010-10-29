@@ -614,7 +614,11 @@ class StandaloneHTMLBuilder(Builder):
     def load_indexer(self, docnames):
         keep = set(self.env.all_docs) - set(docnames)
         try:
-            f = open(path.join(self.outdir, self.searchindex_filename), 'rb')
+            searchindexfn = path.join(self.outdir, self.searchindex_filename)
+            if self.indexer_dumps_unicode:
+                f = codecs.open(searchindexfn, 'r', encoding='utf-8')
+            else:
+                f = open(searchindexfn, 'rb')
             try:
                 self.indexer.load(f, self.indexer_format)
             finally:
