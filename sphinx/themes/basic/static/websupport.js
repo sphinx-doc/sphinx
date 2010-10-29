@@ -10,8 +10,8 @@
  */
 
 (function($) {
-  $.fn.autogrow = function(){
-    return this.each(function(){
+  $.fn.autogrow = function() {
+    return this.each(function() {
     var textarea = this;
 
     $.fn.autogrow.resize(textarea);
@@ -582,7 +582,7 @@
       return escape ? esc.text(cur || "").html() : cur;
     }
 
-    return template.replace(/<([%#])([\w\.]*)\1>/g, function(){
+    return template.replace(/<([%#])([\w\.]*)\1>/g, function() {
       return handle(arguments[2], arguments[1] == '%' ? true : false);
     });
   }
