@@ -117,7 +117,8 @@ class StandaloneHTMLBuilder(Builder):
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self):
-        Theme.init_themes(self)
+        Theme.init_themes(self.confdir, self.config.html_theme_path,
+                          warn=self.warn)
         themename, themeoptions = self.get_theme_config()
         self.theme = Theme(themename)
         self.theme_options = themeoptions.copy()

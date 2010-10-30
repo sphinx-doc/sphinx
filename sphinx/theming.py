@@ -30,13 +30,13 @@ class Theme(object):
     themes = {}
 
     @classmethod
-    def init_themes(cls, builder):
+    def init_themes(cls, confdir, theme_path, warn=None):
         """Search all theme paths for available themes."""
-        cls.themepath = list(builder.config.html_theme_path)
+        cls.themepath = list(theme_path)
         cls.themepath.append(path.join(package_dir, 'themes'))
 
         for themedir in cls.themepath[::-1]:
-            themedir = path.join(builder.confdir, themedir)
+            themedir = path.join(confdir, themedir)
             if not path.isdir(themedir):
                 continue
             for theme in os.listdir(themedir):
@@ -48,8 +48,9 @@ class Theme(object):
                         tname = theme[:-4]
                         tinfo = zfile
                     except Exception:
-                        builder.warn('file %r on theme path is not a valid '
-                                     'zipfile or contains no theme' % theme)
+                        if warn:
+                            warn('file %r on theme path is not a valid '
+                                 'zipfile or contains no theme' % theme)
                         continue
                 else:
                     if not path.isfile(path.join(themedir, theme, THEMECONF)):
