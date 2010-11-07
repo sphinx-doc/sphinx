@@ -388,7 +388,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if not name or ref == name:
             self.add_text('@pxref{%s}' % ref)
         else:
-            self.add_text('@pxref{%s,%s}' % (ref, name))
+            self.add_text('@pxref{%s,,%s}' % (ref, name))
         self.referenced_ids.add(ref)
 
     ## Visiting
