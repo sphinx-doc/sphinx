@@ -357,7 +357,7 @@ class WebSupport(object):
         """
         self.base_comment_opts = {}
 
-        if self.docroot is not '':
+        if self.docroot != '':
             comment_urls = [
                 ('addCommentURL', 'add_comment'),
                 ('getCommentsURL', 'get_comments'),
