@@ -28,7 +28,7 @@ def teardown_module():
 
 def warning_emitted(file, text):
     for warning in warnings:
-        if len(warning) == 2 and file+':' in warning[1] and text in warning[0]:
+        if len(warning) == 2 and file in warning[1] and text in warning[0]:
             return True
     return False
 
@@ -46,8 +46,8 @@ def test_first_update():
     assert 'subdir/excluded' not in env.found_docs
 
 def test_images():
-    assert warning_emitted('images.txt', 'image file not readable: foo.png')
-    assert warning_emitted('images.txt', 'nonlocal image URI found: '
+    assert warning_emitted('images', 'image file not readable: foo.png')
+    assert warning_emitted('images', 'nonlocal image URI found: '
                            'http://www.python.org/logo.png')
 
     tree = env.get_doctree('images')
