@@ -49,8 +49,7 @@ bz2: tar
 	pdflatex $(LATEXOPTS) '$<'
 
 clean:
-	rm -f *.pdf *.dvi *.ps
-	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla
+	rm -f *.dvi *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla
 
 .PHONY: all all-pdf all-dvi all-ps clean
 
