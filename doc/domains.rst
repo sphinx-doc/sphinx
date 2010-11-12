@@ -288,11 +288,6 @@ explained by an example::
       :type limit: integer or None
       :rtype: list of strings
 
-It is also possible to combine parameter type and description, if the type is a
-single word, like this::
-
-   :param integer limit: maximum number of stack frames to show
-
 This will render like this:
 
    .. py:function:: format_exception(etype, value, tb[, limit=None])
@@ -306,6 +301,11 @@ This will render like this:
       :param limit: maximum number of stack frames to show
       :type limit: integer or None
       :rtype: list of strings
+
+It is also possible to combine parameter type and description, if the type is a
+single word, like this::
+
+   :param integer limit: maximum number of stack frames to show
 
 
 Cross-referencing Python objects
