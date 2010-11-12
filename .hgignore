@@ -17,3 +17,5 @@
 ~$
 ^utils/.*3\.py$
 ^distribute-
+^tests/root/_build/*
+^tests/root/generated/*

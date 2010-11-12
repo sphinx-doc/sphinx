@@ -52,7 +52,7 @@ units as well as normal text:
    Similar to :rst:dir:`versionadded`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
 
-.. rst:directive:: .. deprecated:: vesion
+.. rst:directive:: .. deprecated:: version
 
    Similar to :rst:dir:`versionchanged`, but describes when the feature was
    deprecated.  An explanation can also be given, for example to inform the
