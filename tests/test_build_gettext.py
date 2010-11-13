@@ -82,6 +82,9 @@ def setup_patch():
         p = Popen(['msgfmt', test_root / 'bom.po', '-o',
             test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo'],
             stdout=PIPE, stderr=PIPE)
+        p = Popen(['msgfmt', test_root / 'subdir.po', '-o',
+            test_root / 'xx' / 'LC_MESSAGES' / 'subdir.mo'],
+            stdout=PIPE, stderr=PIPE)
     except OSError:
         return  # most likely msgfmt was not found
     else:
@@ -99,12 +102,14 @@ def teardown_patch():
 @with_app(buildername='text',
           confoverrides={'language': 'xx', 'locale_dirs': ['.']})
 def test_patch(app):
-    app.builder.build(['bom'])
+    app.builder.build(['bom', 'subdir/includes'])
     result = (app.outdir / 'bom.txt').text(encoding='utf-8')
     expect = (u"\nDatei mit UTF-8"
               u"\n***************\n" # underline matches new translation
               u"\nThis file has umlauts: äöü.\n")
     assert result == expect
+    result = (app.outdir / 'subdir' / 'includes.txt').text(encoding='utf-8')
+    assert result.startswith(u"\ntranslation\n***********\n\n")
 
 test_patch.setup = setup_patch
 test_patch.teardown = teardown_patch
