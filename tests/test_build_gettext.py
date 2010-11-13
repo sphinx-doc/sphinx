@@ -14,6 +14,7 @@ import os
 from subprocess import Popen, PIPE
 
 from util import *
+from util import SkipTest
 
 
 def teardown_module():
@@ -41,7 +42,7 @@ def test_gettext(app):
                        '--locale', 'en_US'],
                         stdout=PIPE, stderr=PIPE)
         except OSError:
-            return  # most likely msginit was not found
+            raise SkipTest  # most likely msginit was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -55,7 +56,7 @@ def test_gettext(app):
                 os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
                 stdout=PIPE, stderr=PIPE)
         except OSError:
-            return  # most likely msgfmt was not found
+            raise SkipTest  # most likely msgfmt was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -86,7 +87,7 @@ def setup_patch():
             test_root / 'xx' / 'LC_MESSAGES' / 'subdir.mo'],
             stdout=PIPE, stderr=PIPE)
     except OSError:
-        return  # most likely msgfmt was not found
+        raise SkipTest  # most likely msgfmt was not found
     else:
         stdout, stderr = p.communicate()
         if p.returncode != 0:
