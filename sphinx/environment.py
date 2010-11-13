@@ -215,7 +215,9 @@ class Locale(Transform):
                 continue
             parser.parse(msgstr, patch)
             patch = patch[0]
-            assert isinstance(patch, nodes.paragraph)
+            #XXX doctest and other block markup
+            if not isinstance(patch, nodes.paragraph):
+                continue # skip for now
             for child in patch.children: # update leaves
                 child.parent = node
             node.children = patch.children
