@@ -19,6 +19,7 @@ from util import SkipTest
 
 def teardown_module():
     (test_root / '_build').rmtree(True)
+    (test_root / 'xx').rmtree(True)
 
 
 @with_app(buildername='gettext')
