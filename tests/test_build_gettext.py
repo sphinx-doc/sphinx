@@ -19,16 +19,23 @@ from util import SkipTest
 
 def teardown_module():
     (test_root / '_build').rmtree(True)
-    (test_root / 'xx').rmtree(True)
+
+
+@with_app(buildername='gettext')
+def test_all(app):
+    # Generic build; should fail only when the builder is horribly broken.
+    app.builder.build_all()
 
 
 @with_app(buildername='gettext')
 def test_build(app):
+    # Do messages end up in the correct location?
     app.builder.build(['extapi', 'subdir/includes'])
-    # documents end up in a message catalog
+    # top-level documents end up in a message catalog
     assert (app.outdir / 'extapi.pot').isfile()
-    # ..and are grouped into sections
+    # directory items are grouped into sections
     assert (app.outdir / 'subdir.pot').isfile()
+
 
 @with_app(buildername='gettext')
 def test_gettext(app):
@@ -72,46 +79,3 @@ def test_gettext(app):
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == u"Testing various markup"
-
-@with_app(buildername='gettext')
-def test_all(app):
-    app.builder.build_all()
-
-
-def setup_patch():
-    (test_root / 'xx' / 'LC_MESSAGES').makedirs()
-    try:
-        p = Popen(['msgfmt', test_root / 'bom.po', '-o',
-            test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo'],
-            stdout=PIPE, stderr=PIPE)
-        p = Popen(['msgfmt', test_root / 'subdir.po', '-o',
-            test_root / 'xx' / 'LC_MESSAGES' / 'subdir.mo'],
-            stdout=PIPE, stderr=PIPE)
-    except OSError:
-        raise SkipTest  # most likely msgfmt was not found
-    else:
-        stdout, stderr = p.communicate()
-        if p.returncode != 0:
-            print stdout
-            print stderr
-            assert False, 'msgfmt exited with return code %s' % p.returncode
-    assert (test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo').isfile(), \
-            'msgfmt failed'
-
-def teardown_patch():
-    (test_root / 'xx').rmtree()
-
-@with_app(buildername='text',
-          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
-def test_patch(app):
-    app.builder.build(['bom', 'subdir/includes'])
-    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
-    expect = (u"\nDatei mit UTF-8"
-              u"\n***************\n" # underline matches new translation
-              u"\nThis file has umlauts: äöü.\n")
-    assert result == expect
-    result = (app.outdir / 'subdir' / 'includes.txt').text(encoding='utf-8')
-    assert result.startswith(u"\ntranslation\n***********\n\n")
-
-test_patch.setup = setup_patch
-test_patch.teardown = teardown_patch
