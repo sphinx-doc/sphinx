@@ -43,12 +43,18 @@ def teardown_module():
 
 @with_app(buildername='text',
           confoverrides={'language': 'xx', 'locale_dirs': ['.']})
-def test_patch(app):
-    app.builder.build(['bom', 'subdir/includes'])
+def test_simple(app):
+    app.builder.build(['bom'])
     result = (app.outdir / 'bom.txt').text(encoding='utf-8')
     expect = (u"\nDatei mit UTF-8"
               u"\n***************\n" # underline matches new translation
               u"\nThis file has umlauts: äöü.\n")
     assert result == expect
+
+
+@with_app(buildername='text',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+def test_subdir(app):
+    app.builder.build(['subdir/includes'])
     result = (app.outdir / 'subdir' / 'includes.txt').text(encoding='utf-8')
     assert result.startswith(u"\ntranslation\n***********\n\n")
