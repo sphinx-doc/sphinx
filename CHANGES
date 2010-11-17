@@ -26,8 +26,14 @@ Release 1.1 (in development)
 * #526: Added Iranian translation.
 
 
-Release 1.0.5 (in development)
+Release 1.0.6 (in development)
 ==============================
+
+* Several fixes to the C++ domain.
+
+
+Release 1.0.5 (Nov 12, 2010)
+============================
 
 * #557: Add CSS styles required by docutils 0.7 for aligned images
   and figures.

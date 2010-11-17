@@ -23,7 +23,7 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
 
 
-_identifier_re = re.compile(r'\b(~?[a-zA-Z_][a-zA-Z0-9_]*)\b')
+_identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
 _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
@@ -697,14 +697,13 @@ class DefinitionParser(object):
                     self.fail('expected comma between arguments')
                 self.skip_ws()
 
-            argname = self._parse_type()
-            argtype = default = None
+            argtype = self._parse_type()
+            argname = default = None
             self.skip_ws()
             if self.skip_string('='):
                 self.pos += 1
                 default = self._parse_default_expr()
             elif self.current_char not in ',)':
-                argtype = argname
                 argname = self._parse_name()
                 self.skip_ws()
                 if self.skip_string('='):
