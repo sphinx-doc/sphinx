@@ -23,7 +23,7 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
 
 
-_identifier_re = re.compile(r'\b(~?[a-zA-Z_][a-zA-Z0-9_]*)\b')
+_identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
 _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
