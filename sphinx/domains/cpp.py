@@ -693,14 +693,13 @@ class DefinitionParser(object):
                     self.fail('expected comma between arguments')
                 self.skip_ws()
 
-            argname = self._parse_type()
-            argtype = default = None
+            argtype = self._parse_type()
+            argname = default = None
             self.skip_ws()
             if self.skip_string('='):
                 self.pos += 1
                 default = self._parse_default_expr()
             elif self.current_char not in ',)':
-                argtype = argname
                 argname = self._parse_name()
                 self.skip_ws()
                 if self.skip_string('='):
