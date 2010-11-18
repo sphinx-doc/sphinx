@@ -690,7 +690,10 @@ class StandaloneHTMLBuilder(Builder):
             return uri
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
-        ctx['encoding'] = encoding = self.config.html_output_encoding
+        if self.name != 'htmlhelp':
+            ctx['encoding'] = encoding = self.config.html_output_encoding
+        else:
+            ctx['encoding'] = encoding = self.encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
