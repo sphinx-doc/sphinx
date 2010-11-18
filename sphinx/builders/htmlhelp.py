@@ -258,7 +258,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             def write_index(title, refs, subitems):
                 def write_param(name, value):
                     item = '    <param name="%s" value="%s">\n' % (name, value)
-                    f.write(item.encode('ascii', 'xmlcharrefreplace'))
+                    f.write(item.encode(self.encoding, 'xmlcharrefreplace'))
                 title = cgi.escape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
