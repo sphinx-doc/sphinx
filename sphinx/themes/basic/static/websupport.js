@@ -614,11 +614,12 @@
       var count = COMMENT_METADATA[id];
       var title = count + ' comment' + (count == 1 ? '' : 's');
       var image = count > 0 ? opts.commentBrightImage : opts.commentImage;
+      var addcls = count == 0 ? ' nocomment' : '';
       $(this)
         .append(
           $(document.createElement('a')).attr({
             href: '#',
-            'class': 'sphinx-comment',
+            'class': 'sphinx-comment' + addcls,
             id: 'ao' + id
           })
             .append($(document.createElement('img')).attr({
