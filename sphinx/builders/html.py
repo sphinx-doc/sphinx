@@ -931,6 +931,8 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     #: (pickle, simplejson etc.)
     implementation = None
     implementation_dumps_unicode = False
+    #: additional arguments for dump()
+    additional_dump_args = ()
 
     #: the filename for the global context file
     globalcontext_filename = None
@@ -959,8 +961,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         else:
             f = open(filename, 'wb')
         try:
-            # XXX: the third argument is pickle-specific!
-            self.implementation.dump(context, f, 2)
+            self.implementation.dump(context, f, *self.additional_dump_args)
         finally:
             f.close()
 
@@ -1011,6 +1012,7 @@ class PickleHTMLBuilder(SerializingHTMLBuilder):
     """
     implementation = pickle
     implementation_dumps_unicode = False
+    additional_dump_args = (pickle.HIGHEST_PROTOCOL,)
     indexer_format = pickle
     indexer_dumps_unicode = False
     name = 'pickle'
