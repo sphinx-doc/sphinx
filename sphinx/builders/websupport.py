@@ -11,7 +11,6 @@
 
 import cPickle as pickle
 from os import path
-from cgi import escape
 import posixpath
 import shutil
 
@@ -83,7 +82,7 @@ class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
                 return '/' + posixpath.join(self.app.staticdir, otheruri)
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
-        ctx['encoding'] = encoding = self.config.html_output_encoding
+        ctx['encoding'] = self.config.html_output_encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)

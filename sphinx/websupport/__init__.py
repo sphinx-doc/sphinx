@@ -19,9 +19,9 @@ from jinja2 import Environment, FileSystemLoader
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
 from sphinx.util.jsonimpl import dumps as dump_json
+from sphinx.websupport import errors
 from sphinx.websupport.search import BaseSearch, SEARCH_ADAPTERS
 from sphinx.websupport.storage import StorageBackend
-from sphinx.websupport.errors import *
 
 
 class WebSupportApp(Sphinx):
@@ -103,7 +103,7 @@ class WebSupport(object):
         It will also save node data to the database.
         """
         if not self.srcdir:
-            raise SrcdirNotSpecifiedError( \
+            raise errors.SrcdirNotSpecifiedError( \
                 'No srcdir associated with WebSupport object')
         doctreedir = path.join(self.outdir, 'doctrees')
         app = WebSupportApp(self.srcdir, self.srcdir,
@@ -158,7 +158,7 @@ class WebSupport(object):
         try:
             f = open(infilename, 'rb')
         except IOError:
-            raise DocumentNotFoundError(
+            raise errors.DocumentNotFoundError(
                 'The document "%s" could not be found' % docname)
 
         document = pickle.load(f)
@@ -334,7 +334,7 @@ class WebSupport(object):
         :param moderator: Whether the user making the request is a moderator.
         """
         if not moderator:
-            raise UserNotAuthorizedError()
+            raise errors.UserNotAuthorizedError()
         self.storage.accept_comment(comment_id)
 
     def reject_comment(self, comment_id, moderator=False):
@@ -347,7 +347,7 @@ class WebSupport(object):
         :param moderator: Whether the user making the request is a moderator.
         """
         if not moderator:
-            raise UserNotAuthorizedError()
+            raise errors.UserNotAuthorizedError()
         self.storage.reject_comment(comment_id)
 
     def _make_base_comment_options(self):
