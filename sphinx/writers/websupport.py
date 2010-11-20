@@ -39,7 +39,7 @@ class WebSupportTranslator(HTMLTranslator):
         node.attributes['classes'].append(self.comment_class)
 
     def add_db_node(self, node):
-        storage = self.builder.app.storage
+        storage = self.builder.storage
         if not storage.has_node(node.uid):
             storage.add_node(id=node.uid,
                              document=self.builder.cur_docname,

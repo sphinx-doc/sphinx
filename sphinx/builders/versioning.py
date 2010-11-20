@@ -7,7 +7,7 @@
     :license: BSD, see LICENSE for details.
 """
 import os
-import pickle
+import cPickle as pickle
 
 from docutils.utils import Reporter
 

@@ -9,15 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-__all__ = ['DocumentNotFoundError', 'SrcdirNotSpecifiedError',
-           'UserNotAuthorizedError', 'CommentNotAllowedError',
-           'NullSearchException']
 
 class DocumentNotFoundError(Exception):
-    pass
-
-
-class SrcdirNotSpecifiedError(Exception):
     pass
 
 

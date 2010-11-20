@@ -9,31 +9,43 @@
     :license: BSD, see LICENSE for details.
 """
 
-import cPickle as pickle
 from os import path
 import posixpath
 import shutil
 
 from docutils.io import StringOutput
 
+from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, copyfile
-from sphinx.util.jsonimpl import dumps as dump_json
 from sphinx.util.websupport import is_commentable
-from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.html import PickleHTMLBuilder
 from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.writers.websupport import WebSupportTranslator
 
 
-class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
+class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
     """
     Builds documents for the web support package.
     """
     name = 'websupport'
-    out_suffix = '.fpickle'
 
     def init(self):
-        StandaloneHTMLBuilder.init(self)
+        PickleHTMLBuilder.init(self)
         VersioningBuilderMixin.init(self)
+        # templates are needed for this builder, but the serializing
+        # builder does not initialize them
+        self.init_templates()
+        if not isinstance(self.templates, BuiltinTemplateLoader):
+            raise RuntimeError('websupport builder must be used with '
+                               'the builtin templates')
+        # add our custom JS
+        self.script_files.append('_static/websupport.js')
+
+    def set_webinfo(self, staticdir, virtual_staticdir, search, storage):
+        self.staticdir = staticdir
+        self.virtual_staticdir = virtual_staticdir
+        self.search = search
+        self.storage = storage
 
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
@@ -46,9 +58,9 @@ class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
 
         self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.imgpath = '/' + posixpath.join(self.app.staticdir, '_images')
+        self.imgpath = '/' + posixpath.join(self.virtual_staticdir, '_images')
         self.post_process_images(doctree)
-        self.dlpath = '/' + posixpath.join(self.app.staticdir, '_downloads')
+        self.dlpath = '/' + posixpath.join(self.virtual_staticdir, '_downloads')
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
         body = self.docwriter.parts['fragment']
@@ -58,11 +70,8 @@ class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
         self.index_page(docname, doctree, ctx.get('title', ''))
         self.handle_page(docname, ctx, event_arg=doctree)
 
-    def get_target_uri(self, docname, typ=None):
-        return docname
-
     def load_indexer(self, docnames):
-        self.indexer = self.app.search
+        self.indexer = self.search
         self.indexer.init_indexing(changed=docnames)
 
     def handle_page(self, pagename, addctx, templatename='page.html',
@@ -75,11 +84,13 @@ class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
 
         def pathto(otheruri, resource=False,
                    baseuri=self.get_target_uri(pagename)):
-            if not resource:
+            if resource and '://' in otheruri:
+                return otheruri
+            elif not resource:
                 otheruri = self.get_target_uri(otheruri)
                 return relative_uri(baseuri, otheruri) or '#'
             else:
-                return '/' + posixpath.join(self.app.staticdir, otheruri)
+                return '/' + posixpath.join(self.virtual_staticdir, otheruri)
         ctx['pathto'] = pathto
         ctx['hasdoc'] = lambda name: name in self.env.all_docs
         ctx['encoding'] = self.config.html_output_encoding
@@ -90,47 +101,41 @@ class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
         self.app.emit('html-page-context', pagename, templatename,
                       ctx, event_arg)
 
-        # Create a dict that will be pickled and used by webapps.
-        css = '<link rel="stylesheet" href="%s" type=text/css />' % \
-            pathto('_static/pygments.css', 1)
-        doc_ctx = {'body': ctx.get('body', ''),
-                   'title': ctx.get('title', ''),
-                   'css': css,
-                   'js': self._make_js(ctx)}
-        # Partially render the html template to proved a more useful ctx.
+        # create a dict that will be pickled and used by webapps
+        doc_ctx = {
+            'body': ctx.get('body', ''),
+            'title': ctx.get('title', ''),
+        }
+        # partially render the html template to get at interesting macros
         template = self.templates.environment.get_template(templatename)
         template_module = template.make_module(ctx)
-        if hasattr(template_module, 'sidebar'):
-            doc_ctx['sidebar'] = template_module.sidebar()
-        if hasattr(template_module, 'relbar'):
-            doc_ctx['relbar'] = template_module.relbar()
+        for item in ['sidebar', 'relbar', 'script', 'css']:
+            if hasattr(template_module, item):
+                doc_ctx[item] = getattr(template_module, item)()
 
         if not outfilename:
             outfilename = path.join(self.outdir, 'pickles',
                                     os_path(pagename) + self.out_suffix)
-
         ensuredir(path.dirname(outfilename))
-        f = open(outfilename, 'wb')
-        try:
-            pickle.dump(doc_ctx, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            f.close()
+        self.dump_context(doc_ctx, outfilename)
 
         # if there is a source file, copy the source file for the
         # "show source" link
         if ctx.get('sourcename'):
-            source_name = path.join(self.app.builddir, self.app.staticdir,
+            source_name = path.join(self.staticdir,
                                     '_sources',  os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
-        StandaloneHTMLBuilder.handle_finish(self)
+        PickleHTMLBuilder.handle_finish(self)
         VersioningBuilderMixin.finish(self)
+
+        # move static stuff over to separate directory
         directories = ['_images', '_static']
         for directory in directories:
             src = path.join(self.outdir, directory)
-            dst = path.join(self.app.builddir, self.app.staticdir, directory)
+            dst = path.join(self.staticdir, directory)
             if path.isdir(src):
                 if path.isdir(dst):
                     shutil.rmtree(dst)
@@ -138,23 +143,3 @@ class WebSupportBuilder(StandaloneHTMLBuilder, VersioningBuilderMixin):
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
-
-    def _make_js(self, ctx):
-        def make_script(file):
-            path = ctx['pathto'](file, 1)
-            return '<script type="text/javascript" src="%s"></script>' % path
-
-        opts = {
-            'URL_ROOT': ctx.get('url_root', ''),
-            'VERSION': ctx['release'],
-            'COLLAPSE_INDEX': False,
-            'FILE_SUFFIX': '',
-            'HAS_SOURCE': ctx['has_source']
-        }
-        scripts = [make_script(file) for file in ctx['script_files']]
-        scripts.append(make_script('_static/websupport.js'))
-        return '\n'.join([
-            '<script type="text/javascript">'
-            'var DOCUMENTATION_OPTIONS = %s;' % dump_json(opts),
-            '</script>'
-        ] + scripts)

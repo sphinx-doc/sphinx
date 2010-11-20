@@ -24,29 +24,35 @@ from sphinx.websupport.search import BaseSearch, SEARCH_ADAPTERS
 from sphinx.websupport.storage import StorageBackend
 
 
-class WebSupportApp(Sphinx):
-    def __init__(self, *args, **kwargs):
-        self.staticdir = kwargs.pop('staticdir', None)
-        self.builddir = kwargs.pop('builddir', None)
-        self.search = kwargs.pop('search', None)
-        self.storage = kwargs.pop('storage', None)
-        Sphinx.__init__(self, *args, **kwargs)
-
-
 class WebSupport(object):
     """The main API class for the web support package. All interactions
     with the web support package should occur through this class.
     """
-    def __init__(self, srcdir='', builddir='', datadir='', search=None,
-                 storage=None, status=sys.stdout, warning=sys.stderr,
-                 moderation_callback=None, staticdir='static',
-                 docroot=''):
+    def __init__(self,
+                 srcdir=None,     # only required for building
+                 builddir='',     # the dir with data/static/doctrees subdirs
+                 datadir=None,    # defaults to builddir/data
+                 staticdir=None,  # defaults to builddir/static
+                 doctreedir=None, # defaults to builddir/doctrees
+                 search=None,     # defaults to no search
+                 storage=None,    # defaults to SQLite in datadir
+                 status=sys.stdout,
+                 warning=sys.stderr,
+                 moderation_callback=None,
+                 docroot='',
+                 staticroot='static',
+                 ):
+        # directories
         self.srcdir = srcdir
         self.builddir = builddir
         self.outdir = path.join(builddir, 'data')
         self.datadir = datadir or self.outdir
-        self.staticdir = staticdir.strip('/')
+        self.staticdir = staticdir or path.join(self.builddir, 'static')
+        self.doctreedir = staticdir or path.join(self.builddir, 'doctrees')
+        # web server virtual paths
+        self.staticroot = staticroot.strip('/')
         self.docroot = docroot.strip('/')
+
         self.status = status
         self.warning = warning
         self.moderation_callback = moderation_callback
@@ -54,6 +60,8 @@ class WebSupport(object):
         self._init_templating()
         self._init_search(search)
         self._init_storage(storage)
+
+        self._globalcontext = None
 
         self._make_base_comment_options()
 
@@ -103,18 +111,26 @@ class WebSupport(object):
         It will also save node data to the database.
         """
         if not self.srcdir:
-            raise errors.SrcdirNotSpecifiedError( \
-                'No srcdir associated with WebSupport object')
-        doctreedir = path.join(self.outdir, 'doctrees')
-        app = WebSupportApp(self.srcdir, self.srcdir,
-                            self.outdir, doctreedir, 'websupport',
-                            search=self.search, status=self.status,
-                            warning=self.warning, storage=self.storage,
-                            staticdir=self.staticdir, builddir=self.builddir)
+            raise RuntimeError('No srcdir associated with WebSupport object')
+        app = Sphinx(self.srcdir, self.srcdir, self.outdir, self.doctreedir,
+                     'websupport', status=self.status, warning=self.warning)
+        app.builder.set_webinfo(self.staticdir, self.staticroot,
+                                self.search, self.storage)
 
         self.storage.pre_build()
         app.build()
         self.storage.post_build()
+
+    def get_globalcontext(self):
+        """Load and return the "global context" pickle."""
+        if not self._globalcontext:
+            infilename = path.join(self.datadir, 'globalcontext.pickle')
+            f = open(infilename, 'rb')
+            try:
+                self._globalcontext = pickle.load(f)
+            finally:
+                f.close()
+        return self._globalcontext
 
     def get_document(self, docname, username='', moderator=False):
         """Load and return a document from a pickle. The document will
@@ -146,28 +162,35 @@ class WebSupport(object):
         * **relbar**: A div containing links to related documents
         * **title**: The title of the document
         * **css**: Links to css files used by Sphinx
-        * **js**: Javascript containing comment options
+        * **script**: Javascript containing comment options
 
         This raises :class:`~sphinx.websupport.errors.DocumentNotFoundError`
         if a document matching `docname` is not found.
 
         :param docname: the name of the document to load.
         """
-        infilename = path.join(self.datadir, 'pickles', docname + '.fpickle')
+        docpath = path.join(self.datadir, 'pickles', docname)
+        if path.isdir(docpath):
+            infilename = docpath + '/index.fpickle'
+        else:
+            infilename = docpath + '.fpickle'
 
         try:
             f = open(infilename, 'rb')
         except IOError:
             raise errors.DocumentNotFoundError(
                 'The document "%s" could not be found' % docname)
+        try:
+            document = pickle.load(f)
+        finally:
+            f.close()
 
-        document = pickle.load(f)
         comment_opts = self._make_comment_options(username, moderator)
         comment_metadata = self.storage.get_metadata(docname, moderator)
 
-        document['js'] = '\n'.join([comment_opts,
-                                    self._make_metadata(comment_metadata),
-                                    document['js']])
+        document['script'] = '\n'.join([comment_opts,
+                                        self._make_metadata(comment_metadata),
+                                        document['script']])
         return document
 
     def get_search_results(self, q):
@@ -181,9 +204,12 @@ class WebSupport(object):
         :param q: the search query
         """
         results = self.search.query(q)
-        ctx = {'search_performed': True,
-               'search_results': results,
-               'q': q}
+        ctx = {
+            'q': q,
+            'search_performed': True,
+            'search_results': results,
+            'docroot': '../', # XXX
+        }
         document = self.get_document('search')
         document['body'] = self.results_template.render(ctx)
         document['title'] = 'Search Results'
@@ -359,17 +385,17 @@ class WebSupport(object):
 
         if self.docroot != '':
             comment_urls = [
-                ('addCommentURL', 'add_comment'),
-                ('getCommentsURL', 'get_comments'),
-                ('processVoteURL', 'process_vote'),
-                ('acceptCommentURL', 'accept_comment'),
-                ('rejectCommentURL', 'reject_comment'),
-                ('deleteCommentURL', 'delete_comment')
+                ('addCommentURL', '_add_comment'),
+                ('getCommentsURL', '_get_comments'),
+                ('processVoteURL', '_process_vote'),
+                ('acceptCommentURL', '_accept_comment'),
+                ('rejectCommentURL', '_reject_comment'),
+                ('deleteCommentURL', '_delete_comment')
             ]
             for key, value in comment_urls:
                 self.base_comment_opts[key] = \
                     '/' + posixpath.join(self.docroot, value)
-        if self.staticdir != 'static':
+        if self.staticroot != 'static':
             static_urls = [
                 ('commentImage', 'comment.png'),
                 ('closeCommentImage', 'comment-close.png'),
@@ -382,7 +408,7 @@ class WebSupport(object):
             ]
             for key, value in static_urls:
                 self.base_comment_opts[key] = \
-                    '/' + posixpath.join(self.staticdir, '_static', value)
+                    '/' + posixpath.join(self.staticroot, '_static', value)
 
     def _make_comment_options(self, username, moderator):
         """Helper method to create the parts of the COMMENT_OPTIONS
@@ -391,8 +417,6 @@ class WebSupport(object):
         :param username: The username of the user making the request.
         :param moderator: Whether the user making the request is a moderator.
         """
-        # XXX parts is not used?
-        #parts = [self.base_comment_opts]
         rv = self.base_comment_opts.copy()
         if username:
             rv.update({

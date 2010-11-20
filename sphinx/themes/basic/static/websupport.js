@@ -214,10 +214,18 @@
    * Add a comment via ajax and insert the comment into the comment tree.
    */
   function addComment(form) {
-    // Disable the form that is being submitted.
-    form.find('textarea,input').attr('disabled', 'disabled');
     var node_id = form.find('input[name="node"]').val();
     var parent_id = form.find('input[name="parent"]').val();
+    var text = form.find('textarea[name="comment"]').val();
+    var proposal = form.find('textarea[name="proposal"]').val();
+
+    if (text == '') {
+      showError('Please enter a comment.');
+      return;
+    }
+
+    // Disable the form that is being submitted.
+    form.find('textarea,input').attr('disabled', 'disabled');
 
     // Send the comment to the server.
     $.ajax({
@@ -227,8 +235,8 @@
       data: {
         node: node_id,
         parent: parent_id,
-        text: form.find('textarea[name="comment"]').val(),
-        proposal: form.find('textarea[name="proposal"]').val()
+        text: text,
+        proposal: proposal
       },
       success: function(data, textStatus, error) {
         // Reset the form.
@@ -311,7 +319,7 @@
         $('#cm' + id).fadeOut('fast');
       },
       error: function(request, textStatus, error) {
-        showError("Oops, there was a problem accepting the comment.");
+        showError('Oops, there was a problem accepting the comment.');
       }
     });
   }
@@ -328,7 +336,7 @@
         });
       },
       error: function(request, textStatus, error) {
-        showError("Oops, there was a problem rejecting the comment.");
+        showError('Oops, there was a problem rejecting the comment.');
       }
     });
   }
@@ -354,7 +362,7 @@
         div.data('comment', comment);
       },
       error: function(request, textStatus, error) {
-        showError("Oops, there was a problem deleting the comment.");
+        showError('Oops, there was a problem deleting the comment.');
       }
     });
   }
@@ -395,7 +403,7 @@
     var classes = link.attr('class').split(/\s+/);
     for (var i=0; i<classes.length; i++) {
       if (classes[i] != 'sort-option') {
-	by = classes[i];
+	by = classes[i].substring(2);
       }
     }
     setComparator();
@@ -464,7 +472,7 @@
       url: opts.processVoteURL,
       data: d,
       error: function(request, textStatus, error) {
-        showError("Oops, there was a problem casting that vote.");
+        showError('Oops, there was a problem casting that vote.');
       }
     });
   }
@@ -589,7 +597,8 @@
 
   function showError(message) {
     $(document.createElement('div')).attr({'class': 'popup-error'})
-      .append($(document.createElement('h1')).text(message))
+      .append($(document.createElement('div'))
+               .attr({'class': 'error-header'}).text(message))
       .appendTo('body')
       .fadeIn("slow")
       .delay(2000)
@@ -642,12 +651,12 @@
   };
 
   var opts = jQuery.extend({
-    processVoteURL: '/process_vote',
-    addCommentURL: '/add_comment',
-    getCommentsURL: '/get_comments',
-    acceptCommentURL: '/accept_comment',
-    rejectCommentURL: '/reject_comment',
-    deleteCommentURL: '/delete_comment',
+    processVoteURL: '/_process_vote',
+    addCommentURL: '/_add_comment',
+    getCommentsURL: '/_get_comments',
+    acceptCommentURL: '/_accept_comment',
+    rejectCommentURL: '/_reject_comment',
+    deleteCommentURL: '/_delete_comment',
     commentImage: '/static/_static/comment.png',
     closeCommentImage: '/static/_static/comment-close.png',
     loadingImage: '/static/_static/ajax-loader.gif',
@@ -727,7 +736,7 @@
 
   var popupTemplate = '\
     <div class="sphinx-comments" id="sc<%id%>">\
-      <h1>Comments</h1>\
+      <div class="comment-header">Comments</div>\
       <form method="post" id="cf<%id%>" class="comment-form" action="/docs/add_comment">\
         <textarea name="comment" cols="80"></textarea>\
         <p class="propose-button">\
@@ -744,12 +753,12 @@
         <input type="hidden" name="parent" value="" />\
         <p class="sort-options">\
           Sort by:\
-          <a href="#" class="sort-option rating">top</a>\
-          <a href="#" class="sort-option ascage">newest</a>\
-          <a href="#" class="sort-option age">oldest</a>\
+          <a href="#" class="sort-option byrating">top</a>\
+          <a href="#" class="sort-option byascage">newest</a>\
+          <a href="#" class="sort-option byage">oldest</a>\
         </p>\
       </form>\
-      <h3 id="cn<%id%>">loading comments... <img src="<%loadingImage%>" alt="" /></h3>\
+      <div class="comment-loading" id="cn<%id%>">loading comments... <img src="<%loadingImage%>" alt="" /></div>\
       <ul id="cl<%id%>" class="comment-ul"></ul>\
     </div>';
 

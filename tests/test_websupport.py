@@ -65,7 +65,7 @@ class NullStorage(StorageBackend):
 @with_support(storage=NullStorage())
 def test_no_srcdir(support):
     """Make sure the correct exception is raised if srcdir is not given."""
-    raises(SrcdirNotSpecifiedError, support.build)
+    raises(RuntimeError, support.build)
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
