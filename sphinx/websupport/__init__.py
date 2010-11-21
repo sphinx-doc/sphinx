@@ -172,6 +172,10 @@ class WebSupport(object):
         docpath = path.join(self.datadir, 'pickles', docname)
         if path.isdir(docpath):
             infilename = docpath + '/index.fpickle'
+            if not docname:
+                docname = 'index'
+            else:
+                docname += '/index'
         else:
             infilename = docpath + '.fpickle'
 
@@ -186,11 +190,10 @@ class WebSupport(object):
             f.close()
 
         comment_opts = self._make_comment_options(username, moderator)
-        comment_metadata = self.storage.get_metadata(docname, moderator)
+        comment_meta = self._make_metadata(
+            self.storage.get_metadata(docname, moderator))
 
-        document['script'] = '\n'.join([comment_opts,
-                                        self._make_metadata(comment_metadata),
-                                        document['script']])
+        document['script'] = comment_opts + comment_meta + document['script']
         return document
 
     def get_search_results(self, q):
@@ -424,15 +427,15 @@ class WebSupport(object):
                 'username': username,
                 'moderator': moderator,
             })
-        return '\n'.join([
-            '<script type="text/javascript">',
-            'var COMMENT_OPTIONS = %s;' % dump_json(rv),
-            '</script>'
-        ])
+        return '''\
+        <script type="text/javascript">
+        var COMMENT_OPTIONS = %s;
+        </script>
+        ''' % dump_json(rv)
 
     def _make_metadata(self, data):
-        return '\n'.join([
-            '<script type="text/javascript">',
-            'var COMMENT_METADATA = %s;' % dump_json(data),
-            '</script>'
-        ])
+        return '''\
+        <script type="text/javascript">
+        var COMMENT_METADATA = %s;
+        </script>
+        ''' % dump_json(data)

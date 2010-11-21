@@ -20,7 +20,7 @@ class WebSupportTranslator(HTMLTranslator):
 
     def __init__(self, builder, *args, **kwargs):
         HTMLTranslator.__init__(self, builder, *args, **kwargs)
-        self.comment_class = 'spxcmt'
+        self.comment_class = 'sphinx-has-comment'
 
     def dispatch_visit(self, node):
         if is_commentable(node):

@@ -50,6 +50,10 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
     def init_translator_class(self):
         self.translator_class = WebSupportTranslator
 
+    def prepare_writing(self, docnames):
+        PickleHTMLBuilder.prepare_writing(self, docnames)
+        self.globalcontext['no_search_suffix'] = True
+
     def write_doc(self, docname, doctree):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
@@ -112,6 +116,10 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
         for item in ['sidebar', 'relbar', 'script', 'css']:
             if hasattr(template_module, item):
                 doc_ctx[item] = getattr(template_module, item)()
+        if 'script' not in self.globalcontext:
+            self.globalcontext['script'] = doc_ctx['script']
+        if 'css' not in self.globalcontext:
+            self.globalcontext['css'] = doc_ctx['css']
 
         if not outfilename:
             outfilename = path.join(self.outdir, 'pickles',

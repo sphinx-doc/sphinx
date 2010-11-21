@@ -253,6 +253,8 @@
           ul.data('empty', false);
         }
         insertComment(data.comment);
+        var ao = $('#ao' + (node_id || parent_id));
+        ao.find('img').attr({'src': opts.commentBrightImage});
       },
       error: function(request, textStatus, error) {
         form.find('textarea,input').removeAttr('disabled');
@@ -598,7 +600,7 @@
   function showError(message) {
     $(document.createElement('div')).attr({'class': 'popup-error'})
       .append($(document.createElement('div'))
-               .attr({'class': 'error-header'}).text(message))
+               .attr({'class': 'error-message'}).text(message))
       .appendTo('body')
       .fadeIn("slow")
       .delay(2000)
@@ -651,7 +653,7 @@
     });
   };
 
-  var opts = jQuery.extend({
+  var opts = {
     processVoteURL: '/_process_vote',
     addCommentURL: '/_add_comment',
     getCommentsURL: '/_get_comments',
@@ -668,7 +670,11 @@
     downArrowPressed: '/static/_static/down-pressed.png',
     voting: false,
     moderator: false
-  }, COMMENT_OPTIONS);
+  };
+
+  if (typeof COMMENT_OPTIONS != "undefined") {
+    opts = jQuery.extend(opts, COMMENT_OPTIONS);
+  }
 
   var replyTemplate = '\
     <li>\
@@ -683,7 +689,7 @@
     </li>';
 
   var commentTemplate = '\
-    <div  id="cd<%id%>" class="spxcdiv">\
+    <div  id="cd<%id%>" class="sphinx-comment-div">\
       <div class="vote">\
         <div class="arrow">\
           <a href="#" id="uv<%id%>" class="vote">\
@@ -769,7 +775,7 @@
 })(jQuery);
 
 $(document).ready(function() {
-  $('.spxcmt').comment();
+  $('.sphinx-has-comment').comment();
 
   /** Highlight search words in search results. */
   $("div.context").each(function() {
