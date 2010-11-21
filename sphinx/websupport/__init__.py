@@ -213,9 +213,12 @@ class WebSupport(object):
             'search_results': results,
             'docroot': '../', # XXX
         }
-        document = self.get_document('search')
-        document['body'] = self.results_template.render(ctx)
-        document['title'] = 'Search Results'
+        document = {
+            'body': self.results_template.render(ctx),
+            'title': 'Search Results',
+            'sidebar': '',
+            'relbar': ''
+        }
         return document
 
     def get_data(self, node_id, username=None, moderator=False):

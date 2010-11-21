@@ -78,8 +78,7 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
         self.indexer = self.search
         self.indexer.init_indexing(changed=docnames)
 
-    def handle_page(self, pagename, addctx, templatename='page.html',
-                    outfilename=None, event_arg=None):
+    def _render_page(self, pagename, addctx, templatename, event_arg=None):
         # This is mostly copied from StandaloneHTMLBuilder. However, instead
         # of rendering the template and saving the html, create a context
         # dict and pickle it.
@@ -116,10 +115,13 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
         for item in ['sidebar', 'relbar', 'script', 'css']:
             if hasattr(template_module, item):
                 doc_ctx[item] = getattr(template_module, item)()
-        if 'script' not in self.globalcontext:
-            self.globalcontext['script'] = doc_ctx['script']
-        if 'css' not in self.globalcontext:
-            self.globalcontext['css'] = doc_ctx['css']
+
+        return ctx, doc_ctx
+
+    def handle_page(self, pagename, addctx, templatename='page.html',
+                    outfilename=None, event_arg=None):
+        ctx, doc_ctx = self._render_page(pagename, addctx,
+                                         templatename, event_arg)
 
         if not outfilename:
             outfilename = path.join(self.outdir, 'pickles',
@@ -136,6 +138,11 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
+        # get global values for css and script files
+        _, doc_ctx = self._render_page('tmp', {}, 'page.html')
+        self.globalcontext['css'] = doc_ctx['css']
+        self.globalcontext['script'] = doc_ctx['script']
+
         PickleHTMLBuilder.handle_finish(self)
         VersioningBuilderMixin.finish(self)
 

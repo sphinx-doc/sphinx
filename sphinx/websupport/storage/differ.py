@@ -58,7 +58,7 @@ class CombinedHtmlDiff(object):
         if next is not None and next[0] == '?':
             tag = 'ins' if prefix == '+' else 'del'
             text = self._highlight_text(text, next, tag)
-        css_class = 'prop_added' if prefix == '+' else 'prop_removed'
+        css_class = 'prop-added' if prefix == '+' else 'prop-removed'
 
         return '<span class="%s">%s</span>\n' % (css_class, text.rstrip())
 

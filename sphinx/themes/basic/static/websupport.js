@@ -431,6 +431,10 @@
     }
 
     var id = link.attr('id');
+    if (!id) {
+      // Didn't click on one of the voting arrows.
+      return;
+    }
     // If it is an unvote, the new vote value is 0,
     // Otherwise it's 1 for an upvote, or -1 for a downvote.
     var value = 0;
@@ -535,21 +539,18 @@
     ul.children().children("[id^='cd']")
       .each(function() {
         var comment = $(this).data('comment');
-        if (recursive) {
+        if (recursive)
           comment.children = getChildren($(this).find('#cl' + comment.id), true);
-        }
         children.push(comment);
       });
     return children;
   }
 
-  /**
-   * Create a div to display a comment in.
-   */
+  /** Create a div to display a comment in. */
   function createCommentDiv(comment) {
     // Prettify the comment rating.
     comment.pretty_rating = comment.rating + ' point' +
-    (comment.rating == 1 ? '' : 's');
+      (comment.rating == 1 ? '' : 's');
     // Create a div for this comment.
     var context = $.extend({}, opts, comment);
     var div = $(renderTemplate(commentTemplate, context));
@@ -563,15 +564,12 @@
 
     if (comment.text != '[deleted]') {
       div.find('a.reply').show();
-      if (comment.proposal_diff) {
+      if (comment.proposal_diff)
         div.find('#sp' + comment.id).show();
-      }
-      if (opts.moderator && !comment.displayed) {
+      if (opts.moderator && !comment.displayed)
         div.find('#cm' + comment.id).show();
-      }
-      if (opts.moderator || (opts.username == comment.username)) {
+      if (opts.moderator || (opts.username == comment.username))
         div.find('#dc' + comment.id).show();
-      }
     }
     return div;
   }
@@ -597,6 +595,7 @@
     });
   }
 
+  /** Flash an error message briefly. */
   function showError(message) {
     $(document.createElement('div')).attr({'class': 'popup-error'})
       .append($(document.createElement('div'))
@@ -607,9 +606,7 @@
       .fadeOut("slow");
   }
 
-  /**
-   * Add a link the user uses to open the comments popup.
-   */
+  /** Add a link the user uses to open the comments popup. */
   $.fn.comment = function() {
     return this.each(function() {
       var id = $(this).attr('id').substring(1);
@@ -621,7 +618,7 @@
         .append(
           $(document.createElement('a')).attr({
             href: '#',
-            'class': 'sphinx-comment' + addcls,
+            'class': 'sphinx-comment-open' + addcls,
             id: 'ao' + id
           })
             .append($(document.createElement('img')).attr({
@@ -676,34 +673,53 @@
     opts = jQuery.extend(opts, COMMENT_OPTIONS);
   }
 
-  var replyTemplate = '\
-    <li>\
-      <div class="reply-div" id="rd<%id%>">\
-        <form id="rf<%id%>">\
-          <textarea name="comment" cols="80"></textarea>\
-          <input type="submit" value="add reply" />\
-          <input type="hidden" name="parent" value="<%id%>" />\
-          <input type="hidden" name="node" value="" />\
-        </form>\
-      </div>\
-    </li>';
+  var popupTemplate = '\
+    <div class="sphinx-comments" id="sc<%id%>">\
+      <p class="sort-options">\
+        Sort by:\
+        <a href="#" class="sort-option byrating">top</a>\
+        <a href="#" class="sort-option byascage">newest</a>\
+        <a href="#" class="sort-option byage">oldest</a>\
+      </p>\
+      <div class="comment-header">Comments</div>\
+      <div class="comment-loading" id="cn<%id%>">\
+        loading comments... <img src="<%loadingImage%>" alt="" /></div>\
+      <ul id="cl<%id%>" class="comment-ul"></ul>\
+      <p class="add-a-comment">Add a comment:</p>\
+      <form method="post" id="cf<%id%>" class="comment-form" action="">\
+        <textarea name="comment" cols="80"></textarea>\
+        <p class="propose-button">\
+          <a href="#" id="pc<%id%>" class="show-propose-change">\
+            Propose a change &#9657;\
+          </a>\
+          <a href="#" id="hc<%id%>" class="hide-propose-change">\
+            Propose a change &#9663;\
+          </a>\
+        </p>\
+        <textarea name="proposal" id="pt<%id%>" cols="80"\
+                  spellcheck="false"></textarea>\
+        <input type="submit" value="Add comment" />\
+        <input type="hidden" name="node" value="<%id%>" />\
+        <input type="hidden" name="parent" value="" />\
+      </form>\
+    </div>';
 
   var commentTemplate = '\
-    <div  id="cd<%id%>" class="sphinx-comment-div">\
+    <div id="cd<%id%>" class="sphinx-comment">\
       <div class="vote">\
         <div class="arrow">\
-          <a href="#" id="uv<%id%>" class="vote">\
+          <a href="#" id="uv<%id%>" class="vote" title="vote up">\
             <img src="<%upArrow%>" />\
           </a>\
-          <a href="#" id="uu<%id%>" class="un vote">\
+          <a href="#" id="uu<%id%>" class="un vote" title="vote up">\
             <img src="<%upArrowPressed%>" />\
           </a>\
         </div>\
         <div class="arrow">\
-          <a href="#" id="dv<%id%>" class="vote">\
+          <a href="#" id="dv<%id%>" class="vote" title="vote down">\
             <img src="<%downArrow%>" id="da<%id%>" />\
           </a>\
-          <a href="#" id="du<%id%>" class="un vote">\
+          <a href="#" id="du<%id%>" class="un vote" title="vote down">\
             <img src="<%downArrowPressed%>" />\
           </a>\
         </div>\
@@ -718,15 +734,9 @@
         <p class="comment-opts comment">\
           <a href="#" class="reply hidden" id="rl<%id%>">reply &#9657;</a>\
           <a href="#" class="close-reply" id="cr<%id%>">reply &#9663;</a>\
-          <a href="#" id="sp<%id%>" class="show-proposal">\
-            proposal &#9657;\
-          </a>\
-          <a href="#" id="hp<%id%>" class="hide-proposal">\
-            proposal &#9663;\
-          </a>\
-          <a href="#" id="dc<%id%>" class="delete-comment hidden">\
-            delete\
-          </a>\
+          <a href="#" id="sp<%id%>" class="show-proposal">proposal &#9657;</a>\
+          <a href="#" id="hp<%id%>" class="hide-proposal">proposal &#9663;</a>\
+          <a href="#" id="dc<%id%>" class="delete-comment hidden">delete</a>\
           <span id="cm<%id%>" class="moderation hidden">\
             <a href="#" id="ac<%id%>" class="accept-comment">accept</a>\
             <a href="#" id="rc<%id%>" class="reject-comment">reject</a>\
@@ -741,33 +751,17 @@
       </div>\
     </div>';
 
-  var popupTemplate = '\
-    <div class="sphinx-comments" id="sc<%id%>">\
-      <div class="comment-header">Comments</div>\
-      <form method="post" id="cf<%id%>" class="comment-form" action="/docs/add_comment">\
-        <textarea name="comment" cols="80"></textarea>\
-        <p class="propose-button">\
-          <a href="#" id="pc<%id%>" class="show-propose-change">\
-            Propose a change &#9657;\
-          </a>\
-          <a href="#" id="hc<%id%>" class="hide-propose-change">\
-            Propose a change &#9663;\
-          </a>\
-        </p>\
-        <textarea name="proposal" id="pt<%id%>" cols="80" spellcheck="false"></textarea>\
-        <input type="submit" value="add comment" />\
-        <input type="hidden" name="node" value="<%id%>" />\
-        <input type="hidden" name="parent" value="" />\
-        <p class="sort-options">\
-          Sort by:\
-          <a href="#" class="sort-option byrating">top</a>\
-          <a href="#" class="sort-option byascage">newest</a>\
-          <a href="#" class="sort-option byage">oldest</a>\
-        </p>\
-      </form>\
-      <div class="comment-loading" id="cn<%id%>">loading comments... <img src="<%loadingImage%>" alt="" /></div>\
-      <ul id="cl<%id%>" class="comment-ul"></ul>\
-    </div>';
+  var replyTemplate = '\
+    <li>\
+      <div class="reply-div" id="rd<%id%>">\
+        <form id="rf<%id%>">\
+          <textarea name="comment" cols="80"></textarea>\
+          <input type="submit" value="Add reply" />\
+          <input type="hidden" name="parent" value="<%id%>" />\
+          <input type="hidden" name="node" value="" />\
+        </form>\
+      </div>\
+    </li>';
 
   $(document).ready(function() {
     init();
@@ -775,6 +769,7 @@
 })(jQuery);
 
 $(document).ready(function() {
+  /** Add comment anchors for all paragraphs that are commentable. */
   $('.sphinx-has-comment').comment();
 
   /** Highlight search words in search results. */
