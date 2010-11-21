@@ -9,12 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
+import cgi
 import sys
 import cPickle as pickle
 import posixpath
 from os import path
 
 from jinja2 import Environment, FileSystemLoader
+
+from docutils.core import publish_parts
 
 from sphinx.application import Sphinx
 from sphinx.util.osutil import ensuredir
@@ -308,6 +311,7 @@ class WebSupport(object):
         :param username: the username of the user making the comment.
         :param time: the time the comment was created, defaults to now.
         """
+        text = self._parse_comment_text(text)
         comment = self.storage.add_comment(text, displayed, username,
                                            time, proposal, node_id,
                                            parent_id, moderator)
@@ -442,3 +446,13 @@ class WebSupport(object):
         var COMMENT_METADATA = %s;
         </script>
         ''' % dump_json(data)
+
+    def _parse_comment_text(self, text):
+        settings = {'file_insertion_enabled': False,
+                    'output_encoding': 'unicode'}
+        try:
+            ret = publish_parts(text, writer_name='html',
+                                settings_overrides=settings)['fragment']
+        except Exception:
+            ret = cgi.escape(text)
+        return ret

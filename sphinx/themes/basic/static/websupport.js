@@ -98,6 +98,9 @@
       deleteComment($(this).attr('id').substring(2));
       return false;
     });
+    $('a.comment-markup').live("click", function() {
+      toggleCommentMarkupBox($(this).attr('id').substring(2));
+    });
   }
 
   /**
@@ -271,7 +274,7 @@
     $.each(comments, function() {
       var div = createCommentDiv(this);
       ul.append($(document.createElement('li')).html(div));
-      appendComments(this.children, div.find('ul.children'));
+      appendComments(this.children, div.find('ul.comment-children'));
       // To avoid stagnating data, don't store the comments children in data.
       this.children = null;
       div.data('comment', this);
@@ -353,7 +356,7 @@
         div
           .find('span.user-id:first')
           .text('[deleted]').end()
-          .find('p.comment-text:first')
+          .find('div.comment-text:first')
           .text('[deleted]').end()
           .find('#cm' + id + ', #dc' + id + ', #ac' + id + ', #rc' + id +
                 ', #sp' + id + ', #hp' + id + ', #cr' + id + ', #rl' + id)
@@ -398,9 +401,11 @@
     textarea.slideUp('fast');
   }
 
-  /**
-   * Handle when the user clicks on a sort by link.
-   */
+  function toggleCommentMarkupBox(id) {
+    $('#mb' + id).toggle();
+  }
+
+  /** Handle when the user clicks on a sort by link. */
   function handleReSort(link) {
     var classes = link.attr('class').split(/\s+/);
     for (var i=0; i<classes.length; i++) {
@@ -685,7 +690,10 @@
       <div class="comment-loading" id="cn<%id%>">\
         loading comments... <img src="<%loadingImage%>" alt="" /></div>\
       <ul id="cl<%id%>" class="comment-ul"></ul>\
-      <p class="add-a-comment">Add a comment:</p>\
+      <p class="add-a-comment">Add a comment\
+        (<a href="#" class="comment-markup" id="ab<%id%>">markup</a>):</p>\
+      <div class="comment-markup-box" id="mb<%id%>">\
+        Comment markup: </div>\
       <form method="post" id="cf<%id%>" class="comment-form" action="">\
         <textarea name="comment" cols="80"></textarea>\
         <p class="propose-button">\
@@ -730,7 +738,7 @@
           <span class="rating"><%pretty_rating%></span>\
           <span class="delta"><%time.delta%></span>\
         </p>\
-        <p class="comment-text comment"><%text%></p>\
+        <div class="comment-text comment"><#text#></div>\
         <p class="comment-opts comment">\
           <a href="#" class="reply hidden" id="rl<%id%>">reply &#9657;</a>\
           <a href="#" class="close-reply" id="cr<%id%>">reply &#9663;</a>\
@@ -745,7 +753,7 @@
         <pre class="proposal" id="pr<%id%>">\
 <#proposal_diff#>\
         </pre>\
-          <ul class="children" id="cl<%id%>"></ul>\
+          <ul class="comment-children" id="cl<%id%>"></ul>\
         </div>\
         <div class="clearleft"></div>\
       </div>\
