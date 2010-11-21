@@ -81,6 +81,7 @@ class SQLAlchemyStorage(StorageBackend):
         comment.set_path(node_id, parent_id)
         session.commit()
         d = comment.serializable()
+        d['document'] = comment.node.document
         session.close()
         return d
 

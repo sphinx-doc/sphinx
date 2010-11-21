@@ -98,6 +98,22 @@ class Node(Base):
         self.source = source
 
 
+class CommentVote(Base):
+    """A vote a user has made on a Comment."""
+    __tablename__ = db_prefix + 'commentvote'
+
+    username = Column(String(64), primary_key=True)
+    comment_id = Column(Integer, ForeignKey(db_prefix + 'comments.id'),
+                        primary_key=True)
+    # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
+    value = Column(Integer, nullable=False)
+
+    def __init__(self, comment_id, username, value):
+        self.comment_id = comment_id
+        self.username = username
+        self.value = value
+
+
 class Comment(Base):
     """An individual Comment being stored."""
     __tablename__ = db_prefix + 'comments'
@@ -114,6 +130,9 @@ class Comment(Base):
 
     node_id = Column(String, ForeignKey(db_prefix + 'nodes.id'))
     node = relation(Node, backref="comments")
+
+    votes = relation(CommentVote, backref="comment",
+                     cascade="all, delete-orphan")
 
     def __init__(self, text, displayed, username, rating, time,
                  proposal, proposal_diff):
@@ -187,20 +206,3 @@ class Comment(Base):
             dt = (days, 'day')
 
         return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
-
-
-class CommentVote(Base):
-    """A vote a user has made on a Comment."""
-    __tablename__ = db_prefix + 'commentvote'
-
-    username = Column(String(64), primary_key=True)
-    comment_id = Column(Integer, ForeignKey(db_prefix + 'comments.id'),
-                        primary_key=True)
-    comment = relation(Comment, backref="votes")
-    # -1 if downvoted, +1 if upvoted, 0 if voted then unvoted.
-    value = Column(Integer, nullable=False)
-
-    def __init__(self, comment_id, username, value):
-        self.comment_id = comment_id
-        self.username = username
-        self.value = value
