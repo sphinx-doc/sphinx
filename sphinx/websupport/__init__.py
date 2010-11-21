@@ -266,13 +266,16 @@ class WebSupport(object):
         return self.storage.get_data(node_id, username, moderator)
 
     def delete_comment(self, comment_id, username='', moderator=False):
-        """Delete a comment. Doesn't actually delete the comment, but
-        instead replaces the username and text files with "[deleted]" so
-        as not to leave any comments orphaned.
+        """Delete a comment.
 
-        If `moderator` is True, the comment will always be deleted. If
-        `moderator` is False, the comment will only be deleted if the
-        `username` matches the `username` on the comment.
+        If `moderator` is True, the comment and all descendants will be deleted
+        from the database, and the function returns ``True``.
+
+        If `moderator` is False, the comment will be marked as deleted (but not
+        removed from the database so as not to leave any comments orphaned), but
+        only if the `username` matches the `username` on the comment.  The
+        username and text files are replaced with "[deleted]" .  In this case,
+        the function returns ``False``.
 
         This raises :class:`~sphinx.websupport.errors.UserNotAuthorizedError`
         if moderator is False and `username` doesn't match username on the
@@ -282,7 +285,7 @@ class WebSupport(object):
         :param username: the username requesting the deletion.
         :param moderator: whether the requestor is a moderator.
         """
-        self.storage.delete_comment(comment_id, username, moderator)
+        return self.storage.delete_comment(comment_id, username, moderator)
 
     def add_comment(self, text, node_id='', parent_id='', displayed=True,
                     username=None, time=None, proposal=None,

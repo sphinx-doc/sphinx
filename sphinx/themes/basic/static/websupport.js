@@ -353,6 +353,14 @@
       data: {id: id},
       success: function(data, textStatus, request) {
         var div = $('#cd' + id);
+        if (data == 'delete') {
+          // Moderator mode: remove the comment and all children immediately
+          div.slideUp('fast', function() {
+            div.remove();
+          });
+          return;
+        }
+        // User mode: only mark the comment as deleted
         div
           .find('span.user-id:first')
           .text('[deleted]').end()
@@ -507,7 +515,9 @@
         addComment($('#rf' + id));
         closeReply(id);
       });
-    div.slideDown('fast');
+    div.slideDown('fast', function() {
+      $('#rf' + id).find('textarea').focus();
+    });
   }
 
   /**
@@ -567,7 +577,7 @@
       div.find('#' + direction + 'u' + comment.id).show();
     }
 
-    if (comment.text != '[deleted]') {
+    if (opts.moderator || comment.text != '[deleted]') {
       div.find('a.reply').show();
       if (comment.proposal_diff)
         div.find('#sp' + comment.id).show();
@@ -693,7 +703,9 @@
       <p class="add-a-comment">Add a comment\
         (<a href="#" class="comment-markup" id="ab<%id%>">markup</a>):</p>\
       <div class="comment-markup-box" id="mb<%id%>">\
-        Comment markup: </div>\
+        reStructured text markup: <i>*emph*</i>, <b>**strong**</b>, \
+        <tt>``code``</tt>, \
+        code blocks: <tt>::</tt> and an indented block after blank line</div>\
       <form method="post" id="cf<%id%>" class="comment-form" action="">\
         <textarea name="comment" cols="80"></textarea>\
         <p class="propose-button">\

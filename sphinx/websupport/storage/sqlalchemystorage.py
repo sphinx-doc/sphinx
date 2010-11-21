@@ -88,12 +88,23 @@ class SQLAlchemyStorage(StorageBackend):
         session = Session()
         comment = session.query(Comment).\
             filter(Comment.id == comment_id).one()
-        if moderator or comment.username == username:
+        if moderator:
+            # moderator mode: delete the comment and all descendants
+            # find descendants via path
+            session.query(Comment).filter(
+                Comment.path.like(comment.path + '.%')).delete(False)
+            session.delete(comment)
+            session.commit()
+            session.close()
+            return True
+        elif comment.username == username:
+            # user mode: do not really delete, but remove text and proposal
             comment.username = '[deleted]'
             comment.text = '[deleted]'
             comment.proposal = ''
             session.commit()
             session.close()
+            return False
         else:
             session.close()
             raise UserNotAuthorizedError()
@@ -154,20 +165,16 @@ class SQLAlchemyStorage(StorageBackend):
 
     def accept_comment(self, comment_id):
         session = Session()
-
-        # XXX assignment to "comment" needed?
-        comment = session.query(Comment).filter(
-            Comment.id == comment_id).update(
-            {Comment.displayed: True})
+        session.query(Comment).filter(Comment.id == comment_id).update(
+            {Comment.displayed: True}
+        )
 
         session.commit()
         session.close()
 
     def reject_comment(self, comment_id):
         session = Session()
-
-        comment = session.query(Comment).\
-            filter(Comment.id == comment_id).one()
+        comment = session.query(Comment).filter(Comment.id == comment_id).one()
         session.delete(comment)
 
         session.commit()

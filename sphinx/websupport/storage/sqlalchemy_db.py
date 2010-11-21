@@ -33,7 +33,7 @@ class Node(Base):
 
     def nested_comments(self, username, moderator):
         """Create a tree of comments. First get all comments that are
-        descendents of this node, then convert them to a tree form.
+        descendants of this node, then convert them to a tree form.
 
         :param username: the name of the user to get comments for.
         :param moderator: whether the user is moderator.
@@ -56,6 +56,7 @@ class Node(Base):
         # Filter out all comments not descending from this node.
         q = q.filter(Comment.path.like(str(self.id) + '.%'))
 
+        # Filter out all comments that are not moderated yet.
         if not moderator:
             q = q.filter(Comment.displayed == True)
 
