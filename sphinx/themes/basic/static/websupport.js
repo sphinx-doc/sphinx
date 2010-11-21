@@ -548,12 +548,14 @@
   /** Create a div to display a comment in. */
   function createCommentDiv(comment) {
     if (!comment.displayed && !opts.moderator) {
-      return $('<div>Thank you!  Your comment will show up once it is has '
-               + ' been approved by a moderator.</div>');
+      return $('<div class="moderate">Thank you!  Your comment will show up '
+               + 'once it is has been approved by a moderator.</div>');
     }
     // Prettify the comment rating.
     comment.pretty_rating = comment.rating + ' point' +
       (comment.rating == 1 ? '' : 's');
+    // Make a class (for displaying not yet moderated comments differently)
+    comment.css_class = comment.displayed ? '' : ' moderate';
     // Create a div for this comment.
     var context = $.extend({}, opts, comment);
     var div = $(renderTemplate(commentTemplate, context));
@@ -714,7 +716,7 @@
     </div>';
 
   var commentTemplate = '\
-    <div id="cd<%id%>" class="sphinx-comment">\
+    <div id="cd<%id%>" class="sphinx-comment<%css_class%>">\
       <div class="vote">\
         <div class="arrow">\
           <a href="#" id="uv<%id%>" class="vote" title="vote up">\
