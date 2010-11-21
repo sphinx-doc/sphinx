@@ -228,8 +228,8 @@ pass the `displayed` keyword argument::
                                  username=username, proposal=proposal,
                                  displayed=False)
 
-You can then create two new views to handle the moderation of comments.  The
-first will be called when a moderator decides a comment should be accepted and
+You can then create a new view to handle the moderation of comments.  It
+will be called when a moderator decides a comment should be accepted and
 displayed::
 
    @app.route('/docs/accept_comment', methods=['POST'])
@@ -239,14 +239,7 @@ displayed::
        support.accept_comment(comment_id, moderator=moderator)
        return 'OK'
 
-The next is very similar, but used when rejecting a comment::
-
-   @app.route('/docs/reject_comment', methods=['POST'])
-   def reject_comment():
-       moderator = g.user.moderator if g.user else False
-       comment_id = request.form.get('id')
-       support.reject_comment(comment_id, moderator=moderator)
-       return 'OK'
+Rejecting comments happens via comment deletion.
 
 To perform a custom action (such as emailing a moderator) when a new comment is
 added but not displayed, you can pass callable to the :class:`~.WebSupport`

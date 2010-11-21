@@ -396,7 +396,6 @@ class WebSupport(object):
                 ('getCommentsURL', '_get_comments'),
                 ('processVoteURL', '_process_vote'),
                 ('acceptCommentURL', '_accept_comment'),
-                ('rejectCommentURL', '_reject_comment'),
                 ('deleteCommentURL', '_delete_comment')
             ]
             for key, value in comment_urls:

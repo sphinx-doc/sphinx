@@ -42,5 +42,3 @@ StorageBackend Methods
 .. automethod:: StorageBackend.update_username
 
 .. automethod:: StorageBackend.accept_comment
-
-.. automethod:: StorageBackend.reject_comment

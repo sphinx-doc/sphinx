@@ -113,11 +113,3 @@ class StorageBackend(object):
         :param comment_id: The id of the comment being accepted.
         """
         raise NotImplementedError()
-
-    def reject_comment(self, comment_id):
-        """Called when a moderator rejects a comment. The comment should
-        then be deleted.
-
-        :param comment_id: The id of the comment being accepted.
-        """
-        raise NotImplementedError()
