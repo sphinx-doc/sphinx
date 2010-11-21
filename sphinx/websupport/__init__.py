@@ -42,6 +42,7 @@ class WebSupport(object):
                  status=sys.stdout,
                  warning=sys.stderr,
                  moderation_callback=None,
+                 allow_anonymous_comments=True,
                  docroot='',
                  staticroot='static',
                  ):
@@ -59,6 +60,7 @@ class WebSupport(object):
         self.status = status
         self.warning = warning
         self.moderation_callback = moderation_callback
+        self.allow_anonymous_comments = allow_anonymous_comments
 
         self._init_templating()
         self._init_search(search)
@@ -314,6 +316,11 @@ class WebSupport(object):
         :param username: the username of the user making the comment.
         :param time: the time the comment was created, defaults to now.
         """
+        if username is None:
+            if self.allow_anonymous_comments:
+                username = 'Anonymous'
+            else:
+                raise errors.UserNotAuthorizedError()
         text = self._parse_comment_text(text)
         comment = self.storage.add_comment(text, displayed, username,
                                            time, proposal, node_id,
