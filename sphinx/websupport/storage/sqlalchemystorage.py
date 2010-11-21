@@ -172,11 +172,3 @@ class SQLAlchemyStorage(StorageBackend):
 
         session.commit()
         session.close()
-
-    def reject_comment(self, comment_id):
-        session = Session()
-        comment = session.query(Comment).filter(Comment.id == comment_id).one()
-        session.delete(comment)
-
-        session.commit()
-        session.close()

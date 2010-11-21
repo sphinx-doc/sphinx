@@ -383,19 +383,6 @@ class WebSupport(object):
             raise errors.UserNotAuthorizedError()
         self.storage.accept_comment(comment_id)
 
-    def reject_comment(self, comment_id, moderator=False):
-        """Reject a comment that is pending moderation.
-
-        This raises :class:`~sphinx.websupport.errors.UserNotAuthorizedError`
-        if moderator is False.
-
-        :param comment_id: The id of the comment that was accepted.
-        :param moderator: Whether the user making the request is a moderator.
-        """
-        if not moderator:
-            raise errors.UserNotAuthorizedError()
-        self.storage.reject_comment(comment_id)
-
     def _make_base_comment_options(self):
         """Helper method to create the part of the COMMENT_OPTIONS javascript
         that remains the same throughout the lifetime of the

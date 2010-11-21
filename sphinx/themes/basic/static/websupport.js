@@ -90,10 +90,6 @@
       acceptComment($(this).attr('id').substring(2));
       return false;
     });
-    $('a.reject-comment').live("click", function() {
-      rejectComment($(this).attr('id').substring(2));
-      return false;
-    });
     $('a.delete-comment').live("click", function() {
       deleteComment($(this).attr('id').substring(2));
       return false;
@@ -334,23 +330,6 @@
     });
   }
 
-  function rejectComment(id) {
-    $.ajax({
-      type: 'POST',
-      url: opts.rejectCommentURL,
-      data: {id: id},
-      success: function(data, textStatus, request) {
-        var div = $('#cd' + id);
-        div.slideUp('fast', function() {
-        div.remove();
-        });
-      },
-      error: function(request, textStatus, error) {
-        showError('Oops, there was a problem rejecting the comment.');
-      }
-    });
-  }
-
   function deleteComment(id) {
     $.ajax({
       type: 'POST',
@@ -568,7 +547,7 @@
 
   /** Create a div to display a comment in. */
   function createCommentDiv(comment) {
-    if (!comment.displayed) {
+    if (!comment.displayed && !opts.moderator) {
       return $('<div>Thank you!  Your comment will show up once it is has '
                + ' been approved by a moderator.</div>');
     }
@@ -579,7 +558,7 @@
     var context = $.extend({}, opts, comment);
     var div = $(renderTemplate(commentTemplate, context));
 
-    // If the user has voted on this comment, highlight the correct arrow.
+    // If the user has voted on this comment, highblight the correct arrow.
     if (comment.vote) {
       var direction = (comment.vote == 1) ? 'u' : 'd';
       div.find('#' + direction + 'v' + comment.id).hide();
@@ -679,7 +658,6 @@
     addCommentURL: '/_add_comment',
     getCommentsURL: '/_get_comments',
     acceptCommentURL: '/_accept_comment',
-    rejectCommentURL: '/_reject_comment',
     deleteCommentURL: '/_delete_comment',
     commentImage: '/static/_static/comment.png',
     closeCommentImage: '/static/_static/comment-close.png',
@@ -770,7 +748,6 @@
           <a href="#" id="dc<%id%>" class="delete-comment hidden">delete</a>\
           <span id="cm<%id%>" class="moderation hidden">\
             <a href="#" id="ac<%id%>" class="accept-comment">accept</a>\
-            <a href="#" id="rc<%id%>" class="reject-comment">reject</a>\
           </span>\
         </p>\
         <pre class="proposal" id="pr<%id%>">\
