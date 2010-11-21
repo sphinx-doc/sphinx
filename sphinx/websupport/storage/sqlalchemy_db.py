@@ -132,7 +132,7 @@ class Comment(Base):
     node = relation(Node, backref="comments")
 
     votes = relation(CommentVote, backref="comment",
-                     cascade="all, delete-orphan")
+                     cascade="all")
 
     def __init__(self, text, displayed, username, rating, time,
                  proposal, proposal_diff):
