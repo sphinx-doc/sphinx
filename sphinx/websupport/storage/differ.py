@@ -20,19 +20,25 @@ class CombinedHtmlDiff(object):
     """
     highlight_regex = re.compile(r'([\+\-\^]+)')
 
-    def make_html(self, source, proposal):
+    def __init__(self, source, proposal):
+        proposal = escape(proposal)
+
+        differ = Differ()
+        self.diff = list(differ.compare(source.splitlines(1),
+                                        proposal.splitlines(1)))
+
+    def make_text(self):
+        return '\n'.join(self.diff)
+
+    def make_html(self):
         """Return the HTML representation of the differences between
         `source` and `proposal`.
 
         :param source: the original text
         :param proposal: the proposed text
         """
-        proposal = escape(proposal)
-
-        differ = Differ()
-        diff = list(differ.compare(source.splitlines(1),
-                                   proposal.splitlines(1)))
         html = []
+        diff = self.diff[:]
         line = diff.pop(0)
         next = diff.pop(0)
         while True:

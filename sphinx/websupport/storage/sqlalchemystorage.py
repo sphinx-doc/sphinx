@@ -60,11 +60,13 @@ class SQLAlchemyStorage(StorageBackend):
                     proposal, node_id, parent_id, moderator):
         session = Session()
         proposal_diff = None
+        proposal_diff_text = None
 
         if node_id and proposal:
             node = session.query(Node).filter(Node.id == node_id).one()
-            differ = CombinedHtmlDiff()
-            proposal_diff = differ.make_html(node.source, proposal)
+            differ = CombinedHtmlDiff(node.source, proposal)
+            proposal_diff = differ.make_html()
+            proposal_diff_text = differ.make_text()
         elif parent_id:
             parent = session.query(Comment.displayed).\
                 filter(Comment.id == parent_id).one()
@@ -82,6 +84,7 @@ class SQLAlchemyStorage(StorageBackend):
         session.commit()
         d = comment.serializable()
         d['document'] = comment.node.document
+        d['proposal_diff_text'] = proposal_diff_text
         session.close()
         return d
 

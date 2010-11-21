@@ -321,10 +321,11 @@ class WebSupport(object):
                 username = 'Anonymous'
             else:
                 raise errors.UserNotAuthorizedError()
-        text = self._parse_comment_text(text)
-        comment = self.storage.add_comment(text, displayed, username,
+        parsed = self._parse_comment_text(text)
+        comment = self.storage.add_comment(parsed, displayed, username,
                                            time, proposal, node_id,
                                            parent_id, moderator)
+        comment['original_text'] = text
         if not displayed and self.moderation_callback:
             self.moderation_callback(comment)
         return comment
