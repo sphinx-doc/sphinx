@@ -256,8 +256,13 @@
           ul.data('empty', false);
         }
         insertComment(data.comment);
-        var ao = $('#ao' + (node_id || parent_id));
+        var ao = $('#ao' + node_id);
         ao.find('img').attr({'src': opts.commentBrightImage});
+        if (node_id) {
+          // if this was a "root" comment, remove the commenting box
+          // (the user can get it back by reopening the comment popup)
+          $('#ca' + node_id).slideUp();
+        }
       },
       error: function(request, textStatus, error) {
         form.find('textarea,input').removeAttr('disabled');
@@ -563,6 +568,10 @@
 
   /** Create a div to display a comment in. */
   function createCommentDiv(comment) {
+    if (!comment.displayed) {
+      return $('<div>Thank you!  Your comment will show up once it is has '
+               + ' been approved by a moderator.</div>');
+    }
     // Prettify the comment rating.
     comment.pretty_rating = comment.rating + ' point' +
       (comment.rating == 1 ? '' : 's');
@@ -700,6 +709,7 @@
       <div class="comment-loading" id="cn<%id%>">\
         loading comments... <img src="<%loadingImage%>" alt="" /></div>\
       <ul id="cl<%id%>" class="comment-ul"></ul>\
+      <div id="ca<%id%>">\
       <p class="add-a-comment">Add a comment\
         (<a href="#" class="comment-markup" id="ab<%id%>">markup</a>):</p>\
       <div class="comment-markup-box" id="mb<%id%>">\
@@ -722,6 +732,7 @@
         <input type="hidden" name="node" value="<%id%>" />\
         <input type="hidden" name="parent" value="" />\
       </form>\
+      </div>\
     </div>';
 
   var commentTemplate = '\
@@ -801,4 +812,10 @@ $(document).ready(function() {
       result.highlightText(this.toLowerCase(), 'highlighted');
     });
   });
+
+  // directly open comment window if requested
+  var anchor = document.location.hash;
+  if (anchor.substring(0, 9) == '#comment-') {
+    $('#ao' + anchor.substring(9)).click();
+  }
 });

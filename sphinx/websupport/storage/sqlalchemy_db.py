@@ -175,7 +175,7 @@ class Comment(Base):
                 'delta': self.pretty_delta(delta)}
 
         path = self.path.split('.')
-        node = path[0] if len(path) == 2 else None
+        node = path[0]
         parent = path[-2] if len(path) > 2 else None
 
         return {'text': self.text,
