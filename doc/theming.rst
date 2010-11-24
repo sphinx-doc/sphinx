@@ -206,7 +206,7 @@ name), containing the following:
 * A :file:`theme.conf` file, see below.
 * HTML templates, if needed.
 * A ``static/`` directory containing any static files that will be copied to the
-  output statid directory on build.  These can be images, styles, script files.
+  output static directory on build.  These can be images, styles, script files.
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
 Python :mod:`ConfigParser` module) and has the following structure:
