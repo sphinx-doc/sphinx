@@ -54,7 +54,7 @@
       hide($(this).attr('id').substring(2));
       return false;
     });
-    $('.vote').live("click", function() {
+    $('a.vote').live("click", function() {
       handleVote($(this));
       return false;
     });
@@ -96,6 +96,7 @@
     });
     $('a.comment-markup').live("click", function() {
       toggleCommentMarkupBox($(this).attr('id').substring(2));
+      return false;
     });
   }
 
@@ -323,6 +324,7 @@
       data: {id: id},
       success: function(data, textStatus, request) {
         $('#cm' + id).fadeOut('fast');
+        $('#cd' + id).removeClass('moderate');
       },
       error: function(request, textStatus, error) {
         showError('Oops, there was a problem accepting the comment.');
@@ -681,7 +683,7 @@
     <div class="sphinx-comments" id="sc<%id%>">\
       <p class="sort-options">\
         Sort by:\
-        <a href="#" class="sort-option byrating">top</a>\
+        <a href="#" class="sort-option byrating">best rated</a>\
         <a href="#" class="sort-option byascage">newest</a>\
         <a href="#" class="sort-option byage">oldest</a>\
       </p>\
@@ -779,10 +781,10 @@
 })(jQuery);
 
 $(document).ready(function() {
-  /** Add comment anchors for all paragraphs that are commentable. */
+  // add comment anchors for all paragraphs that are commentable
   $('.sphinx-has-comment').comment();
 
-  /** Highlight search words in search results. */
+  // highlight search words in search results
   $("div.context").each(function() {
     var params = $.getQueryParameters();
     var terms = (params.q) ? params.q[0].split(/\s+/) : [];
@@ -796,5 +798,6 @@ $(document).ready(function() {
   var anchor = document.location.hash;
   if (anchor.substring(0, 9) == '#comment-') {
     $('#ao' + anchor.substring(9)).click();
+    document.location.hash = '#s' + anchor.substring(9);
   }
 });
