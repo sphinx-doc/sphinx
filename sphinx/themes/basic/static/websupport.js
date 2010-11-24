@@ -51,52 +51,52 @@
 
   function initEvents() {
     $('a.comment-close').live("click", function(event) {
+      event.preventDefault();
       hide($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.vote').live("click", function() {
+    $('a.vote').live("click", function(event) {
+      event.preventDefault();
       handleVote($(this));
-      return false;
     });
-    $('a.reply').live("click", function() {
+    $('a.reply').live("click", function(event) {
+      event.preventDefault();
       openReply($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.close-reply').live("click", function() {
+    $('a.close-reply').live("click", function(event) {
+      event.preventDefault();
       closeReply($(this).attr('id').substring(2));
-      return false;
     });
     $('a.sort-option').live("click", function(event) {
+      event.preventDefault();
       handleReSort($(this));
-      return false;
     });
-    $('a.show-proposal').live("click", function() {
+    $('a.show-proposal').live("click", function(event) {
+      event.preventDefault();
       showProposal($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.hide-proposal').live("click", function() {
+    $('a.hide-proposal').live("click", function(event) {
+      event.preventDefault();
       hideProposal($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.show-propose-change').live("click", function() {
+    $('a.show-propose-change').live("click", function(event) {
+      event.preventDefault();
       showProposeChange($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.hide-propose-change').live("click", function() {
+    $('a.hide-propose-change').live("click", function(event) {
+      event.preventDefault();
       hideProposeChange($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.accept-comment').live("click", function() {
+    $('a.accept-comment').live("click", function(event) {
+      event.preventDefault();
       acceptComment($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.delete-comment').live("click", function() {
+    $('a.delete-comment').live("click", function(event) {
+      event.preventDefault();
       deleteComment($(this).attr('id').substring(2));
-      return false;
     });
-    $('a.comment-markup').live("click", function() {
+    $('a.comment-markup').live("click", function(event) {
+      event.preventDefault();
       toggleCommentMarkupBox($(this).attr('id').substring(2));
-      return false;
     });
   }
 
@@ -117,7 +117,7 @@
 
     // Reset link styles and format the selected sort option.
     $('a.sel').attr('href', '#').removeClass('sel');
-    $('a.' + by).removeAttr('href').addClass('sel');
+    $('a.by' + by).removeAttr('href').addClass('sel');
   }
 
   /**
@@ -150,7 +150,7 @@
     var context = $.extend({id: id}, opts);
     var popup = $(renderTemplate(popupTemplate, context)).hide();
     popup.find('textarea[name="proposal"]').hide();
-    popup.find('a.' + by).addClass('sel');
+    popup.find('a.by' + by).addClass('sel');
     var form = popup.find('#cf' + id);
     form.submit(function(event) {
       event.preventDefault();
