@@ -201,15 +201,13 @@ class Locale(Transform):
         # fetch translations
         dirs = [path.join(env.srcdir, x)
                 for x in env.config.locale_dirs]
-        catalog, empty = init_locale(dirs, env.config.language, section)
-        if not empty:
+        catalog, has_catalog = init_locale(dirs, env.config.language, section)
+        if not has_catalog:
             return
 
         parser = RSTParser()
 
         for node, msg in extract_messages(self.document):
-            # XXX ctx not used
-            #ctx = node.parent
             patch = new_document(source, settings)
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
@@ -217,7 +215,9 @@ class Locale(Transform):
                 continue
             parser.parse(msgstr, patch)
             patch = patch[0]
-            assert isinstance(patch, nodes.paragraph)
+            #XXX doctest and other block markup
+            if not isinstance(patch, nodes.paragraph):
+                continue # skip for now
             for child in patch.children: # update leaves
                 child.parent = node
             node.children = patch.children

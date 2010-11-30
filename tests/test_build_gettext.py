@@ -14,6 +14,7 @@ import os
 from subprocess import Popen, PIPE
 
 from util import *
+from util import SkipTest
 
 
 def teardown_module():
@@ -21,12 +22,20 @@ def teardown_module():
 
 
 @with_app(buildername='gettext')
+def test_all(app):
+    # Generic build; should fail only when the builder is horribly broken.
+    app.builder.build_all()
+
+
+@with_app(buildername='gettext')
 def test_build(app):
+    # Do messages end up in the correct location?
     app.builder.build(['extapi', 'subdir/includes'])
-    # documents end up in a message catalog
+    # top-level documents end up in a message catalog
     assert (app.outdir / 'extapi.pot').isfile()
-    # ..and are grouped into sections
+    # directory items are grouped into sections
     assert (app.outdir / 'subdir.pot').isfile()
+
 
 @with_app(buildername='gettext')
 def test_gettext(app):
@@ -41,7 +50,7 @@ def test_gettext(app):
                        '--locale', 'en_US'],
                         stdout=PIPE, stderr=PIPE)
         except OSError:
-            return  # most likely msginit was not found
+            raise SkipTest  # most likely msginit was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -55,7 +64,7 @@ def test_gettext(app):
                 os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
                 stdout=PIPE, stderr=PIPE)
         except OSError:
-            return  # most likely msgfmt was not found
+            raise SkipTest  # most likely msgfmt was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -70,41 +79,3 @@ def test_gettext(app):
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == u"Testing various markup"
-
-@with_app(buildername='gettext')
-def test_all(app):
-    app.builder.build_all()
-
-
-def setup_patch():
-    (test_root / 'xx' / 'LC_MESSAGES').makedirs()
-    try:
-        p = Popen(['msgfmt', test_root / 'bom.po', '-o',
-            test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo'],
-            stdout=PIPE, stderr=PIPE)
-    except OSError:
-        return  # most likely msgfmt was not found
-    else:
-        stdout, stderr = p.communicate()
-        if p.returncode != 0:
-            print stdout
-            print stderr
-            assert False, 'msgfmt exited with return code %s' % p.returncode
-    assert (test_root / 'xx' / 'LC_MESSAGES' / 'bom.mo').isfile(), \
-            'msgfmt failed'
-
-def teardown_patch():
-    (test_root / 'xx').rmtree()
-
-@with_app(buildername='text',
-          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
-def test_patch(app):
-    app.builder.build(['bom'])
-    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
-    expect = (u"\nDatei mit UTF-8"
-              u"\n***************\n" # underline matches new translation
-              u"\nThis file has umlauts: äöü.\n")
-    assert result == expect
-
-test_patch.setup = setup_patch
-test_patch.teardown = teardown_patch
