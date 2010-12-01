@@ -271,9 +271,9 @@ def test_moderation(support):
 
 
 def test_differ():
-    differ = CombinedHtmlDiff()
     source = 'Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit,\n' \
         'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     prop = 'Lorem dolor sit amet,\nconsectetur nihil adipisicing elit,\n' \
         'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-    differ.make_html(source, prop)
+    differ = CombinedHtmlDiff(source, prop)
+    differ.make_html()
