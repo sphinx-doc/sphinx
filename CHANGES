@@ -25,6 +25,8 @@ Release 1.1 (in development)
 
 * #526: Added Iranian translation.
 
+* #559: Added :confval:`html_permalink_text`.
+
 
 Release 1.0.6 (in development)
 ==============================

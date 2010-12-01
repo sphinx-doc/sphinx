@@ -60,6 +60,7 @@ class HTMLTranslator(BaseTranslator):
         self.highlightlinenothreshold = sys.maxint
         self.protect_literal_text = 0
         self.add_permalinks = builder.config.html_add_permalinks
+        self.permalink_text = builder.config.html_permalink_text
         self.secnumber_suffix = builder.config.html_secnumber_suffix
 
     def visit_start_of_file(self, node):
@@ -84,8 +85,10 @@ class HTMLTranslator(BaseTranslator):
         if node['ids'] and self.add_permalinks and self.builder.add_permalinks:
             self.body.append(u'<a class="headerlink" href="#%s" '
                              % node['ids'][0] +
-                             u'title="%s">\u00B6</a>' %
-                             _('Permalink to this definition'))
+                             u'title="%s">%s</a>' % (
+                             _('Permalink to this definition'),
+                             self.permalink_text)
+                             )
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
@@ -486,13 +489,15 @@ class HTMLTranslator(BaseTranslator):
             # add permalink anchor
             if close_tag.startswith('</h'):
                 self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
-                                 u'title="%s">\u00B6</a>' %
-                                 _('Permalink to this headline'))
+                                 u'title="%s">%s</a>' % (
+                                 _('Permalink to this headline'),
+                                 self.permalink_text))
             elif close_tag.startswith('</a></h'):
                 self.body.append(u'</a><a class="headerlink" href="#%s" ' %
                                  aname +
-                                 u'title="%s">\u00B6' %
-                                 _('Permalink to this headline'))
+                                 u'title="%s">%s' % (
+                                 _('Permalink to this headline'),
+                                 self.permalink_text))
 
         BaseTranslator.depart_title(self, node)
 

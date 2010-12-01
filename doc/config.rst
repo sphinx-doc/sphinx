@@ -506,6 +506,14 @@ that use Sphinx' HTMLWriter class.
    .. versionadded:: 0.6
       Previously, this was always activated.
 
+.. confval:: html_permalink_text
+
+   A string specifying the text which should be used for "permalinks".
+   Default: ``u'\u00B6'``.
+
+   .. versionadded:: 1.1
+      Previously, this was always the current default value.
+
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
