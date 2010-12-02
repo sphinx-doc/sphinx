@@ -541,7 +541,7 @@ class Documenter(object):
 
             if want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
-                skip = True
+                skip = not self.options.private_members
             elif (namespace, membername) in attr_docs:
                 # keep documented attributes
                 skip = False
@@ -713,6 +713,7 @@ class ModuleDocumenter(Documenter):
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
+        'private-members': bool_option,
     }
 
     @classmethod
@@ -866,7 +867,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'member-order': identity,
-        'exclude-members': members_set_option,
+        'exclude-members': members_set_option, 'private-members': bool_option,
     }
 
     @classmethod
@@ -1134,7 +1135,7 @@ class AutoDirective(Directive):
 
     # flags that can be given in autodoc_default_flags
     _default_flags = set(['members', 'undoc-members', 'inherited-members',
-                          'show-inheritance'])
+                          'show-inheritance', 'private-members'])
 
     # standard docutils directive settings
     has_content = True

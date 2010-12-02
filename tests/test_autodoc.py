@@ -38,6 +38,7 @@ def setup_module():
         members = [],
         member_order = 'alphabetic',
         exclude_members = set(),
+        private_members = False
     )
 
     directive = Struct(
