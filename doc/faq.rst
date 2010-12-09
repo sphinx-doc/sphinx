@@ -60,10 +60,11 @@ PyPI
    Sphinx documentation to the PyPI package documentation area at
    http://packages.python.org/.
 
-github pages
-   You can use `Michael Jones' sphinx-to-github tool
-   <http://github.com/michaeljones/sphinx-to-github/tree/master>`_ to prepare
-   Sphinx HTML output.
+GitHub Pages
+   Directories starting with underscores are ignored by default which breaks
+   static files in Sphinx.  GitHub's preprocessor can be `disabled
+   <https://github.com/blog/572-bypassing-jekyll-on-github-pages>`_ to support
+   Sphinx HTML output properly.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
