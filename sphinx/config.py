@@ -92,8 +92,7 @@ class Config(object):
         html_additional_pages = ({}, 'html'),
         html_use_modindex = (True, 'html'),  # deprecated
         html_domain_indices = (True, 'html'),
-        html_add_permalinks = (True, 'html'),
-        html_permalink_text = (u'\u00B6', 'html'),
+        html_add_permalinks = (u'\u00B6', 'html'),
         html_use_index = (True, 'html'),
         html_split_index = (False, 'html'),
         html_copy_source = (True, 'html'),

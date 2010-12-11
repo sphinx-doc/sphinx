@@ -499,20 +499,18 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_add_permalinks
 
-   If true, Sphinx will add "permalinks" for each heading and description
-   environment as paragraph signs that become visible when the mouse hovers over
-   them.  Default: ``True``.
+   Sphinx will add "permalinks" for each heading and description environment as
+   paragraph signs that become visible when the mouse hovers over them.
+
+   This value determines the text for the permalink; it defaults to ``"¶"``.
+   Set it to ``None`` or the empty string to disable permalinks.
 
    .. versionadded:: 0.6
       Previously, this was always activated.
 
-.. confval:: html_permalink_text
-
-   A string specifying the text which should be used for "permalinks".
-   Default: ``u'\u00B6'``.
-
-   .. versionadded:: 1.1
-      Previously, this was always the current default value.
+   .. versionchanged:: 1.1
+      This can now be a string to select the actual text of the link.
+      Previously, only boolean values were accepted.
 
 .. confval:: html_sidebars
 
