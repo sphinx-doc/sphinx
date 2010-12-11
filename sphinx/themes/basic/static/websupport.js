@@ -156,11 +156,7 @@
       event.preventDefault();
       addComment(form);
     });
-    if (COMMENT_METADATA[id] == 0)
-      $('#cn' + id).hide();
     $('#s' + id).after(popup);
-//    Recaptcha.create("6LfFAr8SAAAAADQ4xx8foVRW51EnF1fe4Apyivxf",
-//                     "cap" + id, { theme: "clean" });
     popup.slideDown('fast', function() {
       getComments(id);
     });
@@ -231,10 +227,6 @@
     // Disable the form that is being submitted.
     form.find('textarea,input').attr('disabled', 'disabled');
 
-    // Solve CAPTCHA.
-    var challenge = Recaptcha.get_challenge();
-    var response = Recaptcha.get_response();
-
     // Send the comment to the server.
     $.ajax({
       type: "POST",
@@ -244,9 +236,7 @@
         node: node_id,
         parent: parent_id,
         text: text,
-        proposal: proposal,
-        challenge: challenge,
-        response: response
+        proposal: proposal
       },
       success: function(data, textStatus, error) {
         // Reset the form.
@@ -724,7 +714,6 @@
         </p>\
         <textarea name="proposal" id="pt<%id%>" cols="80"\
                   spellcheck="false"></textarea>\
-        <div id="cap<%id%>" />\
         <input type="submit" value="Add comment" />\
         <input type="hidden" name="node" value="<%id%>" />\
         <input type="hidden" name="parent" value="" />\
@@ -798,10 +787,7 @@
 
 $(document).ready(function() {
   // add comment anchors for all paragraphs that are commentable
-  //$('.sphinx-has-comment').comment();
-  $('.sphinx-has-comment').mouseenter(function() {
-                                        $(this).unbind('mouseenter');
-                                        $(this).comment();});
+  $('.sphinx-has-comment').comment();
 
   // highlight search words in search results
   $("div.context").each(function() {
