@@ -651,9 +651,9 @@ class TextTranslator(nodes.NodeVisitor):
         self.add_text('*')
 
     def visit_literal(self, node):
-        self.add_text('``')
+        self.add_text('"')
     def depart_literal(self, node):
-        self.add_text('``')
+        self.add_text('"')
 
     def visit_subscript(self, node):
         self.add_text('_')
