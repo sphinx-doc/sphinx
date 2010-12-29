@@ -444,9 +444,9 @@ class DefinitionParser(object):
         'mutable':      None,
         'const':        None,
         'typename':     None,
-        'unsigned':     set(('char', 'int', 'long')),
-        'signed':       set(('char', 'int', 'long')),
-        'short':        set(('int', 'short')),
+        'unsigned':     set(('char', 'short', 'int', 'long')),
+        'signed':       set(('char', 'short', 'int', 'long')),
+        'short':        set(('int',)),
         'long':         set(('int', 'long', 'double'))
     }
 
