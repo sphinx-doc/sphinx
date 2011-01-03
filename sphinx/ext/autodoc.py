@@ -457,6 +457,11 @@ class Documenter(object):
         if not no_docstring:
             encoding = self.analyzer and self.analyzer.encoding
             docstrings = self.get_doc(encoding)
+            if not docstrings:
+                # append at least a dummy docstring, so that the event
+                # autodoc-process-docstring is fired and can add some
+                # content if desired
+                docstrings.append([])
             for i, line in enumerate(self.process_doc(docstrings)):
                 self.add_line(line, sourcename, i)
 
@@ -922,9 +927,9 @@ class ClassDocumenter(ModuleLevelDocumenter):
         content = self.env.config.autoclass_content
 
         docstrings = []
-        docstring = self.get_attr(self.object, '__doc__', None)
-        if docstring:
-            docstrings.append(docstring)
+        attrdocstring = self.get_attr(self.object, '__doc__', None)
+        if attrdocstring:
+            docstrings.append(attrdocstring)
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring

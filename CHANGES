@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #567: Emit the ``autodoc-process-docstring`` event even for objects
+  without a docstring so that it can add content.
+
 * #565: In the LaTeX builder, not only literal blocks require different
   table handling, but also quite a few other list-like block elements.
 
