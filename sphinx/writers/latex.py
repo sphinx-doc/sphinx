@@ -114,6 +114,7 @@ class Table(object):
         self.rowcount = 0
         self.had_head = False
         self.has_problematic = False
+        self.has_verbatim = False
         self.caption = None
         self.longtable = False
 
@@ -624,10 +625,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
-        elif self.table.has_problematic:
+            endmacro = '\\end{longtable}\n\n'
+        elif self.table.has_verbatim:
             self.body.append('\n\\begin{tabular}')
+            endmacro = '\\end{tabular}\n\n'
+        elif self.table.has_problematic and not self.table.colspec:
+            # if the user has given us tabularcolumns, accept them and use
+            # tabulary nevertheless
+            self.body.append('\n\\begin{tabular}')
+            endmacro = '\\end{tabular}\n\n'
         else:
             self.body.append('\n\\begin{tabulary}{\\linewidth}')
+            endmacro = '\\end{tabulary}\n\n'
         if self.table.colspec:
             self.body.append(self.table.colspec)
         else:
@@ -664,12 +673,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             self.body.append('\\hline\n')
         self.body.extend(self.tablebody)
-        if self.table.longtable:
-            self.body.append('\\end{longtable}\n\n')
-        elif self.table.has_problematic:
-            self.body.append('\\end{tabular}\n\n')
-        else:
-            self.body.append('\\end{tabulary}\n\n')
+        self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\\end{threeparttable}\n\n')
         self.table = None
@@ -1242,6 +1246,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             hlcode = hlcode.replace('\\begin{Verbatim}',
                                     '\\begin{OriginalVerbatim}')
             self.table.has_problematic = True
+            self.table.has_verbatim = True
         # get consistent trailer
         hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
         hlcode = hlcode.rstrip() + '\n'

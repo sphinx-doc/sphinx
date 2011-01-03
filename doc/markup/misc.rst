@@ -124,10 +124,16 @@ following directive exists:
 
 .. warning::
 
-   Tables that contain block-level elements such as object descriptions, literal
-   blocks, blockquotes or any kind of lists cannot be set with ``tabulary``.
-   They are therefore set with the standard LaTeX ``tabular`` environment.
-   Also, the verbatim environment used for literal blocks only works in
-   ``p{width}`` columns, which means that by default, Sphinx generates such
-   column specs for such tables.  Use the :rst:dir:`tabularcolumns` directive to
-   get finer control over such tables.
+   Tables that contain list-like elements such as object descriptions,
+   blockquotes or any kind of lists cannot be set out of the box with
+   ``tabulary``.  They are therefore set with the standard LaTeX ``tabular``
+   environment if you don't give a ``tabularcolumns`` directive.  If you do, the
+   table will be set with ``tabulary``, but you must use the ``p{width}``
+   construct for the columns that contain these elements.
+
+   Literal blocks do not work with ``tabulary`` at all, so tables containing a
+   literal block are always set with ``tabular``.  Also, the verbatim
+   environment used for literal blocks only works in ``p{width}`` columns, which
+   means that by default, Sphinx generates such column specs for such tables.
+   Use the :rst:dir:`tabularcolumns` directive to get finer control over such
+   tables.
