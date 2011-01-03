@@ -28,6 +28,8 @@ Release 1.1 (in development)
 * #559: :confval:`html_add_permalinks` is now a string giving the
   text to display in permalinks.
 
+* #553: Added :rst:dir:`testcleanup` blocks in the doctest extension.
+
 
 Release 1.0.6 (in development)
 ==============================

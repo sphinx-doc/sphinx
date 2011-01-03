@@ -45,6 +45,14 @@ names.
    but executed before the doctests of the group(s) it belongs to.
 
 
+.. rst:directive:: .. testcleanup:: [group]
+
+   A cleanup code block.  This code is not shown in the output for other
+   builders, but executed after the doctests of the group(s) it belongs to.
+
+   .. versionadded:: 1.1
+
+
 .. rst:directive:: .. doctest:: [group]
 
    A doctest-style code block.  You can use standard :mod:`doctest` flags for
@@ -180,6 +188,14 @@ There are also these config values for customizing the doctest extension:
    e.g. import modules you will always need in your doctests.
 
    .. versionadded:: 0.6
+
+.. confval:: doctest_global_cleanup
+
+   Python code that is treated like it were put in a ``testcleanup`` directive
+   for *every* file that is tested, and for every group.  You can use this to
+   e.g. remove any temporary files that the tests leave behind.
+
+   .. versionadded:: 1.1
 
 .. confval:: doctest_test_doctest_blocks
 

@@ -121,3 +121,9 @@ Special directives
   .. testoutput:: group2
 
      16
+
+
+.. testcleanup:: *
+
+   import test_doctest
+   test_doctest.cleanup_call()

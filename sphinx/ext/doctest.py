@@ -56,7 +56,7 @@ class TestDirective(Directive):
                     test = code
                 code = doctestopt_re.sub('', code)
         nodetype = nodes.literal_block
-        if self.name == 'testsetup' or 'hide' in self.options:
+        if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
             groups = [x.strip() for x in self.arguments[0].split(',')]
@@ -86,6 +86,9 @@ class TestDirective(Directive):
 class TestsetupDirective(TestDirective):
     option_spec = {}
 
+class TestcleanupDirective(TestDirective):
+    option_spec = {}
+
 class DoctestDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
@@ -113,6 +116,7 @@ class TestGroup(object):
         self.name = name
         self.setup = []
         self.tests = []
+        self.cleanup = []
 
     def add_code(self, code, prepend=False):
         if code.type == 'testsetup':
@@ -120,6 +124,8 @@ class TestGroup(object):
                 self.setup.insert(0, code)
             else:
                 self.setup.append(code)
+        elif code.type == 'testcleanup':
+            self.cleanup.append(code)
         elif code.type == 'doctest':
             self.tests.append([code])
         elif code.type == 'testcode':
@@ -131,8 +137,8 @@ class TestGroup(object):
             raise RuntimeError('invalid TestCode type')
 
     def __repr__(self):
-        return 'TestGroup(name=%r, setup=%r, tests=%r)' % (
-            self.name, self.setup, self.tests)
+        return 'TestGroup(name=%r, setup=%r, cleanup=%r, tests=%r)' % (
+            self.name, self.setup, self.cleanup, self.tests)
 
 
 class TestCode(object):
@@ -204,6 +210,8 @@ class DocTestBuilder(Builder):
         self.total_tries = 0
         self.setup_failures = 0
         self.setup_tries = 0
+        self.cleanup_failures = 0
+        self.cleanup_tries = 0
 
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -240,12 +248,14 @@ Doctest summary
 %5d test%s
 %5d failure%s in tests
 %5d failure%s in setup code
+%5d failure%s in cleanup code
 ''' % (self.total_tries, s(self.total_tries),
        self.total_failures, s(self.total_failures),
-       self.setup_failures, s(self.setup_failures)))
+       self.setup_failures, s(self.setup_failures),
+       self.cleanup_failures, s(self.cleanup_failures)))
         self.outfile.close()
 
-        if self.total_failures or self.setup_failures:
+        if self.total_failures or self.setup_failures or self.cleanup_failures:
             self.app.statuscode = 1
 
     def write(self, build_docnames, updated_docnames, method='update'):
@@ -265,8 +275,11 @@ Doctest summary
                                                 optionflags=self.opt)
         self.test_runner = SphinxDocTestRunner(verbose=False,
                                                optionflags=self.opt)
+        self.cleanup_runner = SphinxDocTestRunner(verbose=False,
+                                                  optionflags=self.opt)
 
         self.test_runner._fakeout = self.setup_runner._fakeout
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
@@ -301,6 +314,11 @@ Doctest summary
                             'testsetup', lineno=0)
             for group in groups.itervalues():
                 group.add_code(code, prepend=True)
+        if self.config.doctest_global_cleanup:
+            code = TestCode(self.config.doctest_global_cleanup,
+                            'testcleanup', lineno=0)
+            for group in groups.itervalues():
+                group.add_code(code)
         if not groups:
             return
 
@@ -316,29 +334,42 @@ Doctest summary
             res_f, res_t = self.test_runner.summarize(self._out, verbose=True)
             self.total_failures += res_f
             self.total_tries += res_t
+        if self.cleanup_runner.tries:
+            res_f, res_t = self.cleanup_runner.summarize(self._out, verbose=True)
+            self.cleanup_failures += res_f
+            self.cleanup_tries += res_t
 
     def compile(self, code, name, type, flags, dont_inherit):
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group, filename):
         ns = {}
-        setup_examples = []
-        for setup in group.setup:
-            setup_examples.append(doctest.Example(setup.code, '',
-                                                  lineno=setup.lineno))
-        if setup_examples:
-            # simulate a doctest with the setup code
-            setup_doctest = doctest.DocTest(setup_examples, {},
-                                            '%s (setup code)' % group.name,
-                                            filename, 0, None)
-            setup_doctest.globs = ns
-            old_f = self.setup_runner.failures
-            self.type = 'exec' # the snippet may contain multiple statements
-            self.setup_runner.run(setup_doctest, out=self._warn_out,
-                                  clear_globs=False)
-            if self.setup_runner.failures > old_f:
-                # don't run the group
+
+        def run_setup_cleanup(runner, testcodes, what):
+            examples = []
+            for testcode in testcodes:
+                examples.append(doctest.Example(testcode.code, '',
+                                                lineno=testcode.lineno))
+            if not examples:
                 return
+            # simulate a doctest with the code
+            sim_doctest = doctest.DocTest(examples, {},
+                                          '%s (%s code)' % (group.name, what),
+                                          filename, 0, None)
+            sim_doctest.globs = ns
+            old_f = runner.failures
+            self.type = 'exec' # the snippet may contain multiple statements
+            runner.run(sim_doctest, out=self._warn_out, clear_globs=False)
+            if runner.failures > old_f:
+                return False
+            return True
+
+        # run the setup code
+        if not run_setup_cleanup(self.setup_runner, group.setup, 'setup'):
+            # if setup failed, don't run the group
+            return
+
+        # run the tests
         for code in group.tests:
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
@@ -376,9 +407,13 @@ Doctest summary
             # also don't clear the globs namespace after running the doctest
             self.test_runner.run(test, out=self._warn_out, clear_globs=False)
 
+        # run the cleanup
+        run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
+
 
 def setup(app):
     app.add_directive('testsetup', TestsetupDirective)
+    app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)
     app.add_directive('testcode', TestcodeDirective)
     app.add_directive('testoutput', TestoutputDirective)
@@ -387,3 +422,4 @@ def setup(app):
     app.add_config_value('doctest_path', [], False)
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
+    app.add_config_value('doctest_global_cleanup', '', False)
