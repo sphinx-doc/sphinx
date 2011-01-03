@@ -187,9 +187,13 @@ HTML_XPATH = {
         # custom sidebar
         (".//h4", 'Custom sidebar'),
         # docfields
-        (".//td[@class='field-body']/ul/li/strong", '^moo$'),
-        (".//td[@class='field-body']/ul/li/strong",
+        (".//td[@class='field-body']/strong", '^moo$'),
+        (".//td[@class='field-body']/strong",
              tail_check(r'\(Moo\) .* Moo')),
+        (".//td[@class='field-body']/ul/li/strong", '^hour$'),
+        (".//td[@class='field-body']/ul/li/em", '^DuplicateType$'),
+        (".//td[@class='field-body']/ul/li/em",
+             tail_check(r'.* Some parameter')),
     ],
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),

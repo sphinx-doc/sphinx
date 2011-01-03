@@ -56,8 +56,8 @@ Testing object descriptions
 
 .. class:: Time(hour, minute, isdst)
 
-   :param hour: The year.
-   :type hour: TimeInt
+   :param year: The year.
+   :type year: TimeInt
    :param TimeInt minute: The minute.
    :param isdst: whether it's DST
    :type isdst: * some complex
@@ -68,8 +68,10 @@ Testing object descriptions
    :ivar int hour: like *hour*
    :ivar minute: like *minute*
    :vartype minute: int
+   :param hour: Some parameter
+   :type hour: DuplicateType
    :param hour: Duplicate param.  Should not lead to crashes.
-   :type hour: Duplicate type.
+   :type hour: DuplicateType
 
 
 C items
