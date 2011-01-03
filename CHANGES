@@ -1,6 +1,10 @@
 Release 1.0.6 (in development)
 ==============================
 
+* Fix strange reportings of line numbers for warnings generated from
+  autodoc-included docstrings, due to different behavior depending
+  on docutils version.
+
 * Several fixes to the C++ domain.
 
 

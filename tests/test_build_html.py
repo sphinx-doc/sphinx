@@ -31,6 +31,9 @@ def teardown_module():
 html_warnfile = StringIO()
 
 ENV_WARNINGS = """\
+%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
+\\(WARNING/2\\) Explicit markup ends without a blank line; unexpected \
+unindent\\.\\n?
 %(root)s/images.txt:9: WARNING: image file not readable: foo.png
 %(root)s/images.txt:23: WARNING: nonlocal image URI found: \
 http://www.python.org/logo.png

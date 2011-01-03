@@ -107,7 +107,7 @@ class AutodocReporter(object):
         return getattr(self.reporter, name)
 
     def system_message(self, level, message, *children, **kwargs):
-        if 'line' in kwargs:
+        if 'line' in kwargs and 'source' not in kwargs:
             try:
                 source, line = self.viewlist.items[kwargs['line']]
             except IndexError:
@@ -676,7 +676,7 @@ class Documenter(object):
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.add_line(u'', '')
+        self.add_line(u'', '<autodoc>')
 
         # format the object's signature, if any
         sig = self.format_signature()
