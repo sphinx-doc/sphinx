@@ -322,9 +322,8 @@ class ArgumentDefExpr(DefExpr):
         return self.type.get_id()
 
     def __unicode__(self):
-        return (self.type is not None and u'%s %s' % (self.type, self.name)
-                or unicode(self.name)) + (self.default is not None and
-                                          u'=%s' % self.default or u'')
+        return (u'%s %s' % (self.type or u'', self.name or u'')).strip() + \
+               (self.default is not None and u'=%s' % self.default or u'')
 
 
 class NamedDefExpr(DefExpr):
