@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #515: Fix tracebacks in the viewcode extension for Python objects
+  that do not have a valid signature.
+
 * Fix strange reportings of line numbers for warnings generated from
   autodoc-included docstrings, due to different behavior depending
   on docutils version.

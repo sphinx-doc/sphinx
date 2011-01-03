@@ -47,10 +47,10 @@ def doctree_read(app, doctree):
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
-            modname = signode['module']
+            modname = signode.get('module')
             if not modname:
                 continue
-            fullname = signode['fullname']
+            fullname = signode.get('fullname')
             if not has_tag(modname, fullname, env.docname):
                 continue
             if fullname in names:
