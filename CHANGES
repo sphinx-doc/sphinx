@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #574: Add special code for better support of Japanese documents
+  in the LaTeX builder.
+
 * Regression of #77: If there is only one parameter given with
   ``:param:`` markup, the bullet list is now suppressed again.
 
