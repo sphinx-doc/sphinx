@@ -14,6 +14,15 @@ all-pdf: $(ALLPDF)
 all-dvi: $(ALLDVI)
 all-ps: all-dvi
 	for f in *.dvi; do dvips $$f; done
+all-pdf-ja: $(wildcard *.tex)
+	ebb $(wildcard *.pdf *.png *.gif *.jpeg)
+	platex -kanji=utf8 $(LATEXOPTS) '$<'
+	platex -kanji=utf8 $(LATEXOPTS) '$<'
+	platex -kanji=utf8 $(LATEXOPTS) '$<'
+	-mendex -U -f -d '$(basename $<).dic' -s python.ist '$(basename $<).idx'
+	platex -kanji=utf8 $(LATEXOPTS) '$<'
+	platex -kanji=utf8 $(LATEXOPTS) '$<'
+	dvipdfmx '$(basename $<).dvi'
 
 zip: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)

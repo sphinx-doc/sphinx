@@ -42,6 +42,24 @@ Release 1.1 (in development)
 Release 1.0.6 (in development)
 ==============================
 
+* #574: Add special code for better support of Japanese documents
+  in the LaTeX builder.
+
+* Regression of #77: If there is only one parameter given with
+  ``:param:`` markup, the bullet list is now suppressed again.
+
+* #556: Fix missing paragraph breaks in LaTeX output in certain
+  situations.
+
+* #567: Emit the ``autodoc-process-docstring`` event even for objects
+  without a docstring so that it can add content.
+
+* #565: In the LaTeX builder, not only literal blocks require different
+  table handling, but also quite a few other list-like block elements.
+
+* #515: Fix tracebacks in the viewcode extension for Python objects
+  that do not have a valid signature.
+
 * Fix strange reportings of line numbers for warnings generated from
   autodoc-included docstrings, due to different behavior depending
   on docutils version.

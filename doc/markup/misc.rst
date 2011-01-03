@@ -13,10 +13,12 @@ like this::
 
    :fieldname: Field content
 
-A field list at the very top of a file is parsed by docutils as the "docinfo",
+A field list near the top of a file is parsed by docutils as the "docinfo"
 which is normally used to record the author, date of publication and other
-metadata.  *In Sphinx*, the docinfo is used as metadata, too, but not displayed
-in the output.
+metadata.  *In Sphinx*, a field list preceding any other markup is moved from
+the docinfo to the Sphinx environment as document metadata and is not displayed
+in the output; a field list appearing after the document title will be part of
+the docinfo as normal and will be displayed in the output.
 
 At the moment, these metadata fields are recognized:
 
@@ -203,9 +205,16 @@ following directive exists:
 
 .. warning::
 
-   Tables that contain literal blocks cannot be set with ``tabulary``.  They are
-   therefore set with the standard LaTeX ``tabular`` environment.  Also, the
-   verbatim environment used for literal blocks only works in ``p{width}``
-   columns, which means that by default, Sphinx generates such column specs for
-   such tables.  Use the :rst:dir:`tabularcolumns` directive to get finer control
-   over such tables.
+   Tables that contain list-like elements such as object descriptions,
+   blockquotes or any kind of lists cannot be set out of the box with
+   ``tabulary``.  They are therefore set with the standard LaTeX ``tabular``
+   environment if you don't give a ``tabularcolumns`` directive.  If you do, the
+   table will be set with ``tabulary``, but you must use the ``p{width}``
+   construct for the columns that contain these elements.
+
+   Literal blocks do not work with ``tabulary`` at all, so tables containing a
+   literal block are always set with ``tabular``.  Also, the verbatim
+   environment used for literal blocks only works in ``p{width}`` columns, which
+   means that by default, Sphinx generates such column specs for such tables.
+   Use the :rst:dir:`tabularcolumns` directive to get finer control over such
+   tables.

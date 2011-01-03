@@ -121,7 +121,8 @@ class CObject(ObjectDescription):
                 self._parse_type(param, arg)
             else:
                 self._parse_type(param, ctype)
-                param += nodes.emphasis(' '+argname, ' '+argname)
+                # separate by non-breaking space in the output
+                param += nodes.emphasis(' '+argname, u'\xa0'+argname)
             paramlist += param
         signode += paramlist
         if const:

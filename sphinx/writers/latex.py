@@ -113,6 +113,7 @@ class Table(object):
         self.colspec = None
         self.rowcount = 0
         self.had_head = False
+        self.has_problematic = False
         self.has_verbatim = False
         self.caption = None
         self.longtable = False
@@ -191,6 +192,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             lang = babel.get_language()
             if lang:
                 self.elements['classoptions'] += ',' + babel.get_language()
+            elif builder.config.language == 'ja':
+                self.elements['classoptions'] += ',english,dvipdfm'
+                # not elements of babel, but this should be above sphinx.sty.
+                # because pTeX (Japanese TeX) cannot handle this count.
+                self.elements['babel'] += r'\newcount\pdfoutput\pdfoutput=0'
+                # to make the pdf with correct encoded hyperref bookmarks
+                self.elements['preamble'] += r'\AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}'
             else:
                 self.builder.warn('no Babel option known for language %r' %
                                   builder.config.language)
@@ -482,6 +490,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc(self, node):
         self.body.append('\n\n\\begin{fulllineitems}\n')
+        if self.table:
+            self.table.has_problematic = True
     def depart_desc(self, node):
         self.body.append('\n\\end{fulllineitems}\n\n')
 
@@ -615,14 +625,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
+            endmacro = '\\end{longtable}\n\n'
         elif self.table.has_verbatim:
             self.body.append('\n\\begin{tabular}')
+            endmacro = '\\end{tabular}\n\n'
+        elif self.table.has_problematic and not self.table.colspec:
+            # if the user has given us tabularcolumns, accept them and use
+            # tabulary nevertheless
+            self.body.append('\n\\begin{tabular}')
+            endmacro = '\\end{tabular}\n\n'
         else:
             self.body.append('\n\\begin{tabulary}{\\linewidth}')
+            endmacro = '\\end{tabulary}\n\n'
         if self.table.colspec:
             self.body.append(self.table.colspec)
         else:
-            if self.table.has_verbatim:
+            if self.table.has_problematic:
                 colwidth = 0.95 / self.table.colcount
                 colspec = ('p{%.3f\\linewidth}|' % colwidth) * \
                           self.table.colcount
@@ -655,12 +673,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             self.body.append('\\hline\n')
         self.body.extend(self.tablebody)
-        if self.table.longtable:
-            self.body.append('\\end{longtable}\n\n')
-        elif self.table.has_verbatim:
-            self.body.append('\\end{tabular}\n\n')
-        else:
-            self.body.append('\\end{tabulary}\n\n')
+        self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\\end{threeparttable}\n\n')
         self.table = None
@@ -725,6 +738,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_bullet_list(self, node):
         if not self.compact_list:
             self.body.append('\\begin{itemize}\n' )
+        if self.table:
+            self.table.has_problematic = True
     def depart_bullet_list(self, node):
         if not self.compact_list:
             self.body.append('\\end{itemize}\n' )
@@ -733,6 +748,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\begin{enumerate}\n' )
         if 'start' in node:
             self.body.append('\\setcounter{enumi}{%d}\n' % (node['start'] - 1))
+        if self.table:
+            self.table.has_problematic = True
     def depart_enumerated_list(self, node):
         self.body.append('\\end{enumerate}\n' )
 
@@ -745,6 +762,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_definition_list(self, node):
         self.body.append('\\begin{description}\n')
+        if self.table:
+            self.table.has_problematic = True
     def depart_definition_list(self, node):
         self.body.append('\\end{description}\n')
 
@@ -774,6 +793,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_field_list(self, node):
         self.body.append('\\begin{quote}\\begin{description}\n')
+        if self.table:
+            self.table.has_problematic = True
     def depart_field_list(self, node):
         self.body.append('\\end{description}\\end{quote}\n')
 
@@ -791,10 +812,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_paragraph(self, node):
         self.body.append('\n')
     def depart_paragraph(self, node):
-        self.body.append('\n')
+        self.body.append('\n\n')
 
     def visit_centered(self, node):
         self.body.append('\n\\begin{center}')
+        if self.table:
+            self.table.has_problematic = True
     def depart_centered(self, node):
         self.body.append('\n\\end{center}')
 
@@ -804,6 +827,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.compact_list += 1
         self.body.append('\\begin{itemize}\\setlength{\\itemsep}{0pt}'
                          '\\setlength{\\parskip}{0pt}\n')
+        if self.table:
+            self.table.has_problematic = True
     def depart_hlist(self, node):
         self.compact_list -= 1
         self.body.append('\\end{itemize}\n')
@@ -1220,6 +1245,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table:
             hlcode = hlcode.replace('\\begin{Verbatim}',
                                     '\\begin{OriginalVerbatim}')
+            self.table.has_problematic = True
             self.table.has_verbatim = True
         # get consistent trailer
         hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
@@ -1241,6 +1267,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              '\\begin{DUlineblock}{\\DUlineblockindent}\n')
         else:
             self.body.append('\n\\begin{DUlineblock}{0em}\n')
+        if self.table:
+            self.table.has_problematic = True
     def depart_line_block(self, node):
         self.body.append('\\end{DUlineblock}\n')
 
@@ -1256,6 +1284,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 done = 1
         if not done:
             self.body.append('\\begin{quote}\n')
+            if self.table:
+                self.table.has_problematic = True
     def depart_block_quote(self, node):
         done = 0
         if len(node.children) == 1:
@@ -1292,6 +1322,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_option_list(self, node):
         self.body.append('\\begin{optionlist}{3cm}\n')
+        if self.table:
+            self.table.has_problematic = True
     def depart_option_list(self, node):
         self.body.append('\\end{optionlist}\n')
 
