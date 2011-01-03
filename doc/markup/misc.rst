@@ -13,10 +13,12 @@ like this::
 
    :fieldname: Field content
 
-A field list at the very top of a file is parsed by docutils as the "docinfo",
+A field list near the top of a file is parsed by docutils as the "docinfo"
 which is normally used to record the author, date of publication and other
-metadata.  *In Sphinx*, the docinfo is used as metadata, too, but not displayed
-in the output.
+metadata.  *In Sphinx*, a field list preceding any other markup is moved from
+the docinfo to the Sphinx environment as document metadata and is not displayed
+in the output; a field list appearing after the document title will be part of
+the docinfo as normal and will be displayed in the output.
 
 At the moment, these metadata fields are recognized:
 
