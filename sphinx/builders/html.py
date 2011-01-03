@@ -714,7 +714,7 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            f = codecs.open(outfilename, 'w', encoding)
+            f = codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace')
             try:
                 f.write(output)
             finally:
