@@ -505,8 +505,7 @@ class BuildEnvironment:
                 self.clear_doc(docname)
 
             # read all new and changed files
-            to_read = added | changed
-            for docname in sorted(to_read):
+            for docname in sorted(added | changed):
                 yield docname
                 self.read_doc(docname, app=app)
 
