@@ -289,7 +289,8 @@ There are also new config values that you can set:
 
    Functions imported from C modules cannot be introspected, and therefore the
    signature for such functions cannot be automatically determined.  However, it
-   is a well- convention
+   is an often-used convention to put the signature into the first line of the
+   function's docstring.
 
    If this boolean value is set to ``True`` (which is the default), autodoc will
    look at the first line of the docstring for functions and methods, and if it
