@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* Regression of #77: If there is only one parameter given with
+  ``:param:`` markup, the bullet list is now suppressed again.
+
 * #556: Fix missing paragraph breaks in LaTeX output in certain
   situations.
 

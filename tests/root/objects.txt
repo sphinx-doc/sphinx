@@ -47,6 +47,8 @@ Testing object descriptions
 
 .. class:: TimeInt
 
+   Has only one parameter (triggers special behavior...)
+
    :param moo: |test|
    :type moo: |test|
 

@@ -129,15 +129,13 @@ class TypedField(GroupedField):
     is_typed = True
 
     def __init__(self, name, names=(), typenames=(), label=None,
-                 rolename=None, typerolename=None):
-        GroupedField.__init__(self, name, names, label, rolename, False)
+                 rolename=None, typerolename=None, can_collapse=False):
+        GroupedField.__init__(self, name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
     def make_field(self, types, domain, items):
-        fieldname = nodes.field_name('', self.label)
-        listnode = self.list_type()
-        for fieldarg, content in items:
+        def handle_item(fieldarg, content):
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
             if fieldarg in types:
@@ -154,8 +152,17 @@ class TypedField(GroupedField):
                 par += nodes.Text(')')
             par += nodes.Text(' -- ')
             par += content
-            listnode += nodes.list_item('', par)
-        fieldbody = nodes.field_body('', listnode)
+            return par
+
+        fieldname = nodes.field_name('', self.label)
+        if len(items) == 1 and self.can_collapse:
+            fieldarg, content = items[0]
+            bodynode = handle_item(fieldarg, content)
+        else:
+            bodynode = self.list_type()
+            for fieldarg, content in items:
+                bodynode += nodes.list_item('', handle_item(fieldarg, content))
+        fieldbody = nodes.field_body('', bodynode)
         return nodes.field('', fieldname, fieldbody)
 
 
