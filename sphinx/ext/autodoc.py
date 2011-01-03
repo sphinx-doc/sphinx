@@ -412,15 +412,15 @@ class Documenter(object):
             # etc. don't support a prepended module name
             self.add_line(u'   :module: %s' % self.modname, '<autodoc>')
 
-    def get_doc(self, encoding=None):
+    def get_doc(self, encoding=None, ignore=1):
         """Decode and return lines of the docstring(s) for the object."""
         docstring = self.get_attr(self.object, '__doc__', None)
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
         if isinstance(docstring, unicode):
-            return [prepare_docstring(docstring)]
+            return [prepare_docstring(docstring, ignore)]
         elif docstring:
-            return [prepare_docstring(force_decode(docstring, encoding))]
+            return [prepare_docstring(force_decode(docstring, encoding), ignore)]
         return []
 
     def process_doc(self, docstrings):
@@ -834,7 +834,7 @@ class DocstringSignatureMixin(object):
     """
 
     def _find_signature(self, encoding=None):
-        docstrings = Documenter.get_doc(self, encoding)
+        docstrings = Documenter.get_doc(self, encoding, 2)
         if len(docstrings) != 1:
             return
         doclines = docstrings[0]
@@ -857,11 +857,11 @@ class DocstringSignatureMixin(object):
         setattr(self, '__new_doclines', doclines[i:])
         return args, retann
 
-    def get_doc(self, encoding=None):
+    def get_doc(self, encoding=None, ignore=1):
         lines = getattr(self, '__new_doclines', None)
         if lines is not None:
             return [lines]
-        return Documenter.get_doc(self, encoding)
+        return Documenter.get_doc(self, encoding, ignore)
 
     def format_signature(self):
         if self.args is None and self.env.config.autodoc_docstring_signature:
@@ -978,7 +978,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
                 self.add_line(_(u'   Bases: %s') % ', '.join(bases),
                               '<autodoc>')
 
-    def get_doc(self, encoding=None):
+    def get_doc(self, encoding=None, ignore=1):
         content = self.env.config.autoclass_content
 
         docstrings = []
