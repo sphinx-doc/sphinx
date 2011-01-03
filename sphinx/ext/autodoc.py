@@ -827,7 +827,53 @@ class ClassLevelDocumenter(Documenter):
         return modname, parents + [base]
 
 
-class FunctionDocumenter(ModuleLevelDocumenter):
+class DocstringSignatureMixin(object):
+    """
+    Mixin for FunctionDocumenter and MethodDocumenter to provide the
+    feature of reading the signature from the docstring.
+    """
+
+    def _find_signature(self, encoding=None):
+        docstrings = Documenter.get_doc(self, encoding)
+        if len(docstrings) != 1:
+            return
+        doclines = docstrings[0]
+        setattr(self, '__new_doclines', doclines)
+        if not doclines:
+            return
+        # match first line of docstring against signature RE
+        match = py_ext_sig_re.match(doclines[0])
+        if not match:
+            return
+        exmod, path, base, args, retann = match.groups()
+        # the base name must match ours
+        if not self.objpath or base != self.objpath[-1]:
+            return
+        # ok, now jump over remaining empty lines and set the remaining
+        # lines as the new doclines
+        i = 1
+        while i < len(doclines) and not doclines[i].strip():
+            i += 1
+        setattr(self, '__new_doclines', doclines[i:])
+        return args, retann
+
+    def get_doc(self, encoding=None):
+        lines = getattr(self, '__new_doclines', None)
+        if lines is not None:
+            return [lines]
+        return Documenter.get_doc(self, encoding)
+
+    def format_signature(self):
+        if self.args is None and self.env.config.autodoc_docstring_signature:
+            # only act if a signature is not explicitly given already, and if
+            # the feature is enabled
+            result = self._find_signature()
+            if result is not None:
+                self.args, self.retann = result
+        return Documenter.format_signature(self)
+
+
+class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for functions.
     """
@@ -841,8 +887,8 @@ class FunctionDocumenter(ModuleLevelDocumenter):
     def format_args(self):
         if inspect.isbuiltin(self.object) or \
                inspect.ismethoddescriptor(self.object):
-            # can never get arguments of a C function or method
-            return None
+            # cannot introspect arguments of a C function or method
+            pass
         try:
             argspec = inspect.getargspec(self.object)
         except TypeError:
@@ -1008,7 +1054,7 @@ class DataDocumenter(ModuleLevelDocumenter):
         pass
 
 
-class MethodDocumenter(ClassLevelDocumenter):
+class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
     """
     Specialized Documenter subclass for methods (normal, static and class).
     """
@@ -1235,6 +1281,7 @@ def setup(app):
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
+    app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

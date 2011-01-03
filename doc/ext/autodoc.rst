@@ -285,6 +285,19 @@ There are also new config values that you can set:
 
    .. versionadded:: 1.0
 
+.. confval:: autodoc_docstring_signature
+
+   Functions imported from C modules cannot be introspected, and therefore the
+   signature for such functions cannot be automatically determined.  However, it
+   is a well- convention
+
+   If this boolean value is set to ``True`` (which is the default), autodoc will
+   look at the first line of the docstring for functions and methods, and if it
+   looks like a signature, use the line as the signature and remove it from the
+   docstring content.
+
+   .. versionadded:: 1.1
+
 
 Docstring preprocessing
 -----------------------

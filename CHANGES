@@ -12,6 +12,10 @@ Release 1.1 (in development)
 
 * #460: Allow limiting the depth of section numbers for HTML.
 
+* #564: Add :confval:`autodoc_docstring_signature` which retrieves
+  the signature from the first line of the docstring, if it is
+  found there.
+
 * #176: Provide ``private-members`` option for autodoc directives.
 
 * #520: Provide ``special-members`` option for autodoc directives.
