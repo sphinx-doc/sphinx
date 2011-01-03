@@ -801,7 +801,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_paragraph(self, node):
         self.body.append('\n')
     def depart_paragraph(self, node):
-        self.body.append('\n')
+        self.body.append('\n\n')
 
     def visit_centered(self, node):
         self.body.append('\n\\begin{center}')

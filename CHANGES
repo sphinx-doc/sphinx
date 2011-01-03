@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #556: Fix missing paragraph breaks in LaTeX output in certain
+  situations.
+
 * #567: Emit the ``autodoc-process-docstring`` event even for objects
   without a docstring so that it can add content.
 
