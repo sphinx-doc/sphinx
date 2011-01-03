@@ -93,8 +93,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         .. autoclass:: Noodle
            :members: eat, slurp
 
-   * If you want to make the ``members`` option the default, see
-     :confval:`autodoc_default_flags`.
+   * If you want to make the ``members`` option (or other flag options described
+     below) the default, see :confval:`autodoc_default_flags`.
 
    * Members without docstrings will be left out, unless you give the
      ``undoc-members`` flag option::
@@ -102,6 +102,15 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         .. automodule:: noodle
            :members:
            :undoc-members:
+
+   * Private members will be included if the ``private-members`` flag option is
+     given::
+
+        .. autoclass:: my.Class
+           :members:
+           :private-members:
+
+     .. versionadded:: 1.1
 
    * For classes and exceptions, members inherited from base classes will be
      left out, unless you give the ``inherited-members`` flag option, in
@@ -152,8 +161,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 0.5
 
-   * :rst:dir:`automodule` and :rst:dir:`autoclass` also has an ``member-order`` option
-     that can be used to override the global value of
+   * :rst:dir:`automodule` and :rst:dir:`autoclass` also has an ``member-order``
+     option that can be used to override the global value of
      :confval:`autodoc_member_order` for one directive.
 
      .. versionadded:: 0.6
@@ -173,9 +182,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
 
 .. rst:directive:: autofunction
-               autodata
-               automethod
-               autoattribute
+                   autodata
+                   automethod
+                   autoattribute
 
    These work exactly like :rst:dir:`autoclass` etc., but do not offer the options
    used for automatic member documentation.
@@ -193,11 +202,11 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
           baz = 2
           """Docstring for class attribute Foo.baz."""
-          
+
           def __init__(self):
               #: Doc comment for instance attribute qux.
               self.qux = 3
-              
+
               self.spam = 4
               """Docstring for instance attribute spam."""
 
@@ -253,7 +262,8 @@ There are also new config values that you can set:
 
    This value is a list of autodoc directive flags that should be automatically
    applied to all autodoc directives.  The supported flags are ``'members'``,
-   ``'undoc-members'``, ``'inherited-members'`` and ``'show-inheritance'``.
+   ``'undoc-members'``, ``'private-members'``, ``'inherited-members'`` and
+   ``'show-inheritance'``.
 
    If you set one of these flags in this config value, you can use a negated
    form, :samp:`'no-{flag}'`, in an autodoc directive, to disable it once.

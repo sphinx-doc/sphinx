@@ -12,6 +12,8 @@ Release 1.1 (in development)
 
 * #460: Allow limiting the depth of section numbers for HTML.
 
+* #176: Provide ``private-members`` option for autodoc directives.
+
 * #138: Add an ``index`` role, to make inline index entries.
 
 * #443: Allow referencing external graphviz files.
