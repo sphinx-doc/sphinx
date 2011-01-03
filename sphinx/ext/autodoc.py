@@ -520,6 +520,8 @@ class Documenter(object):
 
         - they are private (except if given explicitly or the private-members
           option is set)
+        - they are special methods (except if given explicitly or the
+          special-members option is set)
         - they are undocumented (except if the undoc-members option is set)
 
         The user can override the skipping decision by connecting to the
@@ -540,7 +542,11 @@ class Documenter(object):
             # if isattr is True, the member is documented as an attribute
             isattr = False
 
-            if want_all and membername.startswith('_'):
+            if want_all and membername.startswith('__') and \
+                   membername.endswith('__') and len(membername) > 4:
+                # special __methods__
+                skip = not self.options.special_members
+            elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
                 skip = not self.options.private_members
             elif (namespace, membername) in attr_docs:
@@ -714,7 +720,7 @@ class ModuleDocumenter(Documenter):
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
-        'private-members': bool_option,
+        'private-members': bool_option, 'special-members': bool_option,
     }
 
     @classmethod
@@ -868,7 +874,8 @@ class ClassDocumenter(ModuleLevelDocumenter):
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'member-order': identity,
-        'exclude-members': members_set_option, 'private-members': bool_option,
+        'exclude-members': members_set_option,
+        'private-members': bool_option, 'special-members': bool_option,
     }
 
     @classmethod
@@ -1135,8 +1142,10 @@ class AutoDirective(Directive):
     _special_attrgetters = {}
 
     # flags that can be given in autodoc_default_flags
-    _default_flags = set(['members', 'undoc-members', 'inherited-members',
-                          'show-inheritance', 'private-members'])
+    _default_flags = set([
+        'members', 'undoc-members', 'inherited-members', 'show-inheritance',
+        'private-members', 'special-members',
+    ])
 
     # standard docutils directive settings
     has_content = True

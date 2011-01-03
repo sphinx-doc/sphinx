@@ -103,12 +103,20 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :members:
            :undoc-members:
 
-   * Private members will be included if the ``private-members`` flag option is
-     given::
+   * "Private" members (that is, those named like ``_private`` or ``__private``)
+     will be included if the ``private-members`` flag option is given.
+
+     .. versionadded:: 1.1
+
+   * Python "special" members (that is, those named like ``__special__``) will
+     be included if the ``special-members`` flag option is given::
 
         .. autoclass:: my.Class
            :members:
            :private-members:
+           :special-members:
+
+     would document both "private" and "special" members of the class.
 
      .. versionadded:: 1.1
 
@@ -262,8 +270,8 @@ There are also new config values that you can set:
 
    This value is a list of autodoc directive flags that should be automatically
    applied to all autodoc directives.  The supported flags are ``'members'``,
-   ``'undoc-members'``, ``'private-members'``, ``'inherited-members'`` and
-   ``'show-inheritance'``.
+   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
+   ``'inherited-members'`` and ``'show-inheritance'``.
 
    If you set one of these flags in this config value, you can use a negated
    form, :samp:`'no-{flag}'`, in an autodoc directive, to disable it once.

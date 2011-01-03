@@ -31,6 +31,7 @@ def setup_module():
         inherited_members = False,
         undoc_members = False,
         private_members = False,
+        special_members = False,
         show_inheritance = False,
         noindex = False,
         synopsis = '',
