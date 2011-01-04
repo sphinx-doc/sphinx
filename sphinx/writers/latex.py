@@ -198,7 +198,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # because pTeX (Japanese TeX) cannot handle this count.
                 self.elements['babel'] += r'\newcount\pdfoutput\pdfoutput=0'
                 # to make the pdf with correct encoded hyperref bookmarks
-                self.elements['preamble'] += r'\AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}'
+                self.elements['preamble'] += \
+                    r'\AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}'
             else:
                 self.builder.warn('no Babel option known for language %r' %
                                   builder.config.language)

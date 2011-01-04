@@ -13,6 +13,9 @@ Testing object descriptions
 .. function:: func_with_module
    :module: foolib
 
+Referring to :func:`func with no index <func_noindex>`.
+Referring to :func:`nothing <>`.
+
 .. module:: mod
    :synopsis: Module synopsis.
    :platform: UNIX
