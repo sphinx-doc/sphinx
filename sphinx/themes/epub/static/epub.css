@@ -343,6 +343,7 @@ dl.glossary dt {
 pre {
     font-family: "LiberationNarrow", monospace;
     overflow: auto;
+    overflow-y: hidden;
 }
 
 td.linenos pre {
