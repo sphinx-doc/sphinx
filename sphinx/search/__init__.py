@@ -156,7 +156,7 @@ class IndexBuilder(object):
         'pickle':   pickle
     }
 
-    def __init__(self, env):
+    def __init__(self, env, lang, options):
         self.env = env
         # filename -> title
         self._titles = {}
@@ -167,10 +167,7 @@ class IndexBuilder(object):
         # objtype index -> objname (localized)
         self._objnames = {}
         # add language-specific SearchLanguage instance
-        search_language = env.config.html_search_language or env.config.language
-        if not search_language or search_language not in languages:
-            search_language = 'en'
-        self.lang = languages[search_language](env.config.html_search_options)
+        self.lang = languages[lang](options)
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -277,7 +274,7 @@ class IndexBuilder(object):
         for word in visitor.found_words:
             add_term(word)
 
-    def globalcontext_for_searchtool(self):
+    def context_for_searchtool(self):
         return dict(
             search_language_stemming_code = self.lang.js_stemmer_code,
             search_language_stop_words = jsdump.dumps(self.lang.stopwords),

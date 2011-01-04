@@ -232,10 +232,15 @@ class StandaloneHTMLBuilder(Builder):
         return pub.writer.parts
 
     def prepare_writing(self, docnames):
-        from sphinx.search import IndexBuilder
-
-        self.indexer = IndexBuilder(self.env)
+        # create the search indexer
+        from sphinx.search import IndexBuilder, languages
+        lang = self.config.html_search_language or self.config.language
+        if not lang or lang not in languages:
+            lang = 'en'
+        self.indexer = IndexBuilder(self.env, lang,
+                                    self.config.html_search_options)
         self.load_indexer(docnames)
+
         self.docwriter = HTMLWriter(self)
         self.docsettings = OptionParser(
             defaults=self.env.settings,
@@ -542,7 +547,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # add context items for search function used in searchtools.js_t
         ctx = self.globalcontext.copy()
-        ctx.update(self.indexer.globalcontext_for_searchtool())
+        ctx.update(self.indexer.context_for_searchtool())
 
         # then, copy over theme-supplied static files
         if self.theme:

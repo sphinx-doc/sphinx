@@ -113,6 +113,11 @@ class BaseSearch(object):
         except TypeError:
             return context
 
+    def context_for_searchtool(self):
+        """Required by the HTML builder."""
+        return {}
+
+
 # The built-in search adapters.
 SEARCH_ADAPTERS = {
     'xapian': ('xapiansearch', 'XapianSearch'),
