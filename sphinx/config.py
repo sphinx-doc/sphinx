@@ -168,6 +168,8 @@ class Config(object):
 
         # linkcheck options
         linkcheck_ignore = ([], None),
+        linkcheck_timeout = (None, None),
+        linkcheck_workers = (5, None),
     )
 
     def __init__(self, dirname, filename, overrides, tags):

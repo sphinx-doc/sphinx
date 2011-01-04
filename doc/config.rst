@@ -1132,6 +1132,21 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_timeout
+
+   A timeout value, in seconds, for the linkcheck builder.  **Only works in
+   Python 2.6 and higher.**  The default is to use Python's global socket
+   timeout.
+
+   .. versionadded:: 1.1
+
+.. confval:: linkcheck_workers
+
+   The number of worker threads to use when checking links.  Default is 5
+   threads.
+
+   .. versionadded:: 1.1
+
 
 .. rubric:: Footnotes
 

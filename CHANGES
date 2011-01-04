@@ -24,6 +24,10 @@ Release 1.1 (in development)
 
 * #443: Allow referencing external graphviz files.
 
+* #472: linkcheck builder: Check links in parallel, use HTTP HEAD
+  requests and allow configuring the timeout.  New config values:
+  :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
+
 * #221: Add Swedish locale.
 
 * Added ``inline`` option to graphviz directives, and fixed the
