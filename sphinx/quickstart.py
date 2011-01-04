@@ -255,6 +255,9 @@ man_pages = [
      [u'%(author_str)s'], 1)
 ]
 
+# If true, show URL addresses after external links.
+#man_show_urls = False
+
 # -- Options for Texinfo output ------------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples

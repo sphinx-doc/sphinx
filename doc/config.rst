@@ -1110,6 +1110,12 @@ These options influence manual page output.
 
    .. versionadded:: 1.0
 
+.. confval:: man_show_urls
+
+   If true, add URL addresses after links.  Default is ``False``.
+
+   .. versionadded:: 1.1
+
 
 .. _texinfo-options:
 

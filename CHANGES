@@ -54,6 +54,8 @@ Release 1.1 (in development)
 * #209: Added :confval:`text_newlines` and :confval:`text_sectionchars`
   config values.
 
+* Added :confval:`man_show_urls` config value.
+
 
 Release 1.0.6 (in development)
 ==============================
