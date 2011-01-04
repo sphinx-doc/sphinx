@@ -8,12 +8,14 @@ Other contributors, listed alphabetically, are:
 * Andi Albrecht -- agogo theme
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
+* Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
 * Josip Dzolonga -- coverage builder
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
 * Dave Kuhlman -- original LaTeX writer
+* Blaise Laflamme -- pyramid theme
 * Thomas Lamb -- linkcheck builder
 * Robert Lehmann -- gettext builder (GSOC project)
 * Dan MacKinlay -- metadata fixes
@@ -31,6 +33,7 @@ Other contributors, listed alphabetically, are:
 * Antonio Valentino -- qthelp builder
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Stefan van der Walt -- autosummary extension
+* Thomas Waldmann -- apidoc module fixes
 * John Waltman -- Texinfo builder
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support

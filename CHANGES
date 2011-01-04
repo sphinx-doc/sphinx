@@ -26,6 +26,10 @@ Release 1.1 (in development)
 
 * Add ``pyramid`` theme.
 
+* #98: Added a ``sphinx-apidoc`` script that autogenerates a
+  hierarchy of source files containing autodoc directives to
+  document modules and packages.
+
 * #472: linkcheck builder: Check links in parallel, use HTTP HEAD
   requests and allow configuring the timeout.  New config values:
   :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
