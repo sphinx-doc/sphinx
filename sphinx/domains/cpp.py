@@ -149,9 +149,9 @@ class DefExpr(object):
         """Nodes returned by :meth:`get_name` can split off their
         owning parent.  This function returns the owner and the
         name as a tuple of two items.  If a node does not support
-        it, :exc:`NotImplementedError` is raised.
+        it, it returns None as owner and self as name.
         """
-        raise NotImplementedError()
+        return None, self
 
     def prefix(self, prefix):
         """Prefixes a name node (a node returned by :meth:`get_name`)."""
@@ -168,9 +168,6 @@ class PrimaryDefExpr(DefExpr):
 
     def get_name(self):
         return self
-
-    def split_owner(self):
-        return None, self
 
     def prefix(self, prefix):
         if isinstance(prefix, PathDefExpr):
