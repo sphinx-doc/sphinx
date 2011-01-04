@@ -1,5 +1,5 @@
-Release 1.0.6 (in development)
-==============================
+Release 1.0.6 (Jan 04, 2011)
+============================
 
 * #581: Fix traceback in Python domain for empty cross-reference
   targets.
