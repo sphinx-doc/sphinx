@@ -585,7 +585,7 @@ class PythonDomain(Domain):
             name = name[:-2]
 
         if not name:
-            return None, None
+            return []
 
         objects = self.data['objects']
         matches = []
