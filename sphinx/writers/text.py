@@ -8,7 +8,7 @@
     :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
+import os
 import re
 import textwrap
 
@@ -52,6 +52,14 @@ class TextTranslator(nodes.NodeVisitor):
     def __init__(self, document, builder):
         nodes.NodeVisitor.__init__(self, document)
 
+        newlines = builder.config.text_newlines
+        if newlines == 'windows':
+            self.nl = '\r\n'
+        elif newlines == 'native':
+            self.nl = os.linesep
+        else:
+            self.nl = '\n'
+        self.sectionchars = builder.config.text_sectionchars
         self.states = [[]]
         self.stateindent = [0]
         self.list_counter = []
@@ -98,9 +106,9 @@ class TextTranslator(nodes.NodeVisitor):
         self.new_state(0)
     def depart_document(self, node):
         self.end_state()
-        self.body = '\n'.join(line and (' '*indent + line)
-                              for indent, lines in self.states[0]
-                              for line in lines)
+        self.body = self.nl.join(line and (' '*indent + line)
+                                 for indent, lines in self.states[0]
+                                 for line in lines)
         # XXX header/footer?
 
     def visit_highlightlang(self, node):
@@ -225,7 +233,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_desc_content(self, node):
         self.new_state()
-        self.add_text('\n')
+        self.add_text(self.nl)
     def depart_desc_content(self, node):
         self.end_state()
 
@@ -251,7 +259,7 @@ class TextTranslator(nodes.NodeVisitor):
                 lastname = production['tokenname']
             else:
                 self.add_text('%s    ' % (' '*len(lastname)))
-            self.add_text(production.astext() + '\n')
+            self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
         raise nodes.SkipNode
 
@@ -351,7 +359,7 @@ class TextTranslator(nodes.NodeVisitor):
                                       'not implemented.')
         self.new_state(0)
     def depart_entry(self, node):
-        text = '\n'.join('\n'.join(x[1]) for x in self.states.pop())
+        text = self.nl.join(self.nl.join(x[1]) for x in self.states.pop())
         self.stateindent.pop()
         self.table[-1].append(text)
 
@@ -387,7 +395,7 @@ class TextTranslator(nodes.NodeVisitor):
             for width in realwidths:
                 out.append(char * (width+2))
                 out.append('+')
-            self.add_text(''.join(out) + '\n')
+            self.add_text(''.join(out) + self.nl)
 
         def writerow(row):
             lines = zip(*row)
@@ -399,7 +407,7 @@ class TextTranslator(nodes.NodeVisitor):
                     else:
                         out.append(' ' * (realwidths[i] + 2))
                     out.append('|')
-                self.add_text(''.join(out) + '\n')
+                self.add_text(''.join(out) + self.nl)
 
         for i, row in enumerate(fmted_rows):
             if separator and i == separator:

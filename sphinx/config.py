@@ -156,8 +156,8 @@ class Config(object):
         latex_preamble = ('', None),
 
         # text options
-        text_sectionchars = ('*=-~"+`', 'text'),
-        text_windows_newlines = (False, 'text'),
+        text_sectionchars = ('*=-~"+`', 'env'),
+        text_newlines = ('unix', 'env'),
 
         # manpage options
         man_pages = ([], None),

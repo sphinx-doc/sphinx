@@ -850,6 +850,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of differnet
    depth in one list.  The default value is ``True``.
 
+
 .. _latex-options:
 
 Options for LaTeX output
@@ -1046,6 +1047,37 @@ These options influence LaTeX output.
 
    .. deprecated:: 0.5
       Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
+
+
+.. _text-options:
+
+Options for text output
+-----------------------
+
+These options influence text output.
+
+.. confval:: text_newlines
+
+   Determines which end-of-line character(s) are used in text output.
+
+   * ``'unix'``: use Unix-style line endings (``\n``)
+   * ``'windows'``: use Windows-style line endings (``\r\n``)
+   * ``'native'``: use the line ending style of the platform the documentation
+     is built on
+
+   Default: ``'unix'``.
+
+   .. versionadded:: 1.1
+
+.. confval:: text_sectionchars
+
+   A string of 7 characters that should be used for underlining sections.
+   The first character is used for first-level headings, the second for
+   second-level headings and so on.
+
+   The default is ``'*=-~"+`'``.
+
+   .. versionadded:: 1.1
 
 
 .. _man-options:
