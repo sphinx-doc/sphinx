@@ -12,7 +12,7 @@
     Example Makefile rule::
 
        generate:
-               sphinx-autogen source/*.rst source/generated
+               sphinx-autogen -o source/generated source/*.rst
 
     :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
