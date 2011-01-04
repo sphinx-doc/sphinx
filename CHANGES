@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #528: Observe :confval:`locale_dirs` when looking for the JS
+  translations file.
+
 * #574: Add special code for better support of Japanese documents
   in the LaTeX builder.
 

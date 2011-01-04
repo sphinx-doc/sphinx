@@ -102,15 +102,21 @@ class StandaloneHTMLBuilder(Builder):
             self.link_suffix = self.out_suffix
 
         if self.config.language is not None:
-            jsfile_list = [path.join(package_dir, 'locale',
-                self.config.language, 'LC_MESSAGES', 'sphinx.js'),
-                path.join(sys.prefix, 'share/sphinx/locale',
-                    self.config.language, 'sphinx.js')]
+            if self._get_translations_js():
+                self.script_files.append('_static/translations.js')
 
-            for jsfile in jsfile_list:
-                if path.isfile(jsfile):
-                    self.script_files.append('_static/translations.js')
-                    break
+    def _get_translations_js(self):
+        candidates = [path.join(package_dir, 'locale', self.config.language,
+                                'LC_MESSAGES', 'sphinx.js'),
+                      path.join(sys.prefix, 'share/sphinx/locale',
+                                self.config.language, 'sphinx.js')] + \
+                     [path.join(dir, self.config.language,
+                                'LC_MESSAGES', 'sphinx.js')
+                      for dir in self.config.locale_dirs]
+        for jsfile in candidates:
+            if path.isfile(jsfile):
+                return jsfile
+        return None
 
     def get_theme_config(self):
         return self.config.html_theme, self.config.html_theme_options
@@ -526,15 +532,10 @@ class StandaloneHTMLBuilder(Builder):
         f.close()
         # then, copy translations JavaScript file
         if self.config.language is not None:
-            jsfile_list = [path.join(package_dir, 'locale',
-                self.config.language, 'LC_MESSAGES', 'sphinx.js'),
-                path.join(sys.prefix, 'share/sphinx/locale',
-                    self.config.language, 'sphinx.js')]
-            for jsfile in jsfile_list:
-                if path.isfile(jsfile):
-                    copyfile(jsfile, path.join(self.outdir, '_static',
-                                               'translations.js'))
-                    break
+            jsfile = self._get_translations_js()
+            if jsfile:
+                copyfile(jsfile, path.join(self.outdir, '_static',
+                                           'translations.js'))
         # then, copy over theme-supplied static files
         if self.theme:
             themeentries = [path.join(themepath, 'static')
