@@ -21,7 +21,7 @@ from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP
+from sphinx.util.osutil import SEP, copyfile
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.texinfo import TexinfoWriter
 
@@ -86,7 +86,8 @@ class TexinfoBuilder(Builder):
     """
     name = 'texinfo'
     format = 'texinfo'
-    supported_image_types = []
+    supported_image_types = ['application/pdf', 'image/png',
+                             'image/gif', 'image/jpeg']
 
     def init(self):
         self.docnames = []
@@ -154,6 +155,7 @@ class TexinfoBuilder(Builder):
                                             nodes.Text('@printindex ge\n',
                                                        '@printindex ge\n'),
                                             format="texinfo")))
+            self.post_process_images(doctree)
             docwriter = TexinfoWriter(self)
             settings = OptionParser(
                 defaults=self.env.settings,
@@ -213,6 +215,15 @@ class TexinfoBuilder(Builder):
         return largetree
 
     def finish(self):
+        # copy image files
+        if self.images:
+            self.info(bold('copying images...'), nonl=1)
+            for src, dest in self.images.iteritems():
+                self.info(' '+src, nonl=1)
+                copyfile(path.join(self.srcdir, src),
+                         path.join(self.outdir, dest))
+            self.info()
+
         self.info(bold('copying Texinfo support files... '), nonl=True)
         # copy Makefile
         fn = path.join(self.outdir, 'Makefile')
