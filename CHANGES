@@ -1,6 +1,8 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #283: Fix literal block display issues on Chrome browsers.
+
 * #383, #148: Support sorting a limited range of accented characters
   in the general index and the glossary.
 

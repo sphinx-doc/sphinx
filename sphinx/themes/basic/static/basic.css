@@ -444,6 +444,7 @@ dl.glossary dt {
 
 pre {
     overflow: auto;
+    overflow-y: hidden;  /* fixes display issues on Chrome browsers */
 }
 
 td.linenos pre {
