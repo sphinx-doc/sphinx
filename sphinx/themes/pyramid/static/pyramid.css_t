@@ -55,9 +55,9 @@ div.body {
     color: #3E4349;
     padding: 0 30px 30px 30px;
     font-size: 1em;
-	border: 2px solid #ddd;
-	border-right-style: none;
-	overflow: auto;
+    border: 2px solid #ddd;
+    border-right-style: none;
+    overflow: auto;
 }
  
 div.footer {
@@ -84,7 +84,7 @@ div.related {
     line-height: 30px;
     color: #373839;
     font-size: 0.8em;
-	background-color: #eee;
+    background-color: #eee;
 }
  
 div.related a {
@@ -92,7 +92,7 @@ div.related a {
 }
 
 div.related ul {
-	padding-left: 240px;
+    padding-left: 240px;
 }
  
 div.sphinxsidebar {
@@ -112,7 +112,7 @@ div.sphinxsidebar h4 {
     font-weight: normal;
     margin: 0;
     padding: 5px 10px;
-	border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid #ddd;
 }
 
 div.sphinxsidebar h4{
@@ -160,9 +160,9 @@ div.sidebar {
     background-color: #e6efc2;
     width: 40%;
     float: right;
-	border-right-style: none;
-	border-left-style: none;
-	padding: 10px 20px;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px;
 }
 
 p.sidebar-title {
@@ -209,7 +209,7 @@ a.headerlink {
 }
  
 a.headerlink:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
  
 div.body p, div.body dd, div.body li {
@@ -226,34 +226,34 @@ div.highlight{
 
 div.note {
     border: 2px solid #7a9eec;
-	border-right-style: none;
-	border-left-style: none;
-	padding: 10px 20px 10px 60px;
-	background: #e1ecfe url(dialog-note.png) no-repeat 10px 8px;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px 10px 60px;
+    background: #e1ecfe url(dialog-note.png) no-repeat 10px 8px;
 }
  
 div.seealso {
     background: #fff6bf url(dialog-seealso.png) no-repeat 10px 8px;
     border: 2px solid #ffd324;
-	border-left-style: none;
-	border-right-style: none;
-	padding: 10px 20px 10px 60px;
+    border-left-style: none;
+    border-right-style: none;
+    padding: 10px 20px 10px 60px;
 }
  
 div.topic {
     background: #eeeeee;
     border: 2px solid #C6C9CB;
     padding: 10px 20px;
-	border-right-style: none;
-	border-left-style: none;
+    border-right-style: none;
+    border-left-style: none;
 }
  
 div.warning {
     background: #fbe3e4 url(dialog-warning.png) no-repeat 10px 8px;
     border: 2px solid #fbc2c4;
-	border-right-style: none;
-	border-left-style: none;
-	padding: 10px 20px 10px 60px;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px 10px 60px;
 }
  
 p.admonition-title {
@@ -272,8 +272,8 @@ pre {
     border: 2px solid #C6C9CB;
     font-size: 1.1em;
     margin: 1.5em 0 1.5em 0;
-	border-right-style: none;
-	border-left-style: none;
+    border-right-style: none;
+    border-left-style: none;
 }
  
 tt {
@@ -290,17 +290,17 @@ tt {
 div.viewcode-block:target {
     background-color: #fff6bf;
     border: 2px solid #ffd324;
-	border-left-style: none;
-	border-right-style: none;
-	padding: 10px 20px;
+    border-left-style: none;
+    border-right-style: none;
+    padding: 10px 20px;
 }
 
 table.highlighttable {
-	width: 100%;
+    width: 100%;
 }
 
 table.highlighttable td {
-	padding: 0;
+    padding: 0;
 }
 
 a em.std-term {
@@ -313,11 +313,11 @@ a:hover em.std-term {
 
 .download {
     font-family: "Nobile", sans-serif;
-	font-weight: normal;
-	font-style: normal;
+    font-weight: normal;
+    font-style: normal;
 }
 
 tt.xref {
-	font-weight: normal;
-	font-style: normal;
+    font-weight: normal;
+    font-style: normal;
 }
