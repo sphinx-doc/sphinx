@@ -539,13 +539,18 @@ class StandaloneHTMLBuilder(Builder):
             if jsfile:
                 copyfile(jsfile, path.join(self.outdir, '_static',
                                            'translations.js'))
+
+        # add context items for search function used in searchtools.js_t
+        ctx = self.globalcontext.copy()
+        ctx.update(self.indexer.globalcontext_for_searchtool())
+
         # then, copy over theme-supplied static files
         if self.theme:
             themeentries = [path.join(themepath, 'static')
                             for themepath in self.theme.get_dirchain()[::-1]]
             for entry in themeentries:
                 copy_static_entry(entry, path.join(self.outdir, '_static'),
-                                  self, self.globalcontext)
+                                  self, ctx)
         # then, copy over all user-supplied static files
         staticentries = [path.join(self.confdir, spath)
                          for spath in self.config.html_static_path]
@@ -558,7 +563,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.warn('html_static_path entry %r does not exist' % entry)
                 continue
             copy_static_entry(entry, path.join(self.outdir, '_static'), self,
-                              self.globalcontext, exclude_matchers=matchers)
+                              ctx, exclude_matchers=matchers)
         # copy logo and favicon files if not already in static path
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)

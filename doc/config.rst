@@ -694,6 +694,38 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 1.0
 
+.. confval:: html_search_language
+
+   Language to be used for generating the HTML full-text search index.  This
+   defaults to the global language selected with :confval:`language`.  If there
+   is no support for this language, ``"en"`` is used which selects the English
+   language.
+
+   Support is present for these languages:
+
+   * ``en`` -- English
+   * ``ja`` -- Japanese
+
+   .. versionadded:: 1.1
+
+.. confval:: html_search_options
+
+   A dictionary with options for the search language support, empty by default.
+   The meaning of these options depends on the language selected.
+
+   The English support has no options.
+
+   The Japanese support has these options:
+
+   * ``type`` -- ``'mecab'`` or ``'default'`` (selects either MeCab or
+     TinySegmenter word splitter algorithm)
+   * ``dic_enc`` -- the encoding for the MeCab algorithm
+   * ``dict`` -- the dictionary to use for the MeCab algorithm
+   * ``lib`` -- the library name for finding the MeCab library via ctypes if the
+     Python binding is not installed
+
+   .. versionadded:: 1.1
+
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.

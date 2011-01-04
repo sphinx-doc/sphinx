@@ -27,6 +27,7 @@ Other contributors, listed alphabetically, are:
 * Benjamin Peterson -- unittests
 * T. Powers -- HTML output improvements
 * Stefan Seefeld -- toctree improvements
+* Shibukawa Yoshiki -- pluggable search API and Japanese search
 * Antonio Valentino -- qthelp builder
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Stefan van der Walt -- autosummary extension

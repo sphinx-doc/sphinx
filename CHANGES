@@ -28,6 +28,9 @@ Release 1.1 (in development)
   requests and allow configuring the timeout.  New config values:
   :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
 
+* #273: Add an API for adding full-text search support for languages
+  other than English.  Add support for Japanese.
+
 * #221: Add Swedish locale.
 
 * Added ``inline`` option to graphviz directives, and fixed the

@@ -487,6 +487,11 @@ class Sphinx(object):
         from sphinx.ext import autodoc
         autodoc.AutoDirective._special_attrgetters[type] = getter
 
+    def add_search_language(self, cls):
+        from sphinx.search import languages, SearchLanguage
+        assert isinstance(cls, SearchLanguage)
+        languages[cls.lang] = cls
+
 
 class TemplateBridge(object):
     """

@@ -286,6 +286,15 @@ the following public API:
 
    .. versionadded:: 0.6
 
+.. method:: Sphinx.add_search_language(cls)
+
+   Add *cls*, which must be a subclass of :class:`sphinx.search.SearchLanguage`,
+   as a support language for building the HTML full-text search index.  The
+   class must have a *lang* attribute that indicates the language it should be
+   used for.  See :confval:`html_search_language`.
+
+   .. versionadded:: 1.1
+
 .. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on
