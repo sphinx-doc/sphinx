@@ -27,6 +27,8 @@ def test_build(app):
     assert ' * function\n' not in py_undoc  # these two are documented
     assert ' * Class\n' not in py_undoc     # in autodoc.txt
 
+    assert ' * mod -- No module named mod'  # in the "failed import" section
+
     c_undoc = (app.outdir / 'c.txt').text()
     assert c_undoc.startswith('Undocumented C API elements\n'
                               '===========================\n')
