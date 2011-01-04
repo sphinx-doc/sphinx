@@ -1,6 +1,9 @@
 Release 1.0.6 (in development)
 ==============================
 
+* #383: Support sorting a limited range of accented characters
+  in the general index.
+
 * #570: Try decoding ``-D`` and ``-A`` command-line arguments with
   the locale's preferred encoding.
 
