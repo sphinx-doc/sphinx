@@ -69,9 +69,9 @@ Builtin themes
 |                    |                    |
 | *traditional*      | *nature*           |
 +--------------------+--------------------+
-| |haiku|            |                    |
+| |haiku|            | |pyramid|          |
 |                    |                    |
-| *haiku*            |                    |
+| *haiku*            | *pyramid*          |
 +--------------------+--------------------+
 
 .. |default|     image:: themes/default.png
@@ -81,6 +81,7 @@ Builtin themes
 .. |traditional| image:: themes/traditional.png
 .. |nature|      image:: themes/nature.png
 .. |haiku|       image:: themes/haiku.png
+.. |pyramid|     image:: themes/pyramid.png
 
 Sphinx comes with a selection of themes to choose from.
 
@@ -176,6 +177,9 @@ These themes are:
 
 * **nature** -- A greenish theme.  There are currently no options beyond
   *nosidebar*.
+
+* **pyramid** -- A theme from the Pyramid web framework project, designed by
+  Blais Laflamme.  THere are currently no options beyond *nosidebar*.
 
 * **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
   <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
