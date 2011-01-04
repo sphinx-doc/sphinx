@@ -166,7 +166,7 @@ class CoverageBuilder(Builder):
                         if exp.match(name):
                             break
                     else:
-                        if full_name not in objects:
+                        if full_name not in objects and not obj.__doc__:
                             # not documented at all
                             classes[name] = []
                             continue
@@ -174,16 +174,20 @@ class CoverageBuilder(Builder):
                         attrs = []
 
                         for attr_name in dir(obj):
+                            if attr_name not in obj.__dict__:
+                                continue
                             attr = getattr(obj, attr_name)
-                        for attr_name, attr in inspect.getmembers(
-                                obj, lambda x: inspect.ismethod(x) or \
-                                               inspect.isfunction(x)):
+                            if (not inspect.ismethod(attr)
+                                and not inspect.isfunction(attr)):
+                                continue
                             if attr_name[0] == '_':
                                 # starts with an underscore, ignore it
                                 continue
 
                             full_attr_name = '%s.%s' % (full_name, attr_name)
                             if full_attr_name not in objects:
+                                if len(obj.__doc__) > 0:
+                                    continue
                                 attrs.append(attr_name)
 
                         if attrs:
@@ -197,8 +201,8 @@ class CoverageBuilder(Builder):
         op = open(output_file, 'w')
         failed = []
         try:
-            write_header(op, 'Undocumented Python objects', '=')
-
+            if self.config.coverage_write_headline:
+                write_header(op, 'Undocumented Python objects', '=')
             keys = self.py_undoc.keys()
             keys.sort()
             for name in keys:
@@ -248,3 +252,4 @@ def setup(app):
     app.add_config_value('coverage_c_path', [], False)
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)
+    app.add_config_value('coverage_write_headline', {}, False)

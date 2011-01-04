@@ -28,3 +28,5 @@ should check:
 .. confval:: coverage_c_regexes
 
 .. confval:: coverage_ignore_c_items
+
+.. confval:: coverage_write_headline
