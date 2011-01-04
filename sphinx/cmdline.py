@@ -90,6 +90,13 @@ def main(argv):
     if err:
         return 1
 
+    # likely encoding used for command-line arguments
+    try:
+        locale = __import__('locale')  # due to submodule of the same name
+        likely_encoding = locale.getpreferredencoding()
+    except Exception:
+        likely_encoding = None
+
     buildername = None
     force_all = freshenv = warningiserror = use_pdb = False
     status = sys.stdout
@@ -129,7 +136,11 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                pass
+                if likely_encoding:
+                    try:
+                        val = val.decode(likely_encoding)
+                    except UnicodeError:
+                        pass
             confoverrides[key] = val
         elif opt == '-A':
             try:
@@ -141,7 +152,11 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                pass
+                if likely_encoding:
+                    try:
+                        val = val.decode(likely_encoding)
+                    except UnicodeError:
+                        pass
             confoverrides['html_context.%s' % key] = val
         elif opt == '-n':
             confoverrides['nitpicky'] = True
