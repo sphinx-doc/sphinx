@@ -61,9 +61,8 @@ PyPI
    http://packages.python.org/.
 
 github pages
-   You can use `Michael Jones' sphinx-to-github tool
-   <http://github.com/michaeljones/sphinx-to-github/tree/master>`_ to prepare
-   Sphinx HTML output.
+   You'll have to opt out of processing your pages with the "Jekyll" preprocessor
+   as described in http://pages.github.com/#using_jekyll_for_complex_layouts.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
