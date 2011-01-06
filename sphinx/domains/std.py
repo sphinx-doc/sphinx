@@ -14,6 +14,7 @@ import unicodedata
 
 from docutils import nodes
 from docutils.parsers.rst import directives
+from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -206,8 +207,8 @@ class OptionXRefRole(XRefRole):
 
 class Glossary(Directive):
     """
-    Directive to create a glossary with cross-reference targets
-    for :term: roles.
+    Directive to create a glossary with cross-reference targets for :term:
+    roles.
     """
 
     has_content = True
@@ -224,37 +225,100 @@ class Glossary(Directive):
         gloss_entries = env.temp_data.setdefault('gloss_entries', set())
         node = addnodes.glossary()
         node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
 
-        # the content should be definition lists
-        dls = [child for child in node
-               if isinstance(child, nodes.definition_list)]
-        # now, extract definition terms to enable cross-reference creation
-        new_dl = nodes.definition_list()
-        new_dl['classes'].append('glossary')
+        # This directive implements a custom format of the reST definition list
+        # that allows multiple lines of terms before the definition.  This is
+        # easy to parse since we know that the contents of the glossary *must
+        # be* a definition list.
+
+        # first, collect single entries
+        entries = []
+        in_definition = True
+        was_empty = True
+        messages = []
+        for (source, lineno, line) in self.content.xitems():
+            # empty line -> add to last definition
+            if not line:
+                if in_definition and entries:
+                    entries[-1][1].append('', source, lineno)
+                was_empty = True
+                continue
+            # unindented line -> a term
+            if line and not line[0].isspace():
+                # first term of definition
+                if in_definition:
+                    if not was_empty:
+                        messages.append(self.state.reporter.system_message(
+                            2, 'glossary term must be preceded by empty line',
+                            source=source, line=lineno))
+                    entries.append(([(line, source, lineno)], ViewList()))
+                    in_definition = False
+                # second term and following
+                else:
+                    if was_empty:
+                        messages.append(self.state.reporter.system_message(
+                            2, 'glossary terms must not be separated by empty '
+                            'lines', source=source, line=lineno))
+                    entries[-1][0].append((line, source, lineno))
+            else:
+                if not in_definition:
+                    # first line of definition, determines indentation
+                    in_definition = True
+                    indent_len = len(line) - len(line.lstrip())
+                entries[-1][1].append(line[indent_len:], source, lineno)
+            was_empty = False
+
+        # now, parse all the entries into a big definition list
         items = []
-        for dl in dls:
-            for li in dl.children:
-                if not li.children or not isinstance(li[0], nodes.term):
-                    continue
-                termtext = li.children[0].astext()
+        for terms, definition in entries:
+            termtexts = []
+            termnodes = []
+            system_messages = []
+            ids = []
+            for line, source, lineno in terms:
+                # parse the term with inline markup
+                res = self.state.inline_text(line, lineno)
+                system_messages.extend(res[1])
+
+                # get a text-only representation of the term and register it
+                # as a cross-reference target
+                tmp = nodes.paragraph('', '', *res[0])
+                termtext = tmp.astext()
                 new_id = 'term-' + nodes.make_id(termtext)
                 if new_id in gloss_entries:
                     new_id = 'term-' + str(len(gloss_entries))
                 gloss_entries.add(new_id)
-                li[0]['names'].append(new_id)
-                li[0]['ids'].append(new_id)
+                ids.append(new_id)
                 objects['term', termtext.lower()] = env.docname, new_id
+                termtexts.append(termtext)
                 # add an index entry too
                 indexnode = addnodes.index()
                 indexnode['entries'] = [('single', termtext, new_id, termtext)]
-                li.insert(0, indexnode)
-                items.append((termtext, li))
+                termnodes += indexnode
+                termnodes.extend(res[0])
+                termnodes.append(addnodes.termsep())
+            # make a single "term" node with all the terms, separated by termsep
+            # nodes (remove the dangling trailing separator)
+            term = nodes.term('', '', *termnodes[:-1])
+            term['ids'].extend(ids)
+            term['names'].extend(ids)
+            term += system_messages
+
+            defnode = nodes.definition()
+            self.state.nested_parse(definition, definition.items[0][1], defnode)
+
+            items.append((termtexts,
+                          nodes.definition_list_item('', term, defnode)))
+
         if 'sorted' in self.options:
-            items.sort(key=lambda x: unicodedata.normalize('NFD', x[0].lower()))
-        new_dl.extend(item[1] for item in items)
-        node.children = [new_dl]
-        return [node]
+            items.sort(key=lambda x:
+                       unicodedata.normalize('NFD', x[0][0].lower()))
+
+        dlist = nodes.definition_list()
+        dlist['classes'].append('glossary')
+        dlist.extend(item[1] for item in items)
+        node += dlist
+        return messages + [node]
 
 
 token_re = re.compile('`([a-z_][a-z0-9_]*)`')

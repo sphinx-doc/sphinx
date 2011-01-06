@@ -161,6 +161,10 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
+    def visit_termsep(self, node):
+        self.body.append(', ')
+        raise nodes.SkipNode
+
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):
         raise nodes.SkipNode

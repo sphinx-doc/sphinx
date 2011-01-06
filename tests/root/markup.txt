@@ -239,12 +239,24 @@ This tests :CLASS:`role names in uppercase`.
    * Monty Python
 
 .. glossary::
+   :sorted:
 
    boson
       Particle with integer spin.
 
-   fermion
+   *fermion*
       Particle with half-integer spin.
+
+   tauon
+   myon
+   electron
+      Examples for fermions.
+
+   über
+      Gewisse
+
+   änhlich
+      Dinge
 
 .. productionlist::
    try_stmt: `try1_stmt` | `try2_stmt`

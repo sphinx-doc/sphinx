@@ -171,6 +171,9 @@ class literal_emphasis(nodes.emphasis):
 class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
 
+class termsep(nodes.Structural, nodes.Element):
+    """Separates two terms within a <term> node."""
+
 
 # make the new nodes known to docutils; needed because the HTML writer will
 # choke at some point if these are not added

@@ -762,6 +762,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_term(self, node):
         pass
 
+    def visit_termsep(self, node):
+        self.add_text(self.at_item_x + ' ', fresh=1)
+
     def visit_classifier(self, node):
         self.add_text(' : ')
     def depart_classifier(self, node):

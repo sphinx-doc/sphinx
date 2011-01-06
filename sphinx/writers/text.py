@@ -483,6 +483,10 @@ class TextTranslator(nodes.NodeVisitor):
         if not self._li_has_classifier:
             self.end_state(end=None)
 
+    def visit_termsep(self, node):
+        self.add_text(', ')
+        raise nodes.SkipNode
+
     def visit_classifier(self, node):
         self.add_text(' : ')
     def depart_classifier(self, node):

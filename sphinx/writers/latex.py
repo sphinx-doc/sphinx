@@ -788,6 +788,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_term(self, node):
         self.body.append(self.context.pop())
 
+    def visit_termsep(self, node):
+        self.body.append(', ')
+        raise nodes.SkipNode
+
     def visit_classifier(self, node):
         self.body.append('{[}')
     def depart_classifier(self, node):
@@ -1059,7 +1063,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\\end{flushright}\n')
 
     def visit_index(self, node, scre=re.compile(r';\s*')):
-        if not node.get('inline'):
+        if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
         for type, string, tid, _ in entries:

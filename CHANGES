@@ -51,6 +51,9 @@ Release 1.1 (in development)
 
 * #526: Added Iranian translation.
 
+* #586: Implemented improved glossary markup which allows multiple terms per
+  definition.
+
 * #559: :confval:`html_add_permalinks` is now a string giving the
   text to display in permalinks.
 

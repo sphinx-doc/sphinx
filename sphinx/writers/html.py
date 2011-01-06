@@ -483,6 +483,10 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
+    def visit_termsep(self, node):
+        self.body.append('<br />')
+        raise nodes.SkipNode
+
     def depart_title(self, node):
         close_tag = self.context[-1]
         if (self.permalink_text and self.builder.add_permalinks and
