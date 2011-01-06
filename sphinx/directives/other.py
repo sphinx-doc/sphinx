@@ -163,6 +163,7 @@ class Index(Directive):
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
+        indexnode['inline'] = False
         for entry in arguments:
             entry = entry.strip()
             for type in pairindextypes:
