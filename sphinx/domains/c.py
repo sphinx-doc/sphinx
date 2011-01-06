@@ -99,13 +99,20 @@ class CObject(ObjectDescription):
         m = c_funcptr_name_re.match(name)
         if m:
             name = m.group(1)
+
+        typename = self.env.temp_data.get('c:type')
+        if self.name == 'c:member' and typename:
+            fullname = typename + '.' + name
+        else:
+            fullname = name
+
         if not arglist:
             if self.objtype == 'function':
                 # for functions, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if const:
                 signode += addnodes.desc_addname(const, const)
-            return name
+            return fullname
 
         paramlist = addnodes.desc_parameterlist()
         arglist = arglist.replace('`', '').replace('\\ ', '') # remove markup
@@ -127,7 +134,7 @@ class CObject(ObjectDescription):
         signode += paramlist
         if const:
             signode += addnodes.desc_addname(const, const)
-        return name
+        return fullname
 
     def get_index_text(self, name):
         if self.objtype == 'function':
@@ -162,6 +169,17 @@ class CObject(ObjectDescription):
         indextext = self.get_index_text(name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext, name, name))
+
+    def before_content(self):
+        self.typename_set = False
+        if self.name == 'c:type':
+            if self.names:
+                self.env.temp_data['c:type'] = self.names[0]
+                self.typename_set = True
+
+    def after_content(self):
+        if self.typename_set:
+            self.env.temp_data['c:type'] = None
 
 
 class CXRefRole(XRefRole):
