@@ -138,15 +138,11 @@
 
 % Play with vspace to be able to keep the indentation.
 \newlength\distancetoright
-\newlength\leftsidespace
 \def\mycolorbox#1{%
-  \setlength\leftsidespace{\@totalleftmargin}%
   \setlength\distancetoright{\linewidth}%
   \advance\distancetoright -\@totalleftmargin %
-  \noindent\hspace*{\@totalleftmargin}%
   \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
   \begin{minipage}{\distancetoright}%
-    \noindent\hspace*{-\leftsidespace}%
     #1
   \end{minipage}%
   }%

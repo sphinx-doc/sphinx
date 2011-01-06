@@ -308,6 +308,8 @@ single word, like this::
    :param integer limit: maximum number of stack frames to show
 
 
+.. _python-roles:
+
 Cross-referencing Python objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -438,6 +440,8 @@ The C domain (name **c**) is suited for documentation of C API.
       .. c:var:: PyObject* PyClass_Type
 
 
+.. _c-roles:
+
 Cross-referencing C constructs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -521,6 +525,9 @@ The following directives are available:
 .. rst:directive:: .. cpp:namespace:: namespace
 
    Select the current C++ namespace for the following objects.
+
+
+.. _cpp-roles:
 
 These roles link to the given object types:
 
@@ -689,6 +696,8 @@ The JavaScript domain (name **js**) provides the following directives:
 
    Describes the attribute *name* of *object*.
 
+.. _js-roles:
+
 These roles are provided to refer to the described objects:
 
 .. rst:role:: js:func
@@ -739,6 +748,8 @@ The reStructuredText domain (name **rst**) provides the following directives:
       .. rst:role:: foo
 
          Foo description.
+
+.. _rst-roles:
 
 These roles are provided to refer to the described objects:
 
