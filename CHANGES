@@ -24,7 +24,9 @@ Release 1.1 (in development)
 
 * #443: Allow referencing external graphviz files.
 
-* Add ``pyramid`` theme.
+* Added the :mod:`sphinx.ext.mathjax` extension.
+
+* Added ``pyramid`` theme.
 
 * #98: Added a ``sphinx-apidoc`` script that autogenerates a
   hierarchy of source files containing autodoc directives to

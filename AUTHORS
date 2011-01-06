@@ -11,6 +11,7 @@ Other contributors, listed alphabetically, are:
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
+* Kevin Dunn -- MathJax extension
 * Josip Dzolonga -- coverage builder
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
