@@ -256,6 +256,9 @@ class Documenter(object):
         self.retann = None
         # the object to document (set after import_object succeeds)
         self.object = None
+        self.object_name = None
+        # the parent/owner of the object to document
+        self.parent = None
         # the module analyzer to get at attribute docs, or None
         self.analyzer = None
 
@@ -321,9 +324,13 @@ class Documenter(object):
         """
         try:
             __import__(self.modname)
+            parent = None
             obj = self.module = sys.modules[self.modname]
             for part in self.objpath:
+                parent = obj
                 obj = self.get_attr(obj, part)
+                self.object_name = part
+            self.parent = parent
             self.object = obj
             return True
         # this used to only catch SyntaxError, ImportError and AttributeError,
@@ -1064,6 +1071,10 @@ class AttributeDocumenter(ClassLevelDocumenter):
 
     def document_members(self, all_members=False):
         pass
+
+    def get_real_modname(self):
+        return self.get_attr(self.parent or self.object, '__module__', None) \
+               or self.modname
 
 
 class InstanceAttributeDocumenter(AttributeDocumenter):

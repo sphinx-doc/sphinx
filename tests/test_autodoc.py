@@ -17,6 +17,7 @@ from docutils.statemachine import ViewList
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
      ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
+from StringIO import StringIO
 
 def setup_module():
     global app, lid, options, directive
@@ -416,6 +417,7 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.attr'),
                    ('attribute', 'test_autodoc.Class.docattr'),
                    ('attribute', 'test_autodoc.Class.udocattr'),
+                   ('attribute', 'test_autodoc.Class.mdocattr'),
                    ('attribute', 'test_autodoc.Class.inst_attr_comment'),
                    ('attribute', 'test_autodoc.Class.inst_attr_string')
                    ])
@@ -484,11 +486,19 @@ def test_generate():
                   '   .. py:attribute:: Class.prop',
                   '   .. py:attribute:: Class.docattr',
                   '   .. py:attribute:: Class.udocattr',
+                  '   .. py:attribute:: Class.mdocattr',
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
                   '   .. py:method:: Class.inheritedmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
+    del directive.env.temp_data['py:module']
+
+    # test attribute initialized to class instance from other module
+    directive.env.temp_data['autodoc:class'] = 'test_autodoc.Class'
+    assert_result_contains(u'   should be documented as well - s\xfc\xdf',
+                           'attribute', 'mdocattr')
+    del directive.env.temp_data['autodoc:class']
 
 
 # --- generate fodder ------------
@@ -551,6 +561,10 @@ class Class(Base):
 
     udocattr = 'quux'
     u"""should be documented as well - süß"""
+
+    # initialized to any class imported from another module
+    mdocattr = StringIO()
+    """should be documented as well - süß"""
 
     def __init__(self, arg):
         #: a documented instance attribute

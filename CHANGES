@@ -1,6 +1,9 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #568: Fix lookup of class attribute documentation on descriptors
+  so that comment documentation now works.
+
 * Fix traceback with ``only`` directives preceded by targets.
 
 * Fix tracebacks occurring for duplicate C++ domain objects.
