@@ -1363,7 +1363,9 @@ class BuildEnvironment:
                 if ret:
                     node.replace_self(node.children)
                 else:
-                    node.replace_self([])
+                    # replacing by [] would result in an "Losing ids" exception
+                    # if there is a target node before the only node
+                    node.replace_self(nodes.comment())
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
