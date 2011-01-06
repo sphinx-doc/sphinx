@@ -503,6 +503,33 @@ class HTMLTranslator(BaseTranslator):
 
         BaseTranslator.depart_title(self, node)
 
+    # overwritten to add even/odd classes
+
+    def visit_table(self, node):
+        self._table_row_index = 0
+        return BaseTranslator.visit_table(self, node)
+
+    def visit_row(self, node):
+        self._table_row_index += 1
+        if self._table_row_index % 2 == 0:
+            node['classes'].append('row-even')
+        else:
+            node['classes'].append('row-odd')
+        self.body.append(self.starttag(node, 'tr', ''))
+        node.column = 0
+
+    def visit_field_list(self, node):
+        self._fieldlist_row_index = 0
+        return BaseTranslator.visit_field_list(self, node)
+
+    def visit_field(self, node):
+        self._fieldlist_row_index += 1
+        if self._fieldlist_row_index % 2 == 0:
+            node['classes'].append('field-even')
+        else:
+            node['classes'].append('field-odd')
+        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
