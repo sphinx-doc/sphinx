@@ -76,7 +76,7 @@ class Config(object):
         html_theme = ('default', 'html'),
         html_theme_path = ([], 'html'),
         html_theme_options = ({}, 'html'),
-        html_title = (lambda self: '%s v%s documentation' %
+        html_title = (lambda self: '%s %s documentation' %
                                    (self.project, self.release),
                       'html'),
         html_short_title = (lambda self: self.html_title, 'html'),
