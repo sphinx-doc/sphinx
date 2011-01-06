@@ -1059,6 +1059,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\\end{flushright}\n')
 
     def visit_index(self, node, scre=re.compile(r';\s*')):
+        if not node.get('inline'):
+            self.body.append('\n')
         entries = node['entries']
         for type, string, tid, _ in entries:
             if type == 'single':
