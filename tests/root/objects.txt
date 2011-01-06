@@ -161,3 +161,14 @@ User markup
 
 
 Referencing :userdescrole:`myobj`.
+
+
+CPP domain
+==========
+
+.. cpp:class:: n::Array<T,d>
+
+   .. cpp:function:: T& operator[]( unsigned j )
+
+   .. cpp:function:: const T& operator[]( unsigned j ) const
+

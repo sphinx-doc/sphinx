@@ -1,6 +1,8 @@
 Release 1.0.7 (in development)
 ==============================
 
+* Fix tracebacks occurring for duplicate C++ domain objects.
+
 
 Release 1.0.6 (Jan 04, 2011)
 ============================

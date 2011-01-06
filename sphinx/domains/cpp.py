@@ -161,7 +161,7 @@ class DefExpr(object):
         return unicode(self).encode('utf-8')
 
     def __repr__(self):
-        return '<defexpr %s>' % self
+        return '<%s %s>' % (self.__class__.__name__, self)
 
 
 class PrimaryDefExpr(DefExpr):
@@ -818,13 +818,14 @@ class CPPObject(ObjectDescription):
     def add_target_and_index(self, sigobj, sig, signode):
         theid = sigobj.get_id()
         name = unicode(sigobj.name)
-        signode['names'].append(theid)
-        signode['ids'].append(theid)
-        signode['first'] = (not self.names)
-        self.state.document.note_explicit_target(signode)
+        if theid not in self.state.document.ids:
+            signode['names'].append(theid)
+            signode['ids'].append(theid)
+            signode['first'] = (not self.names)
+            self.state.document.note_explicit_target(signode)
 
-        self.env.domaindata['cpp']['objects'].setdefault(name,
-            (self.env.docname, self.objtype, theid))
+            self.env.domaindata['cpp']['objects'].setdefault(name,
+                (self.env.docname, self.objtype, theid))
 
         indextext = self.get_index_text(name)
         if indextext:
