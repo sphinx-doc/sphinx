@@ -1142,6 +1142,10 @@ class AttributeDocumenter(ClassLevelDocumenter):
     def document_members(self, all_members=False):
         pass
 
+    def get_real_modname(self):
+        return self.get_attr(self.parent or self.object, '__module__', None) \
+               or self.modname
+
 
 class InstanceAttributeDocumenter(AttributeDocumenter):
     """

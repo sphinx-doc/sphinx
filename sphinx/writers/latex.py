@@ -102,8 +102,10 @@ class ExtBabel(Babel):
             return '\\shorthandoff{"}'
         return ''
 
-    _ISO639_TO_BABEL = Babel._ISO639_TO_BABEL.copy()
-    _ISO639_TO_BABEL['sl'] = 'slovene'
+# in latest trunk, the attribute is called Babel.language_codes and already
+# includes Slovene
+if hasattr(Babel, '_ISO639_TO_BABEL'):
+    Babel._ISO639_TO_BABEL['sl'] = 'slovene'
 
 
 class Table(object):

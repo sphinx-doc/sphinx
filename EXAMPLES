@@ -28,6 +28,8 @@ Documentation using the default theme
 * Heapkeeper: http://heapkeeper.org/
 * Hedge: http://documen.tician.de/hedge/
 * Kaa: http://doc.freevo.org/api/kaa/
+* Leo: http://webpages.charter.net/edreamleo/front.html
+* Lino: http://lino.saffre-rumma.ee/
 * MeshPy: http://documen.tician.de/meshpy/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
@@ -90,6 +92,7 @@ Documentation using the sphinxdoc theme
 * MyHDL: http://www.myhdl.org/doc/0.6/
 * NetworkX: http://networkx.lanl.gov/
 * Pweave: http://mpastell.com/pweave/
+* Pyre: http://docs.danse.us/pyre/sphinx/
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
