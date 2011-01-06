@@ -12,9 +12,10 @@ in itself.  See the :ref:`intl-options` for details on configuration.
 .. figure:: translation.png
    :width: 100%
 
-   Workflow visualization of translations in Sphinx. [1]_
+   Workflow visualization of translations in Sphinx.  (The stick-figure is taken
+   from an `XKCD comic <http://xkcd.com/779/>`_.)
 
-**gettext** [2]_ is an established standard for internationalization and
+**gettext** [1]_ is an established standard for internationalization and
 localization.  It naïvely maps messages in a program to a translated string.
 Sphinx uses these facilities to translate whole documents.
 
@@ -46,7 +47,7 @@ up automatically.
 
 An example: you have a document ``usage.rst`` in your Sphinx project.  The
 gettext builder will put its messages into ``usage.pot``.  Image you have
-Spanish translations [3]_ on your hands in ``usage.po`` --- for your builds to
+Spanish translations [2]_ on your hands in ``usage.po`` --- for your builds to
 be translated you need to follow these instructions:
 
 * Compile your message catalog to a locale directory, say ``translated``, so it
@@ -62,8 +63,7 @@ be translated you need to follow these instructions:
 
 .. rubric:: Footnotes
 
-.. [1] The stick-figure is taken from an `XKCD comic <http://xkcd.com/779/>`_.
-.. [2] See the `GNU gettext utilites
+.. [1] See the `GNU gettext utilites
        <http://www.gnu.org/software/gettext/manual/gettext.html#Introduction>`_
        for details on that software suite.
-.. [3] Because nobody expects the Spanish Inquisition!
+.. [2] Because nobody expects the Spanish Inquisition!
