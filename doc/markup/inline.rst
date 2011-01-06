@@ -44,6 +44,18 @@ more versatile:
   tool-tip on mouse-hover) will always be the full target name.
 
 
+Cross-referencing objects
+-------------------------
+
+These roles are described with their respective domains:
+
+* :ref:`Python <python-roles>`
+* :ref:`C <c-roles>`
+* :ref:`C++ <cpp-roles>`
+* :ref:`JavaScript <js-roles>`
+* :ref:`ReST <rst-roles>`
+
+
 .. _ref-role:
 
 Cross-referencing arbitrary locations
