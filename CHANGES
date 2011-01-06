@@ -1,6 +1,8 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #571: Implement ``~`` cross-reference prefix for the C domain.
+
 * Fix regression of LaTeX output with the fix of #556.
 
 * #568: Fix lookup of class attribute documentation on descriptors

@@ -164,6 +164,20 @@ class CObject(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext, name, name))
 
 
+class CXRefRole(XRefRole):
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        if not has_explicit_title:
+            target = target.lstrip('~') # only has a meaning for the title
+            # if the first character is a tilde, don't display the module/class
+            # parts of the contents
+            if title[0:1] == '~':
+                title = title[1:]
+                dot = title.rfind('.')
+                if dot != -1:
+                    title = title[dot+1:]
+        return title, target
+
+
 class CDomain(Domain):
     """C language domain."""
     name = 'c'
@@ -184,11 +198,11 @@ class CDomain(Domain):
         'var':      CObject,
     }
     roles = {
-        'func' :  XRefRole(fix_parens=True),
-        'member': XRefRole(),
-        'macro':  XRefRole(),
-        'data':   XRefRole(),
-        'type':   XRefRole(),
+        'func' :  CXRefRole(fix_parens=True),
+        'member': CXRefRole(),
+        'macro':  CXRefRole(),
+        'data':   CXRefRole(),
+        'type':   CXRefRole(),
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
