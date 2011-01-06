@@ -285,6 +285,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, target)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
+    indexnode['inline'] = True
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 

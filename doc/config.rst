@@ -933,10 +933,18 @@ These options influence LaTeX output.
 
 .. confval:: latex_show_urls
 
-   If true, add URL addresses after links.  This is very useful for printed
-   copies of the manual.  Default is ``False``.
+   Control whether to display URL addresses.  This is very useful for printed
+   copies of the manual.  The setting can have the following values:
+
+   * ``'no'`` -- do not display URLs (default)
+   * ``'footnote'`` -- display URLs in footnotes
+   * ``'inline'`` -- display URLs inline in parentheses
 
    .. versionadded:: 1.0
+   .. versionchanged:: 1.1
+      This value is now a string; previously it was a boolean value, and a true
+      value selected the ``'inline'`` display.  For backwards compatibility,
+      ``True`` is still accepted.
 
 .. confval:: latex_elements
 

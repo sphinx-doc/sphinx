@@ -46,6 +46,9 @@ Release 1.1 (in development)
 
 * #521: Added :confval:`linkcheck_ignore` config value.
 
+* #516: Added new value of the :confval:`latex_show_urls` option to
+  show the URLs in footnotes.
+
 * #526: Added Iranian translation.
 
 * #559: :confval:`html_add_permalinks` is now a string giving the

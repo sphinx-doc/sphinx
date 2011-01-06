@@ -242,6 +242,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.verbatim = None
         self.in_title = 0
         self.in_production_list = 0
+        self.in_footnote = 0
+        self.in_caption = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -594,9 +596,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_collected_footnote(self, node):
+        self.in_footnote += 1
         self.body.append('\\footnote{')
     def depart_collected_footnote(self, node):
         self.body.append('}')
+        self.in_footnote -= 1
 
     def visit_label(self, node):
         if isinstance(node.parent, nodes.citation):
@@ -815,7 +819,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_paragraph(self, node):
         self.body.append('\n')
     def depart_paragraph(self, node):
-        self.body.append('\n\n')
+        self.body.append('\n')
 
     def visit_centered(self, node):
         self.body.append('\n\\begin{center}')
@@ -946,9 +950,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(self.context.pop())
 
     def visit_caption(self, node):
+        self.in_caption += 1
         self.body.append('\\caption{')
     def depart_caption(self, node):
         self.body.append('}')
+        self.in_caption -= 1
 
     def visit_legend(self, node):
         self.body.append('{\\small ')
@@ -1091,11 +1097,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
                  uri.startswith('https:') or uri.startswith('ftp:'):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
             # if configured, put the URL after the link
-            if self.builder.config.latex_show_urls and \
-                   node.astext() != uri:
+            show_urls = self.builder.config.latex_show_urls
+            if node.astext() != uri and show_urls and show_urls != 'no':
                 if uri.startswith('mailto:'):
                     uri = uri[7:]
-                self.context.append('} (%s)' % self.encode_uri(uri))
+                if show_urls == 'footnote' and not \
+                   (self.in_footnote or self.in_caption):
+                    # obviously, footnotes in footnotes are not going to work
+                    self.context.append(
+                        r'}\footnote{%s}' % self.encode_uri(uri))
+                else:  # all other true values (b/w compat)
+                    self.context.append('} (%s)' % self.encode_uri(uri))
             else:
                 self.context.append('}')
         elif uri.startswith('#'):
@@ -1221,6 +1233,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if used:
             self.body.append('\\footnotemark[%s]' % num)
         else:
+            if self.in_caption:
+                raise UnsupportedError('%s:%s: footnotes in float captions '
+                                       'are not supported by LaTeX' %
+                                       (self.curfilestack[-1], node.line))
             footnode.walkabout(self)
             self.footnotestack[-1][num][1] = True
         raise nodes.SkipChildren

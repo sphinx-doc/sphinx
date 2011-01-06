@@ -44,6 +44,7 @@ latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
 }
+latex_show_urls = 'footnote'
 
 autodoc_member_order = 'groupwise'
 todo_include_todos = True

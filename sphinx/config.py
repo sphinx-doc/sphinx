@@ -143,7 +143,7 @@ class Config(object):
         latex_use_parts = (False, None),
         latex_use_modindex = (True, None),  # deprecated
         latex_domain_indices = (True, None),
-        latex_show_urls = (False, None),
+        latex_show_urls = ('no', None),
         latex_show_pagerefs = (False, None),
         # paper_size and font_size are still separate values
         # so that you can give them easily on the command line
