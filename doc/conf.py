@@ -92,8 +92,12 @@ def parse_event(env, sig, signode):
 
 def setup(app):
     from sphinx.ext.autodoc import cut_lines
+    from sphinx.util.docfields import GroupedField
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
-    app.add_description_unit('confval', 'confval',
-                             objname='configuration value',
-                             indextemplate='pair: %s; configuration value')
-    app.add_description_unit('event', 'event', 'pair: %s; event', parse_event)
+    app.add_object_type('confval', 'confval',
+                        objname='configuration value',
+                        indextemplate='pair: %s; configuration value')
+    fdesc = GroupedField('parameter', label='Parameters',
+                         names=['param'], can_collapse=True)
+    app.add_object_type('event', 'event', 'pair: %s; event', parse_event,
+                        doc_field_types=[fdesc])

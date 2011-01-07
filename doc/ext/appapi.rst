@@ -163,7 +163,8 @@ the following public API:
 
    .. versionadded:: 0.6
 
-.. method:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='')
+.. method:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, \
+                                   ref_nodeclass=None, objname='', doc_field_types=[])
 
    This method is a very convenient way to add a new :term:`object` type that
    can be cross-referenced.  It will do this:
