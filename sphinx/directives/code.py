@@ -64,6 +64,7 @@ class CodeBlock(Directive):
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options
+        literal.line = self.lineno
         return [literal]
 
 
@@ -180,6 +181,7 @@ class LiteralInclude(Directive):
             text = text.expandtabs(self.options['tab-width'])
         retnode = nodes.literal_block(text, text, source=fn)
         retnode.line = 1
+        retnode.attributes['line_number'] = self.lineno
         if self.options.get('language', ''):
             retnode['language'] = self.options['language']
         if 'linenos' in self.options:

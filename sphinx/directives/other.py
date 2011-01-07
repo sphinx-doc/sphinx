@@ -260,6 +260,7 @@ class TabularColumns(Directive):
     def run(self):
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
+        node.line = self.lineno
         return [node]
 
 
