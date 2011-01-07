@@ -1,6 +1,8 @@
 Release 1.0.7 (in development)
 ==============================
 
+* Fix general index links for C++ domain objects.
+
 * #332: Make admonition boundaries in LaTeX output visible.
 
 * #573: Fix KeyErrors occurring on rebuild after removing a file.
