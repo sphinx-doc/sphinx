@@ -49,6 +49,8 @@ Release 1.0.8 (Sep 22, 2011)
 
 * #647: Do not apply SmartyPants in parsed-literal blocks.
 
+* C++ domain now supports array definitions.
+
 
 Release 1.0.7 (Jan 15, 2011)
 ============================
