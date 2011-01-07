@@ -265,11 +265,11 @@
 
 \newcommand{\py@heavybox}{
   \setlength{\fboxrule}{1pt}
-  \setlength{\fboxsep}{7pt}
+  \setlength{\fboxsep}{6pt}
   \setlength{\py@noticelength}{\linewidth}
   \addtolength{\py@noticelength}{-2\fboxsep}
   \addtolength{\py@noticelength}{-2\fboxrule}
-  \setlength{\shadowsize}{3pt}
+  %\setlength{\shadowsize}{3pt}
   \Sbox
   \minipage{\py@noticelength}
 }
@@ -279,15 +279,26 @@
   \fbox{\TheSbox}
 }
 
+\newcommand{\py@lightbox}{{%
+  \setlength\parskip{0pt}\par
+  \rule[0ex]{\linewidth}{0.5pt}%
+  \par\vspace{-0.5ex}%
+  }}
+\newcommand{\py@endlightbox}{{%
+  \setlength{\parskip}{0pt}%
+  \par\rule[0.5ex]{\linewidth}{0.5pt}%
+  \par\vspace{-0.5ex}%
+  }}
+
 % Some are quite plain:
-\newcommand{\py@noticestart@note}{}
-\newcommand{\py@noticeend@note}{}
-\newcommand{\py@noticestart@hint}{}
-\newcommand{\py@noticeend@hint}{}
-\newcommand{\py@noticestart@important}{}
-\newcommand{\py@noticeend@important}{}
-\newcommand{\py@noticestart@tip}{}
-\newcommand{\py@noticeend@tip}{}
+\newcommand{\py@noticestart@note}{\py@lightbox}
+\newcommand{\py@noticeend@note}{\py@endlightbox}
+\newcommand{\py@noticestart@hint}{\py@lightbox}
+\newcommand{\py@noticeend@hint}{\py@endlightbox}
+\newcommand{\py@noticestart@important}{\py@lightbox}
+\newcommand{\py@noticeend@important}{\py@endlightbox}
+\newcommand{\py@noticestart@tip}{\py@lightbox}
+\newcommand{\py@noticeend@tip}{\py@endlightbox}
 
 % Others gets more visible distinction:
 \newcommand{\py@noticestart@warning}{\py@heavybox}
@@ -304,7 +315,7 @@
 \newenvironment{notice}[2]{
   \def\py@noticetype{#1}
   \csname py@noticestart@#1\endcsname
-  \par\strong{#2}
+  \strong{#2}
 }{\csname py@noticeend@\py@noticetype\endcsname}
 
 % Allow the release number to be specified independently of the
