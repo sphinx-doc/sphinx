@@ -1,6 +1,8 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #589: Build using app.build() in setup command.
+
 * Fix a bug in the inheritance diagram exception that caused base
   classes to be skipped if one of them is a builtin.
 
