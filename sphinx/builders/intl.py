@@ -17,7 +17,6 @@ from collections import defaultdict
 from docutils import nodes
 
 from sphinx.builders import Builder
-from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.util.nodes import extract_messages
 from sphinx.util.osutil import SEP, copyfile
 from sphinx.util.console import darkgreen
@@ -44,7 +43,7 @@ msgstr ""
 """[1:]
 
 
-class I18nBuilder(Builder, VersioningBuilderMixin):
+class I18nBuilder(Builder):
     """
     General i18n builder.
     """
@@ -52,7 +51,6 @@ class I18nBuilder(Builder, VersioningBuilderMixin):
 
     def init(self):
         Builder.init(self)
-        VersioningBuilderMixin.init(self)
         self.catalogs = defaultdict(dict)
 
     def get_target_uri(self, docname, typ=None):
@@ -67,14 +65,8 @@ class I18nBuilder(Builder, VersioningBuilderMixin):
     def write_doc(self, docname, doctree):
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
 
-        self.handle_versioning(docname, doctree, nodes.TextElement)
-
         for node, msg in extract_messages(doctree):
             catalog.setdefault(node.uid, msg)
-
-    def finish(self):
-        Builder.finish(self)
-        VersioningBuilderMixin.finish(self)
 
 
 class MessageCatalogBuilder(I18nBuilder):

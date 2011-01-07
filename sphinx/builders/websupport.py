@@ -17,13 +17,11 @@ from docutils.io import StringOutput
 
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, copyfile
-from sphinx.util.websupport import is_commentable
 from sphinx.builders.html import PickleHTMLBuilder
-from sphinx.builders.versioning import VersioningBuilderMixin
 from sphinx.writers.websupport import WebSupportTranslator
 
 
-class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
+class WebSupportBuilder(PickleHTMLBuilder):
     """
     Builds documents for the web support package.
     """
@@ -31,7 +29,6 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
 
     def init(self):
         PickleHTMLBuilder.init(self)
-        VersioningBuilderMixin.init(self)
         # templates are needed for this builder, but the serializing
         # builder does not initialize them
         self.init_templates()
@@ -57,8 +54,6 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
     def write_doc(self, docname, doctree):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
-
-        self.handle_versioning(docname, doctree, is_commentable)
 
         self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
@@ -144,7 +139,6 @@ class WebSupportBuilder(PickleHTMLBuilder, VersioningBuilderMixin):
         self.globalcontext['script'] = doc_ctx['script']
 
         PickleHTMLBuilder.handle_finish(self)
-        VersioningBuilderMixin.finish(self)
 
         # move static stuff over to separate directory
         directories = ['_images', '_static']
