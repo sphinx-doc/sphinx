@@ -1,6 +1,8 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #573: Fix KeyErrors occurring on rebuild after removing a file.
+
 * Fix a traceback when removing files with globbed toctrees.
 
 * If an autodoc object cannot be imported, always re-read the

@@ -277,7 +277,8 @@ class Builder(object):
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
             for tocdocname in self.env.files_to_rebuild.get(docname, []):
-                docnames.add(tocdocname)
+                if tocdocname in self.env.found_docs:
+                    docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
         self.info(bold('preparing documents... '), nonl=True)
