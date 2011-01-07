@@ -223,6 +223,8 @@ class Documenter(object):
     priority = 0
     #: order if autodoc_member_order is set to 'groupwise'
     member_order = 0
+    #: true if the generated content may contain titles
+    titles_allowed = False
 
     option_spec = {'noindex': bool_option}
 
@@ -717,6 +719,7 @@ class ModuleDocumenter(Documenter):
     """
     objtype = 'module'
     content_indent = u''
+    titles_allowed = True
 
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
@@ -1184,7 +1187,7 @@ class AutoDirective(Directive):
         self.state.memo.reporter = AutodocReporter(self.result,
                                                    self.state.memo.reporter)
 
-        if self.name == 'automodule':
+        if documenter.titles_allowed:
             node = nodes.section()
             # necessary so that the child nodes get the right source/line set
             node.document = self.state.document
