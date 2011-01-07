@@ -67,6 +67,8 @@ Release 1.1 (in development)
 * #259: HTML table rows now have even/odd CSS classes to enable
   "Zebra styling".
 
+* #306: Added :event:`env-get-outdated` event.
+
 * C++ domain now supports array definitions.
 
 

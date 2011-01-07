@@ -548,6 +548,10 @@ class BuildEnvironment:
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
+        # allow user intervention as well
+        for docs in app.emit('env-get-outdated', self, added, changed, removed):
+            changed.update(set(docs) & self.found_docs)
+
         # if files were added or removed, all documents with globbed toctrees
         # must be reread
         if added or removed:

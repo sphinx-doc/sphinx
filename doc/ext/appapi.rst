@@ -352,6 +352,15 @@ registered event handlers.
    Emitted when the builder object has been created.  It is available as
    ``app.builder``.
 
+.. event:: env-get-outdated (app, env, added, changed, removed)
+
+   Emitted when the environment determines which source files have changed and
+   should be re-read.  *added*, *changed* and *removed* are sets of docnames
+   that the environment has determined.  You can return a list of docnames to
+   re-read in addition to these.
+
+   .. versionadded:: 1.1
+
 .. event:: env-purge-doc (app, env, docname)
 
    Emitted when all traces of a source file should be cleaned from the
