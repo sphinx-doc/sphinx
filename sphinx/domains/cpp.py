@@ -28,6 +28,7 @@ _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
+_array_def_re = re.compile(r'\[\s*(.+?)?\s*\]')
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
@@ -271,6 +272,22 @@ class PtrDefExpr(WrappingDefExpr):
 
     def __unicode__(self):
         return u'%s*' % self.typename
+
+
+class ArrayDefExpr(WrappingDefExpr):
+
+    def __init__(self, typename, size_hint=None):
+        WrappingDefExpr.__init__(self, typename)
+        self.size_hint = size_hint
+
+    def get_id(self):
+        return self.typename.get_id() + u'A'
+
+    def __unicode__(self):
+        return u'%s[%s]' % (
+            self.typename,
+            self.size_hint is not None and unicode(self.size_hint) or u''
+        )
 
 
 class RefDefExpr(WrappingDefExpr):
@@ -562,6 +579,8 @@ class DefinitionParser(object):
                 expr = ConstDefExpr(expr)
             elif self.skip_string('*'):
                 expr = PtrDefExpr(expr)
+            elif self.match(_array_def_re):
+                expr = ArrayDefExpr(expr, self.last_match.group(1))
             elif self.skip_string('&'):
                 expr = RefDefExpr(expr)
             else:
