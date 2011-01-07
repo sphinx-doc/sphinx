@@ -30,6 +30,7 @@ latex_warnfile = StringIO()
 LATEX_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
+WARNING: invalid pair index entry u'keyword; '
 """
 
 if sys.version_info >= (3, 0):

@@ -61,7 +61,7 @@ class GenericObject(ObjectDescription):
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry,
-                                              targetname, targetname))
+                                              targetname, ''))
         self.env.domaindata['std']['objects'][self.objtype, name] = \
             self.env.docname, targetname
 
@@ -82,8 +82,8 @@ class EnvVarXRefRole(XRefRole):
         tgtid = 'index-%s' % env.new_serialno('index')
         indexnode = addnodes.index()
         indexnode['entries'] = [
-            ('single', varname, tgtid, varname),
-            ('single', _('environment variable; %s') % varname, tgtid, varname)
+            ('single', varname, tgtid, ''),
+            ('single', _('environment variable; %s') % varname, tgtid, '')
         ]
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
@@ -118,7 +118,7 @@ class Target(Directive):
                 indextype = indexentry[:colon].strip()
                 indexentry = indexentry[colon+1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
-                                             targetname, targetname)])
+                                             targetname, '')])
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
@@ -161,7 +161,7 @@ class Cmdoption(ObjectDescription):
         self.indexnode['entries'].append(
             ('pair', _('%scommand line option; %s') %
              ((currprogram and currprogram + ' ' or ''), sig),
-             targetname, targetname))
+             targetname, ''))
         self.env.domaindata['std']['progoptions'][currprogram, name] = \
             self.env.docname, targetname
 
@@ -293,8 +293,8 @@ class Glossary(Directive):
                 termtexts.append(termtext)
                 # add an index entry too
                 indexnode = addnodes.index()
-                indexnode['entries'] = [('single', termtext, new_id, termtext)]
-                termnodes += indexnode
+                indexnode['entries'] = [('single', termtext, new_id, 'main')]
+                termnodes.append(indexnode)
                 termnodes.extend(res[0])
                 termnodes.append(addnodes.termsep())
             # make a single "term" node with all the terms, separated by termsep

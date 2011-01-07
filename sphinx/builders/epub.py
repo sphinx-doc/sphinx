@@ -289,16 +289,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # Logic modeled from themes/basic/genindex.html
         for key, columns in tree:
             for entryname, (links, subitems) in columns:
-                for (i, link) in enumerate(links):
+                for (i, (ismain, link)) in enumerate(links):
                     m = _refuri_re.match(link)
                     if m:
-                        links[i] = self.fix_fragment(m.group(1), m.group(2))
+                        links[i] = (ismain,
+                                    self.fix_fragment(m.group(1), m.group(2)))
                 for subentryname, subentrylinks in subitems:
-                    for (i, link) in enumerate(subentrylinks):
+                    for (i, (ismain, link)) in enumerate(subentrylinks):
                         m = _refuri_re.match(link)
                         if m:
-                            subentrylinks[i] = \
-                                self.fix_fragment(m.group(1), m.group(2))
+                            subentrylinks[i] = (ismain,
+                                self.fix_fragment(m.group(1), m.group(2)))
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):

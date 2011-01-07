@@ -113,10 +113,27 @@ mainly contained in information units, such as the language reference.
       Likewise, ``triple: module; search; path`` is a shortcut that creates
       three index entries, which are ``module; search path``, ``search; path,
       module`` and ``path; module search``.
+   see
+      ``see: entry; other`` creates an index entry that refers from ``entry`` to
+      ``other``.
+   seealso
+      Like ``see``, but inserts "see also" instead of "see".
    module, keyword, operator, object, exception, statement, builtin
       These all create two index entries.  For example, ``module: hashlib``
       creates the entries ``module; hashlib`` and ``hashlib; module``.  (These
       are Python-specific and therefore deprecated.)
+
+   You can mark up "main" index entries by prefixing them with an exclamation
+   mark.  The references to "main" entries are emphasized in the generated
+   index.  For example, if two pages contain ::
+
+      .. index:: Python
+
+   and one page contains ::
+
+      .. index:: ! Python
+
+   then the backlink to the latter page is emphasized among the three backlinks.
 
    For index directives containing only "single" entries, there is a shorthand
    notation::
@@ -124,6 +141,9 @@ mainly contained in information units, such as the language reference.
       .. index:: BNF, grammar, syntax, notation
 
    This creates four index entries.
+
+   .. versionchanged:: 1.1
+      Added ``see`` and ``seealso`` types, as well as marking main entries.
 
 .. rst:role:: index
 

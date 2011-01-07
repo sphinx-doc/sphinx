@@ -170,6 +170,7 @@ versionlabels = {
     'deprecated':     l_('Deprecated since version %s'),
 }
 
+# XXX Python specific
 pairindextypes = {
     'module':    l_('module'),
     'keyword':   l_('keyword'),

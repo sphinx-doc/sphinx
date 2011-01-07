@@ -170,8 +170,8 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
     inliner.document.note_explicit_target(targetnode)
     if typ == 'pep':
         indexnode['entries'] = [
-            ('single', _('Python Enhancement Proposals!PEP %s') % text,
-             targetid, 'PEP %s' % text)]
+            ('single', _('Python Enhancement Proposals; PEP %s') % text,
+             targetid, '')]
         anchor = ''
         anchorindex = text.find('#')
         if anchorindex > 0:
@@ -190,8 +190,7 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
-                                 targetid, 'RFC %s' % text)]
+        indexnode['entries'] = [('single', 'RFC; RFC %s' % text, targetid, '')]
         anchor = ''
         anchorindex = text.find('#')
         if anchorindex > 0:
@@ -282,7 +281,13 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = process_index_entry(target, targetid)
     # otherwise we just create a "single" entry
     else:
-        entries = [('single', target, targetid, target)]
+        # but allow giving main entry
+        main = ''
+        if target.startswith('!'):
+            target = target[1:]
+            title = title[1:]
+            main = 'main'
+        entries = [('single', target, targetid, main)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
     textnode = nodes.Text(title, title)

@@ -74,17 +74,22 @@ def split_explicit_title(text):
 
 
 indextypes = [
-    'single', 'pair', 'double', 'triple',
+    'single', 'pair', 'double', 'triple', 'see', 'seealso',
 ]
 
 def process_index_entry(entry, targetid):
     indexentries = []
     entry = entry.strip()
+    oentry = entry
+    main = ''
+    if entry.startswith('!'):
+        main = 'main'
+        entry = entry[1:].lstrip()
     for type in pairindextypes:
         if entry.startswith(type+':'):
             value = entry[len(type)+1:].strip()
             value = pairindextypes[type] + '; ' + value
-            indexentries.append(('pair', value, targetid, value))
+            indexentries.append(('pair', value, targetid, main))
             break
     else:
         for type in indextypes:
@@ -92,15 +97,19 @@ def process_index_entry(entry, targetid):
                 value = entry[len(type)+1:].strip()
                 if type == 'double':
                     type = 'pair'
-                indexentries.append((type, value, targetid, value))
+                indexentries.append((type, value, targetid, main))
                 break
         # shorthand notation for single entries
         else:
-            for value in entry.split(','):
+            for value in oentry.split(','):
                 value = value.strip()
+                main = ''
+                if value.startswith('!'):
+                    main = 'main'
+                    value = value[1:].lstrip()
                 if not value:
                     continue
-                indexentries.append(('single', value, targetid, value))
+                indexentries.append(('single', value, targetid, main))
     return indexentries
 
 

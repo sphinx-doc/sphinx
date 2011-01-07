@@ -23,6 +23,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.util import split_into
 from sphinx.util.osutil import ustrftime
 from sphinx.util.pycompat import any
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
@@ -1066,26 +1067,33 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
-        for type, string, tid, _ in entries:
-            if type == 'single':
-                self.body.append(r'\index{%s}' %
-                                 scre.sub('!', self.encode(string)))
-            elif type == 'pair':
-                parts = tuple(self.encode(x.strip())
-                              for x in string.split(';', 1))
-                try:
-                    self.body.append(r'\indexii{%s}{%s}' % parts)
-                except TypeError:
-                    self.builder.warn('invalid pair index entry %r' % string)
-            elif type == 'triple':
-                parts = tuple(self.encode(x.strip())
-                              for x in string.split(';', 2))
-                try:
-                    self.body.append(r'\indexiii{%s}{%s}{%s}' % parts)
-                except TypeError:
-                    self.builder.warn('invalid triple index entry %r' % string)
-            else:
-                self.builder.warn('unknown index entry type %s found' % type)
+        for type, string, tid, ismain in entries:
+            m = ''
+            if ismain:
+                m = '|textbf'
+            try:
+                if type == 'single':
+                    p = scre.sub('!', self.encode(string))
+                    self.body.append(r'\index{%s%s}' % (p, m))
+                elif type == 'pair':
+                    p1, p2 = map(self.encode, split_into(2, 'pair', string))
+                    self.body.append(r'\index{%s!%s%s}\index{%s!%s%s}' %
+                                     (p1, p2, m,  p2, p1, m))
+                elif type == 'triple':
+                    p1, p2, p3 = map(self.encode, split_into(3, 'triple', string))
+                    self.body.append(
+                        r'\index{%s!%s %s%s}\index{%s!%s, %s%s}\index{%s!%s %s%s}' %
+                        (p1, p2, p3, m,  p2, p3, p1, m,  p3, p1, p2, m))
+                elif type == 'see':
+                    p1, p2 = map(self.encode, split_into(2, 'see', string))
+                    self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
+                elif type == 'seealso':
+                    p1, p2 = map(self.encode, split_into(2, 'seealso', string))
+                    self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
+                else:
+                    self.builder.warn('unknown index entry type %s found' % type)
+            except ValueError, err:
+                self.builder.warn(str(err))
         raise nodes.SkipNode
 
     def visit_raw(self, node):

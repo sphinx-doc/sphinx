@@ -277,6 +277,8 @@ Index markup
    double: entry; double
    triple: index; entry; triple
    keyword: with
+   see: from; to
+   seealso: fromalso; toalso
 
 Invalid index markup...
 
@@ -285,6 +287,11 @@ Invalid index markup...
    pair:
    keyword:
 
+.. index::
+   !Main, !Other
+   !single: entry; pair
+
+:index:`!Main`
 
 .. _ölabel:
 

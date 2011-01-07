@@ -175,23 +175,6 @@
 }
 
 
-% Index-entry generation support.
-%
-
-% Command to generate two index entries (using subentries)
-\newcommand{\indexii}[2]{\index{#1!#2}\index{#2!#1}}
-
-% And three entries (using only one level of subentries)
-\newcommand{\indexiii}[3]{\index{#1!#2 #3}\index{#2!#3, #1}\index{#3!#1 #2}}
-
-% And four (again, using only one level of subentries)
-\newcommand{\indexiv}[4]{
-\index{#1!#2 #3 #4}
-\index{#2!#3 #4, #1}
-\index{#3!#4, #1 #2}
-\index{#4!#1 #2 #3}
-}
-
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
 

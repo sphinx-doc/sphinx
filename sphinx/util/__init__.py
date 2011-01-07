@@ -285,6 +285,14 @@ def rpartition(s, t):
     return '', s
 
 
+def split_into(n, type, value):
+    """Split an index entry into a given number of parts at semicolons."""
+    parts = map(lambda x: x.strip(), value.split(';', n-1))
+    if sum(1 for part in parts if part) < n:
+        raise ValueError('invalid %s index entry %r' % (type, value))
+    return parts
+
+
 def format_exception_cut_frames(x=1):
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()

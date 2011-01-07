@@ -49,7 +49,7 @@ http://sphinx.pocoo.org/domains.html
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:: WARNING: invalid index entry u''
+%(root)s/markup.txt:: WARNING: invalid single index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
@@ -232,6 +232,14 @@ HTML_XPATH = {
     '_static/statictmpl.html': [
         (".//project", 'Sphinx <Tests>'),
     ],
+    'genindex.html': [
+        # index entries
+        (".//a/strong", "Main"),
+        (".//a/strong", "[1]"),
+        (".//a/strong", "Other"),
+        (".//a", "entry"),
+        (".//dt/a", "double"),
+    ]
 }
 
 if pygments:

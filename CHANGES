@@ -46,6 +46,9 @@ Release 1.1 (in development)
 
 * #521: Added :confval:`linkcheck_ignore` config value.
 
+* #454: Add more index markup capabilities: marking see/seealso entries,
+  and main entries for a given key.
+
 * #516: Added new value of the :confval:`latex_show_urls` option to
   show the URLs in footnotes.
 

@@ -37,7 +37,7 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import url_re, get_matching_docs, docname_join, \
+from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
@@ -1484,56 +1484,50 @@ class BuildEnvironment:
         """Create the real index from the collected index entries."""
         new = {}
 
-        def add_entry(word, subword, dic=new):
+        def add_entry(word, subword, link=True, dic=new):
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]
             if subword:
-                add_entry(subword, '', dic=entry[1])
-            else:
+                add_entry(subword, '', link=link, dic=entry[1])
+            elif link:
                 try:
-                    entry[0].append(builder.get_relative_uri('genindex', fn)
-                                    + '#' + tid)
+                    uri = builder.get_relative_uri('genindex', fn) + '#' + tid
                 except NoUri:
                     pass
+                else:
+                    entry[0].append((main, uri))
 
         for fn, entries in self.indexentries.iteritems():
             # new entry types must be listed in directives/other.py!
-            for type, value, tid, alias in entries:
-                if type == 'single':
-                    try:
-                        entry, subentry = value.split(';', 1)
-                    except ValueError:
-                        entry, subentry = value, ''
-                    if not entry:
-                        self.warn(fn, 'invalid index entry %r' % value)
-                        continue
-                    add_entry(entry.strip(), subentry.strip())
-                elif type == 'pair':
-                    try:
-                        first, second = map(lambda x: x.strip(),
-                                            value.split(';', 1))
-                        if not first or not second:
-                            raise ValueError
-                    except ValueError:
-                        self.warn(fn, 'invalid pair index entry %r' % value)
-                        continue
-                    add_entry(first, second)
-                    add_entry(second, first)
-                elif type == 'triple':
-                    try:
-                        first, second, third = map(lambda x: x.strip(),
-                                                   value.split(';', 2))
-                        if not first or not second or not third:
-                            raise ValueError
-                    except ValueError:
-                        self.warn(fn, 'invalid triple index entry %r' % value)
-                        continue
-                    add_entry(first, second+' '+third)
-                    add_entry(second, third+', '+first)
-                    add_entry(third, first+' '+second)
-                else:
-                    self.warn(fn, 'unknown index entry type %r' % type)
+            for type, value, tid, main in entries:
+                try:
+                    if type == 'single':
+                        try:
+                            entry, subentry = split_into(2, 'single', value)
+                        except ValueError:
+                            entry, = split_into(1, 'single', value)
+                            subentry = ''
+                        add_entry(entry, subentry)
+                    elif type == 'pair':
+                        first, second = split_into(2, 'pair', value)
+                        add_entry(first, second)
+                        add_entry(second, first)
+                    elif type == 'triple':
+                        first, second, third = split_into(3, 'triple', value)
+                        add_entry(first, second+' '+third)
+                        add_entry(second, third+', '+first)
+                        add_entry(third, first+' '+second)
+                    elif type == 'see':
+                        first, second = split_into(2, 'see', value)
+                        add_entry(first, _('see %s') % second, link=False)
+                    elif type == 'seealso':
+                        first, second = split_into(2, 'see', value)
+                        add_entry(first, _('see also %s') % second, link=False)
+                    else:
+                        self.warn(fn, 'unknown index entry type %r' % type)
+                except ValueError, err:
+                    self.warn(fn, str(err))
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
