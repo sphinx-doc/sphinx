@@ -80,8 +80,9 @@ class TocTree(Directive):
                     entries.append((title, ref))
                 elif docname not in env.found_docs:
                     ret.append(self.state.document.reporter.warning(
-                        'toctree references unknown document %r' % docname,
-                        line=self.lineno))
+                        'toctree contains reference to nonexisting '
+                        'document %r' % docname, line=self.lineno))
+                    env.note_reread()
                 else:
                     entries.append((title, docname))
                     includefiles.append(docname)
@@ -237,6 +238,7 @@ class TabularColumns(Directive):
     def run(self):
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
+        node.line = self.lineno
         return [node]
 
 

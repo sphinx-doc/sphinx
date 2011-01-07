@@ -67,7 +67,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 38
+ENV_VERSION = 39
 
 
 default_substitutions = set([
@@ -336,6 +336,8 @@ class BuildEnvironment:
                                     # contains all built docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
+        self.reread_always = set()  # docnames to re-read unconditionally on
+                                    # next build
 
         # File metadata
         self.metadata = {}          # docname -> dict of metadata items
@@ -385,6 +387,7 @@ class BuildEnvironment:
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
+            self.reread_always.discard(docname)
             self.metadata.pop(docname, None)
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
@@ -486,6 +489,10 @@ class BuildEnvironment:
                                                  '.doctree')):
                     changed.add(docname)
                     continue
+                # check the "reread always" list
+                if docname in self.reread_always:
+                    changed.add(docname)
+                    continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
                 newmtime = path.getmtime(self.doc2path(docname))
@@ -555,7 +562,8 @@ class BuildEnvironment:
         # if files were added or removed, all documents with globbed toctrees
         # must be reread
         if added or removed:
-            changed.update(self.glob_toctrees)
+            # ... but not those that already were removed
+            changed.update(self.glob_toctrees & self.found_docs)
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
@@ -687,6 +695,11 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         class SphinxSourceClass(FileInput):
+            def __init__(self_, *args, **kwds):
+                # don't call sys.exit() on IOErrors
+                kwds['handle_io_errors'] = False
+                FileInput.__init__(self_, *args, **kwds)
+
             def decode(self_, data):
                 if isinstance(data, unicode):
                     return data
@@ -794,6 +807,9 @@ class BuildEnvironment:
 
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    def note_reread(self):
+        self.reread_always.add(self.docname)
 
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
@@ -1280,11 +1296,12 @@ class BuildEnvironment:
                         self.warn(docname,
                                   'toctree contains reference to document '
                                   '%r that doesn\'t have a title: no link '
-                                  'will be generated' % ref)
+                                  'will be generated' % ref, toctreenode.line)
                 except KeyError:
                     # this is raised if the included file does not exist
                     self.warn(docname, 'toctree contains reference to '
-                              'nonexisting document %r' % ref)
+                              'nonexisting document %r' % ref,
+                              toctreenode.line)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees

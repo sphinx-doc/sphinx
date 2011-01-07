@@ -432,13 +432,15 @@ class Sphinx(object):
         setattr(self.domains[domain], 'get_%s_index' % name, func)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
-                        parse_node=None, ref_nodeclass=None, objname=''):
+                        parse_node=None, ref_nodeclass=None, objname='',
+                        doc_field_types=[]):
         StandardDomain.object_types[directivename] = \
             ObjType(objname or directivename, rolename)
         # create a subclass of GenericObject as the new directive
         new_directive = type(directivename, (GenericObject, object),
                              {'indextemplate': indextemplate,
-                              'parse_node': staticmethod(parse_node)})
+                              'parse_node': staticmethod(parse_node),
+                              'doc_field_types': doc_field_types})
         StandardDomain.directives[directivename] = new_directive
         # XXX support more options?
         StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)

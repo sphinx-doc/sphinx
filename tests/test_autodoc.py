@@ -24,6 +24,7 @@ def setup_module():
 
     app = TestApp()
     app.builder.env.app = app
+    app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
