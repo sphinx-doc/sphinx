@@ -155,7 +155,7 @@ class InheritanceGraph(object):
             all_classes[cls] = (nodename, fullname, baselist)
             for base in cls.__bases__:
                 if not show_builtins and base in builtins:
-                    return
+                    continue
                 baselist.append(self.class_name(base, parts))
                 if base not in all_classes:
                     recurse(base)
