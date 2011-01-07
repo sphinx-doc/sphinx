@@ -66,7 +66,8 @@ class InheritanceGraph(object):
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
-    def __init__(self, class_names, currmodule, show_builtins=False, parts=0):
+    def __init__(self, class_names, currmodule, show_builtins=False,
+                 private_bases=False, parts=0):
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
@@ -74,7 +75,8 @@ class InheritanceGraph(object):
         """
         self.class_names = class_names
         classes = self._import_classes(class_names, currmodule)
-        self.class_info = self._class_info(classes, show_builtins, parts)
+        self.class_info = self._class_info(classes, show_builtins,
+                                           private_bases, parts)
         if not self.class_info:
             raise InheritanceException('No classes found for '
                                        'inheritance diagram')
@@ -131,7 +133,7 @@ class InheritanceGraph(object):
             classes.extend(self._import_class_or_module(name, currmodule))
         return classes
 
-    def _class_info(self, classes, show_builtins, parts):
+    def _class_info(self, classes, show_builtins, private_bases, parts):
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
@@ -144,6 +146,8 @@ class InheritanceGraph(object):
         def recurse(cls):
             if not show_builtins and cls in builtins:
                 return
+            if not private_bases and cls.__name__.startswith('_'):
+                return
 
             nodename = self.class_name(cls, parts)
             fullname = self.class_name(cls, 0)
@@ -152,7 +156,9 @@ class InheritanceGraph(object):
             all_classes[cls] = (nodename, fullname, baselist)
             for base in cls.__bases__:
                 if not show_builtins and base in builtins:
-                    return
+                    continue
+                if not private_bases and base.__name__.startswith('_'):
+                    continue
                 baselist.append(self.class_name(base, parts))
                 if base not in all_classes:
                     recurse(base)
@@ -268,6 +274,7 @@ class InheritanceDiagram(Directive):
     final_argument_whitespace = True
     option_spec = {
         'parts': directives.nonnegative_int,
+        'private-bases': directives.flag,
     }
 
     def run(self):
@@ -284,7 +291,8 @@ class InheritanceDiagram(Directive):
         try:
             graph = InheritanceGraph(
                 class_names, env.temp_data.get('py:module'),
-                parts=node['parts'])
+                parts=node['parts'],
+                private_bases='private-bases' in self.options)
         except InheritanceException, err:
             return [node.document.reporter.warning(err.args[0],
                                                    line=self.lineno)]

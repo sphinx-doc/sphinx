@@ -30,6 +30,13 @@ It adds this directive:
    ``lib.``, you can give ``:parts: 1`` to remove that prefix from the displayed
    node names.)
 
+   It also supports a ``private-bases`` flag option; if given, private base
+   classes (those whose name starts with ``_``) will be included.
+
+   .. versionchanged:: 1.1
+      Added ``private-bases`` option; previously, all bases were always
+      included.
+
 
 New config values are:
 
