@@ -14,6 +14,7 @@
 import re
 import sys
 import inspect
+import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType, ClassType
 
 from docutils import nodes
@@ -336,10 +337,13 @@ class Documenter(object):
         # this used to only catch SyntaxError, ImportError and AttributeError,
         # but importing modules with side effects can raise all kinds of errors
         except Exception, err:
+            if self.env.app and not self.env.app.quiet:
+                self.env.app.info(traceback.format_exc().rstrip())
             self.directive.warn(
                 'autodoc can\'t import/find %s %r, it reported error: '
                 '"%s", please check your spelling and sys.path' %
                 (self.objtype, str(self.fullname), err))
+            self.env.note_reread()
             return False
 
     def get_real_modname(self):

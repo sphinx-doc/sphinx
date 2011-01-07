@@ -1,6 +1,12 @@
 Release 1.0.7 (in development)
 ==============================
 
+* If an autodoc object cannot be imported, always re-read the
+  document containing the directive on next build.
+
+* If an autodoc object cannot be imported, show the full traceback
+  of the import error.
+
 * Fix a bug where the removal of download files and images wasn't
   noticed.
 

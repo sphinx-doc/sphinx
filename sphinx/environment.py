@@ -64,7 +64,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 38
+ENV_VERSION = 39
 
 
 default_substitutions = set([
@@ -295,6 +295,8 @@ class BuildEnvironment:
                                     # contains all built docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
+        self.reread_always = set()  # docnames to re-read unconditionally on
+                                    # next build
 
         # File metadata
         self.metadata = {}          # docname -> dict of metadata items
@@ -344,6 +346,7 @@ class BuildEnvironment:
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
+            self.reread_always.discard(docname)
             self.metadata.pop(docname, None)
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
@@ -424,6 +427,10 @@ class BuildEnvironment:
                 # if the doctree file is not there, rebuild
                 if not path.isfile(self.doc2path(docname, self.doctreedir,
                                                  '.doctree')):
+                    changed.add(docname)
+                    continue
+                # check the "reread always" list
+                if docname in self.reread_always:
                     changed.add(docname)
                     continue
                 # check the mtime of the document
@@ -728,6 +735,9 @@ class BuildEnvironment:
 
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    def note_reread(self):
+        self.reread_always.add(self.docname)
 
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
