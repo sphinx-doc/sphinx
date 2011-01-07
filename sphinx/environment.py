@@ -45,6 +45,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _, init as init_locale
+from sphinx.versioning import add_uids, merge_doctrees
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -752,6 +753,26 @@ class BuildEnvironment:
 
         # store time of build, for outdated files detection
         self.all_docs[docname] = time.time()
+
+        # get old doctree
+        old_doctree_path = self.doc2path(docname, self.doctreedir, '.doctree')
+        try:
+            f = open(old_doctree_path, 'rb')
+            try:
+                old_doctree = pickle.load(f)
+            finally:
+                f.close()
+            old_doctree.settings.env = self
+            old_doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
+                                            stream=WarningStream(self._warnfunc))
+        except EnvironmentError:
+            old_doctree = None
+
+        # add uids for versioning
+        if old_doctree is None:
+            list(add_uids(doctree, nodes.TextElement))
+        else:
+            list(merge_doctrees(old_doctree, doctree, nodes.TextElement))
 
         # make it picklable
         doctree.reporter = None
