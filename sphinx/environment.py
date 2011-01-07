@@ -498,7 +498,8 @@ class BuildEnvironment:
         # if files were added or removed, all documents with globbed toctrees
         # must be reread
         if added or removed:
-            changed.update(self.glob_toctrees)
+            # ... but not those that already were removed
+            changed.update(self.glob_toctrees & self.found_docs)
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
@@ -630,6 +631,11 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         class SphinxSourceClass(FileInput):
+            def __init__(self_, *args, **kwds):
+                # don't call sys.exit() on IOErrors
+                kwds['handle_io_errors'] = False
+                FileInput.__init__(self_, *args, **kwds)
+
             def decode(self_, data):
                 return data.decode(self_.encoding, 'sphinx')
 
