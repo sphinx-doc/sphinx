@@ -114,9 +114,9 @@ class FilenameUniqDict(dict):
     def purge_doc(self, docname):
         for filename, (docs, _) in self.items():
             docs.discard(docname)
-            #if not docs:
-            #    del self[filename]
-            #    self._existing.discard(filename)
+            if not docs:
+                del self[filename]
+                self._existing.discard(filename)
 
     def __getstate__(self):
         return self._existing
