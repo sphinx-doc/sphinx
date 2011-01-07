@@ -1240,11 +1240,12 @@ class BuildEnvironment:
                         self.warn(docname,
                                   'toctree contains reference to document '
                                   '%r that doesn\'t have a title: no link '
-                                  'will be generated' % ref)
+                                  'will be generated' % ref, toctreenode.line)
                 except KeyError:
                     # this is raised if the included file does not exist
                     self.warn(docname, 'toctree contains reference to '
-                              'nonexisting document %r' % ref)
+                              'nonexisting document %r' % ref,
+                              toctreenode.line)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
