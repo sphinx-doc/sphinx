@@ -27,7 +27,7 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
-from sphinx.util.inspect import (getargspec, isdescriptor, safe_getmembers, \
+from sphinx.util.inspect import (getargspec, isdescriptor, safe_getmembers,
                                  safe_getattr)
 from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
