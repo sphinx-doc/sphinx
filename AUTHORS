@@ -19,6 +19,7 @@ Other contributors, listed alphabetically, are:
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Thomas Lamb -- linkcheck builder
+* Łukasz Langa -- partial support for autodoc
 * Robert Lehmann -- gettext builder (GSOC project)
 * Dan MacKinlay -- metadata fixes
 * Martin Mahner -- nature theme
