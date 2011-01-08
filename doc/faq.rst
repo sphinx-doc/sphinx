@@ -60,6 +60,9 @@ PyPI
    Sphinx documentation to the PyPI package documentation area at
    http://packages.python.org/.
 
+MediaWiki
+   See http://bitbucket.org/kevindunn/sphinx-wiki, a project by Kevin Dunn.
+
 github pages
    You'll have to opt out of processing your pages with the "Jekyll" preprocessor
    as described in http://pages.github.com/#using_jekyll_for_complex_layouts.
