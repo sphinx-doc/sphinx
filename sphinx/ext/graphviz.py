@@ -282,11 +282,11 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 
     if fname is not None:
         caption = node.get('caption')
+        # XXX add ids from previous target node
         if caption and not inline:
             self.body.append('\n\\begin{figure}[h!]')
             self.body.append('\n\\begin{center}')
             self.body.append('\n\\caption{%s}' % self.encode(caption))
-            self.body.append('\n\\label{figure:%s}' % self.encode(caption))
             self.body.append('\n\\includegraphics{%s}' % fname)
             self.body.append('\n\\end{center}')
             self.body.append('\n\\end{figure}\n')
