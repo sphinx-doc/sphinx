@@ -32,7 +32,7 @@ task to split up paragraphs which are too large as there is no sane automated
 way to do that.
 
 After Sphinx successfully ran the
-:class:`~sphinx.builders.intl.MessageCatalogBuilder` you will find a collection
+:class:`~sphinx.builders.gettext.MessageCatalogBuilder` you will find a collection
 of ``.pot`` files in your output directory.  These are **catalog templates**
 and contain messages in your original language *only*.
 

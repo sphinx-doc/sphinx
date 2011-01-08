@@ -43,6 +43,7 @@ from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
+from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _, init as init_locale
 from sphinx.versioning import add_uids, merge_doctrees
@@ -68,7 +69,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 39
+ENV_VERSION = 40
 
 
 default_substitutions = set([
@@ -78,6 +79,12 @@ default_substitutions = set([
 ])
 
 dummy_reporter = Reporter('', 4, 4)
+
+versioning_conditions = {
+    'none': False,
+    'text': nodes.TextElement,
+    'commentable': is_commentable,
+}
 
 
 class WarningStream(object):
@@ -182,7 +189,8 @@ class CitationReferences(Transform):
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, reftype='citation',
-                                            reftarget=cittext)
+                                            reftarget=cittext, refwarn=True)
+            refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
@@ -313,6 +321,9 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.config = config
 
+        # the method of doctree versioning; see set_versioning_method
+        self.versioning_condition = None
+
         # the application object; only set while update() runs
         self.app = None
 
@@ -379,6 +390,23 @@ class BuildEnvironment:
     def set_warnfunc(self, func):
         self._warnfunc = func
         self.settings['warning_stream'] = WarningStream(func)
+
+    def set_versioning_method(self, method):
+        """This sets the doctree versioning method for this environment.
+
+        Versioning methods are a builder property; only builders with the same
+        versioning method can share the same doctree directory.  Therefore, we
+        raise an exception if the user tries to use an environment with an
+        incompatible versioning method.
+        """
+        if method not in versioning_conditions:
+            raise ValueError('invalid versioning method: %r' % method)
+        condition = versioning_conditions[method]
+        if self.versioning_condition not in (None, condition):
+            raise SphinxError('This environment is incompatible with the '
+                              'selected builder, please choose another '
+                              'doctree directory.')
+        self.versioning_condition = condition
 
     def warn(self, docname, msg, lineno=None):
         # strange argument order is due to backwards compatibility
@@ -754,25 +782,24 @@ class BuildEnvironment:
         # store time of build, for outdated files detection
         self.all_docs[docname] = time.time()
 
-        # get old doctree
-        old_doctree_path = self.doc2path(docname, self.doctreedir, '.doctree')
-        try:
-            f = open(old_doctree_path, 'rb')
+        if self.versioning_condition:
+            # get old doctree
             try:
-                old_doctree = pickle.load(f)
-            finally:
-                f.close()
-            old_doctree.settings.env = self
-            old_doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
-                                            stream=WarningStream(self._warnfunc))
-        except EnvironmentError:
-            old_doctree = None
+                f = open(self.doc2path(docname,
+                                       self.doctreedir, '.doctree'), 'rb')
+                try:
+                    old_doctree = pickle.load(f)
+                finally:
+                    f.close()
+            except EnvironmentError:
+                old_doctree = None
 
-        # add uids for versioning
-        if old_doctree is None:
-            list(add_uids(doctree, nodes.TextElement))
-        else:
-            list(merge_doctrees(old_doctree, doctree, nodes.TextElement))
+            # add uids for versioning
+            if old_doctree is None:
+                list(add_uids(doctree, self.versioning_condition))
+            else:
+                list(merge_doctrees(
+                    old_doctree, doctree, self.versioning_condition))
 
         # make it picklable
         doctree.reporter = None
@@ -1385,10 +1412,10 @@ class BuildEnvironment:
             typ = node['reftype']
             target = node['reftarget']
             refdoc = node.get('refdoc', fromdocname)
-            warned = False
+            domain = None
 
             try:
-                if node.has_key('refdomain') and node['refdomain']:
+                if 'refdomain' in node and node['refdomain']:
                     # let the domain try to resolve the reference
                     try:
                         domain = self.domains[node['refdomain']]
@@ -1401,11 +1428,7 @@ class BuildEnvironment:
                     # directly reference to document by source name;
                     # can be absolute or relative
                     docname = docname_join(refdoc, target)
-                    if docname not in self.all_docs:
-                        self.warn(refdoc,
-                                  'unknown document: %s' % docname, node.line)
-                        warned = True
-                    else:
+                    if docname in self.all_docs:
                         if node['refexplicit']:
                             # reference with explicit title
                             caption = node.astext()
@@ -1418,11 +1441,7 @@ class BuildEnvironment:
                         newnode.append(innernode)
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
-                    if not docname:
-                        self.warn(refdoc,
-                                  'citation not found: %s' % target, node.line)
-                        warned = True
-                    else:
+                    if docname:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
                 # no new node found? try the missing-reference event
@@ -1430,16 +1449,40 @@ class BuildEnvironment:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
                     # still not found? warn if in nit-picky mode
-                    if newnode is None and not warned and self.config.nitpicky:
-                        self.warn(refdoc,
-                            'reference target not found: %stype %s, target %s'
-                            % (node.get('refdomain') and
-                               'domain %s, ' % node['refdomain'] or '',
-                               typ, target))
+                    if newnode is None:
+                        self._warn_missing_reference(
+                            fromdocname, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
 
+        # remove only-nodes that do not belong to our builder
+        self.process_only_nodes(doctree, fromdocname, builder)
+
+        # allow custom references to be resolved
+        builder.app.emit('doctree-resolved', doctree, fromdocname)
+
+    def _warn_missing_reference(self, fromdoc, typ, target, node, domain):
+        warn = node.get('refwarn')
+        if self.config.nitpicky:
+            warn = True  # XXX process exceptions here
+        if not warn:
+            return
+        refdoc = node.get('refdoc', fromdoc)
+        if domain and typ in domain.dangling_warnings:
+            msg = domain.dangling_warnings[typ]
+        elif typ == 'doc':
+            msg = 'unknown document: %(target)s'
+        elif typ == 'citation':
+            msg = 'citation not found: %(target)s'
+        elif node.get('refdomain', 'std') != 'std':
+            msg = '%s:%s reference target not found: %%(target)s' % \
+                  (node['refdomain'], typ)
+        else:
+            msg = '%s reference target not found: %%(target)s' % typ
+        self.warn(refdoc, msg % {'target': target}, node.line)
+
+    def process_only_nodes(self, doctree, fromdocname, builder):
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
@@ -1454,9 +1497,6 @@ class BuildEnvironment:
                     # replacing by [] would result in an "Losing ids" exception
                     # if there is a target node before the only node
                     node.replace_self(nodes.comment())
-
-        # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, fromdocname)
 
     def assign_section_numbers(self):
         """Assign a section number to each heading under a numbered toctree."""

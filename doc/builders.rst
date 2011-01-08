@@ -240,7 +240,7 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. versionadded:: 0.5
 
-.. module:: sphinx.builders.intl
+.. module:: sphinx.builders.gettext
 .. class:: MessageCatalogBuilder
 
    This builder produces gettext-style message catalos.  Each top-level file or

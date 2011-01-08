@@ -27,7 +27,8 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
-from sphinx.util.inspect import isdescriptor, safe_getmembers, safe_getattr
+from sphinx.util.inspect import (getargspec, isdescriptor, safe_getmembers, \
+                                 safe_getattr)
 from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
 
@@ -1283,36 +1284,6 @@ def add_documenter(cls):
     #                         'registered' % cls.objtype)
     AutoDirective._registry[cls.objtype] = cls
 
-
-if sys.version_info >= (2, 5):
-    from functools import partial
-    def getargspec(func):
-        """Like inspect.getargspec but supports functools.partial as well."""
-        if inspect.ismethod(func):
-            func = func.im_func
-        parts = 0, ()
-        if type(func) is partial:
-            parts = len(func.args), func.keywords.keys()
-            func = func.func
-        if not inspect.isfunction(func):
-            raise TypeError('{!r} is not a Python function'.format(func))
-        args, varargs, varkw = inspect.getargs(func.func_code)
-        func_defaults = func.func_defaults
-        if func_defaults:
-            func_defaults = list(func_defaults)
-        if parts[0]:
-            args = args[parts[0]:]
-        if parts[1]:
-            for arg in parts[1]:
-                i = args.index(arg) - len(args)
-                del args[i]
-                try:
-                    del func_defaults[i]
-                except IndexError:
-                    pass
-        return inspect.ArgSpec(args, varargs, varkw, func_defaults)
-else:
-    getargspec = inspect.getargspec
 
 def setup(app):
     app.add_autodocumenter(ModuleDocumenter)

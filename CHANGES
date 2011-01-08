@@ -5,6 +5,10 @@ Release 1.1 (in development)
 
 * Added a Texinfo builder.
 
+* Incompatibility: The :rst:dir:`py:module` directive doesn't output
+  its ``platform`` option value anymore.  (It was the only thing that
+  the directive did output, and therefore quite inconsistent.)
+
 * Added i18n support for content, a ``gettext`` builder and
   related utilities.
 
@@ -84,6 +88,12 @@ Release 1.1 (in development)
 
 Release 1.0.7 (in development)
 ==============================
+
+* #572: Show warnings by default when reference labels cannot be
+  found.
+
+* #536: Include line number when complaining about missing reference
+  targets in nitpicky mode.
 
 * #590: Fix inline display of graphviz diagrams in LaTeX output.
 

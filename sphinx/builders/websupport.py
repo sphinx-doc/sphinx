@@ -26,6 +26,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
     Builds documents for the web support package.
     """
     name = 'websupport'
+    versioning_method = 'commentable'
 
     def init(self):
         PickleHTMLBuilder.init(self)

@@ -8,8 +8,9 @@ PAPER        =
 
 PAPEROPT_a4      = -D latex_paper_size=a4
 PAPEROPT_letter  = -D latex_paper_size=letter
-ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
-                $(SPHINXOPTS) $(O) .
+ALLSPHINXOPTS    = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
+                   $(SPHINXOPTS) $(O) .
+I18NSPHINXOPTS   = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) .
 
 .PHONY: help clean html dirhtml singlehtml text man pickle json htmlhelp \
 	qthelp devhelp epub latex latexpdf changes linkcheck doctest
@@ -116,7 +117,7 @@ latexpdf:
 	@echo "pdflatex finished; the PDF files are in _build/latex."
 
 gettext:
-	$(SPHINXBUILD) -b gettext $(ALLSPHINXOPTS) _build/locale
+	$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) _build/locale
 	@echo
 	@echo "Build finished. The message catalogs are in _build/locale."
 

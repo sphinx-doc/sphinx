@@ -31,9 +31,12 @@ class Builder(object):
     name = ''
     # builder's output format, or '' if no document output is produced
     format = ''
+    # doctree versioning method
+    versioning_method = 'none'
 
     def __init__(self, app):
         self.env = app.env
+        self.env.set_versioning_method(self.versioning_method)
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -330,5 +333,5 @@ BUILTIN_BUILDERS = {
     'changes':    ('changes', 'ChangesBuilder'),
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
     'websupport': ('websupport', 'WebSupportBuilder'),
-    'gettext':    ('intl', 'MessageCatalogBuilder'),
+    'gettext':    ('gettext', 'MessageCatalogBuilder'),
 }
