@@ -300,7 +300,7 @@ specific_docroles = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to documents
-    'doc': XRefRole(),
+    'doc': XRefRole(warn_dangling=True),
 
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,

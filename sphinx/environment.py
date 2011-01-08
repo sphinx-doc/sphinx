@@ -189,7 +189,8 @@ class CitationReferences(Transform):
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, reftype='citation',
-                                            reftarget=cittext)
+                                            reftarget=cittext, refwarn=True)
+            refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
 
