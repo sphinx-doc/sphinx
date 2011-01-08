@@ -66,6 +66,9 @@ GitHub Pages
    <https://github.com/blog/572-bypassing-jekyll-on-github-pages>`_ to support
    Sphinx HTML output properly.
 
+MediaWiki
+   See http://bitbucket.org/kevindunn/sphinx-wiki, a project by Kevin Dunn.
+
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
 
