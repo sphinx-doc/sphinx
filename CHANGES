@@ -83,6 +83,8 @@ Release 1.1 (in development)
 
 * #590: Added ``caption`` option to graphviz directives.
 
+* #537: Added :confval:`nitpick_ignore`.
+
 * C++ domain now supports array definitions.
 
 

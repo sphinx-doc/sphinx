@@ -232,6 +232,14 @@ General configuration
 
    .. versionadded:: 1.0
 
+.. confval:: nitpick_ignore
+
+   A list of ``(type, target)`` tuples (by default empty) that should be ignored
+   when generating warnings in "nitpicky mode".  Note that ``type`` should
+   include the domain name.  An example entry would be ``('py:func', 'int')``.
+
+   .. versionadded:: 1.1
+
 
 Project information
 -------------------

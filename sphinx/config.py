@@ -71,6 +71,7 @@ class Config(object):
         primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),
         nitpicky = (False, 'env'),
+        nitpick_ignore = ([], 'env'),
 
         # HTML options
         html_theme = ('default', 'html'),

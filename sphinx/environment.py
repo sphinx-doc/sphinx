@@ -69,7 +69,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 40
+ENV_VERSION = 41
 
 
 default_substitutions = set([
@@ -339,6 +339,9 @@ class BuildEnvironment:
 
         # this is to invalidate old pickles
         self.version = ENV_VERSION
+
+        # make this a set for faster testing
+        self._nitpick_ignore = set(self.config.nitpick_ignore)
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -1465,7 +1468,11 @@ class BuildEnvironment:
     def _warn_missing_reference(self, fromdoc, typ, target, node, domain):
         warn = node.get('refwarn')
         if self.config.nitpicky:
-            warn = True  # XXX process exceptions here
+            warn = True
+            if self._nitpick_ignore:
+                dtype = domain and '%s:%s' % (domain.name, typ) or typ
+                if (dtype, target) in self._nitpick_ignore:
+                    warn = False
         if not warn:
             return
         refdoc = node.get('refdoc', fromdoc)
