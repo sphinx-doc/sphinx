@@ -701,21 +701,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
         self.next_table_colspec = None
-#        self.body.append('\\hline\n')
-#        self.table.had_head = True
+        # self.body.append('\\hline\n')
+        # self.table.had_head = True
     def depart_thead(self, node):
-        self.body.append('\\hline\n')
+        pass
 
     def visit_tbody(self, node):
         if not self.table.had_head:
             self.visit_thead(node)
     def depart_tbody(self, node):
-        self.body.append('\\hline\n')
+        pass
 
     def visit_row(self, node):
         self.table.col = 0
     def depart_row(self, node):
-        self.body.append('\\\\\n')
+        self.body.append('\\\\\\hline\n')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
