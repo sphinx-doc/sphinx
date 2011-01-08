@@ -341,6 +341,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
+        #print '\n'.join(directive.result)
         assert len(_warnings) == 0, _warnings
         del directive.result[:]
 
@@ -430,7 +431,8 @@ def test_generate():
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
-    should.extend((('method', 'test_autodoc.Class.undocmeth'),
+    should.extend((('attribute', 'test_autodoc.Class.skipattr'),
+                   ('method', 'test_autodoc.Class.undocmeth'),
                    ('method', 'test_autodoc.Class.roger')))
     assert_processes(should, 'class', 'Class')
     options.inherited_members = True
@@ -519,11 +521,24 @@ def test_generate():
         '.. py:classmethod:: Class.moore(a, e, f) -> happiness', 'method',
         'test_autodoc.Class.moore')
 
+    # test new attribute documenter behavior
+    directive.env.temp_data['py:module'] = 'test_autodoc'
+    options.undoc_members = True
+    assert_processes([('class', 'test_autodoc.AttCls'),
+                      ('attribute', 'test_autodoc.AttCls.a1'),
+                      ('attribute', 'test_autodoc.AttCls.a2'),
+                      ], 'class', 'AttCls')
+    assert_result_contains(
+        '   :annotation: = hello world', 'attribute', 'AttCls.a1')
+    assert_result_contains(
+        '   :annotation: = None', 'attribute', 'AttCls.a2')
+
 
 # --- generate fodder ------------
 
 __all__ = ['Class']
 
+#: documentation for the integer
 integer = 1
 
 class CustomEx(Exception):
@@ -642,3 +657,11 @@ First line of docstring
 
         rest of docstring
         """
+
+class StrRepr(str):
+    def __repr__(self):
+        return self
+
+class AttCls(object):
+    a1 = StrRepr('hello\nworld')
+    a2 = None

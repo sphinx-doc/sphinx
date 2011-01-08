@@ -85,6 +85,8 @@ Release 1.1 (in development)
 
 * #537: Added :confval:`nitpick_ignore`.
 
+* #437: autodoc now shows values of class data attributes.
+
 * autodoc now supports documenting the signatures of ``functools.partial``
   objects.
 

@@ -79,3 +79,12 @@ def safe_getmembers(object, predicate=None):
             results.append((key, value))
     results.sort()
     return results
+
+
+def safe_repr(object):
+    """A repr() implementation that returns text safe to use in reST context."""
+    try:
+        s = repr(object)
+    except Exception:
+        raise ValueError
+    return s.replace('\n', ' ')

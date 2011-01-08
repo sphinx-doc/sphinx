@@ -28,7 +28,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-     safe_getattr
+     safe_getattr, safe_repr
 from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
 
@@ -566,9 +566,15 @@ class Documenter(object):
                 skip = False
                 isattr = True
             else:
-                # ignore undocumented members if :undoc-members:
-                # is not given
+                # ignore undocumented members if :undoc-members: is not given
                 doc = self.get_attr(member, '__doc__', None)
+                # if the member __doc__ is the same as self's __doc__, it's just
+                # inherited and therefore not the member's doc
+                cls = self.get_attr(member, '__class__', None)
+                if cls:
+                    cls_doc = self.get_attr(cls, '__doc__', None)
+                    if cls_doc == doc:
+                        doc = None
                 skip = not self.options.undoc_members and not doc
 
             # give the user a chance to decide whether this member
@@ -1058,10 +1064,20 @@ class DataDocumenter(ModuleLevelDocumenter):
     """
     objtype = 'data'
     member_order = 40
+    priority = -10
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(parent, ModuleDocumenter) and isattr
+
+    def add_directive_header(self, sig):
+        ModuleLevelDocumenter.add_directive_header(self, sig)
+        try:
+            objrepr = safe_repr(self.object)
+        except ValueError:
+            pass
+        else:
+            self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
 
     def document_members(self, all_members=False):
         pass
@@ -1144,15 +1160,43 @@ class AttributeDocumenter(ClassLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         isdatadesc = isdescriptor(member) and not \
                      isinstance(member, cls.method_types)
-        return isdatadesc or \
-               (isattr and not isinstance(parent, ModuleDocumenter))
+        return isdatadesc or (not isinstance(parent, ModuleDocumenter)
+                              and not inspect.isroutine(member)
+                              and not isinstance(member, class_types))
 
     def document_members(self, all_members=False):
         pass
 
+    def import_object(self):
+        ret = ClassLevelDocumenter.import_object(self)
+        if isdescriptor(self.object) and \
+               not isinstance(self.object, self.method_types):
+            self._datadescriptor = True
+        else:
+            # if it's not a data descriptor
+            self._datadescriptor = False
+        return ret
+
     def get_real_modname(self):
         return self.get_attr(self.parent or self.object, '__module__', None) \
                or self.modname
+
+    def add_directive_header(self, sig):
+        ClassLevelDocumenter.add_directive_header(self, sig)
+        if not self._datadescriptor:
+            try:
+                objrepr = safe_repr(self.object)
+            except ValueError:
+                pass
+            else:
+                self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+
+    def add_content(self, more_content, no_docstring=False):
+        if not self._datadescriptor:
+            # if it's not a data descriptor, its docstring is very probably the
+            # wrong thing to display
+            no_docstring = True
+        ClassLevelDocumenter.add_content(self, more_content, no_docstring)
 
 
 class InstanceAttributeDocumenter(AttributeDocumenter):
@@ -1176,6 +1220,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
+        self._datadescriptor = False
         return True
 
     def add_content(self, more_content, no_docstring=False):
