@@ -357,6 +357,38 @@ class PyClassmember(PyObject):
             self.clsname_set = True
 
 
+class PyDecoratorMixin(object):
+    """
+    Mixin for decorator directives.
+    """
+    def handle_signature(self, sig, signode):
+        ret = super(PyDecoratorMixin, self).handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('@', '@'))
+        return ret
+
+    def needs_arglist(self):
+        return False
+
+
+class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
+    """
+    Directive to mark functions meant to be used as decorators.
+    """
+    def run(self):
+        # a decorator function is a function after all
+        self.name = 'py:function'
+        return PyModulelevel.run(self)
+
+
+class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
+    """
+    Directive to mark methods meant to be used as decorators.
+    """
+    def run(self):
+        self.name = 'py:method'
+        return PyClassmember.run(self)
+
+
 class PyModule(Directive):
     """
     Directive to mark description of a new module.
@@ -534,16 +566,18 @@ class PythonDomain(Domain):
     }
 
     directives = {
-        'function':      PyModulelevel,
-        'data':          PyModulelevel,
-        'class':         PyClasslike,
-        'exception':     PyClasslike,
-        'method':        PyClassmember,
-        'classmethod':   PyClassmember,
-        'staticmethod':  PyClassmember,
-        'attribute':     PyClassmember,
-        'module':        PyModule,
-        'currentmodule': PyCurrentModule,
+        'function':        PyModulelevel,
+        'data':            PyModulelevel,
+        'class':           PyClasslike,
+        'exception':       PyClasslike,
+        'method':          PyClassmember,
+        'classmethod':     PyClassmember,
+        'staticmethod':    PyClassmember,
+        'attribute':       PyClassmember,
+        'module':          PyModule,
+        'currentmodule':   PyCurrentModule,
+        'decorator':       PyDecoratorFunction,
+        'decoratormethod': PyDecoratorMethod,
     }
     roles = {
         'data':  PyXRefRole(),
