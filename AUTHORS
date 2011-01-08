@@ -15,6 +15,7 @@ Other contributors, listed alphabetically, are:
 * Josip Dzolonga -- coverage builder
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
+* Doug Hellmann -- graphviz improvements
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Thomas Lamb -- linkcheck builder

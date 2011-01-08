@@ -223,7 +223,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
-    if node.get('inline', False):
+    inline = node.get('inline', False)
+    if inline:
         wrapper = 'span'
     else:
         wrapper = 'p'
@@ -254,6 +255,9 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
                 self.body.extend(imgmap)
+        if node.get('caption') and not inline:
+            self.body.append('</p>\n<p class="caption">')
+            self.body.append(self.encode(node['caption']))
 
     self.body.append('</%s>\n' % wrapper)
     raise nodes.SkipNode
@@ -278,16 +282,16 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 
     if fname is not None:
         caption = node.get('caption')
-        if caption:
+        if caption and not inline:
             self.body.append('\n\\begin{figure}[h!]')
             self.body.append('\n\\begin{center}')
-            self.body.append('\n\\caption{%s}' % caption)
-            self.body.append('\n\\label{figure:%s}' % caption)
+            self.body.append('\n\\caption{%s}' % self.encode(caption))
+            self.body.append('\n\\label{figure:%s}' % self.encode(caption))
             self.body.append('\n\\includegraphics{%s}' % fname)
             self.body.append('\n\\end{center}')
             self.body.append('\n\\end{figure}\n')
         else:
-            self.body.append('%s\\includegraphics{%s}' %
+            self.body.append('%s\\includegraphics{%s}%s' %
                              (para_separator, fname, para_separator))
     raise nodes.SkipNode
 
