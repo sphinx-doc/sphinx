@@ -902,15 +902,15 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
             # cannot introspect arguments of a C function or method
             pass
         try:
-            argspec = inspect.getargspec(self.object)
+            argspec = getargspec(self.object)
         except TypeError:
             # if a class should be documented as function (yay duck
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
-                argspec = inspect.getargspec(self.object.__new__)
+                argspec = getargspec(self.object.__new__)
             except TypeError:
-                argspec = inspect.getargspec(self.object.__init__)
+                argspec = getargspec(self.object.__init__)
                 if argspec[0]:
                     del argspec[0][0]
         args = inspect.formatargspec(*argspec)
@@ -960,7 +960,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
                (inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
-            argspec = inspect.getargspec(initmeth)
+            argspec = getargspec(initmeth)
         except TypeError:
             # still not possible: happens e.g. for old-style classes
             # with __init__ in C
@@ -1117,7 +1117,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
                inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
-        argspec = inspect.getargspec(self.object)
+        argspec = getargspec(self.object)
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
         return inspect.formatargspec(*argspec)
@@ -1283,6 +1283,36 @@ def add_documenter(cls):
     #                         'registered' % cls.objtype)
     AutoDirective._registry[cls.objtype] = cls
 
+
+if sys.version_info >= (2, 5):
+    from functools import partial
+    def getargspec(func):
+        """Like inspect.getargspec but supports functools.partial as well."""
+        if inspect.ismethod(func):
+            func = func.im_func
+        parts = 0, ()
+        if type(func) is partial:
+            parts = len(func.args), func.keywords.keys()
+            func = func.func
+        if not inspect.isfunction(func):
+            raise TypeError('{!r} is not a Python function'.format(func))
+        args, varargs, varkw = inspect.getargs(func.func_code)
+        func_defaults = func.func_defaults
+        if func_defaults:
+            func_defaults = list(func_defaults)
+        if parts[0]:
+            args = args[parts[0]:]
+        if parts[1]:
+            for arg in parts[1]:
+                i = args.index(arg) - len(args)
+                del args[i]
+                try:
+                    del func_defaults[i]
+                except IndexError:
+                    pass
+        return inspect.ArgSpec(args, varargs, varkw, func_defaults)
+else:
+    getargspec = inspect.getargspec
 
 def setup(app):
     app.add_autodocumenter(ModuleDocumenter)
