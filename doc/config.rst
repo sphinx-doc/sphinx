@@ -412,8 +412,6 @@ Options for HTML output
 These options influence HTML as well as HTML Help output, and other builders
 that use Sphinx' HTMLWriter class.
 
-.. XXX document html_context
-
 .. confval:: html_theme
 
    The "theme" that the HTML output should use.  See the :doc:`section about
@@ -460,6 +458,14 @@ that use Sphinx' HTMLWriter class.
    :confval:`html_title`.
 
    .. versionadded:: 0.4
+
+.. confval:: html_context
+
+   A dictionary of values to pass into the template engine's context for all
+   pages.  Single values can also be put in this dictionary using the
+   :option:`-A` command-line option of ``sphinx-build``.
+
+   .. versionadded:: 0.5
 
 .. confval:: html_logo
 

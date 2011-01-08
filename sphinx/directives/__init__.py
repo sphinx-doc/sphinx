@@ -33,7 +33,7 @@ except AttributeError:
 
 # RE to strip backslash escapes
 nl_escape_re = re.compile(r'\\\n')
-strip_backslash_re = re.compile(r'\\(?=[^\\])')
+strip_backslash_re = re.compile(r'\\(.)')
 
 
 class ObjectDescription(Directive):
@@ -63,7 +63,7 @@ class ObjectDescription(Directive):
         """
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
         # remove backslashes to support (dummy) escapes; helps Vim highlighting
-        return [strip_backslash_re.sub('', line.strip()) for line in lines]
+        return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
 
     def handle_signature(self, sig, signode):
         """
