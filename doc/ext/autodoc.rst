@@ -104,8 +104,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :undoc-members:
 
    * For classes and exceptions, members inherited from base classes will be
-     left out, unless you give the ``inherited-members`` flag option, in
-     addition to ``members``::
+     left out when documenting all members, unless you give the
+     ``inherited-members`` flag option, in addition to ``members``::
 
         .. autoclass:: Noodle
            :members:
