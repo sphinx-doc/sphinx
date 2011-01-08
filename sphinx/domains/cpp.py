@@ -1066,13 +1066,15 @@ class CPPDomain(Domain):
                                 contnode, name)
 
         parser = DefinitionParser(target)
-        # XXX: warn?
         try:
             expr = parser.parse_type().get_name()
             parser.skip_ws()
             if not parser.eof or expr is None:
-                return None
+                raise DefinitionError('')
         except DefinitionError:
+            refdoc = node.get('refdoc', fromdocname)
+            env.warn(refdoc, 'unparseable C++ definition: %r' % target,
+                     node.line)
             return None
 
         parent = node['cpp:parent']
