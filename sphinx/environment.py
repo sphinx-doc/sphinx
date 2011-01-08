@@ -80,7 +80,7 @@ default_substitutions = set([
 
 dummy_reporter = Reporter('', 4, 4)
 
-versioning_methods = {
+versioning_conditions = {
     'none': False,
     'text': nodes.TextElement,
     'commentable': is_commentable,
@@ -321,7 +321,7 @@ class BuildEnvironment:
         self.config = config
 
         # the method of doctree versioning; see set_versioning_method
-        self.versioning_method = None
+        self.versioning_condition = None
 
         # the application object; only set while update() runs
         self.app = None
@@ -398,14 +398,14 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
-        if method not in versioning_methods:
+        if method not in versioning_conditions:
             raise ValueError('invalid versioning method: %r' % method)
-        method = versioning_methods[method]
-        if self.versioning_method not in (None, method):
+        condition = versioning_conditions[method]
+        if self.versioning_condition not in (None, condition):
             raise SphinxError('This environment is incompatible with the '
                               'selected builder, please choose another '
                               'doctree directory.')
-        self.versioning_method = method
+        self.versioning_condition = condition
 
     def warn(self, docname, msg, lineno=None):
         # strange argument order is due to backwards compatibility
@@ -781,7 +781,7 @@ class BuildEnvironment:
         # store time of build, for outdated files detection
         self.all_docs[docname] = time.time()
 
-        if self.versioning_method:
+        if self.versioning_condition:
             # get old doctree
             try:
                 f = open(self.doc2path(docname,
@@ -795,10 +795,10 @@ class BuildEnvironment:
 
             # add uids for versioning
             if old_doctree is None:
-                list(add_uids(doctree, nodes.TextElement))
+                list(add_uids(doctree, self.versioning_condition))
             else:
                 list(merge_doctrees(
-                    old_doctree, doctree, self.versioning_method))
+                    old_doctree, doctree, self.versioning_condition))
 
         # make it picklable
         doctree.reporter = None
