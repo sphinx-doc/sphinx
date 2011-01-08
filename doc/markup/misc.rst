@@ -78,7 +78,7 @@ Including content based on tags
 
    Undefined tags are false, defined tags (via the ``-t`` command-line option or
    within :file:`conf.py`) are true.  Boolean expressions, also using
-   parentheses (like ``html and (latex or draft)`` are supported.
+   parentheses (like ``html and (latex or draft)``) are supported.
 
    The format of the current builder (``html``, ``latex`` or ``text``) is always
    set as a tag.
