@@ -52,6 +52,7 @@ class Graphviz(Directive):
     option_spec = {
         'alt': directives.unchanged,
         'inline': directives.flag,
+        'caption': directives.unchanged,
     }
 
     def run(self):
@@ -85,6 +86,8 @@ class Graphviz(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
+        if 'caption' in self.options:
+            node['caption'] = self.options['caption']
         node['inline'] = 'inline' in self.options
         return [node]
 
@@ -100,6 +103,7 @@ class GraphvizSimple(Directive):
     option_spec = {
         'alt': directives.unchanged,
         'inline': directives.flag,
+        'caption': directives.unchanged,
     }
 
     def run(self):
@@ -109,6 +113,8 @@ class GraphvizSimple(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
+        if 'caption' in self.options:
+            node['caption'] = self.options['caption']
         node['inline'] = 'inline' in self.options
         return [node]
 
@@ -264,14 +270,25 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
-    if node.get('inline', False):
+    inline = node.get('inline', False)
+    if inline:
         para_separator = ''
     else:
         para_separator = '\n'
 
     if fname is not None:
-        self.body.append('%s\\includegraphics{%s}%s' % (para_separator, fname,
-                                                        para_separator))
+        caption = node.get('caption')
+        if caption:
+            self.body.append('\n\\begin{figure}[h!]')
+            self.body.append('\n\\begin{center}')
+            self.body.append('\n\\caption{%s}' % caption)
+            self.body.append('\n\\label{figure:%s}' % caption)
+            self.body.append('\n\\includegraphics{%s}' % fname)
+            self.body.append('\n\\end{center}')
+            self.body.append('\n\\end{figure}\n')
+        else:
+            self.body.append('%s\\includegraphics{%s}' %
+                             (para_separator, fname, para_separator))
     raise nodes.SkipNode
 
 
