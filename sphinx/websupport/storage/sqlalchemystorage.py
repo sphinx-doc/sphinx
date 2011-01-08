@@ -45,7 +45,7 @@ class SQLAlchemyStorage(StorageBackend):
         session = Session()
         node = session.query(Node).filter(Node.id == id).first()
         session.close()
-        return True if node else False
+        return bool(node)
 
     def add_node(self, id, document, source):
         node = Node(id, document, source)

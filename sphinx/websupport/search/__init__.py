@@ -104,9 +104,9 @@ class BaseSearch(object):
             return ''
         context_start = max(res.start() - length/2, 0)
         context_end = context_start + length
-        context = ''.join(['...' if context_start > 0 else '',
+        context = ''.join([context_start > 0 and '...' or '',
                            text[context_start:context_end],
-                           '...' if context_end < len(text) else ''])
+                           context_end < len(text) and '...' or ''])
 
         try:
             return unicode(context, errors='ignore')
