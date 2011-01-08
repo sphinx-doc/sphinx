@@ -10,6 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+from StringIO import StringIO
+
 from util import *
 
 from docutils.statemachine import ViewList
@@ -17,7 +20,6 @@ from docutils.statemachine import ViewList
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
      ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
-from StringIO import StringIO
 
 def setup_module():
     global app, lid, options, directive
@@ -422,12 +424,14 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.udocattr'),
                    ('attribute', 'test_autodoc.Class.mdocattr'),
                    ('attribute', 'test_autodoc.Class.inst_attr_comment'),
-                   ('attribute', 'test_autodoc.Class.inst_attr_string')
+                   ('attribute', 'test_autodoc.Class.inst_attr_string'),
+                   ('method', 'test_autodoc.Class.moore'),
                    ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
-    should.append(('method', 'test_autodoc.Class.undocmeth'))
+    should.extend((('method', 'test_autodoc.Class.undocmeth'),
+                   ('method', 'test_autodoc.Class.roger')))
     assert_processes(should, 'class', 'Class')
     options.inherited_members = True
     should.append(('method', 'test_autodoc.Class.inheritedmeth'))
@@ -490,6 +494,8 @@ def test_generate():
                   '   .. py:attribute:: Class.docattr',
                   '   .. py:attribute:: Class.udocattr',
                   '   .. py:attribute:: Class.mdocattr',
+                  '   .. py:classmethod:: Class.roger(a, e=5, f=6)',
+                  '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
                   '   .. py:method:: Class.inheritedmeth()',
@@ -509,6 +515,9 @@ def test_generate():
         'test_autodoc.DocstringSig.meth')
     assert_result_contains(
         '   rest of docstring', 'method', 'test_autodoc.DocstringSig.meth')
+    assert_result_contains(
+        '.. py:classmethod:: Class.moore(a, e, f) -> happiness', 'method',
+        'test_autodoc.Class.moore')
 
 
 # --- generate fodder ------------
@@ -533,6 +542,21 @@ class CustomDataDescriptor(object):
         if obj is None:
             return self
         return 42
+
+def _funky_classmethod(name, b, c, d, docstring=None):
+    """Generates a classmethod for a class from a template by filling out
+    some arguments."""
+    def template(cls, a, b, c, d=4, e=5, f=6):
+        return a, b, c, d, e, f
+    if sys.version_info >= (2, 5):
+        from functools import partial
+        function = partial(template, b=b, c=c, d=d)
+    else:
+        def function(cls, a, e=5, f=6):
+            return template(a, b, c, d, e, f)
+    function.__name__ = name
+    function.__doc__ = docstring
+    return classmethod(function)
 
 class Base(object):
     def inheritedmeth(self):
@@ -575,6 +599,11 @@ class Class(Base):
     # initialized to any class imported from another module
     mdocattr = StringIO()
     """should be documented as well - süß"""
+
+    roger = _funky_classmethod("roger", 2, 3, 4)
+
+    moore = _funky_classmethod("moore", 9, 8, 7,
+        docstring="moore(a, e, f) -> happiness")
 
     def __init__(self, arg):
         #: a documented instance attribute

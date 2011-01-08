@@ -27,7 +27,8 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
-from sphinx.util.inspect import isdescriptor, safe_getmembers, safe_getattr
+from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
+     safe_getattr
 from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
 
@@ -902,15 +903,15 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
             # cannot introspect arguments of a C function or method
             pass
         try:
-            argspec = inspect.getargspec(self.object)
+            argspec = getargspec(self.object)
         except TypeError:
             # if a class should be documented as function (yay duck
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
-                argspec = inspect.getargspec(self.object.__new__)
+                argspec = getargspec(self.object.__new__)
             except TypeError:
-                argspec = inspect.getargspec(self.object.__init__)
+                argspec = getargspec(self.object.__init__)
                 if argspec[0]:
                     del argspec[0][0]
         args = inspect.formatargspec(*argspec)
@@ -960,7 +961,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
                (inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
-            argspec = inspect.getargspec(initmeth)
+            argspec = getargspec(initmeth)
         except TypeError:
             # still not possible: happens e.g. for old-style classes
             # with __init__ in C
@@ -1117,7 +1118,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
                inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
-        argspec = inspect.getargspec(self.object)
+        argspec = getargspec(self.object)
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
         return inspect.formatargspec(*argspec)
