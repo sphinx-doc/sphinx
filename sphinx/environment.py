@@ -69,7 +69,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 39
+ENV_VERSION = 40
 
 
 default_substitutions = set([
