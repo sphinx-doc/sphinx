@@ -69,9 +69,10 @@ class XRefRole(object):
     innernodeclass = nodes.literal
 
     def __init__(self, fix_parens=False, lowercase=False,
-                 nodeclass=None, innernodeclass=None):
+                 nodeclass=None, innernodeclass=None, warn_dangling=False):
         self.fix_parens = fix_parens
         self.lowercase = lowercase
+        self.warn_dangling = warn_dangling
         if nodeclass is not None:
             self.nodeclass = nodeclass
         if innernodeclass is not None:
@@ -133,6 +134,7 @@ class XRefRole(object):
         refnode += self.innernodeclass(rawtext, title, classes=classes)
         # we also need the source document
         refnode['refdoc'] = env.docname
+        refnode['refwarn'] = self.warn_dangling
         # result_nodes allow further modification of return values
         return self.result_nodes(inliner.document, env, refnode, is_ref=True)
 
