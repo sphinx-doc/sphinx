@@ -136,10 +136,7 @@ class BuildDoc(Command):
                      freshenv=self.fresh_env)
 
         try:
-            if self.all_files:
-                app.builder.build_all()
-            else:
-                app.builder.build_update()
+            app.build(force_all=self.all_files)
         except Exception, err:
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):
