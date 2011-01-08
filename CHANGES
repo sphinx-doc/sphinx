@@ -88,6 +88,8 @@ Release 1.1 (in development)
 * autodoc now supports documenting the signatures of ``functools.partial``
   objects.
 
+* Added :confval:`pngmath_add_tooltips`.
+
 * C++ domain now supports array definitions.
 
 

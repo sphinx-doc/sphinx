@@ -170,6 +170,13 @@ There are various config values you can set to influence how the images are buil
    Unfortunately, this only works when the `preview-latex package`_ is
    installed.  Therefore, the default for this option is ``False``.
 
+.. confval:: pngmath_add_tooltips
+
+   Default: true.  If false, do not add the LaTeX code as an "alt" attribute for
+   math images.
+
+   .. versionadded:: 1.1
+
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
 -------------------------------------------------------
