@@ -12,7 +12,7 @@
 from uuid import uuid4
 from operator import itemgetter
 
-from sphinx.util.pycompat import product, zip_longest
+from sphinx.util.pycompat import product, zip_longest, all
 
 
 # anything below that ratio is considered equal/changed
