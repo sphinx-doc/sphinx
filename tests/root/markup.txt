@@ -156,6 +156,8 @@ Tables
 
 .. tabularcolumns:: |L|p{5cm}|R|
 
+.. _my-table:
+
 .. table:: my table
 
    +----+----------------+----+
