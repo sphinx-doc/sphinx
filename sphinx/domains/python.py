@@ -419,15 +419,8 @@ class PyModule(Directive):
         targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
         self.state.document.note_explicit_target(targetnode)
         ret = [targetnode]
-        # XXX this behavior of the module directive is a mess...
-        if 'platform' in self.options:
-            platform = self.options['platform']
-            node = nodes.paragraph()
-            node += nodes.emphasis('', _('Platforms: '))
-            node += nodes.Text(platform, platform)
-            ret.append(node)
-        # the synopsis isn't printed; in fact, it is only used in the
-        # modindex currently
+        # the platform and synopsis aren't printed; in fact, they are only used
+        # in the modindex currently
         if not noindex:
             indextext = _('%s (module)') % modname
             inode = addnodes.index(entries=[('single', indextext,
