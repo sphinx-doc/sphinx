@@ -1411,7 +1411,6 @@ class BuildEnvironment:
             typ = node['reftype']
             target = node['reftarget']
             refdoc = node.get('refdoc', fromdocname)
-            warned = False
             domain = None
 
             try:
@@ -1428,11 +1427,7 @@ class BuildEnvironment:
                     # directly reference to document by source name;
                     # can be absolute or relative
                     docname = docname_join(refdoc, target)
-                    if docname not in self.all_docs:
-                        self.warn(refdoc,
-                                  'unknown document: %s' % docname, node.line)
-                        warned = True
-                    else:
+                    if docname in self.all_docs:
                         if node['refexplicit']:
                             # reference with explicit title
                             caption = node.astext()
@@ -1445,11 +1440,7 @@ class BuildEnvironment:
                         newnode.append(innernode)
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
-                    if not docname:
-                        self.warn(refdoc,
-                                  'citation not found: %s' % target, node.line)
-                        warned = True
-                    else:
+                    if docname:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
                 # no new node found? try the missing-reference event
@@ -1457,21 +1448,40 @@ class BuildEnvironment:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
                     # still not found? warn if in nit-picky mode
-                    if newnode is None and not warned and \
-                       (self.config.nitpicky or node.get('refwarn')):
-                        if domain and typ in domain.dangling_warnings:
-                            msg = domain.dangling_warnings[typ]
-                        elif node.get('refdomain') != 'std':
-                            msg = '%s:%s reference target not found: ' \
-                                  '%%(target)s' % (node['refdomain'], typ)
-                        else:
-                            msg = '%s reference target not found: ' \
-                                  '%%(target)s' % typ
-                        self.warn(refdoc, msg % {'target': target}, node.line)
+                    if newnode is None:
+                        self._warn_missing_reference(
+                            fromdocname, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
 
+        # remove only-nodes that do not belong to our builder
+        self.process_only_nodes(doctree, fromdocname, builder)
+
+        # allow custom references to be resolved
+        builder.app.emit('doctree-resolved', doctree, fromdocname)
+
+    def _warn_missing_reference(self, fromdoc, typ, target, node, domain):
+        warn = node.get('refwarn')
+        if self.config.nitpicky:
+            warn = True  # XXX process exceptions here
+        if not warn:
+            return
+        refdoc = node.get('refdoc', fromdoc)
+        if domain and typ in domain.dangling_warnings:
+            msg = domain.dangling_warnings[typ]
+        elif typ == 'doc':
+            msg = 'unknown document: %(target)s'
+        elif typ == 'citation':
+            msg = 'citation not found: %(target)s'
+        elif node.get('refdomain', 'std') != 'std':
+            msg = '%s:%s reference target not found: %%(target)s' % \
+                  (node['refdomain'], typ)
+        else:
+            msg = '%s reference target not found: %%(target)s' % typ
+        self.warn(refdoc, msg % {'target': target}, node.line)
+
+    def process_only_nodes(self, doctree, fromdocname, builder):
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
@@ -1486,9 +1496,6 @@ class BuildEnvironment:
                     # replacing by [] would result in an "Losing ids" exception
                     # if there is a target node before the only node
                     node.replace_self(nodes.comment())
-
-        # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, fromdocname)
 
     def assign_section_numbers(self):
         """Assign a section number to each heading under a numbered toctree."""
