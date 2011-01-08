@@ -90,6 +90,9 @@ Release 1.1 (in development)
 
 * Added :confval:`pngmath_add_tooltips`.
 
+* Section headings in :rst:dir:`only` directives are now correctly
+  handled.
+
 * C++ domain now supports array definitions.
 
 

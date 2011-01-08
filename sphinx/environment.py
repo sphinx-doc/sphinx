@@ -1118,6 +1118,12 @@ class BuildEnvironment:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
                 # resolved in self.get_and_resolve_doctree)
+                if isinstance(sectionnode, addnodes.only):
+                    onlynode = addnodes.only(expr=sectionnode['expr'])
+                    blist = build_toc(sectionnode, depth)
+                    if blist:
+                        onlynode += blist.children
+                        entries.append(onlynode)
                 if not isinstance(sectionnode, nodes.section):
                     for toctreenode in traverse_in_section(sectionnode,
                                                            addnodes.toctree):
@@ -1139,6 +1145,8 @@ class BuildEnvironment:
                 else:
                     anchorname = '#' + sectionnode['ids'][0]
                 numentries[0] += 1
+                # make these nodes:
+                # list_item -> compact_paragraph -> reference
                 reference = nodes.reference(
                     '', '', internal=True, refuri=docname,
                     anchorname=anchorname, *nodetext)
@@ -1157,9 +1165,10 @@ class BuildEnvironment:
             self.tocs[docname] = nodes.bullet_list('')
         self.toc_num_entries[docname] = numentries[0]
 
-    def get_toc_for(self, docname):
+    def get_toc_for(self, docname, builder):
         """Return a TOC nodetree -- for use on the same page only!"""
         toc = self.tocs[docname].deepcopy()
+        self.process_only_nodes(toc, builder, docname)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -1336,6 +1345,7 @@ class BuildEnvironment:
                         toc = nodes.bullet_list('', item)
                     else:
                         toc = self.tocs[ref].deepcopy()
+                        self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -1460,7 +1470,7 @@ class BuildEnvironment:
             node.replace_self(newnode or contnode)
 
         # remove only-nodes that do not belong to our builder
-        self.process_only_nodes(doctree, fromdocname, builder)
+        self.process_only_nodes(doctree, builder, fromdocname)
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
@@ -1489,7 +1499,7 @@ class BuildEnvironment:
             msg = '%s reference target not found: %%(target)s' % typ
         self.warn(refdoc, msg % {'target': target}, node.line)
 
-    def process_only_nodes(self, doctree, fromdocname, builder):
+    def process_only_nodes(self, doctree, builder, fromdocname=None):
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
@@ -1523,6 +1533,12 @@ class BuildEnvironment:
                     numstack.pop()
                     titlenode = None
                 elif isinstance(subnode, nodes.list_item):
+                    _walk_toc(subnode, secnums, depth, titlenode)
+                    titlenode = None
+                elif isinstance(subnode, addnodes.only):
+                    # at this stage we don't know yet which sections are going
+                    # to be included; just include all of them, even if it leads
+                    # to gaps in the numbering
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.compact_paragraph):

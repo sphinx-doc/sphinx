@@ -387,7 +387,8 @@ class StandaloneHTMLBuilder(Builder):
         meta = self.env.metadata.get(docname)
 
         # local TOC and global TOC tree
-        toc = self.render_partial(self.env.get_toc_for(docname))['fragment']
+        self_toc = self.env.get_toc_for(docname, self)
+        toc = self.render_partial(self_toc)['fragment']
 
         return dict(
             parents = parents,
