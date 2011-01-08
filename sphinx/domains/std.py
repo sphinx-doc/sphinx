@@ -347,11 +347,13 @@ class StandardDomain(Domain):
         # links to tokens in grammar productions
         'token':   XRefRole(),
         # links to terms in glossary
-        'term':    XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        'term':    XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
+                            warn_dangling=True),
         # links to headings or arbitrary labels
-        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
+                            warn_dangling=True),
         # links to labels, without a different title
-        'keyword': XRefRole(),
+        'keyword': XRefRole(warn_dangling=True),
     }
 
     initial_data = {
@@ -367,6 +369,13 @@ class StandardDomain(Domain):
             'modindex': ('py-modindex', ''),
             'search':   ('search', ''),
         },
+    }
+
+    dangling_warnings = {
+        'term': 'term not in glossary: %(target)s',
+        'ref':  'undefined label: %(target)s (if the link has no caption '
+                'the label must precede a section header)',
+        'keyword': 'unknown keyword: %(target)s',
     }
 
     def clear_doc(self, docname):
@@ -426,27 +435,16 @@ class StandardDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         if typ == 'ref':
-            #refdoc = node.get('refdoc', fromdocname)
             if node['refexplicit']:
                 # reference to anonymous label; the reference uses
                 # the supplied link caption
                 docname, labelid = self.data['anonlabels'].get(target, ('',''))
                 sectname = node.astext()
-                # XXX warn somehow if not resolved by intersphinx
-                #if not docname:
-                #    env.warn(refdoc, 'undefined label: %s' %
-                #              target, node.line)
             else:
                 # reference to named label; the final node will
                 # contain the section name after the label
                 docname, labelid, sectname = self.data['labels'].get(target,
                                                                      ('','',''))
-                # XXX warn somehow if not resolved by intersphinx
-                #if not docname:
-                #    env.warn(refdoc,
-                #        'undefined label: %s' % target + ' -- if you '
-                #        'don\'t give a link caption the label must '
-                #        'precede a section header.', node.line)
             if not docname:
                 return None
             newnode = nodes.reference('', '', internal=True)
@@ -470,20 +468,17 @@ class StandardDomain(Domain):
             # keywords are oddballs: they are referenced by named labels
             docname, labelid, _ = self.data['labels'].get(target, ('','',''))
             if not docname:
-                #env.warn(refdoc, 'unknown keyword: %s' % target)
                 return None
-            else:
-                return make_refnode(builder, fromdocname, docname,
-                                    labelid, contnode)
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
         elif typ == 'option':
             progname = node['refprogram']
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:
                 return None
-            else:
-                return make_refnode(builder, fromdocname, docname,
-                                    labelid, contnode)
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
         else:
             objtypes = self.objtypes_for_role(typ) or []
             for objtype in objtypes:
@@ -493,13 +488,9 @@ class StandardDomain(Domain):
             else:
                 docname, labelid = '', ''
             if not docname:
-                if typ == 'term':
-                    env.warn(node.get('refdoc', fromdocname),
-                             'term not in glossary: %s' % target, node.line)
                 return None
-            else:
-                return make_refnode(builder, fromdocname, docname,
-                                    labelid, contnode)
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
 
     def get_objects(self):
         for (prog, option), info in self.data['progoptions'].iteritems():

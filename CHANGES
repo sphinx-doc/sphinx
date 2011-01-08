@@ -1,6 +1,9 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #572: Show warnings by default when reference labels cannot be
+  found.
+
 * #536: Include line number when complaining about missing reference
   targets in nitpicky mode.
 

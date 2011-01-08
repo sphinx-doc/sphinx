@@ -1315,9 +1315,10 @@ class BuildEnvironment:
             target = node['reftarget']
             refdoc = node.get('refdoc', fromdocname)
             warned = False
+            domain = None
 
             try:
-                if node.has_key('refdomain') and node['refdomain']:
+                if 'refdomain' in node and node['refdomain']:
                     # let the domain try to resolve the reference
                     try:
                         domain = self.domains[node['refdomain']]
@@ -1359,12 +1360,17 @@ class BuildEnvironment:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
                     # still not found? warn if in nit-picky mode
-                    if newnode is None and not warned and self.config.nitpicky:
-                        self.warn(refdoc,
-                            'reference target not found: %stype %s, target %s'
-                            % (node.get('refdomain') and
-                               'domain %s, ' % node['refdomain'] or '',
-                               typ, target), node.line)
+                    if newnode is None and not warned and \
+                       (self.config.nitpicky or node.get('refwarn')):
+                        if domain and typ in domain.dangling_warnings:
+                            msg = domain.dangling_warnings[typ]
+                        elif node.get('refdomain') != 'std':
+                            msg = '%s:%s reference target not found: ' \
+                                  '%%(target)s' % (node['refdomain'], typ)
+                        else:
+                            msg = '%s reference target not found: ' \
+                                  '%%(target)s' % typ
+                        self.warn(refdoc, msg % {'target': target}, node.line)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)

@@ -132,6 +132,8 @@ class Domain(object):
     roles = {}
     #: a list of Index subclasses
     indices = []
+    #: role name -> a warning message if reference is missing
+    dangling_warnings = {}
 
     #: data value for a fresh environment
     initial_data = {}
