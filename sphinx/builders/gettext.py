@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.builders.intl
-    ~~~~~~~~~~~~~~~~~~~~
+    sphinx.builders.gettext
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
     The MessageCatalogBuilder class.
 
@@ -48,6 +48,7 @@ class I18nBuilder(Builder):
     General i18n builder.
     """
     name = 'i18n'
+    versioning_method = 'text'
 
     def init(self):
         Builder.init(self)

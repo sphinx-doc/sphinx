@@ -43,6 +43,7 @@ from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
+from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _, init as init_locale
 from sphinx.versioning import add_uids, merge_doctrees
@@ -78,6 +79,12 @@ default_substitutions = set([
 ])
 
 dummy_reporter = Reporter('', 4, 4)
+
+versioning_methods = {
+    'none': False,
+    'text': nodes.TextElement,
+    'commentable': is_commentable,
+}
 
 
 class WarningStream(object):
@@ -313,6 +320,9 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.config = config
 
+        # the method of doctree versioning; see set_versioning_method
+        self.versioning_method = None
+
         # the application object; only set while update() runs
         self.app = None
 
@@ -379,6 +389,23 @@ class BuildEnvironment:
     def set_warnfunc(self, func):
         self._warnfunc = func
         self.settings['warning_stream'] = WarningStream(func)
+
+    def set_versioning_method(self, method):
+        """This sets the doctree versioning method for this environment.
+
+        Versioning methods are a builder property; only builders with the same
+        versioning method can share the same doctree directory.  Therefore, we
+        raise an exception if the user tries to use an environment with an
+        incompatible versioning method.
+        """
+        if method not in versioning_methods:
+            raise ValueError('invalid versioning method: %r' % method)
+        method = versioning_methods[method]
+        if self.versioning_method not in (None, method):
+            raise SphinxError('This environment is incompatible with the '
+                              'selected builder, please choose another '
+                              'doctree directory.')
+        self.versioning_method = method
 
     def warn(self, docname, msg, lineno=None):
         # strange argument order is due to backwards compatibility
@@ -754,25 +781,24 @@ class BuildEnvironment:
         # store time of build, for outdated files detection
         self.all_docs[docname] = time.time()
 
-        # get old doctree
-        old_doctree_path = self.doc2path(docname, self.doctreedir, '.doctree')
-        try:
-            f = open(old_doctree_path, 'rb')
+        if self.versioning_method:
+            # get old doctree
             try:
-                old_doctree = pickle.load(f)
-            finally:
-                f.close()
-            old_doctree.settings.env = self
-            old_doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
-                                            stream=WarningStream(self._warnfunc))
-        except EnvironmentError:
-            old_doctree = None
+                f = open(self.doc2path(docname,
+                                       self.doctreedir, '.doctree'), 'rb')
+                try:
+                    old_doctree = pickle.load(f)
+                finally:
+                    f.close()
+            except EnvironmentError:
+                old_doctree = None
 
-        # add uids for versioning
-        if old_doctree is None:
-            list(add_uids(doctree, nodes.TextElement))
-        else:
-            list(merge_doctrees(old_doctree, doctree, nodes.TextElement))
+            # add uids for versioning
+            if old_doctree is None:
+                list(add_uids(doctree, nodes.TextElement))
+            else:
+                list(merge_doctrees(
+                    old_doctree, doctree, self.versioning_method))
 
         # make it picklable
         doctree.reporter = None

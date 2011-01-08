@@ -361,6 +361,8 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
+# the i18n builder cannot share the environment and doctrees with the others
+I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
 epub latex latexpdf text man changes linkcheck doctest gettext
@@ -483,7 +485,7 @@ info:
 \t@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
 
 gettext:
-\t$(SPHINXBUILD) -b gettext $(ALLSPHINXOPTS) $(BUILDDIR)/locale
+\t$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
 \t@echo
 \t@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
 
@@ -514,8 +516,10 @@ if "%%SPHINXBUILD%%" == "" (
 )
 set BUILDDIR=%(rbuilddir)s
 set ALLSPHINXOPTS=-d %%BUILDDIR%%/doctrees %%SPHINXOPTS%% %(rsrcdir)s
+set I18NSPHINXOPTS=%%SPHINXOPTS%% %(rsrcdir)s
 if NOT "%%PAPER%%" == "" (
 \tset ALLSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%ALLSPHINXOPTS%%
+\tset I18NSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%I18NSPHINXOPTS%%
 )
 
 if "%%1" == "" goto help
@@ -659,7 +663,7 @@ if "%%1" == "texinfo" (
 )
 
 if "%%1" == "gettext" (
-\t%%SPHINXBUILD%% -b gettext %%ALLSPHINXOPTS%% %%BUILDDIR%%/locale
+\t%%SPHINXBUILD%% -b gettext %%I18NSPHINXOPTS%% %%BUILDDIR%%/locale
 \tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The message catalogs are in %%BUILDDIR%%/locale.
@@ -991,4 +995,3 @@ def main(argv=sys.argv):
         print
         print '[Interrupted.]'
         return
-
