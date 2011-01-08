@@ -236,7 +236,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         raise nodes.SkipNode
 
     if fname is not None:
-        self.body.append('\\includegraphics{%s}' % fname)
+        self.body.append('\n\\includegraphics{%s}\n' % fname)
     raise nodes.SkipNode
 
 
