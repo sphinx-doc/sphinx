@@ -179,7 +179,7 @@ These themes are:
   *nosidebar*.
 
 * **pyramid** -- A theme from the Pyramid web framework project, designed by
-  Blais Laflamme.  THere are currently no options beyond *nosidebar*.
+  Blaise Laflamme.  THere are currently no options beyond *nosidebar*.
 
 * **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
   <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
