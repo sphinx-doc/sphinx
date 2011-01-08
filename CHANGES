@@ -1,6 +1,9 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #536: Include line number when complaining about missing reference
+  targets in nitpicky mode.
+
 * #590: Fix inline display of graphviz diagrams in LaTeX output.
 
 * #589: Build using app.build() in setup command.

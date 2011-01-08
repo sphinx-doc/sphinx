@@ -1364,7 +1364,7 @@ class BuildEnvironment:
                             'reference target not found: %stype %s, target %s'
                             % (node.get('refdomain') and
                                'domain %s, ' % node['refdomain'] or '',
-                               typ, target))
+                               typ, target), node.line)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
