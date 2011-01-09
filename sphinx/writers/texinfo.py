@@ -1066,7 +1066,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         for entry in node['entries']:
             typ, text, tid, text2 = entry
-            text = text.replace('!', ' ').replace(';', ' ')
+            text = text.replace('()', ' ').replace('(', '[').replace(')', ']')
             text = escape_id(text)
             self.add_text('@geindex %s\n' % text, fresh=1)
 
