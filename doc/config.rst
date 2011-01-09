@@ -334,11 +334,14 @@ Project information
 .. confval:: trim_doctest_flags
 
    If true, doctest flags (comments looking like ``# doctest: FLAG, ...``) at
-   the ends of lines are removed for all code blocks showing interactive Python
-   sessions (i.e. doctests).  Default is true.  See the extension
-   :mod:`~sphinx.ext.doctest` for more possibilities of including doctests.
+   the ends of lines and ``<BLANKLINE>`` markers are removed for all code
+   blocks showing interactive Python sessions (i.e. doctests).  Default is
+   true.  See the extension :mod:`~sphinx.ext.doctest` for more possibilities
+   of including doctests.
 
    .. versionadded:: 1.0
+   .. versionchanged:: 1.1
+      Now also removes ``<BLANKLINE>``.
 
 
 .. _intl-options:

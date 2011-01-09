@@ -95,6 +95,9 @@ Release 1.1 (in development)
 * Section headings in :rst:dir:`only` directives are now correctly
   handled.
 
+* #594: :confval:`trim_doctest_flags` now also removes ``<BLANKLINE>``
+  indicators.
+
 * C++ domain now supports array definitions.
 
 
