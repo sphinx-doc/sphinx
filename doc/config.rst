@@ -294,6 +294,7 @@ Project information
    * ``fr`` -- French
    * ``hr`` -- Croatian
    * ``it`` -- Italian
+   * ``ja`` -- Japanese
    * ``lt`` -- Lithuanian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
