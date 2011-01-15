@@ -21,9 +21,9 @@
 
    {%- for key, entries in genindexentries %}
 <h2 id="{{ key }}">{{ key }}</h2>
-<table width="100%" class="indextable genindextable"><tr>
+<table style="width: 100%" class="indextable genindextable"><tr>
   {%- for column in entries|slice(2) if column %}
-  <td width="33%" valign="top"><dl>
+  <td style="width: 33%" valign="top"><dl>
   {%- for entryname, (links, subitems) in column %}
     <dt>{% if links %}<a href="{{ links[0] }}">{{ entryname|e }}</a>
       {%- for link in links[1:] %}, <a href="{{ link }}">[{{ loop.index }}]</a>{% endfor %}
