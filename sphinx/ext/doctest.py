@@ -351,7 +351,7 @@ Doctest summary
                 examples.append(doctest.Example(testcode.code, '',
                                                 lineno=testcode.lineno))
             if not examples:
-                return
+                return True
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
                                           '%s (%s code)' % (group.name, what),
