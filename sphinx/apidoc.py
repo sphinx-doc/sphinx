@@ -91,7 +91,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
                                  master_package)
         text += '\n'
 
-    # build a list of directories that are packages (they contain an INITPY file)
+    # build a list of directories that are packages (contain an INITPY file)
     subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
     # if there are some package directories, add a TOC for theses subpackages
     if subs:

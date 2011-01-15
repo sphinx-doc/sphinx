@@ -335,7 +335,8 @@ Doctest summary
             self.total_failures += res_f
             self.total_tries += res_t
         if self.cleanup_runner.tries:
-            res_f, res_t = self.cleanup_runner.summarize(self._out, verbose=True)
+            res_f, res_t = self.cleanup_runner.summarize(self._out,
+                                                         verbose=True)
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
 

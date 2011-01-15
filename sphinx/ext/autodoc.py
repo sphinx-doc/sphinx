@@ -427,7 +427,8 @@ class Documenter(object):
         if isinstance(docstring, unicode):
             return [prepare_docstring(docstring, ignore)]
         elif docstring:
-            return [prepare_docstring(force_decode(docstring, encoding), ignore)]
+            return [prepare_docstring(force_decode(docstring, encoding),
+                                      ignore)]
         return []
 
     def process_doc(self, docstrings):

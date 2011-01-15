@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.search_languages.ja
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.search.ja
+    ~~~~~~~~~~~~~~~~
 
     Japanese search language: includes routine to split words.
 

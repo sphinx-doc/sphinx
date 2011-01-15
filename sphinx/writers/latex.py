@@ -1080,9 +1080,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.body.append(r'\index{%s!%s%s}\index{%s!%s%s}' %
                                      (p1, p2, m,  p2, p1, m))
                 elif type == 'triple':
-                    p1, p2, p3 = map(self.encode, split_into(3, 'triple', string))
+                    p1, p2, p3 = map(self.encode,
+                                     split_into(3, 'triple', string))
                     self.body.append(
-                        r'\index{%s!%s %s%s}\index{%s!%s, %s%s}\index{%s!%s %s%s}' %
+                        r'\index{%s!%s %s%s}\index{%s!%s, %s%s}'
+                        r'\index{%s!%s %s%s}' %
                         (p1, p2, p3, m,  p2, p3, p1, m,  p3, p1, p2, m))
                 elif type == 'see':
                     p1, p2 = map(self.encode, split_into(2, 'see', string))
@@ -1091,7 +1093,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     p1, p2 = map(self.encode, split_into(2, 'seealso', string))
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
-                    self.builder.warn('unknown index entry type %s found' % type)
+                    self.builder.warn(
+                        'unknown index entry type %s found' % type)
             except ValueError, err:
                 self.builder.warn(str(err))
         raise nodes.SkipNode

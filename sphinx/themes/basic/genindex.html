@@ -10,7 +10,7 @@
 {% macro indexentries(firstname, links) %}
   <dt>
   {%- if links -%}
-    <a href="{{ links[0][1] }}">  
+    <a href="{{ links[0][1] }}">
     {%- if links[0][0] %}<strong>{% endif -%}
     {{ firstname|e }}
     {%- if links[0][0] %}</strong>{% endif -%}

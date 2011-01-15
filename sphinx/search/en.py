@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.search_languages.en
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.search.en
+    ~~~~~~~~~~~~~~~~
 
     English search language: includes the JS porter stemmer.
 
@@ -151,7 +151,8 @@ var Stemmer = function() {
     }
 
     // Step 2
-    re = /^(.+?)(ational|tional|enci|anci|izer|bli|alli|entli|eli|ousli|ization|ation|ator|alism|iveness|fulness|ousness|aliti|iviti|biliti|logi)$/;
+    re = /^(.+?)(ational|tional|enci|anci|izer|bli|alli|entli|eli|ousli|\
+ization|ation|ator|alism|iveness|fulness|ousness|aliti|iviti|biliti|logi)$/;
     if (re.test(w)) {
       var fp = re.exec(w);
       stem = fp[1];
@@ -173,7 +174,8 @@ var Stemmer = function() {
     }
 
     // Step 4
-    re = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/;
+    re = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|\
+iti|ous|ive|ize)$/;
     re2 = /^(.+?)(s|t)(ion)$/;
     if (re.test(w)) {
       var fp = re.exec(w);
