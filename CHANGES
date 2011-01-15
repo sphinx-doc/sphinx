@@ -1,6 +1,9 @@
 Release 1.0.7 (in development)
 ==============================
 
+* #347: Fix wrong generation of directives of static methods in
+  autosummary.
+
 * #599: Import PIL as ``from PIL import Image``.
 
 * #558: Fix longtables with captions in LaTeX output.

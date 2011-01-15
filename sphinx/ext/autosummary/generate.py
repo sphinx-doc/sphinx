@@ -107,7 +107,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         ensuredir(path)
 
         try:
-            obj, name = import_by_name(name)
+            name, obj, parent = import_by_name(name)
         except ImportError, e:
             warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
@@ -123,7 +123,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         f = open(fn, 'w')
 
         try:
-            doc = get_documenter(obj)
+            doc = get_documenter(obj, parent)
 
             if template_name is not None:
                 template = template_env.get_template(template_name)
@@ -137,7 +137,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             def get_members(obj, typ, include_public=[]):
                 items = [
                     name for name in dir(obj)
-                    if get_documenter(getattr(obj, name)).objtype == typ
+                    if get_documenter(getattr(obj, name), obj).objtype == typ
                 ]
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]
@@ -211,7 +211,7 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
     See `find_autosummary_in_lines`.
     """
     try:
-        obj, real_name = import_by_name(name)
+        real_name, obj, parent = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
