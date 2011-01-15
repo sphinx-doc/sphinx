@@ -48,6 +48,8 @@ Release 1.0.7 (in development)
 
 * Fix tracebacks occurring for duplicate C++ domain objects.
 
+* Fix JavaScript domain links to objects with ``$`` in their name.
+
 
 Release 1.0.6 (Jan 04, 2011)
 ============================

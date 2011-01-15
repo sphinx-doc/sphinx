@@ -96,7 +96,8 @@ class JSObject(ObjectDescription):
         indextext = self.get_index_text(objectname, name_obj)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              fullname, fullname))
+                                              fullname.replace('$', '_S_'),
+                                              fullname))
 
     def get_index_text(self, objectname, name_obj):
         name, obj = name_obj
@@ -208,8 +209,10 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, objectname, target, typ, searchorder)
         if not obj:
             return None
-        return make_refnode(builder, fromdocname, obj[0], name, contnode, name)
+        return make_refnode(builder, fromdocname, obj[0],
+                            name.replace('$', '_S_'), contnode, name)
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield refname, refname, type, docname, refname, 1
+            yield refname, refname, type, docname, \
+                  refname.replace('$', '_S_'), 1
