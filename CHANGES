@@ -109,6 +109,15 @@ Release 1.1 (in development)
 Release 1.0.7 (in development)
 ==============================
 
+* #347: Fix wrong generation of directives of static methods in
+  autosummary.
+
+* #599: Import PIL as ``from PIL import Image``.
+
+* #558: Fix longtables with captions in LaTeX output.
+
+* Make token references work as hyperlinks again in LaTeX output.
+
 * #572: Show warnings by default when reference labels cannot be
   found.
 
@@ -149,6 +158,8 @@ Release 1.0.7 (in development)
 * Fix traceback with ``only`` directives preceded by targets.
 
 * Fix tracebacks occurring for duplicate C++ domain objects.
+
+* Fix JavaScript domain links to objects with ``$`` in their name.
 
 
 Release 1.0.6 (Jan 04, 2011)

@@ -377,6 +377,7 @@ documentation on :ref:`intl` for details.
    * ``fr`` -- French
    * ``hr`` -- Croatian
    * ``it`` -- Italian
+   * ``ja`` -- Japanese
    * ``lt`` -- Lithuanian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
