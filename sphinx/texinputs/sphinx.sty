@@ -237,21 +237,12 @@
   \addtolength{\py@argswidth}{\linewidth}%
   \item[#1\code{(}\py@sigparams{#2}{#3}]}
 
-% This version is being checked in for the historical record; it shows
-% how I've managed to get some aspects of this to work.  It will not
-% be used in practice, so a subsequent revision will change things
-% again.  This version has problems, but shows how to do something
-% that proved more tedious than I'd expected, so I don't want to lose
-% the example completely.
+% Production lists
 %
-\newcommand{\grammartoken}[1]{\texttt{#1}}
-\newenvironment{productionlist}[1][\@undefined]{
-  \def\optional##1{{\Large[}##1{\Large]}}
-  \def\production##1##2{\hypertarget{grammar-token-##1}{}%
-    \code{##1}&::=&\code{##2}\\}
-  \def\productioncont##1{& &\code{##1}\\}
-  \def\token##1{##1}
-  \let\grammartoken=\token
+\newenvironment{productionlist}{
+%  \def\optional##1{{\Large[}##1{\Large]}}
+  \def\production##1##2{\\\code{##1}&::=&\code{##2}}
+  \def\productioncont##1{\\& &\code{##1}}
   \parindent=2em
   \indent
   \begin{tabular}{lcl}

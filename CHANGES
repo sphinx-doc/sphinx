@@ -1,6 +1,8 @@
 Release 1.0.7 (in development)
 ==============================
 
+* Make token references work as hyperlinks again in LaTeX output.
+
 * #572: Show warnings by default when reference labels cannot be
   found.
 
