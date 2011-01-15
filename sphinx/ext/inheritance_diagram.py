@@ -86,7 +86,7 @@ class InheritanceGraph(object):
         """
         try:
             path, base = class_sig_re.match(name).groups()
-        except ValueError:
+        except (AttributeError, ValueError):
             raise InheritanceException('Invalid class or module %r specified '
                                        'for inheritance diagram' % name)
 
