@@ -70,7 +70,8 @@ class MathDirective(Directive):
         node['docname'] = self.state.document.settings.env.docname
         ret = [node]
         node.line = self.lineno
-        node.source = self.src
+        if hasattr(self, 'src'):
+            node.source = self.src
         if node['label']:
             tnode = nodes.target('', '', ids=['equation-' + node['label']])
             self.state.document.note_explicit_target(tnode)
