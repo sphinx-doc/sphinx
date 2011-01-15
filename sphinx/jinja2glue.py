@@ -26,6 +26,12 @@ def _tobool(val):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
+def _toint(val):
+    try:
+        return int(val)
+    except ValueError:
+        return 0
+
 def accesskey(context, key):
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
@@ -100,6 +106,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment = SandboxedEnvironment(loader=self,
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
+        self.environment.filters['toint'] = _toint
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         if use_i18n:

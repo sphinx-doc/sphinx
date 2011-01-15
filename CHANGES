@@ -98,6 +98,8 @@ Release 1.1 (in development)
 * #594: :confval:`trim_doctest_flags` now also removes ``<BLANKLINE>``
   indicators.
 
+* #554: Add theme option ``sidebarwidth`` to the basic theme.
+
 * C++ domain now supports array definitions.
 
 
