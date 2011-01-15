@@ -127,7 +127,7 @@ var Stemmer = function() {
       if (re2.test(stem)) {
         w = stem;
         re2 = /(at|bl|iz)$/;
-        re3 = new RegExp("([^aeiouylsz])\\1$");
+        re3 = new RegExp("([^aeiouylsz])\\\\1$");
         re4 = new RegExp("^" + C + v + "[^aeiouwxy]$");
         if (re2.test(w))
           w = w + "e";
