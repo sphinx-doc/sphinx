@@ -26,6 +26,7 @@ Documentation using the default theme
 * gevent: http://www.gevent.org/
 * Google Wave API: http://wave-robot-python-client.googlecode.com/svn/trunk/pydocs/index.html
 * GSL Shell: http://www.nongnu.org/gsl-shell/
+* Hands-on Python Tutorial: http://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/
 * Hedge: http://documen.tician.de/hedge/
 * Kaa: http://doc.freevo.org/api/kaa/
 * Leo: http://webpages.charter.net/edreamleo/front.html
@@ -79,6 +80,7 @@ Documentation using a customized version of the default theme
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html
 * Sprox: http://sprox.org/
 * TurboGears: http://turbogears.org/2.0/docs/
+* Zentyal: http://doc.zentyal.org/
 * Zope: http://docs.zope.org/zope2/index.html
 * zc.async: http://packages.python.org/zc.async/1.5.0/
 
@@ -140,6 +142,7 @@ Documentation using a custom theme/integrated in a site
 * Open ERP: http://doc.openerp.com/
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
+* German Plone 4.0 user manual: http://www.hasecke.com/plone-benutzerhandbuch/4.0/
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
 * qooxdoo: http://manual.qooxdoo.org/current
@@ -167,6 +170,13 @@ Homepages and other non-documentation sites
 Books produced using Sphinx
 ---------------------------
 
-* The ``repoze.bfg`` Web Application Framework: 
+* "The ``repoze.bfg`` Web Application Framework":
   http://www.amazon.com/repoze-bfg-Web-Application-Framework-Version/dp/0615345379
 * A Theoretical Physics Reference book: http://theoretical-physics.net/
+* "Simple and Steady Way of Learning for Software Engineering" (in Japanese):
+  http://www.amazon.co.jp/dp/477414259X/
+* "Expert Python Programming" (Japanese translation):
+  http://www.amazon.co.jp/dp/4048686291/
+* "Pomodoro Technique Illustrated" (Japanese translation):
+  http://www.amazon.co.jp/dp/4048689525/
+
