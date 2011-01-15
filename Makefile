@@ -7,6 +7,7 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
              -i .ropeproject -i doc/_build -i tests/path.py \
              -i tests/coverage.py -i env -i utils/convert.py \
+	     -i sphinx/search/ja.py \
              -i utils/reindent3.py -i utils/check_sources3.py -i .tox
 
 all: clean-pyc clean-backupfiles check test
