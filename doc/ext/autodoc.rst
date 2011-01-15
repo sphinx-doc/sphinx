@@ -198,15 +198,22 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    used for automatic member documentation.
 
    For module data members and class attributes, documentation can either be put
-   into a special-formatted comment *before* the attribute definition, or in a
-   docstring *after* the definition.  This means that in the following class
-   definition, all attributes can be autodocumented::
+   into a special-formatted comment, or in a docstring *after* the definition.
+   Comments need to be either on a line of their own *before* the definition, or
+   immediately after the assignment *on the same line*.  The latter form is
+   restricted to one line only.
+
+   This means that in the following class definition, all attributes can be
+   autodocumented::
 
       class Foo:
           """Docstring for class Foo."""
 
           #: Doc comment for class attribute Foo.bar.
+          #: It can have multiple lines.
           bar = 1
+
+          flox = 1.5   #: Doc comment for Foo.flox. One line only.
 
           baz = 2
           """Docstring for class attribute Foo.baz."""
@@ -220,6 +227,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    .. versionchanged:: 0.6
       :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract docstrings.
+   .. versionchanged:: 1.1
+      Comment docs are now allowed on the same line after an assignment.
 
    .. note::
 

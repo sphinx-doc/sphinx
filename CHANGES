@@ -81,6 +81,9 @@ Release 1.1 (in development)
 
 * #306: Added :event:`env-get-outdated` event.
 
+* #431: Doc comments for attributes can now be given on the same line as
+  the assignment.
+
 * #590: Added ``caption`` option to graphviz directives.
 
 * #537: Added :confval:`nitpick_ignore`.

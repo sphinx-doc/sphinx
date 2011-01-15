@@ -425,6 +425,7 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.udocattr'),
                    ('attribute', 'test_autodoc.Class.mdocattr'),
                    ('attribute', 'test_autodoc.Class.inst_attr_comment'),
+                   ('attribute', 'test_autodoc.Class.inst_attr_inline'),
                    ('attribute', 'test_autodoc.Class.inst_attr_string'),
                    ('method', 'test_autodoc.Class.moore'),
                    ])
@@ -621,6 +622,7 @@ class Class(Base):
         docstring="moore(a, e, f) -> happiness")
 
     def __init__(self, arg):
+        self.inst_attr_inline = None #: an inline documented instance attr
         #: a documented instance attribute
         self.inst_attr_comment = None
         self.inst_attr_string = None
