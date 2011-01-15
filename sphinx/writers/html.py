@@ -244,6 +244,12 @@ class HTMLTranslator(BaseTranslator):
     def visit_doctest_block(self, node):
         self.visit_literal_block(node)
 
+    # overwritten to add the <div> (for XHTML compliance)
+    def visit_block_quote(self, node):
+        self.body.append(self.starttag(node, 'blockquote') + '<div>')
+    def depart_block_quote(self, node):
+        self.body.append('</div></blockquote>\n')
+
     # overwritten
     def visit_literal(self, node):
         if len(node.children) == 1 and \
