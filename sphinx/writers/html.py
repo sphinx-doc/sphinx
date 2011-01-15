@@ -21,7 +21,7 @@ from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 try:
-    import Image                        # check for the Python Imaging Library
+    from PIL import Image        # check for the Python Imaging Library
 except ImportError:
     Image = None
 
