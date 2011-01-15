@@ -33,8 +33,8 @@
    <table class="indextable modindextable" cellspacing="0" cellpadding="2">
    {%- for letter, entries in content %}
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
-     <tr class="cap"><td></td><td><a name="cap-{{ letter }}" id="cap-{{ letter }}">
-           <strong>{{ letter }}</strong></a></td><td></td></tr>
+     <tr class="cap" id="cap-{{ letter }}"><td></td><td>
+       <strong>{{ letter }}</strong></td><td></td></tr>
      {%- for (name, grouptype, page, anchor, extra, qualifier, description)
              in entries %}
      <tr{% if grouptype == 2 %} class="cg-{{ groupid.current() }}"{% endif %}>
