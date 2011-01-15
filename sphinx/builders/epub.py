@@ -229,8 +229,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             })
 
     def fix_fragment(self, prefix, fragment):
-        """Return a href/id attribute with colons replaced by hyphens.
-        """
+        """Return a href/id attribute with colons replaced by hyphens."""
         return prefix + fragment.replace(':', '-')
 
     def fix_ids(self, tree):
@@ -399,6 +398,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 continue
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id(item['refuri']))
+            })
+        for info in self.domain_indices:
+            spine.append(_spine_template % {
+                'idref': self.esc(self.make_id(info[0] + self.out_suffix))
+            })
+        if self.config.html_use_index:
+            spine.append(_spine_template % {
+                'idref': self.esc(self.make_id('genindex' + self.out_suffix))
             })
         spine = '\n'.join(spine)
 
