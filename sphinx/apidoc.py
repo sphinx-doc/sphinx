@@ -216,7 +216,7 @@ def is_excluded(root, excludes):
             return True
     return False
 
-def main(argv):
+def main(argv=sys.argv):
     """
     Parse and check the command line arguments.
     """
