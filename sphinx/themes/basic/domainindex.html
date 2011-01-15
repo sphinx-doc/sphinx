@@ -19,7 +19,7 @@
 {% endblock %}
 {% block body %}
 
-   {%- set curr_group = 0 %}
+   {%- set groupid = idgen() %}
 
    <h1>{{ indextitle }}</h1>
 
@@ -33,15 +33,14 @@
    <table class="indextable modindextable" cellspacing="0" cellpadding="2">
    {%- for letter, entries in content %}
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
-     <tr class="cap"><td></td><td><a name="cap-{{ letter }}">
+     <tr class="cap"><td></td><td><a name="cap-{{ letter }}" id="cap-{{ letter }}">
            <strong>{{ letter }}</strong></a></td><td></td></tr>
      {%- for (name, grouptype, page, anchor, extra, qualifier, description)
              in entries %}
-     {%- if grouptype == 1 %}{% set curr_group = curr_group + 1 %}{% endif %}
-     <tr{% if grouptype == 2 %} class="cg-{{ curr_group }}"{% endif %}>
+     <tr{% if grouptype == 2 %} class="cg-{{ groupid.current() }}"{% endif %}>
        <td>{% if grouptype == 1 -%}
-         <img src="{{ pathto('_static/minus.png', 1) }}" id="toggle-{{ curr_group }}"
-              class="toggler" style="display: none" alt="-" />
+         <img src="{{ pathto('_static/minus.png', 1) }}" class="toggler"
+              id="toggle-{{ groupid.next() }}" style="display: none" alt="-" />
            {%- endif %}</td>
        <td>{% if grouptype == 2 %}&nbsp;&nbsp;&nbsp;{% endif %}
        {% if page %}<a href="{{ pathto(page) }}#{{ anchor }}">{% endif -%}

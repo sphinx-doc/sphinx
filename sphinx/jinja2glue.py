@@ -35,6 +35,15 @@ def accesskey(context, key):
         return 'accesskey="%s"' % key
     return ''
 
+class idgen(object):
+    def __init__(self):
+        self.id = 0
+    def current(self):
+        return self.id
+    def next(self):
+        self.id += 1
+        return self.id
+
 
 class SphinxFileSystemLoader(FileSystemLoader):
     """FileSystemLoader subclass that is not so strict about '..'
@@ -100,6 +109,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.filters['tobool'] = _tobool
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
+        self.environment.globals['idgen'] = idgen
         if use_i18n:
             self.environment.install_gettext_translations(
                 builder.app.translator)
