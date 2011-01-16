@@ -198,7 +198,7 @@ specific node, and is aptly named
         username = g.user.name if g.user else None
         moderator = g.user.moderator if g.user else False
         node_id = request.args.get('node', '')
-        data = support.get_data(parent_id, user_id)
+        data = support.get_data(node_id, username, moderator)
         return jsonify(**data)
 
 The final function that is needed will call :meth:`~.WebSupport.process_vote`,
