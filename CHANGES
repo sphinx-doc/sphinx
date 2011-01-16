@@ -1,109 +1,101 @@
 Release 1.1 (in development)
 ============================
 
+Incompatible changes
+--------------------
+
+* The :rst:dir:`py:module` directive doesn't output its ``platform`` option
+  value anymore.  (It was the only thing that the directive did output, and
+  therefore quite inconsistent.)
+
+Features added
+--------------
+
 * Added Python 3.x support.
 
-* Added a Texinfo builder.
+* New builders and subsystems:
 
-* Incompatibility: The :rst:dir:`py:module` directive doesn't output
-  its ``platform`` option value anymore.  (It was the only thing that
-  the directive did output, and therefore quite inconsistent.)
+  - Added a Texinfo builder.
+  - Added i18n support for content, a ``gettext`` builder and related
+    utilities.
+  - Added the ``websupport`` library and builder.
+  - #98: Added a ``sphinx-apidoc`` script that autogenerates a hierarchy
+    of source files containing autodoc directives to document modules
+    and packages.
+  - #273: Add an API for adding full-text search support for languages
+    other than English.  Add support for Japanese.
 
-* Added i18n support for content, a ``gettext`` builder and
-  related utilities.
+* Markup:
 
-* Added the ``websupport`` library.
+  - #138: Add an :rst:role:`index` role, to make inline index entries.
+  - #454: Add more index markup capabilities: marking see/seealso entries,
+    and main entries for a given key.
+  - #460: Allow limiting the depth of section numbers for HTML using the
+    :rst:dir:`toctree`\'s ``numbered`` option.
+  - #586: Implemented improved :rst:dir:`glossary` markup which allows
+    multiple terms per definition.
+  - #478: Added :rst:dir:`py:decorator` directive to describe decorators.
+  - C++ domain now supports array definitions.
+  - Section headings in :rst:dir:`only` directives are now correctly
+    handled.
 
-* #460: Allow limiting the depth of section numbers for HTML.
+* HTML builder:
 
-* #564: Add :confval:`autodoc_docstring_signature` which retrieves
-  the signature from the first line of the docstring, if it is
-  found there.
+  - Added ``pyramid`` theme.
+  - #559: :confval:`html_add_permalinks` is now a string giving the
+    text to display in permalinks.
+  - #259: HTML table rows now have even/odd CSS classes to enable
+    "Zebra styling".
+  - #554: Add theme option ``sidebarwidth`` to the basic theme.
 
-* #176: Provide ``private-members`` option for autodoc directives.
+* Other builders:
 
-* #520: Provide ``special-members`` option for autodoc directives.
+  - #516: Added new value of the :confval:`latex_show_urls` option to
+    show the URLs in footnotes.
+  - #209: Added :confval:`text_newlines` and :confval:`text_sectionchars`
+    config values.
+  - Added :confval:`man_show_urls` config value.
+  - #472: linkcheck builder: Check links in parallel, use HTTP HEAD
+    requests and allow configuring the timeout.  New config values:
+    :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
+  - #521: Added :confval:`linkcheck_ignore` config value.
 
-* #138: Add an ``index`` role, to make inline index entries.
+* Configuration and extensibility:
 
-* #443: Allow referencing external graphviz files.
+  - #537: Added :confval:`nitpick_ignore`.
+  - #306: Added :event:`env-get-outdated` event.
 
-* Added the :mod:`sphinx.ext.mathjax` extension.
+* Autodoc:
 
-* Added ``pyramid`` theme.
+  - #564: Add :confval:`autodoc_docstring_signature`.  When enabled (the
+    default), autodoc retrieves the signature from the first line of the
+    docstring, if it is found there.
+  - #176: Provide ``private-members`` option for autodoc directives.
+  - #520: Provide ``special-members`` option for autodoc directives.
+  - #431: Doc comments for attributes can now be given on the same line
+    as the assignment.
+  - #437: autodoc now shows values of class data attributes.
+  - autodoc now supports documenting the signatures of
+    ``functools.partial`` objects.
 
-* #98: Added a ``sphinx-apidoc`` script that autogenerates a
-  hierarchy of source files containing autodoc directives to
-  document modules and packages.
+* Other extensions:
 
-* #472: linkcheck builder: Check links in parallel, use HTTP HEAD
-  requests and allow configuring the timeout.  New config values:
-  :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
+  - Added the :mod:`sphinx.ext.mathjax` extension.
+  - #443: Allow referencing external graphviz files.
+  - Added ``inline`` option to graphviz directives, and fixed the
+    default (block-style) in LaTeX output.
+  - #590: Added ``caption`` option to graphviz directives.
+  - #553: Added :rst:dir:`testcleanup` blocks in the doctest extension.
+  - #594: :confval:`trim_doctest_flags` now also removes ``<BLANKLINE>``
+    indicators.
+  - #367: Added automatic exclusion of hidden members in inheritance
+    diagrams, and an option to selectively enable it.
+  - Added :confval:`pngmath_add_tooltips`.
 
-* #273: Add an API for adding full-text search support for languages
-  other than English.  Add support for Japanese.
+* New locales:
 
-* #221: Add Swedish locale.
-
-* Added ``inline`` option to graphviz directives, and fixed the
-  default (block-style) in LaTeX output.
-
-* #521: Added :confval:`linkcheck_ignore` config value.
-
-* #454: Add more index markup capabilities: marking see/seealso entries,
-  and main entries for a given key.
-
-* #516: Added new value of the :confval:`latex_show_urls` option to
-  show the URLs in footnotes.
-
-* #526: Added Iranian translation.
-
-* #586: Implemented improved glossary markup which allows multiple terms per
-  definition.
-
-* #559: :confval:`html_add_permalinks` is now a string giving the
-  text to display in permalinks.
-
-* #553: Added :rst:dir:`testcleanup` blocks in the doctest extension.
-
-* #209: Added :confval:`text_newlines` and :confval:`text_sectionchars`
-  config values.
-
-* Added :confval:`man_show_urls` config value.
-
-* #259: HTML table rows now have even/odd CSS classes to enable
-  "Zebra styling".
-
-* #478: Added :rst:dir:`py:decorator` directive to describe decorators.
-
-* #367: Added automatic exclusion of hidden members in inheritance
-  diagrams, and an option to selectively enable it.
-
-* #306: Added :event:`env-get-outdated` event.
-
-* #431: Doc comments for attributes can now be given on the same line as
-  the assignment.
-
-* #590: Added ``caption`` option to graphviz directives.
-
-* #537: Added :confval:`nitpick_ignore`.
-
-* #437: autodoc now shows values of class data attributes.
-
-* autodoc now supports documenting the signatures of ``functools.partial``
-  objects.
-
-* Added :confval:`pngmath_add_tooltips`.
-
-* Section headings in :rst:dir:`only` directives are now correctly
-  handled.
-
-* #594: :confval:`trim_doctest_flags` now also removes ``<BLANKLINE>``
-  indicators.
-
-* #554: Add theme option ``sidebarwidth`` to the basic theme.
-
-* C++ domain now supports array definitions.
+  - #221: Added Swedish locale.
+  - #526: Added Iranian locale.
 
 
 Release 1.0.8 (in development)
