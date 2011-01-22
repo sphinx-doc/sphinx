@@ -1,14 +1,14 @@
 # Danish translations for Sphinx.
-# Copyright (C) 2009 The Sphinx Team
+# Copyright (C) 2009, 2011 The Sphinx Team
 # This file is distributed under the same license as the Sphinx project.
 #
-# Ask Hjorth Larsen <asklarsen@gmail.com>, 2010.
+# Ask Hjorth Larsen <asklarsen@gmail.com>, 2010, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.0pre/[?1034h2e1ab15e035e\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-11-08 16:28+0100\n"
-"PO-Revision-Date: 2010-08-26 11:45+0000\n"
+"PO-Revision-Date: 2011-01-22 14:08+0100\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -70,9 +70,8 @@ msgid "Module author: "
 msgstr "Modulforfatter: "
 
 #: sphinx/directives/other.py:139
-#, fuzzy
 msgid "Code author: "
-msgstr "Modulforfatter: "
+msgstr "Kodeforfatter: "
 
 #: sphinx/directives/other.py:141
 msgid "Author: "
@@ -85,7 +84,7 @@ msgstr "Se også"
 #: sphinx/domains/__init__.py:242
 #, python-format
 msgid "%s %s"
-msgstr ""
+msgstr "%s %s"
 
 #: sphinx/domains/c.py:51 sphinx/domains/python.py:94
 msgid "Parameters"
@@ -189,7 +188,7 @@ msgstr "%s() (klasse)"
 #: sphinx/domains/javascript.py:110
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr ""
+msgstr "%s (global variabel eller konstant)"
 
 #: sphinx/domains/javascript.py:112 sphinx/domains/python.py:346
 #, python-format
@@ -197,13 +196,12 @@ msgid "%s (%s attribute)"
 msgstr "%s (attribut i %s)"
 
 #: sphinx/domains/javascript.py:121
-#, fuzzy
 msgid "Arguments"
 msgstr "Parametre"
 
 #: sphinx/domains/javascript.py:124
 msgid "Throws"
-msgstr ""
+msgstr "Kaster"
 
 #: sphinx/domains/javascript.py:163 sphinx/domains/python.py:524
 msgid "data"
@@ -214,9 +212,8 @@ msgid "attribute"
 msgstr "attribut"
 
 #: sphinx/domains/python.py:98
-#, fuzzy
 msgid "Variables"
-msgstr "Variabel"
+msgstr "Variable"
 
 #: sphinx/domains/python.py:101
 msgid "Raises"
@@ -288,9 +285,8 @@ msgid "%s (module)"
 msgstr "%s (modul)"
 
 #: sphinx/domains/python.py:455
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Modulindeks"
+msgstr "Python-modulindeks"
 
 #: sphinx/domains/python.py:456
 msgid "modules"
@@ -298,7 +294,7 @@ msgstr "moduler"
 
 #: sphinx/domains/python.py:501
 msgid "Deprecated"
-msgstr "Deprecieret"
+msgstr "Forældet"
 
 #: sphinx/domains/python.py:526 sphinx/locale/__init__.py:178
 msgid "exception"
@@ -321,27 +317,26 @@ msgid "module"
 msgstr "modul"
 
 #: sphinx/domains/python.py:657
-#, fuzzy
 msgid " (deprecated)"
-msgstr " (deprecieret)"
+msgstr " (forældet)"
 
 #: sphinx/domains/rst.py:55
 #, python-format
 msgid "%s (directive)"
-msgstr ""
+msgstr "%s (direktiv)"
 
 #: sphinx/domains/rst.py:57
 #, python-format
 msgid "%s (role)"
-msgstr ""
+msgstr "%s (rolle)"
 
 #: sphinx/domains/rst.py:106
 msgid "directive"
-msgstr ""
+msgstr "direktiv"
 
 #: sphinx/domains/rst.py:107
 msgid "role"
-msgstr ""
+msgstr "rolle"
 
 #: sphinx/domains/std.py:68 sphinx/domains/std.py:84
 #, python-format
@@ -363,7 +358,7 @@ msgstr "grammatisk element"
 
 #: sphinx/domains/std.py:330
 msgid "reference label"
-msgstr ""
+msgstr "referenceetiket"
 
 #: sphinx/domains/std.py:331
 msgid "environment variable"
@@ -405,39 +400,38 @@ msgid "Todo"
 msgstr "Todo"
 
 #: sphinx/ext/todo.py:109
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
 msgstr "(Det <<oprindelige punkt>> befinder sig i %s, linje %d.)"
 
 #: sphinx/ext/todo.py:117
 msgid "original entry"
-msgstr ""
+msgstr "oprindeligt punkt"
 
 #: sphinx/ext/viewcode.py:70
 msgid "[source]"
-msgstr ""
+msgstr "[kilde]"
 
 #: sphinx/ext/viewcode.py:117
 msgid "[docs]"
-msgstr ""
+msgstr "[dok]"
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
-msgstr "modul"
+msgstr "Modulkode"
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr ""
+msgstr "<h1>Kildekode for %s</h1>"
 
 #: sphinx/ext/viewcode.py:164
 msgid "Overview: module code"
-msgstr ""
+msgstr "Oversigt: modulkode"
 
 #: sphinx/ext/viewcode.py:165
 msgid "<h1>All modules for which code is available</h1>"
-msgstr ""
+msgstr "<h1>Alle moduler, der er kode tilgængelig for</h1>"
 
 #: sphinx/locale/__init__.py:155
 msgid "Attention"
@@ -492,7 +486,7 @@ msgstr "Ændret i version %s"
 #: sphinx/locale/__init__.py:170
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "Deprecieret siden version %s"
+msgstr "Forældet siden version %s"
 
 #: sphinx/locale/__init__.py:175
 msgid "keyword"
@@ -759,16 +753,16 @@ msgstr "Søgningen fuldført - fandt %s sider for denne søgning."
 
 #: sphinx/themes/default/static/sidebar.js:66
 msgid "Expand sidebar"
-msgstr ""
+msgstr "Udfold sidebjælke"
 
 #: sphinx/themes/default/static/sidebar.js:79
 #: sphinx/themes/default/static/sidebar.js:107
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "Sammenfold sidebjælke"
 
 #: sphinx/themes/haiku/layout.html:26
 msgid "Contents"
-msgstr ""
+msgstr "Indhold"
 
 #: sphinx/writers/latex.py:172
 msgid "Release"
