@@ -330,13 +330,20 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         self.body[-1] = self.body[-1].rstrip()
 
-    def add_menu_entries(self, entries):
+    def add_menu_entries(self, entries, reg=re.compile(r'\s+---?\s+')):
         for entry in entries:
             name = self.node_names[entry]
-            if name == entry:
-                self.add_text('* %s::\n' % name, fresh=1)
+            # Special formatting for entries that are divided by an em-dash
+            parts = reg.split(name, 1)
+            if len(parts) == 2:
+                name, desc = parts
             else:
-                self.add_text('* %s: %s.\n' % (name, entry), fresh=1)
+                desc = ''
+            if name == entry:
+                self.add_text('* %s::\t%s\n' % (name, desc), fresh=1)
+            else:
+                self.add_text('* %s: %s.\t%s\n' %
+                              (name, entry, desc), fresh=1)
 
     def add_menu(self, node_name):
         entries = self.node_menus[node_name]
