@@ -338,31 +338,33 @@ class TexinfoTranslator(nodes.NodeVisitor):
             else:
                 self.add_text('* %s: %s.\n' % (name, entry), fresh=1)
 
-    def add_menu(self, section, master=False):
-        entries = self.node_menus[section['node_name']]
+    def add_menu(self, node_name):
+        entries = self.node_menus[node_name]
         if not entries:
             return
         self.add_text('\n@menu\n')
         self.add_menu_entries(entries)
-        if master:
-            # Write the "detailed menu"
-            started_detail = False
-            for entry in entries:
-                subentries = self.node_menus[entry]
-                if not subentries:
-                    continue
-                if not started_detail:
-                    started_detail = True
-                    self.add_text('\n@detailmenu\n'
-                                  ' --- The Detailed Node Listing ---\n')
-                self.add_text('\n%s\n\n' % self.node_names[entry])
-                self.add_menu_entries(subentries)
-            if started_detail:
-                self.rstrip()
-                self.add_text('\n@end detailmenu\n')
-        self.rstrip()
-        self.add_text('\n@end menu\n\n')
+        if node_name != 'Top':
+            self.rstrip()
+            self.add_text('\n@end menu\n')
+            return
 
+        def _add_detailed_menu(name):
+            entries = self.node_menus[name]
+            if not entries:
+                return
+            self.add_text('\n%s\n\n' % (self.node_names[name],))
+            self.add_menu_entries(entries)
+            for subentry in entries:
+                _add_detailed_menu(subentry)
+
+        self.add_text('\n@detailmenu\n'
+                      ' --- The Detailed Node Listing ---\n')
+        for entry in entries:
+            _add_detailed_menu(entry)
+        self.rstrip()
+        self.add_text('\n@end detailmenu\n'
+                      '@end menu\n')
 
     def tex_image_length(self, width_str):
         match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
@@ -431,9 +433,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if not self.seen_title:
             return
         if self.previous_section:
-            self.add_menu(self.previous_section)
+            self.add_menu(self.previous_section['node_name'])
         else:
-            self.add_menu(self.document, master=True)
+            self.add_menu('Top')
 
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
