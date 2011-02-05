@@ -15,7 +15,7 @@ Documentation using the default theme
 * APSW: http://apidoc.apsw.googlecode.com/hg/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * boostmpi: http://documen.tician.de/boostmpi/
-* Calibre: http://calibre.kovidgoyal.net/user_manual/
+* Calibre: http://calibre-ebook.com/user_manual/
 * CodePy: http://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * C\\C++ Python language binding project: http://language-binding.net/index.html
@@ -31,15 +31,15 @@ Documentation using the default theme
 * Hedge: http://documen.tician.de/hedge/
 * Kaa: http://doc.freevo.org/api/kaa/
 * Leo: http://webpages.charter.net/edreamleo/front.html
-* Lino: http://lino.saffre-rumma.ee/
+* Lino: http://lino.saffre-rumma.net/
 * MeshPy: http://documen.tician.de/meshpy/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenGDA: http://www.opengda.org/gdadoc/html/
 * openWNS: http://docs.openwns.org/
 * Paste: http://pythonpaste.org/script/
-* Paver: http://www.blueskyonmars.com/projects/paver/
-* Pyccuracy: http://www.pyccuracy.org/
+* Paver: http://paver.github.com/paver/
+* Pyccuracy: https://github.com/heynemann/pyccuracy/wiki/
 * PyCuda: http://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
 * Pylo: http://documen.tician.de/pylo/
@@ -71,7 +71,7 @@ Documentation using a customized version of the default theme
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
 * LEPL: http://www.acooke.org/lepl/
 * Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
-* NOC: http://trac.nocproject.org/trac/wiki/NocGuide
+* NOC: http://redmine.nocproject.org/projects/noc
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * Peach^3: http://peach3.nl/doc/latest/userdoc/
 * PyLit: http://pylit.berlios.de/
@@ -88,7 +88,7 @@ Documentation using a customized version of the default theme
 Documentation using the sphinxdoc theme
 ---------------------------------------
 
-* Fityk: http://www.unipress.waw.pl/fityk/
+* Fityk: http://fityk.nieto.pl/
 * MapServer: http://mapserver.org/
 * Matplotlib: http://matplotlib.sourceforge.net/
 * Music21: http://mit.edu/music21/doc/html/contents.html
@@ -99,8 +99,8 @@ Documentation using the sphinxdoc theme
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
-* Reteisi: http://docs.argolinux.org/reteisi/
-* Satchmo: http://www.satchmoproject.com/docs/svn/
+* Reteisi: http://www.reteisi.org/contents.html
+* Satchmo: http://www.satchmoproject.com/docs/dev/
 * Sphinx: http://sphinx.pocoo.org/
 * Sqlkit: http://sqlkit.argolinux.org/
 * Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
@@ -111,7 +111,7 @@ Documentation using the sphinxdoc theme
 Documentation using another builtin theme
 -----------------------------------------
 
-* C/C++ Development with Eclipse: http://book.dehlia.in/c-cpp-eclipse/ (agogo)
+* C/C++ Development with Eclipse: http://eclipsebook.in/ (agogo)
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
 * pip: http://pip.openplans.org/ (nature)
@@ -153,7 +153,7 @@ Documentation using a custom theme/integrated in a site
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
 * tipfy: http://www.tipfy.org/docs/
-* Werkzeug: http://werkzeug.pocoo.org/documentation/dev/
+* Werkzeug: http://werkzeug.pocoo.org/docs/
 * WFront: http://discorporate.us/projects/WFront/
 
 
@@ -162,7 +162,7 @@ Homepages and other non-documentation sites
 
 * Applied Mathematics at the Stellenbosch University: http://dip.sun.ac.za/
 * A personal page: http://www.dehlia.in/
-* Benoit Boissinot: http://perso.ens-lyon.fr/benoit.boissinot/
+* Benoit Boissinot: http://bboissin.appspot.com/
 * lunarsite: http://lunaryorn.de/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
 * VOR: http://www.vor-cycling.be/
