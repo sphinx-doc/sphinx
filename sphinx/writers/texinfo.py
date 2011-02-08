@@ -92,11 +92,17 @@ def escape_arg(s):
     return s
 
 def escape_id(s):
-    """Return an escaped string suitable for node names, menu entries,
-    and xrefs anchors."""
-    bad_chars = ',:.()@{}'
+    """Return an escaped string suitable for node names and xrefs anchors."""
+    bad_chars = ',:.()'
     for bc in bad_chars:
         s = s.replace(bc, ' ')
+    s = ' '.join(s.split()).strip()
+    return escape(s)
+
+def escape_menu(s):
+    """Return an escaped string suitable for menu entries."""
+    s = escape_arg(s)
+    s = s.replace(':', ';')
     s = ' '.join(s.split()).strip()
     return s
 
@@ -249,19 +255,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
         for section in self.document.traverse(nodes.section):
             title = section.next_node(nodes.Titular)
             name = (title and title.astext()) or '<untitled>'
-            node_id = name = escape_id(name) or '<untitled>'
+            node_id = escape_id(name) or '<untitled>'
             assert node_id and name
             nth, suffix = 1, ''
-            while (node_id + suffix).lower() in self.written_ids:
+            while node_id + suffix in self.written_ids:
                 nth += 1
                 suffix = '<%s>' % nth
             node_id += suffix
             assert node_id not in self.node_names
             assert node_id not in self.written_ids
-            assert node_id.lower() not in self.written_ids
             section['node_name'] = node_id
             self.node_names[node_id] = name
-            self.written_ids.update((node_id, node_id.lower()))
+            self.written_ids.add(node_id)
 
     def collect_node_menus(self):
         """Collect the menu entries for each "node" section."""
@@ -339,6 +344,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 name, desc = parts
             else:
                 desc = ''
+            name = escape_menu(name)
+            desc = escape(desc)
             if name == entry:
                 self.add_text('* %s::\t%s\n' % (name, desc), fresh=1)
             else:
@@ -360,7 +367,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             entries = self.node_menus[name]
             if not entries:
                 return
-            self.add_text('\n%s\n\n' % (self.node_names[name],))
+            self.add_text('\n%s\n\n' % (escape(self.node_names[name],)))
             self.add_menu_entries(entries)
             for subentry in entries:
                 _add_detailed_menu(subentry)
@@ -401,24 +408,17 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.short_ids[id] = sid
         return sid
 
-    def add_anchor(self, id, msg_node=None):
-        # Anchors can be referenced by their original id
-        # or by the generated shortened id
-        id = escape_id(id).lower()
-        ids = (self.get_short_id(id), id)
-        for id in ids:
-            if id not in self.written_ids:
-                self.add_text('@anchor{%s}' % id)
-                self.written_ids.add(id)
+    def add_anchor(self, id, node):
+        sid = self.get_short_id(id)
+        if sid not in self.written_ids:
+            self.add_text('@anchor{%s}' % sid)
+            self.written_ids.add(sid)
 
     def add_xref(self, ref, name, node):
-        ref = self.get_short_id(escape_id(ref).lower())
-        name = ' '.join(name.split()).strip()
-        if not name or ref == name:
-            self.add_text('@pxref{%s}' % ref)
-        else:
-            self.add_text('@pxref{%s,,%s}' % (ref, name))
-        self.referenced_ids.add(ref)
+        name = escape_menu(name)
+        sid = self.get_short_id(ref)
+        self.add_text('@pxref{%s,,%s}' % (sid, name))
+        self.referenced_ids.add(sid)
 
     ## Visiting
 
@@ -447,8 +447,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
         self.add_text('\n@node %s,%s,%s,%s\n' % pointers)
-        if node_name != node_name.lower():
-            self.add_text('@anchor{%s}' % node_name.lower())
         for id in self.next_section_targets:
             self.add_anchor(id, node)
 
@@ -543,21 +541,19 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         name = node.get('name', node.astext()).strip()
         if node.get('refid'):
-            self.add_xref(escape_id(node['refid']),
-                          escape_id(name), node)
+            self.add_xref(node['refid'], name, node)
             raise nodes.SkipNode
         if not node.get('refuri'):
             self.document.reporter.error("Unknown reference type: %s" % node)
             return
         uri = node['refuri']
         if uri.startswith('#'):
-            self.add_xref(escape_id(uri[1:]), escape_id(name), node)
+            self.add_xref(uri[1:], name, node)
         elif uri.startswith('%'):
             id = uri[1:]
             if '#' in id:
                 src, id = uri[1:].split('#', 1)
-            assert '#' not in id
-            self.add_xref(escape_id(id), escape_id(name), node)
+            self.add_xref(id, name, node)
         elif uri.startswith('mailto:'):
             uri = escape_arg(uri[7:])
             name = escape_arg(name)
@@ -572,7 +568,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             if '#' in uri:
                 uri, id = uri.split('#', 1)
             id = escape_id(id)
-            name = escape_id(name)
+            name = escape_menu(name)
             if name == id:
                 self.add_text('@pxref{%s,,,%s}' % (id, uri))
             else:
@@ -1075,8 +1071,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         for entry in node['entries']:
             typ, text, tid, text2 = entry
-            text = text.replace('()', ' ').replace('(', '[').replace(')', ']')
-            text = escape_id(text)
+            text = escape_menu(text)
             self.add_text('@geindex %s\n' % text, fresh=1)
 
     def visit_autosummary_table(self, node):
