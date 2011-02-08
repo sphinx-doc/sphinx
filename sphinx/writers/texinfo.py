@@ -15,7 +15,7 @@ from os import path
 from docutils import nodes, writers
 
 from sphinx import addnodes
-from sphinx.locale import versionlabels
+from sphinx.locale import versionlabels, _
 
 
 TEMPLATE = """\
@@ -176,15 +176,17 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.written_ids = set()    # node names and anchors in output
         self.referenced_ids = set() # node names and anchors that should
                                     # be in output
+        self.indices = []     # (node name, content)
+        self.short_ids = {}   # anchors --> short ids
         self.node_names = {}  # node name --> node's name to display
         self.node_menus = {}  # node name --> node's menu entries
         self.rellinks = {}    # node name --> (next, previous, up)
 
+        self.collect_indices()
         self.collect_node_names()
         self.collect_node_menus()
         self.collect_rellinks()
 
-        self.short_ids = {}
         self.body = []
         self.context = []
         self.previous_section = None
@@ -195,6 +197,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.curfilestack = []
 
     def finish(self):
+        for index in self.indices:
+            name, content = index
+            pointers = tuple([name] + self.rellinks[name])
+            self.add_text('\n@node %s,%s,%s,%s\n' % pointers)
+            self.add_text('@unnumbered %s\n\n%s\n' % (name, content))
+
         while self.referenced_ids:
             # Handle xrefs with missing anchors
             r = self.referenced_ids.pop()
@@ -248,10 +256,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
         """Generates a unique id for each section.
 
         Assigns the attribute ``node_name`` to each section."""
+        # Must have a "Top" node
         self.document['node_name'] = 'Top'
         self.node_names['Top'] = 'Top'
         self.written_ids.update(('Top', 'top'))
-
+        # Each index is a node
+        for name, content in self.indices:
+            self.node_names[name] = name
+            self.written_ids.add(name)
+        # Each section is also a node
         for section in self.document.traverse(nodes.section):
             title = section.next_node(nodes.Titular)
             name = (title and title.astext()) or '<untitled>'
@@ -274,8 +287,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         for node in ([self.document] +
                      self.document.traverse(nodes.section)):
             assert 'node_name' in node and node['node_name']
-            entries = tuple(s['node_name']
-                            for s in find_subsections(node))
+            entries = [s['node_name'] for s in find_subsections(node)]
             node_menus[node['node_name']] = entries
         # Try to find a suitable "Top" node
         title = self.document.next_node(nodes.title)
@@ -288,6 +300,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
             node_menus['Top'] = entries
             del node_menus[top['node_name']]
             top['node_name'] = 'Top'
+        # Handle the indices
+        for name, content in self.indices:
+            node_menus[name] = ()
+            node_menus['Top'].append(name)
 
     def collect_rellinks(self):
         """Collect the relative links (next, previous, up) for each "node"."""
@@ -394,6 +410,37 @@ class TexinfoTranslator(nodes.NodeVisitor):
             # a4paper: textwidth=418.25368pt
             res = "%d.0pt" % (float(amount) * 4.1825368)
         return res
+
+    def collect_indices(self):
+        def generate(content, collapsed):
+            ret = ['\n@menu\n']
+            for letter, entries in content:
+                for entry in entries:
+                    if not entry[3]:
+                        continue
+                    ret.append('* %s: %s.\t%s\n' %
+                               (escape_menu(entry[0]),
+                                self.get_short_id(entry[3]),
+                                escape_arg(entry[6])))
+            ret.append('@end menu\n')
+            return ''.join(ret)
+
+        indices_config = self.builder.config.texinfo_domain_indices
+        if indices_config:
+            for domain in self.builder.env.domains.itervalues():
+                for indexcls in domain.indices:
+                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    if isinstance(indices_config, list):
+                        if indexname not in indices_config:
+                            continue
+                    content, collapsed = indexcls(domain).generate(
+                        self.builder.docnames)
+                    if not content:
+                        continue
+                    node_name = escape_id(indexcls.localname)
+                    self.indices.append((node_name,
+                                         generate(content, collapsed)))
+        self.indices.append((_('Index'), '\n@printindex ge\n'))
 
     ## xref handling
 
