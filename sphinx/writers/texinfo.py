@@ -11,6 +11,7 @@
 
 import re
 from os import path
+import textwrap
 
 from docutils import nodes, writers
 
@@ -351,6 +352,16 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         self.body[-1] = self.body[-1].rstrip()
 
+    def format_menu_entry(self, name, node_name, desc):
+        if name == node_name:
+            s = '* %s:: ' % (name,)
+        else:
+            s = '* %s: %s. ' % (name, node_name)
+        offset = max((24, (len(name) + 4) % 78))
+        wdesc = '\n'.join(' ' * offset + l for l in
+                          textwrap.wrap(desc, width=78-offset))
+        return s + wdesc.strip() + '\n'
+
     def add_menu_entries(self, entries, reg=re.compile(r'\s+---?\s+')):
         for entry in entries:
             name = self.node_names[entry]
@@ -362,11 +373,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 desc = ''
             name = escape_menu(name)
             desc = escape(desc)
-            if name == entry:
-                self.add_text('* %s::\t%s\n' % (name, desc), fresh=1)
-            else:
-                self.add_text('* %s: %s.\t%s\n' %
-                              (name, entry, desc), fresh=1)
+            me = self.format_menu_entry(name, entry, desc)
+            self.add_text(me, fresh=1)
 
     def add_menu(self, node_name):
         entries = self.node_menus[node_name]
@@ -418,10 +426,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('* %s: %s.\t%s\n' %
-                               (escape_menu(entry[0]),
-                                self.get_short_id(entry[3]),
-                                escape_arg(entry[6])))
+                    name = escape_menu(entry[0])
+                    sid = self.get_short_id(entry[3])
+                    desc = escape_arg(entry[6])
+                    me = self.format_menu_entry(name, sid, desc)
+                    ret.append(me)
             ret.append('@end menu\n')
             return ''.join(ret)
 
