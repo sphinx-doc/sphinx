@@ -227,9 +227,8 @@ The following notes may be helpful if you want to create Texinfo files:
 
 - Each section corresponds to a different ``node`` in the Info file.
 
-- Some characters cannot be properly escaped in menu entries and xrefs.  The
-  following characters are replaced by spaces in these contexts: ``@``, ``{``,
-  ``}``, ``.``, ``,``, and ``:``.
+- Colons (``:``) cannot be properly escaped in menu entries and xrefs.
+  They will be replaced with semicolons (``;``).
 
 - In the HTML and Tex output, the word ``see`` is automatically inserted before
   all xrefs.

@@ -1170,13 +1170,22 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
-
 .. confval:: texinfo_appendices
 
    A list of document names to append as an appendix to all manuals.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_domain_indices
+
+   If true, generate domain-specific indices in addition to the general index.
+   For e.g. the Python domain, this is the global module index.  Default is
+   ``True``.
+
+   This value can be a bool or a list of index names that should be generated,
+   like for :confval:`html_domain_indices`.
+
+   .. versionadded:: 1.1
 
 .. confval:: texinfo_elements
 
