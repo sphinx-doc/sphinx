@@ -804,6 +804,14 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of differnet
    depth in one list.  The default value is ``True``.
 
+.. confval:: epub_fix_images
+
+   This flag determines if sphinx should try to fix image formats that are not
+   supported by some epub readers.  At the moment palette images with a small
+   color table are upgraded.  You need the Python Image Library (PIL) installed
+   to use this option.  The default value is ``False`` because the automatic
+   conversion may loose information.
+
 .. _latex-options:
 
 Options for LaTeX output

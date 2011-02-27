@@ -38,6 +38,7 @@ epub_pre_files = [('index.html', 'Welcome')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js', '_static/underscore.js',
     '_static/basic.css', 'search.html']
+epub_fix_images = False
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]

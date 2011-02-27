@@ -17,12 +17,21 @@ import time
 import zipfile
 from os import path
 
+try:
+    from PIL import Image
+except ImportError:
+    try:
+        import Image
+    except ImportError:
+        Image = None
+
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.osutil import EEXIST
+from sphinx.util.osutil import ensuredir, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
+from sphinx.util.console import brown
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -298,6 +307,50 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         if m:
                             subentrylinks[i] = \
                                 self.fix_fragment(m.group(1), m.group(2))
+
+    def copy_image_files_pil(self):
+        """Copy images using the PIL.
+        The method tries to read and write the files with the PIL,
+        converting the format if necessary/possible.
+        """
+        ensuredir(path.join(self.outdir, '_images'))
+        for src in self.status_iterator(self.images, 'copying images... ',
+                                        brown, len(self.images)):
+            dest = self.images[src]
+            try:
+                img = Image.open(path.join(self.srcdir, src))
+            except IOError:
+                self.warn('cannot read image file %r: copying it instead' %
+                          (path.join(self.srcdir, src), ))
+                try:
+                    copyfile(path.join(self.srcdir, src),
+                             path.join(self.outdir, '_images', dest))
+                except Exception, err:
+                    self.warn('cannot copy image file %r: %s' %
+                              (path.join(self.srcdir, src), err))
+                continue
+            if img.mode in ('P',):
+                # See PIL documentation for Image.convert()
+                img = img.convert()
+            try:
+                img.save(path.join(self.outdir, '_images', dest))
+            except IOError, err:
+                self.warn('cannot write image file %r: %s' %
+                          (path.join(self.srcdir, src), err))
+
+    def copy_image_files(self):
+        """Copy image files to destination directory.
+        This overwritten method can use the PIL to convert image files.
+        """
+        if self.images:
+            if self.config.epub_fix_images:
+                if not Image:
+                    self.warn('PIL not found - copying image files')
+                    super(EpubBuilder, self).copy_image_files()
+                else:
+                    self.copy_image_files_pil()
+            else:
+                super(EpubBuilder, self).copy_image_files()
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):

@@ -285,6 +285,9 @@ epub_copyright = u'%(copyright_str)s'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+# Fix unsupported image types using the PIL.
+#epub_fix_images = False
 '''
 
 INTERSPHINX_CONFIG = '''
