@@ -126,8 +126,8 @@ class Config(object):
         epub_exclude_files = ([], 'env'),
         epub_tocdepth = (3, 'env'),
         epub_tocdup = (True, 'env'),
-        epub_fix_images = (False, 'html'),
-        epub_max_image_width = (0, 'html'),
+        epub_fix_images = (False, 'env'),
+        epub_max_image_width = (0, 'env'),
 
         # LaTeX options
         latex_documents = ([], None),
