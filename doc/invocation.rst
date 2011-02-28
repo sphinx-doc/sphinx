@@ -40,8 +40,15 @@ The :program:`sphinx-build` script has several options:
    **man**
       Build manual pages in groff format for UNIX systems.
 
+   **texinfo**
+      Build Texinfo files that can be processed into Info files using
+      :program:`makeinfo`.
+
    **text**
       Build plain text files.
+
+   **gettext**
+      Build gettext-style message catalogs (``.pot`` files).
 
    **doctest**
       Run all doctests in the documentation, if the :mod:`~sphinx.ext.doctest`

@@ -5,9 +5,47 @@
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import sys
+
+# this imports the standard library inspect module without resorting to
+# relatively import this module
+inspect = __import__('inspect')
+
+
+if sys.version_info >= (2, 5):
+    from functools import partial
+    def getargspec(func):
+        """Like inspect.getargspec but supports functools.partial as well."""
+        if inspect.ismethod(func):
+            func = func.im_func
+        parts = 0, ()
+        if type(func) is partial:
+            parts = len(func.args), func.keywords.keys()
+            func = func.func
+        if not inspect.isfunction(func):
+            raise TypeError('%r is not a Python function' % func)
+        args, varargs, varkw = inspect.getargs(func.func_code)
+        func_defaults = func.func_defaults
+        if func_defaults:
+            func_defaults = list(func_defaults)
+        if parts[0]:
+            args = args[parts[0]:]
+        if parts[1]:
+            for arg in parts[1]:
+                i = args.index(arg) - len(args)
+                del args[i]
+                try:
+                    del func_defaults[i]
+                except IndexError:
+                    pass
+        return inspect.ArgSpec(args, varargs, varkw, func_defaults)
+else:
+    getargspec = inspect.getargspec
+
 
 def isdescriptor(x):
     """Check if the object is some kind of descriptor."""
@@ -41,3 +79,12 @@ def safe_getmembers(object, predicate=None):
             results.append((key, value))
     results.sort()
     return results
+
+
+def safe_repr(object):
+    """A repr() implementation that returns text safe to use in reST context."""
+    try:
+        s = repr(object)
+    except Exception:
+        raise ValueError
+    return s.replace('\n', ' ')

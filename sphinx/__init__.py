@@ -5,14 +5,17 @@
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+# Keep this file executable as-is in Python 3!
+# (Otherwise getting the version out of it from setup.py is impossible.)
 
 import sys
 from os import path
 
-__version__ = '1.1pre'
+__version__  = '1.1pre'
 __released__ = '1.1 (hg)'  # used when Sphinx builds its own docs
 
 package_dir = path.abspath(path.dirname(__file__))
@@ -34,14 +37,16 @@ if '+' in __version__ or 'pre' in __version__:
 
 
 def main(argv=sys.argv):
+    """Sphinx build "main" command-line entry."""
     if sys.version_info[:3] < (2, 4, 0):
-        print >>sys.stderr, \
-              'Error: Sphinx requires at least Python 2.4 to run.'
+        sys.stderr.write('Error: Sphinx requires at least '
+                         'Python 2.4 to run.\n')
         return 1
 
     try:
         from sphinx import cmdline
-    except ImportError, err:
+    except ImportError:
+        err = sys.exc_info()[1]
         errstr = str(err)
         if errstr.lower().startswith('no module named'):
             whichmod = errstr[16:]
@@ -54,14 +59,14 @@ def main(argv=sys.argv):
                 whichmod = 'roman module (which is distributed with Docutils)'
                 hint = ('This can happen if you upgraded docutils using\n'
                         'easy_install without uninstalling the old version'
-                        'first.')
+                        'first.\n')
             else:
                 whichmod += ' module'
-            print >>sys.stderr, ('Error: The %s cannot be found. '
-                                 'Did you install Sphinx and its dependencies '
-                                 'correctly?' % whichmod)
+            sys.stderr.write('Error: The %s cannot be found. '
+                             'Did you install Sphinx and its dependencies '
+                             'correctly?\n' % whichmod)
             if hint:
-                print >> sys.stderr, hint
+                sys.stderr.write(hint)
             return 1
         raise
     return cmdline.main(argv)

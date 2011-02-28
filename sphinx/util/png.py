@@ -5,25 +5,25 @@
 
     PNG image manipulation helpers.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import struct
 import binascii
 
+from sphinx.util.pycompat import b
+
 LEN_IEND = 12
 LEN_DEPTH = 22
 
 DEPTH_CHUNK_LEN = struct.pack('!i', 10)
-DEPTH_CHUNK_START = 'tEXtDepth\x00'
-IEND_CHUNK = '\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
+DEPTH_CHUNK_START = b('tEXtDepth\x00')
+IEND_CHUNK = b('\x00\x00\x00\x00IEND\xAE\x42\x60\x82')
 
 
 def read_png_depth(filename):
-    """
-    Read the special tEXt chunk indicating the depth from a PNG file.
-    """
+    """Read the special tEXt chunk indicating the depth from a PNG file."""
     result = None
     f = open(filename, 'rb')
     try:
@@ -39,8 +39,8 @@ def read_png_depth(filename):
 
 
 def write_png_depth(filename, depth):
-    """
-    Write the special tEXt chunk indicating the depth to a PNG file.
+    """Write the special tEXt chunk indicating the depth to a PNG file.
+
     The chunk is placed immediately before the special IEND chunk.
     """
     data = struct.pack('!i', depth)

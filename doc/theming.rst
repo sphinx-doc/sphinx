@@ -69,9 +69,9 @@ Builtin themes
 |                    |                    |
 | *traditional*      | *nature*           |
 +--------------------+--------------------+
-| |haiku|            |                    |
+| |haiku|            | |pyramid|          |
 |                    |                    |
-| *haiku*            |                    |
+| *haiku*            | *pyramid*          |
 +--------------------+--------------------+
 
 .. |default|     image:: themes/default.png
@@ -81,6 +81,7 @@ Builtin themes
 .. |traditional| image:: themes/traditional.png
 .. |nature|      image:: themes/nature.png
 .. |haiku|       image:: themes/haiku.png
+.. |pyramid|     image:: themes/pyramid.png
 
 Sphinx comes with a selection of themes to choose from.
 
@@ -88,11 +89,14 @@ These themes are:
 
 * **basic** -- This is a basically unstyled layout used as the base for the
   other themes, and usable as the base for custom themes as well.  The HTML
-  contains all important elements like sidebar and relation bar.  There is one
-  option (which is inherited by the other themes):
+  contains all important elements like sidebar and relation bar.  There are
+  these options (which are inherited by the other themes):
 
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     false.
+
+  - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
+    include ``px`` in the value.)  Defaults to 230 pixels.
 
 * **default** -- This is the default theme, which looks like `the Python
   documentation <http://docs.python.org/>`_.  It can be customized via these
@@ -119,6 +123,8 @@ These themes are:
   - **footerbgcolor** (CSS color): Background color for the footer line.
   - **footertextcolor** (CSS color): Text color for the footer line.
   - **sidebarbgcolor** (CSS color): Background color for the sidebar.
+  - **sidebarbtncolor** (CSS color): Background color for the sidebar collapse
+    button (used when *collapsiblesidebar* is true).
   - **sidebartextcolor** (CSS color): Text color for the sidebar.
   - **sidebarlinkcolor** (CSS color): Link color for the sidebar.
   - **relbarbgcolor** (CSS color): Background color for the relation bar.
@@ -139,11 +145,11 @@ These themes are:
   - **headfont** (CSS font-family): Font for headings.
 
 * **sphinxdoc** -- The theme used for this documentation.  It features a sidebar
-  on the right side.  There are currently no options beyond *nosidebar*.
+  on the right side.  There are currently no options beyond *nosidebar* and
+  *sidebarwidth*.
 
 * **scrolls** -- A more lightweight theme, based on `the Jinja documentation
-  <http://jinja.pocoo.org/2/documentation/>`_.  The following color options are
-  available:
+  <http://jinja.pocoo.org/>`_.  The following color options are available:
 
   - **headerbordercolor**
   - **subheadlinecolor**
@@ -174,7 +180,11 @@ These themes are:
     is ``justify``.
 
 * **nature** -- A greenish theme.  There are currently no options beyond
-  *nosidebar*.
+  *nosidebar* and *sidebarwidth*.
+
+* **pyramid** -- A theme from the Pyramid web framework project, designed by
+  Blaise Laflamme.  There are currently no options beyond *nosidebar* and
+  *sidebarwidth*.
 
 * **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
   <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
@@ -188,7 +198,7 @@ These themes are:
     **hoverlinkcolor** (CSS colors): Colors for various body elements.
 
 * **traditional** -- A theme resembling the old Python documentation.  There are
-  currently no options beyond *nosidebar*.
+  currently no options beyond *nosidebar* and *sidebarwidth*.
 
 * **epub** -- A theme for the epub builder.  There are currently no options.
   This theme tries to save visual space which is a sparse resource on ebook
@@ -204,7 +214,7 @@ name), containing the following:
 * A :file:`theme.conf` file, see below.
 * HTML templates, if needed.
 * A ``static/`` directory containing any static files that will be copied to the
-  output statid directory on build.  These can be images, styles, script files.
+  output static directory on build.  These can be images, styles, script files.
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
 Python :mod:`ConfigParser` module) and has the following structure:

@@ -5,16 +5,19 @@
 
     Locale utilities.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import sys
 import gettext
 import UserString
 
 
 class _TranslationProxy(UserString.UserString, object):
-    """Class for proxy strings from gettext translations.  This is a helper
-    for the lazy_* functions from this module.
+    """
+    Class for proxy strings from gettext translations.  This is a helper for the
+    lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
@@ -135,7 +138,8 @@ class _TranslationProxy(UserString.UserString, object):
 
 def mygettext(string):
     """Used instead of _ when creating TranslationProxies, because _ is
-    not bound yet at that time."""
+    not bound yet at that time.
+    """
     return _(string)
 
 def lazy_gettext(string):
@@ -166,6 +170,7 @@ versionlabels = {
     'deprecated':     l_('Deprecated since version %s'),
 }
 
+# XXX Python specific
 pairindextypes = {
     'module':    l_('module'),
     'keyword':   l_('keyword'),
@@ -176,18 +181,32 @@ pairindextypes = {
     'builtin':   l_('built-in function'),
 }
 
-translator = None
+translators = {}
 
-def _(message):
-    return translator.ugettext(message)
+if sys.version_info >= (3, 0):
+    def _(message):
+        return translators['sphinx'].gettext(message)
+else:
+    def _(message):
+        return translators['sphinx'].ugettext(message)
 
-def init(locale_dirs, language):
-    global translator
+
+def init(locale_dirs, language, catalog='sphinx'):
+    """Look for message catalogs in `locale_dirs` and *ensure* that there is at
+    least a NullTranslations catalog set in `translators`.  If called multiple
+    times or if several ``.mo`` files are found, their contents are merged
+    together (thus making ``init`` reentrable).
+    """
+    global translators
+    translator = translators.get(catalog)
+    # ignore previously failed attempts to find message catalogs
+    if isinstance(translator, gettext.NullTranslations):
+        translator = None
     # the None entry is the system's default locale path
     has_translation = True
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation('sphinx', localedir=dir_,
+            trans = gettext.translation(catalog, localedir=dir_,
                     languages=[language])
             if translator is None:
                 translator = trans
@@ -196,7 +215,11 @@ def init(locale_dirs, language):
         except Exception:
             # Language couldn't be found in the specified path
             pass
+    # guarantee translations[catalog] exists
     if translator is None:
         translator = gettext.NullTranslations()
         has_translation = False
+    translators[catalog] = translator
+    if hasattr(translator, 'ugettext'):
+        translator.gettext = translator.ugettext
     return translator, has_translation

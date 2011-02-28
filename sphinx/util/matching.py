@@ -5,7 +5,7 @@
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,8 +13,7 @@ import re
 
 
 def _translate_pattern(pat):
-    """
-    Translate a shell-style glob pattern to a regular expression.
+    """Translate a shell-style glob pattern to a regular expression.
 
     Adapted from the fnmatch module, but enhanced so that single stars don't
     match slashes.
@@ -65,16 +64,14 @@ def compile_matchers(patterns):
 _pat_cache = {}
 
 def patmatch(name, pat):
-    """
-    Return if name matches pat.  Adapted from fnmatch module.
-    """
+    """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     return _pat_cache[pat].match(name)
 
 def patfilter(names, pat):
-    """
-    Return the subset of the list NAMES that match PAT.
+    """Return the subset of the list NAMES that match PAT.
+
     Adapted from fnmatch module.
     """
     if pat not in _pat_cache:

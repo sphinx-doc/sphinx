@@ -44,6 +44,18 @@ more versatile:
   tool-tip on mouse-hover) will always be the full target name.
 
 
+Cross-referencing objects
+-------------------------
+
+These roles are described with their respective domains:
+
+* :ref:`Python <python-roles>`
+* :ref:`C <c-roles>`
+* :ref:`C++ <cpp-roles>`
+* :ref:`JavaScript <js-roles>`
+* :ref:`ReST <rst-roles>`
+
+
 .. _ref-role:
 
 Cross-referencing arbitrary locations
@@ -141,8 +153,50 @@ Referencing downloadable files
    suitable link generated to it.
 
 
+Cross-referencing other items of interest
+-----------------------------------------
+
+The following roles do possibly create a cross-reference, but do not refer to
+objects:
+
+.. rst:role:: envvar
+
+   An environment variable.  Index entries are generated.  Also generates a link
+   to the matching :rst:dir:`envvar` directive, if it exists.
+
+.. rst:role:: token
+
+   The name of a grammar token (used to create links between
+   :rst:dir:`productionlist` directives).
+
+.. rst:role:: keyword
+
+   The name of a keyword in Python.  This creates a link to a reference label
+   with that name, if it exists.
+
+.. rst:role:: option
+
+   A command-line option to an executable program.  The leading hyphen(s) must
+   be included.  This generates a link to a :rst:dir:`option` directive, if it
+   exists.
+
+
+The following role creates a cross-reference to the term in the glossary:
+
+.. rst:role:: term
+
+   Reference to a term in the glossary.  The glossary is created using the
+   ``glossary`` directive containing a definition list with terms and
+   definitions.  It does not have to be in the same file as the ``term`` markup,
+   for example the Python docs have one global glossary in the ``glossary.rst``
+   file.
+
+   If you use a term that's not explained in a glossary, you'll get a warning
+   during build.
+
+
 Other semantic markup
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The following roles don't do anything special except formatting the text
 in a different style:
@@ -260,13 +314,14 @@ in a different style:
 .. rst:role:: samp
 
    A piece of literal text, such as code.  Within the contents, you can use
-   curly braces to indicate a "variable" part, as in :rst:dir:`file`.  For
+   curly braces to indicate a "variable" part, as in :rst:role:`file`.  For
    example, in ``:samp:`print 1+{variable}```, the part ``variable`` would be
    emphasized.
 
    If you don't need the "variable part" indication, use the standard
    ````code```` instead.
 
+There is also an :rst:role:`index` role to generate index entries.
 
 The following roles generate external links:
 
@@ -274,65 +329,25 @@ The following roles generate external links:
 
    A reference to a Python Enhancement Proposal.  This generates appropriate
    index entries. The text "PEP *number*\ " is generated; in the HTML output,
-   this text is a hyperlink to an online copy of the specified PEP.
+   this text is a hyperlink to an online copy of the specified PEP.  You can
+   link to a specific section by saying ``:pep:`number#anchor```.
 
 .. rst:role:: rfc
 
    A reference to an Internet Request for Comments.  This generates appropriate
    index entries. The text "RFC *number*\ " is generated; in the HTML output,
-   this text is a hyperlink to an online copy of the specified RFC.
+   this text is a hyperlink to an online copy of the specified RFC.  You can
+   link to a specific section by saying ``:rfc:`number#anchor```.
 
 
 Note that there are no special roles for including hyperlinks as you can use
 the standard reST markup for that purpose.
 
 
-Cross-referencing other items of interest
------------------------------------------
-
-The following roles do possibly create a cross-reference, but do not refer to
-objects:
-
-.. rst:role:: envvar
-
-   An environment variable.  Index entries are generated.  Also generates a link
-   to the matching :rst:dir:`envvar` directive, if it exists.
-
-.. rst:role:: token
-
-   The name of a grammar token (used to create links between
-   :rst:dir:`productionlist` directives).
-
-.. rst:role:: keyword
-
-   The name of a keyword in Python.  This creates a link to a reference label
-   with that name, if it exists.
-
-.. rst:role:: option
-
-   A command-line option to an executable program.  The leading hyphen(s) must
-   be included.  This generates a link to a :rst:dir:`option` directive, if it
-   exists.
-
-
-The following role creates a cross-reference to the term in the glossary:
-
-.. rst:role:: term
-
-   Reference to a term in the glossary.  The glossary is created using the
-   ``glossary`` directive containing a definition list with terms and
-   definitions.  It does not have to be in the same file as the ``term`` markup,
-   for example the Python docs have one global glossary in the ``glossary.rst``
-   file.
-
-   If you use a term that's not explained in a glossary, you'll get a warning
-   during build.
-
-
 .. _default-substitutions:
 
 Substitutions
--------------
+~~~~~~~~~~~~~
 
 The documentation system provides three substitutions that are defined by default.
 They are set in the build configuration file.

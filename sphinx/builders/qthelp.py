@@ -5,7 +5,7 @@
 
     Build input files for the Qt collection generator.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,7 +23,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 
 
 _idpattern = re.compile(
-    r'(?P<title>.+) (\((?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')
+    r'(?P<title>.+) (\((class in )?(?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')
 
 
 # Qt Help Collection Project (.qhcp).
@@ -130,12 +130,20 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for indexname, indexcls, content, collapse in self.domain_indices:
             item = section_template % {'title': indexcls.localname,
                                        'ref': '%s.html' % indexname}
-            sections.append(' '*4*4 + item)
-        sections = '\n'.join(sections)
+            sections.append((' ' * 4 * 4 + item).encode('utf-8'))
+        # sections may be unicode strings or byte strings, we have to make sure
+        # they are all byte strings before joining them
+        new_sections = []
+        for section in sections:
+            if isinstance(section, unicode):
+                new_sections.append(section.encode('utf-8'))
+            else:
+                new_sections.append(section)
+        sections = u'\n'.encode('utf-8').join(new_sections)
 
         # keywords
         keywords = []
-        index = self.env.create_index(self)
+        index = self.env.create_index(self, group_entries=False)
         for (key, group) in index:
             for title, (refs, subitems) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
@@ -165,6 +173,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
         nspace = re.sub('[^a-zA-Z0-9.]', '', nspace)
         nspace = re.sub(r'\.+', '.', nspace).strip('.')
+        nspace = nspace.lower()
 
         # write the project file
         f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
@@ -230,7 +239,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             link = node['refuri']
             title = escape(node.astext()).replace('"','&quot;')
             item = section_template % {'title': title, 'ref': link}
-            item = ' '*4*indentlevel + item.encode('ascii', 'xmlcharrefreplace')
+            item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:

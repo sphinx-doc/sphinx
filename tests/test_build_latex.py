@@ -5,14 +5,13 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
 import sys
-import difflib
 from StringIO import StringIO
 from subprocess import Popen, PIPE
 
@@ -31,7 +30,11 @@ latex_warnfile = StringIO()
 LATEX_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
+WARNING: invalid pair index entry u'keyword; '
 """
+
+if sys.version_info >= (3, 0):
+    LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
 @with_app(buildername='latex', warning=latex_warnfile, cleanenv=True)
@@ -42,8 +45,9 @@ def test_latex(app):
     latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
            'Warnings don\'t match:\n' + \
-           '\n'.join(difflib.ndiff(latex_warnings_exp.splitlines(),
-                                   latex_warnings.splitlines()))
+           '--- Expected (regex):\n' + latex_warnings_exp + \
+           '--- Got:\n' + latex_warnings
+
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 

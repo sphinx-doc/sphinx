@@ -5,22 +5,29 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
+import sys
 from os import path
 
 from sphinx.errors import ConfigError
 from sphinx.util.osutil import make_filename
+from sphinx.util.pycompat import bytes, b, convert_with_2to3
 
-nonascii_re = re.compile(r'[\x80-\xff]')
+nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
+CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
+if sys.version_info >= (3, 0):
+    CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 
 class Config(object):
-    """Configuration file abstraction."""
+    """
+    Configuration file abstraction.
+    """
 
     # the values are: (default, what needs to be rebuilt if changed)
 
@@ -64,12 +71,13 @@ class Config(object):
         primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),
         nitpicky = (False, 'env'),
+        nitpick_ignore = ([], 'env'),
 
         # HTML options
         html_theme = ('default', 'html'),
         html_theme_path = ([], 'html'),
         html_theme_options = ({}, 'html'),
-        html_title = (lambda self: '%s v%s documentation' %
+        html_title = (lambda self: '%s %s documentation' %
                                    (self.project, self.release),
                       'html'),
         html_short_title = (lambda self: self.html_title, 'html'),
@@ -85,7 +93,7 @@ class Config(object):
         html_additional_pages = ({}, 'html'),
         html_use_modindex = (True, 'html'),  # deprecated
         html_domain_indices = (True, 'html'),
-        html_add_permalinks = (True, 'html'),
+        html_add_permalinks = (u'\u00B6', 'html'),
         html_use_index = (True, 'html'),
         html_split_index = (False, 'html'),
         html_copy_source = (True, 'html'),
@@ -99,6 +107,8 @@ class Config(object):
         html_output_encoding = ('utf-8', 'html'),
         html_compact_lists = (True, 'html'),
         html_secnumber_suffix = ('. ', 'html'),
+        html_search_language = (None, 'html'),
+        html_search_options = ({}, 'html'),
 
         # HTML help only options
         htmlhelp_basename = (lambda self: make_filename(self.project), None),
@@ -136,7 +146,7 @@ class Config(object):
         latex_use_parts = (False, None),
         latex_use_modindex = (True, None),  # deprecated
         latex_domain_indices = (True, None),
-        latex_show_urls = (False, None),
+        latex_show_urls = ('no', None),
         latex_show_pagerefs = (False, None),
         # paper_size and font_size are still separate values
         # so that you can give them easily on the command line
@@ -149,11 +159,23 @@ class Config(object):
         latex_preamble = ('', None),
 
         # text options
-        text_sectionchars = ('*=-~"+`', 'text'),
-        text_windows_newlines = (False, 'text'),
+        text_sectionchars = ('*=-~"+`', 'env'),
+        text_newlines = ('unix', 'env'),
 
         # manpage options
         man_pages = ([], None),
+        man_show_urls = (False, None),
+
+        # Texinfo options
+        texinfo_documents = ([], None),
+        texinfo_appendices = ([], None),
+        texinfo_elements = ({}, None),
+        texinfo_domain_indices = (True, None),
+
+        # linkcheck options
+        linkcheck_ignore = ([], None),
+        linkcheck_timeout = (None, None),
+        linkcheck_workers = (5, None),
     )
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -166,12 +188,30 @@ class Config(object):
             config['tags'] = tags
             olddir = os.getcwd()
             try:
+                # we promise to have the config dir as current dir while the
+                # config file is executed
+                os.chdir(dirname)
+                # get config source
+                f = open(config_file, 'rb')
                 try:
-                    os.chdir(dirname)
-                    execfile(config['__file__'], config)
+                    source = f.read()
+                finally:
+                    f.close()
+                try:
+                    # compile to a code object, handle syntax errors
+                    try:
+                        code = compile(source, config_file, 'exec')
+                    except SyntaxError:
+                        if convert_with_2to3:
+                            # maybe the file uses 2.x syntax; try to refactor to
+                            # 3.x syntax using 2to3
+                            source = convert_with_2to3(config_file)
+                            code = compile(source, config_file, 'exec')
+                        else:
+                            raise
+                    exec code in config
                 except SyntaxError, err:
-                    raise ConfigError('There is a syntax error in your '
-                                      'configuration file: ' + str(err))
+                    raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:
                 os.chdir(olddir)
 
@@ -185,10 +225,11 @@ class Config(object):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in self._raw_config.iteritems():
-            if isinstance(value, str) and nonascii_re.search(value):
+            if isinstance(value, bytes) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
-                     'Please use Unicode strings, e.g. u"Content".' % name)
+                     'Please use Unicode strings, e.g. %r.' % (name, u'Content')
+                )
 
     def init_values(self):
         config = self._raw_config

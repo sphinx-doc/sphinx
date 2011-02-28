@@ -3,7 +3,7 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -11,13 +11,21 @@ import os
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst.directives.misc import Class
+from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.locale import pairindextypes, _
+from sphinx.locale import _
 from sphinx.util import url_re, docname_join
-from sphinx.util.nodes import explicit_title_re
+from sphinx.util.nodes import explicit_title_re, process_index_entry
 from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
+
+
+def int_or_nothing(argument):
+    if not argument:
+        return 999
+    return int(argument)
 
 
 class TocTree(Directive):
@@ -25,7 +33,6 @@ class TocTree(Directive):
     Directive to notify Sphinx about the hierarchical structure of the docs,
     and to include a table-of-contents like tree in the current document.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -34,7 +41,7 @@ class TocTree(Directive):
         'maxdepth': int,
         'glob': directives.flag,
         'hidden': directives.flag,
-        'numbered': directives.flag,
+        'numbered': int_or_nothing,
         'titlesonly': directives.flag,
     }
 
@@ -73,8 +80,9 @@ class TocTree(Directive):
                     entries.append((title, ref))
                 elif docname not in env.found_docs:
                     ret.append(self.state.document.reporter.warning(
-                        'toctree references unknown document %r' % docname,
-                        line=self.lineno))
+                        'toctree contains reference to nonexisting '
+                        'document %r' % docname, line=self.lineno))
+                    env.note_reread()
                 else:
                     entries.append((title, docname))
                     includefiles.append(docname)
@@ -98,7 +106,7 @@ class TocTree(Directive):
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
-        subnode['numbered'] = 'numbered' in self.options
+        subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
@@ -111,7 +119,6 @@ class Author(Directive):
     Directive to give the name of the author of the current document
     or section. Shown in the output only if the show_authors option is on.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -144,16 +151,11 @@ class Index(Directive):
     """
     Directive to add entries to the index.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {}
-
-    indextypes = [
-        'single', 'pair', 'double', 'triple',
-    ]
 
     def run(self):
         arguments = self.arguments[0].split('\n')
@@ -163,29 +165,9 @@ class Index(Directive):
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
+        indexnode['inline'] = False
         for entry in arguments:
-            entry = entry.strip()
-            for type in pairindextypes:
-                if entry.startswith(type+':'):
-                    value = entry[len(type)+1:].strip()
-                    value = pairindextypes[type] + '; ' + value
-                    ne.append(('pair', value, targetid, value))
-                    break
-            else:
-                for type in self.indextypes:
-                    if entry.startswith(type+':'):
-                        value = entry[len(type)+1:].strip()
-                        if type == 'double':
-                            type = 'pair'
-                        ne.append((type, value, targetid, value))
-                        break
-                # shorthand notation for single entries
-                else:
-                    for value in entry.split(','):
-                        value = value.strip()
-                        if not value:
-                            continue
-                        ne.append(('single', value, targetid, value))
+            ne.extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
 
 
@@ -193,7 +175,6 @@ class VersionChange(Directive):
     """
     Directive to describe a change/addition/deprecation in a specific version.
     """
-
     has_content = True
     required_arguments = 1
     optional_arguments = 1
@@ -223,7 +204,6 @@ class SeeAlso(Directive):
     """
     An admonition mentioning things to look at as reference.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 1
@@ -249,7 +229,6 @@ class TabularColumns(Directive):
     """
     Directive to give an explicit tabulary column definition to LaTeX.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -259,6 +238,7 @@ class TabularColumns(Directive):
     def run(self):
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
+        node.line = self.lineno
         return [node]
 
 
@@ -266,7 +246,6 @@ class Centered(Directive):
     """
     Directive to create a centered line of bold text.
     """
-
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -283,12 +262,10 @@ class Centered(Directive):
         return [subnode] + messages
 
 
-
 class Acks(Directive):
     """
     Directive for a list of names.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -310,7 +287,6 @@ class HList(Directive):
     """
     Directive for a list that gets compacted horizontally.
     """
-
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -347,7 +323,6 @@ class Only(Directive):
     """
     Directive to only include text if the given tag(s) are enabled.
     """
-
     has_content = True
     required_arguments = 1
     optional_arguments = 0
@@ -364,19 +339,16 @@ class Only(Directive):
         return [node]
 
 
-from docutils.parsers.rst.directives.misc import Include as BaseInclude
-
 class Include(BaseInclude):
     """
     Like the standard "Include" directive, but interprets absolute paths
-    correctly.
+    "correctly", i.e. relative to source directory.
     """
 
     def run(self):
-        if self.arguments[0].startswith('/') or \
-               self.arguments[0].startswith(os.sep):
-            env = self.state.document.settings.env
-            self.arguments[0] = os.path.join(env.srcdir, self.arguments[0][1:])
+        env = self.state.document.settings.env
+        rel_filename, filename = env.relfn2path(self.arguments[0])
+        self.arguments[0] = filename
         return BaseInclude.run(self)
 
 
@@ -397,7 +369,6 @@ directives.register_directive('only', Only)
 directives.register_directive('include', Include)
 
 # register the standard rst class directive under a different name
-from docutils.parsers.rst.directives.misc import Class
 # only for backwards compatibility now
 directives.register_directive('cssclass', Class)
 # new standard name when default-domain with "class" is in effect

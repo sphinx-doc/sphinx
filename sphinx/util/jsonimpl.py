@@ -5,7 +5,7 @@
 
     JSON serializer implementation wrapper.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,8 +13,10 @@ import UserString
 
 try:
     import json
+    # json-py's json module has no JSONEncoder; this will raise AttributeError
+    # if json-py is imported instead of the built-in json module
     JSONEncoder = json.JSONEncoder
-except ImportError:
+except (ImportError, AttributeError):
     try:
         import simplejson as json
         JSONEncoder = json.JSONEncoder
@@ -39,5 +41,8 @@ def dumps(obj, *args, **kwds):
     kwds['cls'] = SphinxJSONEncoder
     return json.dumps(obj, *args, **kwds)
 
-load = json.load
-loads = json.loads
+def load(*args, **kwds):
+    return json.load(*args, **kwds)
+
+def loads(*args, **kwds):
+    return json.loads(*args, **kwds)

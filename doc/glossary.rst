@@ -23,7 +23,9 @@ Glossary
       A reStructuredText markup element that allows marking a block of content
       with special meaning.  Directives are supplied not only by docutils, but
       Sphinx and custom extensions can add their own.  The basic directive
-      syntax looks like this::
+      syntax looks like this:
+
+      .. sourcecode:: rst
 
          .. directivename:: argument ...
             :option: value

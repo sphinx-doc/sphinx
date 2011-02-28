@@ -5,14 +5,16 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import unicodedata
 
 from docutils import nodes
 from docutils.parsers.rst import directives
+from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -59,7 +61,7 @@ class GenericObject(ObjectDescription):
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry,
-                                              targetname, targetname))
+                                              targetname, ''))
         self.env.domaindata['std']['objects'][self.objtype, name] = \
             self.env.docname, targetname
 
@@ -80,8 +82,8 @@ class EnvVarXRefRole(XRefRole):
         tgtid = 'index-%s' % env.new_serialno('index')
         indexnode = addnodes.index()
         indexnode['entries'] = [
-            ('single', varname, tgtid, varname),
-            ('single', _('environment variable; %s') % varname, tgtid, varname)
+            ('single', varname, tgtid, ''),
+            ('single', _('environment variable; %s') % varname, tgtid, '')
         ]
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
@@ -116,7 +118,7 @@ class Target(Directive):
                 indextype = indexentry[:colon].strip()
                 indexentry = indexentry[colon+1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
-                                             targetname, targetname)])
+                                             targetname, '')])
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
@@ -159,7 +161,7 @@ class Cmdoption(ObjectDescription):
         self.indexnode['entries'].append(
             ('pair', _('%scommand line option; %s') %
              ((currprogram and currprogram + ' ' or ''), sig),
-             targetname, targetname))
+             targetname, ''))
         self.env.domaindata['std']['progoptions'][currprogram, name] = \
             self.env.docname, targetname
 
@@ -205,8 +207,8 @@ class OptionXRefRole(XRefRole):
 
 class Glossary(Directive):
     """
-    Directive to create a glossary with cross-reference targets
-    for :term: roles.
+    Directive to create a glossary with cross-reference targets for :term:
+    roles.
     """
 
     has_content = True
@@ -223,37 +225,100 @@ class Glossary(Directive):
         gloss_entries = env.temp_data.setdefault('gloss_entries', set())
         node = addnodes.glossary()
         node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
 
-        # the content should be definition lists
-        dls = [child for child in node
-               if isinstance(child, nodes.definition_list)]
-        # now, extract definition terms to enable cross-reference creation
-        new_dl = nodes.definition_list()
-        new_dl['classes'].append('glossary')
+        # This directive implements a custom format of the reST definition list
+        # that allows multiple lines of terms before the definition.  This is
+        # easy to parse since we know that the contents of the glossary *must
+        # be* a definition list.
+
+        # first, collect single entries
+        entries = []
+        in_definition = True
+        was_empty = True
+        messages = []
+        for line, (source, lineno) in zip(self.content, self.content.items):
+            # empty line -> add to last definition
+            if not line:
+                if in_definition and entries:
+                    entries[-1][1].append('', source, lineno)
+                was_empty = True
+                continue
+            # unindented line -> a term
+            if line and not line[0].isspace():
+                # first term of definition
+                if in_definition:
+                    if not was_empty:
+                        messages.append(self.state.reporter.system_message(
+                            2, 'glossary term must be preceded by empty line',
+                            source=source, line=lineno))
+                    entries.append(([(line, source, lineno)], ViewList()))
+                    in_definition = False
+                # second term and following
+                else:
+                    if was_empty:
+                        messages.append(self.state.reporter.system_message(
+                            2, 'glossary terms must not be separated by empty '
+                            'lines', source=source, line=lineno))
+                    entries[-1][0].append((line, source, lineno))
+            else:
+                if not in_definition:
+                    # first line of definition, determines indentation
+                    in_definition = True
+                    indent_len = len(line) - len(line.lstrip())
+                entries[-1][1].append(line[indent_len:], source, lineno)
+            was_empty = False
+
+        # now, parse all the entries into a big definition list
         items = []
-        for dl in dls:
-            for li in dl.children:
-                if not li.children or not isinstance(li[0], nodes.term):
-                    continue
-                termtext = li.children[0].astext()
+        for terms, definition in entries:
+            termtexts = []
+            termnodes = []
+            system_messages = []
+            ids = []
+            for line, source, lineno in terms:
+                # parse the term with inline markup
+                res = self.state.inline_text(line, lineno)
+                system_messages.extend(res[1])
+
+                # get a text-only representation of the term and register it
+                # as a cross-reference target
+                tmp = nodes.paragraph('', '', *res[0])
+                termtext = tmp.astext()
                 new_id = 'term-' + nodes.make_id(termtext)
                 if new_id in gloss_entries:
                     new_id = 'term-' + str(len(gloss_entries))
                 gloss_entries.add(new_id)
-                li[0]['names'].append(new_id)
-                li[0]['ids'].append(new_id)
+                ids.append(new_id)
                 objects['term', termtext.lower()] = env.docname, new_id
+                termtexts.append(termtext)
                 # add an index entry too
                 indexnode = addnodes.index()
-                indexnode['entries'] = [('single', termtext, new_id, termtext)]
-                li.insert(0, indexnode)
-                items.append((termtext, li))
+                indexnode['entries'] = [('single', termtext, new_id, 'main')]
+                termnodes.append(indexnode)
+                termnodes.extend(res[0])
+                termnodes.append(addnodes.termsep())
+            # make a single "term" node with all the terms, separated by termsep
+            # nodes (remove the dangling trailing separator)
+            term = nodes.term('', '', *termnodes[:-1])
+            term['ids'].extend(ids)
+            term['names'].extend(ids)
+            term += system_messages
+
+            defnode = nodes.definition()
+            self.state.nested_parse(definition, definition.items[0][1], defnode)
+
+            items.append((termtexts,
+                          nodes.definition_list_item('', term, defnode)))
+
         if 'sorted' in self.options:
-            items.sort(key=lambda x: x[0].lower())
-        new_dl.extend(item[1] for item in items)
-        node.children = [new_dl]
-        return [node]
+            items.sort(key=lambda x:
+                       unicodedata.normalize('NFD', x[0][0].lower()))
+
+        dlist = nodes.definition_list()
+        dlist['classes'].append('glossary')
+        dlist.extend(item[1] for item in items)
+        node += dlist
+        return messages + [node]
 
 
 token_re = re.compile('`([a-z_][a-z0-9_]*)`')
@@ -346,11 +411,13 @@ class StandardDomain(Domain):
         # links to tokens in grammar productions
         'token':   XRefRole(),
         # links to terms in glossary
-        'term':    XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        'term':    XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
+                            warn_dangling=True),
         # links to headings or arbitrary labels
-        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis),
+        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
+                            warn_dangling=True),
         # links to labels, without a different title
-        'keyword': XRefRole(),
+        'keyword': XRefRole(warn_dangling=True),
     }
 
     initial_data = {
@@ -366,6 +433,13 @@ class StandardDomain(Domain):
             'modindex': ('py-modindex', ''),
             'search':   ('search', ''),
         },
+    }
+
+    dangling_warnings = {
+        'term': 'term not in glossary: %(target)s',
+        'ref':  'undefined label: %(target)s (if the link has no caption '
+                'the label must precede a section header)',
+        'keyword': 'unknown keyword: %(target)s',
     }
 
     def clear_doc(self, docname):
@@ -425,27 +499,16 @@ class StandardDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         if typ == 'ref':
-            #refdoc = node.get('refdoc', fromdocname)
             if node['refexplicit']:
                 # reference to anonymous label; the reference uses
                 # the supplied link caption
                 docname, labelid = self.data['anonlabels'].get(target, ('',''))
                 sectname = node.astext()
-                # XXX warn somehow if not resolved by intersphinx
-                #if not docname:
-                #    env.warn(refdoc, 'undefined label: %s' %
-                #              target, node.line)
             else:
                 # reference to named label; the final node will
                 # contain the section name after the label
                 docname, labelid, sectname = self.data['labels'].get(target,
                                                                      ('','',''))
-                # XXX warn somehow if not resolved by intersphinx
-                #if not docname:
-                #    env.warn(refdoc,
-                #        'undefined label: %s' % target + ' -- if you '
-                #        'don\'t give a link caption the label must '
-                #        'precede a section header.', node.line)
             if not docname:
                 return None
             newnode = nodes.reference('', '', internal=True)
@@ -469,30 +532,29 @@ class StandardDomain(Domain):
             # keywords are oddballs: they are referenced by named labels
             docname, labelid, _ = self.data['labels'].get(target, ('','',''))
             if not docname:
-                #env.warn(refdoc, 'unknown keyword: %s' % target)
                 return None
-            else:
-                return make_refnode(builder, fromdocname, docname,
-                                    labelid, contnode)
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
         elif typ == 'option':
             progname = node['refprogram']
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:
                 return None
-            else:
-                return make_refnode(builder, fromdocname, docname,
-                                    labelid, contnode)
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
         else:
-            docname, labelid = self.data['objects'].get((typ, target), ('', ''))
-            if not docname:
-                if typ == 'term':
-                    env.warn(node.get('refdoc', fromdocname),
-                             'term not in glossary: %s' % target, node.line)
-                return None
+            objtypes = self.objtypes_for_role(typ) or []
+            for objtype in objtypes:
+                if (objtype, target) in self.data['objects']:
+                    docname, labelid = self.data['objects'][objtype, target]
+                    break
             else:
-                return make_refnode(builder, fromdocname, docname,
-                                    labelid, contnode)
+                docname, labelid = '', ''
+            if not docname:
+                return None
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
 
     def get_objects(self):
         for (prog, option), info in self.data['progoptions'].iteritems():

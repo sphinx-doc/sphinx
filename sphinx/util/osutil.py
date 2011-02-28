@@ -5,12 +5,13 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
+import sys
 import time
 import errno
 import shutil
@@ -58,8 +59,8 @@ def ensuredir(path):
 
 
 def walk(top, topdown=True, followlinks=False):
-    """
-    Backport of os.walk from 2.6, where the followlinks argument was added.
+    """Backport of os.walk from 2.6, where the *followlinks* argument was
+    added.
     """
     names = os.listdir(top)
 
@@ -124,7 +125,10 @@ no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 def make_filename(string):
     return no_fn_re.sub('', string)
 
-
-def ustrftime(format, *args):
-    # strftime for unicode strings
-    return time.strftime(unicode(format).encode('utf-8'), *args).decode('utf-8')
+if sys.version_info < (3, 0):
+    def ustrftime(format, *args):
+        # strftime for unicode strings
+        return time.strftime(unicode(format).encode('utf-8'), *args) \
+                .decode('utf-8')
+else:
+    ustrftime = time.strftime

@@ -5,7 +5,7 @@
 
     Parse tree node implementations.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +28,8 @@ class BaseNode(object):
         if self.__class__ is not other.__class__:
             return NotImplemented
         return not self._eq(other)
+
+    __hash__ = None
 
     def get_prev_sibling(self):
         """Return previous child in parent's children, or None."""

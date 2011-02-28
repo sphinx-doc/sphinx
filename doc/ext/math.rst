@@ -17,15 +17,15 @@ if possible, reuse that support too.
 
 .. note::
 
-   :mod:`sphinx.ext.mathbase` is not meant to be added to the
-   :confval:`extensions` config value, instead, use either
-   :mod:`sphinx.ext.pngmath` or :mod:`sphinx.ext.jsmath` as described below.
+   :mod:`.mathbase` is not meant to be added to the :confval:`extensions` config
+   value, instead, use either :mod:`sphinx.ext.pngmath` or
+   :mod:`sphinx.ext.jsmath` as described below.
 
 The input language for mathematics is LaTeX markup.  This is the de-facto
 standard for plain-text math notation and has the added advantage that no
 further translation is necessary when building LaTeX output.
 
-:mod:`mathbase` defines these new markup elements:
+:mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math
 
@@ -170,20 +170,58 @@ There are various config values you can set to influence how the images are buil
    Unfortunately, this only works when the `preview-latex package`_ is
    installed.  Therefore, the default for this option is ``False``.
 
+.. confval:: pngmath_add_tooltips
+
+   Default: true.  If false, do not add the LaTeX code as an "alt" attribute for
+   math images.
+
+   .. versionadded:: 1.1
+
+
+:mod:`sphinx.ext.mathjax` -- Render math via JavaScript
+-------------------------------------------------------
+
+.. module:: sphinx.ext.mathjax
+   :synopsis: Render math using JavaScript via MathJax.
+
+.. versionadded:: 1.1
+
+This extension puts math as-is into the HTML files.  The JavaScript package
+MathJax_ is then loaded and transforms the LaTeX markup to readable math live in
+the browser.
+
+Because MathJax (and the necessary fonts) is very large, it is not included in
+Sphinx.  You must install it yourself, and give Sphinx its path in this config
+value:
+
+.. confval:: mathjax_path
+
+   The path to the JavaScript file to include in the HTML files in order to load
+   JSMath.  There is no default.
+
+   The path can be absolute or relative; if it is relative, it is relative to
+   the ``_static`` directory of the built docs.
+
+   For example, if you put JSMath into the static path of the Sphinx docs, this
+   value would be ``MathJax/MathJax.js``.  If you host more than one Sphinx
+   documentation set on one server, it is advisable to install MathJax in a
+   shared location.
+
+   You can also give a full ``http://`` URL.  Kevin Dunn maintains a MathJax
+   installation on a public server, which he offers for use by development and
+   production servers::
+
+      mathjax_path = 'http://mathjax.connectmv.com/MathJax.js'
+
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------
 
 .. module:: sphinx.ext.jsmath
-   :synopsis: Render math via JavaScript.
+   :synopsis: Render math using JavaScript via JSMath.
 
-This extension puts math as-is into the HTML files.  The JavaScript package
-jsMath_ is then loaded and transforms the LaTeX markup to readable math live in
-the browser.
-
-Because jsMath (and the necessary fonts) is very large, it is not included in
-Sphinx.  You must install it yourself, and give Sphinx its path in this config
-value:
+This extension works just as the MathJax extension does, but uses the older
+package jsMath_.  It provides this config value:
 
 .. confval:: jsmath_path
 
@@ -200,6 +238,7 @@ value:
 
 
 .. _dvipng: http://savannah.nongnu.org/projects/dvipng/
+.. _MathJax: http://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _preview-latex package: http://www.gnu.org/software/auctex/preview-latex.html
-.. _AmSMath LaTeX package: http://www.ams.org/tex/amslatex.html
+.. _AmSMath LaTeX package: http://www.ams.org/publications/authors/tex/amslatex

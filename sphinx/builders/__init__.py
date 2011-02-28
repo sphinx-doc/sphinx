@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,9 +31,12 @@ class Builder(object):
     name = ''
     # builder's output format, or '' if no document output is produced
     format = ''
+    # doctree versioning method
+    versioning_method = 'none'
 
     def __init__(self, app):
         self.env = app.env
+        self.env.set_versioning_method(self.versioning_method)
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -55,16 +58,13 @@ class Builder(object):
 
     # helper methods
     def init(self):
-        """
-        Load necessary templates and perform initialization.  The default
+        """Load necessary templates and perform initialization.  The default
         implementation does nothing.
         """
         pass
 
     def create_template_bridge(self):
-        """
-        Return the template bridge configured.
-        """
+        """Return the template bridge configured."""
         if self.config.template_bridge:
             self.templates = self.app.import_object(
                 self.config.template_bridge, 'template_bridge setting')()
@@ -73,23 +73,23 @@ class Builder(object):
             self.templates = BuiltinTemplateLoader()
 
     def get_target_uri(self, docname, typ=None):
-        """
-        Return the target URI for a document name (*typ* can be used to qualify
-        the link characteristic for individual builders).
+        """Return the target URI for a document name.
+
+        *typ* can be used to qualify the link characteristic for individual
+        builders.
         """
         raise NotImplementedError
 
     def get_relative_uri(self, from_, to, typ=None):
-        """
-        Return a relative URI between two source filenames. May raise
-        environment.NoUri if there's no way to return a sensible URI.
+        """Return a relative URI between two source filenames.
+
+        May raise environment.NoUri if there's no way to return a sensible URI.
         """
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
     def get_outdated_docs(self):
-        """
-        Return an iterable of output files that are outdated, or a string
+        """Return an iterable of output files that are outdated, or a string
         describing what an update build will build.
 
         If the builder does not output individual files corresponding to
@@ -129,9 +129,7 @@ class Builder(object):
     supported_image_types = []
 
     def post_process_images(self, doctree):
-        """
-        Pick the best candidate for all image URIs.
-        """
+        """Pick the best candidate for all image URIs."""
         for node in doctree.traverse(nodes.image):
             if '?' in node['candidates']:
                 # don't rewrite nonlocal image URIs
@@ -198,9 +196,9 @@ class Builder(object):
                        'out of date' % len(to_build))
 
     def build(self, docnames, summary=None, method='update'):
-        """
-        Main build method.  First updates the environment, and then
-        calls :meth:`write`.
+        """Main build method.
+
+        First updates the environment, and then calls :meth:`write`.
         """
         if summary:
             self.info(bold('building [%s]: ' % self.name), nonl=1)
@@ -277,7 +275,8 @@ class Builder(object):
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
             for tocdocname in self.env.files_to_rebuild.get(docname, []):
-                docnames.add(tocdocname)
+                if tocdocname in self.env.found_docs:
+                    docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
         self.info(bold('preparing documents... '), nonl=True)
@@ -302,15 +301,18 @@ class Builder(object):
         raise NotImplementedError
 
     def finish(self):
-        """
-        Finish the building process.  The default implementation does nothing.
+        """Finish the building process.
+
+        The default implementation does nothing.
         """
         pass
 
     def cleanup(self):
+        """Cleanup any resources.
+
+        The default implementation does nothing.
         """
-        Cleanup any resources.  The default implementation does nothing.
-        """
+        pass
 
 
 BUILTIN_BUILDERS = {
@@ -327,6 +329,9 @@ BUILTIN_BUILDERS = {
     'latex':      ('latex', 'LaTeXBuilder'),
     'text':       ('text', 'TextBuilder'),
     'man':        ('manpage', 'ManualPageBuilder'),
+    'texinfo':    ('texinfo', 'TexinfoBuilder'),
     'changes':    ('changes', 'ChangesBuilder'),
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
+    'websupport': ('websupport', 'WebSupportBuilder'),
+    'gettext':    ('gettext', 'MessageCatalogBuilder'),
 }

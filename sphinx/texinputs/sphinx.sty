@@ -16,6 +16,7 @@
 \RequirePackage{amsmath} % for \text
 \RequirePackage{makeidx}
 \RequirePackage{framed}
+\RequirePackage{ifthen}
 \RequirePackage{color}
 % For highlighted code.
 \RequirePackage{fancyvrb}
@@ -137,15 +138,11 @@
 
 % Play with vspace to be able to keep the indentation.
 \newlength\distancetoright
-\newlength\leftsidespace
 \def\mycolorbox#1{%
-  \setlength\leftsidespace{\@totalleftmargin}%
   \setlength\distancetoright{\linewidth}%
   \advance\distancetoright -\@totalleftmargin %
-  \noindent\hspace*{\@totalleftmargin}%
   \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
   \begin{minipage}{\distancetoright}%
-    \noindent\hspace*{-\leftsidespace}%
     #1
   \end{minipage}%
   }%
@@ -178,23 +175,6 @@
 }
 
 
-% Index-entry generation support.
-%
-
-% Command to generate two index entries (using subentries)
-\newcommand{\indexii}[2]{\index{#1!#2}\index{#2!#1}}
-
-% And three entries (using only one level of subentries)
-\newcommand{\indexiii}[3]{\index{#1!#2 #3}\index{#2!#3, #1}\index{#3!#1 #2}}
-
-% And four (again, using only one level of subentries)
-\newcommand{\indexiv}[4]{
-\index{#1!#2 #3 #4}
-\index{#2!#3 #4, #1}
-\index{#3!#4, #1 #2}
-\index{#4!#1 #2 #3}
-}
-
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
 
@@ -209,7 +189,7 @@
             {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
 \titleformat{\subsubsection}{\py@HeaderFamily}%
             {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\paragraph}{\large\py@HeaderFamily}%
+\titleformat{\paragraph}{\small\py@HeaderFamily}%
             {\py@TitleColor}{0em}{\py@TitleColor}{\py@NormalColor}
 
 % {fulllineitems} is the main environment for object descriptions.
@@ -240,21 +220,12 @@
   \addtolength{\py@argswidth}{\linewidth}%
   \item[#1\code{(}\py@sigparams{#2}{#3}]}
 
-% This version is being checked in for the historical record; it shows
-% how I've managed to get some aspects of this to work.  It will not
-% be used in practice, so a subsequent revision will change things
-% again.  This version has problems, but shows how to do something
-% that proved more tedious than I'd expected, so I don't want to lose
-% the example completely.
+% Production lists
 %
-\newcommand{\grammartoken}[1]{\texttt{#1}}
-\newenvironment{productionlist}[1][\@undefined]{
-  \def\optional##1{{\Large[}##1{\Large]}}
-  \def\production##1##2{\hypertarget{grammar-token-##1}{}%
-    \code{##1}&::=&\code{##2}\\}
-  \def\productioncont##1{& &\code{##1}\\}
-  \def\token##1{##1}
-  \let\grammartoken=\token
+\newenvironment{productionlist}{
+%  \def\optional##1{{\Large[}##1{\Large]}}
+  \def\production##1##2{\\\code{##1}&::=&\code{##2}}
+  \def\productioncont##1{\\& &\code{##1}}
   \parindent=2em
   \indent
   \begin{tabular}{lcl}
@@ -268,11 +239,11 @@
 
 \newcommand{\py@heavybox}{
   \setlength{\fboxrule}{1pt}
-  \setlength{\fboxsep}{7pt}
+  \setlength{\fboxsep}{6pt}
   \setlength{\py@noticelength}{\linewidth}
   \addtolength{\py@noticelength}{-2\fboxsep}
   \addtolength{\py@noticelength}{-2\fboxrule}
-  \setlength{\shadowsize}{3pt}
+  %\setlength{\shadowsize}{3pt}
   \Sbox
   \minipage{\py@noticelength}
 }
@@ -282,15 +253,26 @@
   \fbox{\TheSbox}
 }
 
+\newcommand{\py@lightbox}{{%
+  \setlength\parskip{0pt}\par
+  \rule[0ex]{\linewidth}{0.5pt}%
+  \par\vspace{-0.5ex}%
+  }}
+\newcommand{\py@endlightbox}{{%
+  \setlength{\parskip}{0pt}%
+  \par\rule[0.5ex]{\linewidth}{0.5pt}%
+  \par\vspace{-0.5ex}%
+  }}
+
 % Some are quite plain:
-\newcommand{\py@noticestart@note}{}
-\newcommand{\py@noticeend@note}{}
-\newcommand{\py@noticestart@hint}{}
-\newcommand{\py@noticeend@hint}{}
-\newcommand{\py@noticestart@important}{}
-\newcommand{\py@noticeend@important}{}
-\newcommand{\py@noticestart@tip}{}
-\newcommand{\py@noticeend@tip}{}
+\newcommand{\py@noticestart@note}{\py@lightbox}
+\newcommand{\py@noticeend@note}{\py@endlightbox}
+\newcommand{\py@noticestart@hint}{\py@lightbox}
+\newcommand{\py@noticeend@hint}{\py@endlightbox}
+\newcommand{\py@noticestart@important}{\py@lightbox}
+\newcommand{\py@noticeend@important}{\py@endlightbox}
+\newcommand{\py@noticestart@tip}{\py@lightbox}
+\newcommand{\py@noticeend@tip}{\py@endlightbox}
 
 % Others gets more visible distinction:
 \newcommand{\py@noticestart@warning}{\py@heavybox}
@@ -307,7 +289,7 @@
 \newenvironment{notice}[2]{
   \def\py@noticetype{#1}
   \csname py@noticestart@#1\endcsname
-  \par\strong{#2}
+  \strong{#2}
 }{\csname py@noticeend@\py@noticetype\endcsname}
 
 % Allow the release number to be specified independently of the
@@ -446,6 +428,10 @@
                 linkcolor=InnerLinkColor,filecolor=OuterLinkColor,
                 menucolor=OuterLinkColor,urlcolor=OuterLinkColor,
                 citecolor=InnerLinkColor]{hyperref}
+% Fix anchor placement for figures with captions.
+% (Note: we don't use a package option here; instead, we give an explicit
+% \capstart for figures that actually have a caption.)
+\RequirePackage{hypcap}
 
 % From docutils.writers.latex2e
 \providecommand{\DUspan}[2]{%
@@ -458,3 +444,21 @@
     {#2}% node content
   }% close "span"
 }
+
+\providecommand*{\DUprovidelength}[2]{
+  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+}
+
+\DUprovidelength{\DUlineblockindent}{2.5em}
+\ifthenelse{\isundefined{\DUlineblock}}{
+  \newenvironment{DUlineblock}[1]{%
+    \list{}{\setlength{\partopsep}{\parskip}
+            \addtolength{\partopsep}{\baselineskip}
+            \setlength{\topsep}{0pt}
+            \setlength{\itemsep}{0.15\baselineskip}
+            \setlength{\parsep}{0pt}
+            \setlength{\leftmargin}{#1}}
+    \raggedright
+  }
+  {\endlist}
+}{}

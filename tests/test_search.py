@@ -5,7 +5,7 @@
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,6 +13,7 @@ from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
+from sphinx.util.pycompat import b
 
 
 settings = parser = None
@@ -31,11 +32,11 @@ test that non-comments are indexed: fermion
 '''
 
 def test_wordcollector():
-    doc = utils.new_document('test data', settings)
+    doc = utils.new_document(b('test data'), settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
 
-    ix = IndexBuilder(None)
+    ix = IndexBuilder(None, 'en', {})
     ix.feed('filename', 'title', doc)
     assert 'boson' not in ix._mapping
     assert 'fermion' in ix._mapping

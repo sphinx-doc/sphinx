@@ -26,3 +26,9 @@ Just testing a few autodoc possibilities...
 .. autoclass:: CustomDict
    :show-inheritance:
    :members:
+
+
+.. automodule:: autodoc_fodder
+   :noindex:
+
+   .. autoclass:: MarkupError

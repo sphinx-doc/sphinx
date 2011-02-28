@@ -6,7 +6,7 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -66,9 +66,8 @@ class Index(object):
         self.domain = domain
 
     def generate(self, docnames=None):
-        """
-        Return entries for the index given by *name*.  If *docnames* is given,
-        restrict to entries referring to these docnames.
+        """Return entries for the index given by *name*.  If *docnames* is
+        given, restrict to entries referring to these docnames.
 
         The return value is a tuple of ``(content, collapse)``, where *collapse*
         is a boolean that determines if sub-entries should start collapsed (for
@@ -132,6 +131,8 @@ class Domain(object):
     roles = {}
     #: a list of Index subclasses
     indices = []
+    #: role name -> a warning message if reference is missing
+    dangling_warnings = {}
 
     #: data value for a fresh environment
     initial_data = {}
@@ -158,8 +159,7 @@ class Domain(object):
         self.objtypes_for_role = self._role2type.get
 
     def role(self, name):
-        """
-        Return a role adapter function that always gives the registered
+        """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
         if name in self._role_cache:
@@ -175,8 +175,7 @@ class Domain(object):
         return role_adapter
 
     def directive(self, name):
-        """
-        Return a directive adapter class that always gives the registered
+        """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
         if name in self._directive_cache:
@@ -195,21 +194,16 @@ class Domain(object):
     # methods that should be overwritten
 
     def clear_doc(self, docname):
-        """
-        Remove traces of a document in the domain-specific inventories.
-        """
+        """Remove traces of a document in the domain-specific inventories."""
         pass
 
     def process_doc(self, env, docname, document):
-        """
-        Process a document after it is read by the environment.
-        """
+        """Process a document after it is read by the environment."""
         pass
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        """
-        Resolve the ``pending_xref`` *node* with the given *typ* and *target*.
+        """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
         containing the *contnode* which is the markup content of the
@@ -225,8 +219,7 @@ class Domain(object):
         pass
 
     def get_objects(self):
-        """
-        Return an iterable of "object descriptions", which are tuples with
+        """Return an iterable of "object descriptions", which are tuples with
         five items:
 
         * `name`     -- fully qualified name
@@ -245,9 +238,7 @@ class Domain(object):
         return []
 
     def get_type_name(self, type, primary=False):
-        """
-        Return full name for given ObjType.
-        """
+        """Return full name for given ObjType."""
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)

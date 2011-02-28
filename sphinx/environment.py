@@ -5,17 +5,20 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import os
+import sys
 import time
 import types
 import codecs
 import imghdr
 import string
+import posixpath
+import unicodedata
 import cPickle as pickle
 from os import path
 from glob import glob
@@ -24,9 +27,9 @@ from itertools import izip, groupby
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path
+from docutils.utils import Reporter, relative_path, new_document
 from docutils.readers import standalone
-from docutils.parsers.rst import roles, directives
+from docutils.parsers.rst import roles, directives, Parser as RSTParser
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
 from docutils.writers import UnfilteredWriter
@@ -34,15 +37,18 @@ from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
-from sphinx.util import url_re, get_matching_docs, docname_join, \
+from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
 from sphinx.util.osutil import movefile, SEP, ustrftime
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import all
+from sphinx.util.pycompat import all, class_types
+from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import _
+from sphinx.locale import _, init as init_locale
+from sphinx.versioning import add_uids, merge_doctrees
 
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
@@ -63,7 +69,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 36
+ENV_VERSION = 41
 
 
 default_substitutions = set([
@@ -74,13 +80,19 @@ default_substitutions = set([
 
 dummy_reporter = Reporter('', 4, 4)
 
+versioning_conditions = {
+    'none': False,
+    'text': nodes.TextElement,
+    'commentable': is_commentable,
+}
+
 
 class WarningStream(object):
     def __init__(self, warnfunc):
         self.warnfunc = warnfunc
     def write(self, text):
         if text.strip():
-            self.warnfunc(text, None, '')
+            self.warnfunc(text.strip(), None, '')
 
 
 class NoUri(Exception):
@@ -177,17 +189,56 @@ class CitationReferences(Transform):
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, reftype='citation',
-                                            reftarget=cittext)
+                                            reftarget=cittext, refwarn=True)
+            refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
+
+
+class Locale(Transform):
+    """
+    Replace translatable nodes with their translated doctree.
+    """
+    default_priority = 0
+    def apply(self):
+        env = self.document.settings.env
+        settings, source = self.document.settings, self.document['source']
+        # XXX check if this is reliable
+        assert source.startswith(env.srcdir)
+        docname = os.path.splitext(source[len(env.srcdir):].lstrip(os.sep))[0]
+        section = docname.split(os.sep, 1)[0]
+
+        # fetch translations
+        dirs = [path.join(env.srcdir, x)
+                for x in env.config.locale_dirs]
+        catalog, has_catalog = init_locale(dirs, env.config.language, section)
+        if not has_catalog:
+            return
+
+        parser = RSTParser()
+
+        for node, msg in extract_messages(self.document):
+            patch = new_document(source, settings)
+            msgstr = catalog.gettext(msg)
+            # XXX add marker to untranslated parts
+            if not msgstr or msgstr == msg: # as-of-yet untranslated
+                continue
+            parser.parse(msgstr, patch)
+            patch = patch[0]
+            # XXX doctest and other block markup
+            if not isinstance(patch, nodes.paragraph):
+                continue # skip for now
+            for child in patch.children: # update leaves
+                child.parent = node
+            node.children = patch.children
 
 
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, SortIds]
+    transforms = [Locale, CitationReferences, DefaultSubstitutions,
+                  MoveModuleTargets, HandleCodeBlocks, SortIds]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -251,7 +302,7 @@ class BuildEnvironment:
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
-                   isinstance(val, (type, types.ClassType)):
+                   isinstance(val, class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
@@ -270,6 +321,9 @@ class BuildEnvironment:
         self.srcdir = srcdir
         self.config = config
 
+        # the method of doctree versioning; see set_versioning_method
+        self.versioning_condition = None
+
         # the application object; only set while update() runs
         self.app = None
 
@@ -286,6 +340,9 @@ class BuildEnvironment:
         # this is to invalidate old pickles
         self.version = ENV_VERSION
 
+        # make this a set for faster testing
+        self._nitpick_ignore = set(self.config.nitpick_ignore)
+
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
@@ -294,6 +351,8 @@ class BuildEnvironment:
                                     # contains all built docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
+        self.reread_always = set()  # docnames to re-read unconditionally on
+                                    # next build
 
         # File metadata
         self.metadata = {}          # docname -> dict of metadata items
@@ -335,18 +394,32 @@ class BuildEnvironment:
         self._warnfunc = func
         self.settings['warning_stream'] = WarningStream(func)
 
+    def set_versioning_method(self, method):
+        """This sets the doctree versioning method for this environment.
+
+        Versioning methods are a builder property; only builders with the same
+        versioning method can share the same doctree directory.  Therefore, we
+        raise an exception if the user tries to use an environment with an
+        incompatible versioning method.
+        """
+        if method not in versioning_conditions:
+            raise ValueError('invalid versioning method: %r' % method)
+        condition = versioning_conditions[method]
+        if self.versioning_condition not in (None, condition):
+            raise SphinxError('This environment is incompatible with the '
+                              'selected builder, please choose another '
+                              'doctree directory.')
+        self.versioning_condition = condition
+
     def warn(self, docname, msg, lineno=None):
-        if docname:
-            if lineno is None:
-                lineno = ''
-            self._warnfunc(msg, '%s:%s' % (self.doc2path(docname), lineno))
-        else:
-            self._warnfunc(msg)
+        # strange argument order is due to backwards compatibility
+        self._warnfunc(msg, (docname, lineno))
 
     def clear_doc(self, docname):
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
+            self.reread_always.discard(docname)
             self.metadata.pop(docname, None)
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
@@ -376,25 +449,46 @@ class BuildEnvironment:
             domain.clear_doc(docname)
 
     def doc2path(self, docname, base=True, suffix=None):
+        """Return the filename for the document name.
+
+        If *base* is True, return absolute path under self.srcdir.
+        If *base* is None, return relative path to self.srcdir.
+        If *base* is a path string, return absolute path under that.
+        If *suffix* is not None, add it instead of config.source_suffix.
         """
-        Return the filename for the document name.
-        If base is True, return absolute path under self.srcdir.
-        If base is None, return relative path to self.srcdir.
-        If base is a path string, return absolute path under that.
-        If suffix is not None, add it instead of config.source_suffix.
-        """
+        docname = docname.replace(SEP, path.sep)
         suffix = suffix or self.config.source_suffix
         if base is True:
-            return path.join(self.srcdir,
-                             docname.replace(SEP, path.sep)) + suffix
+            return path.join(self.srcdir, docname) + suffix
         elif base is None:
-            return docname.replace(SEP, path.sep) + suffix
+            return docname + suffix
         else:
-            return path.join(base, docname.replace(SEP, path.sep)) + suffix
+            return path.join(base, docname) + suffix
+
+    def relfn2path(self, filename, docname=None):
+        """Return paths to a file referenced from a document, relative to
+        documentation root and absolute.
+
+        Absolute filenames are relative to the source dir, while relative
+        filenames are relative to the dir of the containing document.
+        """
+        if filename.startswith('/') or filename.startswith(os.sep):
+            rel_fn = filename[1:]
+        else:
+            docdir = path.dirname(self.doc2path(docname or self.docname,
+                                                base=None))
+            rel_fn = path.join(docdir, filename)
+        try:
+            return rel_fn, path.join(self.srcdir, rel_fn)
+        except UnicodeDecodeError:
+            # the source directory is a bytestring with non-ASCII characters;
+            # let's try to encode the rel_fn in the file system encoding
+            enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
+            return rel_fn, path.join(self.srcdir, enc_rel_fn)
 
     def find_files(self, config):
-        """
-        Find all source files in the source dir and put them in self.found_docs.
+        """Find all source files in the source dir and put them in
+        self.found_docs.
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
@@ -407,9 +501,7 @@ class BuildEnvironment:
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
 
     def get_outdated_files(self, config_changed):
-        """
-        Return (added, changed, removed) sets.
-        """
+        """Return (added, changed, removed) sets."""
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
 
@@ -427,6 +519,10 @@ class BuildEnvironment:
                 # if the doctree file is not there, rebuild
                 if not path.isfile(self.doc2path(docname, self.doctreedir,
                                                  '.doctree')):
+                    changed.add(docname)
+                    continue
+                # check the "reread always" list
+                if docname in self.reread_always:
                     changed.add(docname)
                     continue
                 # check the mtime of the document
@@ -455,12 +551,12 @@ class BuildEnvironment:
         return added, changed, removed
 
     def update(self, config, srcdir, doctreedir, app=None):
-        """
-        (Re-)read all files new or changed since last update.  Returns a
-        summary, the total count of documents to reread and an iterator that
-        yields docnames as it processes them.  Store all environment docnames in
-        the canonical format (ie using SEP as a separator in place of
-        os.path.sep).
+        """(Re-)read all files new or changed since last update.
+
+        Returns a summary, the total count of documents to reread and an
+        iterator that yields docnames as it processes them.  Store all
+        environment docnames in the canonical format (ie using SEP as a
+        separator in place of os.path.sep).
         """
         config_changed = False
         if self.config is None:
@@ -491,10 +587,15 @@ class BuildEnvironment:
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
+        # allow user intervention as well
+        for docs in app.emit('env-get-outdated', self, added, changed, removed):
+            changed.update(set(docs) & self.found_docs)
+
         # if files were added or removed, all documents with globbed toctrees
         # must be reread
         if added or removed:
-            changed.update(self.glob_toctrees)
+            # ... but not those that already were removed
+            changed.update(self.glob_toctrees & self.found_docs)
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
@@ -509,8 +610,7 @@ class BuildEnvironment:
                 self.clear_doc(docname)
 
             # read all new and changed files
-            to_read = added | changed
-            for docname in sorted(to_read):
+            for docname in sorted(added | changed):
                 yield docname
                 self.read_doc(docname, app=app)
 
@@ -591,8 +691,8 @@ class BuildEnvironment:
         roles.role = role
 
     def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
-        """
-        Parse a file and add/update inventory entries for the doctree.
+        """Parse a file and add/update inventory entries for the doctree.
+
         If srcpath is given, read from a different source file.
         """
         # remove all inventory entries for that file
@@ -627,7 +727,14 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         class SphinxSourceClass(FileInput):
+            def __init__(self_, *args, **kwds):
+                # don't call sys.exit() on IOErrors
+                kwds['handle_io_errors'] = False
+                FileInput.__init__(self_, *args, **kwds)
+
             def decode(self_, data):
+                if isinstance(data, unicode):
+                    return data
                 return data.decode(self_.encoding, 'sphinx')
 
             def read(self_):
@@ -649,7 +756,7 @@ class BuildEnvironment:
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path)
+        pub.set_source(None, src_path.encode(fs_encoding))
         pub.set_destination(None, None)
         try:
             pub.publish()
@@ -677,6 +784,25 @@ class BuildEnvironment:
 
         # store time of build, for outdated files detection
         self.all_docs[docname] = time.time()
+
+        if self.versioning_condition:
+            # get old doctree
+            try:
+                f = open(self.doc2path(docname,
+                                       self.doctreedir, '.doctree'), 'rb')
+                try:
+                    old_doctree = pickle.load(f)
+                finally:
+                    f.close()
+            except EnvironmentError:
+                old_doctree = None
+
+            # add uids for versioning
+            if old_doctree is None:
+                list(add_uids(doctree, self.versioning_condition))
+            else:
+                list(merge_doctrees(
+                    old_doctree, doctree, self.versioning_condition))
 
         # make it picklable
         doctree.reporter = None
@@ -733,6 +859,9 @@ class BuildEnvironment:
     def note_dependency(self, filename):
         self.dependencies.setdefault(self.docname, set()).add(filename)
 
+    def note_reread(self):
+        self.reread_always.add(self.docname)
+
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
             (type, self.temp_data['docname'], lineno,
@@ -742,18 +871,15 @@ class BuildEnvironment:
     # post-processing of read doctrees
 
     def filter_messages(self, doctree):
-        """
-        Filter system messages from a doctree.
-        """
+        """Filter system messages from a doctree."""
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 node.parent.remove(node)
 
+
     def process_dependencies(self, docname, doctree):
-        """
-        Process docutils-generated dependency info.
-        """
+        """Process docutils-generated dependency info."""
         cwd = os.getcwd()
         frompath = path.join(path.normpath(self.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
@@ -767,30 +893,20 @@ class BuildEnvironment:
             self.dependencies.setdefault(docname, set()).add(relpath)
 
     def process_downloads(self, docname, doctree):
-        """
-        Process downloadable file paths.
-        """
-        docdir = path.dirname(self.doc2path(docname, base=None))
+        """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
-            if targetname.startswith('/') or targetname.startswith(os.sep):
-                # absolute
-                filepath = targetname[1:]
-            else:
-                filepath = path.normpath(path.join(docdir, node['reftarget']))
-            self.dependencies.setdefault(docname, set()).add(filepath)
-            if not os.access(path.join(self.srcdir, filepath), os.R_OK):
-                self.warn(docname, 'download file not readable: %s' % filepath,
+            rel_filename, filename = self.relfn2path(targetname, docname)
+            self.dependencies.setdefault(docname, set()).add(rel_filename)
+            if not os.access(filename, os.R_OK):
+                self.warn(docname, 'download file not readable: %s' % filename,
                           getattr(node, 'line', None))
                 continue
-            uniquename = self.dlfiles.add_file(docname, filepath)
+            uniquename = self.dlfiles.add_file(docname, filename)
             node['filename'] = uniquename
 
     def process_images(self, docname, doctree):
-        """
-        Process and rewrite image URIs.
-        """
-        docdir = path.dirname(self.doc2path(docname, base=None))
+        """Process and rewrite image URIs."""
         for node in doctree.traverse(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
             # choose the best image from these candidates.  The special key * is
@@ -803,16 +919,11 @@ class BuildEnvironment:
                           node.line)
                 candidates['?'] = imguri
                 continue
-            # imgpath is the image path *from srcdir*
-            if imguri.startswith('/') or imguri.startswith(os.sep):
-                # absolute path (= relative to srcdir)
-                imgpath = path.normpath(imguri[1:])
-            else:
-                imgpath = path.normpath(path.join(docdir, imguri))
+            rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
             # set imgpath as default URI
-            node['uri'] = imgpath
-            if imgpath.endswith(os.extsep + '*'):
-                for filename in glob(path.join(self.srcdir, imgpath)):
+            node['uri'] = rel_imgpath
+            if rel_imgpath.endswith(os.extsep + '*'):
+                for filename in glob(full_imgpath):
                     new_imgpath = relative_path(self.srcdir, filename)
                     if filename.lower().endswith('.pdf'):
                         candidates['application/pdf'] = new_imgpath
@@ -832,7 +943,7 @@ class BuildEnvironment:
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:
-                candidates['*'] = imgpath
+                candidates['*'] = rel_imgpath
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in candidates.itervalues():
@@ -844,8 +955,8 @@ class BuildEnvironment:
                 self.images.add_file(docname, imgpath)
 
     def process_metadata(self, docname, doctree):
-        """
-        Process the docinfo part of the doctree as metadata.
+        """Process the docinfo part of the doctree as metadata.
+
         Keep processing minimal -- just return what docutils says.
         """
         self.metadata[docname] = md = {}
@@ -930,8 +1041,7 @@ class BuildEnvironment:
                     item.replace(para, compact_para)
 
     def create_title_from(self, docname, document):
-        """
-        Add a title node to the document (just copy the first section title),
+        """Add a title node to the document (just copy the first section title),
         and store that title in the environment.
         """
         titlenode = nodes.title()
@@ -969,7 +1079,8 @@ class BuildEnvironment:
 
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
-           file relations from it."""
+        file relations from it.
+        """
         if toctreenode['glob']:
             self.glob_toctrees.add(docname)
         if toctreenode.get('numbered'):
@@ -1007,6 +1118,12 @@ class BuildEnvironment:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
                 # resolved in self.get_and_resolve_doctree)
+                if isinstance(sectionnode, addnodes.only):
+                    onlynode = addnodes.only(expr=sectionnode['expr'])
+                    blist = build_toc(sectionnode, depth)
+                    if blist:
+                        onlynode += blist.children
+                        entries.append(onlynode)
                 if not isinstance(sectionnode, nodes.section):
                     for toctreenode in traverse_in_section(sectionnode,
                                                            addnodes.toctree):
@@ -1028,6 +1145,8 @@ class BuildEnvironment:
                 else:
                     anchorname = '#' + sectionnode['ids'][0]
                 numentries[0] += 1
+                # make these nodes:
+                # list_item -> compact_paragraph -> reference
                 reference = nodes.reference(
                     '', '', internal=True, refuri=docname,
                     anchorname=anchorname, *nodetext)
@@ -1046,9 +1165,10 @@ class BuildEnvironment:
             self.tocs[docname] = nodes.bullet_list('')
         self.toc_num_entries[docname] = numentries[0]
 
-    def get_toc_for(self, docname):
+    def get_toc_for(self, docname, builder):
         """Return a TOC nodetree -- for use on the same page only!"""
         toc = self.tocs[docname].deepcopy()
+        self.process_only_nodes(toc, builder, docname)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -1075,7 +1195,9 @@ class BuildEnvironment:
 
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
-        Raises an ExtensionError if the domain is not registered."""
+
+        Raises an ExtensionError if the domain is not registered.
+        """
         try:
             return self.domains[domainname]
         except KeyError:
@@ -1100,7 +1222,8 @@ class BuildEnvironment:
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True):
         """Read the doctree from the pickle, resolve cross-references and
-           toctrees and return it."""
+        toctrees and return it.
+        """
         if doctree is None:
             doctree = self.get_doctree(docname)
 
@@ -1120,8 +1243,7 @@ class BuildEnvironment:
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
-        """
-        Resolve a *toctree* node into individual bullet lists with titles
+        """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
 
@@ -1137,32 +1259,62 @@ class BuildEnvironment:
 
         def _walk_depth(node, depth, maxdepth):
             """Utility: Cut a TOC at a specified depth."""
+
+            # For reading this function, it is useful to keep in mind the node
+            # structure of a toctree (using HTML-like node names for brevity):
+            #
+            # <ul>
+            #   <li>
+            #     <p><a></p>
+            #     <p><a></p>
+            #     ...
+            #     <ul>
+            #       ...
+            #     </ul>
+            #   </li>
+            # </ul>
+
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
+                    # for <p> and <li>, just indicate the depth level and
+                    # recurse to children
                     subnode['classes'].append('toctree-l%d' % (depth-1))
                     _walk_depth(subnode, depth, maxdepth)
+
                 elif isinstance(subnode, nodes.bullet_list):
+                    # for <ul>, determine if the depth is too large or if the
+                    # entry is to be collapsed
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
+                        # to find out what to collapse, *first* walk subitems,
+                        # since that determines which children point to the
+                        # current page
                         _walk_depth(subnode, depth+1, maxdepth)
-
                         # cull sub-entries whose parents aren't 'current'
-                        if (collapse and
-                            depth > 1 and
-                            'current' not in subnode.parent['classes']):
+                        if (collapse and depth > 1 and
+                            'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
 
                 elif isinstance(subnode, nodes.reference):
-                    # identify the toc entry pointing to the current document
-                    if subnode['refuri'] == docname and \
-                           not subnode['anchorname']:
-                        # tag the whole branch as 'current'
-                        p = subnode
-                        while p:
-                            p['classes'].append('current')
-                            p = p.parent
+                    # for <a>, identify which entries point to the current
+                    # document and therefore may not be collapsed
+                    if subnode['refuri'] == docname:
+                        if not subnode['anchorname']:
+                            # give the whole branch a 'current' class
+                            # (useful for styling it differently)
+                            branchnode = subnode
+                            while branchnode:
+                                branchnode['classes'].append('current')
+                                branchnode = branchnode.parent
+                        # mark the list_item as "on current page"
+                        if subnode.parent.parent.get('iscurrent'):
+                            # but only if it's not already done
+                            return
+                        while subnode:
+                            subnode['iscurrent'] = True
+                            subnode = subnode.parent
 
         def _entries_from_toctree(toctreenode, separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
@@ -1193,6 +1345,7 @@ class BuildEnvironment:
                         toc = nodes.bullet_list('', item)
                     else:
                         toc = self.tocs[ref].deepcopy()
+                        self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -1204,11 +1357,12 @@ class BuildEnvironment:
                         self.warn(docname,
                                   'toctree contains reference to document '
                                   '%r that doesn\'t have a title: no link '
-                                  'will be generated' % ref)
+                                  'will be generated' % ref, toctreenode.line)
                 except KeyError:
                     # this is raised if the included file does not exist
                     self.warn(docname, 'toctree contains reference to '
-                              'nonexisting document %r' % ref)
+                              'nonexisting document %r' % ref,
+                              toctreenode.line)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
@@ -1271,10 +1425,10 @@ class BuildEnvironment:
             typ = node['reftype']
             target = node['reftarget']
             refdoc = node.get('refdoc', fromdocname)
-            warned = False
+            domain = None
 
             try:
-                if node.has_key('refdomain') and node['refdomain']:
+                if 'refdomain' in node and node['refdomain']:
                     # let the domain try to resolve the reference
                     try:
                         domain = self.domains[node['refdomain']]
@@ -1287,11 +1441,7 @@ class BuildEnvironment:
                     # directly reference to document by source name;
                     # can be absolute or relative
                     docname = docname_join(refdoc, target)
-                    if docname not in self.all_docs:
-                        self.warn(refdoc,
-                                  'unknown document: %s' % docname, node.line)
-                        warned = True
-                    else:
+                    if docname in self.all_docs:
                         if node['refexplicit']:
                             # reference with explicit title
                             caption = node.astext()
@@ -1304,11 +1454,7 @@ class BuildEnvironment:
                         newnode.append(innernode)
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
-                    if not docname:
-                        self.warn(refdoc,
-                                  'citation not found: %s' % target, node.line)
-                        warned = True
-                    else:
+                    if docname:
                         newnode = make_refnode(builder, fromdocname, docname,
                                                labelid, contnode)
                 # no new node found? try the missing-reference event
@@ -1316,16 +1462,44 @@ class BuildEnvironment:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
                     # still not found? warn if in nit-picky mode
-                    if newnode is None and not warned and self.config.nitpicky:
-                        self.warn(refdoc,
-                            'reference target not found: %stype %s, target %s'
-                            % (node.get('refdomain') and
-                               'domain %s, ' % node['refdomain'] or '',
-                               typ, target))
+                    if newnode is None:
+                        self._warn_missing_reference(
+                            fromdocname, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
 
+        # remove only-nodes that do not belong to our builder
+        self.process_only_nodes(doctree, builder, fromdocname)
+
+        # allow custom references to be resolved
+        builder.app.emit('doctree-resolved', doctree, fromdocname)
+
+    def _warn_missing_reference(self, fromdoc, typ, target, node, domain):
+        warn = node.get('refwarn')
+        if self.config.nitpicky:
+            warn = True
+            if self._nitpick_ignore:
+                dtype = domain and '%s:%s' % (domain.name, typ) or typ
+                if (dtype, target) in self._nitpick_ignore:
+                    warn = False
+        if not warn:
+            return
+        refdoc = node.get('refdoc', fromdoc)
+        if domain and typ in domain.dangling_warnings:
+            msg = domain.dangling_warnings[typ]
+        elif typ == 'doc':
+            msg = 'unknown document: %(target)s'
+        elif typ == 'citation':
+            msg = 'citation not found: %(target)s'
+        elif node.get('refdomain', 'std') != 'std':
+            msg = '%s:%s reference target not found: %%(target)s' % \
+                  (node['refdomain'], typ)
+        else:
+            msg = '%s reference target not found: %%(target)s' % typ
+        self.warn(refdoc, msg % {'target': target}, node.line)
+
+    def process_only_nodes(self, doctree, builder, fromdocname=None):
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
@@ -1337,10 +1511,9 @@ class BuildEnvironment:
                 if ret:
                     node.replace_self(node.children)
                 else:
-                    node.replace_self([])
-
-        # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, fromdocname)
+                    # replacing by [] would result in an "Losing ids" exception
+                    # if there is a target node before the only node
+                    node.replace_self(nodes.comment())
 
     def assign_section_numbers(self):
         """Assign a section number to each heading under a numbered toctree."""
@@ -1350,149 +1523,160 @@ class BuildEnvironment:
         old_secnumbers = self.toc_secnumbers
         self.toc_secnumbers = {}
 
-        def _walk_toc(node, secnums, titlenode=None):
+        def _walk_toc(node, secnums, depth, titlenode=None):
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
             for subnode in node.children:
                 if isinstance(subnode, nodes.bullet_list):
                     numstack.append(0)
-                    _walk_toc(subnode, secnums, titlenode)
+                    _walk_toc(subnode, secnums, depth-1, titlenode)
                     numstack.pop()
                     titlenode = None
                 elif isinstance(subnode, nodes.list_item):
-                    _walk_toc(subnode, secnums, titlenode)
+                    _walk_toc(subnode, secnums, depth, titlenode)
+                    titlenode = None
+                elif isinstance(subnode, addnodes.only):
+                    # at this stage we don't know yet which sections are going
+                    # to be included; just include all of them, even if it leads
+                    # to gaps in the numbering
+                    _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.compact_paragraph):
                     numstack[-1] += 1
+                    if depth > 0:
+                        number = tuple(numstack)
+                    else:
+                        number = None
                     secnums[subnode[0]['anchorname']] = \
-                        subnode[0]['secnumber'] = tuple(numstack)
+                        subnode[0]['secnumber'] = number
                     if titlenode:
-                        titlenode['secnumber'] = tuple(numstack)
+                        titlenode['secnumber'] = number
                         titlenode = None
                 elif isinstance(subnode, addnodes.toctree):
-                    _walk_toctree(subnode)
+                    _walk_toctree(subnode, depth)
 
-        def _walk_toctree(toctreenode):
+        def _walk_toctree(toctreenode, depth):
+            if depth == 0:
+                return
             for (title, ref) in toctreenode['entries']:
                 if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
                 if ref in self.tocs:
                     secnums = self.toc_secnumbers[ref] = {}
-                    _walk_toc(self.tocs[ref], secnums, self.titles.get(ref))
+                    _walk_toc(self.tocs[ref], secnums, depth,
+                              self.titles.get(ref))
                     if secnums != old_secnumbers.get(ref):
                         rewrite_needed.append(ref)
 
         for docname in self.numbered_toctrees:
             doctree = self.get_doctree(docname)
             for toctreenode in doctree.traverse(addnodes.toctree):
-                if toctreenode.get('numbered'):
+                depth = toctreenode.get('numbered', 0)
+                if depth:
                     # every numbered toctree gets new numbering
                     numstack = [0]
-                    _walk_toctree(toctreenode)
+                    _walk_toctree(toctreenode, depth)
 
         return rewrite_needed
 
-    def create_index(self, builder, _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
+    def create_index(self, builder, group_entries=True,
+                     _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         """Create the real index from the collected index entries."""
         new = {}
 
-        def add_entry(word, subword, dic=new):
+        def add_entry(word, subword, link=True, dic=new):
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]
             if subword:
-                add_entry(subword, '', dic=entry[1])
-            else:
+                add_entry(subword, '', link=link, dic=entry[1])
+            elif link:
                 try:
-                    entry[0].append(builder.get_relative_uri('genindex', fn)
-                                    + '#' + tid)
+                    uri = builder.get_relative_uri('genindex', fn) + '#' + tid
                 except NoUri:
                     pass
+                else:
+                    entry[0].append((main, uri))
 
         for fn, entries in self.indexentries.iteritems():
             # new entry types must be listed in directives/other.py!
-            for type, value, tid, alias in entries:
-                if type == 'single':
-                    try:
-                        entry, subentry = value.split(';', 1)
-                    except ValueError:
-                        entry, subentry = value, ''
-                    if not entry:
-                        self.warn(fn, 'invalid index entry %r' % value)
-                        continue
-                    add_entry(entry.strip(), subentry.strip())
-                elif type == 'pair':
-                    try:
-                        first, second = map(lambda x: x.strip(),
-                                            value.split(';', 1))
-                        if not first or not second:
-                            raise ValueError
-                    except ValueError:
-                        self.warn(fn, 'invalid pair index entry %r' % value)
-                        continue
-                    add_entry(first, second)
-                    add_entry(second, first)
-                elif type == 'triple':
-                    try:
-                        first, second, third = map(lambda x: x.strip(),
-                                                   value.split(';', 2))
-                        if not first or not second or not third:
-                            raise ValueError
-                    except ValueError:
-                        self.warn(fn, 'invalid triple index entry %r' % value)
-                        continue
-                    add_entry(first, second+' '+third)
-                    add_entry(second, third+', '+first)
-                    add_entry(third, first+' '+second)
-                else:
-                    self.warn(fn, 'unknown index entry type %r' % type)
+            for type, value, tid, main in entries:
+                try:
+                    if type == 'single':
+                        try:
+                            entry, subentry = split_into(2, 'single', value)
+                        except ValueError:
+                            entry, = split_into(1, 'single', value)
+                            subentry = ''
+                        add_entry(entry, subentry)
+                    elif type == 'pair':
+                        first, second = split_into(2, 'pair', value)
+                        add_entry(first, second)
+                        add_entry(second, first)
+                    elif type == 'triple':
+                        first, second, third = split_into(3, 'triple', value)
+                        add_entry(first, second+' '+third)
+                        add_entry(second, third+', '+first)
+                        add_entry(third, first+' '+second)
+                    elif type == 'see':
+                        first, second = split_into(2, 'see', value)
+                        add_entry(first, _('see %s') % second, link=False)
+                    elif type == 'seealso':
+                        first, second = split_into(2, 'see', value)
+                        add_entry(first, _('see also %s') % second, link=False)
+                    else:
+                        self.warn(fn, 'unknown index entry type %r' % type)
+                except ValueError, err:
+                    self.warn(fn, str(err))
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
         def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
-            lckey = entry[0].lower()
+            lckey = unicodedata.normalize('NFD', entry[0].lower())
             if lckey[0:1] in lcletters:
                 return chr(127) + lckey
             return lckey
         newlist = new.items()
         newlist.sort(key=keyfunc)
 
-        # fixup entries: transform
-        #   func() (in module foo)
-        #   func() (in module bar)
-        # into
-        #   func()
-        #     (in module foo)
-        #     (in module bar)
-        oldkey = ''
-        oldsubitems = None
-        i = 0
-        while i < len(newlist):
-            key, (targets, subitems) = newlist[i]
-            # cannot move if it has subitems; structure gets too complex
-            if not subitems:
-                m = _fixre.match(key)
-                if m:
-                    if oldkey == m.group(1):
-                        # prefixes match: add entry as subitem of the
-                        # previous entry
-                        oldsubitems.setdefault(m.group(2), [[], {}])[0].\
-                                    extend(targets)
-                        del newlist[i]
-                        continue
-                    oldkey = m.group(1)
-                else:
-                    oldkey = key
-            oldsubitems = subitems
-            i += 1
+        if group_entries:
+            # fixup entries: transform
+            #   func() (in module foo)
+            #   func() (in module bar)
+            # into
+            #   func()
+            #     (in module foo)
+            #     (in module bar)
+            oldkey = ''
+            oldsubitems = None
+            i = 0
+            while i < len(newlist):
+                key, (targets, subitems) = newlist[i]
+                # cannot move if it has subitems; structure gets too complex
+                if not subitems:
+                    m = _fixre.match(key)
+                    if m:
+                        if oldkey == m.group(1):
+                            # prefixes match: add entry as subitem of the
+                            # previous entry
+                            oldsubitems.setdefault(m.group(2), [[], {}])[0].\
+                                        extend(targets)
+                            del newlist[i]
+                            continue
+                        oldkey = m.group(1)
+                    else:
+                        oldkey = key
+                oldsubitems = subitems
+                i += 1
 
         # group the entries by letter
-        def keyfunc2((k, v), letters=string.ascii_uppercase + '_'):
+        def keyfunc2(item, letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
+            k, v = item
             v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
             # now calculate the key
-            letter = k[0].upper()
+            letter = unicodedata.normalize('NFD', k[0])[0].upper()
             if letter in letters:
                 return letter
             else:
@@ -1548,7 +1732,6 @@ class BuildEnvironment:
 
     def check_consistency(self):
         """Do consistency checks."""
-
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:

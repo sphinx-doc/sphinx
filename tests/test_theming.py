@@ -5,7 +5,7 @@
 
     Test the Theme class.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +25,8 @@ def test_theme_api(app):
     # test Theme class API
     assert set(Theme.themes.keys()) == \
            set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
-                'traditional', 'testtheme', 'ziptheme', 'epub', 'nature'])
+                'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
+                'pyramid'])
     assert Theme.themes['testtheme'][1] is None
     assert isinstance(Theme.themes['ziptheme'][1], zipfile.ZipFile)
 

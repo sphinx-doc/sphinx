@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,7 @@ from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 try:
-    import Image                        # check for the Python Imaging Library
+    from PIL import Image        # check for the Python Imaging Library
 except ImportError:
     Image = None
 
@@ -59,7 +59,11 @@ class HTMLTranslator(BaseTranslator):
         self.highlightlang = builder.config.highlight_language
         self.highlightlinenothreshold = sys.maxint
         self.protect_literal_text = 0
-        self.add_permalinks = builder.config.html_add_permalinks
+        self.permalink_text = builder.config.html_add_permalinks
+        # support backwards-compatible setting to a bool
+        if not isinstance(self.permalink_text, basestring):
+            self.permalink_text = self.permalink_text and u'\u00B6' or ''
+        self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = builder.config.html_secnumber_suffix
 
     def visit_start_of_file(self, node):
@@ -81,11 +85,12 @@ class HTMLTranslator(BaseTranslator):
                and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
     def depart_desc_signature(self, node):
-        if node['ids'] and self.add_permalinks and self.builder.add_permalinks:
+        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
             self.body.append(u'<a class="headerlink" href="#%s" '
                              % node['ids'][0] +
-                             u'title="%s">\u00B6</a>' %
-                             _('Permalink to this definition'))
+                             u'title="%s">%s</a>' % (
+                             _('Permalink to this definition'),
+                             self.permalink_text))
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
@@ -159,7 +164,7 @@ class HTMLTranslator(BaseTranslator):
     # overwritten
     def visit_reference(self, node):
         atts = {'class': 'reference'}
-        if node.get('internal'):
+        if node.get('internal') or 'refuri' not in node:
             atts['class'] += ' internal'
         else:
             atts['class'] += ' external'
@@ -180,7 +185,7 @@ class HTMLTranslator(BaseTranslator):
             atts['title'] = node['reftitle']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
-        if node.hasattr('secnumber'):
+        if node.get('secnumber'):
             self.body.append(('%s' + self.secnumber_suffix) %
                              '.'.join(map(str, node['secnumber'])))
 
@@ -202,14 +207,14 @@ class HTMLTranslator(BaseTranslator):
         self.depart_admonition(node)
 
     def add_secnumber(self, node):
-        if node.hasattr('secnumber'):
+        if node.get('secnumber'):
             self.body.append('.'.join(map(str, node['secnumber'])) +
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
             anchorname = '#' + node.parent['ids'][0]
             if anchorname not in self.builder.secnumbers:
                 anchorname = ''  # try first heading which has no anchor
-            if anchorname in self.builder.secnumbers:
+            if self.builder.secnumbers.get(anchorname):
                 numbers = self.builder.secnumbers[anchorname]
                 self.body.append('.'.join(map(str, numbers)) +
                                  self.secnumber_suffix)
@@ -232,8 +237,10 @@ class HTMLTranslator(BaseTranslator):
             lang = node['language']
         if node.has_key('linenos'):
             linenos = node['linenos']
-        highlighted = self.highlighter.highlight_block(node.rawsource,
-                                                       lang, linenos)
+        def warner(msg):
+            self.builder.warn(msg, (self.builder.current_docname, node.line))
+        highlighted = self.highlighter.highlight_block(
+            node.rawsource, lang, linenos, warn=warner)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
@@ -242,11 +249,14 @@ class HTMLTranslator(BaseTranslator):
     def visit_doctest_block(self, node):
         self.visit_literal_block(node)
 
+    # overwritten to add the <div> (for XHTML compliance)
+    def visit_block_quote(self, node):
+        self.body.append(self.starttag(node, 'blockquote') + '<div>')
+    def depart_block_quote(self, node):
+        self.body.append('</div></blockquote>\n')
+
     # overwritten
     def visit_literal(self, node):
-        if len(node.children) == 1 and \
-               node.children[0] in ('None', 'True', 'False'):
-            node['classes'].append('xref')
         self.body.append(self.starttag(node, 'tt', '',
                                        CLASS='docutils literal'))
         self.protect_literal_text += 1
@@ -479,23 +489,56 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
+    def visit_termsep(self, node):
+        self.body.append('<br />')
+        raise nodes.SkipNode
+
     def depart_title(self, node):
         close_tag = self.context[-1]
-        if (self.add_permalinks and self.builder.add_permalinks and
+        if (self.permalink_text and self.builder.add_permalinks and
             node.parent.hasattr('ids') and node.parent['ids']):
             aname = node.parent['ids'][0]
             # add permalink anchor
             if close_tag.startswith('</h'):
                 self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
-                                 u'title="%s">\u00B6</a>' %
-                                 _('Permalink to this headline'))
+                                 u'title="%s">%s</a>' % (
+                                 _('Permalink to this headline'),
+                                 self.permalink_text))
             elif close_tag.startswith('</a></h'):
                 self.body.append(u'</a><a class="headerlink" href="#%s" ' %
                                  aname +
-                                 u'title="%s">\u00B6' %
-                                 _('Permalink to this headline'))
+                                 u'title="%s">%s' % (
+                                 _('Permalink to this headline'),
+                                 self.permalink_text))
 
         BaseTranslator.depart_title(self, node)
+
+    # overwritten to add even/odd classes
+
+    def visit_table(self, node):
+        self._table_row_index = 0
+        return BaseTranslator.visit_table(self, node)
+
+    def visit_row(self, node):
+        self._table_row_index += 1
+        if self._table_row_index % 2 == 0:
+            node['classes'].append('row-even')
+        else:
+            node['classes'].append('row-odd')
+        self.body.append(self.starttag(node, 'tr', ''))
+        node.column = 0
+
+    def visit_field_list(self, node):
+        self._fieldlist_row_index = 0
+        return BaseTranslator.visit_field_list(self, node)
+
+    def visit_field(self, node):
+        self._fieldlist_row_index += 1
+        if self._fieldlist_row_index % 2 == 0:
+            node['classes'].append('field-even')
+        else:
+            node['classes'].append('field-odd')
+        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

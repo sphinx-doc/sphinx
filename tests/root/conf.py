@@ -22,7 +22,7 @@ copyright = '2010, Georg Brandl & Team'
 version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
-#unused_docs = []
+# unused_docs = []
 exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
@@ -48,6 +48,11 @@ latex_documents = [
 ]
 
 latex_additional_files = ['svgimg.svg']
+
+texinfo_documents = [
+  ('contents', 'SphinxTests', 'Sphinx Tests',
+   'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
+]
 
 value_from_conf_py = 84
 
@@ -91,3 +96,4 @@ def setup(app):
     app.add_directive('clsdir', ClassDirective)
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')
+    app.add_javascript('file://moo.js')

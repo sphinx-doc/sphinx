@@ -5,12 +5,13 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import sys, os, time
+import sys, os, time, re
 from os import path
+from codecs import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -20,10 +21,23 @@ from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
 
+# function to get input from terminal -- overridden by the test suite
+try:
+    # this raw_input is not converted by 2to3
+    term_input = raw_input
+except NameError:
+    term_input = input
+
 
 PROMPT_PREFIX = '> '
 
-QUICKSTART_CONF = '''\
+if sys.version_info >= (3, 0):
+    # prevents that the file is checked for being written in Python 2.x syntax
+    QUICKSTART_CONF = '#!/usr/bin/env python3\n'
+else:
+    QUICKSTART_CONF = ''
+
+QUICKSTART_CONF += '''\
 # -*- coding: utf-8 -*-
 #
 # %(project)s documentation build configuration file, created by
@@ -240,6 +254,22 @@ man_pages = [
     ('%(master_str)s', '%(project_manpage)s', u'%(project_doc)s',
      [u'%(author_str)s'], 1)
 ]
+
+# If true, show URL addresses after external links.
+#man_show_urls = False
+
+# -- Options for Texinfo output ------------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+  ('%(master_str)s', '%(project_fn)s', u'%(project_doc)s', u'%(author_str)s',
+   '%(project_fn)s', 'One line description of project.', 'Miscellaneous'),
+]
+
+# Documents to append as an appendix to all manuals.
+texinfo_appendices = []
 '''
 
 EPUB_CONFIG = '''
@@ -337,9 +367,11 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) \
 $(SPHINXOPTS) %(rsrcdir)s
+# the i18n builder cannot share the environment and doctrees with the others
+I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
-epub latex latexpdf text man changes linkcheck doctest
+epub latex latexpdf text man changes linkcheck doctest gettext
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
@@ -356,6 +388,9 @@ help:
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
+\t@echo "  texinfo    to make Texinfo files"
+\t@echo "  info       to make Texinfo files and run them through makeinfo"
+\t@echo "  gettext    to make PO message catalogs"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
@@ -442,6 +477,24 @@ man:
 \t@echo
 \t@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
 
+texinfo:
+\t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
+\t@echo
+\t@echo "Build finished. The Texinfo files are in $(BUILDDIR)/texinfo."
+\t@echo "Run \\`make' in that directory to run these through makeinfo" \\
+\t      "(use \\`make info' here to do that automatically)."
+
+info:
+\t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
+\t@echo "Running Texinfo files through makeinfo..."
+\tmake -C $(BUILDDIR)/texinfo info
+\t@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
+
+gettext:
+\t$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
+\t@echo
+\t@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
+
 changes:
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 \t@echo
@@ -469,8 +522,10 @@ if "%%SPHINXBUILD%%" == "" (
 )
 set BUILDDIR=%(rbuilddir)s
 set ALLSPHINXOPTS=-d %%BUILDDIR%%/doctrees %%SPHINXOPTS%% %(rsrcdir)s
+set I18NSPHINXOPTS=%%SPHINXOPTS%% %(rsrcdir)s
 if NOT "%%PAPER%%" == "" (
 \tset ALLSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%ALLSPHINXOPTS%%
+\tset I18NSPHINXOPTS=-D latex_paper_size=%%PAPER%% %%I18NSPHINXOPTS%%
 )
 
 if "%%1" == "" goto help
@@ -490,6 +545,8 @@ if "%%1" == "help" (
 \techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  text       to make text files
 \techo.  man        to make manual pages
+\techo.  texinfo    to make Texinfo files
+\techo.  gettext    to make PO message catalogs
 \techo.  changes    to make an overview over all changed/added/deprecated items
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
@@ -504,6 +561,7 @@ if "%%1" == "clean" (
 
 if "%%1" == "html" (
 \t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %%BUILDDIR%%/html
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/html.
 \tgoto end
@@ -511,6 +569,7 @@ if "%%1" == "html" (
 
 if "%%1" == "dirhtml" (
 \t%%SPHINXBUILD%% -b dirhtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/dirhtml
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/dirhtml.
 \tgoto end
@@ -518,6 +577,7 @@ if "%%1" == "dirhtml" (
 
 if "%%1" == "singlehtml" (
 \t%%SPHINXBUILD%% -b singlehtml %%ALLSPHINXOPTS%% %%BUILDDIR%%/singlehtml
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The HTML pages are in %%BUILDDIR%%/singlehtml.
 \tgoto end
@@ -525,6 +585,7 @@ if "%%1" == "singlehtml" (
 
 if "%%1" == "pickle" (
 \t%%SPHINXBUILD%% -b pickle %%ALLSPHINXOPTS%% %%BUILDDIR%%/pickle
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can process the pickle files.
 \tgoto end
@@ -532,6 +593,7 @@ if "%%1" == "pickle" (
 
 if "%%1" == "json" (
 \t%%SPHINXBUILD%% -b json %%ALLSPHINXOPTS%% %%BUILDDIR%%/json
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can process the JSON files.
 \tgoto end
@@ -539,6 +601,7 @@ if "%%1" == "json" (
 
 if "%%1" == "htmlhelp" (
 \t%%SPHINXBUILD%% -b htmlhelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/htmlhelp
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can run HTML Help Workshop with the ^
 .hhp project file in %%BUILDDIR%%/htmlhelp.
@@ -547,6 +610,7 @@ if "%%1" == "htmlhelp" (
 
 if "%%1" == "qthelp" (
 \t%%SPHINXBUILD%% -b qthelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/qthelp
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %%BUILDDIR%%/qthelp, like this:
@@ -558,6 +622,7 @@ if "%%1" == "qthelp" (
 
 if "%%1" == "devhelp" (
 \t%%SPHINXBUILD%% -b devhelp %%ALLSPHINXOPTS%% %%BUILDDIR%%/devhelp
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished.
 \tgoto end
@@ -565,6 +630,7 @@ if "%%1" == "devhelp" (
 
 if "%%1" == "epub" (
 \t%%SPHINXBUILD%% -b epub %%ALLSPHINXOPTS%% %%BUILDDIR%%/epub
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The epub file is in %%BUILDDIR%%/epub.
 \tgoto end
@@ -572,6 +638,7 @@ if "%%1" == "epub" (
 
 if "%%1" == "latex" (
 \t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; the LaTeX files are in %%BUILDDIR%%/latex.
 \tgoto end
@@ -579,6 +646,7 @@ if "%%1" == "latex" (
 
 if "%%1" == "text" (
 \t%%SPHINXBUILD%% -b text %%ALLSPHINXOPTS%% %%BUILDDIR%%/text
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The text files are in %%BUILDDIR%%/text.
 \tgoto end
@@ -586,13 +654,31 @@ if "%%1" == "text" (
 
 if "%%1" == "man" (
 \t%%SPHINXBUILD%% -b man %%ALLSPHINXOPTS%% %%BUILDDIR%%/man
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The manual pages are in %%BUILDDIR%%/man.
 \tgoto end
 )
 
+if "%%1" == "texinfo" (
+\t%%SPHINXBUILD%% -b texinfo %%ALLSPHINXOPTS%% %%BUILDDIR%%/texinfo
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The Texinfo files are in %%BUILDDIR%%/texinfo.
+\tgoto end
+)
+
+if "%%1" == "gettext" (
+\t%%SPHINXBUILD%% -b gettext %%I18NSPHINXOPTS%% %%BUILDDIR%%/locale
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The message catalogs are in %%BUILDDIR%%/locale.
+\tgoto end
+)
+
 if "%%1" == "changes" (
 \t%%SPHINXBUILD%% -b changes %%ALLSPHINXOPTS%% %%BUILDDIR%%/changes
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.The overview file is in %%BUILDDIR%%/changes.
 \tgoto end
@@ -600,6 +686,7 @@ if "%%1" == "changes" (
 
 if "%%1" == "linkcheck" (
 \t%%SPHINXBUILD%% -b linkcheck %%ALLSPHINXOPTS%% %%BUILDDIR%%/linkcheck
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Link check complete; look for any errors in the above output ^
 or in %%BUILDDIR%%/linkcheck/output.txt.
@@ -608,6 +695,7 @@ or in %%BUILDDIR%%/linkcheck/output.txt.
 
 if "%%1" == "doctest" (
 \t%%SPHINXBUILD%% -b doctest %%ALLSPHINXOPTS%% %%BUILDDIR%%/doctest
+\tif errorlevel 1 exit /b 1
 \techo.
 \techo.Testing of doctests in the sources finished, look at the ^
 results in %%BUILDDIR%%/doctest/output.txt.
@@ -665,20 +753,22 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
         else:
             prompt = purple(PROMPT_PREFIX + text + ': ')
-        x = raw_input(prompt)
+        x = term_input(prompt)
         if default and not x:
             x = default
-        if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
-            if TERM_ENCODING:
-                x = x.decode(TERM_ENCODING)
-            else:
-                print turquoise('* Note: non-ASCII characters entered '
-                                'and terminal encoding unknown -- assuming '
-                                'UTF-8 or Latin-1.')
-                try:
-                    x = x.decode('utf-8')
-                except UnicodeDecodeError:
-                    x = x.decode('latin1')
+        if not isinstance(x, unicode):
+            # for Python 2.x, try to get a Unicode string out of it
+            if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
+                if TERM_ENCODING:
+                    x = x.decode(TERM_ENCODING)
+                else:
+                    print turquoise('* Note: non-ASCII characters entered '
+                                    'and terminal encoding unknown -- assuming '
+                                    'UTF-8 or Latin-1.')
+                    try:
+                        x = x.decode('utf-8')
+                    except UnicodeDecodeError:
+                        x = x.decode('latin1')
         try:
             x = validator(x)
         except ValidationError, err:
@@ -688,6 +778,18 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
     d[key] = x
 
 
+if sys.version_info >= (3, 0):
+    # remove Unicode literal prefixes
+    _unicode_string_re = re.compile(r"[uU]('.*?')")
+    def _convert_python_source(source):
+        return _unicode_string_re.sub('\\1', source)
+
+    for f in ['QUICKSTART_CONF', 'EPUB_CONFIG', 'INTERSPHINX_CONFIG']:
+        globals()[f] = _convert_python_source(globals()[f])
+
+    del _unicode_string_re, _convert_python_source
+
+
 def inner_main(args):
     d = {}
     texescape.init()
@@ -695,14 +797,24 @@ def inner_main(args):
     if not color_terminal():
         nocolor()
 
+    if len(args) > 3:
+        print 'Usage: sphinx-quickstart [root]'
+        sys.exit(1)
+    elif len(args) == 2:
+        d['path'] = args[1]
+
     print bold('Welcome to the Sphinx %s quickstart utility.') % __version__
     print '''
 Please enter values for the following settings (just press Enter to
 accept a default value, if one is given in brackets).'''
 
-    print '''
+    if 'path' in d:
+        print bold('''
+Selected root path: %s''' % d['path'])
+    else:
+        print '''
 Enter the root path for documentation.'''
-    do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
+        do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
           path.isfile(path.join(d['path'], 'source', 'conf.py')):
@@ -843,28 +955,28 @@ directly.'''
     if d['ext_intersphinx']:
         conf_text += INTERSPHINX_CONFIG
 
-    f = open(path.join(srcdir, 'conf.py'), 'w')
-    f.write(conf_text.encode('utf-8'))
+    f = open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
+    f.write(conf_text)
     f.close()
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    f = open(masterfile, 'w')
-    f.write((MASTER_FILE % d).encode('utf-8'))
+    f = open(masterfile, 'w', encoding='utf-8')
+    f.write(MASTER_FILE % d)
     f.close()
 
     if d['makefile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        f = open(path.join(d['path'], 'Makefile'), 'wb')
-        f.write((MAKEFILE % d).encode('utf-8'))
+        f = open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
+        f.write(MAKEFILE % d)
         f.close()
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        f = open(path.join(d['path'], 'make.bat'), 'w')
-        f.write((BATCHFILE % d).encode('utf-8'))
+        f = open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
+        f.write(BATCHFILE % d)
         f.close()
 
     print
@@ -889,4 +1001,3 @@ def main(argv=sys.argv):
         print
         print '[Interrupted.]'
         return
-

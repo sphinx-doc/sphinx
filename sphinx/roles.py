@@ -5,7 +5,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,7 +18,7 @@ from docutils.parsers.rst import roles
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import ws_re
-from sphinx.util.nodes import split_explicit_title
+from sphinx.util.nodes import split_explicit_title, process_index_entry
 
 
 generic_docroles = {
@@ -69,9 +69,10 @@ class XRefRole(object):
     innernodeclass = nodes.literal
 
     def __init__(self, fix_parens=False, lowercase=False,
-                 nodeclass=None, innernodeclass=None):
+                 nodeclass=None, innernodeclass=None, warn_dangling=False):
         self.fix_parens = fix_parens
         self.lowercase = lowercase
+        self.warn_dangling = warn_dangling
         if nodeclass is not None:
             self.nodeclass = nodeclass
         if innernodeclass is not None:
@@ -105,9 +106,9 @@ class XRefRole(object):
             classes = ['xref', domain, '%s-%s' % (domain, role)]
         # if the first character is a bang, don't cross-reference at all
         if text[0:1] == '!':
-            text = utils.unescape(text)
+            text = utils.unescape(text)[1:]
             if self.fix_parens:
-                text, tgt = self._fix_parens(env, False, text[1:], "")
+                text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
             return self.result_nodes(inliner.document, env, innernode,
                                      is_ref=False)
@@ -133,22 +134,22 @@ class XRefRole(object):
         refnode += self.innernodeclass(rawtext, title, classes=classes)
         # we also need the source document
         refnode['refdoc'] = env.docname
+        refnode['refwarn'] = self.warn_dangling
         # result_nodes allow further modification of return values
         return self.result_nodes(inliner.document, env, refnode, is_ref=True)
 
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        """
-        Called after parsing title and target text, and creating the reference
-        node (given in *refnode*).  This method can alter the reference node and
-        must return a new (or the same) ``(title, target)`` tuple.
+        """Called after parsing title and target text, and creating the
+        reference node (given in *refnode*).  This method can alter the
+        reference node and must return a new (or the same) ``(title, target)``
+        tuple.
         """
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        """
-        Called before returning the finished nodes.  *node* is the reference
+        """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
         tuple (the usual return value of a role function).
@@ -171,8 +172,12 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
     inliner.document.note_explicit_target(targetnode)
     if typ == 'pep':
         indexnode['entries'] = [
-            ('single', _('Python Enhancement Proposals!PEP %s') % text,
-             targetid, 'PEP %s' % text)]
+            ('single', _('Python Enhancement Proposals; PEP %s') % text,
+             targetid, '')]
+        anchor = ''
+        anchorindex = text.find('#')
+        if anchorindex > 0:
+            text, anchor = text[:anchorindex], text[anchorindex:]
         try:
             pepnum = int(text)
         except ValueError:
@@ -182,12 +187,16 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
         sn = nodes.strong('PEP '+text, 'PEP '+text)
-        rn = nodes.reference('', '', internal=False, refuri=ref, classes=[typ])
+        rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
+                             classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        indexnode['entries'] = [('single', 'RFC; RFC %s' % text,
-                                 targetid, 'RFC %s' % text)]
+        indexnode['entries'] = [('single', 'RFC; RFC %s' % text, targetid, '')]
+        anchor = ''
+        anchorindex = text.find('#')
+        if anchorindex > 0:
+            text, anchor = text[:anchorindex], text[anchorindex:]
         try:
             rfcnum = int(text)
         except ValueError:
@@ -197,7 +206,8 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
         sn = nodes.strong('RFC '+text, 'RFC '+text)
-        rn = nodes.reference('', '', internal=False, refuri=ref, classes=[typ])
+        rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
+                             classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
 
@@ -259,11 +269,38 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [addnodes.abbreviation(abbr, abbr, explanation=expl)], []
 
 
+def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    # create new reference target
+    env = inliner.document.settings.env
+    targetid = 'index-%s' % env.new_serialno('index')
+    targetnode = nodes.target('', '', ids=[targetid])
+    # split text and target in role content
+    has_explicit_title, title, target = split_explicit_title(text)
+    title = utils.unescape(title)
+    target = utils.unescape(target)
+    # if an explicit target is given, we can process it as a full entry
+    if has_explicit_title:
+        entries = process_index_entry(target, targetid)
+    # otherwise we just create a "single" entry
+    else:
+        # but allow giving main entry
+        main = ''
+        if target.startswith('!'):
+            target = target[1:]
+            title = title[1:]
+            main = 'main'
+        entries = [('single', target, targetid, main)]
+    indexnode = addnodes.index()
+    indexnode['entries'] = entries
+    textnode = nodes.Text(title, title)
+    return [indexnode, targetnode, textnode], []
+
+
 specific_docroles = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to documents
-    'doc': XRefRole(),
+    'doc': XRefRole(warn_dangling=True),
 
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,
@@ -272,6 +309,7 @@ specific_docroles = {
     'file': emph_literal_role,
     'samp': emph_literal_role,
     'abbr': abbr_role,
+    'index': index_role,
 }
 
 for rolename, func in specific_docroles.iteritems():

@@ -1,9 +1,305 @@
 Release 1.1 (in development)
 ============================
 
+Incompatible changes
+--------------------
 
-Release 1.0.1 (in development)
+* The :rst:dir:`py:module` directive doesn't output its ``platform`` option
+  value anymore.  (It was the only thing that the directive did output, and
+  therefore quite inconsistent.)
+
+Features added
+--------------
+
+* Added Python 3.x support.
+
+* New builders and subsystems:
+
+  - Added a Texinfo builder.
+  - Added i18n support for content, a ``gettext`` builder and related
+    utilities.
+  - Added the ``websupport`` library and builder.
+  - #98: Added a ``sphinx-apidoc`` script that autogenerates a hierarchy
+    of source files containing autodoc directives to document modules
+    and packages.
+  - #273: Add an API for adding full-text search support for languages
+    other than English.  Add support for Japanese.
+
+* Markup:
+
+  - #138: Add an :rst:role:`index` role, to make inline index entries.
+  - #454: Add more index markup capabilities: marking see/seealso entries,
+    and main entries for a given key.
+  - #460: Allow limiting the depth of section numbers for HTML using the
+    :rst:dir:`toctree`\'s ``numbered`` option.
+  - #586: Implemented improved :rst:dir:`glossary` markup which allows
+    multiple terms per definition.
+  - #478: Added :rst:dir:`py:decorator` directive to describe decorators.
+  - C++ domain now supports array definitions.
+  - Section headings in :rst:dir:`only` directives are now correctly
+    handled.
+
+* HTML builder:
+
+  - Added ``pyramid`` theme.
+  - #559: :confval:`html_add_permalinks` is now a string giving the
+    text to display in permalinks.
+  - #259: HTML table rows now have even/odd CSS classes to enable
+    "Zebra styling".
+  - #554: Add theme option ``sidebarwidth`` to the basic theme.
+
+* Other builders:
+
+  - #516: Added new value of the :confval:`latex_show_urls` option to
+    show the URLs in footnotes.
+  - #209: Added :confval:`text_newlines` and :confval:`text_sectionchars`
+    config values.
+  - Added :confval:`man_show_urls` config value.
+  - #472: linkcheck builder: Check links in parallel, use HTTP HEAD
+    requests and allow configuring the timeout.  New config values:
+    :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
+  - #521: Added :confval:`linkcheck_ignore` config value.
+
+* Configuration and extensibility:
+
+  - #537: Added :confval:`nitpick_ignore`.
+  - #306: Added :event:`env-get-outdated` event.
+
+* Autodoc:
+
+  - #564: Add :confval:`autodoc_docstring_signature`.  When enabled (the
+    default), autodoc retrieves the signature from the first line of the
+    docstring, if it is found there.
+  - #176: Provide ``private-members`` option for autodoc directives.
+  - #520: Provide ``special-members`` option for autodoc directives.
+  - #431: Doc comments for attributes can now be given on the same line
+    as the assignment.
+  - #437: autodoc now shows values of class data attributes.
+  - autodoc now supports documenting the signatures of
+    ``functools.partial`` objects.
+
+* Other extensions:
+
+  - Added the :mod:`sphinx.ext.mathjax` extension.
+  - #443: Allow referencing external graphviz files.
+  - Added ``inline`` option to graphviz directives, and fixed the
+    default (block-style) in LaTeX output.
+  - #590: Added ``caption`` option to graphviz directives.
+  - #553: Added :rst:dir:`testcleanup` blocks in the doctest extension.
+  - #594: :confval:`trim_doctest_flags` now also removes ``<BLANKLINE>``
+    indicators.
+  - #367: Added automatic exclusion of hidden members in inheritance
+    diagrams, and an option to selectively enable it.
+  - Added :confval:`pngmath_add_tooltips`.
+
+* New locales:
+
+  - #221: Added Swedish locale.
+  - #526: Added Iranian locale.
+
+
+Release 1.0.8 (in development)
 ==============================
+
+
+Release 1.0.7 (Jan 15, 2011)
+============================
+
+* #347: Fix wrong generation of directives of static methods in
+  autosummary.
+
+* #599: Import PIL as ``from PIL import Image``.
+
+* #558: Fix longtables with captions in LaTeX output.
+
+* Make token references work as hyperlinks again in LaTeX output.
+
+* #572: Show warnings by default when reference labels cannot be
+  found.
+
+* #536: Include line number when complaining about missing reference
+  targets in nitpicky mode.
+
+* #590: Fix inline display of graphviz diagrams in LaTeX output.
+
+* #589: Build using app.build() in setup command.
+
+* Fix a bug in the inheritance diagram exception that caused base
+  classes to be skipped if one of them is a builtin.
+
+* Fix general index links for C++ domain objects.
+
+* #332: Make admonition boundaries in LaTeX output visible.
+
+* #573: Fix KeyErrors occurring on rebuild after removing a file.
+
+* Fix a traceback when removing files with globbed toctrees.
+
+* If an autodoc object cannot be imported, always re-read the
+  document containing the directive on next build.
+
+* If an autodoc object cannot be imported, show the full traceback
+  of the import error.
+
+* Fix a bug where the removal of download files and images wasn't
+  noticed.
+
+* #571: Implement ``~`` cross-reference prefix for the C domain.
+
+* Fix regression of LaTeX output with the fix of #556.
+
+* #568: Fix lookup of class attribute documentation on descriptors
+  so that comment documentation now works.
+
+* Fix traceback with ``only`` directives preceded by targets.
+
+* Fix tracebacks occurring for duplicate C++ domain objects.
+
+* Fix JavaScript domain links to objects with ``$`` in their name.
+
+
+Release 1.0.6 (Jan 04, 2011)
+============================
+
+* #581: Fix traceback in Python domain for empty cross-reference
+  targets.
+
+* #283: Fix literal block display issues on Chrome browsers.
+
+* #383, #148: Support sorting a limited range of accented characters
+  in the general index and the glossary.
+
+* #570: Try decoding ``-D`` and ``-A`` command-line arguments with
+  the locale's preferred encoding.
+
+* #528: Observe :confval:`locale_dirs` when looking for the JS
+  translations file.
+
+* #574: Add special code for better support of Japanese documents
+  in the LaTeX builder.
+
+* Regression of #77: If there is only one parameter given with
+  ``:param:`` markup, the bullet list is now suppressed again.
+
+* #556: Fix missing paragraph breaks in LaTeX output in certain
+  situations.
+
+* #567: Emit the ``autodoc-process-docstring`` event even for objects
+  without a docstring so that it can add content.
+
+* #565: In the LaTeX builder, not only literal blocks require different
+  table handling, but also quite a few other list-like block elements.
+
+* #515: Fix tracebacks in the viewcode extension for Python objects
+  that do not have a valid signature.
+
+* Fix strange reportings of line numbers for warnings generated from
+  autodoc-included docstrings, due to different behavior depending
+  on docutils version.
+
+* Several fixes to the C++ domain.
+
+
+Release 1.0.5 (Nov 12, 2010)
+============================
+
+* #557: Add CSS styles required by docutils 0.7 for aligned images
+  and figures.
+
+* In the Makefile generated by LaTeX output, do not delete pdf files
+  on clean; they might be required images.
+
+* #535: Fix LaTeX output generated for line blocks.
+
+* #544: Allow ``.pyw`` as a source file extension.
+
+
+Release 1.0.4 (Sep 17, 2010)
+============================
+
+* #524: Open intersphinx inventories in binary mode on Windows,
+  since version 2 contains zlib-compressed data.
+
+* #513: Allow giving non-local URIs for JavaScript files, e.g.
+  in the JSMath extension.
+
+* #512: Fix traceback when ``intersphinx_mapping`` is empty.
+
+
+Release 1.0.3 (Aug 23, 2010)
+============================
+
+* #495: Fix internal vs. external link distinction for links coming
+  from a docutils table-of-contents.
+
+* #494: Fix the ``maxdepth`` option for the ``toctree()`` template
+  callable when used with ``collapse=True``.
+
+* #507: Fix crash parsing Python argument lists containing brackets
+  in string literals.
+
+* #501: Fix regression when building LaTeX docs with figures that
+  don't have captions.
+
+* #510: Fix inheritance diagrams for classes that are not picklable.
+
+* #497: Introduce separate background color for the sidebar collapse
+  button, making it easier to see.
+
+* #502, #503, #496: Fix small layout bugs in several builtin themes.
+
+
+Release 1.0.2 (Aug 14, 2010)
+============================
+
+* #490: Fix cross-references to objects of types added by the
+  :func:`~.Sphinx.add_object_type` API function.
+
+* Fix handling of doc field types for different directive types.
+
+* Allow breaking long signatures, continuing with backlash-escaped
+  newlines.
+
+* Fix unwanted styling of C domain references (because of a namespace
+  clash with Pygments styles).
+
+* Allow references to PEPs and RFCs with explicit anchors.
+
+* #471: Fix LaTeX references to figures.
+
+* #482: When doing a non-exact search, match only the given type
+  of object.
+
+* #481: Apply non-exact search for Python reference targets with
+  ``.name`` for modules too.
+
+* #484: Fix crash when duplicating a parameter in an info field list.
+
+* #487: Fix setting the default role to one provided by the
+  ``oldcmarkup`` extension.
+
+* #488: Fix crash when json-py is installed, which provides a
+  ``json`` module but is incompatible to simplejson.
+
+* #480: Fix handling of target naming in intersphinx.
+
+* #486: Fix removal of ``!`` for all cross-reference roles.
+
+
+Release 1.0.1 (Jul 27, 2010)
+============================
+
+* #470: Fix generated target names for reST domain objects; they
+  are not in the same namespace.
+
+* #266: Add Bengali language.
+
+* #473: Fix a bug in parsing JavaScript object names.
+
+* #474: Fix building with SingleHTMLBuilder when there is no toctree.
+
+* Fix display names for objects linked to by intersphinx with
+  explicit targets.
 
 * Fix building with the JSON builder.
 
@@ -170,15 +466,12 @@ Features added
   - Added Danish translation, thanks to Hjorth Larsen.
   - Added Lithuanian translation, thanks to Dalius Dobravolskas.
 
+* Bugs fixed:
 
-Release 0.6.8 (in development)
-==============================
-
-* #445: Fix links to result pages when using the search function
-  of HTML built with the ``dirhtml`` builder.
-
-* #444: In templates, properly re-escape values treated with the
-  "striptags" Jinja filter.
+  - #445: Fix links to result pages when using the search function
+    of HTML built with the ``dirhtml`` builder.
+  - #444: In templates, properly re-escape values treated with the
+    "striptags" Jinja filter.
 
 
 Release 0.6.7 (Jun 05, 2010)

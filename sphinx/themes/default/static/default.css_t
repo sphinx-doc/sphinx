@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- default theme.
  *
- * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -32,7 +32,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 230px;
+    margin: 0 0 0 {{ theme_sidebarwidth|toint }}px;
 }
 
 div.body {
@@ -43,7 +43,7 @@ div.body {
 
 {%- if theme_rightsidebar|tobool %}
 div.bodywrapper {
-    margin: 0 230px 0 0;
+    margin: 0 {{ theme_sidebarwidth|toint }}px 0 0;
 }
 {%- endif %}
 
@@ -147,6 +147,12 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
+{% if theme_collapsiblesidebar|tobool %}
+/* for collapsible sidebar */
+div#sidebarbutton {
+    background-color: {{ theme_sidebarbtncolor }};
+}
+{% endif %}
 
 /* -- hyperlink styles ------------------------------------------------------ */
 
@@ -173,6 +179,11 @@ a.external {
 a.external:hover {
    text-decoration: none;
    border-bottom: none;
+}
+
+a.external:visited {
+    text-decoration: none;
+    border-bottom: 1px dashed {{ theme_visitedlinkcolor }};
 }
 {% endif %}
 

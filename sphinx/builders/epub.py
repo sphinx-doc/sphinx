@@ -6,14 +6,15 @@
     Build epub files.
     Originally derived from qthelp.py.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
-import codecs
+import sys
 import time
+import codecs
 import zipfile
 from os import path
 
@@ -147,7 +148,8 @@ _refuri_re = re.compile("([^#:]*#)(.*)")
 # The epub publisher
 
 class EpubBuilder(StandaloneHTMLBuilder):
-    """Builder that outputs epub files.
+    """
+    Builder that outputs epub files.
 
     It creates the metainfo files container.opf, toc.ncx, mimetype, and
     META-INF/container.xml.  Afterwards, all necessary files are zipped to an
@@ -186,7 +188,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         name = name.replace('<', '&lt;')
         name = name.replace('>', '&gt;')
         name = name.replace('"', '&quot;')
-        name = name.replace('\'', '&apos;')
+        name = name.replace('\'', '&#39;')
         return name
 
     def get_refnodes(self, doctree, result):
@@ -244,12 +246,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
             })
 
     def fix_fragment(self, prefix, fragment):
-        """Return a href/id attribute with colons replaced by hyphens.
-        """
+        """Return a href/id attribute with colons replaced by hyphens."""
         return prefix + fragment.replace(':', '-')
 
     def fix_ids(self, tree):
         """Replace colons with hyphens in href and id attributes.
+
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
@@ -268,8 +270,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree):
-        """Append visible link targets after external links.
-        """
+        """Append visible link targets after external links."""
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
@@ -283,6 +284,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def write_doc(self, docname, doctree):
         """Write one document file.
+
         This method is overwritten in order to fix fragment identifiers
         and to add visible external links.
         """
@@ -291,22 +293,22 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def fix_genindex(self, tree):
-        """Fix href attributes for genindex pages.
-        """
+        """Fix href attributes for genindex pages."""
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
         for key, columns in tree:
             for entryname, (links, subitems) in columns:
-                for (i, link) in enumerate(links):
+                for (i, (ismain, link)) in enumerate(links):
                     m = _refuri_re.match(link)
                     if m:
-                        links[i] = self.fix_fragment(m.group(1), m.group(2))
+                        links[i] = (ismain,
+                                    self.fix_fragment(m.group(1), m.group(2)))
                 for subentryname, subentrylinks in subitems:
-                    for (i, link) in enumerate(subentrylinks):
+                    for (i, (ismain, link)) in enumerate(subentrylinks):
                         m = _refuri_re.match(link)
                         if m:
-                            subentrylinks[i] = \
-                                self.fix_fragment(m.group(1), m.group(2))
+                            subentrylinks[i] = (ismain,
+                                self.fix_fragment(m.group(1), m.group(2)))
 
     def copy_image_files_pil(self):
         """Copy images using the PIL.
@@ -362,8 +364,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         """Create a rendered page.
-        This method is overwritten for genindex pages in order to fix
-        href link attributes.
+
+        This method is overwritten for genindex pages in order to fix href link
+        attributes.
         """
         if pagename.startswith('genindex'):
             self.fix_genindex(addctx['genindexentries'])
@@ -465,6 +468,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id(item['refuri']))
             })
+        for info in self.domain_indices:
+            spine.append(_spine_template % {
+                'idref': self.esc(self.make_id(info[0] + self.out_suffix))
+            })
+        if self.config.html_use_index:
+            spine.append(_spine_template % {
+                'idref': self.esc(self.make_id('genindex' + self.out_suffix))
+            })
 
         # add the optional cover
         content_tmpl = _content_template
@@ -513,6 +524,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def insert_subnav(self, node, subnav):
         """Insert nested navpoints for given node.
+
         The node and subnav are already rendered to text.
         """
         nlist = node.rsplit('\n', 1)
@@ -522,8 +534,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_navpoints(self, nodes):
         """Create the toc navigation structure.
 
-        Subelements of a node are nested inside the navpoint.
-        For nested nodes the parent node is reinserted in the subnav.
+        Subelements of a node are nested inside the navpoint.  For nested nodes
+        the parent node is reinserted in the subnav.
         """
         navstack = []
         navlist = []
@@ -563,8 +575,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return '\n'.join(navlist)
 
     def toc_metadata(self, level, navpoints):
-        """Create a dictionary with all metadata for the toc.ncx
-        file properly escaped.
+        """Create a dictionary with all metadata for the toc.ncx file
+        properly escaped.
         """
         metadata = {}
         metadata['uid'] = self.config.epub_uid
@@ -589,8 +601,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_epub(self, outdir, outname):
         """Write the epub file.
 
-        It is a zip file with the mimetype file stored uncompressed
-        as the first entry.
+        It is a zip file with the mimetype file stored uncompressed as the first
+        entry.
         """
         self.info('writing %s file...' % outname)
         projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx'] \
@@ -600,7 +612,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub.write(path.join(outdir, 'mimetype'), 'mimetype', \
             zipfile.ZIP_STORED)
         for file in projectfiles:
-            if isinstance(file, unicode):
-                file = file.encode('utf-8')
-            epub.write(path.join(outdir, file), file, zipfile.ZIP_DEFLATED)
+            fp = path.join(outdir, file)
+            if isinstance(fp, unicode):
+                fp = fp.encode(sys.getfilesystemencoding())
+            epub.write(fp, file, zipfile.ZIP_DEFLATED)
         epub.close()

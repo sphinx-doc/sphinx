@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -73,8 +73,7 @@ class autosummary_toc(nodes.comment):
     pass
 
 def process_autosummary_toc(app, doctree):
-    """
-    Insert items described in autosummary:: to the TOC tree, but do
+    """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
     env = app.builder.env
@@ -134,27 +133,19 @@ except AttributeError:
         return False
     isgetsetdescriptor = ismemberdescriptor
 
-def get_documenter(obj):
+def get_documenter(obj, parent):
+    """Get an autodoc.Documenter class suitable for documenting the given
+    object.
     """
-    Get an autodoc.Documenter class suitable for documenting the given object
-    """
-    import sphinx.ext.autodoc as autodoc
+    from sphinx.ext.autodoc import AutoDirective, DataDocumenter
 
-    if inspect.isclass(obj):
-        if issubclass(obj, Exception):
-            return autodoc.ExceptionDocumenter
-        return autodoc.ClassDocumenter
-    elif inspect.ismodule(obj):
-        return autodoc.ModuleDocumenter
-    elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
-        return autodoc.MethodDocumenter
-    elif (ismemberdescriptor(obj) or isgetsetdescriptor(obj)
-          or inspect.isdatadescriptor(obj)):
-        return autodoc.AttributeDocumenter
-    elif inspect.isroutine(obj):
-        return autodoc.FunctionDocumenter
+    classes = [cls for cls in AutoDirective._registry.values()
+               if cls.can_document_member(obj, '', False, parent)]
+    if classes:
+        classes.sort(key=lambda cls: cls.priority)
+        return classes[-1]
     else:
-        return autodoc.DataDocumenter
+        return DataDocumenter
 
 
 # -- .. autosummary:: ----------------------------------------------------------
@@ -218,8 +209,7 @@ class Autosummary(Directive):
         return self.warnings + nodes
 
     def get_items(self, names):
-        """
-        Try to import the given names, and return a list of
+        """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
         env = self.state.document.settings.env
@@ -240,7 +230,7 @@ class Autosummary(Directive):
                 display_name = name.split('.')[-1]
 
             try:
-                obj, real_name = import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent = import_by_name(name, prefixes=prefixes)
             except ImportError:
                 self.warn('failed to import %s' % name)
                 items.append((name, '', '', name))
@@ -248,7 +238,7 @@ class Autosummary(Directive):
 
             # NB. using real_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = get_documenter(obj)(self, real_name)
+            documenter = get_documenter(obj, parent)(self, real_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
                 items.append((display_name, '', '', real_name))
@@ -287,8 +277,7 @@ class Autosummary(Directive):
         return items
 
     def get_table(self, items):
-        """
-        Generate a proper list of table nodes for autosummary:: directive.
+        """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
         """
@@ -351,8 +340,7 @@ def mangle_signature(sig, max_chars=30):
     return u"(%s)" % sig
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
-    """
-    Join a number of strings to one, limiting the length to *max_chars*.
+    """Join a number of strings to one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
     *overflow_marker*.
@@ -377,8 +365,7 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
 # -- Importing items -----------------------------------------------------------
 
 def import_by_name(name, prefixes=[None]):
-    """
-    Import a Python object that has the given *name*, under one of the
+    """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
     tried = []
@@ -388,7 +375,8 @@ def import_by_name(name, prefixes=[None]):
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            return _import_by_name(prefixed_name), prefixed_name
+            obj, parent = _import_by_name(prefixed_name)
+            return prefixed_name, obj, parent
         except ImportError:
             tried.append(prefixed_name)
     raise ImportError('no module named %s' % ' or '.join(tried))
@@ -403,7 +391,8 @@ def _import_by_name(name):
         if modname:
             try:
                 __import__(modname)
-                return getattr(sys.modules[modname], name_parts[-1])
+                mod = sys.modules[modname]
+                return getattr(mod, name_parts[-1]), mod
             except (ImportError, IndexError, AttributeError):
                 pass
 
@@ -421,12 +410,14 @@ def _import_by_name(name):
                 break
 
         if last_j < len(name_parts):
+            parent = None
             obj = sys.modules[modname]
             for obj_name in name_parts[last_j:]:
+                parent = obj
                 obj = getattr(obj, obj_name)
-            return obj
+            return obj, parent
         else:
-            return sys.modules[modname]
+            return sys.modules[modname], None
     except (ValueError, ImportError, AttributeError, KeyError), e:
         raise ImportError(*e.args)
 
@@ -435,8 +426,7 @@ def _import_by_name(name):
 
 def autolink_role(typ, rawtext, etext, lineno, inliner,
                   options={}, content=[]):
-    """
-    Smart linking role.
+    """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
@@ -449,7 +439,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     prefixes = [None]
     #prefixes.insert(0, inliner.document.settings.env.currmodule)
     try:
-        obj, name = import_by_name(pnode['reftarget'], prefixes)
+        name, obj, parent = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
         content = pnode[0]
         r[0][0] = nodes.emphasis(rawtext, content[0].astext(),
@@ -487,12 +477,14 @@ def setup(app):
                  html=(autosummary_toc_visit_html, autosummary_noop),
                  latex=(autosummary_noop, autosummary_noop),
                  text=(autosummary_noop, autosummary_noop),
-                 man=(autosummary_noop, autosummary_noop))
+                 man=(autosummary_noop, autosummary_noop),
+                 texinfo=(autosummary_noop, autosummary_noop))
     app.add_node(autosummary_table,
                  html=(autosummary_table_visit_html, autosummary_noop),
                  latex=(autosummary_noop, autosummary_noop),
                  text=(autosummary_noop, autosummary_noop),
-                 man=(autosummary_noop, autosummary_noop))
+                 man=(autosummary_noop, autosummary_noop),
+                 texinfo=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)

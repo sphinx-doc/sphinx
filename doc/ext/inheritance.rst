@@ -17,7 +17,7 @@ It adds this directive:
 
    This directive has one or more arguments, each giving a module or class
    name.  Class names can be unqualified; in that case they are taken to exist
-   in the currently described module (see :rst:dir:`module`).
+   in the currently described module (see :rst:dir:`py:module`).
 
    For each given class, and each class in each given module, the base classes
    are determined.  Then, from all classes and their base classes, a graph is
@@ -29,6 +29,13 @@ It adds this directive:
    from the displayed names.  (For example, if all your class names start with
    ``lib.``, you can give ``:parts: 1`` to remove that prefix from the displayed
    node names.)
+
+   It also supports a ``private-bases`` flag option; if given, private base
+   classes (those whose name starts with ``_``) will be included.
+
+   .. versionchanged:: 1.1
+      Added ``private-bases`` option; previously, all bases were always
+      included.
 
 
 New config values are:

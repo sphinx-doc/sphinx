@@ -14,6 +14,7 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
 
 .. todo:: Write this section.
 
+
 Several new configuration values can be used to specify what the builder
 should check:
 
@@ -28,3 +29,16 @@ should check:
 .. confval:: coverage_c_regexes
 
 .. confval:: coverage_ignore_c_items
+
+.. confval:: coverage_write_headline
+
+   Set to ``False`` to not write headlines.
+
+   .. versionadded:: 1.1
+
+.. confval:: coverage_skip_undoc_in_source
+
+   Skip objects that are not documented in the source with a docstring.
+   ``False`` by default.
+
+   .. versionadded:: 1.1

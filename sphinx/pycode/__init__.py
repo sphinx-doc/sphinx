@@ -5,7 +5,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,6 +18,7 @@ from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util import get_module_source
+from sphinx.util.pycompat import next
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -84,10 +85,30 @@ class AttrDocVisitor(nodes.NodeVisitor):
             self.in_init -= 1
 
     def visit_expr_stmt(self, node):
-        """Visit an assignment which may have a special comment before it."""
+        """Visit an assignment which may have a special comment before (or
+        after) it.
+        """
         if _eq not in node.children:
             # not an assignment (we don't care for augmented assignments)
             return
+        # look *after* the node; there may be a comment prefixing the NEWLINE
+        # of the simple_stmt
+        parent = node.parent
+        idx = parent.children.index(node) + 1
+        while idx < len(parent):
+            if parent[idx].type == sym.SEMI:
+                idx += 1
+                continue  # skip over semicolon
+            if parent[idx].type == sym.NEWLINE:
+                prefix = parent[idx].get_prefix()
+                if not isinstance(prefix, unicode):
+                    prefix = prefix.decode(self.encoding)
+                docstring = prepare_commentdoc(prefix)
+                if docstring:
+                    self.add_docstring(node, docstring)
+                    return  # don't allow docstrings both before and after
+            break
+        # now look *before* the node
         pnode = node[0]
         prefix = pnode.get_prefix()
         # if the assignment is the first statement on a new indentation
@@ -98,7 +119,8 @@ class AttrDocVisitor(nodes.NodeVisitor):
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
             prefix = pnode.get_prefix()
-        prefix = prefix.decode(self.encoding)
+        if not isinstance(prefix, unicode):
+            prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
         self.add_docstring(node, docstring)
 
@@ -278,7 +300,7 @@ class ModuleAnalyzer(object):
                     result[fullname] = (dtype, startline, endline)
                 expect_indent = False
             if tok in ('def', 'class'):
-                name = tokeniter.next()[1]
+                name = next(tokeniter)[1]
                 namespace.append(name)
                 fullname = '.'.join(namespace)
                 stack.append((tok, fullname, spos[0], indent))

@@ -3,9 +3,9 @@
     sphinx.search
     ~~~~~~~~~~~~~
 
-    Create a search index for offline search.
+    Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import re
@@ -14,28 +14,90 @@ import cPickle as pickle
 from docutils.nodes import comment, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
-try:
-    # http://bitbucket.org/methane/porterstemmer/
-    from porterstemmer import Stemmer as CStemmer
-    CSTEMMER = True
-except ImportError:
-    from sphinx.util.stemmer import PorterStemmer
-    CSTEMMER = False
 
 
-word_re = re.compile(r'\w+(?u)')
+class SearchLanguage(object):
+    """
+    This class is the base class for search natural language preprocessors.  If
+    you want to add support for a new language, you should override the methods
+    of this class.
 
-stopwords = set("""
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split())
+    You should override `lang` class property too (e.g. 'en', 'fr' and so on).
+
+    .. attribute:: stopwords
+
+       This is a set of stop words of the target language.  Default `stopwords`
+       is empty.  This word is used for building index and embedded in JS.
+
+    .. attribute:: js_stemmer_code
+
+       Return stemmer class of JavaScript version.  This class' name should be
+       ``Stemmer`` and this class must have ``stemWord`` method.  This string is
+       embedded as-is in searchtools.js.
+
+       This class is used to preprocess search word which Sphinx HTML readers
+       type, before searching index. Default implementation does nothing.
+    """
+    lang = None
+    stopwords = set()
+    js_stemmer_code = """
+/**
+ * Dummy stemmer for languages without stemming rules.
+ */
+var Stemmer = function() {
+  this.stemWord = function(w) {
+    return w;
+  }
+}
+"""
+
+    _word_re = re.compile(r'\w+(?u)')
+
+    def __init__(self, options):
+        self.options = options
+        self.init(options)
+
+    def init(self, options):
+        """
+        Initialize the class with the options the user has given.
+        """
+
+    def split(self, input):
+        """
+        This method splits a sentence into words.  Default splitter splits input
+        at white spaces, which should be enough for most languages except CJK
+        languages.
+        """
+        return self._word_re.findall(input)
+
+    def stem(self, word):
+        """
+        This method implements stemming algorithm of the Python version.
+
+        Default implementation does nothing.  You should implement this if the
+        language has any stemming rules.
+
+        This class is used to preprocess search words before registering them in
+        the search index.  The stemming of the Python version and the JS version
+        (given in the js_stemmer_code attribute) must be compatible.
+        """
+        return word
+
+    def word_filter(self, word):
+        """
+        Return true if the target word should be registered in the search index.
+        This method is called after stemming.
+        """
+        return not (((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
+            (ord(word[0]) < 256 and (len(word) < 3 or word in self.stopwords or
+                                     word.isdigit())))
+
+from sphinx.search import en, ja
+
+languages = {
+    'en': en.SearchEnglish,
+    'ja': ja.SearchJapanese,
+}
 
 
 class _JavaScriptIndex(object):
@@ -67,39 +129,21 @@ class _JavaScriptIndex(object):
 js_index = _JavaScriptIndex()
 
 
-if CSTEMMER:
-    class Stemmer(CStemmer):
-
-        def stem(self, word):
-            return self(word.lower())
-
-else:
-    class Stemmer(PorterStemmer):
-        """
-        All those porter stemmer implementations look hideous.
-        make at least the stem method nicer.
-        """
-
-        def stem(self, word):
-            word = word.lower()
-            return PorterStemmer.stem(self, word, 0, len(word) - 1)
-
-
-
 class WordCollector(NodeVisitor):
     """
     A special visitor that collects words for the `IndexBuilder`.
     """
 
-    def __init__(self, document):
+    def __init__(self, document, lang):
         NodeVisitor.__init__(self, document)
         self.found_words = []
+        self.lang = lang
 
     def dispatch_visit(self, node):
         if node.__class__ is comment:
             raise SkipNode
         if node.__class__ is Text:
-            self.found_words.extend(word_re.findall(node.astext()))
+            self.found_words.extend(self.lang.split(node.astext()))
 
 
 class IndexBuilder(object):
@@ -112,9 +156,8 @@ class IndexBuilder(object):
         'pickle':   pickle
     }
 
-    def __init__(self, env):
+    def __init__(self, env, lang, options):
         self.env = env
-        self._stemmer = Stemmer()
         # filename -> title
         self._titles = {}
         # stemmed word -> set(filenames)
@@ -123,6 +166,8 @@ class IndexBuilder(object):
         self._objtypes = {}
         # objtype index -> objname (localized)
         self._objnames = {}
+        # add language-specific SearchLanguage instance
+        self.lang = languages[lang](options)
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -215,17 +260,22 @@ class IndexBuilder(object):
         """Feed a doctree to the index."""
         self._titles[filename] = title
 
-        visitor = WordCollector(doctree)
+        visitor = WordCollector(doctree, self.lang)
         doctree.walk(visitor)
 
-        def add_term(word, stem=self._stemmer.stem):
+        def add_term(word, stem=self.lang.stem):
             word = stem(word)
-            if len(word) < 3 or word in stopwords or word.isdigit():
-                return
-            self._mapping.setdefault(word, set()).add(filename)
+            if self.lang.word_filter(word):
+                self._mapping.setdefault(word, set()).add(filename)
 
-        for word in word_re.findall(title):
+        for word in self.lang.split(title):
             add_term(word)
 
         for word in visitor.found_words:
             add_term(word)
+
+    def context_for_searchtool(self):
+        return dict(
+            search_language_stemming_code = self.lang.js_stemmer_code,
+            search_language_stop_words = jsdump.dumps(self.lang.stopwords),
+        )

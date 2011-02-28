@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,6 +18,8 @@ import tempfile
 import posixpath
 import traceback
 from os import path
+from codecs import open
+from collections import deque
 
 import docutils
 from docutils.utils import relative_path
@@ -48,8 +50,7 @@ def docname_join(basedocname, docname):
 
 
 def get_matching_files(dirname, exclude_matchers=()):
-    """
-    Get all file names in a directory, recursively.
+    """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
@@ -75,9 +76,8 @@ def get_matching_files(dirname, exclude_matchers=()):
 
 
 def get_matching_docs(dirname, suffix, exclude_matchers=()):
-    """
-    Get all file names (without suffix) matching a suffix in a
-    directory, recursively.
+    """Get all file names (without suffix) matching a suffix in a directory,
+    recursively.
 
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
@@ -114,9 +114,9 @@ class FilenameUniqDict(dict):
     def purge_doc(self, docname):
         for filename, (docs, _) in self.items():
             docs.discard(docname)
-            #if not docs:
-            #    del self[filename]
-            #    self._existing.discard(filename)
+            if not docs:
+                del self[filename]
+                self._existing.discard(filename)
 
     def __getstate__(self):
         return self._existing
@@ -140,8 +140,8 @@ def copy_static_entry(source, targetdir, builder, context={},
         target = path.join(targetdir, path.basename(source))
         if source.lower().endswith('_t') and builder.templates:
             # templated!
-            fsrc = open(source, 'rb')
-            fdst = open(target[:-2], 'wb')
+            fsrc = open(source, 'r', encoding='utf-8')
+            fdst = open(target[:-2], 'w', encoding='utf-8')
             fdst.write(builder.templates.render_string(fsrc.read(), context))
             fsrc.close()
             fdst.close()
@@ -162,17 +162,24 @@ def copy_static_entry(source, targetdir, builder, context={},
             shutil.copytree(source, target)
 
 
+_DEBUG_HEADER = '''\
+# Sphinx version: %s
+# Python version: %s
+# Docutils version: %s %s
+# Jinja2 version: %s
+'''
+
 def save_traceback():
-    """
-    Save the current exception's traceback in a temporary file.
-    """
+    """Save the current exception's traceback in a temporary file."""
+    import platform
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    os.write(fd, '# Sphinx version: %s\n' % sphinx.__version__)
-    os.write(fd, '# Docutils version: %s %s\n' % (docutils.__version__,
-                                                  docutils.__version_details__))
-    os.write(fd, '# Jinja2 version: %s\n' % jinja2.__version__)
-    os.write(fd, exc)
+    os.write(fd, (_DEBUG_HEADER %
+                  (sphinx.__version__,
+                   platform.python_version(),
+                   docutils.__version__, docutils.__version_details__,
+                   jinja2.__version__)).encode('utf-8'))
+    os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
 
@@ -202,7 +209,7 @@ def get_module_source(modname):
     lfilename = filename.lower()
     if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
         filename = filename[:-1]
-    elif not lfilename.endswith('.py'):
+    elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
@@ -225,8 +232,7 @@ class Tee(object):
 
 
 def parselinenos(spec, total):
-    """
-    Parse a line number spec (such as "1,2,4-6") and return a list of
+    """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
     items = list()
@@ -279,10 +285,16 @@ def rpartition(s, t):
     return '', s
 
 
+def split_into(n, type, value):
+    """Split an index entry into a given number of parts at semicolons."""
+    parts = map(lambda x: x.strip(), value.split(';', n-1))
+    if sum(1 for part in parts if part) < n:
+        raise ValueError('invalid %s index entry %r' % (type, value))
+    return parts
+
+
 def format_exception_cut_frames(x=1):
-    """
-    Format an exception with traceback, but only the last x frames.
-    """
+    """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     #res = ['Traceback (most recent call last):\n']
     res = []
@@ -290,3 +302,34 @@ def format_exception_cut_frames(x=1):
     res += tbres[-x:]
     res += traceback.format_exception_only(typ, val)
     return ''.join(res)
+
+
+class PeekableIterator(object):
+    """
+    An iterator which wraps any iterable and makes it possible to peek to see
+    what's the next item.
+    """
+    def __init__(self, iterable):
+        self.remaining = deque()
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        """Return the next item from the iterator."""
+        if self.remaining:
+            return self.remaining.popleft()
+        return self._iterator.next()
+
+    def push(self, item):
+        """Push the `item` on the internal stack, it will be returned on the
+        next :meth:`next` call.
+        """
+        self.remaining.append(item)
+
+    def peek(self):
+        """Return the next item without changing the state of the iterator."""
+        item = self.next()
+        self.push(item)
+        return item

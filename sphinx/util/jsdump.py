@@ -6,11 +6,13 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+
+from sphinx.util.pycompat import u
 
 _str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re  = re.compile(r'\d+')
@@ -50,7 +52,7 @@ def encode_string(s):
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 def decode_string(s):
-    return ESCAPED.sub(lambda m: eval('u"'+m.group()+'"'), s)
+    return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
 
 
 reswords = set("""\

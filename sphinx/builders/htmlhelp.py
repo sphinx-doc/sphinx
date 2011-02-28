@@ -6,7 +6,7 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -200,7 +200,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 outdir += os.sep
             olen = len(outdir)
             for root, dirs, files in os.walk(outdir):
-                staticdir = (root == path.join(outdir, '_static'))
+                staticdir = root.startswith(path.join(outdir, '_static'))
                 for fn in files:
                     if (staticdir and not fn.endswith('.js')) or \
                            fn.endswith('.html'):
@@ -258,7 +258,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             def write_index(title, refs, subitems):
                 def write_param(name, value):
                     item = '    <param name="%s" value="%s">\n' % (name, value)
-                    f.write(item.encode('ascii', 'xmlcharrefreplace'))
+                    f.write(item.encode(self.encoding, 'xmlcharrefreplace')
+                            .decode(self.encoding))
                 title = cgi.escape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)

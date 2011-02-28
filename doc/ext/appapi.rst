@@ -76,9 +76,9 @@ the following public API:
 
    Node visitor functions for the Sphinx HTML, LaTeX, text and manpage writers
    can be given as keyword arguments: the keyword must be one or more of
-   ``'html'``, ``'latex'``, ``'text'``, ``'man'``, the value a 2-tuple of
-   ``(visit, depart)`` methods.  ``depart`` can be ``None`` if the ``visit``
-   function raises :exc:`docutils.nodes.SkipNode`.  Example:
+   ``'html'``, ``'latex'``, ``'text'``, ``'man'``, ``'texinfo'``, the value a
+   2-tuple of ``(visit, depart)`` methods.  ``depart`` can be ``None`` if the
+   ``visit`` function raises :exc:`docutils.nodes.SkipNode`.  Example:
 
    .. code-block:: python
 
@@ -163,7 +163,8 @@ the following public API:
 
    .. versionadded:: 0.6
 
-.. method:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='')
+.. method:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, \
+                                   ref_nodeclass=None, objname='', doc_field_types=[])
 
    This method is a very convenient way to add a new :term:`object` type that
    can be cross-referenced.  It will do this:
@@ -210,7 +211,7 @@ the following public API:
    standard Sphinx roles (see :ref:`xref-syntax`).
 
    This method is also available under the deprecated alias
-   :meth:`add_description_unit`.
+   ``add_description_unit``.
 
 .. method:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
 
@@ -246,7 +247,8 @@ the following public API:
 
    Add *filename* to the list of JavaScript files that the default HTML template
    will include.  The filename must be relative to the HTML static path, see
-   :confval:`the docs for the config value <html_static_path>`.
+   :confval:`the docs for the config value <html_static_path>`.  A full URI with
+   scheme, like ``http://example.org/foo.js``, is also supported.
 
    .. versionadded:: 0.5
 
@@ -272,6 +274,8 @@ the following public API:
    This allows to auto-document new types of objects.  See the source of the
    autodoc module for examples on how to subclass :class:`Documenter`.
 
+   .. XXX add real docs for Documenter and subclassing
+
    .. versionadded:: 0.6
 
 .. method:: Sphinx.add_autodoc_attrgetter(type, getter)
@@ -282,6 +286,15 @@ the following public API:
    type are then handled by this function instead of :func:`getattr`.
 
    .. versionadded:: 0.6
+
+.. method:: Sphinx.add_search_language(cls)
+
+   Add *cls*, which must be a subclass of :class:`sphinx.search.SearchLanguage`,
+   as a support language for building the HTML full-text search index.  The
+   class must have a *lang* attribute that indicates the language it should be
+   used for.  See :confval:`html_search_language`.
+
+   .. versionadded:: 1.1
 
 .. method:: Sphinx.connect(event, callback)
 
@@ -339,6 +352,15 @@ registered event handlers.
 
    Emitted when the builder object has been created.  It is available as
    ``app.builder``.
+
+.. event:: env-get-outdated (app, env, added, changed, removed)
+
+   Emitted when the environment determines which source files have changed and
+   should be re-read.  *added*, *changed* and *removed* are sets of docnames
+   that the environment has determined.  You can return a list of docnames to
+   re-read in addition to these.
+
+   .. versionadded:: 1.1
 
 .. event:: env-purge-doc (app, env, docname)
 

@@ -29,6 +29,17 @@ It adds these directives:
    :confval:`graphviz_output_format`).  In LaTeX output, the code will be
    rendered to an embeddable PDF file.
 
+   You can also embed external dot files, by giving the file name as an
+   argument to :rst:dir:`graphviz` and no additional content::
+
+      .. graphviz:: external.dot
+
+   As for all file references in Sphinx, if the filename is absolute, it is
+   taken as relative to the source directory.
+
+   .. versionchanged:: 1.1
+      Added support for external files.
+
 
 .. rst:directive:: graph
 
@@ -61,6 +72,16 @@ It adds these directives:
    alternate text for HTML output.  If not given, the alternate text defaults to
    the graphviz code.
 
+.. versionadded:: 1.1
+   All three directives support an ``inline`` flag that controls paragraph
+   breaks in the output.  When set, the graph is inserted into the current
+   paragraph.  If the flag is not given, paragraph breaks are introduced before
+   and after the image (the default).
+
+.. versionadded:: 1.1
+   All three directives support a ``caption`` option that can be used to give a
+   caption to the diagram.  Naturally, diagrams marked as "inline" cannot have a
+   caption.
 
 There are also these new config values:
 

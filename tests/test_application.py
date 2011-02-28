@@ -5,7 +5,7 @@
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -45,9 +45,11 @@ def test_output():
     app = TestApp(status=status, warning=warnings)
     try:
         status.truncate(0) # __init__ writes to status
+        status.seek(0)
         app.info("Nothing here...")
         assert status.getvalue() == "Nothing here...\n"
         status.truncate(0)
+        status.seek(0)
         app.info("Nothing here...", True)
         assert status.getvalue() == "Nothing here..."
 

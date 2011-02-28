@@ -8,7 +8,7 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -159,7 +159,8 @@ def setup(app):
                  html=(visit_todo_node, depart_todo_node),
                  latex=(visit_todo_node, depart_todo_node),
                  text=(visit_todo_node, depart_todo_node),
-                 man=(visit_todo_node, depart_todo_node))
+                 man=(visit_todo_node, depart_todo_node),
+                 texinfo=(visit_todo_node, depart_todo_node))
 
     app.add_directive('todo', Todo)
     app.add_directive('todolist', TodoList)

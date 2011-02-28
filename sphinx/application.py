@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -37,12 +37,10 @@ from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold
 
 
-# Directive is either new-style or old-style
-clstypes = (type, types.ClassType)
-
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
+    'env-get-outdated': 'env, added, changed, removed',
     'env-purge-doc': 'env, docname',
     'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
@@ -136,9 +134,8 @@ class Sphinx(object):
         self._init_builder(buildername)
 
     def _init_i18n(self):
-        """
-        Load translated strings from the configured localedirs if
-        enabled in the configuration.
+        """Load translated strings from the configured localedirs if enabled in
+        the configuration.
         """
         if self.config.language is not None:
             self.info(bold('loading translations [%s]... ' %
@@ -213,6 +210,12 @@ class Sphinx(object):
         self.builder.cleanup()
 
     def warn(self, message, location=None, prefix='WARNING: '):
+        if isinstance(location, tuple):
+            docname, lineno = location
+            if docname:
+                location = '%s:%s' % (self.env.doc2path(docname), lineno or '')
+            else:
+                location = None
         warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
                    '%s%s\n' % (prefix, message)
         if self.warningiserror:
@@ -362,6 +365,9 @@ class Sphinx(object):
             elif key == 'man':
                 from sphinx.writers.manpage import ManualPageTranslator \
                     as translator
+            elif key == 'texinfo':
+                from sphinx.writers.texinfo import TexinfoTranslator \
+                    as translator
             else:
                 # ignore invalid keys for compatibility
                 continue
@@ -426,13 +432,15 @@ class Sphinx(object):
         setattr(self.domains[domain], 'get_%s_index' % name, func)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
-                        parse_node=None, ref_nodeclass=None, objname=''):
+                        parse_node=None, ref_nodeclass=None, objname='',
+                        doc_field_types=[]):
         StandardDomain.object_types[directivename] = \
             ObjType(objname or directivename, rolename)
         # create a subclass of GenericObject as the new directive
         new_directive = type(directivename, (GenericObject, object),
                              {'indextemplate': indextemplate,
-                              'parse_node': staticmethod(parse_node)})
+                              'parse_node': staticmethod(parse_node),
+                              'doc_field_types': doc_field_types})
         StandardDomain.directives[directivename] = new_directive
         # XXX support more options?
         StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
@@ -456,8 +464,11 @@ class Sphinx(object):
 
     def add_javascript(self, filename):
         from sphinx.builders.html import StandaloneHTMLBuilder
-        StandaloneHTMLBuilder.script_files.append(
-            posixpath.join('_static', filename))
+        if '://' in filename:
+            StandaloneHTMLBuilder.script_files.append(filename)
+        else:
+            StandaloneHTMLBuilder.script_files.append(
+                posixpath.join('_static', filename))
 
     def add_stylesheet(self, filename):
         from sphinx.builders.html import StandaloneHTMLBuilder
@@ -479,6 +490,11 @@ class Sphinx(object):
         from sphinx.ext import autodoc
         autodoc.AutoDirective._special_attrgetters[type] = getter
 
+    def add_search_language(self, cls):
+        from sphinx.search import languages, SearchLanguage
+        assert isinstance(cls, SearchLanguage)
+        languages[cls.lang] = cls
+
 
 class TemplateBridge(object):
     """
@@ -487,8 +503,7 @@ class TemplateBridge(object):
     """
 
     def init(self, builder, theme=None, dirs=None):
-        """
-        Called by the builder to initialize the template system.
+        """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the
         value of ``builder.config.templates_path``.
@@ -499,23 +514,20 @@ class TemplateBridge(object):
         raise NotImplementedError('must be implemented in subclasses')
 
     def newest_template_mtime(self):
-        """
-        Called by the builder to determine if output files are outdated
+        """Called by the builder to determine if output files are outdated
         because of template changes.  Return the mtime of the newest template
         file that was changed.  The default implementation returns ``0``.
         """
         return 0
 
     def render(self, template, context):
-        """
-        Called by the builder to render a template given as a filename with a
-        specified context (a Python dictionary).
+        """Called by the builder to render a template given as a filename with
+        a specified context (a Python dictionary).
         """
         raise NotImplementedError('must be implemented in subclasses')
 
     def render_string(self, template, context):
-        """
-        Called by the builder to render a template given as a string with a
+        """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """
         raise NotImplementedError('must be implemented in subclasses')

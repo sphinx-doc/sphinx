@@ -5,7 +5,7 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -161,6 +161,10 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
+    def visit_termsep(self, node):
+        self.body.append(', ')
+        raise nodes.SkipNode
+
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):
         raise nodes.SkipNode
@@ -235,6 +239,19 @@ class ManualPageTranslator(BaseTranslator):
         self.body.append(self.defs['reference'][0])
         self.body.append(node.astext())
         self.body.append(self.defs['reference'][1])
+
+        uri = node.get('refuri', '')
+        if uri.startswith('mailto:') or uri.startswith('http:') or \
+                 uri.startswith('https:') or uri.startswith('ftp:'):
+            # if configured, put the URL after the link
+            if self.builder.config.man_show_urls and \
+                   node.astext() != uri:
+                if uri.startswith('mailto:'):
+                    uri = uri[7:]
+                self.body.extend([
+                    ' <',
+                    self.defs['strong'][0], uri, self.defs['strong'][1],
+                    '>'])
         raise nodes.SkipNode
 
     def visit_centered(self, node):

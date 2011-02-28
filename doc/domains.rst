@@ -52,9 +52,18 @@ flag ``:noindex:``.  An example using a Python domain directive::
 
    .. py:function:: spam(eggs)
                     ham(eggs)
-      :noindex:
 
       Spam or ham the foo.
+
+This describes the two Python functions ``spam`` and ``ham``.  (Note that when
+signatures become too long, you can break them if you add a backslash to lines
+that are continued in the next line.  Example::
+
+   .. py:function:: filterwarnings(action, message='', category=Warning, \
+                                   module='', lineno=0, append=False)
+      :noindex:
+
+(This example also shows how to use the ``:noindex:`` flag.)
 
 The domains also provide roles that link back to these object descriptions.  For
 example, to link to one of the functions described in the example above, you
@@ -138,11 +147,12 @@ declarations:
 .. rst:directive:: .. py:currentmodule:: name
 
    This directive tells Sphinx that the classes, functions etc. documented from
-   here are in the given module (like :rst:dir:`py:module`), but it will not create
-   index entries, an entry in the Global Module Index, or a link target for
-   :rst:role:`mod`.  This is helpful in situations where documentation for things in
-   a module is spread over multiple files or sections -- one location has the
-   :rst:dir:`py:module` directive, the others only :rst:dir:`py:currentmodule`.
+   here are in the given module (like :rst:dir:`py:module`), but it will not
+   create index entries, an entry in the Global Module Index, or a link target
+   for :rst:role:`py:mod`.  This is helpful in situations where documentation
+   for things in a module is spread over multiple files or sections -- one
+   location has the :rst:dir:`py:module` directive, the others only
+   :rst:dir:`py:currentmodule`.
 
 
 The following directives are provided for module and class contents:
@@ -221,6 +231,45 @@ The following directives are provided for module and class contents:
 
    .. versionadded:: 0.6
 
+.. rst:directive:: .. py:decorator:: name
+                   .. py:decorator:: name(signature)
+
+   Describes a decorator function.  The signature should *not* represent the
+   signature of the actual function, but the usage as a decorator.  For example,
+   given the functions
+
+   .. code-block:: python
+
+      def removename(func):
+          func.__name__ = ''
+          return func
+
+      def setnewname(name):
+          def decorator(func):
+              func.__name__ = name
+              return func
+          return decorator
+
+   the descriptions should look like this::
+
+      .. py:decorator:: removename
+
+         Remove name of the decorated function.
+
+      .. py:decorator:: setnewname(name)
+
+         Set name of the decorated function to *name*.
+
+   There is no ``py:deco`` role to link to a decorator that is marked up with
+   this directive; rather, use the :rst:role:`py:func` role.
+
+.. rst:directive:: .. py:decoratormethod:: name
+                   .. py:decoratormethod:: name(signature)
+
+   Same as :rst:dir:`py:decorator`, but for decorators that are methods.
+
+   Refer to a decorator method using the :rst:role:`py:meth` role.
+
 
 .. _signatures:
 
@@ -278,11 +327,6 @@ explained by an example::
       :type limit: integer or None
       :rtype: list of strings
 
-It is also possible to combine parameter type and description, if the type is a
-single word, like this::
-
-   :param integer limit: maximum number of stack frames to show
-
 This will render like this:
 
    .. py:function:: format_exception(etype, value, tb[, limit=None])
@@ -297,6 +341,13 @@ This will render like this:
       :type limit: integer or None
       :rtype: list of strings
 
+It is also possible to combine parameter type and description, if the type is a
+single word, like this::
+
+   :param integer limit: maximum number of stack frames to show
+
+
+.. _python-roles:
 
 Cross-referencing Python objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -363,6 +414,9 @@ dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
+A similar heuristic is used to determine whether the name is an attribute of the
+currently documented class.
+
 Also, if the name is prefixed with a dot, and no exact match is found, the
 target is taken as a suffix and all object names with that suffix are
 searched.  For example, ``:py:meth:`.TarFile.close``` references the
@@ -370,8 +424,9 @@ searched.  For example, ``:py:meth:`.TarFile.close``` references the
 ``tarfile``.  Since this can get ambiguous, if there is more than one possible
 match, you will get a warning from Sphinx.
 
-A similar heuristic is used to determine whether the name is an attribute of the
-currently documented class.
+Note that you can combine the ``~`` and ``.`` prefixes:
+``:py:meth:`~.TarFile.close``` will reference the ``tarfile.TarFile.close()``
+method, but the visible link caption will only be ``close()``.
 
 
 .. _c-domain:
@@ -423,6 +478,8 @@ The C domain (name **c**) is suited for documentation of C API.
 
       .. c:var:: PyObject* PyClass_Type
 
+
+.. _c-roles:
 
 Cross-referencing C constructs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -507,6 +564,9 @@ The following directives are available:
 .. rst:directive:: .. cpp:namespace:: namespace
 
    Select the current C++ namespace for the following objects.
+
+
+.. _cpp-roles:
 
 These roles link to the given object types:
 
@@ -675,6 +735,8 @@ The JavaScript domain (name **js**) provides the following directives:
 
    Describes the attribute *name* of *object*.
 
+.. _js-roles:
+
 These roles are provided to refer to the described objects:
 
 .. rst:role:: js:func
@@ -726,6 +788,8 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
          Foo description.
 
+.. _rst-roles:
+
 These roles are provided to refer to the described objects:
 
 .. rst:role:: rst:dir
@@ -739,4 +803,4 @@ The sphinx-contrib_ repository contains more domains available as extensions;
 currently a Ruby and an Erlang domain.
 
 
-.. _sphinx-contrib: http://bitbucket.org/birkenfeld/sphinx-contrib/
+.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/

@@ -5,14 +5,14 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
-import difflib
 import htmlentitydefs
+import sys
 from StringIO import StringIO
 
 try:
@@ -32,24 +32,42 @@ def teardown_module():
 html_warnfile = StringIO()
 
 ENV_WARNINGS = """\
+%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
+\\(WARNING/2\\) Explicit markup ends without a blank line; unexpected \
+unindent\\.\\n?
 %(root)s/images.txt:9: WARNING: image file not readable: foo.png
 %(root)s/images.txt:23: WARNING: nonlocal image URI found: \
 http://www.python.org/logo.png
 %(root)s/includes.txt:\\d*: \\(WARNING/2\\) Encoding 'utf-8-sig' used for \
-reading included file u'wrongenc.inc' seems to be wrong, try giving an \
-:encoding: option
-%(root)s/includes.txt:4: WARNING: download file not readable: nonexisting.png
-%(root)s/objects.txt:79: WARNING: using old C markup; please migrate to \
+reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
+:encoding: option\\n?
+%(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
+%(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
 http://sphinx.pocoo.org/domains.html
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:: WARNING: invalid index entry u''
+%(root)s/markup.txt:: WARNING: invalid single index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
+
+if sys.version_info >= (3, 0):
+    ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
+    HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
+
+
+def tail_check(check):
+    rex = re.compile(check)
+    def checker(nodes):
+        for node in nodes:
+            if node.tail and rex.search(node.tail):
+                return True
+        assert False, '%r not found in tail of any nodes %s' % (check, nodes)
+    return checker
+
 
 HTML_XPATH = {
     'images.html': [
@@ -152,10 +170,12 @@ HTML_XPATH = {
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
         (".//dt[@id='errmod.Error']", ''),
+        (".//dt/tt", r'long\(parameter,\s* list\)'),
+        (".//dt/tt", 'another one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
-        (".//a[@href='#userdesc-myobj']", ''),
+        (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#Sphinx_DoSomething']", ''),
@@ -172,6 +192,14 @@ HTML_XPATH = {
             'Testing various markup'),
         # custom sidebar
         (".//h4", 'Custom sidebar'),
+        # docfields
+        (".//td[@class='field-body']/strong", '^moo$'),
+        (".//td[@class='field-body']/strong",
+             tail_check(r'\(Moo\) .* Moo')),
+        (".//td[@class='field-body']/ul/li/strong", '^hour$'),
+        (".//td[@class='field-body']/ul/li/em", '^DuplicateType$'),
+        (".//td[@class='field-body']/ul/li/em",
+             tail_check(r'.* Some parameter')),
     ],
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
@@ -190,6 +218,8 @@ HTML_XPATH = {
         (".//li/a[@href='search.html']/em", 'Search Page'),
         # custom sidebar only for contents
         (".//h4", 'Contents sidebar'),
+        # custom JavaScript
+        (".//script[@src='file://moo.js']", ''),
     ],
     'bom.html': [
         (".//title", " File with UTF-8 BOM"),
@@ -202,6 +232,14 @@ HTML_XPATH = {
     '_static/statictmpl.html': [
         (".//project", 'Sphinx <Tests>'),
     ],
+    'genindex.html': [
+        # index entries
+        (".//a/strong", "Main"),
+        (".//a/strong", "[1]"),
+        (".//a/strong", "Other"),
+        (".//a", "entry"),
+        (".//dt/a", "double"),
+    ]
 }
 
 if pygments:
@@ -214,7 +252,7 @@ if pygments:
         (".//div[@class='inc-lines highlight-text']//pre",
             r'^class Foo:\n    pass\nclass Bar:\n$'),
         (".//div[@class='inc-startend highlight-text']//pre",
-            ur'^foo = u"Including Unicode characters: üöä"\n$'),
+            ur'^foo = "Including Unicode characters: üöä"\n$'),
         (".//div[@class='inc-preappend highlight-text']//pre",
             r'(?m)^START CODE$'),
         (".//div[@class='inc-pyobj-dedent highlight-python']//span",
@@ -285,8 +323,8 @@ def test_html(app):
     html_warnings_exp = HTML_WARNINGS % {'root': re.escape(app.srcdir)}
     assert re.match(html_warnings_exp + '$', html_warnings), \
            'Warnings don\'t match:\n' + \
-           '\n'.join(difflib.ndiff(html_warnings_exp.splitlines(),
-                                   html_warnings.splitlines()))
+           '--- Expected (regex):\n' + html_warnings_exp + \
+           '--- Got:\n' + html_warnings
 
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()

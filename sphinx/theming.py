@@ -5,7 +5,7 @@
 
     Theming support for HTML builders.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,13 +30,13 @@ class Theme(object):
     themes = {}
 
     @classmethod
-    def init_themes(cls, builder):
+    def init_themes(cls, confdir, theme_path, warn=None):
         """Search all theme paths for available themes."""
-        cls.themepath = list(builder.config.html_theme_path)
+        cls.themepath = list(theme_path)
         cls.themepath.append(path.join(package_dir, 'themes'))
 
         for themedir in cls.themepath[::-1]:
-            themedir = path.join(builder.confdir, themedir)
+            themedir = path.join(confdir, themedir)
             if not path.isdir(themedir):
                 continue
             for theme in os.listdir(themedir):
@@ -48,8 +48,9 @@ class Theme(object):
                         tname = theme[:-4]
                         tinfo = zfile
                     except Exception:
-                        builder.warn('file %r on theme path is not a valid '
-                                     'zipfile or contains no theme' % theme)
+                        if warn:
+                            warn('file %r on theme path is not a valid '
+                                 'zipfile or contains no theme' % theme)
                         continue
                 else:
                     if not path.isfile(path.join(themedir, theme, THEMECONF)):
@@ -98,8 +99,7 @@ class Theme(object):
             self.base = Theme(inherit)
 
     def get_confstr(self, section, name, default=NODEFAULT):
-        """
-        Return the value for a theme configuration setting, searching the
+        """Return the value for a theme configuration setting, searching the
         base theme chain.
         """
         try:
@@ -114,9 +114,7 @@ class Theme(object):
                 return default
 
     def get_options(self, overrides):
-        """
-        Return a dictionary of theme options and their values.
-        """
+        """Return a dictionary of theme options and their values."""
         chain = [self.themeconf]
         base = self.base
         while base is not None:
@@ -135,8 +133,7 @@ class Theme(object):
         return options
 
     def get_dirchain(self):
-        """
-        Return a list of theme directories, beginning with this theme's,
+        """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
         chain = [self.themedir]
@@ -147,9 +144,7 @@ class Theme(object):
         return chain
 
     def cleanup(self):
-        """
-        Remove temporary directories.
-        """
+        """Remove temporary directories."""
         if self.themedir_created:
             try:
                 shutil.rmtree(self.themedir)

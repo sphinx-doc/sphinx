@@ -5,13 +5,14 @@
 
     Set up math support in source files and LaTeX/text output.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
+from sphinx.writers import texinfo
 from sphinx.util.compat import Directive
 
 
@@ -69,6 +70,9 @@ class MathDirective(Directive):
         node['nowrap'] = 'nowrap' in self.options
         node['docname'] = self.state.document.settings.env.docname
         ret = [node]
+        node.line = self.lineno
+        if hasattr(self, 'src'):
+            node.source = self.src
         if node['label']:
             tnode = nodes.target('', '', ids=['equation-' + node['label']])
             self.state.document.note_explicit_target(tnode)
@@ -122,6 +126,20 @@ def man_visit_eqref(self, node):
     raise nodes.SkipNode
 
 
+def texinfo_visit_math(self, node):
+    self.body.append('@math{' + texinfo.escape_arg(node['latex']) + '}')
+    raise nodes.SkipNode
+
+def texinfo_visit_displaymath(self, node):
+    self.visit_paragraph(node)
+def texinfo_depart_displaymath(self, node):
+    self.depart_paragraph(node)
+
+def texinfo_visit_eqref(self, node):
+    self.body.append(node['target'])
+    raise nodes.SkipNode
+
+
 def html_visit_eqref(self, node):
     self.body.append('<a href="#equation-%s">' % node['target'])
 
@@ -148,20 +166,23 @@ def number_equations(app, doctree, docname):
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_node(math,
-                 latex=(latex_visit_math, None),
-                 text=(text_visit_math, None),
-                 man=(man_visit_math, None),
-                 html=htmlinlinevisitors)
+        latex=(latex_visit_math, None),
+        text=(text_visit_math, None),
+        man=(man_visit_math, None),
+        texinfo=(texinfo_visit_math, None),
+        html=htmlinlinevisitors)
     app.add_node(displaymath,
-                 latex=(latex_visit_displaymath, None),
-                 text=(text_visit_displaymath, None),
-                 man=(man_visit_displaymath, man_depart_displaymath),
-                 html=htmldisplayvisitors)
+        latex=(latex_visit_displaymath, None),
+        text=(text_visit_displaymath, None),
+        man=(man_visit_displaymath, man_depart_displaymath),
+        texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+        html=htmldisplayvisitors)
     app.add_node(eqref,
-                 latex=(latex_visit_eqref, None),
-                 text=(text_visit_eqref, None),
-                 man=(man_visit_eqref, None),
-                 html=(html_visit_eqref, html_depart_eqref))
+        latex=(latex_visit_eqref, None),
+        text=(text_visit_eqref, None),
+        man=(man_visit_eqref, None),
+        texinfo=(texinfo_visit_eqref, None),
+        html=(html_visit_eqref, html_depart_eqref))
     app.add_role('math', math_role)
     app.add_role('eq', eq_role)
     app.add_directive('math', MathDirective)

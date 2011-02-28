@@ -5,7 +5,7 @@
 
     Render math in HTML via dvipng.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -26,6 +26,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT
+from sphinx.util.pycompat import b
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 class MathExtError(SphinxError):
@@ -58,11 +59,10 @@ DOC_BODY_PREVIEW = r'''
 \end{document}
 '''
 
-depth_re = re.compile(r'\[\d+ depth=(-?\d+)\]')
+depth_re = re.compile(b(r'\[\d+ depth=(-?\d+)\]'))
 
 def render_math(self, math):
-    """
-    Render the LaTeX math expression *math* using latex and dvipng.
+    """Render the LaTeX math expression *math* using latex and dvipng.
 
     Return the filename relative to the built document and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
@@ -178,6 +178,11 @@ def cleanup_tempdir(app, exc):
     except Exception:
         pass
 
+def get_tooltip(self, node):
+    if self.builder.config.pngmath_add_tooltips:
+        return ' alt="%s"' % self.encode(node['latex']).strip()
+    return ''
+
 def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
@@ -193,15 +198,10 @@ def html_visit_math(self, node):
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node['latex']).strip())
     else:
-        if depth is None:
-            self.body.append(
-                '<img class="math" src="%s" alt="%s"/>' %
-                (fname, self.encode(node['latex']).strip()))
-        else:
-            self.body.append(
-                '<img class="math" src="%s" alt="%s" '
-                'style="vertical-align: %dpx"/>' %
-                (fname, self.encode(node['latex']).strip(), -depth))
+        c  = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
+        if depth is not None:
+            c += ' style="vertical-align: %dpx"' % (-depth)
+        self.body.append(c + '/>')
     raise nodes.SkipNode
 
 def html_visit_displaymath(self, node):
@@ -226,8 +226,8 @@ def html_visit_displaymath(self, node):
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node['latex']).strip())
     else:
-        self.body.append('<img src="%s" alt="%s" /></p>\n</div>' %
-                         (fname, self.encode(node['latex']).strip()))
+        self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node)
+                         + '/></p>\n</div>')
     raise nodes.SkipNode
 
 
@@ -240,4 +240,5 @@ def setup(app):
                          ['-gamma 1.5', '-D 110'], 'html')
     app.add_config_value('pngmath_latex_args', [], 'html')
     app.add_config_value('pngmath_latex_preamble', '', 'html')
+    app.add_config_value('pngmath_add_tooltips', True, 'html')
     app.connect('build-finished', cleanup_tempdir)

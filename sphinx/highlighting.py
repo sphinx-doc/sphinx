@@ -5,7 +5,7 @@
 
     Highlight code blocks using Pygments.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,6 +21,7 @@ except ImportError:
     parser = None
 
 from sphinx.util.texescape import tex_hl_escape_map_old, tex_hl_escape_map_new
+from sphinx.ext import doctest
 
 try:
     import pygments
@@ -30,34 +31,14 @@ try:
     from pygments.lexers import get_lexer_by_name, guess_lexer
     from pygments.formatters import HtmlFormatter, LatexFormatter
     from pygments.filters import ErrorToken
-    from pygments.style import Style
     from pygments.styles import get_style_by_name
-    from pygments.styles.friendly import FriendlyStyle
-    from pygments.token import Generic, Comment, Number
     from pygments.util import ClassNotFound
+    from sphinx.pygments_styles import SphinxStyle, NoneStyle
 except ImportError:
     pygments = None
     lexers = None
     HtmlFormatter = LatexFormatter = None
 else:
-    class SphinxStyle(Style):
-        """
-        Like friendly, but a bit darker to enhance contrast on the green
-        background.
-        """
-
-        background_color = '#eeffcc'
-        default_style = ''
-
-        styles = FriendlyStyle.styles
-        styles.update({
-            Generic.Output: '#333',
-            Comment: 'italic #408090',
-            Number: '#208050',
-        })
-
-    class NoneStyle(Style):
-        """Style without any styling."""
 
     lexers = dict(
         none = TextLexer(),
@@ -83,8 +64,6 @@ _LATEX_STYLES = r'''
 \newcommand\PYGZlb{[}
 \newcommand\PYGZrb{]}
 '''
-
-doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 parsing_exceptions = (SyntaxError, UnicodeEncodeError)
 if sys.version_info < (2, 5):
@@ -156,7 +135,7 @@ class PygmentsBridge(object):
         if sys.version_info >= (2, 5):
             src = 'from __future__ import with_statement\n' + src
 
-        if isinstance(src, unicode):
+        if sys.version_info < (3, 0) and isinstance(src, unicode):
             # Non-ASCII chars will only occur in string literals
             # and comments.  If we wanted to give them to the parser
             # correctly, we'd have to find out the correct source
@@ -175,7 +154,7 @@ class PygmentsBridge(object):
             return True
 
     def highlight_block(self, source, lang, linenos=False, warn=None):
-        if isinstance(source, str):
+        if not isinstance(source, unicode):
             source = source.decode()
         if not pygments:
             return self.unhighlighted(source)
@@ -207,7 +186,7 @@ class PygmentsBridge(object):
                     lexer = lexers[lang] = get_lexer_by_name(lang)
                 except ClassNotFound:
                     if warn:
-                        warn('Pygments lexer name %s is not known' % lang)
+                        warn('Pygments lexer name %r is not known' % lang)
                         return self.unhighlighted(source)
                     else:
                         raise
@@ -216,7 +195,8 @@ class PygmentsBridge(object):
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
-            source = doctestopt_re.sub('', source)
+            source = doctest.blankline_re.sub('', source)
+            source = doctest.doctestopt_re.sub('', source)
 
         # highlight via Pygments
         try:
@@ -240,7 +220,7 @@ class PygmentsBridge(object):
             # no HTML styles needed
             return ''
         if self.dest == 'html':
-            return self.fmter[0].get_style_defs()
+            return self.fmter[0].get_style_defs('.highlight')
         else:
             styledefs = self.fmter[0].get_style_defs()
             # workaround for Pygments < 0.12

@@ -6,7 +6,7 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -105,7 +105,8 @@ class CoverageBuilder(Builder):
         output_file = path.join(self.outdir, 'c.txt')
         op = open(output_file, 'w')
         try:
-            write_header(op, 'Undocumented C API elements', '=')
+            if self.config.coverage_write_headline:
+                write_header(op, 'Undocumented C API elements', '=')
             op.write('\n')
 
             for filename, undoc in self.c_undoc.iteritems():
@@ -119,6 +120,8 @@ class CoverageBuilder(Builder):
     def build_py_coverage(self):
         objects = self.env.domaindata['py']['objects']
         modules = self.env.domaindata['py']['modules']
+
+        skip_undoc = self.config.coverage_skip_undoc_in_source
 
         for mod_name in modules:
             ignore = False
@@ -160,6 +163,8 @@ class CoverageBuilder(Builder):
                             if exp.match(name):
                                 break
                         else:
+                            if skip_undoc and not obj.__doc__:
+                                continue
                             funcs.append(name)
                 elif inspect.isclass(obj):
                     for exp in self.cls_ignorexps:
@@ -167,16 +172,26 @@ class CoverageBuilder(Builder):
                             break
                     else:
                         if full_name not in objects:
+                            if skip_undoc and not obj.__doc__:
+                                continue
                             # not documented at all
                             classes[name] = []
                             continue
 
                         attrs = []
 
-                        for attr_name, attr in inspect.getmembers(
-                               obj, inspect.ismethod):
+                        for attr_name in dir(obj):
+                            if attr_name not in obj.__dict__:
+                                continue
+                            attr = getattr(obj, attr_name)
+                            if not (inspect.ismethod(attr) or
+                                    inspect.isfunction(attr)):
+                                continue
                             if attr_name[0] == '_':
                                 # starts with an underscore, ignore it
+                                continue
+                            if skip_undoc and not attr.__doc__:
+                                # skip methods without docstring if wished
                                 continue
 
                             full_attr_name = '%s.%s' % (full_name, attr_name)
@@ -194,8 +209,8 @@ class CoverageBuilder(Builder):
         op = open(output_file, 'w')
         failed = []
         try:
-            write_header(op, 'Undocumented Python objects', '=')
-
+            if self.config.coverage_write_headline:
+                write_header(op, 'Undocumented Python objects', '=')
             keys = self.py_undoc.keys()
             keys.sort()
             for name in keys:
@@ -245,3 +260,5 @@ def setup(app):
     app.add_config_value('coverage_c_path', [], False)
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)
+    app.add_config_value('coverage_write_headline', True, False)
+    app.add_config_value('coverage_skip_undoc_in_source', False, False)

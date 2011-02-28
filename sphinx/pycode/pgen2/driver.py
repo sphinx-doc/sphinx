@@ -120,7 +120,7 @@ def load_grammar(gt="Grammar.txt", gp=None,
         head, tail = os.path.splitext(gt)
         if tail == ".txt":
             tail = ""
-        gp = head + tail + ".".join(map(str, sys.version_info)) + ".pickle"
+        gp = head + tail + ".".join(map(str, sys.version_info[:2])) + ".pickle"
     if force or not _newer(gp, gt):
         logger.info("Generating grammar tables from %s", gt)
         g = pgen.generate_grammar(gt)

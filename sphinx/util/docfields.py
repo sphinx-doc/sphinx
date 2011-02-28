@@ -6,7 +6,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -129,26 +129,40 @@ class TypedField(GroupedField):
     is_typed = True
 
     def __init__(self, name, names=(), typenames=(), label=None,
-                 rolename=None, typerolename=None):
-        GroupedField.__init__(self, name, names, label, rolename, False)
+                 rolename=None, typerolename=None, can_collapse=False):
+        GroupedField.__init__(self, name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
     def make_field(self, types, domain, items):
-        fieldname = nodes.field_name('', self.label)
-        listnode = self.list_type()
-        for fieldarg, content in items:
+        def handle_item(fieldarg, content):
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
             if fieldarg in types:
-                typename = u''.join(n.astext() for n in types[fieldarg])
                 par += nodes.Text(' (')
-                par += self.make_xref(self.typerolename, domain, typename)
+                # NOTE: using .pop() here to prevent a single type node to be
+                # inserted twice into the doctree, which leads to
+                # inconsistencies later when references are resolved
+                fieldtype = types.pop(fieldarg)
+                if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
+                    typename = u''.join(n.astext() for n in fieldtype)
+                    par += self.make_xref(self.typerolename, domain, typename)
+                else:
+                    par += fieldtype
                 par += nodes.Text(')')
             par += nodes.Text(' -- ')
             par += content
-            listnode += nodes.list_item('', par)
-        fieldbody = nodes.field_body('', listnode)
+            return par
+
+        fieldname = nodes.field_name('', self.label)
+        if len(items) == 1 and self.can_collapse:
+            fieldarg, content = items[0]
+            bodynode = handle_item(fieldarg, content)
+        else:
+            bodynode = self.list_type()
+            for fieldarg, content in items:
+                bodynode += nodes.list_item('', handle_item(fieldarg, content))
+        fieldbody = nodes.field_body('', bodynode)
         return nodes.field('', fieldname, fieldbody)
 
 
@@ -160,7 +174,7 @@ class DocFieldTransformer(object):
 
     def __init__(self, directive):
         self.domain = directive.domain
-        if not hasattr(directive, '_doc_field_type_map'):
+        if '_doc_field_type_map' not in directive.__class__.__dict__:
             directive.__class__._doc_field_type_map = \
                 self.preprocess_fieldtypes(directive.__class__.doc_field_types)
         self.typemap = directive._doc_field_type_map

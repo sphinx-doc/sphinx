@@ -5,7 +5,7 @@
 
     Test the coverage builder.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,13 +27,15 @@ def test_build(app):
     assert ' * function\n' not in py_undoc  # these two are documented
     assert ' * Class\n' not in py_undoc     # in autodoc.txt
 
+    assert ' * mod -- No module named mod'  # in the "failed import" section
+
     c_undoc = (app.outdir / 'c.txt').text()
     assert c_undoc.startswith('Undocumented C API elements\n'
                               '===========================\n')
     assert 'api.h' in c_undoc
     assert ' * Py_SphinxTest' in c_undoc
 
-    undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').text())
+    undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').bytes())
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
     assert undoc_c.values()[0] == [('function', 'Py_SphinxTest')]

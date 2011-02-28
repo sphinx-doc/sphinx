@@ -5,11 +5,9 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-import string
 
 from util import *
 
@@ -27,7 +25,7 @@ def test_mangle_signature():
     (a, b, c='foobar()', d=123) :: (a, b[, c, d])
     """
 
-    TEST = [map(string.strip, x.split("::")) for x in TEST.split("\n")
+    TEST = [map(lambda x: x.strip(), x.split("::")) for x in TEST.split("\n")
             if '::' in x]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace(u"\u00a0", " ")

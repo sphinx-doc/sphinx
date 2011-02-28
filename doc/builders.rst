@@ -144,6 +144,26 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. versionadded:: 1.0
 
+
+.. module:: sphinx.builders.texinfo
+.. class:: TexinfoBuilder
+
+   This builder produces Texinfo files that can be processed into Info files by
+   the :program:`makeinfo` program.  You have to specify which documents are to
+   be included in which Texinfo files via the :confval:`texinfo_documents`
+   configuration value.
+
+   The Info format is the basis of the on-line help system used by GNU Emacs and
+   the terminal-based program :program:`info`.  See :ref:`texinfo-faq` for more
+   details.  The Texinfo format is the official documentation system used by the
+   GNU project.  More information on Texinfo can be found at
+   `<http://www.gnu.org/software/texinfo/>`_.
+
+   Its name is ``texinfo``.
+
+   .. versionadded:: 1.1
+
+
 .. currentmodule:: sphinx.builders.html
 .. class:: SerializingHTMLBuilder
 
@@ -220,6 +240,18 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. versionadded:: 0.5
 
+.. module:: sphinx.builders.gettext
+.. class:: MessageCatalogBuilder
+
+   This builder produces gettext-style message catalogs.  Each top-level file or
+   subdirectory grows a single ``.pot`` catalog template.
+
+   See the documentation on :ref:`intl` for further reference.
+
+   Its name is ``gettext``.
+
+   .. versionadded:: 1.1
+
 .. module:: sphinx.builders.changes
 .. class:: ChangesBuilder
 
@@ -255,11 +287,11 @@ All serialization builders outputs one file per source file and a few special
 files.  They also copy the reST source files in the directory ``_sources``
 under the output directory.
 
-The :class:`PickleHTMLBuilder` is a builtin subclass that implements the pickle
+The :class:`.PickleHTMLBuilder` is a builtin subclass that implements the pickle
 serialization interface.
 
 The files per source file have the extensions of
-:attr:`~SerializingHTMLBuilder.out_suffix`, and are arranged in directories
+:attr:`~.SerializingHTMLBuilder.out_suffix`, and are arranged in directories
 just as the source files are.  They unserialize to a dictionary (or dictionary
 like structure) with these keys:
 
@@ -290,7 +322,7 @@ like structure) with these keys:
 
 The special files are located in the root output directory.  They are:
 
-:attr:`SerializingHTMLBuilder.globalcontext_filename`
+:attr:`.SerializingHTMLBuilder.globalcontext_filename`
    A pickled dict with these keys:
 
    ``project``, ``copyright``, ``release``, ``version``
@@ -309,7 +341,7 @@ The special files are located in the root output directory.  They are:
    ``titles``
       A dictionary of all documents' titles, as HTML strings.
 
-:attr:`SerializingHTMLBuilder.searchindex_filename`
+:attr:`.SerializingHTMLBuilder.searchindex_filename`
    An index that can be used for searching the documentation.  It is a pickled
    list with these entries:
 

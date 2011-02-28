@@ -8,8 +8,9 @@ PAPER        =
 
 PAPEROPT_a4      = -D latex_paper_size=a4
 PAPEROPT_letter  = -D latex_paper_size=letter
-ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
-                $(SPHINXOPTS) $(O) .
+ALLSPHINXOPTS    = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
+                   $(SPHINXOPTS) $(O) .
+I18NSPHINXOPTS   = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) .
 
 .PHONY: help clean html dirhtml singlehtml text man pickle json htmlhelp \
 	qthelp devhelp epub latex latexpdf changes linkcheck doctest
@@ -29,6 +30,9 @@ help:
 	@echo "  epub       to make an epub file"
 	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  latexpdf   to make LaTeX files and run pdflatex"
+	@echo "  texinfo    to make Texinfo files"
+	@echo "  info       to make Texinfo files and run them through makeinfo"
+	@echo "  gettext    to make PO message catalogs"
 	@echo "  changes    to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
 
@@ -112,6 +116,11 @@ latexpdf:
 	make -C _build/latex all-pdf
 	@echo "pdflatex finished; the PDF files are in _build/latex."
 
+gettext:
+	$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) _build/locale
+	@echo
+	@echo "Build finished. The message catalogs are in _build/locale."
+
 changes:
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) _build/changes
 	@echo
@@ -125,3 +134,16 @@ linkcheck:
 
 doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) _build/doctest
+
+texinfo:
+	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) _build/texinfo
+	@echo
+	@echo "Build finished. The Texinfo files are in _build/texinfo."
+	@echo "Run \`make' in that directory to run these through makeinfo" \
+	      "(use \`make info' here to do that automatically)."
+
+info:
+	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) _build/texinfo
+	@echo "Running Texinfo files through makeinfo..."
+	make -C _build/texinfo info
+	@echo "makeinfo finished; the Info files are in _build/texinfo."

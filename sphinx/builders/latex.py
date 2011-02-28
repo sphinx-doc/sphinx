@@ -5,7 +5,7 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -46,10 +46,6 @@ class LaTeXBuilder(Builder):
         return 'all documents' # for now
 
     def get_target_uri(self, docname, typ=None):
-        if typ == 'token':
-            # token references are always inside production lists and must be
-            # replaced by \token{} in LaTeX
-            return '@token'
         if docname not in self.docnames:
             raise NoUri
         else:

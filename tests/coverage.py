@@ -362,8 +362,9 @@ class coverage:
                 settings[o[2:]] = 1
             elif o[2:] + '=' in long_opts:
                 settings[o[2:]+'='] = a
-            else:       #pragma: no cover
-                pass    # Can't get here, because getopt won't return anything unknown.
+            else: #pragma: no cover
+                # Can't get here, because getopt won't return anything unknown.
+                pass
 
         if settings.get('help'):
             help_fn()
@@ -645,20 +646,23 @@ class coverage:
 
     def find_docstring_pass_pair(self, tree, spots):
         for i in range(1, len(tree)):
-            if self.is_string_constant(tree[i]) and self.is_pass_stmt(tree[i+1]):
+            if (self.is_string_constant(tree[i])
+                and self.is_pass_stmt(tree[i+1])):
                 first_line = self.first_line_of_tree(tree[i])
                 last_line = self.last_line_of_tree(tree[i+1])
                 self.record_multiline(spots, first_line, last_line)
 
     def is_string_constant(self, tree):
         try:
-            return tree[0] == symbol.stmt and tree[1][1][1][0] == symbol.expr_stmt
+            return (tree[0] == symbol.stmt
+                    and tree[1][1][1][0] == symbol.expr_stmt)
         except:
             return False
 
     def is_pass_stmt(self, tree):
         try:
-            return tree[0] == symbol.stmt and tree[1][1][1][0] == symbol.pass_stmt
+            return (tree[0] == symbol.stmt
+                    and tree[1][1][1][0] == symbol.pass_stmt)
         except:
             return False
 
@@ -761,7 +765,7 @@ class coverage:
         pairs = []
         while i < len(statements) and j < len(lines):
             if statements[i] == lines[j]:
-                if start == None:
+                if start is None:
                     start = lines[j]
                 end = lines[j]
                 j = j + 1
@@ -831,7 +835,8 @@ class coverage:
     def morf_name_compare(self, x, y):
         return cmp(self.morf_name(x), self.morf_name(y))
 
-    def report(self, morfs, show_missing=1, ignore_errors=0, file=None, omit_prefixes=[]):
+    def report(self, morfs, show_missing=1, ignore_errors=0, file=None,
+               omit_prefixes=[]):
         if not isinstance(morfs, types.ListType):
             morfs = [morfs]
         # On windows, the shell doesn't expand wildcards.  Do it here.
@@ -898,19 +903,23 @@ class coverage:
     blank_re = re.compile(r"\s*(#|$)")
     else_re = re.compile(r"\s*else\s*:\s*(#|$)")
 
-    def annotate(self, morfs, directory=None, ignore_errors=0, omit_prefixes=[]):
+    def annotate(self, morfs, directory=None, ignore_errors=0,
+                 omit_prefixes=[]):
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         for morf in morfs:
             try:
-                filename, statements, excluded, missing, _ = self.analysis2(morf)
-                self.annotate_file(filename, statements, excluded, missing, directory)
+                (filename, statements, excluded,
+                 missing, _) = self.analysis2(morf)
+                self.annotate_file(filename, statements, excluded, missing,
+                                   directory)
             except KeyboardInterrupt:
                 raise
             except:
                 if not ignore_errors:
                     raise
 
-    def annotate_file(self, filename, statements, excluded, missing, directory=None):
+    def annotate_file(self, filename, statements, excluded, missing,
+                      directory=None):
         source = open(filename, 'r')
         if directory:
             dest_file = os.path.join(directory,

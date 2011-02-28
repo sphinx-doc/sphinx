@@ -5,7 +5,7 @@
 
     The JavaScript domain.
 
-    :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,8 +13,8 @@ from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.directives import ObjectDescription
-from sphinx.domains.python import py_paramlist_re as js_paramlist_re
 from sphinx.roles import XRefRole
+from sphinx.domains.python import _pseudo_parse_arglist
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
@@ -56,7 +56,7 @@ class JSObject(ObjectDescription):
         else:
             # just a function or constructor
             objectname = ''
-            fullname = ''
+            fullname = name
 
         signode['object'] = objectname
         signode['fullname'] = fullname
@@ -68,28 +68,10 @@ class JSObject(ObjectDescription):
             signode += addnodes.desc_addname(nameprefix + '.', nameprefix + '.')
         signode += addnodes.desc_name(name, name)
         if self.has_arguments:
-            signode += addnodes.desc_parameterlist()
-        if not arglist:
-            return fullname, nameprefix
-
-        stack = [signode[-1]]
-        for token in js_paramlist_re.split(arglist):
-            if token == '[':
-                opt = addnodes.desc_optional()
-                stack[-1] += opt
-                stack.append(opt)
-            elif token == ']':
-                try:
-                    stack.pop()
-                except IndexError:
-                    raise ValueError()
-            elif not token or token == ',' or token.isspace():
-                pass
+            if not arglist:
+                signode += addnodes.desc_parameterlist()
             else:
-                token = token.strip()
-                stack[-1] += addnodes.desc_parameter(token, token)
-        if len(stack) != 1:
-            raise ValueError()
+                _pseudo_parse_arglist(signode, arglist)
         return fullname, nameprefix
 
     def add_target_and_index(self, name_obj, sig, signode):
@@ -114,7 +96,8 @@ class JSObject(ObjectDescription):
         indextext = self.get_index_text(objectname, name_obj)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              fullname, fullname))
+                                              fullname.replace('$', '_S_'),
+                                              ''))
 
     def get_index_text(self, objectname, name_obj):
         name, obj = name_obj
@@ -148,7 +131,7 @@ class JSCallable(JSObject):
 
 
 class JSConstructor(JSCallable):
-    """Like a callable but with a different prefix"""
+    """Like a callable but with a different prefix."""
     display_prefix = 'class '
 
 
@@ -226,8 +209,10 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, objectname, target, typ, searchorder)
         if not obj:
             return None
-        return make_refnode(builder, fromdocname, obj[0], name, contnode, name)
+        return make_refnode(builder, fromdocname, obj[0],
+                            name.replace('$', '_S_'), contnode, name)
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield refname, refname, type, docname, refname, 1
+            yield refname, refname, type, docname, \
+                  refname.replace('$', '_S_'), 1

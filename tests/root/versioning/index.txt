@@ -1,0 +1,13 @@
+Versioning Stuff
+================
+
+.. toctree::
+
+    original
+    added
+    insert
+    deleted
+    deleted_end
+    modified
+    insert_beginning
+    insert_similar

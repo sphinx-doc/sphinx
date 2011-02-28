@@ -26,6 +26,18 @@ Then, direct your browser to ``_build/html/index.html``.
 Or read them online at <http://sphinx.pocoo.org/>.
 
 
+Testing
+=======
+
+To run the tests with the interpreter available as ``python``, use::
+
+    make test
+
+If you want to use a different interpreter, e.g. ``python3``, use::
+
+    PYTHON=python3 make test
+
+
 Contributing
 ============
 
