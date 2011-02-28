@@ -36,7 +36,7 @@ epub_identifier = epub_publisher
 epub_pre_files = [('index.html', 'Welcome')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js', '_static/underscore.js',
-    '_static/basic.css', 'search.html']
+    '_static/basic.css', 'search.html', '_static/websupport.js']
 epub_fix_images = False
 epub_max_image_width = 0
 
