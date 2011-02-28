@@ -875,7 +875,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    supported by some epub readers.  At the moment palette images with a small
    color table are upgraded.  You need the Python Image Library (PIL) installed
    to use this option.  The default value is ``False`` because the automatic
-   conversion may loose information.
+   conversion may lose information.
 
 .. confval:: epub_max_image_width
 
