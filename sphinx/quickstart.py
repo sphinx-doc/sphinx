@@ -288,6 +288,9 @@ epub_copyright = u'%(copyright_str)s'
 
 # Fix unsupported image types using the PIL.
 #epub_fix_images = False
+
+# Scale large images.
+#epub_max_image_width = 0
 '''
 
 INTERSPHINX_CONFIG = '''

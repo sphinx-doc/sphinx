@@ -39,6 +39,7 @@ epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js', '_static/underscore.js',
     '_static/basic.css', 'search.html']
 epub_fix_images = False
+epub_max_image_width = 0
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]

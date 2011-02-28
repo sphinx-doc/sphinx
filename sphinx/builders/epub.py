@@ -311,7 +311,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def copy_image_files_pil(self):
         """Copy images using the PIL.
         The method tries to read and write the files with the PIL,
-        converting the format if necessary/possible.
+        converting the format and resizing the image if necessary/possible.
         """
         ensuredir(path.join(self.outdir, '_images'))
         for src in self.status_iterator(self.images, 'copying images... ',
@@ -329,9 +329,16 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
                 continue
-            if img.mode in ('P',):
-                # See PIL documentation for Image.convert()
-                img = img.convert()
+            if self.config.epub_fix_images:
+                if img.mode in ('P',):
+                    # See PIL documentation for Image.convert()
+                    img = img.convert()
+            if self.config.epub_max_image_width > 0:
+                (width, height) = img.size
+                nw = self.config.epub_max_image_width
+                if width > nw:
+                    nh = (height * nw) / width
+                    img = img.resize((nw, nh), Image.BICUBIC)
             try:
                 img.save(path.join(self.outdir, '_images', dest))
             except IOError, err:
@@ -343,7 +350,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         This overwritten method can use the PIL to convert image files.
         """
         if self.images:
-            if self.config.epub_fix_images:
+            if self.config.epub_fix_images or self.config.epub_max_image_width:
                 if not Image:
                     self.warn('PIL not found - copying image files')
                     super(EpubBuilder, self).copy_image_files()

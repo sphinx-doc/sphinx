@@ -812,6 +812,15 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    to use this option.  The default value is ``False`` because the automatic
    conversion may loose information.
 
+.. confval:: epub_max_image_width
+
+   This option specifies the maximum width of images.  If it is set to a value
+   greater than zero, images with a width larger than the given value are
+   scaled accordingly.  If it is zero, no scaling is performed. The default
+   value is ``0``.  You need the Python Image Library (PIL) installed to use
+   this option.
+
+
 .. _latex-options:
 
 Options for LaTeX output
