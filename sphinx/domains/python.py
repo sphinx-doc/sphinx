@@ -88,6 +88,7 @@ class PyObject(ObjectDescription):
     option_spec = {
         'noindex': directives.flag,
         'module': directives.unchanged,
+        'annotation': directives.unchanged,
     }
 
     doc_field_types = [
@@ -180,6 +181,8 @@ class PyObject(ObjectDescription):
                 nodetext = modname + '.'
                 signode += addnodes.desc_addname(nodetext, nodetext)
 
+        anno = self.options.get('annotation')
+
         signode += addnodes.desc_name(name, name)
         if not arglist:
             if self.needs_arglist():
@@ -187,10 +190,15 @@ class PyObject(ObjectDescription):
                 signode += addnodes.desc_parameterlist()
             if retann:
                 signode += addnodes.desc_returns(retann, retann)
+            if anno:
+                signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
             return fullname, name_prefix
+
         _pseudo_parse_arglist(signode, arglist)
         if retann:
             signode += addnodes.desc_returns(retann, retann)
+        if anno:
+            signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         return fullname, name_prefix
 
     def get_index_text(self, modname, name):

@@ -32,7 +32,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 230px;
+    margin: 0 0 0 {{ theme_sidebarwidth|toint }}px;
 }
 
 div.body {
@@ -43,7 +43,7 @@ div.body {
 
 {%- if theme_rightsidebar|tobool %}
 div.bodywrapper {
-    margin: 0 230px 0 0;
+    margin: 0 {{ theme_sidebarwidth|toint }}px 0 0;
 }
 {%- endif %}
 

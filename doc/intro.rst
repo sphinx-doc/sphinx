@@ -25,7 +25,7 @@ to reStructuredText/Sphinx from other documentation systems.
 
 * Gerard Flanagan has written a script to convert pure HTML to reST; it can be
   found at `BitBucket
-  <http://bitbucket.org/djerdo/musette/src/tip/musette/html/html2rest.py>`_.
+  <https://bitbucket.org/djerdo/musette/src/tip/musette/html/html2rest.py>`_.
 
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
@@ -54,7 +54,7 @@ If you use **Python 2.4** you also need uuid_.
 
 .. _reStructuredText: http://docutils.sf.net/rst.html
 .. _docutils: http://docutils.sf.net/
-.. _Jinja2: http://jinja.pocoo.org/2/
+.. _Jinja2: http://jinja.pocoo.org/
 .. _Pygments: http://pygments.org/
 .. The given homepage is only a directory listing so I'm using the pypi site.
 .. _uuid: http://pypi.python.org/pypi/uuid/

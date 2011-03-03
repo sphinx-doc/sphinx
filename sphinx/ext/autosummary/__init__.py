@@ -133,27 +133,19 @@ except AttributeError:
         return False
     isgetsetdescriptor = ismemberdescriptor
 
-def get_documenter(obj):
+def get_documenter(obj, parent):
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
     """
-    import sphinx.ext.autodoc as autodoc
+    from sphinx.ext.autodoc import AutoDirective, DataDocumenter
 
-    if inspect.isclass(obj):
-        if issubclass(obj, Exception):
-            return autodoc.ExceptionDocumenter
-        return autodoc.ClassDocumenter
-    elif inspect.ismodule(obj):
-        return autodoc.ModuleDocumenter
-    elif inspect.ismethod(obj) or inspect.ismethoddescriptor(obj):
-        return autodoc.MethodDocumenter
-    elif (ismemberdescriptor(obj) or isgetsetdescriptor(obj)
-          or inspect.isdatadescriptor(obj)):
-        return autodoc.AttributeDocumenter
-    elif inspect.isroutine(obj):
-        return autodoc.FunctionDocumenter
+    classes = [cls for cls in AutoDirective._registry.values()
+               if cls.can_document_member(obj, '', False, parent)]
+    if classes:
+        classes.sort(key=lambda cls: cls.priority)
+        return classes[-1]
     else:
-        return autodoc.DataDocumenter
+        return DataDocumenter
 
 
 # -- .. autosummary:: ----------------------------------------------------------
@@ -238,7 +230,7 @@ class Autosummary(Directive):
                 display_name = name.split('.')[-1]
 
             try:
-                obj, real_name = import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent = import_by_name(name, prefixes=prefixes)
             except ImportError:
                 self.warn('failed to import %s' % name)
                 items.append((name, '', '', name))
@@ -246,7 +238,7 @@ class Autosummary(Directive):
 
             # NB. using real_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = get_documenter(obj)(self, real_name)
+            documenter = get_documenter(obj, parent)(self, real_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
                 items.append((display_name, '', '', real_name))
@@ -383,7 +375,8 @@ def import_by_name(name, prefixes=[None]):
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            return _import_by_name(prefixed_name), prefixed_name
+            obj, parent = _import_by_name(prefixed_name)
+            return prefixed_name, obj, parent
         except ImportError:
             tried.append(prefixed_name)
     raise ImportError('no module named %s' % ' or '.join(tried))
@@ -398,7 +391,8 @@ def _import_by_name(name):
         if modname:
             try:
                 __import__(modname)
-                return getattr(sys.modules[modname], name_parts[-1])
+                mod = sys.modules[modname]
+                return getattr(mod, name_parts[-1]), mod
             except (ImportError, IndexError, AttributeError):
                 pass
 
@@ -416,12 +410,14 @@ def _import_by_name(name):
                 break
 
         if last_j < len(name_parts):
+            parent = None
             obj = sys.modules[modname]
             for obj_name in name_parts[last_j:]:
+                parent = obj
                 obj = getattr(obj, obj_name)
-            return obj
+            return obj, parent
         else:
-            return sys.modules[modname]
+            return sys.modules[modname], None
     except (ValueError, ImportError, AttributeError, KeyError), e:
         raise ImportError(*e.args)
 
@@ -443,7 +439,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     prefixes = [None]
     #prefixes.insert(0, inliner.document.settings.env.currmodule)
     try:
-        obj, name = import_by_name(pnode['reftarget'], prefixes)
+        name, obj, parent = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
         content = pnode[0]
         r[0][0] = nodes.emphasis(rawtext, content[0].astext(),

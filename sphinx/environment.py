@@ -205,8 +205,8 @@ class Locale(Transform):
         settings, source = self.document.settings, self.document['source']
         # XXX check if this is reliable
         assert source.startswith(env.srcdir)
-        docname = posixpath.splitext(source[len(env.srcdir):].lstrip('/'))[0]
-        section = docname.split(SEP, 1)[0]
+        docname = os.path.splitext(source[len(env.srcdir):].lstrip(os.sep))[0]
+        section = docname.split(os.sep, 1)[0]
 
         # fetch translations
         dirs = [path.join(env.srcdir, x)

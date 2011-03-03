@@ -61,7 +61,7 @@ This will return a dictionary containing the following items:
 
 This dict can then be used as context for templates.  The goal is to be easy to
 integrate with your existing templating system.  An example using `Jinja2
-<http://jinja.pocoo.org/2/>`_ is:
+<http://jinja.pocoo.org/>`_ is:
 
 .. sourcecode:: html+jinja
 
@@ -198,7 +198,7 @@ specific node, and is aptly named
         username = g.user.name if g.user else None
         moderator = g.user.moderator if g.user else False
         node_id = request.args.get('node', '')
-        data = support.get_data(parent_id, user_id)
+        data = support.get_data(node_id, username, moderator)
         return jsonify(**data)
 
 The final function that is needed will call :meth:`~.WebSupport.process_vote`,

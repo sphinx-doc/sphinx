@@ -3,594 +3,834 @@ msgstr ""
 "Project-Id-Version: Sphinx 1.0.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-11-09 19:46+0100\n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Omid Raha <omidraha.com@gmail.com>\n"
 "Language-Team: Omid Raha <omidraha.com@gmail.com>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"X-Poedit-Language: Persian\n"
-"X-Poedit-Country: IRAN, ISLAMIC REPUBLIC OF\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
 
-#: sphinx/builder.py:408
-#, python-format
-msgid "%b %d, %Y"
-msgstr ""
-
-#: sphinx/builder.py:427
-#: sphinx/templates/defindex.html:21
-msgid "General Index"
-msgstr "فهرست کلی"
-
-#: sphinx/builder.py:427
-msgid "index"
-msgstr "فهرست"
-
-#: sphinx/builder.py:429
-#: sphinx/htmlhelp.py:155
-#: sphinx/templates/defindex.html:19
-#: sphinx/templates/modindex.html:2
-#: sphinx/templates/modindex.html:13
-msgid "Global Module Index"
-msgstr "فهرست کلی ماژول ها"
-
-#: sphinx/builder.py:429
-msgid "modules"
-msgstr "ماژول ها"
-
-#: sphinx/builder.py:466
-msgid "next"
-msgstr "بعدی"
-
-#: sphinx/builder.py:473
-msgid "previous"
-msgstr "قبلی"
-
-#: sphinx/builder.py:1054
-msgid " (in "
-msgstr ""
-
-#: sphinx/builder.py:1129
-msgid "Builtins"
-msgstr "درونی سازی"
-
-#: sphinx/builder.py:1131
-msgid "Module level"
-msgstr "در سطح ماژول"
-
-#: sphinx/environment.py:102
-#: sphinx/latexwriter.py:164
+#: sphinx/environment.py:120 sphinx/writers/latex.py:189
+#: sphinx/writers/manpage.py:67
 #, python-format
 msgid "%B %d, %Y"
 msgstr ""
 
-#: sphinx/environment.py:290
-#: sphinx/latexwriter.py:170
-#: sphinx/templates/genindex-single.html:2
-#: sphinx/templates/genindex-split.html:2
-#: sphinx/templates/genindex-split.html:5
-#: sphinx/templates/genindex.html:2
-#: sphinx/templates/genindex.html:5
-#: sphinx/templates/genindex.html:48
-#: sphinx/templates/layout.html:130
+#: sphinx/environment.py:1624
+#, python-format
+msgid "see %s"
+msgstr ""
+
+#: sphinx/environment.py:1627
+#, fuzzy, python-format
+msgid "see also %s"
+msgstr "همچنین ملاحظه نمائید %s"
+
+#: sphinx/roles.py:175
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr "Python Enhancement Proposals; PEP %s"
+
+#: sphinx/builders/changes.py:73
+msgid "Builtins"
+msgstr "درونی سازی"
+
+#: sphinx/builders/changes.py:75
+msgid "Module level"
+msgstr "در سطح ماژول"
+
+#: sphinx/builders/html.py:274
+#, python-format
+msgid "%b %d, %Y"
+msgstr ""
+
+#: sphinx/builders/html.py:293 sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr "فهرست کلی"
+
+#: sphinx/builders/html.py:293
+msgid "index"
+msgstr "فهرست"
+
+#: sphinx/builders/html.py:353
+msgid "next"
+msgstr "بعدی"
+
+#: sphinx/builders/html.py:362
+msgid "previous"
+msgstr "قبلی"
+
+#: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:208
+msgid " (in "
+msgstr ""
+
+#: sphinx/builders/texinfo.py:151 sphinx/builders/texinfo.py:152
+#: sphinx/builders/texinfo.py:153 sphinx/domains/std.py:427
+#: sphinx/themes/basic/genindex-single.html:32
+#: sphinx/themes/basic/genindex-split.html:11
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
+#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
+#: sphinx/writers/latex.py:178
 msgid "Index"
 msgstr "فهرست"
 
-#: sphinx/environment.py:291
-#: sphinx/latexwriter.py:169
-msgid "Module Index"
-msgstr "فهرست ماژول ها"
+#: sphinx/directives/other.py:136
+msgid "Section author: "
+msgstr ":نویسنده این بخش"
 
-#: sphinx/environment.py:292
-#: sphinx/templates/defindex.html:16
-msgid "Search Page"
-msgstr "صفحه جستجو"
+#: sphinx/directives/other.py:138
+msgid "Module author: "
+msgstr "نویسنده این ماژول:"
 
-#: sphinx/htmlwriter.py:79
-#: sphinx/static/doctools.js:145
-msgid "Permalink to this definition"
-msgstr "لینک ثابت به این تعریف"
+#: sphinx/directives/other.py:140
+#, fuzzy
+msgid "Code author: "
+msgstr "نویسنده این ماژول:"
 
-#: sphinx/htmlwriter.py:402
-#: sphinx/static/doctools.js:139
-msgid "Permalink to this headline"
-msgstr "لینک ثابت به این سر مقاله"
+#: sphinx/directives/other.py:142
+msgid "Author: "
+msgstr ":نویسنده"
 
-#: sphinx/latexwriter.py:167
-msgid "Release"
-msgstr "انتشار"
+#: sphinx/directives/other.py:215
+msgid "See also"
+msgstr "همچنین ملاحظه نمائید"
 
-#: sphinx/roles.py:53
-#: sphinx/directives/desc.py:525
+#: sphinx/domains/__init__.py:244
 #, python-format
-msgid "environment variable; %s"
-msgstr "%s متغیرهای عمومی؛"
-
-#: sphinx/roles.py:60
-#, python-format
-msgid "Python Enhancement Proposals!PEP %s"
+msgid "%s %s"
 msgstr ""
 
-#: sphinx/textwriter.py:166
-#, python-format
-msgid "Platform: %s"
-msgstr "%s:پلتفرم"
+#: sphinx/domains/c.py:51 sphinx/domains/python.py:95
+msgid "Parameters"
+msgstr "پارامترها"
 
-#: sphinx/textwriter.py:422
-msgid "[image]"
+#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:128
+#: sphinx/domains/python.py:107
+msgid "Returns"
 msgstr ""
 
-#: sphinx/directives/desc.py:25
-#, python-format
-msgid "%s() (built-in function)"
-msgstr "%s() (توابع درونی)"
+#: sphinx/domains/c.py:56 sphinx/domains/python.py:109
+msgid "Return type"
+msgstr "نوع برگشتی"
 
-#: sphinx/directives/desc.py:26
-#: sphinx/directives/desc.py:42
-#: sphinx/directives/desc.py:54
-#, python-format
-msgid "%s() (in module %s)"
-msgstr "%s() (در ماژول %s)"
-
-#: sphinx/directives/desc.py:29
-#, python-format
-msgid "%s (built-in variable)"
-msgstr "%s (متغیر درونی)"
-
-#: sphinx/directives/desc.py:30
-#: sphinx/directives/desc.py:66
-#, python-format
-msgid "%s (in module %s)"
-msgstr "%s (در ماژول %s)"
-
-#: sphinx/directives/desc.py:33
-#, python-format
-msgid "%s (built-in class)"
-msgstr "%s (کلاس درونی)"
-
-#: sphinx/directives/desc.py:34
-#, python-format
-msgid "%s (class in %s)"
-msgstr "%s (کلاس در %s)"
-
-#: sphinx/directives/desc.py:46
-#, python-format
-msgid "%s() (%s.%s method)"
-msgstr "%s() (%s.%s متد)"
-
-#: sphinx/directives/desc.py:48
-#, python-format
-msgid "%s() (%s method)"
-msgstr "%s() (%s متد)"
-
-#: sphinx/directives/desc.py:58
-#, python-format
-msgid "%s() (%s.%s static method)"
-msgstr "%s() (%s.%s متد استاتیک)"
-
-#: sphinx/directives/desc.py:60
-#, python-format
-msgid "%s() (%s static method)"
-msgstr "%s() (%s متد استاتیک)"
-
-#: sphinx/directives/desc.py:70
-#, python-format
-msgid "%s (%s.%s attribute)"
-msgstr "%s (%s.%s مشخصه)"
-
-#: sphinx/directives/desc.py:72
-#, python-format
-msgid "%s (%s attribute)"
-msgstr "%s (%s مشخصه)"
-
-#: sphinx/directives/desc.py:74
+#: sphinx/domains/c.py:141
 #, python-format
 msgid "%s (C function)"
 msgstr "%s (C تابع)"
 
-#: sphinx/directives/desc.py:76
+#: sphinx/domains/c.py:143
 #, python-format
 msgid "%s (C member)"
 msgstr "%s (C عضو)"
 
-#: sphinx/directives/desc.py:78
+#: sphinx/domains/c.py:145
 #, python-format
 msgid "%s (C macro)"
 msgstr "%s (C ماکرو)"
 
-#: sphinx/directives/desc.py:80
+#: sphinx/domains/c.py:147
 #, python-format
 msgid "%s (C type)"
 msgstr "%s (C نوع)"
 
-#: sphinx/directives/desc.py:82
+#: sphinx/domains/c.py:149
 #, python-format
 msgid "%s (C variable)"
 msgstr "%s (C متغیر)"
 
-#: sphinx/directives/desc.py:100
+#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1053
+#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:558
+#, fuzzy, python-format
+msgid "function"
+msgstr "تابع"
+
+#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1054
+#, fuzzy, python-format
+msgid "member"
+msgstr "عضو"
+
+#: sphinx/domains/c.py:206
+msgid "macro"
+msgstr ""
+
+#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1055
+msgid "type"
+msgstr ""
+
+#: sphinx/domains/c.py:208
+#, fuzzy
+msgid "variable"
+msgstr "متغیر"
+
+#: sphinx/domains/cpp.py:897
+#, fuzzy, python-format
+msgid "%s (C++ class)"
+msgstr "%s (C++ کلاس در)"
+
+#: sphinx/domains/cpp.py:912
+#, fuzzy, python-format
+msgid "%s (C++ type)"
+msgstr "%s (C++ نوع)"
+
+#: sphinx/domains/cpp.py:931
+#, fuzzy, python-format
+msgid "%s (C++ member)"
+msgstr "%s (C++ عضو)"
+
+#: sphinx/domains/cpp.py:983
+#, fuzzy, python-format
+msgid "%s (C++ function)"
+msgstr "%s (C++ تابع)"
+
+#: sphinx/domains/cpp.py:1052 sphinx/domains/javascript.py:163
+#: sphinx/domains/python.py:560
+msgid "class"
+msgstr ""
+
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:254
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (توابع درونی)"
+
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:318
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s متد)"
+
+#: sphinx/domains/javascript.py:109
+#, fuzzy, python-format
+msgid "%s() (class)"
+msgstr "%s() (کلاس در)"
+
+#: sphinx/domains/javascript.py:111
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr ""
+
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:356
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s مشخصه)"
+
+#: sphinx/domains/javascript.py:122
+#, fuzzy
+msgid "Arguments"
+msgstr "پارامترها"
+
+#: sphinx/domains/javascript.py:125
+msgid "Throws"
+msgstr ""
+
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:559
+msgid "data"
+msgstr ""
+
+#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:565
+#, python-format
+msgid "attribute"
+msgstr ""
+
+#: sphinx/domains/python.py:100
+#, fuzzy
+msgid "Variables"
+msgstr "متغیر"
+
+#: sphinx/domains/python.py:104
 msgid "Raises"
 msgstr "برانگیختن"
 
-#: sphinx/directives/desc.py:104
-msgid "Variable"
-msgstr "متغیر"
-
-#: sphinx/directives/desc.py:107
-msgid "Returns"
-msgstr ""
-
-#: sphinx/directives/desc.py:114
-msgid "Return type"
-msgstr "نوع برگشتی"
-
-#: sphinx/directives/desc.py:141
-msgid "Parameters"
-msgstr "پارامترها"
-
-#: sphinx/directives/desc.py:411
+#: sphinx/domains/python.py:255 sphinx/domains/python.py:312
+#: sphinx/domains/python.py:324 sphinx/domains/python.py:337
 #, python-format
-msgid "%scommand line option; %s"
-msgstr "%sگزینه خط فرمان; %s"
+msgid "%s() (in module %s)"
+msgstr "%s() (در ماژول %s)"
 
-#: sphinx/directives/other.py:101
-msgid "Platforms: "
-msgstr ":پلتفرم ها"
+#: sphinx/domains/python.py:258
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (متغیر درونی)"
 
-#: sphinx/directives/other.py:106
+#: sphinx/domains/python.py:259 sphinx/domains/python.py:350
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (در ماژول %s)"
+
+#: sphinx/domains/python.py:275
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (کلاس درونی)"
+
+#: sphinx/domains/python.py:276
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (کلاس در %s)"
+
+#: sphinx/domains/python.py:316
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s متد)"
+
+#: sphinx/domains/python.py:328
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s متد استاتیک)"
+
+#: sphinx/domains/python.py:331
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s متد استاتیک)"
+
+#: sphinx/domains/python.py:341
+#, fuzzy, python-format
+msgid "%s() (%s.%s class method)"
+msgstr "%s() (%s.%s متد)"
+
+#: sphinx/domains/python.py:344
+#, fuzzy, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s متد)"
+
+#: sphinx/domains/python.py:354
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s مشخصه)"
+
+#: sphinx/domains/python.py:433
 #, python-format
 msgid "%s (module)"
 msgstr "%s (ماژول)"
 
-#: sphinx/directives/other.py:146
-msgid "Section author: "
-msgstr ":نویسنده این بخش"
+#: sphinx/domains/python.py:490
+#, fuzzy
+msgid "Python Module Index"
+msgstr "فهرست ماژول ها"
 
-#: sphinx/directives/other.py:148
-msgid "Module author: "
-msgstr "نویسنده این ماژول:"
+#: sphinx/domains/python.py:491
+msgid "modules"
+msgstr "ماژول ها"
 
-#: sphinx/directives/other.py:150
-msgid "Author: "
-msgstr ":نویسنده"
+#: sphinx/domains/python.py:536
+msgid "Deprecated"
+msgstr "منسوخ شده"
 
-#: sphinx/directives/other.py:246
-msgid "See also"
-msgstr "همچنین ملاحظه نمائید"
+#: sphinx/domains/python.py:561 sphinx/locale/__init__.py:179
+msgid "exception"
+msgstr "استثناء"
 
-#: sphinx/ext/todo.py:32
+#: sphinx/domains/python.py:562
+msgid "method"
+msgstr ""
+
+#: sphinx/domains/python.py:563
+#, python-format
+msgid "class method"
+msgstr ""
+
+#: sphinx/domains/python.py:564
+#, python-format
+msgid "static method"
+msgstr ""
+
+#: sphinx/domains/python.py:566 sphinx/locale/__init__.py:175
+msgid "module"
+msgstr "ماژول"
+
+#: sphinx/domains/python.py:694
+#, fuzzy
+msgid " (deprecated)"
+msgstr " (منسوخ شده)"
+
+#: sphinx/domains/rst.py:55
+#, python-format
+msgid "%s (directive)"
+msgstr ""
+
+#: sphinx/domains/rst.py:57
+#, python-format
+msgid "%s (role)"
+msgstr ""
+
+#: sphinx/domains/rst.py:106
+msgid "directive"
+msgstr ""
+
+#: sphinx/domains/rst.py:107
+msgid "role"
+msgstr ""
+
+#: sphinx/domains/std.py:70 sphinx/domains/std.py:86
+#, python-format
+msgid "environment variable; %s"
+msgstr "%s متغیرهای عمومی؛"
+
+#: sphinx/domains/std.py:162
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "%sگزینه خط فرمان; %s"
+
+#: sphinx/domains/std.py:393
+msgid "glossary term"
+msgstr ""
+
+#: sphinx/domains/std.py:394
+msgid "grammar token"
+msgstr ""
+
+#: sphinx/domains/std.py:395
+msgid "reference label"
+msgstr ""
+
+#: sphinx/domains/std.py:396
+#, fuzzy, python-format
+msgid "environment variable"
+msgstr "متغیرهای عمومی؛"
+
+#: sphinx/domains/std.py:397
+msgid "program option"
+msgstr ""
+
+#: sphinx/domains/std.py:428
+msgid "Module Index"
+msgstr "فهرست ماژول ها"
+
+#: sphinx/domains/std.py:429 sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr "صفحه جستجو"
+
+#: sphinx/ext/autodoc.py:998
+#, python-format
+msgid "   Bases: %s"
+msgstr ""
+
+#: sphinx/ext/autodoc.py:1034
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr ""
+
+#: sphinx/ext/todo.py:41
 msgid "Todo"
 msgstr "در دست انجام"
 
-#: sphinx/ext/todo.py:78
+#: sphinx/ext/todo.py:109
 #, python-format
-msgid "(The original entry is located in %s, line %d and can be found "
-msgstr "( ورودی اصلی در %s ، در خط %d واقع شده است و می تواند یافت بشود"
+msgid "(The <<original entry>> is located in  %s, line %d.)"
+msgstr ""
 
-#: sphinx/ext/todo.py:84
-msgid "here"
-msgstr "اینجا"
+#: sphinx/ext/todo.py:117
+msgid "original entry"
+msgstr ""
 
-#: sphinx/locale/__init__.py:15
+#: sphinx/ext/viewcode.py:70
+msgid "[source]"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:117
+msgid "[docs]"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:131
+#, fuzzy
+msgid "Module code"
+msgstr "ماژول"
+
+#: sphinx/ext/viewcode.py:137
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:164
+msgid "Overview: module code"
+msgstr ""
+
+#: sphinx/ext/viewcode.py:165
+msgid "<h1>All modules for which code is available</h1>"
+msgstr ""
+
+#: sphinx/locale/__init__.py:155
 msgid "Attention"
 msgstr "دقت"
 
-#: sphinx/locale/__init__.py:16
+#: sphinx/locale/__init__.py:156
 msgid "Caution"
 msgstr "ملاحظه"
 
-#: sphinx/locale/__init__.py:17
+#: sphinx/locale/__init__.py:157
 msgid "Danger"
 msgstr "خطر"
 
-#: sphinx/locale/__init__.py:18
+#: sphinx/locale/__init__.py:158
 msgid "Error"
 msgstr "خطا"
 
-#: sphinx/locale/__init__.py:19
+#: sphinx/locale/__init__.py:159
 msgid "Hint"
 msgstr "تذکر"
 
-#: sphinx/locale/__init__.py:20
+#: sphinx/locale/__init__.py:160
 msgid "Important"
 msgstr "مهم"
 
-#: sphinx/locale/__init__.py:21
+#: sphinx/locale/__init__.py:161
 msgid "Note"
 msgstr "توجه"
 
-#: sphinx/locale/__init__.py:22
+#: sphinx/locale/__init__.py:162
 msgid "See Also"
 msgstr "همچنین ملاحظه نمائید"
 
-#: sphinx/locale/__init__.py:23
+#: sphinx/locale/__init__.py:163
 msgid "Tip"
 msgstr "نکته"
 
-#: sphinx/locale/__init__.py:24
+#: sphinx/locale/__init__.py:164
 msgid "Warning"
 msgstr "هشدار"
 
-#: sphinx/locale/__init__.py:28
+#: sphinx/locale/__init__.py:168
 #, python-format
 msgid "New in version %s"
 msgstr "جدید در نسخه %s"
 
-#: sphinx/locale/__init__.py:29
+#: sphinx/locale/__init__.py:169
 #, python-format
 msgid "Changed in version %s"
 msgstr "تغییر داده شده در نسخه %s"
 
-#: sphinx/locale/__init__.py:30
+#: sphinx/locale/__init__.py:170
 #, python-format
 msgid "Deprecated since version %s"
 msgstr "منسوخ شده از نسخه %s"
 
-#: sphinx/locale/__init__.py:34
-msgid "module"
-msgstr "ماژول"
-
-#: sphinx/locale/__init__.py:35
+#: sphinx/locale/__init__.py:176
 msgid "keyword"
 msgstr "کلمه کلیدی"
 
-#: sphinx/locale/__init__.py:36
+#: sphinx/locale/__init__.py:177
 msgid "operator"
 msgstr "عملگر"
 
-#: sphinx/locale/__init__.py:37
+#: sphinx/locale/__init__.py:178
 msgid "object"
 msgstr "شیء"
 
-#: sphinx/locale/__init__.py:38
-msgid "exception"
-msgstr "استثناء"
-
-#: sphinx/locale/__init__.py:39
+#: sphinx/locale/__init__.py:180
 msgid "statement"
 msgstr "گذاره"
 
-#: sphinx/locale/__init__.py:40
+#: sphinx/locale/__init__.py:181
 msgid "built-in function"
 msgstr "توابع درونی"
 
-#: sphinx/static/doctools.js:174
-msgid "Hide Search Matches"
-msgstr "عدم نمایش نتایج یافت شده"
+#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11
+msgid "Table Of Contents"
+msgstr "فهرست عناوین"
 
-#: sphinx/static/searchtools.js:274
-msgid "Searching"
-msgstr "در حال جستجو"
+#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:20
+msgid "Search"
+msgstr "جستجو"
 
-#: sphinx/static/searchtools.js:279
-msgid "Preparing search..."
-msgstr "...آماده جستجو"
+#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+msgid "Go"
+msgstr "برو"
 
-#: sphinx/static/searchtools.js:338
-msgid "module, in "
-msgstr "ماژول, در"
+#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+#, fuzzy
+msgid "Enter search terms or a module, class or function name."
+msgstr "نام یک ماژول ، کلاس و یا تابع را وارد نمائید"
 
-#: sphinx/static/searchtools.js:347
-msgid ", in "
-msgstr ", در"
+#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+msgid "Show Source"
+msgstr "نمایش سورس"
 
-#: sphinx/static/searchtools.js:447
-#: sphinx/templates/search.html:18
-msgid "Search Results"
-msgstr "نتایج جستجو"
-
-#: sphinx/static/searchtools.js:449
-msgid "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
-msgstr ". هیچ سندی برای جستجوی شما یافت نشد، لطفا  اطمینان حاصل نمائید که املای تمامی کلمات صحیح می باشد و همچنین موضوعات کافی را برای این جستجو انتخاب نموده اید"
-
-#: sphinx/static/searchtools.js:451
-#, python-format
-msgid "Search finished, found %s page(s) matching the search query."
-msgstr "جستجو انجام شد ، %s صفحه مطابق با پرس و جو پیدا شد"
-
-#: sphinx/templates/defindex.html:2
+#: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
 msgstr "بررسی اجمالی"
 
-#: sphinx/templates/defindex.html:11
+#: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
 msgstr "ایندکس ها و جداول:"
 
-#: sphinx/templates/defindex.html:14
+#: sphinx/themes/basic/defindex.html:23
 msgid "Complete Table of Contents"
 msgstr "فهرست کامل مطالب"
 
-#: sphinx/templates/defindex.html:15
+#: sphinx/themes/basic/defindex.html:24
 msgid "lists all sections and subsections"
 msgstr "فهرست تمامی بخش ها و زیر مجموعه ها"
 
-#: sphinx/templates/defindex.html:17
+#: sphinx/themes/basic/defindex.html:26
 msgid "search this documentation"
 msgstr "جستجو در این اسناد"
 
-#: sphinx/templates/defindex.html:20
+#: sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr "فهرست کلی ماژول ها"
+
+#: sphinx/themes/basic/defindex.html:29
 msgid "quick access to all modules"
 msgstr "دسترسی سریع به تمامی متدها"
 
-#: sphinx/templates/defindex.html:22
+#: sphinx/themes/basic/defindex.html:31
 msgid "all functions, classes, terms"
 msgstr "تمامی توابع ، کلاس ها ، اصطلاحات"
 
-#: sphinx/templates/genindex-single.html:5
+#: sphinx/themes/basic/genindex-single.html:35
 #, python-format
 msgid "Index &ndash; %(key)s"
 msgstr "فهرست &ndash; %(key)s"
 
-#: sphinx/templates/genindex-single.html:44
-#: sphinx/templates/genindex-split.html:14
-#: sphinx/templates/genindex-split.html:27
-#: sphinx/templates/genindex.html:54
+#: sphinx/themes/basic/genindex-single.html:63
+#: sphinx/themes/basic/genindex-split.html:24
+#: sphinx/themes/basic/genindex-split.html:38
+#: sphinx/themes/basic/genindex.html:74
 msgid "Full index on one page"
 msgstr "فهرست کامل در یک صفحه"
 
-#: sphinx/templates/genindex-split.html:7
+#: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
 msgstr "فهرست صفحات بر اساس حروف"
 
-#: sphinx/templates/genindex-split.html:15
+#: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
 msgstr ""
 
-#: sphinx/templates/layout.html:9
+#: sphinx/themes/basic/layout.html:29
 msgid "Navigation"
 msgstr "ناوبری"
 
-#: sphinx/templates/layout.html:40
-msgid "Table Of Contents"
-msgstr "فهرست عناوین"
-
-#: sphinx/templates/layout.html:46
-msgid "Previous topic"
-msgstr "موضوع قبلی"
-
-#: sphinx/templates/layout.html:47
-msgid "previous chapter"
-msgstr "فصل قبلی"
-
-#: sphinx/templates/layout.html:50
-msgid "Next topic"
-msgstr "موضوع  بعدی"
-
-#: sphinx/templates/layout.html:51
-msgid "next chapter"
-msgstr "فصل بعدی"
-
-#: sphinx/templates/layout.html:55
-msgid "This Page"
-msgstr "صفحه فعلی"
-
-#: sphinx/templates/layout.html:59
-msgid "Suggest Change"
-msgstr ""
-
-#: sphinx/templates/layout.html:60
-#: sphinx/templates/layout.html:62
-msgid "Show Source"
-msgstr "نمایش سورس"
-
-#: sphinx/templates/layout.html:71
-msgid "Quick search"
-msgstr "جستجو سریع"
-
-#: sphinx/templates/layout.html:71
-msgid "Keyword search"
-msgstr "جستجو کلید واژه"
-
-#: sphinx/templates/layout.html:73
-msgid "Go"
-msgstr "برو"
-
-#: sphinx/templates/layout.html:78
-msgid "Enter a module, class or function name."
-msgstr "نام یک ماژول ، کلاس و یا تابع را وارد نمائید"
-
-#: sphinx/templates/layout.html:119
+#: sphinx/themes/basic/layout.html:122
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "جستجو در %(docstitle)s"
 
-#: sphinx/templates/layout.html:128
+#: sphinx/themes/basic/layout.html:131
 msgid "About these documents"
 msgstr "درباره این مستندات"
 
-#: sphinx/templates/layout.html:131
-#: sphinx/templates/search.html:2
-#: sphinx/templates/search.html:5
-msgid "Search"
-msgstr "جستجو"
-
-#: sphinx/templates/layout.html:133
+#: sphinx/themes/basic/layout.html:140
 msgid "Copyright"
 msgstr "کپی رایت"
 
-#: sphinx/templates/layout.html:178
+#: sphinx/themes/basic/layout.html:189
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr ""
 
-#: sphinx/templates/layout.html:180
+#: sphinx/themes/basic/layout.html:191
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
 msgstr ""
 
-#: sphinx/templates/layout.html:183
+#: sphinx/themes/basic/layout.html:195
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr ". %(last_updated)s  آخرین بروز رسانی در"
 
-#: sphinx/templates/layout.html:186
+#: sphinx/themes/basic/layout.html:198
 #, python-format
-msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
-msgstr ". <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s ایجاد شده با"
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+". <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s "
+"ایجاد شده با"
 
-#: sphinx/templates/modindex.html:15
-msgid "Most popular modules:"
-msgstr "متداول ترین ماژول ها:"
-
-#: sphinx/templates/modindex.html:24
-msgid "Show modules only available on these platforms"
-msgstr "تنها ماژول هایی که در این پلتفرم در دسترس هستند را نشان بده"
-
-#: sphinx/templates/modindex.html:56
-msgid "Deprecated"
-msgstr "منسوخ شده"
-
-#: sphinx/templates/opensearch.xml:4
+#: sphinx/themes/basic/opensearch.xml:4
 #, python-format
 msgid "Search %(docstitle)s"
 msgstr "جستجو %(docstitle)s"
 
-#: sphinx/templates/page.html:8
-msgid "<strong>Note:</strong> You requested an out-of-date URL from this server. We've tried to redirect you to the new location of this page, but it may not be the right one."
+#: sphinx/themes/basic/relations.html:11
+msgid "Previous topic"
+msgstr "موضوع قبلی"
+
+#: sphinx/themes/basic/relations.html:13
+msgid "previous chapter"
+msgstr "فصل قبلی"
+
+#: sphinx/themes/basic/relations.html:16
+msgid "Next topic"
+msgstr "موضوع  بعدی"
+
+#: sphinx/themes/basic/relations.html:18
+msgid "next chapter"
+msgstr "فصل بعدی"
+
+#: sphinx/themes/basic/search.html:24
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
 msgstr ""
 
-#: sphinx/templates/search.html:7
+#: sphinx/themes/basic/search.html:29
+#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
-"    containing less words won't appear in the result list."
-msgstr "در اینجا شما می توانید مستندات را جستجو نمائید ، کلماتی را در کادر جستجو وارد کنید و سپس بر روی دکمه جستجو کلیک نمائید ، توجه کنید که تابع جستجو گر  امر جستجو را بطور خودکار برای تمامی کلمات دنبال خواهد کرد .صفحاتی که شامل کلمات کمتری هستند ، در لیست جستجو نمایش داده نخواهند شد."
+"    containing fewer words won't appear in the result list."
+msgstr ""
+"در اینجا شما می توانید مستندات را جستجو نمائید ، کلماتی را در کادر جستجو "
+"وارد کنید و سپس بر روی دکمه جستجو کلیک نمائید ، توجه کنید که تابع جستجو "
+"گر  امر جستجو را بطور خودکار برای تمامی کلمات دنبال خواهد کرد .صفحاتی که "
+"شامل کلمات کمتری هستند ، در لیست جستجو نمایش داده نخواهند شد."
 
-#: sphinx/templates/search.html:14
+#: sphinx/themes/basic/search.html:36
 msgid "search"
 msgstr "جستجو"
 
-#: sphinx/templates/search.html:20
+#: sphinx/themes/basic/search.html:40
+msgid "Search Results"
+msgstr "نتایج جستجو"
+
+#: sphinx/themes/basic/search.html:42
 msgid "Your search did not match any results."
 msgstr ".جستجوی شما نتیجه ایی در بر نداشت"
 
-#: sphinx/templates/changes/frameset.html:5
-#: sphinx/templates/changes/versionchanges.html:12
+#: sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "جستجو سریع"
+
+#: sphinx/themes/basic/sourcelink.html:11
+msgid "This Page"
+msgstr "صفحه فعلی"
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
 msgstr "تغییرات در نسخه %(version)s &mdash; %(docstitle)s"
 
-#: sphinx/templates/changes/rstsource.html:5
+#: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
 msgid "%(filename)s &mdash; %(docstitle)s"
 msgstr ""
 
-#: sphinx/templates/changes/versionchanges.html:17
+#: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
 msgstr "لیست تولید شده خودکار از تغییرات در نسخه %(version)s"
 
-#: sphinx/templates/changes/versionchanges.html:18
+#: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
 msgstr "تغییرات کتابخانه ایی"
 
-#: sphinx/templates/changes/versionchanges.html:23
+#: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
 msgstr "C API تغییرات"
 
-#: sphinx/templates/changes/versionchanges.html:25
+#: sphinx/themes/basic/changes/versionchanges.html:25
 msgid "Other changes"
 msgstr "دگر تغییرات"
+
+#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:505
+#: sphinx/writers/html.py:511
+msgid "Permalink to this headline"
+msgstr "لینک ثابت به این سر مقاله"
+
+#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
+msgid "Permalink to this definition"
+msgstr "لینک ثابت به این تعریف"
+
+#: sphinx/themes/basic/static/doctools.js:189
+msgid "Hide Search Matches"
+msgstr "عدم نمایش نتایج یافت شده"
+
+#: sphinx/themes/default/static/sidebar.js:69
+msgid "Expand sidebar"
+msgstr ""
+
+#: sphinx/themes/default/static/sidebar.js:82
+#: sphinx/themes/default/static/sidebar.js:110
+msgid "Collapse sidebar"
+msgstr ""
+
+#: sphinx/themes/haiku/layout.html:26
+msgid "Contents"
+msgstr ""
+
+#: sphinx/writers/latex.py:176
+msgid "Release"
+msgstr "انتشار"
+
+#: sphinx/writers/latex.py:590 sphinx/writers/manpage.py:182
+msgid "Footnotes"
+msgstr ""
+
+#: sphinx/writers/latex.py:672
+msgid "continued from previous page"
+msgstr ""
+
+#: sphinx/writers/latex.py:677
+#, fuzzy
+msgid "Continued on next page"
+msgstr "فهرست کامل در یک صفحه"
+
+#: sphinx/writers/text.py:430
+msgid "[image]"
+msgstr ""
+
+#~ msgid "Python Enhancement Proposals!PEP %s"
+#~ msgstr ""
+
+#~ msgid "Platform: %s"
+#~ msgstr "%s:پلتفرم"
+
+#~ msgid "Platforms: "
+#~ msgstr ":پلتفرم ها"
+
+#~ msgid "here"
+#~ msgstr "اینجا"
+
+#~ msgid "Searching"
+#~ msgstr "در حال جستجو"
+
+#~ msgid "Preparing search..."
+#~ msgstr "...آماده جستجو"
+
+#~ msgid "module, in "
+#~ msgstr "ماژول, در"
+
+#~ msgid ", in "
+#~ msgstr ", در"
+
+#~ msgid ""
+#~ "Your search did not match any "
+#~ "documents. Please make sure that all "
+#~ "words are spelled correctly and that "
+#~ "you've selected enough categories."
+#~ msgstr ""
+#~ ". هیچ سندی برای جستجوی شما یافت"
+#~ " نشد، لطفا  اطمینان حاصل نمائید که"
+#~ " املای تمامی کلمات صحیح می باشد "
+#~ "و همچنین موضوعات کافی را برای این"
+#~ " جستجو انتخاب نموده اید"
+
+#~ msgid "Search finished, found %s page(s) matching the search query."
+#~ msgstr "جستجو انجام شد ، %s صفحه مطابق با پرس و جو پیدا شد"
+
+#~ msgid "Suggest Change"
+#~ msgstr ""
+
+#~ msgid "Keyword search"
+#~ msgstr "جستجو کلید واژه"
+
+#~ msgid "Most popular modules:"
+#~ msgstr "متداول ترین ماژول ها:"
+
+#~ msgid "Show modules only available on these platforms"
+#~ msgstr "تنها ماژول هایی که در این پلتفرم در دسترس هستند را نشان بده"
+
+#~ msgid ""
+#~ "<strong>Note:</strong> You requested an "
+#~ "out-of-date URL from this server. "
+#~ "We've tried to redirect you to the"
+#~ " new location of this page, but "
+#~ "it may not be the right one."
+#~ msgstr ""
 

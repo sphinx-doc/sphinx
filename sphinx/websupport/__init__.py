@@ -446,6 +446,7 @@ class WebSupport(object):
 
     def _parse_comment_text(self, text):
         settings = {'file_insertion_enabled': False,
+                    'raw_enabled': False,
                     'output_encoding': 'unicode'}
         try:
             ret = publish_parts(text, writer_name='html',

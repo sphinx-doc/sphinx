@@ -334,11 +334,14 @@ Project information
 .. confval:: trim_doctest_flags
 
    If true, doctest flags (comments looking like ``# doctest: FLAG, ...``) at
-   the ends of lines are removed for all code blocks showing interactive Python
-   sessions (i.e. doctests).  Default is true.  See the extension
-   :mod:`~sphinx.ext.doctest` for more possibilities of including doctests.
+   the ends of lines and ``<BLANKLINE>`` markers are removed for all code
+   blocks showing interactive Python sessions (i.e. doctests).  Default is
+   true.  See the extension :mod:`~sphinx.ext.doctest` for more possibilities
+   of including doctests.
 
    .. versionadded:: 1.0
+   .. versionchanged:: 1.1
+      Now also removes ``<BLANKLINE>``.
 
 
 .. _intl-options:
@@ -374,6 +377,7 @@ documentation on :ref:`intl` for details.
    * ``fr`` -- French
    * ``hr`` -- Croatian
    * ``it`` -- Italian
+   * ``ja`` -- Japanese
    * ``lt`` -- Lithuanian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
@@ -411,8 +415,6 @@ Options for HTML output
 
 These options influence HTML as well as HTML Help output, and other builders
 that use Sphinx' HTMLWriter class.
-
-.. XXX document html_context
 
 .. confval:: html_theme
 
@@ -460,6 +462,14 @@ that use Sphinx' HTMLWriter class.
    :confval:`html_title`.
 
    .. versionadded:: 0.4
+
+.. confval:: html_context
+
+   A dictionary of values to pass into the template engine's context for all
+   pages.  Single values can also be put in this dictionary using the
+   :option:`-A` command-line option of ``sphinx-build``.
+
+   .. versionadded:: 0.5
 
 .. confval:: html_logo
 

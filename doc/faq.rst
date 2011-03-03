@@ -52,7 +52,7 @@ Doxygen
 
 SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
-   documentation; it is hosted here: http://bitbucket.org/zondo/sphinx-scons
+   documentation; it is hosted here: https://bitbucket.org/zondo/sphinx-scons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
@@ -67,7 +67,7 @@ GitHub Pages
    Sphinx HTML output properly.
 
 MediaWiki
-   See http://bitbucket.org/kevindunn/sphinx-wiki, a project by Kevin Dunn.
+   See https://bitbucket.org/kevindunn/sphinx-wiki, a project by Kevin Dunn.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:

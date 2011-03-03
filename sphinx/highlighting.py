@@ -21,6 +21,7 @@ except ImportError:
     parser = None
 
 from sphinx.util.texescape import tex_hl_escape_map_old, tex_hl_escape_map_new
+from sphinx.ext import doctest
 
 try:
     import pygments
@@ -63,8 +64,6 @@ _LATEX_STYLES = r'''
 \newcommand\PYGZlb{[}
 \newcommand\PYGZrb{]}
 '''
-
-doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 parsing_exceptions = (SyntaxError, UnicodeEncodeError)
 if sys.version_info < (2, 5):
@@ -196,7 +195,8 @@ class PygmentsBridge(object):
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
-            source = doctestopt_re.sub('', source)
+            source = doctest.blankline_re.sub('', source)
+            source = doctest.doctestopt_re.sub('', source)
 
         # highlight via Pygments
         try:

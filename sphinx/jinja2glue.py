@@ -26,6 +26,12 @@ def _tobool(val):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
+def _toint(val):
+    try:
+        return int(val)
+    except ValueError:
+        return 0
+
 def accesskey(context, key):
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
@@ -34,6 +40,15 @@ def accesskey(context, key):
         context.vars['_accesskeys'][key] = 1
         return 'accesskey="%s"' % key
     return ''
+
+class idgen(object):
+    def __init__(self):
+        self.id = 0
+    def current(self):
+        return self.id
+    def next(self):
+        self.id += 1
+        return self.id
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
@@ -100,8 +115,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment = SandboxedEnvironment(loader=self,
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
+        self.environment.filters['toint'] = _toint
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
+        self.environment.globals['idgen'] = idgen
         if use_i18n:
             self.environment.install_gettext_translations(
                 builder.app.translator)

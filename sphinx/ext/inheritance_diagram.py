@@ -85,7 +85,7 @@ class InheritanceGraph(object):
         """Import a class using its fully-qualified *name*."""
         try:
             path, base = class_sig_re.match(name).groups()
-        except ValueError:
+        except (AttributeError, ValueError):
             raise InheritanceException('Invalid class or module %r specified '
                                        'for inheritance diagram' % name)
 

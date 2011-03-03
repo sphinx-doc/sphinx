@@ -236,7 +236,7 @@ class Glossary(Directive):
         in_definition = True
         was_empty = True
         messages = []
-        for (source, lineno, line) in self.content.xitems():
+        for line, (source, lineno) in zip(self.content, self.content.items):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:

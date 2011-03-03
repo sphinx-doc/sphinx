@@ -267,10 +267,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
-        return '{\\hyperref[%s]{' % (self.idescape(id))
+        return '{\\hyperref[%s]{' % self.idescape(id)
 
     def hyperpageref(self, id):
-        return '\\autopageref*{%s}' % (self.idescape(id))
+        return '\\autopageref*{%s}' % self.idescape(id)
 
     def idescape(self, id):
         return str(unicode(id).translate(tex_replace_map))
@@ -423,8 +423,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_production(self, node):
         if node['tokenname']:
-            self.body.append('\\production{%s}{' %
-                             self.encode(node['tokenname']))
+            tn = node['tokenname']
+            self.body.append(self.hypertarget('grammar-token-' + tn))
+            self.body.append('\\production{%s}{' % self.encode(tn))
         else:
             self.body.append('\\productioncont{')
     def depart_production(self, node):
@@ -658,8 +659,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\capstart\\caption{%s} \\\\\n' %
-                             self.table.caption)
+            self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
         if self.table.caption is not None:
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
@@ -1080,9 +1080,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.body.append(r'\index{%s!%s%s}\index{%s!%s%s}' %
                                      (p1, p2, m,  p2, p1, m))
                 elif type == 'triple':
-                    p1, p2, p3 = map(self.encode, split_into(3, 'triple', string))
+                    p1, p2, p3 = map(self.encode,
+                                     split_into(3, 'triple', string))
                     self.body.append(
-                        r'\index{%s!%s %s%s}\index{%s!%s, %s%s}\index{%s!%s %s%s}' %
+                        r'\index{%s!%s %s%s}\index{%s!%s, %s%s}'
+                        r'\index{%s!%s %s%s}' %
                         (p1, p2, p3, m,  p2, p3, p1, m,  p3, p1, p2, m))
                 elif type == 'see':
                     p1, p2 = map(self.encode, split_into(2, 'see', string))
@@ -1091,7 +1093,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     p1, p2 = map(self.encode, split_into(2, 'seealso', string))
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
-                    self.builder.warn('unknown index entry type %s found' % type)
+                    self.builder.warn(
+                        'unknown index entry type %s found' % type)
             except ValueError, err:
                 self.builder.warn(str(err))
         raise nodes.SkipNode
@@ -1151,12 +1154,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.context.append('}} (%s)' % self.hyperpageref(id))
                 else:
                     self.context.append('}}')
-        elif uri.startswith('@token'):
-            if self.in_production_list:
-                self.body.append('\\token{')
-            else:
-                self.body.append('\\grammartoken{')
-            self.context.append('}')
         else:
             self.builder.warn('unusable reference target found: %s' % uri,
                               (self.curfilestack[-1], node.line))

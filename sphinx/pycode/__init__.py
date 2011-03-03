@@ -85,10 +85,30 @@ class AttrDocVisitor(nodes.NodeVisitor):
             self.in_init -= 1
 
     def visit_expr_stmt(self, node):
-        """Visit an assignment which may have a special comment before it."""
+        """Visit an assignment which may have a special comment before (or
+        after) it.
+        """
         if _eq not in node.children:
             # not an assignment (we don't care for augmented assignments)
             return
+        # look *after* the node; there may be a comment prefixing the NEWLINE
+        # of the simple_stmt
+        parent = node.parent
+        idx = parent.children.index(node) + 1
+        while idx < len(parent):
+            if parent[idx].type == sym.SEMI:
+                idx += 1
+                continue  # skip over semicolon
+            if parent[idx].type == sym.NEWLINE:
+                prefix = parent[idx].get_prefix()
+                if not isinstance(prefix, unicode):
+                    prefix = prefix.decode(self.encoding)
+                docstring = prepare_commentdoc(prefix)
+                if docstring:
+                    self.add_docstring(node, docstring)
+                    return  # don't allow docstrings both before and after
+            break
+        # now look *before* the node
         pnode = node[0]
         prefix = pnode.get_prefix()
         # if the assignment is the first statement on a new indentation

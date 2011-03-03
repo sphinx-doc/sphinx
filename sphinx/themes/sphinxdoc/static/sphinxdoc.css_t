@@ -38,7 +38,7 @@ div.document {
 }
 
 div.bodywrapper {
-    margin: 0 240px 0 0;
+    margin: 0 {{ theme_sidebarwidth|toint + 10 }}px 0 0;
     border-right: 1px solid #ccc;
 }
 
@@ -88,7 +88,7 @@ div.sphinxsidebarwrapper {
 div.sphinxsidebar {
     margin: 0;
     padding: 0.5em 15px 15px 0;
-    width: 210px;
+    width: {{ theme_sidebarwidth|toint - 20 }}px;
     float: right;
     font-size: 1em;
     text-align: left;

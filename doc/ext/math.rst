@@ -241,4 +241,4 @@ package jsMath_.  It provides this config value:
 .. _MathJax: http://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _preview-latex package: http://www.gnu.org/software/auctex/preview-latex.html
-.. _AmSMath LaTeX package: http://www.ams.org/tex/amslatex.html
+.. _AmSMath LaTeX package: http://www.ams.org/publications/authors/tex/amslatex

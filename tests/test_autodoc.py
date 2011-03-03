@@ -341,6 +341,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
+        #print '\n'.join(directive.result)
         assert len(_warnings) == 0, _warnings
         del directive.result[:]
 
@@ -424,13 +425,15 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.udocattr'),
                    ('attribute', 'test_autodoc.Class.mdocattr'),
                    ('attribute', 'test_autodoc.Class.inst_attr_comment'),
+                   ('attribute', 'test_autodoc.Class.inst_attr_inline'),
                    ('attribute', 'test_autodoc.Class.inst_attr_string'),
                    ('method', 'test_autodoc.Class.moore'),
                    ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
-    should.extend((('method', 'test_autodoc.Class.undocmeth'),
+    should.extend((('attribute', 'test_autodoc.Class.skipattr'),
+                   ('method', 'test_autodoc.Class.undocmeth'),
                    ('method', 'test_autodoc.Class.roger')))
     assert_processes(should, 'class', 'Class')
     options.inherited_members = True
@@ -519,11 +522,24 @@ def test_generate():
         '.. py:classmethod:: Class.moore(a, e, f) -> happiness', 'method',
         'test_autodoc.Class.moore')
 
+    # test new attribute documenter behavior
+    directive.env.temp_data['py:module'] = 'test_autodoc'
+    options.undoc_members = True
+    assert_processes([('class', 'test_autodoc.AttCls'),
+                      ('attribute', 'test_autodoc.AttCls.a1'),
+                      ('attribute', 'test_autodoc.AttCls.a2'),
+                      ], 'class', 'AttCls')
+    assert_result_contains(
+        '   :annotation: = hello world', 'attribute', 'AttCls.a1')
+    assert_result_contains(
+        '   :annotation: = None', 'attribute', 'AttCls.a2')
+
 
 # --- generate fodder ------------
 
 __all__ = ['Class']
 
+#: documentation for the integer
 integer = 1
 
 class CustomEx(Exception):
@@ -606,6 +622,7 @@ class Class(Base):
         docstring="moore(a, e, f) -> happiness")
 
     def __init__(self, arg):
+        self.inst_attr_inline = None #: an inline documented instance attr
         #: a documented instance attribute
         self.inst_attr_comment = None
         self.inst_attr_string = None
@@ -642,3 +659,11 @@ First line of docstring
 
         rest of docstring
         """
+
+class StrRepr(str):
+    def __repr__(self):
+        return self
+
+class AttCls(object):
+    a1 = StrRepr('hello\nworld')
+    a2 = None

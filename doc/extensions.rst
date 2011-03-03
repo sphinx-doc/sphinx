@@ -70,8 +70,8 @@ If you write an extension that you think others will find useful or you think
 should be included as a part of Sphinx, please write to the project mailing
 list (`join here <http://groups.google.com/group/sphinx-dev>`_).
 
-.. _Wiki at BitBucket: http://www.bitbucket.org/birkenfeld/sphinx/wiki/Home
-.. _Sphinx Contrib: http://www.bitbucket.org/birkenfeld/sphinx-contrib
+.. _Wiki at BitBucket: https://www.bitbucket.org/birkenfeld/sphinx/wiki/Home
+.. _Sphinx Contrib: https://www.bitbucket.org/birkenfeld/sphinx-contrib
 
 
 Where to put your own extensions?

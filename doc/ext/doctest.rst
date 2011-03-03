@@ -237,4 +237,4 @@ There are also these config values for customizing the doctest extension:
    will be interpreted as one block ending and another one starting.  Also,
    removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
    :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags` to
-   achieve the latter in all code blocks with Python console content.
+   achieve that in all code blocks with Python console content.
