@@ -229,8 +229,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             # Handle xrefs with missing anchors
             r = self.referenced_ids.pop()
             if r not in self.written_ids:
-                self.document.reporter.info(
-                    "Unknown cross-reference target: `%s'" % r)
+                self.builder.warn("missing cross-reference target: %r" % r)
                 self.add_text('@anchor{%s}@w{%s}\n' % (r, ' ' * 30))
         self.fragment = ''.join(self.body).strip() + '\n'
         self.elements['body'] = self.fragment
@@ -570,9 +569,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.topic):
             raise nodes.SkipNode
         elif not isinstance(parent, nodes.section):
-            self.document.reporter.warning(
+            self.builder.warn(
                 'encountered title node not in section, topic, table, '
-                'admonition or sidebar', base_node=node)
+                'admonition or sidebar', (self.curfilestack[-1], node.line))
             self.visit_rubric(node)
         else:
             try:
@@ -615,7 +614,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         elif node.get('refuri'):
             pass
         else:
-            self.document.reporter.error("Unknown target type: %r" % node)
+            self.builder.warn("unknown target type: %r" % node,
+                              (self.curfilestack[-1], node.line))
 
     def visit_reference(self, node):
         if isinstance(node.parent, nodes.title):
@@ -629,7 +629,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.add_xref(node['refid'], name, node)
             raise nodes.SkipNode
         if not node.get('refuri'):
-            self.document.reporter.error("Unknown reference type: %s" % node)
+            self.builder.warn("unknown reference type: %s" % node,
+                              (self.curfilestack[-1], node.line))
             return
         uri = node['refuri']
         if uri.startswith('#'):
@@ -1031,8 +1032,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_caption(self, node):
         if not isinstance(node.parent, nodes.figure):
-            self.document.reporter.warning('Caption not inside a figure.',
-                                           base_node=node)
+            self.builder.warn('caption not inside a figure.',
+                              (self.curfilestack[-1], node.line))
             return
         self.add_text('@caption{', fresh=1)
     def depart_caption(self, node):
@@ -1113,12 +1114,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.add_text('<')
 
     def unimplemented_visit(self, node):
-        self.document.reporter.error("Unimplemented node type: `%s'"
-                                     % node.__class__.__name__, base_node=node)
+        self.builder.warn("unimplemented node type: %r" % node,
+                          (self.curfilestack[-1], node.line))
 
     def unknown_visit(self, node):
-        self.document.reporter.error("Unknown node type: `%s'"
-                                     % node.__class__.__name__, base_node=node)
+        self.builder.warn("Unknown node type: %r" % node,
+                          (self.curfilestack[-1], node.line))
     def unknown_departure(self, node):
         pass
 
