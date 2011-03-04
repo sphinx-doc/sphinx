@@ -1093,12 +1093,14 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_system_message(self, node):
-        self.add_text('\n@format\n'
-                       '---------- SYSTEM MESSAGE -----------\n')
+        self.add_text('\n\n@w{----------- System Message: %s/%s -----------} '
+                      '(%s, line %s)\n' % (
+                node.get('type', '?'),
+                node.get('level', '?'),
+                escape(node.get('source', '?')),
+                node.get('line', '?')))
     def depart_system_message(self, node):
-        self.rstrip()
-        self.add_text('\n------------------------------------\n'
-                      '@end format\n')
+        pass
 
     def visit_comment(self, node):
         for line in node.astext().splitlines():
