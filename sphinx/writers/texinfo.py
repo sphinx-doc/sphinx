@@ -214,11 +214,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.previous_section = None
         self.section_level = 0
         self.seen_title = False
-        self.next_section_targets = []
+        self.next_section_ids = set()
         self.escape_newlines = 0
         self.curfilestack = []
 
     def finish(self):
+        if self.previous_section is None:
+            self.add_menu('Top')
         for index in self.indices:
             name, content = index
             pointers = tuple([name] + self.rellinks[name])
@@ -229,7 +231,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
             # Handle xrefs with missing anchors
             r = self.referenced_ids.pop()
             if r not in self.written_ids:
-                self.builder.warn("missing cross-reference target: %r" % r)
                 self.add_text('@anchor{%s}@w{%s}\n' % (r, ' ' * 30))
         self.fragment = ''.join(self.body).strip() + '\n'
         self.elements['body'] = self.fragment
@@ -455,7 +456,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                     if not entry[3]:
                         continue
                     name = escape_menu(entry[0])
-                    sid = self.get_short_id(entry[3])
+                    sid = self.get_short_id('%s:%s' % (entry[2], entry[3]))
                     desc = escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
@@ -493,23 +494,31 @@ class TexinfoTranslator(nodes.NodeVisitor):
         return sid
 
     def add_anchor(self, id, node):
+        if id.startswith('index-'):
+            return
+        id = self.curfilestack[-1] + ':' + id
+        eid = escape_id(id)
         sid = self.get_short_id(id)
-        if sid not in self.written_ids:
-            self.add_text('@anchor{%s}' % sid)
-            self.written_ids.add(sid)
+        for id in (eid, sid):
+            if id not in self.written_ids:
+                self.add_text('@anchor{%s}\n' % id)
+                self.written_ids.add(id)
 
-    def add_xref(self, ref, name, node):
+    def add_xref(self, id, name, node):
         name = escape_menu(name)
-        sid = self.get_short_id(ref)
+        sid = self.get_short_id(id)
         self.add_text('@pxref{%s,,%s}' % (sid, name))
         self.referenced_ids.add(sid)
+        self.referenced_ids.add(escape_id(id))
 
     ## Visiting
 
     def visit_document(self, node):
-        pass
+        self.curfilestack.append(node.get('docname', ''))
+        if 'docname' in node:
+            self.add_anchor(':doc', node)
     def depart_document(self, node):
-        pass
+        self.curfilestack.pop()
 
     def visit_Text(self, node):
         s = escape(node.astext())
@@ -520,7 +529,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_section(self, node):
-        self.next_section_targets.extend(node.get('ids', []))
+        self.next_section_ids.update(node.get('ids', []))
         if not self.seen_title:
             return
         if self.previous_section:
@@ -531,10 +540,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
         self.add_text('\n@node %s,%s,%s,%s\n' % pointers)
-        for id in self.next_section_targets:
+        for id in self.next_section_ids:
             self.add_anchor(id, node)
 
-        self.next_section_targets = []
+        self.next_section_ids.clear()
         self.previous_section = node
         self.section_level += 1
 
@@ -600,54 +609,67 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## References
 
     def visit_target(self, node):
-        if node.get('ids'):
-            self.add_anchor(node['ids'][0], node)
-        elif node.get('refid'):
-            # Section targets need to go after the start of the section.
-            next = node.next_node(ascend=1, siblings=1)
-            while isinstance(next, nodes.target):
-                next = next.next_node(ascend=1, siblings=1)
+        # postpone the labels until after the sectioning command
+        parindex = node.parent.index(node)
+        try:
+            try:
+                next = node.parent[parindex+1]
+            except IndexError:
+                # last node in parent, look at next after parent
+                # (for section of equal level)
+                next = node.parent.parent[node.parent.parent.index(node.parent)]
             if isinstance(next, nodes.section):
-                self.next_section_targets.append(node['refid'])
+                if node.get('refid'):
+                    self.next_section_ids.add(node['refid'])
+                self.next_section_ids.update(node['ids'])
                 return
-            self.add_anchor(node['refid'], node)
-        elif node.get('refuri'):
+        except IndexError:
             pass
-        else:
-            self.builder.warn("unknown target type: %r" % node,
-                              (self.curfilestack[-1], node.line))
+        if 'refuri' in node:
+            return
+        if node.get('refid'):
+            self.add_anchor(node['refid'], node)
+        for id in node['ids']:
+            self.add_anchor(id, node)
+    def depart_target(self, node):
+        pass
 
     def visit_reference(self, node):
-        if isinstance(node.parent, nodes.title):
+        # an xref's target is displayed in Info so we ignore a few
+        # cases for the sake of appearance
+        if isinstance(node.parent, (nodes.title, addnodes.desc_type,)):
             return
         if isinstance(node[0], nodes.image):
             return
-        if isinstance(node.parent, addnodes.desc_type):
-            return
         name = node.get('name', node.astext()).strip()
-        if node.get('refid'):
-            self.add_xref(node['refid'], name, node)
-            raise nodes.SkipNode
-        if not node.get('refuri'):
-            self.builder.warn("unknown reference type: %s" % node,
-                              (self.curfilestack[-1], node.line))
+        uri = node.get('refuri', '')
+        if not uri and node.get('refid'):
+            uri = '%' + self.curfilestack[-1] + '#' + node['refid']
+        if not uri:
             return
-        uri = node['refuri']
-        if uri.startswith('#'):
-            self.add_xref(uri[1:], name, node)
-        elif uri.startswith('%'):
-            id = uri[1:]
-            if '#' in id:
-                src, id = uri[1:].split('#', 1)
-            self.add_xref(id, name, node)
-        elif uri.startswith('mailto:'):
+        if uri.startswith('mailto:'):
             uri = escape_arg(uri[7:])
             name = escape_arg(name)
             if not name or name == uri:
                 self.add_text('@email{%s}' % uri)
             else:
                 self.add_text('@email{%s,%s}' % (uri, name))
+        elif uri.startswith('#'):
+            # references to labels in the same document
+            id = self.curfilestack[-1] + ':' + uri[1:]
+            self.add_xref(id, name, node)
+        elif uri.startswith('%'):
+            # references to documents or labels inside documents
+            hashindex = uri.find('#')
+            if hashindex == -1:
+                # reference to the document
+                id = uri[1:] + '::doc'
+            else:
+                # reference to a label
+                id = uri[1:].replace('#', ':')
+            self.add_xref(id, name, node)
         elif uri.startswith('info:'):
+            # references to an external Info file
             uri = uri[5:].replace('_', ' ')
             uri = escape_arg(uri)
             id = 'Top'
@@ -756,8 +778,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_footnote_reference(self, node):
         self.add_text(')}')
 
-    visit_citation = visit_footnote
-    depart_citation = depart_footnote
+    def visit_citation(self, node):
+        for id in node.get('ids'):
+            self.add_anchor(id, node)
+    def depart_citation(self, node):
+        pass
 
     def visit_citation_reference(self, node):
         self.add_text('@w{[')
@@ -846,8 +871,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
-        if node.get('ids') and node['ids'][0]:
-            self.add_anchor(node['ids'][0], node)
+        for id in node.get('ids'):
+            self.add_anchor(id, node)
+        # anchors and indexes need to go in front
+        for n in node[::]:
+            if isinstance(n, (addnodes.index, nodes.target)):
+                n.walkabout(self)
+                node.remove(n)
         self.add_text(self.at_item_x + ' ', fresh=1)
         self.at_item_x = '@itemx'
     def depart_term(self, node):
@@ -1133,6 +1163,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         maxlen = max(len(name) for name in names)
         for production in node:
             if production['tokenname']:
+                for id in production.get('ids'):
+                    self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
                 lastname = production['tokenname']
             else:
@@ -1154,13 +1186,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.add_anchor(modname, node)
 
     def visit_index(self, node):
-        # Throws off table alignment
-        if isinstance(node.parent, nodes.term):
-            return
         for entry in node['entries']:
             typ, text, tid, text2 = entry
             text = escape_menu(text)
-            self.add_text('@geindex %s\n' % text, fresh=1)
+            self.add_text('@geindex %s\n' % text)
 
     def visit_autosummary_table(self, node):
         pass
@@ -1191,9 +1220,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.add_text('\n\n', fresh=1)
 
     def visit_start_of_file(self, node):
-        self.curfilestack.append(node.get('docname', ''))
-        if node.get('docname'):
-            self.next_section_targets.append(node['docname'])
+        # add a document target
+        self.next_section_ids.add(':doc')
+        self.curfilestack.append(node['docname'])
     def depart_start_of_file(self, node):
         self.curfilestack.pop()
 
@@ -1257,8 +1286,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.add_text('@end deffn\n\n', fresh=1)
     def visit_desc_signature(self, node):
         self.desctype = node.parent['desctype'].strip()
-        if self.desctype != 'describe' and node['ids']:
-            self.add_anchor(node['ids'][0], node)
+        if self.desctype != 'describe':
+            for id in node.get('ids'):
+                self.add_anchor(id, node)
         typ = self.desc_map.get(self.desctype, self.desctype)
         self.add_text('%s {%s} ' % (self.at_deffnx, escape_arg(typ)), fresh=1)
         self.at_deffnx = '@deffnx'
