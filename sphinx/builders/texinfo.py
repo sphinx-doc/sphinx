@@ -86,8 +86,8 @@ class TexinfoBuilder(Builder):
     """
     name = 'texinfo'
     format = 'texinfo'
-    supported_image_types = ['application/pdf', 'image/png',
-                             'image/gif', 'image/jpeg']
+    supported_image_types = ['image/png', 'image/jpeg',
+                             'image/gif',]
 
     def init(self):
         self.docnames = []

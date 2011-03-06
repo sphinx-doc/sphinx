@@ -47,7 +47,8 @@ except ImportError:
 from docutils import nodes
 from docutils.parsers.rst import directives
 
-from sphinx.ext.graphviz import render_dot_html, render_dot_latex
+from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
+    render_dot_texinfo
 from sphinx.util.compat import Directive
 
 
@@ -354,6 +355,21 @@ def latex_visit_inheritance_diagram(self, node):
     raise nodes.SkipNode
 
 
+def texinfo_visit_inheritance_diagram(self, node):
+    """
+    Output the graph for Texinfo.  This will insert a PNG.
+    """
+    graph = node['graph']
+
+    graph_hash = get_graph_hash(node)
+    name = 'inheritance%s' % graph_hash
+
+    dotcode = graph.generate_dot(name, env=self.builder.env,
+                                 graph_attrs={'size': '"6.0,6.0"'})
+    render_dot_texinfo(self, node, dotcode, [], 'inheritance')
+    raise nodes.SkipNode
+
+
 def skip(self, node):
     raise nodes.SkipNode
 
@@ -366,7 +382,7 @@ def setup(app):
         html=(html_visit_inheritance_diagram, None),
         text=(skip, None),
         man=(skip, None),
-        texinfo=(skip, None))
+        texinfo=(texinfo_visit_inheritance_diagram, None))
     app.add_directive('inheritance-diagram', InheritanceDiagram)
     app.add_config_value('inheritance_graph_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs', {}, False),
