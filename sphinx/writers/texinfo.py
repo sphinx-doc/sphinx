@@ -18,6 +18,7 @@ from docutils import nodes, writers
 from sphinx import addnodes, __version__
 from sphinx.locale import versionlabels, _
 from sphinx.util import ustrftime
+from sphinx.writers.latex import collected_footnote
 
 
 COPYING = """\
@@ -199,6 +200,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.next_section_ids = set()
         self.escape_newlines = 0
         self.curfilestack = []
+        self.footnotestack = []
+        self.in_footnote = 0
 
     def finish(self):
         if self.previous_section is None:
@@ -442,6 +445,25 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                          generate(content, collapsed)))
         self.indices.append((_('Index'), '\n@printindex ge\n'))
 
+    # this is copied from the latex writer
+    # TODO: move this to sphinx.util
+
+    def collect_footnotes(self, node):
+        fnotes = {}
+        def footnotes_under(n):
+            if isinstance(n, nodes.footnote):
+                yield n
+            else:
+                for c in n.children:
+                    if isinstance(c, addnodes.start_of_file):
+                        continue
+                    for k in footnotes_under(c):
+                        yield k
+        for fn in footnotes_under(node):
+            num = fn.children[0].astext().strip()
+            fnotes[num] = [collected_footnote(*fn.children), False]
+        return fnotes
+
     ## xref handling
 
     def get_short_id(self, id):
@@ -476,10 +498,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Visiting
 
     def visit_document(self, node):
+        self.footnotestack.append(self.collect_footnotes(node))
         self.curfilestack.append(node.get('docname', ''))
         if 'docname' in node:
             self.add_anchor(':doc', node)
     def depart_document(self, node):
+        self.footnotestack.pop()
         self.curfilestack.pop()
 
     def visit_Text(self, node):
@@ -551,6 +575,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n\n')
 
     def visit_rubric(self, node):
+        if len(node.children) == 1 and node.children[0].astext() in \
+                ('Footnotes', _('Footnotes')):
+            raise nodes.SkipNode
         try:
             rubric = self.rubrics[self.section_level]
         except IndexError:
@@ -642,10 +669,17 @@ class TexinfoTranslator(nodes.NodeVisitor):
         else:
             uri = escape_arg(uri)
             name = escape_arg(name)
+            show_urls = 'footnote'
+            if self.in_footnote:
+                show_urls = 'inline'
             if not name or uri == name:
                 self.body.append('@indicateurl{%s}' % uri)
-            else:
+            elif show_urls == 'inline':
                 self.body.append('@uref{%s,%s}' % (uri, name))
+            elif show_urls == 'no':
+                self.body.append('@uref{%s,,%s}' % (uri, name))
+            else:
+                self.body.append('%s@footnote{%s}' % (name, uri))
         raise nodes.SkipNode
 
     def depart_reference(self, node):
@@ -724,14 +758,24 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Footnotes
 
     def visit_footnote(self, node):
-        self.visit_block_quote(node)
-    def depart_footnote(self, node):
-        self.depart_block_quote(node)
+        raise nodes.SkipNode
+
+    def visit_collected_footnote(self, node):
+        self.in_footnote += 1
+        self.body.append('@footnote{')
+    def depart_collected_footnote(self, node):
+        self.body.append('}')
+        self.in_footnote -= 1
 
     def visit_footnote_reference(self, node):
-        self.body.append('@w{(')
-    def depart_footnote_reference(self, node):
-        self.body.append(')}')
+        num = node.astext().strip()
+        try:
+            footnode, used = self.footnotestack[-1][num]
+        except (KeyError, IndexError):
+            raise nodes.SkipNode
+        # footnotes are repeated for each reference
+        footnode.walkabout(self)
+        raise nodes.SkipChildren
 
     def visit_citation(self, node):
         for id in node.get('ids'):
@@ -1157,8 +1201,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # add a document target
         self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
+        self.footnotestack.append(self.collect_footnotes(node))
     def depart_start_of_file(self, node):
         self.curfilestack.pop()
+        self.footnotestack.pop()
 
     def visit_centered(self, node):
         txt = escape_arg(node.astext())
