@@ -486,7 +486,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         sid = self.get_short_id(id)
         for id in (eid, sid):
             if id not in self.written_ids:
-                self.body.append('@anchor{%s}\n' % id)
+                self.body.append('@anchor{%s}' % id)
                 self.written_ids.add(id)
 
     def add_xref(self, id, name, node):
@@ -670,7 +670,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
-            show_urls = 'footnote'
+            show_urls = self.builder.config.texinfo_show_urls
             if self.in_footnote:
                 show_urls = 'inline'
             if not name or uri == name:
