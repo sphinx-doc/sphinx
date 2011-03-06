@@ -964,6 +964,22 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_generated(self, node):
         raise nodes.SkipNode
 
+    def visit_header(self, node):
+        raise nodes.SkipNode
+
+    def visit_footer(self, node):
+        raise nodes.SkipNode
+
+    def visit_container(self, node):
+        pass
+    def depart_container(self, node):
+        pass
+
+    def visit_decoration(self, node):
+        pass
+    def depart_decoration(self, node):
+        pass
+
     def visit_topic(self, node):
         # ignore TOC's since we have to have a "menu" anyway
         if 'contents' in node.get('classes', []):
@@ -1106,14 +1122,14 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.depart_literal_block(None)
         raise nodes.SkipNode
 
+    def visit_production(self, node):
+        pass
+    def depart_production(self, node):
+        pass
+
     def visit_literal_emphasis(self, node):
         self.body.append('@code{')
     def depart_literal_emphasis(self, node):
-        self.body.append('}')
-
-    def visit_module(self, node):
-        modname = escape_id(node['modname'])
-        self.add_anchor(modname, node)
         self.body.append('}')
 
     def visit_index(self, node):
@@ -1121,18 +1137,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
             typ, text, tid, text2 = entry
             text = escape_menu(text)
             self.body.append('@geindex %s\n' % text)
-
-    def visit_autosummary_table(self, node):
-        pass
-    def depart_autosummary_table(self, node):
-        pass
-
-    def visit_todo_node(self, node):
-        self.visit_transition(node)
-        self.visit_admonition(node)
-    def depart_todo_node(self, node):
-        self.depart_admonition(node)
-        self.visit_transition(node)
 
     def visit_refcount(self, node):
         self.body.append('\n')
@@ -1295,4 +1299,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_hlistcol(self, node):
         pass
     def depart_hlistcol(self, node):
+        pass
+
+    def visit_pending_xref(self, node):
+        pass
+    def depart_pending_xref(self, node):
         pass
