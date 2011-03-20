@@ -42,6 +42,13 @@ How do I...
 Using Sphinx with...
 --------------------
 
+Read the Docs
+    http://readthedocs.org is a documentation hosting service based around Sphinx.
+    They will host sphinx documentation, along with supporting a number of other
+    features including version support, PDF generation, and more. The `Getting 
+    Started <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
+    guide is a good place to start.
+
 Epydoc
    There's a third-party extension providing an `api role`_ which refers to
    Epydoc's API docs for a given identifier.
