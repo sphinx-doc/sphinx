@@ -32,5 +32,17 @@ except ImportError:
     print("The nose package is needed to run the Sphinx test suite.")
     sys.exit(1)
 
+try:
+    import docutils
+except ImportError:
+    print("Sphinx requires the docutils package to be installed")
+    sys.exit(1)
+
+try:
+    import jinja2
+except ImportError:
+    print("Sphinx requires the jinja2 package to be installed")
+    sys.exit(1)
+
 print("Running Sphinx test suite...")
 nose.main()
