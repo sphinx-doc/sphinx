@@ -194,7 +194,9 @@ def with_app(*args, **kwargs):
 def gen_with_app(*args, **kwargs):
     """
     Make a TestApp with args and kwargs, pass it to the test and clean up
-    properly.
+    properly. The wrapped function is assumed to be a generator and the
+    wrapper function is itself a generator that will iterate over the
+    values of the wrapped function and yield them.
     """
     def generator(func):
         @wraps(func)
