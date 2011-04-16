@@ -25,6 +25,11 @@ def setup_module():
                 test_root / 'xx' / 'LC_MESSAGES' / '%s.mo' % catalog],
                 stdout=PIPE, stderr=PIPE)
         except OSError:
+            # The test will fail the second time it's run if we don't
+            # tear down here. Not sure if there's a more idiomatic way
+            # of ensuring that teardown gets run in the event of an
+            # exception from the setup function.
+            teardown_module()
             raise SkipTest  # most likely msgfmt was not found
         else:
             stdout, stderr = p.communicate()
