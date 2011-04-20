@@ -37,6 +37,9 @@ def test_type_definitions():
     x = 'explicit module::myclass::foo::foo()'
     assert unicode(parse('function', x)) == x
 
+    x = 'int printf(const char* fmt, ...)'
+    assert unicode(parse('function', x)) == x
+
     x = 'std::vector<std::pair<std::string, long long>> module::blah'
     assert unicode(parse('type_object', x)) == x
 
