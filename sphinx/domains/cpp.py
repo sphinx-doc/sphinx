@@ -708,6 +708,13 @@ class DefinitionParser(object):
                     self.fail('expected comma between arguments')
                 self.skip_ws()
 
+            if self.skip_string('...'):
+                args.append(ArgumentDefExpr(None, '...', None))
+                if self.skip_string(')'):
+                    break
+                else:
+                    self.fail('expected closing parenthesis after ellipses')
+
             argtype = self._parse_type()
             argname = default = None
             self.skip_ws()
