@@ -67,7 +67,9 @@ class I18nBuilder(Builder):
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
 
         for node, msg in extract_messages(doctree):
-            catalog.setdefault(node.uid, msg)
+            if not msg in catalog:
+                catalog[msg] = []
+            catalog[msg].append(node.uid)
 
 
 class MessageCatalogBuilder(I18nBuilder):
@@ -93,11 +95,12 @@ class MessageCatalogBuilder(I18nBuilder):
             pofile = open(pofn, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
-                for uid, message in messages.iteritems():
+                for message, uids in messages.iteritems():
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
                                       replace(u'"', ur'\"')
-                    pomsg = u'#%s\nmsgid "%s"\nmsgstr ""\n\n' % (uid, message)
-                    pofile.write(pomsg)
+                    for uid in uids:
+                        pofile.write(u'# %s\n' % uid)
+                    pofile.write(u'msgid "%s"\nmsgstr ""\n\n' % message)
             finally:
                 pofile.close()
