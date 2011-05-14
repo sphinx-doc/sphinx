@@ -127,8 +127,12 @@ var Search = {
     var excluded = [];
     var hlterms = [];
     var tmp = query.split(/\s+/);
-    var object = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
+    var objectterms = [];
     for (var i = 0; i < tmp.length; i++) {
+      if (tmp[i] != "") {
+          objectterms.push(tmp[i].toLowerCase());
+      }
+
       if ($u.indexOf(stopwords, tmp[i]) != -1 || tmp[i].match(/^\d+$/) ||
           tmp[i] == "") {
         // skip this "word"
@@ -159,7 +163,6 @@ var Search = {
     var filenames = this._index.filenames;
     var titles = this._index.titles;
     var terms = this._index.terms;
-    var objtypes = this._index.objtypes;
     var fileMap = {};
     var files = null;
     // different result priorities
@@ -170,11 +173,17 @@ var Search = {
     $('#search-progress').empty();
 
     // lookup as object
-    if (object != null) {
-      var results = this.performObjectSearch(object);
-      objectResults = results[0];
-      importantResults = results[1];
-      unimportantResults = results[2];
+    for (var i = 0; i < objectterms.length; i++) {
+      var others = Array.concat(objectterms.slice(0,i),
+                                objectterms.slice(i+1, objectterms.length))
+      var results = this.performObjectSearch(objectterms[i], others);
+      // Assume first word is most likely to be the object,
+      // other words more likely to be in description.
+      // Therefore put matches for earlier words first.
+      // (Results are eventually used in reverse order).
+      objectResults = results[0].concat(objectResults);
+      importantResults = results[1].concat(importantResults);
+      unimportantResults = results[2].concat(unimportantResults);
     }
 
     // perform the search on the required terms
@@ -298,7 +307,7 @@ var Search = {
     displayNextItem();
   },
 
-  performObjectSearch : function(object) {
+  performObjectSearch : function(object, otherterms) {
     var filenames = this._index.filenames;
     var objects = this._index.objects;
     var objnames = this._index.objnames;
@@ -312,8 +321,25 @@ var Search = {
       for (var name in objects[prefix]) {
         var fullname = (prefix ? prefix + '.' : '') + name;
         if (fullname.toLowerCase().indexOf(object) > -1) {
-          match = objects[prefix][name];
-          descr = objnames[match[1]] + _(', in ') + titles[match[0]];
+          var match = objects[prefix][name];
+          var objname = objnames[match[1]];
+          var title = titles[match[0]];
+          // If more than one term searched for, we require other words to be
+          // found in the name/title/description
+          if (otherterms.length > 0) {
+            var haystack = (prefix + ' ' + name + ' ' + objname + ' ' + title).toLowerCase();
+            var allfound = true;
+            for (var i = 0; i < otherterms.length; i++) {
+              if (haystack.indexOf(otherterms[i]) == -1) {
+                allfound = false;
+                break;
+              }
+            }
+            if (!allfound) {
+              continue;
+            }
+          }
+          var descr = objname + _(', in ') + title;
           // XXX the generated anchors are not generally correct
           // XXX there may be custom prefixes
           result = [filenames[match[0]], fullname, '#'+fullname, descr];
