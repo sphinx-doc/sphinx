@@ -489,7 +489,7 @@ var Search = {
             listItem.slideDown(5, function() {
               displayNextItem();
             });
-          });
+          }, "text");
         } else {
           // no source available, just display title
           Search.output.append(listItem);
