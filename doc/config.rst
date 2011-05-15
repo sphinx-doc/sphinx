@@ -379,6 +379,7 @@ documentation on :ref:`intl` for details.
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``lt`` -- Lithuanian
+   * ``lv`` -- Latvian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
