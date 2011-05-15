@@ -18,6 +18,7 @@ import tempfile
 import posixpath
 import traceback
 from os import path
+from codecs import BOM_UTF8
 
 import docutils
 from docutils.utils import relative_path
@@ -209,6 +210,59 @@ def get_module_source(modname):
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
     return 'file', filename
+
+
+# a regex to recognize coding cookies
+_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
+
+def detect_encoding(readline):
+    """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
+
+    def read_or_stop():
+        try:
+            return readline()
+        except StopIteration:
+            return None
+
+    def get_normal_name(orig_enc):
+        """Imitates get_normal_name in tokenizer.c."""
+        # Only care about the first 12 characters.
+        enc = orig_enc[:12].lower().replace('_', '-')
+        if enc == 'utf-8' or enc.startswith('utf-8-'):
+            return 'utf-8'
+        if enc in ('latin-1', 'iso-8859-1', 'iso-latin-1') or \
+           enc.startswith(('latin-1-', 'iso-8859-1-', 'iso-latin-1-')):
+            return 'iso-8859-1'
+        return orig_enc
+
+    def find_cookie(line):
+        try:
+            line_string = line.decode('ascii')
+        except UnicodeDecodeError:
+            return None
+
+        matches = _coding_re.findall(line_string)
+        if not matches:
+            return None
+        return get_normal_name(matches[0])
+
+    default = sys.getdefaultencoding()
+    first = read_or_stop()
+    if first and first.startswith(BOM_UTF8):
+        first = first[3:]
+        default = 'utf-8-sig'
+    if not first:
+        return default
+    encoding = find_cookie(first)
+    if encoding:
+        return encoding
+    second = read_or_stop()
+    if not second:
+        return default
+    encoding = find_cookie(second)
+    if encoding:
+        return encoding
+    return default
 
 
 # Low-level utility functions and classes.

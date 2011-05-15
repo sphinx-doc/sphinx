@@ -17,7 +17,7 @@ from cStringIO import StringIO
 from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
-from sphinx.util import get_module_source
+from sphinx.util import get_module_source, detect_encoding
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -36,10 +36,6 @@ for k, v in token.tok_name.iteritems():
 # a dict mapping terminal and nonterminal numbers to their names
 number2name = pygrammar.number2symbol.copy()
 number2name.update(token.tok_name)
-
-
-# a regex to recognize coding cookies
-_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 _eq = nodes.Leaf(token.EQUAL, '=')
 
@@ -195,11 +191,10 @@ class ModuleAnalyzer(object):
         self.srcname = srcname
         # file-like object yielding source lines
         self.source = source
-        # will be changed when found by parse()
-        self.encoding = sys.getdefaultencoding()
 
         # cache the source code as well
         pos = self.source.tell()
+        self.encoding = detect_encoding(self.source.readline)
         self.code = self.source.read()
         self.source.seek(pos)
 
@@ -229,13 +224,6 @@ class ModuleAnalyzer(object):
             self.parsetree = pydriver.parse_tokens(self.tokens)
         except parse.ParseError, err:
             raise PycodeError('parsing failed', err)
-        # find the source code encoding, if present
-        comments = self.parsetree.get_prefix()
-        for line in comments.splitlines()[:2]:
-            match = _coding_re.search(line)
-            if match is not None:
-                self.encoding = match.group(1)
-                break
 
     def find_attr_docs(self, scope=''):
         """Find class and module-level attributes and their documentation."""
