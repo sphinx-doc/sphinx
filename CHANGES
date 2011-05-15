@@ -1,6 +1,8 @@
 Release 1.0.8 (in development)
 ==============================
 
+* #669: Respect the ``noindex`` flag option in py:module directives.
+
 * #675: Fix IndexErrors when including nonexisting lines with
   :rst:dir:`literalinclude`.
 
