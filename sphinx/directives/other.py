@@ -347,6 +347,10 @@ class Include(BaseInclude):
 
     def run(self):
         env = self.state.document.settings.env
+        if self.arguments[0].startswith('<') and \
+           self.arguments[0].endswith('>'):
+            # docutils "standard" includes, do not do path processing
+            return BaseInclude.run(self)
         rel_filename, filename = env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
         return BaseInclude.run(self)
