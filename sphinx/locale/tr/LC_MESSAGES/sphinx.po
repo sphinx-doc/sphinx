@@ -1,23 +1,23 @@
-# Turkish translations for Sphinx.
-# Copyright (C) 2009 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.6.2+/6b02a19ccf31\n"
+"Project-Id-Version: Sphinx 1.1pre/339c7a794c1a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2009-08-06 22:48+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
+"POT-Creation-Date: 2011-01-22 14:40+0100\n"
+"PO-Revision-Date: 2011-04-04 00:42+0200\n"
 "Last-Translator: Firat Ozgul <ozgulfirat@gmail.com>\n"
-"Language-Team: Turkish <kistihza@yahoo.com>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.5\n"
 
-#: sphinx/environment.py:120 sphinx/writers/latex.py:189
+#: sphinx/environment.py:120
+#: sphinx/writers/latex.py:189
 #: sphinx/writers/manpage.py:67
 #, python-format
 msgid "%B %d, %Y"
@@ -26,12 +26,12 @@ msgstr "%d %B %Y"
 #: sphinx/environment.py:1624
 #, python-format
 msgid "see %s"
-msgstr ""
+msgstr "bkz. %s"
 
 #: sphinx/environment.py:1627
 #, python-format
 msgid "see also %s"
-msgstr ""
+msgstr "ayrıca bkz. %s"
 
 #: sphinx/roles.py:175
 #, python-format
@@ -51,7 +51,8 @@ msgstr "Modül düzeyi"
 msgid "%b %d, %Y"
 msgstr "%d %b %Y"
 
-#: sphinx/builders/html.py:293 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:293
+#: sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Genel Dizin"
 
@@ -67,17 +68,22 @@ msgstr "sonraki"
 msgid "previous"
 msgstr "önceki"
 
-#: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:208
+#: sphinx/builders/latex.py:141
+#: sphinx/builders/texinfo.py:208
 msgid " (in "
 msgstr " (şunun içinde:  "
 
-#: sphinx/builders/texinfo.py:151 sphinx/builders/texinfo.py:152
-#: sphinx/builders/texinfo.py:153 sphinx/domains/std.py:427
+#: sphinx/builders/texinfo.py:151
+#: sphinx/builders/texinfo.py:152
+#: sphinx/builders/texinfo.py:153
+#: sphinx/domains/std.py:427
 #: sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
-#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
-#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
+#: sphinx/themes/basic/genindex.html:32
+#: sphinx/themes/basic/genindex.html:35
+#: sphinx/themes/basic/genindex.html:68
+#: sphinx/themes/basic/layout.html:134
 #: sphinx/writers/latex.py:178
 msgid "Index"
 msgstr "Dizin"
@@ -107,16 +113,19 @@ msgstr "Ayrıca bkz."
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:51 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr "Parametreler"
 
-#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:128
+#: sphinx/domains/c.py:54
+#: sphinx/domains/javascript.py:128
 #: sphinx/domains/python.py:107
 msgid "Returns"
-msgstr "Şunu döndürür:"
+msgstr "Dönüş değeri:"
 
-#: sphinx/domains/c.py:56 sphinx/domains/python.py:109
+#: sphinx/domains/c.py:56
+#: sphinx/domains/python.py:109
 msgid "Return type"
 msgstr "Dönüş tipi"
 
@@ -145,12 +154,15 @@ msgstr "%s (C tipi)"
 msgid "%s (C variable)"
 msgstr "%s (C değişkeni)"
 
-#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1053
-#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:558
+#: sphinx/domains/c.py:204
+#: sphinx/domains/cpp.py:1053
+#: sphinx/domains/javascript.py:162
+#: sphinx/domains/python.py:558
 msgid "function"
 msgstr "fonksiyonu"
 
-#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1054
+#: sphinx/domains/c.py:205
+#: sphinx/domains/cpp.py:1054
 msgid "member"
 msgstr "öğesi"
 
@@ -158,7 +170,8 @@ msgstr "öğesi"
 msgid "macro"
 msgstr "makrosu"
 
-#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1055
+#: sphinx/domains/c.py:207
+#: sphinx/domains/cpp.py:1055
 msgid "type"
 msgstr "tipi"
 
@@ -186,17 +199,20 @@ msgstr "%s (C++ öğesi)"
 msgid "%s (C++ function)"
 msgstr "%s (C++ fonksiyonu)"
 
-#: sphinx/domains/cpp.py:1052 sphinx/domains/javascript.py:163
+#: sphinx/domains/cpp.py:1052
+#: sphinx/domains/javascript.py:163
 #: sphinx/domains/python.py:560
 msgid "class"
 msgstr "sınıfı"
 
-#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:254
+#: sphinx/domains/javascript.py:106
+#: sphinx/domains/python.py:254
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (gömülü fonksiyon)"
 
-#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:318
+#: sphinx/domains/javascript.py:107
+#: sphinx/domains/python.py:318
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s metodu)"
@@ -211,7 +227,8 @@ msgstr "%s() (sınıfı)"
 msgid "%s (global variable or constant)"
 msgstr "%s (global değişken veya sabit)"
 
-#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:356
+#: sphinx/domains/javascript.py:113
+#: sphinx/domains/python.py:356
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s niteliği)"
@@ -224,11 +241,13 @@ msgstr "Argümanlar"
 msgid "Throws"
 msgstr "Şunu verir: "
 
-#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:559
+#: sphinx/domains/javascript.py:164
+#: sphinx/domains/python.py:559
 msgid "data"
 msgstr "verisi"
 
-#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:565
+#: sphinx/domains/javascript.py:165
+#: sphinx/domains/python.py:565
 msgid "attribute"
 msgstr "niteliği"
 
@@ -240,8 +259,10 @@ msgstr "Değişkenler"
 msgid "Raises"
 msgstr "Şunu üretir:"
 
-#: sphinx/domains/python.py:255 sphinx/domains/python.py:312
-#: sphinx/domains/python.py:324 sphinx/domains/python.py:337
+#: sphinx/domains/python.py:255
+#: sphinx/domains/python.py:312
+#: sphinx/domains/python.py:324
+#: sphinx/domains/python.py:337
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s modülü içinde)"
@@ -251,7 +272,8 @@ msgstr "%s() (%s modülü içinde)"
 msgid "%s (built-in variable)"
 msgstr "%s (gömülü değişken)"
 
-#: sphinx/domains/python.py:259 sphinx/domains/python.py:350
+#: sphinx/domains/python.py:259
+#: sphinx/domains/python.py:350
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s modülü içinde)"
@@ -313,7 +335,8 @@ msgstr "modüller"
 msgid "Deprecated"
 msgstr "Önerilmiyor"
 
-#: sphinx/domains/python.py:561 sphinx/locale/__init__.py:179
+#: sphinx/domains/python.py:561
+#: sphinx/locale/__init__.py:179
 msgid "exception"
 msgstr "istisnası"
 
@@ -329,7 +352,8 @@ msgstr "sınıf metodu"
 msgid "static method"
 msgstr "statik metodu"
 
-#: sphinx/domains/python.py:566 sphinx/locale/__init__.py:175
+#: sphinx/domains/python.py:566
+#: sphinx/locale/__init__.py:175
 msgid "module"
 msgstr "modülü"
 
@@ -355,7 +379,8 @@ msgstr "yönergesi"
 msgid "role"
 msgstr "rolü"
 
-#: sphinx/domains/std.py:70 sphinx/domains/std.py:86
+#: sphinx/domains/std.py:70
+#: sphinx/domains/std.py:86
 #, python-format
 msgid "environment variable; %s"
 msgstr "çevre değişkeni; %s"
@@ -389,7 +414,8 @@ msgstr "program seçeneği"
 msgid "Module Index"
 msgstr "Modül Dizini"
 
-#: sphinx/domains/std.py:429 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:429
+#: sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Arama Sayfası"
 
@@ -498,7 +524,7 @@ msgstr "%s sürümünden beri önerilmiyor"
 
 #: sphinx/locale/__init__.py:176
 msgid "keyword"
-msgstr "anahtar kelime"
+msgstr "anahtar sözcük"
 
 #: sphinx/locale/__init__.py:177
 msgid "operator"
@@ -516,25 +542,31 @@ msgstr "deyim"
 msgid "built-in function"
 msgstr "gömülü fonksiyon"
 
-#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/agogo/layout.html:45
+#: sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11
 msgid "Table Of Contents"
 msgstr "İçindekiler Tablosu"
 
-#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:137
-#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:20
+#: sphinx/themes/agogo/layout.html:49
+#: sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11
+#: sphinx/themes/basic/search.html:20
 msgid "Search"
 msgstr "Ara"
 
-#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+#: sphinx/themes/agogo/layout.html:52
+#: sphinx/themes/basic/searchbox.html:15
 msgid "Go"
 msgstr "Git"
 
-#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+#: sphinx/themes/agogo/layout.html:57
+#: sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
 msgstr "Aranacak terimleri veya modül, sınıf ya da fonksiyon adını yazınız"
 
-#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+#: sphinx/themes/agogo/layout.html:78
+#: sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
 msgstr "Kaynağı Göster"
 
@@ -624,12 +656,8 @@ msgstr "Son güncelleme: %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:198
 #, python-format
-msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
-"%(sphinx_version)s."
-msgstr ""
-"<a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s ile "
-"oluşturulmuştur."
+msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "<a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s ile oluşturulmuştur."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -720,12 +748,14 @@ msgstr "C API'sindeki değişiklikler"
 msgid "Other changes"
 msgstr "Diğer değişiklikler"
 
-#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:505
+#: sphinx/themes/basic/static/doctools.js:154
+#: sphinx/writers/html.py:505
 #: sphinx/writers/html.py:511
 msgid "Permalink to this headline"
 msgstr "Bu başlığın kalıcı bağlantısı"
 
-#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
+#: sphinx/themes/basic/static/doctools.js:160
+#: sphinx/writers/html.py:92
 msgid "Permalink to this definition"
 msgstr "Bu tanımın kalıcı bağlantısı"
 
@@ -750,7 +780,8 @@ msgstr "İçindekiler"
 msgid "Release"
 msgstr "Sürüm"
 
-#: sphinx/writers/latex.py:590 sphinx/writers/manpage.py:182
+#: sphinx/writers/latex.py:590
+#: sphinx/writers/manpage.py:182
 msgid "Footnotes"
 msgstr "Dipnotları"
 
@@ -765,29 +796,4 @@ msgstr "Devamı sonraki sayfada"
 #: sphinx/writers/text.py:430
 msgid "[image]"
 msgstr "[resim]"
-
-#~ msgid "Platforms: "
-#~ msgstr "Platformlar:"
-
-#~ msgid "Searching"
-#~ msgstr "Arıyor"
-
-#~ msgid "Preparing search..."
-#~ msgstr "Aramaya hazırlanıyor..."
-
-#~ msgid ", in "
-#~ msgstr ", şunun içinde: "
-
-#~ msgid ""
-#~ "Your search did not match any "
-#~ "documents. Please make sure that all "
-#~ "words are spelled correctly and that "
-#~ "you've selected enough categories."
-#~ msgstr ""
-#~ "Arama sonucunda hiçbir belge bulunamadı. "
-#~ "Bütün kelimeleri doğru yazdığınızdan ve "
-#~ "gereken kategorileri seçtiğinizden emin olun."
-
-#~ msgid "Search finished, found %s page(s) matching the search query."
-#~ msgstr "Arama sonuçlandı, aramayla eşleşen %s sayfa bulundu."
 
