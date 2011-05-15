@@ -102,6 +102,22 @@ Features added
 Release 1.0.8 (in development)
 ==============================
 
+* #657: viewcode now works correctly with source files that have
+  non-ASCII encoding.
+
+* #669: Respect the ``noindex`` flag option in py:module directives.
+
+* #675: Fix IndexErrors when including nonexisting lines with
+  :rst:dir:`literalinclude`.
+
+* #676: Respect custom function/method parameter separator strings.
+
+* #682: Fix JS incompatibility with jQuery >= 1.5.
+
+* #693: Fix double encoding done when writing HTMLHelp .hhk files.
+
+* #647: Do not apply SmartyPants in parsed-literal blocks.
+
 
 Release 1.0.7 (Jan 15, 2011)
 ============================

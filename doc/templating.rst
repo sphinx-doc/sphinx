@@ -198,7 +198,11 @@ Overriding works like this::
 
    Add additional script files here, like this::
 
-      {% set script_files = script_files + [pathto("_static/myscript.js", 1)] %}
+      {% set script_files = script_files + ["_static/myscript.js"] %}
+
+.. data:: css_files
+
+   Similar to :data:`script_files`, for CSS files.
 
 
 Helper Functions

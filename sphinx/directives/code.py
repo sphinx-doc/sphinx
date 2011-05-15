@@ -138,7 +138,13 @@ class LiteralInclude(Directive):
                 linelist = parselinenos(linespec, len(lines))
             except ValueError, err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
-            lines = [lines[i] for i in linelist]
+            # just ignore nonexisting lines
+            nlines = len(lines)
+            lines = [lines[i] for i in linelist if i < nlines]
+            if not lines:
+                return [document.reporter.warning(
+                    'Line spec %r: no lines pulled from include file %r' %
+                    (linespec, filename), line=self.lineno)]
 
         startafter = self.options.get('start-after')
         endbefore  = self.options.get('end-before')

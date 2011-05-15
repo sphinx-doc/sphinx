@@ -116,12 +116,13 @@ class HTMLTranslator(BaseTranslator):
     def visit_desc_parameterlist(self, node):
         self.body.append('<big>(</big>')
         self.first_param = 1
+        self.param_separator = node.child_text_separator
     def depart_desc_parameterlist(self, node):
         self.body.append('<big>)</big>')
 
     def visit_desc_parameter(self, node):
         if not self.first_param:
-            self.body.append(', ')
+            self.body.append(self.param_separator)
         else:
             self.first_param = 0
         if not node.hasattr('noemph'):
@@ -566,8 +567,15 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         self.no_smarty += 1
         try:
             HTMLTranslator.visit_literal_block(self, node)
-        finally:
+        except nodes.SkipNode:
+            # HTMLTranslator raises SkipNode for simple literal blocks,
+            # but not for parsed literal blocks
             self.no_smarty -= 1
+            raise
+
+    def depart_literal_block(self, node):
+        HTMLTranslator.depart_literal_block(self, node)
+        self.no_smarty -= 1
 
     def visit_literal_emphasis(self, node):
         self.no_smarty += 1
