@@ -531,8 +531,15 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         self.no_smarty += 1
         try:
             HTMLTranslator.visit_literal_block(self, node)
-        finally:
+        except nodes.SkipNode:
+            # HTMLTranslator raises SkipNode for simple literal blocks,
+            # but not for parsed literal blocks
             self.no_smarty -= 1
+            raise
+
+    def depart_literal_block(self, node):
+        HTMLTranslator.depart_literal_block(self, node)
+        self.no_smarty -= 1
 
     def visit_literal_emphasis(self, node):
         self.no_smarty += 1

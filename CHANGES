@@ -1,6 +1,8 @@
 Release 1.0.8 (in development)
 ==============================
 
+* #647: Do not apply SmartyPants in parsed-literal blocks.
+
 
 Release 1.0.7 (Jan 15, 2011)
 ============================
