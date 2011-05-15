@@ -555,28 +555,33 @@ class Documenter(object):
             # if isattr is True, the member is documented as an attribute
             isattr = False
 
+            doc = self.get_attr(member, '__doc__', None)
+            # if the member __doc__ is the same as self's __doc__, it's just
+            # inherited and therefore not the member's doc
+            cls = self.get_attr(member, '__class__', None)
+            if cls:
+                cls_doc = self.get_attr(cls, '__doc__', None)
+                if cls_doc == doc:
+                    doc = None
+            has_doc = bool(doc)
+
+            keep = False
             if want_all and membername.startswith('__') and \
                    membername.endswith('__') and len(membername) > 4:
                 # special __methods__
-                skip = not self.options.special_members
+                if self.options.special_members and membername != '__doc__':
+                    keep = has_doc or self.options.undoc_members
             elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
-                skip = not self.options.private_members
+                keep = self.options.private_members and \
+                       (has_doc or self.options.undoc_members)
             elif (namespace, membername) in attr_docs:
                 # keep documented attributes
-                skip = False
+                keep = True
                 isattr = True
             else:
                 # ignore undocumented members if :undoc-members: is not given
-                doc = self.get_attr(member, '__doc__', None)
-                # if the member __doc__ is the same as self's __doc__, it's just
-                # inherited and therefore not the member's doc
-                cls = self.get_attr(member, '__class__', None)
-                if cls:
-                    cls_doc = self.get_attr(cls, '__doc__', None)
-                    if cls_doc == doc:
-                        doc = None
-                skip = not self.options.undoc_members and not doc
+                keep = has_doc or self.options.undoc_members
 
             # give the user a chance to decide whether this member
             # should be skipped
@@ -584,13 +589,12 @@ class Documenter(object):
                 # let extensions preprocess docstrings
                 skip_user = self.env.app.emit_firstresult(
                     'autodoc-skip-member', self.objtype, membername, member,
-                    skip, self.options)
+                    not keep, self.options)
                 if skip_user is not None:
-                    skip = skip_user
-            if skip:
-                continue
+                    keep = not skip_user
 
-            ret.append((membername, member, isattr))
+            if keep:
+                ret.append((membername, member, isattr))
 
         return ret
 
@@ -1348,3 +1352,13 @@ def setup(app):
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+
+
+class testcls:
+    """test doc string"""
+
+    def __getattr__(self, x):
+        return x
+
+    def __setattr__(self, x, y):
+        """Attr setter."""
