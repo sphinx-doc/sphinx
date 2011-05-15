@@ -1,6 +1,8 @@
 Release 1.0.8 (in development)
 ==============================
 
+* #676: Respect custom function/method parameter separator strings.
+
 * #682: Fix JS incompatibility with jQuery >= 1.5.
 
 * #693: Fix double encoding done when writing HTMLHelp .hhk files.

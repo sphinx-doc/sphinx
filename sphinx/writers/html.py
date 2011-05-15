@@ -111,12 +111,13 @@ class HTMLTranslator(BaseTranslator):
     def visit_desc_parameterlist(self, node):
         self.body.append('<big>(</big>')
         self.first_param = 1
+        self.param_separator = node.child_text_separator
     def depart_desc_parameterlist(self, node):
         self.body.append('<big>)</big>')
 
     def visit_desc_parameter(self, node):
         if not self.first_param:
-            self.body.append(', ')
+            self.body.append(self.param_separator)
         else:
             self.first_param = 0
         if not node.hasattr('noemph'):
