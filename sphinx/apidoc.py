@@ -7,7 +7,10 @@
     ReST files appropriately to create code documentation with Sphinx.  It also
     creates a modules index (named modules.<suffix>).
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    This is derived from the "sphinx-autopackage" script, which is:
+    Copyright 2008 Société des arts technologiques (SAT), http://www.sat.qc.ca/.
+
+    :copyright: 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -134,9 +137,12 @@ def recurse_tree(rootpath, excludes, opts):
     Look for every file in the directory tree and create the corresponding
     ReST files.
     """
+    # use absolute path for root, as relative paths like '../../foo' cause
+    # 'if "/." in root ...' to filter out *all* modules otherwise
+    rootpath = os.path.abspath(rootpath)
     # check if the base directory is a package and get is name
     if INITPY in os.listdir(rootpath):
-        package_name = path.abspath(rootpath).split(path.sep)[-1]
+        package_name = rootpath.split(path.sep)[-1]
     else:
         package_name = None
 
