@@ -193,8 +193,8 @@ def with_app(*args, **kwargs):
 
 def gen_with_app(*args, **kwargs):
     """
-    Make a TestApp with args and kwargs, pass it to the test and clean up
-    properly.
+    Decorate a test generator to pass a TestApp as the first argument to the
+    test generator when it's executed.
     """
     def generator(func):
         @wraps(func)
@@ -224,7 +224,7 @@ def write_file(name, contents, encoding=None):
             contents = contents.encode('ascii')
     else:
         mode = 'w'
-    f = open(str(name), 'wb', encoding=encoding)
+    f = open(str(name), mode, encoding=encoding)
     f.write(contents)
     f.close()
 

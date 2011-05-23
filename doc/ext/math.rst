@@ -191,13 +191,17 @@ MathJax_ is then loaded and transforms the LaTeX markup to readable math live in
 the browser.
 
 Because MathJax (and the necessary fonts) is very large, it is not included in
-Sphinx.  You must install it yourself, and give Sphinx its path in this config
-value:
+Sphinx.
 
 .. confval:: mathjax_path
 
    The path to the JavaScript file to include in the HTML files in order to load
-   JSMath.  There is no default.
+   JSMath.
+
+   The default is the ``http://`` URL that loads the JS files from the `MathJax
+   CDN <http://www.mathjax.org/docs/1.1/start.html>`_.  If you want MathJax to
+   be available offline, you have to donwload it and set this value to a
+   different path.
 
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.
@@ -207,11 +211,7 @@ value:
    documentation set on one server, it is advisable to install MathJax in a
    shared location.
 
-   You can also give a full ``http://`` URL.  Kevin Dunn maintains a MathJax
-   installation on a public server, which he offers for use by development and
-   production servers::
-
-      mathjax_path = 'http://mathjax.connectmv.com/MathJax.js'
+   You can also give a full ``http://`` URL different from the CDN URL.
 
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript

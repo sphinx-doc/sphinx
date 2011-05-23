@@ -86,8 +86,8 @@ class TexinfoBuilder(Builder):
     """
     name = 'texinfo'
     format = 'texinfo'
-    supported_image_types = ['application/pdf', 'image/png',
-                             'image/gif', 'image/jpeg']
+    supported_image_types = ['image/png', 'image/jpeg',
+                             'image/gif',]
 
     def init(self):
         self.docnames = []
@@ -143,18 +143,6 @@ class TexinfoBuilder(Builder):
             doctree = self.assemble_doctree(docname, toctree_only,
                 appendices=(self.config.texinfo_appendices or []))
             self.info("writing... ", nonl=1)
-
-            # Add an Index section
-            if self.config.texinfo_domain_indices:
-                doctree.append(
-                    nodes.section('',
-                                  nodes.title(_("Index"),
-                                              nodes.Text(_('Index'),
-                                                         _('Index'))),
-                                  nodes.raw('@printindex ge\n',
-                                            nodes.Text('@printindex ge\n',
-                                                       '@printindex ge\n'),
-                                            format="texinfo")))
             self.post_process_images(doctree)
             docwriter = TexinfoWriter(self)
             settings = OptionParser(

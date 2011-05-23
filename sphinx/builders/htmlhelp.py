@@ -132,6 +132,7 @@ chm_locales = {
     'fr':    (0x40c, 'iso8859_1'),
     'it':    (0x410, 'iso8859_1'),
     'ja':    (0x411, 'cp932'),
+    'lv':    (0x426, 'cp1257'),
     'nl':    (0x413, 'iso8859_1'),
     'pl':    (0x415, 'iso8859_2'),
     'pt_BR': (0x416, 'iso8859_1'),
@@ -258,8 +259,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             def write_index(title, refs, subitems):
                 def write_param(name, value):
                     item = '    <param name="%s" value="%s">\n' % (name, value)
-                    f.write(item.encode(self.encoding, 'xmlcharrefreplace')
-                            .decode(self.encoding))
+                    f.write(item)
                 title = cgi.escape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)

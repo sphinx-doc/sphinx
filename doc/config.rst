@@ -379,6 +379,7 @@ documentation on :ref:`intl` for details.
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``lt`` -- Lithuanian
+   * ``lv`` -- Latvian
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
@@ -1187,9 +1188,10 @@ These options influence Texinfo output.
    * *targetname*: file name (no extension) of the Texinfo file in the output
      directory.
    * *title*: Texinfo document title.  Can be empty to use the title of the
-     *startdoc*.
-   * *author*: Author for the Texinfo document.  Use ``\and`` to separate
-     multiple authors, as in: ``'John \and Sarah'``.
+     *startdoc*.  Inserted as Texinfo markup, so special characters like @ and
+     {} will need to be escaped to be inserted literally.
+   * *author*: Author for the Texinfo document.  Inserted as Texinfo markup.
+     Use ``@*`` to separate multiple authors, as in: ``'John@*Sarah'``.
    * *dir_entry*: The name that will appear in the top-level ``DIR`` menu file.
    * *description*: Descriptive text to appear in the top-level ``DIR`` menu
      file.
@@ -1203,13 +1205,32 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
-
 .. confval:: texinfo_appendices
 
    A list of document names to append as an appendix to all manuals.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_domain_indices
+
+   If true, generate domain-specific indices in addition to the general index.
+   For e.g. the Python domain, this is the global module index.  Default is
+   ``True``.
+
+   This value can be a bool or a list of index names that should be generated,
+   like for :confval:`html_domain_indices`.
+
+   .. versionadded:: 1.1
+
+.. confval:: texinfo_show_urls
+
+   Control how to display URL addresses.
+
+   * ``'footnote'`` -- display URLs in footnotes (default)
+   * ``'no'`` -- do not display URLs
+   * ``'inline'`` -- display URLs inline in parentheses
+
+   .. versionadded:: 1.1
 
 .. confval:: texinfo_elements
 
@@ -1227,12 +1248,23 @@ These options influence Texinfo output.
         default ``4``.  Specify ``0`` for no indentation.
 
      ``'preamble'``
-        Text inserted as is near the beginning of the file.
+        Texinfo markup inserted near the beginning of the file.
+
+     ``'copying'``
+        Texinfo markup inserted within the ``@copying`` block and displayed
+        after the title.  The default value consists of a simple title page
+        identifying the project.
 
    * Keys that are set by other options and therefore should not be overridden
      are:
 
+     ``'author'``
+     ``'body'``
+     ``'date'``
+     ``'direntry'``
      ``'filename'``
+     ``'project'``
+     ``'release'``
      ``'title'``
      ``'direntry'``
 

@@ -47,6 +47,10 @@ latex
 man
    Generates manual pages.
 
+texinfo
+   Generates Texinfo output that can be processed by :program:`makeinfo` to
+   generate an Info document.
+
 text
    Generates a plain-text version of the documentation.
 

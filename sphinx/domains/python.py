@@ -418,18 +418,19 @@ class PyModule(Directive):
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         env.temp_data['py:module'] = modname
-        env.domaindata['py']['modules'][modname] = \
-            (env.docname, self.options.get('synopsis', ''),
-             self.options.get('platform', ''), 'deprecated' in self.options)
-        # make a duplicate entry in 'objects' to facilitate searching for the
-        # module in PythonDomain.find_obj()
-        env.domaindata['py']['objects'][modname] = (env.docname, 'module')
-        targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
-        self.state.document.note_explicit_target(targetnode)
-        ret = [targetnode]
-        # the platform and synopsis aren't printed; in fact, they are only used
-        # in the modindex currently
+        ret = []
         if not noindex:
+            env.domaindata['py']['modules'][modname] = \
+                (env.docname, self.options.get('synopsis', ''),
+                 self.options.get('platform', ''), 'deprecated' in self.options)
+            # make a duplicate entry in 'objects' to facilitate searching for the
+            # module in PythonDomain.find_obj()
+            env.domaindata['py']['objects'][modname] = (env.docname, 'module')
+            targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
+            self.state.document.note_explicit_target(targetnode)
+            # the platform and synopsis aren't printed; in fact, they are only used
+            # in the modindex currently
+            ret.append(targetnode)
             indextext = _('%s (module)') % modname
             inode = addnodes.index(entries=[('single', indextext,
                                              'module-' + modname, '')])

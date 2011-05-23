@@ -299,10 +299,30 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 def latex_visit_graphviz(self, node):
     render_dot_latex(self, node, node['code'], node['options'])
 
+
+def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
+    try:
+        fname, outfn = render_dot(self, code, options, 'png', prefix)
+    except GraphvizError, exc:
+        self.builder.warn('dot code %r: ' % code + str(exc))
+        raise nodes.SkipNode
+    if fname is not None:
+        self.body.append('\n\n@float\n')
+        if node.get('caption'):
+            self.body.append('@caption{%s}\n' % self.escape_arg(caption))
+        self.body.append('@image{%s,,,[graphviz],png}\n'
+                         '@end float\n\n' % fname[:-4])
+    raise nodes.SkipNode
+
+def texinfo_visit_graphviz(self, node):
+    render_dot_texinfo(self, node, node['code'], node['options'])
+
+
 def setup(app):
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
-                 latex=(latex_visit_graphviz, None))
+                 latex=(latex_visit_graphviz, None),
+                 texinfo=(texinfo_visit_graphviz, None))
     app.add_directive('graphviz', Graphviz)
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)

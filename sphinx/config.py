@@ -172,6 +172,7 @@ class Config(object):
         texinfo_appendices = ([], None),
         texinfo_elements = ({}, None),
         texinfo_domain_indices = (True, None),
+        texinfo_show_urls = ('footnote', None),
 
         # linkcheck options
         linkcheck_ignore = ([], None),

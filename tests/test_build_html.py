@@ -11,8 +11,8 @@
 
 import os
 import re
-import htmlentitydefs
 import sys
+import htmlentitydefs
 from StringIO import StringIO
 
 try:

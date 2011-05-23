@@ -29,6 +29,7 @@ texinfo_warnfile = StringIO()
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
+None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
 
 if sys.version_info >= (3, 0):

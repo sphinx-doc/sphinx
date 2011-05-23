@@ -12,7 +12,6 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
-from sphinx.writers import texinfo
 from sphinx.util.compat import Directive
 
 
@@ -127,16 +126,20 @@ def man_visit_eqref(self, node):
 
 
 def texinfo_visit_math(self, node):
-    self.body.append('@math{' + texinfo.escape_arg(node['latex']) + '}')
+    self.body.append('@math{' + self.escape_arg(node['latex']) + '}')
     raise nodes.SkipNode
 
 def texinfo_visit_displaymath(self, node):
-    self.visit_paragraph(node)
+    if node.get('label'):
+        self.add_anchor(node['label'], node)
+    self.body.append('\n\n@example\n%s\n@end example\n\n' %
+                     self.escape_arg(node['latex']))
 def texinfo_depart_displaymath(self, node):
-    self.depart_paragraph(node)
+    pass
 
 def texinfo_visit_eqref(self, node):
-    self.body.append(node['target'])
+    self.add_xref(node['docname'] + ':' + node['target'],
+                  node['target'], node)
     raise nodes.SkipNode
 
 

@@ -2,20 +2,19 @@
 # Copyright (C) 2008 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # Yasushi Masuda <whosaysni@gmail.com>, 2008.
+# Kouhei Sutou <kou@clear-code.com, 2011.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.5\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Project-Id-Version: Sphinx 1.1pre\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
-"Last-Translator: Yasushi MASUDA <whosaysni@gmail.com>\n"
-"Language-Team: ja <LL@li.org>\n"
+"PO-Revision-Date: 2011-05-15 21:25+0900\n"
+"Last-Translator: Kouhei Sutou <kou@clear-code.com>\n"
+"Language-Team: Japanese\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.5\n"
 
 #: sphinx/environment.py:120 sphinx/writers/latex.py:189
 #: sphinx/writers/manpage.py:67
@@ -26,12 +25,12 @@ msgstr "%Y 年 %m 月 %d 日"
 #: sphinx/environment.py:1624
 #, python-format
 msgid "see %s"
-msgstr ""
+msgstr "%sを参照"
 
 #: sphinx/environment.py:1627
 #, python-format
 msgid "see also %s"
-msgstr ""
+msgstr "%sも参照"
 
 #: sphinx/roles.py:175
 #, python-format
@@ -91,9 +90,8 @@ msgid "Module author: "
 msgstr "モジュールの作者: "
 
 #: sphinx/directives/other.py:140
-#, fuzzy
 msgid "Code author: "
-msgstr "モジュールの作者: "
+msgstr "コードの作者: "
 
 #: sphinx/directives/other.py:142
 msgid "Author: "
@@ -164,12 +162,11 @@ msgid "type"
 msgstr "のデータ型"
 
 #: sphinx/domains/c.py:208
-#, fuzzy
 msgid "variable"
 msgstr "変数"
 
 #: sphinx/domains/cpp.py:897
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
 msgstr "%s (C++ のクラス)"
 
@@ -204,9 +201,9 @@ msgid "%s() (%s method)"
 msgstr "%s() (%s のメソッド)"
 
 #: sphinx/domains/javascript.py:109
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (class)"
-msgstr "%s() (のクラス)"
+msgstr "%s() (クラス)"
 
 #: sphinx/domains/javascript.py:111
 #, python-format
@@ -219,9 +216,8 @@ msgid "%s (%s attribute)"
 msgstr "%s (%s の属性)"
 
 #: sphinx/domains/javascript.py:122
-#, fuzzy
 msgid "Arguments"
-msgstr "パラメタ"
+msgstr "引数"
 
 #: sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -236,7 +232,6 @@ msgid "attribute"
 msgstr "の属性"
 
 #: sphinx/domains/python.py:100
-#, fuzzy
 msgid "Variables"
 msgstr "変数"
 
@@ -286,14 +281,14 @@ msgid "%s() (%s static method)"
 msgstr "%s() (%s の静的メソッド)"
 
 #: sphinx/domains/python.py:341
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s のメソッド)"
+msgstr "%s() (%s.%s のクラスメソッド)"
 
 #: sphinx/domains/python.py:344
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s のメソッド)"
+msgstr "%s() (%s のクラスメソッド)"
 
 #: sphinx/domains/python.py:354
 #, python-format
@@ -306,9 +301,8 @@ msgid "%s (module)"
 msgstr "%s (モジュール)"
 
 #: sphinx/domains/python.py:490
-#, fuzzy
 msgid "Python Module Index"
-msgstr "モジュール索引"
+msgstr "Pythonモジュール索引"
 
 #: sphinx/domains/python.py:491
 msgid "modules"
@@ -328,7 +322,7 @@ msgstr "メソッド"
 
 #: sphinx/domains/python.py:563
 msgid "class method"
-msgstr ""
+msgstr "クラスメソッド"
 
 #: sphinx/domains/python.py:564
 msgid "static method"
@@ -350,7 +344,7 @@ msgstr "%s (ディレクティブ)"
 #: sphinx/domains/rst.py:57
 #, python-format
 msgid "%s (role)"
-msgstr ""
+msgstr "%s (ロール)"
 
 #: sphinx/domains/rst.py:106
 msgid "directive"
@@ -358,7 +352,7 @@ msgstr "ディレクティブ"
 
 #: sphinx/domains/rst.py:107
 msgid "role"
-msgstr ""
+msgstr "ロール"
 
 #: sphinx/domains/std.py:70 sphinx/domains/std.py:86
 #, python-format
@@ -430,7 +424,6 @@ msgid "[docs]"
 msgstr "[ドキュメント]"
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
 msgstr "モジュールコード"
 
