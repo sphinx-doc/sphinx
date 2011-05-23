@@ -770,6 +770,12 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    output is usually not wise.  This defaults to ``'epub'``, a theme designed to
    save visual space.
 
+.. confval:: epub_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.  These are theme-specific.  For the options understood by the builtin
+   themes, see :ref:`this section <builtin-themes>`.
+
 .. confval:: epub_title
 
    The title of the document.  It defaults to the :confval:`html_title` option

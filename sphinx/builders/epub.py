@@ -174,7 +174,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.playorder = 0
 
     def get_theme_config(self):
-        return self.config.epub_theme, {}
+        return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
     def make_id(self, name):

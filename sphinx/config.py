@@ -122,6 +122,7 @@ class Config(object):
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),
         epub_theme = ('epub', 'html'),
+        epub_theme_options = ({}, 'html'),
         epub_title = (lambda self: self.html_title, 'html'),
         epub_author = ('unknown', 'html'),
         epub_language = (lambda self: self.language or 'en', 'html'),
