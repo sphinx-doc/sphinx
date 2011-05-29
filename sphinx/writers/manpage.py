@@ -197,7 +197,7 @@ class ManualPageTranslator(BaseTranslator):
     def visit_admonition(self, node, name=None):
         if name:
             self.body.append('.IP %s\n' %
-                             admonitionlabels.get(name, name))
+                             self.deunicode(admonitionlabels.get(name, name)))
 
     def visit_productionlist(self, node):
         self.ensure_eol()
