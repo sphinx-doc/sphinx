@@ -1376,12 +1376,13 @@ class BuildEnvironment:
                                 toplevel[1][:] = subtrees
                     # resolve all sub-toctrees
                     for toctreenode in toc.traverse(addnodes.toctree):
-                        i = toctreenode.parent.index(toctreenode) + 1
-                        for item in _entries_from_toctree(toctreenode,
-                                                          subtree=True):
-                            toctreenode.parent.insert(i, item)
-                            i += 1
-                        toctreenode.parent.remove(toctreenode)
+                        if not ( toctreenode.get('hidden', False) and not includehidden ):
+                            i = toctreenode.parent.index(toctreenode) + 1
+                            for item in _entries_from_toctree(toctreenode,
+                                                              subtree=True):
+                                toctreenode.parent.insert(i, item)
+                                i += 1
+                            toctreenode.parent.remove(toctreenode)
                     if separate:
                         entries.append(toc)
                     else:
@@ -1740,3 +1741,4 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
+
