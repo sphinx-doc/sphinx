@@ -380,7 +380,7 @@ msgstr "Suche"
 #: sphinx/ext/autodoc.py:917
 #, python-format
 msgid "   Bases: %s"
-msgstr "  Basisklassen: %s"
+msgstr "   Basisklassen: %s"
 
 #: sphinx/ext/autodoc.py:950
 #, python-format
