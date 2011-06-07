@@ -380,6 +380,7 @@ documentation on :ref:`intl` for details.
    * ``ja`` -- Japanese
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
