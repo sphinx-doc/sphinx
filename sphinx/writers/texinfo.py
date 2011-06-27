@@ -348,6 +348,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         s = ' '.join(s.split()).strip()
         return s
 
+    def ensure_eol(self):
+        """Ensure the last line in body is terminated by new line."""
+        if self.body and self.body[-1][-1:] != '\n':
+            self.body.append('\n')
+
     def format_menu_entry(self, name, node_name, desc):
         if name == node_name:
             s = '* %s:: ' % (name,)
@@ -703,7 +708,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_block_quote(self, node):
         self.body.append('\n@quotation\n')
     def depart_block_quote(self, node):
-        self.body.append('\n@end quotation\n\n')
+        self.ensure_eol()
+        self.body.append('@end quotation\n')
 
     def visit_literal_block(self, node):
         self.body.append('\n@example\n')
@@ -795,7 +801,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         bullet = node.get('bullet', '*')
         self.body.append('\n\n@itemize %s\n' % bullet)
     def depart_bullet_list(self, node):
-        self.body.append('\n@end itemize\n\n')
+        self.ensure_eol()
+        self.body.append('@end itemize\n')
 
     def visit_enumerated_list(self, node):
         # doesn't support Roman numerals
@@ -806,10 +813,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         start = node.get('start', starters.get(enum, ''))
         self.body.append('\n\n@enumerate %s\n' % start)
     def depart_enumerated_list(self, node):
-        self.body.append('\n@end enumerate\n\n')
+        self.ensure_eol()
+        self.body.append('@end enumerate\n')
 
     def visit_list_item(self, node):
-        self.body.append('\n@item\n')
+        self.body.append('\n@item ')
     def depart_list_item(self, node):
         pass
 
@@ -818,7 +826,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_option_list(self, node):
         self.body.append('\n\n@table @option\n')
     def depart_option_list(self, node):
-        self.body.append('\n@end table\n\n')
+        self.ensure_eol()
+        self.body.append('@end table\n')
 
     def visit_option_list_item(self, node):
         pass
@@ -856,7 +865,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_definition_list(self, node):
         self.body.append('\n\n@table @asis\n')
     def depart_definition_list(self, node):
-        self.body.append('\n@end table\n\n')
+        self.ensure_eol()
+        self.body.append('@end table\n')
 
     def visit_definition_list_item(self, node):
         self.at_item_x = '@item'
@@ -946,7 +956,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_field_list(self, node):
         self.body.append('\n\n@itemize @w\n')
     def depart_field_list(self, node):
-        self.body.append('\n@end itemize\n\n')
+        self.ensure_eol()
+        self.body.append('@end itemize\n')
 
     def visit_field(self, node):
         if not isinstance(node.parent, nodes.field_list):
@@ -971,15 +982,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if not name:
             name = self.escape(node[0].astext())
         self.body.append('\n@cartouche\n'
-                         '@quotation %s\n' % name)
+                         '@quotation %s ' % name)
     def depart_admonition(self, node):
-        self.body.append('\n@end quotation\n'
-                         '@end cartouche\n\n')
+        self.ensure_eol()
+        self.body.append('@end quotation\n'
+                         '@end cartouche\n')
 
     def _make_visit_admonition(typ):
         def visit(self, node):
-            self.body.append('\n@cartouche\n'
-                             '@quotation %s\n' % self.escape(_(typ)))
+            self.visit_admonition(node, self.escape(_(typ)))
         return visit
 
     visit_attention = _make_visit_admonition('Attention')
@@ -1083,7 +1094,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         width = self.tex_image_length(attrs.get('width', ''))
         height = self.tex_image_length(attrs.get('height', ''))
         alt = self.escape_arg(attrs.get('alt', ''))
-        self.body.append('\n\n@image{%s,%s,%s,%s,%s}\n\n' %
+        self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (name, width, height, alt, ext[1:]))
     def depart_image(self, node):
         pass
@@ -1127,8 +1138,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_comment(self, node):
+        self.body.append('\n')
         for line in node.astext().splitlines():
-            self.body.append('\n@c %s\n' % line)
+            self.body.append('@c %s\n' % line)
         raise nodes.SkipNode
 
     def visit_problematic(self, node):
@@ -1181,12 +1193,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
         for entry in node['entries']:
             typ, text, tid, text2 = entry
             text = self.escape_menu(text)
-            self.body.append('@geindex %s\n' % text)
+            self.body.append('\n@geindex %s\n' % text)
 
     def visit_refcount(self, node):
         self.body.append('\n')
     def depart_refcount(self, node):
-        self.body.append('\n\n')
+        self.body.append('\n')
 
     def visit_versionmodified(self, node):
         intro = versionlabels[node['type']] % node['version']
@@ -1194,9 +1206,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
             intro += ': '
         else:
             intro += '.'
-        self.body.append('\n\n%s' % self.escape(intro))
+        self.body.append('\n%s' % self.escape(intro))
     def depart_versionmodified(self, node):
-        self.body.append('\n\n')
+        self.body.append('\n')
 
     def visit_start_of_file(self, node):
         # add a document target
@@ -1257,7 +1269,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_desc(self, node):
         self.at_deffnx = '@deffn'
     def depart_desc(self, node):
-        self.body.append('\n@end deffn\n\n')
+        self.ensure_eol()
+        self.body.append('@end deffn\n')
+
     def visit_desc_signature(self, node):
         self.desctype = node.parent['desctype'].strip()
         if self.desctype != 'describe':
@@ -1313,7 +1327,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_desc_content(self, node):
-        self.body.append("\n")
+        pass
     def depart_desc_content(self, node):
         pass
 
