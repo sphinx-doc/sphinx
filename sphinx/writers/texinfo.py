@@ -319,6 +319,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         s = s.replace('@', '@@')
         s = s.replace('{', '@{')
         s = s.replace('}', '@}')
+        # prevent `` and '' quote conversion
+        s = s.replace('``', "`@w{`}")
+        s = s.replace("''", "'@w{'}")
         # prevent "--" from being converted to an "em dash"
         # s = s.replace('-', '@w{-}')
         return s
