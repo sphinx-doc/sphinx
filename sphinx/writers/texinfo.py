@@ -1318,7 +1318,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.body.append(', ')
         else:
             self.first_param = 0
-        self.body.append(self.escape(node.astext()))
+        text = self.escape(node.astext())
+        # replace no-break spaces with normal ones
+        text = text.replace(u' ', '@w{ }')
+        self.body.append(text)
         raise nodes.SkipNode
 
     def visit_desc_optional(self, node):
