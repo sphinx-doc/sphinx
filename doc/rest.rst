@@ -275,8 +275,8 @@ Docutils supports the following directives:
 
 * Additional body elements:
 
-  - :dudir:`contents` (a local, i.e. for the current file only, table of
-    contents)
+  - :dudir:`contents <table-of-contents>` (a local, i.e. for the current file
+    only, table of contents)
   - :dudir:`container` (a container with a custom class, useful to generate an
     outer ``<div>`` in HTML)
   - :dudir:`rubric` (a heading without relation to the document sectioning)
