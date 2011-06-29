@@ -231,18 +231,7 @@ class Autosummary(Directive):
         """
         env = self.state.document.settings.env
 
-        prefixes = ['']
-
-        currmodule = env.temp_data.get('py:module')
-        if currmodule:
-            prefixes.insert(0, currmodule)
-
-        currclass = env.temp_data.get('py:class')
-        if currclass:
-            if currmodule:
-                prefixes.insert(0, currmodule + "." + currclass)
-            else:
-                prefixes.insert(0, currclass)
+        prefixes = get_import_prefixes_from_env(env)
 
         items = []
 
@@ -405,6 +394,26 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
 
 # -- Importing items -----------------------------------------------------------
 
+def get_import_prefixes_from_env(env):
+    """
+    Obtain current Python import prefixes (for `import_by_name`)
+    from ``document.env``
+    """
+    prefixes = [None]
+
+    currmodule = env.temp_data.get('py:module')
+    if currmodule:
+        prefixes.insert(0, currmodule)
+
+    currclass = env.temp_data.get('py:class')
+    if currclass:
+        if currmodule:
+            prefixes.insert(0, currmodule + "." + currclass)
+        else:
+            prefixes.insert(0, currclass)
+
+    return prefixes
+
 def import_by_name(name, prefixes=[None]):
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -477,8 +486,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
         'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
 
-    prefixes = [None]
-    #prefixes.insert(0, inliner.document.settings.env.currmodule)
+    prefixes = get_import_prefixes_from_env(env)
     try:
         name, obj, parent = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
