@@ -125,22 +125,39 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
-try:
-    ismemberdescriptor = inspect.ismemberdescriptor
-    isgetsetdescriptor = inspect.isgetsetdescriptor
-except AttributeError:
-    def ismemberdescriptor(obj):
-        return False
-    isgetsetdescriptor = ismemberdescriptor
+class FakeDirective:
+    env = {}
+    genopt = {}
 
 def get_documenter(obj, parent):
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
-    """
-    from sphinx.ext.autodoc import AutoDirective, DataDocumenter
 
+    *obj* is the Python object to be documented, and *parent* is an
+    another Python object (e.g. a module or a class) to which *obj*
+    belongs to.
+    """
+    from sphinx.ext.autodoc import AutoDirective, DataDocumenter, \
+         ModuleDocumenter
+
+    if inspect.ismodule(obj):
+        # ModuleDocumenter.can_document_member always returns False
+        return ModuleDocumenter
+
+    # Construct a fake documenter for *parent*
+    if parent is not None:
+        parent_doc_cls = get_documenter(parent, None)
+    else:
+        parent_doc_cls = ModuleDocumenter
+
+    if hasattr(parent, '__name__'):
+        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
+    else:
+        parent_doc = parent_doc_cls(FakeDirective(), "")
+
+    # Get the corrent documenter class for *obj*
     classes = [cls for cls in AutoDirective._registry.values()
-               if cls.can_document_member(obj, '', False, parent)]
+               if cls.can_document_member(obj, '', False, parent_doc)]
     if classes:
         classes.sort(key=lambda cls: cls.priority)
         return classes[-1]
