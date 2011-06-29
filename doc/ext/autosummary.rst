@@ -19,19 +19,21 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    contain links to the documented items, and short summary blurbs extracted
    from their docstrings.
 
-2. The convenience script :program:`sphinx-autogen` or the new
+2. Optionally, the convenience script :program:`sphinx-autogen` or the new
    :confval:`autosummary_generate` config value can be used to generate short
    "stub" files for the entries listed in the :rst:dir:`autosummary` directives.
-   These by default contain only the corresponding :mod:`sphinx.ext.autodoc`
-   directive.
+   These files by default contain only the corresponding :mod:`sphinx.ext.autodoc`
+   directive, but can be customized with templates.
 
 
 .. rst:directive:: autosummary
 
    Insert a table that contains links to documented items, and a short summary
-   blurb (the first sentence of the docstring) for each of them.  The
-   :rst:dir:`autosummary` directive can also optionally serve as a :rst:dir:`toctree`
-   entry for the included items.
+   blurb (the first sentence of the docstring) for each of them.  
+
+   The :rst:dir:`autosummary` directive can also optionally serve as a
+   :rst:dir:`toctree` entry for the included items. Optionally, stub
+   ``.rst`` files for these items can also be automatically generated.
 
    For example, ::
 
