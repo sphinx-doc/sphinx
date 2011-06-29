@@ -232,7 +232,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     *template* ``None`` if the directive does not have the
     corresponding options set.
     """
-    autosummary_re = re.compile(r'^\s*\.\.\s+autosummary::\s*')
+    autosummary_re = re.compile(r'^(\s*)\.\.\s+autosummary::\s*')
     automodule_re = re.compile(
         r'^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$')
     module_re = re.compile(
@@ -247,6 +247,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     template = None
     current_module = module
     in_autosummary = False
+    base_indent = ""
 
     for line in lines:
         if in_autosummary:
@@ -277,7 +278,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
                 documented.append((name, toctree, template))
                 continue
 
-            if not line.strip():
+            if not line.strip() or line.startswith(base_indent + " "):
                 continue
 
             in_autosummary = False
@@ -285,6 +286,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
         m = autosummary_re.match(line)
         if m:
             in_autosummary = True
+            base_indent = m.group(1)
             toctree = None
             template = None
             continue
