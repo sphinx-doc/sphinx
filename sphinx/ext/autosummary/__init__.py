@@ -171,7 +171,7 @@ class Autosummary(Directive):
     """
     Pretty table containing short signatures and summaries of functions etc.
 
-    autosummary also generates a (hidden) toctree:: node.
+    autosummary can also optionally generate a hidden toctree:: node.
     """
 
     required_arguments = 0
@@ -232,9 +232,17 @@ class Autosummary(Directive):
         env = self.state.document.settings.env
 
         prefixes = ['']
+
         currmodule = env.temp_data.get('py:module')
         if currmodule:
             prefixes.insert(0, currmodule)
+
+        currclass = env.temp_data.get('py:class')
+        if currclass:
+            if currmodule:
+                prefixes.insert(0, currmodule + "." + currclass)
+            else:
+                prefixes.insert(0, currclass)
 
         items = []
 
