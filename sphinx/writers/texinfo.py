@@ -1193,10 +1193,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_index(self, node):
+        # terminate the line but don't prevent paragraph breaks
+        if isinstance(node.parent, nodes.paragraph):
+            self.ensure_eol()
+        else:
+            self.body.append('\n')
         for entry in node['entries']:
             typ, text, tid, text2 = entry
             text = self.escape_menu(text)
-            self.body.append('\n@geindex %s\n' % text)
+            self.body.append('@geindex %s\n' % text)
 
     def visit_refcount(self, node):
         self.body.append('\n')
