@@ -308,7 +308,8 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
         raise nodes.SkipNode
     if fname is not None:
         self.body.append('\n\n@float\n')
-        if node.get('caption'):
+        caption = node.get('caption')
+        if caption:
             self.body.append('@caption{%s}\n' % self.escape_arg(caption))
         self.body.append('@image{%s,,,[graphviz],png}\n'
                          '@end float\n\n' % fname[:-4])
