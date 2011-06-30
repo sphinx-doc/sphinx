@@ -91,6 +91,9 @@ Features added
   - #367: Added automatic exclusion of hidden members in inheritance
     diagrams, and an option to selectively enable it.
   - Added :confval:`pngmath_add_tooltips`.
+  - The math extension displaymath directives now support ``name`` in
+    addition to ``label`` for giving the equation label, for compatibility
+    with Docutils.
 
 * New locales:
 
