@@ -10,8 +10,9 @@
 """
 
 import re
-from os import path
+import string
 import textwrap
+from os import path
 
 from docutils import nodes, writers
 
@@ -1259,21 +1260,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     ## Desc
 
-    desc_map = {
-        'cfunction':    'C Function',
-        'classmethod':  'Class Method',
-        'cmacro':       'C Macro',
-        'cmdoption':    'Command Option',
-        'cmember':      'C Member',
-        'confval':      'Configuration Value',
-        'ctype':        'C Type',
-        'cvar':         'C Variable',
-        'describe':     'Description',
-        'envvar':       'Environment Variable',
-        'staticmethod': 'Static Method',
-        'var':          'Variable',
-        }
-
     def visit_desc(self, node):
         self.at_deffnx = '@deffn'
     def depart_desc(self, node):
@@ -1281,13 +1267,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('@end deffn\n')
 
     def visit_desc_signature(self, node):
-        self.desctype = node.parent['desctype'].strip()
-        if self.desctype != 'describe':
+        objtype = node.parent['objtype']
+        if objtype != 'describe':
             for id in node.get('ids'):
                 self.add_anchor(id, node)
-        typ = _(self.desc_map.get(self.desctype,
-                                  self.desctype.capitalize()))
-        self.body.append('\n%s {%s} ' % (self.at_deffnx, self.escape_arg(typ)))
+        # use the localized name for the category
+        try:
+            domain = self.builder.env.domains[node.parent['domain']]
+            lname = domain.object_types[objtype].lname
+        except KeyError:
+            lname = objtype
+        category = self.escape_arg(string.capwords(lname))
+        self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
     def depart_desc_signature(self, node):
         self.body.append("\n")
