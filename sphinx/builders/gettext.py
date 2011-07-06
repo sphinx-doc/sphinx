@@ -44,9 +44,12 @@ msgstr ""
 
 
 class Catalog(object):
+    """Catalog of translatable messages."""
+
     def __init__(self):
-        self.messages = []  # retain order
+        self.messages = []  # retain insertion order, a la OrderedDict
         self.metadata = {}  # msgid -> file, line, uid
+
     def add(self, msg, origin):
         if msg not in self.metadata:  # faster lookup in hash
             self.messages.append(msg)
@@ -108,19 +111,22 @@ class MessageCatalogBuilder(I18nBuilder):
             pofile = open(pofn, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
+
                 for message in catalog.messages:
                     positions = catalog.metadata[message]
-                    if positions:
-                        # generate "#: file1:line1 file2:line2 ..."
-                        pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
-                            (path.relpath(source, self.srcdir), line)
-                            for source, line, _ in positions))
-                        # generate "# uuid ..."
-                        pofile.write(u"# %s\n" % ", ".join(uid for _, _, uid
-                            in positions))
+
+                    # generate "#: file1:line1 file2:line2 ..."
+                    pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
+                        (path.relpath(source, self.srcdir), line)
+                        for source, line, _ in positions))
+                    # generate "# uuid ..."
+                    pofile.write(u"# %s\n" % ", ".join(uid for _, _, uid
+                        in positions))
+
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
                                       replace(u'"', ur'\"')
                     pofile.write(u'msgid "%s"\nmsgstr ""\n\n' % message)
+
             finally:
                 pofile.close()
