@@ -81,10 +81,6 @@ class I18nBuilder(Builder):
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
 
         for node, msg in extract_messages(doctree):
-            if not node.source:
-                continue # built-in message
-            if isinstance(node, nodes.literal_block):
-                continue
             catalog.add(msg, node)
 
 
