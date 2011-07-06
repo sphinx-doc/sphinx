@@ -43,6 +43,17 @@ msgstr ""
 """[1:]
 
 
+class Catalog(object):
+    def __init__(self):
+        self.messages = []  # retain order
+        self.metadata = {}  # msgid -> file, line, uid
+    def add(self, msg, origin):
+        if msg not in self.metadata:  # faster lookup in hash
+            self.messages.append(msg)
+            self.metadata[msg] = []
+        self.metadata[msg].append((origin.source, origin.line, origin.uid))
+
+
 class I18nBuilder(Builder):
     """
     General i18n builder.
@@ -52,7 +63,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         Builder.init(self)
-        self.catalogs = defaultdict(dict)
+        self.catalogs = defaultdict(Catalog)
 
     def get_target_uri(self, docname, typ=None):
         return ''
@@ -71,9 +82,7 @@ class I18nBuilder(Builder):
                 continue # built-in message
             if isinstance(node, nodes.literal_block):
                 continue
-            if not msg in catalog:
-                catalog[msg] = []
-            catalog[msg].append((node.source, node.line, node.uid))
+            catalog.add(msg, node)
 
 
 class MessageCatalogBuilder(I18nBuilder):
@@ -91,7 +100,7 @@ class MessageCatalogBuilder(I18nBuilder):
             # XXX should supply tz
             ctime = datetime.now().strftime('%Y-%m-%d %H:%M%z'),
         )
-        for section, messages in self.status_iterator(
+        for section, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
                 lambda (section, _):darkgreen(section), len(self.catalogs)):
 
@@ -99,7 +108,8 @@ class MessageCatalogBuilder(I18nBuilder):
             pofile = open(pofn, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
-                for message, positions in messages.iteritems():
+                for message in catalog.messages:
+                    positions = catalog.metadata[message]
                     if positions:
                         # generate "#: file1:line1 file2:line2 ..."
                         pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
