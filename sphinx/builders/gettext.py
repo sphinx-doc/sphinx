@@ -119,8 +119,8 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
                         (path.relpath(source, self.srcdir), line)
                         for source, line, _ in positions))
-                    # generate "# uuid ..."
-                    pofile.write(u"# %s\n" % ", ".join(uid for _, _, uid
+                    # generate "# uuid1\n# uuid2\n ..."
+                    pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid
                         in positions))
 
                     # message contains *one* line of text ready for translation
