@@ -67,12 +67,11 @@ class I18nBuilder(Builder):
         catalog = self.catalogs[docname.split(SEP, 1)[0]]
 
         for node, msg in extract_messages(doctree):
+            if not node.source:
+                continue # built-in message
             if not msg in catalog:
                 catalog[msg] = []
-            if node.source and node.line:
-                position = {"source": node.source,
-                            "line": node.line}
-                catalog[msg].append(position)
+            catalog[msg].append((node.source, node.line, node.uid))
 
 
 class MessageCatalogBuilder(I18nBuilder):
@@ -99,13 +98,17 @@ class MessageCatalogBuilder(I18nBuilder):
             try:
                 pofile.write(POHEADER % data)
                 for message, positions in messages.iteritems():
+                    if positions:
+                        # generate "#: file1:line1 file2:line2 ..."
+                        pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
+                            (path.relpath(source, self.srcdir), line)
+                            for source, line, _ in positions))
+                        # generate "# uuid ..."
+                        pofile.write(u"# %s\n" % ", ".join(uid for _, _, uid
+                            in positions))
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
                                       replace(u'"', ur'\"')
-                    for position in positions:
-                        source = path.relpath(position["source"], self.outdir)
-                        line = position["line"]
-                        pofile.write(u'#: %s:%d\n' % (source, line))
                     pofile.write(u'msgid "%s"\nmsgstr ""\n\n' % message)
             finally:
                 pofile.close()
