@@ -55,13 +55,28 @@ class CodeBlock(Directive):
     final_argument_whitespace = False
     option_spec = {
         'linenos': directives.flag,
+        'emphasize-lines': directives.unchanged_required,
     }
 
     def run(self):
         code = u'\n'.join(self.content)
+
+        linespec = self.options.get('emphasize-lines')
+        if linespec:
+            try:
+                nlines = len(self.content)
+                hl_lines = [x+1 for x in parselinenos(linespec, nlines)]
+            except ValueError, err:
+                document = self.state.document
+                return [document.reporter.warning(str(err), line=self.lineno)]
+        else:
+            hl_lines = None
+
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options
+        if hl_lines is not None:
+            literal['highlight_args'] = {'hl_lines': hl_lines}
         literal.line = self.lineno
         return [literal]
 
@@ -88,6 +103,7 @@ class LiteralInclude(Directive):
         'end-before': directives.unchanged_required,
         'prepend': directives.unchanged_required,
         'append': directives.unchanged_required,
+        'emphasize-lines': directives.unchanged_required,
     }
 
     def run(self):
@@ -146,6 +162,15 @@ class LiteralInclude(Directive):
                     'Line spec %r: no lines pulled from include file %r' %
                     (linespec, filename), line=self.lineno)]
 
+        linespec = self.options.get('emphasize-lines')
+        if linespec:
+            try:
+                hl_lines = [x+1 for x in parselinenos(linespec, len(lines))]
+            except ValueError, err:
+                return [document.reporter.warning(str(err), line=self.lineno)]
+        else:
+            hl_lines = None
+
         startafter = self.options.get('start-after')
         endbefore  = self.options.get('end-before')
         prepend    = self.options.get('prepend')
@@ -178,6 +203,8 @@ class LiteralInclude(Directive):
             retnode['language'] = self.options['language']
         if 'linenos' in self.options:
             retnode['linenos'] = True
+        if hl_lines is not None:
+            retnode['highlight_args'] = {'hl_lines': hl_lines}
         env.note_dependency(rel_filename)
         return [retnode]
 
