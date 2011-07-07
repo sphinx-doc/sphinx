@@ -1267,8 +1267,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             linenos = node['linenos']
         def warner(msg):
             self.builder.warn(msg, (self.curfilestack[-1], node.line))
-        hlcode = self.highlighter.highlight_block(code, lang, linenos,
-                                                  warn=warner)
+        hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
+                                                  linenos=linenos)
         # workaround for Unicode issue
         hlcode = hlcode.replace(u'€', u'@texteuro[]')
         # must use original Verbatim environment and "tabular" environment

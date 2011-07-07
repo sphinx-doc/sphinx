@@ -241,7 +241,7 @@ class HTMLTranslator(BaseTranslator):
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, linenos, warn=warner)
+            node.rawsource, lang, warn=warner, linenos=linenos)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         self.body.append(starttag + highlighted + '</div>\n')

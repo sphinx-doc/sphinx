@@ -151,7 +151,7 @@ class PygmentsBridge(object):
         else:
             return True
 
-    def highlight_block(self, source, lang, linenos=False, warn=None):
+    def highlight_block(self, source, lang, warn=None, **kwargs):
         if not isinstance(source, unicode):
             source = source.decode()
         if not pygments:
@@ -198,7 +198,7 @@ class PygmentsBridge(object):
 
         # highlight via Pygments
         try:
-            formatter = self.get_formatter(linenos=bool(linenos))
+            formatter = self.get_formatter(**kwargs)
             hlsource = highlight(source, lexer, formatter)
             if self.dest == 'html':
                 return hlsource
