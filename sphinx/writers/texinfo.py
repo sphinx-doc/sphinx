@@ -1271,13 +1271,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if objtype != 'describe':
             for id in node.get('ids'):
                 self.add_anchor(id, node)
-        # use the localized name for the category
+        # use the full name of the objtype for the category
         try:
             domain = self.builder.env.domains[node.parent['domain']]
-            lname = domain.object_types[objtype].lname
+            primary = self.builder.config.primary_domain
+            name = domain.get_type_name(domain.object_types[objtype],
+                                        primary == domain.name)
         except KeyError:
-            lname = objtype
-        category = self.escape_arg(string.capwords(lname))
+            name = objtype
+        category = self.escape_arg(string.capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
     def depart_desc_signature(self, node):
