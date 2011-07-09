@@ -17,7 +17,6 @@ import types
 import codecs
 import imghdr
 import string
-import posixpath
 import unicodedata
 import cPickle as pickle
 from os import path
@@ -1376,7 +1375,8 @@ class BuildEnvironment:
                                 toplevel[1][:] = subtrees
                     # resolve all sub-toctrees
                     for toctreenode in toc.traverse(addnodes.toctree):
-                        if not ( toctreenode.get('hidden', False) and not includehidden ):
+                        if not (toctreenode.get('hidden', False)
+                                and not includehidden):
                             i = toctreenode.parent.index(toctreenode) + 1
                             for item in _entries_from_toctree(toctreenode,
                                                               subtree=True):
