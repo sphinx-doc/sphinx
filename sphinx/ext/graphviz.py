@@ -25,7 +25,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.errors import SphinxError
-from sphinx.util.osutil import ensuredir, ENOENT, EPIPE
+from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 from sphinx.util.compat import Directive
 
 
@@ -163,6 +163,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
                           self.builder.config.graphviz_dot)
         self.builder._graphviz_warned_dot = True
         return None, None
+    wentWrong = False
     try:
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
@@ -170,6 +171,12 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     except OSError, err:
         if err.errno != EPIPE:
             raise
+        wentWrong = True
+    except IOError, err:
+        if err.errno != EINVAL:
+            raise
+        wentWrong = True
+    if wentWrong:
         # in this case, read the standard output and standard error streams
         # directly, to get the error message(s)
         stdout, stderr = p.stdout.read(), p.stderr.read()
