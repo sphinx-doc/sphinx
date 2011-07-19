@@ -4,16 +4,15 @@ Math support in Sphinx
 ======================
 
 .. module:: sphinx.ext.mathbase
-   :synopsis: Common math support for pngmath and jsmath.
+   :synopsis: Common math support for pngmath and mathjax / jsmath.
 
 .. versionadded:: 0.5
 
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
-supports math in documentation with two extensions.
+supports math in documentation with several extensions.
 
-The basic math support that is common to both extensions is contained in
-:mod:`sphinx.ext.mathbase`.  Other math support extensions should,
-if possible, reuse that support too.
+The basic math support is contained in :mod:`sphinx.ext.mathbase`. Other math
+support extensions should, if possible, reuse that support too.
 
 .. note::
 
@@ -103,7 +102,8 @@ This extension renders math via LaTeX and dvipng_ into PNG images.  This of
 course means that the computer where the docs are built must have both programs
 available.
 
-There are various config values you can set to influence how the images are built:
+There are various config values you can set to influence how the images are
+built:
 
 .. confval:: pngmath_latex
 
@@ -196,7 +196,7 @@ Sphinx.
 .. confval:: mathjax_path
 
    The path to the JavaScript file to include in the HTML files in order to load
-   JSMath.
+   MathJax.
 
    The default is the ``http://`` URL that loads the JS files from the `MathJax
    CDN <http://www.mathjax.org/docs/1.1/start.html>`_.  If you want MathJax to
@@ -206,7 +206,7 @@ Sphinx.
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.
 
-   For example, if you put JSMath into the static path of the Sphinx docs, this
+   For example, if you put MathJax into the static path of the Sphinx docs, this
    value would be ``MathJax/MathJax.js``.  If you host more than one Sphinx
    documentation set on one server, it is advisable to install MathJax in a
    shared location.
