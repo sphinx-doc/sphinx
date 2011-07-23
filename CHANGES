@@ -64,6 +64,7 @@ Features added
 
   - #537: Added :confval:`nitpick_ignore`.
   - #306: Added :event:`env-get-outdated` event.
+  - :meth:`.Application.add_stylesheet` now accepts full URIs.
 
 * Autodoc:
 

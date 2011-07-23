@@ -256,7 +256,7 @@ the following public API:
 
    Add *filename* to the list of CSS files that the default HTML template will
    include.  Like for :meth:`add_javascript`, the filename must be relative to
-   the HTML static path.
+   the HTML static path, or a full URI with scheme.
 
    .. versionadded:: 1.0
 
