@@ -95,6 +95,9 @@ _content_template = u'''\
   <spine toc="ncx">
 %(spine)s
   </spine>
+  <guilde>
+%(reference)s
+  </guide>
 </package>
 '''
 
