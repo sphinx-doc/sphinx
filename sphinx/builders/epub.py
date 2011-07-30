@@ -116,7 +116,7 @@ _spine_template = u'''\
     <itemref idref="%(idref)s" />'''
 
 _guide_template = u'''\
-    <reference type="%(type)" title="%(title)" href="%(uri)" />'''
+    <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
 _toctree_template = u'toctree-l%d'
 
