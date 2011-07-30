@@ -450,7 +450,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         guide = []
         if self.config.epub_guide:
-            for type, title, uri in self.config.epub_guide:
+            for type, uri, title in self.config.epub_guide:
                 guide.append(_guide_template % {
                         'type': self.esc(type),
                         'title': self.esc(title),
