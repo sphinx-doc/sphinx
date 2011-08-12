@@ -113,7 +113,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
                     # generate "#: file1:line1 file2:line2 ..."
                     pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
-                        (path.relpath(source, self.srcdir), line)
+                        (path.relpath(source, self.outdir), line)
                         for source, line, _ in positions))
                     # generate "# uuid1\n# uuid2\n ..."
                     pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid
