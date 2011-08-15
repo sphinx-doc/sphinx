@@ -174,7 +174,7 @@ var Search = {
 
     // lookup as object
     for (var i = 0; i < objectterms.length; i++) {
-      var others = Array.concat(objectterms.slice(0,i),
+      var others = [].concat(objectterms.slice(0,i),
                                 objectterms.slice(i+1, objectterms.length))
       var results = this.performObjectSearch(objectterms[i], others);
       // Assume first word is most likely to be the object,
