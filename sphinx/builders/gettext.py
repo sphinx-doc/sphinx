@@ -111,8 +111,8 @@ class MessageCatalogBuilder(I18nBuilder):
                 for message in catalog.messages:
                     positions = catalog.metadata[message]
 
-                    # generate "#: file1:line1 file2:line2 ..."
-                    pofile.write(u"#: %s\n" % ", ".join("%s:%s" %
+                    # generate "#: file1:line1\n#: file2:line2 ..."
+                    pofile.write(u"#: %s\n" % "\n#: ".join("%s:%s" %
                         (path.relpath(source, self.outdir), line)
                         for source, line, _ in positions))
                     # generate "# uuid1\n# uuid2\n ..."
