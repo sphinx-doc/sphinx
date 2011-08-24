@@ -186,11 +186,6 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     return relfn, outfn
 
 
-def get_svg_tag(svgref, imgcls=None):
-    return '<img src="%s"%s />\n' % \
-           (svgref, imgcss)
-
-
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
     format = self.builder.config.graphviz_output_format
