@@ -2,14 +2,15 @@
 # Copyright (C) 2008 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # Yasushi Masuda <whosaysni@gmail.com>, 2008.
-# Kouhei Sutou <kou@clear-code.com, 2011.
+# Kouhei Sutou <kou@clear-code.com>, 2011.
+# Akitoshi Ohta <fire.kuma8@gmail.com>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.1pre\n"
 "POT-Creation-Date: 2008-09-11 23:58+0200\n"
-"PO-Revision-Date: 2011-05-15 21:25+0900\n"
-"Last-Translator: Kouhei Sutou <kou@clear-code.com>\n"
+"PO-Revision-Date: 2011-08-27 17:50+0900\n"
+"Last-Translator: Akitoshi Ohta <fire.kuma8@gmail.com>\n"
 "Language-Team: Japanese\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
@@ -753,7 +754,7 @@ msgstr "前のページからの続き"
 
 #: sphinx/writers/latex.py:677
 msgid "Continued on next page"
-msgstr "総索引"
+msgstr "次のページに続く"
 
 #: sphinx/writers/text.py:430
 msgid "[image]"
