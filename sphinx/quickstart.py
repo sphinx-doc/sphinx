@@ -253,7 +253,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('%(master_str)s', '%(project_manpage)s', u'%(project_doc)s',
+    ('%(master_str)s', '%(project_manpage)s', u'%(project_doc_str)s',
      [u'%(author_str)s'], 1)
 ]
 
@@ -267,7 +267,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('%(master_str)s', '%(project_fn)s', u'%(project_doc)s', u'%(author_str)s',
+  ('%(master_str)s', '%(project_fn)s', u'%(project_doc_str)s', u'%(author_str)s',
    '%(project_fn)s', 'One line description of project.', 'Miscellaneous'),
 ]
 
@@ -932,8 +932,9 @@ directly.'''
 
     # escape backslashes and single quotes in strings that are put into
     # a Python string literal
-    for key in ('project', 'copyright', 'author', 'author_texescaped',
-                'project_doc_texescaped', 'version', 'release', 'master'):
+    for key in ('project', 'project_doc', 'project_doc_texescaped',
+                'author', 'author_texescaped', 'copyright',
+                'version', 'release', 'master'):
         d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
     if not path.isdir(d['path']):
