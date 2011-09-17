@@ -59,6 +59,7 @@ Features added
     requests and allow configuring the timeout.  New config values:
     :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
   - #521: Added :confval:`linkcheck_ignore` config value.
+  - #28: Support row/colspans in tables in the LaTeX builder.
 
 * Configuration and extensibility:
 
