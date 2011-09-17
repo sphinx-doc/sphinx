@@ -727,7 +727,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table.rowcount += 1
 
     def visit_entry(self, node):
-        if self.remember_multirow.has_key('0') and self.remember_multirow['0'] > 1:
+        if self.remember_multirow.get(0, 0) > 1:
             self.body.append(' & ')
         if self.table.col > 0:
             self.body.append(' & ')
@@ -739,7 +739,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(str(node.get('morerows') + 1))
             self.body.append('}{*}{')
             self.context.append('}')
-            self.remember_multirow[str(self.table.col)] = node.get('morerows') + 1;
+            self.remember_multirow[self.table.col] = node.get('morerows') + 1
         if 'morecols' in node:
             self.body.append(' \multicolumn{')
             self.body.append(str(node.get('morecols') + 1))
@@ -751,8 +751,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if isinstance(node.parent.parent, nodes.thead):
             self.body.append('\\textbf{')
             self.context.append('}')
-        if self.remember_multirow.has_key(str(self.table.col + 1)) and self.remember_multirow[str(self.table.col + 1)] > 1:
-            self.remember_multirow[str(self.table.col + 1)] -= 1
+        if self.remember_multirow.get(self.table.col + 1, 0) > 1:
+            self.remember_multirow[self.table.col + 1] -= 1
             self.context.append(' & ')
     def depart_entry(self, node):
         self.body.append(self.context.pop()) # header
