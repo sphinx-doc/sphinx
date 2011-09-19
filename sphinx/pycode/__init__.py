@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
-import sys
 from os import path
 from cStringIO import StringIO
 
