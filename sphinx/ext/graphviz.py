@@ -30,7 +30,6 @@ from sphinx.util.compat import Directive
 
 
 mapname_re = re.compile(r'<map id="(.*?)"')
-svg_dim_re = re.compile(r'<svg\swidth="(\d+)pt"\sheight="(\d+)pt"', re.M)
 
 
 class GraphvizError(SphinxError):
@@ -187,37 +186,6 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     return relfn, outfn
 
 
-def get_svg_tag(svgref, svgfile, imgcls=None):
-    # Webkit can't figure out svg dimensions when using object tag
-    # so we need to get it from the svg file
-    fp = open(svgfile, 'r')
-    try:
-        for line in fp:
-            match = svg_dim_re.match(line)
-            if match:
-                dimensions = match.groups()
-                break
-        else:
-            dimensions = None
-    finally:
-        fp.close()
-
-    # We need this hack to make WebKit show our object tag properly
-    def pt2px(x):
-        return int(ceil((96.0/72.0) * float(x)))
-
-    if dimensions:
-        style = ' width="%s" height="%s"' % tuple(map(pt2px, dimensions))
-    else:
-        style = ''
-
-    # The object tag works fine on Firefox and WebKit
-    # Besides it's a hack, this strategy does not mess with templates.
-    imgcss = imgcls and ' class="%s"' % imgcls or ''
-    return '<object type="image/svg+xml" data="%s"%s%s></object>\n' % \
-           (svgref, imgcss, style)
-
-
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
     format = self.builder.config.graphviz_output_format
@@ -225,7 +193,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         if format not in ('png', 'svg'):
             raise GraphvizError("graphviz_output_format must be one of 'png', "
                                 "'svg', but is %r" % format)
-        fname, outfn = render_dot(self, code, options, format, prefix)
+        fname, outfn = render_dot(self, code, options, format, prefix)g
     except GraphvizError, exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
@@ -242,8 +210,9 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
     else:
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
+        imgcss = imgcls and 'class="%s"' % imgcls or ''
         if format == 'svg':
-            svgtag = get_svg_tag(fname, outfn, imgcls)
+            svgtag = '<img src="%s" alt="%s" %s/>\n' % (fname, alt, imgcss)
             self.body.append(svgtag)
         else:
             mapfile = open(outfn + '.map', 'rb')
@@ -251,7 +220,6 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 imgmap = mapfile.readlines()
             finally:
                 mapfile.close()
-            imgcss = imgcls and 'class="%s"' % imgcls or ''
             if len(imgmap) == 2:
                 # nothing in image map (the lines are <map> and </map>)
                 self.body.append('<img src="%s" alt="%s" %s/>\n' %
