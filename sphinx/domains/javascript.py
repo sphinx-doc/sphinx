@@ -34,6 +34,7 @@ class JSObject(ObjectDescription):
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
             prefix, arglist = sig.split('(', 1)
+            prefix = prefix.strip()
             arglist = arglist[:-1].strip()
         else:
             prefix = sig
