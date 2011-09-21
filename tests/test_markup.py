@@ -84,14 +84,14 @@ def test_inline():
     _html = ('<p><tt class="(samp )?docutils literal"><span class="pre">'
              'code</span>&nbsp;&nbsp; <span class="pre">sample</span></tt></p>')
     yield verify_re, '``code   sample``', _html, r'\\code{code   sample}'
-    yield verify_re, ':samp:`code   sample`', _html, r'\\samp{code   sample}'
+    yield verify_re, ':samp:`code   sample`', _html, r'\\code{code   sample}'
 
     # interpolation of braces in samp and file roles (HTML only)
     yield (verify, ':samp:`a{b}c`',
            '<p><tt class="samp docutils literal"><span class="pre">a</span>'
            '<em><span class="pre">b</span></em>'
            '<span class="pre">c</span></tt></p>',
-           '\\samp{abc}')
+           '\\code{a\\emph{b}c}')
 
     # interpolation of arrows in menuselection
     yield (verify, ':menuselection:`a --> b`',

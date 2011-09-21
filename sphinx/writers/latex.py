@@ -1469,7 +1469,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.verbatim += node.astext()
         else:
             text = self.encode(node.astext())
-            self.body.append(educate_quotes_latex(text))
+            if not self.no_contractions:
+                text = educate_quotes_latex(text)
+            self.body.append(text)
     def depart_Text(self, node):
         pass
 
