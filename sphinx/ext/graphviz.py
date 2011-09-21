@@ -193,7 +193,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         if format not in ('png', 'svg'):
             raise GraphvizError("graphviz_output_format must be one of 'png', "
                                 "'svg', but is %r" % format)
-        fname, outfn = render_dot(self, code, options, format, prefix)g
+        fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError, exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
