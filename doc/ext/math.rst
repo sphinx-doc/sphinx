@@ -63,10 +63,10 @@ further translation is necessary when building LaTeX output.
       .. math:: (a + b)^2 = a^2 + 2ab + b^2
 
    Normally, equations are not numbered.  If you want your equation to get a
-   number, use the ``label`` option.  When given, it selects a label for the
-   equation, by which it can be cross-referenced, and causes an equation number
-   to be issued.  See :rst:role:`eqref` for an example.  The numbering style depends
-   on the output format.
+   number, use the ``label`` option.  When given, it selects an internal label
+   for the equation, by which it can be cross-referenced, and causes an equation
+   number to be issued.  See :rst:role:`eqref` for an example.  The numbering
+   style depends on the output format.
 
    There is also an option ``nowrap`` that prevents any wrapping of the given
    math in a math environment.  When you give this option, you must make sure
