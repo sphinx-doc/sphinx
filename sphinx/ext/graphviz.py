@@ -177,7 +177,7 @@ def get_svg_tag(svgref, svgfile, imgcls=None):
     # The object tag works fine on Firefox and WebKit
     # Besides it's a hack, this strategy does not mess with templates.
     imgcss = imgcls and ' class="%s"' % imgcls or ''
-    return '<object type="image/svg+xml" data="%s"%s%s/>\n' % \
+    return '<object type="image/svg+xml" data="%s"%s%s></object>\n' % \
            (svgref, imgcss, style)
 
 
