@@ -1246,15 +1246,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_literal(self, node):
         self.no_contractions += 1
-        content = self.encode(node.astext().strip())
-        self.no_contractions -= 1
         if self.in_title:
-            self.body.append(r'\texttt{%s}' % content)
-        elif node.get('role') == 'samp':
-            self.body.append(r'\samp{%s}' % content)
+            self.body.append(r'\texttt{')
         else:
-            self.body.append(r'\code{%s}' % content)
-        raise nodes.SkipNode
+            self.body.append(r'\code{')
+    def depart_literal(self, node):
+        self.no_contractions -= 1
+        self.body.append('}')
 
     def visit_footnote_reference(self, node):
         num = node.astext().strip()
