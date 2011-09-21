@@ -232,7 +232,7 @@ class CoverageBuilder(Builder):
                             if not methods:
                                 op.write(' * %s\n' % name)
                             else:
-                                op.write(' * %s -- missing methods:\n' % name)
+                                op.write(' * %s -- missing methods:\n\n' % name)
                                 op.writelines('   - %s\n' % x for x in methods)
                         op.write('\n')
 
