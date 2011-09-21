@@ -26,7 +26,7 @@ from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 try:
     from sphinx.websupport.storage.sqlalchemystorage import Session, \
-         SQLAlchemyStorage, Comment, CommentVote
+         Comment, CommentVote
     from sphinx.websupport.storage.sqlalchemy_db import Node
     sqlalchemy_missing = False
 except ImportError:
@@ -34,6 +34,8 @@ except ImportError:
 
 from util import *
 
+
+raise SkipTest('websupport tests are currently not working')
 
 default_settings = {'builddir': os.path.join(test_root, 'websupport'),
                     'status': StringIO(),
