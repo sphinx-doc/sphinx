@@ -15,6 +15,7 @@ import sys
 from os import path
 
 from sphinx.errors import ConfigError
+from sphinx.locale import l_
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import bytes, b, convert_with_2to3
 
@@ -77,7 +78,7 @@ class Config(object):
         html_theme = ('default', 'html'),
         html_theme_path = ([], 'html'),
         html_theme_options = ({}, 'html'),
-        html_title = (lambda self: '%s %s documentation' %
+        html_title = (lambda self: l_('%s %s documentation') %
                                    (self.project, self.release),
                       'html'),
         html_short_title = (lambda self: self.html_title, 'html'),

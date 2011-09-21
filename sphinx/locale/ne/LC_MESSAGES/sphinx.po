@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.1pre/47a94f723e80+\n"
 "Report-Msgid-Bugs-To: sharma.arati11@gmail.com\n"
-"POT-Creation-Date: 2011-05-26 13:47-0400\n"
-"PO-Revision-Date: 2011-06-02 13:38+0545\n"
+"POT-Creation-Date: 2011-09-21 10:06+0200\n"
+"PO-Revision-Date: 2011-09-21 10:13+0200\n"
 "Last-Translator: Tika Karki <tikaraj.karki@olenepal.org>\n"
 "Language-Team: ne_NP <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -17,20 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sphinx/environment.py:120
-#: sphinx/writers/latex.py:189
-#: sphinx/writers/manpage.py:67
-#: sphinx/writers/texinfo.py:202
+#: sphinx/config.py:81
+#, python-format
+msgid "%s %s documentation"
+msgstr ""
+
+#: sphinx/environment.py:119 sphinx/writers/latex.py:190
+#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%B %d, %Y"
 
-#: sphinx/environment.py:1624
+#: sphinx/environment.py:1625
 #, python-format
 msgid "see %s"
 msgstr "%s हेर्नुहोस्"
 
-#: sphinx/environment.py:1627
+#: sphinx/environment.py:1628
 #, python-format
 msgid "see also %s"
 msgstr "%s पनि हेर्नुहोस् "
@@ -53,8 +56,7 @@ msgstr "मडुलको तह"
 msgid "%b %d, %Y"
 msgstr "%b %d, %Y"
 
-#: sphinx/builders/html.py:293
-#: sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:293 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "सामान्य  अनुसुची"
 
@@ -70,8 +72,7 @@ msgstr "पछिल्लो"
 msgid "previous"
 msgstr "अघिल्लो"
 
-#: sphinx/builders/latex.py:141
-#: sphinx/builders/texinfo.py:196
+#: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:196
 msgid " (in "
 msgstr "(in"
 
@@ -100,19 +101,16 @@ msgstr "पनि हेर्नुहोस"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:51
-#: sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr "Parameters"
 
-#: sphinx/domains/c.py:54
-#: sphinx/domains/javascript.py:128
+#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:128
 #: sphinx/domains/python.py:107
 msgid "Returns"
 msgstr "Returns"
 
-#: sphinx/domains/c.py:56
-#: sphinx/domains/python.py:109
+#: sphinx/domains/c.py:56 sphinx/domains/python.py:109
 msgid "Return type"
 msgstr "Return type"
 
@@ -141,15 +139,12 @@ msgstr "%s (C किसिम)"
 msgid "%s (C variable)"
 msgstr "%s (C चल)"
 
-#: sphinx/domains/c.py:204
-#: sphinx/domains/cpp.py:1060
-#: sphinx/domains/javascript.py:162
-#: sphinx/domains/python.py:559
+#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1060
+#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:559
 msgid "function"
 msgstr "फन्क्सन"
 
-#: sphinx/domains/c.py:205
-#: sphinx/domains/cpp.py:1061
+#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1061
 msgid "member"
 msgstr "सदस्य"
 
@@ -157,8 +152,7 @@ msgstr "सदस्य"
 msgid "macro"
 msgstr "बृहत"
 
-#: sphinx/domains/c.py:207
-#: sphinx/domains/cpp.py:1062
+#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1062
 msgid "type"
 msgstr "किसिम"
 
@@ -186,20 +180,17 @@ msgstr "%s (C++ सदस्य)"
 msgid "%s (C++ function)"
 msgstr "%s (C++कार्य)"
 
-#: sphinx/domains/cpp.py:1059
-#: sphinx/domains/javascript.py:163
+#: sphinx/domains/cpp.py:1059 sphinx/domains/javascript.py:163
 #: sphinx/domains/python.py:561
 msgid "class"
 msgstr "कक्षा"
 
-#: sphinx/domains/javascript.py:106
-#: sphinx/domains/python.py:254
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:254
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (built-in function)"
 
-#: sphinx/domains/javascript.py:107
-#: sphinx/domains/python.py:318
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:318
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s विधी)"
@@ -214,8 +205,7 @@ msgstr "%s() (कक्षा)"
 msgid "%s (global variable or constant)"
 msgstr "%s (global variable or constant)"
 
-#: sphinx/domains/javascript.py:113
-#: sphinx/domains/python.py:356
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:356
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s attribute)"
@@ -228,13 +218,11 @@ msgstr "Arguments"
 msgid "Throws"
 msgstr "Throws"
 
-#: sphinx/domains/javascript.py:164
-#: sphinx/domains/python.py:560
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
 msgid "data"
 msgstr "data"
 
-#: sphinx/domains/javascript.py:165
-#: sphinx/domains/python.py:566
+#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:566
 msgid "attribute"
 msgstr "attribute"
 
@@ -246,10 +234,8 @@ msgstr "चलहरू"
 msgid "Raises"
 msgstr "Raises"
 
-#: sphinx/domains/python.py:255
-#: sphinx/domains/python.py:312
-#: sphinx/domains/python.py:324
-#: sphinx/domains/python.py:337
+#: sphinx/domains/python.py:255 sphinx/domains/python.py:312
+#: sphinx/domains/python.py:324 sphinx/domains/python.py:337
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (in मडुल %s)"
@@ -259,8 +245,7 @@ msgstr "%s() (in मडुल %s)"
 msgid "%s (built-in variable)"
 msgstr "%s (built-in चल)"
 
-#: sphinx/domains/python.py:259
-#: sphinx/domains/python.py:350
+#: sphinx/domains/python.py:259 sphinx/domains/python.py:350
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (in मडुल %s)"
@@ -322,8 +307,7 @@ msgstr "modules"
 msgid "Deprecated"
 msgstr "Deprecated"
 
-#: sphinx/domains/python.py:562
-#: sphinx/locale/__init__.py:179
+#: sphinx/domains/python.py:562 sphinx/locale/__init__.py:179
 msgid "exception"
 msgstr "अपबाद"
 
@@ -339,8 +323,7 @@ msgstr "कक्षा विधी"
 msgid "static method"
 msgstr "static विधी"
 
-#: sphinx/domains/python.py:567
-#: sphinx/locale/__init__.py:175
+#: sphinx/domains/python.py:567 sphinx/locale/__init__.py:175
 msgid "module"
 msgstr "मडुल"
 
@@ -366,8 +349,7 @@ msgstr "निर्देशिक"
 msgid "role"
 msgstr "भूमिका"
 
-#: sphinx/domains/std.py:70
-#: sphinx/domains/std.py:86
+#: sphinx/domains/std.py:70 sphinx/domains/std.py:86
 #, python-format
 msgid "environment variable; %s"
 msgstr "environment variable; %s"
@@ -397,16 +379,12 @@ msgstr "environment variable"
 msgid "program option"
 msgstr "कार्यक्रमका बिकल्प"
 
-#: sphinx/domains/std.py:427
-#: sphinx/themes/basic/genindex-single.html:32
+#: sphinx/domains/std.py:427 sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
-#: sphinx/themes/basic/genindex.html:32
-#: sphinx/themes/basic/genindex.html:35
-#: sphinx/themes/basic/genindex.html:68
-#: sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:178
-#: sphinx/writers/texinfo.py:447
+#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
+#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
+#: sphinx/writers/latex.py:179 sphinx/writers/texinfo.py:456
 msgid "Index"
 msgstr "अनुसुची"
 
@@ -414,8 +392,7 @@ msgstr "अनुसुची"
 msgid "Module Index"
 msgstr "मडुल अनुसुची"
 
-#: sphinx/domains/std.py:429
-#: sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:429 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "पानामा खोज्नुहोस्"
 
@@ -542,31 +519,25 @@ msgstr "भनाई"
 msgid "built-in function"
 msgstr "built-in फन्क्सन"
 
-#: sphinx/themes/agogo/layout.html:45
-#: sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11
 msgid "Table Of Contents"
 msgstr "विषयसूची"
 
-#: sphinx/themes/agogo/layout.html:49
-#: sphinx/themes/basic/layout.html:137
-#: sphinx/themes/basic/search.html:11
-#: sphinx/themes/basic/search.html:20
+#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:20
 msgid "Search"
 msgstr "खोज्नुहोस् "
 
-#: sphinx/themes/agogo/layout.html:52
-#: sphinx/themes/basic/searchbox.html:15
+#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
 msgstr "जानुहोस्"
 
-#: sphinx/themes/agogo/layout.html:57
-#: sphinx/themes/basic/searchbox.html:20
+#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
 msgstr "खोज्ने टर्मस् अथवा एक मडुल्, कक्षा अथवा फन्क्सनको नाम लेख्नुहोस "
 
-#: sphinx/themes/agogo/layout.html:78
-#: sphinx/themes/basic/sourcelink.html:14
+#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
 msgstr "स्रोत देखाउनुहोस् "
 
@@ -656,7 +627,9 @@ msgstr "यो भन्दा अगाडी %(last_updated)s मा अपड
 
 #: sphinx/themes/basic/layout.html:198
 #, python-format
-msgid "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
 msgstr "<a href=\"http://sphinx.pocoo.org/\">Sphinx</a> प्रयोग गरेर बनाइएको"
 
 #: sphinx/themes/basic/opensearch.xml:4
@@ -746,14 +719,12 @@ msgstr "C API का  परिवर्तनहरु "
 msgid "Other changes"
 msgstr "अरु परिवर्तनहरु "
 
-#: sphinx/themes/basic/static/doctools.js:154
-#: sphinx/writers/html.py:506
-#: sphinx/writers/html.py:512
+#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:504
+#: sphinx/writers/html.py:510
 msgid "Permalink to this headline"
 msgstr "यो शिर्षकको लागि पर्मालिन्क । "
 
-#: sphinx/themes/basic/static/doctools.js:160
-#: sphinx/writers/html.py:92
+#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
 msgid "Permalink to this definition"
 msgstr "यो अर्थको लागि पर्मालिन्क"
 
@@ -774,25 +745,24 @@ msgstr "साइडबर सानो बनाउनुहोस्"
 msgid "Contents"
 msgstr "विषयसूची"
 
-#: sphinx/writers/latex.py:176
+#: sphinx/writers/latex.py:177
 msgid "Release"
 msgstr "रीलीज"
 
-#: sphinx/writers/latex.py:590
-#: sphinx/writers/manpage.py:182
-#: sphinx/writers/texinfo.py:580
+#: sphinx/writers/latex.py:594 sphinx/writers/manpage.py:182
+#: sphinx/writers/texinfo.py:589
 msgid "Footnotes"
 msgstr "फूट्नोट्स"
 
-#: sphinx/writers/latex.py:672
+#: sphinx/writers/latex.py:676
 msgid "continued from previous page"
 msgstr "अघिल्लो पानासँग जोडीएको"
 
-#: sphinx/writers/latex.py:677
+#: sphinx/writers/latex.py:681
 msgid "Continued on next page"
 msgstr "अर्को पानासँग जोडीएको"
 
-#: sphinx/writers/text.py:430
+#: sphinx/writers/text.py:437
 msgid "[image]"
 msgstr "[चित्र]"
 
