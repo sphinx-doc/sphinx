@@ -300,6 +300,14 @@ div.sidebar li.toctree-l1.current li.toctree-l2 a {
   border-right: none;
 }
 
+div.sidebar input[type="text"] {
+  width: 170px;
+}
+
+div.sidebar input[type="submit"] {
+  width: 30px;
+}
+
 
 /* Footer */
 
