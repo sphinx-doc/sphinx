@@ -401,7 +401,7 @@ class BuildEnvironment:
             config.exclude_trees +
             [d + config.source_suffix for d in config.unused_docs] +
             ['**/' + d for d in config.exclude_dirnames] +
-            ['**/_sources']
+            ['**/_sources', '.#*']
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
