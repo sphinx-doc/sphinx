@@ -137,7 +137,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
         stdout, stderr = p.communicate(code)
-    except OSError, err:
+    except (OSError, IOError), err:
         if err.errno != EPIPE:
             raise
         # in this case, read the standard output and standard error streams
