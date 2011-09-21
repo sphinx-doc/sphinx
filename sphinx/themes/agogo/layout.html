@@ -19,7 +19,8 @@
           </a></p>
         {%- endif %}
         {%- block headertitle %}
-        <h1><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></h1>
+        <div class="headertitle"><a
+          href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></div>
         {%- endblock %}
         <div class="rel">
           {%- for rellink in rellinks|reverse %}
