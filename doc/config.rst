@@ -378,6 +378,7 @@ documentation on :ref:`intl` for details.
    * ``hr`` -- Croatian
    * ``it`` -- Italian
    * ``ja`` -- Japanese
+   * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
    * ``ne`` -- Nepali
