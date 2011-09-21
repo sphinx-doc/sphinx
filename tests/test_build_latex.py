@@ -38,7 +38,7 @@ def test_latex(app):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
     latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
-    latex_warnings_exp = LATEX_WARNINGS % {'root': app.srcdir}
+    latex_warnings_exp = LATEX_WARNINGS % {'root': re.escape(app.srcdir)}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + latex_warnings_exp + \
