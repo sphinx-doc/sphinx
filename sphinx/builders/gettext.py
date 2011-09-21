@@ -14,11 +14,9 @@ from codecs import open
 from datetime import datetime
 from collections import defaultdict
 
-from docutils import nodes
-
 from sphinx.builders import Builder
 from sphinx.util.nodes import extract_messages
-from sphinx.util.osutil import SEP, copyfile
+from sphinx.util.osutil import SEP, safe_relpath
 from sphinx.util.console import darkgreen
 
 POHEADER = ur"""
@@ -113,7 +111,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
                     # generate "#: file1:line1\n#: file2:line2 ..."
                     pofile.write(u"#: %s\n" % "\n#: ".join("%s:%s" %
-                        (path.relpath(source, self.outdir), line)
+                        (safe_relpath(source, self.outdir), line)
                         for source, line, _ in positions))
                     # generate "# uuid1\n# uuid2\n ..."
                     pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid

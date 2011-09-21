@@ -133,3 +133,10 @@ if sys.version_info < (3, 0):
                 .decode('utf-8')
 else:
     ustrftime = time.strftime
+
+
+def safe_relpath(path, start=None):
+    try:
+        return os.path.relpath(path, start)
+    except ValueError:
+        return path
