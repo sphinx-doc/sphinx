@@ -209,7 +209,7 @@ def main(argv):
                 print >>error, err.args[0].encode('ascii', 'backslashreplace')
             elif isinstance(err, SphinxError):
                 print >>error, red('%s:' % err.category)
-                print >>error, err
+                print >>error, unicode(err).encode('ascii', 'backslashreplace')
             else:
                 print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()
