@@ -22,6 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
+from sphinx.util.pycompat import terminal_safe
 
 
 def usage(argv, msg=None):
@@ -190,8 +191,7 @@ def main(argv):
     except KeyboardInterrupt:
         if use_pdb:
             import pdb
-            print >>error, red('Interrupted while building, '
-                                   'starting debugger:')
+            print >>error, red('Interrupted while building, starting debugger:')
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         return 1
@@ -199,17 +199,17 @@ def main(argv):
         if use_pdb:
             import pdb
             print >>error, red('Exception occurred while building, '
-                                   'starting debugger:')
+                               'starting debugger:')
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         else:
             print >>error
             if isinstance(err, SystemMessage):
                 print >>error, red('reST markup error:')
-                print >>error, err.args[0].encode('ascii', 'backslashreplace')
+                print >>error, terminal_safe(err.args[0])
             elif isinstance(err, SphinxError):
                 print >>error, red('%s:' % err.category)
-                print >>error, err
+                print >>error, terminal_safe(unicode(err))
             else:
                 print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()

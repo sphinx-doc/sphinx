@@ -27,6 +27,9 @@ if sys.version_info >= (3, 0):
     u = ''
     # StringIO/BytesIO classes
     from io import StringIO, BytesIO, TextIOWrapper
+    # safely encode a string for printing to the terminal
+    def terminal_safe(s):
+        return s.encode('ascii', 'backslashreplace').decode('ascii')
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
@@ -56,6 +59,9 @@ else:
     convert_with_2to3 = None
     def TextIOWrapper(stream, encoding):
         return codecs.lookup(encoding or 'ascii')[2](stream)
+    # safely encode a string for printing to the terminal
+    def terminal_safe(s):
+        return s.encode('ascii', 'backslashreplace')
 
 
 # ------------------------------------------------------------------------------
