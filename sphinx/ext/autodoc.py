@@ -912,7 +912,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
         if inspect.isbuiltin(self.object) or \
                inspect.ismethoddescriptor(self.object):
             # cannot introspect arguments of a C function or method
-            pass
+            return None
         try:
             argspec = getargspec(self.object)
         except TypeError:
