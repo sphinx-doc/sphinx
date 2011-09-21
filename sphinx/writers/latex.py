@@ -1048,8 +1048,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 next = node.parent[parindex+1]
             except IndexError:
                 # last node in parent, look at next after parent
-                # (for section of equal level)
-                next = node.parent.parent[node.parent.parent.index(node.parent)]
+                # (for section of equal level) if it exists
+                if node.parent.parent is not None:
+                    next = node.parent.parent[
+                        node.parent.parent.index(node.parent)]
+                else:
+                    raise
             if isinstance(next, nodes.section):
                 if node.get('refid'):
                     self.next_section_ids.add(node['refid'])
