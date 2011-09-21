@@ -565,7 +565,7 @@ msgstr "всі функції, класи, терміни"
 #: sphinx/themes/basic/genindex-single.html:14
 #, python-format
 msgid "Index &ndash; %(key)s"
-msgstr "Індекс &ndash; %(key)"
+msgstr "Індекс &ndash; %(key)s"
 
 #: sphinx/themes/basic/genindex-single.html:46
 #: sphinx/themes/basic/genindex-split.html:24
@@ -690,17 +690,17 @@ msgstr "Ця сторінка"
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr "Зміни в Версії %(version)s &mdash; %(docstitle)"
+msgstr "Зміни в Версії %(version)s &mdash; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
 msgid "%(filename)s &mdash; %(docstitle)s"
-msgstr "%(filename) &mdash; %(docstitle)"
+msgstr "%(filename)s &mdash; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Автоматичного згенерований список змін в версії %(version)"
+msgstr "Автоматичного згенерований список змін в версії %(version)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"

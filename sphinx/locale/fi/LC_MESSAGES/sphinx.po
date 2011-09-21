@@ -676,7 +676,7 @@ msgstr "Tämä sivu"
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr "Muutos versiosta %(version) &mdash; %(docstitle)"
+msgstr "Muutos versiosta %(version)s &mdash; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
@@ -686,7 +686,7 @@ msgstr ""
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Automaattisesti luotu muutoshistoria alkaen versiosta %(version)"
+msgstr "Automaattisesti luotu muutoshistoria alkaen versiosta %(version)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
