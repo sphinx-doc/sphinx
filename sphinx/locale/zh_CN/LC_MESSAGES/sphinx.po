@@ -618,7 +618,7 @@ msgstr "版权所有"
 #: sphinx/themes/basic/layout.html:189
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr "&copy; <a href=\"%(path)s\">版权所有</a> % (copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">版权所有</a> %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:191
 #, python-format
