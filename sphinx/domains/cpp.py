@@ -21,6 +21,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
+from sphinx.util.docfields import Field, GroupedField
 
 
 _identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
@@ -838,6 +839,17 @@ class DefinitionParser(object):
 class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
+    doc_field_types = [
+        GroupedField('parameter', label=l_('Parameters'),
+                     names=('param', 'parameter', 'arg', 'argument'),
+                     can_collapse=True),
+        GroupedField('exceptions', label=l_('Throws'), rolename='cpp:class',
+                     names=('throws', 'throw', 'exception'),
+                     can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+    ]
+
     def attach_name(self, node, name):
         owner, name = name.split_owner()
         varname = unicode(name)
@@ -1128,7 +1140,7 @@ class CPPDomain(Domain):
                      node.line)
             return None
 
-        parent = node['cpp:parent']
+        parent = node.get('cpp:parent', None)
 
         rv = _create_refnode(expr)
         if rv is not None or parent is None:

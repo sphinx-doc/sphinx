@@ -36,6 +36,7 @@ Features added
     multiple terms per definition.
   - #478: Added :rst:dir:`py:decorator` directive to describe decorators.
   - C++ domain now supports array definitions.
+  - C++ domain now supports doc fields (``:param x:`` inside directives).
   - Section headings in :rst:dir:`only` directives are now correctly
     handled.
   - Added ``emphasize-lines`` option to source code directives.
