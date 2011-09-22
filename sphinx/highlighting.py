@@ -94,14 +94,12 @@ class PygmentsBridge(object):
         else:
             style = get_style_by_name(stylename)
         self.trim_doctest_flags = trim_doctest_flags
+        self.formatter_args = {'style' : style}
         if dest == 'html':
-            self.fmter = {False: self.html_formatter(style=style),
-                          True: self.html_formatter(style=style, linenos=True)}
+            self.formatter = self.html_formatter
         else:
-            self.fmter = {False: self.latex_formatter(style=style,
-                                                      commandprefix='PYG'),
-                          True: self.latex_formatter(style=style, linenos=True,
-                                                     commandprefix='PYG')}
+            self.formatter = self.latex_formatter
+            self.formatter_args['commandprefix'] = 'PYG'
 
     def unhighlighted(self, source):
         if self.dest == 'html':
@@ -153,7 +151,7 @@ class PygmentsBridge(object):
         else:
             return True
 
-    def highlight_block(self, source, lang, linenos=False, warn=None):
+    def highlight_block(self, source, lang, warn=None, **kwargs):
         if not isinstance(source, unicode):
             source = source.decode()
         if not pygments:
@@ -200,18 +198,24 @@ class PygmentsBridge(object):
 
         # highlight via Pygments
         try:
+            formatter = self.get_formatter(**kwargs)
+            hlsource = highlight(source, lexer, formatter)
             if self.dest == 'html':
-                return highlight(source, lexer, self.fmter[bool(linenos)])
+                return hlsource
+            elif hlsource.startswith(r'\begin{Verbatim}[commandchars=\\\{\}'):
+                # Pygments >= 1.2
+                return hlsource.translate(tex_hl_escape_map_new)
             else:
-                hlsource = highlight(source, lexer, self.fmter[bool(linenos)])
-                if hlsource.startswith(r'\begin{Verbatim}[commandchars=\\\{\}'):
-                    # Pygments >= 1.2
-                    return hlsource.translate(tex_hl_escape_map_new)
                 return hlsource.translate(tex_hl_escape_map_old)
         except ErrorToken:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
             return self.unhighlighted(source)
+
+    def get_formatter(self, **kwargs_orig):
+        kwargs = self.formatter_args.copy()
+        kwargs.update(kwargs_orig)
+        return self.formatter(**kwargs)
 
     def get_stylesheet(self):
         if not pygments:
@@ -219,10 +223,11 @@ class PygmentsBridge(object):
                 return _LATEX_STYLES
             # no HTML styles needed
             return ''
+        formatter = self.get_formatter()
         if self.dest == 'html':
-            return self.fmter[0].get_style_defs('.highlight')
+            return formatter.get_style_defs('.highlight')
         else:
-            styledefs = self.fmter[0].get_style_defs()
+            styledefs = formatter.get_style_defs()
             # workaround for Pygments < 0.12
             if styledefs.startswith('\\newcommand\\at{@}'):
                 styledefs += _LATEX_STYLES

@@ -98,7 +98,7 @@ def collect_pages(app):
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
-        highlighted = highlighter.highlight_block(code, 'python', False)
+        highlighted = highlighter.highlight_block(code, 'python', linenos=False)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code

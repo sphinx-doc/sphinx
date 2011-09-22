@@ -86,6 +86,18 @@ on line numbers for the individual block::
 
       Some more Ruby code.
 
+Additionally, an ``emphasize-lines`` option can be given to have Pygments
+emphasize particular lines::
+
+    .. code-block:: python
+       :emphasize-lines: 3,5
+
+       def some_function():
+           interesting = False
+           print 'This line is highlighted.'
+           print 'This one is not...'
+           print '...but this one is.'
+
 
 Includes
 ^^^^^^^^
@@ -107,11 +119,13 @@ Includes
    desired tab width.
 
    The directive also supports the ``linenos`` flag option to switch on line
-   numbers, and a ``language`` option to select a language different from the
-   current file's standard language.  Example with options::
+   numbers, the ``emphasize-lines`` option to emphasize particular lines, and
+   a ``language`` option to select a language different from the current
+   file's standard language.  Example with options::
 
       .. literalinclude:: example.rb
          :language: ruby
+         :emphasize-lines: 12,15-18
          :linenos:
 
    Include files are assumed to be encoded in the :confval:`source_encoding`.
