@@ -629,7 +629,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.table.longtable = True
         self.body = self._body
         if not self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\n\\begin{threeparttable}\n'
+            self.body.append(u'\n\n\\begin{threeparttable}\n'
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
