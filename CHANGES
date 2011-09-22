@@ -36,6 +36,7 @@ Features added
     multiple terms per definition.
   - #478: Added :rst:dir:`py:decorator` directive to describe decorators.
   - C++ domain now supports array definitions.
+  - C++ domain now supports doc fields (``:param x:`` inside directives).
   - Section headings in :rst:dir:`only` directives are now correctly
     handled.
   - Added ``emphasize-lines`` option to source code directives.
@@ -110,6 +111,32 @@ Features added
 
 Release 1.0.8 (in development)
 ==============================
+
+* #720: Add dummy visitors for graphviz nodes for text and man.
+
+* #704: Fix image file duplication bug.
+
+* #677: Fix parsing of multiple signatures in C++ domain.
+
+* #637: Ignore Emacs lock files when looking for source files.
+
+* #544: Allow .pyw extension for importable modules in autodoc.
+
+* #700: Use ``$(MAKE)`` in quickstart-generated Makefiles.
+
+* #734: Make sidebar search box width consistent in browsers.
+
+* #644: Fix spacing of centered figures in HTML output.
+
+* #767: Safely encode SphinxError messages when printing them to
+  sys.stderr.
+
+* #611: Fix LaTeX output error with a document with no sections but
+  a link target.
+
+* Correctly treat built-in method descriptors as methods in autodoc.
+
+* #706: Stop monkeypatching the Python textwrap module.
 
 * #657: viewcode now works correctly with source files that have
   non-ASCII encoding.

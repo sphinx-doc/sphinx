@@ -25,6 +25,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 from sphinx.util.compat import Directive
 
@@ -294,11 +295,26 @@ def texinfo_visit_graphviz(self, node):
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 
+def text_visit_graphviz(self, node):
+    if 'alt' in node.attributes:
+        self.add_text(_('[graph: %s]') % node['alt'])
+    self.add_text(_('[graph]'))
+
+
+def man_visit_graphviz(self, node):
+    if 'alt' in node.attributes:
+        self.body.append(_('[graph: %s]') % node['alt'] + '\n')
+    self.body.append(_('[graph]'))
+    raise nodes.SkipNode
+
+
 def setup(app):
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),
-                 texinfo=(texinfo_visit_graphviz, None))
+                 texinfo=(texinfo_visit_graphviz, None),
+                 text=(text_visit_graphviz, None),
+                 man=(man_visit_graphviz, None))
     app.add_directive('graphviz', Graphviz)
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)
