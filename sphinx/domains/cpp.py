@@ -303,13 +303,22 @@ class ArrayDefExpr(WrappingDefExpr):
         )
 
 
-class RefDefExpr(WrappingDefExpr):
+class LValRefDefExpr(WrappingDefExpr):
 
     def get_id(self):
         return self.typename.get_id() + u'R'
 
     def __unicode__(self):
         return u'%s&' % self.typename
+
+
+class RValRefDefExpr(WrappingDefExpr):
+
+    def get_id(self):
+        return self.typename.get_id() + u'RR'
+
+    def __unicode__(self):
+        return u'%s&&' % self.typename
 
 
 class ConstDefExpr(WrappingDefExpr):
@@ -602,7 +611,10 @@ class DefinitionParser(object):
             elif self.match(_array_def_re):
                 expr = ArrayDefExpr(expr, self.last_match.group(1))
             elif self.skip_string('&'):
-                expr = RefDefExpr(expr)
+                if self.skip_string('&'):
+                    expr = RValRefDefExpr(expr)
+                else:
+                    expr = LValRefDefExpr(expr)
             else:
                 return expr
 
