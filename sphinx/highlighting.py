@@ -101,6 +101,10 @@ class PygmentsBridge(object):
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
+    def get_formatter(self, **kwargs):
+        kwargs.update(self.formatter_args)
+        return self.formatter(**kwargs)
+
     def unhighlighted(self, source):
         if self.dest == 'html':
             return '<pre>' + cgi.escape(source) + '</pre>\n'
@@ -211,11 +215,6 @@ class PygmentsBridge(object):
             # this is most probably not the selected language,
             # so let it pass unhighlighted
             return self.unhighlighted(source)
-
-    def get_formatter(self, **kwargs_orig):
-        kwargs = self.formatter_args.copy()
-        kwargs.update(kwargs_orig)
-        return self.formatter(**kwargs)
 
     def get_stylesheet(self):
         if not pygments:

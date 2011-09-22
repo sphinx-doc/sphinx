@@ -27,10 +27,10 @@ Features added
 
 * Markup:
 
-  - #138: Add an :rst:role:`index` role, to make inline index entries.
-  - #454: Add more index markup capabilities: marking see/seealso entries,
+  - #138: Added an :rst:role:`index` role, to make inline index entries.
+  - #454: Added more index markup capabilities: marking see/seealso entries,
     and main entries for a given key.
-  - #460: Allow limiting the depth of section numbers for HTML using the
+  - #460: Allowed limiting the depth of section numbers for HTML using the
     :rst:dir:`toctree`\'s ``numbered`` option.
   - #586: Implemented improved :rst:dir:`glossary` markup which allows
     multiple terms per definition.
@@ -38,6 +38,7 @@ Features added
   - C++ domain now supports array definitions.
   - Section headings in :rst:dir:`only` directives are now correctly
     handled.
+  - Added ``emphasize-lines`` option to source code directives.
 
 * HTML builder:
 

@@ -98,6 +98,9 @@ emphasize particular lines::
            print 'This one is not...'
            print '...but this one is.'
 
+.. versionchanged:: 1.1
+   ``emphasize-lines`` has been added.
+
 
 Includes
 ^^^^^^^^
