@@ -626,6 +626,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table = Table()
         self.table.longtable = 'longtable' in node['classes']
         self.tablebody = []
+        self.tableheaders = []
         # Redirect body output until table is finished.
         self._body = self.body
         self.body = self.tablebody
@@ -670,11 +671,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.next_table_ids.clear()
         if self.table.longtable:
             self.body.append('\\hline\n')
+            self.body.extend(self.tableheaders)
             self.body.append('\\endfirsthead\n\n')
             self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
             self.body.append(r'{{\bfseries \tablename\ \thetable{} -- %s}} \\'
                              % _('continued from previous page'))
             self.body.append('\n\\hline\n')
+            self.body.extend(self.tableheaders)
             self.body.append('\\endhead\n\n')
             self.body.append(ur'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
                              % (self.table.colcount,
@@ -684,6 +687,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\endlastfoot\n\n')
         else:
             self.body.append('\\hline\n')
+            self.body.extend(self.tableheaders)
         self.body.extend(self.tablebody)
         self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
@@ -702,17 +706,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_thead(self, node):
+        self.table.had_head = True
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
         self.next_table_colspec = None
-        # self.body.append('\\hline\n')
-        # self.table.had_head = True
+        # Redirect head output until header is finished. see visit_tbody.
+        self.body = self.tableheaders
     def depart_thead(self, node):
         pass
 
     def visit_tbody(self, node):
         if not self.table.had_head:
             self.visit_thead(node)
+        self.body = self.tablebody
     def depart_tbody(self, node):
         pass
 
