@@ -162,17 +162,19 @@ class StandaloneHTMLBuilder(Builder):
         old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
-            version = fp.readline()
-            if version.rstrip() != '# Sphinx build info version 1':
-                raise ValueError
-            fp.readline()  # skip commentary
-            cfg, old_config_hash = fp.readline().strip().split(': ')
-            if cfg != 'config':
-                raise ValueError
-            tag, old_tags_hash = fp.readline().strip().split(': ')
-            if tag != 'tags':
-                raise ValueError
-            fp.close()
+            try:
+                version = fp.readline()
+                if version.rstrip() != '# Sphinx build info version 1':
+                    raise ValueError
+                fp.readline()  # skip commentary
+                cfg, old_config_hash = fp.readline().strip().split(': ')
+                if cfg != 'config':
+                    raise ValueError
+                tag, old_tags_hash = fp.readline().strip().split(': ')
+                if tag != 'tags':
+                    raise ValueError
+            finally:
+                fp.close()
         except ValueError:
             self.warn('unsupported build info format in %r, building all' %
                       path.join(self.outdir, '.buildinfo'))
