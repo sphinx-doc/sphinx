@@ -28,7 +28,7 @@ _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
-_array_def_re = re.compile(r'\[\s*(.+?)?\s*\]')
+_array_def_re = re.compile(r'\[\s*([^\]]+?)?\s*\]')
 _template_arg_re = re.compile(r'(%s)|([^,>]+)' % _string_re.pattern, re.S)
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
@@ -219,6 +219,20 @@ class PathDefExpr(PrimaryDefExpr):
         return u'::'.join(map(unicode, self.path))
 
 
+class ArrayTypeSuffixDefExpr(object):
+
+    def __init__(self, size_hint=None):
+        self.size_hint = size_hint
+
+    def get_id_suffix(self):
+        return 'A'
+
+    def __unicode__(self):
+        return u'[%s]' % (
+            self.size_hint is not None and unicode(self.size_hint) or u'',
+        )
+
+
 class TemplateDefExpr(PrimaryDefExpr):
 
     def __init__(self, typename, args):
@@ -283,22 +297,6 @@ class PtrDefExpr(WrappingDefExpr):
         return u'%s*' % self.typename
 
 
-class ArrayDefExpr(WrappingDefExpr):
-
-    def __init__(self, typename, size_hint=None):
-        WrappingDefExpr.__init__(self, typename)
-        self.size_hint = size_hint
-
-    def get_id(self):
-        return self.typename.get_id() + u'A'
-
-    def __unicode__(self):
-        return u'%s[%s]' % (
-            self.typename,
-            self.size_hint is not None and unicode(self.size_hint) or u''
-        )
-
-
 class LValRefDefExpr(WrappingDefExpr):
 
     def get_id(self):
@@ -344,22 +342,29 @@ class CastOpDefExpr(PrimaryDefExpr):
 
 class ArgumentDefExpr(DefExpr):
 
-    def __init__(self, type, name, default=None):
+    def __init__(self, type, name, type_suffixes, default=None):
         self.name = name
         self.type = type
+        self.type_suffixes = type_suffixes
         self.default = default
 
     def get_name(self):
         return self.name.get_name()
 
     def get_id(self):
-        if self.type is None:
-            return 'X'
-        return self.type.get_id()
+        buf = []
+        buf.append(self.type and self.type.get_id() or 'X')
+        for suffix in self.type_suffixes:
+            buf.append(suffix.get_id_suffix())
+        return u''.join(buf)
 
     def __unicode__(self):
-        return (u'%s %s' % (self.type or u'', self.name or u'')).strip() + \
-               (self.default is not None and u'=%s' % self.default or u'')
+        buf = [(u'%s %s' % (self.type or u'', self.name or u'')).strip()]
+        if self.default is not None:
+            buf.append('=%s' % self.default)
+        for suffix in self.type_suffixes:
+            buf.append(unicode(suffix))
+        return u''.join(buf)
 
 
 class NamedDefExpr(DefExpr):
@@ -383,14 +388,19 @@ class NamedDefExpr(DefExpr):
 
 class TypeObjDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, typename):
+    def __init__(self, name, visibility, static, typename, type_suffixes):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.typename = typename
+        self.type_suffixes = type_suffixes
 
     def get_id(self):
         if self.typename is None:
-            return self.name.get_id()
-        return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
+            buf = [self.name.get_id()]
+        else:
+            buf = [u'%s__%s' % (self.name.get_id(), self.typename.get_id())]
+        for suffix in self.type_suffixes:
+            buf.append(suffix.get_id_suffix())
+        return u''.join(buf)
 
     def __unicode__(self):
         buf = self.get_modifiers()
@@ -398,25 +408,36 @@ class TypeObjDefExpr(NamedDefExpr):
             buf.append(unicode(self.name))
         else:
             buf.extend(map(unicode, (self.typename, self.name)))
-        return u' '.join(buf)
+        buf = [u' '.join(buf)]
+        for suffix in self.type_suffixes:
+            buf.append(unicode(suffix))
+        return u''.join(buf)
 
 
 class MemberObjDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, typename, value):
+    def __init__(self, name, visibility, static, typename, type_suffixes,
+                 value):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.typename = typename
+        self.type_suffixes = type_suffixes
         self.value = value
 
     def get_id(self):
-        return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
+        buf = [u'%s__%s' % (self.name.get_id(), self.typename.get_id())]
+        for suffix in self.type_suffixes:
+            buf.append(suffix.get_id_suffix())
+        return u''.join(buf)
 
     def __unicode__(self):
         buf = self.get_modifiers()
-        buf.append(u'%s %s' % (self.typename, self.name))
+        buf.extend((unicode(self.typename), unicode(self.name)))
+        buf = [u' '.join(buf)]
+        for suffix in self.type_suffixes:
+            buf.append(unicode(suffix))
         if self.value is not None:
-            buf.append(u'= %s' % self.value)
-        return u' '.join(buf)
+            buf.append(u' = %s' % self.value)
+        return u''.join(buf)
 
 
 class FuncDefExpr(NamedDefExpr):
@@ -617,8 +638,6 @@ class DefinitionParser(object):
                 expr = ConstDefExpr(expr)
             elif self.skip_string('*'):
                 expr = PtrDefExpr(expr)
-            elif self.match(_array_def_re):
-                expr = ArrayDefExpr(expr, self.last_match.group(1))
             elif self.skip_string('&'):
                 if self.skip_string('&'):
                     expr = RValRefDefExpr(expr)
@@ -626,6 +645,13 @@ class DefinitionParser(object):
                     expr = LValRefDefExpr(expr)
             else:
                 return expr
+
+    def _try_parse_type_suffixes(self):
+        rv = []
+        while self.match(_array_def_re):
+            rv.append(ArrayTypeSuffixDefExpr(self.last_match.group(1)))
+            self.skip_ws()
+        return rv
 
     def _peek_const(self, path):
         try:
@@ -754,25 +780,29 @@ class DefinitionParser(object):
                 self.skip_ws()
 
             if self.skip_string('...'):
-                args.append(ArgumentDefExpr(None, '...', None))
+                args.append(ArgumentDefExpr(None, '...', [], None))
                 if self.skip_string(')'):
                     break
                 else:
                     self.fail('expected closing parenthesis after ellipses')
 
-            argtype = self._parse_type()
             argname = default = None
+            argtype = self._parse_type()
             self.skip_ws()
+            type_suffixes = self._try_parse_type_suffixes()
             if self.skip_string('='):
-                self.pos += 1
                 default = self._parse_default_expr()
             elif self.current_char not in ',)':
                 argname = self._parse_name()
                 self.skip_ws()
+                type_suffixes.extend(self._try_parse_type_suffixes())
                 if self.skip_string('='):
                     default = self._parse_default_expr()
+            if argname is None:
+                argname = argtype
+                argtype = None
 
-            args.append(ArgumentDefExpr(argtype, argname, default))
+            args.append(ArgumentDefExpr(argtype, argname, type_suffixes, default))
         self.skip_ws()
         const = self.skip_word_and_ws('const')
         noexcept = self.skip_word_and_ws('noexcept')
@@ -805,21 +835,25 @@ class DefinitionParser(object):
         self.skip_ws()
         if not self.eof:
             name = self._parse_type()
+            type_suffixes = self._try_parse_type_suffixes()
         else:
             name = typename
             typename = None
-        return TypeObjDefExpr(name, visibility, static, typename)
+            type_suffixes = []
+        return TypeObjDefExpr(name, visibility, static, typename, type_suffixes)
 
     def parse_member_object(self):
         visibility, static = self._parse_visibility_static()
         typename = self._parse_type()
         name = self._parse_type()
+        type_suffixes = self._try_parse_type_suffixes()
         self.skip_ws()
         if self.skip_string('='):
             value = self.read_rest().strip()
         else:
             value = None
-        return MemberObjDefExpr(name, visibility, static, typename, value)
+        return MemberObjDefExpr(name, visibility, static, typename,
+                                type_suffixes, value)
 
     def parse_function(self):
         visibility, static = self._parse_visibility_static()
@@ -864,6 +898,10 @@ class CPPObject(ObjectDescription):
             node += addnodes.desc_addname(owner, owner)
         node += addnodes.desc_name(varname, varname)
 
+    def attach_type_suffixes(self, node, suffixes):
+        for suffix in suffixes:
+            node += nodes.Text(unicode(suffix))
+
     def attach_type(self, node, type):
         # XXX: link to c?
         text = unicode(type)
@@ -881,6 +919,9 @@ class CPPObject(ObjectDescription):
             node += nodes.Text(' ')
         if obj.static:
             node += addnodes.desc_annotation('static', 'static')
+            node += nodes.Text(' ')
+        if getattr(obj, 'constexpr', False):
+            node += addnodes.desc_annotation('constexpr', 'constexpr')
             node += nodes.Text(' ')
 
     def add_target_and_index(self, sigobj, sig, signode):
@@ -967,6 +1008,7 @@ class CPPTypeObject(CPPObject):
             self.attach_type(signode, obj.typename)
             signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
+        self.attach_type_suffixes(signode, obj.type_suffixes)
 
 
 class CPPMemberObject(CPPObject):
@@ -984,6 +1026,7 @@ class CPPMemberObject(CPPObject):
         self.attach_type(signode, obj.typename)
         signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
+        self.attach_type_suffixes(signode, obj.type_suffixes)
         if obj.value is not None:
             signode += nodes.Text(u' = ' + obj.value)
 
@@ -1013,6 +1056,7 @@ class CPPFunctionObject(CPPObject):
                 self.attach_type(param, arg.type)
                 param += nodes.Text(u' ')
             param += nodes.emphasis(unicode(arg.name), unicode(arg.name))
+            self.attach_type_suffixes(param, arg.type_suffixes)
             if arg.default is not None:
                 def_ = u'=' + unicode(arg.default)
                 param += nodes.emphasis(def_, def_)
@@ -1021,6 +1065,8 @@ class CPPFunctionObject(CPPObject):
         node += paramlist
         if func.const:
             node += addnodes.desc_addname(' const', ' const')
+        if func.noexcept:
+            node += addnodes.desc_addname(' noexcept', ' noexcept')
         if func.pure_virtual:
             node += addnodes.desc_addname(' = 0', ' = 0')
 

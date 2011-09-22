@@ -496,7 +496,13 @@ The following directives are available:
 
          Describe a casting operator here.
 
+      .. cpp:function:: constexpr void foo(std::string &bar[2]) noexcept
+
+         Describe a constexpr function here.
+
       .. cpp:member:: std::string theclass::name
+
+      .. cpp:member:: std::string theclass::name[N][M]
 
       .. cpp:type:: theclass::const_iterator
 
@@ -518,7 +524,13 @@ The following directives are available:
 
          Describe a casting operator here.
 
+      .. cpp:function:: constexpr void foo(std::string &bar[2]) noexcept
+
+         Describe a constexpr function here.
+
       .. cpp:member:: std::string theclass::name
+
+      .. cpp:member:: std::string theclass::name[N][M]
 
       .. cpp:type:: theclass::const_iterator
 
