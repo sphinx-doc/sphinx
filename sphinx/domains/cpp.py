@@ -426,13 +426,14 @@ class MemberObjDefExpr(NamedDefExpr):
 class FuncDefExpr(NamedDefExpr):
 
     def __init__(self, name, visibility, static, explicit, constexpr, rv,
-                 signature, const, pure_virtual):
+                 signature, const, noexcept, pure_virtual):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
         self.explicit = explicit
         self.constexpr = constexpr
         self.const = const
+        self.noexcept = noexcept
         self.pure_virtual = pure_virtual
 
     def get_id(self):
@@ -456,6 +457,8 @@ class FuncDefExpr(NamedDefExpr):
             map(unicode, self.signature))))
         if self.const:
             buf.append(u'const')
+        if self.noexcept:
+            buf.append(u'noexcept')
         if self.pure_virtual:
             buf.append(u'= 0')
         return u' '.join(buf)
@@ -776,6 +779,7 @@ class DefinitionParser(object):
             args.append(ArgumentDefExpr(argtype, argname, default))
         self.skip_ws()
         const = self.skip_word_and_ws('const')
+        noexcept = self.skip_word_and_ws('noexcept')
         if self.skip_string('='):
             self.skip_ws()
             if not (self.skip_string('0') or \
@@ -787,7 +791,7 @@ class DefinitionParser(object):
             pure_virtual = True
         else:
             pure_virtual = False
-        return args, const, pure_virtual
+        return args, const, noexcept, pure_virtual
 
     def _parse_visibility_static(self):
         visibility = 'public'

@@ -54,6 +54,9 @@ def test_type_definitions():
     x = 'constexpr int get_value()'
     assert unicode(parse('function', x)) == x
 
+    x = 'int get_value() const noexcept'
+    assert unicode(parse('function', x)) == x
+
 
 def test_operators():
     x = parse('function', 'void operator new [  ] ()')
