@@ -1,6 +1,8 @@
 Release 1.0.8 (in development)
 ==============================
 
+* #677: Fix parsing of multiple signatures in C++ domain.
+
 * #637: Ignore Emacs lock files when looking for source files.
 
 * #544: Allow .pyw extension for importable modules in autodoc.
