@@ -421,27 +421,31 @@ class MemberObjDefExpr(NamedDefExpr):
 
 class FuncDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, explicit, rv,
+    def __init__(self, name, visibility, static, explicit, constexpr, rv,
                  signature, const, pure_virtual):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
         self.explicit = explicit
+        self.constexpr = constexpr
         self.const = const
         self.pure_virtual = pure_virtual
 
     def get_id(self):
-        return u'%s%s%s' % (
+        return u'%s%s%s%s' % (
             self.name.get_id(),
             self.signature and u'__' +
                 u'.'.join(x.get_id() for x in self.signature) or u'',
-            self.const and u'C' or u''
+            self.const and u'C' or u'',
+            self.constexpr and 'CE' or ''
         )
 
     def __unicode__(self):
         buf = self.get_modifiers()
         if self.explicit:
             buf.append(u'explicit')
+        if self.constexpr:
+            buf.append(u'constexpr')
         if self.rv is not None:
             buf.append(unicode(self.rv))
         buf.append(u'%s(%s)' % (self.name, u', '.join(
@@ -811,11 +815,14 @@ class DefinitionParser(object):
 
     def parse_function(self):
         visibility, static = self._parse_visibility_static()
-        if self.skip_word('explicit'):
-            explicit = True
-            self.skip_ws()
-        else:
-            explicit = False
+        def _read_word(x):
+            if self.skip_word(x):
+                self.skip_ws()
+                return True
+            return False
+        explicit = _read_word('explicit')
+        constexpr = _read_word('constexpr')
+
         rv = self._parse_type()
         self.skip_ws()
         # some things just don't have return values
@@ -824,7 +831,7 @@ class DefinitionParser(object):
             rv = None
         else:
             name = self._parse_type()
-        return FuncDefExpr(name, visibility, static, explicit, rv,
+        return FuncDefExpr(name, visibility, static, explicit, constexpr, rv,
                            *self._parse_signature())
 
     def parse_class(self):

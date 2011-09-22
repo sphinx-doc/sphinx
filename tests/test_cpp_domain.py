@@ -48,8 +48,10 @@ def test_type_definitions():
 
     assert unicode(parse('type_object', 'long long int foo')) == 'long long foo'
 
-
     x = 'MyClass::MyClass(MyClass::MyClass&&)'
+    assert unicode(parse('function', x)) == x
+
+    x = 'constexpr int get_value()'
     assert unicode(parse('function', x)) == x
 
 
