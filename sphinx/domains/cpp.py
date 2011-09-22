@@ -29,6 +29,7 @@ _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
 _array_def_re = re.compile(r'\[\s*(.+?)?\s*\]')
+_template_arg_re = re.compile(r'[^,>]+')
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
@@ -234,6 +235,18 @@ class TemplateDefExpr(PrimaryDefExpr):
 
     def __unicode__(self):
         return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
+
+
+class ConstantTemplateArgExpr(PrimaryDefExpr):
+
+    def __init__(self, arg):
+        self.arg = arg
+
+    def get_id(self):
+        return self.arg.replace(u' ', u'-')
+
+    def __unicode__(self):
+        return unicode(self.arg)
 
 
 class WrappingDefExpr(DefExpr):
@@ -540,8 +553,15 @@ class DefinitionParser(object):
         return CastOpDefExpr(type)
 
     def _parse_name(self):
+        return self._parse_name_or_template_arg(False)
+
+    def _parse_name_or_template_arg(self, in_template):
         if not self.match(_identifier_re):
-            self.fail('expected name')
+            if not in_template:
+                self.fail('expected name')
+            if not self.match(_template_arg_re):
+                self.fail('expected name or constant template argument')
+            return ConstantTemplateArgExpr(self.matched_text.strip())
         identifier = self.matched_text
 
         # strictly speaking, operators are not regular identifiers
@@ -610,8 +630,8 @@ class DefinitionParser(object):
         rv = ModifierDefExpr(NameDefExpr(typename), modifiers)
         return self._attach_crefptr(rv, is_const)
 
-    def _parse_type_expr(self):
-        typename = self._parse_name()
+    def _parse_type_expr(self, in_template=False):
+        typename = self._parse_name_or_template_arg(in_template)
         self.skip_ws()
         if not self.skip_string('<'):
             return typename
@@ -660,7 +680,7 @@ class DefinitionParser(object):
                (result and not self.skip_string('::')) or \
                self.eof:
                 break
-            result.append(self._parse_type_expr())
+            result.append(self._parse_type_expr(in_template))
 
         if not result:
             self.fail('expected type')
