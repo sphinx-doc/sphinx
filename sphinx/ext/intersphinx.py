@@ -32,6 +32,7 @@ from os import path
 
 from docutils import nodes
 
+from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
 
 handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
@@ -206,11 +207,12 @@ def missing_reference(app, env, node, contnode):
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
             newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle='(in %s v%s)' % (proj, version))
+                                      reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)
-            elif dispname == '-':
+            elif dispname == '-' or \
+                    (domain == 'std' and node['reftype'] == 'keyword'):
                 # use whatever title was given, but strip prefix
                 title = contnode.astext()
                 if in_set and title.startswith(in_set+':'):

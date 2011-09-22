@@ -1,6 +1,8 @@
 Release 1.0.8 (Sep 22, 2011)
 ============================
 
+* #616: Allow keywords to be linked via intersphinx.
+
 * #613: Allow Unicode characters in production list token names.
 
 * #720: Add dummy visitors for graphviz nodes for text and man.
