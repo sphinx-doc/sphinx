@@ -49,6 +49,10 @@ def test_type_definitions():
     assert unicode(parse('type_object', 'long long int foo')) == 'long long foo'
 
 
+    x = 'MyClass::MyClass(MyClass::MyClass&&)'
+    assert unicode(parse('function', x)) == x
+
+
 def test_operators():
     x = parse('function', 'void operator new [  ] ()')
     assert unicode(x) == 'void operator new[]()'
