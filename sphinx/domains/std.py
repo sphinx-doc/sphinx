@@ -257,7 +257,7 @@ class Glossary(Directive):
         return [node]
 
 
-token_re = re.compile('`([a-z_][a-z0-9_]*)`')
+token_re = re.compile('`(\w+)`', re.U)
 
 def token_xrefs(text):
     retnodes = []
