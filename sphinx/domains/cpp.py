@@ -29,7 +29,7 @@ _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
 _array_def_re = re.compile(r'\[\s*(.+?)?\s*\]')
-_template_arg_re = re.compile(r'[^,>]+')
+_template_arg_re = re.compile(r'(%s)|([^,>]+)' % _string_re.pattern, re.S)
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
