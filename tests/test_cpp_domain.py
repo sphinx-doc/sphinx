@@ -28,6 +28,9 @@ def test_type_definitions():
     x = 'void operator()(const boost::array<VertexID, 2>& v) const'
     assert unicode(parse('function', x)) == x
 
+    x = 'void operator()(const boost::array<VertexID, 2, "foo,  bar">& v) const'
+    assert unicode(parse('function', x)) == x
+
     rv = parse('member_object', 'const std::vector< unsigned int, long> &name')
     assert unicode(rv) == 'const std::vector<unsigned int, long>& name'
 
