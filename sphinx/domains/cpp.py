@@ -529,6 +529,12 @@ class DefinitionParser(object):
     def skip_ws(self):
         return self.match(_whitespace_re)
 
+    def skip_word_and_ws(self, word):
+        if self.skip_word(word):
+            self.skip_ws()
+            return True
+        return False
+
     @property
     def eof(self):
         return self.pos >= self.end
@@ -769,9 +775,7 @@ class DefinitionParser(object):
 
             args.append(ArgumentDefExpr(argtype, argname, default))
         self.skip_ws()
-        const = self.skip_word('const')
-        if const:
-            self.skip_ws()
+        const = self.skip_word_and_ws('const')
         if self.skip_string('='):
             self.skip_ws()
             if not (self.skip_string('0') or \
@@ -786,7 +790,7 @@ class DefinitionParser(object):
         return args, const, pure_virtual
 
     def _parse_visibility_static(self):
-        visibility =  'public'
+        visibility = 'public'
         if self.match(_visibility_re):
             visibility = self.matched_text
         static = self.skip_word('static')
@@ -819,13 +823,8 @@ class DefinitionParser(object):
 
     def parse_function(self):
         visibility, static = self._parse_visibility_static()
-        def _read_word(x):
-            if self.skip_word(x):
-                self.skip_ws()
-                return True
-            return False
-        explicit = _read_word('explicit')
-        constexpr = _read_word('constexpr')
+        explicit = self.skip_word_and_ws('explicit')
+        constexpr = self.skip_word_and_ws('constexpr')
 
         rv = self._parse_type()
         self.skip_ws()
