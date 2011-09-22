@@ -125,7 +125,7 @@ class DefExpr(object):
             return False
         try:
             for key, value in self.__dict__.iteritems():
-                if value != getattr(other, value):
+                if value != getattr(other, key):
                     return False
         except AttributeError:
             return False
