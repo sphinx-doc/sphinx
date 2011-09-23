@@ -1,6 +1,9 @@
 Release 1.0.8 (Sep 23, 2011)
 ============================
 
+* #696, #666: Fix C++ array definitions and template arguments
+  that are not type names.
+
 * #633: Allow footnotes in section headers in LaTeX output.
 
 * #616: Allow keywords to be linked via intersphinx.
