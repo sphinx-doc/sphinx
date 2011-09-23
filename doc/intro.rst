@@ -35,6 +35,9 @@ to reStructuredText/Sphinx from other documentation systems.
 * Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
   markup; it is at `Google Code <http://code.google.com/p/db2rst/>`_.
 
+* Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
+  to Sphinx: `odt2sphinx <http://pypi.python.org/pypi/odt2sphinx/>`_.
+
 * To convert different markups, `Pandoc <http://johnmacfarlane.net/pandoc/>`_ is
   a very helpful tool.
 
