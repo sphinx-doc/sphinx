@@ -29,6 +29,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import ensuredir
+from sphinx.util.inspect import safe_getattr
 
 def main(argv=sys.argv):
     usage = """%prog [OPTIONS] SOURCEFILE ..."""
@@ -135,10 +136,14 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     template = template_env.get_template('autosummary/base.rst')
 
             def get_members(obj, typ, include_public=[]):
-                items = [
-                    name for name in dir(obj)
-                    if get_documenter(getattr(obj, name), obj).objtype == typ
-                ]
+                items = []
+                for name in dir(obj):
+                    try:
+                        documenter = get_documenter(safe_getattr(obj, name), obj)
+                    except AttributeError:
+                        continue
+                    if documenter.objtype == typ:
+                        items.append(name)
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]
                 return public, items

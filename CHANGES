@@ -1,6 +1,8 @@
 Release 1.0.8 (Sep 23, 2011)
 ============================
 
+* #627: Fix tracebacks for AttributeErrors in autosummary generation.
+
 * Fix the ``abbr`` role when the abbreviation has newlines in it.
 
 * #727: Fix the links to search results with custom object types.
