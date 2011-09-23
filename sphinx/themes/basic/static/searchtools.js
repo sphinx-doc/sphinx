@@ -363,7 +363,7 @@ var Search = {
           var fullname = (prefix ? prefix + '.' : '') + name;
           if (fullname.toLowerCase().indexOf(object) > -1) {
             match = objects[prefix][name];
-            descr = objnames[match[1]][0] + _(', in ') + titles[match[0]];
+            descr = objnames[match[1]][2] + _(', in ') + titles[match[0]];
             anchor = match[3];
             if (anchor == '')
               anchor = fullname;
