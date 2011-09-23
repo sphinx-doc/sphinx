@@ -1,6 +1,8 @@
 Release 1.0.8 (Sep 23, 2011)
 ============================
 
+* Fix the ``abbr`` role when the abbreviation has newlines in it.
+
 * #727: Fix the links to search results with custom object types.
 
 * #648: Fix line numbers reported in warnings about undefined

@@ -259,7 +259,7 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
     return [retnode], []
 
 
-_abbr_re = re.compile('\((.*)\)$')
+_abbr_re = re.compile('\((.*)\)$', re.S)
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
