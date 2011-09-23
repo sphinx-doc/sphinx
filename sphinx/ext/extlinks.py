@@ -36,10 +36,10 @@ def make_link_role(base_url, prefix):
         try:
             full_url = base_url % part
         except (TypeError, ValueError):
-            env = inliner.document.settings.env
-            env.warn(env.docname, 'unable to expand %s extlink with base '
-                     'URL %r, please make sure the base contains \'%%s\' '
-                     'exactly once' % (typ, base_url))
+            inliner.reporter.warning(
+                'unable to expand %s extlink with base URL %r, please make '
+                'sure the base contains \'%%s\' exactly once'
+                % (typ, base_url), line=lineno)
             full_url = base_url + part
         if not has_explicit_title:
             if prefix is None:

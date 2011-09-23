@@ -17,7 +17,8 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
-from sphinx.util.nodes import explicit_title_re, process_index_entry
+from sphinx.util.nodes import explicit_title_re, set_source_info, \
+    process_index_entry
 from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
@@ -108,6 +109,7 @@ class TocTree(Directive):
         subnode['hidden'] = 'hidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
+        set_source_info(self, subnode)
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
         ret.append(wrappernode)
@@ -184,6 +186,7 @@ class VersionChange(Directive):
     def run(self):
         node = addnodes.versionmodified()
         node.document = self.state.document
+        set_source_info(self, node)
         node['type'] = self.name
         node['version'] = self.arguments[0]
         if len(self.arguments) == 2:
@@ -196,7 +199,8 @@ class VersionChange(Directive):
         else:
             ret = [node]
         env = self.state.document.settings.env
-        env.note_versionchange(node['type'], node['version'], node, self.lineno)
+        # XXX should record node.source as well
+        env.note_versionchange(node['type'], node['version'], node, node.line)
         return ret
 
 
@@ -238,7 +242,7 @@ class TabularColumns(Directive):
     def run(self):
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
-        node.line = self.lineno
+        set_source_info(self, node)
         return [node]
 
 
@@ -332,7 +336,7 @@ class Only(Directive):
     def run(self):
         node = addnodes.only()
         node.document = self.state.document
-        node.line = self.lineno
+        set_source_info(self, node)
         node['expr'] = self.arguments[0]
         self.state.nested_parse(self.content, self.content_offset, node,
                                 match_titles=1)

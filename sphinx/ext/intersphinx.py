@@ -159,7 +159,7 @@ def load_mappings(app):
             # new format
             name, (uri, inv) = key, value
             if not name.isalnum():
-                env.warn(docname=None, msg='intersphinx identifier %r is not alphanumeric' % name)
+                app.warn('intersphinx identifier %r is not alphanumeric' % name)
         else:
             # old format, no name
             name, uri, inv = None, key, value

@@ -217,13 +217,12 @@ class PyObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             objects = self.env.domaindata['py']['objects']
             if fullname in objects:
-                self.env.warn(
-                    self.env.docname,
+                self.state_machine.reporter.warning(
                     'duplicate object description of %s, ' % fullname +
                     'other instance in ' +
                     self.env.doc2path(objects[fullname][0]) +
                     ', use :noindex: for one of them',
-                    self.lineno)
+                    line=self.lineno)
             objects[fullname] = (self.env.docname, self.objtype)
 
         indextext = self.get_index_text(modname, name_cls)
@@ -677,11 +676,10 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            env.warn(fromdocname,
-                     'more than one target found for cross-reference '
-                     '%r: %s' % (target,
-                                 ', '.join(match[0] for match in matches)),
-                     node.line)
+            env.warn_node(
+                'more than one target found for cross-reference '
+                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
+                node)
         name, obj = matches[0]
 
         if obj[1] == 'module':

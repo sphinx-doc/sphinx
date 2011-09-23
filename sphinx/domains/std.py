@@ -472,9 +472,8 @@ class StandardDomain(Domain):
                 # link and object descriptions
                 continue
             if name in labels:
-                env.warn(docname, 'duplicate label %s, ' % name +
-                         'other instance in ' + env.doc2path(labels[name][0]),
-                         node.line)
+                env.warn_node('duplicate label %s, ' % name + 'other instance '
+                              'in ' + env.doc2path(labels[name][0]), node)
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 sectname = clean_astext(node[0]) # node[0] == title node

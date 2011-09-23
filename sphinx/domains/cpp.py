@@ -981,8 +981,7 @@ class CPPObject(ObjectDescription):
             rv = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError, e:
-            self.env.warn(self.env.docname,
-                          e.description, self.lineno)
+            self.state_machine.reporter.warning(e.description, line=self.lineno)
             raise ValueError
         self.describe_signature(signode, rv)
 
@@ -1128,8 +1127,8 @@ class CPPCurrentNamespace(Directive):
                 prefix = parser.parse_type()
                 parser.assert_end()
             except DefinitionError, e:
-                self.env.warn(self.env.docname,
-                              e.description, self.lineno)
+                self.state_machine.reporter.warning(e.description,
+                                                    line=self.lineno)
             else:
                 env.temp_data['cpp:prefix'] = prefix
         return []
@@ -1203,9 +1202,7 @@ class CPPDomain(Domain):
             if not parser.eof or expr is None:
                 raise DefinitionError('')
         except DefinitionError:
-            refdoc = node.get('refdoc', fromdocname)
-            env.warn(refdoc, 'unparseable C++ definition: %r' % target,
-                     node.line)
+            env.warn_node('unparseable C++ definition: %r' % target, node)
             return None
 
         parent = node.get('cpp:parent', None)
