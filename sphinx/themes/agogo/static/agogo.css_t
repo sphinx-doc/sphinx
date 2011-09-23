@@ -176,6 +176,10 @@ div.body {
   text-align: {{ theme_textalign }};
 }
 
+div.document h1 {
+  line-height: 120%;
+}
+
 div.document ul {
   margin: 1.5em;
   list-style-type: square;

@@ -638,9 +638,9 @@ class PythonDomain(Domain):
                 else:
                     # "fuzzy" searching mode
                     searchname = '.' + name
-                    matches = [(name, objects[name]) for name in objects
-                               if name.endswith(searchname)
-                               and objects[name][1] in objtypes]
+                    matches = [(oname, objects[oname]) for oname in objects
+                               if oname.endswith(searchname)
+                               and objects[oname][1] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
             if name in objects:

@@ -109,8 +109,17 @@ Features added
   - #766: Added Estonian locale.
 
 
-Release 1.0.8 (in development)
-==============================
+Release 1.0.8 (Sep 23, 2011)
+============================
+
+* #696, #666: Fix C++ array definitions and template arguments
+  that are not type names.
+
+* #633: Allow footnotes in section headers in LaTeX output.
+
+* #616: Allow keywords to be linked via intersphinx.
+
+* #613: Allow Unicode characters in production list token names.
 
 * #720: Add dummy visitors for graphviz nodes for text and man.
 
@@ -153,6 +162,8 @@ Release 1.0.8 (in development)
 * #693: Fix double encoding done when writing HTMLHelp .hhk files.
 
 * #647: Do not apply SmartyPants in parsed-literal blocks.
+
+* C++ domain now supports array definitions.
 
 
 Release 1.0.7 (Jan 15, 2011)

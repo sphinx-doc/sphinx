@@ -321,7 +321,7 @@ class Glossary(Directive):
         return messages + [node]
 
 
-token_re = re.compile('`([a-z_][a-z0-9_]*)`')
+token_re = re.compile('`(\w+)`', re.U)
 
 def token_xrefs(text):
     retnodes = []
@@ -392,7 +392,8 @@ class StandardDomain(Domain):
     object_types = {
         'term': ObjType(l_('glossary term'), 'term', searchprio=-1),
         'token': ObjType(l_('grammar token'), 'token', searchprio=-1),
-        'label': ObjType(l_('reference label'), 'ref', searchprio=-1),
+        'label': ObjType(l_('reference label'), 'ref', 'keyword',
+                         searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
     }
