@@ -215,7 +215,7 @@ def missing_reference(app, env, node, contnode):
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
             newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle=_('(in %s v%s)') % (proj, version))
+                          reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)

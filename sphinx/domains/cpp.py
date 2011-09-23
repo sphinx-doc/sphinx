@@ -807,7 +807,8 @@ class DefinitionParser(object):
                 argname = argtype
                 argtype = None
 
-            args.append(ArgumentDefExpr(argtype, argname, type_suffixes, default))
+            args.append(ArgumentDefExpr(argtype, argname,
+                                        type_suffixes, default))
         self.skip_ws()
         const = self.skip_word_and_ws('const')
         noexcept = self.skip_word_and_ws('noexcept')

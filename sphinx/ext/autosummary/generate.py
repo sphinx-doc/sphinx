@@ -140,7 +140,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 items = []
                 for name in dir(obj):
                     try:
-                        documenter = get_documenter(safe_getattr(obj, name), obj)
+                        documenter = get_documenter(safe_getattr(obj, name),
+                                                    obj)
                     except AttributeError:
                         continue
                     if documenter.objtype == typ:

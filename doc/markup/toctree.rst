@@ -11,6 +11,11 @@ documents into multiple output files, Sphinx uses a custom directive to add
 relations between the single files the documentation is made of, as well as
 tables of contents.  The ``toctree`` directive is the central element.
 
+.. note::
+
+   Simple "inclusion" of one file in another can be done with the
+   :dudir:`include` directive.
+
 .. rst:directive:: toctree
 
    This directive inserts a "TOC tree" at the current location, using the
