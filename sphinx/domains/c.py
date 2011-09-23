@@ -159,11 +159,10 @@ class CObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             inv = self.env.domaindata['c']['objects']
             if name in inv:
-                self.env.warn(
-                    self.env.docname,
+                self.state_machine.reporter.warning(
                     'duplicate C object description of %s, ' % name +
                     'other instance in ' + self.env.doc2path(inv[name][0]),
-                    self.lineno)
+                    line=self.lineno)
             inv[name] = (self.env.docname, self.objtype)
 
         indextext = self.get_index_text(name)

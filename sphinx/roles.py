@@ -18,7 +18,7 @@ from docutils.parsers.rst import roles
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import ws_re
-from sphinx.util.nodes import split_explicit_title
+from sphinx.util.nodes import split_explicit_title, set_role_source_info
 
 
 generic_docroles = {
@@ -126,7 +126,7 @@ class XRefRole(object):
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
-        refnode.line = lineno
+        set_role_source_info(inliner, lineno, refnode)
         title, target = self.process_link(
             env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them

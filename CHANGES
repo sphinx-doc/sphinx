@@ -1,6 +1,9 @@
 Release 1.0.8 (Sep 23, 2011)
 ============================
 
+* #648: Fix line numbers reported in warnings about undefined
+  references.
+
 * #696, #666: Fix C++ array definitions and template arguments
   that are not type names.
 

@@ -13,8 +13,21 @@ import re
 import types
 
 from docutils import nodes
+from docutils.statemachine import StateMachine
 
 from sphinx import addnodes
+
+
+class WarningStream(object):
+
+    def __init__(self, warnfunc):
+        self.warnfunc = warnfunc
+        self._re = re.compile(r'\((DEBUG|INFO|WARNING|ERROR|SEVERE)/[0-4]\)')
+
+    def write(self, text):
+        text = text.strip()
+        if text:
+            self.warnfunc(self._re.sub(r'\1:', text), None, '')
 
 
 # \x00 means the "<" was backslash-escaped
@@ -90,6 +103,21 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
         node['reftitle'] = title
     node.append(child)
     return node
+
+
+if hasattr(StateMachine, 'get_source_and_line'):
+    def set_source_info(directive, node):
+        node.source, node.line = \
+            directive.state_machine.get_source_and_line(directive.lineno)
+    def set_role_source_info(inliner, lineno, node):
+        node.source, node.line = \
+            inliner.reporter.locator(lineno)
+else:
+    # docutils <= 0.6 compatibility
+    def set_source_info(directive, node):
+        node.line = directive.lineno
+    def set_role_source_info(inliner, lineno, node):
+        node.line = lineno
 
 # monkey-patch Node.traverse to get more speed
 # traverse() is called so many times during a build that it saves

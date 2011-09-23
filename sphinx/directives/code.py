@@ -17,6 +17,7 @@ from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.util import parselinenos
+from sphinx.util.nodes import set_source_info
 
 
 class Highlight(Directive):
@@ -64,7 +65,7 @@ class CodeBlock(Directive):
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options
-        literal.line = self.lineno
+        set_source_info(self, literal)
         return [literal]
 
 
@@ -186,8 +187,7 @@ class LiteralInclude(Directive):
         if self.options.get('tab-width'):
             text = text.expandtabs(self.options['tab-width'])
         retnode = nodes.literal_block(text, text, source=fn)
-        retnode.line = 1
-        retnode.attributes['line_number'] = self.lineno
+        set_source_info(self, retnode)
         if self.options.get('language', ''):
             retnode['language'] = self.options['language']
         if 'linenos' in self.options:

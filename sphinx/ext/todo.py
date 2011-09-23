@@ -16,6 +16,7 @@ from docutils import nodes
 
 from sphinx.locale import _
 from sphinx.environment import NoUri
+from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive, make_admonition
 
 class todo_node(nodes.Admonition, nodes.Element): pass
@@ -41,7 +42,7 @@ class Todo(Directive):
         ad = make_admonition(todo_node, self.name, [_('Todo')], self.options,
                              self.content, self.lineno, self.content_offset,
                              self.block_text, self.state, self.state_machine)
-        ad[0].line = self.lineno
+        set_source_info(self, ad[0])
         return [targetnode] + ad
 
 
@@ -61,6 +62,7 @@ def process_todos(app, doctree):
             targetnode = None
         env.todo_all_todos.append({
             'docname': env.docname,
+            'source': node.source or env.doc2path(env.docname),
             'lineno': node.line,
             'todo': node.deepcopy(),
             'target': targetnode,
@@ -105,9 +107,9 @@ def process_todo_nodes(app, doctree, fromdocname):
 
         for todo_info in env.todo_all_todos:
             para = nodes.paragraph(classes=['todo-source'])
-            filename = env.doc2path(todo_info['docname'], base=None)
             description = _('(The <<original entry>> is located in '
-                            ' %s, line %d.)') % (filename, todo_info['lineno'])
+                            ' %s, line %d.)') % \
+                          (todo_info['source'], todo_info['lineno'])
             desc1 = description[:description.find('<<')]
             desc2 = description[description.find('>>')+2:]
             para += nodes.Text(desc1, desc1)
