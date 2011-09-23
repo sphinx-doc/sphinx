@@ -1117,7 +1117,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
-            if self.builder.config.latex_show_pagerefs:
+            if self.builder.config.latex_show_pagerefs and not \
+                    self.in_productionlist:
                 self.context.append('}} (%s)' % self.hyperpageref(id))
             else:
                 self.context.append('}}')
