@@ -515,7 +515,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             self.body.append(r'\pysigline{')
     def depart_desc_signature(self, node):
-        self.body.append('}{}')
+        self.body.append('}')
 
     def visit_desc_addname(self, node):
         self.body.append(r'\code{')
@@ -530,9 +530,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_desc_returns(self, node):
-        self.body.append(r'}{ $\rightarrow$ ')
+        self.body.append(r'{ $\rightarrow$ ')
     def depart_desc_returns(self, node):
-        pass
+        self.body.append(r'}')
 
     def visit_desc_name(self, node):
         self.body.append(r'\bfcode{')
@@ -542,10 +542,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.literal_whitespace -= 1
 
     def visit_desc_parameterlist(self, node):
+        # close name, open parameterlist
         self.body.append('}{')
         self.first_param = 1
     def depart_desc_parameterlist(self, node):
-        pass
+        # close parameterlist, open return annotation
+        self.body.append('}{')
 
     def visit_desc_parameter(self, node):
         if not self.first_param:
