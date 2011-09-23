@@ -121,7 +121,7 @@ class IndexBuilder(object):
         self._mapping = {}
         # objtype -> index
         self._objtypes = {}
-        # objtype index -> objname (localized)
+        # objtype index -> (domain, type, objname (localized))
         self._objnames = {}
 
     def load(self, stream, format):
@@ -160,21 +160,27 @@ class IndexBuilder(object):
                     continue
                 if prio < 0:
                     continue
-                # XXX splitting at dot is kind of Python specific
                 prefix, name = rpartition(fullname, '.')
                 pdict = rv.setdefault(prefix, {})
                 try:
-                    i = otypes[domainname, type]
+                    typeindex = otypes[domainname, type]
                 except KeyError:
-                    i = len(otypes)
-                    otypes[domainname, type] = i
+                    typeindex = len(otypes)
+                    otypes[domainname, type] = typeindex
                     otype = domain.object_types.get(type)
                     if otype:
                         # use unicode() to fire translation proxies
-                        onames[i] = unicode(domain.get_type_name(otype))
+                        onames[typeindex] = (domainname, type,
+                            unicode(domain.get_type_name(otype)))
                     else:
-                        onames[i] = type
-                pdict[name] = (fn2index[docname], i, prio)
+                        onames[typeindex] = (domainname, type, type)
+                if anchor == fullname:
+                    shortanchor = ''
+                elif anchor == type + '-' + fullname:
+                    shortanchor = '-'
+                else:
+                    shortanchor = anchor
+                pdict[name] = (fn2index[docname], typeindex, prio, shortanchor)
         return rv
 
     def get_terms(self, fn2index):
