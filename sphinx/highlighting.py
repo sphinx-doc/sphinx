@@ -20,7 +20,7 @@ except ImportError:
     # parser is not available on Jython
     parser = None
 
-from sphinx.util.texescape import tex_hl_escape_map_old, tex_hl_escape_map_new
+from sphinx.util.texescape import tex_hl_escape_map_new
 from sphinx.ext import doctest
 
 try:
@@ -54,15 +54,15 @@ else:
         _lexer.add_filter('raiseonerror')
 
 
-escape_hl_chars = {ord(u'@'): u'@PYGZat[]',
-                   ord(u'['): u'@PYGZlb[]',
-                   ord(u']'): u'@PYGZrb[]'}
+escape_hl_chars = {ord(u'\\'): u'\\PYGZbs{}',
+                   ord(u'{'): u'\\PYGZob{}',
+                   ord(u'}'): u'\\PYGZcb{}'}
 
 # used if Pygments is not available
 _LATEX_STYLES = r'''
-\newcommand\PYGZat{@}
-\newcommand\PYGZlb{[}
-\newcommand\PYGZrb{]}
+\newcommand\PYGZbs{\char`\\}
+\newcommand\PYGZob{\char`\{}
+\newcommand\PYGZcb{\char`\}}
 '''
 
 parsing_exceptions = (SyntaxError, UnicodeEncodeError)
@@ -112,8 +112,8 @@ class PygmentsBridge(object):
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)
             # then, escape all characters nonrepresentable in LaTeX
-            source = source.translate(tex_hl_escape_map_old)
-            return '\\begin{Verbatim}[commandchars=@\\[\\]]\n' + \
+            source = source.translate(tex_hl_escape_map_new)
+            return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
     def try_parse(self, src):
@@ -206,11 +206,8 @@ class PygmentsBridge(object):
             hlsource = highlight(source, lexer, formatter)
             if self.dest == 'html':
                 return hlsource
-            elif hlsource.startswith(r'\begin{Verbatim}[commandchars=\\\{\}'):
-                # Pygments >= 1.2
-                return hlsource.translate(tex_hl_escape_map_new)
             else:
-                return hlsource.translate(tex_hl_escape_map_old)
+                return hlsource.translate(tex_hl_escape_map_new)
         except ErrorToken:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
