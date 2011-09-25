@@ -428,8 +428,6 @@ class HTMLTranslator(BaseTranslator):
                 encoded = self.bulk_text_processor(encoded)
             self.body.append(encoded)
 
-    # these are all for docutils 0.5 compatibility
-
     def visit_note(self, node):
         self.visit_admonition(node, 'note')
     def depart_note(self, node):

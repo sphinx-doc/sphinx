@@ -11,7 +11,6 @@
 
 from docutils import nodes
 
-# function missing in docutils 0.5
 def make_admonition(node_class, name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
     #if not content:

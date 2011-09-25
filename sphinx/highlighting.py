@@ -44,8 +44,6 @@ else:
         none = TextLexer(),
         python = PythonLexer(),
         pycon = PythonConsoleLexer(),
-        # the python3 option exists as of Pygments 1.0,
-        # but it doesn't do any harm in previous versions
         pycon3 = PythonConsoleLexer(python3=True),
         rest = RstLexer(),
         c = CLexer(),
@@ -223,8 +221,4 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')
         else:
-            styledefs = formatter.get_style_defs()
-            # workaround for Pygments < 0.12
-            if styledefs.startswith('\\newcommand\\at{@}'):
-                styledefs += _LATEX_STYLES
-            return styledefs
+            return formatter.get_style_defs()
