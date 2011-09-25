@@ -44,7 +44,7 @@ A development egg can be found `here
 <http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
-requires = ['Pygments>=0.8', 'Jinja2>=2.2', 'docutils>=0.5']
+requires = ['Pygments>=1.2', 'Jinja2>=2.3', 'docutils>=0.7']
 
 if sys.version_info < (2, 4):
     print('ERROR: Sphinx requires at least Python 2.4 to run.')

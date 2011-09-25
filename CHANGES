@@ -8,6 +8,12 @@ Incompatible changes
   value anymore.  (It was the only thing that the directive did output, and
   therefore quite inconsistent.)
 
+* Removed support for old dependency versions; requirements are now:
+
+  - Pygments >= 1.2
+  - Docutils >= 0.7
+  - Jinja2   >= 2.3
+
 Features added
 --------------
 
