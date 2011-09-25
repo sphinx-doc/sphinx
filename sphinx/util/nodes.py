@@ -12,11 +12,9 @@
 import re
 
 from docutils import nodes
-from docutils.statemachine import StateMachine
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
-from sphinx.util.pycompat import class_types
 
 
 class WarningStream(object):
@@ -176,53 +174,13 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     return node
 
 
-if hasattr(StateMachine, 'get_source_and_line'):
-    def set_source_info(directive, node):
-        node.source, node.line = \
-            directive.state_machine.get_source_and_line(directive.lineno)
-    def set_role_source_info(inliner, lineno, node):
+def set_source_info(directive, node):
+    node.source, node.line = \
+        directive.state_machine.get_source_and_line(directive.lineno)
+
+def set_role_source_info(inliner, lineno, node):
         node.source, node.line = \
             inliner.reporter.locator(lineno)
-else:
-    # docutils <= 0.6 compatibility
-    def set_source_info(directive, node):
-        node.line = directive.lineno
-    def set_role_source_info(inliner, lineno, node):
-        node.line = lineno
-
-# monkey-patch Node.traverse to get more speed
-# traverse() is called so many times during a build that it saves
-# on average 20-25% overall build time!
-
-def _all_traverse(self, result):
-    """Version of Node.traverse() that doesn't need a condition."""
-    result.append(self)
-    for child in self.children:
-        child._all_traverse(result)
-    return result
-
-def _fast_traverse(self, cls, result):
-    """Version of Node.traverse() that only supports instance checks."""
-    if isinstance(self, cls):
-        result.append(self)
-    for child in self.children:
-        child._fast_traverse(cls, result)
-    return result
-
-def _new_traverse(self, condition=None,
-                 include_self=1, descend=1, siblings=0, ascend=0):
-    if include_self and descend and not siblings and not ascend:
-        if condition is None:
-            return self._all_traverse([])
-        elif isinstance(condition, class_types):
-            return self._fast_traverse(condition, [])
-    return self._old_traverse(condition, include_self,
-                              descend, siblings, ascend)
-
-nodes.Node._old_traverse = nodes.Node.traverse
-nodes.Node._all_traverse = _all_traverse
-nodes.Node._fast_traverse = _fast_traverse
-nodes.Node.traverse = _new_traverse
 
 # monkey-patch Node.__contains__ to get consistent "in" operator behavior
 # across docutils versions
@@ -235,10 +193,3 @@ def _new_contains(self, key):
     return key in self.children
 
 nodes.Node.__contains__ = _new_contains
-
-# monkey-patch Element.copy to copy the rawsource
-
-def _new_copy(self):
-    return self.__class__(self.rawsource, **self.attributes)
-
-nodes.Element.copy = _new_copy
