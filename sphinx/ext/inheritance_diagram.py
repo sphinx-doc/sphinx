@@ -246,6 +246,14 @@ class InheritanceGraph(object):
             url = urls.get(fullname)
             if url is not None:
                 this_node_attrs['URL'] = '"%s"' % url
+            # Use first line of docstring as tooltip
+            modulename, classname = fullname.rsplit(".", 1)
+            module = __import__(modulename, fromlist=[classname])
+            cls = module.__dict__[classname]
+            doc = inspect.getdoc(cls)
+            if doc:
+                this_node_attrs['tooltip'] = '"%s"' % doc.split("\n")[0]
+            
             res.append('  "%s" [%s];\n' %
                        (name, self._format_node_attrs(this_node_attrs)))
 
