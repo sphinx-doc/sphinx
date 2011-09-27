@@ -167,7 +167,7 @@ class InheritanceGraph(object):
         for cls in classes:
             recurse(cls)
 
-        return all_classes.values()
+        return all_classes
 
     def class_name(self, cls, parts=0):
         """Given a class object, return a fully-qualified name.
@@ -187,7 +187,7 @@ class InheritanceGraph(object):
 
     def get_all_class_names(self):
         """Get all of the class names involved in the graph."""
-        return [fullname for (_, fullname, _) in self.class_info]
+        return [fullname for (_, fullname, _) in self.class_info.values()]
 
     # These are the default attrs for graphviz
     default_graph_attrs = {
@@ -198,8 +198,8 @@ class InheritanceGraph(object):
         'shape': 'box',
         'fontsize': 10,
         'height': 0.25,
-        'fontname': 'Vera Sans, DejaVu Sans, Liberation Sans, '
-                    'Arial, Helvetica, sans',
+        'fontname': '"Vera Sans, DejaVu Sans, Liberation Sans, '
+                    'Arial, Helvetica, sans"',
         'style': '"setlinewidth(0.5)"',
     }
     default_edge_attrs = {
@@ -240,20 +240,16 @@ class InheritanceGraph(object):
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
-        for name, fullname, bases in self.class_info:
+        for cls, (name, fullname, bases) in self.class_info.items():
             # Write the node
             this_node_attrs = n_attrs.copy()
-            url = urls.get(fullname)
-            if url is not None:
-                this_node_attrs['URL'] = '"%s"' % url
-            # Use first line of docstring as tooltip
-            modulename, classname = fullname.rsplit(".", 1)
-            module = __import__(modulename, fromlist=[classname])
-            cls = module.__dict__[classname]
-            doc = inspect.getdoc(cls)
-            if doc:
-                this_node_attrs['tooltip'] = '"%s"' % doc.split("\n")[0]
-            
+            if fullname in urls:
+                this_node_attrs['URL'] = '"%s"' % urls[fullname]
+            # Use first line of docstring as tooltip, if available
+            if cls.__doc__:
+                doc = cls.__doc__.strip().split("\n")[0]
+                if doc:
+                    this_node_attrs['tooltip'] = '"%s"' % doc
             res.append('  "%s" [%s];\n' %
                        (name, self._format_node_attrs(this_node_attrs)))
 
