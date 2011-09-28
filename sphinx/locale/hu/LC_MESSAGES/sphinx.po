@@ -20,7 +20,7 @@ msgstr ""
 #: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
 #, python-format
 msgid "%B %d, %Y"
-msgstr "%Y %B %d"
+msgstr "%Y. %m. %d."
 
 #: sphinx/environment.py:1619
 #, python-format
@@ -48,7 +48,7 @@ msgstr "Modul szint"
 #: sphinx/builders/html.py:276
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%Y %b %d"
+msgstr "%b %d, %Y"
 
 #: sphinx/builders/html.py:295 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
