@@ -140,3 +140,6 @@ def safe_relpath(path, start=None):
         return os.path.relpath(path, start)
     except ValueError:
         return path
+
+def find_catalog(docname, config):
+    return docname.split(SEP, 1)[0] if config.gettext_compact else docname

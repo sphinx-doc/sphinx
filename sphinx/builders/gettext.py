@@ -16,7 +16,7 @@ from collections import defaultdict
 
 from sphinx.builders import Builder
 from sphinx.util.nodes import extract_messages
-from sphinx.util.osutil import SEP, safe_relpath
+from sphinx.util.osutil import SEP, safe_relpath, ensuredir, find_catalog
 from sphinx.util.console import darkgreen
 
 POHEADER = ur"""
@@ -76,7 +76,7 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        catalog = self.catalogs[docname.split(SEP, 1)[0]]
+        catalog = self.catalogs[find_catalog(docname, self.config)]
 
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)
@@ -97,11 +97,14 @@ class MessageCatalogBuilder(I18nBuilder):
             # XXX should supply tz
             ctime = datetime.now().strftime('%Y-%m-%d %H:%M%z'),
         )
-        for section, catalog in self.status_iterator(
+        for textdomain, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
-                lambda (section, _):darkgreen(section), len(self.catalogs)):
+                lambda (textdomain, _):darkgreen(textdomain), len(self.catalogs)):
 
-            pofn = path.join(self.outdir, section + '.pot')
+            # noop if config.gettext_compact is set
+            ensuredir(path.join(self.outdir, path.dirname(textdomain)))
+
+            pofn = path.join(self.outdir, textdomain + '.pot')
             pofile = open(pofn, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
