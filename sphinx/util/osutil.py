@@ -141,5 +141,5 @@ def safe_relpath(path, start=None):
     except ValueError:
         return path
 
-def find_catalog(docname, config):
-    return docname.split(SEP, 1)[0] if config.gettext_compact else docname
+def find_catalog(docname, compaction):
+    return docname.split(SEP, 1)[0] if compaction else docname

@@ -41,7 +41,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
      WarningStream
-from sphinx.util.osutil import movefile, SEP, ustrftime
+from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.util.websupport import is_commentable
@@ -198,13 +198,15 @@ class Locale(Transform):
         settings, source = self.document.settings, self.document['source']
         # XXX check if this is reliable
         assert source.startswith(env.srcdir)
-        docname = os.path.splitext(source[len(env.srcdir):].lstrip(os.sep))[0]
-        section = docname.split(os.sep, 1)[0]
+        docname = path.splitext(path.relpath(source, env.srcdir))[0]
+        textdomain = find_catalog(docname,
+                                  self.document.settings.gettext_compact)
 
         # fetch translations
-        dirs = [path.join(env.srcdir, x)
-                for x in env.config.locale_dirs]
-        catalog, has_catalog = init_locale(dirs, env.config.language, section)
+        dirs = [path.join(env.srcdir, directory)
+                for directory in env.config.locale_dirs]
+        catalog, has_catalog = init_locale(dirs, env.config.language,
+                                           textdomain)
         if not has_catalog:
             return
 
@@ -708,6 +710,7 @@ class BuildEnvironment:
         self.settings['input_encoding'] = self.config.source_encoding
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
+        self.settings['gettext_compact'] = self.config.gettext_compact
 
         self.patch_lookup_functions()
 
