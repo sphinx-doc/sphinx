@@ -187,7 +187,7 @@ setup(
         'Topic :: Utilities',
     ],
     platforms='any',
-    packages=find_packages(),
+    packages=find_packages(exclude=['custom_fixers', 'test']),
     include_package_data=True,
     entry_points={
         'console_scripts': [
