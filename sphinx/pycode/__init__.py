@@ -193,6 +193,7 @@ class ModuleAnalyzer(object):
         # cache the source code as well
         pos = self.source.tell()
         self.encoding = detect_encoding(self.source.readline)
+	self.source.seek(pos)
         self.code = self.source.read()
         self.source.seek(pos)
 
