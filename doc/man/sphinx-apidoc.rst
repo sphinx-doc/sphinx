@@ -6,7 +6,7 @@ sphinx-apidoc manual page
 Synopsis
 --------
 
-**sphinx-apidoc** [*options*] -o <*outputdir*> <*sourcedir*> [*filenames* ...]
+**sphinx-apidoc** [*options*] -o <*outputdir*> <*sourcedir*> [*pathnames* ...]
 
 
 Description
@@ -15,6 +15,9 @@ Description
 :program:`sphinx-apidoc` is a tool for automatic generation of Sphinx sources
 that, using the autodoc extension, document a whole package in the style of
 other automatic API documentation tools.
+
+*sourcedir* must point to a Python package.  Any *pathnames* given are paths to
+be excluded from the generation.
 
 
 Options
@@ -35,8 +38,8 @@ These options are used with ``-F``:
 
 -H <project>    Project name to put into the configuration.
 -A <author>     Author name(s) to put into the configuration.
--V <version>    Project version, see :confval:`release`.
--R <release>    Project release, see :confval:`release`.
+-V <version>    Project version.
+-R <release>    Project release.
 
 
 See also
