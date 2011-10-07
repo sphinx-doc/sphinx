@@ -11,7 +11,6 @@
 
 import sys
 import time
-import __builtin__
 
 from util import *
 
