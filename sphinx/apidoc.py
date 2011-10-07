@@ -269,11 +269,14 @@ Note: By default this script will not overwrite already created files.""")
         parser.error('An output directory is required.')
     if opts.header is None:
         opts.header = rootpath
+    if opts.suffix.startswith('.'):
+        opts.suffix = opts.suffix[1:]
     if not path.isdir(rootpath):
         print >>sys.stderr, '%s is not a directory.' % rootpath
         sys.exit(1)
     if not path.isdir(opts.destdir):
-        os.makedirs(opts.destdir)
+        if not opts.dryrun:
+            os.makedirs(opts.destdir)
     excludes = normalize_excludes(rootpath, excludes)
     modules = recurse_tree(rootpath, excludes, opts)
     if opts.full:
@@ -295,7 +298,7 @@ Note: By default this script will not overwrite already created files.""")
             version = opts.version or '',
             release = opts.release or opts.version or '',
             suffix = '.' + opts.suffix,
-            master = 'modules',
+            master = 'index',
             epub = True,
             ext_autodoc = True,
             makefile = True,
@@ -303,9 +306,7 @@ Note: By default this script will not overwrite already created files.""")
             mastertocmaxdepth = opts.maxdepth,
             mastertoctree = text,
         )
-        # XXX overwrites even without --force
         if not opts.dryrun:
-            qs.generate(d, silent=True)
-        print 'Creating quickstart project and Makefile.'
+            qs.generate(d, silent=True, overwrite=opts.force)
     elif not opts.notoc:
         create_modules_toc_file(modules, opts)

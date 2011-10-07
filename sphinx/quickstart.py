@@ -946,9 +946,10 @@ directly.'''
     if 'batchfile' not in d:
         do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)',
                   'y', boolean)
+    print
 
 
-def generate(d, silent=False):
+def generate(d, overwrite=True, silent=False):
     """Generate project based on values in *d*."""
 
     texescape.init()
@@ -997,35 +998,38 @@ def generate(d, silent=False):
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
+    def write_file(fpath, mode, content):
+        if overwrite or not path.isfile(fpath):
+            print 'Creating file %s.' % fpath
+            f = open(fpath, mode, encoding='utf-8')
+            try:
+                f.write(content)
+            finally:
+                f.close()
+        else:
+            print 'File %s already exists, skipping.' % fpath
+
     conf_text = QUICKSTART_CONF % d
     if d['epub']:
         conf_text += EPUB_CONFIG % d
     if d.get('ext_intersphinx'):
         conf_text += INTERSPHINX_CONFIG
 
-    f = open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
-    f.write(conf_text)
-    f.close()
+    write_file(path.join(srcdir, 'conf.py'), 'w', conf_text)
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    f = open(masterfile, 'w', encoding='utf-8')
-    f.write(MASTER_FILE % d)
-    f.close()
+    write_file(masterfile, 'w', MASTER_FILE % d)
 
     if d['makefile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        f = open(path.join(d['path'], 'Makefile'), 'wb', encoding='utf-8')
-        f.write(MAKEFILE % d)
-        f.close()
+        write_file(path.join(d['path'], 'Makefile'), 'wb', MAKEFILE % d)
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        f = open(path.join(d['path'], 'make.bat'), 'w', encoding='utf-8')
-        f.write(BATCHFILE % d)
-        f.close()
+        write_file(path.join(d['path'], 'make.bat'), 'w', BATCHFILE % d)
 
     if silent:
         return
