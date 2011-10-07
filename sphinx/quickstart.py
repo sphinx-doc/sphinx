@@ -339,7 +339,7 @@ MASTER_FILE = '''\
    contain the root `toctree` directive.
 
 Welcome to %(project)s's documentation!
-===========%(underline)s=================
+===========%(project_underline)s=================
 
 Contents:
 
@@ -793,18 +793,25 @@ if sys.version_info >= (3, 0):
     del _unicode_string_re, _convert_python_source
 
 
-def inner_main(args):
-    d = {}
-    texescape.init()
+def ask_user(d):
+    """Ask the user for quickstart values missing from *d*.
 
-    if not color_terminal():
-        nocolor()
+    Values are:
 
-    if len(args) > 3:
-        print 'Usage: sphinx-quickstart [root]'
-        sys.exit(1)
-    elif len(args) == 2:
-        d['path'] = args[1]
+    * path:      root path
+    * sep:       separate source and build dirs (bool)
+    * dot:       replacement for dot in _templates etc.
+    * project:   project name
+    * author:    author names
+    * version:   version of project
+    * release:   release of project
+    * suffix:    source file suffix
+    * master:    master document name
+    * epub:      use epub (bool)
+    * ext_*:     extensions to use (bools)
+    * makefile:  make Makefile
+    * batchfile: make command file
+    """
 
     print bold('Welcome to the Sphinx %s quickstart utility.') % __version__
     print '''
@@ -831,42 +838,53 @@ Enter the root path for documentation.'''
         if not d['path']:
             sys.exit(1)
 
-    print '''
+    if 'sep' not in d:
+        print '''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
 "source" and "build" directories within the root path.'''
-    do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
-              boolean)
+        do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
+                  boolean)
 
-    print '''
+    if 'dot' not in d:
+        print '''
 Inside the root directory, two more directories will be created; "_templates"
 for custom HTML templates and "_static" for custom stylesheets and other static
 files. You can enter another prefix (such as ".") to replace the underscore.'''
-    do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
+        do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
 
-    print '''
+    if 'project' not in d:
+        print '''
 The project name will occur in several places in the built documentation.'''
-    do_prompt(d, 'project', 'Project name')
-    do_prompt(d, 'author', 'Author name(s)')
-    print '''
+        do_prompt(d, 'project', 'Project name')
+    if 'author' not in d:
+        do_prompt(d, 'author', 'Author name(s)')
+
+    if 'version' not in d:
+        print '''
 Sphinx has the notion of a "version" and a "release" for the
 software. Each version can have multiple releases. For example, for
 Python the version is something like 2.5 or 3.0, while the release is
 something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
 just set both to the same value.'''
-    do_prompt(d, 'version', 'Project version')
-    do_prompt(d, 'release', 'Project release', d['version'])
-    print '''
+        do_prompt(d, 'version', 'Project version')
+    if 'release' not in d:
+        do_prompt(d, 'release', 'Project release', d['version'])
+
+    if 'suffix' not in d:
+        print '''
 The file name suffix for source files. Commonly, this is either ".txt"
 or ".rst".  Only files with this suffix are considered documents.'''
-    do_prompt(d, 'suffix', 'Source file suffix', '.rst', suffix)
-    print '''
+        do_prompt(d, 'suffix', 'Source file suffix', '.rst', suffix)
+
+    if 'master' not in d:
+        print '''
 One document is special in that it is considered the top node of the
 "contents tree", that is, it is the root of the hierarchical structure
 of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.'''
-    do_prompt(d, 'master', 'Name of your master document (without suffix)',
-              'index')
+        do_prompt(d, 'master', 'Name of your master document (without suffix)',
+                  'index')
 
     while path.isfile(path.join(d['path'], d['master']+d['suffix'])) or \
           path.isfile(path.join(d['path'], 'source', d['master']+d['suffix'])):
@@ -878,51 +896,70 @@ document is a custom template, you can also set this to another filename.'''
         do_prompt(d, 'master', 'Please enter a new file name, or rename the '
                   'existing file and press Enter', d['master'])
 
-    print '''
+    if 'epub' not in d:
+        print '''
 Sphinx can also add configuration for epub output:'''
-    do_prompt(d, 'epub', 'Do you want to use the epub builder (y/N)',
-              'n', boolean)
+        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/N)',
+                  'n', boolean)
 
-    print '''
+    if 'ext_autodoc' not in d:
+        print '''
 Please indicate if you want to use one of the following Sphinx extensions:'''
-    do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
-              'from modules (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
-              'in doctest blocks (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
-              'documentation of different projects (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
-              'that can be shown or hidden on build (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
-              'coverage (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
-              'as PNG images (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
-              'browser by MathJax (y/N)', 'n', boolean)
+        do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
+                  'from modules (y/N)', 'n', boolean)
+    if 'ext_doctest' not in d:
+        do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
+                  'in doctest blocks (y/N)', 'n', boolean)
+    if 'ext_intersphinx' not in d:
+        do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
+                  'documentation of different projects (y/N)', 'n', boolean)
+    if 'ext_todo' not in d:
+        do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
+                  'that can be shown or hidden on build (y/N)', 'n', boolean)
+    if 'ext_coverage' not in d:
+        do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
+                  'coverage (y/N)', 'n', boolean)
+    if 'ext_pngmath' not in d:
+        do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
+                  'as PNG images (y/N)', 'n', boolean)
+    if 'ext_mathjax' not in d:
+        do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
+                  'browser by MathJax (y/N)', 'n', boolean)
     if d['ext_pngmath'] and d['ext_mathjax']:
         print '''Note: pngmath and mathjax cannot be enabled at the same time.
 pngmath has been deselected.'''
-    do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
-              'content based on config values (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source code '
-              'of documented Python objects (y/N)', 'n', boolean)
-    print '''
+    if 'ext_ifconfig' not in d:
+        do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
+                  'content based on config values (y/N)', 'n', boolean)
+    if 'ext_viewcode' not in d:
+        do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source code '
+                  'of documented Python objects (y/N)', 'n', boolean)
+
+    if 'makefile' not in d:
+        print '''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
-    do_prompt(d, 'makefile', 'Create Makefile? (Y/n)', 'y', boolean)
-    do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)',
-              'y', boolean)
+        do_prompt(d, 'makefile', 'Create Makefile? (Y/n)', 'y', boolean)
+    if 'batchfile' not in d:
+        do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)',
+                  'y', boolean)
+
+
+def generate(d):
+    """Generate project based on values in *d*."""
+
+    texescape.init()
 
     d['project_fn'] = make_filename(d['project'])
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
-    d['underline'] = len(d['project']) * '='
+    d['project_underline'] = len(d['project']) * '='
     d['extensions'] = ', '.join(
         repr('sphinx.ext.' + name)
         for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
                      'pngmath', 'mathjax', 'ifconfig', 'viewcode')
-        if d['ext_' + name])
+        if d.get('ext_' + name))
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = unicode(d['author']).\
                              translate(texescape.tex_escape_map)
@@ -999,9 +1036,19 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 
 
 def main(argv=sys.argv):
+    if not color_terminal():
+        nocolor()
+
+    d = {}
+    if len(argv) > 3:
+        print 'Usage: sphinx-quickstart [root]'
+        sys.exit(1)
+    elif len(argv) == 2:
+        d['path'] = argv[1]
     try:
-        return inner_main(argv)
+        ask_user(d)
     except (KeyboardInterrupt, EOFError):
         print
         print '[Interrupted.]'
         return
+    generate(d)

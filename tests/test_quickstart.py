@@ -85,7 +85,9 @@ def test_quickstart_defaults(tempdir):
         'Project version': '0.1',
     }
     qs.term_input = mock_raw_input(answers)
-    qs.inner_main([])
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
 
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
@@ -134,7 +136,7 @@ def test_quickstart_all_answers(tempdir):
         'todo': 'n',
         'coverage': 'no',
         'pngmath': 'N',
-        'jsmath': 'no',
+        'mathjax': 'no',
         'ifconfig': 'no',
         'viewcode': 'no',
         'Create Makefile': 'no',
@@ -143,7 +145,9 @@ def test_quickstart_all_answers(tempdir):
     }
     qs.term_input = mock_raw_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
-    qs.inner_main([])
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
 
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
