@@ -301,6 +301,7 @@ Note: By default this script will not overwrite already created files.""")
             master = 'index',
             epub = True,
             ext_autodoc = True,
+            ext_viewcode = True,
             makefile = True,
             batchfile = True,
             mastertocmaxdepth = opts.maxdepth,
