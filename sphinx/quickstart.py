@@ -344,7 +344,9 @@ Welcome to %(project)s's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: %(mastertocmaxdepth)s
+
+%(mastertoctree)s
 
 Indices and tables
 ==================
@@ -946,10 +948,15 @@ directly.'''
                   'y', boolean)
 
 
-def generate(d):
+def generate(d, silent=False):
     """Generate project based on values in *d*."""
 
     texescape.init()
+
+    if 'mastertoctree' not in d:
+        d['mastertoctree'] = ''
+    if 'mastertocmaxdepth' not in d:
+        d['mastertocmaxdepth'] = 2
 
     d['project_fn'] = make_filename(d['project'])
     d['project_manpage'] = d['project_fn'].lower()
@@ -993,7 +1000,7 @@ def generate(d):
     conf_text = QUICKSTART_CONF % d
     if d['epub']:
         conf_text += EPUB_CONFIG % d
-    if d['ext_intersphinx']:
+    if d.get('ext_intersphinx'):
         conf_text += INTERSPHINX_CONFIG
 
     f = open(path.join(srcdir, 'conf.py'), 'w', encoding='utf-8')
@@ -1020,6 +1027,8 @@ def generate(d):
         f.write(BATCHFILE % d)
         f.close()
 
+    if silent:
+        return
     print
     print bold('Finished: An initial directory structure has been created.')
     print '''

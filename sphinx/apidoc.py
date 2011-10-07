@@ -41,7 +41,7 @@ def makename(package, module):
 
 def write_file(name, text, opts):
     """Write the output file for module/package <name>."""
-    fname = path.join(opts.destdir, "%s.%s" % (name, opts.suffix))
+    fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
         print 'Would create file %s.' % fname
         return
@@ -106,7 +106,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
 
     write_file(makename(master_package, subroot), text, opts)
 
-def create_modules_toc_file(master_package, modules, opts, name='modules'):
+def create_modules_toc_file(modules, opts, name='modules'):
     """
     Create the module's index.
     """
@@ -186,9 +186,8 @@ def recurse_tree(rootpath, excludes, opts):
                     create_module_file(package_name, module, opts)
                     toc.append(makename(package_name, module))
 
-    # create the module's index
-    if not opts.notoc:
-        create_modules_toc_file(package_name, toc, opts)
+    return toc
+
 
 def normalize_excludes(rootpath, excludes):
     """
@@ -246,23 +245,65 @@ Note: By default this script will not overwrite already created files.""")
                       help='Run the script without creating files')
     parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',
                       help='Don\'t create a table of contents file')
-    parser.add_option('-H', '--doc-header', action='store', dest='header',
-                      help='Documentation header (default: Project)',
-                      default='Project')
     parser.add_option('-s', '--suffix', action='store', dest='suffix',
                       help='file suffix (default: rst)', default='rst')
+    parser.add_option('-F', '--full', action='store_true', dest='full',
+                      help='Generate a full project with sphinx-quickstart')
+    parser.add_option('-H', '--doc-project', action='store', dest='header',
+                      help='Project name (default: root module name)')
+    parser.add_option('-A', '--doc-author', action='store', dest='author', type='str',
+                      help='Project author(s), used when --full is given')
+    parser.add_option('-V', '--doc-version', action='store', dest='version',
+                      help='Project version, used when --full is given')
+    parser.add_option('-R', '--doc-release', action='store', dest='release',
+                      help='Project release, used when --full is given, '
+                      'defaults to --doc-version')
 
     (opts, args) = parser.parse_args(argv[1:])
 
     if not args:
         parser.error('A package path is required.')
+
+    rootpath, excludes = args[0], args[1:]
     if not opts.destdir:
         parser.error('An output directory is required.')
-    rootpath, excludes = args[0], args[1:]
+    if opts.header is None:
+        opts.header = rootpath
     if not path.isdir(rootpath):
         print >>sys.stderr, '%s is not a directory.' % rootpath
         sys.exit(1)
     if not path.isdir(opts.destdir):
         os.makedirs(opts.destdir)
     excludes = normalize_excludes(rootpath, excludes)
-    recurse_tree(rootpath, excludes, opts)
+    modules = recurse_tree(rootpath, excludes, opts)
+    if opts.full:
+        from sphinx import quickstart as qs
+        modules.sort()
+        prev_module = ''
+        text = ''
+        for module in modules:
+            if module.startswith(prev_module + '.'):
+                continue
+            prev_module = module
+            text += '   %s\n' % module
+        d = dict(
+            path = opts.destdir,
+            sep  = False,
+            dot  = '_',
+            project = opts.header,
+            author = opts.author or 'Author',
+            version = opts.version or '',
+            release = opts.release or opts.version or '',
+            suffix = '.' + opts.suffix,
+            master = 'modules',
+            epub = True,
+            ext_autodoc = True,
+            makefile = True,
+            batchfile = True,
+            mastertocmaxdepth = opts.maxdepth,
+            mastertoctree = text,
+        )
+        qs.generate(d, silent=True)
+        print 'Creating quickstart project and Makefile.'
+    elif not opts.notoc:
+        create_modules_toc_file(modules, opts)
