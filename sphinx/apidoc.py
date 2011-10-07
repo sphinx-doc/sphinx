@@ -231,7 +231,7 @@ def main(argv=sys.argv):
 usage: %prog [options] -o <output_path> <module_path> [exclude_paths, ...]
 
 Look recursively in <module_path> for Python modules and packages and create
-a reST file with automodule directives per package in the <output_path>.
+one reST file with automodule directives per package in the <output_path>.
 
 Note: By default this script will not overwrite already created files.""")
 
@@ -241,13 +241,13 @@ Note: By default this script will not overwrite already created files.""")
                       help='Maximum depth of submodules to show in the TOC '
                       '(default: 4)', type='int', default=4)
     parser.add_option('-f', '--force', action='store_true', dest='force',
-                      help='Overwrite all the files')
+                      help='Overwrite all files')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dryrun',
-                      help='Run the script without creating the files')
+                      help='Run the script without creating files')
     parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',
-                      help='Don\'t create the table of contents file')
+                      help='Don\'t create a table of contents file')
     parser.add_option('-H', '--doc-header', action='store', dest='header',
-                      help='Documentation Header (default: Project)',
+                      help='Documentation header (default: Project)',
                       default='Project')
     parser.add_option('-s', '--suffix', action='store', dest='suffix',
                       help='file suffix (default: rst)', default='rst')
@@ -263,7 +263,6 @@ Note: By default this script will not overwrite already created files.""")
         print >>sys.stderr, '%s is not a directory.' % rootpath
         sys.exit(1)
     if not path.isdir(opts.destdir):
-        print '%s is not a valid output directory.' % opts.destdir
-        sys.exit(1)
+        os.makedirs(opts.destdir)
     excludes = normalize_excludes(rootpath, excludes)
     recurse_tree(rootpath, excludes, opts)

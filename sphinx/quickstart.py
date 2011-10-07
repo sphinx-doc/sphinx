@@ -897,10 +897,10 @@ Please indicate if you want to use one of the following Sphinx extensions:'''
               'coverage (y/N)', 'n', boolean)
     do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
               'as PNG images (y/N)', 'n', boolean)
-    do_prompt(d, 'ext_jsmath', 'jsmath: include math, rendered in the '
-              'browser by JSMath (y/N)', 'n', boolean)
-    if d['ext_pngmath'] and d['ext_jsmath']:
-        print '''Note: pngmath and jsmath cannot be enabled at the same time.
+    do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
+              'browser by MathJax (y/N)', 'n', boolean)
+    if d['ext_pngmath'] and d['ext_mathjax']:
+        print '''Note: pngmath and mathjax cannot be enabled at the same time.
 pngmath has been deselected.'''
     do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
               'content based on config values (y/N)', 'n', boolean)
@@ -921,7 +921,7 @@ directly.'''
     d['extensions'] = ', '.join(
         repr('sphinx.ext.' + name)
         for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-                     'pngmath', 'jsmath', 'ifconfig', 'viewcode')
+                     'pngmath', 'mathjax', 'ifconfig', 'viewcode')
         if d['ext_' + name])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = unicode(d['author']).\
