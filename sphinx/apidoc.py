@@ -303,7 +303,9 @@ Note: By default this script will not overwrite already created files.""")
             mastertocmaxdepth = opts.maxdepth,
             mastertoctree = text,
         )
-        qs.generate(d, silent=True)
+        # XXX overwrites even without --force
+        if not opts.dryrun:
+            qs.generate(d, silent=True)
         print 'Creating quickstart project and Makefile.'
     elif not opts.notoc:
         create_modules_toc_file(modules, opts)
