@@ -217,6 +217,7 @@ class ModuleAnalyzer(object):
         pos = self.source.tell()
         if not decoded:
             self.encoding = detect_encoding(self.source.readline)
+            self.source.seek(pos)
             self.code = self.source.read().decode(self.encoding)
             self.source.seek(pos)
             self.source = TextIOWrapper(self.source, self.encoding)
