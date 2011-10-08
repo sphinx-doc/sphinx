@@ -28,7 +28,7 @@ POHEADER = ur"""
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: %(version)s\n"
+"Project-Id-Version: %(project)s %(version)s\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: %(ctime)s\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
