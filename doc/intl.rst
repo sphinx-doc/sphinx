@@ -46,7 +46,7 @@ with :confval:`locale_dirs` for your :confval:`language`, Sphinx will pick them
 up automatically.
 
 An example: you have a document ``usage.rst`` in your Sphinx project.  The
-gettext builder will put its messages into ``usage.pot``.  Image you have
+gettext builder will put its messages into ``usage.pot``.  Imagine you have
 Spanish translations [2]_ on your hands in ``usage.po`` --- for your builds to
 be translated you need to follow these instructions:
 
