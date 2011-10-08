@@ -382,9 +382,9 @@ class NamedDefExpr(DefExpr):
     def get_name(self):
         return self.name.get_name()
 
-    def get_modifiers(self):
+    def get_modifiers(self, visibility='public'):
         rv = []
-        if self.visibility != 'public':
+        if self.visibility != visibility:
             rv.append(self.visibility)
         if self.static:
             rv.append(u'static')
@@ -495,12 +495,13 @@ class ClassDefExpr(NamedDefExpr):
     def get_id(self):
         return self.name.get_id()
 
-    def __unicode__(self):
-        buf = self.get_modifiers()
+    def __unicode__(self, visibility='public'):
+        buf = self.get_modifiers(visibility)
         buf.append(unicode(self.name))
         if self.bases:
             buf.append(u':')
-            buf.append(u', '.join(unicode(base) for base in self.bases))
+            buf.append(u', '.join(base.__unicode__('private')
+                                  for base in self.bases))
         return u' '.join(buf)
 
 
@@ -888,7 +889,7 @@ class DefinitionParser(object):
         if self.skip_string(':'):
             self.skip_ws()
             while 1:
-                access = 'public'
+                access = 'private'
                 if self.match(_visibility_re):
                     access = self.matched_text
                 base = self._parse_type()
@@ -947,8 +948,8 @@ class CPPObject(ObjectDescription):
         pnode += nodes.Text(text)
         node += pnode
 
-    def attach_modifiers(self, node, obj):
-        if obj.visibility != 'public':
+    def attach_modifiers(self, node, obj, visibility='public'):
+        if obj.visibility != visibility:
             node += addnodes.desc_annotation(obj.visibility,
                                              obj.visibility)
             node += nodes.Text(' ')
@@ -1026,7 +1027,7 @@ class CPPClassObject(CPPObject):
         if cls.bases:
             signode += nodes.Text(' : ')
             for base in cls.bases:
-                self.attach_modifiers(signode, base)
+                self.attach_modifiers(signode, base, 'private')
                 signode += nodes.emphasis(unicode(base.name), unicode(base.name))
                 signode += nodes.Text(', ')
             signode.pop()  # remove the trailing comma

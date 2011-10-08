@@ -82,10 +82,10 @@ def test_bases():
     assert unicode(parse('class', x)) == x
 
     x = 'A : private B'
-    assert unicode(parse('class', x)) == x
+    assert unicode(parse('class', x)) == 'A : B'
 
     x = 'A : public B'
-    assert unicode(parse('class', x)) == 'A : B'
+    assert unicode(parse('class', x)) == x
 
     x = 'A : B, C'
     assert unicode(parse('class', x)) == x
