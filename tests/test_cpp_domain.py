@@ -74,6 +74,26 @@ def test_type_definitions():
     assert unicode(parse('member_object', x)) == x
 
 
+def test_bases():
+    x = 'A'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : B'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : private B'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : public B'
+    assert unicode(parse('class', x)) == 'A : B'
+
+    x = 'A : B, C'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : B, protected C, D'
+    assert unicode(parse('class', x)) == x
+
+
 def test_operators():
     x = parse('function', 'void operator new [  ] ()')
     assert unicode(x) == 'void operator new[]()'

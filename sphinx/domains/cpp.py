@@ -488,8 +488,9 @@ class FuncDefExpr(NamedDefExpr):
 
 class ClassDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static):
+    def __init__(self, name, visibility, static, bases):
         NamedDefExpr.__init__(self, name, visibility, static)
+        self.bases = bases
 
     def get_id(self):
         return self.name.get_id()
@@ -497,6 +498,9 @@ class ClassDefExpr(NamedDefExpr):
     def __unicode__(self):
         buf = self.get_modifiers()
         buf.append(unicode(self.name))
+        if self.bases:
+            buf.append(u':')
+            buf.append(u', '.join(unicode(base) for base in self.bases))
         return u' '.join(buf)
 
 
@@ -879,7 +883,21 @@ class DefinitionParser(object):
 
     def parse_class(self):
         visibility, static = self._parse_visibility_static()
-        return ClassDefExpr(self._parse_type(), visibility, static)
+        name = self._parse_type()
+        bases = []
+        if self.skip_string(':'):
+            self.skip_ws()
+            while 1:
+                access = 'public'
+                if self.match(_visibility_re):
+                    access = self.matched_text
+                base = self._parse_type()
+                bases.append(ClassDefExpr(base, access, False, []))
+                if self.skip_string(','):
+                    self.skip_ws()
+                else:
+                    break
+        return ClassDefExpr(name, visibility, static, bases)
 
     def read_rest(self):
         rv = self.definition[self.pos:]
@@ -1005,6 +1023,13 @@ class CPPClassObject(CPPObject):
         self.attach_modifiers(signode, cls)
         signode += addnodes.desc_annotation('class ', 'class ')
         self.attach_name(signode, cls.name)
+        if cls.bases:
+            signode += nodes.Text(' : ')
+            for base in cls.bases:
+                self.attach_modifiers(signode, base)
+                signode += nodes.emphasis(unicode(base.name), unicode(base.name))
+                signode += nodes.Text(', ')
+            signode.pop()  # remove the trailing comma
 
 
 class CPPTypeObject(CPPObject):

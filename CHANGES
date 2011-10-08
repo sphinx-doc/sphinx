@@ -46,6 +46,7 @@ Features added
   - Section headings in :rst:dir:`only` directives are now correctly
     handled.
   - Added ``emphasize-lines`` option to source code directives.
+  - #678: C++ domain now supports superclasses.
 
 * HTML builder:
 
