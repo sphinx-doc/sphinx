@@ -108,17 +108,14 @@ class DefinitionError(Exception):
     def __init__(self, description):
         self.description = description
 
-    def __unicode__(self):
-        return self.description
-
     def __str__(self):
         return unicode(self).encode('utf-8')
 
+    def __unicode__(self):
+        return self.description
+
 
 class DefExpr(object):
-
-    def __unicode__(self):
-        raise NotImplementedError()
 
     def __eq__(self, other):
         if type(self) is not type(other):
@@ -166,6 +163,9 @@ class DefExpr(object):
 
     def __str__(self):
         return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
+        raise NotImplementedError()
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self)
@@ -495,15 +495,17 @@ class ClassDefExpr(NamedDefExpr):
     def get_id(self):
         return self.name.get_id()
 
-    def __unicode__(self, visibility='public'):
+    def _tostring(self, visibility='public'):
         buf = self.get_modifiers(visibility)
         buf.append(unicode(self.name))
         if self.bases:
             buf.append(u':')
-            buf.append(u', '.join(base.__unicode__('private')
+            buf.append(u', '.join(base._tostring('private')
                                   for base in self.bases))
         return u' '.join(buf)
 
+    def __unicode__(self):
+        return self._tostring('public')
 
 class DefinitionParser(object):
 

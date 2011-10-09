@@ -280,7 +280,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def idescape(self, id):
         return unicode(id).translate(tex_replace_map).\
-            encode('ascii', 'backslashreplace').replace('\\', '_')
+            encode('ascii', 'backslashreplace').decode('ascii').\
+            replace('\\', '_')
 
     def generate_indices(self):
         def generate(content, collapsed):
