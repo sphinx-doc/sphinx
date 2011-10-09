@@ -8,9 +8,9 @@
     creates a modules index (named modules.<suffix>).
 
     This is derived from the "sphinx-autopackage" script, which is:
-    Copyright 2008 Société des arts technologiques (SAT), http://www.sat.qc.ca/.
+    Copyright 2008 Société des arts technologiques (SAT), http://www.sat.qc.ca/
 
-    :copyright: 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -172,7 +172,8 @@ def recurse_tree(rootpath, excludes, opts):
 
         if is_pkg:
             # we are in a package with something to document
-            if subs or len(py_files) > 1 or not shall_skip(path.join(root, INITPY)):
+            if subs or len(py_files) > 1 or not \
+                shall_skip(path.join(root, INITPY)):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
                 create_package_file(root, root_package, subpackage,
@@ -251,7 +252,8 @@ Note: By default this script will not overwrite already created files.""")
                       help='Generate a full project with sphinx-quickstart')
     parser.add_option('-H', '--doc-project', action='store', dest='header',
                       help='Project name (default: root module name)')
-    parser.add_option('-A', '--doc-author', action='store', dest='author', type='str',
+    parser.add_option('-A', '--doc-author', action='store', dest='author',
+                      type='str',
                       help='Project author(s), used when --full is given')
     parser.add_option('-V', '--doc-version', action='store', dest='version',
                       help='Project version, used when --full is given')

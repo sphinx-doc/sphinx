@@ -1028,7 +1028,8 @@ class CPPClassObject(CPPObject):
             signode += nodes.Text(' : ')
             for base in cls.bases:
                 self.attach_modifiers(signode, base, 'private')
-                signode += nodes.emphasis(unicode(base.name), unicode(base.name))
+                signode += nodes.emphasis(unicode(base.name),
+                                          unicode(base.name))
                 signode += nodes.Text(', ')
             signode.pop()  # remove the trailing comma
 

@@ -934,8 +934,8 @@ pngmath has been deselected.'''
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
                   'content based on config values (y/N)', 'n', boolean)
     if 'ext_viewcode' not in d:
-        do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source code '
-                  'of documented Python objects (y/N)', 'n', boolean)
+        do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
+                  'code of documented Python objects (y/N)', 'n', boolean)
 
     if 'makefile' not in d:
         print '''

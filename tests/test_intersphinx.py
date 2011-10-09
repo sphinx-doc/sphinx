@@ -167,7 +167,8 @@ def test_load_mappings_warnings(tempdir, app):
         'http://docs.python.org/': inv_file,
         'py3k': ('http://docs.python.org/py3k/', inv_file),
         'repoze.workflow': ('http://docs.repoze.org/workflow/', inv_file),
-        'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/', inv_file)
+        'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
+                          inv_file)
     }
 
     app.config.intersphinx_cache_limit = 0

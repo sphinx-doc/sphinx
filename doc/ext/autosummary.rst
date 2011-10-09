@@ -29,7 +29,7 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 .. rst:directive:: autosummary
 
    Insert a table that contains links to documented items, and a short summary
-   blurb (the first sentence of the docstring) for each of them.  
+   blurb (the first sentence of the docstring) for each of them.
 
    The :rst:dir:`autosummary` directive can also optionally serve as a
    :rst:dir:`toctree` entry for the included items. Optionally, stub
