@@ -195,7 +195,7 @@ class Config(object):
                 # config file is executed
                 os.chdir(dirname)
                 # get config source
-                f = open(config_file, 'rb')
+                f = open(config_file, 'rU')
                 try:
                     source = f.read()
                 finally:
