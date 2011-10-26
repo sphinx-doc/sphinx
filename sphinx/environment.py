@@ -198,7 +198,7 @@ class Locale(Transform):
         settings, source = self.document.settings, self.document['source']
         # XXX check if this is reliable
         assert source.startswith(env.srcdir)
-        docname = path.splitext(path.relpath(source, env.srcdir))[0]
+        docname = path.splitext(relative_path(source, env.srcdir))[0]
         textdomain = find_catalog(docname,
                                   self.document.settings.gettext_compact)
 
