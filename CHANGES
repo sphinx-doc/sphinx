@@ -2,6 +2,12 @@ Release 1.2 (in development)
 ============================
 
 
+Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
+======================================================================
+
+* #809: Include custom fixers in the source distribution.
+
+
 Release 1.1.1 (Nov 1, 2011)
 ===========================
 
