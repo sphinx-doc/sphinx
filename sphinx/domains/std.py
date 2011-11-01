@@ -259,13 +259,23 @@ class Glossary(Directive):
                         messages.append(self.state.reporter.system_message(
                             2, 'glossary terms must not be separated by empty '
                             'lines', source=source, line=lineno))
-                    entries[-1][0].append((line, source, lineno))
+                    if entries:
+                        entries[-1][0].append((line, source, lineno))
+                    else:
+                        messages.append(self.state.reporter.system_message(
+                            2, 'glossary seems to be misformatted, check '
+                        'indentation', source=source, line=lineno))
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
                     in_definition = True
                     indent_len = len(line) - len(line.lstrip())
-                entries[-1][1].append(line[indent_len:], source, lineno)
+                if entries:
+                    entries[-1][1].append(line[indent_len:], source, lineno)
+                else:
+                    messages.append(self.state.reporter.system_message(
+                        2, 'glossary seems to be misformatted, check '
+                    'indentation', source=source, line=lineno))
             was_empty = False
 
         # now, parse all the entries into a big definition list
