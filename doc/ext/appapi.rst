@@ -115,11 +115,8 @@ the following public API:
      <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ for
      details.
 
-     The directive class normally must inherit from the class
-     ``docutils.parsers.rst.Directive``.  When writing a directive for usage in
-     a Sphinx extension, you inherit from ``sphinx.util.compat.Directive``
-     instead which does the right thing even on docutils 0.4 (which doesn't
-     support directive classes otherwise).
+     The directive class must inherit from the class
+     ``docutils.parsers.rst.Directive``.
 
    For example, the (already existing) :rst:dir:`literalinclude` directive would be
    added like this:
