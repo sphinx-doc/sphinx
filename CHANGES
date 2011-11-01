@@ -1,6 +1,8 @@
 Release 1.1.1 (in development)
 ==============================
 
+* #801: Make intersphinx work properly without SSL support.
+
 * #805: Make the ``Sphinx.add_index_to_domain`` method work correctly.
 
 * #780: Fix Python 2.5 compatibility.
