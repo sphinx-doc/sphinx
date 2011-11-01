@@ -8,7 +8,8 @@
     creates a modules index (named modules.<suffix>).
 
     This is derived from the "sphinx-autopackage" script, which is:
-    Copyright 2008 Société des arts technologiques (SAT), http://www.sat.qc.ca/
+    Copyright 2008 Société des arts technologiques (SAT),
+    http://www.sat.qc.ca/
 
     :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
