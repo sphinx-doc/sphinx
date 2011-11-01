@@ -42,7 +42,7 @@ handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
             urllib2.HTTPHandler()]
 try:
     handlers.append(urllib2.HTTPSHandler)
-except NameError:
+except AttributeError:
     pass
 
 urllib2.install_opener(urllib2.build_opener(*handlers))

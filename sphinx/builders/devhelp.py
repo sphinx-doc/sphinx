@@ -107,12 +107,12 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 pass
             elif len(refs) == 1:
                 etree.SubElement(functions, 'function',
-                                 name=title, link=refs[0])
+                                 name=title, link=refs[0][1])
             else:
                 for i, ref in enumerate(refs):
                     etree.SubElement(functions, 'function',
                                      name="[%d] %s" % (i, title),
-                                     link=ref)
+                                     link=ref[1])
 
             if subitems:
                 parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)

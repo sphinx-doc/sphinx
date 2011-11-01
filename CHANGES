@@ -2,6 +2,22 @@ Release 1.2 (in development)
 ============================
 
 
+Release 1.1.1 (Nov 1, 2011)
+===========================
+
+* #791: Fix QtHelp, DevHelp and HtmlHelp index entry links.
+
+* #792: Include "sphinx-apidoc" in the source distribution.
+
+* #797: Don't crash on a misformatted glossary.
+
+* #801: Make intersphinx work properly without SSL support.
+
+* #805: Make the ``Sphinx.add_index_to_domain`` method work correctly.
+
+* #780: Fix Python 2.5 compatibility.
+
+
 Release 1.1 (Oct 9, 2011)
 =========================
 
@@ -119,13 +135,10 @@ Features added
   - #714: Added Korean locale.
   - #766: Added Estonian locale.
 
+* Bugs fixed:
 
-Release 1.0.9 (in development)
-==============================
-
-* #778: Fix "hide search matches" link on pages linked by search.
-
-* Fix the source positions referenced by the "viewcode" extension.
+  - #778: Fix "hide search matches" link on pages linked by search.
+  - Fix the source positions referenced by the "viewcode" extension.
 
 
 Release 1.0.8 (Sep 23, 2011)

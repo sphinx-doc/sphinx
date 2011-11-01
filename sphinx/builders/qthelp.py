@@ -256,7 +256,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             groupdict = matchobj.groupdict()
             shortname = groupdict['title']
             id = groupdict.get('id')
-#            descr = groupdict.get('descr')
+            #descr = groupdict.get('descr')
             if shortname.endswith('()'):
                 shortname = shortname[:-2]
             id = '%s.%s' % (id, shortname)
@@ -265,9 +265,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         if id:
             item = ' '*12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
-                                                                name, id, ref)
+                name, id, ref[1])
         else:
-            item = ' '*12 + '<keyword name="%s" ref="%s"/>' % (name, ref)
+            item = ' '*12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
         item.encode('ascii', 'xmlcharrefreplace')
         return item
 
