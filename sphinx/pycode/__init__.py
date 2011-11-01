@@ -11,6 +11,7 @@
 
 from os import path
 
+from sphinx import package_dir
 from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
@@ -20,7 +21,7 @@ from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
 # load the Python grammar
-_grammarfile = path.join(path.dirname(__file__), 'Grammar.txt')
+_grammarfile = path.join(package_dir, 'pycode', 'Grammar.txt')
 pygrammar = driver.load_grammar(_grammarfile)
 pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
