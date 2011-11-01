@@ -1,6 +1,8 @@
 Release 1.1.1 (in development)
 ==============================
 
+* #792: Include "sphinx-apidoc" in the source distribution.
+
 * #797: Don't crash on a misformatted glossary.
 
 * #801: Make intersphinx work properly without SSL support.
