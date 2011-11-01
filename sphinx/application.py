@@ -425,11 +425,10 @@ class Sphinx(object):
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].roles[name] = role
 
-    def add_index_to_domain(self, domain, name, localname, shortname, func):
+    def add_index_to_domain(self, domain, index):
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
-        self.domains[domain].indices.append((name, localname, shortname))
-        setattr(self.domains[domain], 'get_%s_index' % name, func)
+        self.domains[domain].indices.append(index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
