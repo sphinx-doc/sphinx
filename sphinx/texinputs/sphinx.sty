@@ -498,3 +498,11 @@
     \@gobble
 }
 \def\FN@sf@gobble@twobracket[#1]#2{}
+
+% adjust the margins for footer,
+% this works with the jsclasses only (Japanese standard document classes)
+\ifx\@jsc@uplatextrue\undefined\else
+  \hypersetup{setpagesize=false}
+  \setlength\footskip{2\baselineskip}
+  \addtolength{\textheight}{-2\baselineskip}
+\fi
