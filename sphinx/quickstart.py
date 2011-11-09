@@ -401,6 +401,7 @@ help:
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+\t@echo "  latexpdfja to make LaTeX files and run them through platex and dvipdfmx"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
 \t@echo "  texinfo    to make Texinfo files"
@@ -480,6 +481,12 @@ latexpdf:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf
+\t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
+latexpdfja:
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+\t@echo "Running LaTeX files through platex and dvipdfmx..."
+\t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
 text:
@@ -656,6 +663,26 @@ if "%%1" == "latex" (
 \tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished; the LaTeX files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
+if "%%1" == "latexpdf" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tcd %%BUILDDIR%%/latex
+\tmake all-pdf
+\tcd %%BUILDDIR%%/..
+\techo.
+\techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
+if "%%1" == "latexpdfja" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tcd %%BUILDDIR%%/latex
+\tmake all-pdf-ja
+\tcd %%BUILDDIR%%/..
+\techo.
+\techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
 \tgoto end
 )
 
