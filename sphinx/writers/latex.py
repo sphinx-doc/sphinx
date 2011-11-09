@@ -205,13 +205,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
             # pTeX (Japanese TeX) for support
             if builder.config.language == 'ja':
-                self.elements['classoptions'] = ',dvipdfm'
-                # found elements of babel, but this should be above sphinx.sty.
-                # because pTeX (Japanese TeX) cannot handle this count.
-                self.elements['babel'] = r'\newcount\pdfoutput\pdfoutput=0'
-                # to make the pdf with correct encoded hyperref bookmarks
-                self.elements['preamble'] += \
-                    r'\AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}'
+                # use dvipdfmx as default class option in Japanese
+                self.elements['classoptions'] = ',dvipdfmx'
+                # disable babel which has not publishing quality in Japanese
+                self.elements['babel'] = ''
         else:
             self.elements['classoptions'] += ',english'
         # allow the user to override them all
