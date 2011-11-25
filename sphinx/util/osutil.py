@@ -142,4 +142,9 @@ def safe_relpath(path, start=None):
         return path
 
 def find_catalog(docname, compaction):
-    return docname.split(SEP, 1)[0] if compaction else docname
+    if compaction:
+        ret = docname.split(SEP, 1)[0]
+    else:
+        ret = docname
+
+    return ret
