@@ -299,6 +299,7 @@ def text_visit_graphviz(self, node):
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
     self.add_text(_('[graph]'))
+    raise nodes.SkipNode
 
 
 def man_visit_graphviz(self, node):
