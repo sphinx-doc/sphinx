@@ -303,9 +303,8 @@ msgid "%s (module)"
 msgstr "%s (module)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Index du module"
+msgstr "Index des modules Python"
 
 #: sphinx/domains/python.py:492
 msgid "modules"
@@ -324,7 +323,6 @@ msgid "method"
 msgstr "méthode"
 
 #: sphinx/domains/python.py:564
-#, fuzzy
 msgid "class method"
 msgstr "méthode de classe"
 
@@ -437,9 +435,8 @@ msgid "[docs]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
-msgstr "module"
+msgstr "Code du module"
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
@@ -544,9 +541,8 @@ msgid "Go"
 msgstr "Go"
 
 #: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
-#, fuzzy
 msgid "Enter search terms or a module, class or function name."
-msgstr "Saisissez un nom de module, classe ou fonction."
+msgstr "Saisissez un mot clef ou un nom de module, classe ou fonction."
 
 #: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
@@ -673,7 +669,6 @@ msgid ""
 msgstr "Activez le JavaScript pour que la recherche fonctionne."
 
 #: sphinx/themes/basic/search.html:29
-#, fuzzy
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
@@ -684,7 +679,7 @@ msgstr ""
 "termes\n"
 "    de votre recherche dans le champs ci-dessous et cliquez sur "
 "\"rechercher\". Notez que la fonctionnalité de recherche\n"
-"    va automatique chercher pour tous les mots. Les pages\n"
+"    va automatiquement chercher parmi l'ensemble les mots. Les pages\n"
 "    contenant moins de mots n'apparaîtront pas dans la liste des "
 "résultats."
 
@@ -776,7 +771,6 @@ msgid "continued from previous page"
 msgstr "Suite de la page précédente"
 
 #: sphinx/writers/latex.py:681
-#, fuzzy
 msgid "Continued on next page"
 msgstr "Suite sur la page suivante"
 
