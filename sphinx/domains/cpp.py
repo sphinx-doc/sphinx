@@ -34,10 +34,10 @@ _template_arg_re = re.compile(r'(%s)|([^,>]+)' % _string_re.pattern, re.S)
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
-    |   [!<>=/*%+|&^-]=?
     |   \+\+ | --
-    |   (<<|>>)=? | ~ | && | \| | \|\|
     |   ->\*? | \,
+    |   [!<>=/*%+|&^-]=?
+    |   (<<|>>)=? | ~ | && | \| | \|\|
 ''')
 
 _id_shortwords = {
