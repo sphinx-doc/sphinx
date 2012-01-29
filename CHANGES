@@ -29,6 +29,8 @@ Release 1.1.3 (in development)
 
 * #853: Restore compatibility with docutils trunk.
 
+* #852: Fix HtmlHelp index entry links again.
+
 
 Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
 ======================================================================

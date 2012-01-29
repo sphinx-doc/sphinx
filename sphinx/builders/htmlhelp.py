@@ -259,7 +259,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             def write_index(title, refs, subitems):
                 def write_param(name, value):
                     item = '    <param name="%s" value="%s">\n' % \
-                        (name, value[1])
+                        (name, value)
                     f.write(item)
                 title = cgi.escape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
@@ -267,12 +267,12 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 if len(refs) == 0:
                     write_param('See Also', title)
                 elif len(refs) == 1:
-                    write_param('Local', refs[0])
+                    write_param('Local', refs[0][1])
                 else:
                     for i, ref in enumerate(refs):
                         # XXX: better title?
-                        write_param('Name', '[%d] %s' % (i, ref))
-                        write_param('Local', ref)
+                        write_param('Name', '[%d] %s' % (i, ref[1]))
+                        write_param('Local', ref[1])
                 f.write('</OBJECT>\n')
                 if subitems:
                     f.write('<UL> ')
