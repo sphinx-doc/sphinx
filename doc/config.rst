@@ -388,6 +388,7 @@ documentation on :ref:`intl` for details.
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
+   * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
