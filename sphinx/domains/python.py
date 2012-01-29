@@ -525,7 +525,8 @@ class PythonModuleIndex(Index):
                 # it's a submodule
                 if prev_modname == package:
                     # first submodule - make parent a group head
-                    entries[-1][1] = 1
+                    if entries:
+                        entries[-1][1] = 1
                 elif not prev_modname.startswith(package):
                     # submodule without parent in list, add dummy entry
                     entries.append([stripped + package, 1, '', '', '', '', ''])
