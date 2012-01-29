@@ -20,12 +20,15 @@ import optparse
 from os import path
 
 # automodule options
-OPTIONS = [
-    'members',
-    'undoc-members',
-    # 'inherited-members', # disabled because there's a bug in sphinx
-    'show-inheritance',
-]
+if 'SPHINX_APIDOC_OPTIONS' in os.environ:
+    OPTIONS = os.environ['SPHINX_APIDOC_OPTIONS'].split(',')
+else:
+    OPTIONS = [
+        'members',
+        'undoc-members',
+        # 'inherited-members', # disabled because there's a bug in sphinx
+        'show-inheritance',
+    ]
 
 INITPY = '__init__.py'
 
