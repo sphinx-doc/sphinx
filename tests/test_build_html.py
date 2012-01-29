@@ -258,7 +258,7 @@ if pygments:
             r'def'),
         (".//div[@class='inc-tab3 highlight-text']//pre",
             r'-| |-'),
-        (".//div[@class='inc-tab8 highlight-python']//pre",
+        (".//div[@class='inc-tab8 highlight-python']//pre/span",
             r'-|      |-'),
     ])
     HTML_XPATH['subdir/includes.html'].extend([

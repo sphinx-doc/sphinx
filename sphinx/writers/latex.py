@@ -1299,12 +1299,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         code = self.verbatim.rstrip('\n')
         lang = self.hlsettingstack[-1][0]
         linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
+        highlight_args = node.get('highlight_args', {})
         if 'language' in node:
             # code-block directives
             lang = node['language']
+            highlight_args['force'] = True
         if 'linenos' in node:
             linenos = node['linenos']
-        highlight_args = node.get('highlight_args', {})
         def warner(msg):
             self.builder.warn(msg, (self.curfilestack[-1], node.line))
         hlcode = self.highlighter.highlight_block(code, lang, warn=warner,

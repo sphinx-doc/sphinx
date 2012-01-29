@@ -11,6 +11,9 @@ Release 1.1.3 (in development)
 * PR#36: Make the "bibliography to TOC" fix in LaTeX output specific to
   the document class.
 
+* #695: When the highlight language "python" is specified explicitly,
+  do not try to parse the code to recognize non-Python snippets.
+
 
 Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
 ======================================================================

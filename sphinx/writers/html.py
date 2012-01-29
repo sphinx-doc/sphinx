@@ -233,12 +233,13 @@ class HTMLTranslator(BaseTranslator):
         lang = self.highlightlang
         linenos = node.rawsource.count('\n') >= \
                   self.highlightlinenothreshold - 1
+        highlight_args = node.get('highlight_args', {})
         if node.has_key('language'):
             # code-block directives
             lang = node['language']
+            highlight_args['force'] = True
         if node.has_key('linenos'):
             linenos = node['linenos']
-        highlight_args = node.get('highlight_args', {})
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
         highlighted = self.highlighter.highlight_block(
