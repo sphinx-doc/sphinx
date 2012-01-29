@@ -27,6 +27,8 @@ Release 1.1.3 (in development)
 * #851: Recognize and warn about circular toctrees, instead of running
   into recursion errors.
 
+* #853: Restore compatibility with docutils trunk.
+
 
 Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
 ======================================================================

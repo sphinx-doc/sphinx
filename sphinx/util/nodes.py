@@ -179,8 +179,12 @@ def set_source_info(directive, node):
         directive.state_machine.get_source_and_line(directive.lineno)
 
 def set_role_source_info(inliner, lineno, node):
+    try:
         node.source, node.line = \
             inliner.reporter.locator(lineno)
+    except AttributeError:
+        # docutils 0.9+
+        node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 # monkey-patch Node.__contains__ to get consistent "in" operator behavior
 # across docutils versions
