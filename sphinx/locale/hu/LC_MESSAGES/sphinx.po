@@ -1,0 +1,592 @@
+# Translations template for PROJECT.
+# Copyright (C) 2011 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx 1.0\n"
+"Report-Msgid-Bugs-To: szunyog@gmail.com\n"
+"POT-Creation-Date: 2011-09-25 20:04+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tibor Toth <szunyog@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: sphinx/environment.py:113 sphinx/writers/latex.py:190
+#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%Y. %m. %d."
+
+#: sphinx/environment.py:1619
+#, python-format
+msgid "see %s"
+msgstr "lásd %s"
+
+#: sphinx/environment.py:1622
+#, python-format
+msgid "see also %s"
+msgstr "lásd még %s"
+
+#: sphinx/roles.py:176
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr "Python Fejlesztési Javaslatok; PEP %s"
+
+#: sphinx/builders/changes.py:73
+msgid "Builtins"
+msgstr "Beépített"
+
+#: sphinx/builders/changes.py:75
+msgid "Module level"
+msgstr "Modul szint"
+
+#: sphinx/builders/html.py:276
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%b %d, %Y"
+
+#: sphinx/builders/html.py:295 sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr "Általános tárgymutató"
+
+#: sphinx/builders/html.py:295
+msgid "index"
+msgstr "nyitóoldal"
+
+#: sphinx/builders/html.py:355
+msgid "next"
+msgstr "következő"
+
+#: sphinx/builders/html.py:364
+msgid "previous"
+msgstr "előző"
+
+#: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:196
+msgid " (in "
+msgstr " ("
+
+#: sphinx/directives/other.py:138
+msgid "Section author: "
+msgstr "Fejezet szerző: "
+
+#: sphinx/directives/other.py:140
+msgid "Module author: "
+msgstr "Modul szerző: "
+
+#: sphinx/directives/other.py:142
+msgid "Code author: "
+msgstr "Kód szerző: "
+
+#: sphinx/directives/other.py:144
+msgid "Author: "
+msgstr "Szerző: "
+
+#: sphinx/directives/other.py:219
+msgid "See also"
+msgstr "Lásd még"
+
+#: sphinx/domains/__init__.py:244
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: sphinx/domains/c.py:141
+#, python-format
+msgid "%s (C function)"
+msgstr "%s (C függvény)"
+
+#: sphinx/domains/c.py:143
+#, python-format
+msgid "%s (C member)"
+msgstr "%s (C tagváltozó)"
+
+#: sphinx/domains/c.py:145
+#, python-format
+msgid "%s (C macro)"
+msgstr "%s (C makró)"
+
+#: sphinx/domains/c.py:147
+#, python-format
+msgid "%s (C type)"
+msgstr "%s (C típus)"
+
+#: sphinx/domains/c.py:149
+#, python-format
+msgid "%s (C variable)"
+msgstr "%s (C változó)"
+
+#: sphinx/domains/cpp.py:999
+#, python-format
+msgid "%s (C++ class)"
+msgstr "%s (C++ osztály)"
+
+#: sphinx/domains/cpp.py:1014
+#, python-format
+msgid "%s (C++ type)"
+msgstr "%s (C++ típus)"
+
+#: sphinx/domains/cpp.py:1034
+#, python-format
+msgid "%s (C++ member)"
+msgstr "%s (C++ tagváltozó)"
+
+#: sphinx/domains/cpp.py:1090
+#, python-format
+msgid "%s (C++ function)"
+msgstr "%s (C++ függvény)"
+
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:253
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (beépített függvény)"
+
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:317
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s metódus)"
+
+#: sphinx/domains/javascript.py:109
+#, python-format
+msgid "%s() (class)"
+msgstr "%s() (osztály)"
+
+#: sphinx/domains/javascript.py:111
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (globális változó vagy konstans)"
+
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:355
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s attribútum)"
+
+#: sphinx/domains/python.py:254 sphinx/domains/python.py:311
+#: sphinx/domains/python.py:323 sphinx/domains/python.py:336
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (%s modulban)"
+
+#: sphinx/domains/python.py:257
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (beépített változó)"
+
+#: sphinx/domains/python.py:258 sphinx/domains/python.py:349
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (%s modulban)"
+
+#: sphinx/domains/python.py:274
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (beépített osztály)"
+
+#: sphinx/domains/python.py:275
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (osztály %s)"
+
+#: sphinx/domains/python.py:315
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr "%s() (%s.%s metódus)"
+
+#: sphinx/domains/python.py:327
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr "%s() (%s.%s statikus metódus)"
+
+#: sphinx/domains/python.py:330
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s statikus metódus)"
+
+#: sphinx/domains/python.py:340
+#, python-format
+msgid "%s() (%s.%s class method)"
+msgstr "%s() (%s.%s osztály metódus)"
+
+#: sphinx/domains/python.py:343
+#, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s osztály metódus)"
+
+#: sphinx/domains/python.py:353
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr "%s (%s.%s attribútum)"
+
+#: sphinx/domains/python.py:433
+#, python-format
+msgid "%s (module)"
+msgstr "%s (modul)"
+
+#: sphinx/domains/python.py:536
+msgid "Deprecated"
+msgstr "Elavult"
+
+#: sphinx/domains/python.py:693
+msgid " (deprecated)"
+msgstr " (elavult)"
+
+#: sphinx/domains/rst.py:53
+#, python-format
+msgid "%s (directive)"
+msgstr "%s (direktíva)"
+
+#: sphinx/domains/rst.py:55
+#, python-format
+msgid "%s (role)"
+msgstr "%s (szerepkör)"
+
+#: sphinx/domains/std.py:86
+#, python-format
+msgid "environment variable; %s"
+msgstr "környezeti változó; %s"
+
+#: sphinx/domains/std.py:162
+#, python-format
+msgid "%scommand line option; %s"
+msgstr "%sparancssor opció; %s"
+
+#: sphinx/ext/autodoc.py:1002
+#, python-format
+msgid "   Bases: %s"
+msgstr "   Alapul: %s"
+
+#: sphinx/ext/autodoc.py:1038
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr "álneve :class:`%s`"
+
+#: sphinx/ext/graphviz.py:300 sphinx/ext/graphviz.py:306
+#, python-format
+msgid "[graph: %s]"
+msgstr "[graph: %s]"
+
+#: sphinx/ext/graphviz.py:301 sphinx/ext/graphviz.py:307
+msgid "[graph]"
+msgstr "[graph]"
+
+#: sphinx/ext/intersphinx.py:218
+#, python-format
+msgid "(in %s v%s)"
+msgstr "(%s v%s)"
+
+#: sphinx/ext/todo.py:42
+msgid "Todo"
+msgstr "Tennivaló"
+
+#: sphinx/ext/todo.py:110
+#, python-format
+msgid "(The <<original entry>> is located in  %s, line %d.)"
+msgstr "(Az <<eredeti bejegyzés>> megtalálható a(z) %s, %d sor.)"
+
+#: sphinx/ext/todo.py:119
+msgid "original entry"
+msgstr "eredeti bejegyzés"
+
+#: sphinx/ext/viewcode.py:70
+msgid "[source]"
+msgstr "[source]"
+
+#: sphinx/ext/viewcode.py:117
+msgid "[docs]"
+msgstr "[docs]"
+
+#: sphinx/ext/viewcode.py:131
+msgid "Module code"
+msgstr "Modul forráskód"
+
+#: sphinx/ext/viewcode.py:137
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>%s forráskódja</h1>"
+
+#: sphinx/ext/viewcode.py:164
+msgid "Overview: module code"
+msgstr "Áttekintés: modul forráskód"
+
+#: sphinx/ext/viewcode.py:165
+msgid "<h1>All modules for which code is available</h1>"
+msgstr "<h1>Az összes modul, melynek forrása elérhető</h1>"
+
+#: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11
+msgid "Table Of Contents"
+msgstr "Tartalomjegyzék"
+
+#: sphinx/themes/agogo/layout.html:50 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:20
+msgid "Search"
+msgstr "Keresés"
+
+#: sphinx/themes/agogo/layout.html:53 sphinx/themes/basic/searchbox.html:15
+msgid "Go"
+msgstr "Ok"
+
+#: sphinx/themes/agogo/layout.html:58 sphinx/themes/basic/searchbox.html:20
+msgid "Enter search terms or a module, class or function name."
+msgstr "Adjon meg egy keresendő kifejezést, modul, osztály vagy funkció nevet."
+
+#: sphinx/themes/agogo/layout.html:79 sphinx/themes/basic/sourcelink.html:14
+msgid "Show Source"
+msgstr "Forrás megtekintése"
+
+#: sphinx/themes/basic/defindex.html:11
+msgid "Overview"
+msgstr "Áttekintés"
+
+#: sphinx/themes/basic/defindex.html:20
+msgid "Indices and tables:"
+msgstr "Tárgymutató és táblázatok"
+
+#: sphinx/themes/basic/defindex.html:23
+msgid "Complete Table of Contents"
+msgstr "Teljes tartalomjegyzék"
+
+#: sphinx/themes/basic/defindex.html:24
+msgid "lists all sections and subsections"
+msgstr "kilistázza az összes fejezetet és alfejezetet"
+
+#: sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr "Keresés"
+
+#: sphinx/themes/basic/defindex.html:26
+msgid "search this documentation"
+msgstr "keresés ebben a dokumentációban"
+
+#: sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr "Teljes modul tárgymutató"
+
+#: sphinx/themes/basic/defindex.html:29
+msgid "quick access to all modules"
+msgstr "gyors hozzáférés az összes modulhoz"
+
+#: sphinx/themes/basic/defindex.html:31
+msgid "all functions, classes, terms"
+msgstr "összes funkció, osztály és kifejezés"
+
+#: sphinx/themes/basic/genindex-single.html:32
+#: sphinx/themes/basic/genindex-split.html:11
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
+#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
+#: sphinx/writers/latex.py:179 sphinx/writers/texinfo.py:456
+msgid "Index"
+msgstr "Tárgymutató"
+
+#: sphinx/themes/basic/genindex-single.html:35
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "Tárgymutató &ndash; %(key)s"
+
+#: sphinx/themes/basic/genindex-single.html:63
+#: sphinx/themes/basic/genindex-split.html:24
+#: sphinx/themes/basic/genindex-split.html:38
+#: sphinx/themes/basic/genindex.html:74
+msgid "Full index on one page"
+msgstr "Teljes tárgymutató egy oldalon"
+
+#: sphinx/themes/basic/genindex-split.html:16
+msgid "Index pages by letter"
+msgstr "Oldalak ABC sorrendben"
+
+#: sphinx/themes/basic/genindex-split.html:25
+msgid "can be huge"
+msgstr "nagy lehet"
+
+#: sphinx/themes/basic/layout.html:29
+msgid "Navigation"
+msgstr "Navigáció"
+
+#: sphinx/themes/basic/layout.html:122
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Keresés köztük: %(docstitle)s"
+
+#: sphinx/themes/basic/layout.html:131
+msgid "About these documents"
+msgstr "Névjegy ezekről a dokumentumokról"
+
+#: sphinx/themes/basic/layout.html:140
+msgid "Copyright"
+msgstr "Minden jog fenntartva"
+
+#: sphinx/themes/basic/layout.html:189
+#, python-format
+msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Minden jog fenntartva</a> %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:191
+#, python-format
+msgid "&copy; Copyright %(copyright)s."
+msgstr "&copy; Minden jog fenntartva %(copyright)s."
+
+#: sphinx/themes/basic/layout.html:195
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Utolsó frissítés %(last_updated)s."
+
+#: sphinx/themes/basic/layout.html:198
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+"<a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"%(sphinx_version)s használatával készült."
+
+#: sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Keresés %(docstitle)s"
+
+#: sphinx/themes/basic/relations.html:11
+msgid "Previous topic"
+msgstr "Előző témakör"
+
+#: sphinx/themes/basic/relations.html:13
+msgid "previous chapter"
+msgstr "előző fejezet"
+
+#: sphinx/themes/basic/relations.html:16
+msgid "Next topic"
+msgstr "Következő témakör"
+
+#: sphinx/themes/basic/relations.html:18
+msgid "next chapter"
+msgstr "következő fejezet"
+
+#: sphinx/themes/basic/search.html:24
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+"Kérem engedélyezze a JavaScriptet a kereső funkció\n"
+"    használatához."
+
+#: sphinx/themes/basic/search.html:29
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr ""
+"Erről az oldalról indíthatja kereséseit. Írja be a kulcsszavakat\n"
+"    az alábbi szövegdobozba, majd kattintson a \"keresés\" gombra.\n"
+"    Ügyeljen arra, hogy a keresés megadott kulcsszavak mindegyikét\n"
+"    figyelembe veszi, így azok az oldalak, melyek nem tartalmazzák az\n"
+"    összes kifejezést, nem jelennek meg a találati listában."
+
+#: sphinx/themes/basic/search.html:36
+msgid "search"
+msgstr "keresés"
+
+#: sphinx/themes/basic/search.html:40
+msgid "Search Results"
+msgstr "Keresési Eredmények"
+
+#: sphinx/themes/basic/search.html:42
+msgid "Your search did not match any results."
+msgstr "Nincs találat."
+
+#: sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "Gyorskeresés"
+
+#: sphinx/themes/basic/sourcelink.html:11
+msgid "This Page"
+msgstr "Ez az Oldal"
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
+msgstr "Változások a(z) %(version)s változatban &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &mdash; %(docstitle)s"
+msgstr "%(filename)s &mdash; %(docstitle)s"
+
+#: sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Automatikusan generált változáslista a(z) %(version)s változathoz"
+
+#: sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Könyvtár változások"
+
+#: sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "C API változások"
+
+#: sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Egyéb változások"
+
+#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:504
+#: sphinx/writers/html.py:510
+msgid "Permalink to this headline"
+msgstr "Hivatkozás erre a fejezetcímre"
+
+#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
+msgid "Permalink to this definition"
+msgstr "Hivatkozás erre a definícióra"
+
+#: sphinx/themes/basic/static/doctools.js:189
+msgid "Hide Search Matches"
+msgstr "Keresési Találatok Elrejtése"
+
+#: sphinx/themes/default/static/sidebar.js:69
+msgid "Expand sidebar"
+msgstr "Oldalsáv kinyitása"
+
+#: sphinx/themes/default/static/sidebar.js:82
+#: sphinx/themes/default/static/sidebar.js:110
+msgid "Collapse sidebar"
+msgstr "Oldalsáv összezárása"
+
+#: sphinx/themes/haiku/layout.html:26
+msgid "Contents"
+msgstr "Tartalom"
+
+#: sphinx/writers/latex.py:177
+msgid "Release"
+msgstr "Kiadás"
+
+#: sphinx/writers/latex.py:599 sphinx/writers/manpage.py:182
+#: sphinx/writers/texinfo.py:589
+msgid "Footnotes"
+msgstr "Lábjegyzetek"
+
+#: sphinx/writers/latex.py:683
+msgid "continued from previous page"
+msgstr "folytatás az előző oldalról"
+
+#: sphinx/writers/latex.py:689
+msgid "Continued on next page"
+msgstr "A következő oldalon folytatódik"
+
+#: sphinx/writers/manpage.py:233 sphinx/writers/text.py:438
+#, python-format
+msgid "[image: %s]"
+msgstr "[image: %s]"
+
+#: sphinx/writers/manpage.py:234 sphinx/writers/text.py:439
+msgid "[image]"
+msgstr "[image]"
+
+#: tests/test_build_gettext.py:81
+msgid "Testing various markup"
+msgstr "Különféte leíró tesztelése"
+
