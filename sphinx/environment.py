@@ -1313,12 +1313,14 @@ class BuildEnvironment:
                             subnode['iscurrent'] = True
                             subnode = subnode.parent
 
-        def _entries_from_toctree(toctreenode, separate=False, subtree=False):
+        def _entries_from_toctree(toctreenode, parents,
+                                  separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             refs = [(e[0], str(e[1])) for e in toctreenode['entries']]
             entries = []
             for (title, ref) in refs:
                 try:
+                    refdoc = None
                     if url_re.match(ref):
                         reference = nodes.reference('', '', internal=False,
                                                     refuri=ref, anchorname='',
@@ -1341,6 +1343,12 @@ class BuildEnvironment:
                         # don't show subitems
                         toc = nodes.bullet_list('', item)
                     else:
+                        if ref in parents:
+                            self.warn(ref, 'circular toctree references '
+                                      'detected, ignoring: %s <- %s' %
+                                      (ref, ' <- '.join(parents)))
+                            continue
+                        refdoc = ref
                         toc = self.tocs[ref].deepcopy()
                         self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
@@ -1376,8 +1384,9 @@ class BuildEnvironment:
                         if not (toctreenode.get('hidden', False)
                                 and not includehidden):
                             i = toctreenode.parent.index(toctreenode) + 1
-                            for item in _entries_from_toctree(toctreenode,
-                                                              subtree=True):
+                            for item in _entries_from_toctree(
+                                    toctreenode, [refdoc] + parents,
+                                    subtree=True):
                                 toctreenode.parent.insert(i, item)
                                 i += 1
                             toctreenode.parent.remove(toctreenode)
@@ -1398,7 +1407,7 @@ class BuildEnvironment:
         # NOTE: previously, this was separate=True, but that leads to artificial
         # separation when two or more toctree entries form a logical unit, so
         # separating mode is no longer used -- it's kept here for history's sake
-        tocentries = _entries_from_toctree(toctree, separate=False)
+        tocentries = _entries_from_toctree(toctree, [], separate=False)
         if not tocentries:
             return None
 
@@ -1686,7 +1695,11 @@ class BuildEnvironment:
     def collect_relations(self):
         relations = {}
         getinc = self.toctree_includes.get
-        def collect(parents, docname, previous, next):
+        def collect(parents, parents_set, docname, previous, next):
+            # circular relationship?
+            if docname in parents_set:
+                # we will warn about this in resolve_toctree()
+                return
             includes = getinc(docname)
             # previous
             if not previous:
@@ -1723,9 +1736,10 @@ class BuildEnvironment:
                 for subindex, args in enumerate(izip(includes,
                                                      [None] + includes,
                                                      includes[1:] + [None])):
-                    collect([(docname, subindex)] + parents, *args)
+                    collect([(docname, subindex)] + parents,
+                            parents_set.union([docname]), *args)
             relations[docname] = [parents[0][0], previous, next]
-        collect([(None, 0)], self.config.master_doc, None, None)
+        collect([(None, 0)], set(), self.config.master_doc, None, None)
         return relations
 
     def check_consistency(self):
