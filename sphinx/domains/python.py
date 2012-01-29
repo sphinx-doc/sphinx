@@ -625,22 +625,23 @@ class PythonDomain(Domain):
         newname = None
         if searchmode == 1:
             objtypes = self.objtypes_for_role(type)
-            if modname and classname:
-                fullname = modname + '.' + classname + '.' + name
-                if fullname in objects and objects[fullname][1] in objtypes:
-                    newname = fullname
-            if not newname:
-                if modname and modname + '.' + name in objects and \
-                   objects[modname + '.' + name][1] in objtypes:
-                    newname = modname + '.' + name
-                elif name in objects and objects[name][1] in objtypes:
-                    newname = name
-                else:
-                    # "fuzzy" searching mode
-                    searchname = '.' + name
-                    matches = [(oname, objects[oname]) for oname in objects
-                               if oname.endswith(searchname)
-                               and objects[oname][1] in objtypes]
+            if objtypes is not None:
+                if modname and classname:
+                    fullname = modname + '.' + classname + '.' + name
+                    if fullname in objects and objects[fullname][1] in objtypes:
+                        newname = fullname
+                if not newname:
+                    if modname and modname + '.' + name in objects and \
+                       objects[modname + '.' + name][1] in objtypes:
+                        newname = modname + '.' + name
+                    elif name in objects and objects[name][1] in objtypes:
+                        newname = name
+                    else:
+                        # "fuzzy" searching mode
+                        searchname = '.' + name
+                        matches = [(oname, objects[oname]) for oname in objects
+                                   if oname.endswith(searchname)
+                                   and objects[oname][1] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
             if name in objects:
