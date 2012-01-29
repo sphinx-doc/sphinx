@@ -23,9 +23,11 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.builders import Builder
+from sphinx.util import force_decode
 from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 from sphinx.util.console import bold
+from sphinx.util.pycompat import bytes
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
@@ -231,6 +233,8 @@ Results of doctest builder run on %s
         self.info(text, nonl=True)
         if self.app.quiet:
             self.warn(text)
+        if isinstance(text, bytes):
+            text = force_decode(text, None)
         self.outfile.write(text)
 
     def get_target_uri(self, docname, typ=None):
