@@ -77,7 +77,10 @@ class Node(Base):
         comments = []
         list_stack = [comments]
         for r in results:
-            comment, vote = r if username else (r, 0)
+            if username:
+                comment, vote = r
+            else:
+                comment, vote = (r, 0)
 
             inheritance_chain = comment.path.split('.')[1:]
 
@@ -176,7 +179,10 @@ class Comment(Base):
 
         path = self.path.split('.')
         node = path[0]
-        parent = path[-2] if len(path) > 2 else None
+        if len(path) > 2:
+            parent = path[-2]
+        else:
+            parent = None
 
         return {'text': self.text,
                 'username': self.username or 'Anonymous',
@@ -201,8 +207,16 @@ class Comment(Base):
         minutes = seconds / 60
 
         if days == 0:
-            dt = (minutes, 'minute') if hours == 0 else (hours, 'hour')
+            if hours == 0:
+                dt = (minutes, 'minute')
+            else:
+                dt = (hours, 'hour')
         else:
             dt = (days, 'day')
 
-        return '%s %s ago' % dt if dt[0] == 1 else '%s %ss ago' % dt
+        if dt[0] == 1:
+            ret = '%s %s ago' % dt
+        else:
+            ret = '%s %ss ago' % dt
+
+        return ret
