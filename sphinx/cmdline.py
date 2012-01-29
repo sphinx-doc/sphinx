@@ -22,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
-from sphinx.util.pycompat import terminal_safe
+from sphinx.util.pycompat import terminal_safe, bytes
 
 
 def usage(argv, msg=None):
@@ -137,7 +137,7 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                if likely_encoding:
+                if likely_encoding and isinstance(val, bytes):
                     try:
                         val = val.decode(likely_encoding)
                     except UnicodeError:
@@ -153,7 +153,7 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                if likely_encoding:
+                if likely_encoding and isinstance(val, bytes):
                     try:
                         val = val.decode(likely_encoding)
                     except UnicodeError:
