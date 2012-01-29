@@ -375,8 +375,13 @@ Doctest summary
         for code in group.tests:
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
-                test = parser.get_doctest(code[0].code, {}, group.name,
-                                          filename, code[0].lineno)
+                try:
+                    test = parser.get_doctest(code[0].code, {}, group.name,
+                                              filename, code[0].lineno)
+                except Exception:
+                    self.warn('ignoring invalid doctest code: %r' % code[0].code,
+                              '%s:%s' % (filename, code[0].lineno))
+                    continue
                 if not test.examples:
                     continue
                 for example in test.examples:
