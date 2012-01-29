@@ -402,9 +402,14 @@
 }
 
 
-% Fix the index and bibliography environments to add an entry to the Table of
+% Fix the index environment to add an entry to the Table of
 % Contents; this is much nicer than just having to jump to the end of the book
 % and flip around, especially with multiple indexes.
+%
+% A similiar fix must be done to the bibliography environment, although
+% dependant on document class. In particular, the '\addcontentsline' command
+% should use 'chapter' for a report and 'section' for an article.
+% See sphinxmanual.cls and sphinxhowto.cls for specific fixes.
 %
 \let\py@OldTheindex=\theindex
 \renewcommand{\theindex}{
@@ -412,14 +417,6 @@
   \phantomsection
   \py@OldTheindex
   \addcontentsline{toc}{chapter}{\indexname}
-}
-
-\let\py@OldThebibliography=\thebibliography
-\renewcommand{\thebibliography}[1]{
-  \cleardoublepage
-  \phantomsection
-  \py@OldThebibliography{1}
-  \addcontentsline{toc}{chapter}{\bibname}
 }
 
 % Include hyperref last.

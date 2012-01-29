@@ -120,3 +120,14 @@
 %
 \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.6em}}
 \renewcommand*\l@subsection{\@dottedtocline{2}{4.1em}{3.5em}}
+
+% Fix the bibliography environment to add an entry to the Table of
+% Contents.
+% For a report document class this environment is a chapter.
+\let\py@OldThebibliography=\thebibliography
+\renewcommand{\thebibliography}[1]{
+  \cleardoublepage
+  \phantomsection
+  \py@OldThebibliography{1}
+  \addcontentsline{toc}{chapter}{\bibname}
+}
