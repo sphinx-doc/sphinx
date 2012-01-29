@@ -33,6 +33,8 @@ Release 1.1.3 (in development)
 
 * #854: Fix inheritance_diagram raising attribute errors on builtins.
 
+* #832: Fix crashes when putting comments or lone terms in a glossary.
+
 
 Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
 ======================================================================
