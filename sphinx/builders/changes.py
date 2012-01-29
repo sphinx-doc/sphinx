@@ -11,7 +11,6 @@
 
 import codecs
 from os import path
-from cgi import escape
 
 from sphinx import package_dir
 from sphinx.util import copy_static_entry
@@ -20,6 +19,7 @@ from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.console import bold
+from sphinx.util.pycompat import htmlescape
 
 
 class ChangesBuilder(Builder):
@@ -115,7 +115,7 @@ class ChangesBuilder(Builder):
                   '.. deprecated:: %s' % version]
 
         def hl(no, line):
-            line = '<a name="L%s"> </a>' % no + escape(line)
+            line = '<a name="L%s"> </a>' % no + htmlescape(line)
             for x in hltext:
                 if x in line:
                     line = '<span class="hl">%s</span>' % line
@@ -125,7 +125,10 @@ class ChangesBuilder(Builder):
         self.info(bold('copying source files...'))
         for docname in self.env.all_docs:
             f = codecs.open(self.env.doc2path(docname), 'r', 'latin1')
-            lines = f.readlines()
+            try:
+                lines = f.readlines()
+            finally:
+                f.close()
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
             f = codecs.open(targetfn, 'w', 'latin1')
@@ -148,7 +151,7 @@ class ChangesBuilder(Builder):
                           self.outdir, self)
 
     def hl(self, text, version):
-        text = escape(text)
+        text = htmlescape(text)
         for directive in ['versionchanged', 'versionadded', 'deprecated']:
             text = text.replace('.. %s:: %s' % (directive, version),
                                 '<b>.. %s:: %s</b>' % (directive, version))

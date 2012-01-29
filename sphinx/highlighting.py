@@ -10,7 +10,6 @@
 """
 
 import sys
-import cgi
 import re
 import textwrap
 
@@ -20,6 +19,7 @@ except ImportError:
     # parser is not available on Jython
     parser = None
 
+from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 from sphinx.ext import doctest
 
@@ -105,7 +105,7 @@ class PygmentsBridge(object):
 
     def unhighlighted(self, source):
         if self.dest == 'html':
-            return '<pre>' + cgi.escape(source) + '</pre>\n'
+            return '<pre>' + htmlescape(source) + '</pre>\n'
         else:
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)

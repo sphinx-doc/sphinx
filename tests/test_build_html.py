@@ -328,7 +328,11 @@ def test_html(app):
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
-        etree = ET.parse(os.path.join(app.outdir, fname), parser)
+        fp = open(os.path.join(app.outdir, fname))
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
         for path, check in paths:
             yield check_xpath, etree, fname, path, check
 

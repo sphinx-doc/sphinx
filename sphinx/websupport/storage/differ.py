@@ -10,8 +10,9 @@
 """
 
 import re
-from cgi import escape
 from difflib import Differ
+
+from sphinx.util.pycompat import htmlescape
 
 
 class CombinedHtmlDiff(object):
@@ -21,7 +22,7 @@ class CombinedHtmlDiff(object):
     highlight_regex = re.compile(r'([\+\-\^]+)')
 
     def __init__(self, source, proposal):
-        proposal = escape(proposal)
+        proposal = htmlescape(proposal)
 
         differ = Differ()
         self.diff = list(differ.compare(source.splitlines(1),

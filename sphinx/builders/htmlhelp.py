@@ -11,7 +11,6 @@
 """
 
 import os
-import cgi
 import codecs
 from os import path
 
@@ -19,6 +18,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util.pycompat import htmlescape
 
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
@@ -241,7 +241,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = cgi.escape(node.astext()).replace('"','&quot;')
+                    title = htmlescape(node.astext()).replace('"','&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -272,7 +272,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
-                title = cgi.escape(title)
+                title = htmlescape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:

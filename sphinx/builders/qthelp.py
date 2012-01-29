@@ -14,12 +14,12 @@ import re
 import codecs
 import posixpath
 from os import path
-from cgi import escape
 
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util.pycompat import htmlescape
 
 
 _idpattern = re.compile(
@@ -164,7 +164,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                        fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
                     projectfiles.append(file_template %
-                                        {'filename': escape(filename)})
+                                        {'filename': htmlescape(filename)})
         projectfiles = '\n'.join(projectfiles)
 
         # it seems that the "namespace" may not contain non-alphanumeric
@@ -179,12 +179,12 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
         try:
             f.write(project_template % {
-                'outname': escape(outname),
-                'title': escape(self.config.html_title),
-                'version': escape(self.config.version),
-                'project': escape(self.config.project),
-                'namespace': escape(nspace),
-                'masterdoc': escape(self.config.master_doc),
+                'outname': htmlescape(outname),
+                'title': htmlescape(self.config.html_title),
+                'version': htmlescape(self.config.version),
+                'project': htmlescape(self.config.project),
+                'namespace': htmlescape(nspace),
+                'masterdoc': htmlescape(self.config.master_doc),
                 'sections': sections,
                 'keywords': keywords,
                 'files': projectfiles})
@@ -199,10 +199,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
         try:
             f.write(collection_template % {
-                'outname': escape(outname),
-                'title': escape(self.config.html_short_title),
-                'homepage': escape(homepage),
-                'startpage': escape(startpage)})
+                'outname': htmlescape(outname),
+                'title': htmlescape(self.config.html_short_title),
+                'homepage': htmlescape(homepage),
+                'startpage': htmlescape(startpage)})
         finally:
             f.close()
 
@@ -224,7 +224,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         if self.isdocnode(node):
             refnode = node.children[0][0]
             link = refnode['refuri']
-            title = escape(refnode.astext()).replace('"','&quot;')
+            title = htmlescape(refnode.astext()).replace('"','&quot;')
             item = '<section title="%(title)s" ref="%(ref)s">' % {
                                                                 'title': title,
                                                                 'ref': link}
@@ -237,7 +237,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 parts.extend(self.write_toc(subnode, indentlevel))
         elif isinstance(node, nodes.reference):
             link = node['refuri']
-            title = escape(node.astext()).replace('"','&quot;')
+            title = htmlescape(node.astext()).replace('"','&quot;')
             item = section_template % {'title': title, 'ref': link}
             item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
@@ -274,7 +274,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     def build_keywords(self, title, refs, subitems):
         keywords = []
 
-        title = escape(title)
+        title = htmlescape(title)
 #        if len(refs) == 0: # XXX
 #            write_param('See Also', title)
         if len(refs) == 1:
