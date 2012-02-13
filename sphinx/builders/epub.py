@@ -215,11 +215,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return result
 
     def get_toc(self):
-        """Get the total table of contents, containg the master_doc
+        """Get the total table of contents, containing the master_doc
         and pre and post files not managed by sphinx.
         """
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
-            self, prune_toctrees=False)
+            self, prune_toctrees=False, includehidden=True)
         self.refnodes = self.get_refnodes(doctree, [])
         master_dir = os.path.dirname(self.config.master_doc)
         if master_dir:
@@ -589,7 +589,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Write the metainfo file toc.ncx."""
         self.info('writing %s file...' % outname)
 
-        navpoints = self.build_navpoints(self.refnodes)
+        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+            self, prune_toctrees=False, includehidden=False)
+        refnodes = self.get_refnodes(doctree, [])
+        navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
