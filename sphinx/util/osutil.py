@@ -21,6 +21,7 @@ from os import path
 EEXIST = getattr(errno, 'EEXIST', 0)
 ENOENT = getattr(errno, 'ENOENT', 0)
 EPIPE  = getattr(errno, 'EPIPE', 0)
+EINVAL = getattr(errno, 'EINVAL', 0)
 
 # SEP separates path elements in the canonical file names
 #
@@ -132,3 +133,18 @@ if sys.version_info < (3, 0):
                 .decode('utf-8')
 else:
     ustrftime = time.strftime
+
+
+def safe_relpath(path, start=None):
+    try:
+        return os.path.relpath(path, start)
+    except ValueError:
+        return path
+
+def find_catalog(docname, compaction):
+    if compaction:
+        ret = docname.split(SEP, 1)[0]
+    else:
+        ret = docname
+
+    return ret

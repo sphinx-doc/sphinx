@@ -24,8 +24,7 @@ This section is intended to collect helpful hints for those wanting to migrate
 to reStructuredText/Sphinx from other documentation systems.
 
 * Gerard Flanagan has written a script to convert pure HTML to reST; it can be
-  found at `BitBucket
-  <https://bitbucket.org/djerdo/musette/src/tip/musette/html/html2rest.py>`_.
+  found at the `Python Package Index <http://pypi.python.org/pypi/html2rest>`_.
 
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
@@ -34,6 +33,12 @@ to reStructuredText/Sphinx from other documentation systems.
 
 * Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
   markup; it is at `Google Code <http://code.google.com/p/db2rst/>`_.
+
+* Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
+  to Sphinx: `odt2sphinx <http://pypi.python.org/pypi/odt2sphinx/>`_.
+
+* To convert different markups, `Pandoc <http://johnmacfarlane.net/pandoc/>`_ is
+  a very helpful tool.
 
 
 Use with other systems
@@ -46,7 +51,7 @@ Prerequisites
 -------------
 
 Sphinx needs at least **Python 2.4** or **Python 3.1** to run, as well as the
-docutils_ and Jinja2_ libraries.  Sphinx should work with docutils version 0.5
+docutils_ and Jinja2_ libraries.  Sphinx should work with docutils version 0.7
 or some (not broken) SVN trunk snapshot.  If you like to have source code
 highlighting support, you must also install the Pygments_ library.
 

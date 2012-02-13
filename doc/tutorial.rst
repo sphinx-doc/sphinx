@@ -26,6 +26,9 @@ configuration values from a few questions it asks you.  Just run ::
 
 and answer its questions.  (Be sure to say yes to the "autodoc" extension.)
 
+There is also an automatic "API documentation" generator called
+:program:`sphinx-apidoc`; see :ref:`invocation-apidoc` for details.
+
 
 Defining document structure
 ---------------------------
@@ -124,6 +127,12 @@ to run ::
 
 to build HTML docs in the build directory you chose.  Execute ``make`` without
 an argument to see which targets are available.
+
+.. admonition:: How do I generate PDF documents?
+
+   ``make latexpdf`` runs the :mod:`LaTeX builder
+   <sphinx.builders.latex.LaTeXBuilder>` and readily invokes the pdfTeX
+   toolchain for you.
 
 
 Documenting objects

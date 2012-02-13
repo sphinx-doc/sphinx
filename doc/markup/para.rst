@@ -145,7 +145,7 @@ The :rst:dir:`toctree` directive, which generates tables of contents of
 subdocuments, is described in :ref:`toctree-directive`.
 
 For local tables of contents, use the standard reST :dudir:`contents directive
-<contents>`.
+<table-of-contents>`.
 
 
 Glossary

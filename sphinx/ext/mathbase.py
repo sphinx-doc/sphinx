@@ -12,6 +12,7 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
+from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 
 
@@ -56,6 +57,7 @@ class MathDirective(Directive):
     final_argument_whitespace = True
     option_spec = {
         'label': directives.unchanged,
+        'name': directives.unchanged,
         'nowrap': directives.flag,
     }
 
@@ -65,11 +67,13 @@ class MathDirective(Directive):
             latex = self.arguments[0] + '\n\n' + latex
         node = displaymath()
         node['latex'] = latex
-        node['label'] = self.options.get('label', None)
+        node['label'] = self.options.get('name', None)
+        if node['label'] is None:
+            node['label'] = self.options.get('label', None)
         node['nowrap'] = 'nowrap' in self.options
         node['docname'] = self.state.document.settings.env.docname
         ret = [node]
-        node.line = self.lineno
+        set_source_info(self, node)
         if hasattr(self, 'src'):
             node.source = self.src
         if node['label']:

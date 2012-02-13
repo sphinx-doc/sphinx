@@ -14,11 +14,9 @@ from codecs import open
 from datetime import datetime
 from collections import defaultdict
 
-from docutils import nodes
-
 from sphinx.builders import Builder
 from sphinx.util.nodes import extract_messages
-from sphinx.util.osutil import SEP, copyfile
+from sphinx.util.osutil import SEP, safe_relpath, ensuredir, find_catalog
 from sphinx.util.console import darkgreen
 
 POHEADER = ur"""
@@ -30,7 +28,7 @@ POHEADER = ur"""
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: %(version)s\n"
+"Project-Id-Version: %(project)s %(version)s\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: %(ctime)s\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -43,6 +41,20 @@ msgstr ""
 """[1:]
 
 
+class Catalog(object):
+    """Catalog of translatable messages."""
+
+    def __init__(self):
+        self.messages = []  # retain insertion order, a la OrderedDict
+        self.metadata = {}  # msgid -> file, line, uid
+
+    def add(self, msg, origin):
+        if msg not in self.metadata:  # faster lookup in hash
+            self.messages.append(msg)
+            self.metadata[msg] = []
+        self.metadata[msg].append((origin.source, origin.line, origin.uid))
+
+
 class I18nBuilder(Builder):
     """
     General i18n builder.
@@ -52,7 +64,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         Builder.init(self)
-        self.catalogs = defaultdict(dict)
+        self.catalogs = defaultdict(Catalog)
 
     def get_target_uri(self, docname, typ=None):
         return ''
@@ -64,15 +76,11 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        catalog = self.catalogs[docname.split(SEP, 1)[0]]
+        catalog = self.catalogs[find_catalog(docname,
+                                             self.config.gettext_compact)]
 
         for node, msg in extract_messages(doctree):
-            if not msg in catalog:
-                catalog[msg] = []
-            if node.source and node.line:
-                position = {"source": node.source,
-                            "line": node.line}
-                catalog[msg].append(position)
+            catalog.add(msg, node)
 
 
 class MessageCatalogBuilder(I18nBuilder):
@@ -90,22 +98,34 @@ class MessageCatalogBuilder(I18nBuilder):
             # XXX should supply tz
             ctime = datetime.now().strftime('%Y-%m-%d %H:%M%z'),
         )
-        for section, messages in self.status_iterator(
+        for textdomain, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
-                lambda (section, _):darkgreen(section), len(self.catalogs)):
+                lambda (textdomain, _): darkgreen(textdomain),
+                                        len(self.catalogs)):
 
-            pofn = path.join(self.outdir, section + '.pot')
+            # noop if config.gettext_compact is set
+            ensuredir(path.join(self.outdir, path.dirname(textdomain)))
+
+            pofn = path.join(self.outdir, textdomain + '.pot')
             pofile = open(pofn, 'w', encoding='utf-8')
             try:
                 pofile.write(POHEADER % data)
-                for message, positions in messages.iteritems():
+
+                for message in catalog.messages:
+                    positions = catalog.metadata[message]
+
+                    # generate "#: file1:line1\n#: file2:line2 ..."
+                    pofile.write(u"#: %s\n" % "\n#: ".join("%s:%s" %
+                        (safe_relpath(source, self.outdir), line)
+                        for source, line, _ in positions))
+                    # generate "# uuid1\n# uuid2\n ..."
+                    pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid
+                        in positions))
+
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
                                       replace(u'"', ur'\"')
-                    for position in positions:
-                        source = path.relpath(position["source"], self.outdir)
-                        line = position["line"]
-                        pofile.write(u'#: %s:%d\n' % (source, line))
                     pofile.write(u'msgid "%s"\nmsgstr ""\n\n' % message)
+
             finally:
                 pofile.close()

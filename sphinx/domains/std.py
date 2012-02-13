@@ -259,13 +259,23 @@ class Glossary(Directive):
                         messages.append(self.state.reporter.system_message(
                             2, 'glossary terms must not be separated by empty '
                             'lines', source=source, line=lineno))
-                    entries[-1][0].append((line, source, lineno))
+                    if entries:
+                        entries[-1][0].append((line, source, lineno))
+                    else:
+                        messages.append(self.state.reporter.system_message(
+                            2, 'glossary seems to be misformatted, check '
+                        'indentation', source=source, line=lineno))
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
                     in_definition = True
                     indent_len = len(line) - len(line.lstrip())
-                entries[-1][1].append(line[indent_len:], source, lineno)
+                if entries:
+                    entries[-1][1].append(line[indent_len:], source, lineno)
+                else:
+                    messages.append(self.state.reporter.system_message(
+                        2, 'glossary seems to be misformatted, check '
+                    'indentation', source=source, line=lineno))
             was_empty = False
 
         # now, parse all the entries into a big definition list
@@ -321,7 +331,7 @@ class Glossary(Directive):
         return messages + [node]
 
 
-token_re = re.compile('`([a-z_][a-z0-9_]*)`')
+token_re = re.compile('`(\w+)`', re.U)
 
 def token_xrefs(text):
     retnodes = []
@@ -392,7 +402,8 @@ class StandardDomain(Domain):
     object_types = {
         'term': ObjType(l_('glossary term'), 'term', searchprio=-1),
         'token': ObjType(l_('grammar token'), 'token', searchprio=-1),
-        'label': ObjType(l_('reference label'), 'ref', searchprio=-1),
+        'label': ObjType(l_('reference label'), 'ref', 'keyword',
+                         searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
     }
@@ -471,9 +482,8 @@ class StandardDomain(Domain):
                 # link and object descriptions
                 continue
             if name in labels:
-                env.warn(docname, 'duplicate label %s, ' % name +
-                         'other instance in ' + env.doc2path(labels[name][0]),
-                         node.line)
+                env.warn_node('duplicate label %s, ' % name + 'other instance '
+                              'in ' + env.doc2path(labels[name][0]), node)
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 sectname = clean_astext(node[0]) # node[0] == title node

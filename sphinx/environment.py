@@ -17,7 +17,6 @@ import types
 import codecs
 import imghdr
 import string
-import posixpath
 import unicodedata
 import cPickle as pickle
 from os import path
@@ -27,7 +26,8 @@ from itertools import izip, groupby
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path, new_document
+from docutils.utils import Reporter, relative_path, new_document, \
+     get_source_line
 from docutils.readers import standalone
 from docutils.parsers.rst import roles, directives, Parser as RSTParser
 from docutils.parsers.rst.languages import en as english
@@ -39,8 +39,9 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
-from sphinx.util.nodes import clean_astext, make_refnode, extract_messages
-from sphinx.util.osutil import movefile, SEP, ustrftime
+from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
+     WarningStream
+from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.util.websupport import is_commentable
@@ -85,14 +86,6 @@ versioning_conditions = {
     'text': nodes.TextElement,
     'commentable': is_commentable,
 }
-
-
-class WarningStream(object):
-    def __init__(self, warnfunc):
-        self.warnfunc = warnfunc
-    def write(self, text):
-        if text.strip():
-            self.warnfunc(text.strip(), None, '')
 
 
 class NoUri(Exception):
@@ -205,13 +198,15 @@ class Locale(Transform):
         settings, source = self.document.settings, self.document['source']
         # XXX check if this is reliable
         assert source.startswith(env.srcdir)
-        docname = os.path.splitext(source[len(env.srcdir):].lstrip(os.sep))[0]
-        section = docname.split(os.sep, 1)[0]
+        docname = path.splitext(relative_path(env.srcdir, source))[0]
+        textdomain = find_catalog(docname,
+                                  self.document.settings.gettext_compact)
 
         # fetch translations
-        dirs = [path.join(env.srcdir, x)
-                for x in env.config.locale_dirs]
-        catalog, has_catalog = init_locale(dirs, env.config.language, section)
+        dirs = [path.join(env.srcdir, directory)
+                for directory in env.config.locale_dirs]
+        catalog, has_catalog = init_locale(dirs, env.config.language,
+                                           textdomain)
         if not has_catalog:
             return
 
@@ -415,6 +410,9 @@ class BuildEnvironment:
         # strange argument order is due to backwards compatibility
         self._warnfunc(msg, (docname, lineno))
 
+    def warn_node(self, msg, node):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node))
+
     def clear_doc(self, docname):
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
@@ -495,7 +493,7 @@ class BuildEnvironment:
             config.exclude_trees +
             [d + config.source_suffix for d in config.unused_docs] +
             ['**/' + d for d in config.exclude_dirnames] +
-            ['**/_sources']
+            ['**/_sources', '.#*']
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
@@ -712,6 +710,7 @@ class BuildEnvironment:
         self.settings['input_encoding'] = self.config.source_encoding
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
+        self.settings['gettext_compact'] = self.config.gettext_compact
 
         self.patch_lookup_functions()
 
@@ -899,8 +898,8 @@ class BuildEnvironment:
             rel_filename, filename = self.relfn2path(targetname, docname)
             self.dependencies.setdefault(docname, set()).add(rel_filename)
             if not os.access(filename, os.R_OK):
-                self.warn(docname, 'download file not readable: %s' % filename,
-                          getattr(node, 'line', None))
+                self.warn_node('download file not readable: %s' % filename,
+                               node)
                 continue
             uniquename = self.dlfiles.add_file(docname, filename)
             node['filename'] = uniquename
@@ -915,8 +914,7 @@ class BuildEnvironment:
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.find('://') != -1:
-                self.warn(docname, 'nonlocal image URI found: %s' % imguri,
-                          node.line)
+                self.warn_node('nonlocal image URI found: %s' % imguri, node)
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
@@ -937,9 +935,8 @@ class BuildEnvironment:
                             finally:
                                 f.close()
                         except (OSError, IOError), err:
-                            self.warn(docname, 'image file %s not '
-                                      'readable: %s' % (filename, err),
-                                      node.line)
+                            self.warn_node('image file %s not readable: %s' %
+                                           (filename, err), node)
                         if imgtype:
                             candidates['image/' + imgtype] = new_imgpath
             else:
@@ -949,8 +946,8 @@ class BuildEnvironment:
             for imgpath in candidates.itervalues():
                 self.dependencies.setdefault(docname, set()).add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    self.warn(docname, 'image file not readable: %s' % imgpath,
-                              node.line)
+                    self.warn_node('image file not readable: %s' % imgpath,
+                                   node)
                     continue
                 self.images.add_file(docname, imgpath)
 
@@ -1072,9 +1069,9 @@ class BuildEnvironment:
         for node in document.traverse(nodes.citation):
             label = node[0].astext()
             if label in self.citations:
-                self.warn(docname, 'duplicate citation %s, ' % label +
-                          'other instance in %s' % self.doc2path(
-                    self.citations[label][0]), node.line)
+                self.warn_node('duplicate citation %s, ' % label +
+                               'other instance in %s' % self.doc2path(
+                                   self.citations[label][0]), node)
             self.citations[label] = (docname, node['ids'][0])
 
     def note_toctree(self, docname, toctreenode):
@@ -1354,15 +1351,15 @@ class BuildEnvironment:
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
-                        self.warn(docname,
-                                  'toctree contains reference to document '
-                                  '%r that doesn\'t have a title: no link '
-                                  'will be generated' % ref, toctreenode.line)
+                        self.warn_node(
+                            'toctree contains reference to document %r that '
+                            'doesn\'t have a title: no link will be generated'
+                            % ref, toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    self.warn(docname, 'toctree contains reference to '
-                              'nonexisting document %r' % ref,
-                              toctreenode.line)
+                    self.warn_node(
+                        'toctree contains reference to nonexisting document %r'
+                        % ref, toctreenode)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
@@ -1376,12 +1373,14 @@ class BuildEnvironment:
                                 toplevel[1][:] = subtrees
                     # resolve all sub-toctrees
                     for toctreenode in toc.traverse(addnodes.toctree):
-                        i = toctreenode.parent.index(toctreenode) + 1
-                        for item in _entries_from_toctree(toctreenode,
-                                                          subtree=True):
-                            toctreenode.parent.insert(i, item)
-                            i += 1
-                        toctreenode.parent.remove(toctreenode)
+                        if not (toctreenode.get('hidden', False)
+                                and not includehidden):
+                            i = toctreenode.parent.index(toctreenode) + 1
+                            for item in _entries_from_toctree(toctreenode,
+                                                              subtree=True):
+                                toctreenode.parent.insert(i, item)
+                                i += 1
+                            toctreenode.parent.remove(toctreenode)
                     if separate:
                         entries.append(toc)
                     else:
@@ -1485,7 +1484,6 @@ class BuildEnvironment:
                     warn = False
         if not warn:
             return
-        refdoc = node.get('refdoc', fromdoc)
         if domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ]
         elif typ == 'doc':
@@ -1497,15 +1495,15 @@ class BuildEnvironment:
                   (node['refdomain'], typ)
         else:
             msg = '%s reference target not found: %%(target)s' % typ
-        self.warn(refdoc, msg % {'target': target}, node.line)
+        self.warn_node(msg % {'target': target}, node)
 
     def process_only_nodes(self, doctree, builder, fromdocname=None):
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
             except Exception, err:
-                self.warn(fromdocname, 'exception while evaluating only '
-                          'directive expression: %s' % err, node.line)
+                self.warn_node('exception while evaluating only '
+                               'directive expression: %s' % err, node)
                 node.replace_self(node.children)
             else:
                 if ret:
@@ -1740,3 +1738,4 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
+

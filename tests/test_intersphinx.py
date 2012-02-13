@@ -152,3 +152,28 @@ def test_missing_reference(tempdir, app):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
     assert contnode[0].astext() == 'py3k:unknown'
+
+
+@with_app(confoverrides={'extensions': 'sphinx.ext.intersphinx'})
+@with_tempdir
+def test_load_mappings_warnings(tempdir, app):
+    """
+    load_mappings issues a warning if new-style mapping
+    identifiers are not alphanumeric
+    """
+    inv_file = tempdir / 'inventory'
+    write_file(inv_file, inventory_v2)
+    app.config.intersphinx_mapping = {
+        'http://docs.python.org/': inv_file,
+        'py3k': ('http://docs.python.org/py3k/', inv_file),
+        'repoze.workflow': ('http://docs.repoze.org/workflow/', inv_file),
+        'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
+                          inv_file)
+    }
+
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+    assert len(app._warning.content) == 2
+
+

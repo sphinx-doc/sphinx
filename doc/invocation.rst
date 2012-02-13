@@ -14,6 +14,8 @@ you don't need to specify any *filenames*.
 
 The :program:`sphinx-build` script has several options:
 
+.. program:: sphinx-build
+
 .. option:: -b buildername
 
    The most important option: it selects a builder.  The most common builders
@@ -183,3 +185,72 @@ variables to customize behavior:
 .. describe:: SPHINXOPTS
 
    Additional options for :program:`sphinx-build`.
+
+
+.. _invocation-apidoc:
+
+Invocation of sphinx-apidoc
+===========================
+
+The :program:`sphinx-apidoc` generates completely automatic API documentation
+for a Python package.  It is called like this::
+
+     $ sphinx-apidoc [options] -o outputdir packagedir [pathnames]
+
+where *packagedir* is the path to the package to document, and *outputdir* is
+the directory where the generated sources are placed.  Any *pathnames* given
+are paths to be excluded ignored during generation.
+
+The :program:`sphinx-apidoc` script has several options:
+
+.. program:: sphinx-apidoc
+
+.. option:: -o outputdir
+
+   Gives the directory in which to place the generated output.
+
+.. option:: -f, --force
+
+   Normally, sphinx-apidoc does not overwrite any files.  Use this option to
+   force the overwrite of all files that it generates.
+
+.. option:: -n, --dry-run
+
+   With this option given, no files will be written at all.
+
+.. option:: -s suffix
+
+   This option selects the file name suffix of output files.  By default, this
+   is ``rst``.
+
+.. option:: -d maxdepth
+
+   This sets the maximum depth of the table of contents, if one is generated.
+
+.. option:: -T, --no-toc
+
+   This prevents the generation of a table-of-contents file ``modules.rst``.
+   This has no effect when :option:`--full` is given.
+
+.. option:: -F, --full
+
+   This option makes sphinx-apidoc create a full Sphinx project, using the same
+   mechanism as :program:`sphinx-quickstart`.  Most configuration values are set
+   to default values, but you can influence the most important ones using the
+   following options.
+
+.. option:: -H project
+
+   Sets the project name to put in generated files (see :confval:`project`).
+
+.. option:: -A author
+
+   Sets the author name(s) to put in generated files (see :confval:`copyright`).
+
+.. option:: -V version
+
+   Sets the project version to put in generated files (see :confval:`version`).
+
+.. option:: -R release
+
+   Sets the project release to put in generated files (see :confval:`release`).

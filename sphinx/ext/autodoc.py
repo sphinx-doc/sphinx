@@ -912,7 +912,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
         if inspect.isbuiltin(self.object) or \
                inspect.ismethoddescriptor(self.object):
             # cannot introspect arguments of a C function or method
-            pass
+            return None
         try:
             argspec = getargspec(self.object)
         except TypeError:
@@ -1164,7 +1164,8 @@ class AttributeDocumenter(ClassLevelDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         isdatadesc = isdescriptor(member) and not \
-                     isinstance(member, cls.method_types)
+                     isinstance(member, cls.method_types) and not \
+                     type(member).__name__ == "method_descriptor"
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
                               and not isinstance(member, class_types))

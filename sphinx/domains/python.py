@@ -217,13 +217,12 @@ class PyObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             objects = self.env.domaindata['py']['objects']
             if fullname in objects:
-                self.env.warn(
-                    self.env.docname,
+                self.state_machine.reporter.warning(
                     'duplicate object description of %s, ' % fullname +
                     'other instance in ' +
                     self.env.doc2path(objects[fullname][0]) +
                     ', use :noindex: for one of them',
-                    self.lineno)
+                    line=self.lineno)
             objects[fullname] = (self.env.docname, self.objtype)
 
         indextext = self.get_index_text(modname, name_cls)
@@ -423,13 +422,14 @@ class PyModule(Directive):
             env.domaindata['py']['modules'][modname] = \
                 (env.docname, self.options.get('synopsis', ''),
                  self.options.get('platform', ''), 'deprecated' in self.options)
-            # make a duplicate entry in 'objects' to facilitate searching for the
-            # module in PythonDomain.find_obj()
+            # make a duplicate entry in 'objects' to facilitate searching for
+            # the module in PythonDomain.find_obj()
             env.domaindata['py']['objects'][modname] = (env.docname, 'module')
-            targetnode = nodes.target('', '', ids=['module-' + modname], ismod=True)
+            targetnode = nodes.target('', '', ids=['module-' + modname],
+                                      ismod=True)
             self.state.document.note_explicit_target(targetnode)
-            # the platform and synopsis aren't printed; in fact, they are only used
-            # in the modindex currently
+            # the platform and synopsis aren't printed; in fact, they are only
+            # used in the modindex currently
             ret.append(targetnode)
             indextext = _('%s (module)') % modname
             inode = addnodes.index(entries=[('single', indextext,
@@ -638,9 +638,9 @@ class PythonDomain(Domain):
                 else:
                     # "fuzzy" searching mode
                     searchname = '.' + name
-                    matches = [(name, objects[name]) for name in objects
-                               if name.endswith(searchname)
-                               and objects[name][1] in objtypes]
+                    matches = [(oname, objects[oname]) for oname in objects
+                               if oname.endswith(searchname)
+                               and objects[oname][1] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
             if name in objects:
@@ -677,11 +677,10 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            env.warn(fromdocname,
-                     'more than one target found for cross-reference '
-                     '%r: %s' % (target,
-                                 ', '.join(match[0] for match in matches)),
-                     node.line)
+            env.warn_node(
+                'more than one target found for cross-reference '
+                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
+                node)
         name, obj = matches[0]
 
         if obj[1] == 'module':

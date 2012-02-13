@@ -125,22 +125,39 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
-try:
-    ismemberdescriptor = inspect.ismemberdescriptor
-    isgetsetdescriptor = inspect.isgetsetdescriptor
-except AttributeError:
-    def ismemberdescriptor(obj):
-        return False
-    isgetsetdescriptor = ismemberdescriptor
+class FakeDirective:
+    env = {}
+    genopt = {}
 
 def get_documenter(obj, parent):
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
-    """
-    from sphinx.ext.autodoc import AutoDirective, DataDocumenter
 
+    *obj* is the Python object to be documented, and *parent* is an
+    another Python object (e.g. a module or a class) to which *obj*
+    belongs to.
+    """
+    from sphinx.ext.autodoc import AutoDirective, DataDocumenter, \
+         ModuleDocumenter
+
+    if inspect.ismodule(obj):
+        # ModuleDocumenter.can_document_member always returns False
+        return ModuleDocumenter
+
+    # Construct a fake documenter for *parent*
+    if parent is not None:
+        parent_doc_cls = get_documenter(parent, None)
+    else:
+        parent_doc_cls = ModuleDocumenter
+
+    if hasattr(parent, '__name__'):
+        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
+    else:
+        parent_doc = parent_doc_cls(FakeDirective(), "")
+
+    # Get the corrent documenter class for *obj*
     classes = [cls for cls in AutoDirective._registry.values()
-               if cls.can_document_member(obj, '', False, parent)]
+               if cls.can_document_member(obj, '', False, parent_doc)]
     if classes:
         classes.sort(key=lambda cls: cls.priority)
         return classes[-1]
@@ -154,7 +171,7 @@ class Autosummary(Directive):
     """
     Pretty table containing short signatures and summaries of functions etc.
 
-    autosummary also generates a (hidden) toctree:: node.
+    autosummary can also optionally generate a hidden toctree:: node.
     """
 
     required_arguments = 0
@@ -214,10 +231,7 @@ class Autosummary(Directive):
         """
         env = self.state.document.settings.env
 
-        prefixes = ['']
-        currmodule = env.temp_data.get('py:module')
-        if currmodule:
-            prefixes.insert(0, currmodule)
+        prefixes = get_import_prefixes_from_env(env)
 
         items = []
 
@@ -282,10 +296,10 @@ class Autosummary(Directive):
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = 'LL'
+        table_spec['spec'] = 'll'
 
         table = autosummary_table('')
-        real_table = nodes.table('')
+        real_table = nodes.table('', classes=['longtable'])
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
@@ -322,13 +336,29 @@ class Autosummary(Directive):
 
 def mangle_signature(sig, max_chars=30):
     """Reformat a function signature to a more compact form."""
-    sig = re.sub(r"^\((.*)\)$", r"\1", sig) + ", "
-    r = re.compile(r"(?P<name>[a-zA-Z0-9_*]+)(?P<default>=.*?)?, ")
-    items = r.findall(sig)
+    s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
 
-    args = [name for name, default in items if not default]
-    opts = [name for name, default in items if default]
+    # Strip strings (which can contain things that confuse the code below)
+    s = re.sub(r"\\\\", "", s)
+    s = re.sub(r"\\'", "", s)
+    s = re.sub(r"'[^']*'", "", s)
 
+    # Parse the signature to arguments + options
+    args = []
+    opts = []
+
+    opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
+    while s:
+        m = opt_re.search(s)
+        if not m:
+            # The rest are arguments
+            args = s.split(', ')
+            break
+
+        opts.insert(0, m.group(2))
+        s = m.group(1)[:-2]
+
+    # Produce a more compact signature
     sig = limited_join(", ", args, max_chars=max_chars-2)
     if opts:
         if not sig:
@@ -363,6 +393,26 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
     return sep.join(list(items[:n_items]) + [overflow_marker])
 
 # -- Importing items -----------------------------------------------------------
+
+def get_import_prefixes_from_env(env):
+    """
+    Obtain current Python import prefixes (for `import_by_name`)
+    from ``document.env``
+    """
+    prefixes = [None]
+
+    currmodule = env.temp_data.get('py:module')
+    if currmodule:
+        prefixes.insert(0, currmodule)
+
+    currclass = env.temp_data.get('py:class')
+    if currclass:
+        if currmodule:
+            prefixes.insert(0, currmodule + "." + currclass)
+        else:
+            prefixes.insert(0, currclass)
+
+    return prefixes
 
 def import_by_name(name, prefixes=[None]):
     """Import a Python object that has the given *name*, under one of the
@@ -436,8 +486,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
         'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
 
-    prefixes = [None]
-    #prefixes.insert(0, inliner.document.settings.env.currmodule)
+    prefixes = get_import_prefixes_from_env(env)
     try:
         name, obj, parent = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:

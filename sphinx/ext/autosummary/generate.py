@@ -27,9 +27,11 @@ import optparse
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
+from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import ensuredir
+from sphinx.util.inspect import safe_getattr
 
 def main(argv=sys.argv):
     usage = """%prog [OPTIONS] SOURCEFILE ..."""
@@ -77,7 +79,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         sources = [os.path.join(base_path, filename) for filename in sources]
 
     # create our own templating environment
-    template_dirs = [os.path.join(os.path.dirname(__file__), 'templates')]
+    template_dirs = [os.path.join(package_dir, 'ext',
+                                  'autosummary', 'templates')]
     if builder is not None:
         # allow the user to override the templates
         template_loader = BuiltinTemplateLoader()
@@ -136,10 +139,15 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     template = template_env.get_template('autosummary/base.rst')
 
             def get_members(obj, typ, include_public=[]):
-                items = [
-                    name for name in dir(obj)
-                    if get_documenter(getattr(obj, name), obj).objtype == typ
-                ]
+                items = []
+                for name in dir(obj):
+                    try:
+                        documenter = get_documenter(safe_getattr(obj, name),
+                                                    obj)
+                    except AttributeError:
+                        continue
+                    if documenter.objtype == typ:
+                        items.append(name)
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]
                 return public, items
@@ -232,7 +240,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     *template* ``None`` if the directive does not have the
     corresponding options set.
     """
-    autosummary_re = re.compile(r'^\s*\.\.\s+autosummary::\s*')
+    autosummary_re = re.compile(r'^(\s*)\.\.\s+autosummary::\s*')
     automodule_re = re.compile(
         r'^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$')
     module_re = re.compile(
@@ -247,6 +255,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     template = None
     current_module = module
     in_autosummary = False
+    base_indent = ""
 
     for line in lines:
         if in_autosummary:
@@ -277,7 +286,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
                 documented.append((name, toctree, template))
                 continue
 
-            if not line.strip():
+            if not line.strip() or line.startswith(base_indent + " "):
                 continue
 
             in_autosummary = False
@@ -285,6 +294,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
         m = autosummary_re.match(line)
         if m:
             in_autosummary = True
+            base_indent = m.group(1)
             toctree = None
             template = None
             continue

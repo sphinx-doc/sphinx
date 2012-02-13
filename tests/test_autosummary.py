@@ -23,6 +23,14 @@ def test_mangle_signature():
     :: (a, b[, aaa, bbb, ccc, ...])
     (a, b, c=(), d=<foo>) :: (a, b[, c, d])
     (a, b, c='foobar()', d=123) :: (a, b[, c, d])
+    (a, b[, c]) :: (a, b[, c])
+    (a, b[, cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]) :: (a, b[, ...)
+    (a, b='c=d, e=f, g=h', c=3) :: (a[, b, c])
+    (a, b='c=d, \\'e=f,\\' g=h', c=3) :: (a[, b, c])
+    (a, b='c=d, ', e='\\\\' g=h, c=3) :: (a[, b, e, c])
+    (a, b={'c=d, ': 3, '\\\\': 3}) :: (a[, b])
+    (a=1, b=2, c=3) :: ([a, b, c])
+    (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
     """
 
     TEST = [map(lambda x: x.strip(), x.split("::")) for x in TEST.split("\n")

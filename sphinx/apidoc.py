@@ -8,9 +8,10 @@
     creates a modules index (named modules.<suffix>).
 
     This is derived from the "sphinx-autopackage" script, which is:
-    Copyright 2008 Société des arts technologiques (SAT), http://www.sat.qc.ca/.
+    Copyright 2008 Société des arts technologiques (SAT),
+    http://www.sat.qc.ca/
 
-    :copyright: 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -19,14 +20,18 @@ import optparse
 from os import path
 
 # automodule options
-OPTIONS = [
-    'members',
-    'undoc-members',
-    # 'inherited-members', # disabled because there's a bug in sphinx
-    'show-inheritance',
-]
+if 'SPHINX_APIDOC_OPTIONS' in os.environ:
+    OPTIONS = os.environ['SPHINX_APIDOC_OPTIONS'].split(',')
+else:
+    OPTIONS = [
+        'members',
+        'undoc-members',
+        # 'inherited-members', # disabled because there's a bug in sphinx
+        'show-inheritance',
+    ]
 
 INITPY = '__init__.py'
+
 
 def makename(package, module):
     """Join package and module with a dot."""
@@ -39,9 +44,10 @@ def makename(package, module):
         name = module
     return name
 
+
 def write_file(name, text, opts):
     """Write the output file for module/package <name>."""
-    fname = path.join(opts.destdir, "%s.%s" % (name, opts.suffix))
+    fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
         print 'Would create file %s.' % fname
         return
@@ -55,10 +61,12 @@ def write_file(name, text, opts):
         finally:
             f.close()
 
+
 def format_heading(level, text):
     """Create a heading of <level> [1, 2 or 3 supported]."""
     underlining = ['=', '-', '~', ][level-1] * len(text)
     return '%s\n%s\n\n' % (text, underlining)
+
 
 def format_directive(module, package=None):
     """Create the automodule directive and add the options."""
@@ -67,12 +75,14 @@ def format_directive(module, package=None):
         directive += '    :%s:\n' % option
     return directive
 
+
 def create_module_file(package, module, opts):
     """Build the text of the file and write the file."""
     text = format_heading(1, '%s Module' % module)
     #text += format_heading(2, ':mod:`%s` Module' % module)
     text += format_directive(module, package)
     write_file(makename(package, module), text, opts)
+
 
 def create_package_file(root, master_package, subroot, py_files, opts, subs):
     """Build the text of the file and write the file."""
@@ -106,11 +116,10 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
 
     write_file(makename(master_package, subroot), text, opts)
 
-def create_modules_toc_file(master_package, modules, opts, name='modules'):
-    """
-    Create the module's index.
-    """
-    text = format_heading(1, '%s Modules' % opts.header)
+
+def create_modules_toc_file(modules, opts, name='modules'):
+    """Create the module's index."""
+    text = format_heading(1, '%s' % opts.header)
     text += '.. toctree::\n'
     text += '   :maxdepth: %s\n\n' % opts.maxdepth
 
@@ -125,12 +134,12 @@ def create_modules_toc_file(master_package, modules, opts, name='modules'):
 
     write_file(name, text, opts)
 
+
 def shall_skip(module):
-    """
-    Check if we want to skip this module.
-    """
-    # skip it, if there is nothing (or just \n or \r\n) in the file
-    return path.getsize(module) < 3
+    """Check if we want to skip this module."""
+    # skip it if there is nothing (or just \n or \r\n) in the file
+    return path.getsize(module) <= 2
+
 
 def recurse_tree(rootpath, excludes, opts):
     """
@@ -139,56 +148,52 @@ def recurse_tree(rootpath, excludes, opts):
     """
     # use absolute path for root, as relative paths like '../../foo' cause
     # 'if "/." in root ...' to filter out *all* modules otherwise
-    rootpath = os.path.abspath(rootpath)
-    # check if the base directory is a package and get is name
+    rootpath = path.normpath(path.abspath(rootpath))
+    # check if the base directory is a package and get its name
     if INITPY in os.listdir(rootpath):
-        package_name = rootpath.split(path.sep)[-1]
+        root_package = rootpath.split(path.sep)[-1]
     else:
-        package_name = None
+        # otherwise, the base is a directory with packages
+        root_package = None
 
-    toc = []
-    tree = os.walk(rootpath, False)
-    for root, subs, files in tree:
-        # keep only the Python script files
-        py_files =  sorted([f for f in files if path.splitext(f)[1] == '.py'])
-        if INITPY in py_files:
+    toplevels = []
+    for root, subs, files in os.walk(rootpath):
+        if is_excluded(root, excludes):
+            del subs[:]
+            continue
+        # document only Python module files
+        py_files = sorted([f for f in files if path.splitext(f)[1] == '.py'])
+        is_pkg = INITPY in py_files
+        if is_pkg:
             py_files.remove(INITPY)
             py_files.insert(0, INITPY)
-        # remove hidden ('.') and private ('_') directories
-        subs = sorted([sub for sub in subs if sub[0] not in ['.', '_']])
-        # check if there are valid files to process
-        # TODO: could add check for windows hidden files
-        if "/." in root or "/_" in root \
-               or not py_files \
-               or is_excluded(root, excludes):
+        elif root != rootpath:
+            # only accept non-package at toplevel
+            del subs[:]
             continue
-        if INITPY in py_files:
-            # we are in package ...
-            if (# ... with subpackage(s)
-                subs
-                or
-                # ... with some module(s)
-                len(py_files) > 1
-                or
-                # ... with a not-to-be-skipped INITPY file
-                not shall_skip(path.join(root, INITPY))
-               ):
-                subroot = root[len(rootpath):].lstrip(path.sep).\
-                          replace(path.sep, '.')
-                create_package_file(root, package_name, subroot,
+        # remove hidden ('.') and private ('_') directories
+        subs[:] = sorted(sub for sub in subs if sub[0] not in ['.', '_'])
+
+        if is_pkg:
+            # we are in a package with something to document
+            if subs or len(py_files) > 1 or not \
+                shall_skip(path.join(root, INITPY)):
+                subpackage = root[len(rootpath):].lstrip(path.sep).\
+                    replace(path.sep, '.')
+                create_package_file(root, root_package, subpackage,
                                     py_files, opts, subs)
-                toc.append(makename(package_name, subroot))
-        elif root == rootpath:
+                toplevels.append(makename(root_package, subpackage))
+        else:
             # if we are at the root level, we don't require it to be a package
+            assert root == rootpath and root_package is None
             for py_file in py_files:
                 if not shall_skip(path.join(rootpath, py_file)):
                     module = path.splitext(py_file)[0]
-                    create_module_file(package_name, module, opts)
-                    toc.append(makename(package_name, module))
+                    create_module_file(root_package, module, opts)
+                    toplevels.append(module)
 
-    # create the module's index
-    if not opts.notoc:
-        create_modules_toc_file(package_name, toc, opts)
+    return toplevels
+
 
 def normalize_excludes(rootpath, excludes):
     """
@@ -197,15 +202,13 @@ def normalize_excludes(rootpath, excludes):
     * otherwise it is joined with rootpath
     * with trailing slash
     """
-    sep = path.sep
     f_excludes = []
     for exclude in excludes:
         if not path.isabs(exclude) and not exclude.startswith(rootpath):
             exclude = path.join(rootpath, exclude)
-        if not exclude.endswith(sep):
-            exclude += sep
-        f_excludes.append(exclude)
+        f_excludes.append(path.normpath(exclude) + path.sep)
     return f_excludes
+
 
 def is_excluded(root, excludes):
     """
@@ -222,6 +225,7 @@ def is_excluded(root, excludes):
             return True
     return False
 
+
 def main(argv=sys.argv):
     """
     Parse and check the command line arguments.
@@ -231,7 +235,7 @@ def main(argv=sys.argv):
 usage: %prog [options] -o <output_path> <module_path> [exclude_paths, ...]
 
 Look recursively in <module_path> for Python modules and packages and create
-a reST file with automodule directives per package in the <output_path>.
+one reST file with automodule directives per package in the <output_path>.
 
 Note: By default this script will not overwrite already created files.""")
 
@@ -241,29 +245,75 @@ Note: By default this script will not overwrite already created files.""")
                       help='Maximum depth of submodules to show in the TOC '
                       '(default: 4)', type='int', default=4)
     parser.add_option('-f', '--force', action='store_true', dest='force',
-                      help='Overwrite all the files')
+                      help='Overwrite all files')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dryrun',
-                      help='Run the script without creating the files')
+                      help='Run the script without creating files')
     parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',
-                      help='Don\'t create the table of contents file')
-    parser.add_option('-H', '--doc-header', action='store', dest='header',
-                      help='Documentation Header (default: Project)',
-                      default='Project')
+                      help='Don\'t create a table of contents file')
     parser.add_option('-s', '--suffix', action='store', dest='suffix',
                       help='file suffix (default: rst)', default='rst')
+    parser.add_option('-F', '--full', action='store_true', dest='full',
+                      help='Generate a full project with sphinx-quickstart')
+    parser.add_option('-H', '--doc-project', action='store', dest='header',
+                      help='Project name (default: root module name)')
+    parser.add_option('-A', '--doc-author', action='store', dest='author',
+                      type='str',
+                      help='Project author(s), used when --full is given')
+    parser.add_option('-V', '--doc-version', action='store', dest='version',
+                      help='Project version, used when --full is given')
+    parser.add_option('-R', '--doc-release', action='store', dest='release',
+                      help='Project release, used when --full is given, '
+                      'defaults to --doc-version')
 
     (opts, args) = parser.parse_args(argv[1:])
 
     if not args:
         parser.error('A package path is required.')
+
+    rootpath, excludes = args[0], args[1:]
     if not opts.destdir:
         parser.error('An output directory is required.')
-    rootpath, excludes = args[0], args[1:]
+    if opts.header is None:
+        opts.header = path.normpath(rootpath).split(path.sep)[-1]
+    if opts.suffix.startswith('.'):
+        opts.suffix = opts.suffix[1:]
     if not path.isdir(rootpath):
         print >>sys.stderr, '%s is not a directory.' % rootpath
         sys.exit(1)
     if not path.isdir(opts.destdir):
-        print '%s is not a valid output directory.' % opts.destdir
-        sys.exit(1)
+        if not opts.dryrun:
+            os.makedirs(opts.destdir)
     excludes = normalize_excludes(rootpath, excludes)
-    recurse_tree(rootpath, excludes, opts)
+    modules = recurse_tree(rootpath, excludes, opts)
+    if opts.full:
+        from sphinx import quickstart as qs
+        modules.sort()
+        prev_module = ''
+        text = ''
+        for module in modules:
+            if module.startswith(prev_module + '.'):
+                continue
+            prev_module = module
+            text += '   %s\n' % module
+        d = dict(
+            path = opts.destdir,
+            sep  = False,
+            dot  = '_',
+            project = opts.header,
+            author = opts.author or 'Author',
+            version = opts.version or '',
+            release = opts.release or opts.version or '',
+            suffix = '.' + opts.suffix,
+            master = 'index',
+            epub = True,
+            ext_autodoc = True,
+            ext_viewcode = True,
+            makefile = True,
+            batchfile = True,
+            mastertocmaxdepth = opts.maxdepth,
+            mastertoctree = text,
+        )
+        if not opts.dryrun:
+            qs.generate(d, silent=True, overwrite=opts.force)
+    elif not opts.notoc:
+        create_modules_toc_file(modules, opts)

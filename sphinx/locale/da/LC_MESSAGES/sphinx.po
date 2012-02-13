@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.0pre/[?1034h2e1ab15e035e\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2009-11-08 16:28+0100\n"
+"POT-Creation-Date: 2011-09-21 10:06+0200\n"
 "PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
@@ -15,20 +15,25 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.5\n"
+"Generated-By: Babel 0.9.6\n"
 
-#: sphinx/environment.py:120 sphinx/writers/latex.py:189
-#: sphinx/writers/manpage.py:67
+#: sphinx/config.py:81
+#, fuzzy, python-format
+msgid "%s %s documentation"
+msgstr "%s %s dokumentation"
+
+#: sphinx/environment.py:119 sphinx/writers/latex.py:190
+#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
 #, python-format
 msgid "%B %d, %Y"
 msgstr "%d. %B, %Y"
 
-#: sphinx/environment.py:1624
+#: sphinx/environment.py:1625
 #, python-format
 msgid "see %s"
 msgstr "se %s"
 
-#: sphinx/environment.py:1627
+#: sphinx/environment.py:1628
 #, python-format
 msgid "see also %s"
 msgstr "se også %s"
@@ -67,20 +72,9 @@ msgstr "næste"
 msgid "previous"
 msgstr "forrige"
 
-#: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:208
+#: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:196
 msgid " (in "
 msgstr " (i "
-
-#: sphinx/builders/texinfo.py:151 sphinx/builders/texinfo.py:152
-#: sphinx/builders/texinfo.py:153 sphinx/domains/std.py:427
-#: sphinx/themes/basic/genindex-single.html:32
-#: sphinx/themes/basic/genindex-split.html:11
-#: sphinx/themes/basic/genindex-split.html:14
-#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
-#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:178
-msgid "Index"
-msgstr "Indeks"
 
 #: sphinx/directives/other.py:136
 msgid "Section author: "
@@ -145,12 +139,12 @@ msgstr "%s (C-type)"
 msgid "%s (C variable)"
 msgstr "%s (C-variabel)"
 
-#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1053
-#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:558
+#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1060
+#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:559
 msgid "function"
 msgstr "funktion"
 
-#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1054
+#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1061
 msgid "member"
 msgstr "medlem"
 
@@ -158,7 +152,7 @@ msgstr "medlem"
 msgid "macro"
 msgstr "makro"
 
-#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1055
+#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1062
 msgid "type"
 msgstr "type"
 
@@ -166,28 +160,28 @@ msgstr "type"
 msgid "variable"
 msgstr "variabel"
 
-#: sphinx/domains/cpp.py:897
+#: sphinx/domains/cpp.py:904
 #, python-format
 msgid "%s (C++ class)"
 msgstr "%s (C++-klasse)"
 
-#: sphinx/domains/cpp.py:912
+#: sphinx/domains/cpp.py:919
 #, python-format
 msgid "%s (C++ type)"
 msgstr "%s (C++-type)"
 
-#: sphinx/domains/cpp.py:931
+#: sphinx/domains/cpp.py:938
 #, python-format
 msgid "%s (C++ member)"
 msgstr "%s (C++-medlem)"
 
-#: sphinx/domains/cpp.py:983
+#: sphinx/domains/cpp.py:990
 #, python-format
 msgid "%s (C++ function)"
 msgstr "%s (C++-funktion)"
 
-#: sphinx/domains/cpp.py:1052 sphinx/domains/javascript.py:163
-#: sphinx/domains/python.py:560
+#: sphinx/domains/cpp.py:1059 sphinx/domains/javascript.py:163
+#: sphinx/domains/python.py:561
 msgid "class"
 msgstr "klasse"
 
@@ -224,11 +218,11 @@ msgstr "Parametre"
 msgid "Throws"
 msgstr "Kaster"
 
-#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:559
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
 msgid "data"
 msgstr "data"
 
-#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:565
+#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:566
 msgid "attribute"
 msgstr "attribut"
 
@@ -296,44 +290,44 @@ msgstr "%s() (klassemetode i %s)"
 msgid "%s (%s.%s attribute)"
 msgstr "%s (attribut i %s.%s)"
 
-#: sphinx/domains/python.py:433
+#: sphinx/domains/python.py:434
 #, python-format
 msgid "%s (module)"
 msgstr "%s (modul)"
 
-#: sphinx/domains/python.py:490
+#: sphinx/domains/python.py:491
 msgid "Python Module Index"
 msgstr "Python-modulindeks"
 
-#: sphinx/domains/python.py:491
+#: sphinx/domains/python.py:492
 msgid "modules"
 msgstr "moduler"
 
-#: sphinx/domains/python.py:536
+#: sphinx/domains/python.py:537
 msgid "Deprecated"
 msgstr "Forældet"
 
-#: sphinx/domains/python.py:561 sphinx/locale/__init__.py:179
+#: sphinx/domains/python.py:562 sphinx/locale/__init__.py:179
 msgid "exception"
 msgstr "undtagelse"
 
-#: sphinx/domains/python.py:562
+#: sphinx/domains/python.py:563
 msgid "method"
 msgstr "metode"
 
-#: sphinx/domains/python.py:563
+#: sphinx/domains/python.py:564
 msgid "class method"
 msgstr "klassemetode"
 
-#: sphinx/domains/python.py:564
+#: sphinx/domains/python.py:565
 msgid "static method"
 msgstr "statisk metode"
 
-#: sphinx/domains/python.py:566 sphinx/locale/__init__.py:175
+#: sphinx/domains/python.py:567 sphinx/locale/__init__.py:175
 msgid "module"
 msgstr "modul"
 
-#: sphinx/domains/python.py:694
+#: sphinx/domains/python.py:695
 msgid " (deprecated)"
 msgstr " (forældet)"
 
@@ -385,6 +379,15 @@ msgstr "miljøvariabel"
 msgid "program option"
 msgstr "programtilvalg"
 
+#: sphinx/domains/std.py:427 sphinx/themes/basic/genindex-single.html:32
+#: sphinx/themes/basic/genindex-split.html:11
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
+#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
+#: sphinx/writers/latex.py:179 sphinx/writers/texinfo.py:456
+msgid "Index"
+msgstr "Indeks"
+
 #: sphinx/domains/std.py:428
 msgid "Module Index"
 msgstr "Modulindeks"
@@ -393,12 +396,12 @@ msgstr "Modulindeks"
 msgid "Search Page"
 msgstr "Søgeside"
 
-#: sphinx/ext/autodoc.py:998
+#: sphinx/ext/autodoc.py:1002
 #, python-format
 msgid "   Bases: %s"
 msgstr "   Baser: %s"
 
-#: sphinx/ext/autodoc.py:1034
+#: sphinx/ext/autodoc.py:1038
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr "alias for :class:`%s`"
@@ -720,8 +723,8 @@ msgstr "Ændringer i C-API"
 msgid "Other changes"
 msgstr "Andre ændringer"
 
-#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:505
-#: sphinx/writers/html.py:511
+#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:504
+#: sphinx/writers/html.py:510
 msgid "Permalink to this headline"
 msgstr "Permalink til denne overskrift"
 
@@ -746,49 +749,24 @@ msgstr "Sammenfold sidebjælke"
 msgid "Contents"
 msgstr "Indhold"
 
-#: sphinx/writers/latex.py:176
+#: sphinx/writers/latex.py:177
 msgid "Release"
 msgstr "Udgave"
 
-#: sphinx/writers/latex.py:590 sphinx/writers/manpage.py:182
+#: sphinx/writers/latex.py:594 sphinx/writers/manpage.py:182
+#: sphinx/writers/texinfo.py:589
 msgid "Footnotes"
 msgstr "Fodnoter"
 
-#: sphinx/writers/latex.py:672
+#: sphinx/writers/latex.py:676
 msgid "continued from previous page"
 msgstr "fortsat fra forrige side"
 
-#: sphinx/writers/latex.py:677
+#: sphinx/writers/latex.py:681
 msgid "Continued on next page"
 msgstr "Fortsættes på næste side"
 
-#: sphinx/writers/text.py:430
+#: sphinx/writers/text.py:437
 msgid "[image]"
 msgstr "[billede]"
-
-#~ msgid "Platforms: "
-#~ msgstr "Platforme: "
-
-#~ msgid "Searching"
-#~ msgstr "Søger"
-
-#~ msgid "Preparing search..."
-#~ msgstr "Forbereder søgning..."
-
-#~ msgid ", in "
-#~ msgstr ", i "
-
-#~ msgid ""
-#~ "Your search did not match any "
-#~ "documents. Please make sure that all "
-#~ "words are spelled correctly and that "
-#~ "you've selected enough categories."
-#~ msgstr ""
-#~ "Din søgning gav ingen resultater. "
-#~ "Kontrollér venligst at alle ord er "
-#~ "stavet korrekt, og at du har valgt"
-#~ " nok kategorier."
-
-#~ msgid "Search finished, found %s page(s) matching the search query."
-#~ msgstr "Søgningen fuldført - fandt %s sider for denne søgning."
 

@@ -197,7 +197,7 @@ class ManualPageTranslator(BaseTranslator):
     def visit_admonition(self, node, name=None):
         if name:
             self.body.append('.IP %s\n' %
-                             admonitionlabels.get(name, name))
+                             self.deunicode(admonitionlabels.get(name, name)))
 
     def visit_productionlist(self, node):
         self.ensure_eol()
@@ -230,8 +230,8 @@ class ManualPageTranslator(BaseTranslator):
     # overwritten -- don't emit a warning for images
     def visit_image(self, node):
         if 'alt' in node.attributes:
-            self.body.append('[image: %s]\n' % node['alt'])
-        self.body.append('[image]\n')
+            self.body.append(_('[image: %s]') % node['alt'] + '\n')
+        self.body.append(_('[image]') + '\n')
         raise nodes.SkipNode
 
     # overwritten -- don't visit inner marked up nodes

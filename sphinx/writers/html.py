@@ -238,10 +238,12 @@ class HTMLTranslator(BaseTranslator):
             lang = node['language']
         if node.has_key('linenos'):
             linenos = node['linenos']
+        highlight_args = node.get('highlight_args', {})
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, linenos, warn=warner)
+            node.rawsource, lang, warn=warner, linenos=linenos,
+            **highlight_args)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
@@ -336,22 +338,20 @@ class HTMLTranslator(BaseTranslator):
 
         if node['uri'].lower().endswith('svg') or \
            node['uri'].lower().endswith('svgz'):
-            atts = {'data': node['uri'], 'type': 'image/svg+xml'}
+            atts = {'src': node['uri']}
             if node.has_key('width'):
                 atts['width'] = node['width']
             if node.has_key('height'):
                 atts['height'] = node['height']
+            if node.has_key('alt'):
+                atts['alt'] = node['alt']
             if node.has_key('align'):
                 self.body.append('<div align="%s" class="align-%s">' %
                                  (node['align'], node['align']))
                 self.context.append('</div>\n')
             else:
                 self.context.append('')
-            embatts = atts.copy()
-            embatts['src'] = embatts.pop('data')
-            self.body.append(self.starttag(node, 'object', '', **atts))
-            self.body.append(self.emptytag(node, 'embed', '', **embatts))
-            self.body.append('</object>\n')
+            self.body.append(self.emptytag(node, 'img', '', **atts))
             return
 
         if node.has_key('scale'):
@@ -427,8 +427,6 @@ class HTMLTranslator(BaseTranslator):
             else:
                 encoded = self.bulk_text_processor(encoded)
             self.body.append(encoded)
-
-    # these are all for docutils 0.5 compatibility
 
     def visit_note(self, node):
         self.visit_admonition(node, 'note')

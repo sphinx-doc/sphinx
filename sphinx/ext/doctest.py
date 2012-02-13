@@ -23,6 +23,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.builders import Builder
+from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 from sphinx.util.console import bold
 
@@ -63,7 +64,7 @@ class TestDirective(Directive):
         else:
             groups = ['default']
         node = nodetype(code, code, testnodetype=self.name, groups=groups)
-        node.line = self.lineno
+        set_source_info(self, node)
         if test is not None:
             # only save if it differs from code
             node['test'] = test

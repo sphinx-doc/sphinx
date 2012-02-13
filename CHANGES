@@ -1,5 +1,49 @@
-Release 1.1 (in development)
+Release 1.2 (in development)
 ============================
+
+* PR#28: Added Hungarian translation.
+
+* PR#35: Added Slovak translation.
+
+
+Release 1.1.3 (in development)
+==============================
+
+* PR#40: Fix ``safe_repr`` function to decode bytestrings with non-ASCII
+  characters correctly.
+
+* PR#37: Allow configuring sphinx-apidoc via ``SPHINX_APIDOC_OPTIONS``.
+
+* PR#34: Restore Python 2.4 compatibility.
+
+* PR#36: Make the "bibliography to TOC" fix in LaTeX output specific to
+  the document class.
+
+
+Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
+======================================================================
+
+* #809: Include custom fixers in the source distribution.
+
+
+Release 1.1.1 (Nov 1, 2011)
+===========================
+
+* #791: Fix QtHelp, DevHelp and HtmlHelp index entry links.
+
+* #792: Include "sphinx-apidoc" in the source distribution.
+
+* #797: Don't crash on a misformatted glossary.
+
+* #801: Make intersphinx work properly without SSL support.
+
+* #805: Make the ``Sphinx.add_index_to_domain`` method work correctly.
+
+* #780: Fix Python 2.5 compatibility.
+
+
+Release 1.1 (Oct 9, 2011)
+=========================
 
 Incompatible changes
 --------------------
@@ -7,6 +51,12 @@ Incompatible changes
 * The :rst:dir:`py:module` directive doesn't output its ``platform`` option
   value anymore.  (It was the only thing that the directive did output, and
   therefore quite inconsistent.)
+
+* Removed support for old dependency versions; requirements are now:
+
+  - Pygments >= 1.2
+  - Docutils >= 0.7
+  - Jinja2   >= 2.3
 
 Features added
 --------------
@@ -27,17 +77,20 @@ Features added
 
 * Markup:
 
-  - #138: Add an :rst:role:`index` role, to make inline index entries.
-  - #454: Add more index markup capabilities: marking see/seealso entries,
+  - #138: Added an :rst:role:`index` role, to make inline index entries.
+  - #454: Added more index markup capabilities: marking see/seealso entries,
     and main entries for a given key.
-  - #460: Allow limiting the depth of section numbers for HTML using the
+  - #460: Allowed limiting the depth of section numbers for HTML using the
     :rst:dir:`toctree`\'s ``numbered`` option.
   - #586: Implemented improved :rst:dir:`glossary` markup which allows
     multiple terms per definition.
   - #478: Added :rst:dir:`py:decorator` directive to describe decorators.
   - C++ domain now supports array definitions.
+  - C++ domain now supports doc fields (``:param x:`` inside directives).
   - Section headings in :rst:dir:`only` directives are now correctly
     handled.
+  - Added ``emphasize-lines`` option to source code directives.
+  - #678: C++ domain now supports superclasses.
 
 * HTML builder:
 
@@ -59,11 +112,13 @@ Features added
     requests and allow configuring the timeout.  New config values:
     :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
   - #521: Added :confval:`linkcheck_ignore` config value.
+  - #28: Support row/colspans in tables in the LaTeX builder.
 
 * Configuration and extensibility:
 
   - #537: Added :confval:`nitpick_ignore`.
   - #306: Added :event:`env-get-outdated` event.
+  - :meth:`.Application.add_stylesheet` now accepts full URIs.
 
 * Autodoc:
 
@@ -91,16 +146,71 @@ Features added
   - #367: Added automatic exclusion of hidden members in inheritance
     diagrams, and an option to selectively enable it.
   - Added :confval:`pngmath_add_tooltips`.
+  - The math extension displaymath directives now support ``name`` in
+    addition to ``label`` for giving the equation label, for compatibility
+    with Docutils.
 
 * New locales:
 
   - #221: Added Swedish locale.
   - #526: Added Iranian locale.
   - #694: Added Latvian locale.
+  - Added Nepali locale.
+  - #714: Added Korean locale.
+  - #766: Added Estonian locale.
+
+* Bugs fixed:
+
+  - #778: Fix "hide search matches" link on pages linked by search.
+  - Fix the source positions referenced by the "viewcode" extension.
 
 
-Release 1.0.8 (in development)
-==============================
+Release 1.0.8 (Sep 23, 2011)
+============================
+
+* #627: Fix tracebacks for AttributeErrors in autosummary generation.
+
+* Fix the ``abbr`` role when the abbreviation has newlines in it.
+
+* #727: Fix the links to search results with custom object types.
+
+* #648: Fix line numbers reported in warnings about undefined
+  references.
+
+* #696, #666: Fix C++ array definitions and template arguments
+  that are not type names.
+
+* #633: Allow footnotes in section headers in LaTeX output.
+
+* #616: Allow keywords to be linked via intersphinx.
+
+* #613: Allow Unicode characters in production list token names.
+
+* #720: Add dummy visitors for graphviz nodes for text and man.
+
+* #704: Fix image file duplication bug.
+
+* #677: Fix parsing of multiple signatures in C++ domain.
+
+* #637: Ignore Emacs lock files when looking for source files.
+
+* #544: Allow .pyw extension for importable modules in autodoc.
+
+* #700: Use ``$(MAKE)`` in quickstart-generated Makefiles.
+
+* #734: Make sidebar search box width consistent in browsers.
+
+* #644: Fix spacing of centered figures in HTML output.
+
+* #767: Safely encode SphinxError messages when printing them to
+  sys.stderr.
+
+* #611: Fix LaTeX output error with a document with no sections but
+  a link target.
+
+* Correctly treat built-in method descriptors as methods in autodoc.
+
+* #706: Stop monkeypatching the Python textwrap module.
 
 * #657: viewcode now works correctly with source files that have
   non-ASCII encoding.
@@ -117,6 +227,8 @@ Release 1.0.8 (in development)
 * #693: Fix double encoding done when writing HTMLHelp .hhk files.
 
 * #647: Do not apply SmartyPants in parsed-literal blocks.
+
+* C++ domain now supports array definitions.
 
 
 Release 1.0.7 (Jan 15, 2011)

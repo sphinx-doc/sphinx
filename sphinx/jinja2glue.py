@@ -46,9 +46,10 @@ class idgen(object):
         self.id = 0
     def current(self):
         return self.id
-    def next(self):
+    def __next__(self):
         self.id += 1
         return self.id
+    next = __next__  # Python 2/Jinja compatibility
 
 
 class SphinxFileSystemLoader(FileSystemLoader):

@@ -34,6 +34,7 @@ class JSObject(ObjectDescription):
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
             prefix, arglist = sig.split('(', 1)
+            prefix = prefix.strip()
             arglist = arglist[:-1].strip()
         else:
             prefix = sig
@@ -85,12 +86,11 @@ class JSObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             objects = self.env.domaindata['js']['objects']
             if fullname in objects:
-                self.env.warn(
-                    self.env.docname,
+                self.state_machine.reporter.warning(
                     'duplicate object description of %s, ' % fullname +
                     'other instance in ' +
                     self.env.doc2path(objects[fullname][0]),
-                    self.lineno)
+                    line=self.lineno)
             objects[fullname] = self.env.docname, self.objtype
 
         indextext = self.get_index_text(objectname, name_obj)
@@ -127,6 +127,8 @@ class JSCallable(JSObject):
                      can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
+        Field('returntype', label=l_('Return type'), has_arg=False,
+              names=('rtype',)),
     ]
 
 

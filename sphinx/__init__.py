@@ -15,8 +15,8 @@
 import sys
 from os import path
 
-__version__  = '1.1pre'
-__released__ = '1.1 (hg)'  # used when Sphinx builds its own docs
+__version__  = '1.2pre'
+__released__ = '1.2 (hg)'  # used when Sphinx builds its own docs
 
 package_dir = path.abspath(path.dirname(__file__))
 

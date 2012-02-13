@@ -19,7 +19,8 @@
           </a></p>
         {%- endif %}
         {%- block headertitle %}
-        <h1><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></h1>
+        <div class="headertitle"><a
+          href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></div>
         {%- endblock %}
         <div class="rel">
           {%- for rellink in rellinks|reverse %}
@@ -48,7 +49,7 @@
           {%- block sidebarsearch %}
           <h3 style="margin-top: 1.5em;">{{ _('Search') }}</h3>
           <form class="search" action="{{ pathto('search') }}" method="get">
-            <input type="text" name="q" size="18" />
+            <input type="text" name="q" />
             <input type="submit" value="{{ _('Go') }}" />
             <input type="hidden" name="check_keywords" value="yes" />
             <input type="hidden" name="area" value="default" />

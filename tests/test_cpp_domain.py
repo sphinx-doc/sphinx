@@ -25,6 +25,9 @@ def test_type_definitions():
     rv = parse('member_object', '  const  std::string  &  name leftover')
     assert unicode(rv) == 'const std::string& name'
 
+    rv = parse('member_object', '  const  std::string  &  name [n] leftover')
+    assert unicode(rv) == 'const std::string& name[n]'
+
     rv = parse('member_object', 'const std::vector< unsigned int, long> &name')
     assert unicode(rv) == 'const std::vector<unsigned int, long>& name'
 
@@ -44,6 +47,51 @@ def test_type_definitions():
     assert unicode(parse('type_object', x)) == x
 
     assert unicode(parse('type_object', 'long long int foo')) == 'long long foo'
+
+    x = 'void operator()(const boost::array<VertexID, 2>& v) const'
+    assert unicode(parse('function', x)) == x
+
+    x = 'void operator()(const boost::array<VertexID, 2, "foo,  bar">& v) const'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::MyClass(MyClass::MyClass&&)'
+    assert unicode(parse('function', x)) == x
+
+    x = 'constexpr int get_value()'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int get_value() const noexcept'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int main(int argc, char* argv[][])'
+    assert unicode(parse('function', x)) == x
+
+    x = 'std::vector<std::pair<std::string, int>>& module::test(register ' \
+        'foo, bar[n], std::string baz="foobar, blah, bleh") const = 0'
+    assert unicode(parse('function', x)) == x
+
+    x = 'module::myclass foo[n]'
+    assert unicode(parse('member_object', x)) == x
+
+
+def test_bases():
+    x = 'A'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : B'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : private B'
+    assert unicode(parse('class', x)) == 'A : B'
+
+    x = 'A : public B'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : B, C'
+    assert unicode(parse('class', x)) == x
+
+    x = 'A : B, protected C, D'
+    assert unicode(parse('class', x)) == x
 
 
 def test_operators():

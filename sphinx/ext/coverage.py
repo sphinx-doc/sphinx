@@ -228,11 +228,12 @@ class CoverageBuilder(Builder):
                         op.write('\n')
                     if undoc['classes']:
                         op.write('Classes:\n')
-                        for name, methods in sorted(undoc['classes'].iteritems()):
+                        for name, methods in sorted(
+                                                 undoc['classes'].iteritems()):
                             if not methods:
                                 op.write(' * %s\n' % name)
                             else:
-                                op.write(' * %s -- missing methods:\n' % name)
+                                op.write(' * %s -- missing methods:\n\n' % name)
                                 op.writelines('   - %s\n' % x for x in methods)
                         op.write('\n')
 

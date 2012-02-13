@@ -87,7 +87,7 @@ class WebSupport(object):
 
     def _init_templating(self):
         import sphinx
-        template_path = path.join(path.dirname(sphinx.__file__),
+        template_path = path.join(sphinx.package_dir,
                                   'themes', 'basic')
         loader = FileSystemLoader(template_path)
         self.template_env = Environment(loader=loader)

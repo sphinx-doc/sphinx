@@ -21,6 +21,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
+from sphinx.util.docfields import Field, GroupedField
 
 
 _identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
@@ -28,14 +29,15 @@ _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
-_array_def_re = re.compile(r'\[\s*(.+?)?\s*\]')
+_array_def_re = re.compile(r'\[\s*([^\]]+?)?\s*\]')
+_template_arg_re = re.compile(r'(%s)|([^,>]+)' % _string_re.pattern, re.S)
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
-    |   [!<>=/*%+|&^-]=?
     |   \+\+ | --
-    |   (<<|>>)=? | ~ | && | \| | \|\|
     |   ->\*? | \,
+    |   (<<|>>)=? | && | \|\|
+    |   [!<>=/*%+|&^~-]=?
 ''')
 
 _id_shortwords = {
@@ -106,24 +108,21 @@ class DefinitionError(Exception):
     def __init__(self, description):
         self.description = description
 
-    def __unicode__(self):
-        return self.description
-
     def __str__(self):
         return unicode(self).encode('utf-8')
 
+    def __unicode__(self):
+        return self.description
+
 
 class DefExpr(object):
-
-    def __unicode__(self):
-        raise NotImplementedError()
 
     def __eq__(self, other):
         if type(self) is not type(other):
             return False
         try:
             for key, value in self.__dict__.iteritems():
-                if value != getattr(other, value):
+                if value != getattr(other, key):
                     return False
         except AttributeError:
             return False
@@ -164,6 +163,9 @@ class DefExpr(object):
 
     def __str__(self):
         return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
+        raise NotImplementedError()
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self)
@@ -222,6 +224,20 @@ class PathDefExpr(PrimaryDefExpr):
         return u'::'.join(map(unicode, self.path))
 
 
+class ArrayTypeSuffixDefExpr(object):
+
+    def __init__(self, size_hint=None):
+        self.size_hint = size_hint
+
+    def get_id_suffix(self):
+        return 'A'
+
+    def __unicode__(self):
+        return u'[%s]' % (
+            self.size_hint is not None and unicode(self.size_hint) or u'',
+        )
+
+
 class TemplateDefExpr(PrimaryDefExpr):
 
     def __init__(self, typename, args):
@@ -238,6 +254,18 @@ class TemplateDefExpr(PrimaryDefExpr):
 
     def __unicode__(self):
         return u'%s<%s>' % (self.typename, u', '.join(map(unicode, self.args)))
+
+
+class ConstantTemplateArgExpr(PrimaryDefExpr):
+
+    def __init__(self, arg):
+        self.arg = arg
+
+    def get_id(self):
+        return self.arg.replace(u' ', u'-')
+
+    def __unicode__(self):
+        return unicode(self.arg)
 
 
 class WrappingDefExpr(DefExpr):
@@ -274,29 +302,22 @@ class PtrDefExpr(WrappingDefExpr):
         return u'%s*' % self.typename
 
 
-class ArrayDefExpr(WrappingDefExpr):
-
-    def __init__(self, typename, size_hint=None):
-        WrappingDefExpr.__init__(self, typename)
-        self.size_hint = size_hint
-
-    def get_id(self):
-        return self.typename.get_id() + u'A'
-
-    def __unicode__(self):
-        return u'%s[%s]' % (
-            self.typename,
-            self.size_hint is not None and unicode(self.size_hint) or u''
-        )
-
-
-class RefDefExpr(WrappingDefExpr):
+class LValRefDefExpr(WrappingDefExpr):
 
     def get_id(self):
         return self.typename.get_id() + u'R'
 
     def __unicode__(self):
         return u'%s&' % self.typename
+
+
+class RValRefDefExpr(WrappingDefExpr):
+
+    def get_id(self):
+        return self.typename.get_id() + u'RR'
+
+    def __unicode__(self):
+        return u'%s&&' % self.typename
 
 
 class ConstDefExpr(WrappingDefExpr):
@@ -326,22 +347,29 @@ class CastOpDefExpr(PrimaryDefExpr):
 
 class ArgumentDefExpr(DefExpr):
 
-    def __init__(self, type, name, default=None):
+    def __init__(self, type, name, type_suffixes, default=None):
         self.name = name
         self.type = type
+        self.type_suffixes = type_suffixes
         self.default = default
 
     def get_name(self):
         return self.name.get_name()
 
     def get_id(self):
-        if self.type is None:
-            return 'X'
-        return self.type.get_id()
+        buf = []
+        buf.append(self.type and self.type.get_id() or 'X')
+        for suffix in self.type_suffixes:
+            buf.append(suffix.get_id_suffix())
+        return u''.join(buf)
 
     def __unicode__(self):
-        return (u'%s %s' % (self.type or u'', self.name or u'')).strip() + \
-               (self.default is not None and u'=%s' % self.default or u'')
+        buf = [(u'%s %s' % (self.type or u'', self.name or u'')).strip()]
+        if self.default is not None:
+            buf.append('=%s' % self.default)
+        for suffix in self.type_suffixes:
+            buf.append(unicode(suffix))
+        return u''.join(buf)
 
 
 class NamedDefExpr(DefExpr):
@@ -354,9 +382,9 @@ class NamedDefExpr(DefExpr):
     def get_name(self):
         return self.name.get_name()
 
-    def get_modifiers(self):
+    def get_modifiers(self, visibility='public'):
         rv = []
-        if self.visibility != 'public':
+        if self.visibility != visibility:
             rv.append(self.visibility)
         if self.static:
             rv.append(u'static')
@@ -365,14 +393,19 @@ class NamedDefExpr(DefExpr):
 
 class TypeObjDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, typename):
+    def __init__(self, name, visibility, static, typename, type_suffixes):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.typename = typename
+        self.type_suffixes = type_suffixes
 
     def get_id(self):
         if self.typename is None:
-            return self.name.get_id()
-        return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
+            buf = [self.name.get_id()]
+        else:
+            buf = [u'%s__%s' % (self.name.get_id(), self.typename.get_id())]
+        for suffix in self.type_suffixes:
+            buf.append(suffix.get_id_suffix())
+        return u''.join(buf)
 
     def __unicode__(self):
         buf = self.get_modifiers()
@@ -380,56 +413,74 @@ class TypeObjDefExpr(NamedDefExpr):
             buf.append(unicode(self.name))
         else:
             buf.extend(map(unicode, (self.typename, self.name)))
-        return u' '.join(buf)
+        buf = [u' '.join(buf)]
+        for suffix in self.type_suffixes:
+            buf.append(unicode(suffix))
+        return u''.join(buf)
 
 
 class MemberObjDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, typename, value):
+    def __init__(self, name, visibility, static, typename, type_suffixes,
+                 value):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.typename = typename
+        self.type_suffixes = type_suffixes
         self.value = value
 
     def get_id(self):
-        return u'%s__%s' % (self.name.get_id(), self.typename.get_id())
+        buf = [u'%s__%s' % (self.name.get_id(), self.typename.get_id())]
+        for suffix in self.type_suffixes:
+            buf.append(suffix.get_id_suffix())
+        return u''.join(buf)
 
     def __unicode__(self):
         buf = self.get_modifiers()
-        buf.append(u'%s %s' % (self.typename, self.name))
+        buf.extend((unicode(self.typename), unicode(self.name)))
+        buf = [u' '.join(buf)]
+        for suffix in self.type_suffixes:
+            buf.append(unicode(suffix))
         if self.value is not None:
-            buf.append(u'= %s' % self.value)
-        return u' '.join(buf)
+            buf.append(u' = %s' % self.value)
+        return u''.join(buf)
 
 
 class FuncDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, explicit, rv,
-                 signature, const, pure_virtual):
+    def __init__(self, name, visibility, static, explicit, constexpr, rv,
+                 signature, const, noexcept, pure_virtual):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
         self.explicit = explicit
+        self.constexpr = constexpr
         self.const = const
+        self.noexcept = noexcept
         self.pure_virtual = pure_virtual
 
     def get_id(self):
-        return u'%s%s%s' % (
+        return u'%s%s%s%s' % (
             self.name.get_id(),
             self.signature and u'__' +
                 u'.'.join(x.get_id() for x in self.signature) or u'',
-            self.const and u'C' or u''
+            self.const and u'C' or u'',
+            self.constexpr and 'CE' or ''
         )
 
     def __unicode__(self):
         buf = self.get_modifiers()
         if self.explicit:
             buf.append(u'explicit')
+        if self.constexpr:
+            buf.append(u'constexpr')
         if self.rv is not None:
             buf.append(unicode(self.rv))
         buf.append(u'%s(%s)' % (self.name, u', '.join(
             map(unicode, self.signature))))
         if self.const:
             buf.append(u'const')
+        if self.noexcept:
+            buf.append(u'noexcept')
         if self.pure_virtual:
             buf.append(u'= 0')
         return u' '.join(buf)
@@ -437,17 +488,24 @@ class FuncDefExpr(NamedDefExpr):
 
 class ClassDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static):
+    def __init__(self, name, visibility, static, bases):
         NamedDefExpr.__init__(self, name, visibility, static)
+        self.bases = bases
 
     def get_id(self):
         return self.name.get_id()
 
-    def __unicode__(self):
-        buf = self.get_modifiers()
+    def _tostring(self, visibility='public'):
+        buf = self.get_modifiers(visibility)
         buf.append(unicode(self.name))
+        if self.bases:
+            buf.append(u':')
+            buf.append(u', '.join(base._tostring('private')
+                                  for base in self.bases))
         return u' '.join(buf)
 
+    def __unicode__(self):
+        return self._tostring('public')
 
 class DefinitionParser(object):
 
@@ -503,6 +561,12 @@ class DefinitionParser(object):
     def skip_ws(self):
         return self.match(_whitespace_re)
 
+    def skip_word_and_ws(self, word):
+        if self.skip_word(word):
+            self.skip_ws()
+            return True
+        return False
+
     @property
     def eof(self):
         return self.pos >= self.end
@@ -544,8 +608,15 @@ class DefinitionParser(object):
         return CastOpDefExpr(type)
 
     def _parse_name(self):
+        return self._parse_name_or_template_arg(False)
+
+    def _parse_name_or_template_arg(self, in_template):
         if not self.match(_identifier_re):
-            self.fail('expected name')
+            if not in_template:
+                self.fail('expected name')
+            if not self.match(_template_arg_re):
+                self.fail('expected name or constant template argument')
+            return ConstantTemplateArgExpr(self.matched_text.strip())
         identifier = self.matched_text
 
         # strictly speaking, operators are not regular identifiers
@@ -579,12 +650,20 @@ class DefinitionParser(object):
                 expr = ConstDefExpr(expr)
             elif self.skip_string('*'):
                 expr = PtrDefExpr(expr)
-            elif self.match(_array_def_re):
-                expr = ArrayDefExpr(expr, self.last_match.group(1))
             elif self.skip_string('&'):
-                expr = RefDefExpr(expr)
+                if self.skip_string('&'):
+                    expr = RValRefDefExpr(expr)
+                else:
+                    expr = LValRefDefExpr(expr)
             else:
                 return expr
+
+    def _try_parse_type_suffixes(self):
+        rv = []
+        while self.match(_array_def_re):
+            rv.append(ArrayTypeSuffixDefExpr(self.last_match.group(1)))
+            self.skip_ws()
+        return rv
 
     def _peek_const(self, path):
         try:
@@ -614,8 +693,8 @@ class DefinitionParser(object):
         rv = ModifierDefExpr(NameDefExpr(typename), modifiers)
         return self._attach_crefptr(rv, is_const)
 
-    def _parse_type_expr(self):
-        typename = self._parse_name()
+    def _parse_type_expr(self, in_template=False):
+        typename = self._parse_name_or_template_arg(in_template)
         self.skip_ws()
         if not self.skip_string('<'):
             return typename
@@ -664,7 +743,7 @@ class DefinitionParser(object):
                (result and not self.skip_string('::')) or \
                self.eof:
                 break
-            result.append(self._parse_type_expr())
+            result.append(self._parse_type_expr(in_template))
 
         if not result:
             self.fail('expected type')
@@ -713,29 +792,33 @@ class DefinitionParser(object):
                 self.skip_ws()
 
             if self.skip_string('...'):
-                args.append(ArgumentDefExpr(None, '...', None))
+                args.append(ArgumentDefExpr(None, '...', [], None))
                 if self.skip_string(')'):
                     break
                 else:
                     self.fail('expected closing parenthesis after ellipses')
 
-            argtype = self._parse_type()
             argname = default = None
+            argtype = self._parse_type()
             self.skip_ws()
+            type_suffixes = self._try_parse_type_suffixes()
             if self.skip_string('='):
-                self.pos += 1
                 default = self._parse_default_expr()
             elif self.current_char not in ',)':
                 argname = self._parse_name()
                 self.skip_ws()
+                type_suffixes.extend(self._try_parse_type_suffixes())
                 if self.skip_string('='):
                     default = self._parse_default_expr()
+            if argname is None:
+                argname = argtype
+                argtype = None
 
-            args.append(ArgumentDefExpr(argtype, argname, default))
+            args.append(ArgumentDefExpr(argtype, argname,
+                                        type_suffixes, default))
         self.skip_ws()
-        const = self.skip_word('const')
-        if const:
-            self.skip_ws()
+        const = self.skip_word_and_ws('const')
+        noexcept = self.skip_word_and_ws('noexcept')
         if self.skip_string('='):
             self.skip_ws()
             if not (self.skip_string('0') or \
@@ -747,10 +830,10 @@ class DefinitionParser(object):
             pure_virtual = True
         else:
             pure_virtual = False
-        return args, const, pure_virtual
+        return args, const, noexcept, pure_virtual
 
     def _parse_visibility_static(self):
-        visibility =  'public'
+        visibility = 'public'
         if self.match(_visibility_re):
             visibility = self.matched_text
         static = self.skip_word('static')
@@ -765,29 +848,31 @@ class DefinitionParser(object):
         self.skip_ws()
         if not self.eof:
             name = self._parse_type()
+            type_suffixes = self._try_parse_type_suffixes()
         else:
             name = typename
             typename = None
-        return TypeObjDefExpr(name, visibility, static, typename)
+            type_suffixes = []
+        return TypeObjDefExpr(name, visibility, static, typename, type_suffixes)
 
     def parse_member_object(self):
         visibility, static = self._parse_visibility_static()
         typename = self._parse_type()
         name = self._parse_type()
+        type_suffixes = self._try_parse_type_suffixes()
         self.skip_ws()
         if self.skip_string('='):
             value = self.read_rest().strip()
         else:
             value = None
-        return MemberObjDefExpr(name, visibility, static, typename, value)
+        return MemberObjDefExpr(name, visibility, static, typename,
+                                type_suffixes, value)
 
     def parse_function(self):
         visibility, static = self._parse_visibility_static()
-        if self.skip_word('explicit'):
-            explicit = True
-            self.skip_ws()
-        else:
-            explicit = False
+        explicit = self.skip_word_and_ws('explicit')
+        constexpr = self.skip_word_and_ws('constexpr')
+
         rv = self._parse_type()
         self.skip_ws()
         # some things just don't have return values
@@ -796,12 +881,26 @@ class DefinitionParser(object):
             rv = None
         else:
             name = self._parse_type()
-        return FuncDefExpr(name, visibility, static, explicit, rv,
+        return FuncDefExpr(name, visibility, static, explicit, constexpr, rv,
                            *self._parse_signature())
 
     def parse_class(self):
         visibility, static = self._parse_visibility_static()
-        return ClassDefExpr(self._parse_type(), visibility, static)
+        name = self._parse_type()
+        bases = []
+        if self.skip_string(':'):
+            self.skip_ws()
+            while 1:
+                access = 'private'
+                if self.match(_visibility_re):
+                    access = self.matched_text
+                base = self._parse_type()
+                bases.append(ClassDefExpr(base, access, False, []))
+                if self.skip_string(','):
+                    self.skip_ws()
+                else:
+                    break
+        return ClassDefExpr(name, visibility, static, bases)
 
     def read_rest(self):
         rv = self.definition[self.pos:]
@@ -818,6 +917,17 @@ class DefinitionParser(object):
 class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
+    doc_field_types = [
+        GroupedField('parameter', label=l_('Parameters'),
+                     names=('param', 'parameter', 'arg', 'argument'),
+                     can_collapse=True),
+        GroupedField('exceptions', label=l_('Throws'), rolename='cpp:class',
+                     names=('throws', 'throw', 'exception'),
+                     can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+    ]
+
     def attach_name(self, node, name):
         owner, name = name.split_owner()
         varname = unicode(name)
@@ -825,6 +935,10 @@ class CPPObject(ObjectDescription):
             owner = unicode(owner) + '::'
             node += addnodes.desc_addname(owner, owner)
         node += addnodes.desc_name(varname, varname)
+
+    def attach_type_suffixes(self, node, suffixes):
+        for suffix in suffixes:
+            node += nodes.Text(unicode(suffix))
 
     def attach_type(self, node, type):
         # XXX: link to c?
@@ -836,13 +950,16 @@ class CPPObject(ObjectDescription):
         pnode += nodes.Text(text)
         node += pnode
 
-    def attach_modifiers(self, node, obj):
-        if obj.visibility != 'public':
+    def attach_modifiers(self, node, obj, visibility='public'):
+        if obj.visibility != visibility:
             node += addnodes.desc_annotation(obj.visibility,
                                              obj.visibility)
             node += nodes.Text(' ')
         if obj.static:
             node += addnodes.desc_annotation('static', 'static')
+            node += nodes.Text(' ')
+        if getattr(obj, 'constexpr', False):
+            node += addnodes.desc_annotation('constexpr', 'constexpr')
             node += nodes.Text(' ')
 
     def add_target_and_index(self, sigobj, sig, signode):
@@ -886,8 +1003,7 @@ class CPPObject(ObjectDescription):
             rv = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError, e:
-            self.env.warn(self.env.docname,
-                          e.description, self.lineno)
+            self.state_machine.reporter.warning(e.description, line=self.lineno)
             raise ValueError
         self.describe_signature(signode, rv)
 
@@ -910,6 +1026,14 @@ class CPPClassObject(CPPObject):
         self.attach_modifiers(signode, cls)
         signode += addnodes.desc_annotation('class ', 'class ')
         self.attach_name(signode, cls.name)
+        if cls.bases:
+            signode += nodes.Text(' : ')
+            for base in cls.bases:
+                self.attach_modifiers(signode, base, 'private')
+                signode += nodes.emphasis(unicode(base.name),
+                                          unicode(base.name))
+                signode += nodes.Text(', ')
+            signode.pop()  # remove the trailing comma
 
 
 class CPPTypeObject(CPPObject):
@@ -929,6 +1053,7 @@ class CPPTypeObject(CPPObject):
             self.attach_type(signode, obj.typename)
             signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
+        self.attach_type_suffixes(signode, obj.type_suffixes)
 
 
 class CPPMemberObject(CPPObject):
@@ -946,6 +1071,7 @@ class CPPMemberObject(CPPObject):
         self.attach_type(signode, obj.typename)
         signode += nodes.Text(' ')
         self.attach_name(signode, obj.name)
+        self.attach_type_suffixes(signode, obj.type_suffixes)
         if obj.value is not None:
             signode += nodes.Text(u' = ' + obj.value)
 
@@ -975,6 +1101,7 @@ class CPPFunctionObject(CPPObject):
                 self.attach_type(param, arg.type)
                 param += nodes.Text(u' ')
             param += nodes.emphasis(unicode(arg.name), unicode(arg.name))
+            self.attach_type_suffixes(param, arg.type_suffixes)
             if arg.default is not None:
                 def_ = u'=' + unicode(arg.default)
                 param += nodes.emphasis(def_, def_)
@@ -983,6 +1110,8 @@ class CPPFunctionObject(CPPObject):
         node += paramlist
         if func.const:
             node += addnodes.desc_addname(' const', ' const')
+        if func.noexcept:
+            node += addnodes.desc_addname(' noexcept', ' noexcept')
         if func.pure_virtual:
             node += addnodes.desc_addname(' = 0', ' = 0')
 
@@ -1028,8 +1157,8 @@ class CPPCurrentNamespace(Directive):
                 prefix = parser.parse_type()
                 parser.assert_end()
             except DefinitionError, e:
-                self.env.warn(self.env.docname,
-                              e.description, self.lineno)
+                self.state_machine.reporter.warning(e.description,
+                                                    line=self.lineno)
             else:
                 env.temp_data['cpp:prefix'] = prefix
         return []
@@ -1103,12 +1232,10 @@ class CPPDomain(Domain):
             if not parser.eof or expr is None:
                 raise DefinitionError('')
         except DefinitionError:
-            refdoc = node.get('refdoc', fromdocname)
-            env.warn(refdoc, 'unparseable C++ definition: %r' % target,
-                     node.line)
+            env.warn_node('unparseable C++ definition: %r' % target, node)
             return None
 
-        parent = node['cpp:parent']
+        parent = node.get('cpp:parent', None)
 
         rv = _create_refnode(expr)
         if rv is not None or parent is None:

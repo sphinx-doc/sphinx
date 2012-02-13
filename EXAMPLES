@@ -19,10 +19,13 @@ Documentation using the default theme
 * CodePy: http://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * C\\C++ Python language binding project: http://language-binding.net/index.html
+* Cormoran: http://cormoran.nhopkg.org/docs/
 * Director: http://packages.python.org/director/
 * Dirigible: http://www.projectdirigible.com/documentation/
+* Elemental: http://elemental.googlecode.com/hg/doc/build/html/index.html
 * F2py: http://f2py.sourceforge.net/docs/
 * GeoDjango: http://geodjango.org/docs/
+* Genomedata: http://noble.gs.washington.edu/proj/genomedata/doc/1.2.2/genomedata.html
 * gevent: http://www.gevent.org/
 * Google Wave API: http://wave-robot-python-client.googlecode.com/svn/trunk/pydocs/index.html
 * GSL Shell: http://www.nongnu.org/gsl-shell/
@@ -51,6 +54,7 @@ Documentation using the default theme
 * PyUblas: http://documen.tician.de/pyublas/
 * Quex: http://quex.sourceforge.net/doc/html/main.html
 * Scapy: http://www.secdev.org/projects/scapy/doc/
+* Segway: http://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html
 * SimPy: http://simpy.sourceforge.net/SimPyDocs/index.html
 * SymPy: http://docs.sympy.org/
 * WTForms: http://wtforms.simplecodes.com/docs/
@@ -114,14 +118,15 @@ Documentation using another builtin theme
 * C/C++ Development with Eclipse: http://eclipsebook.in/ (agogo)
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
+* jsFiddle: http://doc.jsfiddle.net/ (nature)
 * pip: http://pip.openplans.org/ (nature)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
-* pypol: http://pypol.altervista.org/ (nature)
 * Spring Python: http://springpython.webfactional.com/current/sphinx/index.html
   (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
+* Sylli: http://sylli.sourceforge.net/ (nature)
 * libLAS: http://liblas.org/ (nature)
 
 
@@ -132,8 +137,10 @@ Documentation using a custom theme/integrated in a site
 * Blinker: http://discorporate.us/projects/Blinker/docs/
 * Classy: classy: http://classy.pocoo.org/
 * Django: http://docs.djangoproject.com/
+* e-cidadania: http://e-cidadania.readthedocs.org/en/latest/
 * Flask: http://flask.pocoo.org/docs/
 * Flask-OpenID: http://packages.python.org/Flask-OpenID/
+* Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
 * MirrorBrain: http://mirrorbrain.org/docs/
@@ -145,6 +152,7 @@ Documentation using a custom theme/integrated in a site
 * German Plone 4.0 user manual: http://www.hasecke.com/plone-benutzerhandbuch/4.0/
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
+* pypol: http://pypol.altervista.org/ (celery)
 * qooxdoo: http://manual.qooxdoo.org/current
 * Roundup: http://www.roundup-tracker.org/
 * Selenium: http://seleniumhq.org/docs/
@@ -164,6 +172,7 @@ Homepages and other non-documentation sites
 * A personal page: http://www.dehlia.in/
 * Benoit Boissinot: http://bboissin.appspot.com/
 * lunarsite: http://lunaryorn.de/
+* Red Hot Chili Python: http://redhotchilipython.com/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
 * VOR: http://www.vor-cycling.be/
 

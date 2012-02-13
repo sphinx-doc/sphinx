@@ -22,6 +22,7 @@
 
 from docutils import nodes
 
+from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 
 
@@ -39,7 +40,7 @@ class IfConfig(Directive):
     def run(self):
         node = ifconfig()
         node.document = self.state.document
-        node.line = self.lineno
+        set_source_info(self, node)
         node['expr'] = self.arguments[0]
         self.state.nested_parse(self.content, self.content_offset,
                                 node, match_titles=1)

@@ -79,3 +79,14 @@
 \pagenumbering{arabic}		% ToC & chapters
 
 \thispagestyle{empty}
+
+% Fix the bibliography environment to add an entry to the Table of
+% Contents.
+% For an article document class this environment is a section,
+% so no page break before it.
+\let\py@OldThebibliography=\thebibliography
+\renewcommand{\thebibliography}[1]{
+  \phantomsection
+  \py@OldThebibliography{1}
+  \addcontentsline{toc}{section}{\bibname}
+}

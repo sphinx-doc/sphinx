@@ -112,11 +112,11 @@ class FilenameUniqDict(dict):
         return uniquename
 
     def purge_doc(self, docname):
-        for filename, (docs, _) in self.items():
+        for filename, (docs, unique) in self.items():
             docs.discard(docname)
             if not docs:
                 del self[filename]
-                self._existing.discard(filename)
+                self._existing.discard(unique)
 
     def __getstate__(self):
         return self._existing
@@ -209,6 +209,8 @@ def get_module_source(modname):
     lfilename = filename.lower()
     if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
         filename = filename[:-1]
+        if not path.isfile(filename) and path.isfile(filename + 'w'):
+            filename += 'w'
     elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
     if not path.isfile(filename):

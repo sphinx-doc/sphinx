@@ -4,22 +4,21 @@ Math support in Sphinx
 ======================
 
 .. module:: sphinx.ext.mathbase
-   :synopsis: Common math support for pngmath and jsmath.
+   :synopsis: Common math support for pngmath and mathjax / jsmath.
 
 .. versionadded:: 0.5
 
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
-supports math in documentation with two extensions.
+supports math in documentation with several extensions.
 
-The basic math support that is common to both extensions is contained in
-:mod:`sphinx.ext.mathbase`.  Other math support extensions should,
-if possible, reuse that support too.
+The basic math support is contained in :mod:`sphinx.ext.mathbase`. Other math
+support extensions should, if possible, reuse that support too.
 
 .. note::
 
    :mod:`.mathbase` is not meant to be added to the :confval:`extensions` config
    value, instead, use either :mod:`sphinx.ext.pngmath` or
-   :mod:`sphinx.ext.jsmath` as described below.
+   :mod:`sphinx.ext.mathjax` as described below.
 
 The input language for mathematics is LaTeX markup.  This is the de-facto
 standard for plain-text math notation and has the added advantage that no
@@ -64,10 +63,10 @@ further translation is necessary when building LaTeX output.
       .. math:: (a + b)^2 = a^2 + 2ab + b^2
 
    Normally, equations are not numbered.  If you want your equation to get a
-   number, use the ``label`` option.  When given, it selects a label for the
-   equation, by which it can be cross-referenced, and causes an equation number
-   to be issued.  See :rst:role:`eqref` for an example.  The numbering style depends
-   on the output format.
+   number, use the ``label`` option.  When given, it selects an internal label
+   for the equation, by which it can be cross-referenced, and causes an equation
+   number to be issued.  See :rst:role:`eqref` for an example.  The numbering
+   style depends on the output format.
 
    There is also an option ``nowrap`` that prevents any wrapping of the given
    math in a math environment.  When you give this option, you must make sure
@@ -103,7 +102,8 @@ This extension renders math via LaTeX and dvipng_ into PNG images.  This of
 course means that the computer where the docs are built must have both programs
 available.
 
-There are various config values you can set to influence how the images are built:
+There are various config values you can set to influence how the images are
+built:
 
 .. confval:: pngmath_latex
 
@@ -196,7 +196,7 @@ Sphinx.
 .. confval:: mathjax_path
 
    The path to the JavaScript file to include in the HTML files in order to load
-   JSMath.
+   MathJax.
 
    The default is the ``http://`` URL that loads the JS files from the `MathJax
    CDN <http://www.mathjax.org/docs/1.1/start.html>`_.  If you want MathJax to
@@ -206,7 +206,7 @@ Sphinx.
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.
 
-   For example, if you put JSMath into the static path of the Sphinx docs, this
+   For example, if you put MathJax into the static path of the Sphinx docs, this
    value would be ``MathJax/MathJax.js``.  If you host more than one Sphinx
    documentation set on one server, it is advisable to install MathJax in a
    shared location.

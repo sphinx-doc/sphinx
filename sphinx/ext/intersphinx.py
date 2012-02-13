@@ -33,6 +33,7 @@ from os import path
 
 from docutils import nodes
 
+from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.util.pycompat import b
 
@@ -41,7 +42,7 @@ handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
             urllib2.HTTPHandler()]
 try:
     handlers.append(urllib2.HTTPSHandler)
-except NameError:
+except AttributeError:
     pass
 
 urllib2.install_opener(urllib2.build_opener(*handlers))
@@ -158,7 +159,7 @@ def load_mappings(app):
             # new format
             name, (uri, inv) = key, value
             if not name.isalnum():
-                env.warn('intersphinx identifier %r is not alphanumeric' % name)
+                app.warn('intersphinx identifier %r is not alphanumeric' % name)
         else:
             # old format, no name
             name, uri, inv = None, key, value
@@ -214,11 +215,12 @@ def missing_reference(app, env, node, contnode):
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
             newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle='(in %s v%s)' % (proj, version))
+                          reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)
-            elif dispname == '-':
+            elif dispname == '-' or \
+                    (domain == 'std' and node['reftype'] == 'keyword'):
                 # use whatever title was given, but strip prefix
                 title = contnode.astext()
                 if in_set and title.startswith(in_set+':'):

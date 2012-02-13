@@ -15,23 +15,43 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
-from sphinx.util.pycompat import class_types
+
+
+class WarningStream(object):
+
+    def __init__(self, warnfunc):
+        self.warnfunc = warnfunc
+        self._re = re.compile(r'\((DEBUG|INFO|WARNING|ERROR|SEVERE)/[0-4]\)')
+
+    def write(self, text):
+        text = text.strip()
+        if text:
+            self.warnfunc(self._re.sub(r'\1:', text), None, '')
 
 
 # \x00 means the "<" was backslash-escaped
 explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
-
+IGNORED_NODES = (
+    nodes.Invisible,
+    nodes.Inline,
+    nodes.literal_block,
+    nodes.doctest_block,
+    #XXX there are probably more
+)
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
-        if isinstance(node, (nodes.Invisible, nodes.Inline)):
+        if not node.source:
+            continue # built-in message
+        if isinstance(node, IGNORED_NODES):
             continue
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
         if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
             continue
+
         msg = node.rawsource.replace('\n', ' ').strip()
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
@@ -153,39 +173,14 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     node.append(child)
     return node
 
-# monkey-patch Node.traverse to get more speed
-# traverse() is called so many times during a build that it saves
-# on average 20-25% overall build time!
 
-def _all_traverse(self, result):
-    """Version of Node.traverse() that doesn't need a condition."""
-    result.append(self)
-    for child in self.children:
-        child._all_traverse(result)
-    return result
+def set_source_info(directive, node):
+    node.source, node.line = \
+        directive.state_machine.get_source_and_line(directive.lineno)
 
-def _fast_traverse(self, cls, result):
-    """Version of Node.traverse() that only supports instance checks."""
-    if isinstance(self, cls):
-        result.append(self)
-    for child in self.children:
-        child._fast_traverse(cls, result)
-    return result
-
-def _new_traverse(self, condition=None,
-                 include_self=1, descend=1, siblings=0, ascend=0):
-    if include_self and descend and not siblings and not ascend:
-        if condition is None:
-            return self._all_traverse([])
-        elif isinstance(condition, class_types):
-            return self._fast_traverse(condition, [])
-    return self._old_traverse(condition, include_self,
-                              descend, siblings, ascend)
-
-nodes.Node._old_traverse = nodes.Node.traverse
-nodes.Node._all_traverse = _all_traverse
-nodes.Node._fast_traverse = _fast_traverse
-nodes.Node.traverse = _new_traverse
+def set_role_source_info(inliner, lineno, node):
+        node.source, node.line = \
+            inliner.reporter.locator(lineno)
 
 # monkey-patch Node.__contains__ to get consistent "in" operator behavior
 # across docutils versions

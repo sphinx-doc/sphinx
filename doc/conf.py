@@ -64,6 +64,8 @@ man_pages = [
      '', 1),
     ('man/sphinx-quickstart', 'sphinx-quickstart', 'Sphinx documentation '
      'template generator', '', 1),
+    ('man/sphinx-apidoc', 'sphinx-apidoc', 'Sphinx API doc generator tool',
+     '', 1),
 ]
 
 texinfo_documents = [

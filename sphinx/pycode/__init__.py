@@ -9,21 +9,19 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
-import sys
 from os import path
-from cStringIO import StringIO
 
+from sphinx import package_dir
 from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util import get_module_source, detect_encoding
-from sphinx.util.pycompat import next
+from sphinx.util.pycompat import next, StringIO, BytesIO, TextIOWrapper
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
 # load the Python grammar
-_grammarfile = path.join(path.dirname(__file__), 'Grammar.txt')
+_grammarfile = path.join(package_dir, 'pycode', 'Grammar.txt')
 pygrammar = driver.load_grammar(_grammarfile)
 pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
@@ -172,14 +170,16 @@ class ModuleAnalyzer(object):
 
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
-        return cls(StringIO(string), modname, srcname)
+        if isinstance(string, bytes):
+            return cls(BytesIO(string), modname, srcname)
+        return cls(StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
     def for_file(cls, filename, modname):
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
-            fileobj = open(filename, 'r')
+            fileobj = open(filename, 'rb')
         except Exception, err:
             raise PycodeError('error opening %r' % filename, err)
         obj = cls(fileobj, modname, filename)
@@ -206,7 +206,7 @@ class ModuleAnalyzer(object):
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source, modname, srcname):
+    def __init__(self, source, modname, srcname, decoded=False):
         # name of the module
         self.modname = modname
         # name of the source file
@@ -216,9 +216,16 @@ class ModuleAnalyzer(object):
 
         # cache the source code as well
         pos = self.source.tell()
-        self.encoding = detect_encoding(self.source.readline)
-        self.code = self.source.read()
-        self.source.seek(pos)
+        if not decoded:
+            self.encoding = detect_encoding(self.source.readline)
+            self.source.seek(pos)
+            self.code = self.source.read().decode(self.encoding)
+            self.source.seek(pos)
+            self.source = TextIOWrapper(self.source, self.encoding)
+        else:
+            self.encoding = None
+            self.code = self.source.read()
+            self.source.seek(pos)
 
         # will be filled by tokenize()
         self.tokens = None

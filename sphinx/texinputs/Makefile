@@ -14,15 +14,16 @@ all-pdf: $(ALLPDF)
 all-dvi: $(ALLDVI)
 all-ps: all-dvi
 	for f in *.dvi; do dvips $$f; done
-all-pdf-ja: $(wildcard *.tex)
-	ebb $(wildcard *.pdf *.png *.gif *.jpeg)
-	platex -kanji=utf8 $(LATEXOPTS) '$<'
-	platex -kanji=utf8 $(LATEXOPTS) '$<'
-	platex -kanji=utf8 $(LATEXOPTS) '$<'
-	-mendex -U -f -d '$(basename $<).dic' -s python.ist '$(basename $<).idx'
-	platex -kanji=utf8 $(LATEXOPTS) '$<'
-	platex -kanji=utf8 $(LATEXOPTS) '$<'
-	dvipdfmx '$(basename $<).dvi'
+
+all-pdf-ja:
+	for f in *.pdf *.png *.gif *.jpg *.jpeg; do ebb $$f; done
+	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.idx; do mendex -U -f -d "`basename $$f .idx`.dic" -s python.ist $$f; done
+	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.dvi; do dvipdfmx $$f; done
 
 zip: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)
@@ -61,4 +62,5 @@ clean:
 	rm -f *.dvi *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla
 
 .PHONY: all all-pdf all-dvi all-ps clean
+.PHONY: all-pdf-ja
 

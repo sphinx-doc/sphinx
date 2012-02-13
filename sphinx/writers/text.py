@@ -18,6 +18,24 @@ from sphinx import addnodes
 from sphinx.locale import admonitionlabels, versionlabels, _
 
 
+class TextWrapper(textwrap.TextWrapper):
+    """Custom subclass that uses a different word separator regex."""
+
+    wordsep_re = re.compile(
+        r'(\s+|'                                  # any whitespace
+        r'(?<=\s)(?::[a-z-]+:)?`\S+|'             # interpreted text start
+        r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'   # hyphenated words
+        r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
+
+
+MAXWIDTH = 70
+STDINDENT = 3
+
+def my_wrap(text, width=MAXWIDTH, **kwargs):
+    w = TextWrapper(width=width, **kwargs)
+    return w.wrap(text)
+
+
 class TextWriter(writers.Writer):
     supported = ('text',)
     settings_spec = ('No options here.', '', ())
@@ -33,17 +51,6 @@ class TextWriter(writers.Writer):
         visitor = TextTranslator(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.body
-
-# monkey-patch...
-new_wordsep_re = re.compile(
-        r'(\s+|'                                  # any whitespace
-        r'(?<=\s)(?::[a-z-]+:)?`\S+|'             # interpreted text start
-        r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'   # hyphenated words
-        r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
-textwrap.TextWrapper.wordsep_re = new_wordsep_re
-
-MAXWIDTH = 70
-STDINDENT = 3
 
 
 class TextTranslator(nodes.NodeVisitor):
@@ -81,7 +88,7 @@ class TextTranslator(nodes.NodeVisitor):
             if not toformat:
                 return
             if wrap:
-                res = textwrap.wrap(''.join(toformat), width=MAXWIDTH-maxindent)
+                res = my_wrap(''.join(toformat), width=MAXWIDTH-maxindent)
             else:
                 res = ''.join(toformat).splitlines()
             if end:
@@ -381,7 +388,7 @@ class TextTranslator(nodes.NodeVisitor):
             else:
                 cells = []
                 for i, cell in enumerate(line):
-                    par = textwrap.wrap(cell, width=colwidths[i])
+                    par = my_wrap(cell, width=colwidths[i])
                     if par:
                         maxwidth = max(map(len, par))
                     else:
@@ -427,6 +434,8 @@ class TextTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_image(self, node):
+        if 'alt' in node.attributes:
+            self.add_text(_('[image: %s]') % node['alt'])
         self.add_text(_('[image]'))
         raise nodes.SkipNode
 

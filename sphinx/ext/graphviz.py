@@ -25,12 +25,12 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx.errors import SphinxError
-from sphinx.util.osutil import ensuredir, ENOENT, EPIPE
+from sphinx.locale import _
+from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 from sphinx.util.compat import Directive
 
 
 mapname_re = re.compile(r'<map id="(.*?)"')
-svg_dim_re = re.compile(r'<svg\swidth="(\d+)pt"\sheight="(\d+)pt"', re.M)
 
 
 class GraphvizError(SphinxError):
@@ -163,13 +163,20 @@ def render_dot(self, code, options, format, prefix='graphviz'):
                           self.builder.config.graphviz_dot)
         self.builder._graphviz_warned_dot = True
         return None, None
+    wentWrong = False
     try:
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
         stdout, stderr = p.communicate(code)
-    except OSError, err:
+    except (OSError, IOError), err:
         if err.errno != EPIPE:
             raise
+        wentWrong = True
+    except IOError, err:
+        if err.errno != EINVAL:
+            raise
+        wentWrong = True
+    if wentWrong:
         # in this case, read the standard output and standard error streams
         # directly, to get the error message(s)
         stdout, stderr = p.stdout.read(), p.stderr.read()
@@ -178,37 +185,6 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
                             '[stdout]\n%s' % (stderr, stdout))
     return relfn, outfn
-
-
-def get_svg_tag(svgref, svgfile, imgcls=None):
-    # Webkit can't figure out svg dimensions when using object tag
-    # so we need to get it from the svg file
-    fp = open(svgfile, 'r')
-    try:
-        for line in fp:
-            match = svg_dim_re.match(line)
-            if match:
-                dimensions = match.groups()
-                break
-        else:
-            dimensions = None
-    finally:
-        fp.close()
-
-    # We need this hack to make WebKit show our object tag properly
-    def pt2px(x):
-        return int(ceil((96.0/72.0) * float(x)))
-
-    if dimensions:
-        style = ' width="%s" height="%s"' % tuple(map(pt2px, dimensions))
-    else:
-        style = ''
-
-    # The object tag works fine on Firefox and WebKit
-    # Besides it's a hack, this strategy does not mess with templates.
-    imgcss = imgcls and ' class="%s"' % imgcls or ''
-    return '<object type="image/svg+xml" data="%s"%s%s/>\n' % \
-           (svgref, imgcss, style)
 
 
 def render_dot_html(self, node, code, options, prefix='graphviz',
@@ -235,8 +211,9 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
     else:
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
+        imgcss = imgcls and 'class="%s"' % imgcls or ''
         if format == 'svg':
-            svgtag = get_svg_tag(fname, outfn, imgcls)
+            svgtag = '<img src="%s" alt="%s" %s/>\n' % (fname, alt, imgcss)
             self.body.append(svgtag)
         else:
             mapfile = open(outfn + '.map', 'rb')
@@ -244,7 +221,6 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 imgmap = mapfile.readlines()
             finally:
                 mapfile.close()
-            imgcss = imgcls and 'class="%s"' % imgcls or ''
             if len(imgmap) == 2:
                 # nothing in image map (the lines are <map> and </map>)
                 self.body.append('<img src="%s" alt="%s" %s/>\n' %
@@ -308,7 +284,8 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
         raise nodes.SkipNode
     if fname is not None:
         self.body.append('\n\n@float\n')
-        if node.get('caption'):
+        caption = node.get('caption')
+        if caption:
             self.body.append('@caption{%s}\n' % self.escape_arg(caption))
         self.body.append('@image{%s,,,[graphviz],png}\n'
                          '@end float\n\n' % fname[:-4])
@@ -318,11 +295,27 @@ def texinfo_visit_graphviz(self, node):
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 
+def text_visit_graphviz(self, node):
+    if 'alt' in node.attributes:
+        self.add_text(_('[graph: %s]') % node['alt'])
+    self.add_text(_('[graph]'))
+    raise nodes.SkipNode
+
+
+def man_visit_graphviz(self, node):
+    if 'alt' in node.attributes:
+        self.body.append(_('[graph: %s]') % node['alt'] + '\n')
+    self.body.append(_('[graph]'))
+    raise nodes.SkipNode
+
+
 def setup(app):
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),
-                 texinfo=(texinfo_visit_graphviz, None))
+                 texinfo=(texinfo_visit_graphviz, None),
+                 text=(text_visit_graphviz, None),
+                 man=(man_visit_graphviz, None))
     app.add_directive('graphviz', Graphviz)
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)

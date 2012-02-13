@@ -38,12 +38,10 @@ class ReSTMarkup(ObjectDescription):
             objects = self.env.domaindata['rst']['objects']
             key = (self.objtype, name)
             if key in objects:
-                self.env.warn(self.env.docname,
-                              'duplicate description of %s %s, ' %
-                              (self.objtype, name) +
-                              'other instance in ' +
-                              self.env.doc2path(objects[key]),
-                              self.lineno)
+                self.state_machine.reporter.warning(
+                    'duplicate description of %s %s, ' % (self.objtype, name) +
+                    'other instance in ' + self.env.doc2path(objects[key]),
+                    line=self.lineno)
             objects[key] = self.env.docname
         indextext = self.get_index_text(self.objtype, name)
         if indextext:

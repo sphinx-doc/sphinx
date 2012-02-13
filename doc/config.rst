@@ -372,18 +372,23 @@ documentation on :ref:`intl` for details.
    * ``de`` -- German
    * ``en`` -- English
    * ``es`` -- Spanish
+   * ``et`` -- Estonian
    * ``fa`` -- Iranian
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``hr`` -- Croatian
+   * ``hu`` -- Hungarian
    * ``it`` -- Italian
    * ``ja`` -- Japanese
+   * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
+   * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
@@ -403,10 +408,19 @@ documentation on :ref:`intl` for details.
    add the directory :file:`./locale` to this settting, the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`) must be in
    :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.  The text domain of
-   individual documents depends on their docname if they are top-level project
-   files and on their base directory otherwise.
+   individual documents depends on :confval:`gettext_compact`.
 
    The default is ``[]``.
+
+.. confval:: gettext_compact
+
+   .. versionadded:: 1.1
+
+   If true, a document's text domain is its docname if it is a top-level
+   project file and its very base directory otherwise.
+
+   By default, the document ``markup/code.rst`` ends up in the ``markup`` text
+   domain.  With this option set to ``False``, it is ``markup/code``.
 
 
 .. _html-options:

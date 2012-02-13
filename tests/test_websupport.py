@@ -18,15 +18,13 @@ except ImportError:
     # functools is new in 2.5
     wraps = lambda f: (lambda w: w)
 
-from nose import SkipTest
-
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import *
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 try:
     from sphinx.websupport.storage.sqlalchemystorage import Session, \
-         SQLAlchemyStorage, Comment, CommentVote
+         Comment, CommentVote
     from sphinx.websupport.storage.sqlalchemy_db import Node
     sqlalchemy_missing = False
 except ImportError:
@@ -119,18 +117,18 @@ def test_comments(support):
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 2
-    assert comments[1]['text'] == 'Hidden comment'
+    assert comments[1]['text'] == '<p>Hidden comment</p>\n'
     assert len(children) == 2
-    assert children[1]['text'] == 'Hidden child test comment'
+    assert children[1]['text'] == '<p>Hidden child test comment</p>\n'
 
     # Access the comments without being a moderator.
     data = support.get_data(first_node.id)
     comments = data['comments']
     children = comments[0]['children']
     assert len(comments) == 1
-    assert comments[0]['text'] == 'First test comment'
+    assert comments[0]['text'] == '<p>First test comment</p>\n'
     assert len(children) == 1
-    assert children[0]['text'] == 'Child test comment'
+    assert children[0]['text'] == '<p>Child test comment</p>\n'
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
@@ -216,9 +214,7 @@ def test_moderator_delete_comments(support):
     comment = get_comment()
     support.delete_comment(comment['id'], username='user_two',
                            moderator=True)
-    comment = get_comment()
-    assert comment['username'] == '[deleted]'
-    assert comment['text'] == '[deleted]'
+    raises(IndexError, get_comment)
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
@@ -230,14 +226,14 @@ def test_update_username(support):
         filter(Comment.username == 'user_two').all()
     assert len(comments) == 0
     votes = session.query(CommentVote).\
-        filter(CommentVote.username == 'user_two')
-    assert len(comments) == 0
+        filter(CommentVote.username == 'user_two').all()
+    assert len(votes) == 0
     comments = session.query(Comment).\
         filter(Comment.username == 'new_user_two').all()
     assert len(comments) == 1
     votes = session.query(CommentVote).\
-        filter(CommentVote.username == 'new_user_two')
-    assert len(comments) == 1
+        filter(CommentVote.username == 'new_user_two').all()
+    assert len(votes) == 0
 
 
 called = False
@@ -255,15 +251,15 @@ def test_moderation(support):
     session.close()
     accepted = support.add_comment('Accepted Comment', node_id=node.id,
                                    displayed=False)
-    rejected = support.add_comment('Rejected comment', node_id=node.id,
+    deleted  = support.add_comment('Comment to delete', node_id=node.id,
                                    displayed=False)
     # Make sure the moderation_callback is called.
     assert called == True
     # Make sure the user must be a moderator.
     raises(UserNotAuthorizedError, support.accept_comment, accepted['id'])
-    raises(UserNotAuthorizedError, support.reject_comment, accepted['id'])
+    raises(UserNotAuthorizedError, support.delete_comment, deleted['id'])
     support.accept_comment(accepted['id'], moderator=True)
-    support.reject_comment(rejected['id'], moderator=True)
+    support.delete_comment(deleted['id'], moderator=True)
     comments = support.get_data(node.id)['comments']
     assert len(comments) == 1
     comments = support.get_data(node.id, moderator=True)['comments']

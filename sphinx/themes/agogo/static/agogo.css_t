@@ -128,14 +128,15 @@ div.header {
   padding-bottom: 10px;
 }
 
-div.header h1 {
+div.header .headertitle {
   font-family: {{ theme_headerfont }};
   font-weight: normal;
   font-size: 180%;
   letter-spacing: .08em;
+  margin-bottom: .8em;
 }
 
-div.header h1 a {
+div.header .headertitle a {
   color: white;
 }
 
@@ -173,6 +174,10 @@ div.document {
 div.body {
   padding-right: 2em;
   text-align: {{ theme_textalign }};
+}
+
+div.document h1 {
+  line-height: 120%;
 }
 
 div.document ul {
@@ -300,6 +305,14 @@ div.sidebar li.toctree-l1.current li.toctree-l2 a {
   border-right: none;
 }
 
+div.sidebar input[type="text"] {
+  width: 170px;
+}
+
+div.sidebar input[type="submit"] {
+  width: 30px;
+}
+
 
 /* Footer */
 
@@ -349,7 +362,6 @@ img.align-center, .figure.align-center, object.align-center {
 }
 
 .align-center {
-    clear: both;
     text-align: center;
 }
 

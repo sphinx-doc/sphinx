@@ -15,6 +15,8 @@ import sys
 # relatively import this module
 inspect = __import__('inspect')
 
+from sphinx.util import force_decode
+
 
 if sys.version_info >= (2, 5):
     from functools import partial
@@ -87,4 +89,4 @@ def safe_repr(object):
         s = repr(object)
     except Exception:
         raise ValueError
-    return s.replace('\n', ' ')
+    return force_decode(s, None).replace('\n', ' ')
