@@ -298,14 +298,16 @@ def texinfo_visit_graphviz(self, node):
 def text_visit_graphviz(self, node):
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
-    self.add_text(_('[graph]'))
+    else:
+        self.add_text(_('[graph]'))
     raise nodes.SkipNode
 
 
 def man_visit_graphviz(self, node):
     if 'alt' in node.attributes:
-        self.body.append(_('[graph: %s]') % node['alt'] + '\n')
-    self.body.append(_('[graph]'))
+        self.body.append(_('[graph: %s]') % node['alt'])
+    else:
+        self.body.append(_('[graph]'))
     raise nodes.SkipNode
 
 
