@@ -277,7 +277,7 @@ Project information
      the format given in :confval:`today_fmt`.
 
    The default is no :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
-   %Y'`` (or, if translation is enabled with :confval:`language`, am equivalent
+   %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    %format for the selected locale).
 
 .. confval:: highlight_language
