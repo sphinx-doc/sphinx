@@ -67,7 +67,8 @@ def main(argv):
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
-            print >>sys.stderr, 'Error: Cannot find source directory.'
+            print >>sys.stderr, 'Error: Cannot find source directory `%s'.' % (
+                                srcdir,)
             return 1
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
                '-c' not in allopts and '-C' not in allopts:
