@@ -791,6 +791,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    theme.  These are theme-specific.  For the options understood by the builtin
    themes, see :ref:`this section <builtin-themes>`.
 
+   .. versionadded:: 1.2
+
 .. confval:: epub_title
 
    The title of the document.  It defaults to the :confval:`html_title` option
@@ -898,6 +900,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    to use this option.  The default value is ``False`` because the automatic
    conversion may lose information.
 
+   .. versionadded:: 1.2
+
 .. confval:: epub_max_image_width
 
    This option specifies the maximum width of images.  If it is set to a value
@@ -905,6 +909,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    scaled accordingly.  If it is zero, no scaling is performed. The default
    value is ``0``.  You need the Python Image Library (PIL) installed to use
    this option.
+
+   .. versionadded:: 1.2
 
 
 .. _latex-options:
