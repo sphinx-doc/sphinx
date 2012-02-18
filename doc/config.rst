@@ -785,6 +785,12 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    output is usually not wise.  This defaults to ``'epub'``, a theme designed to
    save visual space.
 
+.. confval:: epub_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.  These are theme-specific.  For the options understood by the builtin
+   themes, see :ref:`this section <builtin-themes>`.
+
 .. confval:: epub_title
 
    The title of the document.  It defaults to the :confval:`html_title` option
@@ -882,6 +888,23 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    it's nested toc listing.  This allows easier navitation to the top of
    a chapter, but can be confusing because it mixes entries of differnet
    depth in one list.  The default value is ``True``.
+
+
+.. confval:: epub_fix_images
+
+   This flag determines if sphinx should try to fix image formats that are not
+   supported by some epub readers.  At the moment palette images with a small
+   color table are upgraded.  You need the Python Image Library (PIL) installed
+   to use this option.  The default value is ``False`` because the automatic
+   conversion may lose information.
+
+.. confval:: epub_max_image_width
+
+   This option specifies the maximum width of images.  If it is set to a value
+   greater than zero, images with a width larger than the given value are
+   scaled accordingly.  If it is zero, no scaling is performed. The default
+   value is ``0``.  You need the Python Image Library (PIL) installed to use
+   this option.
 
 
 .. _latex-options:

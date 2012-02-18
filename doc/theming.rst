@@ -200,10 +200,14 @@ These themes are:
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar* and *sidebarwidth*.
 
-* **epub** -- A theme for the epub builder.  There are currently no options.
-  This theme tries to save visual space which is a sparse resource on ebook
-  readers.
+* **epub** -- A theme for the epub builder.  This theme tries to save visual
+  space which is a sparse resource on ebook readers.  The following options
+  are supported:
 
+  - **relbar1** (true or false, default true): If this is true, the
+    `relbar1` block is inserted in the epub output, otherwise it is omitted.
+  - **footer**  (true or false, default true): If this is true, the
+    `footer` block is inserted in the epub output, otherwise it is ommitted.
 
 Creating themes
 ---------------

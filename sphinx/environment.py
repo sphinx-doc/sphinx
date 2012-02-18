@@ -1217,7 +1217,7 @@ class BuildEnvironment:
 
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
-                                prune_toctrees=True):
+                                prune_toctrees=True, includehidden=False):
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -1230,7 +1230,7 @@ class BuildEnvironment:
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=prune_toctrees)
+                          prune=prune_toctrees, includehidden=includehidden)
             if result is None:
                 toctreenode.replace_self([])
             else:

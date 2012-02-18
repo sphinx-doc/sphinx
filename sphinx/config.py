@@ -123,6 +123,7 @@ class Config(object):
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),
         epub_theme = ('epub', 'html'),
+        epub_theme_options = ({}, 'html'),
         epub_title = (lambda self: self.html_title, 'html'),
         epub_author = ('unknown', 'html'),
         epub_language = (lambda self: self.language or 'en', 'html'),
@@ -137,6 +138,8 @@ class Config(object):
         epub_exclude_files = ([], 'env'),
         epub_tocdepth = (3, 'env'),
         epub_tocdup = (True, 'env'),
+        epub_fix_images = (False, 'env'),
+        epub_max_image_width = (0, 'env'),
 
         # LaTeX options
         latex_documents = ([], None),
