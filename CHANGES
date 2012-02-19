@@ -19,6 +19,37 @@ Release 1.1.3 (in development)
 * PR#36: Make the "bibliography to TOC" fix in LaTeX output specific to
   the document class.
 
+* #695: When the highlight language "python" is specified explicitly,
+  do not try to parse the code to recognize non-Python snippets.
+
+* #859: Fix exception under certain circumstances when not finding
+  appropriate objects to link to.
+
+* #860: Do not crash when encountering invalid doctest examples, just
+  emit a warning.
+
+* #864: Fix crash with some settings of :confval:`modindex_common_prefix`.
+
+* #862: Fix handling of ``-D`` and ``-A`` options on Python 3.
+
+* #851: Recognize and warn about circular toctrees, instead of running
+  into recursion errors.
+
+* #853: Restore compatibility with docutils trunk.
+
+* #852: Fix HtmlHelp index entry links again.
+
+* #854: Fix inheritance_diagram raising attribute errors on builtins.
+
+* #832: Fix crashes when putting comments or lone terms in a glossary.
+
+* #834, #818: Fix HTML help language/encoding mapping for all Sphinx
+  supported languages.
+
+* #844: Fix crashes when dealing with Unicode output in doctest extension.
+
+* #831: Provide ``--project`` flag in setup_command as advertised.
+
 
 Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
 ======================================================================

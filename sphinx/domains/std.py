@@ -245,6 +245,9 @@ class Glossary(Directive):
                 continue
             # unindented line -> a term
             if line and not line[0].isspace():
+                # enable comments
+                if line.startswith('.. '):
+                    continue
                 # first term of definition
                 if in_definition:
                     if not was_empty:
@@ -315,7 +318,8 @@ class Glossary(Directive):
             term += system_messages
 
             defnode = nodes.definition()
-            self.state.nested_parse(definition, definition.items[0][1], defnode)
+            if definition:
+                self.state.nested_parse(definition, definition.items[0][1], defnode)
 
             items.append((termtexts,
                           nodes.definition_list_item('', term, defnode)))
