@@ -592,6 +592,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
             self, prune_toctrees=False, includehidden=False)
         refnodes = self.get_refnodes(doctree, [])
+        if not refnodes:
+            refnodes = self.refnodes
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
