@@ -104,6 +104,9 @@ _content_template = u'''\
   <spine toc="ncx">
 %(spine)s
   </spine>
+  <guide>
+%(guide)s
+  </guide>
 </package>
 '''
 
@@ -120,6 +123,9 @@ _file_template = u'''\
 
 _spine_template = u'''\
     <itemref idref="%(idref)s" />'''
+
+_guide_template = u'''\
+    <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
 _toctree_template = u'toctree-l%d'
 
@@ -408,7 +414,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
 
-    def content_metadata(self, files, spine):
+    def content_metadata(self, files, spine, guide):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -424,6 +430,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['date'] = self.esc(time.strftime('%Y-%m-%d'))
         metadata['files'] = files
         metadata['spine'] = spine
+        metadata['guide'] = guide
         return metadata
 
     def build_content(self, outdir, outname):
@@ -501,14 +508,24 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 self.handle_page(
                         os.path.splitext(_coverpage_name)[0], ctx, tmpl)
 
+        guide = []
+        if self.config.epub_guide:
+            for type, uri, title in self.config.epub_guide:
+                guide.append(_guide_template % {
+                        'type': self.esc(type),
+                        'title': self.esc(title),
+                        'uri': self.esc(uri)
+                        })
+
         projectfiles = '\n'.join(projectfiles)
         spine = '\n'.join(spine)
+        guide = '\n'.join(guide)
 
         # write the project file
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
             f.write(content_tmpl % \
-                self.content_metadata(projectfiles, spine))
+                self.content_metadata(projectfiles, spine, guide))
         finally:
             f.close()
 
