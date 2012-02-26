@@ -43,6 +43,7 @@ module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
+a term std:term -1 glossary.html#term-a-term -
 '''.encode('utf-8'))
 
 
@@ -76,6 +77,8 @@ def test_read_inventory_v2():
     assert invdata1['py:function']['module1.func'][2] == \
            '/util/sub/foo.html#module1.func'
     assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
+    assert invdata1['std:term']['a term'][2] == \
+           '/util/glossary.html#term-a-term'
 
 
 @with_app(confoverrides={'extensions': 'sphinx.ext.intersphinx'})
