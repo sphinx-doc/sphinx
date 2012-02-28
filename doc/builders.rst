@@ -81,7 +81,8 @@ The builder's "name" must be given to the **-b** command-line option of
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://www.idpf.org/specs.htm>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
+   `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
+   The builder creates *EPUB 2* files.
 
    Some ebook readers do not show the link targets of references.  Therefore
    this builder adds the targets after the link when necessary.  The display
