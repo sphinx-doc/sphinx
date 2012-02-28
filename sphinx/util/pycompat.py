@@ -64,6 +64,11 @@ else:
         return s.encode('ascii', 'backslashreplace')
 
 
+try:
+    from html import escape as htmlescape
+except ImportError:
+    from cgi import escape as htmlescape
+
 # ------------------------------------------------------------------------------
 # Missing builtins and itertools in Python < 2.6
 

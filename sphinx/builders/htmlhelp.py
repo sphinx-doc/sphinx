@@ -11,7 +11,6 @@
 """
 
 import os
-import cgi
 import codecs
 from os import path
 
@@ -19,6 +18,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util.pycompat import htmlescape
 
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
@@ -124,20 +124,31 @@ was  will  with
 # See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
 chm_locales = {
     # lang:   LCID,  encoding
-    'cs':    (0x405, 'iso8859_2'),
-    'de':    (0x407, 'iso8859_1'),
-    'en':    (0x409, 'iso8859_1'),
-    'es':    (0x40a, 'iso8859_1'),
-    'fi':    (0x40b, 'iso8859_1'),
-    'fr':    (0x40c, 'iso8859_1'),
-    'it':    (0x410, 'iso8859_1'),
+    'ca':    (0x403, 'cp1252'),
+    'cs':    (0x405, 'cp1250'),
+    'da':    (0x406, 'cp1252'),
+    'de':    (0x407, 'cp1252'),
+    'en':    (0x409, 'cp1252'),
+    'es':    (0x40a, 'cp1252'),
+    'et':    (0x425, 'cp1257'),
+    'fa':    (0x429, 'cp1256'),
+    'fi':    (0x40b, 'cp1252'),
+    'fr':    (0x40c, 'cp1252'),
+    'hr':    (0x41a, 'cp1250'),
+    'hu':    (0x40e, 'cp1250'),
+    'it':    (0x410, 'cp1252'),
     'ja':    (0x411, 'cp932'),
+    'ko':    (0x412, 'cp949'),
+    'lt':    (0x427, 'cp1257'),
     'lv':    (0x426, 'cp1257'),
-    'nl':    (0x413, 'iso8859_1'),
-    'pl':    (0x415, 'iso8859_2'),
-    'pt_BR': (0x416, 'iso8859_1'),
+    'nl':    (0x413, 'cp1252'),
+    'pl':    (0x415, 'cp1250'),
+    'pt_BR': (0x416, 'cp1252'),
     'ru':    (0x419, 'cp1251'),
-    'sl':    (0x424, 'iso8859_2'),
+    'sk':    (0x41b, 'cp1250'),
+    'sl':    (0x424, 'cp1250'),
+    'sv':    (0x41d, 'cp1252'),
+    'tr':    (0x41f, 'cp1254'),
     'uk_UA': (0x422, 'cp1251'),
     'zh_CN': (0x804, 'cp936'),
     'zh_TW': (0x404, 'cp950'),
@@ -230,7 +241,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = cgi.escape(node.astext()).replace('"','&quot;')
+                    title = htmlescape(node.astext()).replace('"','&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -259,20 +270,20 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             def write_index(title, refs, subitems):
                 def write_param(name, value):
                     item = '    <param name="%s" value="%s">\n' % \
-                        (name, value[1])
+                        (name, value)
                     f.write(item)
-                title = cgi.escape(title)
+                title = htmlescape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:
                     write_param('See Also', title)
                 elif len(refs) == 1:
-                    write_param('Local', refs[0])
+                    write_param('Local', refs[0][1])
                 else:
                     for i, ref in enumerate(refs):
                         # XXX: better title?
-                        write_param('Name', '[%d] %s' % (i, ref))
-                        write_param('Local', ref)
+                        write_param('Name', '[%d] %s' % (i, ref[1]))
+                        write_param('Local', ref[1])
                 f.write('</OBJECT>\n')
                 if subitems:
                     f.write('<UL> ')

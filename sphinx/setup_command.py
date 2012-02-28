@@ -81,6 +81,7 @@ class BuildDoc(Command):
         self.fresh_env = self.all_files = False
         self.source_dir = self.build_dir = None
         self.builder = 'html'
+        self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
@@ -125,6 +126,8 @@ class BuildDoc(Command):
         else:
             status_stream = sys.stdout
         confoverrides = {}
+        if self.project:
+             confoverrides['project'] = self.project        
         if self.version:
              confoverrides['version'] = self.version
         if self.release:

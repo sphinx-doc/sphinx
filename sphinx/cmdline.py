@@ -22,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
-from sphinx.util.pycompat import terminal_safe
+from sphinx.util.pycompat import terminal_safe, bytes
 
 
 def usage(argv, msg=None):
@@ -67,7 +67,8 @@ def main(argv):
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = path.abspath(args[0])
         if not path.isdir(srcdir):
-            print >>sys.stderr, 'Error: Cannot find source directory.'
+            print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
+                                srcdir,)
             return 1
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
                '-c' not in allopts and '-C' not in allopts:
@@ -137,7 +138,7 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                if likely_encoding:
+                if likely_encoding and isinstance(val, bytes):
                     try:
                         val = val.decode(likely_encoding)
                     except UnicodeError:
@@ -153,7 +154,7 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                if likely_encoding:
+                if likely_encoding and isinstance(val, bytes):
                     try:
                         val = val.decode(likely_encoding)
                     except UnicodeError:

@@ -16,6 +16,7 @@ import sys
 inspect = __import__('inspect')
 
 from sphinx.util import force_decode
+from sphinx.util.pycompat import bytes
 
 
 if sys.version_info >= (2, 5):
@@ -89,4 +90,6 @@ def safe_repr(object):
         s = repr(object)
     except Exception:
         raise ValueError
-    return force_decode(s, None).replace('\n', ' ')
+    if isinstance(s, bytes):
+        return force_decode(s, None).replace('\n', ' ')
+    return s.replace('\n', ' ')

@@ -24,6 +24,10 @@ The input language for mathematics is LaTeX markup.  This is the de-facto
 standard for plain-text math notation and has the added advantage that no
 further translation is necessary when building LaTeX output.
 
+Keep in mind that when you put math markup in **Python docstrings** read by
+:mod:`autodoc <sphinx.ext.autodoc>`, you either have to double all backslashes,
+or use Python raw strings (``r"raw"``).
+
 :mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math

@@ -10,7 +10,6 @@
 """
 
 import sys
-import cgi
 import re
 import textwrap
 
@@ -20,6 +19,7 @@ except ImportError:
     # parser is not available on Jython
     parser = None
 
+from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 from sphinx.ext import doctest
 
@@ -105,7 +105,7 @@ class PygmentsBridge(object):
 
     def unhighlighted(self, source):
         if self.dest == 'html':
-            return '<pre>' + cgi.escape(source) + '</pre>\n'
+            return '<pre>' + htmlescape(source) + '</pre>\n'
         else:
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)
@@ -153,7 +153,7 @@ class PygmentsBridge(object):
         else:
             return True
 
-    def highlight_block(self, source, lang, warn=None, **kwargs):
+    def highlight_block(self, source, lang, warn=None, force=False, **kwargs):
         if not isinstance(source, unicode):
             source = source.decode()
         if not pygments:
@@ -164,12 +164,14 @@ class PygmentsBridge(object):
             if source.startswith('>>>'):
                 # interactive session
                 lexer = lexers['pycon']
-            else:
+            elif not force:
                 # maybe Python -- try parsing it
                 if self.try_parse(source):
                     lexer = lexers['python']
                 else:
                     return self.unhighlighted(source)
+            else:
+                lexer = lexers['python']
         elif lang in ('python3', 'py3') and source.startswith('>>>'):
             # for py3, recognize interactive sessions, but do not try parsing...
             lexer = lexers['pycon3']
