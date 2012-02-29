@@ -154,7 +154,7 @@ def depart_todo_node(self, node):
     self.depart_admonition(node)
 
 def setup(app):
-    app.add_config_value('todo_include_todos', False, False)
+    app.add_config_value('todo_include_todos', False, 'html')
 
     app.add_node(todolist)
     app.add_node(todo_node,
