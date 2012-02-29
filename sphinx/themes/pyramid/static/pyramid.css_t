@@ -272,7 +272,10 @@ div.admonition-todo {
     padding: 10px 20px 10px 60px;
 }
  
-p.admonition-title {
+div.note p.admonition-title,
+div.warning p.admonition-title,
+div.seealso p.admonition-title,
+div.admonition-todo p.admonition-title {
     display: none;
 }
  
