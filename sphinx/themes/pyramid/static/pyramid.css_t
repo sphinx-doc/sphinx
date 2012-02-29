@@ -220,6 +220,14 @@ div.admonition p.admonition-title + p {
     display: inline;
 }
 
+div.admonition {
+    background: #eeeeec;
+    border: 2px solid #babdb6;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px 10px 60px;
+}
+
 div.highlight{
     background-color: white;
 }
