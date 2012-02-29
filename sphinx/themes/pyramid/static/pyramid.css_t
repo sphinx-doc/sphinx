@@ -263,6 +263,14 @@ div.warning {
     border-left-style: none;
     padding: 10px 20px 10px 60px;
 }
+
+div.admonition-todo {
+    background: #f2d9b4 url(dialog-todo.png) no-repeat 10px 8px;
+    border: 2px solid #e9b96e;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px 10px 60px;
+}
  
 p.admonition-title {
     display: none;
