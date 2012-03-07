@@ -1,5 +1,3 @@
-.. -*- restructuredtext -*-
-
 =================
 README for Sphinx
 =================
