@@ -137,7 +137,6 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         new_sections = []
         for section in sections:
             if not isinstance(section, unicode):
-                # XXX is this really necessary?
                 new_sections.append(force_decode(section, None))
             else:
                 new_sections.append(section)
@@ -222,14 +221,14 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return True
 
     def write_toc(self, node, indentlevel=4):
+        # XXX this should return a Unicode string, not a bytestring
         parts = []
         if self.isdocnode(node):
             refnode = node.children[0][0]
             link = refnode['refuri']
-            title = htmlescape(refnode.astext()).replace('"','&quot;')
-            item = '<section title="%(title)s" ref="%(ref)s">' % {
-                                                                'title': title,
-                                                                'ref': link}
+            title = htmlescape(refnode.astext()).replace('"', '&quot;')
+            item = '<section title="%(title)s" ref="%(ref)s">' % \
+                {'title': title, 'ref': link}
             parts.append(' '*4*indentlevel + item)
             for subnode in node.children[1]:
                 parts.extend(self.write_toc(subnode, indentlevel+1))
