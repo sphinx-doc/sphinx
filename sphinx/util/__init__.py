@@ -28,6 +28,7 @@ import jinja2
 
 import sphinx
 from sphinx.errors import PycodeError
+from sphinx.util.pycompat import bytes
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
@@ -310,7 +311,7 @@ def parselinenos(spec, total):
 
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
-    if isinstance(string, str):
+    if isinstance(string, bytes):
         if encoding:
             string = string.decode(encoding)
         else:
