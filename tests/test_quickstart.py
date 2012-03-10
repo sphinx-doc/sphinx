@@ -91,7 +91,7 @@ def test_quickstart_defaults(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    f = open(conffile, 'U')
+    f = open(conffile, 'rbU')
     try:
         code = compile(f.read(), conffile, 'exec')
     finally:
@@ -151,7 +151,7 @@ def test_quickstart_all_answers(tempdir):
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    f = open(conffile, 'U')
+    f = open(conffile, 'rbU')
     try:
         code = compile(f.read(), conffile, 'exec')
     finally:
