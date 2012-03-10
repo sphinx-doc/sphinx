@@ -698,9 +698,12 @@ class StandaloneHTMLBuilder(Builder):
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
+        default_baseuri = self.get_target_uri(pagename)
+        # in the singlehtml builder, default_baseuri still contains an #anchor
+        # part, which relative_uri doesn't really like...
+        default_baseuri = default_baseuri.rsplit('#', 1)[0]
 
-        def pathto(otheruri, resource=False,
-                   baseuri=self.get_target_uri(pagename)):
+        def pathto(otheruri, resource=False, baseuri=default_baseuri):
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
                 return otheruri

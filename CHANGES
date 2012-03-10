@@ -58,6 +58,15 @@ Release 1.1.3 (in development)
 
 * #876: Fix quickstart test under Python 3.
 
+* #870: Fix spurious KeyErrors when removing documents.
+
+* #892: Fix single-HTML builder misbehaving with the master document in a
+  subdirectory.
+
+* #873: Fix assertion errors with empty ``only`` directives.
+
+* #816: Fix encoding issues in the Qt help builder.
+
 
 Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
 ======================================================================

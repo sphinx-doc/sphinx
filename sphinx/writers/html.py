@@ -358,6 +358,9 @@ class HTMLTranslator(BaseTranslator):
             return
 
         if node.has_key('scale'):
+            # Try to figure out image height and width.  Docutils does that too,
+            # but it tries the final file name, which does not necessarily exist
+            # yet at the time the HTML file is written.
             if Image and not (node.has_key('width')
                               and node.has_key('height')):
                 try:

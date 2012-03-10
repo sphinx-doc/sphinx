@@ -182,6 +182,13 @@ Including content based on tags
    The format of the current builder (``html``, ``latex`` or ``text``) is always
    set as a tag.
 
+   .. note::
+
+      Due to docutils' specifics of parsing of directive content, you cannot put
+      a section with the same level as the main document heading inside an
+      ``only`` directive.  Such sections will appear to be ignored in the parsed
+      document.
+
    .. versionadded:: 0.6
 
 

@@ -19,6 +19,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util import force_decode
 from sphinx.util.pycompat import htmlescape
 
 
@@ -130,16 +131,17 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for indexname, indexcls, content, collapse in self.domain_indices:
             item = section_template % {'title': indexcls.localname,
                                        'ref': '%s.html' % indexname}
-            sections.append((' ' * 4 * 4 + item).encode('utf-8'))
+            sections.append(' ' * 4 * 4 + item)
         # sections may be unicode strings or byte strings, we have to make sure
-        # they are all byte strings before joining them
+        # they are all unicode strings before joining them
         new_sections = []
         for section in sections:
-            if isinstance(section, unicode):
-                new_sections.append(section.encode('utf-8'))
+            if not isinstance(section, unicode):
+                # XXX is this really necessary?
+                new_sections.append(force_decode(section, None))
             else:
                 new_sections.append(section)
-        sections = u'\n'.encode('utf-8').join(new_sections)
+        sections = u'\n'.join(new_sections)
 
         # keywords
         keywords = []
@@ -147,7 +149,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for (key, group) in index:
             for title, (refs, subitems) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
-        keywords = '\n'.join(keywords)
+        keywords = u'\n'.join(keywords)
 
         # files
         if not outdir.endswith(os.sep):
