@@ -1164,7 +1164,12 @@ class BuildEnvironment:
 
     def get_toc_for(self, docname, builder):
         """Return a TOC nodetree -- for use on the same page only!"""
-        toc = self.tocs[docname].deepcopy()
+        try:
+            toc = self.tocs[docname].deepcopy()
+        except KeyError:
+            # the document does not exist anymore: return a dummy node that
+            # renders to nothing
+            return nodes.paragraph()
         self.process_only_nodes(toc, builder, docname)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
