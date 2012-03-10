@@ -30,6 +30,7 @@ import codecs
 import urllib2
 import posixpath
 from os import path
+import re
 
 from docutils import nodes
 
@@ -99,7 +100,12 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
         assert not buf
 
     for line in split_lines(read_chunks()):
-        name, type, prio, location, dispname = line.rstrip().split(None, 4)
+        # be careful to handle names with embedded spaces correctly
+        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(\S+)\s+(\S+)\s+(.*)',
+                     line.rstrip())
+        if not m:
+            continue
+        name, type, prio, location, dispname = m.groups()
         if location.endswith(u'$'):
             location = location[:-1] + name
         location = join(uri, location)
