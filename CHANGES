@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* PR#45: The linkcheck builder now checks ``#anchor``\ s for existence.
+
 * PR#28: Added Hungarian translation.
 
 * PR#35: Added Slovak translation.

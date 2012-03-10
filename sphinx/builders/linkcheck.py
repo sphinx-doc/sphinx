@@ -35,6 +35,8 @@ class HeadRequest(Request):
 
 
 class AnchorCheckParser(HTMLParser):
+    """Specialized HTML parser that looks for a specific anchor."""
+
     def __init__(self, search_anchor):
         HTMLParser.__init__(self)
 
@@ -46,29 +48,26 @@ class AnchorCheckParser(HTMLParser):
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
 
+
 def check_anchor(f, hash):
     """Reads HTML data from a filelike object 'f' searching for anchor 'hash'.
-
-    Returns True if anchor was found, False otherwise"""
-
+    Returns True if anchor was found, False otherwise.
+    """
     parser = AnchorCheckParser(hash)
-
     try:
         # Read file in chunks of 8192 bytes. If we find a matching anchor, we
-        # break the loop early in hopes not to have to download the whole thing
-
+        # break the loop early in hopes not to have to download the whole thing.
         chunk = f.read(8192)
         while chunk and not parser.found:
             parser.feed(chunk)
             chunk = f.read(8192)
-
         parser.close()
     except HTMLParseError:
         # HTMLParser is usually pretty good with sloppy HTML, but it tends to
         # choke on EOF. But we're done then anyway.
         pass
-
     return parser.found
+
 
 class CheckExternalLinksBuilder(Builder):
     """
