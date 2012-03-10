@@ -15,7 +15,8 @@ import Queue
 import socket
 import threading
 from os import path
-from urllib2 import build_opener, Request
+from urllib2 import build_opener, unquote, Request
+from HTMLParser import HTMLParser, HTMLParseError
 
 from docutils import nodes
 
@@ -32,6 +33,42 @@ class HeadRequest(Request):
     def get_method(self):
         return 'HEAD'
 
+
+class AnchorCheckParser(HTMLParser):
+    def __init__(self, search_anchor):
+        HTMLParser.__init__(self)
+
+        self.search_anchor = search_anchor
+        self.found = False
+
+    def handle_starttag(self, tag, attrs):
+        for key, value in attrs:
+            if key in ('id', 'name') and value == self.search_anchor:
+                self.found = True
+
+def check_anchor(f, hash):
+    """Reads HTML data from a filelike object 'f' searching for anchor 'hash'.
+
+    Returns True if anchor was found, False otherwise"""
+
+    parser = AnchorCheckParser(hash)
+
+    try:
+        # Read file in chunks of 8192 bytes. If we find a matching anchor, we
+        # break the loop early in hopes not to have to download the whole thing
+
+        chunk = f.read(8192)
+        while chunk and not parser.found:
+            parser.feed(chunk)
+            chunk = f.read(8192)
+
+        parser.close()
+    except HTMLParseError:
+        # HTMLParser is usually pretty good with sloppy HTML, but it tends to
+        # choke on EOF. But we're done then anyway.
+        pass
+
+    return parser.found
 
 class CheckExternalLinksBuilder(Builder):
     """
@@ -66,7 +103,7 @@ class CheckExternalLinksBuilder(Builder):
 
         def check():
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
+            if len(uri) == 0 or uri[0] == '#' or uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
                 return 'unchecked', ''
             elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
                 return 'local', ''
@@ -80,19 +117,39 @@ class CheckExternalLinksBuilder(Builder):
                 if rex.match(uri):
                     return 'ignored', ''
 
+            if '#' in uri:
+                req_url, hash = uri.split('#', 1)
+            else:
+                req_url = uri
+                hash = None
+
             # need to actually check the URI
             try:
-                f = opener.open(HeadRequest(uri), **kwargs)
-                f.close()
+                if hash and self.app.config.linkcheck_anchors:
+                    # Read the whole document and see if #hash exists
+                    f = opener.open(Request(req_url), **kwargs)
+                    found = check_anchor(f, unquote(hash))
+                    f.close()
+
+                    if not found:
+                        raise Exception("Anchor '%s' not found" % hash)
+                else:
+                    f = opener.open(HeadRequest(req_url), **kwargs)
+                    f.close()
+
             except Exception, err:
                 self.broken[uri] = str(err)
                 return 'broken', str(err)
-            if f.url.rstrip('/') == uri.rstrip('/'):
+            if f.url.rstrip('/') == req_url.rstrip('/'):
                 self.good.add(uri)
                 return 'working', 'new'
             else:
-                self.redirected[uri] = f.url
-                return 'redirected', f.url
+                new_url = f.url
+                if hash:
+                    new_url += '#' + hash
+
+                self.redirected[uri] = new_url
+                return 'redirected', new_url
 
         while True:
             uri, docname, lineno = self.wqueue.get()
@@ -142,8 +199,6 @@ class CheckExternalLinksBuilder(Builder):
             if 'refuri' not in node:
                 continue
             uri = node['refuri']
-            if '#' in uri:
-                uri = uri.split('#')[0]
             lineno = None
             while lineno is None:
                 node = node.parent

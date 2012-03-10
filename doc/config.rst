@@ -1318,6 +1318,14 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_anchors
+
+   True or false, whether to check the existence of #anchor in links. Since
+   this requires downloading the whole document, it's considerably slower
+   when enabled. Default is ``True``.
+
+   .. versionadded:: 1.2
+
 
 .. rubric:: Footnotes
 
