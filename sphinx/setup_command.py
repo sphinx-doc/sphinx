@@ -127,7 +127,7 @@ class BuildDoc(Command):
             status_stream = sys.stdout
         confoverrides = {}
         if self.project:
-             confoverrides['project'] = self.project        
+             confoverrides['project'] = self.project
         if self.version:
              confoverrides['version'] = self.version
         if self.release:

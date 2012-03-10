@@ -319,7 +319,8 @@ class Glossary(Directive):
 
             defnode = nodes.definition()
             if definition:
-                self.state.nested_parse(definition, definition.items[0][1], defnode)
+                self.state.nested_parse(definition, definition.items[0][1],
+                                        defnode)
 
             items.append((termtexts,
                           nodes.definition_list_item('', term, defnode)))
