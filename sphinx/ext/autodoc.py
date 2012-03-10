@@ -512,9 +512,13 @@ class Documenter(object):
             # unbound method objects instead of function objects);
             # using keys() because apparently there are objects for which
             # __dict__ changes while getting attributes
-            obj_dict = self.get_attr(self.object, '__dict__')
-            members = [(mname, self.get_attr(self.object, mname, None))
-                       for mname in obj_dict.keys()]
+            try:
+                obj_dict = self.get_attr(self.object, '__dict__')
+            except AttributeError:
+                members = []
+            else:
+                members = [(mname, self.get_attr(self.object, mname, None))
+                           for mname in obj_dict.keys()]
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
         if self.analyzer:
