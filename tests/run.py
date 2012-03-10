@@ -22,9 +22,11 @@ if sys.version_info >= (3, 0):
     copydir_run_2to3(testroot, newroot)
     # switch to the converted dir so nose tests the right tests
     chdir(newroot)
-
-# always test the sphinx package from this directory
-sys.path.insert(0, path.join(path.dirname(__file__), path.pardir))
+    # always test the sphinx package from build/lib/
+    sys.path.insert(0, path.pardir)
+else:
+    # always test the sphinx package from this directory
+    sys.path.insert(0, path.join(path.dirname(__file__), path.pardir))
 
 try:
     import nose
