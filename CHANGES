@@ -1,5 +1,5 @@
-Release 1.1.3 (in development)
-==============================
+Release 1.1.3 (Mar 10, 2012)
+============================
 
 * PR#40: Fix ``safe_repr`` function to decode bytestrings with non-ASCII
   characters correctly.
