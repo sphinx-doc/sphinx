@@ -1512,19 +1512,21 @@ class BuildEnvironment:
         self.warn_node(msg % {'target': target}, node)
 
     def process_only_nodes(self, doctree, builder, fromdocname=None):
+        # A comment on the comment() nodes being inserted: replacing by [] would
+        # result in a "Losing ids" exception if there is a target node before
+        # the only node, so we make sure docutils can transfer the id to
+        # something, even if it's just a comment and will lose the id anyway...
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
             except Exception, err:
                 self.warn_node('exception while evaluating only '
                                'directive expression: %s' % err, node)
-                node.replace_self(node.children)
+                node.replace_self(node.children or nodes.comment())
             else:
                 if ret:
-                    node.replace_self(node.children)
+                    node.replace_self(node.children or nodes.comment())
                 else:
-                    # replacing by [] would result in an "Losing ids" exception
-                    # if there is a target node before the only node
                     node.replace_self(nodes.comment())
 
     def assign_section_numbers(self):
