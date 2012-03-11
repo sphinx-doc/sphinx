@@ -7,15 +7,14 @@
 
 .. versionadded:: 1.1
 
-This extension looks at your Python object descriptions
-(``.. class::``, ``.. function::`` etc.) and adds external links to
-code hosted somewhere on the web. The intent is similar to the
+This extension looks at your object descriptions (``.. class::``,
+``.. function::`` etc.) and adds external links to code hosted
+somewhere on the web. The intent is similar to the
 ``sphinx.ext.viewcode`` extension, but assumes the source code can be
 found somewhere on the Internet.
 
 In your configuration, you need to specify a :confval:`linkcode_resolve` 
-function that returns an URL based on the name of a module and 
-the full name of the object.
+function that returns an URL based on the object.
 
 .. confval:: linkcode_resolve
 
@@ -29,9 +28,9 @@ the full name of the object.
    in. ``info`` is a dictionary with the following keys guaranteed to
    be present (dependent on the domain):
 
+   - ``py``: ``module`` (name of the module), ``fullname`` (name of the object)
    - ``c``: ``names`` (list of names for the object)
    - ``cpp``: ``names`` (list of names for the object)
-   - ``py``: ``module`` (name of the module), ``fullname`` (name of the object)
    - ``javascript``: ``object`` (name of the object), ``fullname`` (name of the item)
 
    Example:
