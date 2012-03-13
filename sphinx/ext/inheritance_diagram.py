@@ -39,7 +39,7 @@ r"""
 import re
 import sys
 import inspect
-import __builtin__
+import __builtin__ as __builtin__ # as __builtin__ is for lib2to3 compatibility
 try:
     from hashlib import md5
 except ImportError:
@@ -314,7 +314,8 @@ class InheritanceDiagram(Directive):
 
 
 def get_graph_hash(node):
-    return md5(node['content'] + str(node['parts'])).hexdigest()[-10:]
+    encoded = (node['content'] + str(node['parts'])).encode('utf-8')
+    return md5(encoded).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self, node):
