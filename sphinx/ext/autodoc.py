@@ -573,7 +573,11 @@ class Documenter(object):
             if want_all and membername.startswith('__') and \
                    membername.endswith('__') and len(membername) > 4:
                 # special __methods__
-                if self.options.special_members and membername != '__doc__':
+                if self.options.special_members is ALL and \
+                        membername != '__doc__':
+                    keep = has_doc or self.options.undoc_members
+                elif self.options.special_members and \
+                        membername in self.options.special_members:
                     keep = has_doc or self.options.undoc_members
             elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
@@ -748,7 +752,7 @@ class ModuleDocumenter(Documenter):
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
-        'private-members': bool_option, 'special-members': bool_option,
+        'private-members': bool_option, 'special-members': members_option,
     }
 
     @classmethod
@@ -949,7 +953,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'member-order': identity,
         'exclude-members': members_set_option,
-        'private-members': bool_option, 'special-members': bool_option,
+        'private-members': bool_option, 'special-members': members_option,
     }
 
     @classmethod
