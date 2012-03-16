@@ -610,7 +610,8 @@ class StandaloneHTMLBuilder(Builder):
         """
         Builder.post_process_images(self, doctree)
         for node in doctree.traverse(nodes.image):
-            if not node.has_key('scale') or \
+            scale_keys = ('scale', 'width', 'height')
+            if not any((key in node) for key in scale_keys) or \
                isinstance(node.parent, nodes.reference):
                 # docutils does unfortunately not preserve the
                 # ``target`` attribute on images, so we need to check
