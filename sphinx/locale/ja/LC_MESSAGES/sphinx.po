@@ -255,7 +255,7 @@ msgstr "%s (%s モジュール)"
 #: sphinx/domains/python.py:275
 #, python-format
 msgid "%s (built-in class)"
-msgstr "%s (組み込み変数)"
+msgstr "%s (組み込みクラス)"
 
 #: sphinx/domains/python.py:276
 #, python-format
