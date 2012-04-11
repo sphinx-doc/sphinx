@@ -309,6 +309,9 @@ epub_copyright = u'%(copyright_str)s'
 # A tuple containing the cover image and cover page html template filenames.
 #epub_cover = ()
 
+# A sequence of (type, uri, title) tuples for the guide element of content.opf.
+#epub_guide = ()
+
 # HTML files that should be inserted before the pages created by sphinx.
 # The format is a list of tuples containing the path and title.
 #epub_pre_files = []

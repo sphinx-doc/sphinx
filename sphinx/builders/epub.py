@@ -104,6 +104,9 @@ _content_template = u'''\
   <spine toc="ncx">
 %(spine)s
   </spine>
+  <guide>
+%(guide)s
+  </guide>
 </package>
 '''
 
@@ -121,11 +124,20 @@ _file_template = u'''\
 _spine_template = u'''\
     <itemref idref="%(idref)s" />'''
 
+_guide_template = u'''\
+    <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
+
 _toctree_template = u'toctree-l%d'
 
 _link_target_template = u' [%(uri)s]'
 
 _css_link_target_class = u'link-target'
+
+# XXX These strings should be localized according to epub_language
+_guide_titles = {
+    'toc': u'Table of Contents',
+    'cover': u'Cover Page'
+}
 
 _media_types = {
     '.html': 'application/xhtml+xml',
@@ -408,7 +420,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
 
-    def content_metadata(self, files, spine):
+    def content_metadata(self, files, spine, guide):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -424,6 +436,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['date'] = self.esc(time.strftime('%Y-%m-%d'))
         metadata['files'] = files
         metadata['spine'] = spine
+        metadata['guide'] = guide
         return metadata
 
     def build_content(self, outdir, outname):
@@ -479,14 +492,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         # add the optional cover
         content_tmpl = _content_template
+        html_tmpl = None
         if self.config.epub_cover:
-            image, tmpl = self.config.epub_cover
+            image, html_tmpl = self.config.epub_cover
             mpos = content_tmpl.rfind('</metadata>')
             cpos = content_tmpl.rfind('\n', 0 , mpos) + 1
             content_tmpl = content_tmpl[:cpos] + \
                 _cover_template % {'cover': self.esc(self.make_id(image))} + \
                 content_tmpl[cpos:]
-            if tmpl:
+            if html_tmpl:
                 spine.insert(0, _spine_template % {
                     'idref': self.esc(self.make_id(_coverpage_name))})
                 if _coverpage_name not in self.files:
@@ -499,16 +513,46 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     })
                 ctx = {'image': self.esc(image), 'title': self.config.project}
                 self.handle_page(
-                        os.path.splitext(_coverpage_name)[0], ctx, tmpl)
+                        os.path.splitext(_coverpage_name)[0], ctx, html_tmpl)
 
+        guide = []
+        auto_add_cover = True
+        auto_add_toc = True
+        if self.config.epub_guide:
+            for type, uri, title in self.config.epub_guide:
+                file = uri.split('#')[0]
+                if file not in self.files:
+                    self.files.append(file)
+                if type == 'cover':
+                    auto_add_cover = False
+                if type == 'toc':
+                    auto_add_toc = False
+                guide.append(_guide_template % {
+                        'type': self.esc(type),
+                        'title': self.esc(title),
+                        'uri': self.esc(uri)
+                        })
+        if auto_add_cover and html_tmpl:
+            guide.append(_guide_template % {
+                    'type': 'cover',
+                    'title': _guide_titles['cover'],
+                    'uri': self.esc(_coverpage_name)
+                    })
+        if auto_add_toc and self.refnodes:
+            guide.append(_guide_template % {
+                    'type': 'toc',
+                    'title': _guide_titles['toc'],
+                    'uri': self.esc(self.refnodes[0]['refuri'])
+                    })
         projectfiles = '\n'.join(projectfiles)
         spine = '\n'.join(spine)
+        guide = '\n'.join(guide)
 
         # write the project file
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
             f.write(content_tmpl % \
-                self.content_metadata(projectfiles, spine))
+                self.content_metadata(projectfiles, spine, guide))
         finally:
             f.close()
 
@@ -592,6 +636,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
             self, prune_toctrees=False, includehidden=False)
         refnodes = self.get_refnodes(doctree, [])
+        if not refnodes:
+            refnodes = self.refnodes
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
