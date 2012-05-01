@@ -148,3 +148,6 @@ def find_catalog(docname, compaction):
         ret = docname
 
     return ret
+
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
