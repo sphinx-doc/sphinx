@@ -41,7 +41,8 @@ def test_texinfo(app):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
     texinfo_warnings = texinfo_warnfile.getvalue().replace(os.sep, '/')
-    texinfo_warnings_exp = TEXINFO_WARNINGS % {'root': re.escape(app.srcdir)}
+    texinfo_warnings_exp = TEXINFO_WARNINGS % {
+            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(texinfo_warnings_exp + '$', texinfo_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + texinfo_warnings_exp + \

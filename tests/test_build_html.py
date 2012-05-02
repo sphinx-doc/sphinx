@@ -319,7 +319,8 @@ def check_static_entries(outdir):
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
-    html_warnings_exp = HTML_WARNINGS % {'root': re.escape(app.srcdir)}
+    html_warnings_exp = HTML_WARNINGS % {
+            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + html_warnings_exp + \
