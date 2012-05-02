@@ -82,6 +82,10 @@ if sys.version_info >= (2, 6):
     except ImportError:
         from itertools import izip_longest as zip_longest
 
+    import os
+    relpath = os.path.relpath
+    del os
+
 else:
     # Python < 2.6
     from itertools import izip, repeat, chain
@@ -113,6 +117,26 @@ else:
                 yield tup
         except IndexError:
             pass
+
+    from os.path import curdir
+    def relpath(path, start=curdir):
+        """Return a relative version of a path"""
+        from os.path import sep, abspath, commonprefix, join, pardir
+
+        if not path:
+            raise ValueError("no path specified")
+
+        start_list = abspath(start).split(sep)
+        path_list = abspath(path).split(sep)
+
+        # Work out how much of the filepath is shared by start and path.
+        i = len(commonprefix([start_list, path_list]))
+
+        rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return curdir
+        return join(*rel_list)
+    del curdir
 
 
 # ------------------------------------------------------------------------------

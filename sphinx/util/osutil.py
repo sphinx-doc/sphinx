@@ -136,8 +136,9 @@ else:
 
 
 def safe_relpath(path, start=None):
+    from sphinx.util.pycompat import relpath
     try:
-        return os.path.relpath(path, start)
+        return relpath(path, start)
     except ValueError:
         return path
 
