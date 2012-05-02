@@ -329,7 +329,7 @@ def test_html(app):
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
-        fp = open(os.path.join(app.outdir, fname))
+        fp = open(os.path.join(app.outdir, fname), 'rb')
         try:
             etree = ET.parse(fp, parser)
         finally:
