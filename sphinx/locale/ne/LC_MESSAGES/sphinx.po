@@ -600,7 +600,7 @@ msgstr "नेभिगेसन "
 #: sphinx/themes/basic/layout.html:122
 #, python-format
 msgid "Search within %(docstitle)s"
-msgstr "भित्र-भित्रै खोज्नुहोस्"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:131
 msgid "About these documents"
@@ -630,12 +630,12 @@ msgstr "यो भन्दा अगाडी %(last_updated)s मा अपड
 msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr "<a href=\"http://sphinx.pocoo.org/\">Sphinx</a> प्रयोग गरेर बनाइएको"
+msgstr ""
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
 msgid "Search %(docstitle)s"
-msgstr "खोज्नुहोस्"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
