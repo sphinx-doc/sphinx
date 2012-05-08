@@ -120,6 +120,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.1
 
+     .. versionchanged:: 1.2
+        The option can now take arguments, i.e. the special members to document.
+
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
      ``inherited-members`` flag option, in addition to ``members``::
