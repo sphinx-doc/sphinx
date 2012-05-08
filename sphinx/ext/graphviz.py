@@ -229,10 +229,10 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                  (fname, alt, imgcss))
             else:
                 # has a map: get the name of the map and connect the parts
-                mapname = mapname_re.match(imgmap[0]).group(1)
+                mapname = mapname_re.match(imgmap[0].decode('utf-8')).group(1)
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
-                self.body.extend(imgmap)
+                self.body.extend([item.decode('utf-8') for item in imgmap])
         if node.get('caption') and not inline:
             self.body.append('</p>\n<p class="caption">')
             self.body.append(self.encode(node['caption']))
