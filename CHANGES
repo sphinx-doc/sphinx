@@ -9,6 +9,8 @@ Release 1.2 (in development)
 
 * PR#54: Added Norwegian bokmaal translation.
 
+* PR#52: ``special_members`` flag to autodoc now behaves like ``members``.
+
 * Update to jQuery 1.7.1 and Underscore.js 1.3.1.
 
 
