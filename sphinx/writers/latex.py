@@ -100,7 +100,8 @@ class LaTeXWriter(writers.Writer):
 class ExtBabel(Babel):
     def get_shorthandoff(self):
         shortlang = self.language.split('_')[0]
-        if shortlang in ('de', 'sl', 'pt', 'es', 'nl', 'pl', 'it'):
+        if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges', 'es', 'spanish',
+                         'nl', 'dutch', 'pl', 'polish', 'it', 'italian'):
             return '\\shorthandoff{"}'
         return ''
 
