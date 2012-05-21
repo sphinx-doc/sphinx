@@ -134,6 +134,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'papersize':       'letterpaper',
         'pointsize':       '10pt',
         'classoptions':    '',
+        'extraclassoptions': '',
         'inputenc':        '\\usepackage[utf8]{inputenc}',
         'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
@@ -214,8 +215,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     r'\AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}'
         else:
             self.elements['classoptions'] += ',english'
+        print self.elements
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
+        if self.elements['extraclassoptions']:
+            self.elements['classoptions'] += ',' + self.elements['extraclassoptions']
 
         self.highlighter = highlighting.PygmentsBridge('latex',
             builder.config.pygments_style, builder.config.trim_doctest_flags)
