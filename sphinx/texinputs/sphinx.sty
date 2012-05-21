@@ -8,8 +8,9 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
+\@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
+
 \RequirePackage{textcomp}
-\RequirePackage{fancyhdr}
 \RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
