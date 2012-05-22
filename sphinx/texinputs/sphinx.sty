@@ -8,8 +8,9 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
+\@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
+
 \RequirePackage{textcomp}
-\RequirePackage{fancyhdr}
 \RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
@@ -405,18 +406,21 @@
 % Fix the index environment to add an entry to the Table of
 % Contents; this is much nicer than just having to jump to the end of the book
 % and flip around, especially with multiple indexes.
+% The memoir class already does this, so we don't duplicate it in that case.
 %
 % A similiar fix must be done to the bibliography environment, although
 % dependant on document class. In particular, the '\addcontentsline' command
 % should use 'chapter' for a report and 'section' for an article.
 % See sphinxmanual.cls and sphinxhowto.cls for specific fixes.
 %
-\let\py@OldTheindex=\theindex
-\renewcommand{\theindex}{
-  \cleardoublepage
-  \phantomsection
-  \py@OldTheindex
-  \addcontentsline{toc}{chapter}{\indexname}
+\@ifclassloaded{memoir}{}{
+  \let\py@OldTheindex=\theindex
+  \renewcommand{\theindex}{
+    \cleardoublepage
+    \phantomsection
+    \py@OldTheindex
+    \addcontentsline{toc}{chapter}{\indexname}
+  }
 }
 
 % Include hyperref last.
