@@ -99,7 +99,7 @@
 \renewcommand{\tableofcontents}{%
   \setcounter{page}{1}%
   \pagebreak%
-  \pagestyle{plain}%
+  \thispagestyle{plain}%
   {%
     \parskip = 0mm%
     \py@OldTableofcontents%
