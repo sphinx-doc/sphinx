@@ -54,6 +54,7 @@ def test_images():
     tree = env.get_doctree('images')
     app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app)
+    htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
     image_uri_message = "no matching candidate for image URI u'foo.*'"
     if sys.version_info >= (3, 0):
