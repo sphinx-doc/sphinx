@@ -207,6 +207,8 @@ class PygmentsBridge(object):
             if self.dest == 'html':
                 return hlsource
             else:
+                if not isinstance(hlsource, unicode):  # Py2 / Pygments < 1.6
+                    hlsource = hlsource.decode()
                 return hlsource.translate(tex_hl_escape_map_new)
         except ErrorToken:
             # this is most probably not the selected language,
