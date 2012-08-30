@@ -234,8 +234,7 @@ The :program:`sphinx-apidoc` script has several options:
    to generate documentation from a source directory managed by
    `collective.recipe.omelette
    <http://pypi.python.org/pypi/collective.recipe.omelette/>`_.
-   
-   Defaults to False.
+   By default, symbolic links are skipped.
 
 .. option:: -T, --no-toc
 
