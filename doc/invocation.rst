@@ -227,7 +227,7 @@ The :program:`sphinx-apidoc` script has several options:
 
    This sets the maximum depth of the table of contents, if one is generated.
 
-.. option:: -l, --followlinks
+.. option:: -l, --follow-links
 
    This option makes sphinx-apidoc follow symbolic links when recursing the
    filesystem to discover packages and modules. You may need it if you want
