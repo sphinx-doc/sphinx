@@ -862,7 +862,7 @@ class DocstringSignatureMixin(object):
     """
 
     def _find_signature(self, encoding=None):
-        docstrings = Documenter.get_doc(self, encoding, 2)
+        docstrings = Documenter.get_doc(self, encoding)
         if len(docstrings) != 1:
             return
         doclines = docstrings[0]
@@ -877,6 +877,9 @@ class DocstringSignatureMixin(object):
         # the base name must match ours
         if not self.objpath or base != self.objpath[-1]:
             return
+        # re-prepare docstring to ignore indentation after signature
+        docstrings = Documenter.get_doc(self, encoding, 2)
+        doclines = docstrings[0]
         # ok, now jump over remaining empty lines and set the remaining
         # lines as the new doclines
         i = 1

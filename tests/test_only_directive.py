@@ -39,7 +39,6 @@ def test_sectioning(app):
 
     def testsects(prefix, sects, indent=0):
         title = sects[0]
-        sprint(' ' * indent + title)
         parent_num = title.split()[0]
         assert prefix == parent_num, \
             'Section out of place: %r' % title
@@ -56,7 +55,6 @@ def test_sectioning(app):
     parts = [getsects(n)
              for n in filter(lambda n: isinstance(n, nodes.section),
                              doctree.children)]
-    sprint('\nChecking headings in only.txt:')
     for i, s in enumerate(parts):
         testsects(str(i+1) + '.', s, 4)
     assert len(parts) == 4, 'Expected 4 document level headings, got:\n%s' % \

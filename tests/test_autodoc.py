@@ -519,6 +519,12 @@ def test_generate():
     assert_result_contains(
         '   rest of docstring', 'method', 'test_autodoc.DocstringSig.meth')
     assert_result_contains(
+        '.. py:method:: DocstringSig.meth2()', 'method',
+        'test_autodoc.DocstringSig.meth2')
+    assert_result_contains(
+        '       indented line', 'method',
+        'test_autodoc.DocstringSig.meth2')
+    assert_result_contains(
         '.. py:classmethod:: Class.moore(a, e, f) -> happiness', 'method',
         'test_autodoc.Class.moore')
 
@@ -658,6 +664,13 @@ class DocstringSig(object):
 First line of docstring
 
         rest of docstring
+        """
+
+    def meth2(self):
+        """First line, no signature
+        Second line followed by indentation::
+
+            indented line
         """
 
 class StrRepr(str):
