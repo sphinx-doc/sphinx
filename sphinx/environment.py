@@ -66,6 +66,7 @@ default_settings = {
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
     'halt_level': 5,
+    'file_insertion_enabled': True,
 }
 
 # This is increased every time an environment attribute is added
