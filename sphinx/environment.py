@@ -213,19 +213,23 @@ class Locale(Transform):
         parser = RSTParser()
 
         for node, msg in extract_messages(self.document):
-            patch = new_document(source, settings)
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
+
+            patch = new_document(source, settings)
             parser.parse(msgstr, patch)
             patch = patch[0]
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
-            for child in patch.children: # update leaves
-                child.parent = node
-            node.children = patch.children
+
+            # copy text children
+            for i, child in enumerate(patch.children):
+                if isinstance(child, nodes.Text):
+                    child.parent = node
+                    node.children[i] = child
 
 
 class SphinxStandaloneReader(standalone.Reader):
