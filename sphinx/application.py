@@ -409,7 +409,7 @@ class Sphinx(object):
         if domain.name not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain.name)
         if not issubclass(domain, self.domains[domain.name]):
-            raise ExtensionError('new domain not a subclass of registered '
+            raise ExtensionError('new domain not a subclass of registered %s '
                                  'domain' % domain.name)
         self.domains[domain.name] = domain
 
