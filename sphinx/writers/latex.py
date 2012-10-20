@@ -209,6 +209,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.elements['classoptions'] = ',dvipdfmx'
                 # disable babel which has not publishing quality in Japanese
                 self.elements['babel'] = ''
+                # disable fncychap in Japanese documents
+                self.elements['fncychap'] = ''
         else:
             self.elements['classoptions'] += ',english'
         # allow the user to override them all
