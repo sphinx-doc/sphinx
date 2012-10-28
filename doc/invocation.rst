@@ -227,6 +227,15 @@ The :program:`sphinx-apidoc` script has several options:
 
    This sets the maximum depth of the table of contents, if one is generated.
 
+.. option:: -l, --follow-links
+
+   This option makes sphinx-apidoc follow symbolic links when recursing the
+   filesystem to discover packages and modules. You may need it if you want
+   to generate documentation from a source directory managed by
+   `collective.recipe.omelette
+   <http://pypi.python.org/pypi/collective.recipe.omelette/>`_.
+   By default, symbolic links are skipped.
+
 .. option:: -T, --no-toc
 
    This prevents the generation of a table-of-contents file ``modules.rst``.

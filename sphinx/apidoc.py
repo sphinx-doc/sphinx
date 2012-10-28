@@ -157,7 +157,8 @@ def recurse_tree(rootpath, excludes, opts):
         root_package = None
 
     toplevels = []
-    for root, subs, files in os.walk(rootpath):
+    followlinks = getattr(opts, 'followlinks', False)
+    for root, subs, files in os.walk(rootpath, followlinks=followlinks):
         if is_excluded(root, excludes):
             del subs[:]
             continue
@@ -246,6 +247,10 @@ Note: By default this script will not overwrite already created files.""")
                       '(default: 4)', type='int', default=4)
     parser.add_option('-f', '--force', action='store_true', dest='force',
                       help='Overwrite all files')
+    parser.add_option('-l', '--follow-links', action='store_true',
+                      dest='followlinks', default=False,
+                      help='Follow symbolic links. Powerful when combined ' \
+                           'with collective.recipe.omelette.')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dryrun',
                       help='Run the script without creating files')
     parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',
