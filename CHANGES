@@ -15,11 +15,13 @@ Release 1.2 (in development)
 
 * PR#52: ``special_members`` flag to autodoc now behaves like ``members``.
 
+* #955: Fix i18n transformation.
+
+* Handle duplicate domain indices in texinfo.
+
+* PR#74: Fix some Russian translation.
+
 * Update to jQuery 1.7.1 and Underscore.js 1.3.1.
-
-
-Release 1.1.4 (in development)
-==============================
 
 
 Release 1.1.3 (Mar 10, 2012)
