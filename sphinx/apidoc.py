@@ -249,8 +249,8 @@ Note: By default this script will not overwrite already created files.""")
                       help='Overwrite all files')
     parser.add_option('-l', '--follow-links', action='store_true',
                       dest='followlinks', default=False,
-                      help='Follow symbolic links. Powerful when combined ' \
-                           'with collective.recipe.omelette.')
+                      help='Follow symbolic links. Powerful when combined '
+                      'with collective.recipe.omelette.')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dryrun',
                       help='Run the script without creating files')
     parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',

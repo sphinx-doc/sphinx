@@ -236,6 +236,8 @@ The :program:`sphinx-apidoc` script has several options:
    <http://pypi.python.org/pypi/collective.recipe.omelette/>`_.
    By default, symbolic links are skipped.
 
+   .. versionadded:: 1.2
+
 .. option:: -T, --no-toc
 
    This prevents the generation of a table-of-contents file ``modules.rst``.
