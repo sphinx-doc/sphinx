@@ -27,6 +27,7 @@ Contents:
    doctest
    extensions
    versioning/index
+   only
 
    Python <http://python.org/>
 
