@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* PR#25: In inheritance diagrams, the first line of the class docstring
+  is now the tooltip for the class.
+
 * PR#47: Added :mod:`sphinx.ext.linkcode` extension.
 
 * PR#75: Added ``--follow-links`` option to sphinx-apidoc.
