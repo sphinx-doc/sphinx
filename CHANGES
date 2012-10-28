@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* PR#47: Added :mod:`sphinx.ext.linkcode` extension.
+
 * PR#75: Added ``--follow-links`` option to sphinx-apidoc.
 
 * PR#45: The linkcheck builder now checks ``#anchor``\ s for existence.

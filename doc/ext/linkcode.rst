@@ -5,7 +5,7 @@
    :synopsis: Add external links to source code.
 .. moduleauthor:: Pauli Virtanen
 
-.. versionadded:: 1.1
+.. versionadded:: 1.2
 
 This extension looks at your object descriptions (``.. class::``,
 ``.. function::`` etc.) and adds external links to code hosted
