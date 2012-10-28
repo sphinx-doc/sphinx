@@ -47,7 +47,7 @@ def extract_messages(doctree):
         # It should be fixed in Docutils. There is a patch for it in Docutils
         # tracker: https://sourceforge.net/tracker/?func=detail&aid=3548418&group_id=38414&atid=422032
         if isinstance(node, nodes.term) and not node.source:
-            definition_list_item = node.parent;
+            definition_list_item = node.parent
             node.source = definition_list_item.source
             node.line = definition_list_item.line - 1
             node.rawsource = definition_list_item.rawsource.split("\n", 2)[0]
