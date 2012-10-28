@@ -383,6 +383,7 @@ documentation on :ref:`intl` for details.
    * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``nb_NO`` -- Norwegian Bokmal
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
