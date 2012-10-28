@@ -30,6 +30,8 @@ Release 1.2 (in development)
 
 * #1028: Fix line block output in the text builder.
 
+* #1018: Fix "container" directive handling in the text builder.
+
 
 Release 1.1.3 (Mar 10, 2012)
 ============================
