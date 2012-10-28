@@ -1,15 +1,20 @@
 # Estonian translations for Sphinx.
-# Copyright (C) 2010 ORGANIZATION
-# This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# Sphinxi eesti keele tõlge.
 #
+# Copyright (C) 2011‒2012 Pocoo Team.
+#
+# This file is distributed under the same license as the Sphinx project.
+#
+# Aivar Annamaa <aivar.annamaa@gmail.com>, 2011
+# Ivar Smolin <okul at linux ee>, 2012
+
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 1.0pre/8b971dbc7d36\n"
+"Project-Id-Version: Sphinx 1.1.3"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2011-09-21 10:06+0200\n"
-"PO-Revision-Date: 2011-09-18 11:40+0200\n"
-"Last-Translator: Aivar Annamaa <aivar.annamaa@gmail.com>\n"
+"PO-Revision-Date: 2012-09-15 12:56+0300\n"
+"Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +23,7 @@ msgstr ""
 "Generated-By: Babel 0.9.6\n"
 
 #: sphinx/config.py:81
-#, fuzzy, python-format
+#, python-format
 msgid "%s %s documentation"
 msgstr "%s %s dokumentatsioon"
 
@@ -26,22 +31,22 @@ msgstr "%s %s dokumentatsioon"
 #: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
 #, python-format
 msgid "%B %d, %Y"
-msgstr "%B %d, %Y"
+msgstr "%d. %B %Y"
 
 #: sphinx/environment.py:1625
 #, python-format
 msgid "see %s"
-msgstr ""
+msgstr "vaata %s"
 
 #: sphinx/environment.py:1628
 #, python-format
 msgid "see also %s"
-msgstr ""
+msgstr "vaata ka %s"
 
 #: sphinx/roles.py:175
-#, fuzzy, python-format
+#, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Python Enhancement Proposals!PEP %s"
+msgstr "Pythoni täiustusettepanekud, PEP %s"
 
 #: sphinx/builders/changes.py:73
 msgid "Builtins"
@@ -54,7 +59,7 @@ msgstr "Mooduli tase"
 #: sphinx/builders/html.py:274
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%b %d, %Y"
+msgstr "%d. %b %Y"
 
 #: sphinx/builders/html.py:293 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
@@ -73,8 +78,11 @@ msgid "previous"
 msgstr "eelmine"
 
 #: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:196
+# paistab olevat ristviitamiseks. ei oska öelda, kas siia sobiks paremini
+# 'Sektsioonis' või 'Teema' või midagi muud. sestap panin enamvähem lollikindla
+# 'Pealkirjas'. (okul)
 msgid " (in "
-msgstr " (in "
+msgstr " (pealkirjas "
 
 #: sphinx/directives/other.py:136
 msgid "Section author: "
@@ -196,9 +204,9 @@ msgid "%s() (%s method)"
 msgstr "%s() (%s meetod)"
 
 #: sphinx/domains/javascript.py:109
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (class)"
-msgstr "%s (C++ klass)"
+msgstr "%s() (klass)"
 
 #: sphinx/domains/javascript.py:111
 #, python-format
@@ -216,7 +224,7 @@ msgstr "Argumendid"
 
 #: sphinx/domains/javascript.py:125
 msgid "Throws"
-msgstr "Throws"
+msgstr ""
 
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
 msgid "data"
@@ -232,7 +240,7 @@ msgstr "Muutujad"
 
 #: sphinx/domains/python.py:104
 msgid "Raises"
-msgstr "Raises"
+msgstr ""
 
 #: sphinx/domains/python.py:255 sphinx/domains/python.py:312
 #: sphinx/domains/python.py:324 sphinx/domains/python.py:337
@@ -278,12 +286,12 @@ msgstr "%s() (%s staatiline meetod)"
 #: sphinx/domains/python.py:341
 #, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s klassi meetod)"
+msgstr "%s() (klassi %s.%s meetod)"
 
 #: sphinx/domains/python.py:344
 #, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s klassi meetod)"
+msgstr "%s() (klassi %s meetod)"
 
 #: sphinx/domains/python.py:354
 #, python-format
@@ -305,7 +313,7 @@ msgstr "moodulid"
 
 #: sphinx/domains/python.py:537
 msgid "Deprecated"
-msgstr "Ebaasoovitav"
+msgstr "Iganenud"
 
 #: sphinx/domains/python.py:562 sphinx/locale/__init__.py:179
 msgid "exception"
@@ -328,9 +336,8 @@ msgid "module"
 msgstr "moodul"
 
 #: sphinx/domains/python.py:695
-#, fuzzy
 msgid " (deprecated)"
-msgstr "Ebaasoovitav"
+msgstr " (iganenud)"
 
 #: sphinx/domains/rst.py:55
 #, python-format
@@ -362,11 +369,11 @@ msgstr "%s käsurea valik; %s"
 
 #: sphinx/domains/std.py:393
 msgid "glossary term"
-msgstr "termin"
+msgstr "sõnastiku termin"
 
 #: sphinx/domains/std.py:394
 msgid "grammar token"
-msgstr "grammatika märgend"
+msgstr "grammatika märk"
 
 #: sphinx/domains/std.py:395
 msgid "reference label"
@@ -378,7 +385,7 @@ msgstr "keskkonnamuutuja"
 
 #: sphinx/domains/std.py:397
 msgid "program option"
-msgstr "programmi seade"
+msgstr "programmi valik"
 
 #: sphinx/domains/std.py:427 sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-split.html:11
@@ -395,26 +402,26 @@ msgstr "Mooduli indeks"
 
 #: sphinx/domains/std.py:429 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
-msgstr "Otsingu lehekülg"
+msgstr "Otsinguleht"
 
 #: sphinx/ext/autodoc.py:1002
 #, python-format
 msgid "   Bases: %s"
-msgstr "   Baasid: %s"
+msgstr "   Pärineb: %s"
 
 #: sphinx/ext/autodoc.py:1038
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr "sünonüüm :class:`%s`"
+msgstr "klassi :class:`%s` sünonüüm"
 
 #: sphinx/ext/todo.py:41
 msgid "Todo"
-msgstr "Tegemata"
+msgstr "Teha"
 
 #: sphinx/ext/todo.py:109
 #, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr "(Algne kirje asub failis  %s, real %d.)"
+msgstr "(<<Algne kirje>> asub failis  %s real %d.)"
 
 #: sphinx/ext/todo.py:117
 msgid "original entry"
@@ -498,7 +505,7 @@ msgstr "Muudetud versioonis %s"
 #: sphinx/locale/__init__.py:170
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "Ebasoovitav alates versioonist %s"
+msgstr "Iganenud alates versioonist %s"
 
 #: sphinx/locale/__init__.py:176
 msgid "keyword"
@@ -536,7 +543,7 @@ msgstr "Otsi"
 
 #: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
-msgstr "Sisesta otsingusõna"
+msgstr "Sisesta otsingusõna või mooduli/klassi/funktsiooni nimi."
 
 #: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
@@ -609,17 +616,17 @@ msgstr "Info selle dokumentatsiooni kohta"
 
 #: sphinx/themes/basic/layout.html:140
 msgid "Copyright"
-msgstr "Copyright"
+msgstr "Autoriõigused"
 
 #: sphinx/themes/basic/layout.html:189
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Autoriõigused</a> %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:191
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
-msgstr "&copy; Copyright %(copyright)s."
+msgstr "&copy; Autoriõigused %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:195
 #, python-format
@@ -632,7 +639,7 @@ msgid ""
 "Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"Loodud <a href=\"http://sphinx.pocoo.org/\">Sphinx-iga</a> (versioon: "
+"Loodud <a href=\"http://sphinx.pocoo.org/\">Sphinxiga</a> (versioon: "
 "%(sphinx_version)s)."
 
 #: sphinx/themes/basic/opensearch.xml:4
@@ -669,9 +676,9 @@ msgid ""
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
 msgstr ""
-"Siin saad otsida käesolevast dokumentatsioonist. Sisesta otsisõned "
+"Siin saad otsida käesolevast dokumentatsioonist. Sisesta otsisõnad "
 "allolevasse lahtrisse ning klõpsa \"Otsi\". Tulemuseks antakse "
-"leheküljed, mis sisaldavad kõiki otsisõnesid."
+"leheküljed, mis sisaldavad kõiki otsisõnasid."
 
 #: sphinx/themes/basic/search.html:36
 msgid "search"
@@ -683,7 +690,7 @@ msgstr "Otsingutulemused"
 
 #: sphinx/themes/basic/search.html:42
 msgid "Your search did not match any results."
-msgstr "Otsing ei andnud tulemusi"
+msgstr "Otsing ei andnud tulemusi."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -691,13 +698,13 @@ msgstr "Kiirotsing"
 
 #: sphinx/themes/basic/sourcelink.html:11
 msgid "This Page"
-msgstr "Käesolev lehekülg"
+msgstr "Käesolev leht"
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr "Muudatused versioonis %(version)s &mdash; %(docstitle)s"
+msgstr "Muutused versioonis %(version)s &mdash; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
@@ -707,28 +714,28 @@ msgstr "%(filename)s &mdash; %(docstitle)s"
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Automaatselt genereeritud nimekiri versiooni %(version)s muudatustest"
+msgstr "Automaatselt genereeritud nimekiri versiooni %(version)s muutustest"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
-msgstr "Teegi muudatused"
+msgstr "Teegi muutused"
 
 #: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
-msgstr "C API muudatused"
+msgstr "C API muutused"
 
 #: sphinx/themes/basic/changes/versionchanges.html:25
 msgid "Other changes"
-msgstr "Ülejäänud muudatused"
+msgstr "Ülejäänud muutused"
 
 #: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:504
 #: sphinx/writers/html.py:510
 msgid "Permalink to this headline"
-msgstr "Püsilink sellele pealkirjale"
+msgstr "Püsiviit sellele pealkirjale"
 
 #: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
 msgid "Permalink to this definition"
-msgstr "Püsilink sellele definitsioonile"
+msgstr "Püsiviit sellele definitsioonile"
 
 #: sphinx/themes/basic/static/doctools.js:189
 msgid "Hide Search Matches"
