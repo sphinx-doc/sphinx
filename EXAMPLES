@@ -4,7 +4,7 @@ Projects using Sphinx
 This is an (incomplete) alphabetic list of projects that use Sphinx or
 are experimenting with using it for their documentation.  If you like to
 be included, please mail to `the Google group
-<http://groups.google.com/group/sphinx-dev>`_.
+<http://groups.google.com/group/sphinx-users>`_.
 
 I've grouped the list into sections to make it easier to find
 interesting examples.
@@ -70,6 +70,7 @@ Documentation using a customized version of the default theme
 * Chaco: http://code.enthought.com/projects/chaco/docs/html/
 * Djagios: http://djagios.org/
 * GetFEM++: http://home.gna.org/getfem/
+* Google or-tools: https://or-tools.googlecode.com/svn/trunk/documentation/user_manual/index.html
 * GPAW: https://wiki.fysik.dtu.dk/gpaw/
 * Grok: http://grok.zope.org/doc/current/
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
@@ -109,6 +110,7 @@ Documentation using the sphinxdoc theme
 * Sqlkit: http://sqlkit.argolinux.org/
 * Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
 * Total Open Station: http://tops.berlios.de/
+* Turbulenz: http://docs.turbulenz.com/
 * WebFaction: http://docs.webfaction.com/
 
 
@@ -128,6 +130,7 @@ Documentation using another builtin theme
   (agogo)
 * Sylli: http://sylli.sourceforge.net/ (nature)
 * libLAS: http://liblas.org/ (nature)
+* Valence: http://docs.valence.desire2learn.com/ (haiku)
 
 
 Documentation using a custom theme/integrated in a site
@@ -135,7 +138,8 @@ Documentation using a custom theme/integrated in a site
 
 * Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
-* Classy: classy: http://classy.pocoo.org/
+* Classy: http://classy.pocoo.org/
+* DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
 * Django: http://docs.djangoproject.com/
 * e-cidadania: http://e-cidadania.readthedocs.org/en/latest/
 * Flask: http://flask.pocoo.org/docs/
@@ -143,6 +147,8 @@ Documentation using a custom theme/integrated in a site
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
+* Istihza (Turkish Python documentation project): http://www.istihza.com/py2/icindekiler_python.html
+* MathJax: http://docs.mathjax.org/en/latest/
 * MirrorBrain: http://mirrorbrain.org/docs/
 * nose: http://somethingaboutorange.com/mrl/projects/nose/
 * ObjectListView: http://objectlistview.sourceforge.net/python
@@ -150,6 +156,7 @@ Documentation using a custom theme/integrated in a site
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
 * German Plone 4.0 user manual: http://www.hasecke.com/plone-benutzerhandbuch/4.0/
+* PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
 * pypol: http://pypol.altervista.org/ (celery)
