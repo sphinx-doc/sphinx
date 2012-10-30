@@ -197,14 +197,14 @@ def get_module_source(modname):
         except Exception, err:
             raise PycodeError('error importing %r' % modname, err)
     mod = sys.modules[modname]
-    if hasattr(mod, '__loader__'):
-        try:
-            source = mod.__loader__.get_source(modname)
-        except Exception, err:
-            raise PycodeError('error getting source for %r' % modname, err)
-        return 'string', source
     filename = getattr(mod, '__file__', None)
     if filename is None:
+        if hasattr(mod, '__loader__'):
+            try:
+                source = mod.__loader__.get_source(modname)
+            except Exception, err:
+                raise PycodeError('error getting source for %r' % modname, err)
+            return 'string', source
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
     lfilename = filename.lower()
