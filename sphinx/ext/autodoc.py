@@ -1105,7 +1105,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
     """
     objtype = 'method'
     member_order = 50
-    priority = 0
+    priority = 1  # must be more than FunctionDocumenter
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
