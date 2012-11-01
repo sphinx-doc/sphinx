@@ -16,7 +16,7 @@ from util import *
 def test_html(app):
     app.builder.build_all()
 
-    fp = open(os.path.join(app.outdir, 'objects.html'), 'rb')
+    fp = open(os.path.join(app.outdir, 'objects.html'), 'r')
     try:
         stuff = fp.read()
     finally:

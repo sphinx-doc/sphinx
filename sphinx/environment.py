@@ -787,7 +787,11 @@ class BuildEnvironment:
             app.emit('doctree-read', doctree)
 
         # store time of build, for outdated files detection
-        self.all_docs[docname] = time.time()
+        # (Some filesystems have coarse timestamp resolution;
+        # therefore time.time() can be older than filesystem's timestamp.
+        # For example, FAT32 has 2sec timestamp resolution.)
+        self.all_docs[docname] = max(
+                time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
             # get old doctree
