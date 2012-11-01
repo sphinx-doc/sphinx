@@ -188,13 +188,22 @@ def load_mappings(app):
     if update:
         env.intersphinx_inventory = {}
         env.intersphinx_named_inventory = {}
-        for name, _, invdata in cache.itervalues():
+        # Duplicate values in different inventories will shadow each
+        # other; which one will override which can vary between builds
+        # since they are specified using an unordered dict.  To make
+        # it more consistent, we sort the named inventories and then
+        # add the unnamed inventories last.  This means that the
+        # unnamed inventories will shadow the named ones but the named
+        # ones can still be accessed when the name is specified.
+        cached_vals = list(cache.itervalues())
+        named_vals = sorted(v for v in cached_vals if v[0])
+        unnamed_vals = [v for v in cached_vals if not v[0]]
+        for name, _, invdata in named_vals + unnamed_vals:
             if name:
                 env.intersphinx_named_inventory[name] = invdata
-            else:
-                for type, objects in invdata.iteritems():
-                    env.intersphinx_inventory.setdefault(
-                        type, {}).update(objects)
+            for type, objects in invdata.iteritems():
+                env.intersphinx_inventory.setdefault(
+                    type, {}).update(objects)
 
 
 def missing_reference(app, env, node, contnode):
