@@ -812,7 +812,7 @@ More domains
 ------------
 
 The sphinx-contrib_ repository contains more domains available as extensions;
-currently Ada, Erlang, HTTP, PHP, and Ruby domains.
+currently Ada, CoffeeScript, Erlang, HTTP, Jinja, PHP, Ruby, and Scala domains.
 
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
