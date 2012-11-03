@@ -582,7 +582,7 @@ if "%%1" == "clean" (
 )
 
 
-%%SPHINXBUILD%% 2> nul     
+%%SPHINXBUILD%% 2> nul
 if errorlevel 9009 (
     echo.
     echo.The 'sphinx-build' command was not found. Make sure Sphinx is
