@@ -125,7 +125,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
               str(self.builder.config.graphviz_dot) + \
               str(self.builder.config.graphviz_dot_args)
               ).encode('utf-8')
-              
+
     fname = '%s-%s.%s' % (prefix, sha(hashkey).hexdigest(), format)
     if hasattr(self.builder, 'imgpath'):
         # HTML

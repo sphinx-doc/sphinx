@@ -100,8 +100,9 @@ class LaTeXWriter(writers.Writer):
 class ExtBabel(Babel):
     def get_shorthandoff(self):
         shortlang = self.language.split('_')[0]
-        if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges', 'es', 'spanish',
-                         'nl', 'dutch', 'pl', 'polish', 'it', 'italian'):
+        if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
+                         'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
+                         'italian'):
             return '\\shorthandoff{"}'
         return ''
 
@@ -217,7 +218,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
         if self.elements['extraclassoptions']:
-            self.elements['classoptions'] += ',' + self.elements['extraclassoptions']
+            self.elements['classoptions'] += ',' + \
+                                             self.elements['extraclassoptions']
 
         self.highlighter = highlighting.PygmentsBridge('latex',
             builder.config.pygments_style, builder.config.trim_doctest_flags)
