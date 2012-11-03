@@ -46,20 +46,12 @@ A development egg can be found `here
 
 requires = ['Pygments>=1.2', 'Jinja2>=2.3', 'docutils>=0.7']
 
+if sys.version_info[:3] >= (3, 3, 0):
+    requires[2] = 'docutils>=0.10'
+
 if sys.version_info < (2, 5):
     print('ERROR: Sphinx requires at least Python 2.5 to run.')
     sys.exit(1)
-
-if sys.version_info[:3] >= (3, 3, 0):
-    try:
-        import docutils
-        x, y = docutils.__version__.split('.')[:2]
-        if (int(x), int(y)) < (0, 10):
-            sys.stderr.write('ERROR: Sphinx requires at least '
-                             'Docutils 0.10 for Python 3.3 and above.\n')
-            sys.exit(1)
-    except Exception:
-        pass
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
