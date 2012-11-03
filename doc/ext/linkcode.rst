@@ -13,14 +13,14 @@ somewhere on the web. The intent is similar to the
 ``sphinx.ext.viewcode`` extension, but assumes the source code can be
 found somewhere on the Internet.
 
-In your configuration, you need to specify a :confval:`linkcode_resolve` 
+In your configuration, you need to specify a :confval:`linkcode_resolve`
 function that returns an URL based on the object.
 
 .. confval:: linkcode_resolve
 
    This is a function ``linkcode_resolve(domain, info)``,
    which should return the URL to source code corresponding to
-   the object in given domain with given information. 
+   the object in given domain with given information.
 
    The function should return ``None`` if no link is to be added.
 
@@ -40,7 +40,7 @@ function that returns an URL based on the object.
       def linkcode_resolve(domain, info):
           if domain != 'py':
               return None
-	  if not info['module']:
-	      return None
-	  filename = info['module'].replace('.', '/')
+          if not info['module']:
+              return None
+          filename = info['module'].replace('.', '/')
           return "http://somesite/sourcerepo/%s.py" % filename

@@ -401,7 +401,7 @@ help:
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
-\t@echo "  latexpdfja to make LaTeX files and run them through platex and dvipdfmx"
+\t@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
 \t@echo "  texinfo    to make Texinfo files"

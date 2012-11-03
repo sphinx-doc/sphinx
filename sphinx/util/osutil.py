@@ -51,7 +51,7 @@ def relative_uri(base, to):
         # returns '', not 'index.html'
         return ''
     if len(b2) == 1 and t2 == ['']:
-        # Special case: relative_uri('f/index.html','f/') should 
+        # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
         return '.' +  SEP
     return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
