@@ -581,6 +581,20 @@ if "%%1" == "clean" (
 \tgoto end
 )
 
+
+%%SPHINXBUILD%% 2> nul     
+if errorlevel 9009 (
+    echo.
+    echo.The 'sphinx-build' command was not found. Make sure Sphinx is
+    echo.installed, then set the SPHINXBUILD environment variable to point
+    echo.to the full path of the 'sphinx-build' executable. Alternatively
+    echo.you may add the Sphinx directory to PATH.
+    echo.
+    echo.If you don't have Sphinx installed, grab it from
+    echo.http://sphinx.pocoo.org/
+    exit /b 1
+)
+
 if "%%1" == "html" (
 \t%%SPHINXBUILD%% -b html %%ALLSPHINXOPTS%% %%BUILDDIR%%/html
 \tif errorlevel 1 exit /b 1
