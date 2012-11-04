@@ -23,14 +23,14 @@ modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
-html_use_opensearch = 'http://sphinx.pocoo.org'
+html_use_opensearch = 'http://sphinx-doc.org'
 
 htmlhelp_basename = 'Sphinxdoc'
 
 epub_theme = 'epub'
 epub_basename = 'sphinx'
 epub_author = 'Georg Brandl'
-epub_publisher = 'http://sphinx.pocoo.org/'
+epub_publisher = 'http://sphinx-doc.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.html', 'Welcome')]

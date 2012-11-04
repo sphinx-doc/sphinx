@@ -44,7 +44,7 @@ reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
 %(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
-http://sphinx.pocoo.org/domains.html
+http://sphinx-doc.org/domains.html
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\

@@ -629,10 +629,10 @@ msgstr "Zuletzt aktualisiert am %(last_updated)s."
 #: sphinx/themes/basic/layout.html:198
 #, python-format
 msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"Mit <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s "
+"Mit <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s "
 "erstellt."
 
 #: sphinx/themes/basic/opensearch.xml:4
