@@ -377,6 +377,21 @@ SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = %(rbuilddir)s
 
+ifneq ($(shell $(SPHINXBUILD) 2> /dev/null; echo $$?), 0)
+define MSG
+
+
+The 'sphinx-build' command was not found. Make sure you have Sphinx
+installed, then set the SPHINXBUILD environment variable to point
+to the full path of the 'sphinx-build' executable. Alternatively you
+may add the Sphinx directory to PATH.
+
+If you don't have Sphinx installed, grab it from
+http://sphinx-doc.org/ 
+endef
+$(error $(MSG))
+endif
+
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
