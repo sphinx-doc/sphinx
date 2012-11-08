@@ -377,7 +377,7 @@ SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = %(rbuilddir)s
 
-ifneq ($(shell $(SPHINXBUILD) 2> /dev/null; echo $$?), 0)
+ifeq ($(shell $(SPHINXBUILD) 2> /dev/null; echo $$?), 127)
 define MSG
 
 
