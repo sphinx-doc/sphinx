@@ -540,6 +540,32 @@ def test_generate():
     assert_result_contains(
         '   :annotation: = None', 'attribute', 'AttCls.a2')
 
+    # test explicit members with instance attributes
+    del directive.env.temp_data['autodoc:class']
+    del directive.env.temp_data['autodoc:module']
+    directive.env.temp_data['py:module'] = 'test_autodoc'
+    options.inherited_members = False
+    options.undoc_members = False
+    options.members = ALL
+    assert_processes([
+        ('class', 'test_autodoc.InstAttCls'),
+        ('attribute', 'test_autodoc.InstAttCls.ca1'),
+        ('attribute', 'test_autodoc.InstAttCls.ca2'),
+        ('attribute', 'test_autodoc.InstAttCls.ca3'),
+        ('attribute', 'test_autodoc.InstAttCls.ia1'),
+        ('attribute', 'test_autodoc.InstAttCls.ia2'),
+    ], 'class', 'InstAttCls')
+    del directive.env.temp_data['autodoc:class']
+    del directive.env.temp_data['autodoc:module']
+    options.members = ['ca1', 'ia1']
+    assert_processes([
+        ('class', 'test_autodoc.InstAttCls'),
+        ('attribute', 'test_autodoc.InstAttCls.ca1'),
+        ('attribute', 'test_autodoc.InstAttCls.ia1'),
+    ], 'class', 'InstAttCls')
+    del directive.env.temp_data['autodoc:class']
+    del directive.env.temp_data['autodoc:module']
+    del directive.env.temp_data['py:module']
 
 # --- generate fodder ------------
 
@@ -680,3 +706,22 @@ class StrRepr(str):
 class AttCls(object):
     a1 = StrRepr('hello\nworld')
     a2 = None
+
+class InstAttCls(object):
+    """Class with documented class and instance attributes."""
+
+    #: Doc comment for class attribute InstAttCls.ca1.
+    #: It can have multiple lines.
+    ca1 = 'a'
+
+    ca2 = 'b'    #: Doc comment for InstAttCls.ca2. One line only.
+
+    ca3 = 'c'
+    """Docstring for class attribute InstAttCls.ca3."""
+
+    def __init__(self):
+        #: Doc comment for instance attribute InstAttCls.ia1
+        self.ia1 = 'd'
+
+        self.ia2 = 'e'
+        """Docstring for instance attribute InstAttCls.ia2."""

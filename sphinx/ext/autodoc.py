@@ -489,20 +489,26 @@ class Documenter(object):
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
         """
+        analyzed_member_names = set()
+        if self.analyzer:
+            attr_docs = self.analyzer.find_attr_docs()
+            namespace = '.'.join(self.objpath)
+            for item in attr_docs.iteritems():
+                if item[0][0] == namespace:
+                    analyzed_member_names.add(item[0][1])
         if not want_all:
             if not self.options.members:
                 return False, []
             # specific members given
-            ret = []
+            members = []
             for mname in self.options.members:
                 try:
-                    ret.append((mname, self.get_attr(self.object, mname)))
+                    members.append((mname, self.get_attr(self.object, mname)))
                 except AttributeError:
-                    self.directive.warn('missing attribute %s in object %s'
-                                        % (mname, self.fullname))
-            return False, ret
-
-        if self.options.inherited_members:
+                    if mname not in analyzed_member_names:
+                        self.directive.warn('missing attribute %s in object %s'
+                                            % (mname, self.fullname))
+        elif self.options.inherited_members:
             # safe_getmembers() uses dir() which pulls in members from all
             # base classes
             members = safe_getmembers(self.object)
@@ -521,13 +527,10 @@ class Documenter(object):
                            for mname in obj_dict.keys()]
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-            namespace = '.'.join(self.objpath)
-            for item in attr_docs.iteritems():
-                if item[0][0] == namespace:
-                    if item[0][1] not in membernames:
-                        members.append((item[0][1], INSTANCEATTR))
+        for aname in analyzed_member_names:
+            if aname not in membernames and \
+               (want_all or aname in self.options.members):
+                members.append((aname, INSTANCEATTR))
         return False, sorted(members)
 
     def filter_members(self, members, want_all):
