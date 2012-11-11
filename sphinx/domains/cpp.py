@@ -760,17 +760,33 @@ class DefinitionParser(object):
         self.skip_ws()
         if self.match(_string_re):
             return self.matched_text
-        idx1 = self.definition.find(',', self.pos)
-        idx2 = self.definition.find(')', self.pos)
-        if idx1 < 0:
-            idx = idx2
-        elif idx2 < 0:
-            idx = idx1
-        else:
-            idx = min(idx1, idx2)
-        if idx < 0:
-            self.fail('unexpected end in default expression')
-        rv = self.definition[self.pos:idx]
+        paren_stack_depth = 0
+        max_pos = len(self.definition)
+        rv_start = self.pos
+        while 1:
+            idx0 = self.definition.find('(', self.pos)
+            idx1 = self.definition.find(',', self.pos)
+            idx2 = self.definition.find(')', self.pos)
+            if idx0 < 0:
+                idx0 = max_pos
+            if idx1 < 0:
+                idx1 = max_pos
+            if idx2 < 0:
+                idx2 = max_pos
+            idx = min(idx0, idx1, idx2)
+            if idx >= max_pos:
+                self.fail('unexpected end in default expression')
+            if idx == idx0:
+                paren_stack_depth += 1
+            elif idx == idx2:
+                paren_stack_depth -= 1
+                if paren_stack_depth < 0:
+                    break
+            elif paren_stack_depth == 0:
+                break
+            self.pos = idx+1
+
+        rv = self.definition[rv_start:idx]
         self.pos = idx
         return rv
 

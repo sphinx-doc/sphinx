@@ -11,7 +11,7 @@
 
 from util import *
 
-from sphinx.domains.cpp import DefinitionParser
+from sphinx.domains.cpp import DefinitionParser, DefinitionError
 
 
 def parse(name, string):
@@ -72,6 +72,21 @@ def test_type_definitions():
 
     x = 'module::myclass foo[n]'
     assert unicode(parse('member_object', x)) == x
+
+    x = 'int foo(Foo f=Foo(double(), std::make_pair(int(2), double(3.4))))'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(A a=x(a))'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(B b=x(a)'
+    raises(DefinitionError, parse, 'function', x)
+
+    x = 'int foo)C c=x(a))'
+    raises(DefinitionError, parse, 'function', x)
+
+    x = 'int foo(D d=x(a'
+    raises(DefinitionError, parse, 'function', x)
 
 
 def test_bases():
