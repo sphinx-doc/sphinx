@@ -230,7 +230,8 @@ class Locale(Transform):
                              if isinstance(r, nodes.footnote_reference)
                              and r.get('auto') == 1]
             for i, child in enumerate(patch.children): # update leaves
-                if isinstance(child, nodes.footnote_reference):
+                if isinstance(child, nodes.footnote_reference) \
+                   and child.get('auto') == 1:
                     # use original 'footnote_reference' object.
                     # this object already registered in self.document.autofootnote_refs
                     patch.children[i] = footnote_refs.pop(0)

@@ -82,7 +82,8 @@ def test_i18n_footnote_regression(app):
     result = (app.outdir / 'i18n_footnote.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH FOOTNOTE"
               u"\n******************\n"  # underline matches new translation
-              u"\nI18N WITH FOOTNOTE INCLUDE THIS CONTENTS [ref] [1]\n"
+              u"\nI18N WITH FOOTNOTE INCLUDE THIS CONTENTS [ref] [1] [100]\n"
               u"\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
-              u"\n[ref] THIS IS A NAMED FOOTNOTE.\n")
+              u"\n[ref] THIS IS A NAMED FOOTNOTE.\n"
+              u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
