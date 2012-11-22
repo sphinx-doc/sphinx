@@ -226,11 +226,20 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
-            # copy text children
-            for i, child in enumerate(patch.children):
-                if isinstance(child, nodes.Text):
-                    child.parent = node
-                    node.children[i] = child
+            footnote_refs = [r for r in node.children
+                             if isinstance(r, nodes.footnote_reference)
+                             and r.get('auto') == 1]
+            for i, child in enumerate(patch.children): # update leaves
+                if isinstance(child, nodes.footnote_reference):
+                    # use original 'footnote_reference' object.
+                    # this object already registered in self.document.autofootnote_refs
+                    patch.children[i] = footnote_refs.pop(0)
+                    # Some duplicated footnote_reference in msgstr cause
+                    # IndexError by .pop(0). That is invalid msgstr.
+
+            for child in patch.children: # update leaves
+                child.parent = node
+            node.children = patch.children
 
 
 class SphinxStandaloneReader(standalone.Reader):

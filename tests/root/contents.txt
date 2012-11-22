@@ -28,6 +28,7 @@ Contents:
    extensions
    versioning/index
    only
+   i18n_footnote
 
    Python <http://python.org/>
 
