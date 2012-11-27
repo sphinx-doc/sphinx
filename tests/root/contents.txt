@@ -29,6 +29,7 @@ Contents:
    versioning/index
    only
    i18n_footnote
+   i18n_external_links
 
    Python <http://python.org/>
 

@@ -229,6 +229,8 @@ class Locale(Transform):
             footnote_refs = [r for r in node.children
                              if isinstance(r, nodes.footnote_reference)
                              and r.get('auto') == 1]
+            refs = [r for r in node.children if isinstance(r, nodes.reference)]
+
             for i, child in enumerate(patch.children): # update leaves
                 if isinstance(child, nodes.footnote_reference) \
                    and child.get('auto') == 1:
@@ -237,6 +239,18 @@ class Locale(Transform):
                     patch.children[i] = footnote_refs.pop(0)
                     # Some duplicated footnote_reference in msgstr cause
                     # IndexError by .pop(0). That is invalid msgstr.
+
+                elif isinstance(child, nodes.reference):
+                    # reference use original 'refname'.
+                    # * reference target ".. _Python: ..." is not translatable.
+                    # * section refname is not translatable.
+                    # * inline reference "`Python <...>`_" have no 'refname'.
+                    if refs and 'refname' in refs[0]:
+                        refname = child['refname'] = refs.pop(0)['refname']
+                        self.document.refnames.setdefault(
+                                refname, []).append(child)
+                    # if reference node count is not same before translation
+                    # that offen generate unknown link target warning.
 
             for child in patch.children: # update leaves
                 child.parent = node

@@ -11,6 +11,7 @@
 """
 
 from subprocess import Popen, PIPE
+import re
 
 from util import *
 from util import SkipTest
@@ -19,7 +20,7 @@ from util import SkipTest
 def setup_module():
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
     # Compile all required catalogs into binary format (*.mo).
-    for catalog in 'bom', 'subdir', 'i18n_footnote':
+    for catalog in 'bom', 'subdir', 'i18n_footnote', 'i18n_external_links':
         try:
             p = Popen(['msgfmt', test_root / '%s.po' % catalog, '-o',
                 test_root / 'xx' / 'LC_MESSAGES' / '%s.mo' % catalog],
@@ -87,3 +88,43 @@ def test_i18n_footnote_regression(app):
               u"\n[ref] THIS IS A NAMED FOOTNOTE.\n"
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
+
+
+@with_app(buildername='html',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+def test_i18n_keep_external_links(app):
+    """regression test for #1044"""
+    app.builder.build(['i18n_external_links'])
+    result = (app.outdir / 'i18n_external_links.html').text(encoding='utf-8')
+
+    # external link check
+    expect_line = u"""<li>EXTERNAL LINK TO <a class="reference external" href="http://python.org">Python</a>.</li>"""
+    matched = re.search('^<li>EXTERNAL LINK TO .*$', result, re.M)
+    matched_line = ''
+    if matched:
+        matched_line = matched.group()
+    assert expect_line == matched_line
+
+    # internal link check
+    expect_line = u"""<li><a class="reference internal" href="#i18n-with-external-links">EXTERNAL LINKS</a> IS INTERNAL LINK.</li>"""
+    matched = re.search('^<li><a .* IS INTERNAL LINK.</li>$', result, re.M)
+    matched_line = ''
+    if matched:
+        matched_line = matched.group()
+    assert expect_line == matched_line
+
+    # inline link check
+    expect_line = u"""<li>INLINE LINK BY <a class="reference external" href="http://sphinx-doc.org">SPHINX</a>.</li>"""
+    matched = re.search('^<li>INLINE LINK BY .*$', result, re.M)
+    matched_line = ''
+    if matched:
+        matched_line = matched.group()
+    assert expect_line == matched_line
+
+    # unnamed link check
+    expect_line = u"""<li>UNNAMED <a class="reference external" href="http://google.com">LINK</a>.</li>"""
+    matched = re.search('^<li>UNNAMED .*$', result, re.M)
+    matched_line = ''
+    if matched:
+        matched_line = matched.group()
+    assert expect_line == matched_line
