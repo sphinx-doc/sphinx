@@ -824,7 +824,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
         else:
             prompt = purple(PROMPT_PREFIX + text + ': ')
-        x = term_input(prompt)
+        x = term_input(prompt).strip()
         if default and not x:
             x = default
         if not isinstance(x, unicode):
