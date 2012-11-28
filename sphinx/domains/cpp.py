@@ -852,7 +852,7 @@ class DefinitionParser(object):
         visibility = 'public'
         if self.match(_visibility_re):
             visibility = self.matched_text
-        static = self.skip_word('static')
+        static = self.skip_word_and_ws('static')
         return visibility, static
 
     def parse_type(self):
