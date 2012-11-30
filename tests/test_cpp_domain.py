@@ -43,6 +43,15 @@ def test_type_definitions():
     x = 'int printf(const char* fmt, ...)'
     assert unicode(parse('function', x)) == x
 
+    x = 'int foo(const unsigned int j)'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(const unsigned int const j)'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(const int* const ptr)'
+    assert unicode(parse('function', x)) == x
+
     x = 'std::vector<std::pair<std::string, long long>> module::blah'
     assert unicode(parse('type_object', x)) == x
 

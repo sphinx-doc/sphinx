@@ -672,8 +672,9 @@ class DefinitionParser(object):
         except ValueError:
             return False
 
-    def _parse_builtin(self, modifier):
-        path = [modifier]
+    def _parse_builtin(self, modifiers):
+        modifier = modifiers[-1]
+        path = modifiers
         following = self._modifiers[modifier]
         while 1:
             self.skip_ws()
@@ -730,9 +731,10 @@ class DefinitionParser(object):
                     # impossible for a template to follow, so what
                     # we do is go to a different function that just
                     # eats types
-                    if following is not None:
-                        return self._parse_builtin(modifier)
                     modifiers.append(modifier)
+                    if following is not None:
+                        return self._parse_builtin(modifiers)
+                    self.skip_ws()
                 else:
                     self.backout()
                     break
