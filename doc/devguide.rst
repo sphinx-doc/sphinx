@@ -1,6 +1,5 @@
-**************************
- Sphinx Developer's Guide
-**************************
+Sphinx Developer's Guide
+========================
 
 .. topic:: Abstract
 
@@ -18,7 +17,7 @@ The Sphinx source code is managed using `Mercurial`_ and is hosted on
 sphinx-users <sphinx-users@googlegroups.com>
     Mailing list for user support.
 
-sphinx-dev  <sphinx-dev@googlegroups.com>
+sphinx-dev <sphinx-dev@googlegroups.com>
     Mailing list for development related discussions.
 
 #pocoo on irc.freenode.net
@@ -53,11 +52,19 @@ and post that instead.
 Contributing to Sphinx
 ----------------------
 
-The recommended way to contribute code to Sphinx is to fork the Mercurial
-repository on BitBucket and then submit a pull request after committing your
-changes.
+The recommended way for new contributors to submit code to Sphinx is to fork
+the Mercurial repository on BitBucket and then submit a pull request after
+committing the changes.
 
-These are the basic steps needed to start developing.
+Developers with write access to the main repository are also encouraged to
+create pull requests for non-trivial changes so they may be reviewed before
+being committed.
+
+
+Getting Started
+~~~~~~~~~~~~~~~
+
+These are the basic steps needed to start developing on Sphinx.
 
 .. todo::
 
@@ -132,12 +139,15 @@ These are the basic steps needed to start developing.
 
    __ https://confluence.atlassian.com/display/BITBUCKET/Automatically+Resolving+Issues+when+Users+Push+Code
 
-#. Push changes to your forked repo on BitBucket. ::
+#. Push changes to your forked repository on BitBucket. ::
 
        hg push
 
-#. Submit a pull request from your repo to ``birkenfeld/sphinx`` using the
-   BitBucket interface.
+#. Submit a pull request from your repository to ``birkenfeld/sphinx`` using
+   the BitBucket interface.
+
+   The pull request will be reviewed and if approved, merged by one of the
+   Sphinx developers.
 
 
 Coding Guide
