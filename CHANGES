@@ -36,6 +36,24 @@ Release 1.2 (in development)
 
 * #1010: Make pngmath images transparent by default; IE7+ should handle it.
 
+* #440: Fix coarse timestamp resolution in some filesystem generate wrong outdated file-list.
+
+* #1008: Fix test failures with Python 3.3.
+
+* #1029: Fix intersphinx_mapping values are not stable if mapping have plural key/value set with Python 3.3.
+
+* #920: Rescue PIL packaging issue that allow import Image without PIL namespace. Thanks to Marc Schlaich.
+
+* #1024: Improve Makefile/make.bat error message if Sphinx is not found. Thanks to anatoly techtonik.
+
+* #1037: Fix typos in Polish translation. Thanks to Jakub Wilk.
+
+* #1038: Fix cpp domain parser fails to parse C+11 "static constexpr" declarations. Thanks to Jakub Wilk.
+
+* #1043: Fix sphinx-quickstart asks again and again Y|N because input() return value with extra '\r' on Python-3.2.0 + Windows. Thanks to Régis Décamps.
+
+* #1041: Fix cpp domain parser fails to parse a const type with a modifier.
+
 
 Release 1.1.3 (Mar 10, 2012)
 ============================
