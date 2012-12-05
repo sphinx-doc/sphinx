@@ -251,12 +251,25 @@ class Locale(Transform):
                     and 'refname' in node
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
+            applied_refname_map = {}
             if len(old_refs) != len(new_refs):
                 env.warn_node('The number of reference are inconsistent '
                               'in both the translated form and the '
                               'untranslated form. skip translation.', node)
-            for old, new in zip(old_refs, new_refs):
-                new['refname'] = old['refname']
+            for new in new_refs:
+                if new['refname'] in applied_refname_map:
+                    # 2nd appearance of the reference
+                    new['refname'] = applied_refname_map[new['refname']]
+                elif old_refs:
+                    # 1st appearance of the reference in old_refs
+                    old = old_refs.pop(0)
+                    refname = old['refname']
+                    new['refname'] = refname
+                    applied_refname_map[new['refname']] = refname
+                else:
+                    # the reference is not found in old_refs
+                    applied_refname_map[new['refname']] = new['refname']
+
                 self.document.note_refname(new)
 
             # update leaves

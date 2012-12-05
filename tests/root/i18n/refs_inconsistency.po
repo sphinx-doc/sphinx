@@ -25,6 +25,9 @@ msgstr "FOR FOOTNOTE [ref2]_."
 msgid "for reference_."
 msgstr "reference_ FOR reference_."
 
+msgid "normal text."
+msgstr "ORPHAN REFERENCE: `I18N WITH REFS INCONSISTENCY`_."
+
 msgid "This is a auto numbered footnote."
 msgstr "THIS IS A AUTO NUMBERED FOOTNOTE."
 
