@@ -194,6 +194,28 @@ class Locale(Transform):
     Replace translatable nodes with their translated doctree.
     """
     default_priority = 0
+
+    @classmethod
+    def _collect_nodes(cls, nodelist, node_types, custom_cond_func=None):
+        if custom_cond_func is None:
+            custom_cond_func = lambda x: True
+
+        collected = [node for node in nodelist
+                    if isinstance(node, node_types)
+                    and custom_cond_func(node)]
+        return collected
+
+    @classmethod
+    def _collect_footnote_ref_nodes(cls, nodelist):
+        return cls._collect_nodes(
+                nodelist,
+                nodes.footnote_reference,
+                lambda n: n.get('auto') == 1)
+
+    @classmethod
+    def _collect_ref_nodes(cls, nodelist):
+        return cls._collect_nodes(nodelist, nodes.reference)
+
     def apply(self):
         env = self.document.settings.env
         settings, source = self.document.settings, self.document['source']
@@ -226,10 +248,8 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
-            footnote_refs = [r for r in node.children
-                             if isinstance(r, nodes.footnote_reference)
-                             and r.get('auto') == 1]
-            refs = [r for r in node.children if isinstance(r, nodes.reference)]
+            footnote_refs = self._collect_footnote_ref_nodes(node.children)
+            refs = self._collect_ref_nodes(node.children)
 
             for i, child in enumerate(patch.children): # update leaves
                 if isinstance(child, nodes.footnote_reference) \
