@@ -57,6 +57,9 @@ Release 1.2 (in development)
 * PR#88: Added the "Sphinx Developer's Guide" (:file:`doc/devguide.rst`)
   which outlines the basic development process of the Sphinx project.
 
+* Added the Docutils-native XML and pseudo-XML builders.  See
+  :class:`XMLBuilder` and :class:`PseudoXMLBuilder`.
+
 
 Release 1.1.3 (Mar 10, 2012)
 ============================

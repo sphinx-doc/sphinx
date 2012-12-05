@@ -387,7 +387,7 @@ to the full path of the 'sphinx-build' executable. Alternatively you
 may add the Sphinx directory to PATH.
 
 If you don't have Sphinx installed, grab it from
-http://sphinx-doc.org/ 
+http://sphinx-doc.org/
 endef
 $(error $(MSG))
 endif
@@ -423,6 +423,8 @@ help:
 \t@echo "  info       to make Texinfo files and run them through makeinfo"
 \t@echo "  gettext    to make PO message catalogs"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
+\t@echo "  xml        to make Docutils-native XML files"
+\t@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
@@ -547,6 +549,16 @@ doctest:
 \t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 \t@echo "Testing of doctests in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/doctest/output.txt."
+
+xml:
+\t$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
+\t@echo
+\t@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
+
+pseudoxml:
+\t$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
+\t@echo
+\t@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 '''
 
 BATCHFILE = '''\
@@ -585,6 +597,8 @@ if "%%1" == "help" (
 \techo.  texinfo    to make Texinfo files
 \techo.  gettext    to make PO message catalogs
 \techo.  changes    to make an overview over all changed/added/deprecated items
+\techo.  xml        to make Docutils-native XML files
+\techo.  pseudoxml  to make pseudoxml-XML files for display purposes
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
 \tgoto end
@@ -770,6 +784,22 @@ if "%%1" == "doctest" (
 \techo.
 \techo.Testing of doctests in the sources finished, look at the ^
 results in %%BUILDDIR%%/doctest/output.txt.
+\tgoto end
+)
+
+if "%%1" == "xml" (
+\t%%SPHINXBUILD%% -b xml %%ALLSPHINXOPTS%% %%BUILDDIR%%/xml
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The XML files are in %%BUILDDIR%%/xml.
+\tgoto end
+)
+
+if "%%1" == "pseudoxml" (
+\t%%SPHINXBUILD%% -b pseudoxml %%ALLSPHINXOPTS%% %%BUILDDIR%%/pseudoxml
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The pseudo-XML files are in %%BUILDDIR%%/pseudoxml.
 \tgoto end
 )
 

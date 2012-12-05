@@ -1342,6 +1342,16 @@ Options for the linkcheck builder
    .. versionadded:: 1.2
 
 
+Options for the XML builder
+---------------------------
+
+.. confval:: xml_pretty
+
+   If True, pretty-print the XML.  Default is ``True``.
+
+   .. versionadded:: 1.2
+
+
 .. rubric:: Footnotes
 
 .. [1] A note on available globbing syntax: you can use the standard shell

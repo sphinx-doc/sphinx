@@ -61,3 +61,11 @@ else:
 @with_app(buildername='singlehtml', cleanenv=True)
 def test_singlehtml(app):
     app.builder.build_all()
+
+@with_app(buildername='xml')
+def test_xml(app):
+    app.builder.build_all()
+
+@with_app(buildername='pseudoxml')
+def test_pseudoxml(app):
+    app.builder.build_all()
