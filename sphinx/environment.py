@@ -195,44 +195,6 @@ class Locale(Transform):
     """
     default_priority = 0
 
-    @classmethod
-    def _collect_nodes(cls, nodelist, node_types, custom_cond_func=None):
-        if custom_cond_func is None:
-            custom_cond_func = lambda x: True
-
-        collected = [node for node in nodelist
-                    if isinstance(node, node_types)
-                    and custom_cond_func(node)]
-        return collected
-
-    @classmethod
-    def _collect_footnote_ref_nodes(cls, nodelist):
-        return cls._collect_nodes(
-                nodelist,
-                nodes.footnote_reference,
-                lambda n: n.get('auto') == 1)
-
-    @classmethod
-    def _collect_ref_nodes(cls, nodelist):
-        return cls._collect_nodes(nodelist, nodes.reference)
-
-    def _is_ref_inconsistency(self, node1, node2):
-        """
-        check equality of the number of reference in both the translated
-        form and the untranslated form.
-        """
-        env = self.document.settings.env
-        for f in [self._collect_footnote_ref_nodes,
-                  self._collect_ref_nodes,
-                  ]:
-            if len(f(node1.children)) != len(f(node2.children)):
-                env.warn_node('The number of reference are inconsistent '
-                              'in both the translated form and the '
-                              'untranslated form. skip translation.', node1)
-                return True
-
-        return False
-
     def apply(self):
         env = self.document.settings.env
         settings, source = self.document.settings, self.document['source']
@@ -265,32 +227,40 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
-            if self._is_ref_inconsistency(node, patch):
-                continue #skip translation.
+            # auto-numbered foot note reference should use original 'ids'.
+            is_autonumber_footnote_ref = lambda node: \
+                    isinstance(node, nodes.footnote_reference) \
+                    and node.get('auto') == 1
+            old_foot_refs = node.traverse(is_autonumber_footnote_ref)
+            new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
+            if len(old_foot_refs) != len(new_foot_refs):
+                env.warn_node('The number of reference are inconsistent '
+                              'in both the translated form and the '
+                              'untranslated form. skip translation.', node)
+            for old, new in zip(old_foot_refs, new_foot_refs):
+                new['ids'] = old['ids']
+                self.document.autofootnote_refs.remove(old)
+                self.document.note_autofootnote_ref(new)
 
-            footnote_refs = self._collect_footnote_ref_nodes(node.children)
-            refs = self._collect_ref_nodes(node.children)
+            # reference should use original 'refname'.
+            # * reference target ".. _Python: ..." is not translatable.
+            # * section refname is not translatable.
+            # * inline reference "`Python <...>`_" has no 'refname'.
+            is_refnamed_ref = lambda node: \
+                    isinstance(node, nodes.reference) \
+                    and 'refname' in node
+            old_refs = node.traverse(is_refnamed_ref)
+            new_refs = patch.traverse(is_refnamed_ref)
+            if len(old_refs) != len(new_refs):
+                env.warn_node('The number of reference are inconsistent '
+                              'in both the translated form and the '
+                              'untranslated form. skip translation.', node)
+            for old, new in zip(old_refs, new_refs):
+                new['refname'] = old['refname']
+                self.document.note_refname(new)
 
-            for i, child in enumerate(patch.children): # update leaves
-                if isinstance(child, nodes.footnote_reference) \
-                   and child.get('auto') == 1:
-                    # use original 'footnote_reference' object.
-                    # this object is already registered in self.document.autofootnote_refs
-                    patch.children[i] = footnote_refs.pop(0)
-
-                elif isinstance(child, nodes.reference):
-                    # reference should use original 'refname'.
-                    # * reference target ".. _Python: ..." is not translatable.
-                    # * section refname is not translatable.
-                    # * inline reference "`Python <...>`_" has no 'refname'.
-                    if refs and 'refname' in refs[0]:
-                        refname = child['refname'] = refs.pop(0)['refname']
-                        self.document.refnames.setdefault(
-                                refname, []).append(child)
-                    # if number of reference nodes had been changed, that
-                    # would often generate unknown link target warning.
-
-            for child in patch.children: # update leaves
+            # update leaves
+            for child in patch.children:
                 child.parent = node
             node.children = patch.children
 

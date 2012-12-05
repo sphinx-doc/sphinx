@@ -111,8 +111,8 @@ def test_i18n_warn_for_number_of_references_inconsistency(app):
     result = (app.outdir / 'i18n' / 'refs_inconsistency.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH REFS INCONSISTENCY"
               u"\n****************************\n"
-              u"\n* [100] for [1] footnote [ref2].\n"
-              u"\n* for reference.\n"
+              u"\n* FOR FOOTNOTE [ref2].\n"
+              u"\n* reference FOR reference.\n"
               u"\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
               u"\n[ref2] THIS IS A NAMED FOOTNOTE.\n"
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
@@ -121,6 +121,22 @@ def test_i18n_warn_for_number_of_references_inconsistency(app):
     warnings = warnfile.getvalue().replace(os.sep, '/')
     expected_warning_expr = "i18n/refs_inconsistency.txt:\d+: WARNING: The number of reference are inconsistent in both the translated form and the untranslated form. skip translation."
     assert len(re.findall(expected_warning_expr, warnings)) == 2
+
+
+@with_app(buildername='html', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_link_to_undefined_reference(app):
+    app.builder.build(['i18n/refs_inconsistency'])
+    result = (app.outdir / 'i18n' / 'refs_inconsistency.html').text(encoding='utf-8')
+
+    expected_expr = """<a class="reference external" href="http://www.example.com">reference</a>"""
+    assert len(re.findall(expected_expr, result)) == 1
+
+    # the 2nd 'reference_' is to be internal-link instead of external-link.
+    # TODO: Can we re-use the same name named-reference?
+    expected_expr = """<a class="reference internal" href="#reference">reference</a>"""
+    assert len(re.findall(expected_expr, result)) == 1
 
 
 @with_app(buildername='html', cleanenv=True,
