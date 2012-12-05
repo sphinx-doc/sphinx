@@ -1,0 +1,7 @@
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+
+   footnote
+   external_links
+   refs_inconsistency

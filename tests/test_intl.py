@@ -26,10 +26,13 @@ def setup_module():
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
     # Compile all required catalogs into binary format (*.mo).
     for dirpath, dirs, files in os.walk(test_root):
+        dirpath = path(dirpath)
         for f in [f for f in files if f.endswith('.po')]:
-            po = os.path.join(dirpath, f)
+            po = dirpath / f
             mo = test_root / 'xx' / 'LC_MESSAGES' / (
                     os.path.relpath(po[:-3], test_root) + '.mo')
+            if not mo.parent.exists():
+                mo.parent.makedirs()
             try:
                 p = Popen(['msgfmt', po, '-o', mo],
                     stdout=PIPE, stderr=PIPE)
@@ -73,21 +76,23 @@ def test_subdir(app):
     assert result.startswith(u"\ntranslation\n***********\n\n")
 
 
-@with_app(buildername='html',
-          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+@with_app(buildername='html', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
 def test_i18n_footnote_break_refid(app):
     """test for #955 cant-build-html-with-footnotes-when-using"""
-    app.builder.build(['i18n_footnote'])
-    result = (app.outdir / 'i18n_footnote.html').text(encoding='utf-8')
+    app.builder.build(['i18n/footnote'])
+    result = (app.outdir / 'i18n' / 'footnote.html').text(encoding='utf-8')
     # expect no error by build
 
 
-@with_app(buildername='text',
-          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+@with_app(buildername='text', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
 def test_i18n_footnote_regression(app):
     """regression test for fix #955"""
-    app.builder.build(['i18n_footnote'])
-    result = (app.outdir / 'i18n_footnote.txt').text(encoding='utf-8')
+    app.builder.build(['i18n/footnote'])
+    result = (app.outdir / 'i18n' / 'footnote.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH FOOTNOTE"
               u"\n******************\n"  # underline matches new translation
               u"\nI18N WITH FOOTNOTE INCLUDE THIS CONTENTS [ref] [1] [100]\n"
@@ -97,12 +102,13 @@ def test_i18n_footnote_regression(app):
     assert result == expect
 
 
-@with_app(buildername='text', warning=warnfile,
-          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+@with_app(buildername='text', warning=warnfile, cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
 def test_i18n_warn_for_number_of_references_inconsistency(app):
     app.builddir.rmtree(True)
-    app.builder.build(['i18n_refs_inconsistency'])
-    result = (app.outdir / 'i18n_refs_inconsistency.txt').text(encoding='utf-8')
+    app.builder.build(['i18n/refs_inconsistency'])
+    result = (app.outdir / 'i18n' / 'refs_inconsistency.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH REFS INCONSISTENCY"
               u"\n****************************\n"
               u"\n* [100] for [1] footnote [ref2].\n"
@@ -113,16 +119,17 @@ def test_i18n_warn_for_number_of_references_inconsistency(app):
     assert result == expect
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
-    expected_warning_expr = "i18n_refs_inconsistency.txt:\d+: WARNING: The number of reference are inconsistent in both the translated form and the untranslated form. skip translation."
+    expected_warning_expr = "i18n/refs_inconsistency.txt:\d+: WARNING: The number of reference are inconsistent in both the translated form and the untranslated form. skip translation."
     assert len(re.findall(expected_warning_expr, warnings)) == 2
 
 
-@with_app(buildername='html',
-          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+@with_app(buildername='html', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
 def test_i18n_keep_external_links(app):
     """regression test for #1044"""
-    app.builder.build(['i18n_external_links'])
-    result = (app.outdir / 'i18n_external_links.html').text(encoding='utf-8')
+    app.builder.build(['i18n/external_links'])
+    result = (app.outdir / 'i18n' / 'external_links.html').text(encoding='utf-8')
 
     # external link check
     expect_line = u"""<li>EXTERNAL LINK TO <a class="reference external" href="http://python.org">Python</a>.</li>"""

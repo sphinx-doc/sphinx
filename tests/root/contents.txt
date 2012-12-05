@@ -28,9 +28,7 @@ Contents:
    extensions
    versioning/index
    only
-   i18n_footnote
-   i18n_external_links
-   i18n_refs_inconsistency
+   i18n/index
 
    Python <http://python.org/>
 
