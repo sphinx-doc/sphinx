@@ -25,27 +25,28 @@ warnfile = StringIO()
 def setup_module():
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
     # Compile all required catalogs into binary format (*.mo).
-    for catalog in ('bom', 'subdir', 'i18n_footnote', 'i18n_external_links',
-            'i18n_refs_inconsistency'):
-        try:
-            p = Popen(['msgfmt', test_root / '%s.po' % catalog, '-o',
-                test_root / 'xx' / 'LC_MESSAGES' / '%s.mo' % catalog],
-                stdout=PIPE, stderr=PIPE)
-        except OSError:
-            # The test will fail the second time it's run if we don't
-            # tear down here. Not sure if there's a more idiomatic way
-            # of ensuring that teardown gets run in the event of an
-            # exception from the setup function.
-            teardown_module()
-            raise SkipTest  # most likely msgfmt was not found
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print stdout
-                print stderr
-                assert False, 'msgfmt exited with return code %s' % p.returncode
-            assert (test_root / 'xx' / 'LC_MESSAGES' / ('%s.mo' % catalog)
-                   ).isfile(), 'msgfmt failed'
+    for dirpath, dirs, files in os.walk(test_root):
+        for f in [f for f in files if f.endswith('.po')]:
+            po = os.path.join(dirpath, f)
+            mo = test_root / 'xx' / 'LC_MESSAGES' / (
+                    os.path.relpath(po[:-3], test_root) + '.mo')
+            try:
+                p = Popen(['msgfmt', po, '-o', mo],
+                    stdout=PIPE, stderr=PIPE)
+            except OSError:
+                # The test will fail the second time it's run if we don't
+                # tear down here. Not sure if there's a more idiomatic way
+                # of ensuring that teardown gets run in the event of an
+                # exception from the setup function.
+                teardown_module()
+                raise SkipTest  # most likely msgfmt was not found
+            else:
+                stdout, stderr = p.communicate()
+                if p.returncode != 0:
+                    print stdout
+                    print stderr
+                    assert False, 'msgfmt exited with return code %s' % p.returncode
+                assert mo.isfile(), 'msgfmt failed'
 
 
 def teardown_module():
