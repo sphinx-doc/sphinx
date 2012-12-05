@@ -30,6 +30,7 @@ Contents:
    only
    i18n_footnote
    i18n_external_links
+   i18n_refs_inconsistency
 
    Python <http://python.org/>
 

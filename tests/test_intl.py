@@ -12,15 +12,21 @@
 
 from subprocess import Popen, PIPE
 import re
+import os
+from StringIO import StringIO
 
 from util import *
 from util import SkipTest
 
 
+warnfile = StringIO()
+
+
 def setup_module():
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
     # Compile all required catalogs into binary format (*.mo).
-    for catalog in 'bom', 'subdir', 'i18n_footnote', 'i18n_external_links':
+    for catalog in ('bom', 'subdir', 'i18n_footnote', 'i18n_external_links',
+            'i18n_refs_inconsistency'):
         try:
             p = Popen(['msgfmt', test_root / '%s.po' % catalog, '-o',
                 test_root / 'xx' / 'LC_MESSAGES' / '%s.mo' % catalog],
@@ -88,6 +94,26 @@ def test_i18n_footnote_regression(app):
               u"\n[ref] THIS IS A NAMED FOOTNOTE.\n"
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
+
+
+@with_app(buildername='text', warning=warnfile,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.']})
+def test_i18n_warn_for_number_of_references_inconsistency(app):
+    app.builddir.rmtree(True)
+    app.builder.build(['i18n_refs_inconsistency'])
+    result = (app.outdir / 'i18n_refs_inconsistency.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH REFS INCONSISTENCY"
+              u"\n****************************\n"
+              u"\n* [100] for [1] footnote [ref2].\n"
+              u"\n* for reference.\n"
+              u"\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
+              u"\n[ref2] THIS IS A NAMED FOOTNOTE.\n"
+              u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
+    assert result == expect
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    expected_warning_expr = "i18n_refs_inconsistency.txt:\d+: WARNING: The number of reference are inconsistent in both the translated form and the untranslated form. skip translation."
+    assert len(re.findall(expected_warning_expr, warnings)) == 2
 
 
 @with_app(buildername='html',

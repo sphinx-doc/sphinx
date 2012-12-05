@@ -216,6 +216,23 @@ class Locale(Transform):
     def _collect_ref_nodes(cls, nodelist):
         return cls._collect_nodes(nodelist, nodes.reference)
 
+    def _is_ref_inconsistency(self, node1, node2):
+        """
+        check equality of the number of reference in both the translated
+        form and the untranslated form.
+        """
+        env = self.document.settings.env
+        for f in [self._collect_footnote_ref_nodes,
+                  self._collect_ref_nodes,
+                  ]:
+            if len(f(node1.children)) != len(f(node2.children)):
+                env.warn_node('The number of reference are inconsistent '
+                              'in both the translated form and the '
+                              'untranslated form. skip translation.', node1)
+                return True
+
+        return False
+
     def apply(self):
         env = self.document.settings.env
         settings, source = self.document.settings, self.document['source']
@@ -248,6 +265,9 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
+            if self._is_ref_inconsistency(node, patch):
+                continue #skip translation.
+
             footnote_refs = self._collect_footnote_ref_nodes(node.children)
             refs = self._collect_ref_nodes(node.children)
 
@@ -257,8 +277,6 @@ class Locale(Transform):
                     # use original 'footnote_reference' object.
                     # this object is already registered in self.document.autofootnote_refs
                     patch.children[i] = footnote_refs.pop(0)
-                    # Some duplicated footnote_reference in msgstr cause
-                    # IndexError in .pop(0). That is invalid msgstr.
 
                 elif isinstance(child, nodes.reference):
                     # reference should use original 'refname'.
