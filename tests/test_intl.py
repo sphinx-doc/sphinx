@@ -120,8 +120,13 @@ def test_i18n_warn_for_number_of_references_inconsistency(app):
     assert result == expect
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
-    expected_warning_expr = "i18n/refs_inconsistency.txt:\d+: WARNING: The number of reference are inconsistent in both the translated form and the untranslated form. skip translation."
-    assert len(re.findall(expected_warning_expr, warnings)) == 3
+    warning_fmt = u'.*/i18n/refs_inconsistency.txt:\\d+: ' \
+          u'WARNING: inconsistent %s in translated message\n'
+    expected_warning_expr = (
+        warning_fmt % 'footnote references' +
+        warning_fmt % 'references' +
+        warning_fmt % 'references')
+    assert re.search(expected_warning_expr, warnings)
 
 
 @with_app(buildername='html', cleanenv=True,

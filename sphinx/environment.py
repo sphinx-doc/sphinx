@@ -234,9 +234,8 @@ class Locale(Transform):
             old_foot_refs = node.traverse(is_autonumber_footnote_ref)
             new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
-                env.warn_node('The number of reference are inconsistent '
-                              'in both the translated form and the '
-                              'untranslated form. skip translation.', node)
+                env.warn_node('inconsistent footnote references in '
+                              'translated message', node)
             for old, new in zip(old_foot_refs, new_foot_refs):
                 new['ids'] = old['ids']
                 self.document.autofootnote_refs.remove(old)
@@ -253,9 +252,8 @@ class Locale(Transform):
             new_refs = patch.traverse(is_refnamed_ref)
             applied_refname_map = {}
             if len(old_refs) != len(new_refs):
-                env.warn_node('The number of reference are inconsistent '
-                              'in both the translated form and the '
-                              'untranslated form. skip translation.', node)
+                env.warn_node('inconsistent references in '
+                              'translated message', node)
             for new in new_refs:
                 if new['refname'] in applied_refname_map:
                     # 2nd appearance of the reference
@@ -1813,4 +1811,3 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
-
