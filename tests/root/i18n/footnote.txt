@@ -1,0 +1,11 @@
+:tocdepth: 2
+
+i18n with Footnote
+==================
+.. #955 cant-build-html-with-footnotes-when-using
+
+[100]_ Contents [#]_ for `i18n with Footnote`_ [ref]_
+
+.. [#] This is a auto numbered footnote.
+.. [ref] This is a named footnote.
+.. [100] This is a numbered footnote.

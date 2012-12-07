@@ -194,6 +194,7 @@ class Locale(Transform):
     Replace translatable nodes with their translated doctree.
     """
     default_priority = 0
+
     def apply(self):
         env = self.document.settings.env
         settings, source = self.document.settings, self.document['source']
@@ -226,11 +227,53 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
-            # copy text children
-            for i, child in enumerate(patch.children):
-                if isinstance(child, nodes.Text):
-                    child.parent = node
-                    node.children[i] = child
+            # auto-numbered foot note reference should use original 'ids'.
+            is_autonumber_footnote_ref = lambda node: \
+                    isinstance(node, nodes.footnote_reference) \
+                    and node.get('auto') == 1
+            old_foot_refs = node.traverse(is_autonumber_footnote_ref)
+            new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
+            if len(old_foot_refs) != len(new_foot_refs):
+                env.warn_node('inconsistent footnote references in '
+                              'translated message', node)
+            for old, new in zip(old_foot_refs, new_foot_refs):
+                new['ids'] = old['ids']
+                self.document.autofootnote_refs.remove(old)
+                self.document.note_autofootnote_ref(new)
+
+            # reference should use original 'refname'.
+            # * reference target ".. _Python: ..." is not translatable.
+            # * section refname is not translatable.
+            # * inline reference "`Python <...>`_" has no 'refname'.
+            is_refnamed_ref = lambda node: \
+                    isinstance(node, nodes.reference) \
+                    and 'refname' in node
+            old_refs = node.traverse(is_refnamed_ref)
+            new_refs = patch.traverse(is_refnamed_ref)
+            applied_refname_map = {}
+            if len(old_refs) != len(new_refs):
+                env.warn_node('inconsistent references in '
+                              'translated message', node)
+            for new in new_refs:
+                if new['refname'] in applied_refname_map:
+                    # 2nd appearance of the reference
+                    new['refname'] = applied_refname_map[new['refname']]
+                elif old_refs:
+                    # 1st appearance of the reference in old_refs
+                    old = old_refs.pop(0)
+                    refname = old['refname']
+                    new['refname'] = refname
+                    applied_refname_map[new['refname']] = refname
+                else:
+                    # the reference is not found in old_refs
+                    applied_refname_map[new['refname']] = new['refname']
+
+                self.document.note_refname(new)
+
+            # update leaves
+            for child in patch.children:
+                child.parent = node
+            node.children = patch.children
 
 
 class SphinxStandaloneReader(standalone.Reader):
@@ -1768,4 +1811,3 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
-

@@ -1,0 +1,32 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, foof
+# This file is distributed under the same license as the foo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-22 08:28\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with external links"
+msgstr "EXTERNAL LINKS"
+
+msgid "External link to Python_."
+msgstr "EXTERNAL LINK TO Python_."
+
+msgid "Internal link to `i18n with external links`_."
+msgstr "`EXTERNAL LINKS`_ IS INTERNAL LINK."
+
+msgid "Inline link by `Sphinx <http://sphinx-doc.org>`_."
+msgstr "INLINE LINK BY `SPHINX <http://sphinx-doc.org>`_."
+
+msgid "Unnamed link__."
+msgstr "UNNAMED LINK__."
