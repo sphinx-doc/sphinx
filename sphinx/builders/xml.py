@@ -12,6 +12,7 @@
 import codecs
 from os import path
 
+from docutils import nodes
 from docutils.io import StringOutput
 
 from sphinx.builders import Builder
@@ -57,6 +58,18 @@ class XMLBuilder(Builder):
         self.writer = self._writer_class(self)
 
     def write_doc(self, docname, doctree):
+        # work around multiple string % tuple issues in docutils;
+        # replace tuples in attribute values with lists
+        doctree = doctree.deepcopy()
+        for node in doctree.traverse(nodes.Element):
+            for att, value in node.attributes.items():
+                if isinstance(value, tuple):
+                    node.attributes[att] = list(value)
+                value = node.attributes[att]
+                if isinstance(value, list):
+                    for i, val in enumerate(value):
+                        if isinstance(val, tuple):
+                            value[i] = list(val)
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)

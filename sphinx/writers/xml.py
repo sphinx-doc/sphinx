@@ -11,7 +11,6 @@
 
 from docutils import writers
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
-from docutils.writers.docutils_xml import XMLTranslator as BaseXMLTranslator
 
 
 class XMLWriter(BaseXMLWriter):
@@ -27,12 +26,6 @@ class XMLWriter(BaseXMLWriter):
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
         return BaseXMLWriter.translate(self)
-
-
-class XMLTranslator(BaseXMLTranslator):
-    def __init__(self, builder, doc):
-        BaseXMLTranslator.__init__(self, doc)
-        self.builder = builder
 
 
 class PseudoXMLWriter(writers.Writer):
