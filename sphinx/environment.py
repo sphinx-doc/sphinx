@@ -1342,18 +1342,22 @@ class BuildEnvironment:
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
-                        # to find out what to collapse, *first* walk subitems,
-                        # since that determines which children point to the
-                        # current page
+                        # recurse on children
                         _walk_depth(subnode, depth+1, maxdepth)
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
                             'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
 
+        def _mark_current(node):
+            """Mark current page and its parents with the 'current' class."""
+            for subnode in node.children[:]:
+                if isinstance(subnode, (addnodes.compact_paragraph,
+                                        nodes.list_item, nodes.bullet_list)):
+                    # for <p>, <li> and <ul>, just recurse to children
+                    _mark_current(subnode)
                 elif isinstance(subnode, nodes.reference):
-                    # for <a>, identify which entries point to the current
-                    # document and therefore may not be collapsed
+                    # for <a>, identify the current document
                     if subnode['refuri'] == docname:
                         if not subnode['anchorname']:
                             # give the whole branch a 'current' class
@@ -1472,6 +1476,7 @@ class BuildEnvironment:
         newnode['toctree'] = True
 
         # prune the tree to maxdepth and replace titles, also set level classes
+        _mark_current(newnode)
         _walk_depth(newnode, 1, prune and maxdepth or 0)
 
         # set the target paths in the toctrees (they are not known at TOC
