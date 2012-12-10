@@ -59,6 +59,13 @@ The :program:`sphinx-build` script has several options:
    **linkcheck**
       Check the integrity of all external links.
 
+   **xml**
+     Build Docutils-native XML files.
+
+   **pseudoxml**
+     Build compact pretty-printed "pseudo-XML" files displaying the
+     internal structure of the intermediate document trees.
+
    See :ref:`builders` for a list of all builders shipped with Sphinx.
    Extensions can add their own builders.
 
