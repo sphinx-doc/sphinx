@@ -46,6 +46,25 @@ def teardown_module():
     coloron()
 
 
+def test_quickstart_inputstrip():
+    d = {}
+    answers = {
+        'Q1': 'Y\r',  # input() return with '\r' on Python-3.2.0 for Windows
+        'Q2': ' Yes \r',
+        'Q3': 'N',
+        'Q4': 'N ',
+    }
+    qs.term_input = mock_raw_input(answers)
+    qs.do_prompt(d, 'k1', 'Q1')
+    assert d['k1'] == 'Y'
+    qs.do_prompt(d, 'k2', 'Q2')
+    assert d['k2'] == 'Yes'
+    qs.do_prompt(d, 'k3', 'Q3')
+    assert d['k3'] == 'N'
+    qs.do_prompt(d, 'k4', 'Q4')
+    assert d['k4'] == 'N'
+
+
 def test_do_prompt():
     d = {}
     answers = {

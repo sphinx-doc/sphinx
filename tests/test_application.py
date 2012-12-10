@@ -12,6 +12,7 @@
 from StringIO import StringIO
 
 from sphinx.application import ExtensionError
+from sphinx.domains import Domain
 
 from util import *
 
@@ -67,5 +68,25 @@ def test_extensions():
     try:
         app.setup_extension('shutil')
         assert warnings.getvalue().startswith("WARNING: extension 'shutil'")
+    finally:
+        app.cleanup()
+
+def test_domain_override():
+    class A(Domain):
+        name = 'foo'
+    class B(A):
+        name = 'foo'
+    class C(Domain):
+        name = 'foo'
+    status, warnings = StringIO(), StringIO()
+    app = TestApp(status=status, warning=warnings)
+    try:
+        # No domain know named foo.
+        raises_msg(ExtensionError, 'domain foo not yet registered',
+                   app.override_domain, A)
+        assert app.add_domain(A) is None
+        assert app.override_domain(B) is None
+        raises_msg(ExtensionError, 'new domain not a subclass of registered '
+                   'foo domain', app.override_domain, C)
     finally:
         app.cleanup()

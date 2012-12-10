@@ -45,7 +45,10 @@ if sys.version_info >= (2, 5):
                     del func_defaults[i]
                 except IndexError:
                     pass
-        return inspect.ArgSpec(args, varargs, varkw, func_defaults)
+        if sys.version_info >= (2, 6):
+            return inspect.ArgSpec(args, varargs, varkw, func_defaults)
+        else:
+            return (args, varargs, varkw, func_defaults)
 else:
     getargspec = inspect.getargspec
 

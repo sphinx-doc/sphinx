@@ -1,0 +1,13 @@
+:tocdepth: 2
+
+i18n with refs inconsistency
+=============================
+
+* [100]_ for [#]_ footnote [ref2]_.
+* for reference_.
+* normal text.
+
+.. [#] This is a auto numbered footnote.
+.. [ref2] This is a named footnote.
+.. [100] This is a numbered footnote.
+.. _reference: http://www.example.com

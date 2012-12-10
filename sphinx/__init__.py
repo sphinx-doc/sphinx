@@ -38,11 +38,20 @@ if '+' in __version__ or 'pre' in __version__:
 
 def main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
-    if sys.version_info[:3] < (2, 4, 0):
+    if sys.version_info[:3] < (2, 5, 0):
         sys.stderr.write('Error: Sphinx requires at least '
-                         'Python 2.4 to run.\n')
+                         'Python 2.5 to run.\n')
         return 1
-
+    if sys.version_info[:3] >= (3, 3, 0):
+        try:
+            import docutils
+            x, y = docutils.__version__.split('.')[:2]
+            if (int(x), int(y)) < (0, 10):
+                sys.stderr.write('Error: Sphinx requires at least '
+                                 'Docutils 0.10 for Python 3.3 and above.\n')
+                return 1
+        except Exception:
+            pass
     try:
         from sphinx import cmdline
     except ImportError:

@@ -120,6 +120,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.1
 
+     .. versionchanged:: 1.2
+        The option can now take arguments, i.e. the special members to document.
+
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
      ``inherited-members`` flag option, in addition to ``members``::
@@ -194,12 +197,13 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
                    automethod
                    autoattribute
 
-   These work exactly like :rst:dir:`autoclass` etc., but do not offer the options
-   used for automatic member documentation.
+   These work exactly like :rst:dir:`autoclass` etc., but do not offer the
+   options used for automatic member documentation.
 
    For module data members and class attributes, documentation can either be put
-   into a special-formatted comment, or in a docstring *after* the definition.
-   Comments need to be either on a line of their own *before* the definition, or
+   into a comment with special formatting (using a ``#:`` to start the comment
+   instead of just ``#``), or in a docstring *after* the definition.  Comments
+   need to be either on a line of their own *before* the definition, or
    immediately after the assignment *on the same line*.  The latter form is
    restricted to one line only.
 

@@ -16,7 +16,7 @@ from sphinx.util.compat import Directive
 _warned_oldcmarkup = False
 WARNING_MSG = 'using old C markup; please migrate to new-style markup ' \
               '(e.g. c:function instead of cfunction), see ' \
-              'http://sphinx.pocoo.org/domains.html'
+              'http://sphinx-doc.org/domains.html'
 
 
 class OldCDirective(Directive):

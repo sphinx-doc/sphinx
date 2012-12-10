@@ -231,7 +231,7 @@ def main(argv):
                                 'can be provided next time.')
                 print >>error, (
                     'Either send bugs to the mailing list at '
-                    '<http://groups.google.com/group/sphinx-dev/>,\n'
+                    '<http://groups.google.com/group/sphinx-users/>,\n'
                     'or report them in the tracker at '
                     '<http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!')
             return 1

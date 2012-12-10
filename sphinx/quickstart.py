@@ -377,6 +377,21 @@ SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = %(rbuilddir)s
 
+ifeq ($(shell $(SPHINXBUILD) 2> /dev/null; echo $$?), 127)
+define MSG
+
+
+The 'sphinx-build' command was not found. Make sure you have Sphinx
+installed, then set the SPHINXBUILD environment variable to point
+to the full path of the 'sphinx-build' executable. Alternatively you
+may add the Sphinx directory to PATH.
+
+If you don't have Sphinx installed, grab it from
+http://sphinx-doc.org/
+endef
+$(error $(MSG))
+endif
+
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
@@ -401,12 +416,15 @@ help:
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+\t@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
 \t@echo "  texinfo    to make Texinfo files"
 \t@echo "  info       to make Texinfo files and run them through makeinfo"
 \t@echo "  gettext    to make PO message catalogs"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
+\t@echo "  xml        to make Docutils-native XML files"
+\t@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
@@ -482,6 +500,12 @@ latexpdf:
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+latexpdfja:
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+\t@echo "Running LaTeX files through platex and dvipdfmx..."
+\t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
+\t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
 text:
 \t$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
 \t@echo
@@ -525,6 +549,16 @@ doctest:
 \t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 \t@echo "Testing of doctests in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/doctest/output.txt."
+
+xml:
+\t$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
+\t@echo
+\t@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
+
+pseudoxml:
+\t$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
+\t@echo
+\t@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 '''
 
 BATCHFILE = '''\
@@ -563,6 +597,8 @@ if "%%1" == "help" (
 \techo.  texinfo    to make Texinfo files
 \techo.  gettext    to make PO message catalogs
 \techo.  changes    to make an overview over all changed/added/deprecated items
+\techo.  xml        to make Docutils-native XML files
+\techo.  pseudoxml  to make pseudoxml-XML files for display purposes
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
 \tgoto end
@@ -572,6 +608,20 @@ if "%%1" == "clean" (
 \tfor /d %%%%i in (%%BUILDDIR%%\*) do rmdir /q /s %%%%i
 \tdel /q /s %%BUILDDIR%%\*
 \tgoto end
+)
+
+
+%%SPHINXBUILD%% 2> nul
+if errorlevel 9009 (
+\techo.
+\techo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+\techo.installed, then set the SPHINXBUILD environment variable to point
+\techo.to the full path of the 'sphinx-build' executable. Alternatively you
+\techo.may add the Sphinx directory to PATH.
+\techo.
+\techo.If you don't have Sphinx installed, grab it from
+\techo.http://sphinx-doc.org/
+\texit /b 1
 )
 
 if "%%1" == "html" (
@@ -659,6 +709,26 @@ if "%%1" == "latex" (
 \tgoto end
 )
 
+if "%%1" == "latexpdf" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tcd %%BUILDDIR%%/latex
+\tmake all-pdf
+\tcd %%BUILDDIR%%/..
+\techo.
+\techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
+if "%%1" == "latexpdfja" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tcd %%BUILDDIR%%/latex
+\tmake all-pdf-ja
+\tcd %%BUILDDIR%%/..
+\techo.
+\techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
 if "%%1" == "text" (
 \t%%SPHINXBUILD%% -b text %%ALLSPHINXOPTS%% %%BUILDDIR%%/text
 \tif errorlevel 1 exit /b 1
@@ -717,6 +787,22 @@ results in %%BUILDDIR%%/doctest/output.txt.
 \tgoto end
 )
 
+if "%%1" == "xml" (
+\t%%SPHINXBUILD%% -b xml %%ALLSPHINXOPTS%% %%BUILDDIR%%/xml
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The XML files are in %%BUILDDIR%%/xml.
+\tgoto end
+)
+
+if "%%1" == "pseudoxml" (
+\t%%SPHINXBUILD%% -b pseudoxml %%ALLSPHINXOPTS%% %%BUILDDIR%%/pseudoxml
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The pseudo-XML files are in %%BUILDDIR%%/pseudoxml.
+\tgoto end
+)
+
 :end
 '''
 
@@ -768,7 +854,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
         else:
             prompt = purple(PROMPT_PREFIX + text + ': ')
-        x = term_input(prompt)
+        x = term_input(prompt).strip()
         if default and not x:
             x = default
         if not isinstance(x, unicode):

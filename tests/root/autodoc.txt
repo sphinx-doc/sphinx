@@ -32,3 +32,16 @@ Just testing a few autodoc possibilities...
    :noindex:
 
    .. autoclass:: MarkupError
+
+
+.. currentmodule:: test_autodoc
+
+.. autoclass:: InstAttCls
+   :members:
+
+   All members (5 total)
+
+.. autoclass:: InstAttCls
+   :members: ca1, ia1
+
+   Specific members (2 total)

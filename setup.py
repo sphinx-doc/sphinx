@@ -46,26 +46,20 @@ A development egg can be found `here
 
 requires = ['Pygments>=1.2', 'Jinja2>=2.3', 'docutils>=0.7']
 
-if sys.version_info < (2, 4):
-    print('ERROR: Sphinx requires at least Python 2.4 to run.')
-    sys.exit(1)
+if sys.version_info[:3] >= (3, 3, 0):
+    requires[2] = 'docutils>=0.10'
 
 if sys.version_info < (2, 5):
-    # Python 2.4's distutils doesn't automatically install an egg-info,
-    # so an existing docutils install won't be detected -- in that case,
-    # remove the dependency from setup.py
-    try:
-        import docutils
-        if int(docutils.__version__[2]) < 4:
-            raise ValueError('docutils not recent enough')
-    except:
-        pass
-    else:
-        del requires[-1]
+    print('ERROR: Sphinx requires at least Python 2.5 to run.')
+    sys.exit(1)
 
-    # The uuid module is new in the stdlib in 2.5
-    requires.append('uuid>=1.30')
-
+# tell distribute to use 2to3 with our own fixers
+extra = {}
+if sys.version_info >= (3, 0):
+    extra.update(
+        use_2to3=True,
+        use_2to3_fixers=['custom_fixers']
+    )
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
@@ -164,7 +158,7 @@ else:
 setup(
     name='Sphinx',
     version=sphinx.__version__,
-    url='http://sphinx.pocoo.org/',
+    url='http://sphinx-doc.org/',
     download_url='http://pypi.python.org/pypi/Sphinx',
     license='BSD',
     author='Georg Brandl',
@@ -203,6 +197,5 @@ setup(
     },
     install_requires=requires,
     cmdclass=cmdclass,
-    use_2to3=True,
-    use_2to3_fixers=['custom_fixers'],
+    **extra
 )

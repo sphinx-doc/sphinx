@@ -672,8 +672,9 @@ class DefinitionParser(object):
         except ValueError:
             return False
 
-    def _parse_builtin(self, modifier):
-        path = [modifier]
+    def _parse_builtin(self, modifiers):
+        modifier = modifiers[-1]
+        path = modifiers
         following = self._modifiers[modifier]
         while 1:
             self.skip_ws()
@@ -730,9 +731,10 @@ class DefinitionParser(object):
                     # impossible for a template to follow, so what
                     # we do is go to a different function that just
                     # eats types
-                    if following is not None:
-                        return self._parse_builtin(modifier)
                     modifiers.append(modifier)
+                    if following is not None:
+                        return self._parse_builtin(modifiers)
+                    self.skip_ws()
                 else:
                     self.backout()
                     break
@@ -760,17 +762,33 @@ class DefinitionParser(object):
         self.skip_ws()
         if self.match(_string_re):
             return self.matched_text
-        idx1 = self.definition.find(',', self.pos)
-        idx2 = self.definition.find(')', self.pos)
-        if idx1 < 0:
-            idx = idx2
-        elif idx2 < 0:
-            idx = idx1
-        else:
-            idx = min(idx1, idx2)
-        if idx < 0:
-            self.fail('unexpected end in default expression')
-        rv = self.definition[self.pos:idx]
+        paren_stack_depth = 0
+        max_pos = len(self.definition)
+        rv_start = self.pos
+        while 1:
+            idx0 = self.definition.find('(', self.pos)
+            idx1 = self.definition.find(',', self.pos)
+            idx2 = self.definition.find(')', self.pos)
+            if idx0 < 0:
+                idx0 = max_pos
+            if idx1 < 0:
+                idx1 = max_pos
+            if idx2 < 0:
+                idx2 = max_pos
+            idx = min(idx0, idx1, idx2)
+            if idx >= max_pos:
+                self.fail('unexpected end in default expression')
+            if idx == idx0:
+                paren_stack_depth += 1
+            elif idx == idx2:
+                paren_stack_depth -= 1
+                if paren_stack_depth < 0:
+                    break
+            elif paren_stack_depth == 0:
+                break
+            self.pos = idx+1
+
+        rv = self.definition[rv_start:idx]
         self.pos = idx
         return rv
 
@@ -836,7 +854,7 @@ class DefinitionParser(object):
         visibility = 'public'
         if self.match(_visibility_re):
             visibility = self.matched_text
-        static = self.skip_word('static')
+        static = self.skip_word_and_ws('static')
         return visibility, static
 
     def parse_type(self):

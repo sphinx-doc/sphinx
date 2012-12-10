@@ -334,4 +334,6 @@ BUILTIN_BUILDERS = {
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
     'websupport': ('websupport', 'WebSupportBuilder'),
     'gettext':    ('gettext', 'MessageCatalogBuilder'),
+    'xml':        ('xml', 'XMLBuilder'),
+    'pseudoxml':  ('xml', 'PseudoXMLBuilder'),
 }

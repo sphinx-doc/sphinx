@@ -71,6 +71,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.stateindent = [0]
         self.list_counter = []
         self.sectionlevel = 0
+        self.lineblocklevel = 0
         self.table = None
 
     def add_text(self, text):
@@ -593,14 +594,18 @@ class TextTranslator(nodes.NodeVisitor):
         self.end_state(wrap=False)
 
     def visit_line_block(self, node):
-        self.new_state(0)
+        self.new_state()
+        self.lineblocklevel += 1
     def depart_line_block(self, node):
-        self.end_state(wrap=False)
+        self.lineblocklevel -= 1
+        self.end_state(wrap=False, end=None)
+        if not self.lineblocklevel:
+            self.add_text('\n')
 
     def visit_line(self, node):
         pass
     def depart_line(self, node):
-        pass
+        self.add_text('\n')
 
     def visit_block_quote(self, node):
         self.new_state()
@@ -707,6 +712,11 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_inline(self, node):
         pass
     def depart_inline(self, node):
+        pass
+
+    def visit_container(self, node):
+        pass
+    def depart_container(self, node):
         pass
 
     def visit_problematic(self, node):

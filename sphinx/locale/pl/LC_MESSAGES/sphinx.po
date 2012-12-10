@@ -556,7 +556,7 @@ msgstr "wszystkie rozdziały i podrozdziały"
 
 #: sphinx/themes/basic/defindex.html:26
 msgid "search this documentation"
-msgstr "przyszukaj tę dokumentację"
+msgstr "przeszukaj tę dokumentację"
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
@@ -625,10 +625,10 @@ msgstr "Ostatnia modyfikacja %(last_updated)s."
 #: sphinx/themes/basic/layout.html:198
 #, python-format
 msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"Utworzone przy pomocy <a href=\"http://sphinx.pocoo.org/\">Sphinx</a>'a "
+"Utworzone przy pomocy <a href=\"http://sphinx-doc.org/\">Sphinx</a>'a "
 "%(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
@@ -656,7 +656,7 @@ msgstr "następny rozdział"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "Aby umożliwić wuszukiwanie, proszę włączyć JavaScript."
+msgstr "Aby umożliwić wyszukiwanie, proszę włączyć JavaScript."
 
 #: sphinx/themes/basic/search.html:29
 msgid ""
@@ -696,7 +696,7 @@ msgstr "Ta strona"
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr "Zmiany w wesji %(version)s &mdash; %(docstitle)s"
+msgstr "Zmiany w wersji %(version)s &mdash; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format

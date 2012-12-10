@@ -23,7 +23,10 @@ from sphinx.util.smartypants import sphinx_smarty_pants
 try:
     from PIL import Image        # check for the Python Imaging Library
 except ImportError:
-    Image = None
+    try:
+        import Image
+    except ImportError:
+        Image = None
 
 
 class HTMLWriter(Writer):

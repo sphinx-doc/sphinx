@@ -489,20 +489,26 @@ class Documenter(object):
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
         """
+        analyzed_member_names = set()
+        if self.analyzer:
+            attr_docs = self.analyzer.find_attr_docs()
+            namespace = '.'.join(self.objpath)
+            for item in attr_docs.iteritems():
+                if item[0][0] == namespace:
+                    analyzed_member_names.add(item[0][1])
         if not want_all:
             if not self.options.members:
                 return False, []
             # specific members given
-            ret = []
+            members = []
             for mname in self.options.members:
                 try:
-                    ret.append((mname, self.get_attr(self.object, mname)))
+                    members.append((mname, self.get_attr(self.object, mname)))
                 except AttributeError:
-                    self.directive.warn('missing attribute %s in object %s'
-                                        % (mname, self.fullname))
-            return False, ret
-
-        if self.options.inherited_members:
+                    if mname not in analyzed_member_names:
+                        self.directive.warn('missing attribute %s in object %s'
+                                            % (mname, self.fullname))
+        elif self.options.inherited_members:
             # safe_getmembers() uses dir() which pulls in members from all
             # base classes
             members = safe_getmembers(self.object)
@@ -521,13 +527,10 @@ class Documenter(object):
                            for mname in obj_dict.keys()]
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-            namespace = '.'.join(self.objpath)
-            for item in attr_docs.iteritems():
-                if item[0][0] == namespace:
-                    if item[0][1] not in membernames:
-                        members.append((item[0][1], INSTANCEATTR))
+        for aname in analyzed_member_names:
+            if aname not in membernames and \
+               (want_all or aname in self.options.members):
+                members.append((aname, INSTANCEATTR))
         return False, sorted(members)
 
     def filter_members(self, members, want_all):
@@ -573,7 +576,11 @@ class Documenter(object):
             if want_all and membername.startswith('__') and \
                    membername.endswith('__') and len(membername) > 4:
                 # special __methods__
-                if self.options.special_members and membername != '__doc__':
+                if self.options.special_members is ALL and \
+                        membername != '__doc__':
+                    keep = has_doc or self.options.undoc_members
+                elif self.options.special_members and \
+                        membername in self.options.special_members:
                     keep = has_doc or self.options.undoc_members
             elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
@@ -748,7 +755,7 @@ class ModuleDocumenter(Documenter):
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
-        'private-members': bool_option, 'special-members': bool_option,
+        'private-members': bool_option, 'special-members': members_option,
     }
 
     @classmethod
@@ -862,7 +869,7 @@ class DocstringSignatureMixin(object):
     """
 
     def _find_signature(self, encoding=None):
-        docstrings = Documenter.get_doc(self, encoding, 2)
+        docstrings = Documenter.get_doc(self, encoding)
         if len(docstrings) != 1:
             return
         doclines = docstrings[0]
@@ -877,6 +884,9 @@ class DocstringSignatureMixin(object):
         # the base name must match ours
         if not self.objpath or base != self.objpath[-1]:
             return
+        # re-prepare docstring to ignore indentation after signature
+        docstrings = Documenter.get_doc(self, encoding, 2)
+        doclines = docstrings[0]
         # ok, now jump over remaining empty lines and set the remaining
         # lines as the new doclines
         i = 1
@@ -949,7 +959,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         'noindex': bool_option, 'inherited-members': bool_option,
         'show-inheritance': bool_option, 'member-order': identity,
         'exclude-members': members_set_option,
-        'private-members': bool_option, 'special-members': bool_option,
+        'private-members': bool_option, 'special-members': members_option,
     }
 
     @classmethod
@@ -1098,7 +1108,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
     """
     objtype = 'method'
     member_order = 50
-    priority = 0
+    priority = 1  # must be more than FunctionDocumenter
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):

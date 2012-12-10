@@ -3,6 +3,7 @@
 import sys, os
 
 sys.path.append(os.path.abspath('.'))
+sys.path.append(os.path.abspath('..'))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.autosummary',
@@ -67,6 +68,28 @@ extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
 # modify tags from conf.py
 tags.add('confpytag')
 
+# -- linkcode
+
+if 'test_linkcode' in tags:
+    import glob
+
+    extensions.remove('sphinx.ext.viewcode')
+    extensions.append('sphinx.ext.linkcode')
+
+    exclude_patterns.extend(glob.glob('*.txt') + glob.glob('*/*.txt'))
+    exclude_patterns.remove('contents.txt')
+    exclude_patterns.remove('objects.txt')
+
+    def linkcode_resolve(domain, info):
+        if domain == 'py':
+            fn = info['module'].replace('.', '/')
+            return "http://foobar/source/%s.py" % fn
+        elif domain == "js":
+            return "http://foobar/js/" + info['fullname']
+        elif domain in ("c", "cpp"):
+            return "http://foobar/%s/%s" % (domain,  "".join(info['names']))
+        else:
+            raise AssertionError()
 
 # -- extension API
 

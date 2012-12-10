@@ -184,6 +184,9 @@ class Config(object):
 
         # gettext options
         gettext_compact = (True, 'gettext'),
+
+        # XML options
+        xml_pretty = (True, 'env'),
     )
 
     def __init__(self, dirname, filename, overrides, tags):

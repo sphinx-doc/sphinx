@@ -100,7 +100,9 @@ class LaTeXWriter(writers.Writer):
 class ExtBabel(Babel):
     def get_shorthandoff(self):
         shortlang = self.language.split('_')[0]
-        if shortlang in ('de', 'sl', 'pt', 'es', 'nl', 'pl', 'it'):
+        if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
+                         'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
+                         'italian'):
             return '\\shorthandoff{"}'
         return ''
 
@@ -133,6 +135,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'papersize':       'letterpaper',
         'pointsize':       '10pt',
         'classoptions':    '',
+        'extraclassoptions': '',
         'inputenc':        '\\usepackage[utf8]{inputenc}',
         'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
@@ -204,17 +207,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
             # pTeX (Japanese TeX) for support
             if builder.config.language == 'ja':
-                self.elements['classoptions'] = ',dvipdfm'
-                # found elements of babel, but this should be above sphinx.sty.
-                # because pTeX (Japanese TeX) cannot handle this count.
-                self.elements['babel'] = r'\newcount\pdfoutput\pdfoutput=0'
-                # to make the pdf with correct encoded hyperref bookmarks
-                self.elements['preamble'] += \
-                    r'\AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}'
+                # use dvipdfmx as default class option in Japanese
+                self.elements['classoptions'] = ',dvipdfmx'
+                # disable babel which has not publishing quality in Japanese
+                self.elements['babel'] = ''
+                # disable fncychap in Japanese documents
+                self.elements['fncychap'] = ''
         else:
             self.elements['classoptions'] += ',english'
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
+        if self.elements['extraclassoptions']:
+            self.elements['classoptions'] += ',' + \
+                                             self.elements['extraclassoptions']
 
         self.highlighter = highlighting.PygmentsBridge('latex',
             builder.config.pygments_style, builder.config.trim_doctest_flags)

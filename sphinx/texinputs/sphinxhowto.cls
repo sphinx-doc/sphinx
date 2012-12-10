@@ -1,5 +1,5 @@
 %
-% sphinxhowto.cls for Sphinx (http://sphinx.pocoo.org/)
+% sphinxhowto.cls for Sphinx (http://sphinx-doc.org/)
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]

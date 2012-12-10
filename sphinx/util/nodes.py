@@ -43,6 +43,15 @@ IGNORED_NODES = (
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
+        # workaround: nodes.term doesn't have source, line and rawsource
+        # (fixed in Docutils r7495)
+        if isinstance(node, nodes.term) and not node.source:
+            definition_list_item = node.parent
+            if definition_list_item.line is not None:
+                node.source = definition_list_item.source
+                node.line = definition_list_item.line - 1
+                node.rawsource = definition_list_item.\
+                                 rawsource.split("\n", 2)[0]
         if not node.source:
             continue # built-in message
         if isinstance(node, IGNORED_NODES):

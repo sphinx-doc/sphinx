@@ -66,6 +66,7 @@ default_settings = {
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
     'halt_level': 5,
+    'file_insertion_enabled': True,
 }
 
 # This is increased every time an environment attribute is added
@@ -193,6 +194,7 @@ class Locale(Transform):
     Replace translatable nodes with their translated doctree.
     """
     default_priority = 0
+
     def apply(self):
         env = self.document.settings.env
         settings, source = self.document.settings, self.document['source']
@@ -213,17 +215,63 @@ class Locale(Transform):
         parser = RSTParser()
 
         for node, msg in extract_messages(self.document):
-            patch = new_document(source, settings)
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
+
+            patch = new_document(source, settings)
             parser.parse(msgstr, patch)
             patch = patch[0]
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
-            for child in patch.children: # update leaves
+
+            # auto-numbered foot note reference should use original 'ids'.
+            is_autonumber_footnote_ref = lambda node: \
+                    isinstance(node, nodes.footnote_reference) \
+                    and node.get('auto') == 1
+            old_foot_refs = node.traverse(is_autonumber_footnote_ref)
+            new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
+            if len(old_foot_refs) != len(new_foot_refs):
+                env.warn_node('inconsistent footnote references in '
+                              'translated message', node)
+            for old, new in zip(old_foot_refs, new_foot_refs):
+                new['ids'] = old['ids']
+                self.document.autofootnote_refs.remove(old)
+                self.document.note_autofootnote_ref(new)
+
+            # reference should use original 'refname'.
+            # * reference target ".. _Python: ..." is not translatable.
+            # * section refname is not translatable.
+            # * inline reference "`Python <...>`_" has no 'refname'.
+            is_refnamed_ref = lambda node: \
+                    isinstance(node, nodes.reference) \
+                    and 'refname' in node
+            old_refs = node.traverse(is_refnamed_ref)
+            new_refs = patch.traverse(is_refnamed_ref)
+            applied_refname_map = {}
+            if len(old_refs) != len(new_refs):
+                env.warn_node('inconsistent references in '
+                              'translated message', node)
+            for new in new_refs:
+                if new['refname'] in applied_refname_map:
+                    # 2nd appearance of the reference
+                    new['refname'] = applied_refname_map[new['refname']]
+                elif old_refs:
+                    # 1st appearance of the reference in old_refs
+                    old = old_refs.pop(0)
+                    refname = old['refname']
+                    new['refname'] = refname
+                    applied_refname_map[new['refname']] = refname
+                else:
+                    # the reference is not found in old_refs
+                    applied_refname_map[new['refname']] = new['refname']
+
+                self.document.note_refname(new)
+
+            # update leaves
+            for child in patch.children:
                 child.parent = node
             node.children = patch.children
 
@@ -782,7 +830,11 @@ class BuildEnvironment:
             app.emit('doctree-read', doctree)
 
         # store time of build, for outdated files detection
-        self.all_docs[docname] = time.time()
+        # (Some filesystems have coarse timestamp resolution;
+        # therefore time.time() can be older than filesystem's timestamp.
+        # For example, FAT32 has 2sec timestamp resolution.)
+        self.all_docs[docname] = max(
+                time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
             # get old doctree
@@ -1759,4 +1811,3 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
-

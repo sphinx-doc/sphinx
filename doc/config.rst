@@ -383,6 +383,7 @@ documentation on :ref:`intl` for details.
    * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``nb_NO`` -- Norwegian Bokmal
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
@@ -1337,6 +1338,16 @@ Options for the linkcheck builder
    True or false, whether to check the validity of ``#anchor``\ s in links.
    Since this requires downloading the whole document, it's considerably slower
    when enabled.  Default is ``True``.
+
+   .. versionadded:: 1.2
+
+
+Options for the XML builder
+---------------------------
+
+.. confval:: xml_pretty
+
+   If True, pretty-print the XML.  Default is ``True``.
 
    .. versionadded:: 1.2
 
