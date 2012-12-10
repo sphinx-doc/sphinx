@@ -111,8 +111,7 @@ These themes are:
 
   - **collapsiblesidebar** (true or false): Add an *experimental* JavaScript
     snippet that makes the sidebar collapsible via a button on its side.
-    *Doesn't work together with "rightsidebar" or "stickysidebar".* Defaults to
-    false.
+    *Doesn't work with "stickysidebar".* Defaults to false.
 
   - **externalrefs** (true or false): Display external links differently from
     internal links.  Defaults to false.
