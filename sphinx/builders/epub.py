@@ -662,7 +662,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
             zipfile.ZIP_STORED)
         for file in projectfiles:
             fp = path.join(outdir, file)
-            if isinstance(fp, unicode):
-                fp = fp.encode(sys.getfilesystemencoding())
+            if sys.version_info < (2, 6):
+                # When zipile.ZipFile.write call with unicode filename, ZipFile
+                # encode filename to 'utf-8' (only after Python-2.6).
+                if isinstance(file, unicode):
+                    # OEBPS Container Format (OCF) 2.0.1 specification require
+                    # "File Names MUST be UTF-8 encoded".
+                    file = file.encode('utf-8')
             epub.write(fp, file, zipfile.ZIP_DEFLATED)
         epub.close()

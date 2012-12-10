@@ -41,7 +41,8 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
      WarningStream
-from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog
+from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog, \
+     fs_encoding
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.util.websupport import is_commentable
@@ -49,7 +50,6 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _, init as init_locale
 from sphinx.versioning import add_uids, merge_doctrees
 
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
@@ -1373,7 +1373,7 @@ class BuildEnvironment:
         def _entries_from_toctree(toctreenode, parents,
                                   separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
-            refs = [(e[0], str(e[1])) for e in toctreenode['entries']]
+            refs = [(e[0], e[1]) for e in toctreenode['entries']]
             entries = []
             for (title, ref) in refs:
                 try:

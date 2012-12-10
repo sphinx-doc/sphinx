@@ -22,7 +22,15 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
+from sphinx.util.osutil import fs_encoding
 from sphinx.util.pycompat import terminal_safe, bytes
+
+
+def abspath(pathdir):
+    pathdir = path.abspath(pathdir)
+    if isinstance(pathdir, bytes):
+        pathdir = pathdir.decode(fs_encoding)
+    return pathdir
 
 
 def usage(argv, msg=None):
@@ -65,7 +73,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:P')
         allopts = set(opt[0] for opt in opts)
-        srcdir = confdir = path.abspath(args[0])
+        srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
                                 srcdir,)
@@ -75,7 +83,7 @@ def main(argv):
             print >>sys.stderr, ('Error: Source directory doesn\'t '
                                  'contain conf.py file.')
             return 1
-        outdir = path.abspath(args[1])
+        outdir = abspath(args[1])
         if not path.isdir(outdir):
             print >>sys.stderr, 'Making output directory...'
             os.makedirs(outdir)
@@ -119,9 +127,9 @@ def main(argv):
         elif opt == '-t':
             tags.append(val)
         elif opt == '-d':
-            doctreedir = path.abspath(val)
+            doctreedir = abspath(val)
         elif opt == '-c':
-            confdir = path.abspath(val)
+            confdir = abspath(val)
             if not path.isfile(path.join(confdir, 'conf.py')):
                 print >>sys.stderr, ('Error: Configuration directory '
                                      'doesn\'t contain conf.py file.')
