@@ -15,6 +15,8 @@ import re
 import os
 from StringIO import StringIO
 
+from sphinx.util.pycompat import relpath
+
 from util import *
 from util import SkipTest
 
@@ -23,6 +25,8 @@ warnfile = StringIO()
 
 
 def setup_module():
+    # Delete remnants left over after failed build
+    (test_root / 'xx').rmtree(True)
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
     # Compile all required catalogs into binary format (*.mo).
     for dirpath, dirs, files in os.walk(test_root):
@@ -30,18 +34,13 @@ def setup_module():
         for f in [f for f in files if f.endswith('.po')]:
             po = dirpath / f
             mo = test_root / 'xx' / 'LC_MESSAGES' / (
-                    os.path.relpath(po[:-3], test_root) + '.mo')
+                    relpath(po[:-3], test_root) + '.mo')
             if not mo.parent.exists():
                 mo.parent.makedirs()
             try:
                 p = Popen(['msgfmt', po, '-o', mo],
                     stdout=PIPE, stderr=PIPE)
             except OSError:
-                # The test will fail the second time it's run if we don't
-                # tear down here. Not sure if there's a more idiomatic way
-                # of ensuring that teardown gets run in the event of an
-                # exception from the setup function.
-                teardown_module()
                 raise SkipTest  # most likely msgfmt was not found
             else:
                 stdout, stderr = p.communicate()
