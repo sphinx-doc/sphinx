@@ -116,7 +116,7 @@ class SQLAlchemyStorage(StorageBackend):
     def get_metadata(self, docname, moderator):
         session = Session()
         subquery = session.query(
-            Comment.id, Comment.node_id,
+            Comment.node_id,
             func.count('*').label('comment_count')).group_by(
             Comment.node_id).subquery()
         nodes = session.query(Node.id, subquery.c.comment_count).outerjoin(
