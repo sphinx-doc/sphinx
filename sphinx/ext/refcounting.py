@@ -79,14 +79,12 @@ class Refcounts(dict):
                 continue
             elif entry.result_type not in ("PyObject*", "PyVarObject*"):
                 continue
-            rc = _('Return value: ')
             if entry.result_refs is None:
-                rc += _("Always NULL.")
+                rc = _('Return value: Always NULL.')
+            elif entry.result_refs:
+                rc = _('Return value: New reference.')
             else:
-                if entry.result_refs:
-                    rc += _("New reference.")
-                else:
-                    rc += _("Borrowed reference.")
+                rc = _('Return value: Borrowed reference.')
             node.insert(0, refcount(rc, rc))
 
 
