@@ -1,0 +1,15 @@
+:tocdepth: 2
+
+i18n with seealso
+============================
+.. #960 directive-seelaso-ignored-in-the-gettext
+
+.. seealso:: short text 1
+
+.. seealso::
+
+   long text 1
+
+.. seealso:: short text 2
+
+   long text 2

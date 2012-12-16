@@ -222,7 +222,8 @@ class SeeAlso(Directive):
         if self.arguments:
             argnodes, msgs = self.state.inline_text(self.arguments[0],
                                                     self.lineno)
-            para = nodes.paragraph()
+            para = nodes.paragraph(self.arguments[0], '')
+            set_source_info(self, para)
             para += argnodes
             para += msgs
             ret[0].insert(1, para)
