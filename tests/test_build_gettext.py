@@ -38,6 +38,14 @@ def test_build(app):
 
 
 @with_app(buildername='gettext')
+def test_seealso(app):
+    # regression test for issue #960
+    app.builder.build(['markup'])
+    catalog = (app.outdir / 'markup.pot').text()
+    assert 'msgid "something, something else, something more"' in catalog
+
+
+@with_app(buildername='gettext')
 def test_gettext(app):
     app.builder.build(['markup'])
 
