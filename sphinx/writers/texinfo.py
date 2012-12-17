@@ -1156,6 +1156,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_problematic(self, node):
         self.body.append('<')
 
+    def visit_translatable(self, node):
+        pass
+    def depart_translatable(self, node):
+        pass
+
     def unimplemented_visit(self, node):
         self.builder.warn("unimplemented node type: %r" % node,
                           (self.curfilestack[-1], node.line))

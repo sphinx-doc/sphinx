@@ -719,6 +719,11 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_container(self, node):
         pass
 
+    def visit_translatable(self, node):
+        pass
+    def depart_translatable(self, node):
+        pass
+
     def visit_problematic(self, node):
         self.add_text('>>')
     def depart_problematic(self, node):

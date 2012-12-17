@@ -15,6 +15,9 @@ from docutils import nodes
 class toctree(nodes.General, nodes.Element):
     """Node for inserting a "TOC tree"."""
 
+class translatable(nodes.General, nodes.TextElement):
+    """An element which contains translatable nodes."""
+
 
 # domain-specific object descriptions (class, function etc.)
 
