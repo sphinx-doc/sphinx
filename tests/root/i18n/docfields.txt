@@ -1,0 +1,46 @@
+:tocdepth: 2
+
+i18n with docfields
+===================
+
+.. single TypedField
+
+.. class:: Cls1
+   :noindex:
+
+   :param param: description of parameter param
+
+.. grouped TypedFields
+
+.. class:: Cls2
+   :noindex:
+
+   :param foo: description of parameter foo
+   :param bar: description of parameter bar
+
+
+.. single GroupedField
+
+.. class:: Cls3(values)
+   :noindex:
+
+   :raises ValueError: if the values are out of range
+
+.. grouped GroupedFields
+
+.. class:: Cls4(values)
+   :noindex:
+
+   :raises TypeError: if the values are not valid
+   :raises ValueError: if the values are out of range
+
+
+.. single Field
+
+.. class:: Cls5
+   :noindex:
+
+   :returns: a new :class:`Cls3` instance
+
+.. Field is never grouped
+
