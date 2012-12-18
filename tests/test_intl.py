@@ -109,9 +109,9 @@ def test_i18n_footnote_backlink(app):
     app.builder.build(['i18n/footnote'])
     result = (app.outdir / 'i18n' / 'footnote.html').text(encoding='utf-8')
     expects = [
-        '<a class="footnote-reference" href="#id5" id="id1">[100]</a>', # id="id3"
-        '<a class="footnote-reference" href="#id4" id="id2">[1]</a>', # id="id2"
-        '<a class="reference internal" href="#ref" id="id3">[ref]</a>', # id="id1"
+        '<a class="footnote-reference" href="#id5" id="id1">[100]</a>',
+        '<a class="footnote-reference" href="#id4" id="id2">[1]</a>',
+        '<a class="reference internal" href="#ref" id="id3">[ref]</a>',
         '<a class="fn-backref" href="#id2">[1]</a>',
         '<a class="fn-backref" href="#id3">[ref]</a>',
         '<a class="fn-backref" href="#id1">[100]</a>',
