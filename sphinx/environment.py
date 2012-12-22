@@ -1342,12 +1342,13 @@ class BuildEnvironment:
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
-                        # recurse on children, current page is already marked
-                        _toctree_prune(subnode, depth+1, maxdepth)
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
                             'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
+                        else:
+                            # recurse on visible children  
+                            _toctree_prune(subnode, depth+1, maxdepth)
 
         def _toctree_add_classes(node, depth):
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
