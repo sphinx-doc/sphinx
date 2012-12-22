@@ -1311,23 +1311,26 @@ class BuildEnvironment:
         if toctree.get('hidden', False) and not includehidden:
             return None
 
+        # For reading the following two helper function, it is useful to keep
+        # in mind the node structure of a toctree (using HTML-like node names
+        # for brevity):
+        #
+        # <ul>
+        #   <li>
+        #     <p><a></p>
+        #     <p><a></p>
+        #     ...
+        #     <ul>
+        #       ...
+        #     </ul>
+        #   </li>
+        # </ul>
+        #
+        # The transformation is made in two passes in order to avoid
+        # interactions between marking and pruning the tree (see bug #1046).
+
         def _walk_depth(node, depth, maxdepth):
             """Utility: Cut a TOC at a specified depth."""
-
-            # For reading this function, it is useful to keep in mind the node
-            # structure of a toctree (using HTML-like node names for brevity):
-            #
-            # <ul>
-            #   <li>
-            #     <p><a></p>
-            #     <p><a></p>
-            #     ...
-            #     <ul>
-            #       ...
-            #     </ul>
-            #   </li>
-            # </ul>
-
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
@@ -1335,7 +1338,6 @@ class BuildEnvironment:
                     # recurse to children
                     subnode['classes'].append('toctree-l%d' % (depth-1))
                     _walk_depth(subnode, depth, maxdepth)
-
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, determine if the depth is too large or if the
                     # entry is to be collapsed
