@@ -1334,9 +1334,7 @@ class BuildEnvironment:
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
-                    # for <p> and <li>, just indicate the depth level and
-                    # recurse to children
-                    subnode['classes'].append('toctree-l%d' % (depth-1))
+                    # for <p> and <li>, just recurse
                     _walk_depth(subnode, depth, maxdepth)
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, determine if the depth is too large or if the
@@ -1344,22 +1342,27 @@ class BuildEnvironment:
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
-                        # recurse on children
+                        # recurse on children, current page is already marked
                         _walk_depth(subnode, depth+1, maxdepth)
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
                             'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
 
-        def _mark_current(node):
-            """Mark current page and its parents with the 'current' class."""
+        def _mark_current(node, depth):
+            """Add 'toctree-l%d' and 'current' classes to the toctree."""
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
-                                        nodes.list_item, nodes.bullet_list)):
-                    # for <p>, <li> and <ul>, just recurse to children
-                    _mark_current(subnode)
+                                        nodes.list_item)):
+                    # for <p> and <li>, indicate the depth level and recurse
+                    subnode['classes'].append('toctree-l%d' % (depth-1))
+                    _mark_current(subnode, depth)
+                elif isinstance(subnode, nodes.bullet_list):
+                    # for <ul>, just recurse
+                    _mark_current(subnode, depth+1)
                 elif isinstance(subnode, nodes.reference):
-                    # for <a>, identify the current document
+                    # for <a>, identify which entries point to the current
+                    # document and therefore may not be collapsed
                     if subnode['refuri'] == docname:
                         if not subnode['anchorname']:
                             # give the whole branch a 'current' class
@@ -1477,8 +1480,8 @@ class BuildEnvironment:
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
 
-        # prune the tree to maxdepth and replace titles, also set level classes
-        _mark_current(newnode)
+        # prune the tree to maxdepth, also set toc depth and current classes
+        _mark_current(newnode, 1)
         _walk_depth(newnode, 1, prune and maxdepth or 0)
 
         # set the target paths in the toctrees (they are not known at TOC
