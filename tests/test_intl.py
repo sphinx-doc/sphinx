@@ -212,7 +212,6 @@ def test_i18n_literalblock_warning(app):
           confoverrides={'language': 'xx', 'locale_dirs': ['.'],
                          'gettext_compact': False})
 def test_seealso(app):
-    app.builddir.rmtree(True)
     app.builder.build(['i18n/seealso'])
     result = (app.outdir / 'i18n' / 'seealso.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH SEEALSO"
