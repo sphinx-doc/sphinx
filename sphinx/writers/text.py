@@ -573,6 +573,8 @@ class TextTranslator(nodes.NodeVisitor):
     depart_tip = _make_depart_admonition('tip')
     visit_warning = _visit_admonition
     depart_warning = _make_depart_admonition('warning')
+    visit_seealso = _visit_admonition
+    depart_seealso = _make_depart_admonition('seealso')
 
     def visit_versionmodified(self, node):
         self.new_state(0)
