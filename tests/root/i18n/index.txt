@@ -5,4 +5,5 @@
    footnote
    external_links
    refs_inconsistency
+   literalblock
    seealso

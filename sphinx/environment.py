@@ -220,6 +220,14 @@ class Locale(Transform):
             if not msgstr or msgstr == msg: # as-of-yet untranslated
                 continue
 
+            # Avoid "Literal block expected; none found." warnings.
+            # If msgstr ends with '::' then it cause warning message at
+            # parser.parse() processing.
+            # literal-block-warning is only appear in avobe case.
+            if msgstr.strip().endswith('::'):
+                msgstr += '\n\n   dummy literal'
+                # dummy literal node will discard by 'patch = patch[0]'
+
             patch = new_document(source, settings)
             parser.parse(msgstr, patch)
             patch = patch[0]

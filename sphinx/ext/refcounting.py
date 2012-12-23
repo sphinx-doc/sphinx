@@ -17,6 +17,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.locale import _
 
 
 # refcount annotation
@@ -78,12 +79,12 @@ class Refcounts(dict):
                 continue
             elif entry.result_type not in ("PyObject*", "PyVarObject*"):
                 continue
-            rc = 'Return value: '
             if entry.result_refs is None:
-                rc += "Always NULL."
+                rc = _('Return value: Always NULL.')
+            elif entry.result_refs:
+                rc = _('Return value: New reference.')
             else:
-                rc += (entry.result_refs and "New" or "Borrowed") + \
-                      " reference."
+                rc = _('Return value: Borrowed reference.')
             node.insert(0, refcount(rc, rc))
 
 

@@ -186,6 +186,28 @@ def test_i18n_keep_external_links(app):
     assert expect_line == matched_line
 
 
+@with_app(buildername='text', warning=warnfile, cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_literalblock_warning(app):
+    app.builddir.rmtree(True)  #for warnings acceleration
+    app.builder.build(['i18n/literalblock'])
+    result = (app.outdir / 'i18n' / 'literalblock.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH LITERAL BLOCK"
+              u"\n***********************\n"
+              u"\nCORRECT LITERAL BLOCK:\n"
+              u"\n   this is"
+              u"\n   literal block\n"
+              u"\nMISSING LITERAL BLOCK:\n"
+              u"\n<SYSTEM MESSAGE: ")
+    assert result.startswith(expect)
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    expected_warning_expr = u'.*/i18n/literalblock.txt:\\d+: ' \
+            u'WARNING: Literal block expected; none found.'
+    assert re.search(expected_warning_expr, warnings)
+
+
 @with_app(buildername='text', cleanenv=True,
           confoverrides={'language': 'xx', 'locale_dirs': ['.'],
                          'gettext_compact': False})
