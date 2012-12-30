@@ -32,6 +32,13 @@ from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 class MathExtError(SphinxError):
     category = 'Math extension error'
 
+    def __init__(self, msg, stderr=None, stdout=None):
+        if stderr:
+            msg += '\n[stderr]\n' + stderr
+        if stdout:
+            msg += '\n[stdout]\n' + stdout
+        SphinxError.__init__(self, msg)
+
 
 DOC_HEAD = r'''
 \documentclass[12pt]{article}
@@ -130,8 +137,7 @@ def render_math(self, math):
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('latex exited with error:\n[stderr]\n%s\n'
-                           '[stdout]\n%s' % (stderr, stdout))
+        raise MathExtError('latex exited with error', stderr, stdout)
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
@@ -155,8 +161,7 @@ def render_math(self, math):
         return None, None
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n'
-                           '[stdout]\n%s' % (stderr, stdout))
+        raise MathExtError('dvipng exited with error', stderr, stdout)
     depth = None
     if use_preview:
         for line in stdout.splitlines():
