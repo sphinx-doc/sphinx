@@ -183,7 +183,8 @@ class CitationReferences(Transform):
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, reftype='citation',
-                                            reftarget=cittext, refwarn=True)
+                                            reftarget=cittext, refwarn=True,
+                                            ids=citnode["ids"])
             refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
@@ -236,9 +237,9 @@ class Locale(Transform):
                 continue # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.
-            is_autonumber_footnote_ref = lambda node: \
-                    isinstance(node, nodes.footnote_reference) \
-                    and node.get('auto') == 1
+            def is_autonumber_footnote_ref(node):
+                return isinstance(node, nodes.footnote_reference) and \
+                    node.get('auto') == 1
             old_foot_refs = node.traverse(is_autonumber_footnote_ref)
             new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
@@ -253,9 +254,9 @@ class Locale(Transform):
             # * reference target ".. _Python: ..." is not translatable.
             # * section refname is not translatable.
             # * inline reference "`Python <...>`_" has no 'refname'.
-            is_refnamed_ref = lambda node: \
-                    isinstance(node, nodes.reference) \
-                    and 'refname' in node
+            def is_refnamed_ref(node):
+                return isinstance(node, nodes.reference) and  \
+                    'refname' in node
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
             applied_refname_map = {}
@@ -277,6 +278,25 @@ class Locale(Transform):
                     applied_refname_map[new['refname']] = new['refname']
 
                 self.document.note_refname(new)
+
+            # refnamed footnote and citation should use original 'ids'.
+            def is_refnamed_footnote_ref(node):
+                footnote_ref_classes = (nodes.footnote_reference,
+                                        nodes.citation_reference)
+                return isinstance(node, footnote_ref_classes) and \
+                    'refname' in node
+            old_refs = node.traverse(is_refnamed_footnote_ref)
+            new_refs = patch.traverse(is_refnamed_footnote_ref)
+            refname_ids_map = {}
+            if len(old_refs) != len(new_refs):
+                env.warn_node('inconsistent references in '
+                              'translated message', node)
+            for old in old_refs:
+                refname_ids_map[old["refname"]] = old["ids"]
+            for new in new_refs:
+                refname = new["refname"]
+                if refname in refname_ids_map:
+                    new["ids"] = refname_ids_map[refname]
 
             # update leaves
             for child in patch.children:

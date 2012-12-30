@@ -101,6 +101,26 @@ def test_i18n_footnote_regression(app):
     assert result == expect
 
 
+@with_app(buildername='html', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_footnote_backlink(app):
+    """i18n test for #1058"""
+    app.builder.build(['i18n/footnote'])
+    result = (app.outdir / 'i18n' / 'footnote.html').text(encoding='utf-8')
+    expects = [
+        '<a class="footnote-reference" href="#id5" id="id1">[100]</a>',
+        '<a class="footnote-reference" href="#id4" id="id2">[1]</a>',
+        '<a class="reference internal" href="#ref" id="id3">[ref]</a>',
+        '<a class="fn-backref" href="#id2">[1]</a>',
+        '<a class="fn-backref" href="#id3">[ref]</a>',
+        '<a class="fn-backref" href="#id1">[100]</a>',
+        ]
+    for expect in expects:
+        matches = re.findall(re.escape(expect), result)
+        assert len(matches) == 1
+
+
 @with_app(buildername='text', warning=warnfile, cleanenv=True,
           confoverrides={'language': 'xx', 'locale_dirs': ['.'],
                          'gettext_compact': False})
