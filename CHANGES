@@ -26,6 +26,8 @@ Release 1.2 (in development)
 
 * Update to jQuery 1.7.1 and Underscore.js 1.3.1.
 
+* #1053: The "rightsidebar" and "collapsiblesidebar" HTML theme options now work together.
+
 * #1015: Stop overriding jQuery contains() in the JavaScript.
 
 * #1028: Fix line block output in the text builder.
