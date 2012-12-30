@@ -204,7 +204,7 @@ class Config(object):
                 os.chdir(dirname)
                 # get config source -- 'b' is a no-op under 2.x, while 'U' is
                 # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
-                f = open(config_file, 'rbU')
+                f = open(filename, 'rbU')
                 try:
                     source = f.read()
                 finally:
