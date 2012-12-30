@@ -1229,8 +1229,9 @@ class BuildEnvironment:
                     anchorname=anchorname, *nodetext)
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
+                sub_item = build_toc(sectionnode, depth + 1)
                 if maxdepth == 0 or depth < maxdepth:
-                    item += build_toc(sectionnode, depth+1)
+                    item += sub_item
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
