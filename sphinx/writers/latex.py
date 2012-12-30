@@ -297,7 +297,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if i > 0:
                     ret.append('\\indexspace\n')
                 ret.append('\\bigletter{%s}\n' %
-                           letter.translate(tex_escape_map))
+                           unicode(letter).translate(tex_escape_map))
                 for entry in entries:
                     if not entry[3]:
                         continue
