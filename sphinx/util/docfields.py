@@ -67,9 +67,7 @@ class Field(object):
             fieldname += nodes.Text(' ')
             fieldname += self.make_xref(self.rolename, domain,
                                         fieldarg, nodes.Text)
-        par = nodes.paragraph()
-        par += content
-        fieldbody = nodes.field_body('', par)
+        fieldbody = nodes.field_body('', nodes.paragraph('', '', content))
         return nodes.field('', fieldname, fieldbody)
 
 
@@ -257,7 +255,8 @@ class DocFieldTransformer(object):
                                                [nodes.Text(argtype)]
                     fieldarg = argname
 
-            translatable_content = addnodes.translatable(fieldbody.rawsource)
+            translatable_content = nodes.paragraph(fieldbody.rawsource,
+                                                   removable=True)
             translatable_content.source = fieldbody.parent.source
             translatable_content.line = fieldbody.parent.line
             translatable_content += content
