@@ -548,11 +548,6 @@ class HTMLTranslator(BaseTranslator):
             node['classes'].append('field-odd')
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
-    def visit_translatable(self, node):
-        pass
-    def depart_translatable(self, node):
-        pass
-
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
