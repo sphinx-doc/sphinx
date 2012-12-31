@@ -1512,10 +1512,5 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_system_message(self, node):
         self.body.append('\n')
 
-    def visit_translatable(self, node):
-        pass
-    def depart_translatable(self, node):
-        pass
-
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

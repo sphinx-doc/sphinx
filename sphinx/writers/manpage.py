@@ -340,10 +340,5 @@ class ManualPageTranslator(BaseTranslator):
             self.body.append(node.astext())
         raise nodes.SkipNode
 
-    def visit_translatable(self, node):
-        pass
-    def depart_translatable(self, node):
-        pass
-
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
