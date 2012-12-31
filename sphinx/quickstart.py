@@ -430,7 +430,7 @@ help:
 (if enabled)"
 
 clean:
-\t-rm -rf $(BUILDDIR)/*
+\trm -rf $(BUILDDIR)/*
 
 html:
 \t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

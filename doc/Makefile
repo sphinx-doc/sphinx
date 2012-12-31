@@ -38,7 +38,7 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 
 clean:
-	-rm -rf _build/*
+	rm -rf _build/*
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
