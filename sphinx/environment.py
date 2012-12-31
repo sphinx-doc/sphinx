@@ -291,6 +291,11 @@ class DocFields(Transform):
     default_priority = 999
 
     def apply(self):
+        from sphinx.builders.gettext import MessageCatalogBuilder
+        env = self.document.settings.env
+        builder = env.app.builder
+        if isinstance(builder, MessageCatalogBuilder):
+            return
         for field_list in self.document.traverse(nodes.field_list):
             for field_body in field_list.traverse(nodes.field_body):
                 for par in field_list.traverse(nodes.paragraph):
