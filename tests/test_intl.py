@@ -226,3 +226,20 @@ def test_i18n_literalblock_warning(app):
     expected_warning_expr = u'.*/i18n/literalblock.txt:\\d+: ' \
             u'WARNING: Literal block expected; none found.'
     assert re.search(expected_warning_expr, warnings)
+
+
+@with_app(buildername='text',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_definition_terms(app):
+    # regression test for #975
+    app.builder.build(['i18n/definition_terms'])
+    result = (app.outdir / 'i18n' / 'definition_terms.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH DEFINITION TERMS"
+              u"\n**************************\n"
+              u"\nSOME TERM"
+              u"\n   THE CORRESPONDING DEFINITION\n"
+              u"\nSOME OTHER TERM"
+              u"\n   THE CORRESPONDING DEFINITION #2\n")
+
+    assert result == expect
