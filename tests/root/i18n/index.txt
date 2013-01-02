@@ -6,3 +6,4 @@
    external_links
    refs_inconsistency
    literalblock
+   definition_terms

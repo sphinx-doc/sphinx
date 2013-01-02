@@ -23,7 +23,7 @@ help:
 	@echo "  linkcheck to check all external links for integrity"
 
 clean:
-	-rm -rf _build/*
+	rm -rf _build/*
 
 html:
 	mkdir -p _build/html _build/doctrees

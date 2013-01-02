@@ -5,7 +5,7 @@
 
     Server side search support for the web support package.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -102,7 +102,7 @@ class BaseSearch(object):
         res = self.context_re.search(text)
         if res is None:
             return ''
-        context_start = max(res.start() - length/2, 0)
+        context_start = max(res.start() - int(length/2), 0)
         context_end = context_start + length
         context = ''.join([context_start > 0 and '...' or '',
                            text[context_start:context_end],
