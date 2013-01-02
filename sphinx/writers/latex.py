@@ -8,7 +8,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -297,7 +297,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if i > 0:
                     ret.append('\\indexspace\n')
                 ret.append('\\bigletter{%s}\n' %
-                           letter.translate(tex_escape_map))
+                           unicode(letter).translate(tex_escape_map))
                 for entry in entries:
                     if not entry[3]:
                         continue

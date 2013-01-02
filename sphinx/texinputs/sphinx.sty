@@ -137,7 +137,7 @@
 
 % Some custom font markup commands.
 %
-\newcommand{\strong}[1]{{\bf #1}}
+\newcommand{\strong}[1]{{\textbf{#1}}}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\bfcode}[1]{\code{\bfseries#1}}
 \newcommand{\email}[1]{\textsf{#1}}
@@ -333,7 +333,7 @@
 \@ifundefined{ChTitleVar}{}{
   \ChNameVar{\raggedleft\normalsize\py@HeaderFamily}
   \ChNumVar{\raggedleft \bfseries\Large\py@HeaderFamily}
-  \ChTitleVar{\raggedleft \rm\Huge\py@HeaderFamily}
+  \ChTitleVar{\raggedleft \textrm{\Huge\py@HeaderFamily}}
   % This creates chapter heads without the leading \vspace*{}:
   \def\@makechapterhead#1{%
     {\parindent \z@ \raggedright \normalfont

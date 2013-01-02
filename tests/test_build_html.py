@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -35,6 +35,7 @@ ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
 WARNING: Explicit markup ends without a blank line; unexpected \
 unindent\\.\\n?
+%(root)s/i18n/literalblock.txt:13: WARNING: Literal block expected; none found.
 %(root)s/images.txt:9: WARNING: image file not readable: foo.png
 %(root)s/images.txt:23: WARNING: nonlocal image URI found: \
 http://www.python.org/logo.png

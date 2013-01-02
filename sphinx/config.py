@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -204,7 +204,7 @@ class Config(object):
                 os.chdir(dirname)
                 # get config source -- 'b' is a no-op under 2.x, while 'U' is
                 # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
-                f = open(config_file, 'rbU')
+                f = open(filename, 'rbU')
                 try:
                     source = f.read()
                 finally:

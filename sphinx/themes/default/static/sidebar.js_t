@@ -16,12 +16,26 @@
  * Once the browser is closed the cookie is deleted and the position
  * reset to the default (expanded).
  *
- * :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
 
 $(function() {
+  {% if theme_rightsidebar|tobool %}
+  {% set side = 'right' %}
+  {% set opposite = 'left' %}
+  {% set initial_label = '&raquo;' %}
+  {% set expand_label = '«' %}
+  {% set collapse_label = '»' %}
+  {% else %}
+  {% set side = 'left' %}
+  {% set opposite = 'right' %}
+  {% set initial_label = '&laquo;' %}
+  {% set expand_label = '»' %}
+  {% set collapse_label = '«' %}
+  {% endif %}
+
   // global elements used by the functions.
   // the 'sidebarbutton' element is defined as global after its
   // creation, in the add_sidebar_button function
@@ -34,7 +48,7 @@ $(function() {
 
   // original margin-left of the bodywrapper and width of the sidebar
   // with the sidebar expanded
-  var bw_margin_expanded = bodywrapper.css('margin-left');
+  var bw_margin_expanded = bodywrapper.css('margin-{{side}}');
   var ssb_width_expanded = sidebar.width();
 
   // margin-left of the bodywrapper and width of the sidebar
@@ -60,38 +74,38 @@ $(function() {
   function collapse_sidebar() {
     sidebarwrapper.hide();
     sidebar.css('width', ssb_width_collapsed);
-    bodywrapper.css('margin-left', bw_margin_collapsed);
+    bodywrapper.css('margin-{{side}}', bw_margin_collapsed);
     sidebarbutton.css({
-        'margin-left': '0',
+        'margin-{{side}}': '0',
         'height': bodywrapper.height()
     });
-    sidebarbutton.find('span').text('»');
+    sidebarbutton.find('span').text('{{expand_label}}');
     sidebarbutton.attr('title', _('Expand sidebar'));
     document.cookie = 'sidebar=collapsed';
   }
 
   function expand_sidebar() {
-    bodywrapper.css('margin-left', bw_margin_expanded);
+    bodywrapper.css('margin-{{side}}', bw_margin_expanded);
     sidebar.css('width', ssb_width_expanded);
     sidebarwrapper.show();
     sidebarbutton.css({
-        'margin-left': ssb_width_expanded-12,
+        'margin-{{side}}': ssb_width_expanded-12,
         'height': bodywrapper.height()
     });
-    sidebarbutton.find('span').text('«');
+    sidebarbutton.find('span').text('{{collapse_label}}');
     sidebarbutton.attr('title', _('Collapse sidebar'));
     document.cookie = 'sidebar=expanded';
   }
 
   function add_sidebar_button() {
     sidebarwrapper.css({
-        'float': 'left',
-        'margin-right': '0',
+        'float': '{{side}}',
+        'margin-{{opposite}}': '0',
         'width': ssb_width_expanded - 28
     });
     // create the button
     sidebar.append(
-        '<div id="sidebarbutton"><span>&laquo;</span></div>'
+        '<div id="sidebarbutton"><span>{{initial_label}}</span></div>'
     );
     var sidebarbutton = $('#sidebarbutton');
     light_color = sidebarbutton.css('background-color');
@@ -110,12 +124,12 @@ $(function() {
     sidebarbutton.attr('title', _('Collapse sidebar'));
     sidebarbutton.css({
         'color': '#FFFFFF',
-        'border-left': '1px solid ' + dark_color,
+        'border-{{side}}': '1px solid ' + dark_color,
         'font-size': '1.2em',
         'cursor': 'pointer',
         'height': bodywrapper.height(),
         'padding-top': '1px',
-        'margin-left': ssb_width_expanded - 12
+        'margin-{{side}}': ssb_width_expanded - 12
     });
 
     sidebarbutton.hover(

@@ -15,6 +15,8 @@ import re
 import os
 from StringIO import StringIO
 
+from sphinx.util.pycompat import relpath
+
 from util import *
 from util import SkipTest
 
@@ -23,6 +25,8 @@ warnfile = StringIO()
 
 
 def setup_module():
+    # Delete remnants left over after failed build
+    (test_root / 'xx').rmtree(True)
     (test_root / 'xx' / 'LC_MESSAGES').makedirs()
     # Compile all required catalogs into binary format (*.mo).
     for dirpath, dirs, files in os.walk(test_root):
@@ -30,18 +34,13 @@ def setup_module():
         for f in [f for f in files if f.endswith('.po')]:
             po = dirpath / f
             mo = test_root / 'xx' / 'LC_MESSAGES' / (
-                    os.path.relpath(po[:-3], test_root) + '.mo')
+                    relpath(po[:-3], test_root) + '.mo')
             if not mo.parent.exists():
                 mo.parent.makedirs()
             try:
                 p = Popen(['msgfmt', po, '-o', mo],
                     stdout=PIPE, stderr=PIPE)
             except OSError:
-                # The test will fail the second time it's run if we don't
-                # tear down here. Not sure if there's a more idiomatic way
-                # of ensuring that teardown gets run in the event of an
-                # exception from the setup function.
-                teardown_module()
                 raise SkipTest  # most likely msgfmt was not found
             else:
                 stdout, stderr = p.communicate()
@@ -100,6 +99,26 @@ def test_i18n_footnote_regression(app):
               u"\n[ref] THIS IS A NAMED FOOTNOTE.\n"
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
+
+
+@with_app(buildername='html', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_footnote_backlink(app):
+    """i18n test for #1058"""
+    app.builder.build(['i18n/footnote'])
+    result = (app.outdir / 'i18n' / 'footnote.html').text(encoding='utf-8')
+    expects = [
+        '<a class="footnote-reference" href="#id5" id="id1">[100]</a>',
+        '<a class="footnote-reference" href="#id4" id="id2">[1]</a>',
+        '<a class="reference internal" href="#ref" id="id3">[ref]</a>',
+        '<a class="fn-backref" href="#id2">[1]</a>',
+        '<a class="fn-backref" href="#id3">[ref]</a>',
+        '<a class="fn-backref" href="#id1">[100]</a>',
+        ]
+    for expect in expects:
+        matches = re.findall(re.escape(expect), result)
+        assert len(matches) == 1
 
 
 @with_app(buildername='text', warning=warnfile, cleanenv=True,
@@ -185,3 +204,42 @@ def test_i18n_keep_external_links(app):
     if matched:
         matched_line = matched.group()
     assert expect_line == matched_line
+
+
+@with_app(buildername='text', warning=warnfile, cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_literalblock_warning(app):
+    app.builddir.rmtree(True)  #for warnings acceleration
+    app.builder.build(['i18n/literalblock'])
+    result = (app.outdir / 'i18n' / 'literalblock.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH LITERAL BLOCK"
+              u"\n***********************\n"
+              u"\nCORRECT LITERAL BLOCK:\n"
+              u"\n   this is"
+              u"\n   literal block\n"
+              u"\nMISSING LITERAL BLOCK:\n"
+              u"\n<SYSTEM MESSAGE: ")
+    assert result.startswith(expect)
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    expected_warning_expr = u'.*/i18n/literalblock.txt:\\d+: ' \
+            u'WARNING: Literal block expected; none found.'
+    assert re.search(expected_warning_expr, warnings)
+
+
+@with_app(buildername='text',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_definition_terms(app):
+    # regression test for #975
+    app.builder.build(['i18n/definition_terms'])
+    result = (app.outdir / 'i18n' / 'definition_terms.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH DEFINITION TERMS"
+              u"\n**************************\n"
+              u"\nSOME TERM"
+              u"\n   THE CORRESPONDING DEFINITION\n"
+              u"\nSOME OTHER TERM"
+              u"\n   THE CORRESPONDING DEFINITION #2\n")
+
+    assert result == expect
