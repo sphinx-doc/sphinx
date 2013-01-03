@@ -197,7 +197,7 @@ class IndexBuilder(object):
             return rv
 
         self._mapping = load_terms(frozen['terms'])
-        self._title_mapping = load_terms(frozen['section_terms'])
+        self._title_mapping = load_terms(frozen['titleterms'])
         # no need to load keywords/objtypes
 
     def dump(self, stream, format):
