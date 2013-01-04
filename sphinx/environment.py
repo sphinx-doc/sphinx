@@ -1373,7 +1373,7 @@ class BuildEnvironment:
                             'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
                         else:
-                            # recurse on visible children  
+                            # recurse on visible children
                             _toctree_prune(subnode, depth+1, maxdepth)
 
         def _toctree_add_classes(node, depth):
