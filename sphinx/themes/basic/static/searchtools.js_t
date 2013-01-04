@@ -101,7 +101,7 @@ var Search = {
       Search.dots.text(dotString);
       if (Search._pulse_status > -1)
         window.setTimeout(pulse, 500);
-    };
+    }
     pulse();
   },
 
@@ -141,24 +141,25 @@ var Search = {
     var tmp = query.split(/\s+/);
     var objectterms = [];
     for (i = 0; i < tmp.length; i++) {
-      if (tmp[i] != "") {
+      if (tmp[i] !== "") {
           objectterms.push(tmp[i].toLowerCase());
       }
 
       if ($u.indexOf(stopwords, tmp[i]) != -1 || tmp[i].match(/^\d+$/) ||
-          tmp[i] == "") {
+          tmp[i] === "") {
         // skip this "word"
         continue;
       }
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
+      var toAppend;
       // select the correct list
       if (word[0] == '-') {
-        var toAppend = excluded;
+        toAppend = excluded;
         word = word.substr(1);
       }
       else {
-        var toAppend = searchterms;
+        toAppend = searchterms;
         hlterms.push(tmp[i].toLowerCase());
       }
       // only add if not already in the list
@@ -172,12 +173,8 @@ var Search = {
     // console.info('excluded: ', excluded);
 
     // prepare search
-    var filenames = this._index.filenames;
-    var titles = this._index.titles;
     var terms = this._index.terms;
     var titleterms = this._index.titleterms;
-
-    var files = null;
 
     // array of [filename, title, anchor, descr, score]
     var results = [];
@@ -186,17 +183,13 @@ var Search = {
     // lookup as object
     for (i = 0; i < objectterms.length; i++) {
       var others = [].concat(objectterms.slice(0, i),
-                             objectterms.slice(i+1, objectterms.length))
+                             objectterms.slice(i+1, objectterms.length));
       results = results.concat(this.performObjectSearch(objectterms[i], others));
     }
 
     // lookup as search terms in fulltext
     results = results.concat(this.performTermsSearch(searchterms, excluded, terms, Scorer.term))
                      .concat(this.performTermsSearch(searchterms, excluded, titleterms, Scorer.title));
-
-    // delete unused variables in order to not waste memory until list is
-    // retrieved completely
-    delete filenames, titles, terms, titleterms;
 
     // let the scorer override scores with a custom scoring function
     if (Scorer.score) {
@@ -233,7 +226,7 @@ var Search = {
       if (results.length) {
         var item = results.pop();
         var listItem = $('<li style="display:none"></li>');
-        if (DOCUMENTATION_OPTIONS.FILE_SUFFIX == '') {
+        if (DOCUMENTATION_OPTIONS.FILE_SUFFIX === '') {
           // dirhtml builder
           var dirname = item[0] + '/';
           if (dirname.match(/\/index\/$/)) {
@@ -259,7 +252,7 @@ var Search = {
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
           $.get(DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' +
                 item[0] + '.txt', function(data) {
-            if (data != '') {
+            if (data !== '') {
               listItem.append(Search.makeSearchSummary(data, searchterms, hlterms));
               Search.output.append(listItem);
             }
@@ -336,8 +329,8 @@ var Search = {
           }
           var descr = objname + _(', in ') + title;
 
-          anchor = match[3];
-          if (anchor == '')
+          var anchor = match[3];
+          if (anchor === '')
             anchor = fullname;
           else if (anchor == '-')
             anchor = objnames[match[1]][1] + '-' + fullname;
@@ -362,7 +355,7 @@ var Search = {
     var filenames = this._index.filenames;
     var titles = this._index.titles;
 
-    var i;
+    var i, j, file, files;
     var fileMap = {};
     var results = [];
 
@@ -370,14 +363,14 @@ var Search = {
     for (i = 0; i < searchterms.length; i++) {
       var word = searchterms[i];
       // no match but word was a required one
-      if ((files = terms[word]) == null)
+      if ((files = terms[word]) === null)
         break;
-      if (files.length == undefined) {
+      if (files.length === undefined) {
         files = [files];
       }
       // create the mapping
-      for (var j = 0; j < files.length; j++) {
-        var file = files[j];
+      for (j = 0; j < files.length; j++) {
+        file = files[j];
         if (file in fileMap)
           fileMap[file].push(word);
         else
@@ -386,7 +379,7 @@ var Search = {
     }
 
     // now check if the files don't contain excluded terms
-    for (var file in fileMap) {
+    for (file in fileMap) {
       var valid = true;
 
       // check if all requirements are matched

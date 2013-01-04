@@ -32,7 +32,7 @@ if (!window.console || !console.firebug) {
  */
 jQuery.urldecode = function(x) {
   return decodeURIComponent(x).replace(/\+/g, ' ');
-}
+};
 
 /**
  * small helper function to urlencode strings
