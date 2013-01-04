@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import with_statement
 import re
 import itertools
 import cPickle as pickle
@@ -294,17 +295,17 @@ class IndexBuilder(object):
         doctree.walk(visitor)
 
         stem = self.lang.stem
-        filter =  self.lang.word_filter
+        _filter =  self.lang.word_filter
 
         for word in itertools.chain(visitor.found_title_words,
                                     self.lang.split(title)):
             word = stem(word)
-            if filter(word):
+            if _filter(word):
                 self._title_mapping.setdefault(word, set()).add(filename)
 
         for word in visitor.found_words:
             word = stem(word)
-            if word not in self._title_mapping and filter(word):
+            if word not in self._title_mapping and _filter(word):
                 self._mapping.setdefault(word, set()).add(filename)
 
     def context_for_searchtool(self):
