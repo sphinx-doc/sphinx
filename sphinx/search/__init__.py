@@ -161,7 +161,7 @@ class IndexBuilder(object):
         'pickle':   pickle
     }
 
-    def __init__(self, env, lang, options):
+    def __init__(self, env, lang, options, scoring):
         self.env = env
         # filename -> title
         self._titles = {}
@@ -175,6 +175,12 @@ class IndexBuilder(object):
         self._objnames = {}
         # add language-specific SearchLanguage instance
         self.lang = languages[lang](options)
+
+        if scoring:
+            with open(scoring, 'rb') as fp:
+                self.js_scorer_code = fp.read().decode('utf-8')
+        else:
+            self.js_scorer_code = u''
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -305,4 +311,5 @@ class IndexBuilder(object):
         return dict(
             search_language_stemming_code = self.lang.js_stemmer_code,
             search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
+            search_scorer_tool = self.js_scorer_code,
         )

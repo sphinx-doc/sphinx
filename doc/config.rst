@@ -760,6 +760,15 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 1.1
 
+.. confval:: html_search_scorer
+
+   The name of a javascript file (relative to the configuration directory) that
+   implements a search results scorer.  If empty, the default will be used.
+
+   .. XXX describe interface for scorer here
+
+   .. versionadded:: 1.2
+
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.

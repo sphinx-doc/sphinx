@@ -240,7 +240,8 @@ class StandaloneHTMLBuilder(Builder):
         if not lang or lang not in languages:
             lang = 'en'
         self.indexer = IndexBuilder(self.env, lang,
-                                    self.config.html_search_options)
+                                    self.config.html_search_options,
+                                    self.config.html_search_scorer)
         self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
