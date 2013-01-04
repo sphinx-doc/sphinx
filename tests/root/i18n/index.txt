@@ -7,3 +7,4 @@
    refs_inconsistency
    literalblock
    definition_terms
+   figure_caption

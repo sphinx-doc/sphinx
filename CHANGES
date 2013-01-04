@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* #940: Fix gettext does not extract figure caption.
+
 * #1067: Improve the ordering of the JavaScript search results: matches in titles
   come before matches in full text, and object results are better categorized.
   Also implement a pluggable search scorer.

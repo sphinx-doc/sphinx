@@ -243,3 +243,19 @@ def test_i18n_definition_terms(app):
               u"\n   THE CORRESPONDING DEFINITION #2\n")
 
     assert result == expect
+
+
+@with_app(buildername='text',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_figure_caption(app):
+    # regression test for #940
+    app.builder.build(['i18n/figure_caption'])
+    result = (app.outdir / 'i18n' / 'figure_caption.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH FIGURE CAPTION"
+              u"\n************************\n"
+              u"\n   [image]MY CAPTION OF THE FIGURE\n"
+              u"\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
+              u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
+
+    assert result == expect
