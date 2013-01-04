@@ -365,9 +365,7 @@ class BuildEnvironment:
         del self.config.values
         domains = self.domains
         del self.domains
-        # first write to a temporary file, so that if dumping fails,
-        # the existing environment won't be overwritten
-        picklefile = open(filename + '.tmp', 'wb')
+        picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in vars(self.config).items():
             if key.startswith('_') or \
@@ -379,7 +377,6 @@ class BuildEnvironment:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:
             picklefile.close()
-        movefile(filename + '.tmp', filename)
         # reset attributes
         self.domains = domains
         self.config.values = values

@@ -11,6 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import sys
 import types
 import posixpath
@@ -203,6 +204,10 @@ class Sphinx(object):
             else:
                 self.builder.build_update()
         except Exception, err:
+            # delete the saved env to force a fresh build next time
+            envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
+            if path.isfile(envfile):
+                os.unlink(envfile)
             self.emit('build-finished', err)
             raise
         else:

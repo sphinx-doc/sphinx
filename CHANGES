@@ -66,6 +66,8 @@ Release 1.2 (in development)
 
 * #1041: Fix cpp domain parser fails to parse a const type with a modifier.
 
+* #958: Do not preserve ``environment.pickle`` after a failed build.
+
 * PR#88: Added the "Sphinx Developer's Guide" (:file:`doc/devguide.rst`)
   which outlines the basic development process of the Sphinx project.
 

@@ -219,7 +219,7 @@ def test_i18n_literalblock_warning(app):
               u"\n   this is"
               u"\n   literal block\n"
               u"\nMISSING LITERAL BLOCK:\n"
-              u"\n<SYSTEM MESSAGE: ")
+              u"\n<SYSTEM MESSAGE:")
     assert result.startswith(expect)
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
