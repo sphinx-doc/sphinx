@@ -97,15 +97,18 @@ def main(argv):
         if not path.isdir(outdir):
             print >>sys.stderr, 'Making output directory...'
             os.makedirs(outdir)
-    except (IndexError, getopt.error):
-        usage(argv)
+    except getopt.error, err:
+        usage(argv, 'Error: %s' % err)
+        return 1
+    except IndexError:
+        usage(argv, 'Error: Insufficient arguments.')
         return 1
 
     filenames = args[2:]
     err = 0
     for filename in filenames:
         if not path.isfile(filename):
-            print >>sys.stderr, 'Cannot find file %r.' % filename
+            print >>sys.stderr, 'Error: Cannot find file %r.' % filename
             err = 1
     if err:
         return 1
@@ -132,7 +135,7 @@ def main(argv):
             buildername = val
         elif opt == '-a':
             if filenames:
-                usage(argv, 'Cannot combine -a option and filenames.')
+                usage(argv, 'Error: Cannot combine -a option and filenames.')
                 return 1
             force_all = True
         elif opt == '-t':

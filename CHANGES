@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* sphinx-build now provides more specific error messages when called with
+  invalid options or arguments.
+
 * sphinx-build now supports the standard :option:`--help` and
   :option:`--version` options.
 
