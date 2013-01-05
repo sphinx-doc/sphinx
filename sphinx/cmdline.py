@@ -60,6 +60,7 @@ new and changed files
          -W        -- turn warnings into errors
          -P        -- run Pdb on exception
          -T        -- show full traceback on exception
+         -v        -- increase verbosity (can be repeated)
         --help     -- show this help and exit
         --version  -- show version information and exit
 Modi:
@@ -74,7 +75,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PTh',
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PThv',
                                    ['help', 'version'])
         allopts = set(opt[0] for opt in opts)
         if '-h' in allopts or '--help' in allopts:
@@ -123,6 +124,7 @@ def main(argv):
     buildername = None
     force_all = freshenv = warningiserror = use_pdb = False
     show_traceback = False
+    verbosity = 0
     status = sys.stdout
     warning = sys.stderr
     error = sys.stderr
@@ -201,6 +203,9 @@ def main(argv):
             use_pdb = True
         elif opt == '-T':
             show_traceback = True
+        elif opt == '-v':
+            verbosity += 1
+            show_traceback = True
 
     if warning and warnfile:
         warnfp = open(warnfile, 'w')
@@ -210,7 +215,7 @@ def main(argv):
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv,
-                     warningiserror, tags)
+                     warningiserror, tags, verbosity)
         app.build(force_all, filenames)
         return app.statuscode
     except (Exception, KeyboardInterrupt), err:

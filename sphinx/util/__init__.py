@@ -291,6 +291,12 @@ class Tee(object):
         self.stream1.write(text)
         self.stream2.write(text)
 
+    def flush(self):
+        if hasattr(self.stream1, 'flush'):
+            self.stream1.flush()
+        if hasattr(self.stream2, 'flush'):
+            self.stream2.flush()
+
 
 def parselinenos(spec, total):
     """Parse a line number spec (such as "1,2,4-6") and return a list of

@@ -1,6 +1,12 @@
 Release 1.2 (in development)
 ============================
 
+* sphinx-build now has a verbose option :option:`-v` which can be
+  repeated for greater effect.  A single occurrance provides a
+  slightly more verbose output than normal.  Two or more occurrences
+  of this option provides more detailed output which may be useful for
+  debugging.
+
 * sphinx-build now provides more specific error messages when called with
   invalid options or arguments.
 

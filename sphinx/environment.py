@@ -951,6 +951,7 @@ class BuildEnvironment:
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
+                self.app.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
 
 

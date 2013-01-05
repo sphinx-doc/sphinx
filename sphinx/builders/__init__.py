@@ -119,9 +119,13 @@ class Builder(object):
         summary = bold(summary)
         for item in iterable:
             l += 1
-            self.info(term_width_line('%s[%3d%%] %s' %
-                                      (summary, 100*l/length,
-                                       colorfunc(item))), nonl=1)
+            s = '%s[%3d%%] %s' % (summary, 100*l/length,
+                                  colorfunc(item))
+            if self.app.verbosity:
+                s += '\n'
+            else:
+                s = term_width_line(s)
+            self.info(s, nonl=1)
             yield item
         if l > 0:
             self.info()
