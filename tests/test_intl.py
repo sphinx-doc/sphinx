@@ -259,3 +259,40 @@ def test_i18n_figure_caption(app):
               u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
 
     assert result == expect
+
+
+@with_app(buildername='text', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_docfields(app):
+    app.builder.build(['i18n/docfields'])
+    result = (app.outdir / 'i18n' / 'docfields.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH DOCFIELDS"
+              u"\n*******************\n"
+              u"\nclass class Cls1\n"
+              u"\n   Parameters:"
+              u"\n      **param** -- DESCRIPTION OF PARAMETER param\n"
+              u"\nclass class Cls2\n"
+              u"\n   Parameters:"
+              u"\n      * **foo** -- DESCRIPTION OF PARAMETER foo\n"
+              u"\n      * **bar** -- DESCRIPTION OF PARAMETER bar\n"
+              u"\nclass class Cls3(values)\n"
+              u"\n   Raises ValueError:"
+              u"\n      IF THE VALUES ARE OUT OF RANGE\n"
+              u"\nclass class Cls4(values)\n"
+              u"\n   Raises:"
+              u"\n      * **TypeError** -- IF THE VALUES ARE NOT VALID\n"
+              u"\n      * **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
+              u"\nclass class Cls5\n"
+              u"\n   Returns:"
+              u'\n      A NEW "Cls3" INSTANCE\n')
+    assert result == expect
+
+
+@with_app(buildername='html', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_docfields_html(app):
+    app.builder.build(['i18n/docfields'])
+    result = (app.outdir / 'i18n' / 'docfields.html').text(encoding='utf-8')
+    # expect no error by build
