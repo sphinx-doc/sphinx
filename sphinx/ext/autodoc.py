@@ -317,13 +317,20 @@ class Documenter(object):
 
         Returns True if successful, False if an error occurred.
         """
+        if self.objpath:
+            self.env.app.debug('autodoc: from %s import %s',
+                               self.modname, '.'.join(self.objpath))
         try:
+            self.env.app.debug('autodoc: import %s', self.modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
+            self.env.app.debug('autodoc: => %r', obj)
             for part in self.objpath:
                 parent = obj
+                self.env.app.debug('autodoc: getattr(_, %r)', part)
                 obj = self.get_attr(obj, part)
+                self.env.app.debug('autodoc: => %r', obj)
                 self.object_name = part
             self.parent = parent
             self.object = obj
@@ -331,12 +338,16 @@ class Documenter(object):
         # this used to only catch SyntaxError, ImportError and AttributeError,
         # but importing modules with side effects can raise all kinds of errors
         except Exception, err:
-            if self.env.app and not self.env.app.quiet:
-                self.env.app.info(traceback.format_exc().rstrip())
-            self.directive.warn(
-                'autodoc can\'t import/find %s %r, it reported error: '
-                '"%s", please check your spelling and sys.path' %
-                (self.objtype, str(self.fullname), err))
+            if self.objpath:
+                errmsg = 'autodoc: failed to import %s %r from module %r' % \
+                         (self.objtype, '.'.join(self.objpath), self.modname)
+            else:
+                errmsg = 'autodoc: failed to import %s %r' % \
+                         (self.objtype, self.fullname)
+            errmsg += '; the following exception was raised:\n%s' % \
+                      traceback.format_exc()
+            self.env.app.debug(errmsg)
+            self.directive.warn(errmsg)
             self.env.note_reread()
             return False
 
@@ -1294,6 +1305,10 @@ class AutoDirective(Directive):
         self.warnings = []
         self.result = ViewList()
 
+        source, lineno = self.reporter.get_source_and_line(self.lineno)
+        self.env.app.debug('%s:%s: <input>\n%s',
+                           source, lineno, self.block_text)
+
         # find out what documenter to call
         objtype = self.name[4:]
         doc_class = self._registry[objtype]
@@ -1313,6 +1328,9 @@ class AutoDirective(Directive):
         documenter.generate(more_content=self.content)
         if not self.result:
             return self.warnings
+
+        if self.env.app.verbosity >= 2:
+            self.env.app.debug('autodoc: <output>\n%s', '\n'.join(self.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible
