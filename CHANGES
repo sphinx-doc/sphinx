@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* #869: sphinx-build now has the option :option:`-T` for printing the full
+  traceback after an unhandled exception.
+
 * #940: Fix gettext does not extract figure caption.
 
 * #1067: Improve the ordering of the JavaScript search results: matches in titles

@@ -59,6 +59,7 @@ new and changed files
          -w <file> -- write warnings (and errors) to given file
          -W        -- turn warnings into errors
          -P        -- run Pdb on exception
+         -T        -- show full traceback on exception
 Modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
@@ -71,7 +72,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:P')
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PT')
         allopts = set(opt[0] for opt in opts)
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
@@ -109,6 +110,7 @@ def main(argv):
 
     buildername = None
     force_all = freshenv = warningiserror = use_pdb = False
+    show_traceback = False
     status = sys.stdout
     warning = sys.stderr
     error = sys.stderr
@@ -185,6 +187,8 @@ def main(argv):
             warnfile = val
         elif opt == '-P':
             use_pdb = True
+        elif opt == '-T':
+            show_traceback = True
 
     if warning and warnfile:
         warnfp = open(warnfile, 'w')
@@ -197,14 +201,7 @@ def main(argv):
                      warningiserror, tags)
         app.build(force_all, filenames)
         return app.statuscode
-    except KeyboardInterrupt:
-        if use_pdb:
-            import pdb
-            print >>error, red('Interrupted while building, starting debugger:')
-            traceback.print_exc()
-            pdb.post_mortem(sys.exc_info()[2])
-        return 1
-    except Exception, err:
+    except (Exception, KeyboardInterrupt), err:
         if use_pdb:
             import pdb
             print >>error, red('Exception occurred while building, '
@@ -213,7 +210,12 @@ def main(argv):
             pdb.post_mortem(sys.exc_info()[2])
         else:
             print >>error
-            if isinstance(err, SystemMessage):
+            if show_traceback:
+                traceback.print_exc(None, error)
+                print >>error
+            if isinstance(err, KeyboardInterrupt):
+                print >>error, 'interrupted!'
+            elif isinstance(err, SystemMessage):
                 print >>error, red('reST markup error:')
                 print >>error, terminal_safe(err.args[0])
             elif isinstance(err, SphinxError):
