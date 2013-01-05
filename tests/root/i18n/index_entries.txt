@@ -1,0 +1,31 @@
+:tocdepth: 2
+
+i18n with index entries
+=======================
+
+.. index::
+   single: Mailing List
+   pair: Newsletter; Recipients List
+
+index target section
+--------------------
+
+this is :index:`Newsletter` target paragraph.
+
+
+various index entries
+---------------------
+
+.. index::
+   triple: First; Second; Third
+   see: Entry; Mailing List
+   seealso: See; Newsletter
+   module: Module
+   keyword: Keyword
+   operator: Operator
+   object: Object
+   exception: Exception
+   statement: Statement
+   builtin: Builtin
+
+That's all.

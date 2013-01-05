@@ -360,6 +360,29 @@ def split_into(n, type, value):
     return parts
 
 
+def split_index_msg(type, value):
+    # new entry types must be listed in directives/other.py!
+    result = []
+    try:
+        if type == 'single':
+            try:
+                result = split_into(2, 'single', value)
+            except ValueError:
+                result = split_into(1, 'single', value)
+        elif type == 'pair':
+            result = split_into(2, 'pair', value)
+        elif type == 'triple':
+            result = split_into(3, 'triple', value)
+        elif type == 'see':
+            result = split_into(2, 'see', value)
+        elif type == 'seealso':
+            result = split_into(2, 'see', value)
+    except ValueError:
+        pass
+
+    return result
+
+
 def format_exception_cut_frames(x=1):
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()

@@ -168,6 +168,7 @@ class Index(Directive):
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
         indexnode['inline'] = False
+        set_source_info(self, indexnode)
         for entry in arguments:
             ne.extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]

@@ -11,6 +11,7 @@
 
 import gettext
 import os
+import re
 from subprocess import Popen, PIPE
 
 from util import *
@@ -79,3 +80,49 @@ def test_gettext(app):
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == u"Testing various markup"
+
+
+@with_app(buildername='gettext',
+          confoverrides={'gettext_compact': False})
+def test_gettext_index_entries(app):
+    # regression test for #976
+    app.builder.build(['i18n/index_entries'])
+
+    _msgid_getter = re.compile(r'msgid "(.*)"').search
+    def msgid_getter(msgid):
+        m = _msgid_getter(msgid)
+        if m:
+            return m.groups()[0]
+        return None
+
+    pot = (app.outdir / 'i18n' / 'index_entries.pot').text(encoding='utf-8')
+    msgids = filter(None, map(msgid_getter, pot.splitlines()))
+
+    expected_msgids = [
+        "i18n with index entries",
+        "index target section",
+        "this is :index:`Newsletter` target paragraph.",
+        "various index entries",
+        "That's all.",
+        "Mailing List",
+        "Newsletter",
+        "Recipients List",
+        "First",
+        "Second",
+        "Third",
+        "Entry",
+        "See",
+        "Module",
+        "Keyword",
+        "Operator",
+        "Object",
+        "Exception",
+        "Statement",
+        "Builtin",
+    ]
+    for expect in expected_msgids:
+        assert expect in msgids
+        msgids.remove(expect)
+
+    # unexpected msgid existent
+    assert msgids == []

@@ -259,3 +259,37 @@ def test_i18n_figure_caption(app):
               u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
 
     assert result == expect
+
+
+@with_app(buildername='html',
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_i18n_index_entries(app):
+    # regression test for #976
+    app.builder.build(['i18n/index_entries'])
+    result = (app.outdir / 'genindex.html').text(encoding='utf-8')
+
+    def wrap(tag, keyword):
+        start_tag = "<%s[^>]*>" % tag
+        end_tag = "</%s>" % tag
+        return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
+
+    expected_exprs = [
+        wrap('a', 'NEWSLETTER'),
+        wrap('a', 'MAILING LIST'),
+        wrap('a', 'RECIPIENTS LIST'),
+        wrap('a', 'FIRST SECOND'),
+        wrap('a', 'SECOND THIRD'),
+        wrap('a', 'THIRD, FIRST'),
+        wrap('dt', 'ENTRY'),
+        wrap('dt', 'SEE'),
+        wrap('a', 'MODULE'),
+        wrap('a', 'KEYWORD'),
+        wrap('a', 'OPERATOR'),
+        wrap('a', 'OBJECT'),
+        wrap('a', 'EXCEPTION'),
+        wrap('a', 'STATEMENT'),
+        wrap('a', 'BUILTIN'),
+    ]
+    for expr in expected_exprs:
+        assert re.search(expr, result, re.M)
