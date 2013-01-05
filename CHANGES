@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* sphinx-build now supports the standard :option:`--help` and
+  :option:`--version` options.
+
 * #869: sphinx-build now has the option :option:`-T` for printing the full
   traceback after an unhandled exception.
 

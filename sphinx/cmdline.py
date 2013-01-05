@@ -60,6 +60,8 @@ new and changed files
          -W        -- turn warnings into errors
          -P        -- run Pdb on exception
          -T        -- show full traceback on exception
+        --help     -- show this help and exit
+        --version  -- show version information and exit
 Modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
@@ -72,8 +74,15 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PT')
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PTh',
+                                   ['help', 'version'])
         allopts = set(opt[0] for opt in opts)
+        if '-h' in allopts or '--help' in allopts:
+            usage(argv)
+            return 0
+        if '--version' in allopts:
+            print 'Sphinx (sphinx-build) %s' %  __version__
+            return 0
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
