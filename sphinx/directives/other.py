@@ -194,11 +194,11 @@ class VersionChange(Directive):
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno+1)
             node.extend(inodes)
-            if self.content:
-                self.state.nested_parse(self.content, self.content_offset, node)
             ret = [node] + messages
         else:
             ret = [node]
+        if self.content:
+            self.state.nested_parse(self.content, self.content_offset, node)
         env = self.state.document.settings.env
         # XXX should record node.source as well
         env.note_versionchange(node['type'], node['version'], node, node.line)
