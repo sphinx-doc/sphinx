@@ -11,3 +11,4 @@
    definition_terms
    figure_caption
    index_entries
+   docfields
