@@ -288,12 +288,10 @@ def test_i18n_index_entries(app):
         assert re.search(expr, result, re.M)
 
 
-@with_app(buildername='text', cleanenv=True,
-          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
-                         'gettext_compact': False})
+@with_intl_app(buildername='text', cleanenv=True)
 def test_i18n_docfields(app):
-    app.builder.build(['i18n/docfields'])
-    result = (app.outdir / 'i18n' / 'docfields.txt').text(encoding='utf-8')
+    app.builder.build(['docfields'])
+    result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH DOCFIELDS"
               u"\n*******************\n"
               u"\nclass class Cls1\n"
@@ -316,10 +314,8 @@ def test_i18n_docfields(app):
     assert result == expect
 
 
-@with_app(buildername='html', cleanenv=True,
-          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
-                         'gettext_compact': False})
+@with_intl_app(buildername='html', cleanenv=True)
 def test_i18n_docfields_html(app):
-    app.builder.build(['i18n/docfields'])
-    result = (app.outdir / 'i18n' / 'docfields.html').text(encoding='utf-8')
+    app.builder.build(['docfields'])
+    result = (app.outdir / 'docfields.html').text(encoding='utf-8')
     # expect no error by build
