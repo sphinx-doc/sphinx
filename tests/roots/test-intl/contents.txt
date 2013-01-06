@@ -2,6 +2,8 @@
    :maxdepth: 2
    :numbered:
 
+   subdir/contents
+   bom
    footnote
    external_links
    refs_inconsistency

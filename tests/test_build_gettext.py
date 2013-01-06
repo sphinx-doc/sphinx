@@ -20,6 +20,7 @@ from util import SkipTest
 
 def teardown_module():
     (test_root / '_build').rmtree(True)
+    (test_roots / 'test-intl' / '_build').rmtree(True),
 
 
 @with_app(buildername='gettext')
@@ -83,10 +84,12 @@ def test_gettext(app):
 
 
 @with_app(buildername='gettext',
+          srcdir=(test_roots / 'test-intl'),
+          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'),
           confoverrides={'gettext_compact': False})
 def test_gettext_index_entries(app):
     # regression test for #976
-    app.builder.build(['i18n/index_entries'])
+    app.builder.build(['index_entries'])
 
     _msgid_getter = re.compile(r'msgid "(.*)"').search
     def msgid_getter(msgid):
@@ -95,7 +98,7 @@ def test_gettext_index_entries(app):
             return m.groups()[0]
         return None
 
-    pot = (app.outdir / 'i18n' / 'index_entries.pot').text(encoding='utf-8')
+    pot = (app.outdir / 'index_entries.pot').text(encoding='utf-8')
     msgids = filter(None, map(msgid_getter, pot.splitlines()))
 
     expected_msgids = [
