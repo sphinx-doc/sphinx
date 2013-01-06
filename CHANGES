@@ -6,6 +6,31 @@ Release 1.2 (in development)
   admonition title ("See Also" instead of "See also"), and spurious indentation
   in the text builder.
 
+* sphinx-build now has a verbose option :option:`-v` which can be
+  repeated for greater effect.  A single occurrance provides a
+  slightly more verbose output than normal.  Two or more occurrences
+  of this option provides more detailed output which may be useful for
+  debugging.
+
+* sphinx-build now provides more specific error messages when called with
+  invalid options or arguments.
+
+* sphinx-build now supports the standard :option:`--help` and
+  :option:`--version` options.
+
+* #869: sphinx-build now has the option :option:`-T` for printing the full
+  traceback after an unhandled exception.
+
+* #976: Fix gettext does not extract index entries.
+
+* #940: Fix gettext does not extract figure caption.
+
+* #1067: Improve the ordering of the JavaScript search results: matches in titles
+  come before matches in full text, and object results are better categorized.
+  Also implement a pluggable search scorer.
+
+* Fix text writer can not handle visit_legend for figure directive contents.
+
 * PR#72: #975: Fix gettext does not extract definition terms before docutils 0.10.0
 
 * PR#25: In inheritance diagrams, the first line of the class docstring
@@ -66,6 +91,8 @@ Release 1.2 (in development)
 * #1043: Fix sphinx-quickstart asks again and again Y|N because input() return value with extra '\r' on Python-3.2.0 + Windows. Thanks to Régis Décamps.
 
 * #1041: Fix cpp domain parser fails to parse a const type with a modifier.
+
+* #958: Do not preserve ``environment.pickle`` after a failed build.
 
 * PR#88: Added the "Sphinx Developer's Guide" (:file:`doc/devguide.rst`)
   which outlines the basic development process of the Sphinx project.

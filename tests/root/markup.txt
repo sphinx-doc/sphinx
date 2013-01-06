@@ -191,6 +191,10 @@ Figures
 
    My caption of the figure
 
+   My description paragraph of the figure.
+
+   Description paragraph is wraped with legend node.
+
 
 Version markup
 --------------

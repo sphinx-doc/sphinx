@@ -52,6 +52,13 @@ def extract_messages(doctree):
                 node.line = definition_list_item.line - 1
                 node.rawsource = definition_list_item.\
                                  rawsource.split("\n", 2)[0]
+        # workaround: nodes.caption doesn't have source, line.
+        # this issue was filed to Docutils tracker:
+        # https://sourceforge.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
+        if isinstance(node, nodes.caption) and not node.source:
+            node.source = node.parent.source
+            node.line = ''  #need fix docutils to get `node.line`
+
         if not node.source:
             continue # built-in message
         if isinstance(node, IGNORED_NODES):
@@ -65,6 +72,19 @@ def extract_messages(doctree):
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
+
+
+def traverse_translatable_index(doctree):
+    """Traverse translatable index node from a document tree."""
+    def is_block_index(node):
+        return isinstance(node, addnodes.index) and  \
+            node.get('inline') == False
+    for node in doctree.traverse(is_block_index):
+        if 'raw_entries' in node:
+            entries = node['raw_entries']
+        else:
+            entries = node['entries']
+        yield node, entries
 
 
 def nested_parse_with_titles(state, content, node):

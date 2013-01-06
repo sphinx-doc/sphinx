@@ -386,10 +386,10 @@ def test_generate():
     assert_warns("import for autodocumenting 'foobar'",
                  'function', 'foobar', more_content=None)
     # importing
-    assert_warns("import/find module 'test_foobar'",
+    assert_warns("failed to import module 'test_foobar'",
                  'module', 'test_foobar', more_content=None)
     # attributes missing
-    assert_warns("import/find function 'util.foobar'",
+    assert_warns("failed to import function 'foobar' from module 'util'",
                  'function', 'util.foobar', more_content=None)
 
     # test auto and given content mixing

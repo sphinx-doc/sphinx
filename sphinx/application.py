@@ -11,6 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import sys
 import types
 import posixpath
@@ -60,7 +61,8 @@ class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
-                 freshenv=False, warningiserror=False, tags=None):
+                 freshenv=False, warningiserror=False, tags=None, verbosity=0):
+        self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
         self._listeners = {}
@@ -203,11 +205,26 @@ class Sphinx(object):
             else:
                 self.builder.build_update()
         except Exception, err:
+            # delete the saved env to force a fresh build next time
+            envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
+            if path.isfile(envfile):
+                os.unlink(envfile)
             self.emit('build-finished', err)
             raise
         else:
             self.emit('build-finished', None)
         self.builder.cleanup()
+
+    def _log(self, message, wfile, nonl=False):
+        try:
+            wfile.write(message)
+        except UnicodeEncodeError:
+            encoding = getattr(wfile, 'encoding', 'ascii') or 'ascii'
+            wfile.write(message.encode(encoding, 'replace'))
+        if not nonl:
+            wfile.write('\n')
+        if hasattr(wfile, 'flush'):
+            wfile.flush()
 
     def warn(self, message, location=None, prefix='WARNING: '):
         if isinstance(location, tuple):
@@ -221,26 +238,30 @@ class Sphinx(object):
         if self.warningiserror:
             raise SphinxWarning(warntext)
         self._warncount += 1
-        try:
-            self._warning.write(warntext)
-        except UnicodeEncodeError:
-            encoding = getattr(self._warning, 'encoding', 'ascii') or 'ascii'
-            self._warning.write(warntext.encode(encoding, 'replace'))
+        self._log(warntext, self._warning, True)
 
     def info(self, message='', nonl=False):
-        try:
-            self._status.write(message)
-        except UnicodeEncodeError:
-            encoding = getattr(self._status, 'encoding', 'ascii') or 'ascii'
-            self._status.write(message.encode(encoding, 'replace'))
-        if not nonl:
-            self._status.write('\n')
-        self._status.flush()
+        self._log(message, self._status, nonl)
+
+    def verbose(self, message, *args, **kwargs):
+        if self.verbosity < 1:
+            return
+        if args or kwargs:
+            message = message % (args or kwargs)
+        self._log(message, self._warning)
+
+    def debug(self, message, *args, **kwargs):
+        if self.verbosity < 2:
+            return
+        if args or kwargs:
+            message = message % (args or kwargs)
+        self._log(message, self._warning)
 
     # general extensibility interface
 
     def setup_extension(self, extension):
         """Import and setup a Sphinx extension module. No-op if called twice."""
+        self.debug('setting up extension: %r', extension)
         if extension in self._extensions:
             return
         try:
@@ -301,9 +322,12 @@ class Sphinx(object):
         else:
             self._listeners[event][listener_id] = callback
         self.next_listener_id += 1
+        self.debug('connecting event %r: %r [id=%s]',
+                   event, callback, listener_id)
         return listener_id
 
     def disconnect(self, listener_id):
+        self.debug('disconnecting event: [id=%s]', listener_id)
         for event in self._listeners.itervalues():
             event.pop(listener_id, None)
 
@@ -323,6 +347,7 @@ class Sphinx(object):
     # registering addon parts
 
     def add_builder(self, builder):
+        self.debug('adding builder: %r', builder)
         if not hasattr(builder, 'name'):
             raise ExtensionError('Builder class %s has no "name" attribute'
                                  % builder)
@@ -337,6 +362,7 @@ class Sphinx(object):
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild):
+        self.debug('adding config value: %r', (name, default, rebuild))
         if name in self.config.values:
             raise ExtensionError('Config value %r already present' % name)
         if rebuild in (False, True):
@@ -344,11 +370,13 @@ class Sphinx(object):
         self.config.values[name] = (default, rebuild)
 
     def add_event(self, name):
+        self.debug('adding event: %r', name)
         if name in self._events:
             raise ExtensionError('Event %r already present' % name)
         self._events[name] = ''
 
     def add_node(self, node, **kwds):
+        self.debug('adding node: %r', (node, kwds))
         nodes._add_node_class_names([node.__name__])
         for key, val in kwds.iteritems():
             try:
@@ -388,24 +416,30 @@ class Sphinx(object):
             return obj
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
+        self.debug('adding directive: %r',
+                   (name, obj, content, arguments, options))
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
     def add_role(self, name, role):
+        self.debug('adding role: %r', (name, role))
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
         # don't use roles.register_generic_role because it uses
         # register_canonical_role
+        self.debug('adding generic role: %r', (name, nodeclass))
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 
     def add_domain(self, domain):
+        self.debug('adding domain: %r', domain)
         if domain.name in self.domains:
             raise ExtensionError('domain %s already registered' % domain.name)
         self.domains[domain.name] = domain
 
     def override_domain(self, domain):
+        self.debug('overriding domain: %r', domain)
         if domain.name not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain.name)
         if not issubclass(domain, self.domains[domain.name]):
@@ -415,17 +449,21 @@ class Sphinx(object):
 
     def add_directive_to_domain(self, domain, name, obj,
                                 content=None, arguments=None, **options):
+        self.debug('adding directive to domain: %r',
+                   (domain, name, obj, content, arguments, options))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].directives[name] = \
             self._directive_helper(obj, content, arguments, **options)
 
     def add_role_to_domain(self, domain, name, role):
+        self.debug('adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].roles[name] = role
 
     def add_index_to_domain(self, domain, index):
+        self.debug('adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].indices.append(index)
@@ -433,6 +471,9 @@ class Sphinx(object):
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[]):
+        self.debug('adding object type: %r',
+                   (directivename, rolename, indextemplate, parse_node,
+                    ref_nodeclass, objname, doc_field_types))
         StandardDomain.object_types[directivename] = \
             ObjType(objname or directivename, rolename)
         # create a subclass of GenericObject as the new directive
@@ -449,6 +490,9 @@ class Sphinx(object):
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
+        self.debug('adding crossref type: %r',
+                   (directivename, rolename, indextemplate, ref_nodeclass,
+                    objname))
         StandardDomain.object_types[directivename] = \
             ObjType(objname or directivename, rolename)
         # create a subclass of Target as the new directive
@@ -459,9 +503,11 @@ class Sphinx(object):
         StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
 
     def add_transform(self, transform):
+        self.debug('adding transform: %r', transform)
         SphinxStandaloneReader.transforms.append(transform)
 
     def add_javascript(self, filename):
+        self.debug('adding javascript: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         if '://' in filename:
             StandaloneHTMLBuilder.script_files.append(filename)
@@ -470,6 +516,7 @@ class Sphinx(object):
                 posixpath.join('_static', filename))
 
     def add_stylesheet(self, filename):
+        self.debug('adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         if '://' in filename:
             StandaloneHTMLBuilder.css_files.append(filename)
@@ -478,21 +525,25 @@ class Sphinx(object):
                 posixpath.join('_static', filename))
 
     def add_lexer(self, alias, lexer):
+        self.debug('adding lexer: %r', (alias, lexer))
         from sphinx.highlighting import lexers
         if lexers is None:
             return
         lexers[alias] = lexer
 
     def add_autodocumenter(self, cls):
+        self.debug('adding autodocumenter: %r', cls)
         from sphinx.ext import autodoc
         autodoc.add_documenter(cls)
         self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
 
     def add_autodoc_attrgetter(self, type, getter):
+        self.debug('adding autodoc attrgetter: %r', (type, getter))
         from sphinx.ext import autodoc
         autodoc.AutoDirective._special_attrgetters[type] = getter
 
     def add_search_language(self, cls):
+        self.debug('adding search language: %r', cls)
         from sphinx.search import languages, SearchLanguage
         assert isinstance(cls, SearchLanguage)
         languages[cls.lang] = cls

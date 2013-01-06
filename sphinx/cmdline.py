@@ -59,6 +59,10 @@ new and changed files
          -w <file> -- write warnings (and errors) to given file
          -W        -- turn warnings into errors
          -P        -- run Pdb on exception
+         -T        -- show full traceback on exception
+         -v        -- increase verbosity (can be repeated)
+        --help     -- show this help and exit
+        --version  -- show version information and exit
 Modi:
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
@@ -71,8 +75,15 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:P')
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PThv',
+                                   ['help', 'version'])
         allopts = set(opt[0] for opt in opts)
+        if '-h' in allopts or '--help' in allopts:
+            usage(argv)
+            return 0
+        if '--version' in allopts:
+            print 'Sphinx (sphinx-build) %s' %  __version__
+            return 0
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
@@ -87,15 +98,18 @@ def main(argv):
         if not path.isdir(outdir):
             print >>sys.stderr, 'Making output directory...'
             os.makedirs(outdir)
-    except (IndexError, getopt.error):
-        usage(argv)
+    except getopt.error, err:
+        usage(argv, 'Error: %s' % err)
+        return 1
+    except IndexError:
+        usage(argv, 'Error: Insufficient arguments.')
         return 1
 
     filenames = args[2:]
     err = 0
     for filename in filenames:
         if not path.isfile(filename):
-            print >>sys.stderr, 'Cannot find file %r.' % filename
+            print >>sys.stderr, 'Error: Cannot find file %r.' % filename
             err = 1
     if err:
         return 1
@@ -109,6 +123,8 @@ def main(argv):
 
     buildername = None
     force_all = freshenv = warningiserror = use_pdb = False
+    show_traceback = False
+    verbosity = 0
     status = sys.stdout
     warning = sys.stderr
     error = sys.stderr
@@ -121,7 +137,7 @@ def main(argv):
             buildername = val
         elif opt == '-a':
             if filenames:
-                usage(argv, 'Cannot combine -a option and filenames.')
+                usage(argv, 'Error: Cannot combine -a option and filenames.')
                 return 1
             force_all = True
         elif opt == '-t':
@@ -185,6 +201,11 @@ def main(argv):
             warnfile = val
         elif opt == '-P':
             use_pdb = True
+        elif opt == '-T':
+            show_traceback = True
+        elif opt == '-v':
+            verbosity += 1
+            show_traceback = True
 
     if warning and warnfile:
         warnfp = open(warnfile, 'w')
@@ -194,17 +215,10 @@ def main(argv):
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv,
-                     warningiserror, tags)
+                     warningiserror, tags, verbosity)
         app.build(force_all, filenames)
         return app.statuscode
-    except KeyboardInterrupt:
-        if use_pdb:
-            import pdb
-            print >>error, red('Interrupted while building, starting debugger:')
-            traceback.print_exc()
-            pdb.post_mortem(sys.exc_info()[2])
-        return 1
-    except Exception, err:
+    except (Exception, KeyboardInterrupt), err:
         if use_pdb:
             import pdb
             print >>error, red('Exception occurred while building, '
@@ -213,7 +227,12 @@ def main(argv):
             pdb.post_mortem(sys.exc_info()[2])
         else:
             print >>error
-            if isinstance(err, SystemMessage):
+            if show_traceback:
+                traceback.print_exc(None, error)
+                print >>error
+            if isinstance(err, KeyboardInterrupt):
+                print >>error, 'interrupted!'
+            elif isinstance(err, SystemMessage):
                 print >>error, red('reST markup error:')
                 print >>error, terminal_safe(err.args[0])
             elif isinstance(err, SphinxError):

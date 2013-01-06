@@ -240,7 +240,8 @@ class StandaloneHTMLBuilder(Builder):
         if not lang or lang not in languages:
             lang = 'en'
         self.indexer = IndexBuilder(self.env, lang,
-                                    self.config.html_search_options)
+                                    self.config.html_search_options,
+                                    self.config.html_search_scorer)
         self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
@@ -653,6 +654,8 @@ class StandaloneHTMLBuilder(Builder):
             self.indexer.feed(pagename, title, doctree)
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
+        if 'includehidden' not in kwds:
+            kwds['includehidden'] = False
         return self.render_partial(self.env.get_toctree_for(
             docname, self, collapse, **kwds))['fragment']
 

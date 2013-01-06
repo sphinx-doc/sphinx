@@ -110,6 +110,7 @@ class Config(object):
         html_secnumber_suffix = ('. ', 'html'),
         html_search_language = (None, 'html'),
         html_search_options = ({}, 'html'),
+        html_search_scorer = ('', None),
 
         # HTML help only options
         htmlhelp_basename = (lambda self: make_filename(self.project), None),

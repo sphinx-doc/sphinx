@@ -391,3 +391,6 @@ are in HTML form), these variables are also available:
 
    * ``titles_only`` (false by default): if true, put only toplevel document
      titles in the tree
+
+   * ``includehidden`` (false by default): if true, the TOC tree will also
+     contain hidden entries.

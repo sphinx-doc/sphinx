@@ -291,6 +291,12 @@ class Tee(object):
         self.stream1.write(text)
         self.stream2.write(text)
 
+    def flush(self):
+        if hasattr(self.stream1, 'flush'):
+            self.stream1.flush()
+        if hasattr(self.stream2, 'flush'):
+            self.stream2.flush()
+
 
 def parselinenos(spec, total):
     """Parse a line number spec (such as "1,2,4-6") and return a list of
@@ -352,6 +358,29 @@ def split_into(n, type, value):
     if sum(1 for part in parts if part) < n:
         raise ValueError('invalid %s index entry %r' % (type, value))
     return parts
+
+
+def split_index_msg(type, value):
+    # new entry types must be listed in directives/other.py!
+    result = []
+    try:
+        if type == 'single':
+            try:
+                result = split_into(2, 'single', value)
+            except ValueError:
+                result = split_into(1, 'single', value)
+        elif type == 'pair':
+            result = split_into(2, 'pair', value)
+        elif type == 'triple':
+            result = split_into(3, 'triple', value)
+        elif type == 'see':
+            result = split_into(2, 'see', value)
+        elif type == 'seealso':
+            result = split_into(2, 'see', value)
+    except ValueError:
+        pass
+
+    return result
 
 
 def format_exception_cut_frames(x=1):

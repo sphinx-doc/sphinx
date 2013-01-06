@@ -8,10 +8,12 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import with_statement
 import re
+import itertools
 import cPickle as pickle
 
-from docutils.nodes import comment, Text, NodeVisitor, SkipNode
+from docutils.nodes import comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
 
@@ -92,6 +94,7 @@ var Stemmer = function() {
             (ord(word[0]) < 256 and (len(word) < 3 or word in self.stopwords or
                                      word.isdigit())))
 
+
 from sphinx.search import en, ja
 
 languages = {
@@ -137,13 +140,16 @@ class WordCollector(NodeVisitor):
     def __init__(self, document, lang):
         NodeVisitor.__init__(self, document)
         self.found_words = []
+        self.found_title_words = []
         self.lang = lang
 
     def dispatch_visit(self, node):
         if node.__class__ is comment:
             raise SkipNode
-        if node.__class__ is Text:
+        elif node.__class__ is Text:
             self.found_words.extend(self.lang.split(node.astext()))
+        elif node.__class__ is title:
+            self.found_title_words.extend(self.lang.split(node.astext()))
 
 
 class IndexBuilder(object):
@@ -156,18 +162,26 @@ class IndexBuilder(object):
         'pickle':   pickle
     }
 
-    def __init__(self, env, lang, options):
+    def __init__(self, env, lang, options, scoring):
         self.env = env
         # filename -> title
         self._titles = {}
         # stemmed word -> set(filenames)
         self._mapping = {}
+        # stemmed words in titles -> set(filenames)
+        self._title_mapping = {}
         # objtype -> index
         self._objtypes = {}
         # objtype index -> (domain, type, objname (localized))
         self._objnames = {}
         # add language-specific SearchLanguage instance
         self.lang = languages[lang](options)
+
+        if scoring:
+            with open(scoring, 'rb') as fp:
+                self.js_scorer_code = fp.read().decode('utf-8')
+        else:
+            self.js_scorer_code = u''
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -179,12 +193,18 @@ class IndexBuilder(object):
             raise ValueError('old format')
         index2fn = frozen['filenames']
         self._titles = dict(zip(index2fn, frozen['titles']))
-        self._mapping = {}
-        for k, v in frozen['terms'].iteritems():
-            if isinstance(v, int):
-                self._mapping[k] = set([index2fn[v]])
-            else:
-                self._mapping[k] = set(index2fn[i] for i in v)
+
+        def load_terms(mapping):
+            rv = {}
+            for k, v in mapping.iteritems():
+                if isinstance(v, int):
+                    rv[k] = set([index2fn[v]])
+                else:
+                    rv[k] = set(index2fn[i] for i in v)
+            return rv
+
+        self._mapping = load_terms(frozen['terms'])
+        self._title_mapping = load_terms(frozen['titleterms'])
         # no need to load keywords/objtypes
 
     def dump(self, stream, format):
@@ -229,28 +249,31 @@ class IndexBuilder(object):
         return rv
 
     def get_terms(self, fn2index):
-        rv = {}
-        for k, v in self._mapping.iteritems():
-            if len(v) == 1:
-                fn, = v
-                if fn in fn2index:
-                    rv[k] = fn2index[fn]
-            else:
-                rv[k] = [fn2index[fn] for fn in v if fn in fn2index]
-        return rv
+        rvs = {}, {}
+        for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
+            for k, v in mapping.iteritems():
+                if len(v) == 1:
+                    fn, = v
+                    if fn in fn2index:
+                        rv[k] = fn2index[fn]
+                else:
+                    rv[k] = [fn2index[fn] for fn in v if fn in fn2index]
+        return rvs
 
     def freeze(self):
         """Create a usable data structure for serializing."""
         filenames = self._titles.keys()
         titles = self._titles.values()
         fn2index = dict((f, i) for (i, f) in enumerate(filenames))
-        terms = self.get_terms(fn2index)
+        terms, title_terms = self.get_terms(fn2index)
+
         objects = self.get_objects(fn2index)  # populates _objtypes
         objtypes = dict((v, k[0] + ':' + k[1])
                         for (k, v) in self._objtypes.iteritems())
         objnames = self._objnames
         return dict(filenames=filenames, titles=titles, terms=terms,
-                    objects=objects, objtypes=objtypes, objnames=objnames)
+                    objects=objects, objtypes=objtypes, objnames=objnames,
+                    titleterms=title_terms)
 
     def prune(self, filenames):
         """Remove data for all filenames not in the list."""
@@ -261,6 +284,8 @@ class IndexBuilder(object):
         self._titles = new_titles
         for wordnames in self._mapping.itervalues():
             wordnames.intersection_update(filenames)
+        for wordnames in self._title_mapping.itervalues():
+            wordnames.intersection_update(filenames)
 
     def feed(self, filename, title, doctree):
         """Feed a doctree to the index."""
@@ -269,19 +294,23 @@ class IndexBuilder(object):
         visitor = WordCollector(doctree, self.lang)
         doctree.walk(visitor)
 
-        def add_term(word, stem=self.lang.stem):
-            word = stem(word)
-            if self.lang.word_filter(word):
-                self._mapping.setdefault(word, set()).add(filename)
+        stem = self.lang.stem
+        _filter =  self.lang.word_filter
 
-        for word in self.lang.split(title):
-            add_term(word)
+        for word in itertools.chain(visitor.found_title_words,
+                                    self.lang.split(title)):
+            word = stem(word)
+            if _filter(word):
+                self._title_mapping.setdefault(word, set()).add(filename)
 
         for word in visitor.found_words:
-            add_term(word)
+            word = stem(word)
+            if word not in self._title_mapping and _filter(word):
+                self._mapping.setdefault(word, set()).add(filename)
 
     def context_for_searchtool(self):
         return dict(
             search_language_stemming_code = self.lang.js_stemmer_code,
             search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
+            search_scorer_tool = self.js_scorer_code,
         )

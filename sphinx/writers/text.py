@@ -294,6 +294,11 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_label(self, node):
         raise nodes.SkipNode
 
+    def visit_legend(self, node):
+        pass
+    def depart_legend(self, node):
+        pass
+
     # XXX: option list could use some better styling
 
     def visit_option_list(self, node):

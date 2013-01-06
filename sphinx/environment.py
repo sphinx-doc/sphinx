@@ -38,9 +38,9 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-     FilenameUniqDict
+     split_index_msg, FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
-     WarningStream
+     traverse_translatable_index, WarningStream
 from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog, \
      fs_encoding
 from sphinx.util.matching import compile_matchers
@@ -71,7 +71,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 41
+ENV_VERSION = 42
 
 
 default_substitutions = set([
@@ -303,6 +303,23 @@ class Locale(Transform):
                 child.parent = node
             node.children = patch.children
 
+        # Extract and translate messages for index entries.
+        for node, entries in traverse_translatable_index(self.document):
+            new_entries = []
+            for type, msg, tid, main in entries:
+                msg_parts = split_index_msg(type, msg)
+                msgstr_parts = []
+                for part in msg_parts:
+                    msgstr = catalog.gettext(part)
+                    if not msgstr:
+                        msgstr = part
+                    msgstr_parts.append(msgstr)
+
+                new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+
+            node['raw_entries'] = entries
+            node['entries'] = new_entries
+
 
 class SphinxStandaloneReader(standalone.Reader):
     """
@@ -365,9 +382,7 @@ class BuildEnvironment:
         del self.config.values
         domains = self.domains
         del self.domains
-        # first write to a temporary file, so that if dumping fails,
-        # the existing environment won't be overwritten
-        picklefile = open(filename + '.tmp', 'wb')
+        picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in vars(self.config).items():
             if key.startswith('_') or \
@@ -379,7 +394,6 @@ class BuildEnvironment:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:
             picklefile.close()
-        movefile(filename + '.tmp', filename)
         # reset attributes
         self.domains = domains
         self.config.values = values
@@ -954,6 +968,7 @@ class BuildEnvironment:
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
+                self.app.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
 
 
@@ -1340,46 +1355,56 @@ class BuildEnvironment:
         if toctree.get('hidden', False) and not includehidden:
             return None
 
-        def _walk_depth(node, depth, maxdepth):
+        # For reading the following two helper function, it is useful to keep
+        # in mind the node structure of a toctree (using HTML-like node names
+        # for brevity):
+        #
+        # <ul>
+        #   <li>
+        #     <p><a></p>
+        #     <p><a></p>
+        #     ...
+        #     <ul>
+        #       ...
+        #     </ul>
+        #   </li>
+        # </ul>
+        #
+        # The transformation is made in two passes in order to avoid
+        # interactions between marking and pruning the tree (see bug #1046).
+
+        def _toctree_prune(node, depth, maxdepth):
             """Utility: Cut a TOC at a specified depth."""
-
-            # For reading this function, it is useful to keep in mind the node
-            # structure of a toctree (using HTML-like node names for brevity):
-            #
-            # <ul>
-            #   <li>
-            #     <p><a></p>
-            #     <p><a></p>
-            #     ...
-            #     <ul>
-            #       ...
-            #     </ul>
-            #   </li>
-            # </ul>
-
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
-                    # for <p> and <li>, just indicate the depth level and
-                    # recurse to children
-                    subnode['classes'].append('toctree-l%d' % (depth-1))
-                    _walk_depth(subnode, depth, maxdepth)
-
+                    # for <p> and <li>, just recurse
+                    _toctree_prune(subnode, depth, maxdepth)
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, determine if the depth is too large or if the
                     # entry is to be collapsed
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
-                        # to find out what to collapse, *first* walk subitems,
-                        # since that determines which children point to the
-                        # current page
-                        _walk_depth(subnode, depth+1, maxdepth)
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
                             'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
+                        else:
+                            # recurse on visible children
+                            _toctree_prune(subnode, depth+1, maxdepth)
 
+        def _toctree_add_classes(node, depth):
+            """Add 'toctree-l%d' and 'current' classes to the toctree."""
+            for subnode in node.children:
+                if isinstance(subnode, (addnodes.compact_paragraph,
+                                        nodes.list_item)):
+                    # for <p> and <li>, indicate the depth level and recurse
+                    subnode['classes'].append('toctree-l%d' % (depth-1))
+                    _toctree_add_classes(subnode, depth)
+                elif isinstance(subnode, nodes.bullet_list):
+                    # for <ul>, just recurse
+                    _toctree_add_classes(subnode, depth+1)
                 elif isinstance(subnode, nodes.reference):
                     # for <a>, identify which entries point to the current
                     # document and therefore may not be collapsed
@@ -1500,8 +1525,9 @@ class BuildEnvironment:
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
 
-        # prune the tree to maxdepth and replace titles, also set level classes
-        _walk_depth(newnode, 1, prune and maxdepth or 0)
+        # prune the tree to maxdepth, also set toc depth and current classes
+        _toctree_add_classes(newnode, 1)
+        _toctree_prune(newnode, 1, prune and maxdepth or 0)
 
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)

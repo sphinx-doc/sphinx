@@ -2,9 +2,13 @@
    :maxdepth: 2
    :numbered:
 
+   subdir/contents
+   bom
    footnote
    external_links
    refs_inconsistency
    literalblock
    seealso
    definition_terms
+   figure_caption
+   index_entries
