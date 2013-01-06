@@ -243,3 +243,19 @@ def test_i18n_definition_terms(app):
               u"\n   THE CORRESPONDING DEFINITION #2\n")
 
     assert result == expect
+
+
+@with_app(buildername='text', cleanenv=True,
+          confoverrides={'language': 'xx', 'locale_dirs': ['.'],
+                         'gettext_compact': False})
+def test_seealso(app):
+    app.builder.build(['i18n/seealso'])
+    result = (app.outdir / 'i18n' / 'seealso.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH SEEALSO"
+              u"\n*****************\n"
+              u"\nSee also: SHORT TEXT 1\n"
+              u"\nSee also: LONG TEXT 1\n"
+              u"\nSee also: SHORT TEXT 2\n"
+              u"\n  LONG TEXT 2\n")
+    assert result == expect
+
