@@ -27,7 +27,6 @@ Contents:
    doctest
    extensions
    versioning/index
-   only
    footnote
    i18n/index
 
