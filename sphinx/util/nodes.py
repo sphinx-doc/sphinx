@@ -74,6 +74,19 @@ def extract_messages(doctree):
             yield node, msg
 
 
+def traverse_translatable_index(doctree):
+    """Traverse translatable index node from a document tree."""
+    def is_block_index(node):
+        return isinstance(node, addnodes.index) and  \
+            node.get('inline') == False
+    for node in doctree.traverse(is_block_index):
+        if 'raw_entries' in node:
+            entries = node['raw_entries']
+        else:
+            entries = node['entries']
+        yield node, entries
+
+
 def nested_parse_with_titles(state, content, node):
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.

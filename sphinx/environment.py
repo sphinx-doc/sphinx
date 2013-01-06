@@ -38,9 +38,9 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-     FilenameUniqDict
+     split_index_msg, FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
-     WarningStream
+     traverse_translatable_index, WarningStream
 from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog, \
      fs_encoding
 from sphinx.util.matching import compile_matchers
@@ -302,6 +302,23 @@ class Locale(Transform):
             for child in patch.children:
                 child.parent = node
             node.children = patch.children
+
+        # Extract and translate messages for index entries.
+        for node, entries in traverse_translatable_index(self.document):
+            new_entries = []
+            for type, msg, tid, main in entries:
+                msg_parts = split_index_msg(type, msg)
+                msgstr_parts = []
+                for part in msg_parts:
+                    msgstr = catalog.gettext(part)
+                    if not msgstr:
+                        msgstr = part
+                    msgstr_parts.append(msgstr)
+
+                new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+
+            node['raw_entries'] = entries
+            node['entries'] = new_entries
 
 
 class SphinxStandaloneReader(standalone.Reader):
