@@ -17,7 +17,7 @@ from os import path
 from docutils import nodes, writers
 
 from sphinx import addnodes, __version__
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util import ustrftime
 from sphinx.writers.latex import collected_footnote
 
@@ -1225,12 +1225,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n')
 
     def visit_versionmodified(self, node):
-        intro = versionlabels[node['type']] % node['version']
-        if node.children:
-            intro += ': '
-        else:
-            intro += '.'
-        self.body.append('\n%s' % self.escape(intro))
+        self.body.append('\n')
     def depart_versionmodified(self, node):
         self.body.append('\n')
 
