@@ -1305,7 +1305,10 @@ class AutoDirective(Directive):
         self.warnings = []
         self.result = ViewList()
 
-        source, lineno = self.reporter.get_source_and_line(self.lineno)
+        try:
+            source, lineno = self.reporter.get_source_and_line(self.lineno)
+        except AttributeError:
+            source = lineno = None
         self.env.app.debug('%s:%s: <input>\n%s',
                            source, lineno, self.block_text)
 
