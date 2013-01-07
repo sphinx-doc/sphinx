@@ -340,5 +340,13 @@ class ManualPageTranslator(BaseTranslator):
             self.body.append(node.astext())
         raise nodes.SkipNode
 
+    def visit_meta(self, node):
+        raise nodes.SkipNode
+
+    def visit_inline(self, node):
+        pass
+    def depart_inline(self, node):
+        pass
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
