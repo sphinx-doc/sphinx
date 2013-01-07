@@ -1,6 +1,12 @@
 Release 1.2 (in development)
 ============================
 
+* The :confval:`latex_documents`, :confval:`texinfo_documents`, and
+  :confval:`man_pages` configuration values will be set to default values based
+  on the :confval:`master_doc` if not explicitly set in :file:`conf.py`.
+  Previously, if these values were not set, no output would be genereted by
+  their respective builders.
+
 * PR#99: Strip down seealso directives to normal admonitions.  This removes
   their unusual CSS classes (admonition-see-also), inconsistent LaTeX
   admonition title ("See Also" instead of "See also"), and spurious indentation
