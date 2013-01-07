@@ -1575,8 +1575,16 @@ class BuildEnvironment:
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
                     if docname:
-                        newnode = make_refnode(builder, fromdocname, docname,
-                                               labelid, contnode)
+                        try:
+                            newnode = make_refnode(builder, fromdocname,
+                                                   docname, labelid, contnode)
+                        except NoUri:
+                            # remove the ids we added in the CitationReferences
+                            # transform since they can't be transfered to
+                            # the contnode (if it's a Text node)
+                            if not isinstance(contnode, nodes.Element):
+                                del node['ids'][:]
+                            raise
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
