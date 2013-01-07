@@ -55,6 +55,11 @@ texinfo_documents = [
    'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
 ]
 
+man_pages = [
+    ('contents', 'SphinxTests', 'Sphinx Tests Documentation',
+     'Georg Brandl and someone else', 1),
+]
+
 value_from_conf_py = 84
 
 coverage_c_path = ['special/*.h']
