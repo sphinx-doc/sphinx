@@ -58,6 +58,7 @@ else:
     @with_app(buildername='man')
     def test_man(app):
         app.builder.build_all()
+        assert (app.outdir / 'SphinxTests.1').exists()
 
 @with_app(buildername='singlehtml', cleanenv=True)
 def test_singlehtml(app):
@@ -84,7 +85,7 @@ def test_multibyte_path(app):
     master_doc = srcdir / 'contents.txt'
     master_doc.write_bytes((master_doc.text() + dedent("""
             .. toctree::
-            
+
                %(mb_name)s/%(mb_name)s
             """ % locals())
     ).encode('utf-8'))
