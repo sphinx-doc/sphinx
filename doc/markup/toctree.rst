@@ -126,6 +126,18 @@ tables of contents.  The ``toctree`` directive is the central element.
    intend to insert these links yourself, in a different style, or in the HTML
    sidebar.
 
+   In cases where you want to have only one top-level toctree and hide all other
+   lower level toctrees you can add the "includehidden" option to the top-level
+   toctree entry::
+
+      .. toctree::
+         :includehidden:
+
+         doc_1
+         doc_2
+
+   All other toctree entries can then be eliminated by the "hidden" option.
+
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
    finds a file that is not included, because that means that this file will not
@@ -150,6 +162,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    .. versionchanged:: 1.1
       Added numeric argument to "numbered".
 
+   .. versionchanged:: 1.2
+      Added "includehidden" option.
 
 Special names
 -------------

@@ -7,6 +7,11 @@ Release 1.2 (in development)
   Previously, if these values were not set, no output would be genereted by
   their respective builders.
 
+* The :rst:dir:`toctree` directive and the ``toctree()`` template function now
+  have an ``includehidden`` option that includes hidden toctree entries (bugs
+  #790 and #1047). A bug in the ``maxdepth`` option for the ``toctree()``
+  template function has been fixed (bug #1046).
+
 * PR#99: Strip down seealso directives to normal admonitions.  This removes
   their unusual CSS classes (admonition-see-also), inconsistent LaTeX
   admonition title ("See Also" instead of "See also"), and spurious indentation
