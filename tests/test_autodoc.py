@@ -182,6 +182,20 @@ def test_format_signature():
     # test processing by event handler
     assert formatsig('method', 'bar', H.foo1, None, None) == '42'
 
+    # test functions created via functools.partial
+    from functools import partial
+    curried1 = partial(lambda a, b, c: None, 'A')
+    assert formatsig('function', 'curried1', curried1, None, None) == \
+        '(b, c)'
+    curried2 = partial(lambda a, b, c=42: None, 'A')
+    assert formatsig('function', 'curried2', curried2, None, None) == \
+        '(b, c=42)'
+    curried3 = partial(lambda a, b, *c: None, 'A')
+    assert formatsig('function', 'curried3', curried3, None, None) == \
+        '(b, *c)'
+    curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
+    assert formatsig('function', 'curried4', curried4, None, None) == \
+        '(b, c=42, *d, **e)'
 
 def test_get_doc():
     def getdocl(objtype, obj, encoding=None):
