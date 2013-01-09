@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* #1070: Avoid un-pickling issues when running Python 3 and the saved
+  environment was created under Python 2.
+
 * #1069: Fixed error caused when autodoc would try to format signatures of
   "partial" functions without keyword arguments (patch by Artur Gaspar).
 
