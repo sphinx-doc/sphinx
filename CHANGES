@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* #1069: Fixed error caused when autodoc would try to format signatures of
+  "partial" functions without keyword arguments (patch by Artur Gaspar).
+
 * The :confval:`latex_documents`, :confval:`texinfo_documents`, and
   :confval:`man_pages` configuration values will be set to default values based
   on the :confval:`master_doc` if not explicitly set in :file:`conf.py`.
