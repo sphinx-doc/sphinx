@@ -255,8 +255,8 @@ class DocFieldTransformer(object):
                                                [nodes.Text(argtype)]
                     fieldarg = argname
 
-            translatable_content = nodes.paragraph(fieldbody.rawsource,
-                                                   removable=True)
+            translatable_content = nodes.inline(fieldbody.rawsource,
+                                                translatable=True)
             translatable_content.source = fieldbody.parent.source
             translatable_content.line = fieldbody.parent.line
             translatable_content += content
