@@ -317,27 +317,28 @@ class Documenter(object):
 
         Returns True if successful, False if an error occurred.
         """
+        dbg = self.env.app.debug
         if self.objpath:
-            self.env.app.debug('autodoc: from %s import %s',
-                               self.modname, '.'.join(self.objpath))
+            dbg('[autodoc] from %s import %s',
+                self.modname, '.'.join(self.objpath))
         try:
-            self.env.app.debug('autodoc: import %s', self.modname)
+            dbg('[autodoc] import %s', self.modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
-            self.env.app.debug('autodoc: => %r', obj)
+            dbg('[autodoc] => %r', obj)
             for part in self.objpath:
                 parent = obj
-                self.env.app.debug('autodoc: getattr(_, %r)', part)
+                dbg('[autodoc] getattr(_, %r)', part)
                 obj = self.get_attr(obj, part)
-                self.env.app.debug('autodoc: => %r', obj)
+                dbg('[autodoc] => %r', obj)
                 self.object_name = part
             self.parent = parent
             self.object = obj
             return True
         # this used to only catch SyntaxError, ImportError and AttributeError,
         # but importing modules with side effects can raise all kinds of errors
-        except Exception, err:
+        except Exception:
             if self.objpath:
                 errmsg = 'autodoc: failed to import %s %r from module %r' % \
                          (self.objtype, '.'.join(self.objpath), self.modname)
@@ -346,7 +347,7 @@ class Documenter(object):
                          (self.objtype, self.fullname)
             errmsg += '; the following exception was raised:\n%s' % \
                       traceback.format_exc()
-            self.env.app.debug(errmsg)
+            dbg(errmsg)
             self.directive.warn(errmsg)
             self.env.note_reread()
             return False
@@ -1309,7 +1310,7 @@ class AutoDirective(Directive):
             source, lineno = self.reporter.get_source_and_line(self.lineno)
         except AttributeError:
             source = lineno = None
-        self.env.app.debug('%s:%s: <input>\n%s',
+        self.env.app.debug('[autodoc] %s:%s: input:\n%s',
                            source, lineno, self.block_text)
 
         # find out what documenter to call
@@ -1332,8 +1333,7 @@ class AutoDirective(Directive):
         if not self.result:
             return self.warnings
 
-        if self.env.app.verbosity >= 2:
-            self.env.app.debug('autodoc: <output>\n%s', '\n'.join(self.result))
+        self.env.app.debug2('[autodoc] output:\n%s', '\n'.join(self.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible
