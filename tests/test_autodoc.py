@@ -581,6 +581,13 @@ def test_generate():
     del directive.env.temp_data['autodoc:module']
     del directive.env.temp_data['py:module']
 
+    # test descriptor class documentation
+    options.members = ['CustomDataDescriptor']
+    assert_result_contains('.. py:class:: CustomDataDescriptor(doc)',
+                           'module', 'test_autodoc')
+    assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
+                           'module', 'test_autodoc')
+
 # --- generate fodder ------------
 
 __all__ = ['Class']
@@ -604,6 +611,10 @@ class CustomDataDescriptor(object):
         if obj is None:
             return self
         return 42
+
+    def meth(self):
+        """Function."""
+        return "The Answer"
 
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
