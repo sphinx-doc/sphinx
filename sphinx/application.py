@@ -248,14 +248,14 @@ class Sphinx(object):
             return
         if args or kwargs:
             message = message % (args or kwargs)
-        self._log(message, self._warning)
+        self._log(message, self._status)
 
     def debug(self, message, *args, **kwargs):
         if self.verbosity < 2:
             return
         if args or kwargs:
             message = message % (args or kwargs)
-        self._log(message, self._warning)
+        self._log(message, self._status)
 
     # general extensibility interface
 
