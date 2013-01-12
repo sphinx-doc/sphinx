@@ -57,7 +57,7 @@ def extract_messages(doctree):
         # https://sourceforge.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
         if isinstance(node, nodes.caption) and not node.source:
             node.source = node.parent.source
-            node.line = ''  #need fix docutils to get `node.line`
+            node.line = 0  #need fix docutils to get `node.line`
 
         if not node.source:
             continue # built-in message
