@@ -98,9 +98,6 @@ def main(argv):
                                  'contain conf.py file.')
             return 1
         outdir = abspath(args[1])
-        if not path.isdir(outdir):
-            print >>sys.stderr, 'Making output directory...'
-            os.makedirs(outdir)
     except getopt.error, err:
         usage(argv, 'Error: %s' % err)
         return 1
@@ -214,6 +211,11 @@ def main(argv):
         warnfp = open(warnfile, 'w')
         warning = Tee(warning, warnfp)
         error = warning
+
+    if not path.isdir(outdir):
+        if status:
+            print >>status, 'Making output directory...'
+        os.makedirs(outdir)
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
