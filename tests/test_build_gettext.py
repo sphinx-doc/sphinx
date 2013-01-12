@@ -43,7 +43,7 @@ def test_build(app):
 def test_seealso(app):
     # regression test for issue #960
     app.builder.build(['markup'])
-    catalog = (app.outdir / 'markup.pot').text()
+    catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
     assert 'msgid "something, something else, something more"' in catalog
 
 
