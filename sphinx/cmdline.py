@@ -75,11 +75,14 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PThv',
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThv',
                                    ['help', 'version'])
         allopts = set(opt[0] for opt in opts)
         if '-h' in allopts or '--help' in allopts:
             usage(argv)
+            print >>sys.stderr
+            print >>sys.stderr, 'For more information, see '\
+                '<http://sphinx-doc.org/>.'
             return 0
         if '--version' in allopts:
             print 'Sphinx (sphinx-build) %s' %  __version__
