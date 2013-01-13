@@ -39,8 +39,8 @@ class Builder(object):
     format = ''
     # doctree versioning method
     versioning_method = 'none'
-    # allow parallel write_doc calls
-    allow_parallel = True
+    # allow parallel write_doc() calls
+    allow_parallel = False
 
     def __init__(self, app):
         self.env = app.env

@@ -60,6 +60,7 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     format = 'html'
     copysource = True
+    allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
