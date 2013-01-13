@@ -315,23 +315,24 @@ class Builder(object):
         for docname in self.status_iterator(
                 docnames, 'writing output... ', darkgreen, len(docnames)):
             doctree = self.env.get_and_resolve_doctree(docname, self)
+            self.write_doc_serialized(docname, doctree)
             self.write_doc(docname, doctree)
         for warning in warnings:
             self.warn(*warning)
 
     def _write_parallel(self, docnames, warnings, nproc):
-        def write_process(docnames):
+        def write_process(docs):
             try:
-                for docname in docnames:
-                    doctree = self.env.get_and_resolve_doctree(docname, self)
+                for docname, doctree in docs:
                     self.write_doc(docname, doctree)
-                for warning in warnings:
-                    self.warn(*warning)
             except KeyboardInterrupt:
                 pass  # do not print a traceback on Ctrl-C
+            finally:
+                for warning in warnings:
+                    self.warn(*warning)
 
-        def process_thread(docnames):
-            p = multiprocessing.Process(target=write_process, args=(docnames,))
+        def process_thread(docs):
+            p = multiprocessing.Process(target=write_process, args=(docs,))
             p.start()
             p.join()
             semaphore.release()
@@ -341,11 +342,14 @@ class Builder(object):
         # list of threads to join when waiting for completion
         threads = []
 
-        # warm up caches/compile templates using the first docname
-        write_process([docnames[0]])
+        # warm up caches/compile templates using the first document
+        firstname, docnames = docnames[0], docnames[1:]
+        doctree = self.env.get_and_resolve_doctree(firstname, self)
+        self.write_doc_serialized(firstname, doctree)
+        self.write_doc(firstname, doctree)
+        # for the rest, determine how many documents to write in one go
         docnames = docnames[1:]
         ndocs = len(docnames)
-        # determine how many documents to write in one go
         chunksize = min(ndocs // nproc, 10)
         nchunks, rest = divmod(ndocs, chunksize)
         if rest:
@@ -355,9 +359,14 @@ class Builder(object):
         for docnames in self.status_iterator(
                 chunks, 'writing output... ', darkgreen, len(chunks),
                 lambda chk: '%s .. %s' % (chk[0], chk[-1])):
-            semaphore.acquire()
+            docs = []
+            for docname in docnames:
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.write_doc_serialized(docname, doctree)
+                docs.append((docname, doctree))
             # start a new thread to oversee the completion of this chunk
-            t = threading.Thread(target=process_thread, args=(docnames,))
+            semaphore.acquire()
+            t = threading.Thread(target=process_thread, args=(docs,))
             t.setDaemon(True)
             t.start()
             threads.append(t)
@@ -372,6 +381,12 @@ class Builder(object):
 
     def write_doc(self, docname, doctree):
         raise NotImplementedError
+
+    def write_doc_serialized(self, docname, doctree):
+        """Handle parts of write_doc that must be called in the main process
+        if parallel build is active.
+        """
+        pass
 
     def finish(self):
         """Finish the building process.
