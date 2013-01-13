@@ -98,19 +98,21 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen):
+    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
+                            stringify_func=str):
         l = 0
         for item in iterable:
             if l == 0:
                 self.info(bold(summary), nonl=1)
                 l = 1
-            self.info(colorfunc(item) + ' ', nonl=1)
+            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
             yield item
         if l == 1:
             self.info()
 
     # new version with progress info
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0):
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
+                        stringify_func=str):
         if length == 0:
             for item in self.old_status_iterator(iterable, summary, colorfunc):
                 yield item
@@ -120,7 +122,7 @@ class Builder(object):
         for item in iterable:
             l += 1
             s = '%s[%3d%%] %s' % (summary, 100*l/length,
-                                  colorfunc(item))
+                                  colorfunc(stringify_func(item)))
             if self.app.verbosity:
                 s += '\n'
             else:
