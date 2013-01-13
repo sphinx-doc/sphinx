@@ -62,7 +62,8 @@ def setup_module():
                 if p.returncode != 0:
                     print stdout
                     print stderr
-                    assert False, 'msgfmt exited with return code %s' % p.returncode
+                    assert False, \
+                        'msgfmt exited with return code %s' % p.returncode
                 assert mo.isfile(), 'msgfmt failed'
 
 
@@ -158,13 +159,17 @@ def test_i18n_link_to_undefined_reference(app):
     app.builder.build(['refs_inconsistency'])
     result = (app.outdir / 'refs_inconsistency.html').text(encoding='utf-8')
 
-    expected_expr = """<a class="reference external" href="http://www.example.com">reference</a>"""
+    expected_expr = ('<a class="reference external" '
+                     'href="http://www.example.com">reference</a>')
     assert len(re.findall(expected_expr, result)) == 2
 
-    expected_expr = """<a class="reference internal" href="#reference">reference</a>"""
+    expected_expr = ('<a class="reference internal" '
+                     'href="#reference">reference</a>')
     assert len(re.findall(expected_expr, result)) == 0
 
-    expected_expr = """<a class="reference internal" href="#i18n-with-refs-inconsistency">I18N WITH REFS INCONSISTENCY</a>"""
+    expected_expr = ('<a class="reference internal" '
+                     'href="#i18n-with-refs-inconsistency">I18N WITH '
+                     'REFS INCONSISTENCY</a>')
     assert len(re.findall(expected_expr, result)) == 1
 
 
@@ -175,7 +180,8 @@ def test_i18n_keep_external_links(app):
     result = (app.outdir / 'external_links.html').text(encoding='utf-8')
 
     # external link check
-    expect_line = u"""<li>EXTERNAL LINK TO <a class="reference external" href="http://python.org">Python</a>.</li>"""
+    expect_line = (u'<li>EXTERNAL LINK TO <a class="reference external" '
+                   u'href="http://python.org">Python</a>.</li>')
     matched = re.search('^<li>EXTERNAL LINK TO .*$', result, re.M)
     matched_line = ''
     if matched:
@@ -183,7 +189,9 @@ def test_i18n_keep_external_links(app):
     assert expect_line == matched_line
 
     # internal link check
-    expect_line = u"""<li><a class="reference internal" href="#i18n-with-external-links">EXTERNAL LINKS</a> IS INTERNAL LINK.</li>"""
+    expect_line = (u'<li><a class="reference internal" '
+                   u'href="#i18n-with-external-links">EXTERNAL '
+                   u'LINKS</a> IS INTERNAL LINK.</li>')
     matched = re.search('^<li><a .* IS INTERNAL LINK.</li>$', result, re.M)
     matched_line = ''
     if matched:
@@ -191,7 +199,8 @@ def test_i18n_keep_external_links(app):
     assert expect_line == matched_line
 
     # inline link check
-    expect_line = u"""<li>INLINE LINK BY <a class="reference external" href="http://sphinx-doc.org">SPHINX</a>.</li>"""
+    expect_line = (u'<li>INLINE LINK BY <a class="reference external" '
+                   u'href="http://sphinx-doc.org">SPHINX</a>.</li>')
     matched = re.search('^<li>INLINE LINK BY .*$', result, re.M)
     matched_line = ''
     if matched:
@@ -199,7 +208,8 @@ def test_i18n_keep_external_links(app):
     assert expect_line == matched_line
 
     # unnamed link check
-    expect_line = u"""<li>UNNAMED <a class="reference external" href="http://google.com">LINK</a>.</li>"""
+    expect_line = (u'<li>UNNAMED <a class="reference external" '
+                   u'href="http://google.com">LINK</a>.</li>')
     matched = re.search('^<li>UNNAMED .*$', result, re.M)
     matched_line = ''
     if matched:

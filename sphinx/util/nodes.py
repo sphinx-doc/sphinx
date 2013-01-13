@@ -54,7 +54,7 @@ def extract_messages(doctree):
                                  rawsource.split("\n", 2)[0]
         # workaround: nodes.caption doesn't have source, line.
         # this issue was filed to Docutils tracker:
-        # https://sourceforge.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
+        # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
         if isinstance(node, nodes.caption) and not node.source:
             node.source = node.parent.source
             node.line = 0  #need fix docutils to get `node.line`
