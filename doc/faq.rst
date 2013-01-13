@@ -39,6 +39,10 @@ How do I...
 ... create HTML slides from Sphinx documents?
    See the "Hieroglyph" package at http://github.com/nyergler/hieroglyph.
 
+For many more extensions and other contributed stuff, see the sphinx-contrib_
+repository.
+
+.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
 .. _usingwith:
 
