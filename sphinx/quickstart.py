@@ -881,14 +881,13 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
 
 if sys.version_info >= (3, 0):
     # remove Unicode literal prefixes
-    _unicode_string_re = re.compile(r"[uU]('.*?')")
-    def _convert_python_source(source):
-        return _unicode_string_re.sub('\\1', source)
+    def _convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
+        return rex.sub('\\1', source)
 
     for f in ['QUICKSTART_CONF', 'EPUB_CONFIG', 'INTERSPHINX_CONFIG']:
         globals()[f] = _convert_python_source(globals()[f])
 
-    del _unicode_string_re, _convert_python_source
+    del _convert_python_source
 
 
 def ask_user(d):

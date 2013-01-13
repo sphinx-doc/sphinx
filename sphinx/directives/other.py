@@ -7,8 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -20,7 +18,6 @@ from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
-from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
 
@@ -332,8 +329,8 @@ class Only(Directive):
         self.state.memo.title_styles = []
         self.state.memo.section_level = 0
         try:
-            result = self.state.nested_parse(self.content, self.content_offset,
-                                             node, match_titles=1)
+            self.state.nested_parse(self.content, self.content_offset,
+                                    node, match_titles=1)
             title_styles = self.state.memo.title_styles
             if (not surrounding_title_styles
                 or not title_styles

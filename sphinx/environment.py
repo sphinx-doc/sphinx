@@ -41,8 +41,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      split_index_msg, FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
      traverse_translatable_index, WarningStream
-from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog, \
-     fs_encoding
+from sphinx.util.osutil import SEP, ustrftime, find_catalog, fs_encoding
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.util.websupport import is_commentable

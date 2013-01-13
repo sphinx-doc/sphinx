@@ -17,7 +17,7 @@ from collections import defaultdict
 from sphinx.builders import Builder
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import SEP, safe_relpath, ensuredir, find_catalog
+from sphinx.util.osutil import safe_relpath, ensuredir, find_catalog
 from sphinx.util.console import darkgreen
 from sphinx.locale import pairindextypes
 

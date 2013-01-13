@@ -30,7 +30,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.osutil import ensuredir, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
 
