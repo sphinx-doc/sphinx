@@ -303,12 +303,15 @@ class Builder(object):
         # (parallel only works on POSIX, because the forking impl of
         # multiprocessing is required)
         if not (multiprocessing and
-                self.app.parallel and
+                self.app.parallel > 1 and
                 self.allow_parallel and
                 os.name == 'posix'):
             self._write_serial(sorted(docnames), warnings)
         else:
-            self._write_parallel(sorted(docnames), warnings, self.app.parallel)
+            # number of subprocesses is parallel-1 because the main process
+            # is busy loading doctrees and doing write_doc_serialized()
+            self._write_parallel(sorted(docnames), warnings,
+                                 nproc=self.app.parallel - 1)
         self.env.set_warnfunc(self.warn)
 
     def _write_serial(self, docnames, warnings):
