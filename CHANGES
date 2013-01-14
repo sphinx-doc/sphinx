@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* PR#108: Add experimental support for parallel building with a new
+  :option:`-j` option.
+
 * #1070: Avoid un-pickling issues when running Python 3 and the saved
   environment was created under Python 2.
 
