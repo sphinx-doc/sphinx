@@ -26,6 +26,7 @@ class XMLBuilder(Builder):
     name = 'xml'
     format = 'xml'
     out_suffix = '.xml'
+    allow_parallel = True
 
     _writer_class = XMLWriter
 
