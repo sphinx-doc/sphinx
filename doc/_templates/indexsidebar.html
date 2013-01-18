@@ -1,5 +1,5 @@
-<p class="logo"><a href="http://pocoo.org/">
-  <img src="{{ pathto("_static/pocoo.png", 1) }}" /></a></p>
+<p class="logo">A <a href="http://pocoo.org/">
+  <img src="{{ pathto("_static/pocoo.png", 1) }}" /></a> project</a></p>
 
 <h3>Download</h3>
 {% if version.endswith('(hg)') %}
@@ -20,11 +20,12 @@ are also available.</p>
 
 <h3>Questions? Suggestions?</h3>
 
-<p>Join the <a href="http://groups.google.com/group/sphinx-dev">Google group</a>:</p>
-<form action="http://groups.google.com/group/sphinx-dev/boxsubscribe"
-      style="padding-left: 1em">
-  <input type="text" name="email" value="your@email"/>
-  <input type="submit" name="sub" value="Subscribe" />
+<p>Join the <a href="http://groups.google.com/group/sphinx-users">Google group</a>:</p>
+<form action="http://groups.google.com/group/sphinx-users/boxsubscribe"
+      style="padding-left: 0.5em">
+  <input type="text" name="email" value="your@email" style="font-size: 90%; width: 120px"
+         onfocus="$(this).val('');"/>
+  <input type="submit" name="sub" value="Subscribe" style="font-size: 90%; width: 70px"/>
 </form>
 <p>or come to the <tt>#pocoo</tt> channel on FreeNode.</p>
 <p>You can also open an issue at the

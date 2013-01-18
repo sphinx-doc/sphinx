@@ -17,25 +17,23 @@
     documentation of Python projects, but C/C++ is already supported as well,
     and it is planned to add special support for other languages as well.  Of
     course, this site is also created from reStructuredText sources using
-    Sphinx!
-  </p>
-  <p>
-    Sphinx is under constant development.  The following features are present,
-    work fine and can be seen &#8220;in action&#8221; in the Python docs:
+    Sphinx!  The following features should be highlighted:
   </p>
   <ul>
     <li><b>Output formats:</b> HTML (including Windows HTML Help), LaTeX (for
-      printable PDF versions), manual pages, plain text</li>
+      printable PDF versions), Texinfo, manual pages, plain text</li>
     <li><b>Extensive cross-references:</b> semantic markup and automatic links
       for functions, classes, citations, glossary terms and similar pieces of
       information</li>
     <li><b>Hierarchical structure:</b> easy definition of a document tree, with
       automatic links to siblings, parents and children</li>
-    <li><b>Automatic indices:</b> general index as well as a module index</li>
+    <li><b>Automatic indices:</b> general index as well as a language-specific
+      module indices</li>
     <li><b>Code handling:</b> automatic highlighting using the <a
       href="http://pygments.org">Pygments</a> highlighter</li>
     <li><b>Extensions:</b> automatic testing of code snippets, inclusion of
-      docstrings from Python modules (API docs), and more</li>
+      docstrings from Python modules (API docs), and
+      <a href="{{ pathto('ext') }}">more</a></li>
   </ul>
   <p>
     Sphinx uses <a href="http://docutils.sf.net/rst.html">reStructuredText</a>
@@ -44,7 +42,7 @@
     suite, the <a href="http://docutils.sf.net/">Docutils</a>.
   </p>
 
-  <h2>Documentation</h2>
+  <h2 style="margin-bottom: 0">Documentation</h2>
 
   <table class="contentstable" align="center" style="margin-left: 30px"><tr>
     <td width="50%">
@@ -85,15 +83,5 @@
 
   <p>There is a <a href="http://sphinx-users.jp/doc10/">Japanese translation</a>
     of this documentation, thanks to Yoshiki Shibukawa.</p>
-
-  <h2>Get Sphinx</h2>
-  <p>
-    Sphinx is available as an <a
-    href="http://peak.telecommunity.com/DevCenter/EasyInstall">easy-install</a>able
-    package on the <a href="http://pypi.python.org/pypi/Sphinx">Python Package
-    Index</a>.
-  </p>
-  <p>The code can be found in a Mercurial repository, at
-    <tt>http://bitbucket.org/birkenfeld/sphinx/</tt>.</p>
 
 {% endblock %}
