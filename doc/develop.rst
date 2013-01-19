@@ -12,7 +12,6 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * The mailing list for development is at `Google Groups
   <http://groups.google.com/group/sphinx-dev/>`_.
 
-For more about our development process and methods, see the :doc:`devguide`.
 
 Extensions
 ==========
