@@ -11,6 +11,7 @@
 
 from StringIO import StringIO
 
+from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
@@ -39,6 +40,12 @@ def test_events(app):
     app.disconnect(listener_id)
     assert app.emit("my_event", *emit_args) == [], \
         "Callback called when disconnected"
+
+
+@with_app()
+def test_emit_with_multibyte_name_node(app):
+    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    app.emit('my_event', node)
 
 
 def test_output():

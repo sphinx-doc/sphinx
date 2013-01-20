@@ -343,7 +343,8 @@ class Sphinx(object):
             event.pop(listener_id, None)
 
     def emit(self, event, *args):
-        self.debug2('[app] emitting event: %r%s', event, str(args)[:100])
+        args_repr = repr(map(unicode, args))[:100]
+        self.debug2('[app] emitting event: %s%s', event, args_repr)
         results = []
         if event in self._listeners:
             for _, callback in self._listeners[event].iteritems():
