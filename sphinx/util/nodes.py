@@ -233,3 +233,17 @@ def _new_copy(self):
     return self.__class__(self.rawsource, **self.attributes)
 
 nodes.Element.copy = _new_copy
+
+# monkey-patch Element.__repr__ to return str if include unicode.
+# sf.net/tracker/?func=detail&aid=3601607&group_id=38414&atid=422030
+import sys
+if sys.version_info < (3,):
+    _element_repr_orig = nodes.Element.__repr__
+    
+    def _repr(self):
+        s = _element_repr_orig(self)
+        if isinstance(s, unicode):
+            return s.encode('utf-8')
+        return s
+    
+    nodes.Element.__repr__ = _repr
