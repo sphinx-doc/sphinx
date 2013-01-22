@@ -1097,6 +1097,8 @@ class DataDocumenter(ModuleLevelDocumenter):
     objtype = 'data'
     member_order = 40
     priority = -10
+    option_spec = ModuleLevelDocumenter.option_spec
+    option_spec["novalue"] = bool_option
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1104,12 +1106,13 @@ class DataDocumenter(ModuleLevelDocumenter):
 
     def add_directive_header(self, sig):
         ModuleLevelDocumenter.add_directive_header(self, sig)
-        try:
-            objrepr = safe_repr(self.object)
-        except ValueError:
-            pass
-        else:
-            self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+        if not "novalue" in self.options:
+            try:
+                objrepr = safe_repr(self.object)
+            except ValueError:
+                pass
+            else:
+                self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
 
     def document_members(self, all_members=False):
         pass
@@ -1181,6 +1184,8 @@ class AttributeDocumenter(ClassLevelDocumenter):
     """
     objtype = 'attribute'
     member_order = 60
+    option_spec = ModuleLevelDocumenter.option_spec
+    option_spec["novalue"] = bool_option
 
     # must be higher than the MethodDocumenter, else it will recognize
     # some non-data descriptors as methods
@@ -1216,7 +1221,7 @@ class AttributeDocumenter(ClassLevelDocumenter):
 
     def add_directive_header(self, sig):
         ClassLevelDocumenter.add_directive_header(self, sig)
-        if not self._datadescriptor:
+        if not self._datadescriptor or "novalue" in self.options:
             try:
                 objrepr = safe_repr(self.object)
             except ValueError:
