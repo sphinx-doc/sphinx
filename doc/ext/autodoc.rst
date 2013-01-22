@@ -197,8 +197,14 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
                    automethod
                    autoattribute
 
-   These work exactly like :rst:dir:`autoclass` etc., but do not offer the
-   options used for automatic member documentation.
+   These work exactly like :rst:dir:`autoclass` etc.,
+   but do not offer the options used for automatic member documentation.
+
+   :rst:dir:`autodata` and :rst:dir:`autoattribute` support
+   the ``novalue`` option. No value will be parsed from the code::
+
+      .. autodata:: CD_DRIVE
+         :novalue:
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
@@ -233,6 +239,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract docstrings.
    .. versionchanged:: 1.1
       Comment docs are now allowed on the same line after an assignment.
+
+   .. versionchanged:: 1.2
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` have a ``novalue`` option
 
    .. note::
 
