@@ -1106,7 +1106,7 @@ class DataDocumenter(ModuleLevelDocumenter):
 
     def add_directive_header(self, sig):
         ModuleLevelDocumenter.add_directive_header(self, sig)
-        if not "novalue" in self.options:
+        if not self.options.novalue:
             try:
                 objrepr = safe_repr(self.object)
             except ValueError:
@@ -1221,7 +1221,7 @@ class AttributeDocumenter(ClassLevelDocumenter):
 
     def add_directive_header(self, sig):
         ClassLevelDocumenter.add_directive_header(self, sig)
-        if not self._datadescriptor or "novalue" in self.options:
+        if not self._datadescriptor and not self.options.novalue:
             try:
                 objrepr = safe_repr(self.object)
             except ValueError:
