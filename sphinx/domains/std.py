@@ -22,7 +22,7 @@ from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util import ws_re
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_refnode, set_source_info
 from sphinx.util.compat import Directive
 
 
@@ -313,6 +313,8 @@ class Glossary(Directive):
             # make a single "term" node with all the terms, separated by termsep
             # nodes (remove the dangling trailing separator)
             term = nodes.term('', '', *termnodes[:-1])
+            set_source_info(self, term)
+            term.rawsource = term.astext()
             term['ids'].extend(ids)
             term['names'].extend(ids)
             term += system_messages

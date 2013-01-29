@@ -253,6 +253,21 @@ def test_i18n_definition_terms(app):
 
 
 @with_intl_app(buildername='text')
+def test_i18n_glossary_terms(app):
+    # regression test for #1090
+    app.builder.build(['glossary_terms'])
+    result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH GLOSSARY TERMS"
+              u"\n************************\n"
+              u"\nSOME TERM"
+              u"\n   THE CORRESPONDING GLOSSARY\n"
+              u"\nSOME OTHER TERM"
+              u"\n   THE CORRESPONDING GLOSSARY #2\n")
+
+    assert result == expect
+
+
+@with_intl_app(buildername='text')
 def test_seealso(app):
     app.builder.build(['seealso'])
     result = (app.outdir / 'seealso.txt').text(encoding='utf-8')

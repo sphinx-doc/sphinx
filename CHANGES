@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* #1090: Fix gettext does not extract glossary terms.
+
 * #1070: Avoid un-pickling issues when running Python 3 and the saved
   environment was created under Python 2.
 
