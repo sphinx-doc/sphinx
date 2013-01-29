@@ -22,7 +22,7 @@ from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util import ws_re
-from sphinx.util.nodes import clean_astext, make_refnode, set_source_info
+from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.compat import Directive
 
 
@@ -307,13 +307,17 @@ class Glossary(Directive):
                 # add an index entry too
                 indexnode = addnodes.index()
                 indexnode['entries'] = [('single', termtext, new_id, 'main')]
-                termnodes.append(indexnode)
-                termnodes.extend(res[0])
-                termnodes.append(addnodes.termsep())
+                _termnodes = []
+                _termnodes.append(indexnode)
+                _termnodes.extend(res[0])
+                _termnodes.append(addnodes.termsep())
+                for termnode in _termnodes:
+                    termnode.source, termnode.line = source, lineno
+                termnodes.extend(_termnodes)
             # make a single "term" node with all the terms, separated by termsep
             # nodes (remove the dangling trailing separator)
             term = nodes.term('', '', *termnodes[:-1])
-            set_source_info(self, term)
+            term.source, term.line = termnodes[0].source, termnodes[0].line
             term.rawsource = term.astext()
             term['ids'].extend(ids)
             term['names'].extend(ids)
