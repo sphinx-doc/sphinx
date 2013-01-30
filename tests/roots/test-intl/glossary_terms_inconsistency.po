@@ -16,20 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "i18n with glossary terms"
-msgstr "I18N WITH GLOSSARY TERMS"
+msgid "i18n with glossary terms inconsistency"
+msgstr "I18N WITH GLOSSARY TERMS INCONSISTENCY"
 
-msgid "Some term"
-msgstr "SOME NEW TERM"
-
-msgid "The corresponding glossary"
-msgstr "THE CORRESPONDING GLOSSARY"
-
-msgid "Some other term"
-msgstr "SOME OTHER NEW TERM"
-
-msgid "The corresponding glossary #2"
-msgstr "THE CORRESPONDING GLOSSARY #2"
-
-msgid "link to :term:`Some term`."
+msgid "link to :term:`Some term` and :term:`Some other term`."
 msgstr "LINK TO :term:`SOME NEW TERM`."

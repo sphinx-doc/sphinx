@@ -12,3 +12,5 @@
    definition_terms
    figure_caption
    index_entries
+   glossary_terms
+   glossary_terms_inconsistency

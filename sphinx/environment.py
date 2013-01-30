@@ -297,6 +297,16 @@ class Locale(Transform):
                 if refname in refname_ids_map:
                     new["ids"] = refname_ids_map[refname]
 
+            # Original pending_xref['reftarget'] contain not-translated
+            # target name, new pending_xref must use original one.
+            old_refs = node.traverse(addnodes.pending_xref)
+            new_refs = patch.traverse(addnodes.pending_xref)
+            if len(old_refs) != len(new_refs):
+                env.warn_node('inconsistent term references in '
+                              'translated message', node)
+            for old, new in zip(old_refs, new_refs):
+                new['reftarget'] = old['reftarget']
+
             # update leaves
             for child in patch.children:
                 child.parent = node

@@ -252,19 +252,42 @@ def test_i18n_definition_terms(app):
     assert result == expect
 
 
-@with_intl_app(buildername='text')
+@with_intl_app(buildername='text', warning=warnfile)
 def test_i18n_glossary_terms(app):
     # regression test for #1090
+    app.builddir.rmtree(True)  #for warnings acceleration
     app.builder.build(['glossary_terms'])
     result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH GLOSSARY TERMS"
               u"\n************************\n"
-              u"\nSOME TERM"
+              u"\nSOME NEW TERM"
               u"\n   THE CORRESPONDING GLOSSARY\n"
-              u"\nSOME OTHER TERM"
-              u"\n   THE CORRESPONDING GLOSSARY #2\n")
-
+              u"\nSOME OTHER NEW TERM"
+              u"\n   THE CORRESPONDING GLOSSARY #2\n"
+              u"\nLINK TO *SOME NEW TERM*.\n")
     assert result == expect
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    assert 'term not in glossary' not in warnings
+
+
+@with_intl_app(buildername='text', warning=warnfile)
+def test_i18n_glossary_terms_inconsistency(app):
+    # regression test for #1090
+    app.builddir.rmtree(True)  #for warnings acceleration
+    app.builder.build(['glossary_terms_inconsistency'])
+    result = (app.outdir / 'glossary_terms_inconsistency.txt'
+                ).text(encoding='utf-8')
+    expect = (u"\nI18N WITH GLOSSARY TERMS INCONSISTENCY"
+              u"\n**************************************\n"
+              u"\n1. LINK TO *SOME NEW TERM*.\n")
+    assert result == expect
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    expected_warning_expr = (
+            u'.*/glossary_terms_inconsistency.txt:\\d+: '
+            u'WARNING: inconsistent term references in translated message\n')
+    assert re.search(expected_warning_expr, warnings)
 
 
 @with_intl_app(buildername='text')
