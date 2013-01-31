@@ -523,7 +523,7 @@ class Documenter(object):
         elif self.options.inherited_members:
             # safe_getmembers() uses dir() which pulls in members from all
             # base classes
-            members = safe_getmembers(self.object)
+            members = safe_getmembers(self.object, attr_getter=self.get_attr)
         else:
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get

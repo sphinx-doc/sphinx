@@ -78,12 +78,12 @@ def safe_getattr(obj, name, *defargs):
         raise AttributeError(name)
 
 
-def safe_getmembers(object, predicate=None):
+def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
     """A version of inspect.getmembers() that uses safe_getattr()."""
     results = []
     for key in dir(object):
         try:
-            value = safe_getattr(object, key, None)
+            value = attr_getter(object, key, None)
         except AttributeError:
             continue
         if not predicate or predicate(value):
