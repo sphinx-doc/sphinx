@@ -90,6 +90,8 @@ def process_signature(app, what, name, obj, options, args, retann):
 
 
 def skip_member(app, what, name, obj, skip, options):
+    if name in ('__special1__', '__special2__'):
+        return skip
     if name.startswith('_'):
         return True
     if name == 'skipmeth':
@@ -519,6 +521,15 @@ def test_generate():
     should.append(('method', 'test_autodoc.Class.inheritedmeth'))
     assert_processes(should, 'class', 'Class')
 
+    # test special members
+    options.special_members = ['__special1__']
+    should.append(('method', 'test_autodoc.Class.__special1__'))
+    assert_processes(should, 'class', 'Class')
+    options.special_members = ALL
+    should.append(('method', 'test_autodoc.Class.__special2__'))
+    assert_processes(should, 'class', 'Class')
+    options.special_members = False
+
     options.members = []
     # test module flags
     assert_result_contains('.. py:module:: test_autodoc',
@@ -749,6 +760,13 @@ class Class(Base):
         self.inst_attr_comment = None
         self.inst_attr_string = None
         """a documented instance attribute"""
+
+    def __special1__(self):
+        """documented special method"""
+
+    def __special2__(self):
+        # undocumented special method
+        pass
 
 
 class CustomDict(dict):
