@@ -23,14 +23,22 @@ from sphinx.ext.autodoc import AutoDirective, add_documenter, \
 
 
 def setup_module():
-    global app, lid, options, directive
-
+    global app
     app = TestApp()
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
+
+
+def teardown_module():
+    app.cleanup()
+
+
+def setup_test():
+    global options, directive
+    global processed_docstrings, processed_signatures, _warnings
 
     options = Struct(
         inherited_members = False,
@@ -55,8 +63,9 @@ def setup_module():
         filename_set = set(),
     )
 
-def teardown_module():
-    app.cleanup()
+    processed_docstrings = []
+    processed_signatures = []
+    _warnings = []
 
 
 _warnings = []
@@ -87,6 +96,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
 
 
+@with_setup(setup_test)
 def test_parse_name():
     def verify(objtype, name, result):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -128,6 +138,7 @@ def test_parse_name():
     del directive.env.temp_data['autodoc:class']
 
 
+@with_setup(setup_test)
 def test_format_signature():
     def formatsig(objtype, name, obj, args, retann):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -198,6 +209,8 @@ def test_format_signature():
     assert formatsig('function', 'curried4', curried4, None, None) == \
         '(b, c=42, *d, **e)'
 
+
+@with_setup(setup_test)
 def test_get_doc():
     def getdocl(objtype, obj, encoding=None):
         inst = AutoDirective._registry[objtype](directive, 'tmp')
@@ -266,6 +279,7 @@ def test_get_doc():
                                    '', 'Other', ' lines']
 
 
+@with_setup(setup_test)
 def test_docstring_processing():
     def process(objtype, name, obj):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -316,6 +330,8 @@ def test_docstring_processing():
     assert process('function', 'h', h) == ['first line', 'third line', '']
     app.disconnect(lid)
 
+
+@with_setup(setup_test)
 def test_new_documenter():
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
@@ -343,15 +359,7 @@ def test_new_documenter():
     assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
 
 
-def cleanup_test_attrgetter_using():
-    del processed_docstrings[:]
-    del processed_signatures[:]
-    del directive.result[:]
-    del _warnings[:]
-    AutoDirective._special_attrgetters.clear()
-    setup_module()
-
-@with_setup(None, cleanup_test_attrgetter_using)
+@with_setup(setup_test, AutoDirective._special_attrgetters.clear)
 def test_attrgetter_using():
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
@@ -384,6 +392,7 @@ def test_attrgetter_using():
                        ['meth', 'inheritedmeth'])
 
 
+@with_setup(setup_test)
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
