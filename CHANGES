@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* PR#111: Respect add_autodoc_attrgetter() even when inherited-members is set.
+  Thanks to A. Jesse Jiryu Davis.
+
 * #1090: Fix gettext does not extract glossary terms.
 
 * #1070: Avoid un-pickling issues when running Python 3 and the saved

@@ -14,6 +14,7 @@ import sys
 from StringIO import StringIO
 
 from util import *
+from nose.tools import with_setup
 
 from docutils.statemachine import ViewList
 
@@ -340,6 +341,47 @@ def test_new_documenter():
 
     options.members = ['integer']
     assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
+
+
+def cleanup_test_attrgetter_using():
+    del processed_docstrings[:]
+    del processed_signatures[:]
+    del directive.result[:]
+    del _warnings[:]
+    AutoDirective._special_attrgetters.clear()
+    setup_module()
+
+@with_setup(None, cleanup_test_attrgetter_using)
+def test_attrgetter_using():
+    def assert_getter_works(objtype, name, obj, attrs=[], **kw):
+        getattr_spy = []
+        def special_getattr(obj, name, *defargs):
+            if name in attrs:
+                getattr_spy.append((obj, name))
+                return None
+            return getattr(obj, name, *defargs)
+        AutoDirective._special_attrgetters[type] = special_getattr
+
+        del getattr_spy[:]
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+
+        hooked_members = [s[1] for s in getattr_spy]
+        documented_members = [s[1] for s in processed_signatures]
+        for attr in attrs:
+            fullname = '.'.join((name, attr))
+            assert attr in hooked_members
+            assert fullname not in documented_members, \
+                '%r was not hooked by special_attrgetter function' % fullname
+
+    options.members = ALL
+    options.inherited_members = False
+    assert_getter_works('class', 'test_autodoc.Class', Class,
+                       ['meth'])
+
+    options.inherited_members = True
+    assert_getter_works('class', 'test_autodoc.Class', Class,
+                       ['meth', 'inheritedmeth'])
 
 
 def test_generate():
