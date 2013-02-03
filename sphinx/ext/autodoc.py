@@ -1011,6 +1011,18 @@ class ClassDocumenter(ModuleLevelDocumenter):
     def format_signature(self):
         if self.doc_as_attr:
             return ''
+
+        # get __init__ method signature from __init__.__doc__
+        if self.env.config.autodoc_docstring_signature:
+            # only act if the feature is enabled
+            init_doc = MethodDocumenter(self.directive, '__init__')
+            init_doc.object = self.get_attr(self.object, '__init__', None)
+            init_doc.objpath = ['__init__']
+            result = init_doc._find_signature()
+            if result is not None:
+                # use args only for Class signature
+                return '(%s)' % result[0]
+
         return ModuleLevelDocumenter.format_signature(self)
 
     def add_directive_header(self, sig):

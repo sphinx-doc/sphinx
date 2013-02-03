@@ -177,6 +177,20 @@ def test_format_signature():
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
+    #__init__ have signature at first line of docstring
+    class F2:
+        '''some docstring for F2.'''
+        def __init__(self, *args, **kw):
+            '''
+            __init__(a1, a2, kw1=True, kw2=False)
+
+            some docstring for __init__.
+            '''
+    class G2(F2, object):
+        pass
+    for C in (F2, G2):
+        assert formatsig('class', 'C', C, None, None) == '(a1, a2, kw1=True, kw2=False)'
+
     # test for methods
     class H:
         def foo1(self, b, *c):
