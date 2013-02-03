@@ -307,12 +307,18 @@ class Glossary(Directive):
                 # add an index entry too
                 indexnode = addnodes.index()
                 indexnode['entries'] = [('single', termtext, new_id, 'main')]
-                termnodes.append(indexnode)
-                termnodes.extend(res[0])
-                termnodes.append(addnodes.termsep())
+                _termnodes = []
+                _termnodes.append(indexnode)
+                _termnodes.extend(res[0])
+                _termnodes.append(addnodes.termsep())
+                for termnode in _termnodes:
+                    termnode.source, termnode.line = source, lineno
+                termnodes.extend(_termnodes)
             # make a single "term" node with all the terms, separated by termsep
             # nodes (remove the dangling trailing separator)
             term = nodes.term('', '', *termnodes[:-1])
+            term.source, term.line = termnodes[0].source, termnodes[0].line
+            term.rawsource = term.astext()
             term['ids'].extend(ids)
             term['names'].extend(ids)
             term += system_messages

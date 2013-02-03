@@ -40,33 +40,47 @@ def usage(argv, msg=None):
     print >>sys.stderr, """\
 Sphinx v%s
 Usage: %s [options] sourcedir outdir [filenames...]
-Options: -b <builder> -- builder to use; default is html
-         -a        -- write all files; default is to only write \
-new and changed files
-         -E        -- don't use a saved environment, always read all files
-         -t <tag>  -- include "only" blocks with <tag>
-         -d <path> -- path for the cached environment and doctree files
-                      (default: outdir/.doctrees)
-         -c <path> -- path where configuration file (conf.py) is located
+
+General options
+^^^^^^^^^^^^^^^
+-b <builder>  builder to use; default is html
+-a            write all files; default is to only write new and changed files
+-E            don't use a saved environment, always read all files
+-d <path>     path for the cached environment and doctree files
+                (default: outdir/.doctrees)
+
+Build configuration options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-c <path>           path where configuration file (conf.py) is located
                       (default: same as sourcedir)
-         -C        -- use no config file at all, only -D options
-         -D <setting=value> -- override a setting in configuration
-         -A <name=value>    -- pass a value into the templates, for HTML builder
-         -n        -- nit-picky mode, warn about all missing references
-         -N        -- do not do colored output
-         -q        -- no output on stdout, just warnings on stderr
-         -Q        -- no output at all, not even warnings
-         -w <file> -- write warnings (and errors) to given file
-         -W        -- turn warnings into errors
-         -P        -- run Pdb on exception
-         -T        -- show full traceback on exception
-         -v        -- increase verbosity (can be repeated)
-        --help     -- show this help and exit
-        --version  -- show version information and exit
-Modi:
+-C                  use no config file at all, only -D options
+-D <setting=value>  override a setting in configuration file
+-t <tag>            define tag: include "only" blocks with <tag>
+-A <name=value>     pass a value into the templates, for HTML builder
+-n                  nit-picky mode, warn about all missing references
+
+Console output options
+^^^^^^^^^^^^^^^^^^^^^^
+-v         increase verbosity (can be repeated)
+-q         no output on stdout, just warnings on stderr
+-Q         no output at all, not even warnings
+-w <file>  write warnings (and errors) to given file
+-W         turn warnings into errors
+-T         show full traceback on exception
+-N         do not emit colored output
+-P         run Pdb on exception
+
+Filename arguments
+^^^^^^^^^^^^^^^^^^
 * without -a and without filenames, write new and changed files.
 * with -a, write all files.
-* with filenames, write these.""" % (__version__, argv[0])
+* with filenames, write these.
+
+Standard options
+^^^^^^^^^^^^^^^^
+-h, --help  show this help and exit
+--version   show version information and exit
+""" % (__version__, argv[0])
 
 
 def main(argv):
@@ -75,11 +89,14 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:ng:NEqQWw:PThv',
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThv',
                                    ['help', 'version'])
         allopts = set(opt[0] for opt in opts)
         if '-h' in allopts or '--help' in allopts:
             usage(argv)
+            print >>sys.stderr
+            print >>sys.stderr, 'For more information, see '\
+                '<http://sphinx-doc.org/>.'
             return 0
         if '--version' in allopts:
             print 'Sphinx (sphinx-build) %s' %  __version__
@@ -95,9 +112,6 @@ def main(argv):
                                  'contain conf.py file.')
             return 1
         outdir = abspath(args[1])
-        if not path.isdir(outdir):
-            print >>sys.stderr, 'Making output directory...'
-            os.makedirs(outdir)
     except getopt.error, err:
         usage(argv, 'Error: %s' % err)
         return 1
@@ -211,6 +225,11 @@ def main(argv):
         warnfp = open(warnfile, 'w')
         warning = Tee(warning, warnfp)
         error = warning
+
+    if not path.isdir(outdir):
+        if status:
+            print >>status, 'Making output directory...'
+        os.makedirs(outdir)
 
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,

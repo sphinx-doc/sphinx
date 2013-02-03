@@ -311,6 +311,7 @@ class IndexBuilder(object):
     def context_for_searchtool(self):
         return dict(
             search_language_stemming_code = self.lang.js_stemmer_code,
-            search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
+            search_language_stop_words =
+                jsdump.dumps(sorted(self.lang.stopwords)),
             search_scorer_tool = self.js_scorer_code,
         )

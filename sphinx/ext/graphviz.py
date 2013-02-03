@@ -14,7 +14,6 @@ import re
 import codecs
 import posixpath
 from os import path
-from math import ceil
 from subprocess import Popen, PIPE
 try:
     from hashlib import sha1 as sha

@@ -8,7 +8,10 @@
    external_links
    refs_inconsistency
    literalblock
+   seealso
    definition_terms
    figure_caption
    index_entries
+   glossary_terms
+   glossary_terms_inconsistency
    docfields

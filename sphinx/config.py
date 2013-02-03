@@ -144,7 +144,11 @@ class Config(object):
         epub_max_image_width = (0, 'env'),
 
         # LaTeX options
-        latex_documents = ([], None),
+        latex_documents = (lambda self: [(self.master_doc,
+                                          make_filename(self.project) + '.tex',
+                                          self.project,
+                                          '', 'manual')],
+                           None),
         latex_logo = (None, None),
         latex_appendices = ([], None),
         latex_use_parts = (False, None),
@@ -167,11 +171,22 @@ class Config(object):
         text_newlines = ('unix', 'env'),
 
         # manpage options
-        man_pages = ([], None),
+        man_pages = (lambda self: [(self.master_doc,
+                                    make_filename(self.project).lower(),
+                                    '%s %s' % (self.project, self.release),
+                                    [], 1)],
+                     None),
         man_show_urls = (False, None),
 
         # Texinfo options
-        texinfo_documents = ([], None),
+        texinfo_documents = (lambda self: [(self.master_doc,
+                                            make_filename(self.project).lower(),
+                                            self.project, '',
+                                            make_filename(self.project),
+                                            'The %s reference manual.' %
+                                            make_filename(self.project),
+                                            'Python')],
+                             None),
         texinfo_appendices = ([], None),
         texinfo_elements = ({}, None),
         texinfo_domain_indices = (True, None),

@@ -159,7 +159,7 @@ admonitionlabels = {
     'hint':      l_('Hint'),
     'important': l_('Important'),
     'note':      l_('Note'),
-    'seealso':   l_('See Also'),
+    'seealso':   l_('See also'),
     'tip':       l_('Tip'),
     'warning':   l_('Warning'),
 }

@@ -203,7 +203,7 @@ class HTMLTranslator(BaseTranslator):
     def visit_admonition(self, node, name=''):
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
-        if name and name != 'seealso':
+        if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
 

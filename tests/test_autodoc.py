@@ -14,6 +14,7 @@ import sys
 from StringIO import StringIO
 
 from util import *
+from nose.tools import with_setup
 
 from docutils.statemachine import ViewList
 
@@ -22,14 +23,22 @@ from sphinx.ext.autodoc import AutoDirective, add_documenter, \
 
 
 def setup_module():
-    global app, lid, options, directive
-
+    global app
     app = TestApp()
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
+
+
+def teardown_module():
+    app.cleanup()
+
+
+def setup_test():
+    global options, directive
+    global processed_docstrings, processed_signatures, _warnings
 
     options = Struct(
         inherited_members = False,
@@ -54,8 +63,9 @@ def setup_module():
         filename_set = set(),
     )
 
-def teardown_module():
-    app.cleanup()
+    processed_docstrings = []
+    processed_signatures = []
+    _warnings = []
 
 
 _warnings = []
@@ -80,12 +90,15 @@ def process_signature(app, what, name, obj, options, args, retann):
 
 
 def skip_member(app, what, name, obj, skip, options):
+    if name in ('__special1__', '__special2__'):
+        return skip
     if name.startswith('_'):
         return True
     if name == 'skipmeth':
         return True
 
 
+@with_setup(setup_test)
 def test_parse_name():
     def verify(objtype, name, result):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -127,6 +140,7 @@ def test_parse_name():
     del directive.env.temp_data['autodoc:class']
 
 
+@with_setup(setup_test)
 def test_format_signature():
     def formatsig(objtype, name, obj, args, retann):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -165,6 +179,20 @@ def test_format_signature():
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
+    #__init__ have signature at first line of docstring
+    class F2:
+        '''some docstring for F2.'''
+        def __init__(self, *args, **kw):
+            '''
+            __init__(a1, a2, kw1=True, kw2=False)
+
+            some docstring for __init__.
+            '''
+    class G2(F2, object):
+        pass
+    for C in (F2, G2):
+        assert formatsig('class', 'C', C, None, None) == '(a1, a2, kw1=True, kw2=False)'
+
     # test for methods
     class H:
         def foo1(self, b, *c):
@@ -182,7 +210,23 @@ def test_format_signature():
     # test processing by event handler
     assert formatsig('method', 'bar', H.foo1, None, None) == '42'
 
+    # test functions created via functools.partial
+    from functools import partial
+    curried1 = partial(lambda a, b, c: None, 'A')
+    assert formatsig('function', 'curried1', curried1, None, None) == \
+        '(b, c)'
+    curried2 = partial(lambda a, b, c=42: None, 'A')
+    assert formatsig('function', 'curried2', curried2, None, None) == \
+        '(b, c=42)'
+    curried3 = partial(lambda a, b, *c: None, 'A')
+    assert formatsig('function', 'curried3', curried3, None, None) == \
+        '(b, *c)'
+    curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
+    assert formatsig('function', 'curried4', curried4, None, None) == \
+        '(b, c=42, *d, **e)'
 
+
+@with_setup(setup_test)
 def test_get_doc():
     def getdocl(objtype, obj, encoding=None):
         inst = AutoDirective._registry[objtype](directive, 'tmp')
@@ -251,6 +295,7 @@ def test_get_doc():
                                    '', 'Other', ' lines']
 
 
+@with_setup(setup_test)
 def test_docstring_processing():
     def process(objtype, name, obj):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -301,6 +346,8 @@ def test_docstring_processing():
     assert process('function', 'h', h) == ['first line', 'third line', '']
     app.disconnect(lid)
 
+
+@with_setup(setup_test)
 def test_new_documenter():
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
@@ -328,6 +375,40 @@ def test_new_documenter():
     assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
 
 
+@with_setup(setup_test, AutoDirective._special_attrgetters.clear)
+def test_attrgetter_using():
+    def assert_getter_works(objtype, name, obj, attrs=[], **kw):
+        getattr_spy = []
+        def special_getattr(obj, name, *defargs):
+            if name in attrs:
+                getattr_spy.append((obj, name))
+                return None
+            return getattr(obj, name, *defargs)
+        AutoDirective._special_attrgetters[type] = special_getattr
+
+        del getattr_spy[:]
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+
+        hooked_members = [s[1] for s in getattr_spy]
+        documented_members = [s[1] for s in processed_signatures]
+        for attr in attrs:
+            fullname = '.'.join((name, attr))
+            assert attr in hooked_members
+            assert fullname not in documented_members, \
+                '%r was not hooked by special_attrgetter function' % fullname
+
+    options.members = ALL
+    options.inherited_members = False
+    assert_getter_works('class', 'test_autodoc.Class', Class,
+                       ['meth'])
+
+    options.inherited_members = True
+    assert_getter_works('class', 'test_autodoc.Class', Class,
+                       ['meth', 'inheritedmeth'])
+
+
+@with_setup(setup_test)
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -439,6 +520,15 @@ def test_generate():
     options.inherited_members = True
     should.append(('method', 'test_autodoc.Class.inheritedmeth'))
     assert_processes(should, 'class', 'Class')
+
+    # test special members
+    options.special_members = ['__special1__']
+    should.append(('method', 'test_autodoc.Class.__special1__'))
+    assert_processes(should, 'class', 'Class')
+    options.special_members = ALL
+    should.append(('method', 'test_autodoc.Class.__special2__'))
+    assert_processes(should, 'class', 'Class')
+    options.special_members = False
 
     options.members = []
     # test module flags
@@ -567,6 +657,13 @@ def test_generate():
     del directive.env.temp_data['autodoc:module']
     del directive.env.temp_data['py:module']
 
+    # test descriptor class documentation
+    options.members = ['CustomDataDescriptor']
+    assert_result_contains('.. py:class:: CustomDataDescriptor(doc)',
+                           'module', 'test_autodoc')
+    assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
+                           'module', 'test_autodoc')
+
 # --- generate fodder ------------
 
 __all__ = ['Class']
@@ -590,6 +687,10 @@ class CustomDataDescriptor(object):
         if obj is None:
             return self
         return 42
+
+    def meth(self):
+        """Function."""
+        return "The Answer"
 
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
@@ -659,6 +760,13 @@ class Class(Base):
         self.inst_attr_comment = None
         self.inst_attr_string = None
         """a documented instance attribute"""
+
+    def __special1__(self):
+        """documented special method"""
+
+    def __special2__(self):
+        # undocumented special method
+        pass
 
 
 class CustomDict(dict):

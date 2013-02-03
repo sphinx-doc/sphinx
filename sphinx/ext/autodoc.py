@@ -317,27 +317,28 @@ class Documenter(object):
 
         Returns True if successful, False if an error occurred.
         """
+        dbg = self.env.app.debug
         if self.objpath:
-            self.env.app.debug('autodoc: from %s import %s',
-                               self.modname, '.'.join(self.objpath))
+            dbg('[autodoc] from %s import %s',
+                self.modname, '.'.join(self.objpath))
         try:
-            self.env.app.debug('autodoc: import %s', self.modname)
+            dbg('[autodoc] import %s', self.modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
-            self.env.app.debug('autodoc: => %r', obj)
+            dbg('[autodoc] => %r', obj)
             for part in self.objpath:
                 parent = obj
-                self.env.app.debug('autodoc: getattr(_, %r)', part)
+                dbg('[autodoc] getattr(_, %r)', part)
                 obj = self.get_attr(obj, part)
-                self.env.app.debug('autodoc: => %r', obj)
+                dbg('[autodoc] => %r', obj)
                 self.object_name = part
             self.parent = parent
             self.object = obj
             return True
         # this used to only catch SyntaxError, ImportError and AttributeError,
         # but importing modules with side effects can raise all kinds of errors
-        except Exception, err:
+        except Exception:
             if self.objpath:
                 errmsg = 'autodoc: failed to import %s %r from module %r' % \
                          (self.objtype, '.'.join(self.objpath), self.modname)
@@ -346,7 +347,7 @@ class Documenter(object):
                          (self.objtype, self.fullname)
             errmsg += '; the following exception was raised:\n%s' % \
                       traceback.format_exc()
-            self.env.app.debug(errmsg)
+            dbg(errmsg)
             self.directive.warn(errmsg)
             self.env.note_reread()
             return False
@@ -522,7 +523,7 @@ class Documenter(object):
         elif self.options.inherited_members:
             # safe_getmembers() uses dir() which pulls in members from all
             # base classes
-            members = safe_getmembers(self.object)
+            members = safe_getmembers(self.object, attr_getter=self.get_attr)
         else:
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
@@ -591,6 +592,7 @@ class Documenter(object):
                         membername != '__doc__':
                     keep = has_doc or self.options.undoc_members
                 elif self.options.special_members and \
+                     self.options.special_members is not ALL and \
                         membername in self.options.special_members:
                     keep = has_doc or self.options.undoc_members
             elif want_all and membername.startswith('_'):
@@ -716,7 +718,8 @@ class Documenter(object):
             # parse right now, to get PycodeErrors on parsing (results will
             # be cached anyway)
             self.analyzer.find_attr_docs()
-        except PycodeError:
+        except PycodeError, err:
+            self.env.app.debug('[autodoc] module analyzer failed: %s', err)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
@@ -1009,6 +1012,18 @@ class ClassDocumenter(ModuleLevelDocumenter):
     def format_signature(self):
         if self.doc_as_attr:
             return ''
+
+        # get __init__ method signature from __init__.__doc__
+        if self.env.config.autodoc_docstring_signature:
+            # only act if the feature is enabled
+            init_doc = MethodDocumenter(self.directive, '__init__')
+            init_doc.object = self.get_attr(self.object, '__init__', None)
+            init_doc.objpath = ['__init__']
+            result = init_doc._find_signature()
+            if result is not None:
+                # use args only for Class signature
+                return '(%s)' % result[0]
+
         return ModuleLevelDocumenter.format_signature(self)
 
     def add_directive_header(self, sig):
@@ -1190,7 +1205,7 @@ class AttributeDocumenter(ClassLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         isdatadesc = isdescriptor(member) and not \
                      isinstance(member, cls.method_types) and not \
-                     type(member).__name__ == "method_descriptor"
+                     type(member).__name__ in ("type", "method_descriptor")
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
                               and not isinstance(member, class_types))
@@ -1309,7 +1324,7 @@ class AutoDirective(Directive):
             source, lineno = self.reporter.get_source_and_line(self.lineno)
         except AttributeError:
             source = lineno = None
-        self.env.app.debug('%s:%s: <input>\n%s',
+        self.env.app.debug('[autodoc] %s:%s: input:\n%s',
                            source, lineno, self.block_text)
 
         # find out what documenter to call
@@ -1332,8 +1347,7 @@ class AutoDirective(Directive):
         if not self.result:
             return self.warnings
 
-        if self.env.app.verbosity >= 2:
-            self.env.app.debug('autodoc: <output>\n%s', '\n'.join(self.result))
+        self.env.app.debug2('[autodoc] output:\n%s', '\n'.join(self.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible

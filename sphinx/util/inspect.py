@@ -27,13 +27,18 @@ if sys.version_info >= (2, 5):
             func = func.im_func
         parts = 0, ()
         if type(func) is partial:
-            parts = len(func.args), func.keywords.keys()
+            keywords = func.keywords
+            if keywords is None:
+                keywords = {}
+            parts = len(func.args), keywords.keys()
             func = func.func
         if not inspect.isfunction(func):
             raise TypeError('%r is not a Python function' % func)
         args, varargs, varkw = inspect.getargs(func.func_code)
         func_defaults = func.func_defaults
-        if func_defaults:
+        if func_defaults is None:
+            func_defaults = []
+        else:
             func_defaults = list(func_defaults)
         if parts[0]:
             args = args[parts[0]:]
@@ -73,12 +78,12 @@ def safe_getattr(obj, name, *defargs):
         raise AttributeError(name)
 
 
-def safe_getmembers(object, predicate=None):
+def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
     """A version of inspect.getmembers() that uses safe_getattr()."""
     results = []
     for key in dir(object):
         try:
-            value = safe_getattr(object, key, None)
+            value = attr_getter(object, key, None)
         except AttributeError:
             continue
         if not predicate or predicate(value):

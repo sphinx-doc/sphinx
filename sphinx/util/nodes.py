@@ -54,10 +54,10 @@ def extract_messages(doctree):
                                  rawsource.split("\n", 2)[0]
         # workaround: nodes.caption doesn't have source, line.
         # this issue was filed to Docutils tracker:
-        # https://sourceforge.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
+        # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
         if isinstance(node, nodes.caption) and not node.source:
             node.source = node.parent.source
-            node.line = ''  #need fix docutils to get `node.line`
+            node.line = 0  #need fix docutils to get `node.line`
 
         if not node.source:
             continue # built-in message
@@ -233,3 +233,17 @@ def _new_copy(self):
     return self.__class__(self.rawsource, **self.attributes)
 
 nodes.Element.copy = _new_copy
+
+# monkey-patch Element.__repr__ to return str if include unicode.
+# sf.net/tracker/?func=detail&aid=3601607&group_id=38414&atid=422030
+import sys
+if sys.version_info < (3,):
+    _element_repr_orig = nodes.Element.__repr__
+    
+    def _repr(self):
+        s = _element_repr_orig(self)
+        if isinstance(s, unicode):
+            return s.encode('utf-8')
+        return s
+    
+    nodes.Element.__repr__ = _repr

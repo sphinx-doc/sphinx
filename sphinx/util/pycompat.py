@@ -134,7 +134,7 @@ else:
 
         rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
         if not rel_list:
-            return curdir
+            return start
         return join(*rel_list)
     del curdir
 

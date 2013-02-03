@@ -1,0 +1,14 @@
+:tocdepth: 2
+
+i18n with glossary terms
+========================
+
+.. glossary::
+
+   Some term
+      The corresponding glossary
+
+   Some other term
+      The corresponding glossary #2
+
+link to :term:`Some term`.

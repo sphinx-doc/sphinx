@@ -271,11 +271,6 @@ class TextTranslator(nodes.NodeVisitor):
         self.end_state(wrap=False)
         raise nodes.SkipNode
 
-    def visit_seealso(self, node):
-        self.new_state()
-    def depart_seealso(self, node):
-        self.end_state(first='')
-
     def visit_footnote(self, node):
         self._footnote = node.children[0].astext().strip()
         self.new_state(len(self._footnote) + 3)
@@ -578,6 +573,8 @@ class TextTranslator(nodes.NodeVisitor):
     depart_tip = _make_depart_admonition('tip')
     visit_warning = _visit_admonition
     depart_warning = _make_depart_admonition('warning')
+    visit_seealso = _visit_admonition
+    depart_seealso = _make_depart_admonition('seealso')
 
     def visit_versionmodified(self, node):
         self.new_state(0)

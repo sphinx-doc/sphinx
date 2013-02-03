@@ -41,8 +41,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      split_index_msg, FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
      traverse_translatable_index, WarningStream
-from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog, \
-     fs_encoding
+from sphinx.util.osutil import SEP, ustrftime, find_catalog, fs_encoding
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import all, class_types
 from sphinx.util.websupport import is_commentable
@@ -71,7 +70,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 42
+ENV_VERSION = 42 + (sys.version_info[0] - 2)
 
 
 default_substitutions = set([
@@ -297,6 +296,16 @@ class Locale(Transform):
                 refname = new["refname"]
                 if refname in refname_ids_map:
                     new["ids"] = refname_ids_map[refname]
+
+            # Original pending_xref['reftarget'] contain not-translated
+            # target name, new pending_xref must use original one.
+            old_refs = node.traverse(addnodes.pending_xref)
+            new_refs = patch.traverse(addnodes.pending_xref)
+            if len(old_refs) != len(new_refs):
+                env.warn_node('inconsistent term references in '
+                              'translated message', node)
+            for old, new in zip(old_refs, new_refs):
+                new['reftarget'] = old['reftarget']
 
             # update leaves
             for child in patch.children:
@@ -1533,6 +1542,8 @@ class BuildEnvironment:
         maxdepth = maxdepth or toctree.get('maxdepth', -1)
         if not titles_only and toctree.get('titlesonly', False):
             titles_only = True
+        if not includehidden and toctree.get('includehidden', False):
+            includehidden = True
 
         # NOTE: previously, this was separate=True, but that leads to artificial
         # separation when two or more toctree entries form a logical unit, so
@@ -1594,8 +1605,16 @@ class BuildEnvironment:
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
                     if docname:
-                        newnode = make_refnode(builder, fromdocname, docname,
-                                               labelid, contnode)
+                        try:
+                            newnode = make_refnode(builder, fromdocname,
+                                                   docname, labelid, contnode)
+                        except NoUri:
+                            # remove the ids we added in the CitationReferences
+                            # transform since they can't be transfered to
+                            # the contnode (if it's a Text node)
+                            if not isinstance(contnode, nodes.Element):
+                                del node['ids'][:]
+                            raise
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
