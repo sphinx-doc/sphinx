@@ -262,6 +262,8 @@ class Locale(Transform):
                               'translated message', node)
             for old, new in zip(old_foot_refs, new_foot_refs):
                 new['ids'] = old['ids']
+                for id in new['ids']:
+                    self.document.ids[id] = new
                 self.document.autofootnote_refs.remove(old)
                 self.document.note_autofootnote_ref(new)
 
