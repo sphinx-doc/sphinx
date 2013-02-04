@@ -194,12 +194,20 @@ class VersionChange(Directive):
         if len(self.arguments) == 2:
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno+1)
-            node.append(nodes.paragraph('', '', *inodes))
+            para = nodes.paragraph(self.arguments[1], '', *inodes)
+            set_source_info(self, para)
+            node.append(para)
         else:
             messages = []
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
         if len(node):
+            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
+                content = nodes.inline(node[0].rawsource, translatable=True)
+                content.source = node[0].source
+                content.line = node[0].line
+                content += node[0].children
+                node[0].replace_self(nodes.paragraph('', '', content))
             node[0].insert(0, nodes.inline('', '%s: ' % text))
         else:
             para = nodes.paragraph('', '', nodes.inline('', '%s.' % text))
