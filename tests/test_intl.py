@@ -89,6 +89,23 @@ def test_subdir(app):
     assert result.startswith(u"\nsubdir contents\n***************\n")
 
 
+@with_intl_app(buildername='text', warning=warnfile)
+def test_i18n_warnings_in_translation(app):
+    app.builddir.rmtree(True)
+    app.builder.build(['warnings'])
+    result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH REST WARNINGS"
+              u"\n***********************\n"
+              u"\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
+
+    assert result == expect
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    warning_expr = u'.*/warnings.txt:4: ' \
+            u'WARNING: Inline literal start-string without end-string.\n'
+    assert re.search(warning_expr, warnings)
+
+
 @with_intl_app(buildername='html', cleanenv=True)
 def test_i18n_footnote_break_refid(app):
     """test for #955 cant-build-html-with-footnotes-when-using"""

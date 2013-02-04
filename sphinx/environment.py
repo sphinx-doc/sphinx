@@ -189,6 +189,20 @@ class CitationReferences(Transform):
             citnode.parent.replace(citnode, refnode)
 
 
+class CustomLocaleReporter(object):
+    """
+    Replacer for document.reporter.get_source_and_line method.
+
+    reST text lines for translation not have original source line number.
+    This class provide correct line number at reporting.
+    """
+    def __init__(self, source, line):
+        self.source, self.line = source, line
+
+    def get_source_and_line(self, lineno=None):
+        return self.source, self.line
+
+
 class Locale(Transform):
     """
     Replace translatable nodes with their translated doctree.
@@ -229,6 +243,8 @@ class Locale(Transform):
                 # dummy literal node will discard by 'patch = patch[0]'
 
             patch = new_document(source, settings)
+            patch.reporter.get_source_and_line = CustomLocaleReporter(
+                    node.source, node.line).get_source_and_line
             parser.parse(msgstr, patch)
             patch = patch[0]
             # XXX doctest and other block markup
