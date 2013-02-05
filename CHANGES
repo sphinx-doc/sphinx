@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* Fix text builder did not respect wide/fullwidth charactors.
+
 * #1062: sphinx.ext.autodoc use __init__ method signature for class signature.
 
 * PR#111: Respect add_autodoc_attrgetter() even when inherited-members is set.

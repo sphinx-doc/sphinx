@@ -13,6 +13,7 @@ import re
 import textwrap
 
 from docutils import nodes, writers
+from docutils.utils import column_width
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, versionlabels, _
@@ -165,7 +166,8 @@ class TextTranslator(nodes.NodeVisitor):
             char = '^'
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)
         self.stateindent.pop()
-        self.states[-1].append((0, ['', text, '%s' % (char * len(text)), '']))
+        self.states[-1].append(
+                (0, ['', text, '%s' % (char * column_width(text)), '']))
 
     def visit_subtitle(self, node):
         pass

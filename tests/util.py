@@ -142,6 +142,13 @@ class TestApp(application.Sphinx):
             temproot = tempdir / 'root'
             test_root.copytree(temproot)
             srcdir = temproot
+        elif srcdir == '(empty)':
+            tempdir = path(tempfile.mkdtemp())
+            self.cleanup_trees.append(tempdir)
+            temproot = tempdir / 'root'
+            temproot.makedirs()
+            (temproot / 'conf.py').write_text('')
+            srcdir = temproot
         else:
             srcdir = path(srcdir)
         self.builddir = srcdir.joinpath('_build')
