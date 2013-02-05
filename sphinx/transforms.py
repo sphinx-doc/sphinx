@@ -137,6 +137,19 @@ class CustomLocaleReporter(object):
     def __init__(self, source, line):
         self.source, self.line = source, line
 
+        try:
+            from docutils import __version__ as du_version
+            v = tuple([int(x) for x in du_version.split('.')[:2]])
+        except ImportError:
+            v = (99, 99)
+        self.du_version = v
+
+    def set_reporter(self, document):
+        if self.du_version < (0, 9):
+            document.reporter.locator = self.get_source_and_line
+        else:
+            document.reporter.get_source_and_line = self.get_source_and_line
+
     def get_source_and_line(self, lineno=None):
         return self.source, self.line
 
@@ -181,8 +194,7 @@ class Locale(Transform):
                 # dummy literal node will discard by 'patch = patch[0]'
 
             patch = new_document(source, settings)
-            patch.reporter.get_source_and_line = CustomLocaleReporter(
-                    node.source, node.line).get_source_and_line
+            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
             patch = patch[0]
             # XXX doctest and other block markup
