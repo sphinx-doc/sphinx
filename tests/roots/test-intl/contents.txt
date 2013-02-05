@@ -16,5 +16,6 @@ CONTENTS
    definition_terms
    figure_caption
    index_entries
+   role_xref
    glossary_terms
    glossary_terms_inconsistency
