@@ -255,13 +255,20 @@ class Locale(Transform):
 
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
+            # This code restricts to change ref-targets in the translation.
             old_refs = node.traverse(addnodes.pending_xref)
             new_refs = patch.traverse(addnodes.pending_xref)
+            xref_reftarget_map = {}
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent term references in '
                               'translated message', node)
-            for old, new in zip(old_refs, new_refs):
-                new['reftarget'] = old['reftarget']
+            for old in old_refs:
+                key = old["reftype"], old["refdomain"]
+                xref_reftarget_map[key] = old["reftarget"]
+            for new in new_refs:
+                key = new["reftype"], new["refdomain"]
+                if key in xref_reftarget_map:
+                    new['reftarget'] = xref_reftarget_map[key]
 
             # update leaves
             for child in patch.children:

@@ -1,0 +1,9 @@
+:tocdepth: 2
+
+.. _i18n-role-xref:
+
+i18n role xref
+==============
+
+link to :term:`Some term`, :ref:`i18n-role-xref`, :doc:`contents`.
+

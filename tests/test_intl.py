@@ -294,6 +294,24 @@ def test_i18n_glossary_terms(app):
 
 
 @with_intl_app(buildername='text', warning=warnfile)
+def test_i18n_role_xref(app):
+    # regression test for #1090
+    app.builddir.rmtree(True)  #for warnings acceleration
+    app.builder.build(['role_xref'])
+    result = (app.outdir / 'role_xref.txt').text(encoding='utf-8')
+    expect = (u"\nI18N ROCK'N ROLE XREF"
+              u"\n*********************\n"
+              u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n")
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    assert 'term not in glossary' not in warnings
+    assert 'undefined label' not in warnings
+    assert 'unknown document' not in warnings
+
+    assert result == expect
+
+
+@with_intl_app(buildername='text', warning=warnfile)
 def test_i18n_glossary_terms_inconsistency(app):
     # regression test for #1090
     app.builddir.rmtree(True)  #for warnings acceleration
