@@ -42,3 +42,24 @@ def test_multibyte_title_line(app):
     expect_underline = underline.replace('=', '*')
     result_underline = result.splitlines()[2].strip()
     assert expect_underline == result_underline
+
+
+@with_text_app()
+def test_multibyte_table(app):
+    text = u'\u65e5\u672c\u8a9e'
+    contents = (u"\n.. list-table::"
+                 "\n"
+                 "\n   - - spam"
+                 "\n     - egg"
+                 "\n"
+                 "\n   - - %(text)s"
+                 "\n     - %(text)s"
+                 "\n" % locals())
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    line_widths = [column_width(line) for line in lines]
+    assert len(set(line_widths)) == 1  # same widths

@@ -393,7 +393,7 @@ class TextTranslator(nodes.NodeVisitor):
                 for i, cell in enumerate(line):
                     par = my_wrap(cell, width=colwidths[i])
                     if par:
-                        maxwidth = max(map(len, par))
+                        maxwidth = max(map(column_width, par))
                     else:
                         maxwidth = 0
                     realwidths[i] = max(realwidths[i], maxwidth)
@@ -413,7 +413,9 @@ class TextTranslator(nodes.NodeVisitor):
                 out = ['|']
                 for i, cell in enumerate(line):
                     if cell:
-                        out.append(' ' + cell.ljust(realwidths[i]+1))
+                        adjust_len = len(cell) - column_width(cell)
+                        out.append(' ' + cell.ljust(
+                            realwidths[i] + 1 + adjust_len))
                     else:
                         out.append(' ' * (realwidths[i] + 2))
                     out.append('|')
