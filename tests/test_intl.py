@@ -89,6 +89,23 @@ def test_subdir(app):
     assert result.startswith(u"\nsubdir contents\n***************\n")
 
 
+@with_intl_app(buildername='text', warning=warnfile)
+def test_i18n_warnings_in_translation(app):
+    app.builddir.rmtree(True)
+    app.builder.build(['warnings'])
+    result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH REST WARNINGS"
+              u"\n***********************\n"
+              u"\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
+
+    assert result == expect
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    warning_expr = u'.*/warnings.txt:4: ' \
+            u'WARNING: Inline literal start-string without end-string.\n'
+    assert re.search(warning_expr, warnings)
+
+
 @with_intl_app(buildername='html', cleanenv=True)
 def test_i18n_footnote_break_refid(app):
     """test for #955 cant-build-html-with-footnotes-when-using"""
@@ -97,9 +114,10 @@ def test_i18n_footnote_break_refid(app):
     # expect no error by build
 
 
-@with_intl_app(buildername='text', cleanenv=True)
+@with_intl_app(buildername='text', warning=warnfile)
 def test_i18n_footnote_regression(app):
     """regression test for fix #955"""
+    app.builddir.rmtree(True)
     app.builder.build(['footnote'])
     result = (app.outdir / 'footnote.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH FOOTNOTE"
@@ -109,6 +127,10 @@ def test_i18n_footnote_regression(app):
               u"\n[ref] THIS IS A NAMED FOOTNOTE.\n"
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    warning_expr = u'.*/footnote.txt:\\d*: SEVERE: Duplicate ID: ".*".\n'
+    assert not re.search(warning_expr, warnings)
 
 
 @with_intl_app(buildername='html', cleanenv=True)
@@ -269,6 +291,24 @@ def test_i18n_glossary_terms(app):
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
+
+
+@with_intl_app(buildername='text', warning=warnfile)
+def test_i18n_role_xref(app):
+    # regression test for #1090
+    app.builddir.rmtree(True)  #for warnings acceleration
+    app.builder.build(['role_xref'])
+    result = (app.outdir / 'role_xref.txt').text(encoding='utf-8')
+    expect = (u"\nI18N ROCK'N ROLE XREF"
+              u"\n*********************\n"
+              u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n")
+
+    warnings = warnfile.getvalue().replace(os.sep, '/')
+    assert 'term not in glossary' not in warnings
+    assert 'undefined label' not in warnings
+    assert 'unknown document' not in warnings
+
+    assert result == expect
 
 
 @with_intl_app(buildername='text', warning=warnfile)
