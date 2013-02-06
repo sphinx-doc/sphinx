@@ -281,8 +281,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 newids.append(self.fix_fragment('', id))
             node.attributes['ids'] = newids
 
-    def add_visible_links(self, tree):
-        """Append visible link targets after external links."""
+    def add_visible_links(self, tree, show_urls='no'):
+        """Append visible link targets after external links"""
+        if not show_urls or show_urls == 'no':
+            return
+
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
@@ -290,9 +293,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 uri = _link_target_template % {'uri': uri}
                 if uri:
                     idx = node.parent.index(node) + 1
-                    link = nodes.inline(uri, uri)
-                    link['classes'].append(_css_link_target_class)
-                    node.parent.insert(idx, link)
+                    if show_urls == 'inline':
+                        link = nodes.inline(uri, uri)
+                        link['classes'].append(_css_link_target_class)
+                        node.parent.insert(idx, link)
 
     def write_doc(self, docname, doctree):
         """Write one document file.
@@ -301,7 +305,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         and to add visible external links.
         """
         self.fix_ids(doctree)
-        self.add_visible_links(doctree)
+        self.add_visible_links(doctree, self.config.epub_show_urls)
         return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def fix_genindex(self, tree):
