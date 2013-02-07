@@ -1,7 +1,8 @@
 Release 1.2 (in development)
 ============================
 
-* Fix text builder did not respect wide/fullwidth charactors.
+* Fix text builder did not respect wide/fullwidth characters:
+  title underline width, table layout width and text wrap width.
 
 * #1062: sphinx.ext.autodoc use __init__ method signature for class signature.
 
