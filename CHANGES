@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* New locales: #1097: Added Basque locale.
+
 * Fix text builder did not respect wide/fullwidth characters:
   title underline width, table layout width and text wrap width.
 
