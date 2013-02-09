@@ -12,6 +12,7 @@
 from textwrap import dedent
 
 from docutils.utils import column_width
+from sphinx.writers.text import MAXWIDTH
 
 from util import *
 
@@ -63,3 +64,23 @@ def test_multibyte_table(app):
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert len(set(line_widths)) == 1  # same widths
+
+
+@with_text_app()
+def test_multibyte_maxwidth(app):
+    sb_text = u'abc'  #length=3
+    mb_text = u'\u65e5\u672c\u8a9e'  #length=3
+
+    sb_line = ' '.join([sb_text] * int(MAXWIDTH / 3))
+    mb_line = ' '.join([mb_text] * int(MAXWIDTH / 3))
+    mix_line = ' '.join([sb_text, mb_text] * int(MAXWIDTH / 6))
+
+    contents = u'\n\n'.join((sb_line, mb_line, mix_line))
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    line_widths = [column_width(line) for line in lines]
+    assert max(line_widths) < MAXWIDTH

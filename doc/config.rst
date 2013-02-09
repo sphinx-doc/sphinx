@@ -373,6 +373,7 @@ documentation on :ref:`intl` for details.
    * ``en`` -- English
    * ``es`` -- Spanish
    * ``et`` -- Estonian
+   * ``eu`` -- Basque
    * ``fa`` -- Iranian
    * ``fi`` -- Finnish
    * ``fr`` -- French
