@@ -283,7 +283,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def add_visible_links(self, tree, show_urls='no'):
         """Append visible link targets after external links"""
-        if not show_urls or show_urls == 'no':
+        if show_urls == 'no':
             return
 
         for node in tree.traverse(nodes.reference):

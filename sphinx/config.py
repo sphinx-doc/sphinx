@@ -142,7 +142,7 @@ class Config(object):
         epub_tocdup = (True, 'env'),
         epub_fix_images = (False, 'env'),
         epub_max_image_width = (0, 'env'),
-        epub_show_urls = ('no', None),
+        epub_show_urls = ('inline', None),
 
         # LaTeX options
         latex_documents = (lambda self: [(self.master_doc,

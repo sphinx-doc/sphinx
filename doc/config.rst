@@ -939,11 +939,12 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_show_urls
 
-   Control whether to display URL addresses.  This is very useful for printed
-   copies of the manual.  The setting can have the following values:
+   Control whether to display URL addresses. This is very useful for
+   readers that have no other means to display the linked URL. The
+   settings can have the following values:
 
-   * ``'no'`` -- do not display URLs (default)
-   * ``'inline'`` -- display URLs inline in parentheses
+   * ``'inline'`` -- display URLs inline in parentheses (default)
+   * ``'no'`` -- do not display URLs
 
 
 .. _latex-options:
