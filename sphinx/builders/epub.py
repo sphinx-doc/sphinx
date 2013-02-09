@@ -281,7 +281,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 newids.append(self.fix_fragment('', id))
             node.attributes['ids'] = newids
 
-    def add_visible_links(self, tree, show_urls='no'):
+    def add_visible_links(self, tree, show_urls='inline'):
         """Append visible link targets after external links"""
         if show_urls == 'no':
             return
