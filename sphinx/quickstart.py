@@ -334,6 +334,10 @@ epub_copyright = u'%(copyright_str)s'
 
 # Scale large images.
 #epub_max_image_width = 0
+
+# If 'no', URL addresses will not be shown.
+#epub_show_urls = 'inline'
+
 '''
 
 INTERSPHINX_CONFIG = '''
