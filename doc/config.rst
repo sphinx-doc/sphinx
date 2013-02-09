@@ -946,6 +946,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    * ``'inline'`` -- display URLs inline in parentheses (default)
    * ``'no'`` -- do not display URLs
 
+   .. versionadded:: 1.2
+
 
 .. _latex-options:
 
