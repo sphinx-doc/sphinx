@@ -1077,7 +1077,7 @@ These options influence LaTeX output.
         "Rejne".  You can also set this to ``''`` to disable fncychap.
      ``'preamble'``
         Additional preamble content, default empty.
-     ``'footer'```
+     ``'footer'``
         Additional footer content (before the indices), default empty.
 
    * Keys that don't need be overridden unless in special cases are:
@@ -1085,6 +1085,8 @@ These options influence LaTeX output.
      ``'inputenc'``
         "inputenc" package inclusion, default
         ``'\\usepackage[utf8]{inputenc}'``.
+     ``'cmappkg'``
+        "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
      ``'maketitle'``
