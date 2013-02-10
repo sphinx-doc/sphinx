@@ -11,7 +11,6 @@
 
 import sys, os, time, re
 from os import path
-from codecs import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -20,6 +19,7 @@ from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
+from sphinx.util.pycompat import open
 
 # function to get input from terminal -- overridden by the test suite
 try:
@@ -33,11 +33,11 @@ PROMPT_PREFIX = '> '
 
 if sys.version_info >= (3, 0):
     # prevents that the file is checked for being written in Python 2.x syntax
-    QUICKSTART_CONF = '#!/usr/bin/env python3\n'
+    QUICKSTART_CONF = u'#!/usr/bin/env python3\n'
 else:
-    QUICKSTART_CONF = ''
+    QUICKSTART_CONF = u''
 
-QUICKSTART_CONF += '''\
+QUICKSTART_CONF += u'''\
 # -*- coding: utf-8 -*-
 #
 # %(project)s documentation build configuration file, created by
@@ -282,7 +282,7 @@ texinfo_documents = [
 #texinfo_show_urls = 'footnote'
 '''
 
-EPUB_CONFIG = '''
+EPUB_CONFIG = u'''
 
 # -- Options for Epub output ---------------------------------------------------
 
@@ -339,13 +339,13 @@ epub_copyright = u'%(copyright_str)s'
 #epub_show_urls = 'inline'
 '''
 
-INTERSPHINX_CONFIG = '''
+INTERSPHINX_CONFIG = u'''
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
 '''
 
-MASTER_FILE = '''\
+MASTER_FILE = u'''\
 .. %(project)s documentation master file, created by
    sphinx-quickstart on %(now)s.
    You can adapt this file completely to your liking, but it should at least
@@ -370,7 +370,7 @@ Indices and tables
 
 '''
 
-MAKEFILE = '''\
+MAKEFILE = u'''\
 # Makefile for Sphinx documentation
 #
 
@@ -564,7 +564,7 @@ pseudoxml:
 \t@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 '''
 
-BATCHFILE = '''\
+BATCHFILE = u'''\
 @ECHO OFF
 
 REM Command file for Sphinx documentation
@@ -1096,10 +1096,10 @@ def generate(d, overwrite=True, silent=False):
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath, mode, content):
+    def write_file(fpath, content, newline=None):
         if overwrite or not path.isfile(fpath):
             print 'Creating file %s.' % fpath
-            f = open(fpath, mode, encoding='utf-8')
+            f = open(fpath, 'wt', encoding='utf-8', newline=newline)
             try:
                 f.write(content)
             finally:
@@ -1113,21 +1113,21 @@ def generate(d, overwrite=True, silent=False):
     if d.get('ext_intersphinx'):
         conf_text += INTERSPHINX_CONFIG
 
-    write_file(path.join(srcdir, 'conf.py'), 'w', conf_text)
+    write_file(path.join(srcdir, 'conf.py'), conf_text)
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    write_file(masterfile, 'w', MASTER_FILE % d)
+    write_file(masterfile, MASTER_FILE % d)
 
     if d['makefile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        write_file(path.join(d['path'], 'Makefile'), 'wb', MAKEFILE % d)
+        write_file(path.join(d['path'], 'Makefile'), MAKEFILE % d, u'\n')
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        write_file(path.join(d['path'], 'make.bat'), 'w', BATCHFILE % d)
+        write_file(path.join(d['path'], 'make.bat'), BATCHFILE % d, u'\r\n')
 
     if silent:
         return

@@ -193,3 +193,24 @@ def test_quickstart_all_answers(tempdir):
     assert (tempdir / 'source' / '.static').isdir()
     assert (tempdir / 'source' / '.templates').isdir()
     assert (tempdir / 'source' / 'contents.txt').isfile()
+
+
+@with_tempdir
+def test_generated_files_eol(tempdir):
+    answers = {
+        'Root path': tempdir,
+        'Project name': 'Sphinx Test',
+        'Author name': 'Georg Brandl',
+        'Project version': '0.1',
+    }
+    qs.term_input = mock_raw_input(answers)
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
+
+    def assert_eol(filename, eol):
+        content = filename.bytes().decode('unicode-escape')
+        assert all([l[-len(eol):]==eol for l in content.splitlines(True)])
+
+    assert_eol(tempdir / 'make.bat', '\r\n')
+    assert_eol(tempdir / 'Makefile', '\n')

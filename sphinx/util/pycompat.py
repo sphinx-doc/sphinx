@@ -115,6 +115,9 @@ if sys.version_info >= (2, 6):
     relpath = os.path.relpath
     del os
 
+    import io
+    open = io.open
+
 else:
     # Python < 2.6
     from itertools import izip, repeat, chain
@@ -166,6 +169,19 @@ else:
             return start
         return join(*rel_list)
     del curdir
+
+    from types import MethodType
+    def open(filename, mode='r', *args, **kw):
+        newline = kw.pop('newline', None)
+        mode = mode.replace('t', '')
+        f = codecs.open(filename, mode, *args, **kw)
+        if newline is not None:
+            f._write = f.write
+            def write(self, text):
+                text = text.replace(u'\r\n', u'\n').replace(u'\n', newline)
+                self._write(text)
+            f.write = MethodType(write, f)
+        return f
 
 
 # ------------------------------------------------------------------------------
