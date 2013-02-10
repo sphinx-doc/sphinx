@@ -5,7 +5,7 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,9 +15,11 @@ from datetime import datetime
 from collections import defaultdict
 
 from sphinx.builders import Builder
-from sphinx.util.nodes import extract_messages
-from sphinx.util.osutil import SEP, safe_relpath, ensuredir, find_catalog
+from sphinx.util import split_index_msg
+from sphinx.util.nodes import extract_messages, traverse_translatable_index
+from sphinx.util.osutil import safe_relpath, ensuredir, find_catalog
 from sphinx.util.console import darkgreen
+from sphinx.locale import pairindextypes
 
 POHEADER = ur"""
 # SOME DESCRIPTIVE TITLE.
@@ -81,6 +83,16 @@ class I18nBuilder(Builder):
 
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)
+
+        # Extract translatable messages from index entries.
+        for node, entries in traverse_translatable_index(doctree):
+            for typ, msg, tid, main in entries:
+                for m in split_index_msg(typ, msg):
+                    if typ == 'pair' and m in pairindextypes.values():
+                        # avoid built-in translated message was incorporated
+                        # in 'sphinx.util.nodes.process_index_entry'
+                        continue
+                    catalog.add(m, node)
 
 
 class MessageCatalogBuilder(I18nBuilder):

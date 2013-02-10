@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -197,13 +197,18 @@ def get_module_source(modname):
         except Exception, err:
             raise PycodeError('error importing %r' % modname, err)
     mod = sys.modules[modname]
-    if hasattr(mod, '__loader__'):
+    filename = getattr(mod, '__file__', None)
+    loader = getattr(mod, '__loader__', None)
+    if loader and getattr(loader, 'get_filename', None):
         try:
-            source = mod.__loader__.get_source(modname)
+            filename = loader.get_filename(modname)
+        except Exception, err:
+            raise PycodeError('error getting filename for %r' % filename, err)
+    if filename is None and loader:
+        try:
+            return 'string', loader.get_source(modname)
         except Exception, err:
             raise PycodeError('error getting source for %r' % modname, err)
-        return 'string', source
-    filename = getattr(mod, '__file__', None)
     if filename is None:
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
@@ -286,6 +291,12 @@ class Tee(object):
         self.stream1.write(text)
         self.stream2.write(text)
 
+    def flush(self):
+        if hasattr(self.stream1, 'flush'):
+            self.stream1.flush()
+        if hasattr(self.stream2, 'flush'):
+            self.stream2.flush()
+
 
 def parselinenos(spec, total):
     """Parse a line number spec (such as "1,2,4-6") and return a list of
@@ -347,6 +358,29 @@ def split_into(n, type, value):
     if sum(1 for part in parts if part) < n:
         raise ValueError('invalid %s index entry %r' % (type, value))
     return parts
+
+
+def split_index_msg(type, value):
+    # new entry types must be listed in directives/other.py!
+    result = []
+    try:
+        if type == 'single':
+            try:
+                result = split_into(2, 'single', value)
+            except ValueError:
+                result = split_into(1, 'single', value)
+        elif type == 'pair':
+            result = split_into(2, 'pair', value)
+        elif type == 'triple':
+            result = split_into(3, 'triple', value)
+        elif type == 'see':
+            result = split_into(2, 'see', value)
+        elif type == 'seealso':
+            result = split_into(2, 'see', value)
+    except ValueError:
+        pass
+
+    return result
 
 
 def format_exception_cut_frames(x=1):

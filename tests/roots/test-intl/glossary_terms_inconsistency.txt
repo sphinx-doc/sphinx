@@ -1,0 +1,6 @@
+:tocdepth: 2
+
+i18n with glossary terms inconsistency
+======================================
+
+1. link to :term:`Some term` and :term:`Some other term`.

@@ -373,6 +373,7 @@ documentation on :ref:`intl` for details.
    * ``en`` -- English
    * ``es`` -- Spanish
    * ``et`` -- Estonian
+   * ``eu`` -- Basque
    * ``fa`` -- Iranian
    * ``fi`` -- Finnish
    * ``fr`` -- French
@@ -383,6 +384,7 @@ documentation on :ref:`intl` for details.
    * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``nb_NO`` -- Norwegian Bokmal
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
@@ -759,6 +761,15 @@ that use Sphinx' HTMLWriter class.
 
    .. versionadded:: 1.1
 
+.. confval:: html_search_scorer
+
+   The name of a javascript file (relative to the configuration directory) that
+   implements a search results scorer.  If empty, the default will be used.
+
+   .. XXX describe interface for scorer here
+
+   .. versionadded:: 1.2
+
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
@@ -923,6 +934,17 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    scaled accordingly.  If it is zero, no scaling is performed. The default
    value is ``0``.  You need the Python Image Library (PIL) installed to use
    this option.
+
+   .. versionadded:: 1.2
+
+.. confval:: epub_show_urls
+
+   Control whether to display URL addresses. This is very useful for
+   readers that have no other means to display the linked URL. The
+   settings can have the following values:
+
+   * ``'inline'`` -- display URLs inline in parentheses (default)
+   * ``'no'`` -- do not display URLs
 
    .. versionadded:: 1.2
 
@@ -1337,6 +1359,16 @@ Options for the linkcheck builder
    True or false, whether to check the validity of ``#anchor``\ s in links.
    Since this requires downloading the whole document, it's considerably slower
    when enabled.  Default is ``True``.
+
+   .. versionadded:: 1.2
+
+
+Options for the XML builder
+---------------------------
+
+.. confval:: xml_pretty
+
+   If True, pretty-print the XML.  Default is ``True``.
 
    .. versionadded:: 1.2
 

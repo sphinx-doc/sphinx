@@ -16,16 +16,16 @@ from codecs import open
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-class path(str):
+class path(unicode):
     """
     Represents a path which behaves like a string.
     """
     if sys.version_info < (3, 0):
         def __new__(cls, s, encoding=FILESYSTEMENCODING, errors='strict'):
-            if isinstance(s, unicode):
-                s = s.encode(encoding, errors=errors)
-                return str.__new__(cls, s)
-            return str.__new__(cls, s)
+            if isinstance(s, str):
+                s = s.decode(encoding, errors)
+                return unicode.__new__(cls, s)
+            return unicode.__new__(cls, s)
 
     @property
     def parent(self):
@@ -193,4 +193,4 @@ class path(str):
     __div__ = __truediv__ = joinpath
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, str.__repr__(self))
+        return '%s(%s)' % (self.__class__.__name__, unicode.__repr__(self))

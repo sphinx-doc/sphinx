@@ -5,7 +5,7 @@
 
     Locale utilities.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -159,7 +159,7 @@ admonitionlabels = {
     'hint':      l_('Hint'),
     'important': l_('Important'),
     'note':      l_('Note'),
-    'seealso':   l_('See Also'),
+    'seealso':   l_('See also'),
     'tip':       l_('Tip'),
     'warning':   l_('Warning'),
 }

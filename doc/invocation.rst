@@ -59,6 +59,13 @@ The :program:`sphinx-build` script has several options:
    **linkcheck**
       Check the integrity of all external links.
 
+   **xml**
+     Build Docutils-native XML files.
+
+   **pseudoxml**
+     Build compact pretty-printed "pseudo-XML" files displaying the
+     internal structure of the intermediate document trees.
+
    See :ref:`builders` for a list of all builders shipped with Sphinx.
    Extensions can add their own builders.
 
@@ -131,6 +138,13 @@ The :program:`sphinx-build` script has several options:
    Do not emit colored output.  (On Windows, colored output is disabled in any
    case.)
 
+.. option:: -v
+
+   Increase verbosity.  This option can be given up to three times to get more
+   debug output.  It implies :option:`-T`.
+
+   .. versionadded:: 1.2
+
 .. option:: -q
 
    Do not output anything on standard output, only write warnings and errors to
@@ -150,11 +164,24 @@ The :program:`sphinx-build` script has several options:
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.
 
+.. option:: -T
+
+   Display the full traceback when an unhandled exception occurs.  Otherwise,
+   only a summary is displayed and the traceback information is saved to a file
+   for further analysis.
+
+   .. versionadded:: 1.2
+
 .. option:: -P
 
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an
    unhandled exception occurs while building.
 
+.. option:: -h, --help, --version
+
+   Display usage summary or Sphinx version.
+
+   .. versionadded:: 1.2
 
 You can also give one or more filenames on the command line after the source and
 build directories.  Sphinx will then try to build only these output files (and
@@ -226,6 +253,17 @@ The :program:`sphinx-apidoc` script has several options:
 .. option:: -d maxdepth
 
    This sets the maximum depth of the table of contents, if one is generated.
+
+.. option:: -l, --follow-links
+
+   This option makes sphinx-apidoc follow symbolic links when recursing the
+   filesystem to discover packages and modules. You may need it if you want
+   to generate documentation from a source directory managed by
+   `collective.recipe.omelette
+   <http://pypi.python.org/pypi/collective.recipe.omelette/>`_.
+   By default, symbolic links are skipped.
+
+   .. versionadded:: 1.2
 
 .. option:: -T, --no-toc
 

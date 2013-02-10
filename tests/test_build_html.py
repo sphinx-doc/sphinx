@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -44,7 +44,7 @@ reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
 %(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
-http://sphinx.pocoo.org/domains.html
+http://sphinx-doc.org/domains.html
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -319,7 +319,8 @@ def check_static_entries(outdir):
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
-    html_warnings_exp = HTML_WARNINGS % {'root': re.escape(app.srcdir)}
+    html_warnings_exp = HTML_WARNINGS % {
+            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + html_warnings_exp + \
@@ -328,7 +329,7 @@ def test_html(app):
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
-        fp = open(os.path.join(app.outdir, fname))
+        fp = open(os.path.join(app.outdir, fname), 'rb')
         try:
             etree = ET.parse(fp, parser)
         finally:

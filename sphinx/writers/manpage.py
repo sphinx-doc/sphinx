@@ -5,7 +5,7 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -71,6 +71,11 @@ class ManualPageTranslator(BaseTranslator):
 
         # since self.append_header() is never called, need to do this here
         self.body.append(MACRO_DEF)
+
+        # Overwrite admonition label translations with our own
+        for label, translation in admonitionlabels.items():
+            self.language.labels[label] = self.deunicode(translation)
+
 
     # overwritten -- added quotes around all .TH arguments
     def header(self):
@@ -192,12 +197,6 @@ class ManualPageTranslator(BaseTranslator):
         self.visit_admonition(node)
     def depart_seealso(self, node):
         self.depart_admonition(node)
-
-    # overwritten -- use our own label translations
-    def visit_admonition(self, node, name=None):
-        if name:
-            self.body.append('.IP %s\n' %
-                             self.deunicode(admonitionlabels.get(name, name)))
 
     def visit_productionlist(self, node):
         self.ensure_eol()
@@ -340,6 +339,14 @@ class ManualPageTranslator(BaseTranslator):
         if 'manpage' in node.get('format', '').split():
             self.body.append(node.astext())
         raise nodes.SkipNode
+
+    def visit_meta(self, node):
+        raise nodes.SkipNode
+
+    def visit_inline(self, node):
+        pass
+    def depart_inline(self, node):
+        pass
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

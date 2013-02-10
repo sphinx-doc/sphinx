@@ -6,7 +6,7 @@
     Build epub files.
     Originally derived from qthelp.py.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,7 +30,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.osutil import ensuredir, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
 
@@ -281,8 +281,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 newids.append(self.fix_fragment('', id))
             node.attributes['ids'] = newids
 
-    def add_visible_links(self, tree):
-        """Append visible link targets after external links."""
+    def add_visible_links(self, tree, show_urls='inline'):
+        """Append visible link targets after external links"""
+        if show_urls == 'no':
+            return
+
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
@@ -290,9 +293,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 uri = _link_target_template % {'uri': uri}
                 if uri:
                     idx = node.parent.index(node) + 1
-                    link = nodes.inline(uri, uri)
-                    link['classes'].append(_css_link_target_class)
-                    node.parent.insert(idx, link)
+                    if show_urls == 'inline':
+                        link = nodes.inline(uri, uri)
+                        link['classes'].append(_css_link_target_class)
+                        node.parent.insert(idx, link)
 
     def write_doc(self, docname, doctree):
         """Write one document file.
@@ -301,7 +305,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         and to add visible external links.
         """
         self.fix_ids(doctree)
-        self.add_visible_links(doctree)
+        self.add_visible_links(doctree, self.config.epub_show_urls)
         return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def fix_genindex(self, tree):
@@ -662,7 +666,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
             zipfile.ZIP_STORED)
         for file in projectfiles:
             fp = path.join(outdir, file)
-            if isinstance(fp, unicode):
-                fp = fp.encode(sys.getfilesystemencoding())
+            if sys.version_info < (2, 6):
+                # When zipile.ZipFile.write call with unicode filename, ZipFile
+                # encode filename to 'utf-8' (only after Python-2.6).
+                if isinstance(file, unicode):
+                    # OEBPS Container Format (OCF) 2.0.1 specification require
+                    # "File Names MUST be UTF-8 encoded".
+                    file = file.encode('utf-8')
             epub.write(fp, file, zipfile.ZIP_DEFLATED)
         epub.close()

@@ -5,7 +5,7 @@
 
     Texinfo builder.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,9 +72,9 @@ uninstall-info: info
 \t-$(TEXI2PDF) '$<'
 
 clean:
-\t-rm -f *.info *.pdf *.txt *.html
-\t-rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla *.ky *.pg
-\t-rm -f *.vr *.tp *.fn *.fns *.def *.defs *.cp *.cps *.ge *.ges *.mo
+\trm -f *.info *.pdf *.txt *.html
+\trm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla *.ky *.pg
+\trm -f *.vr *.tp *.fn *.fns *.def *.defs *.cp *.cps *.ge *.ges *.mo
 
 .PHONY: all info plaintext html pdf install-info uninstall-info clean
 '''

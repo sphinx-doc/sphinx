@@ -1,0 +1,23 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, foof
+# This file is distributed under the same license as the foo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-02-04 14:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n role xref"
+msgstr "I18N ROCK'N ROLE XREF"
+
+msgid "link to :term:`Some term`, :ref:`i18n-role-xref`, :doc:`contents`."
+msgstr "LINK TO :ref:`i18n-role-xref`, :doc:`contents`, :term:`SOME NEW TERM`."

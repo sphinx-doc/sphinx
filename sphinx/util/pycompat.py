@@ -5,7 +5,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -64,6 +64,35 @@ else:
         return s.encode('ascii', 'backslashreplace')
 
 
+def execfile_(filepath, _globals):
+    from sphinx.util.osutil import fs_encoding
+    # get config source -- 'b' is a no-op under 2.x, while 'U' is
+    # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
+    f = open(filepath, 'rbU')
+    try:
+        source = f.read()
+    finally:
+        f.close()
+
+    # py25,py26,py31 accept only LF eol instead of CRLF
+    if sys.version_info[:2] in ((2, 5), (2, 6), (3, 1)):
+        source = source.replace(b('\r\n'), b('\n'))
+
+    # compile to a code object, handle syntax errors
+    filepath_enc = filepath.encode(fs_encoding)
+    try:
+        code = compile(source, filepath_enc, 'exec')
+    except SyntaxError:
+        if convert_with_2to3:
+            # maybe the file uses 2.x syntax; try to refactor to
+            # 3.x syntax using 2to3
+            source = convert_with_2to3(filepath)
+            code = compile(source, filepath_enc, 'exec')
+        else:
+            raise
+    exec code in _globals
+
+
 try:
     from html import escape as htmlescape
 except ImportError:
@@ -81,6 +110,13 @@ if sys.version_info >= (2, 6):
         from itertools import zip_longest  # Python 3 name
     except ImportError:
         from itertools import izip_longest as zip_longest
+
+    import os
+    relpath = os.path.relpath
+    del os
+
+    import io
+    open = io.open
 
 else:
     # Python < 2.6
@@ -113,6 +149,39 @@ else:
                 yield tup
         except IndexError:
             pass
+
+    from os.path import curdir
+    def relpath(path, start=curdir):
+        """Return a relative version of a path"""
+        from os.path import sep, abspath, commonprefix, join, pardir
+
+        if not path:
+            raise ValueError("no path specified")
+
+        start_list = abspath(start).split(sep)
+        path_list = abspath(path).split(sep)
+
+        # Work out how much of the filepath is shared by start and path.
+        i = len(commonprefix([start_list, path_list]))
+
+        rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return start
+        return join(*rel_list)
+    del curdir
+
+    from types import MethodType
+    def open(filename, mode='r', *args, **kw):
+        newline = kw.pop('newline', None)
+        mode = mode.replace('t', '')
+        f = codecs.open(filename, mode, *args, **kw)
+        if newline is not None:
+            f._write = f.write
+            def write(self, text):
+                text = text.replace(u'\r\n', u'\n').replace(u'\n', newline)
+                self._write(text)
+            f.write = MethodType(write, f)
+        return f
 
 
 # ------------------------------------------------------------------------------

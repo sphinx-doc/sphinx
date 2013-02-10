@@ -1,0 +1,12 @@
+:tocdepth: 2
+
+i18n with figure caption
+========================
+
+.. figure:: i18n.png
+
+   My caption of the figure
+
+   My description paragraph1 of the figure.
+
+   My description paragraph2 of the figure.

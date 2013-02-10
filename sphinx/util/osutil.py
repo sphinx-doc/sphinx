@@ -5,7 +5,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -40,12 +40,20 @@ def relative_uri(base, to):
         return to
     b2 = base.split(SEP)
     t2 = to.split(SEP)
-    # remove common segments
-    for x, y in zip(b2, t2):
+    # remove common segments (except the last segment)
+    for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
             break
         b2.pop(0)
         t2.pop(0)
+    if b2 == t2:
+        # Special case: relative_uri('f/index.html','f/index.html')
+        # returns '', not 'index.html'
+        return ''
+    if len(b2) == 1 and t2 == ['']:
+        # Special case: relative_uri('f/index.html','f/') should
+        # return './', not ''
+        return '.' +  SEP
     return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
 
 
@@ -136,8 +144,9 @@ else:
 
 
 def safe_relpath(path, start=None):
+    from sphinx.util.pycompat import relpath
     try:
-        return os.path.relpath(path, start)
+        return relpath(path, start)
     except ValueError:
         return path
 
@@ -148,3 +157,6 @@ def find_catalog(docname, compaction):
         ret = docname
 
     return ret
+
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+

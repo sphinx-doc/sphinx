@@ -5,7 +5,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,6 +16,7 @@ from util import *
 
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron
+from sphinx.util.pycompat import execfile_
 
 def setup_module():
     nocolor()
@@ -44,6 +45,25 @@ def teardown_module():
     qs.term_input = real_raw_input
     qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
+
+
+def test_quickstart_inputstrip():
+    d = {}
+    answers = {
+        'Q1': 'Y\r',  # input() return with '\r' on Python-3.2.0 for Windows
+        'Q2': ' Yes \r',
+        'Q3': 'N',
+        'Q4': 'N ',
+    }
+    qs.term_input = mock_raw_input(answers)
+    qs.do_prompt(d, 'k1', 'Q1')
+    assert d['k1'] == 'Y'
+    qs.do_prompt(d, 'k2', 'Q2')
+    assert d['k2'] == 'Yes'
+    qs.do_prompt(d, 'k3', 'Q3')
+    assert d['k3'] == 'N'
+    qs.do_prompt(d, 'k4', 'Q4')
+    assert d['k4'] == 'N'
 
 
 def test_do_prompt():
@@ -91,12 +111,7 @@ def test_quickstart_defaults(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    f = open(conffile, 'rbU')
-    try:
-        code = compile(f.read(), conffile, 'exec')
-    finally:
-        f.close()
-    exec code in ns
+    execfile_(conffile, ns)
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['source_suffix'] == '.rst'
@@ -151,12 +166,7 @@ def test_quickstart_all_answers(tempdir):
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    f = open(conffile, 'rbU')
-    try:
-        code = compile(f.read(), conffile, 'exec')
-    finally:
-        f.close()
-    exec code in ns
+    execfile_(conffile, ns)
     assert ns['extensions'] == ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
@@ -183,3 +193,24 @@ def test_quickstart_all_answers(tempdir):
     assert (tempdir / 'source' / '.static').isdir()
     assert (tempdir / 'source' / '.templates').isdir()
     assert (tempdir / 'source' / 'contents.txt').isfile()
+
+
+@with_tempdir
+def test_generated_files_eol(tempdir):
+    answers = {
+        'Root path': tempdir,
+        'Project name': 'Sphinx Test',
+        'Author name': 'Georg Brandl',
+        'Project version': '0.1',
+    }
+    qs.term_input = mock_raw_input(answers)
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
+
+    def assert_eol(filename, eol):
+        content = filename.bytes().decode('unicode-escape')
+        assert all([l[-len(eol):]==eol for l in content.splitlines(True)])
+
+    assert_eol(tempdir / 'make.bat', '\r\n')
+    assert_eol(tempdir / 'Makefile', '\n')

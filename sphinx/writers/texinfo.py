@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -233,30 +233,31 @@ class TexinfoTranslator(nodes.NodeVisitor):
         """Generates a unique id for each section.
 
         Assigns the attribute ``node_name`` to each section."""
+
+        def add_node_name(name):
+            node_id = self.escape_id(name)
+            nth, suffix = 1, ''
+            while node_id + suffix in self.written_ids or \
+                  node_id + suffix in self.node_names:
+                nth += 1
+                suffix = '<%s>' % nth
+            node_id += suffix
+            self.written_ids.add(node_id)
+            self.node_names[node_id] = name
+            return node_id
+
         # must have a "Top" node
         self.document['node_name'] = 'Top'
-        self.node_names['Top'] = 'Top'
-        self.written_ids.update(('Top', 'top'))
+        add_node_name('Top')
+        add_node_name('top')
         # each index is a node
-        for name, content in self.indices:
-            self.node_names[name] = name
-            self.written_ids.add(name)
+        self.indices = [(add_node_name(name), content)
+                        for name, content in self.indices]
         # each section is also a node
         for section in self.document.traverse(nodes.section):
             title = section.next_node(nodes.Titular)
             name = (title and title.astext()) or '<untitled>'
-            node_id = self.escape_id(name) or '<untitled>'
-            assert node_id and name
-            nth, suffix = 1, ''
-            while node_id + suffix in self.written_ids:
-                nth += 1
-                suffix = '<%s>' % nth
-            node_id += suffix
-            assert node_id not in self.node_names
-            assert node_id not in self.written_ids
-            section['node_name'] = node_id
-            self.node_names[node_id] = name
-            self.written_ids.add(node_id)
+            section['node_name'] = add_node_name(name)
 
     def collect_node_menus(self):
         """Collect the menu entries for each "node" section."""
@@ -371,7 +372,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         for entry in entries:
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash
-            parts = reg.split(name, 1)
+            try:
+                parts = reg.split(name, 1)
+            except TypeError:
+                # could be a gettext proxy
+                parts = [name]
             if len(parts) == 2:
                 name, desc = parts
             else:
@@ -450,8 +455,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                         self.builder.docnames)
                     if not content:
                         continue
-                    node_name = self.escape_id(indexcls.localname)
-                    self.indices.append((node_name,
+                    self.indices.append((indexcls.localname,
                                          generate(content, collapsed)))
         self.indices.append((_('Index'), '\n@printindex ge\n'))
 
@@ -1175,7 +1179,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 for id in production.get('ids'):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
-                lastname = production['tokenname']
+                ##lastname = production['tokenname']
             else:
                 s = '%s    ' % (' '*maxlen)
             self.body.append(self.escape(s))

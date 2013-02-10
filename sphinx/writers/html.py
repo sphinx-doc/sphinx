@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,7 +23,10 @@ from sphinx.util.smartypants import sphinx_smarty_pants
 try:
     from PIL import Image        # check for the Python Imaging Library
 except ImportError:
-    Image = None
+    try:
+        import Image
+    except ImportError:
+        Image = None
 
 
 class HTMLWriter(Writer):
@@ -200,7 +203,7 @@ class HTMLTranslator(BaseTranslator):
     def visit_admonition(self, node, name=''):
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
-        if name and name != 'seealso':
+        if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
 

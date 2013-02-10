@@ -624,10 +624,10 @@ msgstr "Sist oppdatert %(last_updated)s."
 #: sphinx/themes/basic/layout.html:198
 #, python-format
 msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"Lagd med <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Lagd med <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4

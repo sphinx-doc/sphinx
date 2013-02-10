@@ -5,11 +5,12 @@
 
     Test all builders that have no special checks.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from util import *
+from textwrap import dedent
 
 
 def teardown_module():
@@ -57,7 +58,35 @@ else:
     @with_app(buildername='man')
     def test_man(app):
         app.builder.build_all()
+        assert (app.outdir / 'SphinxTests.1').exists()
 
 @with_app(buildername='singlehtml', cleanenv=True)
 def test_singlehtml(app):
+    app.builder.build_all()
+
+@with_app(buildername='xml')
+def test_xml(app):
+    app.builder.build_all()
+
+@with_app(buildername='pseudoxml')
+def test_pseudoxml(app):
+    app.builder.build_all()
+
+@with_app(buildername='html', srcdir='(temp)')
+def test_multibyte_path(app):
+    srcdir = path(app.srcdir)
+    mb_name = u'\u65e5\u672c\u8a9e'
+    (srcdir / mb_name).makedirs()
+    (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
+        multi byte file name page
+        ==========================
+        """))
+
+    master_doc = srcdir / 'contents.txt'
+    master_doc.write_bytes((master_doc.text() + dedent("""
+            .. toctree::
+
+               %(mb_name)s/%(mb_name)s
+            """ % locals())
+    ).encode('utf-8'))
     app.builder.build_all()

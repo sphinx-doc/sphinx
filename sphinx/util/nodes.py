@@ -5,7 +5,7 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -43,6 +43,22 @@ IGNORED_NODES = (
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
+        # workaround: nodes.term doesn't have source, line and rawsource
+        # (fixed in Docutils r7495)
+        if isinstance(node, nodes.term) and not node.source:
+            definition_list_item = node.parent
+            if definition_list_item.line is not None:
+                node.source = definition_list_item.source
+                node.line = definition_list_item.line - 1
+                node.rawsource = definition_list_item.\
+                                 rawsource.split("\n", 2)[0]
+        # workaround: nodes.caption doesn't have source, line.
+        # this issue was filed to Docutils tracker:
+        # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
+        if isinstance(node, nodes.caption) and not node.source:
+            node.source = node.parent.source
+            node.line = 0  #need fix docutils to get `node.line`
+
         if not node.source:
             continue # built-in message
         if isinstance(node, IGNORED_NODES):
@@ -56,6 +72,19 @@ def extract_messages(doctree):
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
+
+
+def traverse_translatable_index(doctree):
+    """Traverse translatable index node from a document tree."""
+    def is_block_index(node):
+        return isinstance(node, addnodes.index) and  \
+            node.get('inline') == False
+    for node in doctree.traverse(is_block_index):
+        if 'raw_entries' in node:
+            entries = node['raw_entries']
+        else:
+            entries = node['entries']
+        yield node, entries
 
 
 def nested_parse_with_titles(state, content, node):
@@ -204,3 +233,17 @@ def _new_copy(self):
     return self.__class__(self.rawsource, **self.attributes)
 
 nodes.Element.copy = _new_copy
+
+# monkey-patch Element.__repr__ to return str if include unicode.
+# sf.net/tracker/?func=detail&aid=3601607&group_id=38414&atid=422030
+import sys
+if sys.version_info < (3,):
+    _element_repr_orig = nodes.Element.__repr__
+    
+    def _repr(self):
+        s = _element_repr_orig(self)
+        if isinstance(s, unicode):
+            return s.encode('utf-8')
+        return s
+    
+    nodes.Element.__repr__ = _repr

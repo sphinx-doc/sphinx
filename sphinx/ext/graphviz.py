@@ -6,7 +6,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,6 @@ import re
 import codecs
 import posixpath
 from os import path
-from math import ceil
 from subprocess import Popen, PIPE
 try:
     from hashlib import sha1 as sha
@@ -125,7 +124,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
               str(self.builder.config.graphviz_dot) + \
               str(self.builder.config.graphviz_dot_args)
               ).encode('utf-8')
-              
+
     fname = '%s-%s.%s' % (prefix, sha(hashkey).hexdigest(), format)
     if hasattr(self.builder, 'imgpath'):
         # HTML

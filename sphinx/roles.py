@@ -5,7 +5,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -293,6 +293,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, main)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
+    set_role_source_info(inliner, lineno, indexnode)
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 

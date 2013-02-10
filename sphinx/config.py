@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ from os import path
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import bytes, b, convert_with_2to3
+from sphinx.util.pycompat import bytes, b, execfile_
 
 nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
@@ -110,6 +110,7 @@ class Config(object):
         html_secnumber_suffix = ('. ', 'html'),
         html_search_language = (None, 'html'),
         html_search_options = ({}, 'html'),
+        html_search_scorer = ('', None),
 
         # HTML help only options
         htmlhelp_basename = (lambda self: make_filename(self.project), None),
@@ -141,9 +142,14 @@ class Config(object):
         epub_tocdup = (True, 'env'),
         epub_fix_images = (False, 'env'),
         epub_max_image_width = (0, 'env'),
+        epub_show_urls = ('inline', 'html'),
 
         # LaTeX options
-        latex_documents = ([], None),
+        latex_documents = (lambda self: [(self.master_doc,
+                                          make_filename(self.project) + '.tex',
+                                          self.project,
+                                          '', 'manual')],
+                           None),
         latex_logo = (None, None),
         latex_appendices = ([], None),
         latex_use_parts = (False, None),
@@ -166,11 +172,22 @@ class Config(object):
         text_newlines = ('unix', 'env'),
 
         # manpage options
-        man_pages = ([], None),
+        man_pages = (lambda self: [(self.master_doc,
+                                    make_filename(self.project).lower(),
+                                    '%s %s' % (self.project, self.release),
+                                    [], 1)],
+                     None),
         man_show_urls = (False, None),
 
         # Texinfo options
-        texinfo_documents = ([], None),
+        texinfo_documents = (lambda self: [(self.master_doc,
+                                            make_filename(self.project).lower(),
+                                            self.project, '',
+                                            make_filename(self.project),
+                                            'The %s reference manual.' %
+                                            make_filename(self.project),
+                                            'Python')],
+                             None),
         texinfo_appendices = ([], None),
         texinfo_elements = ({}, None),
         texinfo_domain_indices = (True, None),
@@ -184,6 +201,9 @@ class Config(object):
 
         # gettext options
         gettext_compact = (True, 'gettext'),
+
+        # XML options
+        xml_pretty = (True, 'env'),
     )
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -199,26 +219,8 @@ class Config(object):
                 # we promise to have the config dir as current dir while the
                 # config file is executed
                 os.chdir(dirname)
-                # get config source -- 'b' is a no-op under 2.x, while 'U' is
-                # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
-                f = open(config_file, 'rbU')
                 try:
-                    source = f.read()
-                finally:
-                    f.close()
-                try:
-                    # compile to a code object, handle syntax errors
-                    try:
-                        code = compile(source, config_file, 'exec')
-                    except SyntaxError:
-                        if convert_with_2to3:
-                            # maybe the file uses 2.x syntax; try to refactor to
-                            # 3.x syntax using 2to3
-                            source = convert_with_2to3(config_file)
-                            code = compile(source, config_file, 'exec')
-                        else:
-                            raise
-                    exec code in config
+                    execfile_(filename, config)
                 except SyntaxError, err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:

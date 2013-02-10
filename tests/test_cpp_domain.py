@@ -5,13 +5,13 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from util import *
 
-from sphinx.domains.cpp import DefinitionParser
+from sphinx.domains.cpp import DefinitionParser, DefinitionError
 
 
 def parse(name, string):
@@ -43,6 +43,15 @@ def test_type_definitions():
     x = 'int printf(const char* fmt, ...)'
     assert unicode(parse('function', x)) == x
 
+    x = 'int foo(const unsigned int j)'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(const unsigned int const j)'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(const int* const ptr)'
+    assert unicode(parse('function', x)) == x
+
     x = 'std::vector<std::pair<std::string, long long>> module::blah'
     assert unicode(parse('type_object', x)) == x
 
@@ -60,6 +69,9 @@ def test_type_definitions():
     x = 'constexpr int get_value()'
     assert unicode(parse('function', x)) == x
 
+    x = 'static constexpr int get_value()'
+    assert unicode(parse('function', x)) == x
+
     x = 'int get_value() const noexcept'
     assert unicode(parse('function', x)) == x
 
@@ -72,6 +84,21 @@ def test_type_definitions():
 
     x = 'module::myclass foo[n]'
     assert unicode(parse('member_object', x)) == x
+
+    x = 'int foo(Foo f=Foo(double(), std::make_pair(int(2), double(3.4))))'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(A a=x(a))'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int foo(B b=x(a)'
+    raises(DefinitionError, parse, 'function', x)
+
+    x = 'int foo)C c=x(a))'
+    raises(DefinitionError, parse, 'function', x)
+
+    x = 'int foo(D d=x(a'
+    raises(DefinitionError, parse, 'function', x)
 
 
 def test_bases():

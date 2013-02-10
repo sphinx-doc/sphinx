@@ -635,10 +635,10 @@ msgstr "최종 업데이트: %(last_updated)s"
 #: sphinx/themes/basic/layout.html:198
 #, fuzzy, python-format
 msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"이 문서는 <a href=\"http://sphinx.pocoo.org/\">Sphinx</a>%(sphinx_version)s로 "
+"이 문서는 <a href=\"http://sphinx-doc.org/\">Sphinx</a>%(sphinx_version)s로 "
 "제공됩니다."
 
 #: sphinx/themes/basic/opensearch.xml:4

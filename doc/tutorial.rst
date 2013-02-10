@@ -13,10 +13,10 @@ the described task.
 Setting up the documentation sources
 ------------------------------------
 
-The root directory of a documentation collection is called the :term:`source
-directory`.  This directory also contains the Sphinx configuration file
-:file:`conf.py`, where you can configure all aspects of how Sphinx reads your
-sources and builds your documentation.  [#]_
+The root directory of a Sphinx collection of reStructuredText document sources
+is called the :term:`source directory`.  This directory also contains the Sphinx
+configuration file :file:`conf.py`, where you can configure all aspects of how
+Sphinx reads your sources and builds your documentation.  [#]_
 
 Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
 source directory and creates a default :file:`conf.py` with the most useful

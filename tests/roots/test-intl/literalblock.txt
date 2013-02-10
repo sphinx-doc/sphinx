@@ -1,0 +1,13 @@
+:tocdepth: 2
+
+i18n with literal block
+=========================
+
+Correct literal block::
+
+   this is
+   literal block
+
+Missing literal block::
+
+That's all.

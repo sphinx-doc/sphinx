@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -51,6 +51,23 @@ from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
 INVENTORY_FILENAME = 'objects.inv'
 #: the filename for the "last build" file (for serializing builders)
 LAST_BUILD_FILENAME = 'last_build'
+
+
+def get_object_hash(obj):
+    """
+    In python3.3, unicode(dict_instance) retun another string per process.
+    get_object_hash(dict_instance) return same hash for same dict_instance.
+    """
+    if isinstance(obj, dict):
+        return get_object_hash(list(obj.items()))
+
+    elif isinstance(obj, (list, tuple)):
+        obj = sorted(get_object_hash(o) for o in obj)
+
+    else:  # int or other objects
+        pass
+
+    return md5(unicode(obj).encode('utf8')).hexdigest()
 
 
 class StandaloneHTMLBuilder(Builder):
@@ -156,9 +173,8 @@ class StandaloneHTMLBuilder(Builder):
         cfgdict = dict((name, self.config[name])
                        for (name, desc) in self.config.values.iteritems()
                        if desc[1] == 'html')
-        self.config_hash = md5(unicode(cfgdict).encode('utf-8')).hexdigest()
-        self.tags_hash = md5(unicode(sorted(self.tags)).encode('utf-8')) \
-                .hexdigest()
+        self.config_hash = get_object_hash(cfgdict)
+        self.tags_hash = get_object_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
@@ -240,7 +256,8 @@ class StandaloneHTMLBuilder(Builder):
         if not lang or lang not in languages:
             lang = 'en'
         self.indexer = IndexBuilder(self.env, lang,
-                                    self.config.html_search_options)
+                                    self.config.html_search_options,
+                                    self.config.html_search_scorer)
         self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
@@ -653,6 +670,8 @@ class StandaloneHTMLBuilder(Builder):
             self.indexer.feed(pagename, title, doctree)
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
+        if 'includehidden' not in kwds:
+            kwds['includehidden'] = False
         return self.render_partial(self.env.get_toctree_for(
             docname, self, collapse, **kwds))['fragment']
 

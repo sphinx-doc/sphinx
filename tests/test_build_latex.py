@@ -5,7 +5,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -42,7 +42,8 @@ def test_latex(app):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
     latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
-    latex_warnings_exp = LATEX_WARNINGS % {'root': re.escape(app.srcdir)}
+    latex_warnings_exp = LATEX_WARNINGS % {
+            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + latex_warnings_exp + \

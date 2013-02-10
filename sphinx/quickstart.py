@@ -5,13 +5,12 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys, os, time, re
 from os import path
-from codecs import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -20,6 +19,7 @@ from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
+from sphinx.util.pycompat import open
 
 # function to get input from terminal -- overridden by the test suite
 try:
@@ -33,11 +33,11 @@ PROMPT_PREFIX = '> '
 
 if sys.version_info >= (3, 0):
     # prevents that the file is checked for being written in Python 2.x syntax
-    QUICKSTART_CONF = '#!/usr/bin/env python3\n'
+    QUICKSTART_CONF = u'#!/usr/bin/env python3\n'
 else:
-    QUICKSTART_CONF = ''
+    QUICKSTART_CONF = u''
 
-QUICKSTART_CONF += '''\
+QUICKSTART_CONF += u'''\
 # -*- coding: utf-8 -*-
 #
 # %(project)s documentation build configuration file, created by
@@ -282,7 +282,7 @@ texinfo_documents = [
 #texinfo_show_urls = 'footnote'
 '''
 
-EPUB_CONFIG = '''
+EPUB_CONFIG = u'''
 
 # -- Options for Epub output ---------------------------------------------------
 
@@ -334,15 +334,18 @@ epub_copyright = u'%(copyright_str)s'
 
 # Scale large images.
 #epub_max_image_width = 0
+
+# If 'no', URL addresses will not be shown.
+#epub_show_urls = 'inline'
 '''
 
-INTERSPHINX_CONFIG = '''
+INTERSPHINX_CONFIG = u'''
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
 '''
 
-MASTER_FILE = '''\
+MASTER_FILE = u'''\
 .. %(project)s documentation master file, created by
    sphinx-quickstart on %(now)s.
    You can adapt this file completely to your liking, but it should at least
@@ -367,7 +370,7 @@ Indices and tables
 
 '''
 
-MAKEFILE = '''\
+MAKEFILE = u'''\
 # Makefile for Sphinx documentation
 #
 
@@ -376,6 +379,21 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = %(rbuilddir)s
+
+ifeq ($(shell $(SPHINXBUILD) 2> /dev/null; echo $$?), 127)
+define MSG
+
+
+The 'sphinx-build' command was not found. Make sure you have Sphinx
+installed, then set the SPHINXBUILD environment variable to point
+to the full path of the 'sphinx-build' executable. Alternatively you
+may add the Sphinx directory to PATH.
+
+If you don't have Sphinx installed, grab it from
+http://sphinx-doc.org/
+endef
+$(error $(MSG))
+endif
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -401,18 +419,21 @@ help:
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+\t@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
 \t@echo "  text       to make text files"
 \t@echo "  man        to make manual pages"
 \t@echo "  texinfo    to make Texinfo files"
 \t@echo "  info       to make Texinfo files and run them through makeinfo"
 \t@echo "  gettext    to make PO message catalogs"
 \t@echo "  changes    to make an overview of all changed/added/deprecated items"
+\t@echo "  xml        to make Docutils-native XML files"
+\t@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
 
 clean:
-\t-rm -rf $(BUILDDIR)/*
+\trm -rf $(BUILDDIR)/*
 
 html:
 \t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
@@ -482,6 +503,12 @@ latexpdf:
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+latexpdfja:
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+\t@echo "Running LaTeX files through platex and dvipdfmx..."
+\t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
+\t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
 text:
 \t$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
 \t@echo
@@ -525,9 +552,19 @@ doctest:
 \t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 \t@echo "Testing of doctests in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/doctest/output.txt."
+
+xml:
+\t$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
+\t@echo
+\t@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
+
+pseudoxml:
+\t$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
+\t@echo
+\t@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 '''
 
-BATCHFILE = '''\
+BATCHFILE = u'''\
 @ECHO OFF
 
 REM Command file for Sphinx documentation
@@ -563,6 +600,8 @@ if "%%1" == "help" (
 \techo.  texinfo    to make Texinfo files
 \techo.  gettext    to make PO message catalogs
 \techo.  changes    to make an overview over all changed/added/deprecated items
+\techo.  xml        to make Docutils-native XML files
+\techo.  pseudoxml  to make pseudoxml-XML files for display purposes
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
 \tgoto end
@@ -572,6 +611,20 @@ if "%%1" == "clean" (
 \tfor /d %%%%i in (%%BUILDDIR%%\*) do rmdir /q /s %%%%i
 \tdel /q /s %%BUILDDIR%%\*
 \tgoto end
+)
+
+
+%%SPHINXBUILD%% 2> nul
+if errorlevel 9009 (
+\techo.
+\techo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+\techo.installed, then set the SPHINXBUILD environment variable to point
+\techo.to the full path of the 'sphinx-build' executable. Alternatively you
+\techo.may add the Sphinx directory to PATH.
+\techo.
+\techo.If you don't have Sphinx installed, grab it from
+\techo.http://sphinx-doc.org/
+\texit /b 1
 )
 
 if "%%1" == "html" (
@@ -659,6 +712,26 @@ if "%%1" == "latex" (
 \tgoto end
 )
 
+if "%%1" == "latexpdf" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tcd %%BUILDDIR%%/latex
+\tmake all-pdf
+\tcd %%BUILDDIR%%/..
+\techo.
+\techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
+if "%%1" == "latexpdfja" (
+\t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
+\tcd %%BUILDDIR%%/latex
+\tmake all-pdf-ja
+\tcd %%BUILDDIR%%/..
+\techo.
+\techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
+\tgoto end
+)
+
 if "%%1" == "text" (
 \t%%SPHINXBUILD%% -b text %%ALLSPHINXOPTS%% %%BUILDDIR%%/text
 \tif errorlevel 1 exit /b 1
@@ -717,6 +790,22 @@ results in %%BUILDDIR%%/doctest/output.txt.
 \tgoto end
 )
 
+if "%%1" == "xml" (
+\t%%SPHINXBUILD%% -b xml %%ALLSPHINXOPTS%% %%BUILDDIR%%/xml
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The XML files are in %%BUILDDIR%%/xml.
+\tgoto end
+)
+
+if "%%1" == "pseudoxml" (
+\t%%SPHINXBUILD%% -b pseudoxml %%ALLSPHINXOPTS%% %%BUILDDIR%%/pseudoxml
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The pseudo-XML files are in %%BUILDDIR%%/pseudoxml.
+\tgoto end
+)
+
 :end
 '''
 
@@ -768,7 +857,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
         else:
             prompt = purple(PROMPT_PREFIX + text + ': ')
-        x = term_input(prompt)
+        x = term_input(prompt).strip()
         if default and not x:
             x = default
         if not isinstance(x, unicode):
@@ -795,14 +884,13 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
 
 if sys.version_info >= (3, 0):
     # remove Unicode literal prefixes
-    _unicode_string_re = re.compile(r"[uU]('.*?')")
-    def _convert_python_source(source):
-        return _unicode_string_re.sub('\\1', source)
+    def _convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
+        return rex.sub('\\1', source)
 
     for f in ['QUICKSTART_CONF', 'EPUB_CONFIG', 'INTERSPHINX_CONFIG']:
         globals()[f] = _convert_python_source(globals()[f])
 
-    del _unicode_string_re, _convert_python_source
+    del _convert_python_source
 
 
 def ask_user(d):
@@ -1008,10 +1096,10 @@ def generate(d, overwrite=True, silent=False):
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath, mode, content):
+    def write_file(fpath, content, newline=None):
         if overwrite or not path.isfile(fpath):
             print 'Creating file %s.' % fpath
-            f = open(fpath, mode, encoding='utf-8')
+            f = open(fpath, 'wt', encoding='utf-8', newline=newline)
             try:
                 f.write(content)
             finally:
@@ -1025,21 +1113,21 @@ def generate(d, overwrite=True, silent=False):
     if d.get('ext_intersphinx'):
         conf_text += INTERSPHINX_CONFIG
 
-    write_file(path.join(srcdir, 'conf.py'), 'w', conf_text)
+    write_file(path.join(srcdir, 'conf.py'), conf_text)
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    write_file(masterfile, 'w', MASTER_FILE % d)
+    write_file(masterfile, MASTER_FILE % d)
 
     if d['makefile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        write_file(path.join(d['path'], 'Makefile'), 'wb', MAKEFILE % d)
+        write_file(path.join(d['path'], 'Makefile'), MAKEFILE % d, u'\n')
 
     if d['batchfile']:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        write_file(path.join(d['path'], 'make.bat'), 'w', BATCHFILE % d)
+        write_file(path.join(d['path'], 'make.bat'), BATCHFILE % d, u'\r\n')
 
     if silent:
         return

@@ -3,14 +3,13 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
@@ -19,7 +18,6 @@ from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
-from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
 
@@ -42,6 +40,7 @@ class TocTree(Directive):
         'maxdepth': int,
         'glob': directives.flag,
         'hidden': directives.flag,
+        'includehidden': directives.flag,
         'numbered': int_or_nothing,
         'titlesonly': directives.flag,
     }
@@ -107,6 +106,7 @@ class TocTree(Directive):
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
+        subnode['includehidden'] = 'includehidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         set_source_info(self, subnode)
@@ -168,6 +168,7 @@ class Index(Directive):
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
         indexnode['inline'] = False
+        set_source_info(self, indexnode)
         for entry in arguments:
             ne.extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
@@ -204,29 +205,11 @@ class VersionChange(Directive):
         return ret
 
 
-class SeeAlso(Directive):
+class SeeAlso(BaseAdmonition):
     """
     An admonition mentioning things to look at as reference.
     """
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 1
-    final_argument_whitespace = True
-    option_spec = {}
-
-    def run(self):
-        ret = make_admonition(
-            addnodes.seealso, self.name, [_('See also')], self.options,
-            self.content, self.lineno, self.content_offset, self.block_text,
-            self.state, self.state_machine)
-        if self.arguments:
-            argnodes, msgs = self.state.inline_text(self.arguments[0],
-                                                    self.lineno)
-            para = nodes.paragraph()
-            para += argnodes
-            para += msgs
-            ret[0].insert(1, para)
-        return ret
+    node_class = addnodes.seealso
 
 
 class TabularColumns(Directive):
@@ -338,9 +321,46 @@ class Only(Directive):
         node.document = self.state.document
         set_source_info(self, node)
         node['expr'] = self.arguments[0]
-        self.state.nested_parse(self.content, self.content_offset, node,
-                                match_titles=1)
-        return [node]
+
+        # Same as util.nested_parse_with_titles but try to handle nested
+        # sections which should be raised higher up the doctree.
+        surrounding_title_styles = self.state.memo.title_styles
+        surrounding_section_level = self.state.memo.section_level
+        self.state.memo.title_styles = []
+        self.state.memo.section_level = 0
+        try:
+            self.state.nested_parse(self.content, self.content_offset,
+                                    node, match_titles=1)
+            title_styles = self.state.memo.title_styles
+            if (not surrounding_title_styles
+                or not title_styles
+                or title_styles[0] not in surrounding_title_styles
+                or not self.state.parent):
+                # No nested sections so no special handling needed.
+                return [node]
+            # Calculate the depths of the current and nested sections.
+            current_depth = 0
+            parent = self.state.parent
+            while parent:
+                current_depth += 1
+                parent = parent.parent
+            current_depth -= 2
+            title_style = title_styles[0]
+            nested_depth = len(surrounding_title_styles)
+            if title_style in surrounding_title_styles:
+                nested_depth = surrounding_title_styles.index(title_style)
+            # Use these depths to determine where the nested sections should
+            # be placed in the doctree.
+            n_sects_to_raise = current_depth - nested_depth + 1
+            parent = self.state.parent
+            for i in xrange(n_sects_to_raise):
+                if parent.parent:
+                    parent = parent.parent
+            parent.append(node)
+            return []
+        finally:
+            self.state.memo.title_styles = surrounding_title_styles
+            self.state.memo.section_level = surrounding_section_level
 
 
 class Include(BaseInclude):

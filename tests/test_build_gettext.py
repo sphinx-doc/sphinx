@@ -11,6 +11,7 @@
 
 import gettext
 import os
+import re
 from subprocess import Popen, PIPE
 
 from util import *
@@ -19,6 +20,7 @@ from util import SkipTest
 
 def teardown_module():
     (test_root / '_build').rmtree(True)
+    (test_roots / 'test-intl' / '_build').rmtree(True),
 
 
 @with_app(buildername='gettext')
@@ -35,6 +37,14 @@ def test_build(app):
     assert (app.outdir / 'extapi.pot').isfile()
     # directory items are grouped into sections
     assert (app.outdir / 'subdir.pot').isfile()
+
+
+@with_app(buildername='gettext')
+def test_seealso(app):
+    # regression test for issue #960
+    app.builder.build(['markup'])
+    catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
+    assert 'msgid "something, something else, something more"' in catalog
 
 
 @with_app(buildername='gettext')
@@ -79,3 +89,51 @@ def test_gettext(app):
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == u"Testing various markup"
+
+
+@with_app(buildername='gettext',
+          srcdir=(test_roots / 'test-intl'),
+          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'),
+          confoverrides={'gettext_compact': False})
+def test_gettext_index_entries(app):
+    # regression test for #976
+    app.builder.build(['index_entries'])
+
+    _msgid_getter = re.compile(r'msgid "(.*)"').search
+    def msgid_getter(msgid):
+        m = _msgid_getter(msgid)
+        if m:
+            return m.groups()[0]
+        return None
+
+    pot = (app.outdir / 'index_entries.pot').text(encoding='utf-8')
+    msgids = filter(None, map(msgid_getter, pot.splitlines()))
+
+    expected_msgids = [
+        "i18n with index entries",
+        "index target section",
+        "this is :index:`Newsletter` target paragraph.",
+        "various index entries",
+        "That's all.",
+        "Mailing List",
+        "Newsletter",
+        "Recipients List",
+        "First",
+        "Second",
+        "Third",
+        "Entry",
+        "See",
+        "Module",
+        "Keyword",
+        "Operator",
+        "Object",
+        "Exception",
+        "Statement",
+        "Builtin",
+    ]
+    for expect in expected_msgids:
+        assert expect in msgids
+        msgids.remove(expect)
+
+    # unexpected msgid existent
+    assert msgids == []

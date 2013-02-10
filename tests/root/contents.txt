@@ -27,6 +27,7 @@ Contents:
    doctest
    extensions
    versioning/index
+   footnote
 
    Python <http://python.org/>
 
