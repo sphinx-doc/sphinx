@@ -139,7 +139,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'extraclassoptions': '',
         'inputenc':        '\\usepackage[utf8]{inputenc}',
         'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
-        'cmappkg':         '\\usepackage{cmap}\n',
+        'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
         'babel':           '\\usepackage{babel}',
         'fontpkg':         '\\usepackage{times}',
