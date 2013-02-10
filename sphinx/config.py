@@ -16,8 +16,8 @@ from os import path
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
-from sphinx.util.osutil import make_filename, fs_encoding
-from sphinx.util.pycompat import bytes, b, convert_with_2to3
+from sphinx.util.osutil import make_filename
+from sphinx.util.pycompat import bytes, b, execfile_
 
 nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
@@ -219,27 +219,8 @@ class Config(object):
                 # we promise to have the config dir as current dir while the
                 # config file is executed
                 os.chdir(dirname)
-                # get config source -- 'b' is a no-op under 2.x, while 'U' is
-                # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
-                f = open(filename, 'rbU')
                 try:
-                    source = f.read()
-                finally:
-                    f.close()
-                try:
-                    # compile to a code object, handle syntax errors
-                    config_file_enc = config_file.encode(fs_encoding)
-                    try:
-                        code = compile(source, config_file_enc, 'exec')
-                    except SyntaxError:
-                        if convert_with_2to3:
-                            # maybe the file uses 2.x syntax; try to refactor to
-                            # 3.x syntax using 2to3
-                            source = convert_with_2to3(config_file)
-                            code = compile(source, config_file_enc, 'exec')
-                        else:
-                            raise
-                    exec code in config
+                    execfile_(filename, config)
                 except SyntaxError, err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:

@@ -64,6 +64,35 @@ else:
         return s.encode('ascii', 'backslashreplace')
 
 
+def execfile_(filepath, _globals):
+    from sphinx.util.osutil import fs_encoding
+    # get config source -- 'b' is a no-op under 2.x, while 'U' is
+    # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
+    f = open(filepath, 'rbU')
+    try:
+        source = f.read()
+    finally:
+        f.close()
+
+    # py25,py26,py31 accept only LF eol instead of CRLF
+    if sys.version_info[:2] in ((2, 5), (2, 6), (3, 1)):
+        source = source.replace(b('\r\n'), b('\n'))
+
+    # compile to a code object, handle syntax errors
+    filepath_enc = filepath.encode(fs_encoding)
+    try:
+        code = compile(source, filepath_enc, 'exec')
+    except SyntaxError:
+        if convert_with_2to3:
+            # maybe the file uses 2.x syntax; try to refactor to
+            # 3.x syntax using 2to3
+            source = convert_with_2to3(filepath)
+            code = compile(source, filepath_enc, 'exec')
+        else:
+            raise
+    exec code in _globals
+
+
 try:
     from html import escape as htmlescape
 except ImportError:

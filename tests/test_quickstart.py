@@ -16,6 +16,7 @@ from util import *
 
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron
+from sphinx.util.pycompat import execfile_
 
 def setup_module():
     nocolor()
@@ -110,12 +111,7 @@ def test_quickstart_defaults(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    f = open(conffile, 'rbU')
-    try:
-        code = compile(f.read(), conffile, 'exec')
-    finally:
-        f.close()
-    exec code in ns
+    execfile_(conffile, ns)
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['source_suffix'] == '.rst'
@@ -170,12 +166,7 @@ def test_quickstart_all_answers(tempdir):
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    f = open(conffile, 'rbU')
-    try:
-        code = compile(f.read(), conffile, 'exec')
-    finally:
-        f.close()
-    exec code in ns
+    execfile_(conffile, ns)
     assert ns['extensions'] == ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
