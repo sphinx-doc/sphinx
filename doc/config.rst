@@ -1087,6 +1087,8 @@ These options influence LaTeX output.
         ``'\\usepackage[utf8]{inputenc}'``.
      ``'cmappkg'``
         "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
+
+        .. versionadded:: 1.2
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
      ``'maketitle'``
