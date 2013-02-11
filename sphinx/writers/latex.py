@@ -216,7 +216,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.elements['fncychap'] = ''
         else:
             self.elements['classoptions'] += ',english'
-        print self.elements
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
         if self.elements['extraclassoptions']:
