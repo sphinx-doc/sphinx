@@ -35,6 +35,8 @@ epub_publisher = 'http://sphinx-doc.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.html', 'Welcome')]
+epub_post_files = [('install.html', 'Installing Sphinx'),
+    ('develop.html', 'Sphinx development')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js', '_static/underscore.js',
     '_static/basic.css', 'search.html', '_static/websupport.js']
