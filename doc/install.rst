@@ -77,7 +77,7 @@ Go to http://python.org . This site is a headquarter of the
 Python. Look at Left sidebar and "Quick Links", Click "Windows
 Installer" to download.
 
-.. image:: pythonorg.jpg
+.. image:: pythonorg.png
 
 .. note::
 
