@@ -194,7 +194,7 @@ class ManualPageTranslator(BaseTranslator):
         pass
 
     def visit_seealso(self, node):
-        self.visit_admonition(node)
+        self.visit_admonition(node, admonitionlabels['seealso'])
     def depart_seealso(self, node):
         self.depart_admonition(node)
 
