@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* #1074: Add environment version info to the generated search index to avoid
+  compatibility issues with old builds.
+
 * #1110: Added a new configuration value :confval:`texinfo_no_detailmenu` for
   controlling whether the Texinfo writer generates a ``@detailmenu`` in the
   "Top" node's menu.

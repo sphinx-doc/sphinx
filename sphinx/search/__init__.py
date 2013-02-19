@@ -191,7 +191,8 @@ class IndexBuilder(object):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
-        if not isinstance(frozen, dict):
+        if not isinstance(frozen, dict) or \
+           frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
         index2fn = frozen['filenames']
         self._titles = dict(zip(index2fn, frozen['titles']))
@@ -275,7 +276,7 @@ class IndexBuilder(object):
         objnames = self._objnames
         return dict(filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
-                    titleterms=title_terms)
+                    titleterms=title_terms, envversion=self.env.version)
 
     def prune(self, filenames):
         """Remove data for all filenames not in the list."""
