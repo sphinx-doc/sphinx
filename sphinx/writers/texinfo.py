@@ -46,6 +46,8 @@ TEMPLATE = """\
 @exampleindent %(exampleindent)s
 @finalout
 %(direntry)s
+@definfoenclose strong,`,'
+@definfoenclose emph,`,'
 @c %%**end of header
 
 @copying
