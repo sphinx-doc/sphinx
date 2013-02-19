@@ -128,7 +128,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         'direntry': '',
         'exampleindent': 4,
         'filename': '',
-        'paragraphindent': 2,
+        'paragraphindent': 0,
         'preamble': '',
         'project': '',
         'release': '',
@@ -707,8 +707,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Blocks
 
     def visit_paragraph(self, node):
-        if 'continued' in node or isinstance(node.parent, nodes.compound):
-            self.body.append('\n@noindent')
         self.body.append('\n')
     def depart_paragraph(self, node):
         self.body.append('\n')
@@ -722,8 +720,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_literal_block(self, node):
         self.body.append('\n@example\n')
     def depart_literal_block(self, node):
-        self.body.append('\n@end example\n\n'
-                         '@noindent\n')
+        self.ensure_eol()
+        self.body.append('@end example\n')
 
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
