@@ -505,7 +505,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def add_xref(self, id, name, node):
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
-        self.body.append('@pxref{%s,,%s}' % (sid, name))
+        self.body.append('@ref{%s,,%s}' % (sid, name))
         self.referenced_ids.add(sid)
         self.referenced_ids.add(self.escape_id(id))
 
@@ -677,9 +677,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:
-                self.body.append('@pxref{%s,,,%s}' % (id, uri))
+                self.body.append('@ref{%s,,,%s}' % (id, uri))
             else:
-                self.body.append('@pxref{%s,,%s,%s}' % (id, name, uri))
+                self.body.append('@ref{%s,,%s,%s}' % (id, name, uri))
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
