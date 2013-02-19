@@ -1288,6 +1288,13 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_no_detailmenu
+
+   If true, do not generate a ``@detailmenu`` in the "Top" node's menu
+   containing entries for each sub-node in the document.  Default is ``False``.
+
+   .. versionadded:: 1.2
+
 .. confval:: texinfo_elements
 
    A dictionary that contains Texinfo snippets that override those Sphinx

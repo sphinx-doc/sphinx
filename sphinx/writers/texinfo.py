@@ -391,7 +391,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         self.body.append('\n@menu\n')
         self.add_menu_entries(entries)
-        if not self.node_menus[entries[0]]:
+        if (node_name != 'Top' or
+            not self.node_menus[entries[0]] or
+            self.builder.config.texinfo_no_detailmenu):
             self.body.append('\n@end menu\n')
             return
 
@@ -404,14 +406,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
             for subentry in entries:
                 _add_detailed_menu(subentry)
 
-        if node_name == 'Top':
-            self.body.append('\n@detailmenu\n'
-                             ' --- The Detailed Node Listing ---\n')
+        self.body.append('\n@detailmenu\n'
+                         ' --- The Detailed Node Listing ---\n')
         for entry in entries:
             _add_detailed_menu(entry)
-        if node_name == 'Top':
-            self.body.append('\n@end detailmenu')
-        self.body.append('\n@end menu\n\n')
+        self.body.append('\n@end detailmenu\n'
+                         '@end menu\n')
 
     def tex_image_length(self, width_str):
         match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)

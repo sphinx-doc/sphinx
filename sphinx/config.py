@@ -192,6 +192,7 @@ class Config(object):
         texinfo_elements = ({}, None),
         texinfo_domain_indices = (True, None),
         texinfo_show_urls = ('footnote', None),
+        texinfo_no_detailmenu = (False, None),
 
         # linkcheck options
         linkcheck_ignore = ([], None),

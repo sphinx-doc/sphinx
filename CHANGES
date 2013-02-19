@@ -1,6 +1,12 @@
 Release 1.2 (in development)
 ============================
 
+* #1110: Added a new configuration value :confval:`texinfo_no_detailmenu` for
+  controlling whether the Texinfo writer generates a ``@detailmenu`` in the
+  "Top" node's menu.
+
+* The Texinfo writer now only generates detailed menus for the "Top" node.
+
 * New locales: #1097: Added Basque locale.
 
 * Fix text builder did not respect wide/fullwidth characters:
