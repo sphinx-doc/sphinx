@@ -180,7 +180,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
             r = self.referenced_ids.pop()
             if r not in self.written_ids:
                 self.body.append('@anchor{%s}@w{%s}\n' % (r, ' ' * 30))
-        self.fragment = ''.join(self.body).strip() + '\n'
+        self.ensure_eol()
+        self.fragment = ''.join(self.body)
         self.elements['body'] = self.fragment
         self.output = TEMPLATE % self.elements
 
