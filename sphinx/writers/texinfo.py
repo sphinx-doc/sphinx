@@ -964,20 +964,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Field Lists
 
     def visit_field_list(self, node):
-        self.body.append('\n\n@itemize @w\n')
+        pass
     def depart_field_list(self, node):
-        self.ensure_eol()
-        self.body.append('@end itemize\n')
+        pass
 
     def visit_field(self, node):
-        if not isinstance(node.parent, nodes.field_list):
-            self.visit_field_list(node)
+        self.body.append('\n')
     def depart_field(self, node):
-        if not isinstance(node.parent, nodes.field_list):
-            self.depart_field_list(node)
+        self.body.append('\n')
 
     def visit_field_name(self, node):
-        self.body.append('\n@item ')
+        self.ensure_eol()
+        self.body.append('@*')
     def depart_field_name(self, node):
         self.body.append(': ')
 
@@ -991,8 +989,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_admonition(self, node, name=''):
         if not name:
             name = self.escape(node[0].astext())
-        self.body.append('\n@cartouche\n'
-                         '@quotation %s ' % name)
+        self.body.append(u'\n@cartouche\n@quotation %s ' % name)
     def depart_admonition(self, node):
         self.ensure_eol()
         self.body.append('@end quotation\n'
@@ -1150,7 +1147,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_problematic(self, node):
-        print node.pformat()
         self.body.append('>>')
     def depart_problematic(self, node):
         self.body.append('<<')
