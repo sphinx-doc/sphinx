@@ -1138,14 +1138,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_system_message(self, node):
-        self.body.append('\n@w{----------- System Message: %s/%s -----------} '
-                         '(%s, line %s)\n' % (
-                node.get('type', '?'),
-                node.get('level', '?'),
-                self.escape(node.get('source', '?')),
-                node.get('line', '?')))
-    def depart_system_message(self, node):
-        pass
+        self.body.append('\n@verbatim\n'
+                         '<SYSTEM MESSAGE: %s>\n'
+                         '@end verbatim\n' % node.astext())
+        raise nodes.SkipNode
 
     def visit_comment(self, node):
         self.body.append('\n')
@@ -1154,9 +1150,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_problematic(self, node):
-        self.body.append('>')
+        print node.pformat()
+        self.body.append('>>')
     def depart_problematic(self, node):
-        self.body.append('<')
+        self.body.append('<<')
 
     def unimplemented_visit(self, node):
         self.builder.warn("unimplemented node type: %r" % node,
