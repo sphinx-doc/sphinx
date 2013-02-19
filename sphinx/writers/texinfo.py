@@ -1053,7 +1053,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_transition(self, node):
-        self.body.append('\n\n@exdent @w{    %s}\n\n' % ('* ' * 30))
+        self.body.append('\n\n%s\n\n' % ('_' * 66))
     def depart_transition(self, node):
         pass
 
