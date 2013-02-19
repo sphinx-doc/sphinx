@@ -44,7 +44,7 @@ TEMPLATE = """\
 @defindex ge
 @paragraphindent %(paragraphindent)s
 @exampleindent %(exampleindent)s
-@afourlatex
+@finalout
 %(direntry)s
 @c %%**end of header
 
