@@ -6,6 +6,10 @@ Release 1.2 (in development)
 * Fix text builder did not respect wide/fullwidth characters:
   title underline width, table layout width and text wrap width.
 
+* Speed up building the search index by caching the results of the word
+  stemming routines.  Saves about 20 seconds when building the Python
+  documentation.
+
 * #1062: sphinx.ext.autodoc use __init__ method signature for class signature.
 
 * PR#111: Respect add_autodoc_attrgetter() even when inherited-members is set.

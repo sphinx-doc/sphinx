@@ -170,6 +170,8 @@ class IndexBuilder(object):
         self._mapping = {}
         # stemmed words in titles -> set(filenames)
         self._title_mapping = {}
+        # word -> stemmed word
+        self._stem_cache = {}
         # objtype -> index
         self._objtypes = {}
         # objtype index -> (domain, type, objname (localized))
@@ -294,7 +296,13 @@ class IndexBuilder(object):
         visitor = WordCollector(doctree, self.lang)
         doctree.walk(visitor)
 
-        stem = self.lang.stem
+        # memoize self.lang.stem
+        def stem(word):
+            try:
+                return self._stem_cache[word]
+            except KeyError:
+                self._stem_cache[word] = self.lang.stem(word)
+                return self._stem_cache[word]
         _filter =  self.lang.word_filter
 
         for word in itertools.chain(visitor.found_title_words,
