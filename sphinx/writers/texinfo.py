@@ -17,7 +17,7 @@ from os import path
 from docutils import nodes, writers
 
 from sphinx import addnodes, __version__
-from sphinx.locale import versionlabels, _
+from sphinx.locale import admonitionlabels, versionlabels, _
 from sphinx.util import ustrftime
 from sphinx.writers.latex import collected_footnote
 
@@ -998,28 +998,28 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('@end quotation\n'
                          '@end cartouche\n')
 
-    def _make_visit_admonition(typ):
+    def _make_visit_admonition(name):
         def visit(self, node):
-            self.visit_admonition(node, self.escape(_(typ)))
+            self.visit_admonition(node, admonitionlabels[name])
         return visit
 
-    visit_attention = _make_visit_admonition('Attention')
+    visit_attention = _make_visit_admonition('attention')
     depart_attention = depart_admonition
-    visit_caution = _make_visit_admonition('Caution')
+    visit_caution = _make_visit_admonition('caution')
     depart_caution = depart_admonition
-    visit_danger = _make_visit_admonition('Danger')
+    visit_danger = _make_visit_admonition('danger')
     depart_danger = depart_admonition
-    visit_error = _make_visit_admonition('Error')
+    visit_error = _make_visit_admonition('error')
     depart_error = depart_admonition
-    visit_important = _make_visit_admonition('Important')
-    depart_important = depart_admonition
-    visit_note = _make_visit_admonition('Note')
-    depart_note = depart_admonition
-    visit_tip = _make_visit_admonition('Tip')
-    depart_tip = depart_admonition
-    visit_hint = _make_visit_admonition('Hint')
+    visit_hint = _make_visit_admonition('hint')
     depart_hint = depart_admonition
-    visit_warning = _make_visit_admonition('Warning')
+    visit_important = _make_visit_admonition('important')
+    depart_important = depart_admonition
+    visit_note = _make_visit_admonition('note')
+    depart_note = depart_admonition
+    visit_tip = _make_visit_admonition('tip')
+    depart_tip = depart_admonition
+    visit_warning = _make_visit_admonition('warning')
     depart_warning = depart_admonition
 
     ## Misc
