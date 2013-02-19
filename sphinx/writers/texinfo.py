@@ -161,6 +161,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.seen_title = False
         self.next_section_ids = set()
         self.escape_newlines = 0
+        self.escape_hyphens = 0
         self.curfilestack = []
         self.footnotestack = []
         self.in_footnote = 0
@@ -325,8 +326,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # prevent `` and '' quote conversion
         s = s.replace('``', "`@w{`}")
         s = s.replace("''", "'@w{'}")
-        # prevent "--" from being converted to an "em dash"
-        # s = s.replace('-', '@w{-}')
         return s
 
     def escape_arg(self, s):
@@ -525,6 +524,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         s = self.escape(node.astext())
         if self.escape_newlines:
             s = s.replace('\n', ' ')
+        if self.escape_hyphens:
+            # prevent "--" and "---" conversion
+            s = s.replace('-', '@w{-}')
         self.body.append(s)
     def depart_Text(self, node):
         pass
@@ -847,10 +849,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_option(self, node):
+        self.escape_hyphens += 1
         self.body.append('\n%s ' % self.at_item_x)
         self.at_item_x = '@itemx'
     def depart_option(self, node):
-        pass
+        self.escape_hyphens -= 1
 
     def visit_option_string(self, node):
         pass
@@ -1270,6 +1273,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('@end deffn\n')
 
     def visit_desc_signature(self, node):
+        self.escape_hyphens += 1
         objtype = node.parent['objtype']
         if objtype != 'describe':
             for id in node.get('ids'):
@@ -1287,6 +1291,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.at_deffnx = '@deffnx'
     def depart_desc_signature(self, node):
         self.body.append("\n")
+        self.escape_hyphens -= 1
 
     def visit_desc_name(self, node):
         pass
