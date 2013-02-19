@@ -1233,9 +1233,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_seealso(self, node):
-        self.visit_topic(node)
+        self.body.append(u'\n\n@subsubheading %s\n\n' %
+                         admonitionlabels['seealso'])
     def depart_seealso(self, node):
-        self.depart_topic(node)
+        self.body.append('\n')
 
     def visit_meta(self, node):
         raise nodes.SkipNode
