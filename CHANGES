@@ -4,12 +4,6 @@ Release 1.2 (in development)
 * #1074: Add environment version info to the generated search index to avoid
   compatibility issues with old builds.
 
-* #1110: Added a new configuration value :confval:`texinfo_no_detailmenu` for
-  controlling whether the Texinfo writer generates a ``@detailmenu`` in the
-  "Top" node's menu.
-
-* The Texinfo writer now only generates detailed menus for the "Top" node.
-
 * New locales: #1097: Added Basque locale.
 
 * Fix text builder did not respect wide/fullwidth characters:
@@ -97,8 +91,6 @@ Release 1.2 (in development)
 
 * #955: Fix i18n transformation.
 
-* Handle duplicate domain indices in texinfo.
-
 * PR#74: Fix some Russian translation.
 
 * PR#97: Fix footnote handling in translated documents.
@@ -144,6 +136,37 @@ Release 1.2 (in development)
 
 * Added the Docutils-native XML and pseudo-XML builders.  See
   :class:`XMLBuilder` and :class:`PseudoXMLBuilder`.
+
+* Texinfo builder
+
+  - An "Index" node is no longer added when there are no entries.
+  - "deffn" categories are no longer capitalized if they contain capital
+    letters.
+  - ``desc_annotation`` nodes are now rendered.
+  - ``strong`` and ``emphasis`` nodes are now formatted like
+    ``literal``\s. The reason for this is because the standard Texinfo markup
+    (``*strong*`` and ``_emphasis_``) resulted in confusing output due to the
+    common usage of using these constructs for documenting parameter names.
+  - Field lists formatting has been tweaked to better display
+    "Info field lists".
+  - ``system_message`` and ``problematic`` nodes are now formatted in a similar
+    fashion as done by the text builder.
+  - "en-dash" and "em-dash" conversion of hyphens is no longer performed in
+    option directive signatures.
+  - ``@ref`` is now used instead of ``@pxref`` for cross-references which
+    prevents the word "see" from being added before the link (does not affect
+    the Info output).
+  - The ``@finalout`` command has been added for better TeX output.
+  - ``transition`` nodes are now formatted using underscores ("_") instead of
+    asterisks ("*").
+  - The default value for the ``paragraphindent`` has been changed from 2 to 0
+    meaning that paragraphs are no longer indented by default.
+  - #1110: A new configuration value :confval:`texinfo_no_detailmenu` has been
+    added for controlling whether a ``@detailmenu`` is added in the "Top"
+    node's menu.
+  - Detailed menus are no longer created except for the "Top" node.
+  - Fixed an issue where duplicate domain indices would result in invalid
+    output.
 
 
 Release 1.1.3 (Mar 10, 2012)
