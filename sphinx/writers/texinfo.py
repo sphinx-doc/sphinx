@@ -1263,8 +1263,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Desc
 
     def visit_desc(self, node):
+        self.desc = node
         self.at_deffnx = '@deffn'
     def depart_desc(self, node):
+        self.desc = None
         self.ensure_eol()
         self.body.append('@end deffn\n')
 
@@ -1285,9 +1287,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         category = self.escape_arg(string.capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
+        self.desc_type_name = name
     def depart_desc_signature(self, node):
         self.body.append("\n")
         self.escape_hyphens -= 1
+        self.desc_type_name = None
 
     def visit_desc_name(self, node):
         pass
@@ -1332,7 +1336,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append(']')
 
     def visit_desc_annotation(self, node):
-        raise nodes.SkipNode
+        # Try to avoid duplicating info already displayed by the deffn category.
+        # e.g.
+        #     @deffn {Class} Foo
+        #     -- instead of --
+        #     @deffn {Class} class Foo
+        txt = node.astext().strip()
+        if txt == self.desc['desctype'] or \
+           txt == self.desc['objtype'] or \
+           txt in self.desc_type_name.split():
+            raise nodes.SkipNode
+    def depart_desc_annotation(self, node):
+        pass
 
     def visit_desc_content(self, node):
         pass
