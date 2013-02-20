@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* PR#115: Add ``'transition'`` item in :confval:`latex_elements` for
+  customizing how transitions are displayed. Thanks to Jeff Klukas.
+
 * #1108: The text writer now correctly numbers enumerated lists with
   non-default start values (based on patch by Ewan Edwards).
 

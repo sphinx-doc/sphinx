@@ -1094,6 +1094,10 @@ These options influence LaTeX output.
         "tableofcontents" call, default ``'\\tableofcontents'``.  Override if
         you want to generate a different table of contents or put content
         between the title page and the TOC.
+     ``'transition'``
+        Commands used to display transitions, default
+        ``'\n\n\\bigskip\\hrule{}\\bigskip\n\n'``.  Override if you want to
+        display transitions differently.
      ``'printindex'``
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index
