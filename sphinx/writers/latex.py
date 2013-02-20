@@ -156,6 +156,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'tableofcontents': '\\tableofcontents',
         'footer':          '',
         'printindex':      '\\printindex',
+        'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
     }
 
     def __init__(self, document, builder):
@@ -445,7 +446,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}\n')
 
     def visit_transition(self, node):
-        self.body.append('\n\n\\bigskip\\hrule{}\\bigskip\n\n')
+        self.body.append(self.elements['transition'])
     def depart_transition(self, node):
         pass
 
