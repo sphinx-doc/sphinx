@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* #1108: The text writer now correctly numbers enumerated lists with
+  non-default start values (based on patch by Ewan Edwards).
+
 * #1074: Add environment version info to the generated search index to avoid
   compatibility issues with old builds.
 

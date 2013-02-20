@@ -550,7 +550,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.list_counter.pop()
 
     def visit_enumerated_list(self, node):
-        self.list_counter.append(0)
+        self.list_counter.append(node.get('start', 1) - 1)
     def depart_enumerated_list(self, node):
         self.list_counter.pop()
 
