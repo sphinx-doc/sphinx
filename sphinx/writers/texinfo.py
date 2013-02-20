@@ -469,7 +469,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
                         continue
                     self.indices.append((indexcls.localname,
                                          generate(content, collapsed)))
-        self.indices.append((_('Index'), '\n@printindex ge\n'))
+        # only add the main Index if it's not empty
+        for docname in self.builder.docnames:
+            if self.builder.env.indexentries[docname]:
+                self.indices.append((_('Index'), '\n@printindex ge\n'))
+                break
 
     # this is copied from the latex writer
     # TODO: move this to sphinx.util
