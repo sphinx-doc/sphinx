@@ -88,6 +88,16 @@ def find_subsections(section):
     return result
 
 
+def smart_capwords(s, sep=None):
+    """Like string.capwords() but does not capitalize words that already
+    contain a capital letter."""
+    words = s.split(sep)
+    for i, word in enumerate(words):
+        if all(x.islower() for x in word):
+            words[i] = word.capitalize()
+    return (sep or ' ').join(words)
+
+
 class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
     supported = ('texinfo', 'texi')
@@ -1284,7 +1294,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                         primary == domain.name)
         except KeyError:
             name = objtype
-        category = self.escape_arg(string.capwords(name))
+        # by convention, the deffn category should be capitalized like a title
+        category = self.escape_arg(smart_capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
         self.desc_type_name = name
