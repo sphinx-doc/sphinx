@@ -1,6 +1,8 @@
 Release 1.2 (in development)
 ============================
 
+* New locales: #1113: Added Hebrew locale.
+
 * PR#115: Add ``'transition'`` item in :confval:`latex_elements` for
   customizing how transitions are displayed. Thanks to Jeff Klukas.
 
