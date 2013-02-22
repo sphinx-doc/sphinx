@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* PR#114: The LaTeX writer now includes the "cmap" package by default. The
+  ``'cmappkg'`` item in :confval:`latex_elements` can be used to control this.
+
 * New locales: #1113: Added Hebrew locale.
 
 * PR#115: Add ``'transition'`` item in :confval:`latex_elements` for
