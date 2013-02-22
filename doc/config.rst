@@ -1068,6 +1068,10 @@ These options influence LaTeX output.
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times and Helvetica).  You can set this to ``''`` to use the Computer
         Modern fonts.
+
+        .. versionchanged:: 1.2
+           Defaults to ``''`` when the :confval:`language` uses the Cyrillic
+           script.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation,
@@ -1102,6 +1106,8 @@ These options influence LaTeX output.
         Commands used to display transitions, default
         ``'\n\n\\bigskip\\hrule{}\\bigskip\n\n'``.  Override if you want to
         display transitions differently.
+
+        .. versionadded:: 1.2
      ``'printindex'``
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index

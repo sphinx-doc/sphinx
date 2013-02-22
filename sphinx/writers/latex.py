@@ -107,6 +107,12 @@ class ExtBabel(Babel):
             return '\\shorthandoff{"}'
         return ''
 
+    def uses_cyrillic(self):
+        shortlang = self.language.split('_')[0]
+        return shortlang in ('bg','bulgarian', 'kk','kazakh',
+                             'mn','mongolian', 'ru','russian',
+                             'uk','ukrainian')
+
 # in latest trunk, the attribute is called Babel.language_codes and already
 # includes Slovene
 if hasattr(Babel, '_ISO639_TO_BABEL'):
@@ -207,6 +213,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                   builder.config.language)
             self.elements['shorthandoff'] = babel.get_shorthandoff()
             self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
+
+            # Times fonts don't work with Cyrillic languages
+            if babel.uses_cyrillic():
+                self.elements['fontpkg'] = ''
 
             # pTeX (Japanese TeX) for support
             if builder.config.language == 'ja':
