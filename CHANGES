@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* #1111: Fix uppercase word is not found in search when
+  html_search_language='ja'. Thanks to tomo saito.
+
 * The ``'fontpkg'`` item in :confval:`latex_elements` now defaults to ``''``
   when the :confval:`language` uses the Cyrillic script.
   Suggested by Dmitry Shachnev.

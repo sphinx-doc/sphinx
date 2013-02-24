@@ -271,3 +271,6 @@ class SearchJapanese(SearchLanguage):
 
     def word_filter(self, stemmed_word):
         return len(stemmed_word) > 1
+
+    def stem(self, word):
+        return word.lower()
