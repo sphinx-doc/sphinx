@@ -45,7 +45,8 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
-     HandleCodeBlocks, SortIds, CitationReferences, Locale, SphinxContentsFilter
+     HandleCodeBlocks, SortIds, CitationReferences, Locale, \
+     RemoveTranslatableInline, SphinxContentsFilter
 
 
 orig_role_function = roles.role
@@ -90,7 +91,8 @@ class SphinxStandaloneReader(standalone.Reader):
     Add our own transforms.
     """
     transforms = [Locale, CitationReferences, DefaultSubstitutions,
-                  MoveModuleTargets, HandleCodeBlocks, SortIds]
+                  MoveModuleTargets, HandleCodeBlocks, SortIds,
+                  RemoveTranslatableInline]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms

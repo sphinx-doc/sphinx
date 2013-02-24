@@ -67,7 +67,7 @@ class Field(object):
             fieldname += nodes.Text(' ')
             fieldname += self.make_xref(self.rolename, domain,
                                         fieldarg, nodes.Text)
-        fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
+        fieldbody = nodes.field_body('', nodes.paragraph('', '', content))
         return nodes.field('', fieldname, fieldbody)
 
 
@@ -255,6 +255,12 @@ class DocFieldTransformer(object):
                                                [nodes.Text(argtype)]
                     fieldarg = argname
 
+            translatable_content = nodes.inline(fieldbody.rawsource,
+                                                translatable=True)
+            translatable_content.source = fieldbody.parent.source
+            translatable_content.line = fieldbody.parent.line
+            translatable_content += content
+
             # grouped entries need to be collected in one entry, while others
             # get one entry per field
             if typedesc.is_grouped:
@@ -264,10 +270,11 @@ class DocFieldTransformer(object):
                     groupindices[typename] = len(entries)
                     group = [typedesc, []]
                     entries.append(group)
-                group[1].append(typedesc.make_entry(fieldarg, content))
+                entry = typedesc.make_entry(fieldarg, translatable_content)
+                group[1].append(entry)
             else:
-                entries.append([typedesc,
-                                typedesc.make_entry(fieldarg, content)])
+                entry = typedesc.make_entry(fieldarg, translatable_content)
+                entries.append([typedesc, entry])
 
         # step 2: all entries are collected, construct the new field list
         new_list = nodes.field_list()

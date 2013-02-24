@@ -19,3 +19,4 @@ CONTENTS
    role_xref
    glossary_terms
    glossary_terms_inconsistency
+   docfields

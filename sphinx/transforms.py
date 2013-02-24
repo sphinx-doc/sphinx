@@ -305,6 +305,24 @@ class Locale(Transform):
             node['entries'] = new_entries
 
 
+class RemoveTranslatableInline(Transform):
+    """
+    Remove inline nodes used for translation as placeholders.
+    """
+    default_priority = 999
+
+    def apply(self):
+        from sphinx.builders.gettext import MessageCatalogBuilder
+        env = self.document.settings.env
+        builder = env.app.builder
+        if isinstance(builder, MessageCatalogBuilder):
+            return
+        for inline in self.document.traverse(nodes.inline):
+            if 'translatable' in inline:
+                inline.parent.remove(inline)
+                inline.parent += inline.children
+
+
 class SphinxContentsFilter(ContentsFilter):
     """
     Used with BuildEnvironment.add_toc_from() to discard cross-file links

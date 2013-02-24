@@ -61,7 +61,7 @@ def extract_messages(doctree):
 
         if not node.source:
             continue # built-in message
-        if isinstance(node, IGNORED_NODES):
+        if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
             continue
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
