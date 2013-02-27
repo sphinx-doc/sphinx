@@ -38,7 +38,7 @@ def setup_module():
         special_members = False,
         show_inheritance = False,
         noindex = False,
-        novalue = False,
+        annotation = None,
         synopsis = '',
         platform = '',
         deprecated = False,
