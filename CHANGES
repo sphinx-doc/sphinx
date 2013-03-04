@@ -1,6 +1,11 @@
 Release 1.2 (in development)
 ============================
 
+* #1120: added improvements about i18n for themes "basic", "haiku" and
+  "scrolls" that Sphinx built-in. Thanks to Leonardo J. Caballero G.
+
+* #1118: Updated Spanish translation. Thanks to Leonardo J. Caballero G.
+
 * #1111: Fix uppercase word is not found in search when
   html_search_language='ja'. Thanks to tomo saito.
 
