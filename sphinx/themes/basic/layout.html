@@ -192,10 +192,10 @@
       {%- endif %}
     {%- endif %}
     {%- if last_updated %}
-      {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
+      {% trans last_updated=last_updated|e %}{{ _('Last updated on') }} {{ last_updated }}.{% endtrans %}
     {%- endif %}
     {%- if show_sphinx %}
-      {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+      {% trans sphinx_version=sphinx_version|e %}{{ _('Created using') }} <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
     {%- endif %}
     </div>
 {%- endblock %}
