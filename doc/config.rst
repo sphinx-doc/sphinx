@@ -1147,6 +1147,9 @@ These options influence LaTeX output.
 
    .. versionadded:: 0.6
 
+   .. versionchanged:: 1.1.3
+      This overrides the files which is provided from Sphinx such as sphinx.sty.
+
 .. confval:: latex_preamble
 
    Additional LaTeX markup for the preamble.
