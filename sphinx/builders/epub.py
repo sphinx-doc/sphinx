@@ -642,12 +642,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Write the metainfo file toc.ncx."""
         self.info('writing %s file...' % outname)
 
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
-            self, prune_toctrees=False, includehidden=False)
-        refnodes = self.get_refnodes(doctree, [])
-        if refnodes:
+        if self.config.epub_tocscope == 'default':
+            doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+                self, prune_toctrees=False, includehidden=False)
+            refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)
         else:
+            # 'includehidden'
             refnodes = self.refnodes
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)

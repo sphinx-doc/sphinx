@@ -140,6 +140,7 @@ class Config(object):
         epub_exclude_files = ([], 'env'),
         epub_tocdepth = (3, 'env'),
         epub_tocdup = (True, 'env'),
+        epub_tocscope = ('default', 'env'),
         epub_fix_images = (False, 'env'),
         epub_max_image_width = (0, 'env'),
         epub_show_urls = ('inline', 'html'),
