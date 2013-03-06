@@ -318,6 +318,21 @@ class Builder(object):
         """
         pass
 
+    def get_builder_config(self, option, default):
+        """Return a builder specific option.
+
+        This method allows customization of common builder settings by
+        inserting the name of the current builder in the option key.
+        If the key does not exist, use default as builder name.
+        """
+        # At the moment, only XXX_use_index is looked up this way.
+        # Every new builder variant must be registered in Config.config_values.
+        try:
+            optname = '%s_%s' % (self.name, option)
+            return getattr(self.config, optname)
+        except AttributeError:
+            optname = '%s_%s' % (default, option)
+            return getattr(self.config, optname)
 
 BUILTIN_BUILDERS = {
     'html':       ('html', 'StandaloneHTMLBuilder'),

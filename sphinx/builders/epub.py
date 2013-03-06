@@ -489,7 +489,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id(info[0] + self.out_suffix))
             })
-        if self.config.html_use_index:
+        if self.get_builder_config('use_index', 'epub'):
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id('genindex' + self.out_suffix))
             })
