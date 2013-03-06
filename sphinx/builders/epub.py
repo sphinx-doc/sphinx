@@ -238,20 +238,25 @@ class EpubBuilder(StandaloneHTMLBuilder):
             master_dir += '/' # XXX or os.sep?
             for item in self.refnodes:
                 item['refuri'] = master_dir + item['refuri']
-        self.refnodes.insert(0, {
+        self.toc_add_files(self.refnodes)
+
+    def toc_add_files(self, refnodes):
+        """Add the master_doc, pre and post files to a list of refnodes.
+        """
+        refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
             'text': ssp(self.esc(
                     self.env.titles[self.config.master_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
-            self.refnodes.insert(0, {
+            refnodes.insert(0, {
                 'level': 1,
                 'refuri': self.esc(file),
                 'text': ssp(self.esc(text))
             })
         for file, text in self.config.epub_post_files:
-            self.refnodes.append({
+            refnodes.append({
                 'level': 1,
                 'refuri': self.esc(file),
                 'text': ssp(self.esc(text))
@@ -640,7 +645,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
             self, prune_toctrees=False, includehidden=False)
         refnodes = self.get_refnodes(doctree, [])
-        if not refnodes:
+        if refnodes:
+            self.toc_add_files(refnodes)
+        else:
             refnodes = self.refnodes
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
