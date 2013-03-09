@@ -60,6 +60,34 @@ def test_maxwitdh_with_prefix(app):
 
 
 @with_text_app()
+def test_lineblock(app):
+    # regression test for #1109: need empty line after line block
+    contents = (
+            u"* one\n"
+            u"\n"
+            u"  | line-block 1\n"
+            u"  | line-block 2\n"
+            u"\n"
+            u"followed paragraph.\n"
+            )
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    expect = (
+            u"* one\n"
+            u"\n"
+            u"     line-block 1\n"
+            u"     line-block 2\n"
+            u"\n"
+            u"followed paragraph.\n"
+            )
+
+    assert result == expect
+
+
+@with_text_app()
 def test_multibyte_title_line(app):
     title = u'\u65e5\u672c\u8a9e'
     underline = u'=' * column_width(title)
