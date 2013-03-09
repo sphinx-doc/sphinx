@@ -31,6 +31,35 @@ def with_text_app(*args, **kw):
 
 
 @with_text_app()
+def test_maxwitdh_with_prefix(app):
+    long_string = u' '.join([u"ham"] * 30)
+    contents = (
+            u".. seealso:: %(long_string)s\n\n"
+            u"* %(long_string)s\n"
+            u"* %(long_string)s\n"
+            u"\nspam egg\n"
+            ) % locals()
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    lines = result.splitlines()
+    line_widths = [column_width(line) for line in lines]
+    assert max(line_widths) < MAXWIDTH
+    assert lines[0].startswith('See also: ham')
+    assert lines[1].startswith('  ham')
+    assert lines[2] == ''
+    assert lines[3].startswith('* ham')
+    assert lines[4].startswith('  ham')
+    assert lines[5] == ''
+    assert lines[6].startswith('* ham')
+    assert lines[7].startswith('  ham')
+    assert lines[8] == ''
+    assert lines[9].startswith('spam egg')
+
+
+@with_text_app()
 def test_multibyte_title_line(app):
     title = u'\u65e5\u672c\u8a9e'
     underline = u'=' * column_width(title)
