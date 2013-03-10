@@ -1,6 +1,9 @@
 Release 1.2 (in development)
 ============================
 
+* PR#123, #1106: Add epub_use_index configuration value.
+  If provided, it will be used instead of html_use_index for epub builder.
+
 * #1111: Fix uppercase word is not found in search when
   html_search_language='ja'. Thanks to tomo saito.
 
