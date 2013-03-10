@@ -948,6 +948,11 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. versionadded:: 1.2
 
+.. confval:: epub_use_index
+
+   If true, add an index to the epub document.  It defaults to the
+   :confval:`html_use_index` option but can be set independently for epub
+   creation.
 
 .. _latex-options:
 

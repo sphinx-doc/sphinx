@@ -143,6 +143,7 @@ class Config(object):
         epub_fix_images = (False, 'env'),
         epub_max_image_width = (0, 'env'),
         epub_show_urls = ('inline', 'html'),
+        epub_use_index = (lambda self: self.html_use_index, 'html'),
 
         # LaTeX options
         latex_documents = (lambda self: [(self.master_doc,

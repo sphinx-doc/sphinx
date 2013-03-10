@@ -343,6 +343,9 @@ epub_copyright = u'%(copyright_str)s'
 
 # If 'no', URL addresses will not be shown.
 #epub_show_urls = 'inline'
+
+# If false, no index is generated.
+#epub_use_index = True
 '''
 
 INTERSPHINX_CONFIG = u'''

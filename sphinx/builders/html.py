@@ -308,7 +308,7 @@ class StandaloneHTMLBuilder(Builder):
         self.relations = self.env.collect_relations()
 
         rellinks = []
-        if self.config.html_use_index:
+        if self.get_builder_config('use_index', 'html'):
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for indexname, indexcls, content, collapse in self.domain_indices:
             # if it has a short name
@@ -451,7 +451,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.handle_page(pagename, context, template)
 
         # the global general index
-        if self.config.html_use_index:
+        if self.get_builder_config('use_index', 'html'):
             self.write_genindex()
 
         # the global domain-specific indices
