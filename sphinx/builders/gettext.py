@@ -9,16 +9,17 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
+from os import path, walk
 from codecs import open
 from datetime import datetime
 from collections import defaultdict
+from uuid import uuid4
 
 from sphinx.builders import Builder
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import safe_relpath, ensuredir, find_catalog
-from sphinx.util.console import darkgreen
+from sphinx.util.osutil import safe_relpath, ensuredir, find_catalog, SEP
+from sphinx.util.console import darkgreen, purple, bold
 from sphinx.locale import pairindextypes
 
 POHEADER = ur"""
@@ -55,6 +56,17 @@ class Catalog(object):
             self.messages.append(msg)
             self.metadata[msg] = []
         self.metadata[msg].append((origin.source, origin.line, origin.uid))
+
+
+class MsgOrigin(object):
+    """
+    Origin holder for Catalog message origin.
+    """
+
+    def __init__(self, source, line):
+        self.source = source
+        self.line = line
+        self.uid = uuid4().hex
 
 
 class I18nBuilder(Builder):
@@ -101,6 +113,43 @@ class MessageCatalogBuilder(I18nBuilder):
     """
     name = 'gettext'
 
+    def init(self):
+        I18nBuilder.init(self)
+        self.create_template_bridge()
+        self.templates.init(self)
+
+    def _collect_templates(self):
+        template_files = set()
+        for template_path in self.config.templates_path:
+            tmpl_abs_path = path.join(self.app.srcdir, template_path)
+            for dirpath, dirs, files in walk(tmpl_abs_path):
+                for fn in files:
+                    if fn.endswith('.html'):
+                        filename = path.join(dirpath, fn)
+                        filename = filename.replace(path.sep, SEP)
+                        template_files.add(filename)
+        return template_files
+
+    def _extract_from_template(self):
+        files = self._collect_templates()
+        self.info(bold('building [%s]: ' % self.name), nonl=1)
+        self.info('targets for %d template files' % len(files))
+
+        extract_translations = self.templates.environment.extract_translations
+
+        for template in self.status_iterator(files,
+                'reading templates... ', purple, len(files)):
+            #catalog = self.catalogs[template]
+            catalog = self.catalogs['sphinx']
+            context = open(template, 'rt').read() #TODO: encoding
+            for line, meth, msg in extract_translations(context):
+                origin = MsgOrigin(template, line)
+                catalog.add(msg, origin)
+
+    def build(self, docnames, summary=None, method='update'):
+        self._extract_from_template()
+        I18nBuilder.build(self, docnames, summary, method)
+
     def finish(self):
         I18nBuilder.finish(self)
         data = dict(
@@ -136,7 +185,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
-                                      replace(u'"', ur'\"')
+                                      replace(u'"', ur'\"'). \
+                                      replace(u'\n', u'\\n"\n"')
                     pofile.write(u'msgid "%s"\nmsgstr ""\n\n' % message)
 
             finally:

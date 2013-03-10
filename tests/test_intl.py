@@ -420,3 +420,11 @@ def test_i18n_docfields_html(app):
     app.builder.build(['docfields'])
     result = (app.outdir / 'docfields.html').text(encoding='utf-8')
     # expect no error by build
+
+
+@with_intl_app(buildername='html')
+def test_gettext_template(app):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    assert "WELCOME" in result
+    assert "SPHINX 2013.120" in result

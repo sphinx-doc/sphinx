@@ -1,6 +1,10 @@
 Release 1.2 (in development)
 ============================
 
+* Add i18n capabilities for custom templates.
+  For example: The Sphinx reference documentation in doc directory provides
+  sphinx.pot file from ``doc/_templates/*.html`` by ``make gettext``.
+
 * PR#123, #1106: Add epub_use_index configuration value.
   If provided, it will be used instead of html_use_index for epub builder.
 
