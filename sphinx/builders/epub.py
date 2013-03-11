@@ -133,6 +133,8 @@ _link_target_template = u' [%(uri)s]'
 
 _footnote_label_template = u'#%d'
 
+_footnotes_rubric_name = u'Footnotes'
+
 _css_link_target_class = u'link-target'
 
 # XXX These strings should be localized according to epub_language
@@ -308,12 +310,33 @@ class EpubBuilder(StandaloneHTMLBuilder):
             doc.note_autofootnote(footnote)
             return footnote
 
+        def footnote_spot(tree):
+            """Find or create a spot to place footnotes.
+
+            The function returns the tuple (parent, index)."""
+            # The code uses the following heuristic:
+            # a) place them after the last existing footnote
+            # b) place them after an (empty) Footnotes rubric
+            # c) create an empty Footnotes rubric at the end of the document
+            fns = tree.traverse(nodes.footnote)
+            if fns:
+                fn = fns[-1]
+                return fn.parent, fn.parent.index(fn) + 1
+            for node in tree.traverse(nodes.rubric):
+                if len(node.children) == 1 and \
+                        node.children[0].astext() == _footnotes_rubric_name:
+                    return node.parent, node.parent.index(node) + 1
+            doc = tree.traverse(nodes.document)[0]
+            rub = nodes.rubric()
+            rub.append(nodes.Text(_footnotes_rubric_name))
+            doc.append(rub)
+            return doc, doc.index(rub) + 1
+
         if show_urls == 'no':
             return
         if show_urls == 'footnote':
             doc = tree.traverse(nodes.document)[0]
-            # XXX search place to put footnotes
-            bottom = doc
+            fn_spot, fn_idx = footnote_spot(tree)
             nr = 1
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
@@ -331,9 +354,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     footnote_ref = make_footnote_ref(doc, label)
                     node.parent.insert(idx, footnote_ref)
                     footnote = make_footnote(doc, label, uri)
-                    bottom.append(footnote)
+                    fn_spot.insert(fn_idx, footnote)
                     footnote_ref['refid'] = footnote['ids'][0]
                     footnote.add_backref(footnote_ref['ids'][0])
+                    fn_idx += 1
 
     def write_doc(self, docname, doctree):
         """Write one document file.
