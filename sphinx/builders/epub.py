@@ -295,13 +295,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
                     uri.startswith('ftp:')) and uri not in node.astext():
-                uri = _link_target_template % {'uri': uri}
-                if uri:
-                    idx = node.parent.index(node) + 1
-                    if show_urls == 'inline':
-                        link = nodes.inline(uri, uri)
-                        link['classes'].append(_css_link_target_class)
-                        node.parent.insert(idx, link)
+                idx = node.parent.index(node) + 1
+                if show_urls == 'inline':
+                    uri = _link_target_template % {'uri': uri}
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    node.parent.insert(idx, link)
 
     def write_doc(self, docname, doctree):
         """Write one document file.
