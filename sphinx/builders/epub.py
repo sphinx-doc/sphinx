@@ -287,10 +287,32 @@ class EpubBuilder(StandaloneHTMLBuilder):
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree, show_urls='inline'):
-        """Append visible link targets after external links"""
+        """Add visible link targets for external links"""
+
+        def make_footnote_ref(doc, label):
+            """Create a footnote_reference node with children"""
+            footnote_ref = nodes.footnote_reference('[#]_')
+            footnote_ref.append(nodes.Text(label))
+            doc.note_autofootnote_ref(footnote_ref)
+            return footnote_ref
+
+        def make_footnote(doc, label, uri):
+            """Create a footnote node with children"""
+            footnote = nodes.footnote(uri)
+            para = nodes.paragraph()
+            para.append(nodes.Text(uri))
+            footnote.append(para)
+            footnote.insert(0, nodes.label('', label))
+            doc.note_autofootnote(footnote)
+            return footnote
+
         if show_urls == 'no':
             return
-
+        if show_urls == 'footnote':
+            doc = tree.traverse(nodes.document)[0]
+            # XXX search place to put footnotes
+            bottom = doc
+            nr = 1
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
@@ -301,6 +323,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     link = nodes.inline(uri, uri)
                     link['classes'].append(_css_link_target_class)
                     node.parent.insert(idx, link)
+                elif show_urls == 'footnote':
+                    label = "#%d" % nr
+                    nr += 1
+                    footnote_ref = make_footnote_ref(doc, label)
+                    node.parent.insert(idx, footnote_ref)
+                    footnote = make_footnote(doc, label, uri)
+                    bottom.append(footnote)
+                    footnote_ref['refid'] = footnote['ids'][0]
+                    footnote.add_backref(footnote_ref['ids'][0])
 
     def write_doc(self, docname, doctree):
         """Write one document file.
