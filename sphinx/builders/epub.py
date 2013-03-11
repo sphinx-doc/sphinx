@@ -131,6 +131,8 @@ _toctree_template = u'toctree-l%d'
 
 _link_target_template = u' [%(uri)s]'
 
+_footnote_label_template = u'#%d'
+
 _css_link_target_class = u'link-target'
 
 # XXX These strings should be localized according to epub_language
@@ -324,7 +326,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     link['classes'].append(_css_link_target_class)
                     node.parent.insert(idx, link)
                 elif show_urls == 'footnote':
-                    label = "#%d" % nr
+                    label = _footnote_label_template % nr
                     nr += 1
                     footnote_ref = make_footnote_ref(doc, label)
                     node.parent.insert(idx, footnote_ref)
