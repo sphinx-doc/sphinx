@@ -20,7 +20,7 @@ except ImportError:
     has_manpage_writer = False
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util.osutil import ustrftime
 
 
@@ -157,12 +157,6 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_versionmodified(self, node):
         self.visit_paragraph(node)
-        text = versionlabels[node['type']] % node['version']
-        if len(node):
-            text += ': '
-        else:
-            text += '.'
-        self.body.append(text)
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 

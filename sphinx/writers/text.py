@@ -17,7 +17,7 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -680,10 +680,6 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_versionmodified(self, node):
         self.new_state(0)
-        if node.children:
-            self.add_text(versionlabels[node['type']] % node['version'] + ': ')
-        else:
-            self.add_text(versionlabels[node['type']] % node['version'] + '.')
     def depart_versionmodified(self, node):
         self.end_state()
 

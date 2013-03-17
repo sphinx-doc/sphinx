@@ -389,6 +389,39 @@ def test_i18n_index_entries(app):
         assert re.search(expr, result, re.M)
 
 
+@with_intl_app(buildername='html', cleanenv=True)
+def test_versionchange(app):
+    app.builder.build(['versionchange'])
+    result = (app.outdir / 'versionchange.html').text(encoding='utf-8')
+
+    def get_content(result, name):
+        matched = re.search(r'<div class="%s">\n*(.*?)</div>' % name,
+                            result, re.DOTALL)
+        if matched:
+            return matched.group(1)
+        else:
+            return ''
+
+    expect1 = (
+        u"""<p><span>Deprecated since version 1.0: </span>"""
+        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
+        u"""<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n""")
+    matched_content = get_content(result, "deprecated")
+    assert expect1 == matched_content
+
+    expect2 = (
+        u"""<p><span>New in version 1.0: </span>"""
+        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
+    matched_content = get_content(result, "versionadded")
+    assert expect2 == matched_content
+
+    expect3 = (
+        u"""<p><span>Changed in version 1.0: </span>"""
+        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n""")
+    matched_content = get_content(result, "versionchanged")
+    assert expect3 == matched_content
+
+
 @with_intl_app(buildername='text', cleanenv=True)
 def test_i18n_docfields(app):
     app.builder.build(['docfields'])
