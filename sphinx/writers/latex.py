@@ -22,7 +22,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.osutil import ustrftime
 from sphinx.util.pycompat import any
@@ -1053,12 +1053,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     depart_warning = _depart_named_admonition
 
     def visit_versionmodified(self, node):
-        intro = versionlabels[node['type']] % node['version']
-        if node.children:
-            intro += ': '
-        else:
-            intro += '.'
-        self.body.append(intro)
+        pass
     def depart_versionmodified(self, node):
         pass
 

@@ -144,7 +144,13 @@ HTML_XPATH = {
         # abbreviations
         (".//abbr[@title='abbreviation']", '^abbr$'),
         # version stuff
-        (".//span[@class='versionmodified']", 'New in version 0.6'),
+        (".//div[@class='versionadded']/p/span", 'New in version 0.6: '),
+        (".//div[@class='versionadded']/p/span",
+         tail_check('First paragraph of versionadded')),
+        (".//div[@class='versionchanged']/p/span",
+         tail_check('First paragraph of versionchanged')),
+        (".//div[@class='versionchanged']/p",
+         'Second paragraph of versionchanged'),
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
