@@ -1,6 +1,10 @@
 Release 1.2 (in development)
 ============================
 
+* PR#124: Fix paragraphs in versionmodified are ignored when it has no
+  dangling paragraphs. Fix wrong html output (nested <p> tag). Fix
+  versionmodified is not translatable. Thanks to Nozomu Kaneko.
+
 * PR#123, #1106: Add epub_use_index configuration value.
   If provided, it will be used instead of html_use_index for epub builder.
 
