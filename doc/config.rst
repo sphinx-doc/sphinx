@@ -954,6 +954,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    :confval:`html_use_index` option but can be set independently for epub
    creation.
 
+   .. versionadded:: 1.2
+
 .. _latex-options:
 
 Options for LaTeX output
