@@ -10,6 +10,7 @@
 """
 
 import re
+import sys
 
 from docutils import nodes
 
@@ -234,16 +235,16 @@ def _new_copy(self):
 
 nodes.Element.copy = _new_copy
 
-# monkey-patch Element.__repr__ to return str if include unicode.
-# sf.net/tracker/?func=detail&aid=3601607&group_id=38414&atid=422030
-import sys
+# monkey-patch Element.__repr__ to return str if it returns unicode.
+# Was fixed in docutils since 0.10. See sf.net/p/docutils/bugs/218/.
+
 if sys.version_info < (3,):
     _element_repr_orig = nodes.Element.__repr__
-    
-    def _repr(self):
+
+    def _new_repr(self):
         s = _element_repr_orig(self)
         if isinstance(s, unicode):
             return s.encode('utf-8')
         return s
-    
-    nodes.Element.__repr__ = _repr
+
+    nodes.Element.__repr__ = _new_repr
