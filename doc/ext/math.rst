@@ -195,10 +195,8 @@ Sphinx.
    The path to the JavaScript file to include in the HTML files in order to load
    MathJax.
 
-   The default is the
-   ``http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML``
-   URL that loads the JS files from the `MathJax CDN
-   <http://www.mathjax.org/docs/1.1/start.html>`_.  If you want MathJax to
+   The default is the ``http://`` URL that loads the JS files from the `MathJax
+   CDN <http://www.mathjax.org/docs/1.1/start.html>`_.  If you want MathJax to
    be available offline, you have to donwload it and set this value to a
    different path.
 
