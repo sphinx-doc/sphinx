@@ -22,6 +22,7 @@ from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
+from sphinx.util.compat import docutils_version
 from sphinx.util.pycompat import all
 
 
@@ -131,21 +132,14 @@ class CustomLocaleReporter(object):
     """
     Replacer for document.reporter.get_source_and_line method.
 
-    reST text lines for translation not have original source line number.
-    This class provide correct line number at reporting.
+    reST text lines for translation do not have the original source line number.
+    This class provides the correct line numbers when reporting.
     """
     def __init__(self, source, line):
         self.source, self.line = source, line
 
-        try:
-            from docutils import __version__ as du_version
-            v = tuple([int(x) for x in du_version.split('.')[:2]])
-        except ImportError:
-            v = (99, 99)
-        self.du_version = v
-
     def set_reporter(self, document):
-        if self.du_version < (0, 9):
+        if docutils_version < (0, 9):
             document.reporter.locator = self.get_source_and_line
         else:
             document.reporter.get_source_and_line = self.get_source_and_line

@@ -11,6 +11,9 @@
 
 from docutils import nodes
 
+from docutils import __version__ as _du_version
+docutils_version = tuple(int(x) for x in _du_version.split('.')[:2])
+
 def make_admonition(node_class, name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
     #if not content:
