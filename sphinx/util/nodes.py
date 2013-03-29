@@ -216,18 +216,6 @@ def set_role_source_info(inliner, lineno, node):
         # docutils 0.9+
         node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
-# monkey-patch Node.__contains__ to get consistent "in" operator behavior
-# across docutils versions
-
-def _new_contains(self, key):
-    # support both membership test for children and attributes
-    # (has_key is translated to "in" by 2to3)
-    if isinstance(key, basestring):
-        return key in self.attributes
-    return key in self.children
-
-nodes.Node.__contains__ = _new_contains
-
 # monkey-patch Element.copy to copy the rawsource
 
 def _new_copy(self):
