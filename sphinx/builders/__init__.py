@@ -107,7 +107,7 @@ class Builder(object):
         raise NotImplementedError
 
     def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
-                            stringify_func=str):
+                            stringify_func=lambda x: x):
         l = 0
         for item in iterable:
             if l == 0:
@@ -120,9 +120,10 @@ class Builder(object):
 
     # new version with progress info
     def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
-                        stringify_func=str):
+                        stringify_func=lambda x: x):
         if length == 0:
-            for item in self.old_status_iterator(iterable, summary, colorfunc):
+            for item in self.old_status_iterator(iterable, summary, colorfunc,
+                                                 stringify_func):
                 yield item
             return
         l = 0
