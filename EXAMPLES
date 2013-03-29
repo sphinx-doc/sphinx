@@ -140,12 +140,12 @@ Documentation using another builtin theme
 Documentation using a custom theme/integrated in a site
 -------------------------------------------------------
 
-* Adobe Enterprise Toolkit: http://www.adobe.com/devnet-docs/acrobatetk/
 * Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
 * Classy: http://classy.pocoo.org/
 * DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
 * Django: http://docs.djangoproject.com/
+* Enterprise Toolkit for Acrobat products: http://www.adobe.com/devnet-docs/acrobatetk/
 * e-cidadania: http://e-cidadania.readthedocs.org/en/latest/
 * Flask: http://flask.pocoo.org/docs/
 * Flask-OpenID: http://packages.python.org/Flask-OpenID/
