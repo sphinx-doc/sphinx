@@ -6,6 +6,8 @@ Incompatible changes
 
 * Removed ``sphinx.util.compat.directive_dwim()`` and
   ``sphinx.roles.xfileref_role()`` which were deprecated since version 1.0.
+* PR#122: the files given in :confval:`latex_additional_files` now override TeX
+  files included by Sphinx, such as ``sphinx.sty``.
 
 Features added
 --------------
