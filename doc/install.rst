@@ -1,11 +1,12 @@
 :orphan:
 
 Installing Sphinx
-==================
+=================
 
-Sphinx is written by Python, you need to install Python and Sphinx.
+Since Sphinx is written in the Python language, you need to install Python
+(the required version is at least 2.5) and Sphinx.
 
-Sphinx package is available as a package on the `Python Package Index
+Sphinx packages are available on the `Python Package Index
 <http://pypi.python.org/pypi/Sphinx>`_.
 
 You can also download a snapshot from the Mercurial development repository:
@@ -14,7 +15,7 @@ You can also download a snapshot from the Mercurial development repository:
   file or
 * as a `.zip <https://bitbucket.org/birkenfeld/sphinx/get/default.zip>`_ file
 
-There is introductions for each environments:
+There are introductions for several environments:
 
 .. contents::
    :depth: 1
@@ -22,145 +23,128 @@ There is introductions for each environments:
    :backlinks: none
 
 
-Install by your own
---------------------
-
-If you use system installed Python or build your own Python, you can
-use that python to install Sphinx. The actual command list is same as
-these install.
-
-* `Install easy_install command`_
-* `Install Sphinx`_
-
-
 Debian/Ubuntu: Install Sphinx using packaging system
------------------------------------------------------
+----------------------------------------------------
 
 You may install using this command if you use Debian/Ubuntu.
 
 .. code-block:: bash
 
-   $ aptitude install python-sphinx
+   $ apt-get install python-sphinx
+
+
+Other Linux distributions
+-------------------------
+
+Most Linux distributions have Sphinx in their package repositories.  Usually the
+package is called "python-sphinx", "python-Sphinx" or "sphinx".  Be aware that
+there are two other packages with "sphinx" in their name: a speech recognition
+toolkit (CMU Sphinx) and a full-text search database (Sphinx search).
 
 
 Mac OS X: Install Sphinx using MacPorts
-----------------------------------------
+---------------------------------------
 
-If you use Mac OS X `MacPorts <http://www.macports.org/>`_ , use this
-command to install all software.
+If you use Mac OS X `MacPorts <http://www.macports.org/>`_, use this command to
+install all necessary software.
 
 .. code-block:: bash
 
    $ sudo port install py27-sphinx
 
-However, the execution path is not added, use select command to use
-Python2.7 as default.
+To set up the executable paths, use the ``port select`` command:
 
 .. code-block:: bash
 
    $ sudo port select --set python python27
    $ sudo port select --set sphinx py27-sphinx
 
-Type :command:`which sphinx-quickstart` to check the installation.
+Type :command:`which sphinx-quickstart` to check if the installation was
+successful.
 
 
 Windows: Install Python and Sphinx
------------------------------------
+----------------------------------
 
-Intall Python
+Install Python
 ^^^^^^^^^^^^^^
 
-Almost every Windows user do not have Python, we begin Python
-installation. If you already install python, please skip this section.
+Most Windows users do not have Python, so we begin with the installation of
+Python itself.  If you have already installed Python, please skip this section.
 
-Go to http://python.org . This site is a headquarter of the
-Python. Look at Left sidebar and "Quick Links", Click "Windows
-Installer" to download.
+Go to http://python.org, the main download site for Python. Look at the left
+sidebar and under "Quick Links", click "Windows Installer" to download.
 
 .. image:: pythonorg.png
 
 .. note::
 
-   Currently, Python has two version, 2.X and 3.X. Sphinx-1.2 can
-   run under Python-2.5, 2.6, 2.7, 3.1, 3.2, 3.3.
-   You may get some advice from ML or other places.
+   Currently, Python offers two major versions, 2.x and 3.x. Sphinx 1.2 can run
+   under Python 2.5 to 2.7 and 3.1 to 3.3, with the recommended version being
+   2.7.  This chapter assumes you have installed Python 2.7.
 
-   This chapter assumes Python-2.7.
-
-
-Follow the normal Windows installer, the Python install will be completed.
+Follow the Windows installer for Python.
 
 .. image:: installpython.jpg
 
-After installation, you have better to add PATH to the Environment
-Variable in order to run Python from Command Prompt.
+After installation, you better add the Python executable directories to the
+environment variable ``PATH`` in order to run Python and package commands such
+as ``sphinx-build`` easily from the Command Prompt.
 
-* Right-Click the My Computer Icon and open Property Dialog
-* Click Environment Variable button under detail tab
-* Edit and add the path to the system variables PATH 
+* Right-click the "My Computer" icon and choose "Properties"
+* Click the "Environment Variables" button under the "Advanced" tab
 
-Add these variables. This is for Python-2.7. If you use another version
-of Python, change the "27" number. Add these pathes separeted by ";".
+* If "Path" (or "PATH") is already an entry in the "System variables" list, edit
+  it.  If it is not present, add a new variable called "PATH".
 
-.. list-table:: Adding PATH
-   :widths: 10 40
-   :header-rows: 1
+* Add these paths, separating entries by ";":
 
-   * - PATH
-     - description
-   * - C:\\Python27
-     - Folder which includes Python Command
-   * - C:\\Python27\\Scripts
-     - Folder which includes easy_install (described later) or sphinx commands
+  - ``C:\Python27`` -- this folder contains the main Python executable
+  - ``C:\Python27\Scripts`` -- this folder will contain executables added by
+    Python packages installed with easy_install (see below)
 
-Run **Command Prompt** or enter ``cmd`` to the "search program and
-files" text box. After command prompt window appear, type
-``python[Enter]``. If you can get installed python version and prompt
-about ``>>>``, the Python installation is succeeded.  Enter ``Ctrl+Z``
-key to quit.
+  This is for Python 2.7.  If you use another version of
+  Python or installed to a non-default location, change the digits "27"
+  accordingly.
+
+* Now run the **Command Prompt**.  After command prompt window appear, type
+  ``python`` and Enter.  If the Python installation was successful, the
+  installed Python version is printed, and you are greeted by the prompt
+  ``>>>``.  Type ``Ctrl+Z`` and Enter to quit.
 
 
-Install easy_install command
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Install the easy_install command
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Python has very useful :command:`easy_install` command which install 3rd
-party library.
+Python has a very useful :command:`easy_install` command which can download and
+install 3rd-party libraries with a single command.  This is provided by the
+"distribute" project: http://pypi.python.org/pypi/distribute.
 
-* http://pypi.python.org/pypi/distribute
-
-easy_install downloads and install software which you want to need by only
-one command.
-
-
-Save http://distribute.org/distribute_setup.py link by Right-click.
-Some browsers can download just open the URL.
-If you can read the file iteslf, calm down, Right-click and choose "Save".
-
-After download, invoke command prompt, go to the distribute_setup.py saved
-directory and run this command:
+To install distribute, download http://distribute.org/distribute_setup.py and
+save it somewhere.  After download, invoke the command prompt, go to the
+directory with distribute_setup.py and run this command:
 
 .. code-block:: bat
 
    C:\> python distribute_setup.py
 
-Now :command:`easy_insall` command is installed. OK, Let's go to the Sphinx
-install!
+Now distribute and its :command:`easy_install` command is installed.  From there
+we can go to the Sphinx install.
 
 
-Install Sphinx
-^^^^^^^^^^^^^^^
+Installing Sphinx with easy_install
+-----------------------------------
 
-If you finshed easy_install install, for the rest is just a moment.
-Type this line.
+If you finished the installation of distribute, type this line in the command
+prompt:
 
 .. code-block:: bat
 
    C:\> easy_install sphinx
 
-After installation, type :command:`sphinx-quickstart` on the command
-prompt. If you get interactive messages which starts with
-``Welcome to the Sphinx <version> quickstart utility.``,
-installation is succeeded. Quit by hitting ``Ctrl+C``.
+After installation, type :command:`sphinx-build` on the command prompt.  If
+everything worked fine, you will get a Sphinx version number and a list of
+options for this command.
 
-That it. Install is over. Let's go to :doc:`tutorial` to make Sphinx project.
-
+That it.  Installation is over.  Head to :doc:`tutorial` to make a Sphinx
+project.
