@@ -1,7 +1,11 @@
 Release 1.2 (in development)
 ============================
 
-There should be no backwards-incompatible changes in this version.
+Incompatible changes
+--------------------
+
+* Removed ``sphinx.util.compat.directive_dwim()`` and
+  ``sphinx.roles.xfileref_role()`` which were deprecated since version 1.0.
 
 Features added
 --------------

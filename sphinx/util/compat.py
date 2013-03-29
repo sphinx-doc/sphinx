@@ -33,14 +33,4 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
     state.nested_parse(content, content_offset, admonition_node)
     return [admonition_node]
 
-
-# backwards-compatibility aliases for helpers in older Sphinx versions that
-# supported the docutils 0.4 directive function interface
-
 from docutils.parsers.rst import Directive
-
-def directive_dwim(obj):
-    import warnings
-    warnings.warn('directive_dwim is deprecated and no longer needed',
-                  DeprecationWarning, stacklevel=2)
-    return obj
