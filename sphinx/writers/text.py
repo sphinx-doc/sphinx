@@ -32,8 +32,8 @@ class TextWrapper(textwrap.TextWrapper):
     def _wrap_chunks(self, chunks):
         """_wrap_chunks(chunks : [string]) -> [string]
 
-        Original _wrap_chunks use len() to calculate width.
-        This method respect to wide/fullwidth characters for width adjustment.
+        The original _wrap_chunks uses len() to calculate width.
+        This method respects wide/fullwidth characters for width adjustment.
         """
         drop_whitespace = getattr(self, 'drop_whitespace', True)  #py25 compat
         lines = []
