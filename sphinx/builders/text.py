@@ -23,6 +23,7 @@ class TextBuilder(Builder):
     name = 'text'
     format = 'text'
     out_suffix = '.txt'
+    allow_parallel = True
 
     def init(self):
         pass

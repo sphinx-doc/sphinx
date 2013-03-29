@@ -12,6 +12,12 @@
 import os
 from os import path
 
+try:
+    import multiprocessing
+    import threading
+except ImportError:
+    multiprocessing = threading = None
+
 from docutils import nodes
 
 from sphinx.util.osutil import SEP, relative_uri
@@ -33,6 +39,8 @@ class Builder(object):
     format = ''
     # doctree versioning method
     versioning_method = 'none'
+    # allow parallel write_doc() calls
+    allow_parallel = False
 
     def __init__(self, app):
         self.env = app.env
@@ -98,19 +106,21 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen):
+    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
+                            stringify_func=str):
         l = 0
         for item in iterable:
             if l == 0:
                 self.info(bold(summary), nonl=1)
                 l = 1
-            self.info(colorfunc(item) + ' ', nonl=1)
+            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
             yield item
         if l == 1:
             self.info()
 
     # new version with progress info
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0):
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
+                        stringify_func=str):
         if length == 0:
             for item in self.old_status_iterator(iterable, summary, colorfunc):
                 yield item
@@ -120,7 +130,7 @@ class Builder(object):
         for item in iterable:
             l += 1
             s = '%s[%3d%%] %s' % (summary, 100*l/length,
-                                  colorfunc(item))
+                                  colorfunc(stringify_func(item)))
             if self.app.verbosity:
                 s += '\n'
             else:
@@ -287,22 +297,99 @@ class Builder(object):
         self.prepare_writing(docnames)
         self.info('done')
 
-        # write target files
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
+        # check for prerequisites to parallel build
+        # (parallel only works on POSIX, because the forking impl of
+        # multiprocessing is required)
+        if not (multiprocessing and
+                self.app.parallel > 1 and
+                self.allow_parallel and
+                os.name == 'posix'):
+            self._write_serial(sorted(docnames), warnings)
+        else:
+            # number of subprocesses is parallel-1 because the main process
+            # is busy loading doctrees and doing write_doc_serialized()
+            self._write_parallel(sorted(docnames), warnings,
+                                 nproc=self.app.parallel - 1)
+        self.env.set_warnfunc(self.warn)
+
+    def _write_serial(self, docnames, warnings):
         for docname in self.status_iterator(
-            sorted(docnames), 'writing output... ', darkgreen, len(docnames)):
+                docnames, 'writing output... ', darkgreen, len(docnames)):
             doctree = self.env.get_and_resolve_doctree(docname, self)
+            self.write_doc_serialized(docname, doctree)
             self.write_doc(docname, doctree)
         for warning in warnings:
             self.warn(*warning)
-        self.env.set_warnfunc(self.warn)
+
+    def _write_parallel(self, docnames, warnings, nproc):
+        def write_process(docs):
+            try:
+                for docname, doctree in docs:
+                    self.write_doc(docname, doctree)
+            except KeyboardInterrupt:
+                pass  # do not print a traceback on Ctrl-C
+            finally:
+                for warning in warnings:
+                    self.warn(*warning)
+
+        def process_thread(docs):
+            p = multiprocessing.Process(target=write_process, args=(docs,))
+            p.start()
+            p.join()
+            semaphore.release()
+
+        # allow only "nproc" worker processes at once
+        semaphore = threading.Semaphore(nproc)
+        # list of threads to join when waiting for completion
+        threads = []
+
+        # warm up caches/compile templates using the first document
+        firstname, docnames = docnames[0], docnames[1:]
+        doctree = self.env.get_and_resolve_doctree(firstname, self)
+        self.write_doc_serialized(firstname, doctree)
+        self.write_doc(firstname, doctree)
+        # for the rest, determine how many documents to write in one go
+        docnames = docnames[1:]
+        ndocs = len(docnames)
+        chunksize = min(ndocs // nproc, 10)
+        nchunks, rest = divmod(ndocs, chunksize)
+        if rest:
+            nchunks += 1
+        # partition documents in "chunks" that will be written by one Process
+        chunks = [docnames[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
+        for docnames in self.status_iterator(
+                chunks, 'writing output... ', darkgreen, len(chunks),
+                lambda chk: '%s .. %s' % (chk[0], chk[-1])):
+            docs = []
+            for docname in docnames:
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.write_doc_serialized(docname, doctree)
+                docs.append((docname, doctree))
+            # start a new thread to oversee the completion of this chunk
+            semaphore.acquire()
+            t = threading.Thread(target=process_thread, args=(docs,))
+            t.setDaemon(True)
+            t.start()
+            threads.append(t)
+
+        # make sure all threads have finished
+        self.info(bold('waiting for workers... '))#, nonl=True)
+        for t in threads:
+            t.join()
 
     def prepare_writing(self, docnames):
         raise NotImplementedError
 
     def write_doc(self, docname, doctree):
         raise NotImplementedError
+
+    def write_doc_serialized(self, docname, doctree):
+        """Handle parts of write_doc that must be called in the main process
+        if parallel build is active.
+        """
+        pass
 
     def finish(self):
         """Finish the building process.

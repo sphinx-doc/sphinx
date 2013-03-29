@@ -73,6 +73,7 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     format = 'html'
     copysource = True
+    allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
@@ -426,7 +427,6 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
-        self.post_process_images(doctree)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -435,8 +435,14 @@ class StandaloneHTMLBuilder(Builder):
         metatags = self.docwriter.clean_meta
 
         ctx = self.get_doc_context(docname, body, metatags)
-        self.index_page(docname, doctree, ctx.get('title', ''))
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname, doctree):
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.post_process_images(doctree)
+        title = self.env.longtitles.get(docname)
+        title = title and self.render_partial(title)['title'] or ''
+        self.index_page(docname, doctree, title)
 
     def finish(self):
         self.info(bold('writing additional files...'), nonl=1)

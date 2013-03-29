@@ -136,6 +136,8 @@ Features added
   - Speed up building the search index by caching the results of the word
     stemming routines.  Saves about 20 seconds when building the Python
     documentation.
+  - PR#108: Add experimental support for parallel building with a new
+    :option:`-j` option.
 
 Documentation
 -------------
