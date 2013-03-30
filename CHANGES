@@ -163,6 +163,7 @@ Bugs fixed
 * #1127: Fix traceback when autodoc tries to tokenize a non-Python file.
 * #1126: Fix double-hyphen to en-dash conversion in wrong places such as
   command-line option names in LaTeX.
+* #1123: Allow whitespaces in filenames given to :rst:dir:`literalinclude`.
 * #1117: Handle .pyx files in sphinx-apidoc.
 * #1112: Avoid duplicate download files when referenced from documents in
   different ways (absolute/relative).
