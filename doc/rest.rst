@@ -50,7 +50,7 @@ Be aware of some restrictions of this markup:
 
 These restrictions may be lifted in future versions of the docutils.
 
-reST also allows for custom "interpreted text roles"', which signify that the
+reST also allows for custom "interpreted text roles", which signify that the
 enclosed text should be interpreted in a specific way.  Sphinx uses this to
 provide semantic markup and cross-referencing of identifiers, as described in
 the appropriate section.  The general syntax is ``:rolename:`content```.
