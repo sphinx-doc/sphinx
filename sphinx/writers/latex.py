@@ -1310,6 +1310,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
+        if self.in_footnote:
+            raise UnsupportedError('%s:%s: literal blocks in footnotes are '
+                                   'not supported by LaTeX' %
+                                   (self.curfilestack[-1], node.line))
         self.verbatim = ''
     def depart_literal_block(self, node):
         code = self.verbatim.rstrip('\n')
