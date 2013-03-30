@@ -158,6 +158,7 @@ Bugs fixed
 * Fix text writer not handling visit_legend for figure directive contents.
 * Fix text builder not respecting wide/fullwidth characters: title underline
   width, table layout width and text wrap width.
+* #1117: Handle .pyx files in sphinx-apidoc.
 * #1111: Fix failure to find uppercase words in search when
   :confval:`html_search_language` is 'ja'. Thanks to Tomo Saito.
 * #1108: The text writer now correctly numbers enumerated lists with

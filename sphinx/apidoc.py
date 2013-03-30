@@ -31,6 +31,7 @@ else:
     ]
 
 INITPY = '__init__.py'
+PY_SUFFIXES = set(['.py', '.pyx'])
 
 
 def makename(package, module):
@@ -163,7 +164,8 @@ def recurse_tree(rootpath, excludes, opts):
             del subs[:]
             continue
         # document only Python module files
-        py_files = sorted([f for f in files if path.splitext(f)[1] == '.py'])
+        py_files = sorted(f for f in files
+                          if path.splitext(f)[1] in PY_SUFFIXES)
         is_pkg = INITPY in py_files
         if is_pkg:
             py_files.remove(INITPY)
