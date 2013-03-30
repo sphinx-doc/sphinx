@@ -562,10 +562,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_name(self, node):
         self.body.append(r'\bfcode{')
+        self.no_contractions += 1
         self.literal_whitespace += 1
     def depart_desc_name(self, node):
         self.body.append('}')
         self.literal_whitespace -= 1
+        self.no_contractions -= 1
 
     def visit_desc_parameterlist(self, node):
         # close name, open parameterlist
