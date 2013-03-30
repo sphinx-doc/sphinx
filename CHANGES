@@ -194,6 +194,7 @@ Bugs fixed
 * #940: Fix gettext does not extract figure caption.
 * #920: Fix PIL packaging issue that allowed to import ``Image`` without PIL
   namespace.  Thanks to Marc Schlaich.
+* #723: Fix the search function on local files in WebKit based browsers.
 * #440: Fix coarse timestamp resolution in some filesystem generating a wrong
   list of outdated files.
 
