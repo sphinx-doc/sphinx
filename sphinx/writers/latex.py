@@ -759,9 +759,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table.rowcount += 1
 
     def visit_entry(self, node):
-        if self.remember_multirow.get(0, 0) > 1:
-            self.body.append(' & ')
         if self.table.col > 0:
+            self.body.append(' & ')
+        elif self.remember_multirow.get(1, 0) > 1:
+            self.remember_multirow[1] -= 1
             self.body.append(' & ')
         self.table.col += 1
         context = ''

@@ -158,6 +158,7 @@ Bugs fixed
 * Fix text writer not handling visit_legend for figure directive contents.
 * Fix text builder not respecting wide/fullwidth characters: title underline
   width, table layout width and text wrap width.
+* #1132: Fix LaTeX table output for multi-row cells in the first column.
 * #1126: Fix double-hyphen to en-dash conversion in wrong places such as
   command-line option names in LaTeX.
 * #1117: Handle .pyx files in sphinx-apidoc.
