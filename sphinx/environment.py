@@ -309,8 +309,9 @@ class BuildEnvironment:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
-        Absolute filenames are relative to the source dir, while relative
-        filenames are relative to the dir of the containing document.
+        In the input "filename", absolute filenames are taken as relative to the
+        source dir, while relative filenames are relative to the dir of the
+        containing document.
         """
         if filename.startswith('/') or filename.startswith(os.sep):
             rel_fn = filename[1:]
