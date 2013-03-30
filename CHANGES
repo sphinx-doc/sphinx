@@ -194,6 +194,7 @@ Bugs fixed
 * #1015: Stop overriding jQuery contains() in the JavaScript.
 * #1010: Make pngmath images transparent by default; IE7+ should handle it.
 * #1008: Fix test failures with Python 3.3.
+* #995: Fix table-of-contents and page numbering for the LaTeX "howto" class.
 * #976: Fix gettext does not extract index entries.
 * PR#72: #975: Fix gettext not extracting definition terms before docutils 0.10.
 * #961: Fix LaTeX output for triple quotes in code snippets.
