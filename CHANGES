@@ -160,6 +160,7 @@ Bugs fixed
   width, table layout width and text wrap width.
 * Fix leading space in LaTeX table header cells.
 * #1132: Fix LaTeX table output for multi-row cells in the first column.
+* #1127: Fix traceback when autodoc tries to tokenize a non-Python file.
 * #1126: Fix double-hyphen to en-dash conversion in wrong places such as
   command-line option names in LaTeX.
 * #1117: Handle .pyx files in sphinx-apidoc.
