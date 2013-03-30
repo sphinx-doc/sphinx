@@ -782,7 +782,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('}{l|}{')
             context += '}'
         if isinstance(node.parent.parent, nodes.thead):
-            self.body.append('\\textbf{')
+            self.body.append('\\textbf{\\relax ')
             context += '}'
         if self.remember_multirow.get(self.table.col + 1, 0) > 1:
             self.remember_multirow[self.table.col + 1] -= 1
