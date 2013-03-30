@@ -196,6 +196,7 @@ Bugs fixed
 * #1008: Fix test failures with Python 3.3.
 * #976: Fix gettext does not extract index entries.
 * PR#72: #975: Fix gettext not extracting definition terms before docutils 0.10.
+* #961: Fix LaTeX output for triple quotes in code snippets.
 * #958: Do not preserve ``environment.pickle`` after a failed build.
 * #955: Fix i18n transformation.
 * #940: Fix gettext does not extract figure caption.

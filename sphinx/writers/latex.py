@@ -1494,6 +1494,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             text = text.replace(u'\n', u'~\\\\\n').replace(u' ', u'~')
         if self.no_contractions:
             text = text.replace('--', u'-{-}')
+            text = text.replace("''", u"'{'}")
         return text
 
     def encode_uri(self, text):
