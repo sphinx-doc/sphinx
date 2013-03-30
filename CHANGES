@@ -170,6 +170,7 @@ Bugs fixed
   :confval:`html_search_language` is 'ja'. Thanks to Tomo Saito.
 * #1108: The text writer now correctly numbers enumerated lists with
   non-default start values (based on patch by Ewan Edwards).
+* #1102: Support multi-context "with" statements in autodoc.
 * #1090: Fix gettext not extracting glossary terms.
 * #1074: Add environment version info to the generated search index to avoid
   compatibility issues with old builds.
