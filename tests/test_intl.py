@@ -299,9 +299,11 @@ def test_i18n_role_xref(app):
     app.builddir.rmtree(True)  #for warnings acceleration
     app.builder.build(['role_xref'])
     result = (app.outdir / 'role_xref.txt').text(encoding='utf-8')
-    expect = (u"\nI18N ROCK'N ROLE XREF"
-              u"\n*********************\n"
-              u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n")
+    expect = (
+        u"\nI18N ROCK'N ROLE XREF"
+        u"\n*********************\n"
+        u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n"
+    )
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings

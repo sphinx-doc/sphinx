@@ -191,7 +191,8 @@ def test_format_signature():
     class G2(F2, object):
         pass
     for C in (F2, G2):
-        assert formatsig('class', 'C', C, None, None) == '(a1, a2, kw1=True, kw2=False)'
+        assert formatsig('class', 'C', C, None, None) == \
+            '(a1, a2, kw1=True, kw2=False)'
 
     # test for methods
     class H:
