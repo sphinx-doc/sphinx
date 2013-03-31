@@ -261,8 +261,8 @@ var Search = {
                     var data = jqxhr.responseText;
                     if (data !== '') {
                       listItem.append(Search.makeSearchSummary(data, searchterms, hlterms));
-                      Search.output.append(listItem);
                     }
+                    Search.output.append(listItem);
                     listItem.slideDown(5, function() {
                       displayNextItem();
                     });
