@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 1.2pre/a9793de7f892+\n"
+"Project-Id-Version: Sphinx 1.2b1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-03-03 15:44-0530\n"
+"POT-Creation-Date: 2013-04-01 11:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,25 +22,25 @@ msgstr ""
 msgid "%s %s documentation"
 msgstr ""
 
-#: sphinx/transforms.py:51 sphinx/writers/latex.py:202
-#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:217
-#, python-format
-msgid "%B %d, %Y"
-msgstr ""
-
-#: sphinx/environment.py:1507
+#: sphinx/environment.py:1510
 #, python-format
 msgid "see %s"
 msgstr ""
 
-#: sphinx/environment.py:1510
+#: sphinx/environment.py:1513
 #, python-format
 msgid "see also %s"
 msgstr ""
 
-#: sphinx/roles.py:176
+#: sphinx/roles.py:175
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
+msgstr ""
+
+#: sphinx/transforms.py:52 sphinx/writers/latex.py:202
+#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:217
+#, python-format
+msgid "%B %d, %Y"
 msgstr ""
 
 #: sphinx/builders/changes.py:73
@@ -51,24 +51,24 @@ msgstr ""
 msgid "Module level"
 msgstr ""
 
-#: sphinx/builders/html.py:293
+#: sphinx/builders/html.py:290
 #, python-format
 msgid "%b %d, %Y"
 msgstr ""
 
-#: sphinx/builders/html.py:312 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:309 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr ""
 
-#: sphinx/builders/html.py:312
+#: sphinx/builders/html.py:309
 msgid "index"
 msgstr ""
 
-#: sphinx/builders/html.py:372
+#: sphinx/builders/html.py:369
 msgid "next"
 msgstr ""
 
-#: sphinx/builders/html.py:381
+#: sphinx/builders/html.py:378
 msgid "previous"
 msgstr ""
 
@@ -157,6 +157,10 @@ msgstr ""
 msgid "variable"
 msgstr ""
 
+#: sphinx/domains/cpp.py:942 sphinx/domains/javascript.py:125
+msgid "Throws"
+msgstr ""
+
 #: sphinx/domains/cpp.py:1038
 #, python-format
 msgid "%s (C++ class)"
@@ -209,10 +213,6 @@ msgstr ""
 
 #: sphinx/domains/javascript.py:122
 msgid "Arguments"
-msgstr ""
-
-#: sphinx/domains/cpp.py:942 sphinx/domains/javascript.py:125
-msgid "Throws"
 msgstr ""
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
@@ -381,8 +381,8 @@ msgstr ""
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
-#: sphinx/themes/basic/genindex.html:68 sphinx/writers/latex.py:191
-#: sphinx/writers/texinfo.py:475
+#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
+#: sphinx/writers/latex.py:191 sphinx/writers/texinfo.py:475
 msgid "Index"
 msgstr ""
 
@@ -404,18 +404,22 @@ msgstr ""
 msgid "alias of :class:`%s`"
 msgstr ""
 
-#: sphinx/ext/graphviz.py:301 sphinx/ext/graphviz.py:309
+#: sphinx/ext/graphviz.py:294 sphinx/ext/graphviz.py:302
 #, python-format
 msgid "[graph: %s]"
 msgstr ""
 
-#: sphinx/ext/graphviz.py:303 sphinx/ext/graphviz.py:311
+#: sphinx/ext/graphviz.py:296 sphinx/ext/graphviz.py:304
 msgid "[graph]"
 msgstr ""
 
 #: sphinx/ext/intersphinx.py:234
 #, python-format
 msgid "(in %s v%s)"
+msgstr ""
+
+#: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
+msgid "[source]"
 msgstr ""
 
 #: sphinx/ext/refcounting.py:83
@@ -441,10 +445,6 @@ msgstr ""
 
 #: sphinx/ext/todo.py:119
 msgid "original entry"
-msgstr ""
-
-#: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
-msgid "[source]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:117
@@ -548,8 +548,9 @@ msgstr ""
 msgid "Table Of Contents"
 msgstr ""
 
-#: sphinx/themes/agogo/layout.html:50 sphinx/themes/basic/search.html:11
-#: sphinx/themes/basic/search.html:20 sphinx/themes/basic/searchresults.html:10
+#: sphinx/themes/agogo/layout.html:50 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
+#: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
 msgstr ""
 
@@ -689,13 +690,13 @@ msgstr ""
 msgid "next chapter"
 msgstr ""
 
-#: sphinx/themes/basic/search.html:24
+#: sphinx/themes/basic/search.html:27
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
 msgstr ""
 
-#: sphinx/themes/basic/search.html:29
+#: sphinx/themes/basic/search.html:32
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
@@ -703,17 +704,20 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr ""
 
-#: sphinx/themes/basic/search.html:36 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr ""
 
-#: sphinx/themes/basic/search.html:40 sphinx/themes/basic/searchresults.html:21
-#: sphinx/themes/basic/static/searchtools.js_t:274
+#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr ""
 
-#: sphinx/themes/basic/search.html:42 sphinx/themes/basic/searchresults.html:23
-msgid "Your search did not match any results."
+#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/static/searchtools.js_t:283
+msgid ""
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -752,8 +756,8 @@ msgstr ""
 msgid "Other changes"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:142 sphinx/writers/html.py:513
-#: sphinx/writers/html.py:519
+#: sphinx/themes/basic/static/doctools.js:142 sphinx/writers/html.py:510
+#: sphinx/writers/html.py:516
 msgid "Permalink to this headline"
 msgstr ""
 
@@ -765,26 +769,20 @@ msgstr ""
 msgid "Hide Search Matches"
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:114
+#: sphinx/themes/basic/static/searchtools.js_t:119
 msgid "Searching"
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:119
+#: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:276
-msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
-
-#: sphinx/themes/basic/static/searchtools.js_t:278
+#: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:330
+#: sphinx/themes/basic/static/searchtools.js_t:337
 msgid ", in "
 msgstr ""
 
@@ -805,25 +803,25 @@ msgstr ""
 msgid "Release"
 msgstr ""
 
-#: sphinx/writers/latex.py:618 sphinx/writers/manpage.py:187
+#: sphinx/writers/latex.py:620 sphinx/writers/manpage.py:181
 #: sphinx/writers/texinfo.py:612
 msgid "Footnotes"
 msgstr ""
 
-#: sphinx/writers/latex.py:702
+#: sphinx/writers/latex.py:704
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:708
+#: sphinx/writers/latex.py:710
 msgid "Continued on next page"
 msgstr ""
 
-#: sphinx/writers/manpage.py:232 sphinx/writers/text.py:536
+#: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
 #, python-format
 msgid "[image: %s]"
 msgstr ""
 
-#: sphinx/writers/manpage.py:233 sphinx/writers/text.py:537
+#: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr ""
 
