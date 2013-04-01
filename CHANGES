@@ -166,6 +166,9 @@ Bugs fixed
 * #1126: Fix double-hyphen to en-dash conversion in wrong places such as
   command-line option names in LaTeX.
 * #1123: Allow whitespaces in filenames given to :rst:dir:`literalinclude`.
+* #1120: Added improvements about i18n for themes "basic", "haiku" and
+  "scrolls" that Sphinx built-in. Thanks to Leonardo J. Caballero G.
+* #1118: Updated Spanish translation. Thanks to Leonardo J. Caballero G.
 * #1117: Handle .pyx files in sphinx-apidoc.
 * #1112: Avoid duplicate download files when referenced from documents in
   different ways (absolute/relative).
