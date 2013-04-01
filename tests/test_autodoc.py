@@ -13,7 +13,8 @@
 import sys
 from StringIO import StringIO
 
-from util import TestApp, Struct
+# "raises" imported for usage by autodoc
+from util import TestApp, Struct, raises
 from nose.tools import with_setup
 
 from docutils.statemachine import ViewList
