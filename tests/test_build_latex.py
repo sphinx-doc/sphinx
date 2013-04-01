@@ -18,6 +18,7 @@ from subprocess import Popen, PIPE
 from sphinx.writers.latex import LaTeXTranslator
 
 from util import *
+from util import SkipTest
 from test_build_html import ENV_WARNINGS
 
 
@@ -69,17 +70,13 @@ def test_latex(app):
             return True
 
     if kpsetest('article.sty') is None:
-        print >>sys.stderr, \
-              'info: not running latex, it doesn\'t seem to be installed'
-        return
+        raise SkipTest('not running latex, it doesn\'t seem to be installed')
     for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty',
                      'amsmath.sty', 'framed.sty', 'color.sty', 'fancyvrb.sty',
                      'threeparttable.sty']:
         if not kpsetest(filename):
-            print >>sys.stderr, \
-                  'info: not running latex, the %s package doesn\'t ' \
-                  'seem to be installed' % filename
-            return
+            raise SkipTest('not running latex, the %s package doesn\'t '
+                           'seem to be installed' % filename)
 
     # now, try to run latex over it
     cwd = os.getcwd()
