@@ -15,7 +15,7 @@ from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import *
+from util import with_app, raises_msg, TestApp
 
 
 @with_app()

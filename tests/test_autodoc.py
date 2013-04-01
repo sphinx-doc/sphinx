@@ -13,7 +13,7 @@
 import sys
 from StringIO import StringIO
 
-from util import *
+from util import TestApp, Struct
 from nose.tools import with_setup
 
 from docutils.statemachine import ViewList
@@ -21,6 +21,7 @@ from docutils.statemachine import ViewList
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
      ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
+app = None
 
 def setup_module():
     global app
@@ -35,6 +36,8 @@ def setup_module():
 def teardown_module():
     app.cleanup()
 
+
+directive = options = None
 
 def setup_test():
     global options, directive

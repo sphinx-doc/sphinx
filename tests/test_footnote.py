@@ -11,7 +11,7 @@
 
 import re
 
-from util import *
+from util import test_root, with_app
 
 
 def teardown_module():

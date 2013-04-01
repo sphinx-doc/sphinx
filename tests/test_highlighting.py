@@ -9,19 +9,18 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import *
-
-try:
-    import pygments
-except ImportError:
-    from nose.plugins.skip import SkipTest
-    raise SkipTest('pygments not available')
-
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
 from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
+
+from util import with_app, SkipTest
+
+try:
+    import pygments
+except ImportError:
+    raise SkipTest('pygments not available')
 
 
 class MyLexer(RegexLexer):

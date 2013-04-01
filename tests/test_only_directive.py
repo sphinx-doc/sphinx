@@ -13,7 +13,7 @@ import re
 
 from docutils import nodes
 
-from util import *
+from util import with_app, test_roots
 
 
 def teardown_module():

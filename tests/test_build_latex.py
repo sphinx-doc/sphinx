@@ -17,8 +17,7 @@ from subprocess import Popen, PIPE
 
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import *
-from util import SkipTest
+from util import test_root, SkipTest, remove_unicode_literals, with_app
 from test_build_html import ENV_WARNINGS
 
 

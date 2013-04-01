@@ -14,8 +14,7 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-from util import *
-from util import SkipTest
+from util import test_root, test_roots, with_app, SkipTest
 
 
 def teardown_module():

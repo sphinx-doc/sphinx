@@ -21,7 +21,7 @@ except ImportError:
     pygments = None
 
 from sphinx import __version__
-from util import *
+from util import test_root, remove_unicode_literals, gen_with_app
 from etree13 import ElementTree as ET
 
 

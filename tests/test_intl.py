@@ -10,15 +10,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-from subprocess import Popen, PIPE
-import re
 import os
+import re
 from StringIO import StringIO
+from subprocess import Popen, PIPE
 
 from sphinx.util.pycompat import relpath
 
-from util import *
-from util import SkipTest
+from util import test_roots, path, with_app, SkipTest
 
 
 warnfile = StringIO()

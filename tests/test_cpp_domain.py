@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import *
+from util import raises
 
 from sphinx.domains.cpp import DefinitionParser, DefinitionError
 

@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import *
+from util import with_app, test_root, path
 from textwrap import dedent
 
 

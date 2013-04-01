@@ -22,7 +22,7 @@ from sphinx import addnodes
 from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
      load_mappings, missing_reference
 
-from util import *
+from util import with_app, with_tempdir, write_file
 
 
 inventory_v1 = '''\
@@ -178,5 +178,3 @@ def test_load_mappings_warnings(tempdir, app):
     # load the inventory and check if it's done correctly
     load_mappings(app)
     assert len(app._warning.content) == 2
-
-
