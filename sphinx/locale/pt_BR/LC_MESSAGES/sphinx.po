@@ -6,11 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
-"Report-Msgid-Bugs-To: roger.demetrescu@gmail.com\n"
+"Report-Msgid-Bugs-To: gsavix@gmail.com\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
-"Last-Translator: Roger Demetrescu <roger.demetrescu@gmail.com>\n"
-"Language-Team: pt_BR <roger.demetrescu@gmail.com>\n"
+"PO-Revision-Date: 2013-04-01 17:00-0300\n"
+"Last-Translator: gsavix@gmail.com <gsavix@gmail.com>\n"
+"Language-Team: pt_BR <gsavix@gmail.com>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -18,17 +18,17 @@ msgstr ""
 "Generated-By: Babel 0.9.6\n"
 
 #: sphinx/config.py:81
-#, fuzzy, python-format
+#, python-format
 msgid "%s %s documentation"
 msgstr "%s %s documentação"
 
 #: sphinx/environment.py:1510
-#, fuzzy, python-format
+#, python-format
 msgid "see %s"
 msgstr "veja %s"
 
 #: sphinx/environment.py:1513
-#, fuzzy, python-format
+#, python-format
 msgid "see also %s"
 msgstr "veja também %s"
 
@@ -411,16 +411,16 @@ msgstr "apelido de :class:`%s`"
 #: sphinx/ext/graphviz.py:294 sphinx/ext/graphviz.py:302
 #, python-format
 msgid "[graph: %s]"
-msgstr ""
+msgstr "[gráfico: %s]"
 
 #: sphinx/ext/graphviz.py:296 sphinx/ext/graphviz.py:304
 msgid "[graph]"
-msgstr ""
+msgstr "[gráfico]"
 
 #: sphinx/ext/intersphinx.py:234
 #, python-format
 msgid "(in %s v%s)"
-msgstr ""
+msgstr "(em %s v%s)"
 
 #: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
 msgid "[source]"
@@ -428,15 +428,15 @@ msgstr "[código fonte]"
 
 #: sphinx/ext/refcounting.py:83
 msgid "Return value: Always NULL."
-msgstr ""
+msgstr "Valor Retorno: Sempre NULL."
 
 #: sphinx/ext/refcounting.py:85
 msgid "Return value: New reference."
-msgstr ""
+msgstr "Valor Retorno: Nova referência."
 
 #: sphinx/ext/refcounting.py:87
 msgid "Return value: Borrowed reference."
-msgstr ""
+msgstr "Valor Retorn: Referência emprestada."
 
 #: sphinx/ext/todo.py:42
 msgid "Todo"
@@ -576,16 +576,15 @@ msgstr "Visão geral"
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
-msgstr ""
+msgstr "Bem Vindo(a)! É isso aí"
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy
 msgid "the documentation for"
-msgstr "documentação"
+msgstr "documentação para"
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
-msgstr ""
+msgstr "última atualização"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
@@ -673,7 +672,7 @@ msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"Criado com <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
+"Criado usando <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
@@ -701,7 +700,10 @@ msgstr "próximo capítulo"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "Por favor ative o JavaScript para habilitar a funcionalidade de pesquisa."
+msgstr ""
+"Por favor ative o JavaScript para habilitar a\n"
+"\"\n"
+"\"    funcionalidade de pesquisa."
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -711,11 +713,11 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr ""
 "A partir daqui você pode pesquisar estes documentos. Preencha suas \n"
-"    palavras de pesquisa na caixa abaixo e clique em  \"pesquisar\". "
-"Observe que a função de pesquisa\n"
-"    irá pesquisar automaticamente por todas as palavras.\n"
-"    Páginas contendo menos palavras não irão aparecer na lista de "
-"resultado."
+"    palavras de pesquisa na caixa abaixo e clique em  \"pesquisar\".\n"
+"    Observe que a função de pesquisa\n"
+"    irá procurar automaticamente por todas as palavras.\n"
+"    Páginas contendo menos palavras não irão aparecer na lista de\n"
+"    resultado."
 
 #: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
 msgid "search"
@@ -732,6 +734,9 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
+"Sua pesquisa não encontrou nenhum documento. Por favor, confirme que "
+"todas as palavras estão grafadas corretamente e que você selecionou "
+"categorias suficientes."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -783,22 +788,23 @@ msgid "Hide Search Matches"
 msgstr "Esconder Resultados da Pesquisa"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "pesquisar"
+msgstr "Pesquisando"
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
-msgstr ""
+msgstr "Preparando a pesquisa..."
 
 #: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
+"Pesquisa concluída, foram encontrada(s) %s página(s) que \"\n"
+"\"combinam com a consulta feita."
 
 #: sphinx/themes/basic/static/searchtools.js_t:337
 msgid ", in "
-msgstr ""
+msgstr ", em "
 
 #: sphinx/themes/default/static/sidebar.js_t:83
 msgid "Expand sidebar"
@@ -828,10 +834,10 @@ msgstr "continuação da página anterior"
 
 #: sphinx/writers/latex.py:710
 msgid "Continued on next page"
-msgstr "Continua na próxima página"
+msgstr "Continuação na próxima página"
 
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
-#, fuzzy, python-format
+#, python-format
 msgid "[image: %s]"
 msgstr "[imagem: %s]"
 
