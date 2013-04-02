@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.1pre/9523af9ba9aa+\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2013-02-18 17:56+0200\n"
 "Last-Translator: alonisser <alon@noal.org.il>\n"
 "Language-Team: \n"
@@ -31,6 +31,10 @@ msgstr "ראה %s"
 #, python-format
 msgid "see also %s"
 msgstr "ראה גם %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -575,7 +579,7 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy, python-format
+#, fuzzy
 msgid "the documentation for"
 msgstr "תיעוד"
 
@@ -830,3 +834,4 @@ msgstr "[תמונה: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[תמונה]"
+

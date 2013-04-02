@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.1pre/9523af9ba9aa+\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2013-02-07 11:51+0100\n"
 "Last-Translator: Ales Zabala Alava (Shagi) <shagi@gisa-elkartea.org>\n"
 "Language-Team: Basque\n"
@@ -31,6 +31,10 @@ msgstr "%s ikusi"
 #, python-format
 msgid "see also %s"
 msgstr "ikusi %s baita ere"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -575,7 +579,7 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy, python-format
+#, fuzzy
 msgid "the documentation for"
 msgstr "dokumentazioa"
 
@@ -832,3 +836,4 @@ msgstr "[irudia: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[irudia]"
+

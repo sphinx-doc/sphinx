@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Marijn van der Zee <marijn.vanderzee@gmail.com>\n"
 "Language-Team: nl <LL@li.org>\n"
@@ -30,6 +30,10 @@ msgstr "zie %s"
 #, python-format
 msgid "see also %s"
 msgstr "zie %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -579,7 +583,7 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy, python-format
+#, fuzzy
 msgid "the documentation for"
 msgstr "documentatie"
 
@@ -838,3 +842,4 @@ msgstr "[afbeelding: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[afbeelding]"
+

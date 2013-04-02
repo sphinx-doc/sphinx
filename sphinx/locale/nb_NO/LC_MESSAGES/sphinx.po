@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-09-21 10:14+0200\n"
 "Last-Translator: Espen Høgbakk <espen@hogbakk.no>\n"
 "Language-Team: \n"
@@ -30,6 +30,10 @@ msgstr "se %s"
 #, python-format
 msgid "see also %s"
 msgstr "se også %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -828,3 +832,4 @@ msgstr "[bilde: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[bilde]"
+

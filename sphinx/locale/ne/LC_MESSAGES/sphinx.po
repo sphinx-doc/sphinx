@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.1pre/47a94f723e80+\n"
 "Report-Msgid-Bugs-To: sharma.arati11@gmail.com\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-09-21 10:13+0200\n"
 "Last-Translator: Tika Karki <tikaraj.karki@olenepal.org>\n"
 "Language-Team: ne_NP <LL@li.org>\n"
@@ -31,6 +31,10 @@ msgstr "%s हेर्नुहोस्"
 #, python-format
 msgid "see also %s"
 msgstr "%s पनि हेर्नुहोस् "
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -830,3 +834,4 @@ msgstr "[चित्र: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[चित्र]"
+

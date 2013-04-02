@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.0\n"
 "Report-Msgid-Bugs-To: szunyog@gmail.com\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2013-04-01 11:58+0200\n"
 "Last-Translator: Tibor Toth <szunyog@gmail.com>\n"
 "Language-Team: hu <LL@li.org>\n"
@@ -31,6 +31,10 @@ msgstr "lásd %s"
 #, python-format
 msgid "see also %s"
 msgstr "lásd még %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -138,12 +142,12 @@ msgstr "%s (C változó)"
 
 #: sphinx/domains/c.py:203 sphinx/domains/cpp.py:1207
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
-#, fuzzy, python-format
+#, fuzzy
 msgid "function"
 msgstr "függvény"
 
 #: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1208
-#, fuzzy, python-format
+#, fuzzy
 msgid "member"
 msgstr "tagváltozó"
 
@@ -156,7 +160,7 @@ msgid "type"
 msgstr ""
 
 #: sphinx/domains/c.py:207
-#, fuzzy, python-format
+#, fuzzy
 msgid "variable"
 msgstr "változó"
 
@@ -223,12 +227,12 @@ msgid "data"
 msgstr ""
 
 #: sphinx/domains/javascript.py:167 sphinx/domains/python.py:567
-#, fuzzy, python-format
+#, fuzzy
 msgid "attribute"
 msgstr "attribútum"
 
 #: sphinx/domains/python.py:100
-#, fuzzy, python-format
+#, fuzzy
 msgid "Variables"
 msgstr "változó"
 
@@ -303,7 +307,7 @@ msgid "Python Module Index"
 msgstr "Teljes modul tárgymutató"
 
 #: sphinx/domains/python.py:492
-#, fuzzy, python-format
+#, fuzzy
 msgid "modules"
 msgstr "modul"
 
@@ -320,17 +324,17 @@ msgid "method"
 msgstr ""
 
 #: sphinx/domains/python.py:565
-#, fuzzy, python-format
+#, fuzzy
 msgid "class method"
 msgstr "osztály metódus"
 
 #: sphinx/domains/python.py:566
-#, fuzzy, python-format
+#, fuzzy
 msgid "static method"
 msgstr "statikus metódus"
 
 #: sphinx/domains/python.py:568 sphinx/locale/__init__.py:175
-#, fuzzy, python-format
+#, fuzzy
 msgid "module"
 msgstr "modul"
 
@@ -349,12 +353,12 @@ msgid "%s (role)"
 msgstr "%s (szerepkör)"
 
 #: sphinx/domains/rst.py:104
-#, fuzzy, python-format
+#, fuzzy
 msgid "directive"
 msgstr "direktíva"
 
 #: sphinx/domains/rst.py:105
-#, fuzzy, python-format
+#, fuzzy
 msgid "role"
 msgstr "szerepkör"
 
@@ -381,7 +385,7 @@ msgid "reference label"
 msgstr ""
 
 #: sphinx/domains/std.py:418
-#, fuzzy, python-format
+#, fuzzy
 msgid "environment variable"
 msgstr "környezeti változó"
 
@@ -555,7 +559,7 @@ msgid "statement"
 msgstr ""
 
 #: sphinx/locale/__init__.py:181
-#, fuzzy, python-format
+#, fuzzy
 msgid "built-in function"
 msgstr "beépített függvény"
 
@@ -851,3 +855,4 @@ msgstr "[image: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[image]"
+

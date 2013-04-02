@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2013-04-01 11:58+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ru <LL@li.org>\n"
@@ -31,6 +31,10 @@ msgstr ""
 #: sphinx/environment.py:1513
 #, python-format
 msgid "see also %s"
+msgstr ""
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
 msgstr ""
 
 #: sphinx/roles.py:175
@@ -841,3 +845,4 @@ msgstr "[рисунок: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[рисунок]"
+

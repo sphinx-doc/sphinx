@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.0pre/8b971dbc7d36\n"
 "Report-Msgid-Bugs-To: dalius@sandbox.lt\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Dalius Dobravolskas <dalius@sandbox.lt>\n"
 "Language-Team: lt <LL@li.org>\n"
@@ -30,6 +30,10 @@ msgstr ""
 #: sphinx/environment.py:1513
 #, python-format
 msgid "see also %s"
+msgstr ""
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
 msgstr ""
 
 #: sphinx/roles.py:175
@@ -835,3 +839,4 @@ msgstr "[paveiksliukas: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[paveiksliukas]"
+

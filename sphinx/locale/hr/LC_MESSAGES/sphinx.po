@@ -2,12 +2,11 @@
 # Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 #
-
 msgid ""
 msgstr ""
 "Project-Id-Version:  Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Bojan Mihelač <bmihelac@mihelac.org>\n"
 "Language-Team: Bojan Mihelač <bmihelac@mihelac.org>\n"
@@ -31,6 +30,10 @@ msgstr "pogledaj %s"
 #, fuzzy, python-format
 msgid "see also %s"
 msgstr "pogledaj i %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -840,3 +843,4 @@ msgstr "[slika: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[slika]"
+

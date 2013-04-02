@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.1.3Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2012-09-15 12:56+0300\n"
 "Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: \n"
@@ -33,6 +33,10 @@ msgstr "vaata %s"
 #, python-format
 msgid "see also %s"
 msgstr "vaata ka %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -577,7 +581,7 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy, python-format
+#, fuzzy
 msgid "the documentation for"
 msgstr "dokumentatsioon"
 
@@ -833,3 +837,4 @@ msgstr "[pilt: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[pilt]"
+

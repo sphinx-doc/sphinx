@@ -1567,7 +1567,7 @@ class BuildEnvironment:
                 return letter
             else:
                 # get all other symbols under one heading
-                return 'Symbols'
+                return _('Symbols')
         return [(key, list(group))
                 for (key, group) in groupby(newlist, keyfunc2)]
 

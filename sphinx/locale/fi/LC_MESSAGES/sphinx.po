@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.6\n"
 "Report-Msgid-Bugs-To: sphinx@awot.fi\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Jukka Inkeri <sphinx@awot.fi>\n"
 "Language-Team: fi <sphinx@awot.fi>\n"
@@ -31,6 +31,10 @@ msgstr ""
 #, fuzzy, python-format
 msgid "see also %s"
 msgstr "katso myös %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -829,3 +833,4 @@ msgstr ""
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr ""
+

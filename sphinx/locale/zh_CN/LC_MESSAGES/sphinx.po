@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 0.6\n"
 "Report-Msgid-Bugs-To: zhutao.iscas@gmail.com\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2013-02-21 18:31+0800\n"
 "Last-Translator: yinian1992 <yinian1992@gmail.com>\n"
 "Language-Team: cn <LL@li.org>\n"
@@ -32,6 +32,10 @@ msgstr "见 %s"
 #, python-format
 msgid "see also %s"
 msgstr "也可以参考 %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -576,7 +580,7 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy, python-format
+#, fuzzy
 msgid "the documentation for"
 msgstr "%s %s 文档"
 
@@ -827,3 +831,4 @@ msgstr "[图片: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[图片]"
+

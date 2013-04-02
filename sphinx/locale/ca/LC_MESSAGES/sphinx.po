@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.0\n"
 "Report-Msgid-Bugs-To: pau.fernandez@upc.edu\n"
-"POT-Creation-Date: 2013-04-01 11:57+0200\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
 "PO-Revision-Date: 2011-01-22 14:41+0100\n"
 "Last-Translator: Pau Fernández <pau.fernandez@upc.edu>\n"
 "Language-Team: ca <LL@li.org>\n"
@@ -31,6 +31,10 @@ msgstr "vegeu %s"
 #, python-format
 msgid "see also %s"
 msgstr "vegeu també %s"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
@@ -580,7 +584,7 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy, python-format
+#, fuzzy
 msgid "the documentation for"
 msgstr "documentació"
 
@@ -839,3 +843,4 @@ msgstr "[imatge: %s]"
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[imatge]"
+
