@@ -1,26 +1,29 @@
 # Hungarian translations for Sphinx.
-# Copyright (C) 2011 ORGANIZATION
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# <szunyog@gmail.com>, 2013.
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 1.0\n"
-"Report-Msgid-Bugs-To: szunyog@gmail.com\n"
+"Project-Id-Version:  Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2013-04-01 11:58+0200\n"
-"Last-Translator: Tibor Toth <szunyog@gmail.com>\n"
-"Language-Team: hu <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"PO-Revision-Date: 2013-04-02 16:08+0000\n"
+"Last-Translator: szunyog <szunyog@gmail.com>\n"
+"Language-Team: Hungarian "
+"(http://www.transifex.com/projects/p/sphinx-1/language/hu/)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
 #: sphinx/config.py:81
-#, fuzzy, python-format
+#, python-format
 msgid "%s %s documentation"
-msgstr "%s %s dokumentációban"
+msgstr "%s %s dokumentáció"
 
 #: sphinx/environment.py:1510
 #, python-format
@@ -34,7 +37,7 @@ msgstr "lásd még %s"
 
 #: sphinx/environment.py:1570
 msgid "Symbols"
-msgstr ""
+msgstr "Szimbólumok"
 
 #: sphinx/roles.py:175
 #, python-format
@@ -103,17 +106,17 @@ msgstr "%s %s"
 
 #: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939 sphinx/domains/python.py:95
 msgid "Parameters"
-msgstr ""
+msgstr "Paraméterek"
 
 #: sphinx/domains/c.py:54 sphinx/domains/cpp.py:945
 #: sphinx/domains/javascript.py:128 sphinx/domains/python.py:107
 msgid "Returns"
-msgstr ""
+msgstr "Visszatérési érték"
 
 #: sphinx/domains/c.py:56 sphinx/domains/javascript.py:130
 #: sphinx/domains/python.py:109
 msgid "Return type"
-msgstr ""
+msgstr "Visszatérés típusa"
 
 #: sphinx/domains/c.py:141
 #, python-format
@@ -142,25 +145,22 @@ msgstr "%s (C változó)"
 
 #: sphinx/domains/c.py:203 sphinx/domains/cpp.py:1207
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
-#, fuzzy
 msgid "function"
 msgstr "függvény"
 
 #: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1208
-#, fuzzy
 msgid "member"
-msgstr "tagváltozó"
+msgstr "tag"
 
 #: sphinx/domains/c.py:205
 msgid "macro"
-msgstr ""
+msgstr "makró"
 
 #: sphinx/domains/c.py:206 sphinx/domains/cpp.py:1209
 msgid "type"
-msgstr ""
+msgstr "típus"
 
 #: sphinx/domains/c.py:207
-#, fuzzy
 msgid "variable"
 msgstr "változó"
 
@@ -191,7 +191,7 @@ msgstr "%s (C++ függvény)"
 #: sphinx/domains/cpp.py:1206 sphinx/domains/javascript.py:165
 #: sphinx/domains/python.py:562
 msgid "class"
-msgstr ""
+msgstr "osztály"
 
 #: sphinx/domains/javascript.py:106 sphinx/domains/python.py:253
 #, python-format
@@ -220,21 +220,19 @@ msgstr "%s (%s attribútum)"
 
 #: sphinx/domains/javascript.py:122
 msgid "Arguments"
-msgstr ""
+msgstr "Argumentum"
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
 msgid "data"
-msgstr ""
+msgstr "adat"
 
 #: sphinx/domains/javascript.py:167 sphinx/domains/python.py:567
-#, fuzzy
 msgid "attribute"
 msgstr "attribútum"
 
 #: sphinx/domains/python.py:100
-#, fuzzy
 msgid "Variables"
-msgstr "változó"
+msgstr "Változók"
 
 #: sphinx/domains/python.py:104
 msgid "Raises"
@@ -302,14 +300,12 @@ msgid "%s (module)"
 msgstr "%s (modul)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Teljes modul tárgymutató"
+msgstr "Python Modul Mutató"
 
 #: sphinx/domains/python.py:492
-#, fuzzy
 msgid "modules"
-msgstr "modul"
+msgstr "modulok"
 
 #: sphinx/domains/python.py:538
 msgid "Deprecated"
@@ -317,24 +313,21 @@ msgstr "Elavult"
 
 #: sphinx/domains/python.py:563 sphinx/locale/__init__.py:179
 msgid "exception"
-msgstr ""
+msgstr "kivétel"
 
 #: sphinx/domains/python.py:564
 msgid "method"
-msgstr ""
+msgstr "metódus"
 
 #: sphinx/domains/python.py:565
-#, fuzzy
 msgid "class method"
-msgstr "osztály metódus"
+msgstr "osztály szintű metódus"
 
 #: sphinx/domains/python.py:566
-#, fuzzy
 msgid "static method"
 msgstr "statikus metódus"
 
 #: sphinx/domains/python.py:568 sphinx/locale/__init__.py:175
-#, fuzzy
 msgid "module"
 msgstr "modul"
 
@@ -353,12 +346,10 @@ msgid "%s (role)"
 msgstr "%s (szerepkör)"
 
 #: sphinx/domains/rst.py:104
-#, fuzzy
 msgid "directive"
 msgstr "direktíva"
 
 #: sphinx/domains/rst.py:105
-#, fuzzy
 msgid "role"
 msgstr "szerepkör"
 
@@ -374,24 +365,23 @@ msgstr "%sparancssor opció; %s"
 
 #: sphinx/domains/std.py:414
 msgid "glossary term"
-msgstr ""
+msgstr "szójegyzék"
 
 #: sphinx/domains/std.py:415
 msgid "grammar token"
-msgstr ""
+msgstr "nyelvtani jel"
 
 #: sphinx/domains/std.py:416
 msgid "reference label"
-msgstr ""
+msgstr "referencia cimke"
 
 #: sphinx/domains/std.py:418
-#, fuzzy
 msgid "environment variable"
 msgstr "környezeti változó"
 
 #: sphinx/domains/std.py:419
 msgid "program option"
-msgstr ""
+msgstr "program opció"
 
 #: sphinx/domains/std.py:449 sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-single.html:57
@@ -404,9 +394,8 @@ msgid "Index"
 msgstr "Tárgymutató"
 
 #: sphinx/domains/std.py:450
-#, fuzzy
 msgid "Module Index"
-msgstr "Modul forráskód"
+msgstr "Modulok"
 
 #: sphinx/domains/std.py:451 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
@@ -442,11 +431,11 @@ msgstr "[source]"
 
 #: sphinx/ext/refcounting.py:83
 msgid "Return value: Always NULL."
-msgstr ""
+msgstr "Visszatérési érték: Mindig NULL."
 
 #: sphinx/ext/refcounting.py:85
 msgid "Return value: New reference."
-msgstr ""
+msgstr "Visszatérési érték: Új referencia érték."
 
 #: sphinx/ext/refcounting.py:87
 msgid "Return value: Borrowed reference."
@@ -488,32 +477,31 @@ msgstr "<h1>Az összes modul, melynek forrása elérhető</h1>"
 
 #: sphinx/locale/__init__.py:155
 msgid "Attention"
-msgstr ""
+msgstr "Figyelem"
 
 #: sphinx/locale/__init__.py:156
 msgid "Caution"
-msgstr ""
+msgstr "Figyelem"
 
 #: sphinx/locale/__init__.py:157
 msgid "Danger"
-msgstr ""
+msgstr "Veszély"
 
 #: sphinx/locale/__init__.py:158
 msgid "Error"
-msgstr ""
+msgstr "Hiba"
 
 #: sphinx/locale/__init__.py:159
 msgid "Hint"
-msgstr ""
+msgstr "Tipp"
 
 #: sphinx/locale/__init__.py:160
 msgid "Important"
-msgstr ""
+msgstr "Fontos"
 
 #: sphinx/locale/__init__.py:161
-#, fuzzy
 msgid "Note"
-msgstr "Lábjegyzetek"
+msgstr "Megjegyzés"
 
 #: sphinx/locale/__init__.py:162
 msgid "See also"
@@ -521,45 +509,44 @@ msgstr "Lásd még"
 
 #: sphinx/locale/__init__.py:163
 msgid "Tip"
-msgstr ""
+msgstr "Javaslat"
 
 #: sphinx/locale/__init__.py:164
 msgid "Warning"
-msgstr ""
+msgstr "Figyelem"
 
 #: sphinx/locale/__init__.py:168
 #, python-format
 msgid "New in version %s"
-msgstr ""
+msgstr "Új a(z) %s verzióban"
 
 #: sphinx/locale/__init__.py:169
 #, python-format
 msgid "Changed in version %s"
-msgstr ""
+msgstr "A %s verzióban változott"
 
 #: sphinx/locale/__init__.py:170
 #, python-format
 msgid "Deprecated since version %s"
-msgstr ""
+msgstr "Elavult a(z) %s verzió óta"
 
 #: sphinx/locale/__init__.py:176
 msgid "keyword"
-msgstr ""
+msgstr "kulcsszó"
 
 #: sphinx/locale/__init__.py:177
 msgid "operator"
-msgstr ""
+msgstr "operátor"
 
 #: sphinx/locale/__init__.py:178
 msgid "object"
-msgstr ""
+msgstr "objektum"
 
 #: sphinx/locale/__init__.py:180
 msgid "statement"
 msgstr ""
 
 #: sphinx/locale/__init__.py:181
-#, fuzzy
 msgid "built-in function"
 msgstr "beépített függvény"
 
@@ -595,13 +582,12 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy
 msgid "the documentation for"
-msgstr "dokumentációban"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
-msgstr ""
+msgstr "utoljára frissítve"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
@@ -800,18 +786,17 @@ msgid "Hide Search Matches"
 msgstr "Keresési Találatok Elrejtése"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "keresés"
+msgstr "Keresés folyamatban"
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
-msgstr ""
+msgstr "Felkészülés a keresésre..."
 
 #: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr ""
+msgstr "A keresés befejeződött, %s oldal egyezik a keresési felételeknek."
 
 #: sphinx/themes/basic/static/searchtools.js_t:337
 msgid ", in "
