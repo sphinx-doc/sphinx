@@ -1,15 +1,18 @@
 # Polish translations for Sphinx.
-# Copyright (C) 2011 ORGANIZATION
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 #
+# Translators:
+# <tawezik@gmail.com>, 2013.
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.5\n"
+"Project-Id-Version:  Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2011-09-21 10:14+0200\n"
-"Last-Translator: Michał Kandulski <michal.kandulski@gmail.com>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2013-04-03 21:40+0000\n"
+"Last-Translator: Tawez <tawezik@gmail.com>\n"
+"Language-Team: Polish "
+"(http://www.transifex.com/projects/p/sphinx-1/language/pl/)\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
 "(n%100<10 || n%100>=20) ? 1 : 2)\n"
 "MIME-Version: 1.0\n"
@@ -20,21 +23,21 @@ msgstr ""
 #: sphinx/config.py:81
 #, python-format
 msgid "%s %s documentation"
-msgstr ""
+msgstr "Dokumentacja do %s %s"
 
 #: sphinx/environment.py:1510
-#, fuzzy, python-format
+#, python-format
 msgid "see %s"
 msgstr "zobacz %s"
 
 #: sphinx/environment.py:1513
-#, fuzzy, python-format
+#, python-format
 msgid "see also %s"
 msgstr "zobacz także %s"
 
 #: sphinx/environment.py:1570
 msgid "Symbols"
-msgstr ""
+msgstr "Symbole"
 
 #: sphinx/roles.py:175
 #, python-format
@@ -411,16 +414,16 @@ msgstr "alias klasy :class:`%s`"
 #: sphinx/ext/graphviz.py:294 sphinx/ext/graphviz.py:302
 #, python-format
 msgid "[graph: %s]"
-msgstr ""
+msgstr "[wykres: %s]"
 
 #: sphinx/ext/graphviz.py:296 sphinx/ext/graphviz.py:304
 msgid "[graph]"
-msgstr ""
+msgstr "[wykres]"
 
 #: sphinx/ext/intersphinx.py:234
 #, python-format
 msgid "(in %s v%s)"
-msgstr ""
+msgstr "(w %s v%s)"
 
 #: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
 msgid "[source]"
@@ -428,15 +431,15 @@ msgstr "[źródło]"
 
 #: sphinx/ext/refcounting.py:83
 msgid "Return value: Always NULL."
-msgstr ""
+msgstr "Zwracana wartość: zawsze NULL."
 
 #: sphinx/ext/refcounting.py:85
 msgid "Return value: New reference."
-msgstr ""
+msgstr "Zwracana wartość: nowa referencja."
 
 #: sphinx/ext/refcounting.py:87
 msgid "Return value: Borrowed reference."
-msgstr ""
+msgstr "Zwracana wartość: zapożyczona referencja."
 
 #: sphinx/ext/todo.py:42
 msgid "Todo"
@@ -498,7 +501,7 @@ msgstr "Ważne"
 
 #: sphinx/locale/__init__.py:161
 msgid "Note"
-msgstr "Uwaga"
+msgstr "Notka"
 
 #: sphinx/locale/__init__.py:162
 msgid "See also"
@@ -576,16 +579,15 @@ msgstr "Przegląd"
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
-msgstr ""
+msgstr "Witaj! To jest"
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy
 msgid "the documentation for"
-msgstr "przeszukaj tę dokumentację"
+msgstr "dokumentacja do"
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
-msgstr ""
+msgstr "ostatnio aktualizowana"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
@@ -732,6 +734,8 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
+"Twoje wyszukiwanie nie dało żadnych wyników. Upewnij się, że wszystkie "
+"słowa są wpisane prawidłowo i że wybrałeś dostateczną ilość kategorii."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -783,22 +787,23 @@ msgid "Hide Search Matches"
 msgstr "Ukryj wyniki wyszukiwania"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "szukaj"
+msgstr "Wyszukiwanie"
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
-msgstr ""
+msgstr "Przygotowanie wyszukiwania..."
 
 #: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
+"Wyszukiwanie zakończone. Ilość znalezionych stron pasujących do "
+"zapytania: %s."
 
 #: sphinx/themes/basic/static/searchtools.js_t:337
 msgid ", in "
-msgstr ""
+msgstr ", w "
 
 #: sphinx/themes/default/static/sidebar.js_t:83
 msgid "Expand sidebar"
@@ -831,7 +836,7 @@ msgid "Continued on next page"
 msgstr "Kontynuacja na następnej stronie"
 
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
-#, fuzzy, python-format
+#, python-format
 msgid "[image: %s]"
 msgstr "[obraz: %s]"
 
