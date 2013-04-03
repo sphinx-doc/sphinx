@@ -96,8 +96,13 @@ Features added
   - Added the Docutils-native XML and pseudo-XML builders.  See
     :class:`XMLBuilder` and :class:`PseudoXMLBuilder`.
   - PR#45: The linkcheck builder now checks ``#anchor``\ s for existence.
-  - PR#123, #1106: Add epub_use_index configuration value.  If provided, it will
-    be used instead of html_use_index for epub builder.
+  - PR#123, #1106: Add :confval:`epub_use_index` configuration value.  If
+    provided, it will be used instead of :confval:`html_use_index` for epub
+    builder.
+  - PR#126: Add :confval:`epub_tocscope` configuration value. The setting
+    controls the generation of the epub toc. The user can now also include
+    hidden toc entries.
+  - PR#112: Add :confval:`epub_show_urls` configuration value.
 
 * Extensions:
 
