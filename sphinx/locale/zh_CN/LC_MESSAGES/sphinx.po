@@ -1,17 +1,19 @@
-# Chinese (Simplified Chinese) translations for Sphinx.
-# Copyright (C) 2009  Tower Joo
+# Chinese (China) translations for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# Tower Joo<zhutao.iscas@gmail.com>, 2009.
-# My homepage is at http://sites.google.com/site/towerjooeng
 #
+# Translators:
+# Tower Joo<zhutao.iscas@gmail.com>, 2009.
+# Yinian Sun <yinian1992@live.com>, 2013.
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.6\n"
-"Report-Msgid-Bugs-To: zhutao.iscas@gmail.com\n"
+"Project-Id-Version:  Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2013-02-21 18:31+0800\n"
-"Last-Translator: yinian1992 <yinian1992@gmail.com>\n"
-"Language-Team: cn <LL@li.org>\n"
+"PO-Revision-Date: 2013-04-03 16:18+0000\n"
+"Last-Translator: yinian1992 <yinian1992@live.com>\n"
+"Language-Team: Chinese (China) "
+"(http://www.transifex.com/projects/p/sphinx-1/language/zh_CN/)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -35,7 +37,7 @@ msgstr "也可以参考 %s"
 
 #: sphinx/environment.py:1570
 msgid "Symbols"
-msgstr ""
+msgstr "符号"
 
 #: sphinx/roles.py:175
 #, python-format
@@ -79,7 +81,7 @@ msgstr "上一页"
 
 #: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:196
 msgid " (in "
-msgstr ""
+msgstr "(在"
 
 #: sphinx/directives/other.py:138
 msgid "Section author: "
@@ -209,7 +211,7 @@ msgstr "%s() (类)"
 #: sphinx/domains/javascript.py:111
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr ""
+msgstr "%s (全局变量或常量)"
 
 #: sphinx/domains/javascript.py:113 sphinx/domains/python.py:355
 #, python-format
@@ -336,20 +338,20 @@ msgstr " (已移除)"
 #: sphinx/domains/rst.py:53
 #, python-format
 msgid "%s (directive)"
-msgstr ""
+msgstr "%s (指示)"
 
 #: sphinx/domains/rst.py:55
 #, python-format
 msgid "%s (role)"
-msgstr ""
+msgstr "%s (角色)"
 
 #: sphinx/domains/rst.py:104
 msgid "directive"
-msgstr ""
+msgstr "指示"
 
 #: sphinx/domains/rst.py:105
 msgid "role"
-msgstr ""
+msgstr "角色"
 
 #: sphinx/domains/std.py:70 sphinx/domains/std.py:86
 #, python-format
@@ -363,15 +365,15 @@ msgstr "%s命令行选项; %s"
 
 #: sphinx/domains/std.py:414
 msgid "glossary term"
-msgstr ""
+msgstr "术语"
 
 #: sphinx/domains/std.py:415
 msgid "grammar token"
-msgstr ""
+msgstr "语法记号"
 
 #: sphinx/domains/std.py:416
 msgid "reference label"
-msgstr ""
+msgstr "引用标签"
 
 #: sphinx/domains/std.py:418
 msgid "environment variable"
@@ -379,7 +381,7 @@ msgstr "环境变量"
 
 #: sphinx/domains/std.py:419
 msgid "program option"
-msgstr ""
+msgstr "程序选项"
 
 #: sphinx/domains/std.py:449 sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-single.html:57
@@ -429,15 +431,15 @@ msgstr "[源代码]"
 
 #: sphinx/ext/refcounting.py:83
 msgid "Return value: Always NULL."
-msgstr ""
+msgstr "返回值：总为 NULL。"
 
 #: sphinx/ext/refcounting.py:85
 msgid "Return value: New reference."
-msgstr ""
+msgstr "返回值：新的引用。"
 
 #: sphinx/ext/refcounting.py:87
 msgid "Return value: Borrowed reference."
-msgstr ""
+msgstr "返回值：借引用。"
 
 #: sphinx/ext/todo.py:42
 msgid "Todo"
@@ -577,16 +579,15 @@ msgstr "概述"
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
-msgstr ""
+msgstr "欢迎！这是"
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy
 msgid "the documentation for"
-msgstr "%s %s 文档"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
-msgstr ""
+msgstr "最后更新于"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
@@ -669,11 +670,11 @@ msgid "Last updated on %(last_updated)s."
 msgstr "最后更新日期是 %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:198
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr "使用 <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr "由 <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s 创建。"
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -724,7 +725,7 @@ msgstr "搜索结果"
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
-msgstr ""
+msgstr "没有匹配出任何文档。请确保你输入的词拼写正确并选择了合适的分类。"
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -776,22 +777,21 @@ msgid "Hide Search Matches"
 msgstr "隐藏搜索结果"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "搜索"
+msgstr "搜索中"
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
-msgstr ""
+msgstr "准备搜索……"
 
 #: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr ""
+msgstr "搜索完成，匹配查询的页面有 %s 个。"
 
 #: sphinx/themes/basic/static/searchtools.js_t:337
 msgid ", in "
-msgstr ""
+msgstr ",在"
 
 #: sphinx/themes/default/static/sidebar.js_t:83
 msgid "Expand sidebar"
@@ -824,9 +824,9 @@ msgid "Continued on next page"
 msgstr "下页继续"
 
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
-#, fuzzy, python-format
+#, python-format
 msgid "[image: %s]"
-msgstr "[图片: %s]"
+msgstr ""
 
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
