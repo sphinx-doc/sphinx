@@ -250,6 +250,7 @@ class InheritanceGraph(object):
             if cls.__doc__:
                 doc = cls.__doc__.strip().split("\n")[0]
                 if doc:
+                    doc = doc.replace('"', '\"')
                     this_node_attrs['tooltip'] = '"%s"' % doc
             res.append('  "%s" [%s];\n' %
                        (name, self._format_node_attrs(this_node_attrs)))
