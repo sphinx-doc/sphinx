@@ -4,11 +4,12 @@ Sphinx Document Translation Guide
 
 .. topic:: Abstract
 
-   This document describes the translation cycle of Sphinx based document.
-   As the subject, use Sphinx document its self.
+   This document describes the translation cycle of Sphinx-based document.
+   For illustrative purpose, we use Sphinx document itself in this document.
 
-The Sphinx document is included in the Sphinx code and that managed using
+The Sphinx document is included in the Sphinx code.  It is managed by
 `Mercurial`_ and is hosted on `BitBucket`_.
+
 
     hg clone https://bitbucket.org/birkenfeld/sphinx
 
@@ -41,9 +42,9 @@ These are the basic steps needed to start translating the Sphinx document.
       locale_dirs = ['locale/']   #for example
       gettext_compact = False     #optional
 
-   This case-study postulate :confval:`locale_dirs` set to 'locale/' and
-   :confval:`gettext_compact` set to `False` (the Sphinx document is
-   configured as such).
+   This case-study assumes that :confval:`locale_dirs` is set to 'locale/' and
+   :confval:`gettext_compact` is set to `False` (the Sphinx document is
+   already configured as such).
 
 #. Generate pot files from the document.
 
@@ -64,9 +65,10 @@ These are the basic steps needed to start translating the Sphinx document.
 
 #. Generate po files from pot files.
 
-   Sphinx expects translated po files under ``locale/<lang>/LC_MESSAGES/``
-   directory. For the Japanese, you need ``locale/ja/LC_MESSAGE/`` and
-   po files copy and renamed from pot files:
+   Sphinx expects that translated po files are under
+   ``locale/<lang>/LC_MESSAGES/`` directory. For Japanese, you need
+   ``locale/ja/LC_MESSAGE/`` directory and po files under the
+   directory. The po files can be copied and renamed from pot files:
 
    .. code-block:: bash
 
@@ -124,19 +126,21 @@ These are the basic steps needed to start translating the Sphinx document.
       msgfmt builders.po -o builders.mo
       ...
 
-   in one command:
+   in one line:
 
-      find . -name "*.po" -type f -print0 |while read -r -d '' file; do
-      msgfmt "$file" -o "${file%.*}.mo";
+   .. code-block:: bash
+
+      find . -name "*.po" -type f -print0 | while read -r -d '' file; do \
+      msgfmt "$file" -o "${file%.*}.mo"; \
       done
 
 
 
 #. Make translated html (or other format).
 
-   Now you was ready to make the translated document in the
+   Now you are ready to make the translated document by the
    :command:`make html` command. You need :confval:`language` parameter in
-   ``conf.py`` or you may also be specified the parameter on the command line.
+   ``conf.py`` or you may also specify the parameter on the command line.
 
    .. code-block:: bash
 
@@ -150,8 +154,8 @@ These are the basic steps needed to start translating the Sphinx document.
 Update your po files by new pot files
 --------------------------------------
 
-If the document is updated, it is necessary to generate a updated pot files
-and to apply difference to translated po file.
+If the document is updated, it is necessary to generate updated pot files
+and to apply differences to translated po files.
 In order to apply the updating difference of a pot file to po file,
 using msgmerge_ command.
 
@@ -182,9 +186,9 @@ Make new translation project
 
 2. Create new project for your document.
 
-   In the current transifex, since one translation project cannot treat two
-   or more version of a document, a version number is included in a project
-   name.
+   Currently, transifex does not allow for a translation project to
+   have more than one version of document, so you'd better include a
+   version number in your project name.
 
    For example:
 
@@ -219,14 +223,14 @@ Create config files for tx command
    Updating /home/ubuntu/.transifexrc file...
    Done.
 
-This process will create ``~/.transifexrc`` file that include auth
-information and create ``.tx/config`` in current directory.
+This process will create ``.tx/config`` in the current directory, as
+well as ``~/.transifexrc`` file that includes auth information.
 
 
 .....
 
 
-registration pot files in transifex
+Register pot files in transifex
 -----------------------------------
 
 .. code-block:: bash
@@ -285,7 +289,7 @@ Tranlating Tips
 * Translating local vs Transifex
 
   If you want to push all language's po files, you can use `tx push -t`.
-  (this operatoin overwrite translations in transifex.)
+  (this operation overwrites translations in transifex.)
 
 
 * rebuild
@@ -296,8 +300,8 @@ Tranlating Tips
 Contributing to Sphinx reference translation
 ============================================
 
-The recommended way for new contributors to translate to Sphinx reference
-is to join a translation team on Transifex.
+The recommended way for new contributors to translate Sphinx reference
+is to join the translation team on Transifex.
 
 There is `sphinx translation page`_ for Sphinx-1.2 document.
 
