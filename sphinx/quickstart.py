@@ -392,19 +392,14 @@ SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = %(rbuilddir)s
 
-ifeq ($(shell $(SPHINXBUILD) 2> /dev/null; echo $$?), 127)
-define MSG
-
-
-The 'sphinx-build' command was not found. Make sure you have Sphinx
-installed, then set the SPHINXBUILD environment variable to point
-to the full path of the 'sphinx-build' executable. Alternatively you
-may add the Sphinx directory to PATH.
-
-If you don't have Sphinx installed, grab it from
-http://sphinx-doc.org/
-endef
-$(error $(MSG))
+# User-friendly check for sphinx-build
+ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
+$(error \
+The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
+installed, then set the SPHINXBUILD environment variable to point \
+to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
+can add the directory with the executable to your PATH. \
+If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
 endif
 
 # Internal variables.

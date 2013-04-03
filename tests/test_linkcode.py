@@ -10,7 +10,7 @@
 """
 
 import os
-from util import *
+from util import with_app
 
 @with_app(srcdir='(temp)', buildername='html', tags=['test_linkcode'])
 def test_html(app):

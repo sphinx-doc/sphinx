@@ -1,1 +1,1 @@
-Documentation.addTranslations({"locale": "fi", "plural_expr": "(n != 1)", "messages": {"Hide Search Matches": "Piilota l\u00f6ydetyt", "Permalink to this definition": "", "Expand sidebar": "", "Permalink to this headline": "", "Collapse sidebar": ""}});
+Documentation.addTranslations({"locale": "fi", "plural_expr": "(n != 1)", "messages": {"Hide Search Matches": "Piilota l\u00f6ydetyt", "Permalink to this definition": "", "Permalink to this headline": ""}});

@@ -14,6 +14,7 @@ import re
 import sys
 import time
 import errno
+import locale
 import shutil
 from os import path
 
@@ -135,10 +136,12 @@ def make_filename(string):
     return no_fn_re.sub('', string)
 
 if sys.version_info < (3, 0):
+    # strftime for unicode strings
     def ustrftime(format, *args):
-        # strftime for unicode strings
-        return time.strftime(unicode(format).encode('utf-8'), *args) \
-                .decode('utf-8')
+        # if a locale is set, the time strings are encoded in the encoding
+        # given by LC_TIME; if that is available, use it
+        enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
+        return time.strftime(unicode(format).encode(enc), *args).decode(enc)
 else:
     ustrftime = time.strftime
 
@@ -159,4 +162,3 @@ def find_catalog(docname, compaction):
     return ret
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
-

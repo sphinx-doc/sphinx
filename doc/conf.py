@@ -83,6 +83,10 @@ texinfo_documents = [
 # the mapping:
 intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
 
+# Sphinx document translation with sphinx gettext feature uses these settings:
+locale_dirs = ['locale/']
+gettext_compact = False
+
 
 # -- Extension interface -------------------------------------------------------
 

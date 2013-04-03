@@ -14,7 +14,7 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.locale import _
+from sphinx.locale import versionlabels, _
 from sphinx.util import url_re, docname_join
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
@@ -190,19 +190,32 @@ class VersionChange(Directive):
         set_source_info(self, node)
         node['type'] = self.name
         node['version'] = self.arguments[0]
+        text = versionlabels[self.name] % self.arguments[0]
         if len(self.arguments) == 2:
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno+1)
-            node.extend(inodes)
-            if self.content:
-                self.state.nested_parse(self.content, self.content_offset, node)
-            ret = [node] + messages
+            para = nodes.paragraph(self.arguments[1], '', *inodes)
+            set_source_info(self, para)
+            node.append(para)
         else:
-            ret = [node]
+            messages = []
+        if self.content:
+            self.state.nested_parse(self.content, self.content_offset, node)
+        if len(node):
+            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
+                content = nodes.inline(node[0].rawsource, translatable=True)
+                content.source = node[0].source
+                content.line = node[0].line
+                content += node[0].children
+                node[0].replace_self(nodes.paragraph('', '', content))
+            node[0].insert(0, nodes.inline('', '%s: ' % text))
+        else:
+            para = nodes.paragraph('', '', nodes.inline('', '%s.' % text))
+            node.append(para)
         env = self.state.document.settings.env
         # XXX should record node.source as well
         env.note_versionchange(node['type'], node['version'], node, node.line)
-        return ret
+        return [node] + messages
 
 
 class SeeAlso(BaseAdmonition):

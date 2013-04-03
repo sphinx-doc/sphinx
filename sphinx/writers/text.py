@@ -17,7 +17,7 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -32,8 +32,8 @@ class TextWrapper(textwrap.TextWrapper):
     def _wrap_chunks(self, chunks):
         """_wrap_chunks(chunks : [string]) -> [string]
 
-        Original _wrap_chunks use len() to calculate width.
-        This method respect to wide/fullwidth characters for width adjustment.
+        The original _wrap_chunks uses len() to calculate width.
+        This method respects wide/fullwidth characters for width adjustment.
         """
         drop_whitespace = getattr(self, 'drop_whitespace', True)  #py25 compat
         lines = []
@@ -680,10 +680,6 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_versionmodified(self, node):
         self.new_state(0)
-        if node.children:
-            self.add_text(versionlabels[node['type']] % node['version'] + ': ')
-        else:
-            self.add_text(versionlabels[node['type']] % node['version'] + '.')
     def depart_versionmodified(self, node):
         self.end_state()
 

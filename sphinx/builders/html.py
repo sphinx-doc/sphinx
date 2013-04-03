@@ -53,20 +53,16 @@ INVENTORY_FILENAME = 'objects.inv'
 LAST_BUILD_FILENAME = 'last_build'
 
 
-def get_object_hash(obj):
+def get_stable_hash(obj):
     """
-    In python3.3, unicode(dict_instance) retun another string per process.
-    get_object_hash(dict_instance) return same hash for same dict_instance.
+    Return a stable hash for a Python data structure.  We can't just use
+    the md5 of str(obj) since for example dictionary items are enumerated
+    in unpredictable order due to hash randomization in newer Pythons.
     """
     if isinstance(obj, dict):
-        return get_object_hash(list(obj.items()))
-
+        return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
-        obj = sorted(get_object_hash(o) for o in obj)
-
-    else:  # int or other objects
-        pass
-
+        obj = sorted(get_stable_hash(o) for o in obj)
     return md5(unicode(obj).encode('utf8')).hexdigest()
 
 
@@ -77,6 +73,7 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     format = 'html'
     copysource = True
+    allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
@@ -173,8 +170,8 @@ class StandaloneHTMLBuilder(Builder):
         cfgdict = dict((name, self.config[name])
                        for (name, desc) in self.config.values.iteritems()
                        if desc[1] == 'html')
-        self.config_hash = get_object_hash(cfgdict)
-        self.tags_hash = get_object_hash(sorted(self.tags))
+        self.config_hash = get_stable_hash(cfgdict)
+        self.tags_hash = get_stable_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
@@ -430,7 +427,6 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
-        self.post_process_images(doctree)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -439,8 +435,14 @@ class StandaloneHTMLBuilder(Builder):
         metatags = self.docwriter.clean_meta
 
         ctx = self.get_doc_context(docname, body, metatags)
-        self.index_page(docname, doctree, ctx.get('title', ''))
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname, doctree):
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.post_process_images(doctree)
+        title = self.env.longtitles.get(docname)
+        title = title and self.render_partial(title)['title'] or ''
+        self.index_page(docname, doctree, title)
 
     def finish(self):
         self.info(bold('writing additional files...'), nonl=1)

@@ -14,6 +14,9 @@
   <script type="text/javascript">
     jQuery(function() { Search.loadIndex("{{ pathto('searchindex.js', 1) }}"); });
   </script>
+  {# this is used when loading the search index using $.ajax fails,
+     such as on Chrome for documents on localhost #}
+  <script type="text/javascript" id="searchindexloader"></script>
   {{ super() }}
 {% endblock %}
 {% block body %}
@@ -39,7 +42,7 @@
   {% if search_performed %}
     <h2>{{ _('Search Results') }}</h2>
     {% if not search_results %}
-      <p>{{ _('Your search did not match any results.') }}</p>
+      <p>{{ _('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.') }}</p>
     {% endif %}
   {% endif %}
   <div id="search-results">

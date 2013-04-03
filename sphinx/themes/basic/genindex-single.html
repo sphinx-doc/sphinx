@@ -54,7 +54,7 @@
 {% endblock %}
 
 {% block sidebarrel %}
-   <h4>Index</h4>
+   <h4>{{ _('Index') }}</h4>
    <p>{% for key, dummy in genindexentries -%}
    <a href="{{ pathto('genindex-' + key) }}"><strong>{{ key }}</strong></a>
      {% if not loop.last %}| {% endif %}

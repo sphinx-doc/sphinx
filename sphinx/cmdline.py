@@ -48,6 +48,7 @@ General options
 -E            don't use a saved environment, always read all files
 -d <path>     path for the cached environment and doctree files
                 (default: outdir/.doctrees)
+-j <N>        build in parallel with N processes where possible
 
 Build configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,7 +90,7 @@ def main(argv):
         nocolor()
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThv',
+        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
                                    ['help', 'version'])
         allopts = set(opt[0] for opt in opts)
         if '-h' in allopts or '--help' in allopts:
@@ -139,6 +140,7 @@ def main(argv):
     force_all = freshenv = warningiserror = use_pdb = False
     show_traceback = False
     verbosity = 0
+    parallel = 0
     status = sys.stdout
     warning = sys.stderr
     error = sys.stderr
@@ -220,6 +222,13 @@ def main(argv):
         elif opt == '-v':
             verbosity += 1
             show_traceback = True
+        elif opt == '-j':
+            try:
+                parallel = int(val)
+            except ValueError:
+                print >>sys.stderr, ('Error: -j option argument must be an '
+                                     'integer.')
+                return 1
 
     if warning and warnfile:
         warnfp = open(warnfile, 'w')
@@ -234,7 +243,7 @@ def main(argv):
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv,
-                     warningiserror, tags, verbosity)
+                     warningiserror, tags, verbosity, parallel)
         app.build(force_all, filenames)
         return app.statuscode
     except (Exception, KeyboardInterrupt), err:

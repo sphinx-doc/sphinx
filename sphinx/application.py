@@ -61,7 +61,8 @@ class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
-                 freshenv=False, warningiserror=False, tags=None, verbosity=0):
+                 freshenv=False, warningiserror=False, tags=None, verbosity=0,
+                 parallel=0):
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
@@ -75,6 +76,8 @@ class Sphinx(object):
         self.confdir = confdir
         self.outdir = outdir
         self.doctreedir = doctreedir
+
+        self.parallel = parallel
 
         if status is None:
             self._status = StringIO()

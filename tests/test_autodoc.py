@@ -13,7 +13,8 @@
 import sys
 from StringIO import StringIO
 
-from util import *
+# "raises" imported for usage by autodoc
+from util import TestApp, Struct, raises
 from nose.tools import with_setup
 
 from docutils.statemachine import ViewList
@@ -21,6 +22,7 @@ from docutils.statemachine import ViewList
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
      ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
+app = None
 
 def setup_module():
     global app
@@ -35,6 +37,8 @@ def setup_module():
 def teardown_module():
     app.cleanup()
 
+
+directive = options = None
 
 def setup_test():
     global options, directive
@@ -191,7 +195,8 @@ def test_format_signature():
     class G2(F2, object):
         pass
     for C in (F2, G2):
-        assert formatsig('class', 'C', C, None, None) == '(a1, a2, kw1=True, kw2=False)'
+        assert formatsig('class', 'C', C, None, None) == \
+            '(a1, a2, kw1=True, kw2=False)'
 
     # test for methods
     class H:

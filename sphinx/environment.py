@@ -309,8 +309,9 @@ class BuildEnvironment:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
-        Absolute filenames are relative to the source dir, while relative
-        filenames are relative to the dir of the containing document.
+        In the input "filename", absolute filenames are taken as relative to the
+        source dir, while relative filenames are relative to the dir of the
+        containing document.
         """
         if filename.startswith('/') or filename.startswith(os.sep):
             rel_fn = filename[1:]
@@ -319,12 +320,14 @@ class BuildEnvironment:
                                                 base=None))
             rel_fn = path.join(docdir, filename)
         try:
-            return rel_fn, path.join(self.srcdir, rel_fn)
+            # the path.abspath() might seem redundant, but otherwise artifacts
+            # such as ".." will remain in the path
+            return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
         except UnicodeDecodeError:
             # the source directory is a bytestring with non-ASCII characters;
             # let's try to encode the rel_fn in the file system encoding
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.join(self.srcdir, enc_rel_fn)
+            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
     def find_files(self, config):
         """Find all source files in the source dir and put them in
@@ -1564,7 +1567,7 @@ class BuildEnvironment:
                 return letter
             else:
                 # get all other symbols under one heading
-                return 'Symbols'
+                return _('Symbols')
         return [(key, list(group))
                 for (key, group) in groupby(newlist, keyfunc2)]
 

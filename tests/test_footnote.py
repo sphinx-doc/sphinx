@@ -5,13 +5,13 @@
 
     Test for footnote and citation.
 
-    :copyright: Copyright 2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from util import *
+from util import test_root, with_app
 
 
 def teardown_module():

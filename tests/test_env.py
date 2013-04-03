@@ -10,7 +10,7 @@
 """
 import sys
 
-from util import *
+from util import TestApp, remove_unicode_literals, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder

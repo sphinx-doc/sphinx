@@ -92,7 +92,7 @@ class LiteralInclude(Directive):
     has_content = False
     required_arguments = 1
     optional_arguments = 0
-    final_argument_whitespace = False
+    final_argument_whitespace = True
     option_spec = {
         'linenos': directives.flag,
         'tab-width': int,

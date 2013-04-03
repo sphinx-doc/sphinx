@@ -12,9 +12,9 @@
 import os
 import zipfile
 
-from util import *
-
 from sphinx.theming import Theme, ThemeError
+
+from util import with_app, raises
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',

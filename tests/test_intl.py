@@ -6,19 +6,18 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from subprocess import Popen, PIPE
-import re
 import os
+import re
 from StringIO import StringIO
+from subprocess import Popen, PIPE
 
 from sphinx.util.pycompat import relpath
 
-from util import *
-from util import SkipTest
+from util import test_roots, path, with_app, SkipTest
 
 
 warnfile = StringIO()
@@ -299,9 +298,11 @@ def test_i18n_role_xref(app):
     app.builddir.rmtree(True)  #for warnings acceleration
     app.builder.build(['role_xref'])
     result = (app.outdir / 'role_xref.txt').text(encoding='utf-8')
-    expect = (u"\nI18N ROCK'N ROLE XREF"
-              u"\n*********************\n"
-              u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n")
+    expect = (
+        u"\nI18N ROCK'N ROLE XREF"
+        u"\n*********************\n"
+        u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n"
+    )
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
@@ -389,6 +390,39 @@ def test_i18n_index_entries(app):
         assert re.search(expr, result, re.M)
 
 
+@with_intl_app(buildername='html', cleanenv=True)
+def test_versionchange(app):
+    app.builder.build(['versionchange'])
+    result = (app.outdir / 'versionchange.html').text(encoding='utf-8')
+
+    def get_content(result, name):
+        matched = re.search(r'<div class="%s">\n*(.*?)</div>' % name,
+                            result, re.DOTALL)
+        if matched:
+            return matched.group(1)
+        else:
+            return ''
+
+    expect1 = (
+        u"""<p><span>Deprecated since version 1.0: </span>"""
+        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
+        u"""<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n""")
+    matched_content = get_content(result, "deprecated")
+    assert expect1 == matched_content
+
+    expect2 = (
+        u"""<p><span>New in version 1.0: </span>"""
+        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
+    matched_content = get_content(result, "versionadded")
+    assert expect2 == matched_content
+
+    expect3 = (
+        u"""<p><span>Changed in version 1.0: </span>"""
+        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n""")
+    matched_content = get_content(result, "versionchanged")
+    assert expect3 == matched_content
+
+
 @with_intl_app(buildername='text', cleanenv=True)
 def test_i18n_docfields(app):
     app.builder.build(['docfields'])
@@ -420,3 +454,11 @@ def test_i18n_docfields_html(app):
     app.builder.build(['docfields'])
     result = (app.outdir / 'docfields.html').text(encoding='utf-8')
     # expect no error by build
+
+
+@with_intl_app(buildername='html')
+def test_gettext_template(app):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    assert "WELCOME" in result
+    assert "SPHINX 2013.120" in result

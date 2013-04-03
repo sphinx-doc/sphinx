@@ -9,12 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from textwrap import dedent
-
 from docutils.utils import column_width
 from sphinx.writers.text import MAXWIDTH
 
-from util import *
+from util import with_app
 
 
 def with_text_app(*args, **kw):

@@ -11,7 +11,7 @@
 
 import pickle
 
-from util import *
+from util import with_app
 
 
 @with_app(buildername='coverage')

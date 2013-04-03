@@ -22,7 +22,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.osutil import ustrftime
 from sphinx.util.pycompat import any
@@ -562,10 +562,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_name(self, node):
         self.body.append(r'\bfcode{')
+        self.no_contractions += 1
         self.literal_whitespace += 1
     def depart_desc_name(self, node):
         self.body.append('}')
         self.literal_whitespace -= 1
+        self.no_contractions -= 1
 
     def visit_desc_parameterlist(self, node):
         # close name, open parameterlist
@@ -757,9 +759,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table.rowcount += 1
 
     def visit_entry(self, node):
-        if self.remember_multirow.get(0, 0) > 1:
-            self.body.append(' & ')
         if self.table.col > 0:
+            self.body.append(' & ')
+        elif self.remember_multirow.get(1, 0) > 1:
+            self.remember_multirow[1] -= 1
             self.body.append(' & ')
         self.table.col += 1
         context = ''
@@ -779,7 +782,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('}{l|}{')
             context += '}'
         if isinstance(node.parent.parent, nodes.thead):
-            self.body.append('\\textbf{')
+            self.body.append('\\textbf{\\relax ')
             context += '}'
         if self.remember_multirow.get(self.table.col + 1, 0) > 1:
             self.remember_multirow[self.table.col + 1] -= 1
@@ -1053,12 +1056,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     depart_warning = _depart_named_admonition
 
     def visit_versionmodified(self, node):
-        intro = versionlabels[node['type']] % node['version']
-        if node.children:
-            intro += ': '
-        else:
-            intro += '.'
-        self.body.append(intro)
+        pass
     def depart_versionmodified(self, node):
         pass
 
@@ -1312,6 +1310,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
+        if self.in_footnote:
+            raise UnsupportedError('%s:%s: literal blocks in footnotes are '
+                                   'not supported by LaTeX' %
+                                   (self.curfilestack[-1], node.line))
         self.verbatim = ''
     def depart_literal_block(self, node):
         code = self.verbatim.rstrip('\n')
@@ -1496,6 +1498,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             text = text.replace(u'\n', u'~\\\\\n').replace(u' ', u'~')
         if self.no_contractions:
             text = text.replace('--', u'-{-}')
+            text = text.replace("''", u"'{'}")
         return text
 
     def encode_uri(self, text):

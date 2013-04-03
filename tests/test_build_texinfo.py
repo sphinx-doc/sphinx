@@ -17,7 +17,7 @@ from subprocess import Popen, PIPE
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import *
+from util import with_app, test_root, remove_unicode_literals
 from test_build_html import ENV_WARNINGS
 
 

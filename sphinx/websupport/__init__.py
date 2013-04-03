@@ -19,6 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 from docutils.core import publish_parts
 
 from sphinx.application import Sphinx
+from sphinx.locale import _
 from sphinx.util.osutil import ensuredir
 from sphinx.util.jsonimpl import dumps as dump_json
 from sphinx.util.pycompat import htmlescape
@@ -217,6 +218,7 @@ class WebSupport(object):
             'search_performed': True,
             'search_results': results,
             'docroot': '../', # XXX
+            '_': _,
         }
         document = {
             'body': self.results_template.render(ctx),

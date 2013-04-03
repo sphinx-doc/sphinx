@@ -10,7 +10,6 @@
 """
 
 import re
-import warnings
 
 from docutils import nodes, utils
 from docutils.parsers.rst import roles
@@ -316,10 +315,3 @@ specific_docroles = {
 
 for rolename, func in specific_docroles.iteritems():
     roles.register_local_role(rolename, func)
-
-
-# backwards compatibility alias
-def xfileref_role(*args, **kwds):
-    warnings.warn('xfileref_role is deprecated, use XRefRole',
-                  DeprecationWarning, stacklevel=2)
-    return XRefRole()(*args, **kwds)

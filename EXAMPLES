@@ -106,6 +106,8 @@ Documentation using the sphinxdoc theme
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
+* Python Wild Magic:
+  http://python-wild-magic.googlecode.com/svn/doc/html/index.html
 * Reteisi: http://www.reteisi.org/contents.html
 * Satchmo: http://www.satchmoproject.com/docs/dev/
 * Sphinx: http://sphinx-doc.org/
@@ -143,6 +145,7 @@ Documentation using a custom theme/integrated in a site
 * Classy: http://classy.pocoo.org/
 * DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
 * Django: http://docs.djangoproject.com/
+* Enterprise Toolkit for Acrobat products: http://www.adobe.com/devnet-docs/acrobatetk/
 * e-cidadania: http://e-cidadania.readthedocs.org/en/latest/
 * Flask: http://flask.pocoo.org/docs/
 * Flask-OpenID: http://packages.python.org/Flask-OpenID/

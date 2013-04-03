@@ -12,7 +12,7 @@
 import sys
 import time
 
-from util import *
+from util import raises, with_tempdir
 
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron

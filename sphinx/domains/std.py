@@ -307,13 +307,13 @@ class Glossary(Directive):
                 # add an index entry too
                 indexnode = addnodes.index()
                 indexnode['entries'] = [('single', termtext, new_id, 'main')]
-                _termnodes = []
-                _termnodes.append(indexnode)
-                _termnodes.extend(res[0])
-                _termnodes.append(addnodes.termsep())
-                for termnode in _termnodes:
+                new_termnodes = []
+                new_termnodes.append(indexnode)
+                new_termnodes.extend(res[0])
+                new_termnodes.append(addnodes.termsep())
+                for termnode in new_termnodes:
                     termnode.source, termnode.line = source, lineno
-                termnodes.extend(_termnodes)
+                termnodes.extend(new_termnodes)
             # make a single "term" node with all the terms, separated by termsep
             # nodes (remove the dangling trailing separator)
             term = nodes.term('', '', *termnodes[:-1])

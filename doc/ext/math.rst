@@ -196,7 +196,7 @@ Sphinx.
    MathJax.
 
    The default is the ``http://`` URL that loads the JS files from the `MathJax
-   CDN <http://www.mathjax.org/docs/1.1/start.html>`_.  If you want MathJax to
+   CDN <http://docs.mathjax.org/en/latest/start.html>`_.  If you want MathJax to
    be available offline, you have to donwload it and set this value to a
    different path.
 

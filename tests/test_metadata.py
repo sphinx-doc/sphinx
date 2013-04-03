@@ -12,7 +12,7 @@
 # adapted from an example of bibliographic metadata at
 # http://docutils.sourceforge.net/docs/user/rst/demo.txt
 
-from util import *
+from util import TestApp
 
 from nose.tools import assert_equals
 
