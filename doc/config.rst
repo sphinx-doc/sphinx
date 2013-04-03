@@ -916,6 +916,15 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of differnet
    depth in one list.  The default value is ``True``.
 
+.. confval:: epub_tocscope
+
+   This setting control the scope of the epub table of contents.  The setting
+   can have the following values:
+
+   * ``'default'`` -- include all toc entries that are not hidden (default)
+   * ``'includehidden'`` -- include all toc entries
+
+   .. versionadded:: 1.2
 
 .. confval:: epub_fix_images
 

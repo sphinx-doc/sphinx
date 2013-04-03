@@ -335,6 +335,9 @@ epub_copyright = u'%(copyright_str)s'
 # Allow duplicate toc entries.
 #epub_tocdup = True
 
+# Choose between 'default' and 'includehidden'.
+#epub_tocscope = 'default'
+
 # Fix unsupported image types using the PIL.
 #epub_fix_images = False
 
