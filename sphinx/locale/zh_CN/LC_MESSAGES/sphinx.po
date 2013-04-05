@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the Sphinx project.
 #
 # Translators:
+# Ryekee Zhong <ryekee@gmail.com>, 2013.
 # Tower Joo<zhutao.iscas@gmail.com>, 2009.
 # Yinian Sun <yinian1992@live.com>, 2013.
 msgid ""
@@ -10,7 +11,7 @@ msgstr ""
 "Project-Id-Version:  Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2013-04-03 16:18+0000\n"
+"PO-Revision-Date: 2013-04-05 12:21+0000\n"
 "Last-Translator: yinian1992 <yinian1992@live.com>\n"
 "Language-Team: Chinese (China) "
 "(http://www.transifex.com/projects/p/sphinx-1/language/zh_CN/)\n"
@@ -33,7 +34,7 @@ msgstr "见 %s"
 #: sphinx/environment.py:1513
 #, python-format
 msgid "see also %s"
-msgstr "也可以参考 %s"
+msgstr "参见 %s"
 
 #: sphinx/environment.py:1570
 msgid "Symbols"
@@ -414,16 +415,16 @@ msgstr ":class:`%s` 的别名"
 #: sphinx/ext/graphviz.py:294 sphinx/ext/graphviz.py:302
 #, python-format
 msgid "[graph: %s]"
-msgstr ""
+msgstr "[图表：%s]"
 
 #: sphinx/ext/graphviz.py:296 sphinx/ext/graphviz.py:304
 msgid "[graph]"
-msgstr ""
+msgstr "[图表]"
 
 #: sphinx/ext/intersphinx.py:234
 #, python-format
 msgid "(in %s v%s)"
-msgstr ""
+msgstr "(在 %s v%s)"
 
 #: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
 msgid "[source]"
@@ -448,7 +449,7 @@ msgstr "待处理"
 #: sphinx/ext/todo.py:110
 #, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr "(<<原始记录>> 见 %s，行 %d)"
+msgstr "(<<原始记录>> 见 %s，第 %d 行)"
 
 #: sphinx/ext/todo.py:119
 msgid "original entry"
@@ -473,7 +474,7 @@ msgstr "概览：模块代码"
 
 #: sphinx/ext/viewcode.py:165
 msgid "<h1>All modules for which code is available</h1>"
-msgstr "<h1>所有代码可用的模块</h1>"
+msgstr "<h1>代码可用的所有模块</h1>"
 
 #: sphinx/locale/__init__.py:155
 msgid "Attention"
@@ -481,7 +482,7 @@ msgstr "注意"
 
 #: sphinx/locale/__init__.py:156
 msgid "Caution"
-msgstr "警告"
+msgstr "谨慎"
 
 #: sphinx/locale/__init__.py:157
 msgid "Danger"
@@ -505,7 +506,7 @@ msgstr "注解"
 
 #: sphinx/locale/__init__.py:162
 msgid "See also"
-msgstr "也可以参考"
+msgstr "参见"
 
 #: sphinx/locale/__init__.py:163
 msgid "Tip"
@@ -536,7 +537,7 @@ msgstr "关键字"
 
 #: sphinx/locale/__init__.py:177
 msgid "operator"
-msgstr "操作数"
+msgstr "运算符"
 
 #: sphinx/locale/__init__.py:178
 msgid "object"
@@ -563,11 +564,11 @@ msgstr "搜索"
 
 #: sphinx/themes/agogo/layout.html:53 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
-msgstr "搜索"
+msgstr "转向"
 
 #: sphinx/themes/agogo/layout.html:58 sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
-msgstr "输入相关的模块，术语，类或者函数名称进行搜索"
+msgstr "输入相关的术语，模块，类或者函数名称进行搜索"
 
 #: sphinx/themes/agogo/layout.html:79 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
@@ -583,7 +584,7 @@ msgstr "欢迎！这是"
 
 #: sphinx/themes/basic/defindex.html:16
 msgid "the documentation for"
-msgstr ""
+msgstr "这份文档是"
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
@@ -591,7 +592,7 @@ msgstr "最后更新于"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
-msgstr "索引和表格"
+msgstr "索引和表格："
 
 #: sphinx/themes/basic/defindex.html:23
 msgid "Complete Table of Contents"
@@ -667,7 +668,7 @@ msgstr "&copy; 版权所有 %(copyright)s."
 #: sphinx/themes/basic/layout.html:195
 #, python-format
 msgid "Last updated on %(last_updated)s."
-msgstr "最后更新日期是 %(last_updated)s."
+msgstr "最后更新于 %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:198
 #, python-format
@@ -701,7 +702,7 @@ msgstr "下一章"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "请激活 JavaScript 开启搜索功能"
+msgstr "请激活 JavaScript 以开启搜索功能"
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -709,7 +710,7 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr "在这儿，你可以对这些文档进行搜索。向搜索框中输入你所要搜索的关键字并点击\"搜索\"。注意：搜索引擎会自动搜索所有的关键字。将不会搜索到部分关键字的页面."
+msgstr "在这儿，你可以对这些文档进行搜索。向搜索框中输入你所要搜索的关键字并点击“搜索”。注意：搜索引擎会自动搜索所有的关键字。将不会搜索到部分关键字的页面."
 
 #: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
 msgid "search"
@@ -725,7 +726,7 @@ msgstr "搜索结果"
 msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
-msgstr "没有匹配出任何文档。请确保你输入的词拼写正确并选择了合适的分类。"
+msgstr "没有任何文档匹配您的搜索。请确保你输入的词拼写正确并选择了合适的分类。"
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -749,7 +750,7 @@ msgstr "%(filename)s &mdash; %(docstitle)s"
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "自动生成的版本 %(version)s中的更改列表"
+msgstr "自动生成的 %(version)s 版本中的更改列表"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
@@ -787,11 +788,11 @@ msgstr "准备搜索……"
 #: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr "搜索完成，匹配查询的页面有 %s 个。"
+msgstr "搜索完成，有 %s 个页面匹配。"
 
 #: sphinx/themes/basic/static/searchtools.js_t:337
 msgid ", in "
-msgstr ",在"
+msgstr "，在"
 
 #: sphinx/themes/default/static/sidebar.js_t:83
 msgid "Expand sidebar"
@@ -826,7 +827,7 @@ msgstr "下页继续"
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
 #, python-format
 msgid "[image: %s]"
-msgstr ""
+msgstr "[图片： %s]"
 
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"

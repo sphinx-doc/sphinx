@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version:  Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2013-04-03 21:40+0000\n"
+"PO-Revision-Date: 2013-04-04 22:38+0000\n"
 "Last-Translator: Tawez <tawezik@gmail.com>\n"
 "Language-Team: Polish "
 "(http://www.transifex.com/projects/p/sphinx-1/language/pl/)\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: sphinx/config.py:81
 #, python-format
 msgid "%s %s documentation"
-msgstr "Dokumentacja do %s %s"
+msgstr "%s %s - dokumentacja"
 
 #: sphinx/environment.py:1510
 #, python-format
@@ -481,7 +481,7 @@ msgstr "Uwaga"
 
 #: sphinx/locale/__init__.py:156
 msgid "Caution"
-msgstr "Ostrożnie"
+msgstr "Ostrzeżenie"
 
 #: sphinx/locale/__init__.py:157
 msgid "Danger"
@@ -501,7 +501,7 @@ msgstr "Ważne"
 
 #: sphinx/locale/__init__.py:161
 msgid "Note"
-msgstr "Notka"
+msgstr "Informacja"
 
 #: sphinx/locale/__init__.py:162
 msgid "See also"
@@ -792,7 +792,7 @@ msgstr "Wyszukiwanie"
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
-msgstr "Przygotowanie wyszukiwania..."
+msgstr "Inicjalizacja wyszukiwania..."
 
 #: sphinx/themes/basic/static/searchtools.js_t:285
 #, python-format
