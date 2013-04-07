@@ -10,6 +10,7 @@
 """
 
 from docutils import nodes
+from docutils import __version__ as docutils_version
 try:
     from docutils.writers.manpage import MACRO_DEF, Writer, \
          Translator as BaseTranslator
@@ -22,6 +23,7 @@ except ImportError:
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.osutil import ustrftime
+from distutils.version import LooseVersion
 
 
 class ManualPageWriter(Writer):
@@ -69,8 +71,9 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
 
-        # since self.append_header() is never called, need to do this here
-        self.body.append(MACRO_DEF)
+        # In docutils < 0.11 self.append_header() was never called
+        if LooseVersion(docutils_version) < LooseVersion('0.11'):
+            self.body.append(MACRO_DEF)
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
