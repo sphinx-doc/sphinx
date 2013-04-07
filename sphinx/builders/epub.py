@@ -471,7 +471,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     continue
                 ext = path.splitext(filename)[-1]
                 if ext not in _media_types:
-                    self.warn('unknown mimetype for %s, ignoring' % filename)
+                    # we always have JS and potentially OpenSearch files, don't
+                    # always warn about them
+                    if ext not in ('.js', '.xml'):
+                        self.warn('unknown mimetype for %s, ignoring' % filename)
                     continue
                 projectfiles.append(_file_template % {
                     'href': self.esc(filename),
