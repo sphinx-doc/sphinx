@@ -953,6 +953,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    settings can have the following values:
 
    * ``'inline'`` -- display URLs inline in parentheses (default)
+   * ``'footnote'`` -- display URLs in footnotes
    * ``'no'`` -- do not display URLs
 
    .. versionadded:: 1.2

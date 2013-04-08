@@ -344,7 +344,7 @@ epub_copyright = u'%(copyright_str)s'
 # Scale large images.
 #epub_max_image_width = 0
 
-# If 'no', URL addresses will not be shown.
+# How to display URL addresses: 'footnote', 'no', or 'inline'.
 #epub_show_urls = 'inline'
 
 # If false, no index is generated.

@@ -131,6 +131,10 @@ _toctree_template = u'toctree-l%d'
 
 _link_target_template = u' [%(uri)s]'
 
+_footnote_label_template = u'#%d'
+
+_footnotes_rubric_name = u'Footnotes'
+
 _css_link_target_class = u'link-target'
 
 # XXX These strings should be localized according to epub_language
@@ -287,21 +291,73 @@ class EpubBuilder(StandaloneHTMLBuilder):
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree, show_urls='inline'):
-        """Append visible link targets after external links"""
+        """Add visible link targets for external links"""
+
+        def make_footnote_ref(doc, label):
+            """Create a footnote_reference node with children"""
+            footnote_ref = nodes.footnote_reference('[#]_')
+            footnote_ref.append(nodes.Text(label))
+            doc.note_autofootnote_ref(footnote_ref)
+            return footnote_ref
+
+        def make_footnote(doc, label, uri):
+            """Create a footnote node with children"""
+            footnote = nodes.footnote(uri)
+            para = nodes.paragraph()
+            para.append(nodes.Text(uri))
+            footnote.append(para)
+            footnote.insert(0, nodes.label('', label))
+            doc.note_autofootnote(footnote)
+            return footnote
+
+        def footnote_spot(tree):
+            """Find or create a spot to place footnotes.
+
+            The function returns the tuple (parent, index)."""
+            # The code uses the following heuristic:
+            # a) place them after the last existing footnote
+            # b) place them after an (empty) Footnotes rubric
+            # c) create an empty Footnotes rubric at the end of the document
+            fns = tree.traverse(nodes.footnote)
+            if fns:
+                fn = fns[-1]
+                return fn.parent, fn.parent.index(fn) + 1
+            for node in tree.traverse(nodes.rubric):
+                if len(node.children) == 1 and \
+                        node.children[0].astext() == _footnotes_rubric_name:
+                    return node.parent, node.parent.index(node) + 1
+            doc = tree.traverse(nodes.document)[0]
+            rub = nodes.rubric()
+            rub.append(nodes.Text(_footnotes_rubric_name))
+            doc.append(rub)
+            return doc, doc.index(rub) + 1
+
         if show_urls == 'no':
             return
-
+        if show_urls == 'footnote':
+            doc = tree.traverse(nodes.document)[0]
+            fn_spot, fn_idx = footnote_spot(tree)
+            nr = 1
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
                     uri.startswith('ftp:')) and uri not in node.astext():
-                uri = _link_target_template % {'uri': uri}
-                if uri:
-                    idx = node.parent.index(node) + 1
-                    if show_urls == 'inline':
-                        link = nodes.inline(uri, uri)
-                        link['classes'].append(_css_link_target_class)
-                        node.parent.insert(idx, link)
+                idx = node.parent.index(node) + 1
+                if show_urls == 'inline':
+                    uri = _link_target_template % {'uri': uri}
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    node.parent.insert(idx, link)
+                elif show_urls == 'footnote':
+                    label = _footnote_label_template % nr
+                    nr += 1
+                    footnote_ref = make_footnote_ref(doc, label)
+                    node.parent.insert(idx, footnote_ref)
+                    footnote = make_footnote(doc, label, uri)
+                    fn_spot.insert(fn_idx, footnote)
+                    footnote_ref['refid'] = footnote['ids'][0]
+                    footnote.add_backref(footnote_ref['ids'][0])
+                    fn_idx += 1
 
     def write_doc(self, docname, doctree):
         """Write one document file.
