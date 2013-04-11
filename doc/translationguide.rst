@@ -12,6 +12,7 @@ The Sphinx document is included in the Sphinx code.  It is managed by
 
 
     hg clone https://bitbucket.org/birkenfeld/sphinx
+    cd sphinx/doc
 
 
 .. _`BitBucket`: http://bitbucket.org
@@ -24,131 +25,79 @@ Translate the document
 Getting Started
 ---------------
 
-These are the basic steps needed to start translating the Sphinx document.
+This section describe to translate with Sphinx_ and `sphinx-intl`_.
 
+#. Install `sphinx-intl`_ by :command:`pip install sphinx-intl` or
+   :command:`easy_install sphinx-intl`.
 
-#. Clone the sphinx repository to your machine.
+#. Add configurations to your `conf.py`::
 
-   .. code-block:: bash
-
-      hg clone https://bitbucket.org/birkenfeld/sphinx
-      cd sphinx/doc
-
-
-#. Add below settings to sphinx document's conf.py if not exists.
-
-   .. code-block:: bash
-
-      locale_dirs = ['locale/']   #for example
-      gettext_compact = False     #optional
+      locale_dirs = ['locale/']   #path is example but recommended.
+      gettext_compact = False     #optional.
 
    This case-study assumes that :confval:`locale_dirs` is set to 'locale/' and
    :confval:`gettext_compact` is set to `False` (the Sphinx document is
    already configured as such).
 
-#. Generate pot files from the document.
+#. Extract document's translatable messages into pot files::
 
-   .. code-block:: bash
-
-      make gettext
-      ...
+      $ make gettext
 
    As a result, many pot files are generated under ``_build/locale``
-   directory. By the way, :confval:`locale_dirs` is set to ``locale/``
-   then ``locale/pot`` directory is proper location for pot files.
+   directory.
 
-   .. code-block:: bash
+#. Setup/Update your `locale_dir`::
 
-      mkdir locale
-      cp -R _build/locale locale/pot
+      $ sphinx-intl update -p _build/locale -l de -l ja
 
+   Done. You got these directories that contain po files:
 
-#. Generate po files from pot files.
+   * `./locale/de/LC_MESSAGES/`
+   * `./locale/ja/LC_MESSAGES/`
 
-   Sphinx expects that translated po files are under
-   ``locale/<lang>/LC_MESSAGES/`` directory. For Japanese, you need
-   ``locale/ja/LC_MESSAGE/`` directory and po files under the
-   directory. The po files can be copied and renamed from pot files:
+#. Translate your po files under `./locale/<lang>/LC_MESSAGES/`.
 
-   .. code-block:: bash
+#. Build mo files and make translated document.
 
-      mkdir -p locale/ja/LC_MESSAGES
-      cp -R locale/pot/* ja/LC_MESSAGES
-      cd locale/ja/LC_MESSAGES
+   You need :confval:`language` parameter in ``conf.py`` or you may also
+   specify the parameter on the command line.
 
-      find . -name "*.pot" -type f -print0 |while read -r -d '' file; do
-      mv "$file" "${file%.*}.po";
-      done
-
-#. Translating!
-
-   Translate po file under ``sphinx/doc/locale/ja/LC_MESSAGES`` directory.
-   The case of builders.po:
-
-   .. code-block:: po
-
-      # a5600c3d2e3d48fc8c261ea0284db79b
-      #: ../../builders.rst:4
-      msgid "Available builders"
-      msgstr "<FILL HERE BY TARGET LANGUAGE>"
-
-   Another case, msgid is multi-line text and contains reStructuredText
-   syntax:
-
-   .. code-block:: po
-
-      # 302558364e1d41c69b3277277e34b184
-      #: ../../builders.rst:9
-      msgid ""
-      "These are the built-in Sphinx builders. More builders can be added by "
-      ":ref:`extensions <extensions>`."
-      msgstr ""
-      "FILL HERE BY TARGET LANGUAGE FILL HERE BY TARGET LANGUAGE FILL HERE "
-      "BY TARGET LANGUAGE :ref:`EXTENSIONS <extensions>` FILL HERE."
-
-   Please be careful not to break reST notation.
-
-
-#. Compile po files into mo.
-
-   You need msgfmt_ command line tool to compile po files. For example,
-   the case of debian, you can install the command by this command:
-
-   .. code-block:: bash
-
-      sudo apt-get install gettext
-
-   and do compile each po files:
-
-   .. code-block:: bash
-
-      cd sphinx/doc/locale/ja/LC_MESSAGES
-      msgfmt builders.po -o builders.mo
-      ...
-
-   in one line:
-
-   .. code-block:: bash
-
-      find . -name "*.po" -type f -print0 | while read -r -d '' file; do \
-      msgfmt "$file" -o "${file%.*}.mo"; \
-      done
-
-
-
-#. Make translated html (or other format).
-
-   Now you are ready to make the translated document by the
-   :command:`make html` command. You need :confval:`language` parameter in
-   ``conf.py`` or you may also specify the parameter on the command line.
-
-   .. code-block:: bash
-
-      $ cd sphinx/doc
+      $ sphinx-intl build
       $ make -e SPHINXOPTS="-D language='ja'" html
 
-   Congratulations!! You got the translated document in ``_build/html``
-   directory.
+
+Congratulations!! You got the translated document in ``_build/html``
+directory.
+
+
+Translating
+------------
+
+Translate po file under ``./locale/ja/LC_MESSAGES`` directory.
+The case of builders.po file for sphinx document:
+
+.. code-block:: po
+
+   # a5600c3d2e3d48fc8c261ea0284db79b
+   #: ../../builders.rst:4
+   msgid "Available builders"
+   msgstr "<FILL HERE BY TARGET LANGUAGE>"
+
+Another case, msgid is multi-line text and contains reStructuredText
+syntax:
+
+.. code-block:: po
+
+   # 302558364e1d41c69b3277277e34b184
+   #: ../../builders.rst:9
+   msgid ""
+   "These are the built-in Sphinx builders. More builders can be added by "
+   ":ref:`extensions <extensions>`."
+   msgstr ""
+   "FILL HERE BY TARGET LANGUAGE FILL HERE BY TARGET LANGUAGE FILL HERE "
+   "BY TARGET LANGUAGE :ref:`EXTENSIONS <extensions>` FILL HERE."
+
+Please be careful not to break reST notation.
 
 
 Update your po files by new pot files
@@ -157,15 +106,11 @@ Update your po files by new pot files
 If the document is updated, it is necessary to generate updated pot files
 and to apply differences to translated po files.
 In order to apply the updating difference of a pot file to po file,
-using msgmerge_ command.
+using :command:`sphinx-intl update` command.
 
 .. code-block:: bash
 
-   $ msgmerge -U locale/pot/builders.pot locale/ja/LC_MESSAGES/builders.po
-   ........... done.
-
-
-.. TODO: write loop command
+   $ sphinx-intl update -p _build/locale
 
 
 Using Transifex service for team translation
@@ -205,6 +150,7 @@ You need ``tx`` command to upload resources (pot files).
 
    $ pip install transifex-client
 
+
 .. seealso:: `Transifex Client v0.8 &mdash; Transifex documentation`_
 
 
@@ -220,22 +166,27 @@ Create config files for tx command
    Creating config file...
    No authentication data found.
    No entry found for host https://www.transifex.com. Creating...
-   Updating /home/ubuntu/.transifexrc file...
+   Updating /path/to/.transifexrc file...
    Done.
 
 This process will create ``.tx/config`` in the current directory, as
 well as ``~/.transifexrc`` file that includes auth information.
 
 
-.....
-
-
 Register pot files in transifex
 -----------------------------------
 
+Register pot files to ``.tx/config`` file:
+
 .. code-block:: bash
 
-   $ cd $BASEDIR/sphinx/doc
+   $ cd /your/document/root
+   $ sphinx-intl update-txconfig-resources --pot-dir _build/locale --transifex-project-name sphinx-document-test_1_0
+
+and upload pot files:
+
+.. code-block:: bash
+
    $ tx push -s
    Pushing translations for resource sphinx-document-test_1_0.builders:
    Pushing source file (locale/pot/builders.pot)
@@ -244,15 +195,10 @@ Register pot files in transifex
    Done.
 
 
-.. note::
-
-   there is tx command wrapper tool to easier.
-
-   https://bitbucket.org/shimizukawa/sphinx-transifex
-
-
 Forward the translation on transifex
 ------------------------------------
+
+...
 
 
 Pull translated po files and make translated html
@@ -262,25 +208,20 @@ Get translated catalogs and build mo files (ex. for 'ja'):
 
 .. code-block:: bash
 
-   $ cd $BASEDIR/sphinx/doc
+   $ cd /your/document/root
    $ tx pull -l ja
-   Pulling translations for resource sphinx-document-test_1_0.builders (source: locale/pot/builders.pot)
+   Pulling translations for resource sphinx-document-test_1_0.builders (...)
     -> ja: locale/ja/LC_MESSAGES/builders.po
    ...
    Done.
 
 
-convert po files into mo::
+Build po files into mo and make html::
 
-   $ msgfmt ....
-
-
-Build html (ex. for 'ja')::
-
+   $ sphinx-intl build
    $ make -e SPHINXOPTS="-D language='ja'" html
 
 Done.
-
 
 
 Tranlating Tips
@@ -313,6 +254,7 @@ There is `sphinx translation page`_ for Sphinx-1.2 document.
 
 
 
+.. _`sphinx-intl`: https://pypi.python.org/sphinx-intl
 .. _Transifex: https://www.transifex.com/
 .. _msgmerge: http://www.gnu.org/software/gettext/manual/html_node/index.html
 .. _msgfmt: http://www.gnu.org/software/gettext/manual/html_node/index.html
