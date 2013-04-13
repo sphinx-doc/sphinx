@@ -125,6 +125,7 @@ Documentation using another builtin theme
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
+* MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: http://pip.openplans.org/ (nature)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
