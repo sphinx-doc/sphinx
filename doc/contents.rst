@@ -23,7 +23,6 @@ Sphinx documentation contents
    faq
    glossary
    devguide
-   translationguide
    changes
    examples
 
