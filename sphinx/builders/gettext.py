@@ -139,7 +139,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
         for template in self.status_iterator(files,
                 'reading templates... ', purple, len(files)):
-            context = open(template, 'rt').read() #TODO: encoding
+            context = open(template, 'r', encoding='utf-8').read()
             for line, meth, msg in extract_translations(context):
                 origin = MsgOrigin(template, line)
                 self.catalogs['sphinx'].add(msg, origin)

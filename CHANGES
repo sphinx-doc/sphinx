@@ -1,3 +1,13 @@
+Release 1.2 (in development)
+============================
+
+Bugs fixed
+----------
+
+* Fix: 'make gettext' cause UnicodeDecodeError when templates contain utf-8
+  encoded string.
+
+
 Release 1.2 (beta1 released Mar 31, 2013)
 =========================================
 
