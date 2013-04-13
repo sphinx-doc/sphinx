@@ -139,12 +139,10 @@ class MessageCatalogBuilder(I18nBuilder):
 
         for template in self.status_iterator(files,
                 'reading templates... ', purple, len(files)):
-            #catalog = self.catalogs[template]
-            catalog = self.catalogs['sphinx']
             context = open(template, 'rt').read() #TODO: encoding
             for line, meth, msg in extract_translations(context):
                 origin = MsgOrigin(template, line)
-                catalog.add(msg, origin)
+                self.catalogs['sphinx'].add(msg, origin)
 
     def build(self, docnames, summary=None, method='update'):
         self._extract_from_template()
