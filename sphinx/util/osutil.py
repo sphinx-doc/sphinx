@@ -16,6 +16,7 @@ import time
 import errno
 import locale
 import shutil
+import gettext
 from os import path
 
 # Errnos that we need.
@@ -160,5 +161,18 @@ def find_catalog(docname, compaction):
         ret = docname
 
     return ret
+
+
+def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
+    from sphinx.util.pycompat import relpath
+    if not(lang and locale_dirs):
+        return []
+
+    domain = find_catalog(docname, compaction)
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
+             for dir_ in locale_dirs]
+    files = [relpath(f, srcdir) for f in files if f]
+    return files
+
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()

@@ -1,6 +1,11 @@
 Release 1.2 (in development)
 ============================
 
+Features added
+--------------
+
+* Builders: rebuild i18n target document when catalog updated.
+
 Bugs fixed
 ----------
 

@@ -462,3 +462,15 @@ def test_gettext_template(app):
     result = (app.outdir / 'index.html').text(encoding='utf-8')
     assert "WELCOME" in result
     assert "SPHINX 2013.120" in result
+
+
+@with_intl_app(buildername='html')
+def test_rebuild_by_mo_mtime(app):
+    app.builder.build_update()
+    _, count, _ = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert count == 0
+
+    mo = (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').bytes()
+    (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').write_bytes(mo)
+    _, count, _ = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert count == 1

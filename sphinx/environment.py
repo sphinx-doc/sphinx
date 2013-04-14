@@ -37,7 +37,7 @@ from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
-from sphinx.util.osutil import SEP, fs_encoding
+from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import class_types
 from sphinx.util.websupport import is_commentable
@@ -342,6 +342,17 @@ class BuildEnvironment:
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
+
+        # add catalog mo file dependency
+        for docname in self.found_docs:
+            catalog_files = find_catalog_files(
+                docname,
+                self.srcdir,
+                self.config.locale_dirs,
+                self.config.language,
+                self.config.gettext_compact)
+            for filename in catalog_files:
+                self.dependencies.setdefault(docname, set()).add(filename)
 
     def get_outdated_files(self, config_changed):
         """Return (added, changed, removed) sets."""
