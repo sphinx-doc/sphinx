@@ -46,6 +46,7 @@ Features added
 
 * HTML builder
 
+  - #783: Create a link to full size image if it is scaled with width or height.
   - #1067: Improve the ordering of the JavaScript search results: matches in titles
     come before matches in full text, and object results are better categorized.
     Also implement a pluggable search scorer.
