@@ -179,10 +179,14 @@ Including content based on tags
    within :file:`conf.py`) are true.  Boolean expressions, also using
    parentheses (like ``html and (latex or draft)``) are supported.
 
-   The format of the current builder (``html``, ``latex`` or ``text``) is always
-   set as a tag.
+   The format and the name of the current builder (``html``, ``latex`` or
+   ``text``) is always set as a tag [#]_. To make the distinction between
+   format and name explicit, they are also added with the prefix ``format_`` and
+   ``builder_``.
 
    .. versionadded:: 0.6
+   .. versionchanged:: 1.2
+      Added the name of the builder and the prefixes.
 
 
 Tables
@@ -238,3 +242,9 @@ following directive exists:
    means that by default, Sphinx generates such column specs for such tables.
    Use the :rst:dir:`tabularcolumns` directive to get finer control over such
    tables.
+
+.. rubric:: Footnotes
+
+.. [#] At the moment only the epub builder distinguishes between the builder
+   format and the builder name.
+
