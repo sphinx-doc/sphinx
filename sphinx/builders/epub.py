@@ -188,6 +188,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
+        self.tocid = 0
 
     def get_theme_config(self):
         return self.config.epub_theme, self.config.epub_theme_options
@@ -629,8 +630,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # XXX Modifies the node
         if incr:
             self.playorder += 1
+        self.tocid += 1
         node['indent'] = _navpoint_indent * level
-        node['navpoint'] = self.esc(_navPoint_template % self.playorder)
+        node['navpoint'] = self.esc(_navPoint_template % self.tocid)
         node['playorder'] = self.playorder
         return _navpoint_template % node
 
