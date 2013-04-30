@@ -1049,7 +1049,8 @@ class BuildEnvironment:
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve_toctree(docname, builder, toctreenode,
                                            prune=True, **kwds)
-            toctrees.append(toctree)
+            if toctree:
+                toctrees.append(toctree)
         if not toctrees:
             return None
         result = toctrees[0]

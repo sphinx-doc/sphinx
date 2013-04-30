@@ -21,7 +21,7 @@ except ImportError:
     pygments = None
 
 from sphinx import __version__
-from util import test_root, remove_unicode_literals, gen_with_app
+from util import test_root, remove_unicode_literals, gen_with_app, with_app
 from etree13 import ElementTree as ET
 
 
@@ -344,3 +344,18 @@ def test_html(app):
             yield check_xpath, etree, fname, path, check
 
     check_static_entries(app.builder.outdir)
+
+@with_app(buildername='html', srcdir='(empty)',
+          confoverrides={'html_sidebars': {'*': ['globaltoc.html']}},
+          )
+def test_html_with_globaltoc_and_hidden_toctree(app):
+    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause 
+    # exception.
+    (app.srcdir / 'contents.rst').write_text(
+            '\n.. toctree::'
+            '\n'
+            '\n.. toctree::'
+            '\n   :hidden:'
+            '\n')
+    app.builder.build_all()
+

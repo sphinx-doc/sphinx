@@ -9,6 +9,7 @@ Features added
 Bugs fixed
 ----------
 
+* #1157: Combination of 'globaltoc.html' and hidden toctree cause exception.
 * Fix: 'make gettext' cause UnicodeDecodeError when templates contain utf-8
   encoded string.
 
