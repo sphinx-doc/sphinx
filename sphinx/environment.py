@@ -1354,6 +1354,10 @@ class BuildEnvironment:
                             if not isinstance(contnode, nodes.Element):
                                 del node['ids'][:]
                             raise
+                    elif 'ids' in node:
+                        # remove ids attribute that annotated at
+                        # transforms.CitationReference.apply.
+                        del node['ids'][:]
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(

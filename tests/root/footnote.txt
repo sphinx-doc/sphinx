@@ -38,3 +38,9 @@ footenotes
 .. rubric:: Citations
 
 .. [bar] cite
+
+
+missing target
+--------------------
+[missing]_ citation
+

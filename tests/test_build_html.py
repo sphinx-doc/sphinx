@@ -49,6 +49,7 @@ http://sphinx-doc.org/domains.html
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
+None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:: WARNING: invalid single index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
