@@ -51,7 +51,8 @@ def write_png_depth(filename, depth):
         # overwrite it with the depth chunk
         f.write(DEPTH_CHUNK_LEN + DEPTH_CHUNK_START + data)
         # calculate the checksum over chunk name and data
-        f.write(struct.pack('!i', binascii.crc32(DEPTH_CHUNK_START + data)))
+        crc = binascii.crc32(DEPTH_CHUNK_START + data) & 0xffffffff
+        f.write(struct.pack('!I', crc))
         # replace the IEND chunk
         f.write(IEND_CHUNK)
     finally:
