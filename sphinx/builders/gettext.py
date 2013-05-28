@@ -11,7 +11,7 @@
 
 from os import path, walk
 from codecs import open
-from datetime import datetime
+from datetime import datetime, tzinfo, timedelta
 from collections import defaultdict
 from uuid import uuid4
 
@@ -107,6 +107,24 @@ class I18nBuilder(Builder):
                     catalog.add(m, node)
 
 
+ZERO = timedelta(0)
+HOUR = timedelta(hours=1)
+
+class UTC(tzinfo):
+    """UTC"""
+
+    def utcoffset(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return ZERO
+
+utc = UTC()
+
+
 class MessageCatalogBuilder(I18nBuilder):
     """
     Builds gettext-style message catalogs (.pot files).
@@ -155,7 +173,7 @@ class MessageCatalogBuilder(I18nBuilder):
             copyright = self.config.copyright,
             project = self.config.project,
             # XXX should supply tz
-            ctime = datetime.now().strftime('%Y-%m-%d %H:%M%z'),
+            ctime = datetime.now(utc).strftime('%Y-%m-%d %H:%M%z'),
         )
         for textdomain, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
