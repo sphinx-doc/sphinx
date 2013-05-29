@@ -352,7 +352,6 @@ class Builder(object):
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
         # for the rest, determine how many documents to write in one go
-        docnames = docnames[1:]
         ndocs = len(docnames)
         chunksize = min(ndocs // nproc, 10)
         nchunks, rest = divmod(ndocs, chunksize)
