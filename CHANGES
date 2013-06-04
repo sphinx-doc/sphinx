@@ -1,6 +1,9 @@
 Release 1.1.4 (in development)
 ==============================
 
+* PR#141, #982: Avoid crash when writing PNG file using Python 3. Thansk to
+  Marcin Wojdyr.
+
 Release 1.1.3 (Mar 10, 2012)
 ============================
 
