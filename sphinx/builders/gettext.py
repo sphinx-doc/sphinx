@@ -108,7 +108,6 @@ class I18nBuilder(Builder):
 
 
 ZERO = timedelta(0)
-HOUR = timedelta(hours=1)
 
 class UTC(tzinfo):
     """UTC"""
