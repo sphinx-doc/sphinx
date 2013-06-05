@@ -24,6 +24,8 @@ Bugs fixed
 * #1162, PR#139: singlehtml builder doesn't copy images to _images/.
 * PR#141, #982: Avoid crash when writing PNG file using Python 3. Thansk to
   Marcin Wojdyr.
+* PR#145: In parallel builds, sphinx drops second document file to write.
+  Thanks to tychoish.
 
 
 Release 1.2 (beta1 released Mar 31, 2013)
