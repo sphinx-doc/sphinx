@@ -194,9 +194,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
-    def make_id(self, name):
-        """Replace all characters not allowed for (X)HTML ids."""
-        return name.replace('/', '_').replace(' ', '')
+    def make_id(self, name, id_cache={}):
+        # id_cache is intentionally mutable
+        """Return a unique id for name."""
+        id = id_cache.get(name)
+        if not id:
+            id = 'epub-%d' % self.env.new_serialno('epub')
+            id_cache[name] = id
+        return id
 
     def esc(self, name):
         """Replace all characters not allowed in text an attribute values."""
