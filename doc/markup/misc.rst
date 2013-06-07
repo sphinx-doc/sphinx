@@ -180,10 +180,10 @@ Including content based on tags
    parentheses (like ``html and (latex or draft)``) are supported.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or
-   ``text``) are always set as a tag [#]_. To make the distinction between
+   ``text``) are always set as a tag [#]_.  To make the distinction between
    format and name explicit, they are also added with the prefix ``format_`` and
    ``builder_``, e.g. the epub builder defines the tags  ``html``, ``epub``,
-   ``format_html`` and ``builder_epub``. 
+   ``format_html`` and ``builder_epub``.
 
    .. versionadded:: 0.6
    .. versionchanged:: 1.2
