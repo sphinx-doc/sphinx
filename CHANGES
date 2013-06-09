@@ -26,6 +26,8 @@ Bugs fixed
   Marcin Wojdyr.
 * PR#145: In parallel builds, sphinx drops second document file to write.
   Thanks to tychoish.
+* #1188: sphinx-quickstart raises UnicodeEncodeError if "Project version"
+  includes non-ASCII characters.
 
 
 Release 1.2 (beta1 released Mar 31, 2013)

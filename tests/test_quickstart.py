@@ -28,6 +28,12 @@ def mock_raw_input(answers, needanswer=False):
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
+        if sys.version_info < (3, 0):
+            prompt = str(prompt)  # Python2.x raw_input emulation
+            # `raw_input` encode `prompt` by default encoding to print.
+        else:
+            prompt = unicode(prompt)  # Python3.x input emulation
+            # `input` decode prompt by default encoding before print.
         for question in answers:
             if prompt.startswith(qs.PROMPT_PREFIX + question):
                 return answers[question]
@@ -93,6 +99,16 @@ def test_do_prompt():
     qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
     assert d['k5'] is False
     raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
+
+
+def test_do_prompt_with_multibyte():
+    d = {}
+    answers = {
+        'Q1': ur'\u30c9\u30a4\u30c4',
+    }
+    qs.term_input = mock_raw_input(answers)
+    qs.do_prompt(d, 'k1', 'Q1', default=ur'\u65e5\u672c')
+    assert d['k1'] == ur'\u30c9\u30a4\u30c4'
 
 
 @with_tempdir

@@ -866,9 +866,24 @@ def ok(x):
 def do_prompt(d, key, text, default=None, validator=nonempty):
     while True:
         if default:
-            prompt = purple(PROMPT_PREFIX + '%s [%s]: ' % (text, default))
+            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
         else:
-            prompt = purple(PROMPT_PREFIX + text + ': ')
+            prompt = PROMPT_PREFIX + text + ': '
+        if sys.version_info < (3, 0):
+            # for Python 2.x, try to get a Unicode string out of it
+            if prompt.encode('ascii', 'replace').decode('ascii', 'replace') \
+                    != prompt:
+                if TERM_ENCODING:
+                    prompt = prompt.encode(TERM_ENCODING)
+                else:
+                    print turquoise('* Note: non-ASCII default value provided '
+                                    'and terminal encoding unknown -- assuming '
+                                    'UTF-8 or Latin-1.')
+                    try:
+                        prompt = prompt.encode('utf-8')
+                    except UnicodeEncodeError:
+                        prompt = prompt.encode('latin1')
+        prompt = purple(prompt)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
