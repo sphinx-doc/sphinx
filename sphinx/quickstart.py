@@ -14,6 +14,8 @@ from os import path
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
+from docutils.utils import column_width
+
 from sphinx import __version__
 from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
@@ -1088,7 +1090,7 @@ def generate(d, overwrite=True, silent=False):
     d['project_fn'] = make_filename(d['project'])
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
-    d['project_underline'] = len(d['project']) * '='
+    d['project_underline'] = column_width(d['project']) * '='
     extensions = (',\n' + indent).join(
         repr('sphinx.ext.' + name)
         for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',

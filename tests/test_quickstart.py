@@ -11,12 +11,19 @@
 
 import sys
 import time
+from StringIO import StringIO
+import tempfile
 
-from util import raises, with_tempdir
+from util import raises, with_tempdir, with_app
 
+from sphinx import application
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron
 from sphinx.util.pycompat import execfile_
+
+
+warnfile = StringIO()
+
 
 def setup_module():
     nocolor()
@@ -230,3 +237,29 @@ def test_generated_files_eol(tempdir):
 
     assert_eol(tempdir / 'make.bat', '\r\n')
     assert_eol(tempdir / 'Makefile', '\n')
+
+
+@with_tempdir
+def test_quickstart_and_build(tmpdir):
+    answers = {
+        'Root path': tmpdir,
+        'Project name': ur'Fullwidth charactor: \u30c9\u30a4\u30c4',
+        'Author name': 'Georg Brandl',
+        'Project version': '0.1',
+    }
+    qs.term_input = mock_raw_input(answers)
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
+
+    app = application.Sphinx(
+            tmpdir,  #srcdir
+            tmpdir,  #confdir
+            (tmpdir / '_build' / 'html'),  #outdir
+            (tmpdir / '_build' / '.doctree'),  #doctreedir
+            'html',  #buildername
+            status=StringIO(),
+            warning=warnfile)
+    app.builder.build_all()
+    warnings = warnfile.getvalue()
+    assert not warnings
