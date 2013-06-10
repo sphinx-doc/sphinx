@@ -22,7 +22,7 @@ Bugs fixed
 * Fix: 'make gettext' cause UnicodeDecodeError when templates contain utf-8
   encoded string.
 * #1162, PR#139: singlehtml builder doesn't copy images to _images/.
-* PR#141, #982: Avoid crash when writing PNG file using Python 3. Thansk to
+* PR#141, #982: Avoid crash when writing PNG file using Python 3. Thanks to
   Marcin Wojdyr.
 * PR#145: In parallel builds, sphinx drops second document file to write.
   Thanks to tychoish.
