@@ -354,6 +354,8 @@ class Builder(object):
         # for the rest, determine how many documents to write in one go
         ndocs = len(docnames)
         chunksize = min(ndocs // nproc, 10)
+        if chunksize == 0:
+            chunksize = 1
         nchunks, rest = divmod(ndocs, chunksize)
         if rest:
             nchunks += 1
