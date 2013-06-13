@@ -240,9 +240,9 @@ def test_generated_files_eol(tempdir):
 
 
 @with_tempdir
-def test_quickstart_and_build(tmpdir):
+def test_quickstart_and_build(tempdir):
     answers = {
-        'Root path': tmpdir,
+        'Root path': tempdir,
         'Project name': u'Fullwidth characters: \u30c9\u30a4\u30c4',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -253,10 +253,10 @@ def test_quickstart_and_build(tmpdir):
     qs.generate(d)
 
     app = application.Sphinx(
-            tmpdir,  #srcdir
-            tmpdir,  #confdir
-            (tmpdir / '_build' / 'html'),  #outdir
-            (tmpdir / '_build' / '.doctree'),  #doctreedir
+            tempdir,  #srcdir
+            tempdir,  #confdir
+            (tempdir / '_build' / 'html'),  #outdir
+            (tempdir / '_build' / '.doctree'),  #doctreedir
             'html',  #buildername
             status=StringIO(),
             warning=warnfile)
