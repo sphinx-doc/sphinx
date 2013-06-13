@@ -111,11 +111,11 @@ def test_do_prompt():
 def test_do_prompt_with_multibyte():
     d = {}
     answers = {
-        'Q1': ur'\u30c9\u30a4\u30c4',
+        'Q1': u'\u30c9\u30a4\u30c4',
     }
     qs.term_input = mock_raw_input(answers)
-    qs.do_prompt(d, 'k1', 'Q1', default=ur'\u65e5\u672c')
-    assert d['k1'] == ur'\u30c9\u30a4\u30c4'
+    qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
+    assert d['k1'] == u'\u30c9\u30a4\u30c4'
 
 
 @with_tempdir
@@ -243,7 +243,7 @@ def test_generated_files_eol(tempdir):
 def test_quickstart_and_build(tmpdir):
     answers = {
         'Root path': tmpdir,
-        'Project name': ur'Fullwidth charactor: \u30c9\u30a4\u30c4',
+        'Project name': u'Fullwidth charactor: \u30c9\u30a4\u30c4',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
