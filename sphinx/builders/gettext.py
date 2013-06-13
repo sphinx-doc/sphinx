@@ -11,6 +11,7 @@
 
 from os import path, walk
 from codecs import open
+from time import time
 from datetime import datetime, tzinfo, timedelta
 from collections import defaultdict
 from uuid import uuid4
@@ -107,21 +108,22 @@ class I18nBuilder(Builder):
                     catalog.add(m, node)
 
 
-ZERO = timedelta(0)
+class LocalTimeZone(tzinfo):
 
-class UTC(tzinfo):
-    """UTC"""
+    def __init__(self, *args, **kw):
+        super(LocalTimeZone, self).__init__(*args, **kw)
+        timestamp = time()
+        tzdelta = datetime.fromtimestamp(timestamp) - \
+                  datetime.utcfromtimestamp(timestamp)
+        self.tzdelta = tzdelta
 
     def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
+        return self.tzdelta
 
     def dst(self, dt):
-        return ZERO
+        return timedelta(0)
 
-utc = UTC()
+ltz = LocalTimeZone()
 
 
 class MessageCatalogBuilder(I18nBuilder):
@@ -171,8 +173,7 @@ class MessageCatalogBuilder(I18nBuilder):
             version = self.config.version,
             copyright = self.config.copyright,
             project = self.config.project,
-            # XXX should supply tz
-            ctime = datetime.now(utc).strftime('%Y-%m-%d %H:%M%z'),
+            ctime = datetime.now(ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
         for textdomain, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
