@@ -243,7 +243,7 @@ def test_generated_files_eol(tempdir):
 def test_quickstart_and_build(tmpdir):
     answers = {
         'Root path': tmpdir,
-        'Project name': u'Fullwidth charactor: \u30c9\u30a4\u30c4',
+        'Project name': u'Fullwidth characters: \u30c9\u30a4\u30c4',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
