@@ -134,7 +134,7 @@ def copyfile(source, dest):
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 def make_filename(string):
-    return no_fn_re.sub('', string)
+    return no_fn_re.sub('', string) or 'sphinx'
 
 if sys.version_info < (3, 0):
     # strftime for unicode strings

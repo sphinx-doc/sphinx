@@ -263,3 +263,25 @@ def test_quickstart_and_build(tmpdir):
     app.builder.build_all()
     warnings = warnfile.getvalue()
     assert not warnings
+
+
+@with_tempdir
+def test_default_filename(tempdir):
+    answers = {
+        'Root path': tempdir,
+        'Project name': u'\u30c9\u30a4\u30c4', #Fullwidth characters only
+        'Author name': 'Georg Brandl',
+        'Project version': '0.1',
+    }
+    qs.term_input = mock_raw_input(answers)
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
+
+    conffile = tempdir / 'conf.py'
+    assert conffile.isfile()
+    ns = {}
+    execfile_(conffile, ns)
+    assert ns['latex_documents'][0][1] == 'sphinx.tex'
+    assert ns['man_pages'][0][1] == 'sphinx'
+    assert ns['texinfo_documents'][0][1] == 'sphinx'

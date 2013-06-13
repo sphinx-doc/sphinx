@@ -30,6 +30,8 @@ Bugs fixed
   includes non-ASCII characters.
 * #1189: "Title underline is short" WARNING is given when using fullwidth
   characters to "Project name" on quickstart.
+* #1190: Output TeX/texinfo/man filename has no basename (only extention)
+  when using multibyte characters to "Project name" on quickstart.
 
 
 Release 1.2 (beta1 released Mar 31, 2013)
