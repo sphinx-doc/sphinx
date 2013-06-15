@@ -108,11 +108,12 @@ class I18nBuilder(Builder):
                     catalog.add(m, node)
 
 
+timestamp = time()
+
 class LocalTimeZone(tzinfo):
 
     def __init__(self, *args, **kw):
         super(LocalTimeZone, self).__init__(*args, **kw)
-        timestamp = time()
         tzdelta = datetime.fromtimestamp(timestamp) - \
                   datetime.utcfromtimestamp(timestamp)
         self.tzdelta = tzdelta
@@ -173,7 +174,8 @@ class MessageCatalogBuilder(I18nBuilder):
             version = self.config.version,
             copyright = self.config.copyright,
             project = self.config.project,
-            ctime = datetime.now(ltz).strftime('%Y-%m-%d %H:%M%z'),
+            ctime = datetime.fromtimestamp(
+                timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
         for textdomain, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
