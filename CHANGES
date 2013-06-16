@@ -34,6 +34,8 @@ Bugs fixed
   when using multibyte characters to "Project name" on quickstart.
 * #1090: Fix multiple cross references (term, ref, doc) in the same line
   return the same link with i18n.
+* #1193: Fix multiple link references in the same line return the same
+  link with i18n.
 
 
 Release 1.2 (beta1 released Mar 31, 2013)

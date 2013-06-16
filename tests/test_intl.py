@@ -72,6 +72,34 @@ def teardown_module():
     (root / 'xx').rmtree(True)
 
 
+def elem_gettexts(elem):
+    def itertext(self):
+        # this function copied from Python-2.7 'ElementTree.itertext'.
+        # for compatibility to Python-2.5, 2.6, 3.1
+        tag = self.tag
+        if not isinstance(tag, basestring) and tag is not None:
+            return
+        if self.text:
+            yield self.text
+        for e in self:
+            for s in itertext(e):
+                yield s
+            if e.tail:
+                yield e.tail
+    return filter(None, [s.strip() for s in itertext(elem)])
+
+
+def elem_getref(elem):
+    return elem.attrib.get('refid') or elem.attrib.get('refuri')
+
+
+def assert_elem_text_refs(elem, text, refs):
+    _text = elem_gettexts(elem)
+    assert _text == text
+    _refs = map(elem_getref, elem.findall('reference'))
+    assert _refs == refs
+
+
 @with_intl_app(buildername='text')
 def test_simple(app):
     app.builder.build(['bom'])
@@ -195,48 +223,58 @@ def test_i18n_link_to_undefined_reference(app):
     assert len(re.findall(expected_expr, result)) == 1
 
 
-@with_intl_app(buildername='html', cleanenv=True)
+@with_intl_app(buildername='xml', cleanenv=True)
 def test_i18n_keep_external_links(app):
-    """regression test for #1044"""
+    # regression test for #1044
     app.builder.build(['external_links'])
-    result = (app.outdir / 'external_links.html').text(encoding='utf-8')
+    et = ElementTree.parse(app.outdir / 'external_links.xml')
+    secs = et.findall('section')
 
+    para0 = secs[0].findall('paragraph')
     # external link check
-    expect_line = (u'<li>EXTERNAL LINK TO <a class="reference external" '
-                   u'href="http://python.org">Python</a>.</li>')
-    matched = re.search('^<li>EXTERNAL LINK TO .*$', result, re.M)
-    matched_line = ''
-    if matched:
-        matched_line = matched.group()
-    assert expect_line == matched_line
+    assert_elem_text_refs(
+            para0[0],
+            ['EXTERNAL LINK TO', 'Python', '.'],
+            ['http://python.org'])
 
     # internal link check
-    expect_line = (u'<li><a class="reference internal" '
-                   u'href="#i18n-with-external-links">EXTERNAL '
-                   u'LINKS</a> IS INTERNAL LINK.</li>')
-    matched = re.search('^<li><a .* IS INTERNAL LINK.</li>$', result, re.M)
-    matched_line = ''
-    if matched:
-        matched_line = matched.group()
-    assert expect_line == matched_line
+    assert_elem_text_refs(
+            para0[1],
+            ['EXTERNAL LINKS', 'IS INTERNAL LINK.'],
+            ['i18n-with-external-links'])
 
     # inline link check
-    expect_line = (u'<li>INLINE LINK BY <a class="reference external" '
-                   u'href="http://sphinx-doc.org">SPHINX</a>.</li>')
-    matched = re.search('^<li>INLINE LINK BY .*$', result, re.M)
-    matched_line = ''
-    if matched:
-        matched_line = matched.group()
-    assert expect_line == matched_line
+    assert_elem_text_refs(
+            para0[2],
+            ['INLINE LINK BY', 'SPHINX', '.'],
+            ['http://sphinx-doc.org'])
 
     # unnamed link check
-    expect_line = (u'<li>UNNAMED <a class="reference external" '
-                   u'href="http://google.com">LINK</a>.</li>')
-    matched = re.search('^<li>UNNAMED .*$', result, re.M)
-    matched_line = ''
-    if matched:
-        matched_line = matched.group()
-    assert expect_line == matched_line
+    assert_elem_text_refs(
+            para0[3],
+            ['UNNAMED', 'LINK', '.'],
+            ['http://google.com'])
+
+    # link target swapped translation
+    para1 = secs[1].findall('paragraph')
+    assert_elem_text_refs(
+            para1[0],
+            ['LINK TO', 'external2', 'AND', 'external1', '.'],
+            ['http://example.com/external2', 'http://example.com/external1'])
+    assert_elem_text_refs(
+            para1[1],
+            ['LINK TO', 'THE PYTHON', 'AND', 'THE SPHINX', '.'],
+            ['http://python.org', 'http://sphinx-doc.org'])
+
+    # multiple references in the same line
+    para2 = secs[2].findall('paragraph')
+    assert_elem_text_refs(
+            para2[0],
+            ['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',', 'THE SPHINX',
+             ',', 'UNNAMED', 'AND', 'THE PYTHON', '.'],
+            ['i18n-with-external-links', 'http://python.org',
+             'http://sphinx-doc.org', 'http://google.com',
+             'http://python.org'])
 
 
 @with_intl_app(buildername='text', warning=warnfile, cleanenv=True)
@@ -295,40 +333,14 @@ def test_i18n_glossary_terms(app):
 
 @with_intl_app(buildername='xml', warning=warnfile)
 def test_i18n_role_xref(app):
-    # regression test for #1090
-
-    def gettexts(elem):
-        def itertext(self):
-            # this function copied from Python-2.7 'ElementTree.itertext'.
-            # for compatibility to Python-2.5, 2.6, 3.1
-            tag = self.tag
-            if not isinstance(tag, basestring) and tag is not None:
-                return
-            if self.text:
-                yield self.text
-            for e in self:
-                for s in itertext(e):
-                    yield s
-                if e.tail:
-                    yield e.tail
-        return filter(None, [s.strip() for s in itertext(elem)])
-
-    def getref(elem):
-        return elem.attrib.get('refid') or elem.attrib.get('refuri')
-
-    def assert_text_refs(elem, text, refs):
-        _text = gettexts(elem)
-        assert _text == text
-        _refs = map(getref, elem.findall('reference'))
-        assert _refs == refs
-
+    # regression test for #1090, #1193
     app.builddir.rmtree(True)  #for warnings acceleration
     app.builder.build(['role_xref'])
     et = ElementTree.parse(app.outdir / 'role_xref.xml')
     sec1, sec2 = et.findall('section')
 
     para1, = sec1.findall('paragraph')
-    assert_text_refs(
+    assert_elem_text_refs(
             para1,
             ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
              'SOME NEW TERM', '.'],
@@ -337,32 +349,32 @@ def test_i18n_role_xref(app):
              'glossary_terms#term-some-new-term'])
 
     para2 = sec2.findall('paragraph')
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[0],
             ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
             ['glossary_terms#term-some-other-new-term',
              'glossary_terms#term-some-new-term'])
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[1],
             ['LINK TO', 'SAME TYPE LINKS', 'AND', "I18N ROCK'N ROLE XREF", '.'],
             ['same-type-links', 'i18n-role-xref'])
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[2],
             ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
             ['glossary_terms', 'contents'])
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[3],
             ['LINK TO', '--module', 'AND', '-m', '.'],
             ['cmdoption--module', 'cmdoption-m'])
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[4],
             ['LINK TO', 'env2', 'AND', 'env1', '.'],
             ['envvar-env2', 'envvar-env1'])
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[5],
             ['LINK TO', 'token2', 'AND', 'token1', '.'],
             [])  #TODO: how do I link token role to productionlist?
-    assert_text_refs(
+    assert_elem_text_refs(
             para2[6],
             ['LINK TO', 'same-type-links', 'AND', "i18n-role-xref", '.'],
             ['same-type-links', 'i18n-role-xref'])

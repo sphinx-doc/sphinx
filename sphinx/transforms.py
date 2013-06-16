@@ -199,6 +199,24 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
+            # update title(section) target name-id mapping
+            if isinstance(node, nodes.title):
+                section_node = node.parent
+                new_name = nodes.fully_normalize_name(patch.astext())
+                old_name = nodes.fully_normalize_name(node.astext())
+
+                if old_name != new_name:
+                    # if name would be changed, replace node names and
+                    # document nameids mapping with new name.
+                    names = section_node.setdefault('names', [])
+                    names.append(new_name)
+                    if old_name in names:
+                        names.remove(old_name)
+
+                    id = self.document.nameids.pop(old_name)
+                    self.document.set_name_id_map(
+                            section_node, id, section_node, explicit=None)
+
             # auto-numbered foot note reference should use original 'ids'.
             def is_autonumber_footnote_ref(node):
                 return isinstance(node, nodes.footnote_reference) and \
@@ -224,24 +242,10 @@ class Locale(Transform):
                     'refname' in node
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
-            applied_refname_map = {}
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent references in '
                               'translated message', node)
             for new in new_refs:
-                if new['refname'] in applied_refname_map:
-                    # 2nd appearance of the reference
-                    new['refname'] = applied_refname_map[new['refname']]
-                elif old_refs:
-                    # 1st appearance of the reference in old_refs
-                    old = old_refs.pop(0)
-                    refname = old['refname']
-                    new['refname'] = refname
-                    applied_refname_map[new['refname']] = refname
-                else:
-                    # the reference is not found in old_refs
-                    applied_refname_map[new['refname']] = new['refname']
-
                 self.document.note_refname(new)
 
             # refnamed footnote and citation should use original 'ids'.
