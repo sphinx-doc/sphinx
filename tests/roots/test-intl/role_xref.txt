@@ -7,3 +7,13 @@ i18n role xref
 
 link to :term:`Some term`, :ref:`i18n-role-xref`, :doc:`contents`.
 
+.. _same-type-links:
+
+same type links
+=================
+
+link to :term:`Some term` and :term:`Some other term`.
+
+link to :ref:`i18n-role-xref` and :ref:`same-type-links`.
+
+link to :doc:`contents` and :doc:`glossary_terms`.

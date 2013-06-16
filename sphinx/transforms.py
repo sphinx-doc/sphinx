@@ -24,6 +24,10 @@ from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
 from sphinx.util.compat import docutils_version
 from sphinx.util.pycompat import all
+from sphinx.domains.std import (
+    make_term_from_paragraph_node,
+    make_termnodes_from_paragraph_node,
+)
 
 
 default_substitutions = set([
@@ -259,6 +263,16 @@ class Locale(Transform):
                 if refname in refname_ids_map:
                     new["ids"] = refname_ids_map[refname]
 
+            # glossary terms update refid
+            if isinstance(node, nodes.term):
+                new_id, _, termnodes = \
+                    make_termnodes_from_paragraph_node(env, patch)
+                term = make_term_from_paragraph_node(
+                        termnodes, [new_id])
+                patch = term
+                node['ids'] = patch['ids']
+                node['names'] = patch['names']
+
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
             # This code restricts to change ref-targets in the translation.
@@ -268,11 +282,24 @@ class Locale(Transform):
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent term references in '
                               'translated message', node)
+            def get_key(node):
+                key = node["refdomain"], node["reftype"]
+                if key == ('std', 'term'):
+                    key = None
+                elif key == ('std', 'ref'):
+                    key += (node['reftarget'],)
+                elif key == ('', 'doc'):
+                    key += (node['reftarget'],)
+                else:
+                    pass
+                return key
+
             for old in old_refs:
-                key = old["reftype"], old["refdomain"]
-                xref_reftarget_map[key] = old["reftarget"]
+                key = get_key(old)
+                if key:
+                    xref_reftarget_map[key] = old["reftarget"]
             for new in new_refs:
-                key = new["reftype"], new["refdomain"]
+                key = get_key(new)
                 if key in xref_reftarget_map:
                     new['reftarget'] = xref_reftarget_map[key]
 

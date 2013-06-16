@@ -14,6 +14,7 @@ import os
 import re
 from StringIO import StringIO
 from subprocess import Popen, PIPE
+from xml.etree import ElementTree
 
 from sphinx.util.pycompat import relpath
 
@@ -292,24 +293,69 @@ def test_i18n_glossary_terms(app):
     assert 'term not in glossary' not in warnings
 
 
-@with_intl_app(buildername='text', warning=warnfile)
+@with_intl_app(buildername='xml', warning=warnfile)
 def test_i18n_role_xref(app):
     # regression test for #1090
+
+    def gettexts(elem):
+        def itertext(self):
+            # this function copied from Python-2.7 'ElementTree.itertext'.
+            # for compatibility to Python-2.5, 2.6, 3.1
+            tag = self.tag
+            if not isinstance(tag, basestring) and tag is not None:
+                return
+            if self.text:
+                yield self.text
+            for e in self:
+                for s in itertext(e):
+                    yield s
+                if e.tail:
+                    yield e.tail
+        return filter(None, [s.strip() for s in itertext(elem)])
+
+    def getref(elem):
+        return elem.attrib.get('refid') or elem.attrib.get('refuri')
+
+    def assert_text_refs(elem, text, refs):
+        _text = gettexts(elem)
+        assert _text == text
+        _refs = map(getref, elem.findall('reference'))
+        assert _refs == refs
+
     app.builddir.rmtree(True)  #for warnings acceleration
     app.builder.build(['role_xref'])
-    result = (app.outdir / 'role_xref.txt').text(encoding='utf-8')
-    expect = (
-        u"\nI18N ROCK'N ROLE XREF"
-        u"\n*********************\n"
-        u"\nLINK TO *I18N ROCK'N ROLE XREF*, *CONTENTS*, *SOME NEW TERM*.\n"
-    )
+    et = ElementTree.parse(app.outdir / 'role_xref.xml')
+    sec1, sec2 = et.findall('section')
 
+    para1, = sec1.findall('paragraph')
+    assert_text_refs(
+            para1,
+            ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
+             'SOME NEW TERM', '.'],
+            ['i18n-role-xref',
+             'contents',
+             'glossary_terms#term-some-new-term'])
+
+    para21, para22, para23 = sec2.findall('paragraph')
+    assert_text_refs(
+            para21,
+            ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
+            ['glossary_terms#term-some-other-new-term',
+             'glossary_terms#term-some-new-term'])
+    assert_text_refs(
+            para22,
+            ['LINK TO', 'SAME TYPE LINKS', 'AND', "I18N ROCK'N ROLE XREF", '.'],
+            ['same-type-links', 'i18n-role-xref'])
+    assert_text_refs(
+            para23,
+            ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
+            ['glossary_terms', 'contents'])
+
+    #warnings
     warnings = warnfile.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
     assert 'undefined label' not in warnings
     assert 'unknown document' not in warnings
-
-    assert result == expect
 
 
 @with_intl_app(buildername='text', warning=warnfile)
