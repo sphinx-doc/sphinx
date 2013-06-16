@@ -282,24 +282,22 @@ class Locale(Transform):
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent term references in '
                               'translated message', node)
-            def get_key(node):
-                key = node["refdomain"], node["reftype"]
-                if key == ('std', 'term'):
-                    key = None
-                elif key == ('std', 'ref'):
-                    key += (node['reftarget'],)
-                elif key == ('', 'doc'):
-                    key += (node['reftarget'],)
+            def get_ref_key(node):
+                case = node["refdomain"], node["reftype"]
+                if case == ('std', 'term'):
+                    return None
                 else:
-                    pass
-                return key
+                    return (
+                        node["refdomain"],
+                        node["reftype"],
+                        node['reftarget'],)
 
             for old in old_refs:
-                key = get_key(old)
+                key = get_ref_key(old)
                 if key:
                     xref_reftarget_map[key] = old["reftarget"]
             for new in new_refs:
-                key = get_key(new)
+                key = get_ref_key(new)
                 if key in xref_reftarget_map:
                     new['reftarget'] = xref_reftarget_map[key]
 

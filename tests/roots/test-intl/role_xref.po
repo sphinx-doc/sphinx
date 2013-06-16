@@ -34,3 +34,14 @@ msgstr "LINK TO :ref:`same-type-links` AND :ref:`i18n-role-xref`."
 msgid "link to :doc:`contents` and :doc:`glossary_terms`."
 msgstr "LINK TO :doc:`glossary_terms` AND :doc:`contents`."
 
+msgid "link to :option:`-m` and :option:`--module`."
+msgstr "LINK TO :option:`--module` AND :option:`-m`."
+
+msgid "link to :envvar:`env1` and :envvar:`env2`."
+msgstr "LINK TO :envvar:`env2` AND :envvar:`env1`."
+
+msgid "link to :token:`token1` and :token:`token2`."
+msgstr "LINK TO :token:`token2` AND :token:`token1`."
+
+msgid "link to :keyword:`i18n-role-xref` and :keyword:`same-type-links`."
+msgstr "LINK TO :keyword:`same-type-links` AND :keyword:`i18n-role-xref`."

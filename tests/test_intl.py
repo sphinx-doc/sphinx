@@ -336,20 +336,36 @@ def test_i18n_role_xref(app):
              'contents',
              'glossary_terms#term-some-new-term'])
 
-    para21, para22, para23 = sec2.findall('paragraph')
+    para2 = sec2.findall('paragraph')
     assert_text_refs(
-            para21,
+            para2[0],
             ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
             ['glossary_terms#term-some-other-new-term',
              'glossary_terms#term-some-new-term'])
     assert_text_refs(
-            para22,
+            para2[1],
             ['LINK TO', 'SAME TYPE LINKS', 'AND', "I18N ROCK'N ROLE XREF", '.'],
             ['same-type-links', 'i18n-role-xref'])
     assert_text_refs(
-            para23,
+            para2[2],
             ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
             ['glossary_terms', 'contents'])
+    assert_text_refs(
+            para2[3],
+            ['LINK TO', '--module', 'AND', '-m', '.'],
+            ['cmdoption--module', 'cmdoption-m'])
+    assert_text_refs(
+            para2[4],
+            ['LINK TO', 'env2', 'AND', 'env1', '.'],
+            ['envvar-env2', 'envvar-env1'])
+    assert_text_refs(
+            para2[5],
+            ['LINK TO', 'token2', 'AND', 'token1', '.'],
+            [])  #TODO: how do I link token role to productionlist?
+    assert_text_refs(
+            para2[6],
+            ['LINK TO', 'same-type-links', 'AND', "i18n-role-xref", '.'],
+            ['same-type-links', 'i18n-role-xref'])
 
     #warnings
     warnings = warnfile.getvalue().replace(os.sep, '/')
