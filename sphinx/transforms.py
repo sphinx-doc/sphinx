@@ -233,9 +233,9 @@ class Locale(Transform):
                 self.document.autofootnote_refs.remove(old)
                 self.document.note_autofootnote_ref(new)
 
-            # reference should use original 'refname'.
+            # reference should use new (translated) 'refname'.
             # * reference target ".. _Python: ..." is not translatable.
-            # * section refname is not translatable.
+            # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             def is_refnamed_ref(node):
                 return isinstance(node, nodes.reference) and  \
