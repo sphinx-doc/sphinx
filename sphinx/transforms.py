@@ -213,9 +213,10 @@ class Locale(Transform):
                     if old_name in names:
                         names.remove(old_name)
 
-                    id = self.document.nameids.pop(old_name)
+                    _id = self.document.nameids.pop(old_name, None)
+                    _type = self.document.nametypes.pop(old_name, None)
                     self.document.set_name_id_map(
-                            section_node, id, section_node, explicit=None)
+                            section_node, _id, section_node, explicit=_type)
 
             # auto-numbered foot note reference should use original 'ids'.
             def is_autonumber_footnote_ref(node):
