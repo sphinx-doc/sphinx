@@ -8,11 +8,11 @@ External link to Python_.
 
 Internal link to `i18n with external links`_.
 
-Inline link by `Sphinx <http://sphinx-doc.org>`_.
+Inline link by `Sphinx Site <http://sphinx-doc.org>`_.
 
 Unnamed link__.
 
-.. _Python: http://python.org
+.. _Python: http://python.org/index.html
 .. __: http://google.com
 
 
@@ -21,7 +21,7 @@ link target swapped translation
 
 link to external1_ and external2_.
 
-link to `Sphinx <http://sphinx-doc.org>`_ and `Python <http://python.org>`_.
+link to `Sphinx Site <http://sphinx-doc.org>`_ and `Python Site <http://python.org>`_.
 
 .. _external1: http://example.com/external1
 .. _external2: http://example.com/external2
@@ -30,6 +30,6 @@ link to `Sphinx <http://sphinx-doc.org>`_ and `Python <http://python.org>`_.
 Multiple references in the same line
 =====================================
 
-Link to `Sphinx <http://sphinx-doc.org>`_, `Python <http://python.org>`_, Python_, Unnamed__ and `i18n with external links`_.
+Link to `Sphinx Site <http://sphinx-doc.org>`_, `Python Site <http://python.org>`_, Python_, Unnamed__ and `i18n with external links`_.
 
 .. __: http://google.com

@@ -235,7 +235,7 @@ def test_i18n_keep_external_links(app):
     assert_elem_text_refs(
             para0[0],
             ['EXTERNAL LINK TO', 'Python', '.'],
-            ['http://python.org'])
+            ['http://python.org/index.html'])
 
     # internal link check
     assert_elem_text_refs(
@@ -246,7 +246,7 @@ def test_i18n_keep_external_links(app):
     # inline link check
     assert_elem_text_refs(
             para0[2],
-            ['INLINE LINK BY', 'SPHINX', '.'],
+            ['INLINE LINK BY', 'THE SPHINX SITE', '.'],
             ['http://sphinx-doc.org'])
 
     # unnamed link check
@@ -263,16 +263,16 @@ def test_i18n_keep_external_links(app):
             ['http://example.com/external2', 'http://example.com/external1'])
     assert_elem_text_refs(
             para1[1],
-            ['LINK TO', 'THE PYTHON', 'AND', 'THE SPHINX', '.'],
+            ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
             ['http://python.org', 'http://sphinx-doc.org'])
 
     # multiple references in the same line
     para2 = secs[2].findall('paragraph')
     assert_elem_text_refs(
             para2[0],
-            ['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',', 'THE SPHINX',
-             ',', 'UNNAMED', 'AND', 'THE PYTHON', '.'],
-            ['i18n-with-external-links', 'http://python.org',
+            ['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',',
+             'THE SPHINX SITE', ',', 'UNNAMED', 'AND', 'THE PYTHON SITE', '.'],
+            ['i18n-with-external-links', 'http://python.org/index.html',
              'http://sphinx-doc.org', 'http://google.com',
              'http://python.org'])
 
