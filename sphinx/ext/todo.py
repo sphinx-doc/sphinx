@@ -60,11 +60,13 @@ def process_todos(app, doctree):
                 raise IndexError
         except IndexError:
             targetnode = None
+        newnode = node.deepcopy()
+        del newnode['ids']
         env.todo_all_todos.append({
             'docname': env.docname,
             'source': node.source or env.doc2path(env.docname),
             'lineno': node.line,
-            'todo': node.deepcopy(),
+            'todo': newnode,
             'target': targetnode,
         })
 
