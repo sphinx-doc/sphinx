@@ -24,6 +24,10 @@ from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
 from sphinx.util.compat import docutils_version
 from sphinx.util.pycompat import all
+from sphinx.domains.std import (
+    make_term_from_paragraph_node,
+    make_termnodes_from_paragraph_node,
+)
 
 
 default_substitutions = set([
@@ -173,7 +177,104 @@ class Locale(Transform):
 
         parser = RSTParser()
 
+        #phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
+            msgstr = catalog.gettext(msg)
+            # XXX add marker to untranslated parts
+            if not msgstr or msgstr == msg: # as-of-yet untranslated
+                continue
+
+            # Avoid "Literal block expected; none found." warnings.
+            # If msgstr ends with '::' then it cause warning message at
+            # parser.parse() processing.
+            # literal-block-warning is only appear in avobe case.
+            if msgstr.strip().endswith('::'):
+                msgstr += '\n\n   dummy literal'
+                # dummy literal node will discard by 'patch = patch[0]'
+
+            patch = new_document(source, settings)
+            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
+            parser.parse(msgstr, patch)
+            patch = patch[0]
+            # XXX doctest and other block markup
+            if not isinstance(patch, nodes.paragraph):
+                continue # skip for now
+
+            processed = False  # skip flag
+
+            # update title(section) target name-id mapping
+            if isinstance(node, nodes.title):
+                section_node = node.parent
+                new_name = nodes.fully_normalize_name(patch.astext())
+                old_name = nodes.fully_normalize_name(node.astext())
+
+                if old_name != new_name:
+                    # if name would be changed, replace node names and
+                    # document nameids mapping with new name.
+                    names = section_node.setdefault('names', [])
+                    names.append(new_name)
+                    if old_name in names:
+                        names.remove(old_name)
+
+                    _id = self.document.nameids.get(old_name, None)
+                    explicit = self.document.nametypes.get(old_name, None)
+
+                    # * if explicit: _id is label. title node need another id.
+                    # * if not explicit:
+                    #
+                    #   * _id is None:
+                    #
+                    #     _id is None means _id was duplicated.
+                    #     old_name entry still exists in nameids and
+                    #     nametypes for another duplicated entry.
+                    #
+                    #   * _id is provided: bellow process
+                    if not explicit and _id:
+                        # _id was not duplicated.
+                        # remove old_name entry from document ids database
+                        # to reuse original _id.
+                        self.document.nameids.pop(old_name, None)
+                        self.document.nametypes.pop(old_name, None)
+                        self.document.ids.pop(_id, None)
+
+                    # re-entry with new named section node.
+                    self.document.note_implicit_target(
+                            section_node, section_node)
+
+                    processed = True
+
+            # glossary terms update refid
+            if isinstance(node, nodes.term):
+                gloss_entries = env.temp_data.setdefault('gloss_entries', set())
+                ids = []
+                termnodes = []
+                for _id in node['names']:
+                    if _id in gloss_entries:
+                        gloss_entries.remove(_id)
+                    _id, _, new_termnodes = \
+                        make_termnodes_from_paragraph_node(env, patch, _id)
+                    ids.append(_id)
+                    termnodes.extend(new_termnodes)
+
+                if termnodes and ids:
+                    patch = make_term_from_paragraph_node(termnodes, ids)
+                    node['ids'] = patch['ids']
+                    node['names'] = patch['names']
+                    processed = True
+
+            # update leaves with processed nodes
+            if processed:
+                for child in patch.children:
+                    child.parent = node
+                node.children = patch.children
+                node['translated'] = True
+
+
+        #phase2: translation
+        for node, msg in extract_messages(self.document):
+            if node.get('translated', False):
+                continue
+
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg: # as-of-yet untranslated
@@ -211,32 +312,31 @@ class Locale(Transform):
                 self.document.autofootnote_refs.remove(old)
                 self.document.note_autofootnote_ref(new)
 
-            # reference should use original 'refname'.
+            # reference should use new (translated) 'refname'.
             # * reference target ".. _Python: ..." is not translatable.
-            # * section refname is not translatable.
+            # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             def is_refnamed_ref(node):
                 return isinstance(node, nodes.reference) and  \
                     'refname' in node
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
-            applied_refname_map = {}
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent references in '
                               'translated message', node)
+            old_ref_names = [r['refname'] for r in old_refs]
+            new_ref_names = [r['refname'] for r in new_refs]
+            orphans = list(set(old_ref_names) - set(new_ref_names))
             for new in new_refs:
-                if new['refname'] in applied_refname_map:
-                    # 2nd appearance of the reference
-                    new['refname'] = applied_refname_map[new['refname']]
-                elif old_refs:
-                    # 1st appearance of the reference in old_refs
-                    old = old_refs.pop(0)
-                    refname = old['refname']
-                    new['refname'] = refname
-                    applied_refname_map[new['refname']] = refname
-                else:
-                    # the reference is not found in old_refs
-                    applied_refname_map[new['refname']] = new['refname']
+                if not self.document.has_name(new['refname']):
+                    # Maybe refname is translated but target is not translated.
+                    # Note: multiple translated refnames break link ordering.
+                    if orphans:
+                        new['refname'] = orphans.pop(0)
+                    else:
+                        # orphan refnames is already empty!
+                        # reference number is same in new_refs and old_refs.
+                        pass
 
                 self.document.note_refname(new)
 
@@ -268,11 +368,22 @@ class Locale(Transform):
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent term references in '
                               'translated message', node)
+            def get_ref_key(node):
+                case = node["refdomain"], node["reftype"]
+                if case == ('std', 'term'):
+                    return None
+                else:
+                    return (
+                        node["refdomain"],
+                        node["reftype"],
+                        node['reftarget'],)
+
             for old in old_refs:
-                key = old["reftype"], old["refdomain"]
-                xref_reftarget_map[key] = old["reftarget"]
+                key = get_ref_key(old)
+                if key:
+                    xref_reftarget_map[key] = old["reftarget"]
             for new in new_refs:
-                key = new["reftype"], new["refdomain"]
+                key = get_ref_key(new)
                 if key in xref_reftarget_map:
                     new['reftarget'] = xref_reftarget_map[key]
 
@@ -280,6 +391,7 @@ class Locale(Transform):
             for child in patch.children:
                 child.parent = node
             node.children = patch.children
+            node['translated'] = True
 
         # Extract and translate messages for index entries.
         for node, entries in traverse_translatable_index(self.document):

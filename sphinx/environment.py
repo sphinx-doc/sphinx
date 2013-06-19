@@ -1049,7 +1049,8 @@ class BuildEnvironment:
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve_toctree(docname, builder, toctreenode,
                                            prune=True, **kwds)
-            toctrees.append(toctree)
+            if toctree:
+                toctrees.append(toctree)
         if not toctrees:
             return None
         result = toctrees[0]
@@ -1353,6 +1354,10 @@ class BuildEnvironment:
                             if not isinstance(contnode, nodes.Element):
                                 del node['ids'][:]
                             raise
+                    elif 'ids' in node:
+                        # remove ids attribute that annotated at
+                        # transforms.CitationReference.apply.
+                        del node['ids'][:]
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(

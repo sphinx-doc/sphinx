@@ -938,6 +938,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         doctree = self.assemble_doctree()
         self.info()
         self.info(bold('writing... '), nonl=True)
+        self.write_doc_serialized(self.config.master_doc, doctree)
         self.write_doc(self.config.master_doc, doctree)
         self.info('done')
 

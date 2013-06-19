@@ -28,6 +28,7 @@ def teardown_module():
 texinfo_warnfile = StringIO()
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
+None:None: WARNING: citation not found: missing
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """

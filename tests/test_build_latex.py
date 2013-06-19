@@ -28,6 +28,7 @@ def teardown_module():
 latex_warnfile = StringIO()
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
+None:None: WARNING: citation not found: missing
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
 WARNING: invalid pair index entry u'keyword; '
