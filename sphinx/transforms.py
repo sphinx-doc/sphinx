@@ -177,6 +177,7 @@ class Locale(Transform):
 
         parser = RSTParser()
 
+        #phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
@@ -199,6 +200,8 @@ class Locale(Transform):
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
 
+            processed = False  # skip flag
+
             # update title(section) target name-id mapping
             if isinstance(node, nodes.title):
                 section_node = node.parent
@@ -217,6 +220,60 @@ class Locale(Transform):
                     _type = self.document.nametypes.pop(old_name, None)
                     self.document.set_name_id_map(
                             section_node, _id, section_node, explicit=_type)
+                    processed = True
+
+            # glossary terms update refid
+            if isinstance(node, nodes.term):
+                gloss_entries = env.temp_data.setdefault('gloss_entries', set())
+                ids = []
+                termnodes = []
+                for _id in node['names']:
+                    if _id in gloss_entries:
+                        gloss_entries.remove(_id)
+                    _id, _, new_termnodes = \
+                        make_termnodes_from_paragraph_node(env, patch, _id)
+                    ids.append(_id)
+                    termnodes.extend(new_termnodes)
+
+                if termnodes and ids:
+                    patch = make_term_from_paragraph_node(termnodes, ids)
+                    node['ids'] = patch['ids']
+                    node['names'] = patch['names']
+                    processed = True
+
+            # update leaves with processed nodes
+            if processed:
+                for child in patch.children:
+                    child.parent = node
+                node.children = patch.children
+                node['translated'] = True
+
+
+        #phase2: translation
+        for node, msg in extract_messages(self.document):
+            if node.get('translated', False):
+                continue
+
+            msgstr = catalog.gettext(msg)
+            # XXX add marker to untranslated parts
+            if not msgstr or msgstr == msg: # as-of-yet untranslated
+                continue
+
+            # Avoid "Literal block expected; none found." warnings.
+            # If msgstr ends with '::' then it cause warning message at
+            # parser.parse() processing.
+            # literal-block-warning is only appear in avobe case.
+            if msgstr.strip().endswith('::'):
+                msgstr += '\n\n   dummy literal'
+                # dummy literal node will discard by 'patch = patch[0]'
+
+            patch = new_document(source, settings)
+            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
+            parser.parse(msgstr, patch)
+            patch = patch[0]
+            # XXX doctest and other block markup
+            if not isinstance(patch, nodes.paragraph):
+                continue # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.
             def is_autonumber_footnote_ref(node):
@@ -246,7 +303,20 @@ class Locale(Transform):
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent references in '
                               'translated message', node)
+            old_ref_names = [r['refname'] for r in old_refs]
+            new_ref_names = [r['refname'] for r in new_refs]
+            orphans = list(set(old_ref_names) - set(new_ref_names))
             for new in new_refs:
+                if not self.document.has_name(new['refname']):
+                    # Maybe refname is translated but target is not translated.
+                    # Note: multiple translated refnames break link ordering.
+                    if orphans:
+                        new['refname'] = orphans.pop(0)
+                    else:
+                        # orphan refnames is already empty!
+                        # reference number is same in new_refs and old_refs.
+                        pass
+
                 self.document.note_refname(new)
 
             # refnamed footnote and citation should use original 'ids'.
@@ -267,16 +337,6 @@ class Locale(Transform):
                 refname = new["refname"]
                 if refname in refname_ids_map:
                     new["ids"] = refname_ids_map[refname]
-
-            # glossary terms update refid
-            if isinstance(node, nodes.term):
-                new_id, _, termnodes = \
-                    make_termnodes_from_paragraph_node(env, patch)
-                term = make_term_from_paragraph_node(
-                        termnodes, [new_id])
-                patch = term
-                node['ids'] = patch['ids']
-                node['names'] = patch['names']
 
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
@@ -310,6 +370,7 @@ class Locale(Transform):
             for child in patch.children:
                 child.parent = node
             node.children = patch.children
+            node['translated'] = True
 
         # Extract and translate messages for index entries.
         for node, entries in traverse_translatable_index(self.document):

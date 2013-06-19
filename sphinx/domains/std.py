@@ -205,12 +205,13 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def make_termnodes_from_paragraph_node(env, node):
+def make_termnodes_from_paragraph_node(env, node, new_id=None):
     gloss_entries = env.temp_data.setdefault('gloss_entries', set())
     objects = env.domaindata['std']['objects']
 
     termtext = node.astext()
-    new_id = 'term-' + nodes.make_id(termtext)
+    if new_id is None:
+        new_id = 'term-' + nodes.make_id(termtext)
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)

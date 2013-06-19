@@ -346,14 +346,14 @@ def test_i18n_role_xref(app):
              'SOME NEW TERM', '.'],
             ['i18n-role-xref',
              'contents',
-             'glossary_terms#term-some-new-term'])
+             'glossary_terms#term-some-term'])
 
     para2 = sec2.findall('paragraph')
     assert_elem_text_refs(
             para2[0],
             ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
-            ['glossary_terms#term-some-other-new-term',
-             'glossary_terms#term-some-new-term'])
+            ['glossary_terms#term-some-other-term',
+             'glossary_terms#term-some-term'])
     assert_elem_text_refs(
             para2[1],
             ['LINK TO', 'SAME TYPE LINKS', 'AND', "I18N ROCK'N ROLE XREF", '.'],
