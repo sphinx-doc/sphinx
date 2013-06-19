@@ -140,7 +140,7 @@ _css_link_target_class = u'link-target'
 # XXX These strings should be localized according to epub_language
 _guide_titles = {
     'toc': u'Table of Contents',
-    'cover': u'Cover Page'
+    'cover': u'Cover'
 }
 
 _media_types = {
