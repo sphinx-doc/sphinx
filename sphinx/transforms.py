@@ -216,10 +216,31 @@ class Locale(Transform):
                     if old_name in names:
                         names.remove(old_name)
 
-                    _id = self.document.nameids.pop(old_name, None)
-                    _type = self.document.nametypes.pop(old_name, None)
-                    self.document.set_name_id_map(
-                            section_node, _id, section_node, explicit=_type)
+                    _id = self.document.nameids.get(old_name, None)
+                    explicit = self.document.nametypes.get(old_name, None)
+
+                    # * if explicit: _id is label. title node need another id.
+                    # * if not explicit:
+                    #
+                    #   * _id is None:
+                    #
+                    #     _id is None means _id was duplicated.
+                    #     old_name entry still exists in nameids and
+                    #     nametypes for another duplicated entry.
+                    #
+                    #   * _id is provided: bellow process
+                    if not explicit and _id:
+                        # _id was not duplicated.
+                        # remove old_name entry from document ids database
+                        # to reuse original _id.
+                        self.document.nameids.pop(old_name, None)
+                        self.document.nametypes.pop(old_name, None)
+                        self.document.ids.pop(_id, None)
+
+                    # re-entry with new named section node.
+                    self.document.note_implicit_target(
+                            section_node, section_node)
+
                     processed = True
 
             # glossary terms update refid

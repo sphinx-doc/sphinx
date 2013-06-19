@@ -386,6 +386,46 @@ def test_i18n_role_xref(app):
     assert 'unknown document' not in warnings
 
 
+@with_intl_app(buildername='xml', warning=warnfile)
+def test_i18n_label_target(app):
+    # regression test for #1193
+    app.builder.build(['label_target'])
+    et = ElementTree.parse(app.outdir / 'label_target.xml')
+    secs = et.findall('section')
+
+    #debug
+    print (app.outdir / 'label_target.xml').text()
+
+    para0 = secs[0].findall('paragraph')
+    assert_elem_text_refs(
+            para0[0],
+            ['X SECTION AND LABEL', 'POINT TO', 'implicit-target', 'AND',
+             'X SECTION AND LABEL', 'POINT TO', 'section-and-label', '.'],
+            ['implicit-target', 'section-and-label'])
+
+    para1 = secs[1].findall('paragraph')
+    assert_elem_text_refs(
+            para1[0],
+            ['X EXPLICIT-TARGET', 'POINT TO', 'explicit-target', 'AND',
+             'X EXPLICIT-TARGET', 'POINT TO DUPLICATED ID LIKE', 'id1', '.'],
+            ['explicit-target', 'id1'])
+
+    para2 = secs[2].findall('paragraph')
+    assert_elem_text_refs(
+            para2[0],
+            ['X IMPLICIT SECTION NAME', 'POINT TO', 'implicit-section-name',
+             '.'],
+            ['implicit-section-name'])
+
+    sec2 = secs[2].findall('section')
+
+    para2_0 = sec2[0].findall('paragraph')
+    assert_elem_text_refs(
+            para2_0[0],
+            ['`X DUPLICATED SUB SECTION`_', 'IS BROKEN LINK.'],
+            [])
+
+
 @with_intl_app(buildername='text', warning=warnfile)
 def test_i18n_glossary_terms_inconsistency(app):
     # regression test for #1090
