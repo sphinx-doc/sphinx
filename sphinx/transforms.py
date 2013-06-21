@@ -300,17 +300,38 @@ class Locale(Transform):
             def is_autonumber_footnote_ref(node):
                 return isinstance(node, nodes.footnote_reference) and \
                     node.get('auto') == 1
+            def list_replace_or_append(lst, old, new):
+                if old in lst:
+                    lst[lst.index(old)] = new
+                else:
+                    lst.append(new)
             old_foot_refs = node.traverse(is_autonumber_footnote_ref)
             new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
                 env.warn_node('inconsistent footnote references in '
                               'translated message', node)
-            for old, new in zip(old_foot_refs, new_foot_refs):
+            old_foot_namerefs = {}
+            for r in old_foot_refs:
+                old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
+            for new in new_foot_refs:
+                refname = new.get('refname')
+                refs = old_foot_namerefs.get(refname, [])
+                if not refs:
+                    continue
+
+                old = refs.pop(0)
                 new['ids'] = old['ids']
                 for id in new['ids']:
                     self.document.ids[id] = new
-                self.document.autofootnote_refs.remove(old)
-                self.document.note_autofootnote_ref(new)
+                list_replace_or_append(
+                        self.document.autofootnote_refs, old, new)
+                if refname:
+                    list_replace_or_append(
+                        self.document.footnote_refs.setdefault(refname, []),
+                        old, new)
+                    list_replace_or_append(
+                        self.document.refnames.setdefault(refname, []),
+                        old, new)
 
             # reference should use new (translated) 'refname'.
             # * reference target ".. _Python: ..." is not translatable.

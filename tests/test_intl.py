@@ -149,7 +149,7 @@ def test_i18n_footnote_break_refid(app):
 
 @with_intl_app(buildername='xml', warning=warnfile)
 def test_i18n_footnote_regression(app):
-    # regression test for fix #955
+    # regression test for fix #955, #1176
     app.builddir.rmtree(True)
     app.builder.build(['footnote'])
     et = ElementTree.parse(app.outdir / 'footnote.xml')
@@ -159,7 +159,7 @@ def test_i18n_footnote_regression(app):
     assert_elem(
             para0[0],
             texts=['I18N WITH FOOTNOTE', 'INCLUDE THIS CONTENTS',
-                  '[ref]', '1', '100'],
+                  '2', '[ref]', '1', '100', '.'],
             refs=['i18n-with-footnote', 'ref'])
 
     footnote0 = secs[0].findall('footnote')
@@ -171,6 +171,10 @@ def test_i18n_footnote_regression(app):
             footnote0[1],
             texts=['100','THIS IS A NUMBERED FOOTNOTE.'],
             names=['100'])
+    assert_elem(
+            footnote0[2],
+            texts=['2','THIS IS A AUTO NUMBERED NAMED FOOTNOTE.'],
+            names=['named'])
 
     citation0 = secs[0].findall('citation')
     assert_elem(
@@ -183,22 +187,23 @@ def test_i18n_footnote_regression(app):
     assert not re.search(warning_expr, warnings)
 
 
-@with_intl_app(buildername='html', cleanenv=True)
+@with_intl_app(buildername='xml', cleanenv=True)
 def test_i18n_footnote_backlink(app):
-    """i18n test for #1058"""
+    # i18n test for #1058
     app.builder.build(['footnote'])
-    result = (app.outdir / 'footnote.html').text(encoding='utf-8')
-    expects = [
-        '<a class="footnote-reference" href="#id5" id="id1">[100]</a>',
-        '<a class="footnote-reference" href="#id4" id="id2">[1]</a>',
-        '<a class="reference internal" href="#ref" id="id3">[ref]</a>',
-        '<a class="fn-backref" href="#id2">[1]</a>',
-        '<a class="fn-backref" href="#id3">[ref]</a>',
-        '<a class="fn-backref" href="#id1">[100]</a>',
-        ]
-    for expect in expects:
-        matches = re.findall(re.escape(expect), result)
-        assert len(matches) == 1
+    et = ElementTree.parse(app.outdir / 'footnote.xml')
+    secs = et.findall('section')
+
+    para0 = secs[0].findall('paragraph')
+    refs0 = para0[0].findall('footnote_reference')
+    refid2id = dict([
+        (r.attrib.get('refid'), r.attrib.get('ids')) for r in refs0])
+
+    footnote0 = secs[0].findall('footnote')
+    for footnote in footnote0:
+        ids = footnote.attrib.get('ids')
+        backrefs = footnote.attrib.get('backrefs')
+        assert refid2id[ids] == backrefs
 
 
 @with_intl_app(buildername='text', warning=warnfile, cleanenv=True)
