@@ -93,11 +93,16 @@ def elem_getref(elem):
     return elem.attrib.get('refid') or elem.attrib.get('refuri')
 
 
-def assert_elem_text_refs(elem, text, refs):
-    _text = elem_gettexts(elem)
-    assert _text == text
-    _refs = map(elem_getref, elem.findall('reference'))
-    assert _refs == refs
+def assert_elem(elem, texts=None, refs=None, names=None):
+    if texts is not None:
+        _texts = elem_gettexts(elem)
+        assert _texts == texts
+    if refs is not None:
+        _refs = map(elem_getref, elem.findall('reference'))
+        assert _refs == refs
+    if names is not None:
+        _names = elem.attrib.get('names').split()
+        assert _names == names
 
 
 @with_intl_app(buildername='text')
@@ -142,22 +147,39 @@ def test_i18n_footnote_break_refid(app):
     # expect no error by build
 
 
-@with_intl_app(buildername='text', warning=warnfile)
+@with_intl_app(buildername='xml', warning=warnfile)
 def test_i18n_footnote_regression(app):
-    """regression test for fix #955"""
+    # regression test for fix #955
     app.builddir.rmtree(True)
     app.builder.build(['footnote'])
-    result = (app.outdir / 'footnote.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH FOOTNOTE"
-              u"\n******************\n"  # underline matches new translation
-              u"\nI18N WITH FOOTNOTE INCLUDE THIS CONTENTS [ref] [1] [100]\n"
-              u"\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
-              u"\n[ref] THIS IS A NAMED FOOTNOTE.\n"
-              u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
-    assert result == expect
+    et = ElementTree.parse(app.outdir / 'footnote.xml')
+    secs = et.findall('section')
+
+    para0 = secs[0].findall('paragraph')
+    assert_elem(
+            para0[0],
+            texts=['I18N WITH FOOTNOTE', 'INCLUDE THIS CONTENTS',
+                  '[ref]', '1', '100'],
+            refs=['i18n-with-footnote', 'ref'])
+
+    footnote0 = secs[0].findall('footnote')
+    assert_elem(
+            footnote0[0],
+            texts=['1','THIS IS A AUTO NUMBERED FOOTNOTE.'],
+            names=['1'])
+    assert_elem(
+            footnote0[1],
+            texts=['100','THIS IS A NUMBERED FOOTNOTE.'],
+            names=['100'])
+
+    citation0 = secs[0].findall('citation')
+    assert_elem(
+            citation0[0],
+            texts=['ref','THIS IS A NAMED FOOTNOTE.'],
+            names=['ref'])
 
     warnings = warnfile.getvalue().replace(os.sep, '/')
-    warning_expr = u'.*/footnote.txt:\\d*: SEVERE: Duplicate ID: ".*".\n'
+    warning_expr = u'.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
     assert not re.search(warning_expr, warnings)
 
 
@@ -232,49 +254,52 @@ def test_i18n_keep_external_links(app):
 
     para0 = secs[0].findall('paragraph')
     # external link check
-    assert_elem_text_refs(
+    assert_elem(
             para0[0],
-            ['EXTERNAL LINK TO', 'Python', '.'],
-            ['http://python.org/index.html'])
+            texts=['EXTERNAL LINK TO', 'Python', '.'],
+            refs=['http://python.org/index.html'])
 
     # internal link check
-    assert_elem_text_refs(
+    assert_elem(
             para0[1],
-            ['EXTERNAL LINKS', 'IS INTERNAL LINK.'],
-            ['i18n-with-external-links'])
+            texts=['EXTERNAL LINKS', 'IS INTERNAL LINK.'],
+            refs=['i18n-with-external-links'])
 
     # inline link check
-    assert_elem_text_refs(
+    assert_elem(
             para0[2],
-            ['INLINE LINK BY', 'THE SPHINX SITE', '.'],
-            ['http://sphinx-doc.org'])
+            texts=['INLINE LINK BY', 'THE SPHINX SITE', '.'],
+            refs=['http://sphinx-doc.org'])
 
     # unnamed link check
-    assert_elem_text_refs(
+    assert_elem(
             para0[3],
-            ['UNNAMED', 'LINK', '.'],
-            ['http://google.com'])
+            texts=['UNNAMED', 'LINK', '.'],
+            refs=['http://google.com'])
 
     # link target swapped translation
     para1 = secs[1].findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para1[0],
-            ['LINK TO', 'external2', 'AND', 'external1', '.'],
-            ['http://example.com/external2', 'http://example.com/external1'])
-    assert_elem_text_refs(
+            texts=['LINK TO', 'external2', 'AND', 'external1', '.'],
+            refs=['http://example.com/external2',
+                  'http://example.com/external1'])
+    assert_elem(
             para1[1],
-            ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
-            ['http://python.org', 'http://sphinx-doc.org'])
+            texts=['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE',
+                   '.'],
+            refs=['http://python.org', 'http://sphinx-doc.org'])
 
     # multiple references in the same line
     para2 = secs[2].findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para2[0],
-            ['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',',
-             'THE SPHINX SITE', ',', 'UNNAMED', 'AND', 'THE PYTHON SITE', '.'],
-            ['i18n-with-external-links', 'http://python.org/index.html',
-             'http://sphinx-doc.org', 'http://google.com',
-             'http://python.org'])
+            texts=['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',',
+                   'THE SPHINX SITE', ',', 'UNNAMED', 'AND',
+                   'THE PYTHON SITE', '.'],
+            refs=['i18n-with-external-links', 'http://python.org/index.html',
+                  'http://sphinx-doc.org', 'http://google.com',
+                  'http://python.org'])
 
 
 @with_intl_app(buildername='text', warning=warnfile, cleanenv=True)
@@ -340,44 +365,46 @@ def test_i18n_role_xref(app):
     sec1, sec2 = et.findall('section')
 
     para1, = sec1.findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para1,
-            ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
-             'SOME NEW TERM', '.'],
-            ['i18n-role-xref',
-             'contents',
-             'glossary_terms#term-some-term'])
+            texts=['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
+                   'SOME NEW TERM', '.'],
+            refs=['i18n-role-xref', 'contents',
+                  'glossary_terms#term-some-term'])
 
     para2 = sec2.findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para2[0],
-            ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
-            ['glossary_terms#term-some-other-term',
-             'glossary_terms#term-some-term'])
-    assert_elem_text_refs(
+            texts=['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM',
+                   '.'],
+            refs=['glossary_terms#term-some-other-term',
+                  'glossary_terms#term-some-term'])
+    assert_elem(
             para2[1],
-            ['LINK TO', 'SAME TYPE LINKS', 'AND', "I18N ROCK'N ROLE XREF", '.'],
-            ['same-type-links', 'i18n-role-xref'])
-    assert_elem_text_refs(
+            texts=['LINK TO', 'SAME TYPE LINKS', 'AND',
+                   "I18N ROCK'N ROLE XREF", '.'],
+            refs=['same-type-links', 'i18n-role-xref'])
+    assert_elem(
             para2[2],
-            ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
-            ['glossary_terms', 'contents'])
-    assert_elem_text_refs(
+            texts=['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS',
+                   '.'],
+            refs=['glossary_terms', 'contents'])
+    assert_elem(
             para2[3],
-            ['LINK TO', '--module', 'AND', '-m', '.'],
-            ['cmdoption--module', 'cmdoption-m'])
-    assert_elem_text_refs(
+            texts=['LINK TO', '--module', 'AND', '-m', '.'],
+            refs=['cmdoption--module', 'cmdoption-m'])
+    assert_elem(
             para2[4],
-            ['LINK TO', 'env2', 'AND', 'env1', '.'],
-            ['envvar-env2', 'envvar-env1'])
-    assert_elem_text_refs(
+            texts=['LINK TO', 'env2', 'AND', 'env1', '.'],
+            refs=['envvar-env2', 'envvar-env1'])
+    assert_elem(
             para2[5],
-            ['LINK TO', 'token2', 'AND', 'token1', '.'],
-            [])  #TODO: how do I link token role to productionlist?
-    assert_elem_text_refs(
+            texts=['LINK TO', 'token2', 'AND', 'token1', '.'],
+            refs=[])  #TODO: how do I link token role to productionlist?
+    assert_elem(
             para2[6],
-            ['LINK TO', 'same-type-links', 'AND', "i18n-role-xref", '.'],
-            ['same-type-links', 'i18n-role-xref'])
+            texts=['LINK TO', 'same-type-links', 'AND', "i18n-role-xref", '.'],
+            refs=['same-type-links', 'i18n-role-xref'])
 
     #warnings
     warnings = warnfile.getvalue().replace(os.sep, '/')
@@ -393,37 +420,35 @@ def test_i18n_label_target(app):
     et = ElementTree.parse(app.outdir / 'label_target.xml')
     secs = et.findall('section')
 
-    #debug
-    print (app.outdir / 'label_target.xml').text()
-
     para0 = secs[0].findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para0[0],
-            ['X SECTION AND LABEL', 'POINT TO', 'implicit-target', 'AND',
-             'X SECTION AND LABEL', 'POINT TO', 'section-and-label', '.'],
-            ['implicit-target', 'section-and-label'])
+            texts=['X SECTION AND LABEL', 'POINT TO', 'implicit-target', 'AND',
+                   'X SECTION AND LABEL', 'POINT TO', 'section-and-label', '.'],
+            refs=['implicit-target', 'section-and-label'])
 
     para1 = secs[1].findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para1[0],
-            ['X EXPLICIT-TARGET', 'POINT TO', 'explicit-target', 'AND',
-             'X EXPLICIT-TARGET', 'POINT TO DUPLICATED ID LIKE', 'id1', '.'],
-            ['explicit-target', 'id1'])
+            texts=['X EXPLICIT-TARGET', 'POINT TO', 'explicit-target', 'AND',
+                   'X EXPLICIT-TARGET', 'POINT TO DUPLICATED ID LIKE', 'id1',
+                   '.'],
+            refs=['explicit-target', 'id1'])
 
     para2 = secs[2].findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para2[0],
-            ['X IMPLICIT SECTION NAME', 'POINT TO', 'implicit-section-name',
-             '.'],
-            ['implicit-section-name'])
+            texts=['X IMPLICIT SECTION NAME', 'POINT TO',
+                   'implicit-section-name', '.'],
+            refs=['implicit-section-name'])
 
     sec2 = secs[2].findall('section')
 
     para2_0 = sec2[0].findall('paragraph')
-    assert_elem_text_refs(
+    assert_elem(
             para2_0[0],
-            ['`X DUPLICATED SUB SECTION`_', 'IS BROKEN LINK.'],
-            [])
+            texts=['`X DUPLICATED SUB SECTION`_', 'IS BROKEN LINK.'],
+            refs=[])
 
 
 @with_intl_app(buildername='text', warning=warnfile)
