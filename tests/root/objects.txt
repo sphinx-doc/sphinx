@@ -7,6 +7,32 @@ Testing object descriptions
 
 .. function:: func_without_body()
 
+.. function:: func_with_unknown_field()
+
+   : :
+
+   : empty field name:
+
+   :field_name:
+
+   :field_name all lower:
+
+   :FIELD_NAME:
+
+   :FIELD_NAME ALL CAPS:
+
+   :Field_Name:
+
+   :Field_Name All Word Caps:
+
+   :Field_name:
+
+   :Field_name First word cap:
+
+   :FIELd_name:
+
+   :FIELd_name PARTial caps:
+
 .. function:: func_noindex
    :noindex:
 

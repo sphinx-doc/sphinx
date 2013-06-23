@@ -196,6 +196,17 @@ HTML_XPATH = {
             'Testing object descriptions'),
         (".//li[@class='toctree-l1']/a[@href='markup.html']",
             'Testing various markup'),
+        # test unknown field names
+        (".//th[@class='field-name']", 'Field_name:'),
+        (".//th[@class='field-name']", 'Field_name all lower:'),
+        (".//th[@class='field-name']", 'FIELD_NAME:'),
+        (".//th[@class='field-name']", 'FIELD_NAME ALL CAPS:'),
+        (".//th[@class='field-name']", 'Field_Name:'),
+        (".//th[@class='field-name']", 'Field_Name All Word Caps:'),
+        (".//th[@class='field-name']", 'Field_name:'),
+        (".//th[@class='field-name']", 'Field_name First word cap:'),
+        (".//th[@class='field-name']", 'FIELd_name:'),
+        (".//th[@class='field-name']", 'FIELd_name PARTial caps:'),
         # custom sidebar
         (".//h4", 'Custom sidebar'),
         # docfields
