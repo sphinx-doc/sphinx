@@ -38,6 +38,7 @@ Bugs fixed
   link.
 * #1176: Fix i18n: footnote reference number missing for auto numbered named
   footnote and auto symbol footnote.
+* PR#146,#1172: Fix ZeroDivisionError in Parallel Builds. Thanks to tychoish.
 
 
 Release 1.2 (beta1 released Mar 31, 2013)
