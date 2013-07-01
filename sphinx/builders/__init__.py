@@ -58,6 +58,9 @@ class Builder(object):
         self.config = app.config
         self.tags = app.tags
         self.tags.add(self.format)
+        self.tags.add(self.name)
+        self.tags.add("format_%s" % self.format)
+        self.tags.add("builder_%s" % self.name)
 
         # images that need to be copied over (source -> dest)
         self.images = {}

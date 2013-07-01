@@ -126,9 +126,7 @@ Google Analytics
 Epub info
 ---------
 
-The epub builder is currently in an experimental stage.  It has only been tested
-with the Sphinx documentation itself.  If you want to create epubs, here are
-some notes:
+The following list gives some hints for the creation of epub files:
 
 * Split the text into several files. The longer the individual HTML files are,
   the longer it takes the ebook reader to render them.  In extreme cases, the
@@ -161,6 +159,12 @@ some notes:
 * Files that are inserted outside of the ``toctree`` directive must be manually
   included. This sometimes applies to appendixes, e.g. the glossary or
   the indices.  You can add them with the :confval:`epub_post_files` option.
+
+* The handling of the epub cover page differs from the reStructuredText
+  procedure which automatically resolves image paths and puts the images
+  into the ``_images`` directory.  For the epub cover page put the image in the
+  :confval:`html_static_path` directory and reference it with its full path in
+  the :confval:`epub_cover` config option.
 
 .. _Epubcheck: http://code.google.com/p/epubcheck/
 .. _Calibre: http://calibre-ebook.com/

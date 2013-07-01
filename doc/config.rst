@@ -956,6 +956,9 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    * ``'footnote'`` -- display URLs in footnotes
    * ``'no'`` -- do not display URLs
 
+   The display of inline URLs can be customized by adding CSS rules for the
+   class ``link-target``.
+
    .. versionadded:: 1.2
 
 .. confval:: epub_use_index

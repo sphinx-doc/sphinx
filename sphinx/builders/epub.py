@@ -140,7 +140,7 @@ _css_link_target_class = u'link-target'
 # XXX These strings should be localized according to epub_language
 _guide_titles = {
     'toc': u'Table of Contents',
-    'cover': u'Cover Page'
+    'cover': u'Cover'
 }
 
 _media_types = {
@@ -188,14 +188,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
+        self.tocid = 0
 
     def get_theme_config(self):
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
-    def make_id(self, name):
-        """Replace all characters not allowed for (X)HTML ids."""
-        return name.replace('/', '_').replace(' ', '')
+    def make_id(self, name, id_cache={}):
+        # id_cache is intentionally mutable
+        """Return a unique id for name."""
+        id = id_cache.get(name)
+        if not id:
+            id = 'epub-%d' % self.env.new_serialno('epub')
+            id_cache[name] = id
+        return id
 
     def esc(self, name):
         """Replace all characters not allowed in text an attribute values."""
@@ -629,8 +635,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # XXX Modifies the node
         if incr:
             self.playorder += 1
+        self.tocid += 1
         node['indent'] = _navpoint_indent * level
-        node['navpoint'] = self.esc(_navPoint_template % self.playorder)
+        node['navpoint'] = self.esc(_navPoint_template % self.tocid)
         node['playorder'] = self.playorder
         return _navpoint_template % node
 
