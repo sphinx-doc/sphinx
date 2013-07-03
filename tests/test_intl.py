@@ -593,6 +593,20 @@ def test_i18n_docfields(app):
     assert result == expect
 
 
+@with_intl_app(buildername='text', cleanenv=True)
+def test_i18n_admonitions(app):
+    # #1206: gettext did not translate admonition directive's title
+    # seealso: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+    app.builder.build(['admonitions'])
+    result = (app.outdir / 'admonitions.txt').text(encoding='utf-8')
+    directives = (
+            "attention", "caution", "danger", "error", "hint",
+            "important", "note", "tip", "warning", "admonition",)
+    for d in directives:
+        assert d.upper() + " TITLE" in result
+        assert d.upper() + " BODY" in result
+
+
 @with_intl_app(buildername='html', cleanenv=True)
 def test_i18n_docfields_html(app):
     app.builder.build(['docfields'])

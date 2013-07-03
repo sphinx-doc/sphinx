@@ -53,10 +53,12 @@ def extract_messages(doctree):
                 node.line = definition_list_item.line - 1
                 node.rawsource = definition_list_item.\
                                  rawsource.split("\n", 2)[0]
-        # workaround: nodes.caption doesn't have source, line.
+        # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
+        # and nodes.title for nodes.admonition doesn't have source, line.
         # this issue was filed to Docutils tracker:
         # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
-        if isinstance(node, nodes.caption) and not node.source:
+        # sourceforge.net/p/docutils/patches/108/
+        if isinstance(node, (nodes.caption, nodes.title)) and not node.source:
             node.source = node.parent.source
             node.line = 0  #need fix docutils to get `node.line`
 
