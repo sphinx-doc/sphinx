@@ -28,6 +28,8 @@ except ImportError:
     except ImportError:
         Image = None
 
+# A good overview of the purpose behind these classes can be found here:
+# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 class HTMLWriter(Writer):
     def __init__(self, builder):

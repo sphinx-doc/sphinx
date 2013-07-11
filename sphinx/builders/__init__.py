@@ -385,9 +385,11 @@ class Builder(object):
             t.join()
 
     def prepare_writing(self, docnames):
+        """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
 
     def write_doc(self, docname, doctree):
+        """Where you actually write something to the filesystem."""
         raise NotImplementedError
 
     def write_doc_serialized(self, docname, doctree):
