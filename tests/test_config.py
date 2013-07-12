@@ -11,9 +11,8 @@
 """
 import sys
 
-from util import *
+from util import TestApp, with_app, with_tempdir, raises, raises_msg, write_file
 
-import sphinx
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 from sphinx.util.pycompat import b

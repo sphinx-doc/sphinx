@@ -10,6 +10,7 @@
 """
 
 import re
+import sys
 
 from docutils import nodes
 
@@ -52,10 +53,12 @@ def extract_messages(doctree):
                 node.line = definition_list_item.line - 1
                 node.rawsource = definition_list_item.\
                                  rawsource.split("\n", 2)[0]
-        # workaround: nodes.caption doesn't have source, line.
+        # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
+        # and nodes.title for nodes.admonition doesn't have source, line.
         # this issue was filed to Docutils tracker:
         # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
-        if isinstance(node, nodes.caption) and not node.source:
+        # sourceforge.net/p/docutils/patches/108/
+        if isinstance(node, (nodes.caption, nodes.title)) and not node.source:
             node.source = node.parent.source
             node.line = 0  #need fix docutils to get `node.line`
 
@@ -215,18 +218,6 @@ def set_role_source_info(inliner, lineno, node):
         # docutils 0.9+
         node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
-# monkey-patch Node.__contains__ to get consistent "in" operator behavior
-# across docutils versions
-
-def _new_contains(self, key):
-    # support both membership test for children and attributes
-    # (has_key is translated to "in" by 2to3)
-    if isinstance(key, basestring):
-        return key in self.attributes
-    return key in self.children
-
-nodes.Node.__contains__ = _new_contains
-
 # monkey-patch Element.copy to copy the rawsource
 
 def _new_copy(self):
@@ -234,16 +225,16 @@ def _new_copy(self):
 
 nodes.Element.copy = _new_copy
 
-# monkey-patch Element.__repr__ to return str if include unicode.
-# sf.net/tracker/?func=detail&aid=3601607&group_id=38414&atid=422030
-import sys
+# monkey-patch Element.__repr__ to return str if it returns unicode.
+# Was fixed in docutils since 0.10. See sf.net/p/docutils/bugs/218/.
+
 if sys.version_info < (3,):
     _element_repr_orig = nodes.Element.__repr__
-    
-    def _repr(self):
+
+    def _new_repr(self):
         s = _element_repr_orig(self)
         if isinstance(s, unicode):
             return s.encode('utf-8')
         return s
-    
-    nodes.Element.__repr__ = _repr
+
+    nodes.Element.__repr__ = _new_repr

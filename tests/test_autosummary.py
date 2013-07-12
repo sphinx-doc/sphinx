@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import *
-
 from sphinx.ext.autosummary import mangle_signature
 
 

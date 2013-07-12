@@ -17,7 +17,7 @@ from subprocess import Popen, PIPE
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import *
+from util import with_app, test_root, remove_unicode_literals
 from test_build_html import ENV_WARNINGS
 
 
@@ -28,6 +28,7 @@ def teardown_module():
 texinfo_warnfile = StringIO()
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
+None:None: WARNING: citation not found: missing
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """

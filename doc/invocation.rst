@@ -96,6 +96,15 @@ The :program:`sphinx-build` script has several options:
    the build directory; with this option you can select a different cache
    directory (the doctrees can be shared between all builders).
 
+.. option:: -j N
+
+   Distribute the build over *N* processes in parallel, to make building on
+   multiprocessor machines more effective.  Note that not all parts and not all
+   builders of Sphinx can be parallelized.
+
+   .. versionadded:: 1.2
+      This option should be considered *experimental*.
+
 .. option:: -c path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given

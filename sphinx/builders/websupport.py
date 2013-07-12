@@ -56,19 +56,24 @@ class WebSupportBuilder(PickleHTMLBuilder):
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
-        self.cur_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = '/' + posixpath.join(self.virtual_staticdir, '_images')
-        self.post_process_images(doctree)
         self.dlpath = '/' + posixpath.join(self.virtual_staticdir, '_downloads')
+        self.current_docname = docname
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()
         body = self.docwriter.parts['fragment']
         metatags = self.docwriter.clean_meta
 
         ctx = self.get_doc_context(docname, body, metatags)
-        self.index_page(docname, doctree, ctx.get('title', ''))
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname, doctree):
+        self.imgpath = '/' + posixpath.join(self.virtual_staticdir, '_images')
+        self.post_process_images(doctree)
+        title = self.env.longtitles.get(docname)
+        title = title and self.render_partial(title)['title'] or ''
+        self.index_page(docname, doctree, title)
 
     def load_indexer(self, docnames):
         self.indexer = self.search

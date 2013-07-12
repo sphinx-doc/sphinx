@@ -17,7 +17,7 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -32,8 +32,8 @@ class TextWrapper(textwrap.TextWrapper):
     def _wrap_chunks(self, chunks):
         """_wrap_chunks(chunks : [string]) -> [string]
 
-        Original _wrap_chunks use len() to calculate width.
-        This method respect to wide/fullwidth characters for width adjustment.
+        The original _wrap_chunks uses len() to calculate width.
+        This method respects wide/fullwidth characters for width adjustment.
         """
         drop_whitespace = getattr(self, 'drop_whitespace', True)  #py25 compat
         lines = []
@@ -199,9 +199,14 @@ class TextTranslator(nodes.NodeVisitor):
         do_format()
         if first is not None and result:
             itemindent, item = result[0]
+            result_rest, result = result[1:], []
             if item:
-                result.insert(0, (itemindent - indent, [first + item[0]]))
-                result[1] = (itemindent, item[1:])
+                toformat = [first + ' '.join(item)]
+                do_format()  #re-create `result` from `toformat`
+                _dummy, new_item = result[0]
+                result.insert(0, (itemindent - indent, [new_item[0]]))
+                result[1] = (itemindent, new_item[1:])
+                result.extend(result_rest)
         self.states[-1].extend(result)
 
     def visit_document(self, node):
@@ -572,11 +577,11 @@ class TextTranslator(nodes.NodeVisitor):
             self.new_state(len(str(self.list_counter[-1])) + 2)
     def depart_list_item(self, node):
         if self.list_counter[-1] == -1:
-            self.end_state(first='* ', end=None)
+            self.end_state(first='* ')
         elif self.list_counter[-1] == -2:
             pass
         else:
-            self.end_state(first='%s. ' % self.list_counter[-1], end=None)
+            self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node):
         self._li_has_classifier = len(node) >= 2 and \
@@ -675,10 +680,6 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_versionmodified(self, node):
         self.new_state(0)
-        if node.children:
-            self.add_text(versionlabels[node['type']] % node['version'] + ': ')
-        else:
-            self.add_text(versionlabels[node['type']] % node['version'] + '.')
     def depart_versionmodified(self, node):
         self.end_state()
 

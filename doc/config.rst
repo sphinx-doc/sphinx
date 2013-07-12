@@ -916,6 +916,15 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of differnet
    depth in one list.  The default value is ``True``.
 
+.. confval:: epub_tocscope
+
+   This setting control the scope of the epub table of contents.  The setting
+   can have the following values:
+
+   * ``'default'`` -- include all toc entries that are not hidden (default)
+   * ``'includehidden'`` -- include all toc entries
+
+   .. versionadded:: 1.2
 
 .. confval:: epub_fix_images
 
@@ -944,10 +953,21 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    settings can have the following values:
 
    * ``'inline'`` -- display URLs inline in parentheses (default)
+   * ``'footnote'`` -- display URLs in footnotes
    * ``'no'`` -- do not display URLs
+
+   The display of inline URLs can be customized by adding CSS rules for the
+   class ``link-target``.
 
    .. versionadded:: 1.2
 
+.. confval:: epub_use_index
+
+   If true, add an index to the epub document.  It defaults to the
+   :confval:`html_use_index` option but can be set independently for epub
+   creation.
+
+   .. versionadded:: 1.2
 
 .. _latex-options:
 
@@ -1146,6 +1166,9 @@ These options influence LaTeX output.
    any automatically copied files.
 
    .. versionadded:: 0.6
+
+   .. versionchanged:: 1.2
+      This overrides the files which is provided from Sphinx such as sphinx.sty.
 
 .. confval:: latex_preamble
 

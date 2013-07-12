@@ -84,11 +84,6 @@ The builder's "name" must be given to the **-b** command-line option of
    `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 2* files.
 
-   Some ebook readers do not show the link targets of references.  Therefore
-   this builder adds the targets after the link when necessary.  The display
-   of the URLs can be customized by adding CSS rules for the class
-   ``link-target``.
-
    Its name is ``epub``.
 
 .. module:: sphinx.builders.latex

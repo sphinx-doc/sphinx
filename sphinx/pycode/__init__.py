@@ -241,7 +241,10 @@ class ModuleAnalyzer(object):
         """Generate tokens from the source."""
         if self.tokens is not None:
             return
-        self.tokens = list(tokenize.generate_tokens(self.source.readline))
+        try:
+            self.tokens = list(tokenize.generate_tokens(self.source.readline))
+        except tokenize.TokenError, err:
+            raise PycodeError('tokenizing failed', err)
         self.source.close()
 
     def parse(self):

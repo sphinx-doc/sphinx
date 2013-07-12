@@ -20,8 +20,9 @@ except ImportError:
     has_manpage_writer = False
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util.osutil import ustrftime
+from sphinx.util.compat import docutils_version
 
 
 class ManualPageWriter(Writer):
@@ -69,8 +70,9 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
 
-        # since self.append_header() is never called, need to do this here
-        self.body.append(MACRO_DEF)
+        # In docutils < 0.11 self.append_header() was never called
+        if docutils_version < (0, 11):
+            self.body.append(MACRO_DEF)
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
@@ -157,12 +159,6 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_versionmodified(self, node):
         self.visit_paragraph(node)
-        text = versionlabels[node['type']] % node['version']
-        if len(node):
-            text += ': '
-        else:
-            text += '.'
-        self.body.append(text)
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 

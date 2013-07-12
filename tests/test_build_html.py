@@ -21,7 +21,7 @@ except ImportError:
     pygments = None
 
 from sphinx import __version__
-from util import *
+from util import test_root, remove_unicode_literals, gen_with_app, with_app
 from etree13 import ElementTree as ET
 
 
@@ -49,6 +49,7 @@ http://sphinx-doc.org/domains.html
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
+None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:: WARNING: invalid single index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
@@ -144,7 +145,13 @@ HTML_XPATH = {
         # abbreviations
         (".//abbr[@title='abbreviation']", '^abbr$'),
         # version stuff
-        (".//span[@class='versionmodified']", 'New in version 0.6'),
+        (".//div[@class='versionadded']/p/span", 'New in version 0.6: '),
+        (".//div[@class='versionadded']/p/span",
+         tail_check('First paragraph of versionadded')),
+        (".//div[@class='versionchanged']/p/span",
+         tail_check('First paragraph of versionchanged')),
+        (".//div[@class='versionchanged']/p",
+         'Second paragraph of versionchanged'),
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
@@ -338,3 +345,18 @@ def test_html(app):
             yield check_xpath, etree, fname, path, check
 
     check_static_entries(app.builder.outdir)
+
+@with_app(buildername='html', srcdir='(empty)',
+          confoverrides={'html_sidebars': {'*': ['globaltoc.html']}},
+          )
+def test_html_with_globaltoc_and_hidden_toctree(app):
+    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause 
+    # exception.
+    (app.srcdir / 'contents.rst').write_text(
+            '\n.. toctree::'
+            '\n'
+            '\n.. toctree::'
+            '\n   :hidden:'
+            '\n')
+    app.builder.build_all()
+

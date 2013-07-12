@@ -19,7 +19,8 @@ except ImportError:
     wraps = lambda f: (lambda w: w)
 
 from sphinx.websupport import WebSupport
-from sphinx.websupport.errors import *
+from sphinx.websupport.errors import DocumentNotFoundError, \
+     CommentNotAllowedError, UserNotAuthorizedError
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 try:
@@ -30,7 +31,7 @@ try:
 except ImportError:
     sqlalchemy_missing = True
 
-from util import *
+from util import test_root, raises, skip_if
 
 
 default_settings = {'builddir': os.path.join(test_root, 'websupport'),

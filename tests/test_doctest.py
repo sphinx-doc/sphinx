@@ -12,7 +12,8 @@
 import sys
 import StringIO
 
-from util import *
+from util import with_app
+
 
 status = StringIO.StringIO()
 cleanup_called = 0

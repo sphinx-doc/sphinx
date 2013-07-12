@@ -5,7 +5,7 @@
 
     Test the build process with gettext builder with the test root.
 
-    :copyright: Copyright 2010 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,8 +14,7 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-from util import *
-from util import SkipTest
+from util import test_root, test_roots, with_app, SkipTest
 
 
 def teardown_module():
@@ -137,3 +136,15 @@ def test_gettext_index_entries(app):
 
     # unexpected msgid existent
     assert msgids == []
+
+
+@with_app(buildername='gettext',
+          srcdir=(test_roots / 'test-intl'),
+          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'))
+def test_gettext_template(app):
+    app.builder.build_all()
+    assert (app.outdir / 'sphinx.pot').isfile()
+
+    result = (app.outdir / 'sphinx.pot').text(encoding='utf-8')
+    assert "Welcome" in result
+    assert "Sphinx %(version)s" in result

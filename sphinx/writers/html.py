@@ -17,7 +17,7 @@ from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 try:
@@ -28,6 +28,8 @@ except ImportError:
     except ImportError:
         Image = None
 
+# A good overview of the purpose behind these classes can be found here:
+# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 class HTMLWriter(Writer):
     def __init__(self, builder):
@@ -157,15 +159,9 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</em>')
 
     def visit_versionmodified(self, node):
-        self.body.append(self.starttag(node, 'p', CLASS=node['type']))
-        text = versionlabels[node['type']] % node['version']
-        if len(node):
-            text += ': '
-        else:
-            text += '.'
-        self.body.append('<span class="versionmodified">%s</span>' % text)
+        self.body.append(self.starttag(node, 'div', CLASS=node['type']))
     def depart_versionmodified(self, node):
-        self.body.append('</p>\n')
+        self.body.append('</div>\n')
 
     # overwritten
     def visit_reference(self, node):
@@ -309,6 +305,9 @@ class HTMLTranslator(BaseTranslator):
         """Determine if the <p> tags around paragraph can be omitted."""
         if isinstance(node.parent, addnodes.desc_content):
             # Never compact desc_content items.
+            return False
+        if isinstance(node.parent, addnodes.versionmodified):
+            # Never compact versionmodified nodes.
             return False
         return BaseTranslator.should_be_compact_paragraph(self, node)
 

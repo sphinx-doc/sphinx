@@ -9,12 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from textwrap import dedent
-
 from docutils.utils import column_width
 from sphinx.writers.text import MAXWIDTH
 
-from util import *
+from util import with_app
 
 
 def with_text_app(*args, **kw):
@@ -28,6 +26,63 @@ def with_text_app(*args, **kw):
     }
     default_kw.update(kw)
     return with_app(*args, **default_kw)
+
+
+@with_text_app()
+def test_maxwitdh_with_prefix(app):
+    long_string = u' '.join([u"ham"] * 30)
+    contents = (
+            u".. seealso:: %(long_string)s\n\n"
+            u"* %(long_string)s\n"
+            u"* %(long_string)s\n"
+            u"\nspam egg\n"
+            ) % locals()
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    lines = result.splitlines()
+    line_widths = [column_width(line) for line in lines]
+    assert max(line_widths) < MAXWIDTH
+    assert lines[0].startswith('See also: ham')
+    assert lines[1].startswith('  ham')
+    assert lines[2] == ''
+    assert lines[3].startswith('* ham')
+    assert lines[4].startswith('  ham')
+    assert lines[5] == ''
+    assert lines[6].startswith('* ham')
+    assert lines[7].startswith('  ham')
+    assert lines[8] == ''
+    assert lines[9].startswith('spam egg')
+
+
+@with_text_app()
+def test_lineblock(app):
+    # regression test for #1109: need empty line after line block
+    contents = (
+            u"* one\n"
+            u"\n"
+            u"  | line-block 1\n"
+            u"  | line-block 2\n"
+            u"\n"
+            u"followed paragraph.\n"
+            )
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    expect = (
+            u"* one\n"
+            u"\n"
+            u"     line-block 1\n"
+            u"     line-block 2\n"
+            u"\n"
+            u"followed paragraph.\n"
+            )
+
+    assert result == expect
 
 
 @with_text_app()

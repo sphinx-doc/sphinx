@@ -131,12 +131,16 @@ _toctree_template = u'toctree-l%d'
 
 _link_target_template = u' [%(uri)s]'
 
+_footnote_label_template = u'#%d'
+
+_footnotes_rubric_name = u'Footnotes'
+
 _css_link_target_class = u'link-target'
 
 # XXX These strings should be localized according to epub_language
 _guide_titles = {
     'toc': u'Table of Contents',
-    'cover': u'Cover Page'
+    'cover': u'Cover'
 }
 
 _media_types = {
@@ -184,14 +188,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # the output files for epub must be .html only
         self.out_suffix = '.html'
         self.playorder = 0
+        self.tocid = 0
 
     def get_theme_config(self):
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
-    def make_id(self, name):
-        """Replace all characters not allowed for (X)HTML ids."""
-        return name.replace('/', '_').replace(' ', '')
+    def make_id(self, name, id_cache={}):
+        # id_cache is intentionally mutable
+        """Return a unique id for name."""
+        id = id_cache.get(name)
+        if not id:
+            id = 'epub-%d' % self.env.new_serialno('epub')
+            id_cache[name] = id
+        return id
 
     def esc(self, name):
         """Replace all characters not allowed in text an attribute values."""
@@ -238,20 +248,25 @@ class EpubBuilder(StandaloneHTMLBuilder):
             master_dir += '/' # XXX or os.sep?
             for item in self.refnodes:
                 item['refuri'] = master_dir + item['refuri']
-        self.refnodes.insert(0, {
+        self.toc_add_files(self.refnodes)
+
+    def toc_add_files(self, refnodes):
+        """Add the master_doc, pre and post files to a list of refnodes.
+        """
+        refnodes.insert(0, {
             'level': 1,
             'refuri': self.esc(self.config.master_doc + '.html'),
             'text': ssp(self.esc(
                     self.env.titles[self.config.master_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
-            self.refnodes.insert(0, {
+            refnodes.insert(0, {
                 'level': 1,
                 'refuri': self.esc(file),
                 'text': ssp(self.esc(text))
             })
         for file, text in self.config.epub_post_files:
-            self.refnodes.append({
+            refnodes.append({
                 'level': 1,
                 'refuri': self.esc(file),
                 'text': ssp(self.esc(text))
@@ -282,21 +297,73 @@ class EpubBuilder(StandaloneHTMLBuilder):
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree, show_urls='inline'):
-        """Append visible link targets after external links"""
+        """Add visible link targets for external links"""
+
+        def make_footnote_ref(doc, label):
+            """Create a footnote_reference node with children"""
+            footnote_ref = nodes.footnote_reference('[#]_')
+            footnote_ref.append(nodes.Text(label))
+            doc.note_autofootnote_ref(footnote_ref)
+            return footnote_ref
+
+        def make_footnote(doc, label, uri):
+            """Create a footnote node with children"""
+            footnote = nodes.footnote(uri)
+            para = nodes.paragraph()
+            para.append(nodes.Text(uri))
+            footnote.append(para)
+            footnote.insert(0, nodes.label('', label))
+            doc.note_autofootnote(footnote)
+            return footnote
+
+        def footnote_spot(tree):
+            """Find or create a spot to place footnotes.
+
+            The function returns the tuple (parent, index)."""
+            # The code uses the following heuristic:
+            # a) place them after the last existing footnote
+            # b) place them after an (empty) Footnotes rubric
+            # c) create an empty Footnotes rubric at the end of the document
+            fns = tree.traverse(nodes.footnote)
+            if fns:
+                fn = fns[-1]
+                return fn.parent, fn.parent.index(fn) + 1
+            for node in tree.traverse(nodes.rubric):
+                if len(node.children) == 1 and \
+                        node.children[0].astext() == _footnotes_rubric_name:
+                    return node.parent, node.parent.index(node) + 1
+            doc = tree.traverse(nodes.document)[0]
+            rub = nodes.rubric()
+            rub.append(nodes.Text(_footnotes_rubric_name))
+            doc.append(rub)
+            return doc, doc.index(rub) + 1
+
         if show_urls == 'no':
             return
-
+        if show_urls == 'footnote':
+            doc = tree.traverse(nodes.document)[0]
+            fn_spot, fn_idx = footnote_spot(tree)
+            nr = 1
         for node in tree.traverse(nodes.reference):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
                     uri.startswith('ftp:')) and uri not in node.astext():
-                uri = _link_target_template % {'uri': uri}
-                if uri:
-                    idx = node.parent.index(node) + 1
-                    if show_urls == 'inline':
-                        link = nodes.inline(uri, uri)
-                        link['classes'].append(_css_link_target_class)
-                        node.parent.insert(idx, link)
+                idx = node.parent.index(node) + 1
+                if show_urls == 'inline':
+                    uri = _link_target_template % {'uri': uri}
+                    link = nodes.inline(uri, uri)
+                    link['classes'].append(_css_link_target_class)
+                    node.parent.insert(idx, link)
+                elif show_urls == 'footnote':
+                    label = _footnote_label_template % nr
+                    nr += 1
+                    footnote_ref = make_footnote_ref(doc, label)
+                    node.parent.insert(idx, footnote_ref)
+                    footnote = make_footnote(doc, label, uri)
+                    fn_spot.insert(fn_idx, footnote)
+                    footnote_ref['refid'] = footnote['ids'][0]
+                    footnote.add_backref(footnote_ref['ids'][0])
+                    fn_idx += 1
 
     def write_doc(self, docname, doctree):
         """Write one document file.
@@ -466,7 +533,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     continue
                 ext = path.splitext(filename)[-1]
                 if ext not in _media_types:
-                    self.warn('unknown mimetype for %s, ignoring' % filename)
+                    # we always have JS and potentially OpenSearch files, don't
+                    # always warn about them
+                    if ext not in ('.js', '.xml'):
+                        self.warn('unknown mimetype for %s, ignoring' % filename)
                     continue
                 projectfiles.append(_file_template % {
                     'href': self.esc(filename),
@@ -489,7 +559,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id(info[0] + self.out_suffix))
             })
-        if self.config.html_use_index:
+        if self.get_builder_config('use_index', 'epub'):
             spine.append(_spine_template % {
                 'idref': self.esc(self.make_id('genindex' + self.out_suffix))
             })
@@ -565,8 +635,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # XXX Modifies the node
         if incr:
             self.playorder += 1
+        self.tocid += 1
         node['indent'] = _navpoint_indent * level
-        node['navpoint'] = self.esc(_navPoint_template % self.playorder)
+        node['navpoint'] = self.esc(_navPoint_template % self.tocid)
         node['playorder'] = self.playorder
         return _navpoint_template % node
 
@@ -637,10 +708,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Write the metainfo file toc.ncx."""
         self.info('writing %s file...' % outname)
 
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
-            self, prune_toctrees=False, includehidden=False)
-        refnodes = self.get_refnodes(doctree, [])
-        if not refnodes:
+        if self.config.epub_tocscope == 'default':
+            doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+                self, prune_toctrees=False, includehidden=False)
+            refnodes = self.get_refnodes(doctree, [])
+            self.toc_add_files(refnodes)
+        else:
+            # 'includehidden'
             refnodes = self.refnodes
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)

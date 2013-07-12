@@ -14,7 +14,9 @@ import re
 import sys
 import time
 import errno
+import locale
 import shutil
+import gettext
 from os import path
 
 # Errnos that we need.
@@ -132,13 +134,15 @@ def copyfile(source, dest):
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 def make_filename(string):
-    return no_fn_re.sub('', string)
+    return no_fn_re.sub('', string) or 'sphinx'
 
 if sys.version_info < (3, 0):
+    # strftime for unicode strings
     def ustrftime(format, *args):
-        # strftime for unicode strings
-        return time.strftime(unicode(format).encode('utf-8'), *args) \
-                .decode('utf-8')
+        # if a locale is set, the time strings are encoded in the encoding
+        # given by LC_TIME; if that is available, use it
+        enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
+        return time.strftime(unicode(format).encode(enc), *args).decode(enc)
 else:
     ustrftime = time.strftime
 
@@ -158,5 +162,17 @@ def find_catalog(docname, compaction):
 
     return ret
 
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
+def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
+    from sphinx.util.pycompat import relpath
+    if not(lang and locale_dirs):
+        return []
+
+    domain = find_catalog(docname, compaction)
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
+             for dir_ in locale_dirs]
+    files = [relpath(f, srcdir) for f in files if f]
+    return files
+
+
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()

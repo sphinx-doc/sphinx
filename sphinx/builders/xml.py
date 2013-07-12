@@ -26,6 +26,7 @@ class XMLBuilder(Builder):
     name = 'xml'
     format = 'xml'
     out_suffix = '.xml'
+    allow_parallel = True
 
     _writer_class = XMLWriter
 
@@ -52,7 +53,7 @@ class XMLBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname, typ=None):
-        return ''
+        return docname
 
     def prepare_writing(self, docnames):
         self.writer = self._writer_class(self)

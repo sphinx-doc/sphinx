@@ -37,7 +37,7 @@ from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
-from sphinx.util.osutil import SEP, fs_encoding
+from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import class_types
 from sphinx.util.websupport import is_commentable
@@ -309,8 +309,9 @@ class BuildEnvironment:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
-        Absolute filenames are relative to the source dir, while relative
-        filenames are relative to the dir of the containing document.
+        In the input "filename", absolute filenames are taken as relative to the
+        source dir, while relative filenames are relative to the dir of the
+        containing document.
         """
         if filename.startswith('/') or filename.startswith(os.sep):
             rel_fn = filename[1:]
@@ -319,12 +320,14 @@ class BuildEnvironment:
                                                 base=None))
             rel_fn = path.join(docdir, filename)
         try:
-            return rel_fn, path.join(self.srcdir, rel_fn)
+            # the path.abspath() might seem redundant, but otherwise artifacts
+            # such as ".." will remain in the path
+            return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
         except UnicodeDecodeError:
             # the source directory is a bytestring with non-ASCII characters;
             # let's try to encode the rel_fn in the file system encoding
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.join(self.srcdir, enc_rel_fn)
+            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
     def find_files(self, config):
         """Find all source files in the source dir and put them in
@@ -339,6 +342,17 @@ class BuildEnvironment:
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
+
+        # add catalog mo file dependency
+        for docname in self.found_docs:
+            catalog_files = find_catalog_files(
+                docname,
+                self.srcdir,
+                self.config.locale_dirs,
+                self.config.language,
+                self.config.gettext_compact)
+            for filename in catalog_files:
+                self.dependencies.setdefault(docname, set()).add(filename)
 
     def get_outdated_files(self, config_changed):
         """Return (added, changed, removed) sets."""
@@ -1035,7 +1049,8 @@ class BuildEnvironment:
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve_toctree(docname, builder, toctreenode,
                                            prune=True, **kwds)
-            toctrees.append(toctree)
+            if toctree:
+                toctrees.append(toctree)
         if not toctrees:
             return None
         result = toctrees[0]
@@ -1339,6 +1354,10 @@ class BuildEnvironment:
                             if not isinstance(contnode, nodes.Element):
                                 del node['ids'][:]
                             raise
+                    elif 'ids' in node:
+                        # remove ids attribute that annotated at
+                        # transforms.CitationReference.apply.
+                        del node['ids'][:]
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
@@ -1564,7 +1583,7 @@ class BuildEnvironment:
                 return letter
             else:
                 # get all other symbols under one heading
-                return 'Symbols'
+                return _('Symbols')
         return [(key, list(group))
                 for (key, group) in groupby(newlist, keyfunc2)]
 

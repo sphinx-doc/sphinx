@@ -1,32 +1,32 @@
 <p class="logo">A <a href="http://pocoo.org/">
-  <img src="{{ pathto("_static/pocoo.png", 1) }}" /></a> project</a></p>
+  <img src="{{ pathto("_static/pocoo.png", 1) }}" /></a> {%trans%}project{%endtrans%}</a></p>
 
 <h3>Download</h3>
 {% if version.endswith('(hg)') %}
-<p>This documentation is for version <b>{{ version }}</b>, which is
-  not released yet.</p>
-<p>You can use it from the
+<p>{%trans%}This documentation is for version <b>{{ version }}</b>, which is
+  not released yet.{%endtrans%}</p>
+<p>{%trans%}You can use it from the
   <a href="http://bitbucket.org/birkenfeld/sphinx/">Mercurial repo</a> or look for
   released versions in the <a href="http://pypi.python.org/pypi/Sphinx">Python
-    Package Index</a>.</p>
+    Package Index</a>.{%endtrans%}</p>
 {% else %}
-<p>Current version: <b>{{ version }}</b></p>
-<p>Get Sphinx from the <a href="http://pypi.python.org/pypi/Sphinx">Python Package
-Index</a>, or install it with:</p>
+<p>{%trans%}Current version: <b>{{ version }}</b>{%endtrans%}</p>
+<p>{%trans%}Get Sphinx from the <a href="http://pypi.python.org/pypi/Sphinx">Python Package
+Index</a>, or install it with:{%endtrans%}</p>
 <pre>easy_install -U Sphinx</pre>
-<p>Latest <a href="http://sphinx-doc.org/latest/">development version docs</a>
-are also available.</p>
+<p>{%trans%}Latest <a href="http://sphinx-doc.org/latest/">development version docs</a>
+are also available.{%endtrans%}</p>
 {% endif %}
 
-<h3>Questions? Suggestions?</h3>
+<h3>{%trans%}Questions? Suggestions?{%endtrans%}</h3>
 
-<p>Join the <a href="http://groups.google.com/group/sphinx-users">Google group</a>:</p>
+<p>{%trans%}Join the <a href="http://groups.google.com/group/sphinx-users">Google group</a>:{%endtrans%}</p>
 <form action="http://groups.google.com/group/sphinx-users/boxsubscribe"
       style="padding-left: 0.5em">
   <input type="text" name="email" value="your@email" style="font-size: 90%; width: 120px"
          onfocus="$(this).val('');"/>
   <input type="submit" name="sub" value="Subscribe" style="font-size: 90%; width: 70px"/>
 </form>
-<p>or come to the <tt>#pocoo</tt> channel on FreeNode.</p>
-<p>You can also open an issue at the
-  <a href="http://www.bitbucket.org/birkenfeld/sphinx/issues/">tracker</a>.</p>
+<p>{%trans%}or come to the <tt>#pocoo</tt> channel on FreeNode.{%endtrans%}</p>
+<p>{%trans%}You can also open an issue at the
+  <a href="http://www.bitbucket.org/birkenfeld/sphinx/issues/">tracker</a>.{%endtrans%}</p>

@@ -11,12 +11,19 @@
 
 import sys
 import time
+from StringIO import StringIO
+import tempfile
 
-from util import *
+from util import raises, with_tempdir, with_app
 
+from sphinx import application
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron
 from sphinx.util.pycompat import execfile_
+
+
+warnfile = StringIO()
+
 
 def setup_module():
     nocolor()
@@ -28,6 +35,12 @@ def mock_raw_input(answers, needanswer=False):
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
+        if sys.version_info < (3, 0):
+            prompt = str(prompt)  # Python2.x raw_input emulation
+            # `raw_input` encode `prompt` by default encoding to print.
+        else:
+            prompt = unicode(prompt)  # Python3.x input emulation
+            # `input` decode prompt by default encoding before print.
         for question in answers:
             if prompt.startswith(qs.PROMPT_PREFIX + question):
                 return answers[question]
@@ -93,6 +106,16 @@ def test_do_prompt():
     qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
     assert d['k5'] is False
     raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
+
+
+def test_do_prompt_with_multibyte():
+    d = {}
+    answers = {
+        'Q1': u'\u30c9\u30a4\u30c4',
+    }
+    qs.term_input = mock_raw_input(answers)
+    qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
+    assert d['k1'] == u'\u30c9\u30a4\u30c4'
 
 
 @with_tempdir
@@ -214,3 +237,51 @@ def test_generated_files_eol(tempdir):
 
     assert_eol(tempdir / 'make.bat', '\r\n')
     assert_eol(tempdir / 'Makefile', '\n')
+
+
+@with_tempdir
+def test_quickstart_and_build(tempdir):
+    answers = {
+        'Root path': tempdir,
+        'Project name': u'Fullwidth characters: \u30c9\u30a4\u30c4',
+        'Author name': 'Georg Brandl',
+        'Project version': '0.1',
+    }
+    qs.term_input = mock_raw_input(answers)
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
+
+    app = application.Sphinx(
+            tempdir,  #srcdir
+            tempdir,  #confdir
+            (tempdir / '_build' / 'html'),  #outdir
+            (tempdir / '_build' / '.doctree'),  #doctreedir
+            'html',  #buildername
+            status=StringIO(),
+            warning=warnfile)
+    app.builder.build_all()
+    warnings = warnfile.getvalue()
+    assert not warnings
+
+
+@with_tempdir
+def test_default_filename(tempdir):
+    answers = {
+        'Root path': tempdir,
+        'Project name': u'\u30c9\u30a4\u30c4', #Fullwidth characters only
+        'Author name': 'Georg Brandl',
+        'Project version': '0.1',
+    }
+    qs.term_input = mock_raw_input(answers)
+    d = {}
+    qs.ask_user(d)
+    qs.generate(d)
+
+    conffile = tempdir / 'conf.py'
+    assert conffile.isfile()
+    ns = {}
+    execfile_(conffile, ns)
+    assert ns['latex_documents'][0][1] == 'sphinx.tex'
+    assert ns['man_pages'][0][1] == 'sphinx'
+    assert ns['texinfo_documents'][0][1] == 'sphinx'

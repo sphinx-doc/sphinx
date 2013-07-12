@@ -43,6 +43,8 @@ epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
 epub_fix_images = False
 epub_max_image_width = 0
 epub_show_urls = 'inline'
+epub_use_index = False
+epub_guide = (('toc', 'contents.html', u'Table of Contents'),)
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
@@ -81,6 +83,10 @@ texinfo_documents = [
 # We're not using intersphinx right now, but if we did, this would be part of
 # the mapping:
 intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
+
+# Sphinx document translation with sphinx gettext feature uses these settings:
+locale_dirs = ['locale/']
+gettext_compact = False
 
 
 # -- Extension interface -------------------------------------------------------
