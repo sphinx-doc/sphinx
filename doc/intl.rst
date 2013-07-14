@@ -109,7 +109,7 @@ This section describe a easy way to translate with sphinx-intl.
 #. Build mo files and make translated document.
 
    You need :confval:`language` parameter in ``conf.py`` or you may also
-   specify the parameter on the command line.
+   specify the parameter on the command line::
 
       $ sphinx-intl build
       $ make -e SPHINXOPTS="-D language='de'" html
