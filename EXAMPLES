@@ -158,6 +158,7 @@ Documentation using a custom theme/integrated in a site
 * MathJax: http://docs.mathjax.org/en/latest/
 * MirrorBrain: http://mirrorbrain.org/docs/
 * nose: http://somethingaboutorange.com/mrl/projects/nose/
+* NoTex: https://notex.ch/overview/
 * ObjectListView: http://objectlistview.sourceforge.net/python
 * Open ERP: http://doc.openerp.com/
 * OpenCV: http://docs.opencv.org/
@@ -201,8 +202,20 @@ Books produced using Sphinx
 * A Theoretical Physics Reference book: http://theoretical-physics.net/
 * "Simple and Steady Way of Learning for Software Engineering" (in Japanese):
   http://www.amazon.co.jp/dp/477414259X/
+* "Expert Python Programming":
+  http://www.packtpub.com/expert-python-programming/book
 * "Expert Python Programming" (Japanese translation):
   http://www.amazon.co.jp/dp/4048686291/
 * "Pomodoro Technique Illustrated" (Japanese translation):
   http://www.amazon.co.jp/dp/4048689525/
+* "Python Professional Programming" (in Japanese):
+  http://www.amazon.co.jp/dp/4798032948/
+
+
+Thesis using Sphinx
+-------------------
+
+* "A Web-Based System for Comparative Analysis of OpenStreetMap Data
+  by the Use of CouchDB":
+  http://gisforge.no-ip.org/files/MasterThesis_MarkusMayr_0542042.pdf
 
