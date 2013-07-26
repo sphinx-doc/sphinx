@@ -147,7 +147,8 @@ class TexinfoBuilder(Builder):
             docwriter = TexinfoWriter(self)
             settings = OptionParser(
                 defaults=self.env.settings,
-                components=(docwriter,)).get_default_values()
+                components=(docwriter,),
+                read_config_files=True).get_default_values()
             settings.author = author
             settings.title = title
             settings.texinfo_filename = targetname[:-5] + '.info'

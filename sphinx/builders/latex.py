@@ -78,7 +78,8 @@ class LaTeXBuilder(Builder):
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
-            components=(docwriter,)).get_default_values()
+            components=(docwriter,),
+            read_config_files=True).get_default_values()
 
         self.init_document_data()
 

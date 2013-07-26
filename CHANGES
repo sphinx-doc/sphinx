@@ -5,6 +5,8 @@ Features added
 --------------
 
 * Builders: rebuild i18n target document when catalog updated.
+* Support docutils.conf 'writers' and 'html4css1 writer' section by html writer.
+  latex, manpage and texinfo writers also support 'writers' section.
 
 Incompatible changes
 --------------------
