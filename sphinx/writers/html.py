@@ -12,6 +12,7 @@
 import sys
 import posixpath
 import os
+import copy
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
@@ -32,6 +33,13 @@ except ImportError:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 class HTMLWriter(Writer):
+
+    # override embed-stylesheet default value to 0.
+    settings_spec = copy.deepcopy(Writer.settings_spec)
+    for _setting in settings_spec[2]:
+        if '--embed-stylesheet' in _setting[1]:
+            _setting[2]['default'] = 0
+
     def __init__(self, builder):
         Writer.__init__(self)
         self.builder = builder
