@@ -179,7 +179,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         self.elements = self.default_elements.copy()
         self.elements.update({
-            'wrapperclass': 'sphinx' + document.settings.docclass,
+            'wrapperclass': document.settings.docclass,
             'papersize':    papersize,
             'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
