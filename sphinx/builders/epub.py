@@ -155,6 +155,8 @@ _media_types = {
     '.ttf': 'application/x-font-ttf',
 }
 
+_vector_graphics_extensions = ('.svg',)
+
 # Regular expression to match colons only in local fragment identifiers.
 # If the URI contains a colon before the #,
 # it is an external link that should not change.
@@ -393,6 +395,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                             subentrylinks[i] = (ismain,
                                 self.fix_fragment(m.group(1), m.group(2)))
 
+    def is_vector_graphics(self, filename):
+        """Does the filename extension indicate a vector graphic format?"""
+        ext = path.splitext(filename)[-1]
+        return ext in _vector_graphics_extensions
+
     def copy_image_files_pil(self):
         """Copy images using the PIL.
         The method tries to read and write the files with the PIL,
@@ -405,8 +412,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
             try:
                 img = Image.open(path.join(self.srcdir, src))
             except IOError:
-                self.warn('cannot read image file %r: copying it instead' %
-                          (path.join(self.srcdir, src), ))
+                if not self.is_vector_graphics(src):
+                    self.warn('cannot read image file %r: copying it instead' %
+                              (path.join(self.srcdir, src), ))
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
