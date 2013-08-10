@@ -410,7 +410,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
-                except Exception, err:
+                except (IOError, OSError), err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
                 continue
@@ -426,7 +426,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
                 img.save(path.join(self.outdir, '_images', dest))
-            except IOError, err:
+            except (IOError, OSError), err:
                 self.warn('cannot write image file %r: %s' %
                           (path.join(self.srcdir, src), err))
 
