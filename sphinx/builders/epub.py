@@ -245,7 +245,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
             self, prune_toctrees=False, includehidden=True)
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = os.path.dirname(self.config.master_doc)
+        master_dir = path.dirname(self.config.master_doc)
         if master_dir:
             master_dir += '/' # XXX or os.sep?
             for item in self.refnodes:
@@ -597,7 +597,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     })
                 ctx = {'image': self.esc(image), 'title': self.config.project}
                 self.handle_page(
-                        os.path.splitext(_coverpage_name)[0], ctx, html_tmpl)
+                        path.splitext(_coverpage_name)[0], ctx, html_tmpl)
 
         guide = []
         auto_add_cover = True
