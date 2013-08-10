@@ -42,6 +42,7 @@ Bugs fixed
   footnote and auto symbol footnote.
 * PR#146,#1172: Fix ZeroDivisionError in Parallel Builds. Thanks to tychoish.
 * #1206: Fix i18n: gettext did not translate admonition directive's title.
+* #1232: Sphinx generates broken ePub on Windows.
 
 
 Release 1.2 (beta1 released Mar 31, 2013)

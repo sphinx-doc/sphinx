@@ -538,6 +538,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     if ext not in ('.js', '.xml'):
                         self.warn('unknown mimetype for %s, ignoring' % filename)
                     continue
+                filename = filename.replace(os.sep, '/')
                 projectfiles.append(_file_template % {
                     'href': self.esc(filename),
                     'id': self.esc(self.make_id(filename)),
@@ -569,6 +570,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         html_tmpl = None
         if self.config.epub_cover:
             image, html_tmpl = self.config.epub_cover
+            image = image.replace(os.sep, '/')
             mpos = content_tmpl.rfind('</metadata>')
             cpos = content_tmpl.rfind('\n', 0 , mpos) + 1
             content_tmpl = content_tmpl[:cpos] + \
