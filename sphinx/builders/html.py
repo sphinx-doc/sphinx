@@ -480,6 +480,7 @@ class StandaloneHTMLBuilder(Builder):
         self.copy_image_files()
         self.copy_download_files()
         self.copy_static_files()
+        self.copy_extra_files()
         self.write_buildinfo()
 
         # dump the search index
@@ -606,6 +607,17 @@ class StandaloneHTMLBuilder(Builder):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
         self.info('done')
+
+    def copy_extra_files(self):
+        # copy html_extra_path files
+        self.info(bold('copying extra files... '), nonl=True)
+        extraentries = [path.join(self.confdir, epath)
+                        for epath in self.config.html_extra_path]
+        for entry in extraentries:
+            if not path.exists(entry):
+                self.warn('html_extra_path entry %r does not exist' % entry)
+                continue
+            copy_static_entry(entry, self.outdir, self)
 
     def write_buildinfo(self):
         # write build info file
