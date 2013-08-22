@@ -86,6 +86,7 @@ class Config(object):
         html_logo = (None, 'html'),
         html_favicon = (None, 'html'),
         html_static_path = ([], 'html'),
+        html_extra_path = ([], 'html'),
         # the real default is locale-dependent
         html_last_updated_fmt = (None, 'html'),
         html_use_smartypants = (True, 'html'),
