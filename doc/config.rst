@@ -524,10 +524,14 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_extra_path
 
-   A list of paths that contain extra files (such as
-   :file:`robots.txt` or :file:`.htaccess`).  Relative paths are taken
-   as relative to the configuration directory.  They are copied to the
-   output directory, and will overwrite any existing generated file.
+   A list of paths that contain extra files not directly related to
+   the documentation, such as :file:`robots.txt` or :file:`.htaccess`.
+   Relative paths are taken as relative to the configuration
+   directory.  They are copied to the output directory.  They will
+   overwrite any existing file of the same name.
+
+   As these files are not meant to be built, they are automatically added to
+   :confval:`exclude_patterns`.
 
    .. versionadded:: 1.2
 
