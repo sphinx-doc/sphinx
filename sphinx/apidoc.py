@@ -100,9 +100,42 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
             heading = ':mod:`%s` Package' % package
         else:
             heading = ':mod:`%s` Module' % py_file
-        text += format_heading(2, heading)
-        text += format_directive(is_package and subroot or py_path,
-                                 master_package)
+
+
+
+        # ATTN: mouser@donationcoder.com - 9/3/13
+        # new option to have each module go on its own page
+        if (opts.separatepages):
+            if (is_package):
+                # we handle packages SLIGHTLY differently in this case; no need
+                # for double nested heading for package that apidoc usually does
+                # since all other modules are going to be on separate pages
+                text += format_directive(is_package and subroot or py_path,
+                                         master_package)
+            else:
+                # with separatepages option, instead of embedding all module
+                # file contents on the one package page, each module will have
+                # its own page.
+                outfilepath = py_path + '.singlepage'
+                # text for this page just links to standalone page
+                text += '.. toctree::\n\n'
+                text += '    %s\n\n' % outfilepath
+                # and now the contents of the standalone page file is just what
+                # apidoc used to write inside this page, but with top level
+                # heading.
+                filetext = format_heading(1, heading)
+                filetext += format_directive(is_package and subroot or py_path,
+                                         master_package)
+                # write out standalone page file
+                write_file(outfilepath, filetext, opts)
+        else:
+            # standard apidoc behavior
+            text += format_heading(2, heading)
+            text += format_directive(is_package and subroot or py_path,
+                                     master_package)
+
+
+
         text += '\n'
 
     # build a list of directories that are packages (contain an INITPY file)
@@ -271,6 +304,16 @@ Note: By default this script will not overwrite already created files.""")
     parser.add_option('-R', '--doc-release', action='store', dest='release',
                       help='Project release, used when --full is given, '
                       'defaults to --doc-version')
+
+
+
+    # ATTN: mouser@donationcoder.com - 9/3/13
+    # Adding option to output each module on its own page rather than combine
+    # all modules in a package on one page.
+    parser.add_option('-E', '--separate-pages', action='store_true', dest='separatepages',
+                      help='Put each module file in its own page, ')
+
+
 
     (opts, args) = parser.parse_args(argv[1:])
 
