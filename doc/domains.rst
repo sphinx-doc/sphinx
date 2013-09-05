@@ -316,35 +316,42 @@ The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best
 explained by an example::
 
-   .. py:function:: format_exception(etype, value, tb[, limit=None])
+   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
 
-      Format the exception with a traceback.
+      Send a message to a recipient
 
-      :param etype: exception type
-      :param value: exception value
-      :param tb: traceback object
-      :param limit: maximum number of stack frames to show
-      :type limit: integer or None
-      :rtype: list of strings
+      :param string sender: The person sending the message
+      :param string recipient: The recipient of the message
+      :param string message_body: The body of the message
+      :param priority: The priority of the message, can be a number 1-5
+      :type priority: integer or None
+      :return: the message id
+      :rtype: int
+      :raises ValueError: if the message_body exceeds 160 characters
+      :raises TypeError: if the message_body is not a basestring
 
 This will render like this:
 
-   .. py:function:: format_exception(etype, value, tb[, limit=None])
+   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
       :noindex:
 
-      Format the exception with a traceback.
+      Send a message to a recipient
 
-      :param etype: exception type
-      :param value: exception value
-      :param tb: traceback object
-      :param limit: maximum number of stack frames to show
-      :type limit: integer or None
-      :rtype: list of strings
+      :param sender: The person sending the message
+      :type sender: string
+      :param recipient: The recipient of the message
+      :param message_body: The body of the message
+      :param priority: The priority of the message (defaults to highest)
+      :type priority: integer or None
+      :return: the message id
+      :rtype: int
+      :raises ValueError: if the message_body exceeds 160 characters
+      :raises TypeError: if the message_body is not a basestring
 
 It is also possible to combine parameter type and description, if the type is a
 single word, like this::
 
-   :param integer limit: maximum number of stack frames to show
+   :param integer priority: The priority of the message, can be a number 1-5
 
 
 .. _python-roles:
