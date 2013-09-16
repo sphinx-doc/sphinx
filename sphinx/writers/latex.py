@@ -700,16 +700,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.extend(self.tableheaders)
             self.body.append('\\endfirsthead\n\n')
             self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append(r'{{\bfseries \tablename\ \thetable{} -- %s}} \\'
+            self.body.append(r'{{\textsf{\tablename\ \thetable{} -- %s}}} \\'
                              % _('continued from previous page'))
             self.body.append('\n\\hline\n')
             self.body.extend(self.tableheaders)
             self.body.append('\\endhead\n\n')
-            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
+            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{\textsf{%s}}} \\ \hline'
                              % (self.table.colcount,
                                 _('Continued on next page')))
             self.body.append('\n\\endfoot\n\n')
-            self.body.append('\\hline\n')
             self.body.append('\\endlastfoot\n\n')
         else:
             self.body.append('\\hline\n')
@@ -739,23 +738,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # Redirect head output until header is finished. see visit_tbody.
         self.body = self.tableheaders
     def depart_thead(self, node):
-        pass
+        self.body.append('\\hline')
 
     def visit_tbody(self, node):
         if not self.table.had_head:
             self.visit_thead(node)
         self.body = self.tablebody
     def depart_tbody(self, node):
-        pass
+        self.body.append('\\hline')
 
     def visit_row(self, node):
         self.table.col = 0
     def depart_row(self, node):
         if self.previous_spanning_row == 1:
             self.previous_spanning_row = 0
-            self.body.append('\\\\\n')
-        else:
-            self.body.append('\\\\\\hline\n')
+        self.body.append('\\\\\n')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
@@ -782,8 +779,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('}{l|}{')
             context += '}'
         if isinstance(node.parent.parent, nodes.thead):
-            self.body.append('\\textbf{\\relax ')
-            context += '}'
+            self.body.append('\\textsf{\\relax ')
+        else:
+            self.body.append('\\footnotesize{')
+        context += '}'
         if self.remember_multirow.get(self.table.col + 1, 0) > 1:
             self.remember_multirow[self.table.col + 1] -= 1
             context += ' & '
