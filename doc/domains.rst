@@ -320,9 +320,9 @@ explained by an example::
 
       Send a message to a recipient
 
-      :param string sender: The person sending the message
-      :param string recipient: The recipient of the message
-      :param string message_body: The body of the message
+      :param str sender: The person sending the message
+      :param str recipient: The recipient of the message
+      :param str message_body: The body of the message
       :param priority: The priority of the message, can be a number 1-5
       :type priority: integer or None
       :return: the message id
@@ -337,11 +337,10 @@ This will render like this:
 
       Send a message to a recipient
 
-      :param sender: The person sending the message
-      :type sender: string
-      :param recipient: The recipient of the message
-      :param message_body: The body of the message
-      :param priority: The priority of the message (defaults to highest)
+      :param str sender: The person sending the message
+      :param str recipient: The recipient of the message
+      :param str message_body: The body of the message
+      :param priority: The priority of the message, can be a number 1-5
       :type priority: integer or None
       :return: the message id
       :rtype: int
@@ -351,7 +350,7 @@ This will render like this:
 It is also possible to combine parameter type and description, if the type is a
 single word, like this::
 
-   :param integer priority: The priority of the message, can be a number 1-5
+   :param int priority: The priority of the message, can be a number 1-5
 
 
 .. _python-roles:
