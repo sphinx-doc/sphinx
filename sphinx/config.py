@@ -214,6 +214,8 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
+        if "extensions" in overrides:
+            config["extensions"] = overrides["extensions"]
         if dirname is not None:
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
