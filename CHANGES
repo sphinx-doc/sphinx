@@ -7,6 +7,11 @@ Features added
 * Builders: rebuild i18n target document when catalog updated.
 * Support docutils.conf 'writers' and 'html4css1 writer' section by html writer.
   latex, manpage and texinfo writers also support 'writers' section.
+* The :confval:`html_extra_path` allows to specify directories with files that
+  should be copied directly to the HTML output directory.
+* Autodoc directives for module data and attributes now support an
+  ``annotation`` option, so that the default display of the data/attribute
+  value can be overridden.
 
 Incompatible changes
 --------------------
@@ -24,10 +29,16 @@ Bugs fixed
 * Fix: 'make gettext' cause UnicodeDecodeError when templates contain utf-8
   encoded string.
 * #1162, PR#139: singlehtml builder doesn't copy images to _images/.
+* PR#132: Updated jQuery version to 1.8.3.
 * PR#141, #982: Avoid crash when writing PNG file using Python 3. Thanks to
   Marcin Wojdyr.
 * PR#145: In parallel builds, sphinx drops second document file to write.
   Thanks to tychoish.
+* PR#151: Some styling updates to tables in LaTeX.
+* PR#153: The "extensions" config value can now be overridden.
+* PR#155: Added support for some C++11 function qualifiers.
+* #1159: fix wrong generation of objects inventory for Python modules, and
+  add a workaround in intersphinx to fix handling of affected inventories.
 * #1188: sphinx-quickstart raises UnicodeEncodeError if "Project version"
   includes non-ASCII characters.
 * #1189: "Title underline is short" WARNING is given when using fullwidth
