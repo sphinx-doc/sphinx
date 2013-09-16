@@ -13,6 +13,7 @@ Features added
 * Autodoc directives for module data and attributes now support an
   ``annotation`` option, so that the default display of the data/attribute
   value can be overridden.
+* New locales: Macedonian, Sinhala, Indonesian.
 
 Incompatible changes
 --------------------

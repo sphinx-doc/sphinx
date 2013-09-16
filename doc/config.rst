@@ -379,17 +379,20 @@ documentation on :ref:`intl` for details.
    * ``fr`` -- French
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
+   * ``id`` -- Indonesian
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``mk`` -- Macedonian
    * ``nb_NO`` -- Norwegian Bokmal
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
+   * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
    * ``sv`` -- Swedish

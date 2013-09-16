@@ -1,20 +1,23 @@
-# Copyright (C) 2008 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.5\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
-"Last-Translator: Marijn van der Zee <marijn.vanderzee@gmail.com>\n"
-"Language-Team: nl <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"PO-Revision-Date: 2013-04-02 15:33+0000\n"
+"Last-Translator: birkenfeld <g.brandl@gmx.net>\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/sphinx-1/language/nl/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:81
 #, python-format
@@ -88,9 +91,8 @@ msgid "Module author: "
 msgstr "Auteur van deze module: "
 
 #: sphinx/directives/other.py:142
-#, fuzzy
 msgid "Code author: "
-msgstr "Auteur van deze module: "
+msgstr ""
 
 #: sphinx/directives/other.py:144
 msgid "Author: "
@@ -101,7 +103,8 @@ msgstr "Auteur: "
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr "Parameters"
 
@@ -216,9 +219,8 @@ msgid "%s (%s attribute)"
 msgstr "%s (%s attribuut)"
 
 #: sphinx/domains/javascript.py:122
-#, fuzzy
 msgid "Arguments"
-msgstr "Parameters"
+msgstr ""
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
 msgid "data"
@@ -229,9 +231,8 @@ msgid "attribute"
 msgstr "attribuut"
 
 #: sphinx/domains/python.py:100
-#, fuzzy
 msgid "Variables"
-msgstr "Variabele"
+msgstr ""
 
 #: sphinx/domains/python.py:104
 msgid "Raises"
@@ -279,14 +280,14 @@ msgid "%s() (%s static method)"
 msgstr "%s() (%s statische methode)"
 
 #: sphinx/domains/python.py:340
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s methode)"
+msgstr ""
 
 #: sphinx/domains/python.py:343
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s methode)"
+msgstr ""
 
 #: sphinx/domains/python.py:353
 #, python-format
@@ -299,9 +300,8 @@ msgid "%s (module)"
 msgstr "%s (module)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Module-index"
+msgstr ""
 
 #: sphinx/domains/python.py:492
 msgid "modules"
@@ -341,18 +341,17 @@ msgid "%s (directive)"
 msgstr ""
 
 #: sphinx/domains/rst.py:55
-#, fuzzy, python-format
+#, python-format
 msgid "%s (role)"
-msgstr "%s (rolle)"
+msgstr ""
 
 #: sphinx/domains/rst.py:104
 msgid "directive"
 msgstr ""
 
 #: sphinx/domains/rst.py:105
-#, fuzzy
 msgid "role"
-msgstr "rolle"
+msgstr ""
 
 #: sphinx/domains/std.py:70 sphinx/domains/std.py:86
 #, python-format
@@ -583,9 +582,8 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy
 msgid "the documentation for"
-msgstr "documentatie"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
@@ -676,9 +674,7 @@ msgstr "Laatste aanpassing op %(last_updated)s."
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"Aangemaakt met <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+msgstr "Aangemaakt met <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -713,28 +709,25 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"Hier kan u de documenten doorzoeken.  Geef enkele trefwoorden\n"
-"    in het veld hieronder en klik \"zoeken\".  Merk op dat de zoekfunctie"
-"\n"
-"    steeds naar alle woorden zoekt.  Pagina's die minder woorden bevatten"
-"\n"
-"    zullen niet tussen de resultaten verschijnen."
+msgstr "Hier kan u de documenten doorzoeken.  Geef enkele trefwoorden\n    in het veld hieronder en klik \"zoeken\".  Merk op dat de zoekfunctie\n    steeds naar alle woorden zoekt.  Pagina's die minder woorden bevatten\n    zullen niet tussen de resultaten verschijnen."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "zoeken"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr "Zoekresultaten"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:283
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -787,9 +780,8 @@ msgid "Hide Search Matches"
 msgstr "Zoekresultaten verbergen"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "zoeken"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
@@ -835,11 +827,10 @@ msgid "Continued on next page"
 msgstr "Vervolgd op volgende pagina"
 
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
-#, fuzzy, python-format
+#, python-format
 msgid "[image: %s]"
-msgstr "[afbeelding: %s]"
+msgstr ""
 
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[afbeelding]"
-

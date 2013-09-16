@@ -1,21 +1,23 @@
-# Finnish translations for Sphinx.
-# Copyright (C) 2009 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.6\n"
-"Report-Msgid-Bugs-To: sphinx@awot.fi\n"
+"Project-Id-Version: Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
-"Last-Translator: Jukka Inkeri <sphinx@awot.fi>\n"
-"Language-Team: fi <sphinx@awot.fi>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"PO-Revision-Date: 2013-04-02 15:20+0000\n"
+"Last-Translator: birkenfeld <g.brandl@gmx.net>\n"
+"Language-Team: Finnish (http://www.transifex.com/projects/p/sphinx-1/language/fi/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: fi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:81
 #, python-format
@@ -28,9 +30,9 @@ msgid "see %s"
 msgstr ""
 
 #: sphinx/environment.py:1513
-#, fuzzy, python-format
+#, python-format
 msgid "see also %s"
-msgstr "katso myös %s"
+msgstr ""
 
 #: sphinx/environment.py:1570
 msgid "Symbols"
@@ -89,9 +91,8 @@ msgid "Module author: "
 msgstr "Moduulin kirjoittaja: "
 
 #: sphinx/directives/other.py:142
-#, fuzzy
 msgid "Code author: "
-msgstr "Moduulin kirjoittaja: "
+msgstr ""
 
 #: sphinx/directives/other.py:144
 msgid "Author: "
@@ -102,7 +103,8 @@ msgstr "Tekijä: "
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr ""
 
@@ -143,9 +145,8 @@ msgstr ""
 
 #: sphinx/domains/c.py:203 sphinx/domains/cpp.py:1207
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
-#, fuzzy
 msgid "function"
-msgstr "Varoitus"
+msgstr ""
 
 #: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1208
 msgid "member"
@@ -299,9 +300,8 @@ msgid "%s (module)"
 msgstr "%s (moduuli)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Moduuli sisällysluettelo"
+msgstr ""
 
 #: sphinx/domains/python.py:492
 msgid "modules"
@@ -459,9 +459,8 @@ msgid "[docs]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
-msgstr "moduuli"
+msgstr ""
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
@@ -712,20 +711,23 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr "Anna hakusanat kokonaan, osasanoilla ei haeta."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "etsi"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr "Etsinnän tulos"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:283
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -778,9 +780,8 @@ msgid "Hide Search Matches"
 msgstr "Piilota löydetyt"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "etsi"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
@@ -833,4 +834,3 @@ msgstr ""
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr ""
-

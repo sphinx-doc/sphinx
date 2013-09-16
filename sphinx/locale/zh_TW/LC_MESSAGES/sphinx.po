@@ -1,21 +1,23 @@
-# Chinese (Taiwan) translations for Sphinx.
-# Copyright (C) 2008 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# Fred Lin <gasolin@gmail.com>, 2008.
-#
+# 
+# Translators:
+# Fred Lin <gasolin@gmail.com>, 2008
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.5\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
-"Last-Translator: Fred Lin <gasolin@gmail.com>\n"
-"Language-Team: tw <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"PO-Revision-Date: 2013-04-02 15:42+0000\n"
+"Last-Translator: birkenfeld <g.brandl@gmx.net>\n"
+"Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/sphinx-1/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: zh_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: sphinx/config.py:81
 #, python-format
@@ -37,9 +39,9 @@ msgid "Symbols"
 msgstr ""
 
 #: sphinx/roles.py:175
-#, fuzzy, python-format
+#, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Python 建議文件; PEP %s"
+msgstr ""
 
 #: sphinx/transforms.py:52 sphinx/writers/latex.py:202
 #: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:217
@@ -89,9 +91,8 @@ msgid "Module author: "
 msgstr "模組作者："
 
 #: sphinx/directives/other.py:142
-#, fuzzy
 msgid "Code author: "
-msgstr "模組作者："
+msgstr ""
 
 #: sphinx/directives/other.py:144
 msgid "Author: "
@@ -102,7 +103,8 @@ msgstr "作者："
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr "參數"
 
@@ -159,18 +161,17 @@ msgid "type"
 msgstr "類別"
 
 #: sphinx/domains/c.py:207
-#, fuzzy
 msgid "variable"
-msgstr "變數"
+msgstr ""
 
 #: sphinx/domains/cpp.py:942 sphinx/domains/javascript.py:125
 msgid "Throws"
 msgstr ""
 
 #: sphinx/domains/cpp.py:1038
-#, fuzzy, python-format
+#, python-format
 msgid "%s (C++ class)"
-msgstr "%s (C++ 內建類別)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:1061
 #, python-format
@@ -203,9 +204,9 @@ msgid "%s() (%s method)"
 msgstr "%s() (%s 方法)"
 
 #: sphinx/domains/javascript.py:109
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (class)"
-msgstr "%s() (內建類別)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:111
 #, python-format
@@ -218,9 +219,8 @@ msgid "%s (%s attribute)"
 msgstr "%s (%s 屬性)"
 
 #: sphinx/domains/javascript.py:122
-#, fuzzy
 msgid "Arguments"
-msgstr "參數"
+msgstr ""
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
 msgid "data"
@@ -231,9 +231,8 @@ msgid "attribute"
 msgstr "屬性"
 
 #: sphinx/domains/python.py:100
-#, fuzzy
 msgid "Variables"
-msgstr "變數"
+msgstr ""
 
 #: sphinx/domains/python.py:104
 msgid "Raises"
@@ -281,14 +280,14 @@ msgid "%s() (%s static method)"
 msgstr "%s() (%s 靜態方法)"
 
 #: sphinx/domains/python.py:340
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s 方法)"
+msgstr ""
 
 #: sphinx/domains/python.py:343
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s 方法)"
+msgstr ""
 
 #: sphinx/domains/python.py:353
 #, python-format
@@ -301,9 +300,8 @@ msgid "%s (module)"
 msgstr "%s (模組)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "模組索引"
+msgstr ""
 
 #: sphinx/domains/python.py:492
 msgid "modules"
@@ -322,9 +320,8 @@ msgid "method"
 msgstr ""
 
 #: sphinx/domains/python.py:565
-#, fuzzy
 msgid "class method"
-msgstr "方法"
+msgstr ""
 
 #: sphinx/domains/python.py:566
 msgid "static method"
@@ -335,9 +332,8 @@ msgid "module"
 msgstr "模組"
 
 #: sphinx/domains/python.py:696
-#, fuzzy
 msgid " (deprecated)"
-msgstr "已移除"
+msgstr ""
 
 #: sphinx/domains/rst.py:53
 #, python-format
@@ -345,18 +341,17 @@ msgid "%s (directive)"
 msgstr ""
 
 #: sphinx/domains/rst.py:55
-#, fuzzy, python-format
+#, python-format
 msgid "%s (role)"
-msgstr "%s (模組)"
+msgstr ""
 
 #: sphinx/domains/rst.py:104
 msgid "directive"
 msgstr ""
 
 #: sphinx/domains/rst.py:105
-#, fuzzy
 msgid "role"
-msgstr "模組"
+msgstr ""
 
 #: sphinx/domains/std.py:70 sphinx/domains/std.py:86
 #, python-format
@@ -464,9 +459,8 @@ msgid "[docs]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
-msgstr "模組"
+msgstr ""
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
@@ -572,9 +566,8 @@ msgid "Go"
 msgstr ""
 
 #: sphinx/themes/agogo/layout.html:58 sphinx/themes/basic/searchbox.html:20
-#, fuzzy
 msgid "Enter search terms or a module, class or function name."
-msgstr "輸入一個模組、類別、或是函式名稱."
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:79 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
@@ -718,20 +711,23 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr ""
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "搜尋"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr "搜尋結果"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:283
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -784,9 +780,8 @@ msgid "Hide Search Matches"
 msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "搜尋"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
@@ -832,11 +827,10 @@ msgid "Continued on next page"
 msgstr ""
 
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
-#, fuzzy, python-format
+#, python-format
 msgid "[image: %s]"
-msgstr "[圖片: %s]"
+msgstr ""
 
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[圖片]"
-
