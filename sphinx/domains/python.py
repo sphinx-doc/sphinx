@@ -706,4 +706,5 @@ class PythonDomain(Domain):
         for modname, info in self.data['modules'].iteritems():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, refname, type, docname, refname, 1)
+            if type != 'module':  # modules are already handled
+                yield (refname, refname, type, docname, refname, 1)

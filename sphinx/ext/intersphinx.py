@@ -106,6 +106,12 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
         if not m:
             continue
         name, type, prio, location, dispname = m.groups()
+        if type == 'py:module' and type in invdata and \
+            name in invdata[type]:  # due to a bug in 1.1 and below,
+                                    # two inventory entries are created
+                                    # for Python modules, and the first
+                                    # one is correct
+            continue
         if location.endswith(u'$'):
             location = location[:-1] + name
         location = join(uri, location)
