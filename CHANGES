@@ -36,6 +36,8 @@ Bugs fixed
 * PR#155: Added support for some C++11 function qualifiers.
 * Fix: 'make gettext' caused UnicodeDecodeError when templates contain utf-8
   encoded strings.
+* #828: use inspect.getfullargspec() to be able to document functions with
+  keyword-only arguments on Python 3.
 * #1157: Combination of 'globaltoc.html' and hidden toctree caused exception.
 * #1159: fix wrong generation of objects inventory for Python modules, and
   add a workaround in intersphinx to fix handling of affected inventories.
