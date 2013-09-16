@@ -233,7 +233,9 @@ class ManualPageTranslator(BaseTranslator):
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):
         self.body.append(self.defs['reference'][0])
-        self.body.append(node.astext())
+        self.visit_Text(node)  # avoid repeating escaping code... fine since
+                               # visit_Text calls astext() and only works
+                               # on that afterwards
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
