@@ -219,7 +219,9 @@ class DocFieldTransformer(object):
             if typedesc is None or typedesc.has_arg != bool(fieldarg):
                 # either the field name is unknown, or the argument doesn't
                 # match the spec; capitalize field name and be done with it
-                new_fieldname = fieldtype.capitalize() + ' ' + fieldarg
+                new_fieldname = fieldtype[0:1].upper() + fieldtype[1:]
+                if fieldarg:
+                     new_fieldname = new_fieldname + ' ' + fieldarg
                 fieldname[0] = nodes.Text(new_fieldname)
                 entries.append(field)
                 continue
