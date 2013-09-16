@@ -20,11 +20,8 @@ sphinx-users <sphinx-users@googlegroups.com>
 sphinx-dev <sphinx-dev@googlegroups.com>
     Mailing list for development related discussions.
 
-#pocoo on irc.freenode.net
+#sphinx-doc on irc.freenode.net
     IRC channel for development questions and user support.
-
-    This channel is shared with other Pocoo projects.  Archived logs are
-    available `here <http://dev.pocoo.org/irclogs/>`_.
 
 .. _`BitBucket`: http://bitbucket.org
 .. _`Mercurial`: http://mercurial.selenic.com/
