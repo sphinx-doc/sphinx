@@ -347,7 +347,11 @@ class Sphinx(object):
             event.pop(listener_id, None)
 
     def emit(self, event, *args):
-        self.debug2('[app] emitting event: %r%s', event, repr(args)[:100])
+        try:
+            self.debug2('[app] emitting event: %r%s', event, repr(args)[:100])
+        except Exception:  # not every object likes to be repr()'d (think
+                           # random stuff coming via autodoc)
+            pass
         results = []
         if event in self._listeners:
             for _, callback in self._listeners[event].iteritems():

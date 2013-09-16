@@ -58,6 +58,8 @@ Bugs fixed
 * PR#146,#1172: Fix ZeroDivisionError in parallel builds. Thanks to tychoish.
 * #1206: Fix i18n: gettext did not translate admonition directive's title.
 * #1232: Sphinx generated broken ePub files on Windows.
+* #1259: Guard the debug output call when emitting events; to prevent the
+  repr() implementation of arbitrary objects causing build failures.
 
 
 Release 1.2 beta1 (released Mar 31, 2013)
