@@ -152,10 +152,11 @@ class Sphinx(object):
         self.translator, has_translation = locale.init(locale_dirs,
                                                        self.config.language)
         if self.config.language is not None:
-            if has_translation:
+            if has_translation or self.config.language == 'en':
+                # "en" never needs to be translated
                 self.info('done')
             else:
-                self.info('locale not available')
+                self.info('not available for built-in messages')
 
     def _init_env(self, freshenv):
         if freshenv:
