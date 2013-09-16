@@ -780,9 +780,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             context += '}'
         if isinstance(node.parent.parent, nodes.thead):
             self.body.append('\\textsf{\\relax ')
-        else:
-            self.body.append('\\footnotesize{')
-        context += '}'
+            context += '}'
         if self.remember_multirow.get(self.table.col + 1, 0) > 1:
             self.remember_multirow[self.table.col + 1] -= 1
             context += ' & '
