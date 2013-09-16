@@ -164,7 +164,7 @@ Documentation using a custom theme/integrated in a site
 * OpenCV: http://docs.opencv.org/
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
-* German Plone 4.0 user manual: http://www.hasecke.com/plone-benutzerhandbuch/4.0/
+* German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
 * PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
@@ -210,6 +210,8 @@ Books produced using Sphinx
   http://www.amazon.co.jp/dp/4048689525/
 * "Python Professional Programming" (in Japanese):
   http://www.amazon.co.jp/dp/4798032948/
+* "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kieślowski":
+  http://www.hasecke.eu/Dekalog/
 
 
 Thesis using Sphinx
@@ -218,4 +220,3 @@ Thesis using Sphinx
 * "A Web-Based System for Comparative Analysis of OpenStreetMap Data
   by the Use of CouchDB":
   http://gisforge.no-ip.org/files/MasterThesis_MarkusMayr_0542042.pdf
-
