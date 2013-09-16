@@ -1190,7 +1190,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 for id in production.get('ids'):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
-                ##lastname = production['tokenname']
             else:
                 s = '%s    ' % (' '*maxlen)
             self.body.append(self.escape(s))

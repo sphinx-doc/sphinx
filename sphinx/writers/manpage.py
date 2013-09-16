@@ -202,6 +202,7 @@ class ManualPageTranslator(BaseTranslator):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
@@ -209,7 +210,7 @@ class ManualPageTranslator(BaseTranslator):
                 self.body.append(self.deunicode(lastname))
                 self.body.append(self.defs['strong'][1])
                 self.body.append(' ::= ')
-            else:
+            elif lastname is not None:
                 self.body.append('%s     ' % (' '*len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
