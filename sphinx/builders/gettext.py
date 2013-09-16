@@ -108,14 +108,15 @@ class I18nBuilder(Builder):
                     catalog.add(m, node)
 
 
+# determine tzoffset once to remain unaffected by DST change during build
 timestamp = time()
+tzdelta = datetime.fromtimestamp(timestamp) - \
+    datetime.utcfromtimestamp(timestamp)
 
 class LocalTimeZone(tzinfo):
 
     def __init__(self, *args, **kw):
         super(LocalTimeZone, self).__init__(*args, **kw)
-        tzdelta = datetime.fromtimestamp(timestamp) - \
-                  datetime.utcfromtimestamp(timestamp)
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt):
