@@ -974,6 +974,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.copy_image_files()
         self.copy_download_files()
         self.copy_static_files()
+        self.copy_extra_files()
         self.write_buildinfo()
         self.dump_inventory()
 

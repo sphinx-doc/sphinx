@@ -363,4 +363,3 @@ def test_html_with_globaltoc_and_hidden_toctree(app):
             '\n   :hidden:'
             '\n')
     app.builder.build_all()
-
