@@ -49,6 +49,7 @@ def setup_test():
         undoc_members = False,
         private_members = False,
         special_members = False,
+        imported_members = False,
         show_inheritance = False,
         noindex = False,
         annotation = None,
