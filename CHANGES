@@ -56,6 +56,7 @@ Bugs fixed
 * #1176: Fix i18n: footnote reference number missing for auto numbered named
   footnote and auto symbol footnote.
 * PR#146,#1172: Fix ZeroDivisionError in parallel builds. Thanks to tychoish.
+* #1204: Fix wrong generation of links to local intersphinx targets.
 * #1206: Fix i18n: gettext did not translate admonition directive's title.
 * #1232: Sphinx generated broken ePub files on Windows.
 * #1259: Guard the debug output call when emitting events; to prevent the

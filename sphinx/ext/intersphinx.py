@@ -33,6 +33,7 @@ from os import path
 import re
 
 from docutils import nodes
+from docutils.utils import relative_path
 
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
@@ -236,6 +237,9 @@ def missing_reference(app, env, node, contnode):
             if objtype not in inventory or target not in inventory[objtype]:
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
+            if '://' not in uri and node.get('refdoc'):
+                # get correct path in case of subdirectories
+                uri = path.join(relative_path(node['refdoc'], env.srcdir), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                           reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
