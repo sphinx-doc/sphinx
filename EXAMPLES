@@ -88,6 +88,7 @@ Documentation using a customized version of the default theme
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html
 * Sprox: http://sprox.org/
 * TurboGears: http://turbogears.org/2.0/docs/
+* Varnish: https://www.varnish-cache.org/docs/
 * Zentyal: http://doc.zentyal.org/
 * Zope: http://docs.zope.org/zope2/index.html
 * zc.async: http://packages.python.org/zc.async/1.5.0/
@@ -212,6 +213,8 @@ Books produced using Sphinx
   http://www.amazon.co.jp/dp/4798032948/
 * "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kieślowski":
   http://www.hasecke.eu/Dekalog/
+* The "Varnish Book":
+  https://www.varnish-software.com/static/book/
 
 
 Thesis using Sphinx
