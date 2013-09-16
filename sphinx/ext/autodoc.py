@@ -373,6 +373,9 @@ class Documenter(object):
         """Check if *self.object* is really defined in the module given by
         *self.modname*.
         """
+        if self.options.imported_members:
+            return True
+
         modname = self.get_attr(self.object, '__module__', None)
         if modname and modname != self.modname:
             return False
@@ -779,6 +782,7 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
+        'imported-members': bool_option,
     }
 
     @classmethod

@@ -184,12 +184,17 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 0.6
 
-   .. note::
+   * In an :rst:dir:`automodule` directive with the ``members`` option set, only
+     module members whose ``__module__`` attribute is equal to the module name
+     as given to ``automodule`` will be documented.  This is to prevent
+     documentation of imported classes or functions.
+     Set ``imported-members`` option if you want to preven this behavior and
+     document all available members.
+     Note that attributes from imported modules will not be documented,
+     because attribute documentation is discovered by parsing the source file
+     of the current module.
 
-      In an :rst:dir:`automodule` directive with the ``members`` option set, only
-      module members whose ``__module__`` attribute is equal to the module name
-      as given to ``automodule`` will be documented.  This is to prevent
-      documentation of imported classes or functions.
+     .. versionadded:: 1.2
 
 
 .. rst:directive:: autofunction
