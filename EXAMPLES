@@ -149,7 +149,7 @@ Documentation using a custom theme/integrated in a site
 * Open ERP: http://doc.openerp.com/
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
-* German Plone 4.0 user manual: http://www.hasecke.com/plone-benutzerhandbuch/4.0/
+* German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
 * pypol: http://pypol.altervista.org/ (celery)
@@ -189,4 +189,5 @@ Books produced using Sphinx
   http://www.amazon.co.jp/dp/4048686291/
 * "Pomodoro Technique Illustrated" (Japanese translation):
   http://www.amazon.co.jp/dp/4048689525/
-
+* "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kieślowski":
+  http://www.hasecke.eu/Dekalog/
