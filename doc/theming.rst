@@ -34,7 +34,7 @@ That would give you the default theme, but with a sidebar on the right side and
 a black background for the relation bar (the bar with the navigation links at
 the page's top and bottom).
 
-If the theme does not come with Sphinx, it can be in two forms: either a
+If the theme does not come with Sphinx, it can be in two static forms: either a
 directory (containing :file:`theme.conf` and other needed files), or a zip file
 with the same contents.  Either of them must be put where Sphinx can find it;
 for this there is the config value :confval:`html_theme_path`.  It gives a list
@@ -46,6 +46,33 @@ file :file:`blue.zip`, you can put it right in the directory containing
     html_theme = "blue"
     html_theme_path = ["."]
 
+The third form provides your theme path dynamically to Sphinx if ``setuptools``
+installed. You can provide ``sphinx_themes`` entry_points section in your setup.py
+and write get_path function in this case that return path of themes::
+
+    // in your 'setup.py'
+
+    setup(
+        ...
+        entry_points = {
+            'sphinx_themes': [
+                'path = your_package:get_path',
+            ]
+        },
+        ...
+    )
+
+    // in 'your_package.py'
+
+    from os import path
+    package_dir = path.abspath(path.dirname(__file__))
+    template_path = path.join(package_dir, 'themes')
+
+    def get_path():
+        return template_path
+
+.. versionadded:: 1.2
+   'sphinx_themes' entry_points feature.
 
 .. _builtin-themes:
 

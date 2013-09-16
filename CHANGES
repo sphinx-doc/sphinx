@@ -16,6 +16,7 @@ Features added
 * PR#136: Autodoc directives now support an ``imported-members`` option to
   include members imported from different modules.
 * New locales: Macedonian, Sinhala, Indonesian.
+* Theme package collection by using setuptools plugin mechanism.
 
 Incompatible changes
 --------------------
