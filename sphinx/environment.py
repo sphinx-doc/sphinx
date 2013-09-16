@@ -335,6 +335,7 @@ class BuildEnvironment:
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
+            config.html_extra_path +
             config.exclude_trees +
             [d + config.source_suffix for d in config.unused_docs] +
             ['**/' + d for d in config.exclude_dirnames] +

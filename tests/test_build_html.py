@@ -320,6 +320,9 @@ def check_static_entries(outdir):
     # a file from _static, but matches exclude_patterns
     assert not (staticdir / 'excluded.css').exists()
 
+def check_extra_entries(outdir):
+    assert (outdir / 'robots.txt').isfile()
+
 @gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
@@ -345,6 +348,7 @@ def test_html(app):
             yield check_xpath, etree, fname, path, check
 
     check_static_entries(app.builder.outdir)
+    check_extra_entries(app.builder.outdir)
 
 @with_app(buildername='html', srcdir='(empty)',
           confoverrides={'html_sidebars': {'*': ['globaltoc.html']}},
