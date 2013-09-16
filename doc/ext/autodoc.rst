@@ -197,8 +197,23 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
                    automethod
                    autoattribute
 
-   These work exactly like :rst:dir:`autoclass` etc., but do not offer the
-   options used for automatic member documentation.
+   These work exactly like :rst:dir:`autoclass` etc.,
+   but do not offer the options used for automatic member documentation.
+
+   :rst:dir:`autodata` and :rst:dir:`autoattribute` support
+   the ``annotation`` option.
+   Without this option, the representation of the object
+   will be shown in the documentation.
+   When the option is given without arguments,
+   only the name of the object will be printed::
+
+      .. autodata:: CD_DRIVE
+         :annotation:
+
+   You can tell sphinx what should be printed after the name::
+
+      .. autodata:: CD_DRIVE
+         :annotation: = your CD device name
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
@@ -233,6 +248,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract docstrings.
    .. versionchanged:: 1.1
       Comment docs are now allowed on the same line after an assignment.
+
+   .. versionchanged:: 1.2
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` have
+      an ``annotation`` option
 
    .. note::
 

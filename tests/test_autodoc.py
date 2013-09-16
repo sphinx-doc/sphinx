@@ -51,6 +51,7 @@ def setup_test():
         special_members = False,
         show_inheritance = False,
         noindex = False,
+        annotation = None,
         synopsis = '',
         platform = '',
         deprecated = False,
