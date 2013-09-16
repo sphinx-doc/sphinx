@@ -323,15 +323,15 @@ def parselinenos(spec, total):
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
     if isinstance(string, bytes):
-        if encoding:
-            string = string.decode(encoding)
-        else:
-            try:
+        try:
+            if encoding:
+                string = string.decode(encoding)
+            else:
                 # try decoding with utf-8, should only work for real UTF-8
                 string = string.decode('utf-8')
-            except UnicodeError:
-                # last resort -- can't fail
-                string = string.decode('latin1')
+        except UnicodeError:
+            # last resort -- can't fail
+            string = string.decode('latin1')
     return string
 
 

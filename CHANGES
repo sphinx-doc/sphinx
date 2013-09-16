@@ -45,6 +45,8 @@ Bugs fixed
 * #1162, PR#139: singlehtml builder didn't copy images to _images/.
 * #1173: Adjust setup.py dependencies because Jinja2 2.7 discontinued
   compatibility with Python < 3.3 and Python < 2.6.  Thanks to Alexander Dupuy.
+* #1185: Don't crash when a Python module has a wrong or no encoding declared,
+  and non-ASCII characters are included.
 * #1188: sphinx-quickstart raises UnicodeEncodeError if "Project version"
   includes non-ASCII characters.
 * #1189: "Title underline is too short" WARNING is given when using fullwidth
