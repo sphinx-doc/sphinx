@@ -13,6 +13,8 @@ Features added
 * Autodoc directives for module data and attributes now support an
   ``annotation`` option, so that the default display of the data/attribute
   value can be overridden.
+* PR#136: Autodoc directives now support an ``imported-members`` option to
+  include members imported from different modules.
 * New locales: Macedonian, Sinhala, Indonesian.
 
 Incompatible changes
