@@ -102,8 +102,8 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
             heading = ':mod:`%s` Module' % py_file
 
         # option to have each module go on its own page
-        if (opts.separatepages):
-            if (is_package):
+        if opts.separatepages:
+            if is_package:
                 # we handle packages SLIGHTLY differently in this case; no need
                 # for double nested heading for package that apidoc usually does
                 # since all other modules are going to be on separate pages
@@ -113,7 +113,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
                 # with separatepages option, instead of embedding all module
                 # file contents on the one package page, each module will have
                 # its own page.
-                outfilepath = py_path + '.singlepage'
+                outfilepath = makename(master_package, py_path)
                 # text for this page just links to standalone page
                 text += '.. toctree::\n\n'
                 text += '    %s\n\n' % outfilepath
@@ -122,7 +122,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
                 # heading.
                 filetext = format_heading(1, heading)
                 filetext += format_directive(is_package and subroot or py_path,
-                                         master_package)
+                                             master_package)
                 # write out standalone page file
                 write_file(outfilepath, filetext, opts)
         else:
@@ -283,6 +283,9 @@ Note: By default this script will not overwrite already created files.""")
                       'with collective.recipe.omelette.')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dryrun',
                       help='Run the script without creating files')
+    parser.add_option('-E', '--separate', action='store_true',
+                      dest='separatepages',
+                      help='Put documentation for each module on its own page')
     parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',
                       help='Don\'t create a table of contents file')
     parser.add_option('-s', '--suffix', action='store', dest='suffix',
@@ -299,10 +302,6 @@ Note: By default this script will not overwrite already created files.""")
     parser.add_option('-R', '--doc-release', action='store', dest='release',
                       help='Project release, used when --full is given, '
                       'defaults to --doc-version')
-    parser.add_option('-E', '--separate', action='store_true', dest='separatepages',
-                      help='Put each module file in its own page, ')
-
-
 
     (opts, args) = parser.parse_args(argv[1:])
 

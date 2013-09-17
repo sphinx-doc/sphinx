@@ -17,6 +17,8 @@ Features added
   include members imported from different modules.
 * New locales: Macedonian, Sinhala, Indonesian.
 * Theme package collection by using setuptools plugin mechanism.
+* PR#161: ``apidoc`` can now write each module to a standalone page instead of
+  combining all modules in a package on one page.
 
 Incompatible changes
 --------------------
