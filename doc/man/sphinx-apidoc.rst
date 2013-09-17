@@ -33,6 +33,7 @@ Options
 -T, --no-toc    Do not create a table of contents file.
 -F, --full      If given, a full Sphinx project is generated (``conf.py``,
                 ``Makefile`` etc.) using sphinx-quickstart.
+-E, --separate  Put each module file in its own page.
 
 These options are used with ``-F``:
 
