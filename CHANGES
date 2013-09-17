@@ -4,6 +4,13 @@ Release 1.2 (in development)
 Features added
 --------------
 
+* ``apidoc`` now ignores "_private" modules by default, and has an option ``-P``
+  to include them.
+* ``apidoc`` now has an option to not generate headings for packages and
+  modules, for the case that the module docstring already includes a reST
+  heading.
+* PR#161: ``apidoc`` can now write each module to a standalone page instead of
+  combining all modules in a package on one page.
 * Builders: rebuild i18n target document when catalog updated.
 * Support docutils.conf 'writers' and 'html4css1 writer' section in the HTML
   writer.  The latex, manpage and texinfo writers also support their respective
@@ -17,8 +24,6 @@ Features added
   include members imported from different modules.
 * New locales: Macedonian, Sinhala, Indonesian.
 * Theme package collection by using setuptools plugin mechanism.
-* PR#161: ``apidoc`` can now write each module to a standalone page instead of
-  combining all modules in a package on one page.
 
 Incompatible changes
 --------------------
