@@ -46,9 +46,10 @@ file :file:`blue.zip`, you can put it right in the directory containing
     html_theme = "blue"
     html_theme_path = ["."]
 
-The third form provides your theme path dynamically to Sphinx if ``setuptools``
-installed. You can provide ``sphinx_themes`` entry_points section in your setup.py
-and write get_path function in this case that return path of themes::
+The third form provides your theme path dynamically to Sphinx if the
+``setuptools`` package is installed.  You can provide an entry point section
+called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
+that has to return the directory with themes in it::
 
     // in your 'setup.py'
 
@@ -73,6 +74,7 @@ and write get_path function in this case that return path of themes::
 
 .. versionadded:: 1.2
    'sphinx_themes' entry_points feature.
+
 
 .. _builtin-themes:
 
