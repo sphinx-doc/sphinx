@@ -27,11 +27,11 @@ if sys.version_info >= (3, 0):
             func = func.__func__
         if type(func) is partial:
             orig_func = func.func
-            argspec = inspect.getfullargspec(orig_func)
+            argspec = getargspec(orig_func)
             args = list(argspec[0])
-            defaults = list(argspec[3])
+            defaults = list(argspec[3] or ())
             kwoargs = list(argspec[4])
-            kwodefs = dict(argspec[5])
+            kwodefs = dict(argspec[5] or {})
             if func.args:
                 args = args[len(func.args):]
             for arg in func.keywords or ():
