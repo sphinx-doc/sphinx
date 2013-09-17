@@ -68,6 +68,7 @@ Bugs fixed
 * #1259: Guard the debug output call when emitting events; to prevent the
   repr() implementation of arbitrary objects causing build failures.
 * #1142: Fix NFC/NFD normalizing problem of rst filename on Mac OS X.
+* #1234: Ignoring the string consists only of white-space characters.
 
 
 Release 1.2 beta1 (released Mar 31, 2013)

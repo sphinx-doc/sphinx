@@ -181,7 +181,8 @@ class Locale(Transform):
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg: # as-of-yet untranslated
+            if not msgstr or msgstr == msg or not msgstr.strip():
+                # as-of-yet untranslated
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
