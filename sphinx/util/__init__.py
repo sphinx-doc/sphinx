@@ -17,6 +17,7 @@ import fnmatch
 import tempfile
 import posixpath
 import traceback
+import unicodedata
 from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
@@ -50,6 +51,13 @@ def docname_join(basedocname, docname):
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
+def path_stabilize(filepath):
+    "normalize path separater and unicode string"
+    newpath = filepath.replace(os.path.sep, SEP)
+    newpath = unicodedata.normalize('NFC', newpath)
+    return newpath
+
+
 def get_matching_files(dirname, exclude_matchers=()):
     """Get all file names in a directory, recursively.
 
@@ -62,9 +70,9 @@ def get_matching_files(dirname, exclude_matchers=()):
     for root, dirs, files in walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
 
-        qdirs = enumerate(path.join(relativeroot, dn).replace(os.path.sep, SEP)
+        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)
-        qfiles = enumerate(path.join(relativeroot, fn).replace(os.path.sep, SEP)
+        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
                            for fn in files)
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]

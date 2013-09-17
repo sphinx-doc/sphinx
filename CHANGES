@@ -67,6 +67,7 @@ Bugs fixed
 * #1232: Sphinx generated broken ePub files on Windows.
 * #1259: Guard the debug output call when emitting events; to prevent the
   repr() implementation of arbitrary objects causing build failures.
+* #1142: Fix NFC/NFD normalizing problem of rst filename on Mac OS X.
 
 
 Release 1.2 beta1 (released Mar 31, 2013)
