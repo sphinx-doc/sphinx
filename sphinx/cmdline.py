@@ -22,15 +22,8 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
-from sphinx.util.osutil import fs_encoding
+from sphinx.util.osutil import abspath
 from sphinx.util.pycompat import terminal_safe, bytes
-
-
-def abspath(pathdir):
-    pathdir = path.abspath(pathdir)
-    if isinstance(pathdir, bytes):
-        pathdir = pathdir.decode(fs_encoding)
-    return pathdir
 
 
 def usage(argv, msg=None):

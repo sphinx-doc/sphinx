@@ -54,7 +54,8 @@ def docname_join(basedocname, docname):
 def path_stabilize(filepath):
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
-    newpath = unicodedata.normalize('NFC', newpath)
+    if isinstance(newpath, unicode):
+        newpath = unicodedata.normalize('NFC', newpath)
     return newpath
 
 

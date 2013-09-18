@@ -176,3 +176,16 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
+
+if sys.version_info < (3, 0):
+    bytes = str
+else:
+    bytes = bytes
+
+
+def abspath(pathdir):
+    pathdir = path.abspath(pathdir)
+    if isinstance(pathdir, bytes):
+        pathdir = pathdir.decode(fs_encoding)
+    return pathdir
