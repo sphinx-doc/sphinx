@@ -11,6 +11,7 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
   <http://bitbucket.org/birkenfeld/sphinx/issues/>`_.
 * The mailing list for development is at `Google Groups
   <http://groups.google.com/group/sphinx-dev/>`_.
+* There is also #sphinx-doc IRC channel on `freenode <http://freenode.net/>`_.
 
 For more about our development process and methods, see the :doc:`devguide`.
 
