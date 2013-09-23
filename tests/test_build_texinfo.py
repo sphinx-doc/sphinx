@@ -17,7 +17,7 @@ from subprocess import Popen, PIPE
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import with_app, test_root, remove_unicode_literals
+from util import test_root, SkipTest, remove_unicode_literals, with_app
 from test_build_html import ENV_WARNINGS
 
 
@@ -56,7 +56,7 @@ def test_texinfo(app):
             p = Popen(['makeinfo', '--no-split', 'SphinxTests.texi'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            pass  # most likely makeinfo was not found
+            raise SkipTest  # most likely makeinfo was not found
         else:
             stdout, stderr = p.communicate()
             retcode = p.returncode

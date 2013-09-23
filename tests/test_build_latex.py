@@ -86,7 +86,7 @@ def test_latex(app):
             p = Popen(['pdflatex', '--interaction=nonstopmode',
                        'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
         except OSError:
-            pass  # most likely pdflatex was not found
+            raise SkipTest  # most likely pdflatex was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
