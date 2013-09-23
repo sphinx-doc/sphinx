@@ -231,7 +231,7 @@ latex_elements = {
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
-#  author, documentclass [howto/manual]).
+#  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('%(master_str)s', '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
    u'%(author_texescaped_str)s', 'manual'),
