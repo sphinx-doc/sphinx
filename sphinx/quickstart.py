@@ -310,6 +310,15 @@ epub_author = u'%(author_str)s'
 epub_publisher = u'%(author_str)s'
 epub_copyright = u'%(copyright_str)s'
 
+# The basename for the epub file. It defaults to the project name.
+#epub_basename = u'%(project_str)s'
+
+# The HTML theme for the epub output. Since the default themes are not optimized
+# for small screen space, using the same theme for HTML and epub output is
+# usually not wise. This defaults to 'epub', a theme designed to save visual
+# space.
+#epub_theme = 'epub'
+
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
 #epub_language = ''
