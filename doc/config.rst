@@ -999,10 +999,16 @@ These options influence LaTeX output.
      "sphinx" package in order to define Sphinx' custom LaTeX commands.
      "howto" documents will not get appendices.  Also, howtos will have a simpler
      title page.
+
    * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff
      in the master document that shows up in the HTML, but not the LaTeX output.
+
+   .. versionadded:: 1.2
+      In the past including your own document class required you to prepend the
+      document class name with the string "sphinx". This is not necessary
+      anymore.
 
    .. versionadded:: 0.3
       The 6th item ``toctree_only``.  Tuples with 5 items are still accepted.
