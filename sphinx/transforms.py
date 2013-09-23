@@ -242,6 +242,13 @@ class Locale(Transform):
                     self.document.note_implicit_target(
                             section_node, section_node)
 
+                    # replace target's refname to new target name
+                    def is_named_target(node):
+                        return isinstance(node, nodes.target) and  \
+                            node.get('refname') == old_name
+                    for old_target in self.document.traverse(is_named_target):
+                        old_target['refname'] = new_name
+
                     processed = True
 
             # glossary terms update refid

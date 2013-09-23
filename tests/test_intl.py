@@ -420,7 +420,7 @@ def test_i18n_role_xref(app):
 
 @with_intl_app(buildername='xml', warning=warnfile)
 def test_i18n_label_target(app):
-    # regression test for #1193
+    # regression test for #1193, #1265
     app.builder.build(['label_target'])
     et = ElementTree.parse(app.outdir / 'label_target.xml')
     secs = et.findall('section')
@@ -454,6 +454,14 @@ def test_i18n_label_target(app):
             para2_0[0],
             texts=['`X DUPLICATED SUB SECTION`_', 'IS BROKEN LINK.'],
             refs=[])
+
+    para3 = secs[3].findall('paragraph')
+    assert_elem(
+            para3[0],
+            texts=['X', 'bridge label',
+                   'IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED ' +
+                   'SECTION TITLE.'],
+            refs=['label-bridged-target-section'])
 
 
 @with_intl_app(buildername='text', warning=warnfile)

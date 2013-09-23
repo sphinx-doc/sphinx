@@ -50,3 +50,9 @@ msgid ""
 msgstr ""
 "`X DUPLICATED SUB SECTION`_ IS BROKEN LINK."
 
+msgid "label bridged target section"
+msgstr "X LABEL BRIDGED TARGET SECTION"
+
+msgid "`bridge label`_ is not translatable but linked to translated section title."
+msgstr "X `bridge label`_ IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED SECTION TITLE."
+

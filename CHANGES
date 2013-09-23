@@ -1,3 +1,19 @@
+Release 1.2 (in development)
+============================
+
+Features added
+--------------
+
+Incompatible changes
+--------------------
+
+Bugs fixed
+----------
+
+* #1265: Fix i18n: crash when translating section name that is pointed from
+  named target.
+
+
 Release 1.2 beta2 (released Sep 17, 2013)
 =========================================
 
