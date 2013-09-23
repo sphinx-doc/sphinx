@@ -7,6 +7,10 @@ Features added
 Incompatible changes
 --------------------
 
+* PR#154: Remove "sphinx" prefix from LaTeX class name except 'sphinxmanual'
+  and 'sphinxhowto'. Now you can use your custom document class without
+  'sphinx' prefix. Thanks to Erik B.
+
 Bugs fixed
 ----------
 
