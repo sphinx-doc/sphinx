@@ -379,7 +379,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     widest_label = bi[0]
             self.body.append(u'\n\\begin{thebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
-                target = self.hypertarget(bi[2] + ':' + bi[0].lower(),
+                target = self.hypertarget(bi[2] + ':' + bi[3].lower(),
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
                     (bi[0], self.idescape(bi[0]), target, bi[1]))
@@ -648,6 +648,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if isinstance(node.parent, nodes.citation):
             self.bibitems[-1][0] = node.astext()
             self.bibitems[-1][2] = self.curfilestack[-1]
+            self.bibitems[-1][3] = node.parent['ids'][0]
         raise nodes.SkipNode
 
     def visit_tabular_col_spec(self, node):
@@ -1271,7 +1272,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # TODO maybe use cite bibitems
-        self.bibitems.append(['', '', ''])  # [citeid, citetext, docname]
+        self.bibitems.append(['', '', '', ''])  # [id, txt, name, ref]
         self.context.append(len(self.body))
     def depart_citation(self, node):
         size = self.context.pop()
