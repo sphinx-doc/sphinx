@@ -702,3 +702,15 @@ div.viewcode-block:target {
     margin: -1px -10px;
     padding: 0 10px;
 }
+
+div.code-block-filename {
+    background-color: #cceeff;
+    padding: 2px 5px;
+    font-family: monospace;
+    font-size: small;
+}
+
+div.code-block-filename + pre,
+div.code-block-filename + div.highlight > pre {
+    margin-top: 0;
+}

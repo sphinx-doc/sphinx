@@ -340,3 +340,16 @@ tt.xref {
     font-weight: normal;
     font-style: normal;
 }
+
+div.code-block-filename {
+    background-color: #ddd;
+    color: #222;
+    padding: 2px 5px;
+    font-family: monospace;
+    font-size: small;
+}
+
+div.code-block-filename + pre,
+div.code-block-filename + div.highlight > pre {
+    margin-top: 0;
+}

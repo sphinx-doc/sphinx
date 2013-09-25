@@ -57,6 +57,7 @@ class CodeBlock(Directive):
     option_spec = {
         'linenos': directives.flag,
         'emphasize-lines': directives.unchanged_required,
+        'filename': directives.unchanged_required,
     }
 
     def run(self):
@@ -75,6 +76,9 @@ class CodeBlock(Directive):
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
+        filename = self.options.get('filename')
+        if filename:
+            literal['filename'] = filename
         literal['linenos'] = 'linenos' in self.options
         if hl_lines is not None:
             literal['highlight_args'] = {'hl_lines': hl_lines}
