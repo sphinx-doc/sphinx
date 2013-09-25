@@ -1272,7 +1272,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # TODO maybe use cite bibitems
-        self.bibitems.append(['', '', '', ''])  # [id, txt, name, ref]
+        # bibitem: [citelabel, citetext, docname, citeid]
+        self.bibitems.append(['', '', '', ''])
         self.context.append(len(self.body))
     def depart_citation(self, node):
         size = self.context.pop()
