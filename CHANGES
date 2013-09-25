@@ -16,6 +16,8 @@ Bugs fixed
 
 * #1265: Fix i18n: crash when translating section name that is pointed from
   named target.
+* A wrong conditoin check break search feature on first page that is usually
+  index.rst. This issue was introduced at 1.2b1
 
 
 Release 1.2 beta2 (released Sep 17, 2013)
