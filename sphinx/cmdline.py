@@ -22,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
-from sphinx.util.osutil import abspath
+from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe, bytes
 
 
@@ -111,6 +111,11 @@ def main(argv):
         return 1
     except IndexError:
         usage(argv, 'Error: Insufficient arguments.')
+        return 1
+    except UnicodeError:
+        print >>sys.stderr, (
+            'Error: Multibyte filename did not support on this filesystem '
+            'encoding: %s' % fs_encoding)
         return 1
 
     filenames = args[2:]

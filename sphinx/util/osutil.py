@@ -77,7 +77,14 @@ def walk(top, topdown=True, followlinks=False):
 
     dirs, nondirs = [], []
     for name in names:
-        if path.isdir(path.join(top, name)):
+        try:
+            fullpath = path.join(top, name)
+        except UnicodeError:
+            print >>sys.stderr, (
+                '%s:: ERROR: multibyte filename did not support on this filesystem '
+                'encoding %r, skipped.' % (name, fs_encoding))
+            continue
+        if path.isdir(fullpath):
             dirs.append(name)
         else:
             nondirs.append(name)

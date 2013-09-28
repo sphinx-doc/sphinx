@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app, test_root, path
+from util import with_app, test_root, path, SkipTest
 from textwrap import dedent
 
 
@@ -76,7 +76,14 @@ def test_pseudoxml(app):
 def test_multibyte_path(app):
     srcdir = path(app.srcdir)
     mb_name = u'\u65e5\u672c\u8a9e'
-    (srcdir / mb_name).makedirs()
+    try:
+        (srcdir / mb_name).makedirs()
+    except UnicodeEncodeError:
+        from path import FILESYSTEMENCODING
+        raise SkipTest(
+            'multibyte filename did not support on this filesystem encoding: '
+            '%s', FILESYSTEMENCODING)
+
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
         multi byte file name page
         ==========================

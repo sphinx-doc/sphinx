@@ -15,7 +15,7 @@ import subprocess
 from functools import wraps
 import tempfile
 
-from util import with_tempdir, test_roots
+from util import with_tempdir, test_roots, SkipTest
 from path import path
 from textwrap import dedent
 
@@ -62,7 +62,14 @@ def test_build_sphinx(pkgroot, proc):
 def test_build_sphinx_with_multibyte_path(pkgroot, proc):
     mb_name = u'\u65e5\u672c\u8a9e'
     srcdir = (pkgroot / 'doc')
-    (srcdir / mb_name).makedirs()
+    try:
+        (srcdir / mb_name).makedirs()
+    except UnicodeEncodeError:
+        from path import FILESYSTEMENCODING
+        raise SkipTest(
+            'multibyte filename did not support on this filesystem encoding: '
+            '%s', FILESYSTEMENCODING)
+
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
         multi byte file name page
         ==========================

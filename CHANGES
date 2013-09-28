@@ -18,6 +18,8 @@ Bugs fixed
   named target.
 * A wrong conditoin check break search feature on first page that is usually
   index.rst. This issue was introduced at 1.2b1
+* #703: When Sphinx couldn't decode multibyte filename, now Sphinx notices
+  UnicodeError and continuing if possible instead of raise exception.
 
 
 Release 1.2 beta2 (released Sep 17, 2013)
