@@ -14,12 +14,13 @@ Incompatible changes
 Bugs fixed
 ----------
 
-* #1265: Fix i18n: crash when translating section name that is pointed from
-  named target.
-* A wrong conditoin check break search feature on first page that is usually
-  index.rst. This issue was introduced at 1.2b1
-* #703: When Sphinx couldn't decode multibyte filename, now Sphinx notices
-  UnicodeError and continuing if possible instead of raise exception.
+* #1265: Fix i18n: crash when translating a section name that is pointed to from
+  a named target.
+* A wrong condition broke the search feature on first page that is usually
+  index.rst.  This issue was introduced in 1.2b1.
+* #703: When Sphinx can't decode filenames with multibyte characters, Sphinx now
+  catches UnicodeError and will continue if possible instead of raising the
+  exception.
 
 
 Release 1.2 beta2 (released Sep 17, 2013)
