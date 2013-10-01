@@ -114,8 +114,8 @@ def main(argv):
         return 1
     except UnicodeError:
         print >>sys.stderr, (
-            'Error: Multibyte filename did not support on this filesystem '
-            'encoding: %s' % fs_encoding)
+            'Error: Multibyte filename not supported on this filesystem '
+            'encoding (%r).' % fs_encoding)
         return 1
 
     filenames = args[2:]

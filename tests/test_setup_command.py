@@ -67,7 +67,7 @@ def test_build_sphinx_with_multibyte_path(pkgroot, proc):
     except UnicodeEncodeError:
         from path import FILESYSTEMENCODING
         raise SkipTest(
-            'multibyte filename did not support on this filesystem encoding: '
+            'multibyte filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)
 
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""

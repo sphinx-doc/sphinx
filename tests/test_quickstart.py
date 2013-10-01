@@ -118,7 +118,7 @@ def test_do_prompt_with_multibyte():
         qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
     except UnicodeEncodeError:
         raise SkipTest(
-            'multibyte console input did not support on this encoding: %s',
+            'multibyte console input not supported on this encoding: %s',
             qs.TERM_ENCODING)
     assert d['k1'] == u'\u30c9\u30a4\u30c4'
 
