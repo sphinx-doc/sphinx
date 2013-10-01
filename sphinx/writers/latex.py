@@ -1196,7 +1196,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
             if self.builder.config.latex_show_pagerefs and not \
-                    self.in_productionlist:
+                    self.in_production_list:
                 self.context.append('}} (%s)' % self.hyperpageref(id))
             else:
                 self.context.append('}}')
