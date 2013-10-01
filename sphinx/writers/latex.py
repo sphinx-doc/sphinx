@@ -379,7 +379,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     widest_label = bi[0]
             self.body.append(u'\n\\begin{thebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
-                target = self.hypertarget(bi[2] + ':' + bi[3].lower(),
+                target = self.hypertarget(bi[2] + ':' + bi[3],
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
                     (bi[0], self.idescape(bi[0]), target, bi[1]))
