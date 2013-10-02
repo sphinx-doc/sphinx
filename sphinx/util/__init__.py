@@ -177,7 +177,7 @@ _DEBUG_HEADER = '''\
 # Python version: %s
 # Docutils version: %s %s
 # Jinja2 version: %s
-# Loaded extensions: %s
+# Loaded extensions:
 '''
 
 def save_traceback(app):
@@ -185,16 +185,16 @@ def save_traceback(app):
     import platform
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    if app is not None:
-        extension_list = ', '.join(app._extensions)
-    else:
-        extension_list = '(app not created)'
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__version__,
                    platform.python_version(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
-                   extension_list)).encode('utf-8'))
+                   jinja2.__version__)).encode('utf-8'))
+    if app is not None:
+        for extname, extmod in app._extensions.iteritems():
+            os.write(fd, ('#   %s from %s\n' % (
+                extname, getattr(extmod, '__file__', 'unknown'))
+                ).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
