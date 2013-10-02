@@ -238,6 +238,7 @@ def main(argv):
             print >>status, 'Making output directory...'
         os.makedirs(outdir)
 
+    app = None
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv,
@@ -267,7 +268,7 @@ def main(argv):
             else:
                 print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()
-                tbpath = save_traceback()
+                tbpath = save_traceback(app)
                 print >>error, red('The full traceback has been saved '
                                    'in %s, if you want to report the '
                                    'issue to the developers.' % tbpath)

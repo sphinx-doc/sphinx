@@ -177,18 +177,24 @@ _DEBUG_HEADER = '''\
 # Python version: %s
 # Docutils version: %s %s
 # Jinja2 version: %s
+# Loaded extensions: %s
 '''
 
-def save_traceback():
+def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
     import platform
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
+    if app is not None:
+        extension_list = ', '.join(app._extensions)
+    else:
+        extension_list = '(app not created)'
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__version__,
                    platform.python_version(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__)).encode('utf-8'))
+                   jinja2.__version__,
+                   extension_list)).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
