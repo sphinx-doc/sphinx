@@ -1,8 +1,11 @@
-Release 1.2 (in development)
-============================
+Release 1.2 beta3 (released Oct 3, 2013)
+========================================
 
 Features added
 --------------
+
+* The Sphinx error log files will now include a list of the loaded extensions
+  for help in debugging.
 
 Incompatible changes
 --------------------
