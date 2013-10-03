@@ -436,9 +436,8 @@ def test_i18n_label_target(app):
     assert_elem(
             para1[0],
             texts=['X EXPLICIT-TARGET', 'POINT TO', 'explicit-target', 'AND',
-                   'X EXPLICIT-TARGET', 'POINT TO DUPLICATED ID LIKE', 'id1',
-                   '.'],
-            refs=['explicit-target', 'id1'])
+                   'X EXPLICIT-TARGET', 'POINT TO', 'explicit-target', 'TOO.'],
+            refs=['explicit-target', 'explicit-target'])
 
     para2 = secs[2].findall('paragraph')
     assert_elem(
@@ -458,16 +457,16 @@ def test_i18n_label_target(app):
     para3 = secs[3].findall('paragraph')
     assert_elem(
             para3[0],
-            texts=['X', 'bridge label',
-                   'IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED ' +
+            texts=['X', 'Y BRIDGE LABEL',
+                   'IS ALSO TRANSLATABLE AND LINKED TO TRANSLATED ' +
                    'SECTION TITLE.'],
             refs=['label-bridged-target-section'])
     assert_elem(
             para3[1],
-            texts=['X', 'bridge label', 'POINT TO',
-                   'LABEL BRIDGED TARGET SECTION', 'AND', 'bridge label2',
+            texts=['X', 'Y BRIDGE LABEL', 'POINT TO',
+                   'LABEL BRIDGED TARGET SECTION', 'AND', 'Z BRIDGE LABEL2',
                    'POINT TO', 'SECTION AND LABEL', '. THE SECOND APPEARED',
-                   'bridge label2', 'POINT TO CORRECT TARGET.'],
+                   'Z BRIDGE LABEL2', 'POINT TO CORRECT TARGET.'],
             refs=['label-bridged-target-section',
                   'section-and-label',
                   'section-and-label'])

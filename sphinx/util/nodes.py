@@ -77,6 +77,13 @@ def extract_messages(doctree):
             yield node, msg
 
 
+def traverse_translatable_target(doctree):
+    """Extract translatable target from a document tree."""
+    for node in doctree.traverse(nodes.target):
+        if 'names' in node and node['names']:
+            yield node, node['names'][0]
+
+
 def traverse_translatable_index(doctree):
     """Traverse translatable index node from a document tree."""
     def is_block_index(node):
