@@ -462,6 +462,15 @@ def test_i18n_label_target(app):
                    'IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED ' +
                    'SECTION TITLE.'],
             refs=['label-bridged-target-section'])
+    assert_elem(
+            para3[1],
+            texts=['X', 'bridge label', 'POINT TO',
+                   'LABEL BRIDGED TARGET SECTION', 'AND', 'bridge label2',
+                   'POINT TO', 'SECTION AND LABEL', '. THE SECOND APPEARED',
+                   'bridge label2', 'POINT TO CORRECT TARGET.'],
+            refs=['label-bridged-target-section',
+                  'section-and-label',
+                  'section-and-label'])
 
 
 @with_intl_app(buildername='text', warning=warnfile)

@@ -54,6 +54,7 @@ duplicated sub section
 
 
 .. _bridge label: `label bridged target section`_
+.. _bridge label2: `section and label`_
 
 label bridged target section
 =============================
@@ -61,4 +62,6 @@ label bridged target section
 .. This section is targeted through label definition.
 
 `bridge label`_ is not translatable but linked to translated section title.
+
+`bridge label2`_ point to ``section and label`` and `bridge label`_ point to ``label bridged target section``. The second appeared `bridge label2`_ point to correct target.
 
