@@ -81,7 +81,7 @@ def walk(top, topdown=True, followlinks=False):
             fullpath = path.join(top, name)
         except UnicodeError:
             print >>sys.stderr, (
-                '%s:: ERROR: multibyte filename not supported on this '
+                '%s:: ERROR: non-ASCII filename not supported on this '
                 'filesystem encoding %r, skipped.' % (name, fs_encoding))
             continue
         if path.isdir(fullpath):

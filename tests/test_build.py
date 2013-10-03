@@ -73,7 +73,7 @@ def test_pseudoxml(app):
     app.builder.build_all()
 
 @with_app(buildername='html', srcdir='(temp)')
-def test_multibyte_path(app):
+def test_nonascii_path(app):
     srcdir = path(app.srcdir)
     mb_name = u'\u65e5\u672c\u8a9e'
     try:
@@ -81,7 +81,7 @@ def test_multibyte_path(app):
     except UnicodeEncodeError:
         from path import FILESYSTEMENCODING
         raise SkipTest(
-            'multibyte filename not supported on this filesystem encoding: '
+            'nonascii filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)
 
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""

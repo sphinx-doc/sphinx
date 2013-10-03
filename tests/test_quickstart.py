@@ -108,7 +108,7 @@ def test_do_prompt():
     raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
 
 
-def test_do_prompt_with_multibyte():
+def test_do_prompt_with_nonascii():
     d = {}
     answers = {
         'Q1': u'\u30c9\u30a4\u30c4',
@@ -118,7 +118,7 @@ def test_do_prompt_with_multibyte():
         qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
     except UnicodeEncodeError:
         raise SkipTest(
-            'multibyte console input not supported on this encoding: %s',
+            'non-ASCII console input not supported on this encoding: %s',
             qs.TERM_ENCODING)
     assert d['k1'] == u'\u30c9\u30a4\u30c4'
 

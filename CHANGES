@@ -18,7 +18,7 @@ Bugs fixed
   a named target.
 * A wrong condition broke the search feature on first page that is usually
   index.rst.  This issue was introduced in 1.2b1.
-* #703: When Sphinx can't decode filenames with multibyte characters, Sphinx now
+* #703: When Sphinx can't decode filenames with non-ASCII characters, Sphinx now
   catches UnicodeError and will continue if possible instead of raising the
   exception.
 
@@ -87,7 +87,7 @@ Bugs fixed
 * #1189: "Title underline is too short" WARNING is given when using fullwidth
   characters to "Project name" on quickstart.
 * #1190: Output TeX/texinfo/man filename has no basename (only extension)
-  when using multibyte characters in the "Project name" on quickstart.
+  when using non-ASCII characters in the "Project name" on quickstart.
 * #1192: Fix escaping problem for hyperlinks in the manpage writer.
 * #1193: Fix i18n: multiple link references in the same line return the same
   link.

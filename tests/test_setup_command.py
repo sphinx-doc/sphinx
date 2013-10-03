@@ -59,7 +59,7 @@ def test_build_sphinx(pkgroot, proc):
 
 
 @with_setup_command(root)
-def test_build_sphinx_with_multibyte_path(pkgroot, proc):
+def test_build_sphinx_with_nonascii_path(pkgroot, proc):
     mb_name = u'\u65e5\u672c\u8a9e'
     srcdir = (pkgroot / 'doc')
     try:
@@ -67,7 +67,7 @@ def test_build_sphinx_with_multibyte_path(pkgroot, proc):
     except UnicodeEncodeError:
         from path import FILESYSTEMENCODING
         raise SkipTest(
-            'multibyte filename not supported on this filesystem encoding: '
+            'non-ASCII filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)
 
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
