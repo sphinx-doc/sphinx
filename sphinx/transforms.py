@@ -20,11 +20,7 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
-from sphinx.util.nodes import (
-    traverse_translatable_target,
-    traverse_translatable_index,
-    extract_messages,
-)
+from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
 from sphinx.util.compat import docutils_version
 from sphinx.util.pycompat import all
@@ -182,34 +178,6 @@ class Locale(Transform):
         parser = RSTParser()
 
         #phase1: replace reference ids with translated names
-        for node, msg in traverse_translatable_target(self.document):
-            msgstr = catalog.gettext(msg)
-            # XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg or not msgstr.strip():
-                # as-of-yet untranslated
-                continue
-
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            patch = patch[0]
-
-            # XXX doctest and other block markup
-            if not isinstance(patch, nodes.paragraph):
-                continue # skip for now
-
-            old_name = msg
-            new_name = nodes.fully_normalize_name(patch.astext())
-
-            if old_name in self.document.nameids:
-                self.document.nameids[new_name] = (
-                        self.document.nameids[old_name])
-                self.document.nametypes[new_name] = (
-                        self.document.nametypes[old_name])
-                self.document.refnames[new_name] = (
-                        self.document.refnames[old_name])
-
-        #phase2: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
@@ -266,9 +234,9 @@ class Locale(Transform):
                         # _id was not duplicated.
                         # remove old_name entry from document ids database
                         # to reuse original _id.
-                        self.document.nameids.pop(old_name, None)  #supplemental
-                        self.document.nametypes.pop(old_name, None)  #supplemental
-                        self.document.ids.pop(_id, None)  # must remove
+                        self.document.nameids.pop(old_name, None)
+                        self.document.nametypes.pop(old_name, None)
+                        self.document.ids.pop(_id, None)
 
                     # re-entry with new named section node.
                     self.document.note_implicit_target(
@@ -310,7 +278,7 @@ class Locale(Transform):
                 node['translated'] = True
 
 
-        #phase3: translation
+        #phase2: translation
         for node, msg in extract_messages(self.document):
             if node.get('translated', False):
                 continue
@@ -454,7 +422,7 @@ class Locale(Transform):
             node.children = patch.children
             node['translated'] = True
 
-        #phase4: Extract and translate messages for index entries.
+        # Extract and translate messages for index entries.
         for node, entries in traverse_translatable_index(self.document):
             new_entries = []
             for type, msg, tid, main in entries:

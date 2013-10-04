@@ -1,22 +1,3 @@
-Release 1.2 (in development)
-============================
-
-Features added
---------------
-
-* i18n: gettext translates label target name.
-
-Incompatible changes
---------------------
-
-
-Bugs fixed
-----------
-
-* #1265: Fix i18n: crash when using a indirect target and translating a target
-  section name.
-
-
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================
 

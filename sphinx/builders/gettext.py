@@ -18,11 +18,7 @@ from uuid import uuid4
 
 from sphinx.builders import Builder
 from sphinx.util import split_index_msg
-from sphinx.util.nodes import (
-    extract_messages,
-    traverse_translatable_target,
-    traverse_translatable_index,
-)
+from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, find_catalog, SEP
 from sphinx.util.console import darkgreen, purple, bold
 from sphinx.locale import pairindextypes
@@ -99,9 +95,6 @@ class I18nBuilder(Builder):
                                              self.config.gettext_compact)]
 
         for node, msg in extract_messages(doctree):
-            catalog.add(msg, node)
-
-        for node, msg in traverse_translatable_target(doctree):
             catalog.add(msg, node)
 
         # Extract translatable messages from index entries.
