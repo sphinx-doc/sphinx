@@ -14,6 +14,7 @@ import sys
 import subprocess
 from functools import wraps
 import tempfile
+import sphinx
 
 from util import with_tempdir, test_roots, SkipTest
 from path import path
@@ -35,11 +36,15 @@ def with_setup_command(root, *args, **kwds):
             root.copytree(pkgrootdir)
             cwd = os.getcwd()
             os.chdir(pkgrootdir)
+            pythonpath = os.path.dirname(os.path.dirname(sphinx.__file__))
+            if os.getenv('PYTHONPATH'):
+                pythonpath = os.getenv('PYTHONPATH') + os.pathsep + pythonpath
             command = [sys.executable, 'setup.py', 'build_sphinx']
             command.extend(args)
             try:
                 proc = subprocess.Popen(
                     command,
+                    env=dict(os.environ, PYTHONPATH=pythonpath),
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
                 func(pkgrootdir, proc, *args, **kwds)
