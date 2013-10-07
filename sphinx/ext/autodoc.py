@@ -28,7 +28,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-     safe_getattr, safe_repr
+     safe_getattr, safe_repr, is_builtin_class_method
 from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
 
@@ -957,6 +957,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
         try:
             argspec = getargspec(self.object)
         except TypeError:
+            if (is_builtin_class_method(self.object, '__new__') and
+               is_builtin_class_method(self.object, '__init__')):
+                raise TypeError('%r is a builtin class' % self.object)
+
             # if a class should be documented as function (yay duck
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
@@ -1009,8 +1013,9 @@ class ClassDocumenter(ModuleLevelDocumenter):
         initmeth = self.get_attr(self.object, '__init__', None)
         # classes without __init__ method, default __init__ or
         # __init__ written in C?
-        if initmeth is None or initmeth is object.__init__ or not \
-               (inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
+        if initmeth is None or \
+               is_builtin_class_method(self.object, '__init__') or \
+               not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
             argspec = getargspec(initmeth)
