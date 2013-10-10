@@ -1252,13 +1252,14 @@ class AttributeDocumenter(ClassLevelDocumenter):
 
     def add_directive_header(self, sig):
         ClassLevelDocumenter.add_directive_header(self, sig)
-        if not self._datadescriptor and not self.options.annotation:
-            try:
-                objrepr = safe_repr(self.object)
-            except ValueError:
-                pass
-            else:
-                self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+        if not self.options.annotation:
+            if not self._datadescriptor:
+                try:
+                    objrepr = safe_repr(self.object)
+                except ValueError:
+                    pass
+                else:
+                    self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
         elif self.options.annotation is SUPPRESS:
             pass
         else:
