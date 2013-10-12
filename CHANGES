@@ -1,3 +1,20 @@
+Release 1.2 (in development)
+============================
+
+Features added
+--------------
+
+
+Incompatible changes
+--------------------
+
+
+Bugs fixed
+----------
+
+* Fix: `html_theme_path=['.']` is a trigger of rebuild all documents always.
+
+
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================
 
