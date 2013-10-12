@@ -1,6 +1,12 @@
 Release 1.2 (in development)
 ============================
 
+Features added
+--------------
+
+* Added ``sphinx.version_info`` tuple for programmatic checking of the Sphinx
+  version.
+
 Incompatible changes
 --------------------
 
