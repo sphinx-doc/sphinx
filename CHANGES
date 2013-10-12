@@ -13,6 +13,12 @@ Incompatible changes
 * Removed the ``sphinx.ext.refcounting`` extension -- it is very specific to
   CPython and has no place in the main distribution.
 
+Bugs fixed
+----------
+
+* Restore ``versionmodified`` CSS class for versionadded/changed and deprecated
+  directives.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================
