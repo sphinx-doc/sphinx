@@ -152,11 +152,6 @@ class ManualPageTranslator(BaseTranslator):
     def depart_desc_content(self, node):
         self.depart_definition(node)
 
-    def visit_refcount(self, node):
-        self.body.append(self.defs['emphasis'][0])
-    def depart_refcount(self, node):
-        self.body.append(self.defs['emphasis'][1])
-
     def visit_versionmodified(self, node):
         self.visit_paragraph(node)
     def depart_versionmodified(self, node):

@@ -1218,11 +1218,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
             text = self.escape_menu(text)
             self.body.append('@geindex %s\n' % text)
 
-    def visit_refcount(self, node):
-        self.body.append('\n')
-    def depart_refcount(self, node):
-        self.body.append('\n')
-
     def visit_versionmodified(self, node):
         self.body.append('\n')
     def depart_versionmodified(self, node):

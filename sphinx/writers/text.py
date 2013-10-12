@@ -334,11 +334,6 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_desc_annotation(self, node):
         pass
 
-    def visit_refcount(self, node):
-        pass
-    def depart_refcount(self, node):
-        pass
-
     def visit_desc_content(self, node):
         self.new_state()
         self.add_text(self.nl)

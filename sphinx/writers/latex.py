@@ -615,11 +615,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_desc_content(self, node):
         pass
 
-    def visit_refcount(self, node):
-        self.body.append("\\emph{")
-    def depart_refcount(self, node):
-        self.body.append("}\\\\")
-
     def visit_seealso(self, node):
         self.body.append(u'\n\n\\strong{%s:}\n\n' % admonitionlabels['seealso'])
     def depart_seealso(self, node):

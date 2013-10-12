@@ -603,10 +603,6 @@ dl.glossary dt {
     font-size: 1.1em;
 }
 
-.refcount {
-    color: #060;
-}
-
 th {
     text-align: left;
     padding-right: 5px;
