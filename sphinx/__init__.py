@@ -17,6 +17,9 @@ from os import path
 
 __version__  = '1.2b3'
 __released__ = '1.2b3'  # used when Sphinx builds its own docs
+# version info for better programmatic use
+# possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
+version_info = (1, 2, 0, 'beta', 3)
 
 package_dir = path.abspath(path.dirname(__file__))
 
