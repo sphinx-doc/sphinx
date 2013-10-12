@@ -483,6 +483,8 @@ Use this to adapt your extension to API changes in Sphinx.
 The template bridge
 -------------------
 
+.. currentmodule:: sphinx.application
+
 .. autoclass:: TemplateBridge
    :members:
 
