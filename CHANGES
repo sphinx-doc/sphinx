@@ -18,6 +18,8 @@ Bugs fixed
 
 * Restore ``versionmodified`` CSS class for versionadded/changed and deprecated
   directives.
+* Fix: `html_theme_path=['.']` is a trigger of rebuild all documents always
+  (This change keeps the current "theme changes cause a rebuild" feature).
 
 
 Release 1.2 beta3 (released Oct 3, 2013)
