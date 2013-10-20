@@ -19,6 +19,9 @@ Bugs fixed
 * Restore ``versionmodified`` CSS class for versionadded/changed and deprecated
   directives.
 
+* #1296: Fix invalid charset in HTML help generated HTML files for default
+  locale.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================

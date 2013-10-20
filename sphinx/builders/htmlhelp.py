@@ -173,7 +173,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     embedded = True
 
     lcid = 0x409
-    encoding = 'iso8859_1'
+    encoding = 'cp1252'
 
     def init(self):
         StandaloneHTMLBuilder.init(self)
