@@ -241,7 +241,7 @@ class InheritanceGraph(object):
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
-        for cls, (name, fullname, bases) in self.class_info.items():
+        for cls, (name, fullname, bases) in sorted(self.class_info.items()):
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
