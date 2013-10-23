@@ -45,3 +45,5 @@ Just testing a few autodoc possibilities...
    :members: ca1, ia1
 
    Specific members (2 total)
+
+.. automodule:: autodoc_missing_imports

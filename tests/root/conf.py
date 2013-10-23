@@ -71,6 +71,13 @@ autosummary_generate = ['autosummary']
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
             'pyurl': ('http://python.org/%s', None)}
 
+autodoc_mock_imports = [
+    'missing_module',
+    'missing_package1.missing_module1',
+    'missing_package2.missing_module2',
+    'missing_package3.missing_module3',
+]
+
 # modify tags from conf.py
 tags.add('confpytag')
 
