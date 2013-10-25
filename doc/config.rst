@@ -118,7 +118,7 @@ General configuration
    in that case.
 
    .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
+      Use :confval:`exclude_patterns` or :ref:`metadata` instead.
 
 .. confval:: exclude_trees
 
