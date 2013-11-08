@@ -41,6 +41,23 @@ IGNORED_NODES = (
     nodes.doctest_block,
     #XXX there are probably more
 )
+
+def find_source_node(node):
+    if node.source:
+        return node.source
+
+    current = node
+    while 1:
+        parent = current.parent
+        if parent.source:
+            return parent.source
+        else:
+            current = parent
+
+        if not current:
+            break
+    return None
+    
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
@@ -59,7 +76,7 @@ def extract_messages(doctree):
         # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
         # sourceforge.net/p/docutils/patches/108/
         if isinstance(node, (nodes.caption, nodes.title, nodes.rubric)) and not node.source:
-            node.source = node.parent.source
+            node.source = find_source_node(node)
             node.line = 0  #need fix docutils to get `node.line`
 
         if not node.source:
