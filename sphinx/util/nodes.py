@@ -41,23 +41,6 @@ IGNORED_NODES = (
     nodes.doctest_block,
     #XXX there are probably more
 )
-
-def find_source_node(node):
-    if node.source:
-        return node.source
-
-    current = node
-    while 1:
-        parent = current.parent
-        if parent.source:
-            return parent.source
-        else:
-            current = parent
-
-        if not current:
-            break
-    return None
-    
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
@@ -92,6 +75,18 @@ def extract_messages(doctree):
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
+
+
+def find_source_node(node):
+    for pnode in traverse_parent(node):
+        if pnode.source:
+            return pnode.source
+
+
+def traverse_parent(node):
+    while node:
+        yield node
+        node = node.parent
 
 
 def traverse_translatable_index(doctree):

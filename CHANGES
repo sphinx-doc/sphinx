@@ -22,6 +22,9 @@ Bugs fixed
 * #1296: Fix invalid charset in HTML help generated HTML files for default
   locale.
 
+* PR#190: Fix gettext does not extract figure caption and rubric title inside
+  other blocks. Thanks to Michael Schlenker.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================

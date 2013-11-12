@@ -514,7 +514,31 @@ def test_i18n_figure_caption(app):
               u"\n************************\n"
               u"\n   [image]MY CAPTION OF THE FIGURE\n"
               u"\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
-              u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
+              u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
+              u"\n"
+              u"\nFIGURE IN THE BLOCK"
+              u"\n===================\n"
+              u"\nBLOCK\n"
+              u"\n      [image]MY CAPTION OF THE FIGURE\n"
+              u"\n      MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
+              u"\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
+
+    assert result == expect
+
+
+@with_intl_app(buildername='text')
+def test_i18n_rubric(app):
+    # regression test for pull request #190
+    app.builder.build(['rubric'])
+    result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH RUBRIC"
+              u"\n****************\n"
+              u"\n-[ RUBRIC TITLE ]-\n"
+              u"\n"
+              u"\nRUBRIC IN THE BLOCK"
+              u"\n===================\n"
+              u"\nBLOCK\n"
+              u"\n   -[ RUBRIC TITLE ]-\n")
 
     assert result == expect
 
