@@ -751,7 +751,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.visit_thead(node)
         self.body = self.tablebody
     def depart_tbody(self, node):
-        self.body.append('\\hline')
+        pass
 
     def visit_row(self, node):
         self.table.col = 0
@@ -759,6 +759,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.previous_spanning_row == 1:
             self.previous_spanning_row = 0
         self.body.append('\\\\\n')
+        if self.table.rowcount > 0:
+            self.body.append('\\hline')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
