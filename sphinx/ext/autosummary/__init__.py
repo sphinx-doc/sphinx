@@ -206,8 +206,6 @@ class Autosummary(Directive):
             docnames = []
             for name, sig, summary, real_name in items:
                 docname = posixpath.join(tree_prefix, real_name)
-                if docname.endswith(suffix):
-                    docname = docname[:-len(suffix)]
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in env.found_docs:
                     self.warn('toctree references unknown document %r'
