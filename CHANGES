@@ -25,6 +25,9 @@ Bugs fixed
 * PR#190: Fix gettext does not extract figure caption and rubric title inside
   other blocks. Thanks to Michael Schlenker.
 
+* PR#176: Make sure setup_command test can always import Sphinx. Thanks to
+  Dmitry Shachnev.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================
