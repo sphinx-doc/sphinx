@@ -28,6 +28,8 @@ Bugs fixed
 * PR#176: Make sure setup_command test can always import Sphinx. Thanks to
   Dmitry Shachnev.
 
+* #1311: Fix test_linkcode.test_html fails with C locale and Python 3.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================
