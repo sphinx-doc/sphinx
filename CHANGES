@@ -30,6 +30,8 @@ Bugs fixed
 
 * #1311: Fix test_linkcode.test_html fails with C locale and Python 3.
 
+* #1269: Fix ResourceWarnings with Python 3.2 or later.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================

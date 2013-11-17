@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from __future__ import with_statement
+
 from os import path, walk
 from codecs import open
 from time import time
@@ -160,7 +162,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
         for template in self.status_iterator(files,
                 'reading templates... ', purple, len(files)):
-            context = open(template, 'r', encoding='utf-8').read()
+            with open(template, 'r', encoding='utf-8') as f:
+                context = f.read()
             for line, meth, msg in extract_translations(context):
                 origin = MsgOrigin(template, line)
                 self.catalogs['sphinx'].add(msg, origin)
