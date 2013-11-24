@@ -168,7 +168,7 @@ The following directives are provided for module and class contents:
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
 
-.. rst:directive:: .. py:function:: name(signature)
+.. rst:directive:: .. py:function:: name(parameters)
 
    Describes a module-level function.  The signature should include the
    parameters, enclosing optional parameters in brackets.  Default values can be
@@ -186,10 +186,11 @@ The following directives are provided for module and class contents:
    are modified), side effects, and possible exceptions.  A small example may be
    provided.
 
-.. rst:directive:: .. py:class:: name[(signature)]
+.. rst:directive:: .. py:class:: name
+                   .. py:class:: name(parameters)
 
-   Describes a class.  The signature can include parentheses with parameters
-   which will be shown as the constructor arguments.  See also
+   Describes a class.  The signature can optionally include parentheses with
+   parameters which will be shown as the constructor arguments.  See also
    :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
@@ -213,26 +214,26 @@ The following directives are provided for module and class contents:
    information about the type of the data to be expected and whether it may be
    changed directly.
 
-.. rst:directive:: .. py:method:: name(signature)
+.. rst:directive:: .. py:method:: name(parameters)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
    described for ``function``.  See also :ref:`signatures`.
 
-.. rst:directive:: .. py:staticmethod:: name(signature)
+.. rst:directive:: .. py:staticmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
 
-.. rst:directive:: .. py:classmethod:: name(signature)
+.. rst:directive:: .. py:classmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
    .. versionadded:: 0.6
 
 .. rst:directive:: .. py:decorator:: name
-                   .. py:decorator:: name(signature)
+                   .. py:decorator:: name(parameters)
 
    Describes a decorator function.  The signature should *not* represent the
    signature of the actual function, but the usage as a decorator.  For example,
