@@ -261,6 +261,8 @@ The following directives are provided for module and class contents:
 
          Set name of the decorated function to *name*.
 
+   (as opposed to ``.. py:decorator:: removename(func)``.)
+
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
 
