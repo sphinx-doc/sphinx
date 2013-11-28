@@ -1489,6 +1489,10 @@ class BuildEnvironment:
         new = {}
 
         def add_entry(word, subword, link=True, dic=new):
+            # Force the word to be unicode if it's a ASCII bytestring.
+            # This will solve problems with unicode normalization later.
+            # For instance the RFC role will add bytestrings at the moment
+            word = unicode(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]
