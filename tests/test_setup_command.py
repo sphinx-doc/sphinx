@@ -49,7 +49,7 @@ def with_setup_command(root, *args, **kwds):
                     stderr=subprocess.PIPE)
                 func(pkgrootdir, proc, *args, **kwds)
             finally:
-                tempdir.rmtree()
+                tempdir.rmtree(ignore_errors=True)
                 os.chdir(cwd)
         return deco
     return generator
