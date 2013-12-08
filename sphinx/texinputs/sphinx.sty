@@ -508,13 +508,11 @@
   }
 \fi
 
-% do not use \@chappos in Appendix in pTeX
+% disable \@chappos in Appendix in pTeX
 \ifx\kanjiskip\undefined\else
-  \renewcommand{\appendix}{\par
-    \setcounter{chapter}{0}
-      \setcounter{section}{0}
-      \gdef\@chapapp{\appendixname}
-      \gdef\@chappos{}
-      \gdef\thechapter{\@Alph\c@chapter}
+  \let\py@OldAppendix=\appendix
+  \renewcommand{\appendix}{
+    \py@OldAppendix
+    \gdef\@chappos{}
   }
 \fi
