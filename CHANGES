@@ -34,6 +34,10 @@ Bugs fixed
 
 * #1269: Fix ResourceWarnings with Python 3.2 or later.
 
+* #1138: Fix: When ``autodoc_docstring_signature = True`` and
+  ``autoclass_content = 'init'`` or ``'both'``, __init__ line should be
+  removed from class documentation.
+
 
 Release 1.2 beta3 (released Oct 3, 2013)
 ========================================

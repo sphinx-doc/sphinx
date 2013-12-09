@@ -1071,8 +1071,18 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
         if content in ('both', 'init'):
-            initdocstring = self.get_attr(
-                self.get_attr(self.object, '__init__', None), '__doc__')
+            # get __init__ method document from __init__.__doc__
+            if self.env.config.autodoc_docstring_signature:
+                # only act if the feature is enabled
+                init_doc = MethodDocumenter(self.directive, '__init__')
+                init_doc.object = self.get_attr(self.object, '__init__', None)
+                init_doc.objpath = ['__init__']
+                init_doc._find_signature()  # this effects to get_doc() result
+                initdocstring = '\n'.join(
+                    ['\n'.join(l) for l in init_doc.get_doc(encoding)])
+            else:
+                initdocstring = self.get_attr(
+                    self.get_attr(self.object, '__init__', None), '__doc__')
             # for new-style classes, no __init__ means default __init__
             if initdocstring == object.__init__.__doc__:
                 initdocstring = None
