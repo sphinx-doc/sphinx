@@ -102,8 +102,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
-            pathchain[0:0] = [path.join(builder.confdir, tp)
-                              for tp in builder.config.templates_path]
+            cfg_templates_path = [path.join(builder.confdir, tp)
+                                  for tp in builder.config.templates_path]
+            pathchain[0:0] = cfg_templates_path
+            loaderchain[0:0] = cfg_templates_path
 
         # store it for use in newest_template_mtime
         self.pathchain = pathchain
