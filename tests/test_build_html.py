@@ -365,7 +365,7 @@ def test_html(app):
           confoverrides={'html_sidebars': {'*': ['globaltoc.html']}},
           )
 def test_html_with_globaltoc_and_hidden_toctree(app):
-    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause 
+    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause
     # exception.
     (app.srcdir / 'contents.rst').write_text(
             '\n.. toctree::'
