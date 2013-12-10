@@ -1,0 +1,1 @@
+Documentation.addTranslations({"locale": "id", "plural_expr": "0", "messages": {"Hide Search Matches": "Sembunyikan Hasil Pencarian", "Permalink to this definition": "Link permanent untuk definisi ini", "Permalink to this headline": "Link permanent untuk headline ini"}});

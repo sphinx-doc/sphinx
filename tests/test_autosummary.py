@@ -5,11 +5,9 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from util import *
 
 from sphinx.ext.autosummary import mangle_signature
 

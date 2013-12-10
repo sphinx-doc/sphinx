@@ -64,6 +64,13 @@ linkcheck
 pickle / json
    Generates serialized HTML files for use in web applications.
 
+xml
+   Generates Docutils-native XML files.
+
+pseudoxml
+   Generates compact pretty-printed "pseudo-XML" files displaying the
+   internal structure of the intermediate document trees.
+
 
 Options
 -------

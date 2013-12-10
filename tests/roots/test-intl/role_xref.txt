@@ -1,0 +1,40 @@
+:tocdepth: 2
+
+.. _i18n-role-xref:
+
+i18n role xref
+==============
+
+link to :term:`Some term`, :ref:`i18n-role-xref`, :doc:`contents`.
+
+.. _same-type-links:
+
+same type links
+=================
+
+link to :term:`Some term` and :term:`Some other term`.
+
+link to :ref:`i18n-role-xref` and :ref:`same-type-links`.
+
+link to :doc:`contents` and :doc:`glossary_terms`.
+
+link to :option:`-m` and :option:`--module`.
+
+link to :envvar:`env1` and :envvar:`env2`.
+
+link to :token:`token1` and :token:`token2`.
+
+link to :keyword:`i18n-role-xref` and :keyword:`same-type-links`.
+
+
+.. option:: -m <module>
+
+.. option:: --module <module>
+
+.. envvar:: env1
+
+.. envvar:: env2
+
+.. productionlist::
+   token_stmt: `token1` ":" `token2`
+

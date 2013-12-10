@@ -1,0 +1,14 @@
+:tocdepth: 2
+
+i18n with rubric
+================
+
+.. rubric:: rubric title
+
+rubric in the block
+-------------------
+
+block
+
+   .. rubric:: rubric title
+

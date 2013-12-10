@@ -126,6 +126,18 @@ tables of contents.  The ``toctree`` directive is the central element.
    intend to insert these links yourself, in a different style, or in the HTML
    sidebar.
 
+   In cases where you want to have only one top-level toctree and hide all other
+   lower level toctrees you can add the "includehidden" option to the top-level
+   toctree entry::
+
+      .. toctree::
+         :includehidden:
+
+         doc_1
+         doc_2
+
+   All other toctree entries can then be eliminated by the "hidden" option.
+
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
    finds a file that is not included, because that means that this file will not
@@ -150,6 +162,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    .. versionchanged:: 1.1
       Added numeric argument to "numbered".
 
+   .. versionchanged:: 1.2
+      Added "includehidden" option.
 
 Special names
 -------------
@@ -180,6 +194,16 @@ The special document names (and pages generated for them) are:
   documents or document-containing directories with such names.  (Using ``_`` as
   a prefix for a custom template directory is fine.)
 
+.. warning::
+
+  Be careful with unusual characters in filenames.  Some formats may interpret
+  these characters in unexpected ways:
+
+  * Do not user the colon ``:`` for HTML based formats.  Links to other parts
+    may not work.
+
+  * Do not use the plus ``+`` for the ePub format.  Some resources may not be
+    found.
 
 .. rubric:: Footnotes
 

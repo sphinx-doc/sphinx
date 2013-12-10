@@ -34,7 +34,7 @@ That would give you the default theme, but with a sidebar on the right side and
 a black background for the relation bar (the bar with the navigation links at
 the page's top and bottom).
 
-If the theme does not come with Sphinx, it can be in two forms: either a
+If the theme does not come with Sphinx, it can be in two static forms: either a
 directory (containing :file:`theme.conf` and other needed files), or a zip file
 with the same contents.  Either of them must be put where Sphinx can find it;
 for this there is the config value :confval:`html_theme_path`.  It gives a list
@@ -45,6 +45,35 @@ file :file:`blue.zip`, you can put it right in the directory containing
 
     html_theme = "blue"
     html_theme_path = ["."]
+
+The third form provides your theme path dynamically to Sphinx if the
+``setuptools`` package is installed.  You can provide an entry point section
+called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
+that has to return the directory with themes in it::
+
+    // in your 'setup.py'
+
+    setup(
+        ...
+        entry_points = {
+            'sphinx_themes': [
+                'path = your_package:get_path',
+            ]
+        },
+        ...
+    )
+
+    // in 'your_package.py'
+
+    from os import path
+    package_dir = path.abspath(path.dirname(__file__))
+    template_path = path.join(package_dir, 'themes')
+
+    def get_path():
+        return template_path
+
+.. versionadded:: 1.2
+   'sphinx_themes' entry_points feature.
 
 
 .. _builtin-themes:
@@ -111,8 +140,7 @@ These themes are:
 
   - **collapsiblesidebar** (true or false): Add an *experimental* JavaScript
     snippet that makes the sidebar collapsible via a button on its side.
-    *Doesn't work together with "rightsidebar" or "stickysidebar".* Defaults to
-    false.
+    *Doesn't work with "stickysidebar".* Defaults to false.
 
   - **externalrefs** (true or false): Display external links differently from
     internal links.  Defaults to false.
@@ -200,10 +228,14 @@ These themes are:
 * **traditional** -- A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar* and *sidebarwidth*.
 
-* **epub** -- A theme for the epub builder.  There are currently no options.
-  This theme tries to save visual space which is a sparse resource on ebook
-  readers.
+* **epub** -- A theme for the epub builder.  This theme tries to save visual
+  space which is a sparse resource on ebook readers.  The following options
+  are supported:
 
+  - **relbar1** (true or false, default true): If this is true, the
+    `relbar1` block is inserted in the epub output, otherwise it is omitted.
+  - **footer**  (true or false, default true): If this is true, the
+    `footer` block is inserted in the epub output, otherwise it is ommitted.
 
 Creating themes
 ---------------

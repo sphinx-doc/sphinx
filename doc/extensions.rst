@@ -47,12 +47,12 @@ These extensions are built in and can be activated by respective entries in the
    ext/math
    ext/graphviz
    ext/inheritance
-   ext/refcounting
    ext/ifconfig
    ext/coverage
    ext/todo
    ext/extlinks
    ext/viewcode
+   ext/linkcode
    ext/oldcmarkup
 
 

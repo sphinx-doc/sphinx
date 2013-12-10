@@ -5,11 +5,12 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import sys
 
 from docutils import nodes
 
@@ -43,9 +44,27 @@ IGNORED_NODES = (
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
+        # workaround: nodes.term doesn't have source, line and rawsource
+        # (fixed in Docutils r7495)
+        if isinstance(node, nodes.term) and not node.source:
+            definition_list_item = node.parent
+            if definition_list_item.line is not None:
+                node.source = definition_list_item.source
+                node.line = definition_list_item.line - 1
+                node.rawsource = definition_list_item.\
+                                 rawsource.split("\n", 2)[0]
+        # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
+        # and nodes.title for nodes.admonition doesn't have source, line.
+        # this issue was filed to Docutils tracker:
+        # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
+        # sourceforge.net/p/docutils/patches/108/
+        if isinstance(node, (nodes.caption, nodes.title, nodes.rubric)) and not node.source:
+            node.source = find_source_node(node)
+            node.line = 0  #need fix docutils to get `node.line`
+
         if not node.source:
             continue # built-in message
-        if isinstance(node, IGNORED_NODES):
+        if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
             continue
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
@@ -56,6 +75,31 @@ def extract_messages(doctree):
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
+
+
+def find_source_node(node):
+    for pnode in traverse_parent(node):
+        if pnode.source:
+            return pnode.source
+
+
+def traverse_parent(node):
+    while node:
+        yield node
+        node = node.parent
+
+
+def traverse_translatable_index(doctree):
+    """Traverse translatable index node from a document tree."""
+    def is_block_index(node):
+        return isinstance(node, addnodes.index) and  \
+            node.get('inline') == False
+    for node in doctree.traverse(is_block_index):
+        if 'raw_entries' in node:
+            entries = node['raw_entries']
+        else:
+            entries = node['entries']
+        yield node, entries
 
 
 def nested_parse_with_titles(state, content, node):
@@ -186,21 +230,23 @@ def set_role_source_info(inliner, lineno, node):
         # docutils 0.9+
         node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
-# monkey-patch Node.__contains__ to get consistent "in" operator behavior
-# across docutils versions
-
-def _new_contains(self, key):
-    # support both membership test for children and attributes
-    # (has_key is translated to "in" by 2to3)
-    if isinstance(key, basestring):
-        return key in self.attributes
-    return key in self.children
-
-nodes.Node.__contains__ = _new_contains
-
 # monkey-patch Element.copy to copy the rawsource
 
 def _new_copy(self):
     return self.__class__(self.rawsource, **self.attributes)
 
 nodes.Element.copy = _new_copy
+
+# monkey-patch Element.__repr__ to return str if it returns unicode.
+# Was fixed in docutils since 0.10. See sf.net/p/docutils/bugs/218/.
+
+if sys.version_info < (3,):
+    _element_repr_orig = nodes.Element.__repr__
+
+    def _new_repr(self):
+        s = _element_repr_orig(self)
+        if isinstance(s, unicode):
+            return s.encode('utf-8')
+        return s
+
+    nodes.Element.__repr__ = _new_repr

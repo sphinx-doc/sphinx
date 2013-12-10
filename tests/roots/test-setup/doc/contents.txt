@@ -1,0 +1,5 @@
+contents
+=========
+
+spam egg ham
+

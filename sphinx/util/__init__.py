@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,6 +17,7 @@ import fnmatch
 import tempfile
 import posixpath
 import traceback
+import unicodedata
 from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
@@ -50,6 +51,14 @@ def docname_join(basedocname, docname):
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
+def path_stabilize(filepath):
+    "normalize path separater and unicode string"
+    newpath = filepath.replace(os.path.sep, SEP)
+    if isinstance(newpath, unicode):
+        newpath = unicodedata.normalize('NFC', newpath)
+    return newpath
+
+
 def get_matching_files(dirname, exclude_matchers=()):
     """Get all file names in a directory, recursively.
 
@@ -62,9 +71,9 @@ def get_matching_files(dirname, exclude_matchers=()):
     for root, dirs, files in walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
 
-        qdirs = enumerate(path.join(relativeroot, dn).replace(os.path.sep, SEP)
+        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)
-        qfiles = enumerate(path.join(relativeroot, fn).replace(os.path.sep, SEP)
+        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
                            for fn in files)
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
@@ -168,9 +177,10 @@ _DEBUG_HEADER = '''\
 # Python version: %s
 # Docutils version: %s %s
 # Jinja2 version: %s
+# Loaded extensions:
 '''
 
-def save_traceback():
+def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
     import platform
     exc = traceback.format_exc()
@@ -180,6 +190,11 @@ def save_traceback():
                    platform.python_version(),
                    docutils.__version__, docutils.__version_details__,
                    jinja2.__version__)).encode('utf-8'))
+    if app is not None:
+        for extname, extmod in app._extensions.iteritems():
+            os.write(fd, ('#   %s from %s\n' % (
+                extname, getattr(extmod, '__file__', 'unknown'))
+                ).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
@@ -197,13 +212,18 @@ def get_module_source(modname):
         except Exception, err:
             raise PycodeError('error importing %r' % modname, err)
     mod = sys.modules[modname]
-    if hasattr(mod, '__loader__'):
+    filename = getattr(mod, '__file__', None)
+    loader = getattr(mod, '__loader__', None)
+    if loader and getattr(loader, 'get_filename', None):
         try:
-            source = mod.__loader__.get_source(modname)
+            filename = loader.get_filename(modname)
+        except Exception, err:
+            raise PycodeError('error getting filename for %r' % filename, err)
+    if filename is None and loader:
+        try:
+            return 'string', loader.get_source(modname)
         except Exception, err:
             raise PycodeError('error getting source for %r' % modname, err)
-        return 'string', source
-    filename = getattr(mod, '__file__', None)
     if filename is None:
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
@@ -286,6 +306,12 @@ class Tee(object):
         self.stream1.write(text)
         self.stream2.write(text)
 
+    def flush(self):
+        if hasattr(self.stream1, 'flush'):
+            self.stream1.flush()
+        if hasattr(self.stream2, 'flush'):
+            self.stream2.flush()
+
 
 def parselinenos(spec, total):
     """Parse a line number spec (such as "1,2,4-6") and return a list of
@@ -312,15 +338,15 @@ def parselinenos(spec, total):
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
     if isinstance(string, bytes):
-        if encoding:
-            string = string.decode(encoding)
-        else:
-            try:
+        try:
+            if encoding:
+                string = string.decode(encoding)
+            else:
                 # try decoding with utf-8, should only work for real UTF-8
                 string = string.decode('utf-8')
-            except UnicodeError:
-                # last resort -- can't fail
-                string = string.decode('latin1')
+        except UnicodeError:
+            # last resort -- can't fail
+            string = string.decode('latin1')
     return string
 
 
@@ -347,6 +373,29 @@ def split_into(n, type, value):
     if sum(1 for part in parts if part) < n:
         raise ValueError('invalid %s index entry %r' % (type, value))
     return parts
+
+
+def split_index_msg(type, value):
+    # new entry types must be listed in directives/other.py!
+    result = []
+    try:
+        if type == 'single':
+            try:
+                result = split_into(2, 'single', value)
+            except ValueError:
+                result = split_into(1, 'single', value)
+        elif type == 'pair':
+            result = split_into(2, 'pair', value)
+        elif type == 'triple':
+            result = split_into(3, 'triple', value)
+        elif type == 'see':
+            result = split_into(2, 'see', value)
+        elif type == 'seealso':
+            result = split_into(2, 'see', value)
+    except ValueError:
+        pass
+
+    return result
 
 
 def format_exception_cut_frames(x=1):

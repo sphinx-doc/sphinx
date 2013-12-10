@@ -1,0 +1,1 @@
+Documentation.addTranslations({"locale": "sk", "plural_expr": "(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2", "messages": {"Hide Search Matches": "Skry\u0165 v\u00fdsledky h\u013eadania", "Permalink to this definition": "Trval\u00fd odkaz na t\u00fato defin\u00edciu", "Permalink to this headline": "Trval\u00fd odkaz na tento nadpis"}});

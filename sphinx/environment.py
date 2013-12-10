@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -26,30 +26,28 @@ from itertools import izip, groupby
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path, new_document, \
-     get_source_line
+from docutils.utils import Reporter, relative_path, get_source_line
 from docutils.readers import standalone
-from docutils.parsers.rst import roles, directives, Parser as RSTParser
+from docutils.parsers.rst import roles, directives
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
 from docutils.writers import UnfilteredWriter
-from docutils.transforms import Transform
-from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
      FilenameUniqDict
-from sphinx.util.nodes import clean_astext, make_refnode, extract_messages, \
-     WarningStream
-from sphinx.util.osutil import movefile, SEP, ustrftime, find_catalog
+from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
+from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import all, class_types
+from sphinx.util.pycompat import class_types
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import _, init as init_locale
+from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
+from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
+     HandleCodeBlocks, SortIds, CitationReferences, Locale, \
+     RemoveTranslatableInline, SphinxContentsFilter
 
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
@@ -71,14 +69,8 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 41
+ENV_VERSION = 42 + (sys.version_info[0] - 2)
 
-
-default_substitutions = set([
-    'version',
-    'release',
-    'today',
-])
 
 dummy_reporter = Reporter('', 4, 4)
 
@@ -94,147 +86,13 @@ class NoUri(Exception):
     pass
 
 
-class DefaultSubstitutions(Transform):
-    """
-    Replace some substitutions if they aren't defined in the document.
-    """
-    # run before the default Substitutions
-    default_priority = 210
-
-    def apply(self):
-        config = self.document.settings.env.config
-        # only handle those not otherwise defined in the document
-        to_handle = default_substitutions - set(self.document.substitution_defs)
-        for ref in self.document.traverse(nodes.substitution_reference):
-            refname = ref['refname']
-            if refname in to_handle:
-                text = config[refname]
-                if refname == 'today' and not text:
-                    # special handling: can also specify a strftime format
-                    text = ustrftime(config.today_fmt or _('%B %d, %Y'))
-                ref.replace_self(nodes.Text(text, text))
-
-
-class MoveModuleTargets(Transform):
-    """
-    Move module targets that are the first thing in a section to the section
-    title.
-
-    XXX Python specific
-    """
-    default_priority = 210
-
-    def apply(self):
-        for node in self.document.traverse(nodes.target):
-            if not node['ids']:
-                continue
-            if (node.has_key('ismod') and
-                node.parent.__class__ is nodes.section and
-                # index 0 is the section title node
-                node.parent.index(node) == 1):
-                node.parent['ids'][0:0] = node['ids']
-                node.parent.remove(node)
-
-
-class HandleCodeBlocks(Transform):
-    """
-    Several code block related transformations.
-    """
-    default_priority = 210
-
-    def apply(self):
-        # move doctest blocks out of blockquotes
-        for node in self.document.traverse(nodes.block_quote):
-            if all(isinstance(child, nodes.doctest_block) for child
-                     in node.children):
-                node.replace_self(node.children)
-        # combine successive doctest blocks
-        #for node in self.document.traverse(nodes.doctest_block):
-        #    if node not in node.parent.children:
-        #        continue
-        #    parindex = node.parent.index(node)
-        #    while len(node.parent) > parindex+1 and \
-        #            isinstance(node.parent[parindex+1], nodes.doctest_block):
-        #        node[0] = nodes.Text(node[0] + '\n\n' +
-        #                             node.parent[parindex+1][0])
-        #        del node.parent[parindex+1]
-
-
-class SortIds(Transform):
-    """
-    Sort secion IDs so that the "id[0-9]+" one comes last.
-    """
-    default_priority = 261
-
-    def apply(self):
-        for node in self.document.traverse(nodes.section):
-            if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
-                node['ids'] = node['ids'][1:] + [node['ids'][0]]
-
-
-class CitationReferences(Transform):
-    """
-    Replace citation references by pending_xref nodes before the default
-    docutils transform tries to resolve them.
-    """
-    default_priority = 619
-
-    def apply(self):
-        for citnode in self.document.traverse(nodes.citation_reference):
-            cittext = citnode.astext()
-            refnode = addnodes.pending_xref(cittext, reftype='citation',
-                                            reftarget=cittext, refwarn=True)
-            refnode.line = citnode.line or citnode.parent.line
-            refnode += nodes.Text('[' + cittext + ']')
-            citnode.parent.replace(citnode, refnode)
-
-
-class Locale(Transform):
-    """
-    Replace translatable nodes with their translated doctree.
-    """
-    default_priority = 0
-    def apply(self):
-        env = self.document.settings.env
-        settings, source = self.document.settings, self.document['source']
-        # XXX check if this is reliable
-        assert source.startswith(env.srcdir)
-        docname = path.splitext(relative_path(env.srcdir, source))[0]
-        textdomain = find_catalog(docname,
-                                  self.document.settings.gettext_compact)
-
-        # fetch translations
-        dirs = [path.join(env.srcdir, directory)
-                for directory in env.config.locale_dirs]
-        catalog, has_catalog = init_locale(dirs, env.config.language,
-                                           textdomain)
-        if not has_catalog:
-            return
-
-        parser = RSTParser()
-
-        for node, msg in extract_messages(self.document):
-            patch = new_document(source, settings)
-            msgstr = catalog.gettext(msg)
-            # XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg: # as-of-yet untranslated
-                continue
-            parser.parse(msgstr, patch)
-            patch = patch[0]
-            # XXX doctest and other block markup
-            if not isinstance(patch, nodes.paragraph):
-                continue # skip for now
-            for child in patch.children: # update leaves
-                child.parent = node
-            node.children = patch.children
-
-
 class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
     transforms = [Locale, CitationReferences, DefaultSubstitutions,
-                  MoveModuleTargets, HandleCodeBlocks, SortIds]
+                  MoveModuleTargets, HandleCodeBlocks, SortIds,
+                  RemoveTranslatableInline]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -245,20 +103,6 @@ class SphinxDummyWriter(UnfilteredWriter):
 
     def translate(self):
         pass
-
-
-class SphinxContentsFilter(ContentsFilter):
-    """
-    Used with BuildEnvironment.add_toc_from() to discard cross-file links
-    within table-of-contents link nodes.
-    """
-    def visit_pending_xref(self, node):
-        text = node.astext()
-        self.parent.append(nodes.literal(text, text))
-        raise nodes.SkipNode
-
-    def visit_image(self, node):
-        raise nodes.SkipNode
 
 
 class BuildEnvironment:
@@ -290,9 +134,7 @@ class BuildEnvironment:
         del self.config.values
         domains = self.domains
         del self.domains
-        # first write to a temporary file, so that if dumping fails,
-        # the existing environment won't be overwritten
-        picklefile = open(filename + '.tmp', 'wb')
+        picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in vars(self.config).items():
             if key.startswith('_') or \
@@ -304,7 +146,6 @@ class BuildEnvironment:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         finally:
             picklefile.close()
-        movefile(filename + '.tmp', filename)
         # reset attributes
         self.domains = domains
         self.config.values = values
@@ -468,8 +309,9 @@ class BuildEnvironment:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
-        Absolute filenames are relative to the source dir, while relative
-        filenames are relative to the dir of the containing document.
+        In the input "filename", absolute filenames are taken as relative to the
+        source dir, while relative filenames are relative to the dir of the
+        containing document.
         """
         if filename.startswith('/') or filename.startswith(os.sep):
             rel_fn = filename[1:]
@@ -478,12 +320,14 @@ class BuildEnvironment:
                                                 base=None))
             rel_fn = path.join(docdir, filename)
         try:
-            return rel_fn, path.join(self.srcdir, rel_fn)
+            # the path.abspath() might seem redundant, but otherwise artifacts
+            # such as ".." will remain in the path
+            return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
         except UnicodeDecodeError:
             # the source directory is a bytestring with non-ASCII characters;
             # let's try to encode the rel_fn in the file system encoding
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.join(self.srcdir, enc_rel_fn)
+            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
     def find_files(self, config):
         """Find all source files in the source dir and put them in
@@ -491,6 +335,7 @@ class BuildEnvironment:
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
+            config.html_extra_path +
             config.exclude_trees +
             [d + config.source_suffix for d in config.unused_docs] +
             ['**/' + d for d in config.exclude_dirnames] +
@@ -498,6 +343,17 @@ class BuildEnvironment:
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
+
+        # add catalog mo file dependency
+        for docname in self.found_docs:
+            catalog_files = find_catalog_files(
+                docname,
+                self.srcdir,
+                self.config.locale_dirs,
+                self.config.language,
+                self.config.gettext_compact)
+            for filename in catalog_files:
+                self.dependencies.setdefault(docname, set()).add(filename)
 
     def get_outdated_files(self, config_changed):
         """Return (added, changed, removed) sets."""
@@ -783,7 +639,11 @@ class BuildEnvironment:
             app.emit('doctree-read', doctree)
 
         # store time of build, for outdated files detection
-        self.all_docs[docname] = time.time()
+        # (Some filesystems have coarse timestamp resolution;
+        # therefore time.time() can be older than filesystem's timestamp.
+        # For example, FAT32 has 2sec timestamp resolution.)
+        self.all_docs[docname] = max(
+                time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
             # get old doctree
@@ -875,6 +735,7 @@ class BuildEnvironment:
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in doctree.traverse(nodes.system_message):
             if node['level'] < filterlevel:
+                self.app.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
 
 
@@ -1150,8 +1011,9 @@ class BuildEnvironment:
                     anchorname=anchorname, *nodetext)
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
+                sub_item = build_toc(sectionnode, depth + 1)
                 if maxdepth == 0 or depth < maxdepth:
-                    item += build_toc(sectionnode, depth+1)
+                    item += sub_item
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
@@ -1188,7 +1050,8 @@ class BuildEnvironment:
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve_toctree(docname, builder, toctreenode,
                                            prune=True, **kwds)
-            toctrees.append(toctree)
+            if toctree:
+                toctrees.append(toctree)
         if not toctrees:
             return None
         result = toctrees[0]
@@ -1223,7 +1086,7 @@ class BuildEnvironment:
 
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
-                                prune_toctrees=True):
+                                prune_toctrees=True, includehidden=False):
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -1236,7 +1099,7 @@ class BuildEnvironment:
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=prune_toctrees)
+                          prune=prune_toctrees, includehidden=includehidden)
             if result is None:
                 toctreenode.replace_self([])
             else:
@@ -1260,46 +1123,56 @@ class BuildEnvironment:
         if toctree.get('hidden', False) and not includehidden:
             return None
 
-        def _walk_depth(node, depth, maxdepth):
+        # For reading the following two helper function, it is useful to keep
+        # in mind the node structure of a toctree (using HTML-like node names
+        # for brevity):
+        #
+        # <ul>
+        #   <li>
+        #     <p><a></p>
+        #     <p><a></p>
+        #     ...
+        #     <ul>
+        #       ...
+        #     </ul>
+        #   </li>
+        # </ul>
+        #
+        # The transformation is made in two passes in order to avoid
+        # interactions between marking and pruning the tree (see bug #1046).
+
+        def _toctree_prune(node, depth, maxdepth):
             """Utility: Cut a TOC at a specified depth."""
-
-            # For reading this function, it is useful to keep in mind the node
-            # structure of a toctree (using HTML-like node names for brevity):
-            #
-            # <ul>
-            #   <li>
-            #     <p><a></p>
-            #     <p><a></p>
-            #     ...
-            #     <ul>
-            #       ...
-            #     </ul>
-            #   </li>
-            # </ul>
-
             for subnode in node.children[:]:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
-                    # for <p> and <li>, just indicate the depth level and
-                    # recurse to children
-                    subnode['classes'].append('toctree-l%d' % (depth-1))
-                    _walk_depth(subnode, depth, maxdepth)
-
+                    # for <p> and <li>, just recurse
+                    _toctree_prune(subnode, depth, maxdepth)
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, determine if the depth is too large or if the
                     # entry is to be collapsed
                     if maxdepth > 0 and depth > maxdepth:
                         subnode.parent.replace(subnode, [])
                     else:
-                        # to find out what to collapse, *first* walk subitems,
-                        # since that determines which children point to the
-                        # current page
-                        _walk_depth(subnode, depth+1, maxdepth)
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
                             'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
+                        else:
+                            # recurse on visible children
+                            _toctree_prune(subnode, depth+1, maxdepth)
 
+        def _toctree_add_classes(node, depth):
+            """Add 'toctree-l%d' and 'current' classes to the toctree."""
+            for subnode in node.children:
+                if isinstance(subnode, (addnodes.compact_paragraph,
+                                        nodes.list_item)):
+                    # for <p> and <li>, indicate the depth level and recurse
+                    subnode['classes'].append('toctree-l%d' % (depth-1))
+                    _toctree_add_classes(subnode, depth)
+                elif isinstance(subnode, nodes.bullet_list):
+                    # for <ul>, just recurse
+                    _toctree_add_classes(subnode, depth+1)
                 elif isinstance(subnode, nodes.reference):
                     # for <a>, identify which entries point to the current
                     # document and therefore may not be collapsed
@@ -1322,7 +1195,7 @@ class BuildEnvironment:
         def _entries_from_toctree(toctreenode, parents,
                                   separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
-            refs = [(e[0], str(e[1])) for e in toctreenode['entries']]
+            refs = [(e[0], e[1]) for e in toctreenode['entries']]
             entries = []
             for (title, ref) in refs:
                 try:
@@ -1409,6 +1282,8 @@ class BuildEnvironment:
         maxdepth = maxdepth or toctree.get('maxdepth', -1)
         if not titles_only and toctree.get('titlesonly', False):
             titles_only = True
+        if not includehidden and toctree.get('includehidden', False):
+            includehidden = True
 
         # NOTE: previously, this was separate=True, but that leads to artificial
         # separation when two or more toctree entries form a logical unit, so
@@ -1420,8 +1295,9 @@ class BuildEnvironment:
         newnode = addnodes.compact_paragraph('', '', *tocentries)
         newnode['toctree'] = True
 
-        # prune the tree to maxdepth and replace titles, also set level classes
-        _walk_depth(newnode, 1, prune and maxdepth or 0)
+        # prune the tree to maxdepth, also set toc depth and current classes
+        _toctree_add_classes(newnode, 1)
+        _toctree_prune(newnode, 1, prune and maxdepth or 0)
 
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)
@@ -1469,8 +1345,20 @@ class BuildEnvironment:
                 elif typ == 'citation':
                     docname, labelid = self.citations.get(target, ('', ''))
                     if docname:
-                        newnode = make_refnode(builder, fromdocname, docname,
-                                               labelid, contnode)
+                        try:
+                            newnode = make_refnode(builder, fromdocname,
+                                                   docname, labelid, contnode)
+                        except NoUri:
+                            # remove the ids we added in the CitationReferences
+                            # transform since they can't be transfered to
+                            # the contnode (if it's a Text node)
+                            if not isinstance(contnode, nodes.Element):
+                                del node['ids'][:]
+                            raise
+                    elif 'ids' in node:
+                        # remove ids attribute that annotated at
+                        # transforms.CitationReference.apply.
+                        del node['ids'][:]
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
@@ -1601,6 +1489,10 @@ class BuildEnvironment:
         new = {}
 
         def add_entry(word, subword, link=True, dic=new):
+            # Force the word to be unicode if it's a ASCII bytestring.
+            # This will solve problems with unicode normalization later.
+            # For instance the RFC role will add bytestrings at the moment
+            word = unicode(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]
@@ -1696,7 +1588,7 @@ class BuildEnvironment:
                 return letter
             else:
                 # get all other symbols under one heading
-                return 'Symbols'
+                return _('Symbols')
         return [(key, list(group))
                 for (key, group) in groupby(newlist, keyfunc2)]
 
@@ -1760,4 +1652,3 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 self.warn(docname, 'document isn\'t included in any toctree')
-

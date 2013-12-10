@@ -1,10 +1,10 @@
 /*
- * pylons.css_t
+ * pyramid.css_t
  * ~~~~~~~~~~~~
  *
  * Sphinx stylesheet -- pylons theme.
  *
- * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -220,6 +220,14 @@ div.admonition p.admonition-title + p {
     display: inline;
 }
 
+div.admonition {
+    background: #eeeeec;
+    border: 2px solid #babdb6;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px 10px 60px;
+}
+
 div.highlight{
     background-color: white;
 }
@@ -255,8 +263,19 @@ div.warning {
     border-left-style: none;
     padding: 10px 20px 10px 60px;
 }
+
+div.admonition-todo {
+    background: #f2d9b4 url(dialog-todo.png) no-repeat 10px 8px;
+    border: 2px solid #e9b96e;
+    border-right-style: none;
+    border-left-style: none;
+    padding: 10px 20px 10px 60px;
+}
  
-p.admonition-title {
+div.note p.admonition-title,
+div.warning p.admonition-title,
+div.seealso p.admonition-title,
+div.admonition-todo p.admonition-title {
     display: none;
 }
  

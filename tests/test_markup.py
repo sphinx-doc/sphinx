@@ -5,13 +5,11 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-
-from util import *
 
 from docutils import frontend, utils, nodes
 from docutils.parsers import rst
@@ -20,6 +18,11 @@ from sphinx.util import texescape
 from sphinx.util.pycompat import b
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+
+from util import TestApp
+
+
+app = settings = parser = None
 
 def setup_module():
     global app, settings, parser

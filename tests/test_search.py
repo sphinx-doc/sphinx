@@ -5,7 +5,7 @@
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -36,7 +36,7 @@ def test_wordcollector():
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
 
-    ix = IndexBuilder(None, 'en', {})
+    ix = IndexBuilder(None, 'en', {}, None)
     ix.feed('filename', 'title', doc)
     assert 'boson' not in ix._mapping
     assert 'fermion' in ix._mapping

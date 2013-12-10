@@ -120,6 +120,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.1
 
+     .. versionchanged:: 1.2
+        The option can now take arguments, i.e. the special members to document.
+
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
      ``inherited-members`` flag option, in addition to ``members``::
@@ -181,12 +184,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 0.6
 
-   .. note::
+   * In an :rst:dir:`automodule` directive with the ``members`` option set, only
+     module members whose ``__module__`` attribute is equal to the module name
+     as given to ``automodule`` will be documented.  This is to prevent
+     documentation of imported classes or functions.  Set the
+     ``imported-members`` option if you want to prevent this behavior and
+     document all available members.  Note that attributes from imported modules
+     will not be documented, because attribute documentation is discovered by
+     parsing the source file of the current module.
 
-      In an :rst:dir:`automodule` directive with the ``members`` option set, only
-      module members whose ``__module__`` attribute is equal to the module name
-      as given to ``automodule`` will be documented.  This is to prevent
-      documentation of imported classes or functions.
+     .. versionadded:: 1.2
 
 
 .. rst:directive:: autofunction
@@ -194,8 +201,23 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
                    automethod
                    autoattribute
 
-   These work exactly like :rst:dir:`autoclass` etc., but do not offer the
-   options used for automatic member documentation.
+   These work exactly like :rst:dir:`autoclass` etc.,
+   but do not offer the options used for automatic member documentation.
+
+   :rst:dir:`autodata` and :rst:dir:`autoattribute` support
+   the ``annotation`` option.
+   Without this option, the representation of the object
+   will be shown in the documentation.
+   When the option is given without arguments,
+   only the name of the object will be printed::
+
+      .. autodata:: CD_DRIVE
+         :annotation:
+
+   You can tell sphinx what should be printed after the name::
+
+      .. autodata:: CD_DRIVE
+         :annotation: = your CD device name
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
@@ -230,6 +252,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract docstrings.
    .. versionchanged:: 1.1
       Comment docs are now allowed on the same line after an assignment.
+
+   .. versionchanged:: 1.2
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` have
+      an ``annotation`` option
 
    .. note::
 

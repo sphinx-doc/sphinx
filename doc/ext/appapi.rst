@@ -462,10 +462,28 @@ registered event handlers.
    .. versionadded:: 0.5
 
 
+Checking the Sphinx version
+---------------------------
+
+.. currentmodule:: sphinx
+
+Use this to adapt your extension to API changes in Sphinx.
+
+.. data:: version_info
+
+   A tuple of five elements; for Sphinx version 1.2.1 beta 3 this would be
+   ``(1, 2, 1, 'beta', 3)``.
+
+   .. versionadded:: 1.2
+      Before version 1.2, check the string ``sphinx.__version__``.
+
+
 .. _template-bridge:
 
 The template bridge
 -------------------
+
+.. currentmodule:: sphinx.application
 
 .. autoclass:: TemplateBridge
    :members:

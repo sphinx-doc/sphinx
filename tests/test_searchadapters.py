@@ -5,19 +5,17 @@
 
     Test the Web Support Package search adapters.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os, sys
+import os
 from StringIO import StringIO
-
-from nose import SkipTest
 
 from sphinx.websupport import WebSupport
 
 from test_websupport import sqlalchemy_missing
-from util import *
+from util import test_root, skip_if, skip_unless_importable
 
 
 def clear_builddir():

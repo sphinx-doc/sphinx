@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- epub theme.
  *
- * :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -22,6 +22,7 @@ a:link, a:visited {
 
 img {
     border: 0;
+    max-width: 100%;
 }
 
 /* -- relbar ---------------------------------------------------------------- */
@@ -314,10 +315,6 @@ dl.glossary dt {
 
 .field-list p {
     margin: 0;
-}
-
-.refcount {
-    color: #060;
 }
 
 .optional {

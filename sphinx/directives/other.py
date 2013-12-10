@@ -3,23 +3,21 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.locale import _
+from sphinx.locale import versionlabels, _
 from sphinx.util import url_re, docname_join
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
-from sphinx.util.compat import make_admonition
 from sphinx.util.matching import patfilter
 
 
@@ -42,6 +40,7 @@ class TocTree(Directive):
         'maxdepth': int,
         'glob': directives.flag,
         'hidden': directives.flag,
+        'includehidden': directives.flag,
         'numbered': int_or_nothing,
         'titlesonly': directives.flag,
     }
@@ -107,6 +106,7 @@ class TocTree(Directive):
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
+        subnode['includehidden'] = 'includehidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         set_source_info(self, subnode)
@@ -168,6 +168,7 @@ class Index(Directive):
         indexnode = addnodes.index()
         indexnode['entries'] = ne = []
         indexnode['inline'] = False
+        set_source_info(self, indexnode)
         for entry in arguments:
             ne.extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
@@ -189,44 +190,41 @@ class VersionChange(Directive):
         set_source_info(self, node)
         node['type'] = self.name
         node['version'] = self.arguments[0]
+        text = versionlabels[self.name] % self.arguments[0]
         if len(self.arguments) == 2:
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno+1)
-            node.extend(inodes)
-            if self.content:
-                self.state.nested_parse(self.content, self.content_offset, node)
-            ret = [node] + messages
+            para = nodes.paragraph(self.arguments[1], '', *inodes)
+            set_source_info(self, para)
+            node.append(para)
         else:
-            ret = [node]
+            messages = []
+        if self.content:
+            self.state.nested_parse(self.content, self.content_offset, node)
+        if len(node):
+            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
+                content = nodes.inline(node[0].rawsource, translatable=True)
+                content.source = node[0].source
+                content.line = node[0].line
+                content += node[0].children
+                node[0].replace_self(nodes.paragraph('', '', content))
+            node[0].insert(0, nodes.inline('', '%s: ' % text,
+                                           classes=['versionmodified']))
+        else:
+            para = nodes.paragraph('', '',
+                nodes.inline('', '%s.' % text, classes=['versionmodified']))
+            node.append(para)
         env = self.state.document.settings.env
         # XXX should record node.source as well
         env.note_versionchange(node['type'], node['version'], node, node.line)
-        return ret
+        return [node] + messages
 
 
-class SeeAlso(Directive):
+class SeeAlso(BaseAdmonition):
     """
     An admonition mentioning things to look at as reference.
     """
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 1
-    final_argument_whitespace = True
-    option_spec = {}
-
-    def run(self):
-        ret = make_admonition(
-            addnodes.seealso, self.name, [_('See also')], self.options,
-            self.content, self.lineno, self.content_offset, self.block_text,
-            self.state, self.state_machine)
-        if self.arguments:
-            argnodes, msgs = self.state.inline_text(self.arguments[0],
-                                                    self.lineno)
-            para = nodes.paragraph()
-            para += argnodes
-            para += msgs
-            ret[0].insert(1, para)
-        return ret
+    node_class = addnodes.seealso
 
 
 class TabularColumns(Directive):
@@ -346,8 +344,8 @@ class Only(Directive):
         self.state.memo.title_styles = []
         self.state.memo.section_level = 0
         try:
-            result = self.state.nested_parse(self.content, self.content_offset,
-                                             node, match_titles=1)
+            self.state.nested_parse(self.content, self.content_offset,
+                                    node, match_titles=1)
             title_styles = self.state.memo.title_styles
             if (not surrounding_title_styles
                 or not title_styles

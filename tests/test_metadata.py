@@ -5,14 +5,14 @@
 
     Test our handling of metadata in files with bibliographic metadata.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 # adapted from an example of bibliographic metadata at
 # http://docutils.sourceforge.net/docs/user/rst/demo.txt
 
-from util import *
+from util import TestApp
 
 from nose.tools import assert_equals
 

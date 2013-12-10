@@ -1,0 +1,15 @@
+docutils conf
+=============
+
+field-name-limit
+----------------
+
+:short: desc
+:long long long long: long title
+
+option-limit
+------------
+
+--short                short desc
+--long-long-long-long  long desc
+

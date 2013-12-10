@@ -5,7 +5,7 @@
 
     Extension for compatibility with old C markup (directives and roles).
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,7 @@ from sphinx.util.compat import Directive
 _warned_oldcmarkup = False
 WARNING_MSG = 'using old C markup; please migrate to new-style markup ' \
               '(e.g. c:function instead of cfunction), see ' \
-              'http://sphinx.pocoo.org/domains.html'
+              'http://sphinx-doc.org/domains.html'
 
 
 class OldCDirective(Directive):

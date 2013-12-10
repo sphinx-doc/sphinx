@@ -5,15 +5,17 @@
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from StringIO import StringIO
 
+from docutils import nodes
 from sphinx.application import ExtensionError
+from sphinx.domains import Domain
 
-from util import *
+from util import with_app, raises_msg, TestApp
 
 
 @with_app()
@@ -38,6 +40,12 @@ def test_events(app):
     app.disconnect(listener_id)
     assert app.emit("my_event", *emit_args) == [], \
         "Callback called when disconnected"
+
+
+@with_app()
+def test_emit_with_nonascii_name_node(app):
+    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    app.emit('my_event', node)
 
 
 def test_output():
@@ -67,5 +75,25 @@ def test_extensions():
     try:
         app.setup_extension('shutil')
         assert warnings.getvalue().startswith("WARNING: extension 'shutil'")
+    finally:
+        app.cleanup()
+
+def test_domain_override():
+    class A(Domain):
+        name = 'foo'
+    class B(A):
+        name = 'foo'
+    class C(Domain):
+        name = 'foo'
+    status, warnings = StringIO(), StringIO()
+    app = TestApp(status=status, warning=warnings)
+    try:
+        # No domain know named foo.
+        raises_msg(ExtensionError, 'domain foo not yet registered',
+                   app.override_domain, A)
+        assert app.add_domain(A) is None
+        assert app.override_domain(B) is None
+        raises_msg(ExtensionError, 'new domain not a subclass of registered '
+                   'foo domain', app.override_domain, C)
     finally:
         app.cleanup()

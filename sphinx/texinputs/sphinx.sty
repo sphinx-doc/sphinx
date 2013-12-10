@@ -8,8 +8,9 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
+\@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
+
 \RequirePackage{textcomp}
-\RequirePackage{fancyhdr}
 \RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
@@ -44,6 +45,13 @@
 %\renewcommand{\paperheight}{9in}
 %\renewcommand{\paperwidth}{8.5in}   % typical squarish manual
 %\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
+
+% use pdfoutput for pTeX and dvipdfmx
+\ifx\kanjiskip\undefined\else
+  \ifx\Gin@driver{dvipdfmx.def}\undefined\else
+    \newcount\pdfoutput\pdfoutput=0
+  \fi
+\fi
 
 % For graphicx, check if we are compiling under latex or pdflatex.
 \ifx\pdftexversion\undefined
@@ -94,8 +102,7 @@
 \sloppy
 \hbadness = 5000                % don't print trivial gripes
 
-\pagestyle{empty}               % start this way; change for
-\pagenumbering{roman}           % ToC & chapters
+\pagestyle{empty}               % start this way
 
 % Use this to set the font family for headers and other decor:
 \newcommand{\py@HeaderFamily}{\sffamily\bfseries}
@@ -111,6 +118,10 @@
     \fancyhead[LE,RO]{{\py@HeaderFamily \@title, \py@release}}
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
+    % define chaptermark with \@chappos when \@chappos is available for Japanese
+    \ifx\@chappos\undefined\else
+      \def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}
+    \fi
   }
   % Update the plain style so we get the page number & footer line,
   % but not a chapter or section title.  This is to keep the first
@@ -125,7 +136,7 @@
 
 % Some custom font markup commands.
 %
-\newcommand{\strong}[1]{{\bf #1}}
+\newcommand{\strong}[1]{{\textbf{#1}}}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\bfcode}[1]{\code{\bfseries#1}}
 \newcommand{\email}[1]{\textsf{#1}}
@@ -243,7 +254,7 @@
   \addtolength{\py@noticelength}{-2\fboxsep}
   \addtolength{\py@noticelength}{-2\fboxrule}
   %\setlength{\shadowsize}{3pt}
-  \Sbox
+  \noindent\Sbox
   \minipage{\py@noticelength}
 }
 \newcommand{\py@endheavybox}{
@@ -254,12 +265,12 @@
 
 \newcommand{\py@lightbox}{{%
   \setlength\parskip{0pt}\par
-  \rule[0ex]{\linewidth}{0.5pt}%
-  \par\vspace{-0.5ex}%
+  \noindent\rule[0ex]{\linewidth}{0.5pt}%
+  \par\noindent\vspace{-0.5ex}%
   }}
 \newcommand{\py@endlightbox}{{%
   \setlength{\parskip}{0pt}%
-  \par\rule[0.5ex]{\linewidth}{0.5pt}%
+  \par\noindent\rule[0.5ex]{\linewidth}{0.5pt}%
   \par\vspace{-0.5ex}%
   }}
 
@@ -321,7 +332,7 @@
 \@ifundefined{ChTitleVar}{}{
   \ChNameVar{\raggedleft\normalsize\py@HeaderFamily}
   \ChNumVar{\raggedleft \bfseries\Large\py@HeaderFamily}
-  \ChTitleVar{\raggedleft \rm\Huge\py@HeaderFamily}
+  \ChTitleVar{\raggedleft \textrm{\Huge\py@HeaderFamily}}
   % This creates chapter heads without the leading \vspace*{}:
   \def\@makechapterhead#1{%
     {\parindent \z@ \raggedright \normalfont
@@ -401,23 +412,20 @@
   \fi%
 }
 
-
-% Fix the index environment to add an entry to the Table of
-% Contents; this is much nicer than just having to jump to the end of the book
-% and flip around, especially with multiple indexes.
-%
-% A similiar fix must be done to the bibliography environment, although
-% dependant on document class. In particular, the '\addcontentsline' command
-% should use 'chapter' for a report and 'section' for an article.
-% See sphinxmanual.cls and sphinxhowto.cls for specific fixes.
-%
-\let\py@OldTheindex=\theindex
-\renewcommand{\theindex}{
-  \cleardoublepage
-  \phantomsection
-  \py@OldTheindex
-  \addcontentsline{toc}{chapter}{\indexname}
-}
+% to make pdf with correct encoded bookmarks in Japanese
+% this should precede the hyperref package
+\ifx\kanjiskip\undefined\else
+  \usepackage{atbegshi}
+  \ifx\ucs\undefined
+    \ifnum 42146=\euc"A4A2
+      \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
+    \else
+      \AtBeginShipoutFirst{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
+    \fi
+  \else
+    \AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}
+  \fi
+\fi
 
 % Include hyperref last.
 \RequirePackage[colorlinks,breaklinks,
@@ -476,3 +484,35 @@
     \@gobble
 }
 \def\FN@sf@gobble@twobracket[#1]#2{}
+
+% adjust the margins for footer,
+% this works with the jsclasses only (Japanese standard document classes)
+\ifx\@jsc@uplatextrue\undefined\else
+  \hypersetup{setpagesize=false}
+  \setlength\footskip{2\baselineskip}
+  \addtolength{\textheight}{-2\baselineskip}
+\fi
+
+% fix the double index and bibliography on the table of contents
+% in jsclasses (Japanese standard document classes)
+\ifx\@jsc@uplatextrue\undefined\else
+  \renewcommand{\theindex}{
+    \cleardoublepage
+    \phantomsection
+    \py@OldTheindex
+  }
+  \renewcommand{\thebibliography}[1]{
+    \cleardoublepage
+    \phantomsection
+    \py@OldThebibliography{1}
+  }
+\fi
+
+% disable \@chappos in Appendix in pTeX
+\ifx\kanjiskip\undefined\else
+  \let\py@OldAppendix=\appendix
+  \renewcommand{\appendix}{
+    \py@OldAppendix
+    \gdef\@chappos{}
+  }
+\fi

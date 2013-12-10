@@ -1,0 +1,11 @@
+:tocdepth: 2
+
+i18n with definition terms
+==========================
+
+Some term
+   The corresponding definition
+
+Some other term
+   The corresponding definition #2
+

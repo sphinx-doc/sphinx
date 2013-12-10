@@ -5,11 +5,14 @@
 
     Stuff for docutils compatibility.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
+
+from docutils import __version__ as _du_version
+docutils_version = tuple(int(x) for x in _du_version.split('.')[:2])
 
 def make_admonition(node_class, name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
@@ -33,14 +36,4 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
     state.nested_parse(content, content_offset, admonition_node)
     return [admonition_node]
 
-
-# backwards-compatibility aliases for helpers in older Sphinx versions that
-# supported the docutils 0.4 directive function interface
-
 from docutils.parsers.rst import Directive
-
-def directive_dwim(obj):
-    import warnings
-    warnings.warn('directive_dwim is deprecated and no longer needed',
-                  DeprecationWarning, stacklevel=2)
-    return obj

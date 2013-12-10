@@ -1,47 +1,53 @@
-# Finnish translations for Sphinx.
-# Copyright (C) 2009 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.6\n"
-"Report-Msgid-Bugs-To: sphinx@awot.fi\n"
-"POT-Creation-Date: 2011-09-21 10:06+0200\n"
-"PO-Revision-Date: 2011-01-22 14:41+0100\n"
-"Last-Translator: Jukka Inkeri <sphinx@awot.fi>\n"
-"Language-Team: fi <sphinx@awot.fi>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Project-Id-Version: Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
+"PO-Revision-Date: 2013-04-02 15:20+0000\n"
+"Last-Translator: birkenfeld <g.brandl@gmx.net>\n"
+"Language-Team: Finnish (http://www.transifex.com/projects/p/sphinx-1/language/fi/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: fi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:81
 #, python-format
 msgid "%s %s documentation"
 msgstr ""
 
-#: sphinx/environment.py:119 sphinx/writers/latex.py:190
-#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
-#, python-format
-msgid "%B %d, %Y"
-msgstr "%d.%m.%Y"
-
-#: sphinx/environment.py:1625
+#: sphinx/environment.py:1510
 #, python-format
 msgid "see %s"
 msgstr ""
 
-#: sphinx/environment.py:1628
-#, fuzzy, python-format
+#: sphinx/environment.py:1513
+#, python-format
 msgid "see also %s"
-msgstr "katso myös %s"
+msgstr ""
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Enhancement Proposals; PEP %s"
+
+#: sphinx/transforms.py:52 sphinx/writers/latex.py:202
+#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:217
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%d.%m.%Y"
 
 #: sphinx/builders/changes.py:73
 msgid "Builtins"
@@ -51,24 +57,24 @@ msgstr ""
 msgid "Module level"
 msgstr "Moduulitaso"
 
-#: sphinx/builders/html.py:274
+#: sphinx/builders/html.py:290
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d.%m.%Y"
 
-#: sphinx/builders/html.py:293 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:309 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Yleinen sisällysluettelo"
 
-#: sphinx/builders/html.py:293
+#: sphinx/builders/html.py:309
 msgid "index"
 msgstr "hakemisto"
 
-#: sphinx/builders/html.py:353
+#: sphinx/builders/html.py:369
 msgid "next"
 msgstr ">"
 
-#: sphinx/builders/html.py:362
+#: sphinx/builders/html.py:378
 msgid "previous"
 msgstr "<"
 
@@ -76,42 +82,39 @@ msgstr "<"
 msgid " (in "
 msgstr ""
 
-#: sphinx/directives/other.py:136
+#: sphinx/directives/other.py:138
 msgid "Section author: "
 msgstr "Luvun kirjoittaja: "
 
-#: sphinx/directives/other.py:138
+#: sphinx/directives/other.py:140
 msgid "Module author: "
 msgstr "Moduulin kirjoittaja: "
 
-#: sphinx/directives/other.py:140
-#, fuzzy
-msgid "Code author: "
-msgstr "Moduulin kirjoittaja: "
-
 #: sphinx/directives/other.py:142
+msgid "Code author: "
+msgstr ""
+
+#: sphinx/directives/other.py:144
 msgid "Author: "
 msgstr "Tekijä: "
-
-#: sphinx/directives/other.py:215
-msgid "See also"
-msgstr "Katso myös"
 
 #: sphinx/domains/__init__.py:244
 #, python-format
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr ""
 
-#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:128
-#: sphinx/domains/python.py:107
+#: sphinx/domains/c.py:54 sphinx/domains/cpp.py:945
+#: sphinx/domains/javascript.py:128 sphinx/domains/python.py:107
 msgid "Returns"
 msgstr ""
 
-#: sphinx/domains/c.py:56 sphinx/domains/python.py:109
+#: sphinx/domains/c.py:56 sphinx/domains/javascript.py:130
+#: sphinx/domains/python.py:109
 msgid "Return type"
 msgstr ""
 
@@ -140,59 +143,62 @@ msgstr ""
 msgid "%s (C variable)"
 msgstr ""
 
-#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1060
-#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:559
-#, fuzzy
+#: sphinx/domains/c.py:203 sphinx/domains/cpp.py:1207
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
 msgid "function"
-msgstr "Varoitus"
+msgstr ""
 
-#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1061
+#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1208
 msgid "member"
 msgstr ""
 
-#: sphinx/domains/c.py:206
+#: sphinx/domains/c.py:205
 msgid "macro"
 msgstr ""
 
-#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1062
+#: sphinx/domains/c.py:206 sphinx/domains/cpp.py:1209
 msgid "type"
 msgstr ""
 
-#: sphinx/domains/c.py:208
+#: sphinx/domains/c.py:207
 msgid "variable"
 msgstr ""
 
-#: sphinx/domains/cpp.py:904
+#: sphinx/domains/cpp.py:942 sphinx/domains/javascript.py:125
+msgid "Throws"
+msgstr ""
+
+#: sphinx/domains/cpp.py:1038
 #, python-format
 msgid "%s (C++ class)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:919
+#: sphinx/domains/cpp.py:1061
 #, python-format
 msgid "%s (C++ type)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:938
+#: sphinx/domains/cpp.py:1081
 #, python-format
 msgid "%s (C++ member)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:990
+#: sphinx/domains/cpp.py:1137
 #, python-format
 msgid "%s (C++ function)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:1059 sphinx/domains/javascript.py:163
-#: sphinx/domains/python.py:561
+#: sphinx/domains/cpp.py:1206 sphinx/domains/javascript.py:165
+#: sphinx/domains/python.py:562
 msgid "class"
 msgstr ""
 
-#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:254
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:253
 #, python-format
 msgid "%s() (built-in function)"
 msgstr ""
 
-#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:318
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:317
 #, python-format
 msgid "%s() (%s method)"
 msgstr ""
@@ -207,7 +213,7 @@ msgstr ""
 msgid "%s (global variable or constant)"
 msgstr ""
 
-#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:356
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:355
 #, python-format
 msgid "%s (%s attribute)"
 msgstr ""
@@ -216,15 +222,11 @@ msgstr ""
 msgid "Arguments"
 msgstr ""
 
-#: sphinx/domains/javascript.py:125
-msgid "Throws"
-msgstr ""
-
-#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
+#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
 msgid "data"
 msgstr ""
 
-#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:566
+#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:567
 msgid "attribute"
 msgstr ""
 
@@ -236,58 +238,58 @@ msgstr ""
 msgid "Raises"
 msgstr ""
 
-#: sphinx/domains/python.py:255 sphinx/domains/python.py:312
-#: sphinx/domains/python.py:324 sphinx/domains/python.py:337
+#: sphinx/domains/python.py:254 sphinx/domains/python.py:311
+#: sphinx/domains/python.py:323 sphinx/domains/python.py:336
 #, python-format
 msgid "%s() (in module %s)"
 msgstr ""
 
-#: sphinx/domains/python.py:258
+#: sphinx/domains/python.py:257
 #, python-format
 msgid "%s (built-in variable)"
 msgstr ""
 
-#: sphinx/domains/python.py:259 sphinx/domains/python.py:350
+#: sphinx/domains/python.py:258 sphinx/domains/python.py:349
 #, python-format
 msgid "%s (in module %s)"
 msgstr ""
 
-#: sphinx/domains/python.py:275
+#: sphinx/domains/python.py:274
 #, python-format
 msgid "%s (built-in class)"
 msgstr ""
 
-#: sphinx/domains/python.py:276
+#: sphinx/domains/python.py:275
 #, python-format
 msgid "%s (class in %s)"
 msgstr ""
 
-#: sphinx/domains/python.py:316
+#: sphinx/domains/python.py:315
 #, python-format
 msgid "%s() (%s.%s method)"
 msgstr ""
 
-#: sphinx/domains/python.py:328
+#: sphinx/domains/python.py:327
 #, python-format
 msgid "%s() (%s.%s static method)"
 msgstr ""
 
-#: sphinx/domains/python.py:331
+#: sphinx/domains/python.py:330
 #, python-format
 msgid "%s() (%s static method)"
 msgstr ""
 
-#: sphinx/domains/python.py:341
+#: sphinx/domains/python.py:340
 #, python-format
 msgid "%s() (%s.%s class method)"
 msgstr ""
 
-#: sphinx/domains/python.py:344
+#: sphinx/domains/python.py:343
 #, python-format
 msgid "%s() (%s class method)"
 msgstr ""
 
-#: sphinx/domains/python.py:354
+#: sphinx/domains/python.py:353
 #, python-format
 msgid "%s (%s.%s attribute)"
 msgstr ""
@@ -298,57 +300,56 @@ msgid "%s (module)"
 msgstr "%s (moduuli)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Moduuli sisällysluettelo"
+msgstr ""
 
 #: sphinx/domains/python.py:492
 msgid "modules"
 msgstr "moduulit"
 
-#: sphinx/domains/python.py:537
+#: sphinx/domains/python.py:538
 msgid "Deprecated"
 msgstr "Poistettu"
 
-#: sphinx/domains/python.py:562 sphinx/locale/__init__.py:179
+#: sphinx/domains/python.py:563 sphinx/locale/__init__.py:179
 msgid "exception"
 msgstr ""
 
-#: sphinx/domains/python.py:563
+#: sphinx/domains/python.py:564
 msgid "method"
 msgstr ""
 
-#: sphinx/domains/python.py:564
+#: sphinx/domains/python.py:565
 msgid "class method"
 msgstr ""
 
-#: sphinx/domains/python.py:565
+#: sphinx/domains/python.py:566
 msgid "static method"
 msgstr ""
 
-#: sphinx/domains/python.py:567 sphinx/locale/__init__.py:175
+#: sphinx/domains/python.py:568 sphinx/locale/__init__.py:175
 msgid "module"
 msgstr "moduuli"
 
-#: sphinx/domains/python.py:695
+#: sphinx/domains/python.py:696
 msgid " (deprecated)"
 msgstr " (poistettu)"
 
-#: sphinx/domains/rst.py:55
+#: sphinx/domains/rst.py:53
 #, python-format
 msgid "%s (directive)"
 msgstr ""
 
-#: sphinx/domains/rst.py:57
+#: sphinx/domains/rst.py:55
 #, python-format
 msgid "%s (role)"
 msgstr ""
 
-#: sphinx/domains/rst.py:106
+#: sphinx/domains/rst.py:104
 msgid "directive"
 msgstr ""
 
-#: sphinx/domains/rst.py:107
+#: sphinx/domains/rst.py:105
 msgid "role"
 msgstr ""
 
@@ -362,68 +363,95 @@ msgstr ""
 msgid "%scommand line option; %s"
 msgstr ""
 
-#: sphinx/domains/std.py:393
+#: sphinx/domains/std.py:414
 msgid "glossary term"
 msgstr ""
 
-#: sphinx/domains/std.py:394
+#: sphinx/domains/std.py:415
 msgid "grammar token"
 msgstr ""
 
-#: sphinx/domains/std.py:395
+#: sphinx/domains/std.py:416
 msgid "reference label"
 msgstr ""
 
-#: sphinx/domains/std.py:396
+#: sphinx/domains/std.py:418
 msgid "environment variable"
 msgstr ""
 
-#: sphinx/domains/std.py:397
+#: sphinx/domains/std.py:419
 msgid "program option"
 msgstr ""
 
-#: sphinx/domains/std.py:427 sphinx/themes/basic/genindex-single.html:32
+#: sphinx/domains/std.py:449 sphinx/themes/basic/genindex-single.html:32
+#: sphinx/themes/basic/genindex-single.html:57
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
 #: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:179 sphinx/writers/texinfo.py:456
+#: sphinx/writers/latex.py:191 sphinx/writers/texinfo.py:475
 msgid "Index"
 msgstr "Sisällysluettelo"
 
-#: sphinx/domains/std.py:428
+#: sphinx/domains/std.py:450
 msgid "Module Index"
 msgstr "Moduuli sisällysluettelo"
 
-#: sphinx/domains/std.py:429 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:451 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Etsi sivu"
 
-#: sphinx/ext/autodoc.py:1002
+#: sphinx/ext/autodoc.py:1042
 #, python-format
 msgid "   Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:1038
+#: sphinx/ext/autodoc.py:1078
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
 
-#: sphinx/ext/todo.py:41
+#: sphinx/ext/graphviz.py:294 sphinx/ext/graphviz.py:302
+#, python-format
+msgid "[graph: %s]"
+msgstr ""
+
+#: sphinx/ext/graphviz.py:296 sphinx/ext/graphviz.py:304
+msgid "[graph]"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:234
+#, python-format
+msgid "(in %s v%s)"
+msgstr ""
+
+#: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
+msgid "[source]"
+msgstr ""
+
+#: sphinx/ext/refcounting.py:83
+msgid "Return value: Always NULL."
+msgstr ""
+
+#: sphinx/ext/refcounting.py:85
+msgid "Return value: New reference."
+msgstr ""
+
+#: sphinx/ext/refcounting.py:87
+msgid "Return value: Borrowed reference."
+msgstr ""
+
+#: sphinx/ext/todo.py:42
 msgid "Todo"
 msgstr "Tehtävä vielä"
 
-#: sphinx/ext/todo.py:109
+#: sphinx/ext/todo.py:110
 #, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
 msgstr ""
 
-#: sphinx/ext/todo.py:117
+#: sphinx/ext/todo.py:119
 msgid "original entry"
-msgstr ""
-
-#: sphinx/ext/viewcode.py:70
-msgid "[source]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:117
@@ -431,9 +459,8 @@ msgid "[docs]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
-msgstr "moduuli"
+msgstr ""
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
@@ -477,7 +504,7 @@ msgid "Note"
 msgstr "Muista"
 
 #: sphinx/locale/__init__.py:162
-msgid "See Also"
+msgid "See also"
 msgstr "Katso myös"
 
 #: sphinx/locale/__init__.py:163
@@ -523,31 +550,44 @@ msgstr ""
 msgid "built-in function"
 msgstr ""
 
-#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
-#: sphinx/themes/basic/localtoc.html:11
+#: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:35
 msgid "Table Of Contents"
 msgstr "Sisällysluettelo"
 
-#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:137
-#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:20
+#: sphinx/themes/agogo/layout.html:50 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
+#: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
 msgstr "Etsi"
 
-#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+#: sphinx/themes/agogo/layout.html:53 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
 msgstr "Siirry"
 
-#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+#: sphinx/themes/agogo/layout.html:58 sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
 msgstr "Anna etsittävä termi tai moduuli, luokka tai funktio"
 
-#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+#: sphinx/themes/agogo/layout.html:79 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
 msgstr "Näytä lähdekoodina"
 
 #: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
 msgstr "Yhteenveto"
+
+#: sphinx/themes/basic/defindex.html:15
+msgid "Welcome! This is"
+msgstr ""
+
+#: sphinx/themes/basic/defindex.html:16
+msgid "the documentation for"
+msgstr ""
+
+#: sphinx/themes/basic/defindex.html:17
+msgid "last updated"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
@@ -632,7 +672,7 @@ msgstr ""
 #: sphinx/themes/basic/layout.html:198
 #, python-format
 msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
 
@@ -657,13 +697,13 @@ msgstr ">>"
 msgid "next chapter"
 msgstr ">>"
 
-#: sphinx/themes/basic/search.html:24
+#: sphinx/themes/basic/search.html:27
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
 msgstr "Javascript pitää olla sallittu, jotta etsintä toimii."
 
-#: sphinx/themes/basic/search.html:29
+#: sphinx/themes/basic/search.html:32
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
@@ -671,17 +711,24 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr "Anna hakusanat kokonaan, osasanoilla ei haeta."
 
-#: sphinx/themes/basic/search.html:36
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "etsi"
 
-#: sphinx/themes/basic/search.html:40
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr "Etsinnän tulos"
 
-#: sphinx/themes/basic/search.html:42
-msgid "Your search did not match any results."
-msgstr "Ei löytynyt ko. ehdoilla yhtään."
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/static/searchtools.js_t:283
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -719,25 +766,42 @@ msgstr ""
 msgid "Other changes"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:504
-#: sphinx/writers/html.py:510
+#: sphinx/themes/basic/static/doctools.js:142 sphinx/writers/html.py:510
+#: sphinx/writers/html.py:516
 msgid "Permalink to this headline"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
+#: sphinx/themes/basic/static/doctools.js:148 sphinx/writers/html.py:97
 msgid "Permalink to this definition"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:189
+#: sphinx/themes/basic/static/doctools.js:177
 msgid "Hide Search Matches"
 msgstr "Piilota löydetyt"
 
-#: sphinx/themes/default/static/sidebar.js:69
+#: sphinx/themes/basic/static/searchtools.js_t:119
+msgid "Searching"
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js_t:124
+msgid "Preparing search..."
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js_t:285
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js_t:337
+msgid ", in "
+msgstr ""
+
+#: sphinx/themes/default/static/sidebar.js_t:83
 msgid "Expand sidebar"
 msgstr ""
 
-#: sphinx/themes/default/static/sidebar.js:82
-#: sphinx/themes/default/static/sidebar.js:110
+#: sphinx/themes/default/static/sidebar.js_t:96
+#: sphinx/themes/default/static/sidebar.js_t:124
 msgid "Collapse sidebar"
 msgstr ""
 
@@ -745,25 +809,28 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: sphinx/writers/latex.py:177
+#: sphinx/writers/latex.py:189
 msgid "Release"
 msgstr ""
 
-#: sphinx/writers/latex.py:594 sphinx/writers/manpage.py:182
-#: sphinx/writers/texinfo.py:589
+#: sphinx/writers/latex.py:620 sphinx/writers/manpage.py:181
+#: sphinx/writers/texinfo.py:612
 msgid "Footnotes"
 msgstr ""
 
-#: sphinx/writers/latex.py:676
+#: sphinx/writers/latex.py:704
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:681
-#, fuzzy
+#: sphinx/writers/latex.py:710
 msgid "Continued on next page"
 msgstr ""
 
-#: sphinx/writers/text.py:437
-msgid "[image]"
+#: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
+#, python-format
+msgid "[image: %s]"
 msgstr ""
 
+#: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
+msgid "[image]"
+msgstr ""

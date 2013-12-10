@@ -1,0 +1,46 @@
+:tocdepth: 2
+
+Admonitions
+==================
+.. #1206 gettext did not translate admonition directive's title
+
+.. attention:: attention title
+
+   attention body
+
+.. caution:: caution title
+
+   caution body
+
+.. danger:: danger title
+
+   danger body
+
+.. error:: error title
+
+   error body
+
+.. hint:: hint title
+
+   hint body
+
+.. important:: important title
+
+   important body
+
+.. note:: note title
+
+   note body
+
+.. tip:: tip title
+
+   tip body
+
+.. warning:: warning title
+
+   warning body
+
+.. admonition:: admonition title
+
+   admonition body
+

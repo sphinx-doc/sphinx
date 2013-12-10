@@ -5,7 +5,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -51,7 +51,8 @@ class ManualPageBuilder(Builder):
         docwriter = ManualPageWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
-            components=(docwriter,)).get_default_values()
+            components=(docwriter,),
+            read_config_files=True).get_default_values()
 
         self.info(bold('writing... '), nonl=True)
 

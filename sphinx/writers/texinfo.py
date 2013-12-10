@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ from os import path
 from docutils import nodes, writers
 
 from sphinx import addnodes, __version__
-from sphinx.locale import versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util import ustrftime
 from sphinx.writers.latex import collected_footnote
 
@@ -44,8 +44,10 @@ TEMPLATE = """\
 @defindex ge
 @paragraphindent %(paragraphindent)s
 @exampleindent %(exampleindent)s
-@afourlatex
+@finalout
 %(direntry)s
+@definfoenclose strong,`,'
+@definfoenclose emph,`,'
 @c %%**end of header
 
 @copying
@@ -84,6 +86,16 @@ def find_subsections(section):
             continue
         result.extend(find_subsections(child))
     return result
+
+
+def smart_capwords(s, sep=None):
+    """Like string.capwords() but does not capitalize words that already
+    contain a capital letter."""
+    words = s.split(sep)
+    for i, word in enumerate(words):
+        if all(x.islower() for x in word):
+            words[i] = word.capitalize()
+    return (sep or ' ').join(words)
 
 
 class TexinfoWriter(writers.Writer):
@@ -128,7 +140,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         'direntry': '',
         'exampleindent': 4,
         'filename': '',
-        'paragraphindent': 2,
+        'paragraphindent': 0,
         'preamble': '',
         'project': '',
         'release': '',
@@ -161,6 +173,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.seen_title = False
         self.next_section_ids = set()
         self.escape_newlines = 0
+        self.escape_hyphens = 0
         self.curfilestack = []
         self.footnotestack = []
         self.in_footnote = 0
@@ -180,7 +193,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
             r = self.referenced_ids.pop()
             if r not in self.written_ids:
                 self.body.append('@anchor{%s}@w{%s}\n' % (r, ' ' * 30))
-        self.fragment = ''.join(self.body).strip() + '\n'
+        self.ensure_eol()
+        self.fragment = ''.join(self.body)
         self.elements['body'] = self.fragment
         self.output = TEMPLATE % self.elements
 
@@ -233,30 +247,31 @@ class TexinfoTranslator(nodes.NodeVisitor):
         """Generates a unique id for each section.
 
         Assigns the attribute ``node_name`` to each section."""
+
+        def add_node_name(name):
+            node_id = self.escape_id(name)
+            nth, suffix = 1, ''
+            while node_id + suffix in self.written_ids or \
+                  node_id + suffix in self.node_names:
+                nth += 1
+                suffix = '<%s>' % nth
+            node_id += suffix
+            self.written_ids.add(node_id)
+            self.node_names[node_id] = name
+            return node_id
+
         # must have a "Top" node
         self.document['node_name'] = 'Top'
-        self.node_names['Top'] = 'Top'
-        self.written_ids.update(('Top', 'top'))
+        add_node_name('Top')
+        add_node_name('top')
         # each index is a node
-        for name, content in self.indices:
-            self.node_names[name] = name
-            self.written_ids.add(name)
+        self.indices = [(add_node_name(name), content)
+                        for name, content in self.indices]
         # each section is also a node
         for section in self.document.traverse(nodes.section):
             title = section.next_node(nodes.Titular)
             name = (title and title.astext()) or '<untitled>'
-            node_id = self.escape_id(name) or '<untitled>'
-            assert node_id and name
-            nth, suffix = 1, ''
-            while node_id + suffix in self.written_ids:
-                nth += 1
-                suffix = '<%s>' % nth
-            node_id += suffix
-            assert node_id not in self.node_names
-            assert node_id not in self.written_ids
-            section['node_name'] = node_id
-            self.node_names[node_id] = name
-            self.written_ids.add(node_id)
+            section['node_name'] = add_node_name(name)
 
     def collect_node_menus(self):
         """Collect the menu entries for each "node" section."""
@@ -323,8 +338,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # prevent `` and '' quote conversion
         s = s.replace('``', "`@w{`}")
         s = s.replace("''", "'@w{'}")
-        # prevent "--" from being converted to an "em dash"
-        # s = s.replace('-', '@w{-}')
         return s
 
     def escape_arg(self, s):
@@ -371,7 +384,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         for entry in entries:
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash
-            parts = reg.split(name, 1)
+            try:
+                parts = reg.split(name, 1)
+            except TypeError:
+                # could be a gettext proxy
+                parts = [name]
             if len(parts) == 2:
                 name, desc = parts
             else:
@@ -386,7 +403,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         self.body.append('\n@menu\n')
         self.add_menu_entries(entries)
-        if not self.node_menus[entries[0]]:
+        if (node_name != 'Top' or
+            not self.node_menus[entries[0]] or
+            self.builder.config.texinfo_no_detailmenu):
             self.body.append('\n@end menu\n')
             return
 
@@ -399,14 +418,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
             for subentry in entries:
                 _add_detailed_menu(subentry)
 
-        if node_name == 'Top':
-            self.body.append('\n@detailmenu\n'
-                             ' --- The Detailed Node Listing ---\n')
+        self.body.append('\n@detailmenu\n'
+                         ' --- The Detailed Node Listing ---\n')
         for entry in entries:
             _add_detailed_menu(entry)
-        if node_name == 'Top':
-            self.body.append('\n@end detailmenu')
-        self.body.append('\n@end menu\n\n')
+        self.body.append('\n@end detailmenu\n'
+                         '@end menu\n')
 
     def tex_image_length(self, width_str):
         match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
@@ -450,10 +467,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
                         self.builder.docnames)
                     if not content:
                         continue
-                    node_name = self.escape_id(indexcls.localname)
-                    self.indices.append((node_name,
+                    self.indices.append((indexcls.localname,
                                          generate(content, collapsed)))
-        self.indices.append((_('Index'), '\n@printindex ge\n'))
+        # only add the main Index if it's not empty
+        for docname in self.builder.docnames:
+            if self.builder.env.indexentries[docname]:
+                self.indices.append((_('Index'), '\n@printindex ge\n'))
+                break
 
     # this is copied from the latex writer
     # TODO: move this to sphinx.util
@@ -501,7 +521,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def add_xref(self, id, name, node):
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
-        self.body.append('@pxref{%s,,%s}' % (sid, name))
+        self.body.append('@ref{%s,,%s}' % (sid, name))
         self.referenced_ids.add(sid)
         self.referenced_ids.add(self.escape_id(id))
 
@@ -520,6 +540,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         s = self.escape(node.astext())
         if self.escape_newlines:
             s = s.replace('\n', ' ')
+        if self.escape_hyphens:
+            # prevent "--" and "---" conversion
+            s = s.replace('-', '@w{-}')
         self.body.append(s)
     def depart_Text(self, node):
         pass
@@ -673,9 +696,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:
-                self.body.append('@pxref{%s,,,%s}' % (id, uri))
+                self.body.append('@ref{%s,,,%s}' % (id, uri))
             else:
-                self.body.append('@pxref{%s,,%s,%s}' % (id, name, uri))
+                self.body.append('@ref{%s,,%s,%s}' % (id, name, uri))
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
@@ -703,8 +726,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Blocks
 
     def visit_paragraph(self, node):
-        if 'continued' in node or isinstance(node.parent, nodes.compound):
-            self.body.append('\n@noindent')
         self.body.append('\n')
     def depart_paragraph(self, node):
         self.body.append('\n')
@@ -718,8 +739,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_literal_block(self, node):
         self.body.append('\n@example\n')
     def depart_literal_block(self, node):
-        self.body.append('\n@end example\n\n'
-                         '@noindent\n')
+        self.ensure_eol()
+        self.body.append('@end example\n')
 
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
@@ -844,10 +865,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_option(self, node):
+        self.escape_hyphens += 1
         self.body.append('\n%s ' % self.at_item_x)
         self.at_item_x = '@itemx'
     def depart_option(self, node):
-        pass
+        self.escape_hyphens -= 1
 
     def visit_option_string(self, node):
         pass
@@ -958,20 +980,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Field Lists
 
     def visit_field_list(self, node):
-        self.body.append('\n\n@itemize @w\n')
+        pass
     def depart_field_list(self, node):
-        self.ensure_eol()
-        self.body.append('@end itemize\n')
+        pass
 
     def visit_field(self, node):
-        if not isinstance(node.parent, nodes.field_list):
-            self.visit_field_list(node)
+        self.body.append('\n')
     def depart_field(self, node):
-        if not isinstance(node.parent, nodes.field_list):
-            self.depart_field_list(node)
+        self.body.append('\n')
 
     def visit_field_name(self, node):
-        self.body.append('\n@item ')
+        self.ensure_eol()
+        self.body.append('@*')
     def depart_field_name(self, node):
         self.body.append(': ')
 
@@ -985,35 +1005,34 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_admonition(self, node, name=''):
         if not name:
             name = self.escape(node[0].astext())
-        self.body.append('\n@cartouche\n'
-                         '@quotation %s ' % name)
+        self.body.append(u'\n@cartouche\n@quotation %s ' % name)
     def depart_admonition(self, node):
         self.ensure_eol()
         self.body.append('@end quotation\n'
                          '@end cartouche\n')
 
-    def _make_visit_admonition(typ):
+    def _make_visit_admonition(name):
         def visit(self, node):
-            self.visit_admonition(node, self.escape(_(typ)))
+            self.visit_admonition(node, admonitionlabels[name])
         return visit
 
-    visit_attention = _make_visit_admonition('Attention')
+    visit_attention = _make_visit_admonition('attention')
     depart_attention = depart_admonition
-    visit_caution = _make_visit_admonition('Caution')
+    visit_caution = _make_visit_admonition('caution')
     depart_caution = depart_admonition
-    visit_danger = _make_visit_admonition('Danger')
+    visit_danger = _make_visit_admonition('danger')
     depart_danger = depart_admonition
-    visit_error = _make_visit_admonition('Error')
+    visit_error = _make_visit_admonition('error')
     depart_error = depart_admonition
-    visit_important = _make_visit_admonition('Important')
-    depart_important = depart_admonition
-    visit_note = _make_visit_admonition('Note')
-    depart_note = depart_admonition
-    visit_tip = _make_visit_admonition('Tip')
-    depart_tip = depart_admonition
-    visit_hint = _make_visit_admonition('Hint')
+    visit_hint = _make_visit_admonition('hint')
     depart_hint = depart_admonition
-    visit_warning = _make_visit_admonition('Warning')
+    visit_important = _make_visit_admonition('important')
+    depart_important = depart_admonition
+    visit_note = _make_visit_admonition('note')
+    depart_note = depart_admonition
+    visit_tip = _make_visit_admonition('tip')
+    depart_tip = depart_admonition
+    visit_warning = _make_visit_admonition('warning')
     depart_warning = depart_admonition
 
     ## Misc
@@ -1051,7 +1070,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_transition(self, node):
-        self.body.append('\n\n@exdent @w{    %s}\n\n' % ('* ' * 30))
+        self.body.append('\n\n%s\n\n' % ('_' * 66))
     def depart_transition(self, node):
         pass
 
@@ -1132,14 +1151,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_system_message(self, node):
-        self.body.append('\n@w{----------- System Message: %s/%s -----------} '
-                         '(%s, line %s)\n' % (
-                node.get('type', '?'),
-                node.get('level', '?'),
-                self.escape(node.get('source', '?')),
-                node.get('line', '?')))
-    def depart_system_message(self, node):
-        pass
+        self.body.append('\n@verbatim\n'
+                         '<SYSTEM MESSAGE: %s>\n'
+                         '@end verbatim\n' % node.astext())
+        raise nodes.SkipNode
 
     def visit_comment(self, node):
         self.body.append('\n')
@@ -1148,9 +1163,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_problematic(self, node):
-        self.body.append('>')
+        self.body.append('>>')
     def depart_problematic(self, node):
-        self.body.append('<')
+        self.body.append('<<')
 
     def unimplemented_visit(self, node):
         self.builder.warn("unimplemented node type: %r" % node,
@@ -1175,7 +1190,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 for id in production.get('ids'):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
-                lastname = production['tokenname']
             else:
                 s = '%s    ' % (' '*maxlen)
             self.body.append(self.escape(s))
@@ -1204,18 +1218,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
             text = self.escape_menu(text)
             self.body.append('@geindex %s\n' % text)
 
-    def visit_refcount(self, node):
-        self.body.append('\n')
-    def depart_refcount(self, node):
-        self.body.append('\n')
-
     def visit_versionmodified(self, node):
-        intro = versionlabels[node['type']] % node['version']
-        if node.children:
-            intro += ': '
-        else:
-            intro += '.'
-        self.body.append('\n%s' % self.escape(intro))
+        self.body.append('\n')
     def depart_versionmodified(self, node):
         self.body.append('\n')
 
@@ -1234,9 +1238,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_seealso(self, node):
-        self.visit_topic(node)
+        self.body.append(u'\n\n@subsubheading %s\n\n' %
+                         admonitionlabels['seealso'])
     def depart_seealso(self, node):
-        self.depart_topic(node)
+        self.body.append('\n')
 
     def visit_meta(self, node):
         raise nodes.SkipNode
@@ -1261,12 +1266,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
     ## Desc
 
     def visit_desc(self, node):
+        self.desc = node
         self.at_deffnx = '@deffn'
     def depart_desc(self, node):
+        self.desc = None
         self.ensure_eol()
         self.body.append('@end deffn\n')
 
     def visit_desc_signature(self, node):
+        self.escape_hyphens += 1
         objtype = node.parent['objtype']
         if objtype != 'describe':
             for id in node.get('ids'):
@@ -1279,11 +1287,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                         primary == domain.name)
         except KeyError:
             name = objtype
-        category = self.escape_arg(string.capwords(name))
+        # by convention, the deffn category should be capitalized like a title
+        category = self.escape_arg(smart_capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
+        self.desc_type_name = name
     def depart_desc_signature(self, node):
         self.body.append("\n")
+        self.escape_hyphens -= 1
+        self.desc_type_name = None
 
     def visit_desc_name(self, node):
         pass
@@ -1328,7 +1340,18 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append(']')
 
     def visit_desc_annotation(self, node):
-        raise nodes.SkipNode
+        # Try to avoid duplicating info already displayed by the deffn category.
+        # e.g.
+        #     @deffn {Class} Foo
+        #     -- instead of --
+        #     @deffn {Class} class Foo
+        txt = node.astext().strip()
+        if txt == self.desc['desctype'] or \
+           txt == self.desc['objtype'] or \
+           txt in self.desc_type_name.split():
+            raise nodes.SkipNode
+    def depart_desc_annotation(self, node):
+        pass
 
     def visit_desc_content(self, node):
         pass

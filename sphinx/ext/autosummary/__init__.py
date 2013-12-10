@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -206,8 +206,6 @@ class Autosummary(Directive):
             docnames = []
             for name, sig, summary, real_name in items:
                 docname = posixpath.join(tree_prefix, real_name)
-                if docname.endswith(suffix):
-                    docname = docname[:-len(suffix)]
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in env.found_docs:
                     self.warn('toctree references unknown document %r'

@@ -5,12 +5,12 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import sys
 
-from util import *
+from util import TestApp, remove_unicode_literals, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder

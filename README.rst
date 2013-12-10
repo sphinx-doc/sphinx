@@ -1,5 +1,3 @@
-.. -*- restructuredtext -*-
-
 =================
 README for Sphinx
 =================
@@ -23,7 +21,7 @@ After installing::
 
 Then, direct your browser to ``_build/html/index.html``.
 
-Or read them online at <http://sphinx.pocoo.org/>.
+Or read them online at <http://sphinx-doc.org/>.
 
 
 Testing

@@ -1,47 +1,52 @@
-# Koreantranslations for Sphinx.
-# Copyright (C) 2008 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# Channy Yun <channy@mozilla.or.kr>
-#
+# 
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 1.1pre\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-09-21 10:06+0200\n"
-"PO-Revision-Date: 2011-06-09 21:25+0900\n"
-"Last-Translator: Channy Yun <channy@mozilla.or.kr>\n"
-"Language-Team: Korean\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"POT-Creation-Date: 2013-04-02 10:33+0200\n"
+"PO-Revision-Date: 2013-04-02 15:26+0000\n"
+"Last-Translator: birkenfeld <g.brandl@gmx.net>\n"
+"Language-Team: Korean (http://www.transifex.com/projects/p/sphinx-1/language/ko/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: ko\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: sphinx/config.py:81
 #, python-format
 msgid "%s %s documentation"
 msgstr ""
 
-#: sphinx/environment.py:119 sphinx/writers/latex.py:190
-#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:203
-#, python-format
-msgid "%B %d, %Y"
-msgstr "%Y년 %m월 %d일"
-
-#: sphinx/environment.py:1625
+#: sphinx/environment.py:1510
 #, python-format
 msgid "see %s"
 msgstr "%s 문서"
 
-#: sphinx/environment.py:1628
+#: sphinx/environment.py:1513
 #, python-format
 msgid "see also %s"
 msgstr "%s 참조"
+
+#: sphinx/environment.py:1570
+msgid "Symbols"
+msgstr ""
 
 #: sphinx/roles.py:175
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Enhancement Proposals; PEP %s"
+
+#: sphinx/transforms.py:52 sphinx/writers/latex.py:202
+#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:217
+#, python-format
+msgid "%B %d, %Y"
+msgstr "%Y년 %m월 %d일"
 
 #: sphinx/builders/changes.py:73
 msgid "Builtins"
@@ -51,71 +56,64 @@ msgstr "기본"
 msgid "Module level"
 msgstr "모듈 수준"
 
-#: sphinx/builders/html.py:274
+#: sphinx/builders/html.py:290
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y년 %m월 %d일"
 
-#: sphinx/builders/html.py:293 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:309 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "전체 색인"
 
-#: sphinx/builders/html.py:293
+#: sphinx/builders/html.py:309
 msgid "index"
 msgstr "색인"
 
-#: sphinx/builders/html.py:353
+#: sphinx/builders/html.py:369
 msgid "next"
 msgstr "다음"
 
-#: sphinx/builders/html.py:362
+#: sphinx/builders/html.py:378
 msgid "previous"
 msgstr "이전"
 
 #: sphinx/builders/latex.py:141 sphinx/builders/texinfo.py:196
-#, fuzzy
 msgid " (in "
-msgstr "("
-
-#: sphinx/directives/other.py:136
-#, fuzzy
-msgid "Section author: "
-msgstr "항목 저자:"
+msgstr ""
 
 #: sphinx/directives/other.py:138
-#, fuzzy
-msgid "Module author: "
-msgstr "모듈 개발자:"
+msgid "Section author: "
+msgstr ""
 
 #: sphinx/directives/other.py:140
-#, fuzzy
-msgid "Code author: "
-msgstr "코드 개발자:"
+msgid "Module author: "
+msgstr ""
 
 #: sphinx/directives/other.py:142
-#, fuzzy
-msgid "Author: "
-msgstr "저자:"
+msgid "Code author: "
+msgstr ""
 
-#: sphinx/directives/other.py:215
-msgid "See also"
-msgstr "더 보기"
+#: sphinx/directives/other.py:144
+msgid "Author: "
+msgstr ""
 
 #: sphinx/domains/__init__.py:244
 #, python-format
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr "매개 변수"
 
-#: sphinx/domains/c.py:54 sphinx/domains/javascript.py:128
-#: sphinx/domains/python.py:107
+#: sphinx/domains/c.py:54 sphinx/domains/cpp.py:945
+#: sphinx/domains/javascript.py:128 sphinx/domains/python.py:107
 msgid "Returns"
 msgstr "반환"
 
-#: sphinx/domains/c.py:56 sphinx/domains/python.py:109
+#: sphinx/domains/c.py:56 sphinx/domains/javascript.py:130
+#: sphinx/domains/python.py:109
 msgid "Return type"
 msgstr "반환 형식"
 
@@ -144,58 +142,62 @@ msgstr "%s (C 데이터 형식)"
 msgid "%s (C variable)"
 msgstr "%s (C 변수)"
 
-#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1060
-#: sphinx/domains/javascript.py:162 sphinx/domains/python.py:559
+#: sphinx/domains/c.py:203 sphinx/domains/cpp.py:1207
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
 msgid "function"
 msgstr "함수"
 
-#: sphinx/domains/c.py:205 sphinx/domains/cpp.py:1061
+#: sphinx/domains/c.py:204 sphinx/domains/cpp.py:1208
 msgid "member"
 msgstr "멤버 변수"
 
-#: sphinx/domains/c.py:206
+#: sphinx/domains/c.py:205
 msgid "macro"
 msgstr "매크로"
 
-#: sphinx/domains/c.py:207 sphinx/domains/cpp.py:1062
+#: sphinx/domains/c.py:206 sphinx/domains/cpp.py:1209
 msgid "type"
 msgstr "데이터 형식"
 
-#: sphinx/domains/c.py:208
+#: sphinx/domains/c.py:207
 msgid "variable"
 msgstr "변수"
 
-#: sphinx/domains/cpp.py:904
+#: sphinx/domains/cpp.py:942 sphinx/domains/javascript.py:125
+msgid "Throws"
+msgstr "예외"
+
+#: sphinx/domains/cpp.py:1038
 #, python-format
 msgid "%s (C++ class)"
 msgstr "%s (C++ 클래스)"
 
-#: sphinx/domains/cpp.py:919
+#: sphinx/domains/cpp.py:1061
 #, python-format
 msgid "%s (C++ type)"
 msgstr "%s (C++ 데이터 형식)"
 
-#: sphinx/domains/cpp.py:938
+#: sphinx/domains/cpp.py:1081
 #, python-format
 msgid "%s (C++ member)"
 msgstr "%s (C++의 멤버 변수)"
 
-#: sphinx/domains/cpp.py:990
+#: sphinx/domains/cpp.py:1137
 #, python-format
 msgid "%s (C++ function)"
 msgstr "%s (C++ 함수)"
 
-#: sphinx/domains/cpp.py:1059 sphinx/domains/javascript.py:163
-#: sphinx/domains/python.py:561
+#: sphinx/domains/cpp.py:1206 sphinx/domains/javascript.py:165
+#: sphinx/domains/python.py:562
 msgid "class"
 msgstr "클래스"
 
-#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:254
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:253
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() 내장 함수)"
 
-#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:318
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:317
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s 메서드)"
@@ -210,7 +212,7 @@ msgstr "%s() (클래스)"
 msgid "%s (global variable or constant)"
 msgstr "%s (전역 변수 또는 상수)"
 
-#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:356
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:355
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s의 속성)"
@@ -219,15 +221,11 @@ msgstr "%s (%s의 속성)"
 msgid "Arguments"
 msgstr "인수"
 
-#: sphinx/domains/javascript.py:125
-msgid "Throws"
-msgstr "예외"
-
-#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:560
+#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
 msgid "data"
 msgstr "데이터"
 
-#: sphinx/domains/javascript.py:165 sphinx/domains/python.py:566
+#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:567
 msgid "attribute"
 msgstr "속성"
 
@@ -239,61 +237,61 @@ msgstr "변수"
 msgid "Raises"
 msgstr "예외"
 
-#: sphinx/domains/python.py:255 sphinx/domains/python.py:312
-#: sphinx/domains/python.py:324 sphinx/domains/python.py:337
+#: sphinx/domains/python.py:254 sphinx/domains/python.py:311
+#: sphinx/domains/python.py:323 sphinx/domains/python.py:336
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s 모듈)"
 
-#: sphinx/domains/python.py:258
+#: sphinx/domains/python.py:257
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (내장 변수)"
 
-#: sphinx/domains/python.py:259 sphinx/domains/python.py:350
+#: sphinx/domains/python.py:258 sphinx/domains/python.py:349
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s 모듈)"
 
-#: sphinx/domains/python.py:275
+#: sphinx/domains/python.py:274
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (내장 변수)"
 
-#: sphinx/domains/python.py:276
+#: sphinx/domains/python.py:275
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s 종류)"
 
-#: sphinx/domains/python.py:316
-#, fuzzy, python-format
+#: sphinx/domains/python.py:315
+#, python-format
 msgid "%s() (%s.%s method)"
-msgstr "%s() (%s. %s 메서드)"
+msgstr ""
 
-#: sphinx/domains/python.py:328
-#, fuzzy, python-format
+#: sphinx/domains/python.py:327
+#, python-format
 msgid "%s() (%s.%s static method)"
-msgstr "%s() (%s. %s의 정적 메서드)"
+msgstr ""
 
-#: sphinx/domains/python.py:331
+#: sphinx/domains/python.py:330
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s의 정적 메서드)"
 
-#: sphinx/domains/python.py:341
-#, fuzzy, python-format
+#: sphinx/domains/python.py:340
+#, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s. %s 클래스 메서드)"
+msgstr ""
 
-#: sphinx/domains/python.py:344
+#: sphinx/domains/python.py:343
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s 클래스 메서드)"
 
-#: sphinx/domains/python.py:354
-#, fuzzy, python-format
+#: sphinx/domains/python.py:353
+#, python-format
 msgid "%s (%s.%s attribute)"
-msgstr "%s (%s. %s의 속성)"
+msgstr ""
 
 #: sphinx/domains/python.py:434
 #, python-format
@@ -308,50 +306,49 @@ msgstr "Python 모듈 목록"
 msgid "modules"
 msgstr "모듈"
 
-#: sphinx/domains/python.py:537
+#: sphinx/domains/python.py:538
 msgid "Deprecated"
 msgstr "폐지"
 
-#: sphinx/domains/python.py:562 sphinx/locale/__init__.py:179
+#: sphinx/domains/python.py:563 sphinx/locale/__init__.py:179
 msgid "exception"
 msgstr "예외"
 
-#: sphinx/domains/python.py:563
+#: sphinx/domains/python.py:564
 msgid "method"
 msgstr "메소드"
 
-#: sphinx/domains/python.py:564
+#: sphinx/domains/python.py:565
 msgid "class method"
 msgstr "클래스 메소드"
 
-#: sphinx/domains/python.py:565
+#: sphinx/domains/python.py:566
 msgid "static method"
 msgstr "정적 메서드"
 
-#: sphinx/domains/python.py:567 sphinx/locale/__init__.py:175
+#: sphinx/domains/python.py:568 sphinx/locale/__init__.py:175
 msgid "module"
 msgstr "모듈"
 
-#: sphinx/domains/python.py:695
-#, fuzzy
+#: sphinx/domains/python.py:696
 msgid " (deprecated)"
-msgstr "(폐지)"
+msgstr ""
 
-#: sphinx/domains/rst.py:55
+#: sphinx/domains/rst.py:53
 #, python-format
 msgid "%s (directive)"
 msgstr "%s (지시문)"
 
-#: sphinx/domains/rst.py:57
+#: sphinx/domains/rst.py:55
 #, python-format
 msgid "%s (role)"
 msgstr "%s (역할)"
 
-#: sphinx/domains/rst.py:106
+#: sphinx/domains/rst.py:104
 msgid "directive"
 msgstr "지시자"
 
-#: sphinx/domains/rst.py:107
+#: sphinx/domains/rst.py:105
 msgid "role"
 msgstr "역할"
 
@@ -365,69 +362,96 @@ msgstr "환경 변수; %s"
 msgid "%scommand line option; %s"
 msgstr "%s 명령; %s"
 
-#: sphinx/domains/std.py:393
+#: sphinx/domains/std.py:414
 msgid "glossary term"
 msgstr "용어의 항목"
 
-#: sphinx/domains/std.py:394
+#: sphinx/domains/std.py:415
 msgid "grammar token"
 msgstr "문법 토큰"
 
-#: sphinx/domains/std.py:395
+#: sphinx/domains/std.py:416
 msgid "reference label"
 msgstr "참조 레이블"
 
-#: sphinx/domains/std.py:396
+#: sphinx/domains/std.py:418
 msgid "environment variable"
 msgstr "환경 변수"
 
-#: sphinx/domains/std.py:397
+#: sphinx/domains/std.py:419
 msgid "program option"
 msgstr "프로그램 옵션"
 
-#: sphinx/domains/std.py:427 sphinx/themes/basic/genindex-single.html:32
+#: sphinx/domains/std.py:449 sphinx/themes/basic/genindex-single.html:32
+#: sphinx/themes/basic/genindex-single.html:57
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
 #: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:179 sphinx/writers/texinfo.py:456
+#: sphinx/writers/latex.py:191 sphinx/writers/texinfo.py:475
 msgid "Index"
 msgstr "색인"
 
-#: sphinx/domains/std.py:428
+#: sphinx/domains/std.py:450
 msgid "Module Index"
 msgstr "모듈 목록"
 
-#: sphinx/domains/std.py:429 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:451 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "검색 페이지"
 
-#: sphinx/ext/autodoc.py:1002
-#, fuzzy, python-format
+#: sphinx/ext/autodoc.py:1042
+#, python-format
 msgid "   Bases: %s"
-msgstr "기본 클래스: %s"
+msgstr ""
 
-#: sphinx/ext/autodoc.py:1038
-#, fuzzy, python-format
+#: sphinx/ext/autodoc.py:1078
+#, python-format
 msgid "alias of :class:`%s`"
-msgstr ": class:`%s`의 별칭"
+msgstr ""
 
-#: sphinx/ext/todo.py:41
+#: sphinx/ext/graphviz.py:294 sphinx/ext/graphviz.py:302
+#, python-format
+msgid "[graph: %s]"
+msgstr ""
+
+#: sphinx/ext/graphviz.py:296 sphinx/ext/graphviz.py:304
+msgid "[graph]"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:234
+#, python-format
+msgid "(in %s v%s)"
+msgstr ""
+
+#: sphinx/ext/linkcode.py:66 sphinx/ext/viewcode.py:70
+msgid "[source]"
+msgstr "[소스]"
+
+#: sphinx/ext/refcounting.py:83
+msgid "Return value: Always NULL."
+msgstr ""
+
+#: sphinx/ext/refcounting.py:85
+msgid "Return value: New reference."
+msgstr ""
+
+#: sphinx/ext/refcounting.py:87
+msgid "Return value: Borrowed reference."
+msgstr ""
+
+#: sphinx/ext/todo.py:42
 msgid "Todo"
 msgstr "과제"
 
-#: sphinx/ext/todo.py:109
-#, fuzzy, python-format
+#: sphinx/ext/todo.py:110
+#, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr "(<<원래 항목\" \"는 %s %d 번째)"
+msgstr ""
 
-#: sphinx/ext/todo.py:117
+#: sphinx/ext/todo.py:119
 msgid "original entry"
 msgstr "원래 항목"
-
-#: sphinx/ext/viewcode.py:70
-msgid "[source]"
-msgstr "[소스]"
 
 #: sphinx/ext/viewcode.py:117
 msgid "[docs]"
@@ -438,18 +462,17 @@ msgid "Module code"
 msgstr "모듈 코드"
 
 #: sphinx/ext/viewcode.py:137
-#, fuzzy, python-format
+#, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr "<h1>%s의 소스 코드</ h1>"
+msgstr ""
 
 #: sphinx/ext/viewcode.py:164
 msgid "Overview: module code"
 msgstr "설명: 모듈 코드"
 
 #: sphinx/ext/viewcode.py:165
-#, fuzzy
 msgid "<h1>All modules for which code is available</h1>"
-msgstr "<h1>코드가 제공되는 모든 모듈 </ h1>"
+msgstr ""
 
 #: sphinx/locale/__init__.py:155
 msgid "Attention"
@@ -480,7 +503,7 @@ msgid "Note"
 msgstr "주석"
 
 #: sphinx/locale/__init__.py:162
-msgid "See Also"
+msgid "See also"
 msgstr "더 보기"
 
 #: sphinx/locale/__init__.py:163
@@ -526,31 +549,44 @@ msgstr "글"
 msgid "built-in function"
 msgstr "내장 함수"
 
-#: sphinx/themes/agogo/layout.html:45 sphinx/themes/basic/globaltoc.html:10
-#: sphinx/themes/basic/localtoc.html:11
+#: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:35
 msgid "Table Of Contents"
 msgstr "목차"
 
-#: sphinx/themes/agogo/layout.html:49 sphinx/themes/basic/layout.html:137
-#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:20
+#: sphinx/themes/agogo/layout.html:50 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
+#: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
 msgstr "검색"
 
-#: sphinx/themes/agogo/layout.html:52 sphinx/themes/basic/searchbox.html:15
+#: sphinx/themes/agogo/layout.html:53 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
 msgstr "바로 가기"
 
-#: sphinx/themes/agogo/layout.html:57 sphinx/themes/basic/searchbox.html:20
+#: sphinx/themes/agogo/layout.html:58 sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
 msgstr "모듈, 클래스 또는 함수 이름을 입력하십시오."
 
-#: sphinx/themes/agogo/layout.html:78 sphinx/themes/basic/sourcelink.html:14
+#: sphinx/themes/agogo/layout.html:79 sphinx/themes/basic/sourcelink.html:14
 msgid "Show Source"
 msgstr "소스 코드를 보려면"
 
 #: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
 msgstr "개요"
+
+#: sphinx/themes/basic/defindex.html:15
+msgid "Welcome! This is"
+msgstr ""
+
+#: sphinx/themes/basic/defindex.html:16
+msgid "the documentation for"
+msgstr ""
+
+#: sphinx/themes/basic/defindex.html:17
+msgid "last updated"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
@@ -581,9 +617,9 @@ msgid "all functions, classes, terms"
 msgstr "함수, 클래스 및 용어 개관"
 
 #: sphinx/themes/basic/genindex-single.html:35
-#, fuzzy, python-format
+#, python-format
 msgid "Index &ndash; %(key)s"
-msgstr "색인-%(key)s"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-single.html:63
 #: sphinx/themes/basic/genindex-split.html:24
@@ -618,14 +654,14 @@ msgid "Copyright"
 msgstr "저작권"
 
 #: sphinx/themes/basic/layout.html:189
-#, fuzzy, python-format
+#, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr "©<a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:191
-#, fuzzy, python-format
+#, python-format
 msgid "&copy; Copyright %(copyright)s."
-msgstr "©Copyright %(copyright)s."
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:195
 #, python-format
@@ -633,13 +669,11 @@ msgid "Last updated on %(last_updated)s."
 msgstr "최종 업데이트: %(last_updated)s"
 
 #: sphinx/themes/basic/layout.html:198
-#, fuzzy, python-format
+#, python-format
 msgid ""
-"Created using <a href=\"http://sphinx.pocoo.org/\">Sphinx</a> "
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"이 문서는 <a href=\"http://sphinx.pocoo.org/\">Sphinx</a>%(sphinx_version)s로 "
-"제공됩니다."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -662,35 +696,38 @@ msgstr "다음 항목"
 msgid "next chapter"
 msgstr "다음 장"
 
-#: sphinx/themes/basic/search.html:24
-#, fuzzy
+#: sphinx/themes/basic/search.html:27
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "검색 기능을 사용하려면 JavaScript를 활성화하십시오."
+msgstr ""
 
-#: sphinx/themes/basic/search.html:29
-#, fuzzy
+#: sphinx/themes/basic/search.html:32
 msgid ""
 "From here you can search these documents. Enter your search\n"
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
 msgstr ""
-"이 문서에서 문서를 검색할 수 있습니다. 키워드를 아래 입력란에 입력하고 '검색'을 클릭하세요. 입력된 모든 키워드를 포함하는 "
-"페이지가 검색됩니다. 일부 키워드 밖에 없는 페이지는 검색 결과에 표시되지 않으므로 주의하십시오. "
 
-#: sphinx/themes/basic/search.html:36
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "검색"
 
-#: sphinx/themes/basic/search.html:40
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr "검색 결과"
 
-#: sphinx/themes/basic/search.html:42
-msgid "Your search did not match any results."
-msgstr "검색 조건에 일치하는 항목이 없습니다."
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/static/searchtools.js_t:283
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -702,14 +739,14 @@ msgstr "현재 문서"
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
-#, fuzzy, python-format
+#, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr "버전 %(version)s의 변경 사항-%(docstitle)s"
+msgstr ""
 
 #: sphinx/themes/basic/changes/rstsource.html:5
-#, fuzzy, python-format
+#, python-format
 msgid "%(filename)s &mdash; %(docstitle)s"
-msgstr "%(filename)s-%(docstitle)s"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
@@ -728,25 +765,42 @@ msgstr "C API에 대한 변경"
 msgid "Other changes"
 msgstr "다른 변경 사항"
 
-#: sphinx/themes/basic/static/doctools.js:154 sphinx/writers/html.py:504
-#: sphinx/writers/html.py:510
+#: sphinx/themes/basic/static/doctools.js:142 sphinx/writers/html.py:510
+#: sphinx/writers/html.py:516
 msgid "Permalink to this headline"
 msgstr "제목 주소"
 
-#: sphinx/themes/basic/static/doctools.js:160 sphinx/writers/html.py:92
+#: sphinx/themes/basic/static/doctools.js:148 sphinx/writers/html.py:97
 msgid "Permalink to this definition"
 msgstr "정의 주소"
 
-#: sphinx/themes/basic/static/doctools.js:189
+#: sphinx/themes/basic/static/doctools.js:177
 msgid "Hide Search Matches"
 msgstr "검색 결과 숨기기"
 
-#: sphinx/themes/default/static/sidebar.js:69
+#: sphinx/themes/basic/static/searchtools.js_t:119
+msgid "Searching"
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js_t:124
+msgid "Preparing search..."
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js_t:285
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js_t:337
+msgid ", in "
+msgstr ""
+
+#: sphinx/themes/default/static/sidebar.js_t:83
 msgid "Expand sidebar"
 msgstr "사이드바 열기"
 
-#: sphinx/themes/default/static/sidebar.js:82
-#: sphinx/themes/default/static/sidebar.js:110
+#: sphinx/themes/default/static/sidebar.js_t:96
+#: sphinx/themes/default/static/sidebar.js_t:124
 msgid "Collapse sidebar"
 msgstr "사이드바 닫기"
 
@@ -754,24 +808,28 @@ msgstr "사이드바 닫기"
 msgid "Contents"
 msgstr "내용"
 
-#: sphinx/writers/latex.py:177
+#: sphinx/writers/latex.py:189
 msgid "Release"
 msgstr "출시"
 
-#: sphinx/writers/latex.py:594 sphinx/writers/manpage.py:182
-#: sphinx/writers/texinfo.py:589
+#: sphinx/writers/latex.py:620 sphinx/writers/manpage.py:181
+#: sphinx/writers/texinfo.py:612
 msgid "Footnotes"
 msgstr "참고"
 
-#: sphinx/writers/latex.py:676
+#: sphinx/writers/latex.py:704
 msgid "continued from previous page"
 msgstr "이전 페이지에서 계속"
 
-#: sphinx/writers/latex.py:681
+#: sphinx/writers/latex.py:710
 msgid "Continued on next page"
 msgstr "일반 색인"
 
-#: sphinx/writers/text.py:437
+#: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
+#, python-format
+msgid "[image: %s]"
+msgstr ""
+
+#: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr "[그림]"
-

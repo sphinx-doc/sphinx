@@ -5,16 +5,16 @@
 
     Test the Theme class.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import zipfile
 
-from util import *
-
 from sphinx.theming import Theme, ThemeError
+
+from util import with_app, raises
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',

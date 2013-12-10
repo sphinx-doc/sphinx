@@ -5,7 +5,7 @@
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,6 +23,7 @@ class TextBuilder(Builder):
     name = 'text'
     format = 'text'
     out_suffix = '.txt'
+    allow_parallel = True
 
     def init(self):
         pass

@@ -50,7 +50,7 @@ Be aware of some restrictions of this markup:
 
 These restrictions may be lifted in future versions of the docutils.
 
-reST also allows for custom "interpreted text roles"', which signify that the
+reST also allows for custom "interpreted text roles", which signify that the
 enclosed text should be interpreted in a specific way.  Sphinx uses this to
 provide semantic markup and cross-referencing of identifiers, as described in
 the appropriate section.  The general syntax is ``:rolename:`content```.
@@ -265,8 +265,9 @@ Docutils supports the following directives:
 
 * Admonitions: :dudir:`attention`, :dudir:`caution`, :dudir:`danger`,
   :dudir:`error`, :dudir:`hint`, :dudir:`important`, :dudir:`note`,
-  :dudir:`tip`, :dudir:`warning` and the generic :dudir:`admonition`.
-  (Most themes style only "note" and "warning" specially.)
+  :dudir:`tip`, :dudir:`warning` and the generic
+  :dudir:`admonition <admonitions>`.  (Most themes style only "note" and
+  "warning" specially.)
 
 * Images:
 
@@ -285,7 +286,7 @@ Docutils supports the following directives:
   - :dudir:`epigraph` (a block quote with optional attribution line)
   - :dudir:`highlights`, :dudir:`pull-quote` (block quotes with their own
     class attribute)
-  - :dudir:`compound` (a compound paragraph)
+  - :dudir:`compound <compound-paragraph>` (a compound paragraph)
 
 * Special tables:
 
@@ -295,7 +296,7 @@ Docutils supports the following directives:
 
 * Special directives:
 
-  - :dudir:`raw` (include raw target-format markup)
+  - :dudir:`raw <raw-data-pass-through>` (include raw target-format markup)
   - :dudir:`include` (include reStructuredText from another file)
     -- in Sphinx, when given an absolute include file path, this directive takes
     it as relative to the source directory
@@ -304,7 +305,7 @@ Docutils supports the following directives:
 * HTML specifics:
 
   - :dudir:`meta` (generation of HTML ``<meta>`` tags)
-  - :dudir:`title` (override document title)
+  - :dudir:`title <metadata-document-title>` (override document title)
 
 * Influencing markup:
 
@@ -472,9 +473,8 @@ There are some problems one commonly runs into while authoring reST documents:
 
 * **Separation of inline markup:** As said above, inline markup spans must be
   separated from the surrounding text by non-word characters, you have to use a
-  backslash-escaped space to get around that.  See `the reference
-  <http://docutils.sf.net/docs/ref/rst/restructuredtext.html#inline-markup>`_
-  for the details.
+  backslash-escaped space to get around that.  See
+  :duref:`the reference <substitution-definitions>` for the details.
 
 * **No nested inline markup:** Something like ``*see :func:`foo`*`` is not
   possible.

@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,7 @@ except ImportError:
     pygments = None
 
 from sphinx import __version__
-from util import *
+from util import test_root, remove_unicode_literals, gen_with_app, with_app
 from etree13 import ElementTree as ET
 
 
@@ -44,11 +44,12 @@ reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
 %(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
-http://sphinx.pocoo.org/domains.html
+http://sphinx-doc.org/domains.html
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
+None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:: WARNING: invalid single index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
@@ -144,7 +145,13 @@ HTML_XPATH = {
         # abbreviations
         (".//abbr[@title='abbreviation']", '^abbr$'),
         # version stuff
-        (".//span[@class='versionmodified']", 'New in version 0.6'),
+        (".//div[@class='versionadded']/p/span", 'New in version 0.6: '),
+        (".//div[@class='versionadded']/p/span",
+         tail_check('First paragraph of versionadded')),
+        (".//div[@class='versionchanged']/p/span",
+         tail_check('First paragraph of versionchanged')),
+        (".//div[@class='versionchanged']/p",
+         'Second paragraph of versionchanged'),
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
@@ -189,6 +196,17 @@ HTML_XPATH = {
             'Testing object descriptions'),
         (".//li[@class='toctree-l1']/a[@href='markup.html']",
             'Testing various markup'),
+        # test unknown field names
+        (".//th[@class='field-name']", 'Field_name:'),
+        (".//th[@class='field-name']", 'Field_name all lower:'),
+        (".//th[@class='field-name']", 'FIELD_NAME:'),
+        (".//th[@class='field-name']", 'FIELD_NAME ALL CAPS:'),
+        (".//th[@class='field-name']", 'Field_Name:'),
+        (".//th[@class='field-name']", 'Field_Name All Word Caps:'),
+        (".//th[@class='field-name']", 'Field_name:'),
+        (".//th[@class='field-name']", 'Field_name First word cap:'),
+        (".//th[@class='field-name']", 'FIELd_name:'),
+        (".//th[@class='field-name']", 'FIELd_name PARTial caps:'),
         # custom sidebar
         (".//h4", 'Custom sidebar'),
         # docfields
@@ -313,13 +331,17 @@ def check_static_entries(outdir):
     # a file from _static, but matches exclude_patterns
     assert not (staticdir / 'excluded.css').exists()
 
+def check_extra_entries(outdir):
+    assert (outdir / 'robots.txt').isfile()
+
 @gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
 def test_html(app):
     app.builder.build_all()
     html_warnings = html_warnfile.getvalue().replace(os.sep, '/')
-    html_warnings_exp = HTML_WARNINGS % {'root': re.escape(app.srcdir)}
+    html_warnings_exp = HTML_WARNINGS % {
+            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + html_warnings_exp + \
@@ -328,7 +350,7 @@ def test_html(app):
     for fname, paths in HTML_XPATH.iteritems():
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
-        fp = open(os.path.join(app.outdir, fname))
+        fp = open(os.path.join(app.outdir, fname), 'rb')
         try:
             etree = ET.parse(fp, parser)
         finally:
@@ -337,3 +359,18 @@ def test_html(app):
             yield check_xpath, etree, fname, path, check
 
     check_static_entries(app.builder.outdir)
+    check_extra_entries(app.builder.outdir)
+
+@with_app(buildername='html', srcdir='(empty)',
+          confoverrides={'html_sidebars': {'*': ['globaltoc.html']}},
+          )
+def test_html_with_globaltoc_and_hidden_toctree(app):
+    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause
+    # exception.
+    (app.srcdir / 'contents.rst').write_text(
+            '\n.. toctree::'
+            '\n'
+            '\n.. toctree::'
+            '\n   :hidden:'
+            '\n')
+    app.builder.build_all()

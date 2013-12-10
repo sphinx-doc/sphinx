@@ -191,6 +191,10 @@ Figures
 
    My caption of the figure
 
+   My description paragraph of the figure.
+
+   Description paragraph is wraped with legend node.
+
 
 Version markup
 --------------
@@ -203,6 +207,15 @@ Version markup
 
 .. deprecated:: 0.6
    Boring stuff.
+
+.. versionadded:: 1.2
+
+   First paragraph of versionadded.
+
+.. versionchanged:: 1.2
+   First paragraph of versionchanged.
+
+   Second paragraph of versionchanged.
 
 
 Code blocks

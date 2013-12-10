@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -53,6 +53,19 @@ INVENTORY_FILENAME = 'objects.inv'
 LAST_BUILD_FILENAME = 'last_build'
 
 
+def get_stable_hash(obj):
+    """
+    Return a stable hash for a Python data structure.  We can't just use
+    the md5 of str(obj) since for example dictionary items are enumerated
+    in unpredictable order due to hash randomization in newer Pythons.
+    """
+    if isinstance(obj, dict):
+        return get_stable_hash(list(obj.items()))
+    elif isinstance(obj, (list, tuple)):
+        obj = sorted(get_stable_hash(o) for o in obj)
+    return md5(unicode(obj).encode('utf8')).hexdigest()
+
+
 class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
@@ -60,6 +73,7 @@ class StandaloneHTMLBuilder(Builder):
     name = 'html'
     format = 'html'
     copysource = True
+    allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
@@ -156,9 +170,8 @@ class StandaloneHTMLBuilder(Builder):
         cfgdict = dict((name, self.config[name])
                        for (name, desc) in self.config.values.iteritems()
                        if desc[1] == 'html')
-        self.config_hash = md5(unicode(cfgdict).encode('utf-8')).hexdigest()
-        self.tags_hash = md5(unicode(sorted(self.tags)).encode('utf-8')) \
-                .hexdigest()
+        self.config_hash = get_stable_hash(cfgdict)
+        self.tags_hash = get_stable_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
             fp = open(path.join(self.outdir, '.buildinfo'))
@@ -240,13 +253,15 @@ class StandaloneHTMLBuilder(Builder):
         if not lang or lang not in languages:
             lang = 'en'
         self.indexer = IndexBuilder(self.env, lang,
-                                    self.config.html_search_options)
+                                    self.config.html_search_options,
+                                    self.config.html_search_scorer)
         self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
         self.docsettings = OptionParser(
             defaults=self.env.settings,
-            components=(self.docwriter,)).get_default_values()
+            components=(self.docwriter,),
+            read_config_files=True).get_default_values()
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
@@ -291,7 +306,7 @@ class StandaloneHTMLBuilder(Builder):
         self.relations = self.env.collect_relations()
 
         rellinks = []
-        if self.config.html_use_index:
+        if self.get_builder_config('use_index', 'html'):
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for indexname, indexcls, content, collapse in self.domain_indices:
             # if it has a short name
@@ -413,7 +428,6 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
-        self.post_process_images(doctree)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -422,8 +436,14 @@ class StandaloneHTMLBuilder(Builder):
         metatags = self.docwriter.clean_meta
 
         ctx = self.get_doc_context(docname, body, metatags)
-        self.index_page(docname, doctree, ctx.get('title', ''))
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname, doctree):
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.post_process_images(doctree)
+        title = self.env.longtitles.get(docname)
+        title = title and self.render_partial(title)['title'] or ''
+        self.index_page(docname, doctree, title)
 
     def finish(self):
         self.info(bold('writing additional files...'), nonl=1)
@@ -434,7 +454,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.handle_page(pagename, context, template)
 
         # the global general index
-        if self.config.html_use_index:
+        if self.get_builder_config('use_index', 'html'):
             self.write_genindex()
 
         # the global domain-specific indices
@@ -460,6 +480,7 @@ class StandaloneHTMLBuilder(Builder):
         self.copy_image_files()
         self.copy_download_files()
         self.copy_static_files()
+        self.copy_extra_files()
         self.write_buildinfo()
 
         # dump the search index
@@ -587,6 +608,17 @@ class StandaloneHTMLBuilder(Builder):
                          icontarget)
         self.info('done')
 
+    def copy_extra_files(self):
+        # copy html_extra_path files
+        self.info(bold('copying extra files... '), nonl=True)
+        extraentries = [path.join(self.confdir, epath)
+                        for epath in self.config.html_extra_path]
+        for entry in extraentries:
+            if not path.exists(entry):
+                self.warn('html_extra_path entry %r does not exist' % entry)
+                continue
+            copy_static_entry(entry, self.outdir, self)
+
     def write_buildinfo(self):
         # write build info file
         fp = open(path.join(self.outdir, '.buildinfo'), 'w')
@@ -653,6 +685,8 @@ class StandaloneHTMLBuilder(Builder):
             self.indexer.feed(pagename, title, doctree)
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
+        if 'includehidden' not in kwds:
+            kwds['includehidden'] = False
         return self.render_partial(self.env.get_toctree_for(
             docname, self, collapse, **kwds))['fragment']
 
@@ -917,6 +951,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         doctree = self.assemble_doctree()
         self.info()
         self.info(bold('writing... '), nonl=True)
+        self.write_doc_serialized(self.config.master_doc, doctree)
         self.write_doc(self.config.master_doc, doctree)
         self.info('done')
 
@@ -939,6 +974,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.copy_image_files()
         self.copy_download_files()
         self.copy_static_files()
+        self.copy_extra_files()
         self.write_buildinfo()
         self.dump_inventory()
 

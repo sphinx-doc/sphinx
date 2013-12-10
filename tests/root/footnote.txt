@@ -1,0 +1,46 @@
+:tocdepth: 2
+
+Testing footnote and citation
+================================
+.. #1058 footnote-backlinks-do-not-work
+
+numbered footnote
+--------------------
+
+[1]_
+
+auto-numbered footnote
+------------------------------
+
+[#]_
+
+named footnote
+--------------------
+
+[#foo]_
+
+citation
+--------------------
+
+[bar]_
+
+footenotes
+--------------------
+
+.. rubric:: Footnotes
+
+.. [1] numbered
+
+.. [#] auto numbered
+
+.. [#foo] named
+
+.. rubric:: Citations
+
+.. [bar] cite
+
+
+missing target
+--------------------
+[missing]_ citation
+

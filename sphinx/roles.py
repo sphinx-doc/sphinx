@@ -5,12 +5,11 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-import warnings
 
 from docutils import nodes, utils
 from docutils.parsers.rst import roles
@@ -293,6 +292,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, main)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
+    set_role_source_info(inliner, lineno, indexnode)
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 
@@ -315,10 +315,3 @@ specific_docroles = {
 
 for rolename, func in specific_docroles.iteritems():
     roles.register_local_role(rolename, func)
-
-
-# backwards compatibility alias
-def xfileref_role(*args, **kwds):
-    warnings.warn('xfileref_role is deprecated, use XRefRole',
-                  DeprecationWarning, stacklevel=2)
-    return XRefRole()(*args, **kwds)

@@ -3,7 +3,7 @@
     Sphinx test suite utilities
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,6 +21,7 @@ except ImportError:
     wraps = lambda f: (lambda w: w)
 
 from sphinx import application
+from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 
 from path import path
@@ -29,7 +30,7 @@ from nose import tools, SkipTest
 
 
 __all__ = [
-    'test_root', 'raises', 'raises_msg',
+    'test_root', 'test_roots', 'raises', 'raises_msg',
     'skip_if', 'skip_unless', 'skip_unless_importable', 'Struct',
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir', 'write_file',
@@ -38,6 +39,7 @@ __all__ = [
 
 
 test_root = path(__file__).parent.joinpath('root').abspath()
+test_roots = path(__file__).parent.joinpath('roots').abspath()
 
 
 def _excstr(exc):
@@ -140,6 +142,13 @@ class TestApp(application.Sphinx):
             temproot = tempdir / 'root'
             test_root.copytree(temproot)
             srcdir = temproot
+        elif srcdir == '(empty)':
+            tempdir = path(tempfile.mkdtemp())
+            self.cleanup_trees.append(tempdir)
+            temproot = tempdir / 'root'
+            temproot.makedirs()
+            (temproot / 'conf.py').write_text('')
+            srcdir = temproot
         else:
             srcdir = path(srcdir)
         self.builddir = srcdir.joinpath('_build')
@@ -152,6 +161,8 @@ class TestApp(application.Sphinx):
             self.cleanup_trees.insert(0, outdir)
         if doctreedir is None:
             doctreedir = srcdir.joinpath(srcdir, self.builddir, 'doctrees')
+            if not doctreedir.isdir():
+                doctreedir.makedirs()
             if cleanenv:
                 self.cleanup_trees.insert(0, doctreedir)
         if confoverrides is None:
@@ -170,6 +181,7 @@ class TestApp(application.Sphinx):
                                     freshenv, warningiserror, tags)
 
     def cleanup(self, doctrees=False):
+        Theme.themes.clear()
         AutoDirective._registry.clear()
         for tree in self.cleanup_trees:
             shutil.rmtree(tree, True)

@@ -5,7 +5,7 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -78,7 +78,8 @@ class LaTeXBuilder(Builder):
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
-            components=(docwriter,)).get_default_values()
+            components=(docwriter,),
+            read_config_files=True).get_default_values()
 
         self.init_document_data()
 
@@ -157,6 +158,14 @@ class LaTeXBuilder(Builder):
                          path.join(self.outdir, dest))
             self.info()
 
+        # copy TeX support files from texinputs
+        self.info(bold('copying TeX support files...'))
+        staticdirname = path.join(package_dir, 'texinputs')
+        for filename in os.listdir(staticdirname):
+            if not filename.startswith('.'):
+                copyfile(path.join(staticdirname, filename),
+                         path.join(self.outdir, filename))
+
         # copy additional files
         if self.config.latex_additional_files:
             self.info(bold('copying additional files...'), nonl=1)
@@ -171,11 +180,4 @@ class LaTeXBuilder(Builder):
             logobase = path.basename(self.config.latex_logo)
             copyfile(path.join(self.confdir, self.config.latex_logo),
                      path.join(self.outdir, logobase))
-
-        self.info(bold('copying TeX support files... '), nonl=True)
-        staticdirname = path.join(package_dir, 'texinputs')
-        for filename in os.listdir(staticdirname):
-            if not filename.startswith('.'):
-                copyfile(path.join(staticdirname, filename),
-                         path.join(self.outdir, filename))
         self.info('done')

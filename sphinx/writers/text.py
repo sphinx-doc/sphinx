@@ -5,17 +5,19 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import textwrap
+from itertools import groupby
 
 from docutils import nodes, writers
+from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -26,6 +28,98 @@ class TextWrapper(textwrap.TextWrapper):
         r'(?<=\s)(?::[a-z-]+:)?`\S+|'             # interpreted text start
         r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'   # hyphenated words
         r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
+
+    def _wrap_chunks(self, chunks):
+        """_wrap_chunks(chunks : [string]) -> [string]
+
+        The original _wrap_chunks uses len() to calculate width.
+        This method respects wide/fullwidth characters for width adjustment.
+        """
+        drop_whitespace = getattr(self, 'drop_whitespace', True)  #py25 compat
+        lines = []
+        if self.width <= 0:
+            raise ValueError("invalid width %r (must be > 0)" % self.width)
+
+        chunks.reverse()
+
+        while chunks:
+            cur_line = []
+            cur_len = 0
+
+            if lines:
+                indent = self.subsequent_indent
+            else:
+                indent = self.initial_indent
+
+            width = self.width - column_width(indent)
+
+            if drop_whitespace and chunks[-1].strip() == '' and lines:
+                del chunks[-1]
+
+            while chunks:
+                l = column_width(chunks[-1])
+
+                if cur_len + l <= width:
+                    cur_line.append(chunks.pop())
+                    cur_len += l
+
+                else:
+                    break
+
+            if chunks and column_width(chunks[-1]) > width:
+                self._handle_long_word(chunks, cur_line, cur_len, width)
+
+            if drop_whitespace and cur_line and cur_line[-1].strip() == '':
+                del cur_line[-1]
+
+            if cur_line:
+                lines.append(indent + ''.join(cur_line))
+
+        return lines
+
+    def _break_word(self, word, space_left):
+        """_break_word(word : string, space_left : int) -> (string, string)
+
+        Break line by unicode width instead of len(word).
+        """
+        total = 0
+        for i,c in enumerate(word):
+            total += column_width(c)
+            if total > space_left:
+                return word[:i-1], word[i-1:]
+        return word, ''
+
+    def _split(self, text):
+        """_split(text : string) -> [string]
+
+        Override original method that only split by 'wordsep_re'.
+        This '_split' split wide-characters into chunk by one character.
+        """
+        split = lambda t: textwrap.TextWrapper._split(self, t)
+        chunks = []
+        for chunk in split(text):
+            for w, g in groupby(chunk, column_width):
+                if w == 1:
+                    chunks.extend(split(''.join(g)))
+                else:
+                    chunks.extend(list(g))
+        return chunks
+
+    def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):
+        """_handle_long_word(chunks : [string],
+                             cur_line : [string],
+                             cur_len : int, width : int)
+
+        Override original method for using self._break_word() instead of slice.
+        """
+        space_left = max(width - cur_len, 1)
+        if self.break_long_words:
+            l, r = self._break_word(reversed_chunks[-1], space_left)
+            cur_line.append(l)
+            reversed_chunks[-1] = r
+
+        elif not cur_line:
+            cur_line.append(reversed_chunks.pop())
 
 
 MAXWIDTH = 70
@@ -71,6 +165,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.stateindent = [0]
         self.list_counter = []
         self.sectionlevel = 0
+        self.lineblocklevel = 0
         self.table = None
 
     def add_text(self, text):
@@ -104,9 +199,14 @@ class TextTranslator(nodes.NodeVisitor):
         do_format()
         if first is not None and result:
             itemindent, item = result[0]
+            result_rest, result = result[1:], []
             if item:
-                result.insert(0, (itemindent - indent, [first + item[0]]))
-                result[1] = (itemindent, item[1:])
+                toformat = [first + ' '.join(item)]
+                do_format()  #re-create `result` from `toformat`
+                _dummy, new_item = result[0]
+                result.insert(0, (itemindent - indent, [new_item[0]]))
+                result[1] = (itemindent, new_item[1:])
+                result.extend(result_rest)
         self.states[-1].extend(result)
 
     def visit_document(self, node):
@@ -164,7 +264,8 @@ class TextTranslator(nodes.NodeVisitor):
             char = '^'
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)
         self.stateindent.pop()
-        self.states[-1].append((0, ['', text, '%s' % (char * len(text)), '']))
+        self.states[-1].append(
+                (0, ['', text, '%s' % (char * column_width(text)), '']))
 
     def visit_subtitle(self, node):
         pass
@@ -233,11 +334,6 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_desc_annotation(self, node):
         pass
 
-    def visit_refcount(self, node):
-        pass
-    def depart_refcount(self, node):
-        pass
-
     def visit_desc_content(self, node):
         self.new_state()
         self.add_text(self.nl)
@@ -260,20 +356,16 @@ class TextTranslator(nodes.NodeVisitor):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
-            else:
+            elif lastname is not None:
                 self.add_text('%s    ' % (' '*len(lastname)))
             self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
         raise nodes.SkipNode
-
-    def visit_seealso(self, node):
-        self.new_state()
-    def depart_seealso(self, node):
-        self.end_state(first='')
 
     def visit_footnote(self, node):
         self._footnote = node.children[0].astext().strip()
@@ -292,6 +384,11 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_label(self, node):
         raise nodes.SkipNode
+
+    def visit_legend(self, node):
+        pass
+    def depart_legend(self, node):
+        pass
 
     # XXX: option list could use some better styling
 
@@ -390,7 +487,7 @@ class TextTranslator(nodes.NodeVisitor):
                 for i, cell in enumerate(line):
                     par = my_wrap(cell, width=colwidths[i])
                     if par:
-                        maxwidth = max(map(len, par))
+                        maxwidth = max(map(column_width, par))
                     else:
                         maxwidth = 0
                     realwidths[i] = max(realwidths[i], maxwidth)
@@ -410,7 +507,9 @@ class TextTranslator(nodes.NodeVisitor):
                 out = ['|']
                 for i, cell in enumerate(line):
                     if cell:
-                        out.append(' ' + cell.ljust(realwidths[i]+1))
+                        adjust_len = len(cell) - column_width(cell)
+                        out.append(' ' + cell.ljust(
+                            realwidths[i] + 1 + adjust_len))
                     else:
                         out.append(' ' * (realwidths[i] + 2))
                     out.append('|')
@@ -452,7 +551,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.list_counter.pop()
 
     def visit_enumerated_list(self, node):
-        self.list_counter.append(0)
+        self.list_counter.append(node.get('start', 1) - 1)
     def depart_enumerated_list(self, node):
         self.list_counter.pop()
 
@@ -474,11 +573,11 @@ class TextTranslator(nodes.NodeVisitor):
             self.new_state(len(str(self.list_counter[-1])) + 2)
     def depart_list_item(self, node):
         if self.list_counter[-1] == -1:
-            self.end_state(first='* ', end=None)
+            self.end_state(first='* ')
         elif self.list_counter[-1] == -2:
             pass
         else:
-            self.end_state(first='%s. ' % self.list_counter[-1], end=None)
+            self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node):
         self._li_has_classifier = len(node) >= 2 and \
@@ -572,13 +671,11 @@ class TextTranslator(nodes.NodeVisitor):
     depart_tip = _make_depart_admonition('tip')
     visit_warning = _visit_admonition
     depart_warning = _make_depart_admonition('warning')
+    visit_seealso = _visit_admonition
+    depart_seealso = _make_depart_admonition('seealso')
 
     def visit_versionmodified(self, node):
         self.new_state(0)
-        if node.children:
-            self.add_text(versionlabels[node['type']] % node['version'] + ': ')
-        else:
-            self.add_text(versionlabels[node['type']] % node['version'] + '.')
     def depart_versionmodified(self, node):
         self.end_state()
 
@@ -593,14 +690,18 @@ class TextTranslator(nodes.NodeVisitor):
         self.end_state(wrap=False)
 
     def visit_line_block(self, node):
-        self.new_state(0)
+        self.new_state()
+        self.lineblocklevel += 1
     def depart_line_block(self, node):
-        self.end_state(wrap=False)
+        self.lineblocklevel -= 1
+        self.end_state(wrap=False, end=None)
+        if not self.lineblocklevel:
+            self.add_text('\n')
 
     def visit_line(self, node):
         pass
     def depart_line(self, node):
-        pass
+        self.add_text('\n')
 
     def visit_block_quote(self, node):
         self.new_state()
@@ -707,6 +808,11 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_inline(self, node):
         pass
     def depart_inline(self, node):
+        pass
+
+    def visit_container(self, node):
+        pass
+    def depart_container(self, node):
         pass
 
     def visit_problematic(self, node):

@@ -5,7 +5,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,9 @@ import re
 import sys
 import time
 import errno
+import locale
 import shutil
+import gettext
 from os import path
 
 # Errnos that we need.
@@ -51,7 +53,7 @@ def relative_uri(base, to):
         # returns '', not 'index.html'
         return ''
     if len(b2) == 1 and t2 == ['']:
-        # Special case: relative_uri('f/index.html','f/') should 
+        # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
         return '.' +  SEP
     return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
@@ -75,7 +77,14 @@ def walk(top, topdown=True, followlinks=False):
 
     dirs, nondirs = [], []
     for name in names:
-        if path.isdir(path.join(top, name)):
+        try:
+            fullpath = path.join(top, name)
+        except UnicodeError:
+            print >>sys.stderr, (
+                '%s:: ERROR: non-ASCII filename not supported on this '
+                'filesystem encoding %r, skipped.' % (name, fs_encoding))
+            continue
+        if path.isdir(fullpath):
             dirs.append(name)
         else:
             nondirs.append(name)
@@ -132,20 +141,23 @@ def copyfile(source, dest):
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 def make_filename(string):
-    return no_fn_re.sub('', string)
+    return no_fn_re.sub('', string) or 'sphinx'
 
 if sys.version_info < (3, 0):
+    # strftime for unicode strings
     def ustrftime(format, *args):
-        # strftime for unicode strings
-        return time.strftime(unicode(format).encode('utf-8'), *args) \
-                .decode('utf-8')
+        # if a locale is set, the time strings are encoded in the encoding
+        # given by LC_TIME; if that is available, use it
+        enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
+        return time.strftime(unicode(format).encode(enc), *args).decode(enc)
 else:
     ustrftime = time.strftime
 
 
 def safe_relpath(path, start=None):
+    from sphinx.util.pycompat import relpath
     try:
-        return os.path.relpath(path, start)
+        return relpath(path, start)
     except ValueError:
         return path
 
@@ -156,3 +168,31 @@ def find_catalog(docname, compaction):
         ret = docname
 
     return ret
+
+
+def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
+    from sphinx.util.pycompat import relpath
+    if not(lang and locale_dirs):
+        return []
+
+    domain = find_catalog(docname, compaction)
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
+             for dir_ in locale_dirs]
+    files = [relpath(f, srcdir) for f in files if f]
+    return files
+
+
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
+
+if sys.version_info < (3, 0):
+    bytes = str
+else:
+    bytes = bytes
+
+
+def abspath(pathdir):
+    pathdir = path.abspath(pathdir)
+    if isinstance(pathdir, bytes):
+        pathdir = pathdir.decode(fs_encoding)
+    return pathdir

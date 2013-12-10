@@ -8,7 +8,7 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,11 +60,13 @@ def process_todos(app, doctree):
                 raise IndexError
         except IndexError:
             targetnode = None
+        newnode = node.deepcopy()
+        del newnode['ids']
         env.todo_all_todos.append({
             'docname': env.docname,
             'source': node.source or env.doc2path(env.docname),
             'lineno': node.line,
-            'todo': node.deepcopy(),
+            'todo': newnode,
             'target': targetnode,
         })
 
@@ -154,7 +156,7 @@ def depart_todo_node(self, node):
     self.depart_admonition(node)
 
 def setup(app):
-    app.add_config_value('todo_include_todos', False, False)
+    app.add_config_value('todo_include_todos', False, 'html')
 
     app.add_node(todolist)
     app.add_node(todo_node,

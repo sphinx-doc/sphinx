@@ -5,7 +5,7 @@
 
     Render math in HTML via dvipng.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,6 +31,13 @@ from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 class MathExtError(SphinxError):
     category = 'Math extension error'
+
+    def __init__(self, msg, stderr=None, stdout=None):
+        if stderr:
+            msg += '\n[stderr]\n' + stderr
+        if stdout:
+            msg += '\n[stdout]\n' + stdout
+        SphinxError.__init__(self, msg)
 
 
 DOC_HEAD = r'''
@@ -130,8 +137,7 @@ def render_math(self, math):
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('latex exited with error:\n[stderr]\n%s\n'
-                           '[stdout]\n%s' % (stderr, stdout))
+        raise MathExtError('latex exited with error', stderr, stdout)
 
     ensuredir(path.dirname(outfn))
     # use some standard dvipng arguments
@@ -155,8 +161,7 @@ def render_math(self, math):
         return None, None
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('dvipng exited with error:\n[stderr]\n%s\n'
-                           '[stdout]\n%s' % (stderr, stdout))
+        raise MathExtError('dvipng exited with error', stderr, stdout)
     depth = None
     if use_preview:
         for line in stdout.splitlines():
@@ -237,7 +242,8 @@ def setup(app):
     app.add_config_value('pngmath_latex', 'latex', 'html')
     app.add_config_value('pngmath_use_preview', False, 'html')
     app.add_config_value('pngmath_dvipng_args',
-                         ['-gamma 1.5', '-D 110'], 'html')
+                         ['-gamma', '1.5', '-D', '110', '-bg', 'Transparent'],
+                         'html')
     app.add_config_value('pngmath_latex_args', [], 'html')
     app.add_config_value('pngmath_latex_preamble', '', 'html')
     app.add_config_value('pngmath_add_tooltips', True, 'html')

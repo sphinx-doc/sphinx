@@ -4,7 +4,7 @@
 
     Template for an "all-in-one" index.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {% macro indexentries(firstname, links) %}
@@ -28,7 +28,7 @@
   </dt>
 {% endmacro %}
 
-{% extends "layout.html" %}
+{%- extends "layout.html" %}
 {% set title = _('Index') %}
 {% block body %}
 

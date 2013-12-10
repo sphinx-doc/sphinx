@@ -5,7 +5,7 @@
 
     The C++ language domain.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -448,15 +448,21 @@ class MemberObjDefExpr(NamedDefExpr):
 class FuncDefExpr(NamedDefExpr):
 
     def __init__(self, name, visibility, static, explicit, constexpr, rv,
-                 signature, const, noexcept, pure_virtual):
+                 signature, **kwargs):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
         self.explicit = explicit
         self.constexpr = constexpr
-        self.const = const
-        self.noexcept = noexcept
-        self.pure_virtual = pure_virtual
+        self.const = kwargs.get('const', False)
+        self.volatile = kwargs.get('volatile', False)
+        self.noexcept = kwargs.get('noexcept', False)
+        self.override = kwargs.get('override', False)
+        self.rvalue_this = kwargs.get('rvalue_this', False)
+        self.lvalue_this = kwargs.get('lvalue_this', False)
+        self.pure_virtual = kwargs.get('pure_virtual', False)
+        self.delete = kwargs.get('delete', False)
+        self.default = kwargs.get('default', False)
 
     def get_id(self):
         return u'%s%s%s%s' % (
@@ -479,10 +485,22 @@ class FuncDefExpr(NamedDefExpr):
             map(unicode, self.signature))))
         if self.const:
             buf.append(u'const')
+        if self.volatile:
+            buf.append(u'volatile')
+        if self.rvalue_this:
+            buf.append(u'&&')
+        if self.lvalue_this:
+            buf.append(u'&')
         if self.noexcept:
             buf.append(u'noexcept')
+        if self.override:
+            buf.append(u'override')
         if self.pure_virtual:
             buf.append(u'= 0')
+        if self.default:
+            buf.append(u'= default')
+        if self.delete:
+            buf.append(u'= delete')
         return u' '.join(buf)
 
 
@@ -672,8 +690,9 @@ class DefinitionParser(object):
         except ValueError:
             return False
 
-    def _parse_builtin(self, modifier):
-        path = [modifier]
+    def _parse_builtin(self, modifiers):
+        modifier = modifiers[-1]
+        path = modifiers
         following = self._modifiers[modifier]
         while 1:
             self.skip_ws()
@@ -730,9 +749,10 @@ class DefinitionParser(object):
                     # impossible for a template to follow, so what
                     # we do is go to a different function that just
                     # eats types
-                    if following is not None:
-                        return self._parse_builtin(modifier)
                     modifiers.append(modifier)
+                    if following is not None:
+                        return self._parse_builtin(modifiers)
+                    self.skip_ws()
                 else:
                     self.backout()
                     break
@@ -760,17 +780,33 @@ class DefinitionParser(object):
         self.skip_ws()
         if self.match(_string_re):
             return self.matched_text
-        idx1 = self.definition.find(',', self.pos)
-        idx2 = self.definition.find(')', self.pos)
-        if idx1 < 0:
-            idx = idx2
-        elif idx2 < 0:
-            idx = idx1
-        else:
-            idx = min(idx1, idx2)
-        if idx < 0:
-            self.fail('unexpected end in default expression')
-        rv = self.definition[self.pos:idx]
+        paren_stack_depth = 0
+        max_pos = len(self.definition)
+        rv_start = self.pos
+        while 1:
+            idx0 = self.definition.find('(', self.pos)
+            idx1 = self.definition.find(',', self.pos)
+            idx2 = self.definition.find(')', self.pos)
+            if idx0 < 0:
+                idx0 = max_pos
+            if idx1 < 0:
+                idx1 = max_pos
+            if idx2 < 0:
+                idx2 = max_pos
+            idx = min(idx0, idx1, idx2)
+            if idx >= max_pos:
+                self.fail('unexpected end in default expression')
+            if idx == idx0:
+                paren_stack_depth += 1
+            elif idx == idx2:
+                paren_stack_depth -= 1
+                if paren_stack_depth < 0:
+                    break
+            elif paren_stack_depth == 0:
+                break
+            self.pos = idx+1
+
+        rv = self.definition[rv_start:idx]
         self.pos = idx
         return rv
 
@@ -817,26 +853,52 @@ class DefinitionParser(object):
             args.append(ArgumentDefExpr(argtype, argname,
                                         type_suffixes, default))
         self.skip_ws()
-        const = self.skip_word_and_ws('const')
-        noexcept = self.skip_word_and_ws('noexcept')
+        attributes = dict(
+            signature=args,
+            const=self.skip_word_and_ws('const'),
+            volatile=self.skip_word_and_ws('volatile'),
+            noexcept=self.skip_word_and_ws('noexcept'),
+            override=self.skip_word_and_ws('override'),
+            pure_virtual=False,
+            lvalue_this=False,
+            rvalue_this=False,
+            delete=False,
+            default=False)
+
+        if self.skip_string('&&'):
+            attributes['rvalue_this'] = True
+        if self.skip_string('&'):
+            attributes['lvalue_this'] = True
+
+        if attributes['lvalue_this'] and attributes['rvalue_this']:
+            self.fail('rvalue reference for *this specifier must be one of'
+                      '"&&" or "&"')
+
         if self.skip_string('='):
             self.skip_ws()
-            if not (self.skip_string('0') or \
-                    self.skip_word('NULL') or \
-                    self.skip_word('nullptr')):
-                self.fail('pure virtual functions must be defined with '
-                          'either 0, NULL or nullptr, other macros are '
-                          'not allowed')
-            pure_virtual = True
-        else:
-            pure_virtual = False
-        return args, const, noexcept, pure_virtual
+            if self.skip_string('0'):
+                attributes['pure_virtual'] = True
+                return attributes
+            if self.skip_word('NULL') or self.skip_word('nullptr'):
+                attributes['pure_virtual'] = True
+                return attributes
+            if self.skip_word('delete'):
+                attributes['delete'] = True
+                return attributes
+            if self.skip_word('default'):
+                attributes['default'] = True
+                return attributes
+
+            self.fail('functions must be defined with '
+                      'either 0, NULL, nullptr, default or delete, other'
+                      'macros are not allowed')
+        return attributes
 
     def _parse_visibility_static(self):
         visibility = 'public'
         if self.match(_visibility_re):
             visibility = self.matched_text
-        static = self.skip_word('static')
+        static = self.skip_word_and_ws('static')
         return visibility, static
 
     def parse_type(self):
@@ -882,7 +944,7 @@ class DefinitionParser(object):
         else:
             name = self._parse_type()
         return FuncDefExpr(name, visibility, static, explicit, constexpr, rv,
-                           *self._parse_signature())
+                           **self._parse_signature())
 
     def parse_class(self):
         visibility, static = self._parse_visibility_static()

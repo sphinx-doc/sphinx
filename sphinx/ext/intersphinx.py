@@ -20,7 +20,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,6 +33,7 @@ from os import path
 import re
 
 from docutils import nodes
+from docutils.utils import relative_path
 
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
@@ -106,6 +107,12 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
         if not m:
             continue
         name, type, prio, location, dispname = m.groups()
+        if type == 'py:module' and type in invdata and \
+            name in invdata[type]:  # due to a bug in 1.1 and below,
+                                    # two inventory entries are created
+                                    # for Python modules, and the first
+                                    # one is correct
+            continue
         if location.endswith(u'$'):
             location = location[:-1] + name
         location = join(uri, location)
@@ -188,7 +195,17 @@ def load_mappings(app):
     if update:
         env.intersphinx_inventory = {}
         env.intersphinx_named_inventory = {}
-        for name, _, invdata in cache.itervalues():
+        # Duplicate values in different inventories will shadow each
+        # other; which one will override which can vary between builds
+        # since they are specified using an unordered dict.  To make
+        # it more consistent, we sort the named inventories and then
+        # add the unnamed inventories last.  This means that the
+        # unnamed inventories will shadow the named ones but the named
+        # ones can still be accessed when the name is specified.
+        cached_vals = list(cache.itervalues())
+        named_vals = sorted(v for v in cached_vals if v[0])
+        unnamed_vals = [v for v in cached_vals if not v[0]]
+        for name, _, invdata in named_vals + unnamed_vals:
             if name:
                 env.intersphinx_named_inventory[name] = invdata
             for type, objects in invdata.iteritems():
@@ -220,6 +237,9 @@ def missing_reference(app, env, node, contnode):
             if objtype not in inventory or target not in inventory[objtype]:
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
+            if '://' not in uri and node.get('refdoc'):
+                # get correct path in case of subdirectories
+                uri = path.join(relative_path(node['refdoc'], env.srcdir), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                           reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):

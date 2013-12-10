@@ -1,0 +1,1 @@
+Documentation.addTranslations({"locale": "si", "plural_expr": "(n != 1)", "messages": {"Hide Search Matches": "", "Permalink to this definition": "", "Permalink to this headline": ""}});

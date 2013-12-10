@@ -1,5 +1,5 @@
 %
-% sphinxhowto.cls for Sphinx (http://sphinx.pocoo.org/)
+% sphinxhowto.cls for Sphinx (http://sphinx-doc.org/)
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
@@ -89,4 +89,16 @@
   \phantomsection
   \py@OldThebibliography{1}
   \addcontentsline{toc}{section}{\bibname}
+}
+
+% Same for the indices.
+% The memoir class already does this, so we don't duplicate it in that case.
+%
+\@ifclassloaded{memoir}{}{
+  \let\py@OldTheindex=\theindex
+  \renewcommand{\theindex}{
+    \phantomsection
+    \py@OldTheindex
+    \addcontentsline{toc}{section}{\indexname}
+  }
 }

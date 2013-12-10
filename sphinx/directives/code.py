@@ -3,7 +3,7 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -92,7 +92,7 @@ class LiteralInclude(Directive):
     has_content = False
     required_arguments = 1
     optional_arguments = 0
-    final_argument_whitespace = False
+    final_argument_whitespace = True
     option_spec = {
         'linenos': directives.flag,
         'tab-width': int,
@@ -122,11 +122,11 @@ class LiteralInclude(Directive):
 
         encoding = self.options.get('encoding', env.config.source_encoding)
         codec_info = codecs.lookup(encoding)
+        f = None
         try:
             f = codecs.StreamReaderWriter(open(filename, 'rb'),
                     codec_info[2], codec_info[3], 'strict')
             lines = f.readlines()
-            f.close()
         except (IOError, OSError):
             return [document.reporter.warning(
                 'Include file %r not found or reading it failed' % filename,
@@ -136,6 +136,9 @@ class LiteralInclude(Directive):
                 'Encoding %r used for reading included file %r seems to '
                 'be wrong, try giving an :encoding: option' %
                 (encoding, filename))]
+        finally:
+            if f is not None:
+                f.close()
 
         objectname = self.options.get('pyobject')
         if objectname is not None:

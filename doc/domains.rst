@@ -168,7 +168,7 @@ The following directives are provided for module and class contents:
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
 
-.. rst:directive:: .. py:function:: name(signature)
+.. rst:directive:: .. py:function:: name(parameters)
 
    Describes a module-level function.  The signature should include the
    parameters, enclosing optional parameters in brackets.  Default values can be
@@ -186,10 +186,11 @@ The following directives are provided for module and class contents:
    are modified), side effects, and possible exceptions.  A small example may be
    provided.
 
-.. rst:directive:: .. py:class:: name[(signature)]
+.. rst:directive:: .. py:class:: name
+                   .. py:class:: name(parameters)
 
-   Describes a class.  The signature can include parentheses with parameters
-   which will be shown as the constructor arguments.  See also
+   Describes a class.  The signature can optionally include parentheses with
+   parameters which will be shown as the constructor arguments.  See also
    :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
@@ -213,26 +214,26 @@ The following directives are provided for module and class contents:
    information about the type of the data to be expected and whether it may be
    changed directly.
 
-.. rst:directive:: .. py:method:: name(signature)
+.. rst:directive:: .. py:method:: name(parameters)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
    described for ``function``.  See also :ref:`signatures`.
 
-.. rst:directive:: .. py:staticmethod:: name(signature)
+.. rst:directive:: .. py:staticmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
 
-.. rst:directive:: .. py:classmethod:: name(signature)
+.. rst:directive:: .. py:classmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
    .. versionadded:: 0.6
 
 .. rst:directive:: .. py:decorator:: name
-                   .. py:decorator:: name(signature)
+                   .. py:decorator:: name(parameters)
 
    Describes a decorator function.  The signature should *not* represent the
    signature of the actual function, but the usage as a decorator.  For example,
@@ -259,6 +260,8 @@ The following directives are provided for module and class contents:
       .. py:decorator:: setnewname(name)
 
          Set name of the decorated function to *name*.
+
+   (as opposed to ``.. py:decorator:: removename(func)``.)
 
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
@@ -316,35 +319,41 @@ The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best
 explained by an example::
 
-   .. py:function:: format_exception(etype, value, tb[, limit=None])
+   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
 
-      Format the exception with a traceback.
+      Send a message to a recipient
 
-      :param etype: exception type
-      :param value: exception value
-      :param tb: traceback object
-      :param limit: maximum number of stack frames to show
-      :type limit: integer or None
-      :rtype: list of strings
+      :param str sender: The person sending the message
+      :param str recipient: The recipient of the message
+      :param str message_body: The body of the message
+      :param priority: The priority of the message, can be a number 1-5
+      :type priority: integer or None
+      :return: the message id
+      :rtype: int
+      :raises ValueError: if the message_body exceeds 160 characters
+      :raises TypeError: if the message_body is not a basestring
 
 This will render like this:
 
-   .. py:function:: format_exception(etype, value, tb[, limit=None])
+   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
       :noindex:
 
-      Format the exception with a traceback.
+      Send a message to a recipient
 
-      :param etype: exception type
-      :param value: exception value
-      :param tb: traceback object
-      :param limit: maximum number of stack frames to show
-      :type limit: integer or None
-      :rtype: list of strings
+      :param str sender: The person sending the message
+      :param str recipient: The recipient of the message
+      :param str message_body: The body of the message
+      :param priority: The priority of the message, can be a number 1-5
+      :type priority: integer or None
+      :return: the message id
+      :rtype: int
+      :raises ValueError: if the message_body exceeds 160 characters
+      :raises TypeError: if the message_body is not a basestring
 
 It is also possible to combine parameter type and description, if the type is a
 single word, like this::
 
-   :param integer limit: maximum number of stack frames to show
+   :param int priority: The priority of the message, can be a number 1-5
 
 
 .. _python-roles:
@@ -812,7 +821,24 @@ More domains
 ------------
 
 The sphinx-contrib_ repository contains more domains available as extensions;
-currently a Ruby and an Erlang domain.
+currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
+domains. Also available are domains for `Common Lisp`_, dqn_, Go_, Jinja_,
+Operation_, and Scala_.
 
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
+
+.. _Ada: http://pypi.python.org/pypi/sphinxcontrib-adadomain
+.. _CoffeeScript: http://pypi.python.org/pypi/sphinxcontrib-coffee
+.. _Common Lisp: http://pypi.python.org/pypi/sphinxcontrib-cldomain
+.. _dqn: http://pypi.python.org/pypi/sphinxcontrib-dqndomain
+.. _Erlang: http://pypi.python.org/pypi/sphinxcontrib-erlangdomain
+.. _Go: http://pypi.python.org/pypi/sphinxcontrib-golangdomain
+.. _HTTP: http://pypi.python.org/pypi/sphinxcontrib-httpdomain
+.. _Jinja: http://pypi.python.org/pypi/sphinxcontrib-jinjadomain
+.. _Lasso: http://pypi.python.org/pypi/sphinxcontrib-lassodomain
+.. _MATLAB: http://pypi.python.org/pypi/sphinxcontrib-matlabdomain
+.. _Operation: http://pypi.python.org/pypi/sphinxcontrib-operationdomain
+.. _PHP: http://pypi.python.org/pypi/sphinxcontrib-phpdomain
+.. _Ruby: http://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
+.. _Scala: http://pypi.python.org/pypi/sphinxcontrib-scaladomain

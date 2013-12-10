@@ -5,14 +5,15 @@
 
     Test the doctest extension.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 import StringIO
 
-from util import *
+from util import with_app
+
 
 status = StringIO.StringIO()
 cleanup_called = 0

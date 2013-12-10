@@ -36,6 +36,13 @@ How do I...
    still need to mark up classes and such, but the headings and code examples
    come through cleanly.
 
+... create HTML slides from Sphinx documents?
+   See the "Hieroglyph" package at http://github.com/nyergler/hieroglyph.
+
+For many more extensions and other contributed stuff, see the sphinx-contrib_
+repository.
+
+.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
 .. _usingwith:
 
@@ -119,9 +126,7 @@ Google Analytics
 Epub info
 ---------
 
-The epub builder is currently in an experimental stage.  It has only been tested
-with the Sphinx documentation itself.  If you want to create epubs, here are
-some notes:
+The following list gives some hints for the creation of epub files:
 
 * Split the text into several files. The longer the individual HTML files are,
   the longer it takes the ebook reader to render them.  In extreme cases, the
@@ -155,6 +160,12 @@ some notes:
   included. This sometimes applies to appendixes, e.g. the glossary or
   the indices.  You can add them with the :confval:`epub_post_files` option.
 
+* The handling of the epub cover page differs from the reStructuredText
+  procedure which automatically resolves image paths and puts the images
+  into the ``_images`` directory.  For the epub cover page put the image in the
+  :confval:`html_static_path` directory and reference it with its full path in
+  the :confval:`epub_cover` config option.
+
 .. _Epubcheck: http://code.google.com/p/epubcheck/
 .. _Calibre: http://calibre-ebook.com/
 .. _FBreader: http://www.fbreader.org/
@@ -166,16 +177,10 @@ some notes:
 Texinfo info
 ------------
 
-The Texinfo builder is currently in an experimental stage but has successfully
-been used to build the documentation for both Sphinx and Python.  The intended
-use of this builder is to generate Texinfo that is then processed into Info
-files.
-
 There are two main programs for reading Info files, ``info`` and GNU Emacs.  The
 ``info`` program has less features but is available in most Unix environments
 and can be quickly accessed from the terminal.  Emacs provides better font and
 color display and supports extensive customization (of course).
-
 
 .. _texinfo-links:
 
@@ -190,13 +195,13 @@ to this section would look like::
 
 In the stand-alone reader, ``info``, references are displayed just as they
 appear in the source.  Emacs, on the other-hand, will by default replace
-``\*note:`` with ``see`` and hide the ``target-id``.  For example:
+``*note:`` with ``see`` and hide the ``target-id``.  For example:
 
     :ref:`texinfo-links`
 
 The exact behavior of how Emacs displays references is dependent on the variable
 ``Info-hide-note-references``.  If set to the value of ``hide``, Emacs will hide
-both the ``\*note:`` part and the ``target-id``.  This is generally the best way
+both the ``*note:`` part and the ``target-id``.  This is generally the best way
 to view Sphinx-based documents since they often make frequent use of links and
 do not take this limitation into account.  However, changing this variable
 affects how all Info documents are displayed and most due take this behavior
@@ -237,9 +242,6 @@ The following notes may be helpful if you want to create Texinfo files:
 - Colons (``:``) cannot be properly escaped in menu entries and xrefs.
   They will be replaced with semicolons (``;``).
 
-- In the HTML and Tex output, the word ``see`` is automatically inserted before
-  all xrefs.
-
 - Links to external Info files can be created using the somewhat official URI
   scheme ``info``.  For example::
 
@@ -249,18 +251,18 @@ The following notes may be helpful if you want to create Texinfo files:
 
      info:Texinfo#makeinfo_options
 
-- Inline markup appears as follows in Info:
+- Inline markup
 
-  * strong -- \*strong\*
-  * emphasis -- _emphasis_
-  * literal -- \`literal'
+  The standard formatting for ``*strong*`` and ``_emphasis_`` can
+  result in ambiguous output when used to markup parameter names and
+  other values.  Since this is a fairly common practice, the default
+  formatting has been changed so that ``emphasis`` and ``strong`` are
+  now displayed like ```literal'``\s.
 
-  It is possible to change this behavior using the Texinfo command
-  ``@definfoenclose``.  For example, to make inline markup more closely resemble
-  reST, add the following to your :file:`conf.py`::
+  The standard formatting can be re-enabled by adding the following to
+  your :file:`conf.py`::
 
-     texinfo_elements = {'preamble': """\
-     @definfoenclose strong,**,**
-     @definfoenclose emph,*,*
-     @definfoenclose code,`@w{}`,`@w{}`
+     texinfo_elements = {'preamble': """
+     @definfoenclose strong,*,*
+     @definfoenclose emph,_,_
      """}

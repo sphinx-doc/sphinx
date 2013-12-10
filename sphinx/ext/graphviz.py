@@ -6,7 +6,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,6 @@ import re
 import codecs
 import posixpath
 from os import path
-from math import ceil
 from subprocess import Popen, PIPE
 try:
     from hashlib import sha1 as sha
@@ -125,7 +124,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
               str(self.builder.config.graphviz_dot) + \
               str(self.builder.config.graphviz_dot_args)
               ).encode('utf-8')
-              
+
     fname = '%s-%s.%s' % (prefix, sha(hashkey).hexdigest(), format)
     if hasattr(self.builder, 'imgpath'):
         # HTML
@@ -165,20 +164,13 @@ def render_dot(self, code, options, format, prefix='graphviz'):
                           self.builder.config.graphviz_dot)
         self.builder._graphviz_warned_dot = True
         return None, None
-    wentWrong = False
     try:
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
         stdout, stderr = p.communicate(code)
     except (OSError, IOError), err:
-        if err.errno != EPIPE:
+        if err.errno not in (EPIPE, EINVAL):
             raise
-        wentWrong = True
-    except IOError, err:
-        if err.errno != EINVAL:
-            raise
-        wentWrong = True
-    if wentWrong:
         # in this case, read the standard output and standard error streams
         # directly, to get the error message(s)
         stdout, stderr = p.stdout.read(), p.stderr.read()
@@ -300,13 +292,16 @@ def texinfo_visit_graphviz(self, node):
 def text_visit_graphviz(self, node):
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
-    self.add_text(_('[graph]'))
+    else:
+        self.add_text(_('[graph]'))
+    raise nodes.SkipNode
 
 
 def man_visit_graphviz(self, node):
     if 'alt' in node.attributes:
-        self.body.append(_('[graph: %s]') % node['alt'] + '\n')
-    self.body.append(_('[graph]'))
+        self.body.append(_('[graph: %s]') % node['alt'])
+    else:
+        self.body.append(_('[graph]'))
     raise nodes.SkipNode
 
 

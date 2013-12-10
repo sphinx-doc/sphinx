@@ -1,0 +1,23 @@
+CONTENTS
+========
+
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+
+   subdir/contents
+   bom
+   warnings
+   footnote
+   external_links
+   refs_inconsistency
+   literalblock
+   seealso
+   definition_terms
+   figure_caption
+   index_entries
+   role_xref
+   glossary_terms
+   glossary_terms_inconsistency
+   versionchange
+   docfields

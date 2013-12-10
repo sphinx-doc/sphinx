@@ -5,7 +5,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -205,6 +205,42 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
+def make_termnodes_from_paragraph_node(env, node, new_id=None):
+    gloss_entries = env.temp_data.setdefault('gloss_entries', set())
+    objects = env.domaindata['std']['objects']
+
+    termtext = node.astext()
+    if new_id is None:
+        new_id = 'term-' + nodes.make_id(termtext)
+    if new_id in gloss_entries:
+        new_id = 'term-' + str(len(gloss_entries))
+    gloss_entries.add(new_id)
+    objects['term', termtext.lower()] = env.docname, new_id
+
+    # add an index entry too
+    indexnode = addnodes.index()
+    indexnode['entries'] = [('single', termtext, new_id, 'main')]
+    new_termnodes = []
+    new_termnodes.append(indexnode)
+    new_termnodes.extend(node.children)
+    new_termnodes.append(addnodes.termsep())
+    for termnode in new_termnodes:
+        termnode.source, termnode.line = node.source, node.line
+
+    return new_id, termtext, new_termnodes
+
+
+def make_term_from_paragraph_node(termnodes, ids):
+    # make a single "term" node with all the terms, separated by termsep
+    # nodes (remove the dangling trailing separator)
+    term = nodes.term('', '', *termnodes[:-1])
+    term.source, term.line = termnodes[0].source, termnodes[0].line
+    term.rawsource = term.astext()
+    term['ids'].extend(ids)
+    term['names'].extend(ids)
+    return term
+
+
 class Glossary(Directive):
     """
     Directive to create a glossary with cross-reference targets for :term:
@@ -221,8 +257,6 @@ class Glossary(Directive):
 
     def run(self):
         env = self.state.document.settings.env
-        objects = env.domaindata['std']['objects']
-        gloss_entries = env.temp_data.setdefault('gloss_entries', set())
         node = addnodes.glossary()
         node.document = self.state.document
 
@@ -296,25 +330,15 @@ class Glossary(Directive):
                 # get a text-only representation of the term and register it
                 # as a cross-reference target
                 tmp = nodes.paragraph('', '', *res[0])
-                termtext = tmp.astext()
-                new_id = 'term-' + nodes.make_id(termtext)
-                if new_id in gloss_entries:
-                    new_id = 'term-' + str(len(gloss_entries))
-                gloss_entries.add(new_id)
+                tmp.source = source
+                tmp.line = lineno
+                new_id, termtext, new_termnodes = \
+                        make_termnodes_from_paragraph_node(env, tmp)
                 ids.append(new_id)
-                objects['term', termtext.lower()] = env.docname, new_id
                 termtexts.append(termtext)
-                # add an index entry too
-                indexnode = addnodes.index()
-                indexnode['entries'] = [('single', termtext, new_id, 'main')]
-                termnodes.append(indexnode)
-                termnodes.extend(res[0])
-                termnodes.append(addnodes.termsep())
-            # make a single "term" node with all the terms, separated by termsep
-            # nodes (remove the dangling trailing separator)
-            term = nodes.term('', '', *termnodes[:-1])
-            term['ids'].extend(ids)
-            term['names'].extend(ids)
+                termnodes.extend(new_termnodes)
+
+            term = make_term_from_paragraph_node(termnodes, ids)
             term += system_messages
 
             defnode = nodes.definition()

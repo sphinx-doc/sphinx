@@ -13,7 +13,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2011, Georg Brandl'
+copyright = '2007-2013, Georg Brandl'
 version = sphinx.__released__
 release = version
 show_authors = True
@@ -24,20 +24,27 @@ modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
-html_use_opensearch = 'http://sphinx.pocoo.org'
+html_use_opensearch = 'http://sphinx-doc.org'
 
 htmlhelp_basename = 'Sphinxdoc'
 
 epub_theme = 'epub'
 epub_basename = 'sphinx'
 epub_author = 'Georg Brandl'
-epub_publisher = 'http://sphinx.pocoo.org/'
+epub_publisher = 'http://sphinx-doc.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.html', 'Welcome')]
+epub_post_files = [('install.html', 'Installing Sphinx'),
+    ('develop.html', 'Sphinx development')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
     '_static/jquery.js', '_static/searchtools.js', '_static/underscore.js',
-    '_static/basic.css', 'search.html']
+    '_static/basic.css', 'search.html', '_static/websupport.js']
+epub_fix_images = False
+epub_max_image_width = 0
+epub_show_urls = 'inline'
+epub_use_index = False
+epub_guide = (('toc', 'contents.html', u'Table of Contents'),)
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
@@ -76,6 +83,10 @@ texinfo_documents = [
 # We're not using intersphinx right now, but if we did, this would be part of
 # the mapping:
 intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
+
+# Sphinx document translation with sphinx gettext feature uses these settings:
+locale_dirs = ['locale/']
+gettext_compact = False
 
 
 # -- Extension interface -------------------------------------------------------

@@ -5,28 +5,41 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 import posixpath
 import os
+import copy
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util.smartypants import sphinx_smarty_pants
 
 try:
     from PIL import Image        # check for the Python Imaging Library
 except ImportError:
-    Image = None
+    try:
+        import Image
+    except ImportError:
+        Image = None
 
+# A good overview of the purpose behind these classes can be found here:
+# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 class HTMLWriter(Writer):
+
+    # override embed-stylesheet default value to 0.
+    settings_spec = copy.deepcopy(Writer.settings_spec)
+    for _setting in settings_spec[2]:
+        if '--embed-stylesheet' in _setting[1]:
+            _setting[2]['default'] = 0
+
     def __init__(self, builder):
         Writer.__init__(self)
         self.builder = builder
@@ -148,21 +161,10 @@ class HTMLTranslator(BaseTranslator):
     def depart_desc_content(self, node):
         self.body.append('</dd>')
 
-    def visit_refcount(self, node):
-        self.body.append(self.starttag(node, 'em', '', CLASS='refcount'))
-    def depart_refcount(self, node):
-        self.body.append('</em>')
-
     def visit_versionmodified(self, node):
-        self.body.append(self.starttag(node, 'p', CLASS=node['type']))
-        text = versionlabels[node['type']] % node['version']
-        if len(node):
-            text += ': '
-        else:
-            text += '.'
-        self.body.append('<span class="versionmodified">%s</span>' % text)
+        self.body.append(self.starttag(node, 'div', CLASS=node['type']))
     def depart_versionmodified(self, node):
-        self.body.append('</p>\n')
+        self.body.append('</div>\n')
 
     # overwritten
     def visit_reference(self, node):
@@ -200,7 +202,7 @@ class HTMLTranslator(BaseTranslator):
     def visit_admonition(self, node, name=''):
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
-        if name and name != 'seealso':
+        if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
 
@@ -276,12 +278,13 @@ class HTMLTranslator(BaseTranslator):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.starttag(production, 'strong', ''))
                 self.body.append(lastname + '</strong> ::= ')
-            else:
+            elif lastname is not None:
                 self.body.append('%s     ' % (' '*len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
@@ -306,6 +309,9 @@ class HTMLTranslator(BaseTranslator):
         """Determine if the <p> tags around paragraph can be omitted."""
         if isinstance(node.parent, addnodes.desc_content):
             # Never compact desc_content items.
+            return False
+        if isinstance(node.parent, addnodes.versionmodified):
+            # Never compact versionmodified nodes.
             return False
         return BaseTranslator.should_be_compact_paragraph(self, node)
 

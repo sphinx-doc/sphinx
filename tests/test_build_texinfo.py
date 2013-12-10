@@ -5,7 +5,7 @@
 
     Test the build process with Texinfo builder with the test root.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ from subprocess import Popen, PIPE
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import *
+from util import test_root, SkipTest, remove_unicode_literals, with_app
 from test_build_html import ENV_WARNINGS
 
 
@@ -28,6 +28,7 @@ def teardown_module():
 texinfo_warnfile = StringIO()
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
+None:None: WARNING: citation not found: missing
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
@@ -41,7 +42,8 @@ def test_texinfo(app):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
     texinfo_warnings = texinfo_warnfile.getvalue().replace(os.sep, '/')
-    texinfo_warnings_exp = TEXINFO_WARNINGS % {'root': re.escape(app.srcdir)}
+    texinfo_warnings_exp = TEXINFO_WARNINGS % {
+            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(texinfo_warnings_exp + '$', texinfo_warnings), \
            'Warnings don\'t match:\n' + \
            '--- Expected (regex):\n' + texinfo_warnings_exp + \
@@ -54,7 +56,7 @@ def test_texinfo(app):
             p = Popen(['makeinfo', '--no-split', 'SphinxTests.texi'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            pass  # most likely makeinfo was not found
+            raise SkipTest  # most likely makeinfo was not found
         else:
             stdout, stderr = p.communicate()
             retcode = p.returncode

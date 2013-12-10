@@ -1,0 +1,1 @@
+Documentation.addTranslations({"locale": "nb_NO", "plural_expr": "(n != 1)", "messages": {"Hide Search Matches": "Skjul s\u00f8keresultat", "Permalink to this definition": "Permalink til denne definisjonen", "Permalink to this headline": "Permalink til denne oversikten"}});

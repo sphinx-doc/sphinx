@@ -5,12 +5,18 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 from os import path
+
+try:
+    import multiprocessing
+    import threading
+except ImportError:
+    multiprocessing = threading = None
 
 from docutils import nodes
 
@@ -33,6 +39,8 @@ class Builder(object):
     format = ''
     # doctree versioning method
     versioning_method = 'none'
+    # allow parallel write_doc() calls
+    allow_parallel = False
 
     def __init__(self, app):
         self.env = app.env
@@ -50,6 +58,9 @@ class Builder(object):
         self.config = app.config
         self.tags = app.tags
         self.tags.add(self.format)
+        self.tags.add(self.name)
+        self.tags.add("format_%s" % self.format)
+        self.tags.add("builder_%s" % self.name)
 
         # images that need to be copied over (source -> dest)
         self.images = {}
@@ -98,30 +109,37 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen):
+    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
+                            stringify_func=lambda x: x):
         l = 0
         for item in iterable:
             if l == 0:
                 self.info(bold(summary), nonl=1)
                 l = 1
-            self.info(colorfunc(item) + ' ', nonl=1)
+            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
             yield item
         if l == 1:
             self.info()
 
     # new version with progress info
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0):
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
+                        stringify_func=lambda x: x):
         if length == 0:
-            for item in self.old_status_iterator(iterable, summary, colorfunc):
+            for item in self.old_status_iterator(iterable, summary, colorfunc,
+                                                 stringify_func):
                 yield item
             return
         l = 0
         summary = bold(summary)
         for item in iterable:
             l += 1
-            self.info(term_width_line('%s[%3d%%] %s' %
-                                      (summary, 100*l/length,
-                                       colorfunc(item))), nonl=1)
+            s = '%s[%3d%%] %s' % (summary, 100*l/length,
+                                  colorfunc(stringify_func(item)))
+            if self.app.verbosity:
+                s += '\n'
+            else:
+                s = term_width_line(s)
+            self.info(s, nonl=1)
             yield item
         if l > 0:
             self.info()
@@ -283,22 +301,102 @@ class Builder(object):
         self.prepare_writing(docnames)
         self.info('done')
 
-        # write target files
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
+        # check for prerequisites to parallel build
+        # (parallel only works on POSIX, because the forking impl of
+        # multiprocessing is required)
+        if not (multiprocessing and
+                self.app.parallel > 1 and
+                self.allow_parallel and
+                os.name == 'posix'):
+            self._write_serial(sorted(docnames), warnings)
+        else:
+            # number of subprocesses is parallel-1 because the main process
+            # is busy loading doctrees and doing write_doc_serialized()
+            self._write_parallel(sorted(docnames), warnings,
+                                 nproc=self.app.parallel - 1)
+        self.env.set_warnfunc(self.warn)
+
+    def _write_serial(self, docnames, warnings):
         for docname in self.status_iterator(
-            sorted(docnames), 'writing output... ', darkgreen, len(docnames)):
+                docnames, 'writing output... ', darkgreen, len(docnames)):
             doctree = self.env.get_and_resolve_doctree(docname, self)
+            self.write_doc_serialized(docname, doctree)
             self.write_doc(docname, doctree)
         for warning in warnings:
             self.warn(*warning)
-        self.env.set_warnfunc(self.warn)
+
+    def _write_parallel(self, docnames, warnings, nproc):
+        def write_process(docs):
+            try:
+                for docname, doctree in docs:
+                    self.write_doc(docname, doctree)
+            except KeyboardInterrupt:
+                pass  # do not print a traceback on Ctrl-C
+            finally:
+                for warning in warnings:
+                    self.warn(*warning)
+
+        def process_thread(docs):
+            p = multiprocessing.Process(target=write_process, args=(docs,))
+            p.start()
+            p.join()
+            semaphore.release()
+
+        # allow only "nproc" worker processes at once
+        semaphore = threading.Semaphore(nproc)
+        # list of threads to join when waiting for completion
+        threads = []
+
+        # warm up caches/compile templates using the first document
+        firstname, docnames = docnames[0], docnames[1:]
+        doctree = self.env.get_and_resolve_doctree(firstname, self)
+        self.write_doc_serialized(firstname, doctree)
+        self.write_doc(firstname, doctree)
+        # for the rest, determine how many documents to write in one go
+        ndocs = len(docnames)
+        chunksize = min(ndocs // nproc, 10)
+        if chunksize == 0:
+            chunksize = 1
+        nchunks, rest = divmod(ndocs, chunksize)
+        if rest:
+            nchunks += 1
+        # partition documents in "chunks" that will be written by one Process
+        chunks = [docnames[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
+        for docnames in self.status_iterator(
+                chunks, 'writing output... ', darkgreen, len(chunks),
+                lambda chk: '%s .. %s' % (chk[0], chk[-1])):
+            docs = []
+            for docname in docnames:
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.write_doc_serialized(docname, doctree)
+                docs.append((docname, doctree))
+            # start a new thread to oversee the completion of this chunk
+            semaphore.acquire()
+            t = threading.Thread(target=process_thread, args=(docs,))
+            t.setDaemon(True)
+            t.start()
+            threads.append(t)
+
+        # make sure all threads have finished
+        self.info(bold('waiting for workers... '))#, nonl=True)
+        for t in threads:
+            t.join()
 
     def prepare_writing(self, docnames):
+        """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
 
     def write_doc(self, docname, doctree):
+        """Where you actually write something to the filesystem."""
         raise NotImplementedError
+
+    def write_doc_serialized(self, docname, doctree):
+        """Handle parts of write_doc that must be called in the main process
+        if parallel build is active.
+        """
+        pass
 
     def finish(self):
         """Finish the building process.
@@ -314,6 +412,21 @@ class Builder(object):
         """
         pass
 
+    def get_builder_config(self, option, default):
+        """Return a builder specific option.
+
+        This method allows customization of common builder settings by
+        inserting the name of the current builder in the option key.
+        If the key does not exist, use default as builder name.
+        """
+        # At the moment, only XXX_use_index is looked up this way.
+        # Every new builder variant must be registered in Config.config_values.
+        try:
+            optname = '%s_%s' % (self.name, option)
+            return getattr(self.config, optname)
+        except AttributeError:
+            optname = '%s_%s' % (default, option)
+            return getattr(self.config, optname)
 
 BUILTIN_BUILDERS = {
     'html':       ('html', 'StandaloneHTMLBuilder'),
@@ -334,4 +447,6 @@ BUILTIN_BUILDERS = {
     'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
     'websupport': ('websupport', 'WebSupportBuilder'),
     'gettext':    ('gettext', 'MessageCatalogBuilder'),
+    'xml':        ('xml', 'XMLBuilder'),
+    'pseudoxml':  ('xml', 'PseudoXMLBuilder'),
 }

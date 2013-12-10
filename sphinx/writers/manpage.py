@@ -5,7 +5,7 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,8 +20,9 @@ except ImportError:
     has_manpage_writer = False
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, versionlabels, _
+from sphinx.locale import admonitionlabels, _
 from sphinx.util.osutil import ustrftime
+from sphinx.util.compat import docutils_version
 
 
 class ManualPageWriter(Writer):
@@ -69,8 +70,14 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
 
-        # since self.append_header() is never called, need to do this here
-        self.body.append(MACRO_DEF)
+        # In docutils < 0.11 self.append_header() was never called
+        if docutils_version < (0, 11):
+            self.body.append(MACRO_DEF)
+
+        # Overwrite admonition label translations with our own
+        for label, translation in admonitionlabels.items():
+            self.language.labels[label] = self.deunicode(translation)
+
 
     # overwritten -- added quotes around all .TH arguments
     def header(self):
@@ -145,19 +152,8 @@ class ManualPageTranslator(BaseTranslator):
     def depart_desc_content(self, node):
         self.depart_definition(node)
 
-    def visit_refcount(self, node):
-        self.body.append(self.defs['emphasis'][0])
-    def depart_refcount(self, node):
-        self.body.append(self.defs['emphasis'][1])
-
     def visit_versionmodified(self, node):
         self.visit_paragraph(node)
-        text = versionlabels[node['type']] % node['version']
-        if len(node):
-            text += ': '
-        else:
-            text += '.'
-        self.body.append(text)
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
@@ -189,15 +185,9 @@ class ManualPageTranslator(BaseTranslator):
         pass
 
     def visit_seealso(self, node):
-        self.visit_admonition(node)
+        self.visit_admonition(node, 'seealso')
     def depart_seealso(self, node):
         self.depart_admonition(node)
-
-    # overwritten -- use our own label translations
-    def visit_admonition(self, node, name=None):
-        if name:
-            self.body.append('.IP %s\n' %
-                             self.deunicode(admonitionlabels.get(name, name)))
 
     def visit_productionlist(self, node):
         self.ensure_eol()
@@ -207,6 +197,7 @@ class ManualPageTranslator(BaseTranslator):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
@@ -214,7 +205,7 @@ class ManualPageTranslator(BaseTranslator):
                 self.body.append(self.deunicode(lastname))
                 self.body.append(self.defs['strong'][1])
                 self.body.append(' ::= ')
-            else:
+            elif lastname is not None:
                 self.body.append('%s     ' % (' '*len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
@@ -237,7 +228,9 @@ class ManualPageTranslator(BaseTranslator):
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):
         self.body.append(self.defs['reference'][0])
-        self.body.append(node.astext())
+        self.visit_Text(node)  # avoid repeating escaping code... fine since
+                               # visit_Text calls astext() and only works
+                               # on that afterwards
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
@@ -340,6 +333,14 @@ class ManualPageTranslator(BaseTranslator):
         if 'manpage' in node.get('format', '').split():
             self.body.append(node.astext())
         raise nodes.SkipNode
+
+    def visit_meta(self, node):
+        raise nodes.SkipNode
+
+    def visit_inline(self, node):
+        pass
+    def depart_inline(self, node):
+        pass
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

@@ -1,0 +1,1 @@
+Documentation.addTranslations({"locale": "hu", "plural_expr": "(n != 1)", "messages": {"Hide Search Matches": "Keres\u00e9si Tal\u00e1latok Elrejt\u00e9se", "Permalink to this definition": "Hivatkoz\u00e1s erre a defin\u00edci\u00f3ra", "Permalink to this headline": "Hivatkoz\u00e1s erre a fejezetc\u00edmre"}});

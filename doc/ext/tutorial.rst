@@ -174,7 +174,7 @@ A directive class is a class deriving usually from
 doesn't exist yet in Docutils 0.4, Sphinx has another base class called
 ``sphinx.util.compat.Directive`` that you can derive your directive from, and it
 will work with both Docutils 0.4 and 0.5 upwards.  The directive interface is
-covered in detail in the docutils documentation; the important thing is that the
+covered in detail in the `docutils documentation`_; the important thing is that the
 class has a method ``run`` that returns a list of nodes.
 
 The ``todolist`` directive is quite simple::
@@ -341,3 +341,4 @@ an italic node) with the backreference.  The reference URI is built by
 used builder, and appending the todo node's (the target's) ID as the anchor
 name.
 
+.. _docutils documentation: http://docutils.sourceforge.net/docs/ref/rst/directives.html

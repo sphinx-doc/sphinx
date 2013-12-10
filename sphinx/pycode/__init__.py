@@ -5,7 +5,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -241,7 +241,10 @@ class ModuleAnalyzer(object):
         """Generate tokens from the source."""
         if self.tokens is not None:
             return
-        self.tokens = list(tokenize.generate_tokens(self.source.readline))
+        try:
+            self.tokens = list(tokenize.generate_tokens(self.source.readline))
+        except tokenize.TokenError, err:
+            raise PycodeError('tokenizing failed', err)
         self.source.close()
 
     def parse(self):
