@@ -73,7 +73,7 @@ def teardown_module():
 def elem_gettexts(elem):
     def itertext(self):
         # this function copied from Python-2.7 'ElementTree.itertext'.
-        # for compatibility to Python-2.6, 3.1
+        # for compatibility to Python-2.6
         tag = self.tag
         if not isinstance(tag, basestring) and tag is not None:
             return

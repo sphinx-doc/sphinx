@@ -75,8 +75,8 @@ def execfile_(filepath, _globals):
     finally:
         f.close()
 
-    # py26,py31 accept only LF eol instead of CRLF
-    if sys.version_info[:2] in ((2, 6), (3, 1)):
+    # py26 accept only LF eol instead of CRLF
+    if sys.version_info[:2] == (2, 6):
         source = source.replace(b('\r\n'), b('\n'))
 
     # compile to a code object, handle syntax errors

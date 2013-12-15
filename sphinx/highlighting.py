@@ -133,12 +133,6 @@ class PygmentsBridge(object):
             # just replace all non-ASCII characters.
             src = src.encode('ascii', 'replace')
 
-        if (3, 0) <= sys.version_info < (3, 2):
-            # Python 3.1 can't process '\r' as linesep.
-            # `parser.suite("print('hello')\r\n")` cause error.
-            if '\r\n' in src:
-                src = src.replace('\r\n', '\n')
-
         if parser is None:
             return True
 

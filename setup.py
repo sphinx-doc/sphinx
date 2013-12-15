@@ -44,8 +44,8 @@ A development egg can be found `here
 <http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
-if sys.version_info < (2, 6):
-    print('ERROR: Sphinx requires at least Python 2.6 to run.')
+if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 2):
+    print('ERROR: Sphinx requires at least Python 2.6 or 3.2 to run.')
     sys.exit(1)
 
 requires = ['Pygments>=1.2', 'docutils>=0.7']
