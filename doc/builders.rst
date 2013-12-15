@@ -135,8 +135,7 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
 
    .. note::
 
-      This builder requires the docutils manual page writer, which is only
-      available as of docutils 0.6.
+      This builder requires the docutils manual page writer.
 
    .. versionadded:: 1.0
 
