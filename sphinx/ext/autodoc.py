@@ -29,7 +29,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
      safe_getattr, safe_repr, is_builtin_class_method
-from sphinx.util.pycompat import base_exception, class_types
+from sphinx.util.pycompat import class_types
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -1128,7 +1128,7 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, class_types) and \
-               issubclass(member, base_exception)
+               issubclass(member, BaseException)
 
 
 class DataDocumenter(ModuleLevelDocumenter):

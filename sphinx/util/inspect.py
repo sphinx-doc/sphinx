@@ -55,7 +55,7 @@ if sys.version_info >= (3, 0):
             raise TypeError('%r is not a Python function' % func)
         return inspect.getfullargspec(func)
 
-elif sys.version_info >= (2, 5):
+else:  # 2.6, 2.7
     from functools import partial
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
@@ -86,12 +86,7 @@ elif sys.version_info >= (2, 5):
                     del func_defaults[i]
                 except IndexError:
                     pass
-        if sys.version_info >= (2, 6):
-            return inspect.ArgSpec(args, varargs, varkw, func_defaults)
-        else:
-            return (args, varargs, varkw, func_defaults)
-else:
-    getargspec = inspect.getargspec
+        return inspect.ArgSpec(args, varargs, varkw, func_defaults)
 
 
 def isdescriptor(x):

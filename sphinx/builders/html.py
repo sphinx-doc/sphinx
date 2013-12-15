@@ -16,11 +16,7 @@ import codecs
 import posixpath
 import cPickle as pickle
 from os import path
-try:
-    from hashlib import md5
-except ImportError:
-    # 2.4 compatibility
-    from md5 import md5
+from hashlib import md5
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -35,7 +31,7 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
      movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
-from sphinx.util.pycompat import any, b
+from sphinx.util.pycompat import b
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.search import js_index
@@ -1095,8 +1091,4 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     searchindex_filename = 'searchindex.json'
 
     def init(self):
-        if jsonimpl.json is None:
-            raise SphinxError(
-                'The module simplejson (or json in Python >= 2.6) '
-                'is not available. The JSONHTMLBuilder builder will not work.')
         SerializingHTMLBuilder.init(self)

@@ -25,7 +25,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.osutil import ustrftime
-from sphinx.util.pycompat import any
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
 
