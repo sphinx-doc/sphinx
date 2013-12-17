@@ -212,9 +212,9 @@ following directive exists:
    ``p{width}`` construct, or tabulary's automatic specifiers:
 
    +-----+------------------------------------------+
-   |``L``| ragged-left column with automatic width  |
+   |``L``| flush left column with automatic width   |
    +-----+------------------------------------------+
-   |``R``| ragged-right column with automatic width |
+   |``R``| flush right column with automatic width  |
    +-----+------------------------------------------+
    |``C``| centered column with automatic width     |
    +-----+------------------------------------------+
