@@ -268,7 +268,9 @@ you need to setup your :confval:`intersphinx_mapping` like::
 And now, you can write a cross-reference like: ``:py:func:`io.open```.
 The cross-reference that has no matching target in the current documentation
 set, it looks for targets in the documentation sets configured in
-:confval:`intersphinx_mapping`.
+:confval:`intersphinx_mapping`. Intersphinx also works for some other
+:ref:`domains <domains>` roles including ``:ref:``, however it doesn't work
+for ``:doc:`` that is non-domain role.
 
 |more| See :mod:`sphinx.ext.intersphinx` for the complete description of the
 features of intersphinx.
