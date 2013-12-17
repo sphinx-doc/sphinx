@@ -1,6 +1,11 @@
 Release 1.2.1 (in development)
 ==============================
 
+Documentation
+-------------
+
+* #1325: Added a "Intersphinx" tutorial section. (:file:`doc/tutorial.rst`)
+
 
 Release 1.2 (released Dec 10, 2013)
 ===================================

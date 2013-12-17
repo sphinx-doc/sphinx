@@ -248,11 +248,36 @@ Therefore, you must add the appropriate path to :py:data:`sys.path` in your
 |more| See :mod:`sphinx.ext.autodoc` for the complete description of the
 features of autodoc.
 
+Intersphinx
+-----------
+
+Many sphinx documents including `Python reference document`_ are published on the internet. When you would like to make a link to such documents from your documentation, you can be done it with :mod:`sphinx.ext.intersphinx`.
+
+.. _Python reference document: http://docs.python.org/3
+
+In order to use intersphinx, you need to activate it in :file:`conf.py` by putting
+the string ``'sphinx.ext.intersphinx'`` into the list assigned to the
+:confval:`extensions` config value and setup :confval:`intersphinx_mapping`
+config value.
+
+For example, to link to ``io.open()`` in the python reference document,
+you need to setup your :confval:`intersphinx_mapping` like::
+
+   intersphinx_mapping = {'python': ('http://docs.python.org/3', None)}
+
+And now, you can write a cross-reference like: ``:py:func:`io.open```.
+The cross-reference that has no matching target in the current documentation
+set, it looks for targets in the documentation sets configured in
+:confval:`intersphinx_mapping`.
+
+|more| See :mod:`sphinx.ext.intersphinx` for the complete description of the
+features of intersphinx.
+
 
 More topics to be covered
 -------------------------
 
-- Other extensions (math, intersphinx, viewcode, doctest)
+- Other extensions (math, viewcode, doctest)
 - Static files
 - Selecting a theme
 - Templating
