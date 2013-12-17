@@ -141,9 +141,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
    finds a file that is not included, because that means that this file will not
-   be reachable through standard navigation.  Use :confval:`unused_docs` to
-   explicitly exclude documents from building, and :confval:`exclude_trees` to
-   exclude whole directories.
+   be reachable through standard navigation.  Use :confval:`exclude_patterns` to
+   explicitly exclude documents or directories from building.
 
    The "master document" (selected by :confval:`master_doc`) is the "root" of
    the TOC tree hierarchy.  It can be used as the documentation's main page, or
