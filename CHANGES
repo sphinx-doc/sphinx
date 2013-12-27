@@ -4,7 +4,7 @@ Release 1.2.1 (in development)
 Bugs fixed
 ----------
 
-* #1335: Fix autosummary template overloading like
+* #1335: Fix autosummary template overloading with exclamation prefix like
   ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
   call. This caused by PR#181.
 
