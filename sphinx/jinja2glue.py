@@ -95,9 +95,11 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             # then the theme parent paths
             loaderchain = pathchain + theme.themepath
         elif dirs:
-            pathchain = loaderchain = list(dirs)
+            pathchain = list(dirs)
+            loaderchain = list(dirs)
         else:
-            pathchain = loaderchain = []
+            pathchain = []
+            loaderchain = []
 
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)

@@ -1,6 +1,13 @@
 Release 1.2.1 (in development)
 ==============================
 
+Bugs fixed
+----------
+
+* #1335: Fix autosummary template overloading like
+  ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
+  call. This caused by PR#181.
+
 
 Release 1.2 (released Dec 10, 2013)
 ===================================
@@ -22,8 +29,10 @@ Bugs fixed
 
 * Restore ``versionmodified`` CSS class for versionadded/changed and deprecated
   directives.
-* Fix: `html_theme_path=['.']` is a trigger of rebuild all documents always
-  (This change keeps the current "theme changes cause a rebuild" feature).
+
+* PR#181: Fix `html_theme_path=['.']` is a trigger of rebuild all documents
+  always (This change keeps the current "theme changes cause a rebuild"
+  feature).
 
 * #1296: Fix invalid charset in HTML help generated HTML files for default
   locale.
