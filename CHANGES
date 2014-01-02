@@ -8,6 +8,10 @@ Bugs fixed
   ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
   call. This caused by PR#181.
 
+* #1337: Fix autodoc with ``autoclass_content="both"`` uses useless
+  ``object.__init__`` docstring when class does not have ``__init__``.
+  This caused by a change for #1138.
+
 
 Release 1.2 (released Dec 10, 2013)
 ===================================
