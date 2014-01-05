@@ -81,6 +81,23 @@ def _pseudo_parse_arglist(signode, arglist):
         signode += paramlist
 
 
+# This override allows our inline type specifiers to behave like :class: link
+# when it comes to handling "." and "~" prefixes.
+class PyTypedField(TypedField):
+    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis):
+        result = super(PyTypedField, self).make_xref(rolename, domain, target,
+                                                     innernode)
+        if target.startswith('.'):
+            result['reftarget'] = target[1:]
+            result['refspecific'] = True
+            result[0][0] = nodes.Text(target[1:])
+        if target.startswith('~'):
+            result['reftarget'] = target[1:]
+            title = target.split('.')[-1]
+            result[0][0] = nodes.Text(title)
+        return result
+
+
 class PyObject(ObjectDescription):
     """
     Description of a general Python object.
@@ -92,7 +109,7 @@ class PyObject(ObjectDescription):
     }
 
     doc_field_types = [
-        TypedField('parameter', label=l_('Parameters'),
+        PyTypedField('parameter', label=l_('Parameters'),
                    names=('param', 'parameter', 'arg', 'argument',
                           'keyword', 'kwarg', 'kwparam'),
                    typerolename='obj', typenames=('paramtype', 'type'),
