@@ -12,6 +12,9 @@ Bugs fixed
   ``object.__init__`` docstring when class does not have ``__init__``.
   This caused by a change for #1138.
 
+* #1340: Can't search alphabetical words on the HTML quick search generated
+  with language='ja'.
+
 
 Release 1.2 (released Dec 10, 2013)
 ===================================
