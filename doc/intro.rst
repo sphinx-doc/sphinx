@@ -66,3 +66,12 @@ Usage
 
 See :doc:`tutorial` for an introduction.  It also contains links to more
 advanced sections in this manual for the topics it discusses.
+
+
+Hosting
+-------
+
+Need a place to host your Sphinx docs? `readthedocs.org
+<http://readthedocs.org>`_ hosts a lot of Sphinx docs already, and integrates
+well with projects' source control.  It also features a powerful built-in search
+that exceeds the possibilities of Sphinx' JavaScript-based offline search.
