@@ -122,7 +122,7 @@ class Sphinx(object):
             self.config.setup(self)
 
         # now that we know all config values, collect them from conf.py
-        self.config.init_values()
+        self.config.init_values(self.warn)
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and \

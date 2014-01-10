@@ -173,14 +173,11 @@ def main(argv):
                 print >>sys.stderr, ('Error: -D option argument must be '
                                      'in the form name=value.')
                 return 1
-            try:
-                val = int(val)
-            except ValueError:
-                if likely_encoding and isinstance(val, bytes):
-                    try:
-                        val = val.decode(likely_encoding)
-                    except UnicodeError:
-                        pass
+            if likely_encoding and isinstance(val, bytes):
+                try:
+                    val = val.decode(likely_encoding)
+                except UnicodeError:
+                    pass
             confoverrides[key] = val
         elif opt == '-A':
             try:

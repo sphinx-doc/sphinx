@@ -7,6 +7,9 @@ New features
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 
+* #925: Allow list-typed config values to be provided on the command line,
+  like ``-D key=val1,val2``.
+
 Bugs fixed
 ----------
 

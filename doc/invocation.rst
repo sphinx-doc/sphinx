@@ -124,12 +124,21 @@ The :program:`sphinx-build` script has several options:
 .. option:: -D setting=value
 
    Override a configuration value set in the :file:`conf.py` file.  The value
-   must be a string or dictionary value.  For the latter, supply the setting
-   name and key like this: ``-D latex_elements.docclass=scrartcl``.  For boolean
-   values, use ``0`` or ``1`` as the value.
+   must be a number, string, list or dictionary value.
+
+   For lists, you can separate elements with a comma like this: ``-D
+   html_theme_path=path1,path2``.
+
+   For dictionary values, supply the setting name and key like this:
+   ``-D latex_elements.docclass=scrartcl``.
+
+   For boolean values, use ``0`` or ``1`` as the value.
 
    .. versionchanged:: 0.6
       The value can now be a dictionary value.
+
+   .. versionchanged:: 1.3
+      The value can now also be a list value.
 
 .. option:: -A name=value
 

@@ -248,12 +248,33 @@ class Config(object):
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content')
                 )
 
-    def init_values(self):
+    def init_values(self, warn):
         config = self._raw_config
         for valname, value in self.overrides.iteritems():
             if '.' in valname:
                 realvalname, key = valname.split('.', 1)
                 config.setdefault(realvalname, {})[key] = value
+                continue
+            elif valname not in self.values:
+                warn('unknown config value %r in override, ignoring' % valname)
+                continue
+            defvalue = self.values[valname][0]
+            if isinstance(defvalue, dict):
+                warn('cannot override dictionary config setting %r, '
+                     'ignoring (use %r to set individual elements)' %
+                     (valname, valname + '.key=value'))
+                continue
+            elif isinstance(defvalue, list):
+                config[valname] = value.split(',')
+            elif isinstance(defvalue, (int, long)):
+                try:
+                    config[valname] = int(value)
+                except ValueError:
+                    warn('invalid number %r for config value %r, ignoring'
+                         % (value, valname))
+            elif not isinstance(defvalue, (str, unicode)):
+                warn('cannot override config setting %r with unsupported type, '
+                     'ignoring' % valname)
             else:
                 config[valname] = value
         for name in config:
