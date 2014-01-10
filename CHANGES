@@ -23,6 +23,11 @@ Bugs fixed
 
 * #751: Allow production lists longer than a page in LaTeX by using longtable.
 
+* #764: Always look for stopwords lowercased in JS search.
+
+* #814: autodoc: Guard against strange type objects that don't have
+  ``__bases__``.
+
 Documentation
 -------------
 
