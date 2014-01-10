@@ -334,6 +334,20 @@ def test_get_doc():
     directive.env.config.autoclass_content = 'both'
     assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
 
+    # class does not have __init__ method
+    class F(object):
+        """Class docstring"""
+
+    # docstring in the __init__ method of base class will be discard
+    for f in (False, True):
+        directive.env.config.autodoc_docstring_signature = f
+        directive.env.config.autoclass_content = 'class'
+        assert getdocl('class', F) == ['Class docstring']
+        directive.env.config.autoclass_content = 'init'
+        assert getdocl('class', F) == ['Class docstring']
+        directive.env.config.autoclass_content = 'both'
+        assert getdocl('class', F) == ['Class docstring']
+
 
 @with_setup(setup_test)
 def test_docstring_processing():

@@ -1,0 +1,13 @@
+Autosummary templating test
+===========================
+
+.. autosummary::
+   :toctree: generated
+
+   sphinx.application.Sphinx
+
+.. currentmodule:: sphinx.application
+
+.. autoclass:: TemplateBridge
+
+  .. automethod:: render

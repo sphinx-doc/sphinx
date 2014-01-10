@@ -1084,7 +1084,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
                 initdocstring = self.get_attr(
                     self.get_attr(self.object, '__init__', None), '__doc__')
             # for new-style classes, no __init__ means default __init__
-            if initdocstring == object.__init__.__doc__:
+            if initdocstring.strip() == object.__init__.__doc__.strip():
                 initdocstring = None
             if initdocstring:
                 if content == 'init':
