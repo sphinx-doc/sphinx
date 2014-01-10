@@ -17,6 +17,10 @@ Bugs fixed
 
 * #1319: Do not crash if the ``html_logo`` file does not exist.
 
+* #603: Do not use the HTML-ized title for building the search index (that
+  resulted in "literal" being found on every page with a literal in the
+  title).
+
 Documentation
 -------------
 
