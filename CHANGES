@@ -15,6 +15,11 @@ Bugs fixed
 * #1340: Can't search alphabetical words on the HTML quick search generated
   with language='ja'.
 
+Documentation
+-------------
+
+* #1325: Added a "Intersphinx" tutorial section. (:file:`doc/tutorial.rst`)
+
 
 Release 1.2 (released Dec 10, 2013)
 ===================================
