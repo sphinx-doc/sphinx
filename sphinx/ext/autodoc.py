@@ -1052,7 +1052,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
             self.add_line(u'', '<autodoc>')
-            if len(self.object.__bases__):
+            if hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 bases = [b.__module__ == '__builtin__' and
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)

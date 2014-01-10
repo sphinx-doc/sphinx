@@ -21,6 +21,19 @@ Bugs fixed
 * #1340: Can't search alphabetical words on the HTML quick search generated
   with language='ja'.
 
+* #1319: Do not crash if the ``html_logo`` file does not exist.
+
+* #603: Do not use the HTML-ized title for building the search index (that
+  resulted in "literal" being found on every page with a literal in the
+  title).
+
+* #751: Allow production lists longer than a page in LaTeX by using longtable.
+
+* #764: Always look for stopwords lowercased in JS search.
+
+* #814: autodoc: Guard against strange type objects that don't have
+  ``__bases__``.
+
 Documentation
 -------------
 

@@ -306,8 +306,7 @@ class IndexBuilder(object):
                 return self._stem_cache[word]
         _filter =  self.lang.word_filter
 
-        for word in itertools.chain(visitor.found_title_words,
-                                    self.lang.split(title)):
+        for word in visitor.found_title_words:
             word = stem(word)
             if _filter(word):
                 self._title_mapping.setdefault(word, set()).add(filename)
