@@ -238,9 +238,11 @@
   \def\productioncont##1{\\& &\code{##1}}
   \parindent=2em
   \indent
-  \begin{tabular}{lcl}
+  \setlength{\LTpre}{0pt}
+  \setlength{\LTpost}{0pt}
+  \begin{longtable}[l]{lcl}
 }{%
-  \end{tabular}
+  \end{longtable}
 }
 
 % Notices / Admonitions

@@ -21,6 +21,8 @@ Bugs fixed
   resulted in "literal" being found on every page with a literal in the
   title).
 
+* #751: Allow production lists longer than a page in LaTeX by using longtable.
+
 Documentation
 -------------
 
