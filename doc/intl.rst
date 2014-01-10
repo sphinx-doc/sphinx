@@ -165,9 +165,9 @@ use the :command:`sphinx-intl update` command.
 Using Transifex service for team translation
 --------------------------------------------
 
-`Transifex <http://transifex.com>`_ is one of several services that allow
-collaborative translation via a web interface.  It has a nifty Python-based
-command line client that makes it easy to fetch and push translations.
+Transifex_ is one of several services that allow collaborative translation via a
+web interface.  It has a nifty Python-based command line client that makes it
+easy to fetch and push translations.
 
 .. TODO: why use transifex?
 
