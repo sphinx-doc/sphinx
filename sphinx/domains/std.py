@@ -190,17 +190,26 @@ class Program(Directive):
 class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
 
+    def _split(self, text, refnode, env):
+        try:
+            program, target = re.split(' (?=-|--|/)', text, 1)
+        except ValueError:
+            env.warn_node('Malformed :option: %r, does not contain option '
+                          'marker - or -- or /' % text, refnode)
+            return None, text
+        else:
+            program = ws_re.sub('-', program)
+            return program, target
+
     def process_link(self, env, refnode, has_explicit_title, title, target):
         program = env.temp_data.get('std:program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):
-                program, target = re.split(' (?=-|--|/)', title, 1)
-                program = ws_re.sub('-', program)
+                program, target = self._split(title, refnode, env)
                 target = target.strip()
         elif ' ' in target:
-            program, target = re.split(' (?=-|--|/)', target, 1)
-            program = ws_re.sub('-', program)
+            program, target = self._split(target, refnode, env)
         refnode['refprogram'] = program
         return title, target
 
