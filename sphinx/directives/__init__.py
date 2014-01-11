@@ -149,10 +149,10 @@ class ObjectDescription(Directive):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
                 continue  # we don't want an index entry here
+            self.names.append(name)
             if not noindex and name not in self.names:
                 # only add target and index entry if this is the first
                 # description of the object with this name in this desc block
-                self.names.append(name)
                 self.add_target_and_index(name, sig, signode)
 
         contentnode = addnodes.desc_content()

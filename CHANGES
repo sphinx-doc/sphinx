@@ -59,6 +59,9 @@ Bugs fixed
 * #1095: Fix print-media stylesheet being included always in the "scrolls"
   theme.
 
+* #1085: Fix current classname not getting set if class description has
+  ``:noindex:`` set.
+
 Documentation
 -------------
 
