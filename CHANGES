@@ -53,6 +53,9 @@ Bugs fixed
 
 * #949: Update the tabulary.sty packed with Sphinx.
 
+* #1050: Add anonymous labels into ``objects.inv`` to be referenced via
+  intersphinx.
+
 Documentation
 -------------
 

@@ -612,6 +612,11 @@ class StandardDomain(Domain):
                    self.object_types[type].attrs['searchprio'])
         for name, info in self.data['labels'].iteritems():
             yield (name, info[2], 'label', info[0], info[1], -1)
+        # add anonymous-only labels as well
+        non_anon_labels = set(self.data['labels'])
+        for name, info in self.data['anonlabels'].iteritems():
+            if name not in non_anon_labels:
+                yield (name, name, 'label', info[0], info[1], -1)
 
     def get_type_name(self, type, primary=False):
         # never prepend "Default"
