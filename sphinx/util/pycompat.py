@@ -30,6 +30,9 @@ if sys.version_info >= (3, 0):
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace').decode('ascii')
+    # some kind of default system encoding; should be used with a lenient
+    # error handler
+    sys_encoding = sys.getdefaultencoding()
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
@@ -62,6 +65,10 @@ else:
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace')
+    # some kind of default system encoding; should be used with a lenient
+    # error handler
+    import locale
+    sys_encoding = locale.getpreferredencoding()
 
 
 def execfile_(filepath, _globals):

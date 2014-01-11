@@ -33,6 +33,9 @@ Bugs fixed
 * #933: Do not crash if an ``:option:`` value is malformed (contains spaces
   but no option name).
 
+* #908: On Python 3, handle error messages from LaTeX correctly in the pngmath
+  extension.
+
 Documentation
 -------------
 

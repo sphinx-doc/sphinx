@@ -26,7 +26,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT
-from sphinx.util.pycompat import b
+from sphinx.util.pycompat import b, sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 class MathExtError(SphinxError):
@@ -34,9 +34,9 @@ class MathExtError(SphinxError):
 
     def __init__(self, msg, stderr=None, stdout=None):
         if stderr:
-            msg += '\n[stderr]\n' + stderr
+            msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
-            msg += '\n[stdout]\n' + stdout
+            msg += '\n[stdout]\n' + stdout.decode(sys_encoding, 'replace')
         SphinxError.__init__(self, msg)
 
 
@@ -192,11 +192,11 @@ def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
     except MathExtError, exc:
-        msg = unicode(str(exc), 'utf-8', 'replace')
+        msg = unicode(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('display latex %r: ' % node['latex'] + str(exc))
+        self.builder.warn('display latex %r: ' % node['latex'] + msg)
         raise nodes.SkipNode
     if fname is None:
         # something failed -- use text-only as a bad substitute
