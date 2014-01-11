@@ -42,6 +42,8 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
+%(root)s/markup.txt:142: WARNING: Malformed :option: u'Python c option', does \
+not contain option marker - or -- or /
 %(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
 http://sphinx-doc.org/domains.html

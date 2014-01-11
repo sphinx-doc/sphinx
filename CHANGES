@@ -37,6 +37,11 @@ Bugs fixed
 * #814: autodoc: Guard against strange type objects that don't have
   ``__bases__``.
 
+* #932: autodoc: Do not crash if ``__doc__`` is not a string.
+
+* #933: Do not crash if an ``:option:`` value is malformed (contains spaces
+  but no option name).
+
 Documentation
 -------------
 

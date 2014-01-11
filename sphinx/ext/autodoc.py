@@ -450,9 +450,10 @@ class Documenter(object):
         # into lines
         if isinstance(docstring, unicode):
             return [prepare_docstring(docstring, ignore)]
-        elif docstring:
+        elif isinstance(docstring, str):  # this will not trigger on Py3
             return [prepare_docstring(force_decode(docstring, encoding),
                                       ignore)]
+        # ... else it is something strange, let's ignore it
         return []
 
     def process_doc(self, docstrings):
