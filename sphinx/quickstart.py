@@ -986,7 +986,7 @@ Enter the root path for documentation.'''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
 "source" and "build" directories within the root path.'''
-        do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
+        do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
                   boolean)
 
     if 'dot' not in d:
@@ -1042,50 +1042,50 @@ document is a custom template, you can also set this to another filename.'''
     if 'epub' not in d:
         print '''
 Sphinx can also add configuration for epub output:'''
-        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/N)',
+        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/n)',
                   'n', boolean)
 
     if 'ext_autodoc' not in d:
         print '''
 Please indicate if you want to use one of the following Sphinx extensions:'''
         do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
-                  'from modules (y/N)', 'n', boolean)
+                  'from modules (y/n)', 'n', boolean)
     if 'ext_doctest' not in d:
         do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
-                  'in doctest blocks (y/N)', 'n', boolean)
+                  'in doctest blocks (y/n)', 'n', boolean)
     if 'ext_intersphinx' not in d:
         do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
-                  'documentation of different projects (y/N)', 'n', boolean)
+                  'documentation of different projects (y/n)', 'n', boolean)
     if 'ext_todo' not in d:
         do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
-                  'that can be shown or hidden on build (y/N)', 'n', boolean)
+                  'that can be shown or hidden on build (y/n)', 'n', boolean)
     if 'ext_coverage' not in d:
         do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
-                  'coverage (y/N)', 'n', boolean)
+                  'coverage (y/n)', 'n', boolean)
     if 'ext_pngmath' not in d:
         do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
-                  'as PNG images (y/N)', 'n', boolean)
+                  'as PNG images (y/n)', 'n', boolean)
     if 'ext_mathjax' not in d:
         do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
-                  'browser by MathJax (y/N)', 'n', boolean)
+                  'browser by MathJax (y/n)', 'n', boolean)
     if d['ext_pngmath'] and d['ext_mathjax']:
         print '''Note: pngmath and mathjax cannot be enabled at the same time.
 pngmath has been deselected.'''
     if 'ext_ifconfig' not in d:
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
-                  'content based on config values (y/N)', 'n', boolean)
+                  'content based on config values (y/n)', 'n', boolean)
     if 'ext_viewcode' not in d:
         do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
-                  'code of documented Python objects (y/N)', 'n', boolean)
+                  'code of documented Python objects (y/n)', 'n', boolean)
 
     if 'makefile' not in d:
         print '''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
-        do_prompt(d, 'makefile', 'Create Makefile? (Y/n)', 'y', boolean)
+        do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
     if 'batchfile' not in d:
-        do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)',
+        do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
     print
 
