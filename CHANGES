@@ -49,6 +49,8 @@ Bugs fixed
 * #845: In code blocks, when the selected lexer fails, display line numbers
   nevertheless if configured.
 
+* #929: Support parsed-literal blocks in LaTeX output correctly.
+
 Documentation
 -------------
 

@@ -84,7 +84,7 @@ class MathDirective(Directive):
 
 
 def latex_visit_math(self, node):
-    self.body.append('$' + node['latex'] + '$')
+    self.body.append('\\(' + node['latex'] + '\\)')
     raise nodes.SkipNode
 
 def latex_visit_displaymath(self, node):
