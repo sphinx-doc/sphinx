@@ -80,5 +80,11 @@ def main(argv=sys.argv):
     return cmdline.main(argv)
 
 
+def make_main(argv=sys.argv):
+    """Sphinx build "make mode" entry."""
+    from sphinx import make_mode
+    return make_mode.run_make_mode(argv[2:])
+
+
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
