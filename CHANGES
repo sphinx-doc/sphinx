@@ -13,6 +13,8 @@ New features
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
   to start at an arbitrary line number, with a new ``lineno-start`` option.
 
+* Prompt for the document language in sphinx-quickstart.
+
 Bugs fixed
 ----------
 
