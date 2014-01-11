@@ -46,6 +46,9 @@ Bugs fixed
 * #901: Emit a warning when using docutils' new "math" markup without a Sphinx
   math extension active.
 
+* #845: In code blocks, when the selected lexer fails, display line numbers
+  nevertheless if configured.
+
 Documentation
 -------------
 

@@ -175,7 +175,7 @@ class PygmentsBridge(object):
                 if self.try_parse(source):
                     lexer = lexers['python']
                 else:
-                    return self.unhighlighted(source)
+                    lexer = lexers['none']
             else:
                 lexer = lexers['python']
         elif lang in ('python3', 'py3') and source.startswith('>>>'):
@@ -185,7 +185,7 @@ class PygmentsBridge(object):
             try:
                 lexer = guess_lexer(source)
             except Exception:
-                return self.unhighlighted(source)
+                lexer = lexers['none']
         else:
             if lang in lexers:
                 lexer = lexers[lang]
@@ -195,7 +195,7 @@ class PygmentsBridge(object):
                 except ClassNotFound:
                     if warn:
                         warn('Pygments lexer name %r is not known' % lang)
-                        return self.unhighlighted(source)
+                        lexer = lexers['none']
                     else:
                         raise
                 else:
@@ -207,19 +207,19 @@ class PygmentsBridge(object):
             source = doctest.doctestopt_re.sub('', source)
 
         # highlight via Pygments
+        formatter = self.get_formatter(**kwargs)
         try:
-            formatter = self.get_formatter(**kwargs)
             hlsource = highlight(source, lexer, formatter)
-            if self.dest == 'html':
-                return hlsource
-            else:
-                if not isinstance(hlsource, unicode):  # Py2 / Pygments < 1.6
-                    hlsource = hlsource.decode()
-                return hlsource.translate(tex_hl_escape_map_new)
         except ErrorToken:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
-            return self.unhighlighted(source)
+            hlsource = highlight(source, lexers['none'], formatter)
+        if self.dest == 'html':
+            return hlsource
+        else:
+            if not isinstance(hlsource, unicode):  # Py2 / Pygments < 1.6
+                hlsource = hlsource.decode()
+            return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):
         if not pygments:
