@@ -82,8 +82,10 @@ def render_math(self, math):
     may not fail since that indicates a problem in the math source.
     """
     use_preview = self.builder.config.pngmath_use_preview
+    latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
+    latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
 
-    shasum = "%s.png" % sha(math.encode('utf-8')).hexdigest()
+    shasum = "%s.png" % sha(latex.encode('utf-8')).hexdigest()
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
     outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
     if path.isfile(outfn):
@@ -94,9 +96,6 @@ def render_math(self, math):
     if hasattr(self.builder, '_mathpng_warned_latex') or \
        hasattr(self.builder, '_mathpng_warned_dvipng'):
         return None, None
-
-    latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
-    latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
 
     # use only one tempdir per build -- the use of a directory is cleaner
     # than using temporary files, since we can clean up everything at once
