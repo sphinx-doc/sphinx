@@ -551,6 +551,13 @@ class HTMLTranslator(BaseTranslator):
             node['classes'].append('field-odd')
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
+    def visit_math(self, node, math_env=''):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html',
+                          (self.builder.current_docname, node.line))
+        raise nodes.SkipNode
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 

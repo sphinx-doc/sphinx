@@ -43,6 +43,9 @@ Bugs fixed
   pngmath-generated images.  This rebuilds them correctly when
   ``pngmath_latex_preamble`` changes.
 
+* #901: Emit a warning when using docutils' new "math" markup without a Sphinx
+  math extension active.
+
 Documentation
 -------------
 
