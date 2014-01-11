@@ -11,7 +11,7 @@ New features
   like ``-D key=val1,val2``.
 
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
-  #to start at an arbitrary line number, with a new ``lineno-start`` option.
+  to start at an arbitrary line number, with a new ``lineno-start`` option.
 
 Bugs fixed
 ----------
