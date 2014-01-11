@@ -68,8 +68,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Section numbering**
 
-   If you want to have section numbers even in HTML output, give the toctree a
-   ``numbered`` option.  For example::
+   If you want to have section numbers even in HTML output, give the
+   **toplevel** toctree a ``numbered`` option.  For example::
 
       .. toctree::
          :numbered:
