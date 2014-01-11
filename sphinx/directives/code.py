@@ -56,6 +56,7 @@ class CodeBlock(Directive):
     final_argument_whitespace = False
     option_spec = {
         'linenos': directives.flag,
+        'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
     }
 
@@ -75,9 +76,13 @@ class CodeBlock(Directive):
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
-        literal['linenos'] = 'linenos' in self.options
+        literal['linenos'] = 'linenos' in self.options or \
+                             'lineno-start' in self.options
+        extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
-            literal['highlight_args'] = {'hl_lines': hl_lines}
+            extra_args['hl_lines'] = hl_lines
+        if 'lineno-start' in self.options:
+            extra_args['linenostart'] = self.options['lineno-start']
         set_source_info(self, literal)
         return [literal]
 
@@ -95,6 +100,7 @@ class LiteralInclude(Directive):
     final_argument_whitespace = True
     option_spec = {
         'linenos': directives.flag,
+        'lineno-start': int,
         'tab-width': int,
         'language': directives.unchanged_required,
         'encoding': directives.encoding,
@@ -204,10 +210,13 @@ class LiteralInclude(Directive):
         set_source_info(self, retnode)
         if self.options.get('language', ''):
             retnode['language'] = self.options['language']
-        if 'linenos' in self.options:
-            retnode['linenos'] = True
+        retnode['linenos'] = 'linenos' in self.options or \
+                             'lineno-start' in self.options
+        extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
-            retnode['highlight_args'] = {'hl_lines': hl_lines}
+            extra_args['hl_lines'] = hl_lines
+        if 'lineno-start' in self.options:
+            extra_args['linenostart'] = self.options['lineno-start']
         env.note_dependency(rel_filename)
         return [retnode]
 

@@ -10,6 +10,9 @@ New features
 * #925: Allow list-typed config values to be provided on the command line,
   like ``-D key=val1,val2``.
 
+* #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
+  #to start at an arbitrary line number, with a new ``lineno-start`` option.
+
 Bugs fixed
 ----------
 
