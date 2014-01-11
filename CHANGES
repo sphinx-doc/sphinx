@@ -51,6 +51,8 @@ Bugs fixed
 
 * #929: Support parsed-literal blocks in LaTeX output correctly.
 
+* #949: Update the tabulary.sty packed with Sphinx.
+
 Documentation
 -------------
 
