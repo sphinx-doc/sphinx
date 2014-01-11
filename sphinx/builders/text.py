@@ -54,6 +54,7 @@ class TextBuilder(Builder):
         self.writer = TextWriter(self)
 
     def write_doc(self, docname, doctree):
+        self.current_docname = docname
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)

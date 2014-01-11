@@ -79,6 +79,10 @@ Body directives
 
    b
 
+.. parsed-literal::
+
+   with some *markup* inside
+
 
 .. _admonition-section:
 

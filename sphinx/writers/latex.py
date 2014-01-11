@@ -264,7 +264,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.next_figure_ids = set()
         self.next_table_ids = set()
         # flags
-        self.verbatim = None
         self.in_title = 0
         self.in_production_list = 0
         self.in_footnote = 0
@@ -1318,36 +1317,40 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise UnsupportedError('%s:%s: literal blocks in footnotes are '
                                    'not supported by LaTeX' %
                                    (self.curfilestack[-1], node.line))
-        self.verbatim = ''
+        if node.rawsource != node.astext():
+            # most probably a parsed-literal block -- don't highlight
+            self.body.append('\\begin{alltt}\n')
+        else:
+            code = node.astext().rstrip('\n')
+            lang = self.hlsettingstack[-1][0]
+            linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
+            highlight_args = node.get('highlight_args', {})
+            if 'language' in node:
+                # code-block directives
+                lang = node['language']
+                highlight_args['force'] = True
+            if 'linenos' in node:
+                linenos = node['linenos']
+            def warner(msg):
+                self.builder.warn(msg, (self.curfilestack[-1], node.line))
+            hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
+                    linenos=linenos, **highlight_args)
+            # workaround for Unicode issue
+            hlcode = hlcode.replace(u'€', u'@texteuro[]')
+            # must use original Verbatim environment and "tabular" environment
+            if self.table:
+                hlcode = hlcode.replace('\\begin{Verbatim}',
+                                        '\\begin{OriginalVerbatim}')
+                self.table.has_problematic = True
+                self.table.has_verbatim = True
+            # get consistent trailer
+            hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
+            hlcode = hlcode.rstrip() + '\n'
+            self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
+                             (self.table and 'Original' or ''))
+            raise nodes.SkipNode
     def depart_literal_block(self, node):
-        code = self.verbatim.rstrip('\n')
-        lang = self.hlsettingstack[-1][0]
-        linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
-        highlight_args = node.get('highlight_args', {})
-        if 'language' in node:
-            # code-block directives
-            lang = node['language']
-            highlight_args['force'] = True
-        if 'linenos' in node:
-            linenos = node['linenos']
-        def warner(msg):
-            self.builder.warn(msg, (self.curfilestack[-1], node.line))
-        hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
-                linenos=linenos, **highlight_args)
-        # workaround for Unicode issue
-        hlcode = hlcode.replace(u'€', u'@texteuro[]')
-        # must use original Verbatim environment and "tabular" environment
-        if self.table:
-            hlcode = hlcode.replace('\\begin{Verbatim}',
-                                    '\\begin{OriginalVerbatim}')
-            self.table.has_problematic = True
-            self.table.has_verbatim = True
-        # get consistent trailer
-        hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
-        hlcode = hlcode.rstrip() + '\n'
-        self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
-                         (self.table and 'Original' or ''))
-        self.verbatim = None
+        self.body.append('\n\\end{alltt}\n')
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
@@ -1510,13 +1513,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return self.encode(text).replace('\\textasciitilde{}', '~')
 
     def visit_Text(self, node):
-        if self.verbatim is not None:
-            self.verbatim += node.astext()
-        else:
-            text = self.encode(node.astext())
-            if not self.no_contractions:
-                text = educate_quotes_latex(text)
-            self.body.append(text)
+        text = self.encode(node.astext())
+        if not self.no_contractions:
+            text = educate_quotes_latex(text)
+        self.body.append(text)
     def depart_Text(self, node):
         pass
 
@@ -1531,6 +1531,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
     def depart_system_message(self, node):
         self.body.append('\n')
+
+    def visit_math(self, node):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html',
+                          (self.curfilestack[-1], node.line))
+        raise nodes.SkipNode
+
+    visit_math_block = visit_math
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

@@ -62,8 +62,8 @@ installed) and handled in a smart way:
   * ``c``
   * ... and any other lexer name that Pygments supports.
 
-* If highlighting with the selected language fails, the block is not highlighted
-  in any way.
+* If highlighting with the selected language fails (i.e. Pygments emits an
+  "Error" token), the block is not highlighted in any way.
 
 Line numbers
 ^^^^^^^^^^^^

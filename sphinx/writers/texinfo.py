@@ -1393,3 +1393,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
     def depart_pending_xref(self, node):
         pass
+
+    def visit_math(self, node):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html')
+        raise nodes.SkipNode
+
+    visit_math_block = visit_math
