@@ -382,8 +382,8 @@ a matching identifier is found:
 
 .. rst:role:: py:const
 
-   Reference a "defined" constant.  This may be a C-language ``#define`` or a
-   Python variable that is not intended to be changed.
+   Reference a "defined" constant.  This may be a Python variable that is not
+   intended to be changed.
 
 .. rst:role:: py:class
 
@@ -471,8 +471,8 @@ The C domain (name **c**) is suited for documentation of C API.
 
    Describes a "simple" C macro.  Simple macros are macros which are used for
    code expansion, but which do not take arguments so cannot be described as
-   functions.  This is not to be used for simple constant definitions.  Examples
-   of its use in the Python documentation include :c:macro:`PyObject_HEAD` and
+   functions.  This is a simple C-language ``#define``.  Examples of its use in
+   the Python documentation include :c:macro:`PyObject_HEAD` and
    :c:macro:`Py_BEGIN_ALLOW_THREADS`.
 
 .. rst:directive:: .. c:type:: name
@@ -712,24 +712,24 @@ The JavaScript domain (name **js**) provides the following directives:
       .. js:function:: $.getJSON(href, callback[, errback])
 
          :param string href: An URI to the location of the resource.
-         :param callback: Get's called with the object.
+         :param callback: Gets called with the object.
          :param errback:
-             Get's called in case the request fails. And a lot of other
-             text so we need multiple lines
+             Gets called in case the request fails. And a lot of other
+             text so we need multiple lines.
          :throws SomeError: For whatever reason in that case.
-         :returns: Something
+         :returns: Something.
 
    This is rendered as:
 
       .. js:function:: $.getJSON(href, callback[, errback])
 
         :param string href: An URI to the location of the resource.
-        :param callback: Get's called with the object.
+        :param callback: Gets called with the object.
         :param errback:
-            Get's called in case the request fails. And a lot of other
+            Gets called in case the request fails. And a lot of other
             text so we need multiple lines.
         :throws SomeError: For whatever reason in that case.
-        :returns: Something
+        :returns: Something.
 
 .. rst:directive:: .. js:class:: name
 
