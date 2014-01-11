@@ -251,7 +251,8 @@ in the future.
 
 .. data:: docstitle
 
-   The title of the documentation (the value of :confval:`html_title`).
+   The title of the documentation (the value of :confval:`html_title`), except
+   when the "single-file" builder is used, when it is set to ``None``.
 
 .. data:: embedded
 
