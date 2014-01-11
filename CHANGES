@@ -36,6 +36,9 @@ Bugs fixed
 * #908: On Python 3, handle error messages from LaTeX correctly in the pngmath
   extension.
 
+* #943: In autosummary, recognize "first sentences" to pull from the docstring
+  if they contain uppercase letters.
+
 Documentation
 -------------
 

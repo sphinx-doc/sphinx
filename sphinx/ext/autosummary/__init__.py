@@ -199,7 +199,6 @@ class Autosummary(Directive):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            suffix = env.config.source_suffix
             dirname = posixpath.dirname(env.docname)
 
             tree_prefix = self.options['toctree'].strip()
@@ -276,7 +275,7 @@ class Autosummary(Directive):
 
             while doc and not doc[0].strip():
                 doc.pop(0)
-            m = re.search(r"^([A-Z][^A-Z]*?\.\s)", " ".join(doc).strip())
+            m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
             if m:
                 summary = m.group(1).strip()
             elif doc:
