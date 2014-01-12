@@ -270,7 +270,7 @@ The :program:`sphinx-apidoc` script has several options:
    filesystem to discover packages and modules. You may need it if you want
    to generate documentation from a source directory managed by
    `collective.recipe.omelette
-   <http://pypi.python.org/pypi/collective.recipe.omelette/>`_.
+   <https://pypi.python.org/pypi/collective.recipe.omelette/>`_.
    By default, symbolic links are skipped.
 
    .. versionadded:: 1.2

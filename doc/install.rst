@@ -7,7 +7,7 @@ Since Sphinx is written in the Python language, you need to install Python
 (the required version is at least 2.5) and Sphinx.
 
 Sphinx packages are available on the `Python Package Index
-<http://pypi.python.org/pypi/Sphinx>`_.
+<https://pypi.python.org/pypi/Sphinx>`_.
 
 You can also download a snapshot from the Mercurial development repository:
 
@@ -118,7 +118,7 @@ Install the easy_install command
 
 Python has a very useful :command:`easy_install` command which can download and
 install 3rd-party libraries with a single command.  This is provided by the
-"setuptools" project: http://pypi.python.org/pypi/setuptools.
+"setuptools" project: https://pypi.python.org/pypi/setuptools.
 
 To install setuptools, download
 https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py and

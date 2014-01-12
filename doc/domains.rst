@@ -828,17 +828,17 @@ Operation_, and Scala_.
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
-.. _Ada: http://pypi.python.org/pypi/sphinxcontrib-adadomain
-.. _CoffeeScript: http://pypi.python.org/pypi/sphinxcontrib-coffee
-.. _Common Lisp: http://pypi.python.org/pypi/sphinxcontrib-cldomain
-.. _dqn: http://pypi.python.org/pypi/sphinxcontrib-dqndomain
-.. _Erlang: http://pypi.python.org/pypi/sphinxcontrib-erlangdomain
-.. _Go: http://pypi.python.org/pypi/sphinxcontrib-golangdomain
-.. _HTTP: http://pypi.python.org/pypi/sphinxcontrib-httpdomain
-.. _Jinja: http://pypi.python.org/pypi/sphinxcontrib-jinjadomain
-.. _Lasso: http://pypi.python.org/pypi/sphinxcontrib-lassodomain
-.. _MATLAB: http://pypi.python.org/pypi/sphinxcontrib-matlabdomain
-.. _Operation: http://pypi.python.org/pypi/sphinxcontrib-operationdomain
-.. _PHP: http://pypi.python.org/pypi/sphinxcontrib-phpdomain
-.. _Ruby: http://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
-.. _Scala: http://pypi.python.org/pypi/sphinxcontrib-scaladomain
+.. _Ada: https://pypi.python.org/pypi/sphinxcontrib-adadomain
+.. _CoffeeScript: https://pypi.python.org/pypi/sphinxcontrib-coffee
+.. _Common Lisp: https://pypi.python.org/pypi/sphinxcontrib-cldomain
+.. _dqn: https://pypi.python.org/pypi/sphinxcontrib-dqndomain
+.. _Erlang: https://pypi.python.org/pypi/sphinxcontrib-erlangdomain
+.. _Go: https://pypi.python.org/pypi/sphinxcontrib-golangdomain
+.. _HTTP: https://pypi.python.org/pypi/sphinxcontrib-httpdomain
+.. _Jinja: https://pypi.python.org/pypi/sphinxcontrib-jinjadomain
+.. _Lasso: https://pypi.python.org/pypi/sphinxcontrib-lassodomain
+.. _MATLAB: https://pypi.python.org/pypi/sphinxcontrib-matlabdomain
+.. _Operation: https://pypi.python.org/pypi/sphinxcontrib-operationdomain
+.. _PHP: https://pypi.python.org/pypi/sphinxcontrib-phpdomain
+.. _Ruby: https://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
+.. _Scala: https://pypi.python.org/pypi/sphinxcontrib-scaladomain
