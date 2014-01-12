@@ -88,6 +88,9 @@ Bugs fixed
 * #1299: Make behavior of the :rst:dir:`math` directive more consistent and
   avoid producing empty environments in LaTeX output.
 
+* #1308: Strip HTML tags from the content of "raw" nodes before feeding it
+  to the search indexer.
+
 Documentation
 -------------
 
