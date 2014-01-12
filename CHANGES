@@ -66,6 +66,9 @@ Bugs fixed
 
 * #1155: Fix autodocumenting C-defined methods as attributes in Python 3.
 
+* #1233: Allow finding both Python classes and exceptions with the "class" and
+  "exc" roles in intersphinx.
+
 Documentation
 -------------
 
