@@ -16,6 +16,10 @@ Though there is support for that kind of docs as well (which is intended to be
 freely mixed with hand-written content), if you need pure API docs have a look
 at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
 
+For a great "introduction" to writing docs in general -- the whys and hows, see
+also `Write the docs <http://write-the-docs.readthedocs.org/>`_, written by Eric
+Holscher.
+
 
 Conversion from other systems
 -----------------------------
@@ -66,12 +70,3 @@ Usage
 
 See :doc:`tutorial` for an introduction.  It also contains links to more
 advanced sections in this manual for the topics it discusses.
-
-
-Hosting
--------
-
-Need a place to host your Sphinx docs? `readthedocs.org
-<http://readthedocs.org>`_ hosts a lot of Sphinx docs already, and integrates
-well with projects' source control.  It also features a powerful built-in search
-that exceeds the possibilities of Sphinx' JavaScript-based offline search.
