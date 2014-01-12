@@ -1247,6 +1247,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_strong(self, node):
         self.body.append('}')
 
+    def visit_literal_strong(self, node):
+        self.body.append(r'\textbf{\texttt{')
+        self.no_contractions += 1
+    def depart_literal_strong(self, node):
+        self.body.append('}}')
+        self.no_contractions -= 1
+
     def visit_abbreviation(self, node):
         abbr = node.astext()
         self.body.append(r'\textsc{')

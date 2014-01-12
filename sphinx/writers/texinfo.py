@@ -1207,6 +1207,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_literal_emphasis(self, node):
         self.body.append('}')
 
+    def visit_literal_strong(self, node):
+        self.body.append('@code{')
+    def depart_literal_strong(self, node):
+        self.body.append('}')
+
     def visit_index(self, node):
         # terminate the line but don't prevent paragraph breaks
         if isinstance(node.parent, nodes.paragraph):

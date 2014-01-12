@@ -492,6 +492,11 @@ class HTMLTranslator(BaseTranslator):
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
 
+    def visit_literal_strong(self, node):
+        return self.visit_strong(node)
+    def depart_literal_strong(self, node):
+        return self.depart_strong(node)
+
     def visit_abbreviation(self, node):
         attrs = {}
         if node.hasattr('explanation'):
@@ -600,6 +605,14 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
 
     def depart_literal_emphasis(self, node):
         self.depart_emphasis(node)
+        self.no_smarty -= 1
+
+    def visit_literal_strong(self, node):
+        self.no_smarty += 1
+        self.visit_strong(node)
+
+    def depart_literal_strong(self, node):
+        self.depart_strong(node)
         self.no_smarty -= 1
 
     def visit_desc_signature(self, node):

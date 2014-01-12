@@ -304,6 +304,11 @@ class ManualPageTranslator(BaseTranslator):
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
 
+    def visit_literal_strong(self, node):
+        return self.visit_strong(node)
+    def depart_literal_strong(self, node):
+        return self.depart_strong(node)
+
     def visit_abbreviation(self, node):
         pass
     def depart_abbreviation(self, node):

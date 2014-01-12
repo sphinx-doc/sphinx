@@ -762,6 +762,11 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_strong(self, node):
         self.add_text('**')
 
+    def visit_literal_strong(self, node):
+        self.add_text('**')
+    def depart_literal_strong(self, node):
+        self.add_text('**')
+
     def visit_abbreviation(self, node):
         self.add_text('')
     def depart_abbreviation(self, node):

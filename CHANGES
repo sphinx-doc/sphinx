@@ -18,6 +18,9 @@ New features
 Bugs fixed
 ----------
 
+* #1174: Fix smart quotes being applied inside roles like :rst:role:`program` or
+  :rst:role:`makevar`.
+
 * #1335: Fix autosummary template overloading with exclamation prefix like
   ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
   call. This caused by PR#181.
