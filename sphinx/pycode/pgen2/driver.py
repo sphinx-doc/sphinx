@@ -122,7 +122,8 @@ def load_grammar(gt="Grammar.txt", gp=None,
         if tail == ".txt":
             tail = ""
         # embed Sphinx major version for the case we ever change the grammar...
-        gp = head + tail + ".".join(map(str, sphinx.version_info[:2])) + ".pickle"
+        gp = head + tail + "-sphinx" + \
+             ".".join(map(str, sphinx.version_info[:2])) + ".pickle"
     if force or not _newer(gp, gt):
         logger.info("Generating grammar tables from %s", gt)
         g = pgen.generate_grammar(gt)

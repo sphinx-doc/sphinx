@@ -83,6 +83,19 @@ Bugs fixed
 
 * #1155: Fix autodocumenting C-defined methods as attributes in Python 3.
 
+* #1233: Allow finding both Python classes and exceptions with the "class" and
+  "exc" roles in intersphinx.
+
+* #1198: Allow "image" for the "figwidth" option of the :rst:dir:`figure`
+  directive as documented by docutils.
+
+* #1152: Fix pycode parsing errors of Python 3 code by including two grammar
+  versions for Python 2 and 3, and loading the appropriate version for the
+  running Python version.
+
+* #1017: Be helpful and tell the user when the argument to :rst:dir:`option`
+  does not match the required format.
+
 Documentation
 -------------
 

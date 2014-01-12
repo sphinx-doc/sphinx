@@ -576,8 +576,8 @@ class PythonDomain(Domain):
     object_types = {
         'function':     ObjType(l_('function'),      'func', 'obj'),
         'data':         ObjType(l_('data'),          'data', 'obj'),
-        'class':        ObjType(l_('class'),         'class', 'obj'),
-        'exception':    ObjType(l_('exception'),     'exc', 'obj'),
+        'class':        ObjType(l_('class'),         'class', 'exc', 'obj'),
+        'exception':    ObjType(l_('exception'),     'exc', 'class', 'obj'),
         'method':       ObjType(l_('method'),        'meth', 'obj'),
         'classmethod':  ObjType(l_('class method'),  'meth', 'obj'),
         'staticmethod': ObjType(l_('static method'), 'meth', 'obj'),
