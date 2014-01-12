@@ -131,24 +131,40 @@ class HTMLTranslator(BaseTranslator):
     def visit_desc_parameterlist(self, node):
         self.body.append('<big>(</big>')
         self.first_param = 1
+        self.optional_param_level = 0
+        # How many required parameters are left.
+        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
         self.param_separator = node.child_text_separator
     def depart_desc_parameterlist(self, node):
         self.body.append('<big>)</big>')
 
+    # If required parameters are still to come, then put the comma after
+    # the parameter.  Otherwise, put the comma before.  This ensures that
+    # signatures like the following render correctly (see issue #1001):
+    #
+    #     foo([a, ]b, c[, d])
+    #
     def visit_desc_parameter(self, node):
-        if not self.first_param:
-            self.body.append(self.param_separator)
-        else:
+        if self.first_param:
             self.first_param = 0
+        elif not self.required_params_left:
+            self.body.append(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         if not node.hasattr('noemph'):
             self.body.append('<em>')
     def depart_desc_parameter(self, node):
         if not node.hasattr('noemph'):
             self.body.append('</em>')
+        if self.required_params_left:
+            self.body.append(self.param_separator)
 
     def visit_desc_optional(self, node):
+        self.optional_param_level += 1
         self.body.append('<span class="optional">[</span>')
     def depart_desc_optional(self, node):
+        self.optional_param_level -= 1
         self.body.append('<span class="optional">]</span>')
 
     def visit_desc_annotation(self, node):
