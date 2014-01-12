@@ -1244,7 +1244,8 @@ class AttributeDocumenter(ClassLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         isdatadesc = isdescriptor(member) and not \
                      isinstance(member, cls.method_types) and not \
-                     type(member).__name__ in ("type", "method_descriptor")
+                     type(member).__name__ in ("type", "method_descriptor",
+                                               "instancemethod")
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
                               and not isinstance(member, class_types))
@@ -1384,8 +1385,15 @@ class AutoDirective(Directive):
                not negated:
                 self.options[flag] = None
         # process the options with the selected documenter's option_spec
-        self.genopt = Options(assemble_option_dict(
-            self.options.items(), doc_class.option_spec))
+        try:
+            self.genopt = Options(assemble_option_dict(
+                self.options.items(), doc_class.option_spec))
+        except (KeyError, ValueError, TypeError), err:
+            # an option is either unknown or has a wrong type
+            msg = self.reporter.error('An option to %s is either unknown or '
+                                      'has an invalid value: %s' % (self.name, err),
+                                      line=self.lineno)
+            return [msg]
         # generate the output
         documenter = doc_class(self, self.arguments[0])
         documenter.generate(more_content=self.content)

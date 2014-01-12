@@ -373,6 +373,8 @@ For instance, if the file name ``gnu.*`` was given and two files :file:`gnu.pdf`
 and :file:`gnu.png` existed in the source tree, the LaTeX builder would choose
 the former, while the HTML builder would prefer the latter.
 
+Note that image file names should not contain spaces.
+
 .. versionchanged:: 0.4
    Added the support for file names ending in an asterisk.
 

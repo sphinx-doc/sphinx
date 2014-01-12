@@ -620,6 +620,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.warn('html_extra_path entry %r does not exist' % entry)
                 continue
             copy_static_entry(entry, self.outdir, self)
+        self.info('done')
 
     def write_buildinfo(self):
         # write build info file

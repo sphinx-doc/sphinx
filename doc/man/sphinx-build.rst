@@ -32,6 +32,13 @@ List of available builders:
 html
    HTML file generation.  This is the default builder.
 
+dirhtml
+   HTML file generation with every HTML file named "index.html" in a separate
+   directory.
+
+singlehtml
+   HTML file generation with all content in a single HTML file.
+
 htmlhelp
    Generates files for CHM (compiled help files) generation.
 
@@ -51,8 +58,14 @@ texinfo
    Generates Texinfo output that can be processed by :program:`makeinfo` to
    generate an Info document.
 
+epub
+   Generates an ePub e-book version of the HTML output.
+
 text
    Generates a plain-text version of the documentation.
+
+gettext
+   Generates Gettext message catalogs for content translation.
 
 changes
    Generates HTML files listing changed/added/deprecated items for
@@ -81,20 +94,24 @@ Options
                       output for new and changed files is generated.
 -E                    Ignore cached files, forces to re-read all source files
                       from disk.
+-d <path>             Path to cached files; defaults to <outdir>/.doctrees.
+-j <N>                Build in parallel with N processes where possible.
 -c <path>             Locate the conf.py file in the specified path instead of
                       <sourcedir>.
 -C                    Specify that no conf.py file at all is to be used.
                       Configuration can only be set with the -D option.
 -D <setting=value>    Override a setting from the configuration file.
--d <path>             Path to cached files; defaults to <outdir>/.doctrees.
+-t <tag>              Define *tag* for use in "only" blocks.
 -A <name=value>       Pass a value into the HTML templates (only for HTML builders).
 -n                    Run in nit-picky mode, warn about all missing references.
+-v                    Increase verbosity (can be repeated).
 -N                    Prevent colored output.
 -q                    Quiet operation, just print warnings and errors on stderr.
 -Q                    Very quiet operation, don't print anything except for errors.
 -w <file>             Write warnings and errors into the given file, in addition
                       to stderr.
 -W                    Turn warnings into errors.
+-T                    Show full traceback on exception.
 -P                    Run Pdb on exception.
 
 
