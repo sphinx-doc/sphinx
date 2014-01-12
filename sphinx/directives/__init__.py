@@ -12,7 +12,6 @@
 import re
 
 from docutils.parsers.rst import Directive, directives
-from docutils.parsers.rst.directives import images
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
@@ -20,15 +19,6 @@ from sphinx.util.docfields import DocFieldTransformer
 # import and register directives
 from sphinx.directives.code import *
 from sphinx.directives.other import *
-
-
-# allow units for the figure's "figwidth"
-try:
-    images.Figure.option_spec['figwidth'] = \
-        directives.length_or_percentage_or_unitless
-except AttributeError:
-    images.figure.options['figwidth'] = \
-        directives.length_or_percentage_or_unitless
 
 
 # RE to strip backslash escapes
