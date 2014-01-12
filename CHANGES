@@ -91,6 +91,8 @@ Bugs fixed
 * #1308: Strip HTML tags from the content of "raw" nodes before feeding it
   to the search indexer.
 
+* #1249: Fix duplicate LaTeX page numbering for manual documents.
+
 Documentation
 -------------
 
