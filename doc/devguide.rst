@@ -23,7 +23,7 @@ sphinx-dev <sphinx-dev@googlegroups.com>
 #sphinx-doc on irc.freenode.net
     IRC channel for development questions and user support.
 
-.. _`BitBucket`: http://bitbucket.org
+.. _`BitBucket`: https://bitbucket.org/
 .. _`Mercurial`: http://mercurial.selenic.com/
 
 
@@ -43,7 +43,7 @@ Including or providing a link to the source files involved may help us fix the
 issue.  If possible, try to create a minimal project that produces the error
 and post that instead.
 
-.. _`issue tracker`: http://bitbucket.org/birkenfeld/sphinx/issues
+.. _`issue tracker`: https://bitbucket.org/birkenfeld/sphinx/issues
 
 
 Contributing to Sphinx
@@ -126,7 +126,7 @@ These are the basic steps needed to start developing on Sphinx.
 
    would close issue #42.
 
-   __ https://confluence.atlassian.com/display/BITBUCKET/Automatically+Resolving+Issues+when+Users+Push+Code
+   __ https://confluence.atlassian.com/display/BITBUCKET/Resolve+issues+automatically+when+users+push+code
 
 #. Push changes to your forked repository on BitBucket. ::
 
@@ -190,7 +190,7 @@ identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in ``doc/config.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
-<http://transifex.com>`_.  There exists a client tool named ``tx`` in the Python
+<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the Python
 package "transifex_client", which can be used to pull translations in ``.po``
 format from Transifex.  To do this, go to ``sphinx/locale`` and then run
 ``tx pull -f -l LANG`` where LANG is an existing language identifier.  It is

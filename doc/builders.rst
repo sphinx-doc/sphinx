@@ -64,13 +64,13 @@ The builder's "name" must be given to the **-b** command-line option of
 
    Its name is ``qthelp``.
 
-   .. _Qt help: http://doc.trolltech.com/4.6/qthelp-framework.html
+   .. _Qt help: http://qt-project.org/doc/qt-4.8/qthelp-framework.html
 
 .. module:: sphinx.builders.devhelp
 .. class:: DevhelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
-   also generates `GNOME Devhelp <http://live.gnome.org/devhelp>`__
+   also generates `GNOME Devhelp <https://wiki.gnome.org/Apps/Devhelp>`__
    support file that allows the GNOME Devhelp reader to view them.
 
    Its name is ``devhelp``.
@@ -110,8 +110,8 @@ The builder's "name" must be given to the **-b** command-line option of
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
 <http://rst2pdf.googlecode.com>`_ version 0.12 or greater.  You need to add
 ``'rst2pdf.pdfbuilder'`` to your :confval:`extensions` to enable it, its name is
-``pdf``.  Refer to the `rst2pdf manual
-<http://lateral.netmanagers.com.ar/static/manual.pdf>`_ for details.
+``pdf``.  Refer to the `rst2pdf manual <http://ralsina.me/static/manual.pdf>`_
+for details.
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
@@ -179,7 +179,7 @@ Note that a direct PDF builder using ReportLab is available in `rst2pdf
             globalcontext_filename = 'globalcontext.phpdump'
             searchindex_filename = 'searchindex.phpdump'
 
-   .. _PHP serialization: http://pypi.python.org/pypi/phpserialize
+   .. _PHP serialization: https://pypi.python.org/pypi/phpserialize
 
    .. attribute:: implementation
 

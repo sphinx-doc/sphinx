@@ -6,11 +6,11 @@ Sphinx development
 Sphinx is a maintained by a group of volunteers.  We value every contribution!
 
 * The code can be found in a Mercurial repository, at
-  http://bitbucket.org/birkenfeld/sphinx/.
+  https://bitbucket.org/birkenfeld/sphinx/.
 * Issues and feature requests should be raised in the `tracker
-  <http://bitbucket.org/birkenfeld/sphinx/issues/>`_.
+  <https://bitbucket.org/birkenfeld/sphinx/issues/>`_.
 * The mailing list for development is at `Google Groups
-  <http://groups.google.com/group/sphinx-dev/>`_.
+  <https://groups.google.com/group/sphinx-dev/>`_.
 * There is also the #sphinx-doc IRC channel on `freenode
   <http://freenode.net/>`_.
 
@@ -82,24 +82,24 @@ own extensions.
 .. _gnuplot: http://www.gnuplot.info/
 .. _paver: http://www.blueskyonmars.com/projects/paver/
 .. _Sword: http://www.crosswire.org/sword/
-.. _Lilypond: http://lilypond.org/web/
+.. _Lilypond: http://lilypond.org/
 .. _sdedit: http://sdedit.sourceforge.net/
 .. _Trac: http://trac.edgewall.org
 .. _TracLinks: http://trac.edgewall.org/wiki/TracLinks
 .. _OmegaT: http://www.omegat.org/
 .. _PlantUML: http://plantuml.sourceforge.net/
 .. _PyEnchant: http://www.rfk.id.au/software/pyenchant/
-.. _sadisplay: http://bitbucket.org/estin/sadisplay/wiki/Home
-.. _blockdiag: http://blockdiag.com/
-.. _seqdiag: http://blockdiag.com/
-.. _actdiag: http://blockdiag.com/
-.. _nwdiag: http://blockdiag.com/
-.. _Google Chart: http://code.google.com/intl/ja/apis/chart/
-.. _Google Maps: http://maps.google.com/
+.. _sadisplay: https://bitbucket.org/estin/sadisplay/wiki/Home
+.. _blockdiag: http://blockdiag.com/en/
+.. _seqdiag: http://blockdiag.com/en/
+.. _actdiag: http://blockdiag.com/en/
+.. _nwdiag: http://blockdiag.com/en/
+.. _Google Chart: https://developers.google.com/chart/
+.. _Google Maps: https://maps.google.com/
 .. _hyphenator: http://code.google.com/p/hyphenator/
-.. _exceltable: http://packages.python.org/sphinxcontrib-exceltable/
+.. _exceltable: http://pythonhosted.org/sphinxcontrib-exceltable/
 .. _YouTube: http://www.youtube.com/
-.. _ClearQuest: http://www-01.ibm.com/software/awdtools/clearquest/
+.. _ClearQuest: http://www-03.ibm.com/software/products/en/clearquest
 .. _Zope interfaces: http://docs.zope.org/zope.interface/README.html
 .. _slideshare: http://www.slideshare.net/
 .. _TikZ/PGF LaTeX package: http://sourceforge.net/projects/pgf/

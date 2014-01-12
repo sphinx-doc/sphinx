@@ -30,11 +30,15 @@ def wrap_displaymath(math, label):
     parts = math.split('\n\n')
     ret = []
     for i, part in enumerate(parts):
+        if not part.strip():
+            continue
         if label is not None and i == 0:
             ret.append('\\begin{split}%s\\end{split}' % part +
                        (label and '\\label{'+label+'}' or ''))
         else:
             ret.append('\\begin{split}%s\\end{split}\\notag' % part)
+    if not ret:
+        return ''
     return '\\begin{gather}\n' + '\\\\'.join(ret) + '\n\\end{gather}'
 
 

@@ -99,6 +99,21 @@ Bugs fixed
 * #1345: Fix two bugs with :confval:`nitpick_ignore`; now you don't have to
   remove the store environment for changes to have effect.
 
+* #1072: In the JS search, fix issues searching for upper-cased words by
+  lowercasing words before stemming.
+
+* #1299: Make behavior of the :rst:dir:`math` directive more consistent and
+  avoid producing empty environments in LaTeX output.
+
+* #1308: Strip HTML tags from the content of "raw" nodes before feeding it
+  to the search indexer.
+
+* #1249: Fix duplicate LaTeX page numbering for manual documents.
+
+* #1292: In the linkchecker, retry HEAD requests when denied by HTTP 405.
+  Also make the redirect code apparent and tweak the output a bit to be
+  more obvious.
+
 Documentation
 -------------
 
@@ -1126,4 +1141,4 @@ Previous versions
 
 The changelog for versions before 1.0 can be found in the file ``CHANGES.old``
 in the source distribution or `at BitBucket
-<http://bitbucket.org/birkenfeld/sphinx/raw/tip/CHANGES.old>`__.
+<https://bitbucket.org/birkenfeld/sphinx/raw/tip/CHANGES.old>`__.

@@ -37,7 +37,7 @@ How do I...
    come through cleanly.
 
 ... create HTML slides from Sphinx documents?
-   See the "Hieroglyph" package at http://github.com/nyergler/hieroglyph.
+   See the "Hieroglyph" package at https://github.com/nyergler/hieroglyph.
 
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
@@ -50,7 +50,7 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    http://readthedocs.org is a documentation hosting service based around Sphinx.
+    https://readthedocs.org is a documentation hosting service based around Sphinx.
     They will host sphinx documentation, along with supporting a number of other
     features including version support, PDF generation, and more. The `Getting
     Started <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
@@ -62,7 +62,7 @@ Epydoc
 
 Doxygen
    Michael Jones is developing a reST/Sphinx bridge to doxygen called `breathe
-   <http://github.com/michaeljones/breathe/tree/master>`_.
+   <https://github.com/michaeljones/breathe/tree/master>`_.
 
 SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
@@ -70,9 +70,9 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <http://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically uploads
+   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically uploads
    Sphinx documentation to the PyPI package documentation area at
-   http://packages.python.org/.
+   http://pythonhosted.org/.
 
 GitHub Pages
    Directories starting with underscores are ignored by default which breaks
@@ -139,7 +139,7 @@ The following list gives some hints for the creation of epub files:
   are often cut at the right margin.  The default Courier font (or variant) is
   quite wide and you can only display up to 60 characters on a line.  If you
   replace it with a narrower font, you can get more characters on a line.  You
-  may even use `FontForge <http://fontforge.sourceforge.net/>`_ and create
+  may even use `FontForge <http://fontforge.org/>`_ and create
   narrow variants of some free font.  In my case I get up to 70 characters on a
   line.
 
@@ -168,8 +168,8 @@ The following list gives some hints for the creation of epub files:
 
 .. _Epubcheck: http://code.google.com/p/epubcheck/
 .. _Calibre: http://calibre-ebook.com/
-.. _FBreader: http://www.fbreader.org/
-.. _Bookworm: http://bookworm.oreilly.com/
+.. _FBreader: http://fbreader.org/
+.. _Bookworm: http://oreilly.com/bookworm/index.html
 
 
 .. _texinfo-faq:
