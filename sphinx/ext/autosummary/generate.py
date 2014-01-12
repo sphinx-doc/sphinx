@@ -33,6 +33,21 @@ from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
 
+# Add documenters to AutoDirective registry
+from sphinx.ext.autodoc import add_documenter, \
+    ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter, \
+    FunctionDocumenter, MethodDocumenter, AttributeDocumenter, \
+    InstanceAttributeDocumenter
+add_documenter(ModuleDocumenter)
+add_documenter(ClassDocumenter)
+add_documenter(ExceptionDocumenter)
+add_documenter(DataDocumenter)
+add_documenter(FunctionDocumenter)
+add_documenter(MethodDocumenter)
+add_documenter(AttributeDocumenter)
+add_documenter(InstanceAttributeDocumenter)
+
+
 def main(argv=sys.argv):
     usage = """%prog [OPTIONS] SOURCEFILE ..."""
     p = optparse.OptionParser(usage.strip())
