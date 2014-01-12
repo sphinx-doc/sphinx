@@ -96,6 +96,9 @@ Bugs fixed
 * #1017: Be helpful and tell the user when the argument to :rst:dir:`option`
   does not match the required format.
 
+* #1345: Fix two bugs with :confval:`nitpick_ignore`; now you don't have to
+  remove the store environment for changes to have effect.
+
 Documentation
 -------------
 

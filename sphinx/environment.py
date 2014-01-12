@@ -177,9 +177,6 @@ class BuildEnvironment:
         # this is to invalidate old pickles
         self.version = ENV_VERSION
 
-        # make this a set for faster testing
-        self._nitpick_ignore = set(self.config.nitpick_ignore)
-
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
@@ -439,6 +436,9 @@ class BuildEnvironment:
         self.doctreedir = doctreedir
         self.find_files(config)
         self.config = config
+
+        # this cache also needs to be updated every time
+        self._nitpick_ignore = set(self.config.nitpick_ignore)
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
@@ -1384,6 +1384,9 @@ class BuildEnvironment:
             if self._nitpick_ignore:
                 dtype = domain and '%s:%s' % (domain.name, typ) or typ
                 if (dtype, target) in self._nitpick_ignore:
+                    warn = False
+                # for "std" types also try without domain name
+                if domain.name == 'std' and (typ, target) in self._nitpick_ignore:
                     warn = False
         if not warn:
             return

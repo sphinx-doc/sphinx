@@ -149,7 +149,8 @@ The :program:`sphinx-build` script has several options:
 .. option:: -n
 
    Run in nit-picky mode.  Currently, this generates warnings for all missing
-   references.
+   references.  See the config value :confval:`nitpick_ignore` for a way to
+   exclude some references as "known missing".
 
 .. option:: -N
 

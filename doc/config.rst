@@ -236,7 +236,8 @@ General configuration
 
    A list of ``(type, target)`` tuples (by default empty) that should be ignored
    when generating warnings in "nitpicky mode".  Note that ``type`` should
-   include the domain name.  An example entry would be ``('py:func', 'int')``.
+   include the domain name if present.  Example entries would be ``('py:func',
+   'int')`` or ``('envvar', 'LD_LIBRARY_PATH')``.
 
    .. versionadded:: 1.1
 
