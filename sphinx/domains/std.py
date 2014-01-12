@@ -27,8 +27,7 @@ from sphinx.util.compat import Directive
 
 
 # RE for option descriptions
-option_desc_re = re.compile(
-    r'((?:/|-|--)[-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
+option_desc_re = re.compile(r'((?:/|-|--)[-_a-zA-Z0-9]+)(\s*.*)')
 
 
 class GenericObject(ObjectDescription):
@@ -130,14 +129,23 @@ class Target(Directive):
 
 class Cmdoption(ObjectDescription):
     """
-    Description of a command-line option (.. cmdoption).
+    Description of a command-line option (.. option).
     """
 
     def handle_signature(self, sig, signode):
         """Transform an option description into RST nodes."""
         count = 0
         firstname = ''
-        for m in option_desc_re.finditer(sig):
+        for potential_option in sig.split(', '):
+            potential_option = potential_option.strip()
+            m = option_desc_re.match(potential_option)
+            if not m:
+                self.env.warn(
+                    self.env.docname,
+                    'Malformed option description %r, should '
+                    'look like "-opt args", "--opt args" or '
+                    '"/opt args"' % potential_option, self.lineno)
+                continue
             optname, args = m.groups()
             if count:
                 signode += addnodes.desc_addname(', ', ', ')
