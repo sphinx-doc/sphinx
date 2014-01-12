@@ -82,6 +82,9 @@ Bugs fixed
 * #1345: Fix two bugs with :confval:`nitpick_ignore`; now you don't have to
   remove the store environment for changes to have effect.
 
+* #1072: In the JS search, fix issues searching for upper-cased words by
+  lowercasing words before stemming.
+
 Documentation
 -------------
 

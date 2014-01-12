@@ -156,7 +156,7 @@ var Search = {
         continue;
       }
       // stem the word
-      var word = stemmer.stemWord(tmp[i]).toLowerCase();
+      var word = stemmer.stemWord(tmp[i].toLowerCase());
       var toAppend;
       // select the correct list
       if (word[0] == '-') {
