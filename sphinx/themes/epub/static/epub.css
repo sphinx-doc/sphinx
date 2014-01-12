@@ -92,6 +92,7 @@ div.sphinxsidebar input {
 
 img {
     border: 0;
+    max-width: 100%;
 }
 
 /* -- search page ----------------------------------------------------------- */

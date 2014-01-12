@@ -76,6 +76,9 @@ Bugs fixed
   versions for Python 2 and 3, and loading the appropriate version for the
   running Python version.
 
+* #1017: Be helpful and tell the user when the argument to :rst:dir:`option`
+  does not match the required format.
+
 Documentation
 -------------
 

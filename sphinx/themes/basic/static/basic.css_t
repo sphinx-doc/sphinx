@@ -89,6 +89,7 @@ div.sphinxsidebar #searchbox input[type="submit"] {
 
 img {
     border: 0;
+    max-width: 100%;
 }
 
 /* -- search page ----------------------------------------------------------- */
