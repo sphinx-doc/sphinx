@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 from os import path
 
 from sphinx import package_dir
@@ -21,7 +22,8 @@ from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
 # load the Python grammar
-_grammarfile = path.join(package_dir, 'pycode', 'Grammar.txt')
+_grammarfile = path.join(package_dir, 'pycode',
+                         'Grammar-py%d.txt' % sys.version_info[0])
 pygrammar = driver.load_grammar(_grammarfile)
 pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 

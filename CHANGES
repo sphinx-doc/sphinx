@@ -72,6 +72,10 @@ Bugs fixed
 * #1198: Allow "image" for the "figwidth" option of the :rst:dir:`figure`
   directive as documented by docutils.
 
+* #1152: Fix pycode parsing errors of Python 3 code by including two grammar
+  versions for Python 2 and 3, and loading the appropriate version for the
+  running Python version.
+
 Documentation
 -------------
 

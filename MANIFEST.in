@@ -20,7 +20,8 @@ recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *
 recursive-include custom_fixers *
-include sphinx/pycode/Grammar.txt
+include sphinx/pycode/Grammar-py2.txt
+include sphinx/pycode/Grammar-py3.txt
 
 recursive-include doc *
 prune doc/_build
