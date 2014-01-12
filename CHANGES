@@ -93,6 +93,10 @@ Bugs fixed
 
 * #1249: Fix duplicate LaTeX page numbering for manual documents.
 
+* #1292: In the linkchecker, retry HEAD requests when denied by HTTP 405.
+  Also make the redirect code apparent and tweak the output a bit to be
+  more obvious.
+
 Documentation
 -------------
 
