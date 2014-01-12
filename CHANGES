@@ -64,6 +64,8 @@ Bugs fixed
 
 * #1181: Report option errors in autodoc directives more gracefully.
 
+* #1155: Fix autodocumenting C-defined methods as attributes in Python 3.
+
 Documentation
 -------------
 

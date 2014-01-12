@@ -1244,7 +1244,8 @@ class AttributeDocumenter(ClassLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         isdatadesc = isdescriptor(member) and not \
                      isinstance(member, cls.method_types) and not \
-                     type(member).__name__ in ("type", "method_descriptor")
+                     type(member).__name__ in ("type", "method_descriptor",
+                                               "instancemethod")
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
                               and not isinstance(member, class_types))
