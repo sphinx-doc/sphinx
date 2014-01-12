@@ -116,7 +116,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     new_files = []
 
     # write
-    for name, path, template_name in sorted(items):
+    for name, path, template_name in sorted(items, key=str):
         if path is None:
             # The corresponding autosummary:: directive did not have
             # a :toctree: option
