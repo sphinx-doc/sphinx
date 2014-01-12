@@ -62,6 +62,8 @@ Bugs fixed
 * #1085: Fix current classname not getting set if class description has
   ``:noindex:`` set.
 
+* #1181: Report option errors in autodoc directives more gracefully.
+
 Documentation
 -------------
 
