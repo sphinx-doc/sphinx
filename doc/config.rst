@@ -40,6 +40,8 @@ Important points to note:
   delete them from the namespace with ``del`` if appropriate.  Modules are
   removed automatically, so you don't need to ``del`` your imports after use.
 
+.. _conf-tags:
+
 * There is a special object named ``tags`` available in the config file.
   It can be used to query and change the tags (see :ref:`tags`).  Use
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
