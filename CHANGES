@@ -85,6 +85,9 @@ Bugs fixed
 * #1072: In the JS search, fix issues searching for upper-cased words by
   lowercasing words before stemming.
 
+* #1299: Make behavior of the :rst:dir:`math` directive more consistent and
+  avoid producing empty environments in LaTeX output.
+
 Documentation
 -------------
 
