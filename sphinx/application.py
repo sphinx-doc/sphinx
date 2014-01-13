@@ -15,6 +15,7 @@ import os
 import sys
 import types
 import posixpath
+import traceback
 from os import path
 from cStringIO import StringIO
 
@@ -282,6 +283,7 @@ class Sphinx(object):
         try:
             mod = __import__(extension, None, None, ['setup'])
         except ImportError, err:
+            self.verbose('Original exception:\n' + traceback.format_exc())
             raise ExtensionError('Could not import extension %s' % extension,
                                  err)
         if not hasattr(mod, 'setup'):
