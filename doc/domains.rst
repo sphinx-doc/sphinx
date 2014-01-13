@@ -157,17 +157,6 @@ declarations:
 
 The following directives are provided for module and class contents:
 
-.. rst:directive:: .. py:data:: name
-
-   Describes global data in a module, including both variables and values used
-   as "defined constants."  Class and object attributes are not documented
-   using this environment.
-
-.. rst:directive:: .. py:exception:: name
-
-   Describes an exception class.  The signature can, but need not include
-   parentheses with constructor arguments.
-
 .. rst:directive:: .. py:function:: name(parameters)
 
    Describes a module-level function.  The signature should include the
@@ -178,11 +167,23 @@ The following directives are provided for module and class contents:
 
    For methods you should use :rst:dir:`py:method`.
 
-   The description should include information about the parameters required and
-   how they are used (especially whether mutable objects passed as parameters
-   are modified), side effects, and possible exceptions.  This information can
-   optionally be given in a structured form, see :ref:`info-field-lists`.  A
-   small example may be provided.
+   The description normally includes information about the parameters required
+   and how they are used (especially whether mutable objects passed as
+   parameters are modified), side effects, and possible exceptions.
+
+   This information can (in any ``py`` directive) optionally be given in a
+   structured form, see :ref:`info-field-lists`.
+
+.. rst:directive:: .. py:data:: name
+
+   Describes global data in a module, including both variables and values used
+   as "defined constants."  Class and object attributes are not documented
+   using this environment.
+
+.. rst:directive:: .. py:exception:: name
+
+   Describes an exception class.  The signature can, but need not include
+   parentheses with constructor arguments.
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
