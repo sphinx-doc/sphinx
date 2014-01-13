@@ -171,20 +171,18 @@ The following directives are provided for module and class contents:
 .. rst:directive:: .. py:function:: name(parameters)
 
    Describes a module-level function.  The signature should include the
-   parameters, enclosing optional parameters in brackets.  Default values can be
-   given if it enhances clarity; see :ref:`signatures`.  For example::
+   parameters as given in the Python function definition, see :ref:`signatures`.
+   For example::
 
-      .. py:function:: Timer.repeat([repeat=3[, number=1000000]])
+      .. py:function:: Timer.repeat(repeat=3, number=1000000)
 
-   Object methods are not documented using this directive. Bound object methods
-   placed in the module namespace as part of the public interface of the module
-   are documented using this, as they are equivalent to normal functions for
-   most purposes.
+   For methods you should use :rst:dir:`py:method`.
 
    The description should include information about the parameters required and
    how they are used (especially whether mutable objects passed as parameters
-   are modified), side effects, and possible exceptions.  A small example may be
-   provided.
+   are modified), side effects, and possible exceptions.  This information can
+   optionally be given in a structured form, see :ref:`info-field-lists`.  A
+   small example may be provided.
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
@@ -198,6 +196,7 @@ The following directives are provided for module and class contents:
    contain the class name so that cross-references still work.  Example::
 
       .. py:class:: Foo
+
          .. py:method:: quux()
 
       -- or --
@@ -218,7 +217,8 @@ The following directives are provided for module and class contents:
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
-   described for ``function``.  See also :ref:`signatures`.
+   described for ``function``.  See also :ref:`signatures` and
+   :ref:`info-field-lists`.
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 
@@ -235,9 +235,8 @@ The following directives are provided for module and class contents:
 .. rst:directive:: .. py:decorator:: name
                    .. py:decorator:: name(parameters)
 
-   Describes a decorator function.  The signature should *not* represent the
-   signature of the actual function, but the usage as a decorator.  For example,
-   given the functions
+   Describes a decorator function.  The signature should represent the usage as
+   a decorator.  For example, given the functions
 
    .. code-block:: python
 
@@ -280,23 +279,24 @@ Python Signatures
 ~~~~~~~~~~~~~~~~~
 
 Signatures of functions, methods and class constructors can be given like they
-would be written in Python, with the exception that optional parameters can be
-indicated by brackets::
-
-   .. py:function:: compile(source[, filename[, symbol]])
-
-It is customary to put the opening bracket before the comma.  In addition to
-this "nested" bracket style, a "flat" style can also be used, due to the fact
-that most optional parameters can be given independently::
-
-   .. py:function:: compile(source[, filename, symbol])
+would be written in Python.
 
 Default values for optional arguments can be given (but if they contain commas,
 they will confuse the signature parser).  Python 3-style argument annotations
 can also be given as well as return type annotations::
 
-   .. py:function:: compile(source : string[, filename, symbol]) -> ast object
+   .. py:function:: compile(source : string, filename, symbol='file') -> ast object
 
+For functions with optional parameters that don't have default values (typically
+functions implemented in C extension modules without keyword argument support),
+you can use brackets to specify the optional parts:
+
+   .. py:function:: compile(source[, filename[, symbol]])
+
+It is customary to put the opening bracket before the comma.
+
+
+.. _info-field-lists:
 
 Info field lists
 ~~~~~~~~~~~~~~~~
