@@ -10,27 +10,15 @@
 """
 
 import UserString
-
-try:
-    import json
-    # json-py's json module has no JSONEncoder; this will raise AttributeError
-    # if json-py is imported instead of the built-in json module
-    JSONEncoder = json.JSONEncoder
-except (ImportError, AttributeError):
-    try:
-        import simplejson as json
-        JSONEncoder = json.JSONEncoder
-    except ImportError:
-        json = None
-        JSONEncoder = object
+import json
 
 
-class SphinxJSONEncoder(JSONEncoder):
+class SphinxJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that forces translation proxies."""
     def default(self, obj):
         if isinstance(obj, UserString.UserString):
             return unicode(obj)
-        return JSONEncoder.default(self, obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 def dump(obj, fp, *args, **kwds):
