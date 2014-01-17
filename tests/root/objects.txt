@@ -118,14 +118,6 @@ C items
 .. c:var:: sphinx_global
 
 
-Old C items (from oldcmarkup ext)
----------------------------------
-
-.. cfunction:: Sphinx_Func()
-
-Refer to :cfunc:`Sphinx_Func`.
-
-
 Javascript items
 ================
 
