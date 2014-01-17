@@ -25,7 +25,7 @@
 {%- endif %}
 
 {%- macro relbar() %}
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>{{ _('Navigation') }}</h3>
       <ul>
         {%- for rellink in rellinks %}
@@ -47,7 +47,7 @@
 
 {%- macro sidebar() %}
       {%- if render_sidebar %}
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
           {%- if logo %}
@@ -152,7 +152,7 @@
 {%- endblock %}
 {%- block extrahead %} {% endblock %}
   </head>
-  <body>
+  <body role="document">
 {%- block header %}{% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
@@ -166,7 +166,7 @@
       {%- if render_sidebar %}
         <div class="bodywrapper">
       {%- endif %}
-          <div class="body">
+          <div class="body" role="main">
             {% block body %} {% endblock %}
           </div>
       {%- if render_sidebar %}
@@ -183,7 +183,7 @@
 {%- block relbar2 %}{{ relbar() }}{% endblock %}
 
 {%- block footer %}
-    <div class="footer">
+    <div class="footer" role="contentinfo">
     {%- if show_copyright %}
       {%- if hasdoc('copyright') %}
         {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
