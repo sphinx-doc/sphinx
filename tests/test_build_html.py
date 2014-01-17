@@ -186,13 +186,13 @@ HTML_XPATH = {
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
-        (".//a[@href='#Sphinx_DoSomething']", ''),
-        (".//a[@href='#SphinxStruct.member']", ''),
-        (".//a[@href='#SPHINX_USE_PYTHON']", ''),
-        (".//a[@href='#SphinxType']", ''),
-        (".//a[@href='#sphinx_global']", ''),
+        (".//a[@href='#c.Sphinx_DoSomething']", ''),
+        (".//a[@href='#c.SphinxStruct.member']", ''),
+        (".//a[@href='#c.SPHINX_USE_PYTHON']", ''),
+        (".//a[@href='#c.SphinxType']", ''),
+        (".//a[@href='#c.sphinx_global']", ''),
         # reference from old C markup extension
-        (".//a[@href='#Sphinx_Func']", ''),
+        (".//a[@href='#c.Sphinx_Func']", ''),
         # test global TOC created by toctree()
         (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']",
             'Testing object descriptions'),

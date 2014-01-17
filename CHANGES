@@ -97,6 +97,8 @@ Bugs fixed
   Also make the redirect code apparent and tweak the output a bit to be
   more obvious.
 
+* #1285: Avoid name clashes between C domain objects and section titles.
+
 Documentation
 -------------
 
