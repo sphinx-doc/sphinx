@@ -69,10 +69,9 @@ def ensuredir(path):
             raise
 
 
-# TODO: This function can be removed because this function is same as os.walk
-# of Python2.6, 2.7, 3.2, 3.3.
-# HOWEVER, this function is customized to check UnicodeError that obstacle to
-# replace the function with the os.walk.
+# This function is same as os.walk of Python2.6, 2.7, 3.2, 3.3 except a
+# customization that check UnicodeError.
+# The customization obstacle to replace the function with the os.walk.
 def walk(top, topdown=True, followlinks=False):
     """Backport of os.walk from 2.6, where the *followlinks* argument was
     added.
