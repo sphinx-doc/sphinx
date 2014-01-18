@@ -20,7 +20,7 @@ from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.console import bold, darkgreen
-from sphinx.writers.manpage import ManualPageWriter, has_manpage_writer
+from sphinx.writers.manpage import ManualPageWriter
 
 
 class ManualPageBuilder(Builder):
@@ -32,9 +32,6 @@ class ManualPageBuilder(Builder):
     supported_image_types = []
 
     def init(self):
-        if not has_manpage_writer:
-            raise SphinxError('The docutils manual page writer can\'t be '
-                              'found; it is only available as of docutils 0.6.')
         if not self.config.man_pages:
             self.warn('no "man_pages" config value found; no manual pages '
                       'will be written')

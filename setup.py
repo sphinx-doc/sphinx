@@ -48,10 +48,7 @@ if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 2):
     print('ERROR: Sphinx requires at least Python 2.6 or 3.2 to run.')
     sys.exit(1)
 
-requires = ['Pygments>=1.2', 'docutils>=0.7']
-
-if sys.version_info[:3] >= (3, 3, 0):
-    requires[1] = 'docutils>=0.10'
+requires = ['Pygments>=1.2', 'docutils>=0.10']
 
 if (3, 0) <= sys.version_info < (3, 3):
     requires.append('Jinja2>=2.3,<2.7')
