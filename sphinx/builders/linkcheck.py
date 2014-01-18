@@ -10,7 +10,6 @@
 """
 
 import re
-import sys
 import Queue
 import socket
 import threading
@@ -110,7 +109,7 @@ class CheckExternalLinksBuilder(Builder):
 
     def check_thread(self):
         kwargs = {}
-        if sys.version_info > (2, 5) and self.app.config.linkcheck_timeout:
+        if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
         def check():

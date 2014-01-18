@@ -11,6 +11,7 @@
 
 import sys, os, time, re
 from os import path
+from io import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -21,7 +22,6 @@ from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
-from sphinx.util.pycompat import open
 
 # function to get input from terminal -- overridden by the test suite
 try:
