@@ -8,7 +8,8 @@ sys.path.append(os.path.abspath('..'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.autosummary',
               'sphinx.ext.doctest', 'sphinx.ext.extlinks',
-              'sphinx.ext.viewcode', 'sphinx.ext.oldcmarkup', 'ext']
+              'sphinx.ext.viewcode', 'sphinx.ext.oldcmarkup',
+              'sphinx.ext.napoleon', 'ext']
 
 jsmath_path = 'dummy.js'
 
