@@ -133,10 +133,6 @@ for details.
 
    Its name is ``man``.
 
-   .. note::
-
-      This builder requires the docutils manual page writer.
-
    .. versionadded:: 1.0
 
 
