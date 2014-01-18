@@ -350,7 +350,7 @@ Features added
     reference documentation in doc directory provides a ``sphinx.pot`` file with
     message strings from ``doc/_templates/*.html`` when using ``make gettext``.
 
-  - PR#61,#703: Add support non-ASCII filename handling.
+  - PR#61,#703: Add support for non-ASCII filename handling.
 
 * Other builders:
 
