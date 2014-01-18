@@ -113,8 +113,6 @@ class Sphinx(object):
         if self.confdir is None:
             self.confdir = self.srcdir
 
-        # backwards compatibility: activate old C markup
-        self.setup_extension('sphinx.ext.oldcmarkup')
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)

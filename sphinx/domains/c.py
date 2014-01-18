@@ -156,10 +156,12 @@ class CObject(ObjectDescription):
             return ''
 
     def add_target_and_index(self, name, sig, signode):
-        # note target
-        if name not in self.state.document.ids:
-            signode['names'].append(name)
-            signode['ids'].append(name)
+        # for C API items we add a prefix since names are usually not qualified
+        # by a module name and so easily clash with e.g. section titles
+        targetname = 'c.' + name
+        if targetname not in self.state.document.ids:
+            signode['names'].append(targetname)
+            signode['ids'].append(targetname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
             inv = self.env.domaindata['c']['objects']
@@ -172,7 +174,8 @@ class CObject(ObjectDescription):
 
         indextext = self.get_index_text(name)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext, name, ''))
+            self.indexnode['entries'].append(('single', indextext,
+                                              targetname, ''))
 
     def before_content(self):
         self.typename_set = False
@@ -242,9 +245,9 @@ class CDomain(Domain):
         if target not in self.data['objects']:
             return None
         obj = self.data['objects'][target]
-        return make_refnode(builder, fromdocname, obj[0], target,
+        return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                             contnode, target)
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, refname, type, docname, refname, 1)
+            yield (refname, refname, type, docname, 'c.' + refname, 1)

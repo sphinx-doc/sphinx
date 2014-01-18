@@ -16,8 +16,6 @@ from StringIO import StringIO
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
-from sphinx.util.pycompat import relpath
-
 from util import test_roots, path, with_app, SkipTest
 
 
@@ -49,7 +47,7 @@ def setup_module():
         for f in [f for f in files if f.endswith('.po')]:
             po = dirpath / f
             mo = root / 'xx' / 'LC_MESSAGES' / (
-                    relpath(po[:-3], root) + '.mo')
+                    os.path.relpath(po[:-3], root) + '.mo')
             if not mo.parent.exists():
                 mo.parent.makedirs()
             try:
@@ -75,7 +73,7 @@ def teardown_module():
 def elem_gettexts(elem):
     def itertext(self):
         # this function copied from Python-2.7 'ElementTree.itertext'.
-        # for compatibility to Python-2.5, 2.6, 3.1
+        # for compatibility to Python-2.6
         tag = self.tag
         if not isinstance(tag, basestring) and tag is not None:
             return

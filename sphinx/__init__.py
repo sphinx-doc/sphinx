@@ -42,8 +42,9 @@ if '+' in __version__ or 'pre' in __version__:
 
 def main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
-    if sys.version_info[:3] < (2, 5, 0):
-        sys.stderr.write('Error: Sphinx requires at least Python 2.5 to run.\n')
+    if (sys.version_info[:3] < (2, 6, 0) or
+       (3, 0, 0) <= sys.version_info[:3] < (3, 2, 0)):
+        sys.stderr.write('Error: Sphinx requires at least Python 2.6 to run.\n')
         return 1
     try:
         from sphinx import cmdline
