@@ -45,7 +45,8 @@ Important points to note:
 * There is a special object named ``tags`` available in the config file.
   It can be used to query and change the tags (see :ref:`tags`).  Use
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
-  to change.
+  to change. Only tags set via the ``-t`` command-line option or via
+  ``tags.add('tag')`` can be queried using ``tags.has('tag')``.
 
 
 General configuration
