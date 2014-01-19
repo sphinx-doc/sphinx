@@ -71,6 +71,7 @@ class Options(dict):
 
 
 class _MockModule(object):
+    """Used by autodoc_mock_imports."""
     def __init__(self, *args, **kwargs):
         pass
 
@@ -88,6 +89,14 @@ class _MockModule(object):
             return mocktype
         else:
             return _MockModule()
+
+def mock_import(modname):
+    if '.' in modname:
+        pkg, _n, mods = modname.rpartition('.')
+        mock_import(pkg)
+    mod = _MockModule()
+    sys.modules[modname] = mod
+    return mod
 
 
 ALL = object()
@@ -353,7 +362,8 @@ class Documenter(object):
         try:
             dbg('[autodoc] import %s', self.modname)
             for modname in self.env.config.autodoc_mock_imports:
-                self._mock_import(modname)
+                dbg('[autodoc] adding a mock module %s!', self.modname)
+                mock_import(modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
@@ -382,15 +392,6 @@ class Documenter(object):
             self.directive.warn(errmsg)
             self.env.note_reread()
             return False
-
-    def _mock_import(self, modname):
-        if '.' in modname:
-            pkg, _n, mods = modname.rpartition('.')
-            self._mock_import(pkg)
-        mod = _MockModule()
-        sys.modules[modname] = mod
-        return mod
-
 
     def get_real_modname(self):
         """Get the real module name of an object to document.

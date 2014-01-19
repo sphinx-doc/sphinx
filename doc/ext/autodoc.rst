@@ -199,6 +199,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      import errors to halt the building process when some external dependencies
      are not importable at build time.
 
+     .. versionadded:: 1.3
+
 
 .. rst:directive:: autofunction
                    autodata
@@ -344,6 +346,8 @@ There are also new config values that you can set:
    This value contains a list of modules to be mocked up. This is useful when
    some external dependencies are not met at build time and break the building
    process.
+
+   .. versionadded:: 1.3
 
 
 Docstring preprocessing
