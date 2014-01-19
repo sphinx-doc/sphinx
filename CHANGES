@@ -127,6 +127,11 @@ Bugs fixed
 
 * #1285: Avoid name clashes between C domain objects and section titles.
 
+* #848: Always take the newest code in incremental rebuilds with the
+  :mod:`sphinx.ext.viewcode` extension.
+
+* #979: Fix exclude handling in ``sphinx-apidoc``.
+
 Documentation
 -------------
 
@@ -377,6 +382,8 @@ Features added
   - Add i18n capabilities for custom templates.  For example: The Sphinx
     reference documentation in doc directory provides a ``sphinx.pot`` file with
     message strings from ``doc/_templates/*.html`` when using ``make gettext``.
+
+  - PR#61,#703: Add support for non-ASCII filename handling.
 
 * Other builders:
 
