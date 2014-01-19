@@ -115,6 +115,7 @@ class LiteralInclude(Directive):
         'prepend': directives.unchanged_required,
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
+        'filename': directives.unchanged,
     }
 
     def run(self):
@@ -216,6 +217,11 @@ class LiteralInclude(Directive):
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
+        filename = self.options.get('filename')
+        if filename is not None:
+            if not filename:
+                filename = self.arguments[0]
+            retnode['filename'] = filename
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines

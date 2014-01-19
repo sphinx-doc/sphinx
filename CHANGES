@@ -27,6 +27,10 @@ New features
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
   to start at an arbitrary line number, with a new ``lineno-start`` option.
 
+* PR#172: The :rst:dir:`code-block` and :rst:dir:`literalinclude` directives now
+  can have a ``filename`` option that shows a filename before the code in the
+  output.
+
 * Prompt for the document language in sphinx-quickstart.
 
 Bugs fixed
