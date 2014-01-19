@@ -182,6 +182,7 @@ def recurse_tree(rootpath, excludes, opts):
 
     toplevels = []
     followlinks = getattr(opts, 'followlinks', False)
+    includeprivate = getattr(opts, 'includeprivate', False)
     for root, subs, files in os.walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
@@ -197,7 +198,11 @@ def recurse_tree(rootpath, excludes, opts):
             continue
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
-        subs[:] = sorted(sub for sub in subs if sub[0] not in ['.', '_']
+        if includeprivate:
+            exclude_prefixes = ('.',)
+        else:
+            exclude_prefixes = ('.', '_')
+        subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes)
                          and not is_excluded(path.join(root, sub), excludes))
 
         if is_pkg:
