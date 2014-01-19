@@ -119,6 +119,9 @@ Bugs fixed
 * #1330: Fix :confval:`exclude_patterns` behavior with subdirectories in the
   :confval:`html_static_path`.
 
+* #1323: Fix emitting empty ``<ul>`` tags in the HTML writer, which is not
+  valid HTML.
+
 Documentation
 -------------
 
