@@ -178,6 +178,9 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if p.returncode != 0:
         raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
                             '[stdout]\n%s' % (stderr, stdout))
+    if not path.isfile(outfn):
+        raise GraphvizError('dot did not produce an output file:\n[stderr]\n%s\n'
+                            '[stdout]\n%s' % (stderr, stdout))
     return relfn, outfn
 
 

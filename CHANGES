@@ -139,6 +139,18 @@ Bugs fixed
 
 * #979, #1266: Fix exclude handling in ``sphinx-apidoc``.
 
+* #1302: Fix regression in :mod:`sphinx.ext.inheritance_diagram` when
+  documenting classes that can't be pickled.
+
+* #1316: Remove hard-coded ``font-face`` resources from epub theme.
+
+* #1329: Fix traceback with empty translation msgstr in .po files.
+
+* #1300: Fix references not working in translated documents in some instances.
+
+* #1283: Fix a bug in the detection of changed files that would try to access
+  doctrees of deleted documents.
+
 Documentation
 -------------
 
