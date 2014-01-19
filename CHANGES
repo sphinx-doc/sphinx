@@ -122,6 +122,8 @@ Bugs fixed
 * #1323: Fix emitting empty ``<ul>`` tags in the HTML writer, which is not
   valid HTML.
 
+* #1147: Don't emit a sidebar search box in the "singlehtml" builder.
+
 Documentation
 -------------
 
