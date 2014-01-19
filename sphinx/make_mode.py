@@ -59,6 +59,7 @@ BUILDERS = [
     ("",      "pseudoxml", "to make pseudoxml-XML files for display purposes"),
     ("",      "linkcheck", "to check all external links for integrity"),
     ("",      "doctest",   "to run all doctests embedded in the documentation (if enabled)"),
+    ("",      "coverage",  "to run coverage check of the documentation (if enabled)"),
 ]
 
 def build_help(builddir, opts):
@@ -133,10 +134,23 @@ def build_epub(builddir, opts):
     print
     print 'Build finished. The ePub file is in %s.' % path.join(builddir, 'epub')
 
+def build_latex(builddir, opts):
+    if run_generic_build('latex', builddir, opts) > 0:
+        return 1
+    print "Build finished; the LaTeX files are in %s." % path.join(builddir, 'latex')
+    if os.name == 'posix':
+        print "Run `make' in that directory to run these through (pdf)latex"
+        print "(use `make latexpdf' here to do that automatically)."
 
-# latex
-# latexpdf
-# latexpdfja
+def build_latexpdf(builddir, opts):
+    if run_generic_build('latex', builddir, opts) > 0:
+        return 1
+    os.system('make -C %s all-pdf' % path.join(builddir, 'latex'))
+
+def build_latexpdfja(builddir, opts):
+    if run_generic_build('latex', builddir, opts) > 0:
+        return 1
+    os.system('make -C %s all-pdf-ja' % path.join(builddir, 'latex'))
 
 def build_text(builddir, opts):
     if run_generic_build('text', builddir, opts) > 0:
@@ -144,8 +158,18 @@ def build_text(builddir, opts):
     print
     print 'Build finished. The text files are in %s.' % path.join(builddir, 'text')
 
-# texinfo
-# info
+def build_texinfo(builddir, opts):
+    if run_generic_build('texinfo', builddir, opts) > 0:
+        return 1
+    print "Build finished; the Texinfo files are in %s." % path.join(builddir, 'texinfo')
+    if os.name == 'posix':
+        print "Run `make' in that directory to run these through makeinfo"
+        print "(use `make info' here to do that automatically)."
+
+def build_info(builddir, opts):
+    if run_generic_build('texinfo', builddir, opts) > 0:
+        return 1
+    os.system('make -C %s info' % path.join(builddir, 'texinfo'))
 
 def build_gettext(builddir, opts):
     dtdir = path.join(builddir, 'gettext', '.doctrees')
@@ -166,6 +190,20 @@ def build_linkcheck(builddir, opts):
     print ('Link check complete; look for any errors in the above output '
            'or in %s.') % path.join(builddir, 'linkcheck', 'output.txt')
     return res
+
+def build_doctest(builddir, opts):
+    res = run_generic_build('doctest', builddir, opts)
+    print ("Testing of doctests in the sources finished, look at the "
+           "results in %s." % path.join(builddir, 'doctest', 'output.txt'))
+    return res
+
+def build_coverage(builddir, opts):
+    if run_generic_build('coverage', builddir, opts) > 0:
+        print "Has the coverage extension been enabled?"
+        return 1
+    print
+    print ("Testing of coverage in the sources finished, look at the "
+           "results in %s." % path.join(builddir, 'coverage'))
 
 def build_xml(builddir, opts):
     if run_generic_build('xml', builddir, opts) > 0:
