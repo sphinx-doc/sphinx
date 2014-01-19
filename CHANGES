@@ -116,6 +116,9 @@ Bugs fixed
 * #1283: Fix a bug in the detection of changed files that would try to access
   doctrees of deleted documents.
 
+* #1330: Fix :confval:`exclude_patterns` behavior with subdirectories in the
+  :confval:`html_static_path`.
+
 Documentation
 -------------
 
