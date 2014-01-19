@@ -104,6 +104,9 @@ Bugs fixed
 
 * #979, #1266: Fix exclude handling in ``sphinx-apidoc``.
 
+* #1302: Fix regression in :mod:`sphinx.ext.inheritance_diagram` when
+  documenting classes that can't be pickled.
+
 Documentation
 -------------
 
