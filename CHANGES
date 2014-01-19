@@ -8,6 +8,9 @@ Incompatible changes
 
 * Removed the ``sphinx.ext.oldcmarkup`` extension.
 
+* The deprecated config values ``exclude_trees``, ``exclude_dirnames`` and
+  ``unused_docs`` have been removed.
+
 * A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
   will have to be adapted to handle this node.

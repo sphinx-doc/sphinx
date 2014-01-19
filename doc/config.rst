@@ -114,38 +114,6 @@ General configuration
 
    .. versionadded:: 1.0
 
-.. confval:: unused_docs
-
-   A list of document names that are present, but not currently included in the
-   toctree.  Use this setting to suppress the warning that is normally emitted
-   in that case.
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` or :ref:`metadata` instead.
-
-.. confval:: exclude_trees
-
-   A list of directory paths, relative to the source directory, that are to be
-   recursively excluded from the search for source files, that is, their
-   subdirectories won't be searched too.  The default is ``[]``.
-
-   .. versionadded:: 0.4
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
-
-.. confval:: exclude_dirnames
-
-   A list of directory names that are to be excluded from any recursive
-   operation Sphinx performs (e.g. searching for source files or copying static
-   files).  This is useful, for example, to exclude version-control-specific
-   directories like ``'CVS'``.  The default is ``[]``.
-
-   .. versionadded:: 0.5
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
-
 .. confval:: templates_path
 
    A list of paths that contain extra templates (or templates that overwrite

@@ -51,10 +51,6 @@ class Config(object):
         source_suffix = ('.rst', 'env'),
         source_encoding = ('utf-8-sig', 'env'),
         exclude_patterns = ([], 'env'),
-        # the next three are all deprecated now
-        unused_docs = ([], 'env'),
-        exclude_trees = ([], 'env'),
-        exclude_dirnames = ([], 'env'),
         default_role = (None, 'env'),
         add_function_parentheses = (True, 'env'),
         add_module_names = (True, 'env'),
