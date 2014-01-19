@@ -99,6 +99,9 @@ Bugs fixed
 
 * #1285: Avoid name clashes between C domain objects and section titles.
 
+* #848: Always take the newest code in incremental rebuilds with the
+  :mod:`sphinx.ext.viewcode` extension.
+
 Documentation
 -------------
 
