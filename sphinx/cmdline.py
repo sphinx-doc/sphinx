@@ -273,6 +273,13 @@ def main(argv):
             elif isinstance(err, SphinxError):
                 print >>error, red('%s:' % err.category)
                 print >>error, terminal_safe(unicode(err))
+            elif isinstance(err, UnicodeError):
+                print >>error, red('Encoding error:')
+                print >>error, terminal_safe(unicode(err))
+                tbpath = save_traceback(app)
+                print >>error, red('The full traceback has been saved '
+                                   'in %s, if you want to report the '
+                                   'issue to the developers.' % tbpath)
             else:
                 print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()
