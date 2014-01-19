@@ -58,6 +58,7 @@ class CodeBlock(Directive):
         'linenos': directives.flag,
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
+        'filename': directives.unchanged_required,
     }
 
     def run(self):
@@ -76,6 +77,9 @@ class CodeBlock(Directive):
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
+        filename = self.options.get('filename')
+        if filename:
+            literal['filename'] = filename
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
         extra_args = literal['highlight_args'] = {}
