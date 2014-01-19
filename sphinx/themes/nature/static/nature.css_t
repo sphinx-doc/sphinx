@@ -243,3 +243,9 @@ div.viewcode-block:target {
     border-top: 1px solid #ac9;
     border-bottom: 1px solid #ac9;
 }
+
+div.code-block-filename {
+    background-color: #ddd;
+    color: #222;
+    border: 1px solid #C6C9CB;
+}

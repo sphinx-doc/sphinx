@@ -195,6 +195,12 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.2
 
+   * Add a list of modules in the :confval:`autodoc_mock_imports` to prevent
+     import errors to halt the building process when some external dependencies
+     are not importable at build time.
+
+     .. versionadded:: 1.3
+
 
 .. rst:directive:: autofunction
                    autodata
@@ -334,6 +340,14 @@ There are also new config values that you can set:
    docstring content.
 
    .. versionadded:: 1.1
+
+.. confval:: autodoc_mock_imports
+
+   This value contains a list of modules to be mocked up. This is useful when
+   some external dependencies are not met at build time and break the building
+   process.
+
+   .. versionadded:: 1.3
 
 
 Docstring preprocessing

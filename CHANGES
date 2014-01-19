@@ -1,15 +1,19 @@
 Release 1.3 (in development)
 ============================
 
-Change support versions
------------------------
-
-* Drop Python-2.5, 3.1 (support code was completely removed)
-
 Incompatible changes
 --------------------
 
+* Dropped support for Python 2.5 and 3.1.
+
 * Removed the ``sphinx.ext.oldcmarkup`` extension.
+
+* The deprecated config values ``exclude_trees``, ``exclude_dirnames`` and
+  ``unused_docs`` have been removed.
+
+* A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
+  should appear literally (i.e. no smart quotes) in strong font.  Custom writers
+  will have to be adapted to handle this node.
 
 New features
 ------------
@@ -17,11 +21,18 @@ New features
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 
+* PR#184: Add :confval:`autodoc_mock_imports`, allowing to mock imports of
+  external modules that need not be present when autodocumenting.
+
 * #925: Allow list-typed config values to be provided on the command line,
   like ``-D key=val1,val2``.
 
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
   to start at an arbitrary line number, with a new ``lineno-start`` option.
+
+* PR#172: The :rst:dir:`code-block` and :rst:dir:`literalinclude` directives now
+  can have a ``filename`` option that shows a filename before the code in the
+  output.
 
 * Prompt for the document language in sphinx-quickstart.
 
@@ -125,6 +136,23 @@ Bugs fixed
   more obvious.
 
 * #1285: Avoid name clashes between C domain objects and section titles.
+
+* #848: Always take the newest code in incremental rebuilds with the
+  :mod:`sphinx.ext.viewcode` extension.
+
+* #979, #1266: Fix exclude handling in ``sphinx-apidoc``.
+
+* #1302: Fix regression in :mod:`sphinx.ext.inheritance_diagram` when
+  documenting classes that can't be pickled.
+
+* #1316: Remove hard-coded ``font-face`` resources from epub theme.
+
+* #1329: Fix traceback with empty translation msgstr in .po files.
+
+* #1300: Fix references not working in translated documents in some instances.
+
+* #1283: Fix a bug in the detection of changed files that would try to access
+  doctrees of deleted documents.
 
 Documentation
 -------------
@@ -376,6 +404,8 @@ Features added
   - Add i18n capabilities for custom templates.  For example: The Sphinx
     reference documentation in doc directory provides a ``sphinx.pot`` file with
     message strings from ``doc/_templates/*.html`` when using ``make gettext``.
+
+  - PR#61,#703: Add support for non-ASCII filename handling.
 
 * Other builders:
 

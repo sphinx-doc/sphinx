@@ -579,10 +579,7 @@ class StandaloneHTMLBuilder(Builder):
         # then, copy over all user-supplied static files
         staticentries = [path.join(self.confdir, spath)
                          for spath in self.config.html_static_path]
-        matchers = compile_matchers(
-            self.config.exclude_patterns +
-            ['**/' + d for d in self.config.exclude_dirnames]
-        )
+        matchers = compile_matchers(self.config.exclude_patterns)
         for entry in staticentries:
             if not path.exists(entry):
                 self.warn('html_static_path entry %r does not exist' % entry)

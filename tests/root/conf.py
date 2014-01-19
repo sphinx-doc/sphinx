@@ -23,7 +23,6 @@ copyright = '2010, Georg Brandl & Team'
 version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
-# unused_docs = []
 exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
@@ -70,6 +69,13 @@ autosummary_generate = ['autosummary']
 
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
             'pyurl': ('http://python.org/%s', None)}
+
+autodoc_mock_imports = [
+    'missing_module',
+    'missing_package1.missing_module1',
+    'missing_package2.missing_module2',
+    'missing_package3.missing_module3',
+]
 
 # modify tags from conf.py
 tags.add('confpytag')

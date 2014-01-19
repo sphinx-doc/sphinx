@@ -70,6 +70,35 @@ class Options(dict):
             return None
 
 
+class _MockModule(object):
+    """Used by autodoc_mock_imports."""
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return _MockModule()
+
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            # Not very good, we assume Uppercase names are classes...
+            mocktype = type(name, (), {})
+            mocktype.__module__ = __name__
+            return mocktype
+        else:
+            return _MockModule()
+
+def mock_import(modname):
+    if '.' in modname:
+        pkg, _n, mods = modname.rpartition('.')
+        mock_import(pkg)
+    mod = _MockModule()
+    sys.modules[modname] = mod
+    return mod
+
+
 ALL = object()
 INSTANCEATTR = object()
 
@@ -332,6 +361,9 @@ class Documenter(object):
                 self.modname, '.'.join(self.objpath))
         try:
             dbg('[autodoc] import %s', self.modname)
+            for modname in self.env.config.autodoc_mock_imports:
+                dbg('[autodoc] adding a mock module %s!', self.modname)
+                mock_import(modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
@@ -1453,6 +1485,7 @@ def setup(app):
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
+    app.add_config_value('autodoc_mock_imports', [], True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

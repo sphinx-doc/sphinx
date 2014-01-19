@@ -14,6 +14,7 @@
 
 import sys
 import os
+import types
 from StringIO import StringIO
 from distutils.cmd import Command
 
@@ -97,6 +98,19 @@ class BuildDoc(Command):
                 if 'conf.py' in filenames:
                     return root
         return None
+
+    # Overriding distutils' Command._ensure_stringlike which doesn't support
+    # unicode, causing finalize_options to fail if invoked again. Workaround
+    # for http://bugs.python.org/issue19570
+    def _ensure_stringlike(self, option, what, default=None):
+        val = getattr(self, option)
+        if val is None:
+            setattr(self, option, default)
+            return default
+        elif not isinstance(val, types.StringTypes):
+            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
+                                       % (option, what, val))
+        return val
 
     def finalize_options(self):
         if self.source_dir is None:
