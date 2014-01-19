@@ -837,6 +837,72 @@ if "%%1" == "pseudoxml" (
 :end
 '''
 
+# This will become the Makefile template for Sphinx 1.5.
+MAKEFILE_NEW = u'''\
+# Makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = %(project_fn)s
+BUILDDIR      = %(rbuilddir)s
+
+# User-friendly check for sphinx-build
+ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
+$(error \
+The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
+installed, then set the SPHINXBUILD environment variable to point \
+to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
+can add the directory with the executable to your PATH. \
+If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
+endif
+
+# Has to be explicit, otherwise we don't get "make" without targets right.
+help:
+\t@$(SPHINXBUILD) -M help "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# Catch-all target using the new "make mode" option.
+%:
+\t@$(SPHINXBUILD) -M $@ "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+'''
+
+# This will become the make.bat template for Sphinx 1.5.
+BATCHFILE_NEW = u'''\
+@ECHO OFF
+
+REM Command file for Sphinx documentation
+
+if "%%SPHINXBUILD%%" == "" (
+\tset SPHINXBUILD=sphinx-build
+)
+set BUILDDIR=%(rbuilddir)s
+set SPHINXPROJ=%(project_fn)s
+
+if "%%1" == "" goto help
+
+%%SPHINXBUILD%% 2> nul
+if errorlevel 9009 (
+\techo.
+\techo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+\techo.installed, then set the SPHINXBUILD environment variable to point
+\techo.to the full path of the 'sphinx-build' executable. Alternatively you
+\techo.may add the Sphinx directory to PATH.
+\techo.
+\techo.If you don't have Sphinx installed, grab it from
+\techo.http://sphinx-doc.org/
+\texit /b 1
+)
+
+%%SPHINXBUILD%% -M %%1 %%BUILDDIR%% %%SPHINXOPTS%%
+goto end
+
+:help
+%%SPHINXBUILD%% -M help %%BUILDDIR%% %%SPHINXOPTS%%
+
+:end
+'''
+
 
 def mkdir_p(dir):
     if path.isdir(dir):
