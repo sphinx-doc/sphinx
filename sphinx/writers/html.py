@@ -70,7 +70,7 @@ class HTMLTranslator(BaseTranslator):
         self.no_smarty = 0
         self.builder = builder
         self.highlightlang = builder.config.highlight_language
-        self.highlightlinenothreshold = sys.maxint
+        self.highlightlinenothreshold = sys.maxsize
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -254,11 +254,11 @@ class HTMLTranslator(BaseTranslator):
         linenos = node.rawsource.count('\n') >= \
                   self.highlightlinenothreshold - 1
         highlight_args = node.get('highlight_args', {})
-        if node.has_key('language'):
+        if 'language' in node:
             # code-block directives
             lang = node['language']
             highlight_args['force'] = True
-        if node.has_key('linenos'):
+        if 'linenos' in node:
             linenos = node['linenos']
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
@@ -364,13 +364,13 @@ class HTMLTranslator(BaseTranslator):
         if node['uri'].lower().endswith('svg') or \
            node['uri'].lower().endswith('svgz'):
             atts = {'src': node['uri']}
-            if node.has_key('width'):
+            if 'width' in node:
                 atts['width'] = node['width']
-            if node.has_key('height'):
+            if 'height' in node:
                 atts['height'] = node['height']
-            if node.has_key('alt'):
+            if 'alt' in node:
                 atts['alt'] = node['alt']
-            if node.has_key('align'):
+            if 'align' in node:
                 self.body.append('<div align="%s" class="align-%s">' %
                                  (node['align'], node['align']))
                 self.context.append('</div>\n')
@@ -379,21 +379,21 @@ class HTMLTranslator(BaseTranslator):
             self.body.append(self.emptytag(node, 'img', '', **atts))
             return
 
-        if node.has_key('scale'):
+        if 'scale' in node:
             # Try to figure out image height and width.  Docutils does that too,
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
-            if Image and not (node.has_key('width')
-                              and node.has_key('height')):
+            if Image and not ('width' in node
+                              and 'height' in node):
                 try:
                     im = Image.open(os.path.join(self.builder.srcdir, olduri))
                 except (IOError, # Source image can't be found or opened
                         UnicodeError):  # PIL doesn't like Unicode paths.
                     pass
                 else:
-                    if not node.has_key('width'):
+                    if 'width' not in node:
                         node['width'] = str(im.size[0])
-                    if not node.has_key('height'):
+                    if 'height' not in node:
                         node['height'] = str(im.size[1])
                     del im
         BaseTranslator.visit_image(self, node)

@@ -4,6 +4,7 @@
 # Extended to handle raw and unicode literals by Georg Brandl.
 
 """Safely evaluate Python string literals without using eval()."""
+from __future__ import print_function
 
 import re
 
@@ -89,7 +90,7 @@ def test():
         s = repr(c)
         e = evalString(s)
         if e != c:
-            print i, c, s, e
+            print(i, c, s, e)
 
 
 if __name__ == "__main__":

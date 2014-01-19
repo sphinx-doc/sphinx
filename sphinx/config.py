@@ -230,7 +230,7 @@ class Config(object):
                 os.chdir(dirname)
                 try:
                     execfile_(filename, config)
-                except SyntaxError, err:
+                except SyntaxError as err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:
                 os.chdir(olddir)

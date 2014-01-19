@@ -39,7 +39,7 @@ class Highlight(Directive):
             except Exception:
                 linenothreshold = 10
         else:
-            linenothreshold = sys.maxint
+            linenothreshold = sys.maxsize
         return [addnodes.highlightlang(lang=self.arguments[0].strip(),
                                        linenothreshold=linenothreshold)]
 
@@ -68,7 +68,7 @@ class CodeBlock(Directive):
             try:
                 nlines = len(self.content)
                 hl_lines = [x+1 for x in parselinenos(linespec, nlines)]
-            except ValueError, err:
+            except ValueError as err:
                 document = self.state.document
                 return [document.reporter.warning(str(err), line=self.lineno)]
         else:
@@ -162,7 +162,7 @@ class LiteralInclude(Directive):
         if linespec is not None:
             try:
                 linelist = parselinenos(linespec, len(lines))
-            except ValueError, err:
+            except ValueError as err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
             # just ignore nonexisting lines
             nlines = len(lines)
@@ -176,7 +176,7 @@ class LiteralInclude(Directive):
         if linespec:
             try:
                 hl_lines = [x+1 for x in parselinenos(linespec, len(lines))]
-            except ValueError, err:
+            except ValueError as err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
         else:
             hl_lines = None

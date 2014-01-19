@@ -655,7 +655,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         # an xref's target is displayed in Info so we ignore a few
         # cases for the sake of appearance
-        if isinstance(node.parent, (nodes.title, addnodes.desc_type,)):
+        if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
             return
         if isinstance(node[0], nodes.image):
             return

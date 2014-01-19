@@ -184,7 +184,7 @@ class MessageCatalogBuilder(I18nBuilder):
         for textdomain, catalog in self.status_iterator(
                 self.catalogs.iteritems(), "writing message catalogs... ",
                 darkgreen, len(self.catalogs),
-                lambda (textdomain, _): textdomain):
+                lambda textdomain__: textdomain__[0]):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 

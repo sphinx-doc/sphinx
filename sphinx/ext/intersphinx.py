@@ -132,7 +132,7 @@ def fetch_inventory(app, uri, inv):
             f = urllib2.urlopen(inv)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
-    except Exception, err:
+    except Exception as err:
         app.warn('intersphinx inventory %r not fetchable due to '
                  '%s: %s' % (inv, err.__class__, err))
         return
@@ -149,7 +149,7 @@ def fetch_inventory(app, uri, inv):
         except ValueError:
             f.close()
             raise ValueError('unknown or unsupported inventory version')
-    except Exception, err:
+    except Exception as err:
         app.warn('intersphinx inventory %r not readable due to '
                  '%s: %s' % (inv, err.__class__.__name__, err))
     else:

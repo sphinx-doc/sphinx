@@ -68,7 +68,7 @@ class CObject(ObjectDescription):
 
     def _parse_type(self, node, ctype):
         # add cross-ref nodes for all words
-        for part in filter(None, wsplit_re.split(ctype)):
+        for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
             if part[0] in string.ascii_letters+'_' and \
                    part not in self.stopwords:
