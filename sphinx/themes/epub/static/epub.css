@@ -339,7 +339,7 @@ dl.glossary dt {
 /* -- code displays --------------------------------------------------------- */
 
 pre {
-    font-family: "LiberationNarrow", monospace;
+    font-family: monospace;
     overflow: auto;
     overflow-y: hidden;
 }
@@ -360,7 +360,7 @@ table.highlighttable td {
 }
 
 tt {
-    font-family: "LiberationNarrow", monospace;
+    font-family: monospace;
 }
 
 tt.descname {
@@ -432,6 +432,7 @@ table .link-target {
 
 /* -- font-face ------------------------------------------------------------- */
 
+/*
 @font-face {
     font-family: "LiberationNarrow";
     font-style: normal;
@@ -460,4 +461,4 @@ table .link-target {
     src: url("res:///Data/fonts/LiberationNarrow-BoldItalic.otf")
         format("opentype");
 }
-
+*/

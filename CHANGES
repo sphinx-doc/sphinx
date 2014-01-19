@@ -107,6 +107,8 @@ Bugs fixed
 * #1302: Fix regression in :mod:`sphinx.ext.inheritance_diagram` when
   documenting classes that can't be pickled.
 
+* #1316: Remove hard-coded ``font-face`` resources from epub theme.
+
 Documentation
 -------------
 
