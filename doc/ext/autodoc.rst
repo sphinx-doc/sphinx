@@ -26,6 +26,16 @@ hand-written documentation, this technique eases the pain of having to maintain
 two locations for documentation, while at the same time avoiding
 auto-generated-looking pure API documentation.
 
+If you prefer `NumPy`_ or `Google`_ style docstrings over reStructuredText,
+you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
+:mod:`napoleon <sphinx.ext.napoleon>` is a preprocessor that converts your
+docstrings to correct reStructuredText before :mod:`autodoc` processes them.
+
+.. _Google:
+   http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Comments
+.. _NumPy:
+   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+
 :mod:`autodoc` provides several directives that are versions of the usual
 :rst:dir:`py:module`, :rst:dir:`py:class` and so forth.  On parsing time, they
 import the corresponding module and extract the docstring of the given objects,

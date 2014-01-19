@@ -38,7 +38,7 @@ according to the `Google Python Style Guide`_::
 
 Much more legible, no?
 
-Napoleon is a `Sphinx extension`_ that allows you to write readable API
+Napoleon is a Sphinx extension that allows you to write readable API
 documentation in your source code. Napoleon understands both `NumPy`_ and
 `Google`_ style docstrings - the style recommended by `Khan Academy`_.
 
@@ -46,7 +46,6 @@ documentation in your source code. Napoleon understands both `NumPy`_ and
 .. _docstrings: http://www.python.org/dev/peps/pep-0287/
 .. _Google Python Style Guide:
    http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
-.. _Sphinx extension: http://sphinx-doc.org/extensions.html
 .. _Google:
    http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Comments
 .. _NumPy:
@@ -74,15 +73,13 @@ Getting Started
 Docstrings
 ----------
 
-Napoleon interprets every docstring that `Sphinx autodoc`_ can find,
-including docstrings on: ``modules``, ``classes``, ``attributes``,
+Napoleon interprets every docstring that :mod:`autodoc <sphinx.ext.autodoc>`
+can find, including docstrings on: ``modules``, ``classes``, ``attributes``,
 ``methods``, ``functions``, and ``variables``. Inside each docstring,
 specially formatted `Sections`_ are parsed and converted to
 reStructuredText.
 
 All standard reStructuredText formatting still works as expected.
-
-.. _Sphinx autodoc: http://sphinx-doc.org/ext/autodoc.html
 
 
 .. _Sections:
@@ -210,17 +207,21 @@ enabled in `conf.py`::
 
 
 
-**napoleon_google_docstring** : bool, defaults to True
+.. confval:: napoleon_google_docstring
+
    True to parse `Google style`_ docstrings. False to disable support
-   for Google style docstrings.
+   for Google style docstrings. *Defaults to True.*
 
-**napoleon_numpy_docstring** : bool, defaults to True
+.. confval:: napoleon_numpy_docstring
+
    True to parse `NumPy style`_ docstrings. False to disable support
-   for NumPy style docstrings.
+   for NumPy style docstrings. *Defaults to True.*
 
-**napoleon_include_private_with_doc** : bool, defaults to False
+.. confval:: napoleon_include_private_with_doc
+
    True to include private members (like ``_membername``) with docstrings
    in the documentation. False to fall back to Sphinx's default behavior.
+   *Defaults to False.*
 
    **If True**::
 
@@ -234,10 +235,11 @@ enabled in `conf.py`::
            # This will NOT be included in the docs
            pass
 
-**napoleon_include_special_with_doc** : bool, defaults to True
+.. confval:: napoleon_include_special_with_doc
+
    True to include special members (like ``__membername__``) with
    docstrings in the documentation. False to fall back to Sphinx's
-   default behavior.
+   default behavior. *Defaults to True.*
 
    **If True**::
 
@@ -251,11 +253,12 @@ enabled in `conf.py`::
            # This will NOT be included in the docs
            return unicode(self.__class__.__name__)
 
-**napoleon_use_admonition_for_examples** : bool, defaults to False
+.. confval:: napoleon_use_admonition_for_examples
+
    True to use the ``.. admonition::`` directive for the **Example** and
    **Examples** sections. False to use the ``.. rubric::`` directive
    instead. One may look better than the other depending on what HTML
-   theme is used.
+   theme is used. *Defaults to False.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -275,9 +278,10 @@ enabled in `conf.py`::
 
        This is just a quick example
 
-**napoleon_use_admonition_for_notes** : bool, defaults to False
+.. confval:: napoleon_use_admonition_for_notes
+
    True to use the ``.. admonition::`` directive for **Notes** sections.
-   False to use the ``.. rubric::`` directive instead.
+   False to use the ``.. rubric::`` directive instead. *Defaults to False.*
 
    .. note:: The singular **Note** section will always be converted to a
       ``.. note::`` directive.
@@ -286,17 +290,20 @@ enabled in `conf.py`::
 
       :attr:`napoleon_use_admonition_for_examples`
 
-**napoleon_use_admonition_for_references** : bool, defaults to False
+.. confval:: napoleon_use_admonition_for_references
+
    True to use the ``.. admonition::`` directive for **References**
    sections. False to use the ``.. rubric::`` directive instead.
+   *Defaults to False.*
 
    .. seealso::
 
       :attr:`napoleon_use_admonition_for_examples`
 
-**napoleon_use_ivar** : bool, defaults to False
+.. confval:: napoleon_use_ivar
+
    True to use the ``:ivar:`` role for instance variables. False to use
-   the ``.. attribute::`` directive instead.
+   the ``.. attribute::`` directive instead. *Defaults to False.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -317,9 +324,11 @@ enabled in `conf.py`::
 
           Description of `attr1`
 
-**napoleon_use_param** : bool, defaults to False
+.. confval:: napoleon_use_param
+
    True to use a ``:param:`` role for each function parameter. False to
    use a single ``:parameters:`` role for all the parameters.
+   *Defaults to False.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -344,9 +353,10 @@ enabled in `conf.py`::
                     * **arg2** (*int, optional*) --
                       Description of `arg2`, defaults to 0
 
-**napoleon_use_rtype** : bool, defaults to False
+.. confval:: napoleon_use_rtype
+
    True to use the ``:rtype:`` role for the return type. False to output
-   the return type inline with the description.
+   the return type inline with the description. *Defaults to False.*
 
    This `NumPy style`_ snippet will be converted as follows::
 

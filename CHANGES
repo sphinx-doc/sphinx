@@ -36,6 +36,9 @@ New features
 
 * Prompt for the document language in sphinx-quickstart.
 
+* Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
+  support.
+
 Bugs fixed
 ----------
 
