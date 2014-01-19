@@ -158,18 +158,17 @@ def copy_static_entry(source, targetdir, builder, context={},
         else:
             copyfile(source, target)
     elif path.isdir(source):
-        if level == 0:
-            for entry in os.listdir(source):
-                if entry.startswith('.'):
-                    continue
-                copy_static_entry(path.join(source, entry), targetdir,
-                                  builder, context, level=1,
-                                  exclude_matchers=exclude_matchers)
-        else:
-            target = path.join(targetdir, path.basename(source))
-            if path.exists(target):
-                shutil.rmtree(target)
-            shutil.copytree(source, target)
+        if not path.isdir(targetdir):
+            os.mkdir(targetdir)
+        for entry in os.listdir(source):
+            if entry.startswith('.'):
+                continue
+            newtarget = targetdir
+            if path.isdir(path.join(source, entry)):
+                newtarget = path.join(targetdir, entry)
+            copy_static_entry(path.join(source, entry), newtarget,
+                              builder, context, level=level+1,
+                              exclude_matchers=exclude_matchers)
 
 
 _DEBUG_HEADER = '''\
