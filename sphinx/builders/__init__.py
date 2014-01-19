@@ -268,7 +268,7 @@ class Builder(object):
         # filter "docnames" (list of outdated files) by the updated
         # found_docs of the environment; this will remove docs that
         # have since been removed
-        if docnames != ['__all__']:
+        if docnames and docnames != ['__all__']:
             docnames = set(docnames) & self.env.found_docs
 
         # another indirection to support builders that don't build
