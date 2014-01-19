@@ -839,16 +839,17 @@ if "%%1" == "pseudoxml" (
 
 # This will become the Makefile template for Sphinx 1.5.
 MAKEFILE_NEW = u'''\
-# Makefile for Sphinx documentation
+# Minimal makefile for Sphinx documentation
 #
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = %(project_fn)s
+SOURCEDIR     = %(rsrcdir)s
 BUILDDIR      = %(rbuilddir)s
 
-# User-friendly check for sphinx-build
+# User-friendly check for sphinx-build.
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
 $(error \
 The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
@@ -860,11 +861,14 @@ endif
 
 # Has to be explicit, otherwise we don't get "make" without targets right.
 help:
-\t@$(SPHINXBUILD) -M help "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+\t@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-# Catch-all target using the new "make mode" option.
+# You can add custom targets here.
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %:
-\t@$(SPHINXBUILD) -M $@ "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+\t@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 '''
 
 # This will become the make.bat template for Sphinx 1.5.
