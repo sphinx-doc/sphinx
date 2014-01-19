@@ -242,8 +242,7 @@ class Locale(Transform):
                         self.document.ids.pop(_id, None)
 
                     # re-entry with new named section node.
-                    self.document.note_implicit_target(
-                            section_node, section_node)
+                    self.document.note_implicit_target(section_node)
 
                     # replace target's refname to new target name
                     def is_named_target(node):
