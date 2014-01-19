@@ -15,7 +15,7 @@
 import sys
 from os import path
 
-__version__  = '1.2.1'
+__version__  = '1.2.1+'
 __released__ = '1.2.1'  # used when Sphinx builds its own docs
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
