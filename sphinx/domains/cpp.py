@@ -537,6 +537,7 @@ class DefinitionParser(object):
         'mutable':      None,
         'const':        None,
         'typename':     None,
+        'struct':       None,
         'unsigned':     set(('char', 'short', 'int', 'long')),
         'signed':       set(('char', 'short', 'int', 'long')),
         'short':        set(('int',)),

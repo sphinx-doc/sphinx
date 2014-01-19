@@ -137,7 +137,7 @@ Bugs fixed
 * #848: Always take the newest code in incremental rebuilds with the
   :mod:`sphinx.ext.viewcode` extension.
 
-* #979: Fix exclude handling in ``sphinx-apidoc``.
+* #979, #1266: Fix exclude handling in ``sphinx-apidoc``.
 
 Documentation
 -------------
