@@ -109,6 +109,8 @@ Bugs fixed
 
 * #1316: Remove hard-coded ``font-face`` resources from epub theme.
 
+* #1329: Fix traceback with empty translation msgstr in .po files.
+
 Documentation
 -------------
 
