@@ -113,6 +113,9 @@ Bugs fixed
 
 * #1300: Fix references not working in translated documents in some instances.
 
+* #1283: Fix a bug in the detection of changed files that would try to access
+  doctrees of deleted documents.
+
 Documentation
 -------------
 
