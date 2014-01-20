@@ -246,10 +246,17 @@ class BuildEnvironment:
         self.versioning_condition = condition
 
     def warn(self, docname, msg, lineno=None):
+        """Emit a warning.
+
+        This differs from using ``app.warn()`` in that the warning may not
+        be emitted instantly, but collected for emitting all warnings after
+        the update of the environment.
+        """
         # strange argument order is due to backwards compatibility
         self._warnfunc(msg, (docname, lineno))
 
     def warn_node(self, msg, node):
+        """Like :meth:`warn`, but with source information taken from *node*."""
         self._warnfunc(msg, '%s:%s' % get_source_line(node))
 
     def clear_doc(self, docname):
@@ -693,7 +700,7 @@ class BuildEnvironment:
 
     @property
     def docname(self):
-        """Backwards compatible alias."""
+        """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
 
     @property
@@ -707,16 +714,28 @@ class BuildEnvironment:
         return self.temp_data.get('py:class')
 
     def new_serialno(self, category=''):
-        """Return a serial number, e.g. for index entry targets."""
+        """Return a serial number, e.g. for index entry targets.
+
+        The number is guaranteed to be unique in the current document.
+        """
         key = category + 'serialno'
         cur = self.temp_data.get(key, 0)
         self.temp_data[key] = cur + 1
         return cur
 
     def note_dependency(self, filename):
+        """Add *filename* as a dependency of the current document.
+
+        This means that the document will be rebuilt if this file changes.
+
+        *filename* should be absolute or relative to the source directory.
+        """
         self.dependencies.setdefault(self.docname, set()).add(filename)
 
     def note_reread(self):
+        """Add the current document to the list of documents that will
+        automatically be re-read at the next build.
+        """
         self.reread_always.add(self.docname)
 
     def note_versionchange(self, type, version, node, lineno):
@@ -734,7 +753,6 @@ class BuildEnvironment:
             if node['level'] < filterlevel:
                 self.app.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
-
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""

@@ -1,7 +1,7 @@
 .. _writing-builders:
 
-Writing new builders
-====================
+Builder API
+===========
 
 .. todo:: Expand this.
 
