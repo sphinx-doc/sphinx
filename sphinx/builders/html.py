@@ -597,7 +597,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
-            if not path.isfile(path.realpath(self.config.html_logo)):
+            if not path.isfile(path.join(self.confdir, self.config.html_logo)):
                 self.warn('logo file %r does not exist' % self.config.html_logo)
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
@@ -605,7 +605,9 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_favicon:
             iconbase = path.basename(self.config.html_favicon)
             icontarget = path.join(self.outdir, '_static', iconbase)
-            if not path.isfile(icontarget):
+            if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
+                self.warn('favicon file %r does not exist' % self.config.html_favicon)
+            elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
         self.info('done')
