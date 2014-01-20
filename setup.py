@@ -44,7 +44,7 @@ A development egg can be found `here
 <http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
-requires = ['Pygments>=1.2', 'docutils>=0.7']
+requires = ['Pygments>=1.2', 'docutils>=0.7', 'snowballstemmer>=1.1']
 
 if sys.version_info[:3] >= (3, 3, 0):
     requires[1] = 'docutils>=0.10'
