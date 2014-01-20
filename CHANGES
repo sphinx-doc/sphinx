@@ -1,6 +1,12 @@
 Release 1.2.2 (in development)
 ==============================
 
+Bugs fixed
+----------
+
+* PR#211: When checking for existence of the :confval:`html_logo` file, check
+  the full relative path and not the basename.
+
 
 Release 1.2.1 (released Jan 19, 2014)
 =====================================
