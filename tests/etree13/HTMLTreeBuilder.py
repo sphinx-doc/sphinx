@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # ElementTree
 # $Id$
@@ -53,7 +54,7 @@ import htmlentitydefs
 import re, string, sys
 import mimetools, StringIO
 
-import ElementTree
+from . import ElementTree
 
 AUTOCLOSE = "p", "li", "tr", "th", "td", "head", "body"
 IGNOREEND = "img", "hr", "meta", "link", "br"

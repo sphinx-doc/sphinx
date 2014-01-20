@@ -178,7 +178,7 @@ class path(unicode):
         """
         return os.path.lexists(self)
 
-    def makedirs(self, mode=0777):
+    def makedirs(self, mode=0o777):
         """
         Recursively create directories.
         """

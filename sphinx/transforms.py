@@ -69,7 +69,7 @@ class MoveModuleTargets(Transform):
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
-            if (node.has_key('ismod') and
+            if ('ismod' in node and
                 node.parent.__class__ is nodes.section and
                 # index 0 is the section title node
                 node.parent.index(node) == 1):

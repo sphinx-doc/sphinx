@@ -41,7 +41,7 @@ if sys.version_info >= (3, 0):
         source = refactoring_tool._read_python_source(filepath)[0]
         try:
             tree = refactoring_tool.refactor_string(source, 'conf.py')
-        except ParseError, err:
+        except ParseError as err:
             # do not propagate lib2to3 exceptions
             lineno, offset = err.context[1]
             # try to match ParseError details with SyntaxError details

@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import re
@@ -63,7 +64,7 @@ def ensuredir(path):
     """Ensure that a path exists."""
     try:
         os.makedirs(path)
-    except OSError, err:
+    except OSError as err:
         # 0 for Jython/Win32
         if err.errno not in [0, EEXIST]:
             raise
@@ -83,9 +84,9 @@ def walk(top, topdown=True, followlinks=False):
         try:
             fullpath = path.join(top, name)
         except UnicodeError:
-            print >>sys.stderr, (
-                '%s:: ERROR: non-ASCII filename not supported on this '
-                'filesystem encoding %r, skipped.' % (name, fs_encoding))
+            print('%s:: ERROR: non-ASCII filename not supported on this '
+                  'filesystem encoding %r, skipped.' % (name, fs_encoding),
+                  file=sys.stderr)
             continue
         if path.isdir(fullpath):
             dirs.append(name)

@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -28,9 +29,9 @@ from sphinx.util.pycompat import terminal_safe, bytes
 
 def usage(argv, msg=None):
     if msg:
-        print >>sys.stderr, msg
-        print >>sys.stderr
-    print >>sys.stderr, """\
+        print(msg, file=sys.stderr)
+        print(file=sys.stderr)
+    print("""\
 Sphinx v%s
 Usage: %s [options] sourcedir outdir [filenames...]
 
@@ -75,7 +76,7 @@ Standard options
 ^^^^^^^^^^^^^^^^
 -h, --help  show this help and exit
 --version   show version information and exit
-""" % (__version__, argv[0])
+""" % (__version__, argv[0]), file=sys.stderr)
 
 
 def main(argv):
@@ -87,6 +88,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
                                    ['help', 'version'])
+<<<<<<< local
     except getopt.error, err:
         usage(argv, 'Error: %s' % err)
         return 1
@@ -105,24 +107,47 @@ def main(argv):
 
     # get paths (first and second positional argument)
     try:
+=======
+        allopts = set(opt[0] for opt in opts)
+        if '-h' in allopts or '--help' in allopts:
+            usage(argv)
+            print(file=sys.stderr)
+            print('For more information, see <http://sphinx-doc.org/>.',
+                  file=sys.stderr)
+            return 0
+        if '--version' in allopts:
+            print('Sphinx (sphinx-build) %s' %  __version__)
+            return 0
+>>>>>>> other
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
-            print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
-                                srcdir,)
+            print('Error: Cannot find source directory `%s\'.' % srcdir,
+                  file=sys.stderr)
             return 1
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
                '-c' not in allopts and '-C' not in allopts:
+<<<<<<< local
             print >>sys.stderr, ('Error: Source directory doesn\'t '
                                  'contain a conf.py file.')
+=======
+            print('Error: Source directory doesn\'t contain conf.py file.',
+                  file=sys.stderr)
+>>>>>>> other
             return 1
         outdir = abspath(args[1])
+<<<<<<< local
+=======
+    except getopt.error as err:
+        usage(argv, 'Error: %s' % err)
+        return 1
+>>>>>>> other
     except IndexError:
         usage(argv, 'Error: Insufficient arguments.')
         return 1
     except UnicodeError:
-        print >>sys.stderr, (
+        print(
             'Error: Multibyte filename not supported on this filesystem '
-            'encoding (%r).' % fs_encoding)
+            'encoding (%r).' % fs_encoding, file=sys.stderr)
         return 1
 
     # handle remaining filename arguments
@@ -130,7 +155,7 @@ def main(argv):
     err = 0
     for filename in filenames:
         if not path.isfile(filename):
-            print >>sys.stderr, 'Error: Cannot find file %r.' % filename
+            print('Error: Cannot find file %r.' % filename, file=sys.stderr)
             err = 1
     if err:
         return 1
@@ -169,8 +194,8 @@ def main(argv):
         elif opt == '-c':
             confdir = abspath(val)
             if not path.isfile(path.join(confdir, 'conf.py')):
-                print >>sys.stderr, ('Error: Configuration directory '
-                                     'doesn\'t contain conf.py file.')
+                print('Error: Configuration directory doesn\'t contain conf.py file.',
+                      file=sys.stderr)
                 return 1
         elif opt == '-C':
             confdir = None
@@ -178,8 +203,8 @@ def main(argv):
             try:
                 key, val = val.split('=')
             except ValueError:
-                print >>sys.stderr, ('Error: -D option argument must be '
-                                     'in the form name=value.')
+                print('Error: -D option argument must be in the form name=value.',
+                      file=sys.stderr)
                 return 1
             if likely_encoding and isinstance(val, bytes):
                 try:
@@ -191,8 +216,8 @@ def main(argv):
             try:
                 key, val = val.split('=')
             except ValueError:
-                print >>sys.stderr, ('Error: -A option argument must be '
-                                     'in the form name=value.')
+                print('Error: -A option argument must be in the form name=value.',
+                      file=sys.stderr)
                 return 1
             try:
                 val = int(val)
@@ -229,8 +254,8 @@ def main(argv):
             try:
                 parallel = int(val)
             except ValueError:
-                print >>sys.stderr, ('Error: -j option argument must be an '
-                                     'integer.')
+                print('Error: -j option argument must be an integer.',
+                      file=sys.stderr)
                 return 1
 
     if warning and warnfile:
@@ -240,7 +265,7 @@ def main(argv):
 
     if not path.isdir(outdir):
         if status:
-            print >>status, 'Making output directory...'
+            print('Making output directory...', file=status)
         os.makedirs(outdir)
 
     app = None
@@ -250,24 +275,25 @@ def main(argv):
                      warningiserror, tags, verbosity, parallel)
         app.build(force_all, filenames)
         return app.statuscode
-    except (Exception, KeyboardInterrupt), err:
+    except (Exception, KeyboardInterrupt) as err:
         if use_pdb:
             import pdb
-            print >>error, red('Exception occurred while building, '
-                               'starting debugger:')
+            print(red('Exception occurred while building, starting debugger:'),
+                  file=error)
             traceback.print_exc()
             pdb.post_mortem(sys.exc_info()[2])
         else:
-            print >>error
+            print(file=error)
             if show_traceback:
                 traceback.print_exc(None, error)
-                print >>error
+                print(file=error)
             if isinstance(err, KeyboardInterrupt):
-                print >>error, 'interrupted!'
+                print('interrupted!', file=error)
             elif isinstance(err, SystemMessage):
-                print >>error, red('reST markup error:')
-                print >>error, terminal_safe(err.args[0])
+                print(red('reST markup error:'), file=error)
+                print(terminal_safe(err.args[0]), file=error)
             elif isinstance(err, SphinxError):
+<<<<<<< local
                 print >>error, red('%s:' % err.category)
                 print >>error, terminal_safe(unicode(err))
             elif isinstance(err, UnicodeError):
@@ -277,19 +303,23 @@ def main(argv):
                 print >>error, red('The full traceback has been saved '
                                    'in %s, if you want to report the '
                                    'issue to the developers.' % tbpath)
+=======
+                print(red('%s:' % err.category), file=error)
+                print(terminal_safe(unicode(err)), file=error)
+>>>>>>> other
             else:
-                print >>error, red('Exception occurred:')
-                print >>error, format_exception_cut_frames().rstrip()
+                print(red('Exception occurred:'), file=error)
+                print(format_exception_cut_frames().rstrip(), file=error)
                 tbpath = save_traceback(app)
-                print >>error, red('The full traceback has been saved '
-                                   'in %s, if you want to report the '
-                                   'issue to the developers.' % tbpath)
-                print >>error, ('Please also report this if it was a user '
-                                'error, so that a better error message '
-                                'can be provided next time.')
-                print >>error, (
-                    'Either send bugs to the mailing list at '
-                    '<http://groups.google.com/group/sphinx-users/>,\n'
-                    'or report them in the tracker at '
-                    '<http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!')
+                print(red('The full traceback has been saved in %s, if you '
+                          'want to report the issue to the developers.' % tbpath),
+                      file=error)
+                print('Please also report this if it was a user error, so '
+                      'that a better error message can be provided next time.',
+                      file=error)
+                print('Either send bugs to the mailing list at '
+                      '<http://groups.google.com/group/sphinx-users/>,\n'
+                      'or report them in the tracker at '
+                      '<http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!',
+                      file=error)
             return 1

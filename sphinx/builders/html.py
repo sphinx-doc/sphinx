@@ -531,7 +531,7 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
-                except Exception, err:
+                except Exception as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
 
@@ -546,7 +546,7 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
-                except Exception, err:
+                except Exception as err:
                     self.warn('cannot copy downloadable file %r: %s' %
                               (path.join(self.srcdir, src), err))
 
@@ -773,7 +773,7 @@ class StandaloneHTMLBuilder(Builder):
                 f.write(output)
             finally:
                 f.close()
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (outfilename, err))
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link

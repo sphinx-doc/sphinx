@@ -9,6 +9,7 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import re
@@ -58,8 +59,8 @@ def setup_module():
             else:
                 stdout, stderr = p.communicate()
                 if p.returncode != 0:
-                    print stdout
-                    print stderr
+                    print(stdout)
+                    print(stderr)
                     assert False, \
                         'msgfmt exited with return code %s' % p.returncode
                 assert mo.isfile(), 'msgfmt failed'
@@ -84,7 +85,7 @@ def elem_gettexts(elem):
                 yield s
             if e.tail:
                 yield e.tail
-    return filter(None, [s.strip() for s in itertext(elem)])
+    return [_f for _f in [s.strip() for s in itertext(elem)] if _f]
 
 
 def elem_getref(elem):

@@ -1065,7 +1065,7 @@ class CPPObject(ObjectDescription):
         try:
             rv = self.parse_definition(parser)
             parser.assert_end()
-        except DefinitionError, e:
+        except DefinitionError as e:
             self.state_machine.reporter.warning(e.description, line=self.lineno)
             raise ValueError
         self.describe_signature(signode, rv)
@@ -1219,7 +1219,7 @@ class CPPCurrentNamespace(Directive):
             try:
                 prefix = parser.parse_type()
                 parser.assert_end()
-            except DefinitionError, e:
+            except DefinitionError as e:
                 self.state_machine.reporter.warning(e.description,
                                                     line=self.lineno)
             else:
