@@ -159,8 +159,8 @@ The :program:`sphinx-build` script has several options:
 
 .. option:: -v
 
-   Increase verbosity.  This option can be given up to three times to get more
-   debug output.  It implies :option:`-T`.
+   Increase verbosity (loglevel).  This option can be given up to three times
+   to get more debug logging output.  It implies :option:`-T`.
 
    .. versionadded:: 1.2
 

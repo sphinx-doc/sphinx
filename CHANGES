@@ -121,6 +121,9 @@ Bugs fixed
 * #1323: Fix emitting empty ``<ul>`` tags in the HTML writer, which is not
   valid HTML.
 * #1147: Don't emit a sidebar search box in the "singlehtml" builder.
+* PR#211: When checking for existence of the :confval:`html_logo` file, check
+  the full relative path and not the basename.
+* PR#212: Fix traceback with autodoc and ``__init__`` methods without docstring.
 
 Documentation
 -------------

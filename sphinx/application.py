@@ -234,6 +234,17 @@ class Sphinx(object):
             wfile.flush()
 
     def warn(self, message, location=None, prefix='WARNING: '):
+        """Emit a warning.
+
+        If *location* is given, it should either be a tuple of (docname, lineno)
+        or a string describing the location of the warning as well as possible.
+
+        *prefix* usually should not be changed.
+
+        .. note:: For warnings emitted during parsing, you should use
+                  :meth:`.BuildEnvironment.warn` since that will collect all
+                  warnings during parsing for later output.
+        """
         if isinstance(location, tuple):
             docname, lineno = location
             if docname:
@@ -248,9 +259,22 @@ class Sphinx(object):
         self._log(warntext, self._warning, True)
 
     def info(self, message='', nonl=False):
+        """Emit an informational message.
+
+        If *nonl* is true, don't emit a newline at the end (which implies that
+        more info output will follow soon.)
+        """
         self._log(message, self._status, nonl)
 
     def verbose(self, message, *args, **kwargs):
+        """Emit a verbose informational message.
+
+        The message will only be emitted for verbosity levels >= 1 (i.e. at
+        least one ``-v`` option was given).
+
+        The message can contain %-style interpolation placeholders, which is
+        formatted with either the ``*args`` or ``**kwargs`` when output.
+        """
         if self.verbosity < 1:
             return
         if args or kwargs:
@@ -258,6 +282,14 @@ class Sphinx(object):
         self._log(message, self._status)
 
     def debug(self, message, *args, **kwargs):
+        """Emit a debug-level informational message.
+
+        The message will only be emitted for verbosity levels >= 2 (i.e. at
+        least two ``-v`` options were given).
+
+        The message can contain %-style interpolation placeholders, which is
+        formatted with either the ``*args`` or ``**kwargs`` when output.
+        """
         if self.verbosity < 2:
             return
         if args or kwargs:
@@ -265,6 +297,14 @@ class Sphinx(object):
         self._log(darkgray(message), self._status)
 
     def debug2(self, message, *args, **kwargs):
+        """Emit a lowlevel debug-level informational message.
+
+        The message will only be emitted for verbosity level 3 (i.e. three
+        ``-v`` options were given).
+
+        The message can contain %-style interpolation placeholders, which is
+        formatted with either the ``*args`` or ``**kwargs`` when output.
+        """
         if self.verbosity < 3:
             return
         if args or kwargs:
