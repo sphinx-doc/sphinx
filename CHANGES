@@ -18,6 +18,9 @@ Incompatible changes
 New features
 ------------
 
+* Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
+  support.
+
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 
@@ -35,9 +38,6 @@ New features
   output.
 
 * Prompt for the document language in sphinx-quickstart.
-
-* Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
-  support.
 
 Bugs fixed
 ----------
