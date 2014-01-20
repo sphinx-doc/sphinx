@@ -80,7 +80,7 @@ These are the basic steps needed to start developing on Sphinx.
    For new features or other substantial changes that should wait until the
    next major release, use the ``default`` branch.
 
-#. Setup your Python environment. ::
+#. Optional: setup a virtual environment. ::
 
        virtualenv ~/sphinxenv
        . ~/sphinxenv/bin/activate
@@ -90,32 +90,33 @@ These are the basic steps needed to start developing on Sphinx.
 
    For tips on working with the code, see the `Coding Guide`_.
 
-#. Test, test, test.
+#. Test, test, test.  Possible steps:
 
-   Run the unit tests::
+   * Run the unit tests::
 
-       pip install nose
+       pip install nose mock
        make test
 
-   Build the documentation and check the output for different builders::
+   * Build the documentation and check the output for different builders::
 
-       cd docs
-       make clean html text man info latexpdf
+       cd doc
+       make clean html latexpdf
 
-   Run the unit tests under different Python environments using
-   :program:`tox`::
+   * Run the unit tests under different Python environments using
+     :program:`tox`::
 
        pip install tox
        tox -v
 
-   Add a new unit test in the ``tests`` directory if you can.
+   * Add a new unit test in the ``tests`` directory if you can.
 
-   For bug fixes, first add a test that fails without your changes and passes
-   after they are applied.
+   * For bug fixes, first add a test that fails without your changes and passes
+     after they are applied.
 
-#. Commit your changes. ::
+#. Please add a bullet point to :file:`CHANGES` if the fix or feature is not trivial
+   (small doc updates, typo fixes).  Then commit::
 
-       hg commit -m 'Add useful new feature that does this.'
+       hg commit -m '#42: Add useful new feature that does this.'
 
    BitBucket recognizes `certain phrases`__ that can be used to automatically
    update the issue tracker.
@@ -214,7 +215,7 @@ Coding Guide
   generated output.
 
 * When adding a new configuration variable, be sure to document it and update
-  :file:`sphinx/quickstart.py`.
+  :file:`sphinx/quickstart.py` if it's important enough.
 
 * Use the included :program:`utils/check_sources.py` script to check for
   common formatting issues (trailing whitespace, lengthy lines, etc).
