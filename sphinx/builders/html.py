@@ -597,8 +597,8 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
-            if not path.isfile(logobase):
-                self.warn('logo file %r does not exist' % logobase)
+            if not path.isfile(path.realpath(self.config.html_logo)):
+                self.warn('logo file %r does not exist' % self.config.html_logo)
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
                          logotarget)
