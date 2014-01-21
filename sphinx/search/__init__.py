@@ -16,7 +16,6 @@ from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
 
-
 class SearchLanguage(object):
     """
     This class is the base class for search natural language preprocessors.  If
@@ -40,6 +39,7 @@ class SearchLanguage(object):
        type, before searching index. Default implementation does nothing.
     """
     lang = None
+    language_name = None
     stopwords = set()
     js_stemmer_code = """
 /**
@@ -94,11 +94,26 @@ var Stemmer = function() {
                                      word.isdigit())))
 
 
-from sphinx.search import en, ja
+from sphinx.search import (
+    da, de, en, es, fi, fr, hu, it, ja, nl, no, pt, ro, ru, sv, tr)
 
 languages = {
+    'da': da.SearchDanish,
+    'de': de.SearchGerman,
     'en': en.SearchEnglish,
+    'es': es.SearchSpanish,
+    'fi': fi.SearchFinnish,
+    'fr': fr.SearchFrench,
+    'hu': hu.SearchHungarian,
+    'it': it.SearchItalian,
     'ja': ja.SearchJapanese,
+    'nl': nl.SearchDutch,
+    'no': no.SearchNorwegian,
+    'pt': pt.SearchPortuguese,
+    'ro': ro.SearchRomanian,
+    'ru': ru.SearchRussian,
+    'sv': sv.SearchSwedish,
+    'tr': tr.SearchTurkish
 }
 
 
@@ -185,7 +200,7 @@ class IndexBuilder(object):
         # objtype index -> (domain, type, objname (localized))
         self._objnames = {}
         # add language-specific SearchLanguage instance
-        self.lang = languages[lang](options)
+        self.lang = languages.get(lang, en.SearchEnglish)(options)
 
         if scoring:
             with open(scoring, 'rb') as fp:
@@ -285,6 +300,9 @@ class IndexBuilder(object):
         return dict(filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
                     titleterms=title_terms, envversion=self.env.version)
+
+    def label(self):
+        return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
 
     def prune(self, filenames):
         """Remove data for all filenames not in the list."""

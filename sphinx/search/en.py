@@ -226,6 +226,7 @@ iti|ous|ive|ize)$/;
 
 class SearchEnglish(SearchLanguage):
     lang = 'en'
+    language_name = 'English'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
