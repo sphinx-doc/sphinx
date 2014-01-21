@@ -225,10 +225,10 @@ The Directive Classes
 ---------------------
 
 A directive class is a class deriving usually from
-``docutils.parsers.rst.Directive``.  The directive interface is covered in
-detail in the `docutils documentation`_; the important thing is that the class
-has attributes that configure the allowed markup and a method ``run`` that
-returns a list of nodes.
+:class:`docutils.parsers.rst.Directive`.  The directive interface is also
+covered in detail in the `docutils documentation`_; the important thing is that
+the class has attributes that configure the allowed markup and a method ``run``
+that returns a list of nodes.
 
 The ``todolist`` directive is quite simple::
 
