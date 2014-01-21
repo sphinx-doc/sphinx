@@ -242,9 +242,11 @@ class Sphinx(object):
 
         *prefix* usually should not be changed.
 
-        .. note:: For warnings emitted during parsing, you should use
-                  :meth:`.BuildEnvironment.warn` since that will collect all
-                  warnings during parsing for later output.
+        .. note::
+
+           For warnings emitted during parsing, you should use
+           :meth:`.BuildEnvironment.warn` since that will collect all
+           warnings during parsing for later output.
         """
         if isinstance(location, tuple):
             docname, lineno = location
