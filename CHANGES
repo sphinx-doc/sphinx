@@ -9,6 +9,11 @@ Bugs fixed
 * PR#212: Fix traceback with autodoc and ``__init__`` methods without docstring.
 * PR#213: Fix a missing import in the setup command.
 
+Documentation
+-------------
+
+* Extended the :ref:`documentation about building extensions <dev-extensions>`.
+
 
 Release 1.2.1 (released Jan 19, 2014)
 =====================================
