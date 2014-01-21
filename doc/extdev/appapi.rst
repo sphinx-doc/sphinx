@@ -356,6 +356,12 @@ Producing messages / logging
 
 The application object also provides support for emitting leveled messages.
 
+.. note::
+
+   There is no "error" call: in Sphinx, errors are defined as things that stop
+   the build; for that just raise an exception (:exc:`sphinx.errors.SphinxError`
+   or a custom subclass) to do that.
+
 .. automethod:: Sphinx.warn
 
 .. automethod:: Sphinx.info
@@ -532,3 +538,47 @@ The template bridge
 
 .. autoclass:: TemplateBridge
    :members:
+
+
+.. _exceptions:
+
+Exceptions
+----------
+
+.. module:: sphinx.errors
+
+.. class:: SphinxError
+
+   This is the base class for "nice" exceptions.  When such an exception is
+   raised, Sphinx will abort the build and present the exception category and
+   message to the user.
+
+   Extensions are encouraged to derive from this exception for their custom
+   errors.
+
+   Exceptions *not* derived from :exc:`SphinxError` are treated as unexpected
+   and shown to the user with a part of the traceback (and the full traceback
+   saved in a temporary file).
+
+   .. attribute:: category
+
+      Description of the exception "category", used in converting the exception
+      to a string ("category: message").  Should be set accordingly in
+      subclasses.
+
+.. class:: ConfigError
+
+   Used for erroneous values or nonsensical combinations of configuration
+   values.
+
+.. class:: ExtensionError
+
+   Used for errors in setting up extensions.
+
+.. class:: ThemeError
+
+   Used for errors to do with themes.
+
+.. class:: VersionRequirementError
+
+   Raised when the docs require a higher Sphinx version than the current one.
