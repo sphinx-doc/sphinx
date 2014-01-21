@@ -6,8 +6,8 @@ Bugs fixed
 
 * PR#211: When checking for existence of the :confval:`html_logo` file, check
   the full relative path and not the basename.
-
 * PR#212: Fix traceback with autodoc and ``__init__`` methods without docstring.
+* PR#213: Fix a missing import in the setup command.
 
 
 Release 1.2.1 (released Jan 19, 2014)
