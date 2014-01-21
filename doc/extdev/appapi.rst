@@ -359,8 +359,8 @@ The application object also provides support for emitting leveled messages.
 .. note::
 
    There is no "error" call: in Sphinx, errors are defined as things that stop
-   the build; for that just raise an exception (:exc:`sphinx.errors.SphinxError`
-   or a custom subclass) to do that.
+   the build; just raise an exception (:exc:`sphinx.errors.SphinxError` or a
+   custom subclass) to do that.
 
 .. automethod:: Sphinx.warn
 
