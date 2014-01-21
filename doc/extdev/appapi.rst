@@ -547,7 +547,7 @@ Exceptions
 
 .. module:: sphinx.errors
 
-.. class:: SphinxError
+.. exception:: SphinxError
 
    This is the base class for "nice" exceptions.  When such an exception is
    raised, Sphinx will abort the build and present the exception category and
@@ -566,19 +566,19 @@ Exceptions
       to a string ("category: message").  Should be set accordingly in
       subclasses.
 
-.. class:: ConfigError
+.. exception:: ConfigError
 
    Used for erroneous values or nonsensical combinations of configuration
    values.
 
-.. class:: ExtensionError
+.. exception:: ExtensionError
 
    Used for errors in setting up extensions.
 
-.. class:: ThemeError
+.. exception:: ThemeError
 
    Used for errors to do with themes.
 
-.. class:: VersionRequirementError
+.. exception:: VersionRequirementError
 
    Raised when the docs require a higher Sphinx version than the current one.
