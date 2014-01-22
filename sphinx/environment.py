@@ -618,16 +618,8 @@ class BuildEnvironment:
         pub.process_programmatic_settings(None, self.settings, None)
         pub.set_source(None, src_path.encode(fs_encoding))
         pub.set_destination(None, None)
-<<<<<<< local
         pub.publish()
         doctree = pub.document
-=======
-        try:
-            pub.publish()
-            doctree = pub.document
-        except UnicodeError as err:
-            raise SphinxError(str(err))
->>>>>>> other
 
         # post-processing
         self.filter_messages(doctree)

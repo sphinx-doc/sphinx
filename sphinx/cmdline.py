@@ -88,7 +88,6 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
                                    ['help', 'version'])
-<<<<<<< local
     except getopt.error, err:
         usage(argv, 'Error: %s' % err)
         return 1
@@ -98,8 +97,9 @@ def main(argv):
     # help and version options
     if '-h' in allopts or '--help' in allopts:
         usage(argv)
-        print >>sys.stderr
-        print >>sys.stderr, 'For more information, see <http://sphinx-doc.org/>.'
+        print(file=sys.stderr)
+        print('For more information, see <http://sphinx-doc.org/>.',
+              file=sys.stderr)
         return 0
     if '--version' in allopts:
         print 'Sphinx (sphinx-build) %s' %  __version__
@@ -107,18 +107,6 @@ def main(argv):
 
     # get paths (first and second positional argument)
     try:
-=======
-        allopts = set(opt[0] for opt in opts)
-        if '-h' in allopts or '--help' in allopts:
-            usage(argv)
-            print(file=sys.stderr)
-            print('For more information, see <http://sphinx-doc.org/>.',
-                  file=sys.stderr)
-            return 0
-        if '--version' in allopts:
-            print('Sphinx (sphinx-build) %s' %  __version__)
-            return 0
->>>>>>> other
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
             print('Error: Cannot find source directory `%s\'.' % srcdir,
@@ -126,21 +114,10 @@ def main(argv):
             return 1
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
                '-c' not in allopts and '-C' not in allopts:
-<<<<<<< local
-            print >>sys.stderr, ('Error: Source directory doesn\'t '
-                                 'contain a conf.py file.')
-=======
-            print('Error: Source directory doesn\'t contain conf.py file.',
+            print('Error: Source directory doesn\'t contain a conf.py file.',
                   file=sys.stderr)
->>>>>>> other
             return 1
         outdir = abspath(args[1])
-<<<<<<< local
-=======
-    except getopt.error as err:
-        usage(argv, 'Error: %s' % err)
-        return 1
->>>>>>> other
     except IndexError:
         usage(argv, 'Error: Insufficient arguments.')
         return 1
@@ -293,20 +270,15 @@ def main(argv):
                 print(red('reST markup error:'), file=error)
                 print(terminal_safe(err.args[0]), file=error)
             elif isinstance(err, SphinxError):
-<<<<<<< local
-                print >>error, red('%s:' % err.category)
-                print >>error, terminal_safe(unicode(err))
-            elif isinstance(err, UnicodeError):
-                print >>error, red('Encoding error:')
-                print >>error, terminal_safe(unicode(err))
-                tbpath = save_traceback(app)
-                print >>error, red('The full traceback has been saved '
-                                   'in %s, if you want to report the '
-                                   'issue to the developers.' % tbpath)
-=======
                 print(red('%s:' % err.category), file=error)
                 print(terminal_safe(unicode(err)), file=error)
->>>>>>> other
+            elif isinstance(err, UnicodeError):
+                print(red('Encoding error:'), file=error)
+                print(terminal_safe(unicode(err)), file=error)
+                tbpath = save_traceback(app)
+                print(red('The full traceback has been saved in %s, if you want '
+                          'to report the issue to the developers.' % tbpath),
+                      file=error)
             else:
                 print(red('Exception occurred:'), file=error)
                 print(format_exception_cut_frames().rstrip(), file=error)
