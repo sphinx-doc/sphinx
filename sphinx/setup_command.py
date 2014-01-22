@@ -18,6 +18,7 @@ import os
 import types
 from StringIO import StringIO
 from distutils.cmd import Command
+from distutils.errors import DistutilsOptionError
 
 from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor, color_terminal

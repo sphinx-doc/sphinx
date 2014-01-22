@@ -289,9 +289,7 @@ def main(argv):
                 print('Please also report this if it was a user error, so '
                       'that a better error message can be provided next time.',
                       file=error)
-                print('Either send bugs to the mailing list at '
-                      '<http://groups.google.com/group/sphinx-users/>,\n'
-                      'or report them in the tracker at '
-                      '<http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!',
+                print('A bug report can be filed in the tracker at '
+                      '<https://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!',
                       file=error)
             return 1
