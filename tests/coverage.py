@@ -52,7 +52,8 @@ coverage.py -a [-d dir] [-o dir1,dir2,...] FILE1 FILE2 ...
   e.g. python coverage.py -i -r -o c:\python23,lib\enthought\traits
 
 Coverage data is saved in the file .coverage by default.  Set the
-COVERAGE_FILE environment variable to save it somewhere else."""
+COVERAGE_FILE environment variable to save it somewhere else.
+"""
 from __future__ import print_function
 
 __version__ = "2.85.20080914"    # see detailed history at the end of this file.

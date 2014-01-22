@@ -23,7 +23,8 @@ Older entry points
     tokenize(readline, tokeneater=printtoken)
 are the same, except instead of generating tokens, tokeneater is a callback
 function to which the 5 fields described above are passed as 5 arguments,
-each time a new token is found."""
+each time a new token is found.
+"""
 
 from __future__ import print_function
 

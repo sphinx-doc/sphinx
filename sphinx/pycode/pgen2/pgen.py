@@ -1,8 +1,10 @@
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-# Pgen imports
 from __future__ import print_function
+
+# Pgen imports
+
 from sphinx.pycode.pgen2 import grammar, token, tokenize
 
 class PgenGrammar(grammar.Grammar):
