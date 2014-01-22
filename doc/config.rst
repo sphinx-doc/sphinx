@@ -730,10 +730,26 @@ that use Sphinx' HTMLWriter class.
 
    Support is present for these languages:
 
+   * ``da`` -- Danish
+   * ``nl`` -- Dutch
    * ``en`` -- English
+   * ``fi`` -- Finnish
+   * ``fr`` -- French
+   * ``de`` -- German
+   * ``hu`` -- Hungarian
+   * ``it`` -- Italian
    * ``ja`` -- Japanese
+   * ``no`` -- Norwegian
+   * ``pr`` -- Portuguese
+   * ``ro`` -- Romanian
+   * ``ru`` -- Russian
+   * ``es`` -- Spanish
+   * ``sv`` -- Swedish
+   * ``tr`` -- Turkish
 
    .. versionadded:: 1.1
+
+   .. versionchanged:: 1.3
 
 .. confval:: html_search_options
 
