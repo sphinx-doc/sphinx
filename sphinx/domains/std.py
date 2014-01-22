@@ -27,7 +27,7 @@ from sphinx.util.compat import Directive
 
 
 # RE for option descriptions
-option_desc_re = re.compile(r'((?:/|-|--)[-_a-zA-Z0-9]+)(\s*.*)')
+option_desc_re = re.compile(r'((?:/|-|--)?[-_a-zA-Z0-9]+)(\s*.*)')
 
 
 class GenericObject(ObjectDescription):
@@ -143,7 +143,7 @@ class Cmdoption(ObjectDescription):
                 self.env.warn(
                     self.env.docname,
                     'Malformed option description %r, should '
-                    'look like "-opt args", "--opt args" or '
+                    'look like "opt", "-opt args", "--opt args" or '
                     '"/opt args"' % potential_option, self.lineno)
                 continue
             optname, args = m.groups()
@@ -153,25 +153,33 @@ class Cmdoption(ObjectDescription):
             signode += addnodes.desc_addname(args, args)
             if not count:
                 firstname = optname
+                signode['allnames'] = [optname]
+            else:
+                signode['allnames'].append(optname)
             count += 1
         if not firstname:
             raise ValueError
         return firstname
 
-    def add_target_and_index(self, name, sig, signode):
-        targetname = name.replace('/', '-')
+    def add_target_and_index(self, firstname, sig, signode):
         currprogram = self.env.temp_data.get('std:program')
-        if currprogram:
-            targetname = '-' + currprogram + targetname
-        targetname = 'cmdoption' + targetname
-        signode['ids'].append(targetname)
-        self.state.document.note_explicit_target(signode)
-        self.indexnode['entries'].append(
-            ('pair', _('%scommand line option; %s') %
-             ((currprogram and currprogram + ' ' or ''), sig),
-             targetname, ''))
-        self.env.domaindata['std']['progoptions'][currprogram, name] = \
-            self.env.docname, targetname
+        for optname in signode.get('allnames', []):
+            targetname = optname.replace('/', '-')
+            if not targetname.startswith('-'):
+                targetname = '-arg-' + targetname
+            if currprogram:
+                targetname = '-' + currprogram + targetname
+            targetname = 'cmdoption' + targetname
+            signode['ids'].append(targetname)
+            self.state.document.note_explicit_target(signode)
+            self.env.domaindata['std']['progoptions'][currprogram, optname] = \
+                self.env.docname, targetname
+            # create only one index entry for the whole option
+            if optname == firstname:
+                self.indexnode['entries'].append(
+                    ('pair', _('%scommand line option; %s') %
+                     ((currprogram and currprogram + ' ' or ''), sig),
+                     targetname, ''))
 
 
 class Program(Directive):

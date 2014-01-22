@@ -632,16 +632,20 @@ There is a set of directives allowing documenting command-line programs:
 
 .. rst:directive:: .. option:: name args, name args, ...
 
-   Describes a command line option or switch.  Option argument names should be
-   enclosed in angle brackets.  Example::
+   Describes a command line argument or switch.  Option argument names should be
+   enclosed in angle brackets.  Examples::
+
+      .. option:: dest_dir
+
+         Destination directory.
 
       .. option:: -m <module>, --module <module>
 
          Run a module as a script.
 
-   The directive will create a cross-reference target named after the *first*
-   option, referencable by :rst:role:`option` (in the example case, you'd use
-   something like ``:option:`-m```).
+   The directive will create cross-reference targets for the given options,
+   referencable by :rst:role:`option` (in the example case, you'd use something
+   like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
 .. rst:directive:: .. envvar:: name
 
