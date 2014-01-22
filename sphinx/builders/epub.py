@@ -218,7 +218,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
-        if isinstance(doctree, nodes.reference) and doctree.has_key('refuri'):
+        if isinstance(doctree, nodes.reference) and 'refuri' in doctree:
             refuri = doctree['refuri']
             if refuri.startswith('http://') or refuri.startswith('https://') \
                 or refuri.startswith('irc:') or refuri.startswith('mailto:'):
@@ -417,7 +417,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
-                except (IOError, OSError), err:
+                except (IOError, OSError) as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
                 continue
@@ -433,7 +433,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
                 img.save(path.join(self.outdir, '_images', dest))
-            except (IOError, OSError), err:
+            except (IOError, OSError) as err:
                 self.warn('cannot write image file %r: %s' %
                           (path.join(self.srcdir, src), err))
 
@@ -489,7 +489,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         fn = path.join(outdir, outname)
         try:
             os.mkdir(path.dirname(fn))
-        except OSError, err:
+        except OSError as err:
             if err.errno != EEXIST:
                 raise
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')

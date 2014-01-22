@@ -443,7 +443,7 @@ class Documenter(object):
             # try to introspect the signature
             try:
                 args = self.format_args()
-            except Exception, err:
+            except Exception as err:
                 self.directive.warn('error while formatting arguments for '
                                     '%s: %s' % (self.fullname, err))
                 args = None
@@ -763,7 +763,7 @@ class Documenter(object):
             # parse right now, to get PycodeErrors on parsing (results will
             # be cached anyway)
             self.analyzer.find_attr_docs()
-        except PycodeError, err:
+        except PycodeError as err:
             self.env.app.debug('[autodoc] module analyzer failed: %s', err)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
@@ -1230,7 +1230,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
             ret = ClassLevelDocumenter.import_object(self)
             if isinstance(self.object, classmethod) or \
                    (isinstance(self.object, MethodType) and
-                    self.object.im_self is not None):
+                    self.object.__self__ is not None):
                 self.directivetype = 'classmethod'
                 # document class and static members before ordinary ones
                 self.member_order = self.member_order - 1
@@ -1422,7 +1422,7 @@ class AutoDirective(Directive):
         try:
             self.genopt = Options(assemble_option_dict(
                 self.options.items(), doc_class.option_spec))
-        except (KeyError, ValueError, TypeError), err:
+        except (KeyError, ValueError, TypeError) as err:
             # an option is either unknown or has a wrong type
             msg = self.reporter.error('An option to %s is either unknown or '
                                       'has an invalid value: %s' % (self.name, err),

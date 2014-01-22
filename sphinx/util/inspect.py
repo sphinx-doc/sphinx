@@ -60,7 +60,7 @@ else:  # 2.6, 2.7
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
         if inspect.ismethod(func):
-            func = func.im_func
+            func = func.__func__
         parts = 0, ()
         if type(func) is partial:
             keywords = func.keywords
@@ -70,8 +70,8 @@ else:  # 2.6, 2.7
             func = func.func
         if not inspect.isfunction(func):
             raise TypeError('%r is not a Python function' % func)
-        args, varargs, varkw = inspect.getargs(func.func_code)
-        func_defaults = func.func_defaults
+        args, varargs, varkw = inspect.getargs(func.__code__)
+        func_defaults = func.__defaults__
         if func_defaults is None:
             func_defaults = []
         else:

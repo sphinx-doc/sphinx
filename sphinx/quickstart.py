@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import sys, os, time, re
 from os import path
@@ -965,9 +966,9 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
                 if TERM_ENCODING:
                     prompt = prompt.encode(TERM_ENCODING)
                 else:
-                    print turquoise('* Note: non-ASCII default value provided '
+                    print(turquoise('* Note: non-ASCII default value provided '
                                     'and terminal encoding unknown -- assuming '
-                                    'UTF-8 or Latin-1.')
+                                    'UTF-8 or Latin-1.'))
                     try:
                         prompt = prompt.encode('utf-8')
                     except UnicodeEncodeError:
@@ -982,17 +983,17 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
                 if TERM_ENCODING:
                     x = x.decode(TERM_ENCODING)
                 else:
-                    print turquoise('* Note: non-ASCII characters entered '
+                    print(turquoise('* Note: non-ASCII characters entered '
                                     'and terminal encoding unknown -- assuming '
-                                    'UTF-8 or Latin-1.')
+                                    'UTF-8 or Latin-1.'))
                     try:
                         x = x.decode('utf-8')
                     except UnicodeDecodeError:
                         x = x.decode('latin1')
         try:
             x = validator(x)
-        except ValidationError, err:
-            print red('* ' + str(err))
+        except ValidationError as err:
+            print(red('* ' + str(err)))
             continue
         break
     d[key] = x
@@ -1030,110 +1031,110 @@ def ask_user(d):
     * batchfile: make command file
     """
 
-    print bold('Welcome to the Sphinx %s quickstart utility.') % __version__
-    print '''
+    print(bold('Welcome to the Sphinx %s quickstart utility.') % __version__)
+    print('''
 Please enter values for the following settings (just press Enter to
-accept a default value, if one is given in brackets).'''
+accept a default value, if one is given in brackets).''')
 
     if 'path' in d:
-        print bold('''
-Selected root path: %s''' % d['path'])
+        print(bold('''
+Selected root path: %s''' % d['path']))
     else:
-        print '''
-Enter the root path for documentation.'''
+        print('''
+Enter the root path for documentation.''')
         do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
           path.isfile(path.join(d['path'], 'source', 'conf.py')):
-        print
-        print bold('Error: an existing conf.py has been found in the '
-                   'selected root path.')
-        print 'sphinx-quickstart will not overwrite existing Sphinx projects.'
-        print
+        print()
+        print(bold('Error: an existing conf.py has been found in the '
+                   'selected root path.'))
+        print('sphinx-quickstart will not overwrite existing Sphinx projects.')
+        print()
         do_prompt(d, 'path', 'Please enter a new root path (or just Enter '
                   'to exit)', '', is_path)
         if not d['path']:
             sys.exit(1)
 
     if 'sep' not in d:
-        print '''
+        print('''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
-"source" and "build" directories within the root path.'''
+"source" and "build" directories within the root path.''')
         do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
                   boolean)
 
     if 'dot' not in d:
-        print '''
+        print('''
 Inside the root directory, two more directories will be created; "_templates"
 for custom HTML templates and "_static" for custom stylesheets and other static
-files. You can enter another prefix (such as ".") to replace the underscore.'''
+files. You can enter another prefix (such as ".") to replace the underscore.''')
         do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
 
     if 'project' not in d:
-        print '''
-The project name will occur in several places in the built documentation.'''
+        print('''
+The project name will occur in several places in the built documentation.''')
         do_prompt(d, 'project', 'Project name')
     if 'author' not in d:
         do_prompt(d, 'author', 'Author name(s)')
 
     if 'version' not in d:
-        print '''
+        print('''
 Sphinx has the notion of a "version" and a "release" for the
 software. Each version can have multiple releases. For example, for
 Python the version is something like 2.5 or 3.0, while the release is
 something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
-just set both to the same value.'''
+just set both to the same value.''')
         do_prompt(d, 'version', 'Project version')
     if 'release' not in d:
         do_prompt(d, 'release', 'Project release', d['version'])
 
     if 'language' not in d:
-        print '''
+        print('''
 If the documents are to be written in a language other than English,
 you can select a language here by its language code. Sphinx will then
 translate text that it generates into that language.
 
 For a list of supported codes, see
-http://sphinx-doc.org/config.html#confval-language.'''
+http://sphinx-doc.org/config.html#confval-language.''')
         do_prompt(d, 'language', 'Project language', 'en')
         if d['language'] == 'en':
             d['language'] = None
 
     if 'suffix' not in d:
-        print '''
+        print('''
 The file name suffix for source files. Commonly, this is either ".txt"
-or ".rst".  Only files with this suffix are considered documents.'''
+or ".rst".  Only files with this suffix are considered documents.''')
         do_prompt(d, 'suffix', 'Source file suffix', '.rst', suffix)
 
     if 'master' not in d:
-        print '''
+        print('''
 One document is special in that it is considered the top node of the
 "contents tree", that is, it is the root of the hierarchical structure
 of the documents. Normally, this is "index", but if your "index"
-document is a custom template, you can also set this to another filename.'''
+document is a custom template, you can also set this to another filename.''')
         do_prompt(d, 'master', 'Name of your master document (without suffix)',
                   'index')
 
     while path.isfile(path.join(d['path'], d['master']+d['suffix'])) or \
           path.isfile(path.join(d['path'], 'source', d['master']+d['suffix'])):
-        print
-        print bold('Error: the master file %s has already been found in the '
-                   'selected root path.' % (d['master']+d['suffix']))
-        print 'sphinx-quickstart will not overwrite the existing file.'
-        print
+        print()
+        print(bold('Error: the master file %s has already been found in the '
+                   'selected root path.' % (d['master']+d['suffix'])))
+        print('sphinx-quickstart will not overwrite the existing file.')
+        print()
         do_prompt(d, 'master', 'Please enter a new file name, or rename the '
                   'existing file and press Enter', d['master'])
 
     if 'epub' not in d:
-        print '''
-Sphinx can also add configuration for epub output:'''
+        print('''
+Sphinx can also add configuration for epub output:''')
         do_prompt(d, 'epub', 'Do you want to use the epub builder (y/n)',
                   'n', boolean)
 
     if 'ext_autodoc' not in d:
-        print '''
-Please indicate if you want to use one of the following Sphinx extensions:'''
+        print('''
+Please indicate if you want to use one of the following Sphinx extensions:''')
         do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
                   'from modules (y/n)', 'n', boolean)
     if 'ext_doctest' not in d:
@@ -1155,8 +1156,8 @@ Please indicate if you want to use one of the following Sphinx extensions:'''
         do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
                   'browser by MathJax (y/n)', 'n', boolean)
     if d['ext_pngmath'] and d['ext_mathjax']:
-        print '''Note: pngmath and mathjax cannot be enabled at the same time.
-pngmath has been deselected.'''
+        print('''Note: pngmath and mathjax cannot be enabled at the same time.
+pngmath has been deselected.''')
     if 'ext_ifconfig' not in d:
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
                   'content based on config values (y/n)', 'n', boolean)
@@ -1165,15 +1166,15 @@ pngmath has been deselected.'''
                   'code of documented Python objects (y/n)', 'n', boolean)
 
     if 'makefile' not in d:
-        print '''
+        print('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
-directly.'''
+directly.''')
         do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
     if 'batchfile' not in d:
         do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
-    print
+    print()
 
 
 def generate(d, overwrite=True, silent=False):
@@ -1232,14 +1233,14 @@ def generate(d, overwrite=True, silent=False):
 
     def write_file(fpath, content, newline=None):
         if overwrite or not path.isfile(fpath):
-            print 'Creating file %s.' % fpath
+            print('Creating file %s.' % fpath)
             f = open(fpath, 'wt', encoding='utf-8', newline=newline)
             try:
                 f.write(content)
             finally:
                 f.close()
         else:
-            print 'File %s already exists, skipping.' % fpath
+            print('File %s already exists, skipping.' % fpath)
 
     conf_text = QUICKSTART_CONF % d
     if d['epub']:
@@ -1265,9 +1266,9 @@ def generate(d, overwrite=True, silent=False):
 
     if silent:
         return
-    print
-    print bold('Finished: An initial directory structure has been created.')
-    print '''
+    print()
+    print(bold('Finished: An initial directory structure has been created.'))
+    print('''
 You should now populate your master file %s and create other documentation
 source files. ''' % masterfile + ((d['makefile'] or d['batchfile']) and '''\
 Use the Makefile to build the docs, like so:
@@ -1277,7 +1278,7 @@ Use the sphinx-build command to build the docs, like so:
    sphinx-build -b builder %s %s
 ''' % (srcdir, builddir)) + '''\
 where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
-'''
+''')
 
 
 def main(argv=sys.argv):
@@ -1286,14 +1287,14 @@ def main(argv=sys.argv):
 
     d = {}
     if len(argv) > 3:
-        print 'Usage: sphinx-quickstart [root]'
+        print('Usage: sphinx-quickstart [root]')
         sys.exit(1)
     elif len(argv) == 2:
         d['path'] = argv[1]
     try:
         ask_user(d)
     except (KeyboardInterrupt, EOFError):
-        print
-        print '[Interrupted.]'
+        print()
+        print('[Interrupted.]')
         return
     generate(d)

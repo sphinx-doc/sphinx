@@ -248,7 +248,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # the second item is the default for the master file and can be changed
         # by .. highlight:: directive in the master file
         self.hlsettingstack = 2 * [[builder.config.highlight_language,
-                                    sys.maxint]]
+                                    sys.maxsize]]
         self.footnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
@@ -1152,7 +1152,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 else:
                     self.builder.warn(
                         'unknown index entry type %s found' % type)
-            except ValueError, err:
+            except ValueError as err:
                 self.builder.warn(str(err))
         raise nodes.SkipNode
 

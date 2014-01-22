@@ -23,7 +23,7 @@ def prepare_docstring(s, ignore=1):
     """
     lines = s.expandtabs().splitlines()
     # Find minimum indentation of any non-blank lines after ignored lines.
-    margin = sys.maxint
+    margin = sys.maxsize
     for line in lines[ignore:]:
         content = len(line.lstrip())
         if content:
@@ -33,7 +33,7 @@ def prepare_docstring(s, ignore=1):
     for i in range(ignore):
         if i < len(lines):
             lines[i] = lines[i].lstrip()
-    if margin < sys.maxint:
+    if margin < sys.maxsize:
         for i in range(ignore, len(lines)): lines[i] = lines[i][margin:]
     # Remove any leading blank lines.
     while lines and not lines[0]:

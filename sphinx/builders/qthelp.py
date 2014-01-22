@@ -123,7 +123,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                                                   prune_toctrees=False)
         istoctree = lambda node: (
                         isinstance(node, addnodes.compact_paragraph)
-                            and node.has_key('toctree'))
+                            and 'toctree' in node)
         sections = []
         for node in tocdoc.traverse(istoctree):
             sections.extend(self.write_toc(node))

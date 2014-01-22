@@ -153,7 +153,7 @@ class CheckExternalLinksBuilder(Builder):
                         req = HeadRequest(req_url)
                         f = opener.open(req, **kwargs)
                         f.close()
-                    except HTTPError, err:
+                    except HTTPError as err:
                         if err.code != 405:
                             raise
                         # retry with GET if that fails, some servers
@@ -162,7 +162,7 @@ class CheckExternalLinksBuilder(Builder):
                         f = opener.open(req, **kwargs)
                         f.close()
 
-            except Exception, err:
+            except Exception as err:
                 self.broken[uri] = str(err)
                 return 'broken', str(err), 0
             if f.url.rstrip('/') == req_url.rstrip('/'):

@@ -123,7 +123,7 @@ def render_math(self, math):
     try:
         try:
             p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
-        except OSError, err:
+        except OSError as err:
             if err.errno != ENOENT:   # No such file or directory
                 raise
             self.builder.warn('LaTeX command %r cannot be run (needed for math '
@@ -150,7 +150,7 @@ def render_math(self, math):
     dvipng_args.append(path.join(tempdir, 'math.dvi'))
     try:
         p = Popen(dvipng_args, stdout=PIPE, stderr=PIPE)
-    except OSError, err:
+    except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
         self.builder.warn('dvipng command %r cannot be run (needed for math '
@@ -190,7 +190,7 @@ def get_tooltip(self, node):
 def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
-    except MathExtError, exc:
+    except MathExtError as exc:
         msg = unicode(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
@@ -215,7 +215,7 @@ def html_visit_displaymath(self, node):
         latex = wrap_displaymath(node['latex'], None)
     try:
         fname, depth = render_math(self, latex)
-    except MathExtError, exc:
+    except MathExtError as exc:
         sm = nodes.system_message(str(exc), type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)

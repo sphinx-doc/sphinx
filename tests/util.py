@@ -62,7 +62,7 @@ def raises_msg(exc, msg, func, *args, **kwds):
     """
     try:
         func(*args, **kwds)
-    except exc, err:
+    except exc as err:
         assert msg in str(err), "\"%s\" not in \"%s\"" % (msg, err)
     else:
         raise AssertionError('%s did not raise %s' %
