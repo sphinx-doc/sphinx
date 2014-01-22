@@ -94,8 +94,23 @@ var Stemmer = function() {
                                      word.isdigit())))
 
 
+def parse_stop_word(source):
+    """
+    parse snowball style word list like this:
+
+    * http://snowball.tartarus.org/algorithms/finnish/stop.txt
+    """
+    result = set()
+    for line in source.split('\n'):
+        line = line.split('|')[0] # remove comment
+        for word in line.split():
+            result.add(word)
+    return result
+
+
 from sphinx.search import (
     da, de, en, es, fi, fr, hu, it, ja, nl, no, pt, ro, ru, sv, tr)
+
 
 languages = {
     'da': da.SearchDanish,
