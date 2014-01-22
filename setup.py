@@ -39,9 +39,6 @@ Among its features are the following:
 * Various extensions are available, e.g. for automatic testing of snippets
   and inclusion of appropriately formatted docstrings
 * Setuptools integration
-
-A development egg can be found `here
-<http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
 requires = ['Pygments>=1.2', 'docutils>=0.7']
