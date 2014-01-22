@@ -163,8 +163,8 @@ class BuildDoc(Command):
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):
                 print(darkred('reST markup error:'), file=sys.stderr)
-                print(err.args[0].encode('ascii',
-                                                       'backslashreplace'), file=sys.stderr)
+                print(err.args[0].encode('ascii', 'backslashreplace'),
+                      file=sys.stderr)
             else:
                 raise
 

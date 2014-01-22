@@ -241,7 +241,7 @@ class DocFieldTransformer(object):
                 # filter out only inline nodes; others will result in invalid
                 # markup being written out
                 content = [n for n in content if isinstance(n, nodes.Inline) or
-                              isinstance(n, nodes.Text)]
+                           isinstance(n, nodes.Text)]
                 if content:
                     types.setdefault(typename, {})[fieldarg] = content
                 continue
