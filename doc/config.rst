@@ -747,6 +747,15 @@ that use Sphinx' HTMLWriter class.
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
 
+   .. admonition:: Accelerate build speed
+
+      Each language (except Japanese) provides its own stemming algorithm.
+      Sphinx uses Python implementation by default. You can use
+      C implementation to accelerate building the index file.
+
+      * `PorterStemmer <https://pypi.python.org/pypi/PorterStemmer>`_ (`en`)
+      * `PyStemmer <https://pypi.python.org/pypi/PyStemmer>`_ (all languages)
+
    .. versionadded:: 1.1
 
    .. versionchanged:: 1.3

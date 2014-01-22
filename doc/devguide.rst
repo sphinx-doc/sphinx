@@ -243,3 +243,15 @@ Debugging Tips
 
 * Set the debugging options in the `Docutils configuration file
   <http://docutils.sourceforge.net/docs/user/config.html>`_.
+
+* JavaScript stemming algorithms in `sphinx/search/*.py` (except `en.py`) are
+  genereted by
+  `modified snowballcode generator <https://github.com/shibukawa/snowball>`_.
+  Generated `JSX <http://jsx.github.io/>`_ files are
+  in `this repository <https://github.com/shibukawa/snowball-stemmer.jsx>`_.
+  You can get resulting JavaScript files by the following command:
+
+  .. code-block:: bash
+
+     $ npm install
+     $ node_modules/.bin/grunt build # -> dest/*.global.js
