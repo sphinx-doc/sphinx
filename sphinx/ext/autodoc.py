@@ -29,7 +29,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
      safe_getattr, safe_repr, is_builtin_class_method
-from sphinx.util.pycompat import base_exception, class_types
+from sphinx.util.pycompat import class_types
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -68,6 +68,35 @@ class Options(dict):
             return self[name.replace('_', '-')]
         except KeyError:
             return None
+
+
+class _MockModule(object):
+    """Used by autodoc_mock_imports."""
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return _MockModule()
+
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            # Not very good, we assume Uppercase names are classes...
+            mocktype = type(name, (), {})
+            mocktype.__module__ = __name__
+            return mocktype
+        else:
+            return _MockModule()
+
+def mock_import(modname):
+    if '.' in modname:
+        pkg, _n, mods = modname.rpartition('.')
+        mock_import(pkg)
+    mod = _MockModule()
+    sys.modules[modname] = mod
+    return mod
 
 
 ALL = object()
@@ -332,6 +361,9 @@ class Documenter(object):
                 self.modname, '.'.join(self.objpath))
         try:
             dbg('[autodoc] import %s', self.modname)
+            for modname in self.env.config.autodoc_mock_imports:
+                dbg('[autodoc] adding a mock module %s!', self.modname)
+                mock_import(modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
@@ -1085,8 +1117,9 @@ class ClassDocumenter(ModuleLevelDocumenter):
                 initdocstring = self.get_attr(
                     self.get_attr(self.object, '__init__', None), '__doc__')
             # for new-style classes, no __init__ means default __init__
-            if (initdocstring == object.__init__.__doc__ or  # for pypy
-               initdocstring.strip() == object.__init__.__doc__):  #for !pypy
+            if (initdocstring is not None and
+                (initdocstring == object.__init__.__doc__ or  # for pypy
+                 initdocstring.strip() == object.__init__.__doc__)):  #for !pypy
                 initdocstring = None
             if initdocstring:
                 if content == 'init':
@@ -1130,7 +1163,7 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, class_types) and \
-               issubclass(member, base_exception)
+               issubclass(member, BaseException)
 
 
 class DataDocumenter(ModuleLevelDocumenter):
@@ -1453,6 +1486,7 @@ def setup(app):
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
+    app.add_config_value('autodoc_mock_imports', [], True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

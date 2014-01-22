@@ -16,11 +16,7 @@ import codecs
 import posixpath
 import cPickle as pickle
 from os import path
-try:
-    from hashlib import md5
-except ImportError:
-    # 2.4 compatibility
-    from md5 import md5
+from hashlib import md5
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -35,7 +31,7 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
      movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
-from sphinx.util.pycompat import any, b
+from sphinx.util.pycompat import b
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.search import js_index
@@ -583,10 +579,7 @@ class StandaloneHTMLBuilder(Builder):
         # then, copy over all user-supplied static files
         staticentries = [path.join(self.confdir, spath)
                          for spath in self.config.html_static_path]
-        matchers = compile_matchers(
-            self.config.exclude_patterns +
-            ['**/' + d for d in self.config.exclude_dirnames]
-        )
+        matchers = compile_matchers(self.config.exclude_patterns)
         for entry in staticentries:
             if not path.exists(entry):
                 self.warn('html_static_path entry %r does not exist' % entry)
@@ -597,15 +590,17 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
-            if not path.isfile(logobase):
-                self.warn('logo file %r does not exist' % logobase)
+            if not path.isfile(path.join(self.confdir, self.config.html_logo)):
+                self.warn('logo file %r does not exist' % self.config.html_logo)
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
                          logotarget)
         if self.config.html_favicon:
             iconbase = path.basename(self.config.html_favicon)
             icontarget = path.join(self.outdir, '_static', iconbase)
-            if not path.isfile(icontarget):
+            if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
+                self.warn('favicon file %r does not exist' % self.config.html_favicon)
+            elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
         self.info('done')
@@ -1098,8 +1093,4 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     searchindex_filename = 'searchindex.json'
 
     def init(self):
-        if jsonimpl.json is None:
-            raise SphinxError(
-                'The module simplejson (or json in Python >= 2.6) '
-                'is not available. The JSONHTMLBuilder builder will not work.')
         SerializingHTMLBuilder.init(self)

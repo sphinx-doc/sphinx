@@ -265,6 +265,12 @@ class Builder(object):
                 self.info(bold('no targets are out of date.'))
                 return
 
+        # filter "docnames" (list of outdated files) by the updated
+        # found_docs of the environment; this will remove docs that
+        # have since been removed
+        if docnames and docnames != ['__all__']:
+            docnames = set(docnames) & self.env.found_docs
+
         # another indirection to support builders that don't build
         # files individually
         self.write(docnames, list(updated_docnames), method)
@@ -289,6 +295,7 @@ class Builder(object):
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
+        self.app.debug('docnames to write: %s', ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):

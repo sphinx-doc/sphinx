@@ -65,7 +65,7 @@ def write_file(name, text, opts):
 
 def format_heading(level, text):
     """Create a heading of <level> [1, 2 or 3 supported]."""
-    underlining = ['=', '-', '~', ][level-1] * len(text)
+    underlining = ['=', '-', '~', ][level - 1] * len(text)
     return '%s\n%s\n\n' % (text, underlining)
 
 
@@ -173,9 +173,6 @@ def recurse_tree(rootpath, excludes, opts):
     Look for every file in the directory tree and create the corresponding
     ReST files.
     """
-    # use absolute path for root, as relative paths like '../../foo' cause
-    # 'if "/." in root ...' to filter out *all* modules otherwise
-    rootpath = path.normpath(path.abspath(rootpath))
     # check if the base directory is a package and get its name
     if INITPY in os.listdir(rootpath):
         root_package = rootpath.split(path.sep)[-1]
@@ -185,13 +182,12 @@ def recurse_tree(rootpath, excludes, opts):
 
     toplevels = []
     followlinks = getattr(opts, 'followlinks', False)
+    includeprivate = getattr(opts, 'includeprivate', False)
     for root, subs, files in os.walk(rootpath, followlinks=followlinks):
-        if is_excluded(root, excludes):
-            del subs[:]
-            continue
-        # document only Python module files
+        # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
-                          if path.splitext(f)[1] in PY_SUFFIXES)
+                          if path.splitext(f)[1] in PY_SUFFIXES and
+                          not is_excluded(path.join(root, f), excludes))
         is_pkg = INITPY in py_files
         if is_pkg:
             py_files.remove(INITPY)
@@ -200,8 +196,14 @@ def recurse_tree(rootpath, excludes, opts):
             # only accept non-package at toplevel
             del subs[:]
             continue
-        # remove hidden ('.') and private ('_') directories
-        subs[:] = sorted(sub for sub in subs if sub[0] not in ['.', '_'])
+        # remove hidden ('.') and private ('_') directories, as well as
+        # excluded dirs
+        if includeprivate:
+            exclude_prefixes = ('.',)
+        else:
+            exclude_prefixes = ('.', '_')
+        subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes)
+                         and not is_excluded(path.join(root, sub), excludes))
 
         if is_pkg:
             # we are in a package with something to document
@@ -225,46 +227,34 @@ def recurse_tree(rootpath, excludes, opts):
 
 
 def normalize_excludes(rootpath, excludes):
-    """
-    Normalize the excluded directory list:
-    * must be either an absolute path or start with rootpath,
-    * otherwise it is joined with rootpath
-    * with trailing slash
-    """
-    f_excludes = []
-    for exclude in excludes:
-        if not path.isabs(exclude) and not exclude.startswith(rootpath):
-            exclude = path.join(rootpath, exclude)
-        f_excludes.append(path.normpath(exclude) + path.sep)
-    return f_excludes
+    """Normalize the excluded directory list."""
+    return [path.normpath(path.abspath(exclude)) for exclude in excludes]
 
 
 def is_excluded(root, excludes):
-    """
-    Check if the directory is in the exclude list.
+    """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exlude "foo" also accidentally excluding "foobar".
     """
-    sep = path.sep
-    if not root.endswith(sep):
-        root += sep
+    root = path.normpath(root)
     for exclude in excludes:
-        if root.startswith(exclude):
+        if root == exclude:
             return True
     return False
 
 
 def main(argv=sys.argv):
-    """
-    Parse and check the command line arguments.
-    """
+    """Parse and check the command line arguments."""
     parser = optparse.OptionParser(
         usage="""\
-usage: %prog [options] -o <output_path> <module_path> [exclude_paths, ...]
+usage: %prog [options] -o <output_path> <module_path> [exclude_path, ...]
 
 Look recursively in <module_path> for Python modules and packages and create
 one reST file with automodule directives per package in the <output_path>.
+
+The <exclude_path>s can be files and/or directories that will be excluded
+from generation.
 
 Note: By default this script will not overwrite already created files.""")
 
@@ -327,6 +317,7 @@ Note: By default this script will not overwrite already created files.""")
     if not path.isdir(opts.destdir):
         if not opts.dryrun:
             os.makedirs(opts.destdir)
+    rootpath = path.normpath(path.abspath(rootpath))
     excludes = normalize_excludes(rootpath, excludes)
     modules = recurse_tree(rootpath, excludes, opts)
     if opts.full:

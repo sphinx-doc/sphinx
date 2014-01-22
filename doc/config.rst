@@ -45,7 +45,8 @@ Important points to note:
 * There is a special object named ``tags`` available in the config file.
   It can be used to query and change the tags (see :ref:`tags`).  Use
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
-  to change.
+  to change. Only tags set via the ``-t`` command-line option or via
+  ``tags.add('tag')`` can be queried using ``tags.has('tag')``.
 
 
 General configuration
@@ -112,38 +113,6 @@ General configuration
    in :confval:`html_static_path`.
 
    .. versionadded:: 1.0
-
-.. confval:: unused_docs
-
-   A list of document names that are present, but not currently included in the
-   toctree.  Use this setting to suppress the warning that is normally emitted
-   in that case.
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` or :ref:`metadata` instead.
-
-.. confval:: exclude_trees
-
-   A list of directory paths, relative to the source directory, that are to be
-   recursively excluded from the search for source files, that is, their
-   subdirectories won't be searched too.  The default is ``[]``.
-
-   .. versionadded:: 0.4
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
-
-.. confval:: exclude_dirnames
-
-   A list of directory names that are to be excluded from any recursive
-   operation Sphinx performs (e.g. searching for source files or copying static
-   files).  This is useful, for example, to exclude version-control-specific
-   directories like ``'CVS'``.  The default is ``[]``.
-
-   .. versionadded:: 0.5
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
 
 .. confval:: templates_path
 
@@ -496,22 +465,25 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_logo
 
-   If given, this must be the name of an image file that is the logo of the
-   docs.  It is placed at the top of the sidebar; its width should therefore not
-   exceed 200 pixels.  Default: ``None``.
+   If given, this must be the name of an image file (path relative to the
+   :term:`configuration directory`) that is the logo of the docs.  It is placed
+   at the top of the sidebar; its width should therefore not exceed 200 pixels.
+   Default: ``None``.
 
    .. versionadded:: 0.4.1
       The image file will be copied to the ``_static`` directory of the output
-      HTML, so an already existing file with that name will be overwritten.
+      HTML, but only if the file does not already exist there.
 
 .. confval:: html_favicon
 
-   If given, this must be the name of an image file (within the static path, see
-   below) that is the favicon of the docs.  Modern browsers use this as icon for
-   tabs, windows and bookmarks.  It should be a Windows-style icon file
-   (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
+   If given, this must be the name of an image file (path relative to the
+   :term:`configuration directory`) that is the favicon of the docs.  Modern browsers use this
+   as icon for tabs, windows and bookmarks.  It should be a Windows-style icon
+   file (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
 
    .. versionadded:: 0.4
+      The image file will be copied to the ``_static`` directory of the output
+      HTML, but only if the file does not already exist there.
 
 .. confval:: html_static_path
 

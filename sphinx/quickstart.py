@@ -11,6 +11,7 @@
 
 import sys, os, time, re
 from os import path
+from io import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -21,7 +22,6 @@ from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
      nocolor, color_terminal
 from sphinx.util import texescape
-from sphinx.util.pycompat import open
 
 # function to get input from terminal -- overridden by the test suite
 try:
@@ -216,9 +216,6 @@ html_static_path = ['%(dot)sstatic']
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
 #html_use_opensearch = ''
-
-# This is the file name suffix for HTML files (e.g. ".xhtml").
-#html_file_suffix = None
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = None
@@ -852,6 +849,76 @@ if "%%1" == "pseudoxml" (
 \techo.Build finished. The pseudo-XML files are in %%BUILDDIR%%/pseudoxml.
 \tgoto end
 )
+
+:end
+'''
+
+# This will become the Makefile template for Sphinx 1.5.
+MAKEFILE_NEW = u'''\
+# Minimal makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = %(project_fn)s
+SOURCEDIR     = %(rsrcdir)s
+BUILDDIR      = %(rbuilddir)s
+
+# User-friendly check for sphinx-build.
+ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
+$(error \
+The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
+installed, then set the SPHINXBUILD environment variable to point \
+to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
+can add the directory with the executable to your PATH. \
+If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
+endif
+
+# Has to be explicit, otherwise we don't get "make" without targets right.
+help:
+\t@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# You can add custom targets here.
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%:
+\t@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+'''
+
+# This will become the make.bat template for Sphinx 1.5.
+BATCHFILE_NEW = u'''\
+@ECHO OFF
+
+REM Command file for Sphinx documentation
+
+if "%%SPHINXBUILD%%" == "" (
+\tset SPHINXBUILD=sphinx-build
+)
+set BUILDDIR=%(rbuilddir)s
+set SPHINXPROJ=%(project_fn)s
+
+if "%%1" == "" goto help
+
+%%SPHINXBUILD%% 2> nul
+if errorlevel 9009 (
+\techo.
+\techo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+\techo.installed, then set the SPHINXBUILD environment variable to point
+\techo.to the full path of the 'sphinx-build' executable. Alternatively you
+\techo.may add the Sphinx directory to PATH.
+\techo.
+\techo.If you don't have Sphinx installed, grab it from
+\techo.http://sphinx-doc.org/
+\texit /b 1
+)
+
+%%SPHINXBUILD%% -M %%1 %%BUILDDIR%% %%SPHINXOPTS%%
+goto end
+
+:help
+%%SPHINXBUILD%% -M help %%BUILDDIR%% %%SPHINXOPTS%%
 
 :end
 '''

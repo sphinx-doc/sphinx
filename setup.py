@@ -44,19 +44,19 @@ A development egg can be found `here
 <http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
+if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 2):
+    print('ERROR: Sphinx requires at least Python 2.6 or 3.2 to run.')
+    sys.exit(1)
+
 requires = ['Pygments>=1.2', 'docutils>=0.7', 'snowballstemmer>=1.1']
 
 if sys.version_info[:3] >= (3, 3, 0):
     requires[1] = 'docutils>=0.10'
 
-if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
+if (3, 0) <= sys.version_info < (3, 3):
     requires.append('Jinja2>=2.3,<2.7')
-else:
+else:  # 2.6, 2.7, 3.3 or later
     requires.append('Jinja2>=2.3')
-
-if sys.version_info < (2, 5):
-    print('ERROR: Sphinx requires at least Python 2.5 to run.')
-    sys.exit(1)
 
 # tell distribute to use 2to3 with our own fixers
 extra = {}

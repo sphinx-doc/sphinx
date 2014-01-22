@@ -240,6 +240,12 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append('.'.join(map(str, numbers)) +
                                  self.secnumber_suffix)
 
+    # overwritten to avoid emitting empty <ul></ul>
+    def visit_bullet_list(self, node):
+        if len(node) == 1 and node[0].tagname == 'toctree':
+            raise nodes.SkipNode
+        BaseTranslator.visit_bullet_list(self, node)
+
     # overwritten
     def visit_title(self, node):
         BaseTranslator.visit_title(self, node)
@@ -267,6 +273,9 @@ class HTMLTranslator(BaseTranslator):
             **highlight_args)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
+        if node.has_key('filename'):
+            starttag += '<div class="code-block-filename"><tt>%s</tt></div>' % (
+                node['filename'],)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 

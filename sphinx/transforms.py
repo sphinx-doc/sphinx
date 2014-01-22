@@ -23,7 +23,6 @@ from sphinx.util import split_index_msg
 from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
 from sphinx.util.compat import docutils_version
-from sphinx.util.pycompat import all
 from sphinx.domains.std import (
     make_term_from_paragraph_node,
     make_termnodes_from_paragraph_node,
@@ -196,7 +195,10 @@ class Locale(Transform):
             patch = new_document(source, settings)
             CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
-            patch = patch[0]
+            try:
+                patch = patch[0]
+            except IndexError:  # empty node
+                pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
@@ -239,8 +241,7 @@ class Locale(Transform):
                         self.document.ids.pop(_id, None)
 
                     # re-entry with new named section node.
-                    self.document.note_implicit_target(
-                            section_node, section_node)
+                    self.document.note_implicit_target(section_node)
 
                     # replace target's refname to new target name
                     def is_named_target(node):
@@ -299,7 +300,10 @@ class Locale(Transform):
             patch = new_document(source, settings)
             CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
-            patch = patch[0]
+            try:
+                patch = patch[0]
+            except IndexError:  # empty node
+                pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now

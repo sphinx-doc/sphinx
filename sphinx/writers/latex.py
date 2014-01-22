@@ -25,7 +25,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.osutil import ustrftime
-from sphinx.util.pycompat import any
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
 
@@ -1338,6 +1337,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 highlight_args['force'] = True
             if 'linenos' in node:
                 linenos = node['linenos']
+            filename = node.get('filename')
+            if filename:
+                self.body.append('\n{\\colorbox[rgb]{0.9,0.9,0.9}'
+                                 '{\\makebox[\\textwidth][l]'
+                                 '{\\small\\texttt{%s}}}}\n' % (filename,))
             def warner(msg):
                 self.builder.warn(msg, (self.curfilestack[-1], node.line))
             hlcode = self.highlighter.highlight_block(code, lang, warn=warner,

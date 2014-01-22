@@ -42,6 +42,7 @@ General options
 -d <path>     path for the cached environment and doctree files
                 (default: outdir/.doctrees)
 -j <N>        build in parallel with N processes where possible
+-M <builder>  "make" mode -- used by Makefile, like "sphinx-build -M html"
 
 Build configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -82,19 +83,28 @@ def main(argv):
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 
+    # parse options
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
                                    ['help', 'version'])
-        allopts = set(opt[0] for opt in opts)
-        if '-h' in allopts or '--help' in allopts:
-            usage(argv)
-            print >>sys.stderr
-            print >>sys.stderr, 'For more information, see '\
-                '<http://sphinx-doc.org/>.'
-            return 0
-        if '--version' in allopts:
-            print 'Sphinx (sphinx-build) %s' %  __version__
-            return 0
+    except getopt.error, err:
+        usage(argv, 'Error: %s' % err)
+        return 1
+
+    # handle basic options
+    allopts = set(opt[0] for opt in opts)
+    # help and version options
+    if '-h' in allopts or '--help' in allopts:
+        usage(argv)
+        print >>sys.stderr
+        print >>sys.stderr, 'For more information, see <http://sphinx-doc.org/>.'
+        return 0
+    if '--version' in allopts:
+        print 'Sphinx (sphinx-build) %s' %  __version__
+        return 0
+
+    # get paths (first and second positional argument)
+    try:
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
@@ -103,12 +113,9 @@ def main(argv):
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
                '-c' not in allopts and '-C' not in allopts:
             print >>sys.stderr, ('Error: Source directory doesn\'t '
-                                 'contain conf.py file.')
+                                 'contain a conf.py file.')
             return 1
         outdir = abspath(args[1])
-    except getopt.error, err:
-        usage(argv, 'Error: %s' % err)
-        return 1
     except IndexError:
         usage(argv, 'Error: Insufficient arguments.')
         return 1
@@ -118,6 +125,7 @@ def main(argv):
             'encoding (%r).' % fs_encoding)
         return 1
 
+    # handle remaining filename arguments
     filenames = args[2:]
     err = 0
     for filename in filenames:
@@ -262,6 +270,13 @@ def main(argv):
             elif isinstance(err, SphinxError):
                 print >>error, red('%s:' % err.category)
                 print >>error, terminal_safe(unicode(err))
+            elif isinstance(err, UnicodeError):
+                print >>error, red('Encoding error:')
+                print >>error, terminal_safe(unicode(err))
+                tbpath = save_traceback(app)
+                print >>error, red('The full traceback has been saved '
+                                   'in %s, if you want to report the '
+                                   'issue to the developers.' % tbpath)
             else:
                 print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()

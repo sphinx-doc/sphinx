@@ -154,8 +154,18 @@ class InheritanceGraph(object):
             nodename = self.class_name(cls, parts)
             fullname = self.class_name(cls, 0)
 
+            # Use first line of docstring as tooltip, if available
+            tooltip = None
+            try:
+                if cls.__doc__:
+                    doc = cls.__doc__.strip().split("\n")[0]
+                    if doc:
+                        tooltip = '"%s"' % doc.replace('"', '\\"')
+            except Exception:  # might raise AttributeError for strange classes
+                pass
+
             baselist = []
-            all_classes[cls] = (nodename, fullname, baselist)
+            all_classes[cls] = (nodename, fullname, baselist, tooltip)
             for base in cls.__bases__:
                 if not show_builtins and base in builtins:
                     continue
@@ -168,7 +178,7 @@ class InheritanceGraph(object):
         for cls in classes:
             recurse(cls)
 
-        return all_classes
+        return all_classes.values()
 
     def class_name(self, cls, parts=0):
         """Given a class object, return a fully-qualified name.
@@ -188,7 +198,7 @@ class InheritanceGraph(object):
 
     def get_all_class_names(self):
         """Get all of the class names involved in the graph."""
-        return [fullname for (_, fullname, _) in self.class_info.values()]
+        return [fullname for (_, fullname, _, _) in self.class_info]
 
     # These are the default attrs for graphviz
     default_graph_attrs = {
@@ -241,17 +251,13 @@ class InheritanceGraph(object):
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
-        for cls, (name, fullname, bases) in sorted(self.class_info.items()):
+        for name, fullname, bases, tooltip in sorted(self.class_info):
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
                 this_node_attrs['URL'] = '"%s"' % urls[fullname]
-            # Use first line of docstring as tooltip, if available
-            if cls.__doc__:
-                doc = cls.__doc__.strip().split("\n")[0]
-                if doc:
-                    doc = doc.replace('"', '\\"')
-                    this_node_attrs['tooltip'] = '"%s"' % doc
+            if tooltip:
+                this_node_attrs['tooltip'] = tooltip
             res.append('  "%s" [%s];\n' %
                        (name, self._format_node_attrs(this_node_attrs)))
 
