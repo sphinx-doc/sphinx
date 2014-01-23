@@ -142,7 +142,7 @@ def copy_static_entry(source, targetdir, builder, context={},
     Handles all possible cases of files, directories and subdirectories.
     """
     if exclude_matchers:
-        relpath = relative_path(builder.srcdir, source)
+        relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
         for matcher in exclude_matchers:
             if matcher(relpath):
                 return

@@ -10,6 +10,8 @@ Bugs fixed
 * PR#213: Fix a missing import in the setup command.
 * #1357: Option names documented by :rst:dir:`option` are now again allowed to
   not start with a dash or slash, and referencing them will work correctly.
+* #1358: Fix handling of image paths outside of the source directory when using
+  the "wildcard" style reference.
 
 Documentation
 -------------

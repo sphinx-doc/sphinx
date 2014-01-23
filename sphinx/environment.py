@@ -799,7 +799,8 @@ class BuildEnvironment:
             node['uri'] = rel_imgpath
             if rel_imgpath.endswith(os.extsep + '*'):
                 for filename in glob(full_imgpath):
-                    new_imgpath = relative_path(self.srcdir, filename)
+                    new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
+                                                filename)
                     if filename.lower().endswith('.pdf'):
                         candidates['application/pdf'] = new_imgpath
                     elif filename.lower().endswith('.svg'):
