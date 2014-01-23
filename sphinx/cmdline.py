@@ -102,7 +102,7 @@ def main(argv):
               file=sys.stderr)
         return 0
     if '--version' in allopts:
-        print 'Sphinx (sphinx-build) %s' %  __version__
+        print('Sphinx (sphinx-build) %s' %  __version__)
         return 0
 
     # get paths (first and second positional argument)
