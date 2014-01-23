@@ -13,7 +13,7 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-finnish_stopwords = parse_stop_word('''
+finnish_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/finnish/stop.txt
 | forms of BE
 

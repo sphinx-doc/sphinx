@@ -13,7 +13,7 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-russian_stopwords = parse_stop_word('''
+russian_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/russian/stop.txt
 и              | and
 в              | in/into

@@ -13,7 +13,7 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-italian_stopwords = parse_stop_word('''
+italian_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/italian/stop.txt
 ad             |  a (to) before vowel
 al             |  a + il

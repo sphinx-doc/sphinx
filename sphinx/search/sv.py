@@ -13,7 +13,7 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-swedish_stopwords = parse_stop_word('''
+swedish_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/swedish/stop.txt
 och            | and
 det            | it, this/that

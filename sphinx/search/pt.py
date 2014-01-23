@@ -13,7 +13,7 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-portuguese_stopwords = parse_stop_word('''
+portuguese_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/portuguese/stop.txt
 de             |  of, from
 a              |  the; to, at; her

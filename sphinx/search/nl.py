@@ -13,7 +13,7 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-danish_stopwords = parse_stop_word('''
+danish_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/danish/stop.txt
 og           | and
 i            | in
