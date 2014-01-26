@@ -406,6 +406,10 @@ dl.glossary dt {
     font-size: 1.3em;
 }
 
+.sig-paren {
+    font-size: larger;
+}
+
 .versionmodified {
     font-style: italic;
 }

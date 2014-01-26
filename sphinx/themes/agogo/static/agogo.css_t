@@ -223,6 +223,10 @@ div.document .descname {
   font-weight: bold;
 }
 
+div.document .sig-paren {
+    font-size: larger;
+}
+
 div.document .docutils.literal {
   background-color: #eeeeec;
   padding: 1px;

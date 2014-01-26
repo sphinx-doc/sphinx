@@ -305,6 +305,10 @@ dt .descname {
     margin-right: 4px;
 }
 
+dt .sig-paren {
+    font-size: larger;
+}
+
 dt .descname, dt .descclassname {
     padding: 0;
     background: transparent;

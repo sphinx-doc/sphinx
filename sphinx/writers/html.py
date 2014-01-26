@@ -130,7 +130,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</tt>')
 
     def visit_desc_parameterlist(self, node):
-        self.body.append('<big>(</big>')
+        self.body.append('<span class="sig-paren">(</span>')
         self.first_param = 1
         self.optional_param_level = 0
         # How many required parameters are left.
@@ -138,7 +138,7 @@ class HTMLTranslator(BaseTranslator):
                                          for c in node.children])
         self.param_separator = node.child_text_separator
     def depart_desc_parameterlist(self, node):
-        self.body.append('<big>)</big>')
+        self.body.append('<span class="sig-paren">)</span>')
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
