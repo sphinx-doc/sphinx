@@ -5,12 +5,9 @@ Incompatible changes
 --------------------
 
 * Dropped support for Python 2.5 and 3.1.
-
 * Removed the ``sphinx.ext.oldcmarkup`` extension.
-
 * The deprecated config values ``exclude_trees``, ``exclude_dirnames`` and
   ``unused_docs`` have been removed.
-
 * A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
   will have to be adapted to handle this node.
@@ -20,23 +17,17 @@ New features
 
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
-
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
-
 * PR#184: Add :confval:`autodoc_mock_imports`, allowing to mock imports of
   external modules that need not be present when autodocumenting.
-
 * #925: Allow list-typed config values to be provided on the command line,
   like ``-D key=val1,val2``.
-
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
   to start at an arbitrary line number, with a new ``lineno-start`` option.
-
 * PR#172: The :rst:dir:`code-block` and :rst:dir:`literalinclude` directives now
   can have a ``filename`` option that shows a filename before the code in the
   output.
-
 * Prompt for the document language in sphinx-quickstart.
 
 Bugs fixed
@@ -125,6 +116,8 @@ Bugs fixed
   the full relative path and not the basename.
 * #1357: Option names documented by :rst:dir:`option` are now again allowed to
   not start with a dash or slash, and referencing them will work correctly.
+* #1358: Fix handling of image paths outside of the source directory when using
+  the "wildcard" style reference.
 
 Documentation
 -------------

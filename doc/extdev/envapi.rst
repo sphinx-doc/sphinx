@@ -9,7 +9,7 @@ Build environment API
 
    .. attribute:: app
 
-      Reference to the application object.
+      Reference to the :class:`.Sphinx` (application) object.
 
    .. attribute:: config
 
