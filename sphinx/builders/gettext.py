@@ -196,13 +196,14 @@ class MessageCatalogBuilder(I18nBuilder):
                 for message in catalog.messages:
                     positions = catalog.metadata[message]
 
-                    # generate "#: file1:line1\n#: file2:line2 ..."
-                    pofile.write(u"#: %s\n" % "\n#: ".join("%s:%s" %
-                        (safe_relpath(source, self.outdir), line)
-                        for source, line, _ in positions))
-                    # generate "# uuid1\n# uuid2\n ..."
-                    pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid
-                        in positions))
+                    if self.config.gettext_location:
+                        # generate "#: file1:line1\n#: file2:line2 ..."
+                        pofile.write(u"#: %s\n" % "\n#: ".join("%s:%s" %
+                            (safe_relpath(source, self.outdir), line)
+                            for source, line, _ in positions))
+                    if self.config.gettext_uuid:
+                        # generate "# uuid1\n# uuid2\n ..."
+                        pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid in positions))
 
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \

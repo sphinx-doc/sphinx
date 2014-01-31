@@ -399,6 +399,19 @@ documentation on :ref:`intl` for details.
    By default, the document ``markup/code.rst`` ends up in the ``markup`` text
    domain.  With this option set to ``False``, it is ``markup/code``.
 
+.. confval:: gettext_uuid
+
+   If true, ``sphinx`` generates message catalogs with uuid information
+   for ``pot`` files. If false, ``sphinx`` doesn't do it.
+
+   The default is ``true``.
+          
+.. confval:: gettext_location
+
+   If true, ``sphinx`` generates message catalogs with location information
+   for ``pot`` files. If false, ``sphinx`` doesn't do it.
+
+   The default is ``true``.
 
 .. _html-options:
 
