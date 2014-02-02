@@ -19,6 +19,8 @@ For more about our development process and methods, see the :doc:`devguide`.
 Extensions
 ==========
 
+To learn how to write your own extension, see :ref:`dev-extensions`.
+
 The `sphinx-contrib <http://bitbucket.org/birkenfeld/sphinx-contrib/>`_
 repository contains many contributed extensions.  Some of them have their own
 releases on PyPI, others you can install from a checkout.
