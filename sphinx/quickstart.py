@@ -5,7 +5,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -1298,3 +1298,7 @@ def main(argv=sys.argv):
         print('[Interrupted.]')
         return
     generate(d)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
