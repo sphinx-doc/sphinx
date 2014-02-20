@@ -1099,6 +1099,12 @@ These options influence LaTeX output.
         "Rejne".  You can also set this to ``''`` to disable fncychap.
      ``'preamble'``
         Additional preamble content, default empty.
+     ``'figure_align'``
+        Latex figure float alignment, default 'htbp' (here, top, bottom, page).
+        Whenever an image doesn't fit into the current page, it wil be
+        'floated' into the next page but may be preceeded by any other text.
+        If you don't like this behavior, use 'H' which will disable floating
+        and position figures strictly in the order they appear in the source.
      ``'footer'``
         Additional footer content (before the indices), default empty.
 
