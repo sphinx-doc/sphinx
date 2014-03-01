@@ -922,6 +922,7 @@ class ValidationError(Exception):
     """Raised for validation errors."""
 
 def is_path(x):
+    x = path.expanduser(x)
     if path.exists(x) and not path.isdir(x):
         raise ValidationError("Please enter a valid path name.")
     return x
