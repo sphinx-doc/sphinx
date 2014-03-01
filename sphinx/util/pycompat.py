@@ -48,6 +48,8 @@ if sys.version_info >= (3, 0):
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
         return unicode(tree)
+    from itertools import zip_longest  # Python 3 name
+    import builtins
 
 else:
     # Python 2
@@ -69,6 +71,9 @@ else:
     # error handler
     import locale
     sys_encoding = locale.getpreferredencoding()
+    # use Python 3 name
+    from itertools import izip_longest as zip_longest
+    import __builtin__ as builtins
 
 
 def execfile_(filepath, _globals):
