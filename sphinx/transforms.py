@@ -142,10 +142,7 @@ class CustomLocaleReporter(object):
         self.source, self.line = source, line
 
     def set_reporter(self, document):
-        if docutils_version < (0, 9):
-            document.reporter.locator = self.get_source_and_line
-        else:
-            document.reporter.get_source_and_line = self.get_source_and_line
+        document.reporter.get_source_and_line = self.get_source_and_line
 
     def get_source_and_line(self, lineno=None):
         return self.source, self.line
