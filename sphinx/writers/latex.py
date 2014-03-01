@@ -164,6 +164,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'footer':          '',
         'printindex':      '\\printindex',
         'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+        'figure_align':    'htbp',
     }
 
     # sphinx specific document classes
@@ -1006,7 +1007,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # TODO non vertical space for other alignments.
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
-            self.body.append('\\begin{figure}[htbp]%s\n' % align)
+            self.body.append('\\begin{figure}[%s]%s\n' % (
+                self.elements['figure_align'], align))
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
             self.context.append(ids + align_end + '\\end{figure}\n')
