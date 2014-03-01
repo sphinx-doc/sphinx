@@ -729,6 +729,9 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_index(self, node):
         raise nodes.SkipNode
 
+    def visit_toctree(self, node):
+        raise nodes.SkipNode
+
     def visit_substitution_definition(self, node):
         raise nodes.SkipNode
 

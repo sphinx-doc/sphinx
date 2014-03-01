@@ -19,6 +19,7 @@ Bugs fixed
   time in sphinx-quickstart.
 * #1386: Fix bug preventing more than one theme being added by the entry point
   mechanism.
+* #1370: Ignore "toctree" nodes in text writer, instead of raising.
 
 Documentation
 -------------
