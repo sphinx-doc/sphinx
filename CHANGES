@@ -14,6 +14,7 @@ Bugs fixed
   the "wildcard" style reference.
 * #1374: Fix for autosummary generating overly-long summaries if first line
   doesn't end with a period.
+* #1383: Fix Python 2.5 compatibility of sphinx-apidoc.
 
 Documentation
 -------------
