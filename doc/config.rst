@@ -401,17 +401,22 @@ documentation on :ref:`intl` for details.
 
 .. confval:: gettext_uuid
 
-   If true, ``sphinx`` generates message catalogs with uuid information
-   for ``pot`` files. If false, ``sphinx`` doesn't do it.
+   If true, Sphinx generates uuid information for version tracking in message
+   catalogs.
 
    The default is ``true``.
-          
+
+   .. versionadded:: 1.3
+
 .. confval:: gettext_location
 
-   If true, ``sphinx`` generates message catalogs with location information
-   for ``pot`` files. If false, ``sphinx`` doesn't do it.
+   If true, Sphinx generates location information for messages in message
+   catalogs.
 
    The default is ``true``.
+
+   .. versionadded:: 1.3
+
 
 .. _html-options:
 

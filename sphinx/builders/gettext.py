@@ -203,7 +203,8 @@ class MessageCatalogBuilder(I18nBuilder):
                             for source, line, _ in positions))
                     if self.config.gettext_uuid:
                         # generate "# uuid1\n# uuid2\n ..."
-                        pofile.write(u"# %s\n" % "\n# ".join(uid for _, _, uid in positions))
+                        pofile.write(u"# %s\n" % "\n# ".join(
+                            uid for _, _, uid in positions))
 
                     # message contains *one* line of text ready for translation
                     message = message.replace(u'\\', ur'\\'). \
