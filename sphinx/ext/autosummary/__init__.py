@@ -275,6 +275,16 @@ class Autosummary(Directive):
 
             while doc and not doc[0].strip():
                 doc.pop(0)
+
+            # If there's a blank line, then we can assume the first sentence /
+            # paragraph has ended, so anything after shouldn't be part of the
+            # summary
+            for i, piece in enumerate(doc):
+                if not piece.strip():
+                    doc = doc[:i]
+                    break
+
+            # Try to find the "first sentence", which may span multiple lines
             m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
             if m:
                 summary = m.group(1).strip()
