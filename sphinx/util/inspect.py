@@ -16,7 +16,7 @@ import sys
 inspect = __import__('inspect')
 
 from sphinx.util import force_decode
-from sphinx.util.pycompat import bytes
+from sphinx.util.pycompat import bytes, builtins
 
 
 if sys.version_info >= (3, 0):
@@ -146,6 +146,6 @@ def is_builtin_class_method(obj, attr_name):
     classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
     cls = classes[0] if classes else object
 
-    if not hasattr(__builtins__, cls.__name__):
+    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
         return False
-    return getattr(__builtins__, cls.__name__) is cls
+    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
