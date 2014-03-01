@@ -742,14 +742,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # Redirect head output until header is finished. see visit_tbody.
         self.body = self.tableheaders
     def depart_thead(self, node):
-        self.body.append('\\hline')
+        pass
 
     def visit_tbody(self, node):
         if not self.table.had_head:
             self.visit_thead(node)
         self.body = self.tablebody
     def depart_tbody(self, node):
-        self.body.append('\\hline')
+        pass
 
     def visit_row(self, node):
         self.table.col = 0
@@ -757,6 +757,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.previous_spanning_row == 1:
             self.previous_spanning_row = 0
         self.body.append('\\\\\n')
+        self.body.append('\\hline')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
