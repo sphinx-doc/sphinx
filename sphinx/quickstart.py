@@ -1309,3 +1309,7 @@ def main(argv=sys.argv):
         print('[Interrupted.]')
         return
     generate(d)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
