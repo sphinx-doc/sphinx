@@ -17,6 +17,8 @@ Bugs fixed
 * #1383: Fix Python 2.5 compatibility of sphinx-apidoc.
 * #1391: Actually prevent using "pngmath" and "mathjax" extensions at the same
   time in sphinx-quickstart.
+* #1386: Fix bug preventing more than one theme being added by the entry point
+  mechanism.
 
 Documentation
 -------------
