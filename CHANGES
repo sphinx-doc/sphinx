@@ -5,6 +5,7 @@ Incompatible changes
 --------------------
 
 * Dropped support for Python 2.5 and 3.1.
+* Dropped support for docutils versions up to 0.9.
 * Removed the ``sphinx.ext.oldcmarkup`` extension.
 * The deprecated config values ``exclude_trees``, ``exclude_dirnames`` and
   ``unused_docs`` have been removed.
@@ -29,6 +30,8 @@ New features
   can have a ``filename`` option that shows a filename before the code in the
   output.
 * Prompt for the document language in sphinx-quickstart.
+* PR#217: Added config values to suppress UUID and location information in
+  generated gettext catalogs.
 
 Bugs fixed
 ----------
