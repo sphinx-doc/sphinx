@@ -201,6 +201,8 @@ class Config(object):
 
         # gettext options
         gettext_compact = (True, 'gettext'),
+        gettext_location = (True, None),
+        gettext_uuid = (True, None),
 
         # XML options
         xml_pretty = (True, 'env'),
