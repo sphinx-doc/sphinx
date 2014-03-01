@@ -16,6 +16,16 @@ from io import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
+#try to import readline, unix specific enhancement
+try:
+    import readline
+    if 'libedit' in readline.__doc__:
+        readline.parse_and_bind("bind ^I rl_complete")
+    else:
+        readline.parse_and_bind("tab: complete")
+except ImportError:
+    pass
+
 from docutils.utils import column_width
 
 from sphinx import __version__
