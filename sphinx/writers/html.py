@@ -405,7 +405,10 @@ class HTMLTranslator(BaseTranslator):
                         node['width'] = str(im.size[0])
                     if 'height' not in node:
                         node['height'] = str(im.size[1])
-                    del im
+                    try:
+                        im.fp.close()
+                    except Exception:
+                        pass
         BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):

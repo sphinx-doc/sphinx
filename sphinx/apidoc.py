@@ -21,6 +21,8 @@ import sys
 import optparse
 from os import path
 
+from sphinx.util.osutil import walk
+
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
     OPTIONS = os.environ['SPHINX_APIDOC_OPTIONS'].split(',')
@@ -185,7 +187,7 @@ def recurse_tree(rootpath, excludes, opts):
     toplevels = []
     followlinks = getattr(opts, 'followlinks', False)
     includeprivate = getattr(opts, 'includeprivate', False)
-    for root, subs, files in os.walk(rootpath, followlinks=followlinks):
+    for root, subs, files in walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
                           if path.splitext(f)[1] in PY_SUFFIXES and
