@@ -72,7 +72,7 @@ class Theme(object):
             for theme in os.listdir(themedir):
                 if not path.isfile(path.join(themedir, theme, THEMECONF)):
                     continue
-            cls.themes[theme] = (path.join(themedir, theme), None)
+                cls.themes[theme] = (path.join(themedir, theme), None)
 
     def __init__(self, name):
         if name not in self.themes:

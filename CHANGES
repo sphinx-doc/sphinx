@@ -122,7 +122,15 @@ Bugs fixed
 * #1358: Fix handling of image paths outside of the source directory when using
   the "wildcard" style reference.
 * #1374: Fix for autosummary generating overly-long summaries if first line
-  doesn't end with a period
+  doesn't end with a period.
+* #1391: Actually prevent using "pngmath" and "mathjax" extensions at the same
+  time in sphinx-quickstart.
+* #1386: Fix bug preventing more than one theme being added by the entry point
+  mechanism.
+* #1370: Ignore "toctree" nodes in text writer, instead of raising.
+* #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
+* #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
+  interface/behavior for `item` argument usage.
 
 Documentation
 -------------

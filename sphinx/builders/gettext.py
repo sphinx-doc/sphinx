@@ -55,6 +55,9 @@ class Catalog(object):
         self.metadata = {}  # msgid -> file, line, uid
 
     def add(self, msg, origin):
+        if not hasattr(origin, 'uid'):
+            # Nodes that are replicated like todo don't have a uid, however i18n is also unnecessary.
+            return
         if msg not in self.metadata:  # faster lookup in hash
             self.messages.append(msg)
             self.metadata[msg] = []

@@ -1183,6 +1183,7 @@ Please indicate if you want to use one of the following Sphinx extensions:''')
     if d['ext_pngmath'] and d['ext_mathjax']:
         print('''Note: pngmath and mathjax cannot be enabled at the same time.
 pngmath has been deselected.''')
+        d['ext_pngmath'] = False
     if 'ext_ifconfig' not in d:
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
                   'content based on config values (y/n)', 'n', boolean)
