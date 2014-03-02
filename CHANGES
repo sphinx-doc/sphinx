@@ -21,6 +21,8 @@ Bugs fixed
   mechanism.
 * #1370: Ignore "toctree" nodes in text writer, instead of raising.
 * #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
+* #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
+  interface/behavior for `item` argument usage.
 
 Documentation
 -------------

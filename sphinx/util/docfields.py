@@ -67,7 +67,7 @@ class Field(object):
             fieldname += nodes.Text(' ')
             fieldname += self.make_xref(self.rolename, domain,
                                         fieldarg, nodes.Text)
-        fieldbody = nodes.field_body('', nodes.paragraph('', '', content))
+        fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
         return nodes.field('', fieldname, fieldbody)
 
 
@@ -272,10 +272,10 @@ class DocFieldTransformer(object):
                     groupindices[typename] = len(entries)
                     group = [typedesc, []]
                     entries.append(group)
-                entry = typedesc.make_entry(fieldarg, translatable_content)
+                entry = typedesc.make_entry(fieldarg, [translatable_content])
                 group[1].append(entry)
             else:
-                entry = typedesc.make_entry(fieldarg, translatable_content)
+                entry = typedesc.make_entry(fieldarg, [translatable_content])
                 entries.append([typedesc, entry])
 
         # step 2: all entries are collected, construct the new field list
