@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    Sphinx
-    ~~~~~~
+    sphinx.__main__
+    ~~~~~~~~~~~~~~~
 
     The Sphinx documentation toolchain.
 

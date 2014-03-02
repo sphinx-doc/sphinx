@@ -218,7 +218,7 @@ package.
    use ``docutils.nodes.generated`` if you want no further text decoration.  If
    the text should be treated as literal (e.g. no smart quote replacement), but
    not have typewriter styling, use ``sphinx.addnodes.literal_emphasis`` or
-   ``sphinx.addnodes.literal_strong``.     
+   ``sphinx.addnodes.literal_strong``.
 
    For the role content, you have the same syntactical possibilities as for
    standard Sphinx roles (see :ref:`xref-syntax`).

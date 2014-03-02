@@ -50,7 +50,8 @@ BUILDERS = [
     ("",      "xml",       "to make Docutils-native XML files"),
     ("",      "pseudoxml", "to make pseudoxml-XML files for display purposes"),
     ("",      "linkcheck", "to check all external links for integrity"),
-    ("",      "doctest",   "to run all doctests embedded in the documentation (if enabled)"),
+    ("",      "doctest",   "to run all doctests embedded in the documentation "
+                           "(if enabled)"),
     ("",      "coverage",  "to run coverage check of the documentation (if enabled)"),
 ]
 
@@ -92,13 +93,15 @@ class Make(object):
         if self.run_generic_build('dirhtml') > 0:
             return 1
         print()
-        print('Build finished. The HTML pages are in %s.' % self.builddir_join('dirhtml'))
+        print('Build finished. The HTML pages are in %s.' %
+              self.builddir_join('dirhtml'))
 
     def build_singlehtml(self):
         if self.run_generic_build('singlehtml') > 0:
             return 1
         print()
-        print('Build finished. The HTML page is in %s.' % self.builddir_join('singlehtml'))
+        print('Build finished. The HTML page is in %s.' %
+              self.builddir_join('singlehtml'))
 
     def build_pickle(self):
         if self.run_generic_build('pickle') > 0:
@@ -127,7 +130,8 @@ class Make(object):
               '.qhcp project file in %s, like this:' % self.builddir_join('qthelp'))
         print('$ qcollectiongenerator %s.qhcp' % self.builddir_join('qthelp', proj_name))
         print('To view the help file:')
-        print('$ assistant -collectionFile %s.qhc' % self.builddir_join('qthelp', proj_name))
+        print('$ assistant -collectionFile %s.qhc' %
+              self.builddir_join('qthelp', proj_name))
 
     def build_devhelp(self):
         if self.run_generic_build('devhelp') > 0:
@@ -173,7 +177,8 @@ class Make(object):
     def build_texinfo(self):
         if self.run_generic_build('texinfo') > 0:
             return 1
-        print("Build finished; the Texinfo files are in %s." % self.builddir_join('texinfo'))
+        print("Build finished; the Texinfo files are in %s." %
+              self.builddir_join('texinfo'))
         if os.name == 'posix':
             print("Run `make' in that directory to run these through makeinfo")
             print("(use `make info' here to do that automatically).")
@@ -188,13 +193,15 @@ class Make(object):
         if self.run_generic_build('gettext', doctreedir=dtdir) > 0:
             return 1
         print()
-        print('Build finished. The message catalogs are in %s.' % self.builddir_join('gettext'))
+        print('Build finished. The message catalogs are in %s.' %
+              self.builddir_join('gettext'))
 
     def build_changes(self):
         if self.run_generic_build('changes') > 0:
             return 1
         print()
-        print('Build finished. The overview file is in %s.' % self.builddir_join('changes'))
+        print('Build finished. The overview file is in %s.' %
+              self.builddir_join('changes'))
 
     def build_linkcheck(self):
         res = self.run_generic_build('linkcheck')
@@ -227,7 +234,8 @@ class Make(object):
         if self.run_generic_build('pseudoxml') > 0:
             return 1
         print()
-        print('Build finished. The pseudo-XML files are in %s.' % self.builddir_join('pseudoxml'))
+        print('Build finished. The pseudo-XML files are in %s.' %
+              self.builddir_join('pseudoxml'))
 
     def run_generic_build(self, builder, doctreedir=None):
         # compatibility with old Makefile
