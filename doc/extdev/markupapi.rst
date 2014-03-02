@@ -55,7 +55,7 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
    .. attribute:: arguments
 
       The arguments given to the directive, as a list.
-      
+
    .. attribute:: options
 
       The options given to the directive, as a dictionary mapping option names
@@ -82,7 +82,7 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
 
       Internal offset of the directive content.  Used when calling
       ``nested_parse`` (see below).
-      
+
    .. attribute:: block_text
 
       The string containing the entire directive.

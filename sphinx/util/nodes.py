@@ -58,7 +58,8 @@ def extract_messages(doctree):
         # this issue was filed to Docutils tracker:
         # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
         # sourceforge.net/p/docutils/patches/108/
-        if isinstance(node, (nodes.caption, nodes.title, nodes.rubric)) and not node.source:
+        if isinstance(node, (nodes.caption, nodes.title, nodes.rubric)) \
+           and not node.source:
             node.source = find_source_node(node)
             node.line = 0  #need fix docutils to get `node.line`
 
