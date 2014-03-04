@@ -9,12 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 from __future__ import with_statement
+
 import re
 import cPickle as pickle
 
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
+from sphinx.search.en import SearchEnglish
 
 
 class SearchLanguage(object):
@@ -40,6 +42,7 @@ class SearchLanguage(object):
        type, before searching index. Default implementation does nothing.
     """
     lang = None
+    language_name = None
     stopwords = set()
     js_stemmer_code = """
 /**
@@ -89,16 +92,42 @@ var Stemmer = function() {
         Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return not (((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
+        return len(word) == 0 or not (((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
             (ord(word[0]) < 256 and (len(word) < 3 or word in self.stopwords or
                                      word.isdigit())))
 
 
-from sphinx.search import en, ja
+def parse_stop_word(source):
+    """
+    parse snowball style word list like this:
 
+    * http://snowball.tartarus.org/algorithms/finnish/stop.txt
+    """
+    result = set()
+    for line in source.splitlines():
+        line = line.split('|')[0] # remove comment
+        result.update(line.split())
+    return result
+
+
+# maps language name to module.class or directly a class
 languages = {
-    'en': en.SearchEnglish,
-    'ja': ja.SearchJapanese,
+    'da': 'sphinx.search.da.SearchDanish',
+    'de': 'sphinx.search.de.SearchGerman',
+    'en': SearchEnglish,
+    'es': 'sphinx.search.es.SearchSpanish',
+    'fi': 'sphinx.search.fi.SearchFinnish',
+    'fr': 'sphinx.search.fr.SearchFrench',
+    'hu': 'sphinx.search.hu.SearchHungarian',
+    'it': 'sphinx.search.it.SearchItalian',
+    'ja': 'sphinx.search.ja.SearchJapanese',
+    'nl': 'sphinx.search.nl.SearchDutch',
+    'no': 'sphinx.search.no.SearchNorwegian',
+    'pt': 'sphinx.search.pt.SearchPortuguese',
+    'ro': 'sphinx.search.ro.SearchRomanian',
+    'ru': 'sphinx.search.ru.SearchRussian',
+    'sv': 'sphinx.search.sv.SearchSwedish',
+    'tr': 'sphinx.search.tr.SearchTurkish',
 }
 
 
@@ -185,7 +214,17 @@ class IndexBuilder(object):
         # objtype index -> (domain, type, objname (localized))
         self._objnames = {}
         # add language-specific SearchLanguage instance
-        self.lang = languages[lang](options)
+        lang_class = languages.get(lang)
+        if lang_class is None:
+            self.lang = SearchEnglish(options)
+        elif isinstance(lang_class, str):
+            module, classname = lang_class.rsplit('.', 1)
+            lang_class = getattr(__import__(module, None, None, [classname]),
+                                 classname)
+            self.lang = lang_class(options)
+        else:
+            # it's directly a class (e.g. added by app.add_search_language)
+            self.lang = lang_class(options)
 
         if scoring:
             with open(scoring, 'rb') as fp:
@@ -285,6 +324,9 @@ class IndexBuilder(object):
         return dict(filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
                     titleterms=title_terms, envversion=self.env.version)
+
+    def label(self):
+        return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
 
     def prune(self, filenames):
         """Remove data for all filenames not in the list."""

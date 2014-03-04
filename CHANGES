@@ -18,6 +18,8 @@ New features
 
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
+* PR#214: Added stemming support for 14 languages, so that the built-in document
+  search can now handle these.  Thanks to Shibukawa Yoshiki.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 * PR#184: Add :confval:`autodoc_mock_imports`, allowing to mock imports of

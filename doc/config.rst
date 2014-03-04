@@ -748,10 +748,37 @@ that use Sphinx' HTMLWriter class.
 
    Support is present for these languages:
 
+   * ``da`` -- Danish
+   * ``nl`` -- Dutch
    * ``en`` -- English
+   * ``fi`` -- Finnish
+   * ``fr`` -- French
+   * ``de`` -- German
+   * ``hu`` -- Hungarian
+   * ``it`` -- Italian
    * ``ja`` -- Japanese
+   * ``no`` -- Norwegian
+   * ``pr`` -- Portuguese
+   * ``ro`` -- Romanian
+   * ``ru`` -- Russian
+   * ``es`` -- Spanish
+   * ``sv`` -- Swedish
+   * ``tr`` -- Turkish
+
+   .. admonition:: Accelerate build speed
+
+      Each language (except Japanese) provides its own stemming algorithm.
+      Sphinx uses a Python implementation by default.  You can use a C
+      implementation to accelerate building the index file.
+
+      * `PorterStemmer <https://pypi.python.org/pypi/PorterStemmer>`_ (``en``)
+      * `PyStemmer <https://pypi.python.org/pypi/PyStemmer>`_ (all languages)
 
    .. versionadded:: 1.1
+      With support for ``en`` and ``ja``.
+
+   .. versionchanged:: 1.3
+      Added additional languages.
 
 .. confval:: html_search_options
 

@@ -15,10 +15,15 @@ try:
     # http://bitbucket.org/methane/porterstemmer/
     from porterstemmer import Stemmer as CStemmer
     CSTEMMER = True
+    PYSTEMMER = False
 except ImportError:
-    from sphinx.util.stemmer import PorterStemmer
     CSTEMMER = False
-
+    try:
+        from Stemmer import Stemmer as PyStemmer
+        PYSTEMMER = True
+    except ImportError:
+        from sphinx.util.stemmer import PorterStemmer
+        PYSTEMMER = False
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -221,6 +226,7 @@ iti|ous|ive|ize)$/;
 
 class SearchEnglish(SearchLanguage):
     lang = 'en'
+    language_name = 'English'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
@@ -229,6 +235,13 @@ class SearchEnglish(SearchLanguage):
             class Stemmer(CStemmer):
                 def stem(self, word):
                     return self(word.lower())
+        elif PYSTEMMER:
+            class Stemmer(object):
+                def __init__(self):
+                    self.stemmer = PyStemmer('porter')
+
+                def stem(self, word):
+                    return self.stemmer.stemWord(word)
         else:
             class Stemmer(PorterStemmer):
                 """All those porter stemmer implementations look hideous;

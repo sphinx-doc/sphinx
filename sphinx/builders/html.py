@@ -32,7 +32,6 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
 from sphinx.util.pycompat import b
-from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -818,7 +817,7 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
     def dump_search_index(self):
-        self.info(bold('dumping search index... '), nonl=True)
+        self.info(bold('dumping search index in %s ... ' % self.indexer.label()), nonl=True)
         self.indexer.prune(self.env.all_docs)
         searchindexfn = path.join(self.outdir, self.searchindex_filename)
         # first write to a temporary file, so that if dumping fails,
