@@ -128,6 +128,7 @@ Documentation using another builtin theme
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
+* libLAS: http://liblas.org/ (nature)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: http://pip.openplans.org/ (nature)
 * Programmieren mit PyGTK und Glade (German):
@@ -137,7 +138,7 @@ Documentation using another builtin theme
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
 * Sylli: http://sylli.sourceforge.net/ (nature)
-* libLAS: http://liblas.org/ (nature)
+* Tuleap Open ALM: https://tuleap.net/doc/en/ (nature)
 * Valence: http://docs.valence.desire2learn.com/ (haiku)
 
 
@@ -195,6 +196,7 @@ Homepages and other non-documentation sites
 * lunarsite: http://lunaryorn.de/
 * Red Hot Chili Python: http://redhotchilipython.com/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
+* Uni. Berkeley Advanced Control Systems course: http://www.me.berkeley.edu/ME233/sp14/
 * VOR: http://www.vor-cycling.be/
 
 
