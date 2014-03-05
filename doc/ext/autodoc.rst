@@ -19,6 +19,15 @@ documentation from docstrings in a semi-automatic way.
    package must be in one of the directories on :data:`sys.path` -- adapt your
    :data:`sys.path` in the configuration file accordingly.
 
+.. warning::
+
+   :mod:`~sphinx.ext.autodoc` **imports** the modules to be documented.  If any
+   modules have side effects on import, these will be executed by ``autodoc``
+   when ``sphinx-build`` is run.
+
+   If you document scripts (as opposed to library modules), make sure their main
+   routine is protected by a ``if __name__ == '__main__'`` condition.
+
 For this to work, the docstrings must of course be written in correct
 reStructuredText.  You can then use all of the usual Sphinx markup in the
 docstrings, and it will end up correctly in the documentation.  Together with
