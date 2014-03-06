@@ -245,6 +245,15 @@ autodoc needs to import your modules in order to extract the docstrings.
 Therefore, you must add the appropriate path to :py:data:`sys.path` in your
 :file:`conf.py`.
 
+.. warning::
+
+   :mod:`~sphinx.ext.autodoc` **imports** the modules to be documented.  If any
+   modules have side effects on import, these will be executed by ``autodoc``
+   when ``sphinx-build`` is run.
+
+   If you document scripts (as opposed to library modules), make sure their main
+   routine is protected by a ``if __name__ == '__main__'`` condition.
+
 |more| See :mod:`sphinx.ext.autodoc` for the complete description of the
 features of autodoc.
 
