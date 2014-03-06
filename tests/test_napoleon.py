@@ -10,7 +10,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from mock import Mock
+try:
+    # Python >=3.3
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import (_process_docstring, _skip_member, Config,
                                  setup)
