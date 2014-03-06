@@ -16,7 +16,6 @@ import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
-from sphinx.search.en import SearchEnglish
 
 
 class SearchLanguage(object):
@@ -95,6 +94,10 @@ var Stemmer = function() {
         return len(word) == 0 or not (((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
             (ord(word[0]) < 256 and (len(word) < 3 or word in self.stopwords or
                                      word.isdigit())))
+
+
+# SearchEnglish imported after SearchLanguage is defined due to circular import
+from sphinx.search.en import SearchEnglish
 
 
 def parse_stop_word(source):
