@@ -35,8 +35,8 @@ class Config(object):
         napoleon_use_admonition_for_notes = False
         napoleon_use_admonition_for_references = False
         napoleon_use_ivar = False
-        napoleon_use_param = False
-        napoleon_use_rtype = False
+        napoleon_use_param = True
+        napoleon_use_rtype = True
 
     .. _Google style:
        http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
@@ -152,7 +152,7 @@ class Config(object):
 
                Description of `attr1`
 
-    napoleon_use_param : bool, defaults to False
+    napoleon_use_param : bool, defaults to True
         True to use a ``:param:`` role for each function parameter. False to
         use a single ``:parameters:`` role for all the parameters.
 
@@ -179,7 +179,7 @@ class Config(object):
                          * **arg2** (*int, optional*) --
                            Description of `arg2`, defaults to 0
 
-    napoleon_use_rtype : bool, defaults to False
+    napoleon_use_rtype : bool, defaults to True
         True to use the ``:rtype:`` role for the return type. False to output
         the return type inline with the description.
 
@@ -209,8 +209,8 @@ class Config(object):
         'napoleon_use_admonition_for_notes': (False, 'env'),
         'napoleon_use_admonition_for_references': (False, 'env'),
         'napoleon_use_ivar': (False, 'env'),
-        'napoleon_use_param': (False, 'env'),
-        'napoleon_use_rtype': (False, 'env'),
+        'napoleon_use_param': (True, 'env'),
+        'napoleon_use_rtype': (True, 'env'),
     }
 
     def __init__(self, **settings):

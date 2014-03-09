@@ -292,11 +292,17 @@ class GoogleDocstring(object):
         separator = any([s for s in _desc]) and ' --' or ''
         if _name:
             if _type:
-                field = ['**%s** (*%s*)%s' % (_name, _type, separator)]
+                if '`' in _type:
+                    field = ['**%s** (%s)%s' % (_name, _type, separator)]
+                else:
+                    field = ['**%s** (*%s*)%s' % (_name, _type, separator)]
             else:
                 field = ['**%s**%s' % (_name, separator)]
         elif _type:
-            field = ['*%s*%s' % (_type, separator)]
+            if '`' in _type:
+                field = ['%s%s' % (_type, separator)]
+            else:
+                field = ['*%s*%s' % (_type, separator)]
         else:
             field = []
         return field + _desc
@@ -483,11 +489,17 @@ class GoogleDocstring(object):
                 else:
                     _name = ':exc:`%s`' % _name
                 if _type:
-                    field = ['%s (*%s*)%s' % (_name, _type, sep)]
+                    if '`' in _type:
+                        field = ['%s (%s)%s' % (_name, _type, sep)]
+                    else:
+                        field = ['%s (*%s*)%s' % (_name, _type, sep)]
                 else:
                     field = ['%s%s' % (_name, sep)]
             elif _type:
-                field = ['*%s*%s' % (_type, sep)]
+                if '`' in _type:
+                    field = ['%s%s' % (_type, sep)]
+                else:
+                    field = ['*%s*%s' % (_type, sep)]
             else:
                 field = []
             field = field + _desc

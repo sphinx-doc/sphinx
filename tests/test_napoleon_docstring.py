@@ -11,6 +11,7 @@
 """
 
 import textwrap
+from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from unittest import TestCase
 
@@ -142,8 +143,9 @@ class GoogleDocstringTest(BaseDocstringTest):
     )]
 
     def test_docstrings(self):
+        config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
         for docstring, expected in self.docstrings:
-            actual = str(GoogleDocstring(textwrap.dedent(docstring)))
+            actual = str(GoogleDocstring(textwrap.dedent(docstring), config))
             expected = textwrap.dedent(expected)
             self.assertEqual(expected, actual)
 
@@ -253,7 +255,54 @@ class NumpyDocstringTest(BaseDocstringTest):
     )]
 
     def test_docstrings(self):
+        config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
         for docstring, expected in self.docstrings:
-            actual = str(NumpyDocstring(textwrap.dedent(docstring)))
+            actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
             expected = textwrap.dedent(expected)
             self.assertEqual(expected, actual)
+
+    def test_parameters_with_class_reference(self):
+        docstring = """
+            Parameters
+            ----------
+            param1 : :class:`MyClass <name.space.MyClass>` instance
+
+            """
+
+        config = Config(napoleon_use_param=False)
+        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
+        expected = textwrap.dedent("""
+            :Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
+            """)
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_use_param=True)
+        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
+        expected = textwrap.dedent("""
+
+            :type param1: :class:`MyClass <name.space.MyClass>` instance
+            """)
+        self.assertEqual(expected, actual)
+
+    def test_parameters_without_class_reference(self):
+        docstring = """
+            Parameters
+            ----------
+            param1 : MyClass instance
+
+            """
+
+        config = Config(napoleon_use_param=False)
+        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
+        expected = textwrap.dedent("""
+            :Parameters: **param1** (*MyClass instance*)
+            """)
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_use_param=True)
+        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
+        expected = textwrap.dedent("""
+
+            :type param1: MyClass instance
+            """)
+        self.assertEqual(expected, actual)

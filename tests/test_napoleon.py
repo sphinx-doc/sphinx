@@ -84,8 +84,8 @@ class ProcessDocstringTest(TestCase):
 
         expected = ['Summary line.',
                     '',
-                    ':Parameters: **arg1** --',
-                    '             arg1 description']
+                    ':param arg1: arg1 description',
+                    '']
         self.assertEqual(expected, lines)
 
 

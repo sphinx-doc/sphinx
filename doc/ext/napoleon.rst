@@ -197,8 +197,8 @@ enabled in `conf.py`::
     napoleon_use_admonition_for_notes = False
     napoleon_use_admonition_for_references = False
     napoleon_use_ivar = False
-    napoleon_use_param = False
-    napoleon_use_rtype = False
+    napoleon_use_param = True
+    napoleon_use_rtype = True
 
 .. _Google style:
    http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
@@ -328,7 +328,7 @@ enabled in `conf.py`::
 
    True to use a ``:param:`` role for each function parameter. False to
    use a single ``:parameters:`` role for all the parameters.
-   *Defaults to False.*
+   *Defaults to True.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -356,7 +356,7 @@ enabled in `conf.py`::
 .. confval:: napoleon_use_rtype
 
    True to use the ``:rtype:`` role for the return type. False to output
-   the return type inline with the description. *Defaults to False.*
+   the return type inline with the description. *Defaults to True.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
