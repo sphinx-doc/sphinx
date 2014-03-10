@@ -11,6 +11,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import collections
+import inspect
 import re
 import sys
 from sphinx.ext.napoleon.iterators import modify_iter
@@ -94,9 +96,21 @@ class GoogleDocstring(object):
                  obj=None, options=None):
         self._config = config
         self._app = app
+
         if not self._config:
             from sphinx.ext.napoleon import Config
             self._config = self._app and self._app.config or Config()
+
+        if not what:
+            if inspect.isclass(obj):
+                what = 'class'
+            elif inspect.ismodule(obj):
+                what = 'module'
+            elif isinstance(obj, collections.Callable):
+                what = 'function'
+            else:
+                what = 'object'
+
         self._what = what
         self._name = name
         self._obj = obj
@@ -724,3 +738,112 @@ class NumpyDocstring(GoogleDocstring):
                     if section.startswith(directive_section):
                         return True
         return False
+
+    _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
+                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
+
+    def _parse_see_also_section(self, section):
+        """
+        Derived from the NumpyDoc implementation of _parse_see_also.
+
+        func_name : Descriptive text
+            continued text
+        another_func_name : Descriptive text
+        func_name1, func_name2, :meth:`func_name`, func_name3
+
+        """
+        content = self._consume_to_next_section()
+        items = []
+
+        def parse_item_name(text):
+            """Match ':role:`name`' or 'name'"""
+            m = self._name_rgx.match(text)
+            if m:
+                g = m.groups()
+                if g[1] is None:
+                    return g[3], None
+                else:
+                    return g[2], g[1]
+            raise ValueError("%s is not a item name" % text)
+
+        def push_item(name, rest):
+            if not name:
+                return
+            name, role = parse_item_name(name)
+            items.append((name, list(rest), role))
+            del rest[:]
+
+        current_func = None
+        rest = []
+
+        for line in content:
+            if not line.strip(): continue
+
+            m = self._name_rgx.match(line)
+            if m and line[m.end():].strip().startswith(':'):
+                push_item(current_func, rest)
+                current_func, line = line[:m.end()], line[m.end():]
+                rest = [line.split(':', 1)[1].strip()]
+                if not rest[0]:
+                    rest = []
+            elif not line.startswith(' '):
+                push_item(current_func, rest)
+                current_func = None
+                if ',' in line:
+                    for func in line.split(','):
+                        if func.strip():
+                            push_item(func, [])
+                elif line.strip():
+                    current_func = line
+            elif current_func is not None:
+                rest.append(line.strip())
+        push_item(current_func, rest)
+
+
+        if not items:
+            return []
+
+        roles = {
+            'method': 'meth',
+            'meth': 'meth',
+            'function': 'func',
+            'func': 'func',
+            'class': 'class',
+            'exception': 'exc',
+            'exc': 'exc',
+            'object': 'obj',
+            'obj': 'obj',
+            'module': 'mod',
+            'mod': 'mod',
+            'data': 'data',
+            'constant': 'const',
+            'const': 'const',
+            'attribute': 'attr',
+            'attr': 'attr'
+        }
+        if self._what is None:
+            func_role = 'obj'
+        else:
+            func_role = roles.get(self._what, '')
+        lines = []
+        last_had_desc = True
+        for func, desc, role in items:
+            if role:
+                link = ':%s:`%s`' % (role, func)
+            elif func_role:
+                link = ':%s:`%s`' % (func_role, func)
+            else:
+                link = "`%s`_" % func
+            if desc or last_had_desc:
+                lines += ['']
+                lines += [link]
+            else:
+                lines[-1] += ", %s" % link
+            if desc:
+                lines += self._indent([' '.join(desc)])
+                last_had_desc = True
+            else:
+                last_had_desc = False
+        lines += ['']
+
+        return self._format_admonition('seealso', lines)

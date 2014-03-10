@@ -15,6 +15,12 @@ from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from unittest import TestCase
 
+try:
+    # Python >=3.3
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
+
 
 class BaseDocstringTest(TestCase):
     pass
@@ -305,4 +311,51 @@ class NumpyDocstringTest(BaseDocstringTest):
 
             :type param1: MyClass instance
             """)
+        self.assertEqual(expected, actual)
+
+    def test_see_also_refs(self):
+        docstring = """
+            numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+            See Also
+            --------
+            some, other, funcs
+            otherfunc : relationship
+
+            """
+
+        actual = str(NumpyDocstring(textwrap.dedent(docstring)))
+
+        expected = """
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+.. seealso::
+\n   :obj:`some`, :obj:`other`, :obj:`funcs`
+   \n   :obj:`otherfunc`
+       relationship
+"""
+        self.assertEqual(expected, actual)
+
+        docstring = """
+            numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+            See Also
+            --------
+            some, other, funcs
+            otherfunc : relationship
+
+            """
+
+        config = Config()
+        app = Mock()
+        actual = str(NumpyDocstring(textwrap.dedent(docstring), config, app, "method"))
+
+        expected = """
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+.. seealso::
+\n   :meth:`some`, :meth:`other`, :meth:`funcs`
+   \n   :meth:`otherfunc`
+       relationship
+"""
         self.assertEqual(expected, actual)
