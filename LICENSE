@@ -247,8 +247,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 -------------------------------------------------------------------------------
 
-The included implementation of NumpyDocstring._parse_see_also_section was
-derived from code under the following license:
+The included implementation of NumpyDocstring._parse_numpydoc_see_also_section
+was derived from code under the following license:
 
 -------------------------------------------------------------------------------
 

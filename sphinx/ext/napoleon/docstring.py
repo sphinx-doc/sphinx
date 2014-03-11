@@ -743,6 +743,13 @@ class NumpyDocstring(GoogleDocstring):
                            r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def _parse_see_also_section(self, section):
+        lines = self._consume_to_next_section()
+        try:
+            return self._parse_numpydoc_see_also_section(lines)
+        except ValueError:
+            return self._format_admonition('seealso', lines)
+
+    def _parse_numpydoc_see_also_section(self, content):
         """
         Derived from the NumpyDoc implementation of _parse_see_also.
 
@@ -752,7 +759,6 @@ class NumpyDocstring(GoogleDocstring):
         func_name1, func_name2, :meth:`func_name`, func_name3
 
         """
-        content = self._consume_to_next_section()
         items = []
 
         def parse_item_name(text):
@@ -777,7 +783,8 @@ class NumpyDocstring(GoogleDocstring):
         rest = []
 
         for line in content:
-            if not line.strip(): continue
+            if not line.strip():
+                continue
 
             m = self._name_rgx.match(line)
             if m and line[m.end():].strip().startswith(':'):
@@ -798,7 +805,6 @@ class NumpyDocstring(GoogleDocstring):
             elif current_func is not None:
                 rest.append(line.strip())
         push_item(current_func, rest)
-
 
         if not items:
             return []

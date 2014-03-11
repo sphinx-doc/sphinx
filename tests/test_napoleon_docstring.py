@@ -278,8 +278,8 @@ class NumpyDocstringTest(BaseDocstringTest):
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
         expected = textwrap.dedent("""
-            :Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
-            """)
+:Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
+""")
         self.assertEqual(expected, actual)
 
         config = Config(napoleon_use_param=True)
@@ -348,7 +348,8 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
         config = Config()
         app = Mock()
-        actual = str(NumpyDocstring(textwrap.dedent(docstring), config, app, "method"))
+        actual = str(NumpyDocstring(textwrap.dedent(docstring),
+                                    config, app, "method"))
 
         expected = """
 numpy.multivariate_normal(mean, cov, shape=None, spam=None)
