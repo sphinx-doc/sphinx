@@ -4,6 +4,9 @@ Release 1.2.3 (in development)
 Bugs fixed
 ----------
 
+* #1419: Generated i18n sphinx.js files are missing message catalog entries
+  from '.js_t' and '.html'. The issue was introduced from Sphinx-1.1
+
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
