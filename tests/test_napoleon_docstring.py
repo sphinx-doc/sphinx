@@ -146,6 +146,19 @@ class GoogleDocstringTest(BaseDocstringTest):
         :returns: *str* --
                   Extended
                   description of return value"""
+    ), (
+        """
+        Single line summary
+
+        Returns:
+          Extended
+          description of return value
+        """,
+        """
+        Single line summary
+
+        :returns: Extended
+                  description of return value"""
     )]
 
     def test_docstrings(self):
@@ -154,6 +167,43 @@ class GoogleDocstringTest(BaseDocstringTest):
             actual = str(GoogleDocstring(textwrap.dedent(docstring), config))
             expected = textwrap.dedent(expected)
             self.assertEqual(expected, actual)
+
+    def test_parameters_with_class_reference(self):
+        docstring = """\
+Construct a new XBlock.
+
+This class should only be used by runtimes.
+
+Arguments:
+    runtime (:class:`Runtime`): Use it to access the environment.
+        It is available in XBlock code as ``self.runtime``.
+
+    field_data (:class:`FieldData`): Interface used by the XBlock
+        fields to access their data from wherever it is persisted.
+
+    scope_ids (:class:`ScopeIds`): Identifiers needed to resolve scopes.
+
+"""
+
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Construct a new XBlock.
+
+This class should only be used by runtimes.
+
+:param runtime: Use it to access the environment.
+                It is available in XBlock code as ``self.runtime``.
+
+:type runtime: :class:`Runtime`
+:param field_data: Interface used by the XBlock
+                   fields to access their data from wherever it is persisted.
+
+:type field_data: :class:`FieldData`
+:param scope_ids: Identifiers needed to resolve scopes.
+
+:type scope_ids: :class:`ScopeIds`
+"""
+        self.assertEqual(expected, actual)
 
 
 class NumpyDocstringTest(BaseDocstringTest):
@@ -268,95 +318,98 @@ class NumpyDocstringTest(BaseDocstringTest):
             self.assertEqual(expected, actual)
 
     def test_parameters_with_class_reference(self):
-        docstring = """
-            Parameters
-            ----------
-            param1 : :class:`MyClass <name.space.MyClass>` instance
+        docstring = """\
+Parameters
+----------
+param1 : :class:`MyClass <name.space.MyClass>` instance
 
-            """
+"""
 
         config = Config(napoleon_use_param=False)
-        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
-        expected = textwrap.dedent("""
+        actual = str(NumpyDocstring(docstring, config))
+        expected = """\
 :Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
-""")
+"""
         self.assertEqual(expected, actual)
 
         config = Config(napoleon_use_param=True)
-        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
-        expected = textwrap.dedent("""
+        actual = str(NumpyDocstring(docstring, config))
+        expected = """\
 
-            :type param1: :class:`MyClass <name.space.MyClass>` instance
-            """)
+:type param1: :class:`MyClass <name.space.MyClass>` instance
+"""
         self.assertEqual(expected, actual)
 
     def test_parameters_without_class_reference(self):
-        docstring = """
-            Parameters
-            ----------
-            param1 : MyClass instance
+        docstring = """\
+Parameters
+----------
+param1 : MyClass instance
 
-            """
+"""
 
         config = Config(napoleon_use_param=False)
-        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
-        expected = textwrap.dedent("""
-            :Parameters: **param1** (*MyClass instance*)
-            """)
+        actual = str(NumpyDocstring(docstring, config))
+        expected = """\
+:Parameters: **param1** (*MyClass instance*)
+"""
         self.assertEqual(expected, actual)
 
         config = Config(napoleon_use_param=True)
         actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
-        expected = textwrap.dedent("""
+        expected = """\
 
-            :type param1: MyClass instance
-            """)
+:type param1: MyClass instance
+"""
         self.assertEqual(expected, actual)
 
     def test_see_also_refs(self):
-        docstring = """
-            numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+        docstring = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
-            See Also
-            --------
-            some, other, funcs
-            otherfunc : relationship
+See Also
+--------
+some, other, funcs
+otherfunc : relationship
 
-            """
+"""
 
-        actual = str(NumpyDocstring(textwrap.dedent(docstring)))
+        actual = str(NumpyDocstring(docstring))
 
-        expected = """
+        expected = """\
 numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
-\n   :obj:`some`, :obj:`other`, :obj:`funcs`
-   \n   :obj:`otherfunc`
+
+   :obj:`some`, :obj:`other`, :obj:`funcs`
+   \n\
+   :obj:`otherfunc`
        relationship
 """
         self.assertEqual(expected, actual)
 
-        docstring = """
-            numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+        docstring = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
-            See Also
-            --------
-            some, other, funcs
-            otherfunc : relationship
+See Also
+--------
+some, other, funcs
+otherfunc : relationship
 
-            """
+"""
 
         config = Config()
         app = Mock()
-        actual = str(NumpyDocstring(textwrap.dedent(docstring),
-                                    config, app, "method"))
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
 
-        expected = """
+        expected = """\
 numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
-\n   :meth:`some`, :meth:`other`, :meth:`funcs`
-   \n   :meth:`otherfunc`
+
+   :meth:`some`, :meth:`other`, :meth:`funcs`
+   \n\
+   :meth:`otherfunc`
        relationship
 """
         self.assertEqual(expected, actual)

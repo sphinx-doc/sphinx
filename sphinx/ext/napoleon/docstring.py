@@ -24,7 +24,8 @@ if sys.version_info[0] >= 3:
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
-_field_parens_regex = re.compile(r'\s*(\w+)\s*\(\s*(.+?)\s*\)')
+_google_untyped_arg_regex = re.compile(r'\s*(\w+)\s*:\s*(.*)')
+_google_typed_arg_regex = re.compile(r'\s*(\w+)\s*\(\s*(.+?)\s*\)\s*:\s*(.*)')
 
 
 class GoogleDocstring(object):
@@ -213,12 +214,22 @@ class GoogleDocstring(object):
 
     def _consume_field(self, parse_type=True, prefer_type=False):
         line = self._line_iter.next()
-        _name, _, _desc = line.partition(':')
-        _name, _type, _desc = _name.strip(), '', _desc.strip()
-        match = _field_parens_regex.match(_name)
-        if parse_type and match:
-            _name = match.group(1)
-            _type = match.group(2)
+
+        match = None
+        _name, _type, _desc = line.strip(), '', ''
+        if parse_type:
+            match = _google_typed_arg_regex.match(line)
+            if match:
+                _name = match.group(1)
+                _type = match.group(2)
+                _desc = match.group(3)
+
+        if not match:
+            match = _google_untyped_arg_regex.match(line)
+            if match:
+                _name = match.group(1)
+                _desc = match.group(2)
+
         if prefer_type and not _type:
             _type, _name = _name, _type
         indent = self._get_indent(line) + 1
@@ -238,17 +249,21 @@ class GoogleDocstring(object):
     def _consume_returns_section(self):
         lines = self._dedent(self._consume_to_next_section())
         if lines:
-            if ':' in lines[0]:
-                _type, _, _desc = lines[0].partition(':')
-                _name, _type, _desc = '', _type.strip(), _desc.strip()
-                match = _field_parens_regex.match(_type)
+            _name, _type, _desc = '', '', lines
+            match = _google_typed_arg_regex.match(lines[0])
+            if match:
+                _name = match.group(1)
+                _type = match.group(2)
+                _desc = match.group(3)
+            else:
+                match = _google_untyped_arg_regex.match(lines[0])
                 if match:
-                    _name = match.group(1)
-                    _type = match.group(2)
+                    _type = match.group(1)
+                    _desc = match.group(2)
+            if match:
                 lines[0] = _desc
                 _desc = lines
-            else:
-                _name, _type, _desc = '', '', lines
+
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc,)]
         else:
