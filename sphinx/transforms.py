@@ -416,11 +416,17 @@ class Locale(Transform):
             for old in old_refs:
                 key = get_ref_key(old)
                 if key:
-                    xref_reftarget_map[key] = old["reftarget"]
+                    xref_reftarget_map[key] = old.attributes
             for new in new_refs:
                 key = get_ref_key(new)
-                if key in xref_reftarget_map:
-                    new['reftarget'] = xref_reftarget_map[key]
+                # Copy attributes to keep original node behavior. Especially
+                # copying 'reftarget', 'py:module', 'py:class' are needed.
+                for k, v in xref_reftarget_map.get(key, {}).items():
+                    # Note: This implementation overwrite all attributes.
+                    # if some attributes `k` should not be overwritten,
+                    # you should provide exclude list as:
+                    # `if k not in EXCLUDE_LIST: new[k] = v`
+                    new[k] = v
 
             # update leaves
             for child in patch.children:
