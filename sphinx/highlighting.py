@@ -63,6 +63,12 @@ _LATEX_STYLES = r'''
 \newcommand\PYGZcb{\char`\}}
 '''
 
+# used if Pygments is available
+# use textcomp quote to get a true single quote
+_LATEX_ADD_STYLES = r'''
+\renewcommand\PYGZsq{\textquotesingle}
+'''
+
 parsing_exceptions = (SyntaxError, UnicodeEncodeError)
 if sys.version_info < (2, 5):
     # Python <= 2.4 raises MemoryError when parsing an
@@ -231,4 +237,4 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')
         else:
-            return formatter.get_style_defs()
+            return formatter.get_style_defs() + _LATEX_ADD_STYLES

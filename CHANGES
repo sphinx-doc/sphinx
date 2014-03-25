@@ -4,6 +4,7 @@ Release 1.2.3 (in development)
 Bugs fixed
 ----------
 
+* #636: Keep straight single quotes in literal blocks in the LaTeX build.
 * #1419: Generated i18n sphinx.js files are missing message catalog entries
   from '.js_t' and '.html'. The issue was introduced from Sphinx-1.1
 * #1363: Fix i18n: missing python domain's cross-references with currentmodule
