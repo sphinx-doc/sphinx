@@ -133,7 +133,7 @@ else:
 
                 jscatalog = {}
                 for message in catalog:
-                    if any(x[0].endswith('.js') for x in message.locations):
+                    if any(x[0].endswith(('.js', '.js_t', '.html')) for x in message.locations):
                         msgid = message.id
                         if isinstance(msgid, (list, tuple)):
                             msgid = msgid[0]

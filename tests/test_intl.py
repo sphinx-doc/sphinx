@@ -205,6 +205,20 @@ def test_i18n_footnote_backlink(app):
         assert refid2id[ids] == backrefs
 
 
+@with_intl_app(buildername='xml', warning=warnfile)
+def test_i18n_refs_python_domain(app):
+    app.builder.build(['refs_python_domain'])
+    et = ElementTree.parse(app.outdir / 'refs_python_domain.xml')
+    secs = et.findall('section')
+
+    # regression test for fix #1363
+    para0 = secs[0].findall('paragraph')
+    assert_elem(
+        para0[0],
+        texts=['SEE THIS DECORATOR:', 'sensitive_variables()', '.'],
+        refs=['sensitive.sensitive_variables'])
+
+
 @with_intl_app(buildername='text', warning=warnfile, cleanenv=True)
 def test_i18n_warn_for_number_of_references_inconsistency(app):
     app.builddir.rmtree(True)

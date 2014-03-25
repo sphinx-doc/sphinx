@@ -133,6 +133,10 @@ Bugs fixed
 * #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
 * #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
   interface/behavior for `item` argument usage.
+* #1363: Fix i18n: missing python domain's cross-references with currentmodule
+  directive or currentclass directive.
+* #1419: Generated i18n sphinx.js files are missing message catalog entries
+  from '.js_t' and '.html'. The issue was introduced in Sphinx 1.1.
 
 Documentation
 -------------

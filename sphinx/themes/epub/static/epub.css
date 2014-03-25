@@ -197,6 +197,18 @@ p.rubric {
     font-weight: bold;
 }
 
+.align-left {
+    text-align: left;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.align-right {
+    text-align: right;
+}
+
 /* -- sidebars -------------------------------------------------------------- */
 
 div.sidebar {
@@ -280,7 +292,36 @@ th {
     padding-right: 5px;
 }
 
+table.citation {
+    border-left: solid 1px gray;
+    margin-left: 1px;
+}
+
+table.citation td {
+    border-bottom: none;
+}
+
 /* -- other body styles ----------------------------------------------------- */
+
+ol.arabic {
+    list-style: decimal;
+}
+
+ol.loweralpha {
+    list-style: lower-alpha;
+}
+
+ol.upperalpha {
+    list-style: upper-alpha;
+}
+
+ol.lowerroman {
+    list-style: lower-roman;
+}
+
+ol.upperroman {
+    list-style: upper-roman;
+}
 
 dl {
     margin-bottom: 15px;
@@ -338,6 +379,35 @@ dl.glossary dt {
 
 .footnote:target  {
     background-color: #dddddd;
+}
+
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
+}
+
+.guilabel, .menuselection {
+    font-style: italic;
+}
+
+.accelerator {
+    text-decoration: underline;
+}
+
+.classifier {
+    font-style: oblique;
+}
+
+abbr, acronym {
+    border-bottom: dotted 1px;
+    cursor: help;
 }
 
 /* -- code displays --------------------------------------------------------- */
