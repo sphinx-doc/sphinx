@@ -63,6 +63,12 @@ _LATEX_STYLES = r'''
 \newcommand\PYGZcb{\char`\}}
 '''
 
+# used if Pygments is available
+# use textcomp quote to get a true single quote
+_LATEX_ADD_STYLES = r'''
+\renewcommand\PYGZsq{\textquotesingle}
+'''
+
 
 class PygmentsBridge(object):
     # Set these attributes if you want to have different Pygments formatters
@@ -215,4 +221,4 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')
         else:
-            return formatter.get_style_defs()
+            return formatter.get_style_defs() + _LATEX_ADD_STYLES

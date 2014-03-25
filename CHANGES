@@ -137,6 +137,7 @@ Bugs fixed
   directive or currentclass directive.
 * #1419: Generated i18n sphinx.js files are missing message catalog entries
   from '.js_t' and '.html'. The issue was introduced in Sphinx 1.1.
+* #636: Keep straight single quotes in literal blocks in the LaTeX build.
 
 Documentation
 -------------
