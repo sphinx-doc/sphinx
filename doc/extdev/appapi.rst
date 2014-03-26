@@ -379,7 +379,18 @@ Sphinx core events
 ------------------
 
 These events are known to the core.  The arguments shown are given to the
-registered event handlers.
+registered event handlers.  Use :meth:`.connect` in an extension's ``setup``
+function (note that ``conf.py`` can also have a ``setup`` function) to connect
+handlers to the events.  Example:
+
+.. code-block:: python
+
+   def source_read_handler(app, docname, source):
+       print('do something here...')
+
+   def setup(app):
+       app.connect('source-read', source_read_handler)
+
 
 .. event:: builder-inited (app)
 
