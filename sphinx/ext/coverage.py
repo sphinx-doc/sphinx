@@ -134,7 +134,7 @@ class CoverageBuilder(Builder):
 
             try:
                 mod = __import__(mod_name, fromlist=['foo'])
-            except ImportError, err:
+            except ImportError as err:
                 self.warn('module %s could not be imported: %s' %
                           (mod_name, err))
                 self.py_undoc[mod_name] = {'error': err}

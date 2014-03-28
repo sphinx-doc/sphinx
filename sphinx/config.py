@@ -51,10 +51,6 @@ class Config(object):
         source_suffix = ('.rst', 'env'),
         source_encoding = ('utf-8-sig', 'env'),
         exclude_patterns = ([], 'env'),
-        # the next three are all deprecated now
-        unused_docs = ([], 'env'),
-        exclude_trees = ([], 'env'),
-        exclude_dirnames = ([], 'env'),
         default_role = (None, 'env'),
         add_function_parentheses = (True, 'env'),
         add_module_names = (True, 'env'),
@@ -205,6 +201,8 @@ class Config(object):
 
         # gettext options
         gettext_compact = (True, 'gettext'),
+        gettext_location = (True, 'gettext'),
+        gettext_uuid = (True, 'gettext'),
 
         # XML options
         xml_pretty = (True, 'env'),
@@ -214,8 +212,11 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if "extensions" in overrides:
-            config["extensions"] = overrides["extensions"]
+        if 'extensions' in overrides:
+            if isinstance(overrides['extensions'], (str, unicode)):
+                config['extensions'] = overrides.pop('extensions').split(',')
+            else:
+                config['extensions'] = overrides.pop('extensions')
         if dirname is not None:
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
@@ -227,7 +228,7 @@ class Config(object):
                 os.chdir(dirname)
                 try:
                     execfile_(filename, config)
-                except SyntaxError, err:
+                except SyntaxError as err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
             finally:
                 os.chdir(olddir)
@@ -248,12 +249,36 @@ class Config(object):
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content')
                 )
 
-    def init_values(self):
+    def init_values(self, warn):
         config = self._raw_config
         for valname, value in self.overrides.iteritems():
             if '.' in valname:
                 realvalname, key = valname.split('.', 1)
                 config.setdefault(realvalname, {})[key] = value
+                continue
+            elif valname not in self.values:
+                warn('unknown config value %r in override, ignoring' % valname)
+                continue
+            defvalue = self.values[valname][0]
+            if isinstance(value, (str, unicode)):
+                if isinstance(defvalue, dict):
+                    warn('cannot override dictionary config setting %r, '
+                         'ignoring (use %r to set individual elements)' %
+                         (valname, valname + '.key=value'))
+                    continue
+                elif isinstance(defvalue, list):
+                    config[valname] = value.split(',')
+                elif isinstance(defvalue, (int, long)):
+                    try:
+                        config[valname] = int(value)
+                    except ValueError:
+                        warn('invalid number %r for config value %r, ignoring'
+                             % (value, valname))
+                elif defvalue is not None and not isinstance(defvalue, (str, unicode)):
+                    warn('cannot override config setting %r with unsupported type, '
+                         'ignoring' % valname)
+                else:
+                    config[valname] = value
             else:
                 config[valname] = value
         for name in config:

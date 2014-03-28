@@ -406,6 +406,10 @@ dl.glossary dt {
     font-size: 1.3em;
 }
 
+.sig-paren {
+    font-size: larger;
+}
+
 .versionmodified {
     font-style: italic;
 }
@@ -469,6 +473,20 @@ table.highlighttable {
 
 table.highlighttable td {
     padding: 0 0.5em 0 0.5em;
+}
+
+div.code-block-filename {
+    padding: 2px 5px;
+    font-size: small;
+}
+
+div.code-block-filename tt {
+    background-color: transparent;
+}
+
+div.code-block-filename + pre,
+div.code-block-filename + div.highlight > pre {
+    margin-top: 0;
 }
 
 tt.descname {

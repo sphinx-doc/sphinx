@@ -79,6 +79,7 @@ Documentation using a customized version of the default theme
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
 * LEPL: http://www.acooke.org/lepl/
 * Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
+* NICOS: http://trac.frm2.tum.de/nicos/doc/nicos-master/index.html
 * NOC: http://redmine.nocproject.org/projects/noc
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * OpenCV: http://docs.opencv.org/
@@ -113,7 +114,6 @@ Documentation using the sphinxdoc theme
   http://python-wild-magic.googlecode.com/svn/doc/html/index.html
 * Reteisi: http://www.reteisi.org/contents.html
 * Satchmo: http://www.satchmoproject.com/docs/dev/
-* Sphinx: http://sphinx-doc.org/
 * Sqlkit: http://sqlkit.argolinux.org/
 * Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
 * Total Open Station: http://tops.berlios.de/

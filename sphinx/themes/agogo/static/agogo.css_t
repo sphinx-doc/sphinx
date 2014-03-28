@@ -223,6 +223,10 @@ div.document .descname {
   font-weight: bold;
 }
 
+div.document .sig-paren {
+    font-size: larger;
+}
+
 div.document .docutils.literal {
   background-color: #eeeeec;
   padding: 1px;
@@ -461,4 +465,11 @@ div.viewcode-block:target {
     background-color: #f4debf;
     border-top: 1px solid #ac9;
     border-bottom: 1px solid #ac9;
+}
+
+div.code-block-filename {
+    background-color: #ddd;
+    color: #333;
+    padding: 2px 5px;
+    font-size: small;
 }

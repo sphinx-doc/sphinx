@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import sys
 from os import path
@@ -17,7 +18,7 @@ from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util import get_module_source, detect_encoding
-from sphinx.util.pycompat import next, StringIO, BytesIO, TextIOWrapper
+from sphinx.util.pycompat import StringIO, BytesIO, TextIOWrapper
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -182,7 +183,7 @@ class ModuleAnalyzer(object):
             return cls.cache['file', filename]
         try:
             fileobj = open(filename, 'rb')
-        except Exception, err:
+        except Exception as err:
             raise PycodeError('error opening %r' % filename, err)
         obj = cls(fileobj, modname, filename)
         cls.cache['file', filename] = obj
@@ -202,7 +203,7 @@ class ModuleAnalyzer(object):
                 obj = cls.for_string(source, modname)
             else:
                 obj = cls.for_file(source, modname)
-        except PycodeError, err:
+        except PycodeError as err:
             cls.cache['module', modname] = err
             raise
         cls.cache['module', modname] = obj
@@ -245,7 +246,7 @@ class ModuleAnalyzer(object):
             return
         try:
             self.tokens = list(tokenize.generate_tokens(self.source.readline))
-        except tokenize.TokenError, err:
+        except tokenize.TokenError as err:
             raise PycodeError('tokenizing failed', err)
         self.source.close()
 
@@ -256,7 +257,7 @@ class ModuleAnalyzer(object):
         self.tokenize()
         try:
             self.parsetree = pydriver.parse_tokens(self.tokens)
-        except parse.ParseError, err:
+        except parse.ParseError as err:
             raise PycodeError('parsing failed', err)
 
     def find_attr_docs(self, scope=''):
@@ -344,4 +345,4 @@ if __name__ == '__main__':
     pprint.pprint(ma.find_tags())
     x3 = time.time()
     #print nodes.nice_repr(ma.parsetree, number2name)
-    print "tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2)
+    print("tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2))

@@ -87,6 +87,14 @@ on line numbers for the individual block::
 
       Some more Ruby code.
 
+The first line number can be selected with the ``lineno-start`` option.  If
+present, ``linenos`` is automatically activated as well.
+
+   .. code-block:: ruby
+      :lineno-start: 10
+
+      Some more Ruby code, with line numbering starting at 10.
+
 Additionally, an ``emphasize-lines`` option can be given to have Pygments
 emphasize particular lines::
 
@@ -101,6 +109,9 @@ emphasize particular lines::
 
 .. versionchanged:: 1.1
    ``emphasize-lines`` has been added.
+
+.. versionchanged:: 1.3
+   ``lineno-start`` has been added.
 
 
 Includes
@@ -122,10 +133,11 @@ Includes
    Tabs in the input are expanded if you give a ``tab-width`` option with the
    desired tab width.
 
-   The directive also supports the ``linenos`` flag option to switch on line
-   numbers, the ``emphasize-lines`` option to emphasize particular lines, and
-   a ``language`` option to select a language different from the current
-   file's standard language.  Example with options::
+   Like :rst:dir:`code-block`, the directive supports the ``linenos`` flag
+   option to switch on line numbers, the ``lineno-start`` option to select the
+   first line number, the ``emphasize-lines`` option to emphasize particular
+   lines, and a ``language`` option to select a language different from the
+   current file's standard language.  Example with options::
 
       .. literalinclude:: example.rb
          :language: ruby
@@ -175,6 +187,25 @@ Includes
       as well as support for absolute filenames.
    .. versionadded:: 1.0
       The ``prepend`` and ``append`` options, as well as ``tab-width``.
+
+
+Showing a file name
+^^^^^^^^^^^^^^^^^^^
+
+.. versionadded:: 1.3
+
+A ``filename`` option can be given to show that name before the code block.  For
+example::
+
+   .. code-block:: python
+      :filename: this.py
+
+      print 'Explicit is better than implicit.'
+
+
+:rst:dir:`literalinclude` also supports the ``filename`` option, with the
+additional feature that if you leave the value empty, the shown filename will be
+exactly the one given as an argument.
 
 
 .. rubric:: Footnotes

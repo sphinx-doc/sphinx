@@ -53,7 +53,7 @@ def process_ifconfig_nodes(app, doctree, docname):
     for node in doctree.traverse(ifconfig):
         try:
             res = eval(node['expr'], ns)
-        except Exception, err:
+        except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
             msg = ''.join(format_exception_only(err.__class__, err))

@@ -659,6 +659,10 @@ h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
     font-size: 1.3em;
 }
 
+.sig-paren {
+    font-size: larger;
+}
+
 .versionmodified {
     font-style: italic;
 }
@@ -697,4 +701,8 @@ div.viewcode-block:target {
     border-bottom: 1px solid #ac9;
     margin: -1px -10px;
     padding: 0 10px;
+}
+
+div.code-block-filename {
+    background-color: #cceeff;
 }

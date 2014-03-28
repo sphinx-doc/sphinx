@@ -10,11 +10,13 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import sys
 import types
 import posixpath
+import traceback
 from os import path
 from cStringIO import StringIO
 
@@ -37,6 +39,8 @@ from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, lightgray, darkgray
 
+if hasattr(sys, 'intern'):
+    intern = sys.intern
 
 # List of all known core events. Maps name to arguments description.
 events = {
@@ -112,8 +116,6 @@ class Sphinx(object):
         if self.confdir is None:
             self.confdir = self.srcdir
 
-        # backwards compatibility: activate old C markup
-        self.setup_extension('sphinx.ext.oldcmarkup')
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
@@ -122,7 +124,7 @@ class Sphinx(object):
             self.config.setup(self)
 
         # now that we know all config values, collect them from conf.py
-        self.config.init_values()
+        self.config.init_values(self.warn)
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and \
@@ -175,7 +177,7 @@ class Sphinx(object):
                     # this can raise if the data version doesn't fit
                     self.env.domains[domain] = self.domains[domain](self.env)
                 self.info('done')
-            except Exception, err:
+            except Exception as err:
                 if type(err) is IOError and err.errno == ENOENT:
                     self.info('not yet created')
                 else:
@@ -186,7 +188,7 @@ class Sphinx(object):
 
     def _init_builder(self, buildername):
         if buildername is None:
-            print >>self._status, 'No builder selected, using default: html'
+            print('No builder selected, using default: html', file=self._status)
             buildername = 'html'
         if buildername not in self.builderclasses:
             raise SphinxError('Builder name %s not registered' % buildername)
@@ -210,7 +212,7 @@ class Sphinx(object):
                 self.builder.build_specific(filenames)
             else:
                 self.builder.build_update()
-        except Exception, err:
+        except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
             if path.isfile(envfile):
@@ -323,7 +325,8 @@ class Sphinx(object):
             return
         try:
             mod = __import__(extension, None, None, ['setup'])
-        except ImportError, err:
+        except ImportError as err:
+            self.verbose('Original exception:\n' + traceback.format_exc())
             raise ExtensionError('Could not import extension %s' % extension,
                                  err)
         if not hasattr(mod, 'setup'):
@@ -332,7 +335,7 @@ class Sphinx(object):
         else:
             try:
                 mod.setup(self)
-            except VersionRequirementError, err:
+            except VersionRequirementError as err:
                 # add the extension name to the version required
                 raise VersionRequirementError(
                     'The %s extension used by this project needs at least '
@@ -349,17 +352,17 @@ class Sphinx(object):
         """Import an object from a 'module.name' string."""
         try:
             module, name = objname.rsplit('.', 1)
-        except ValueError, err:
+        except ValueError as err:
             raise ExtensionError('Invalid full object name %s' % objname +
                                  (source and ' (needed for %s)' % source or ''),
                                  err)
         try:
             return getattr(__import__(module, None, None, [name]), name)
-        except ImportError, err:
+        except ImportError as err:
             raise ExtensionError('Could not import %s' % module +
                                  (source and ' (needed for %s)' % source or ''),
                                  err)
-        except AttributeError, err:
+        except AttributeError as err:
             raise ExtensionError('Could not find %s' % objname +
                                  (source and ' (needed for %s)' % source or ''),
                                  err)

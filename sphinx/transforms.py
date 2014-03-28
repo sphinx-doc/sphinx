@@ -23,7 +23,6 @@ from sphinx.util import split_index_msg
 from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
 from sphinx.util.compat import docutils_version
-from sphinx.util.pycompat import all
 from sphinx.domains.std import (
     make_term_from_paragraph_node,
     make_termnodes_from_paragraph_node,
@@ -70,7 +69,7 @@ class MoveModuleTargets(Transform):
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
-            if (node.has_key('ismod') and
+            if ('ismod' in node and
                 node.parent.__class__ is nodes.section and
                 # index 0 is the section title node
                 node.parent.index(node) == 1):
@@ -143,10 +142,7 @@ class CustomLocaleReporter(object):
         self.source, self.line = source, line
 
     def set_reporter(self, document):
-        if docutils_version < (0, 9):
-            document.reporter.locator = self.get_source_and_line
-        else:
-            document.reporter.get_source_and_line = self.get_source_and_line
+        document.reporter.get_source_and_line = self.get_source_and_line
 
     def get_source_and_line(self, lineno=None):
         return self.source, self.line

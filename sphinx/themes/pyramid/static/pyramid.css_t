@@ -340,3 +340,8 @@ tt.xref {
     font-weight: normal;
     font-style: normal;
 }
+
+div.code-block-filename {
+    background-color: #ddd;
+    color: #222;
+}

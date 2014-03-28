@@ -224,12 +224,7 @@ def set_source_info(directive, node):
         directive.state_machine.get_source_and_line(directive.lineno)
 
 def set_role_source_info(inliner, lineno, node):
-    try:
-        node.source, node.line = \
-            inliner.reporter.locator(lineno)
-    except AttributeError:
-        # docutils 0.9+
-        node.source, node.line = inliner.reporter.get_source_and_line(lineno)
+    node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 # monkey-patch Element.copy to copy the rawsource
 
@@ -237,17 +232,3 @@ def _new_copy(self):
     return self.__class__(self.rawsource, **self.attributes)
 
 nodes.Element.copy = _new_copy
-
-# monkey-patch Element.__repr__ to return str if it returns unicode.
-# Was fixed in docutils since 0.10. See sf.net/p/docutils/bugs/218/.
-
-if sys.version_info < (3,):
-    _element_repr_orig = nodes.Element.__repr__
-
-    def _new_repr(self):
-        s = _element_repr_orig(self)
-        if isinstance(s, unicode):
-            return s.encode('utf-8')
-        return s
-
-    nodes.Element.__repr__ = _new_repr

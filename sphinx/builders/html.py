@@ -16,11 +16,7 @@ import codecs
 import posixpath
 import cPickle as pickle
 from os import path
-try:
-    from hashlib import md5
-except ImportError:
-    # 2.4 compatibility
-    from md5 import md5
+from hashlib import md5
 
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -35,8 +31,7 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
      movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
-from sphinx.util.pycompat import any, b
-from sphinx.errors import SphinxError
+from sphinx.util.pycompat import b
 from sphinx.locale import _
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -535,7 +530,7 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_images', dest))
-                except Exception, err:
+                except Exception as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
 
@@ -550,7 +545,7 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
-                except Exception, err:
+                except Exception as err:
                     self.warn('cannot copy downloadable file %r: %s' %
                               (path.join(self.srcdir, src), err))
 
@@ -583,10 +578,7 @@ class StandaloneHTMLBuilder(Builder):
         # then, copy over all user-supplied static files
         staticentries = [path.join(self.confdir, spath)
                          for spath in self.config.html_static_path]
-        matchers = compile_matchers(
-            self.config.exclude_patterns +
-            ['**/' + d for d in self.config.exclude_dirnames]
-        )
+        matchers = compile_matchers(self.config.exclude_patterns)
         for entry in staticentries:
             if not path.exists(entry):
                 self.warn('html_static_path entry %r does not exist' % entry)
@@ -782,7 +774,7 @@ class StandaloneHTMLBuilder(Builder):
                 f.write(output)
             finally:
                 f.close()
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (outfilename, err))
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
@@ -825,7 +817,7 @@ class StandaloneHTMLBuilder(Builder):
         self.info('done')
 
     def dump_search_index(self):
-        self.info(bold('dumping search index... '), nonl=True)
+        self.info(bold('dumping search index in %s ... ' % self.indexer.label()), nonl=True)
         self.indexer.prune(self.env.all_docs)
         searchindexfn = path.join(self.outdir, self.searchindex_filename)
         # first write to a temporary file, so that if dumping fails,
@@ -1100,8 +1092,4 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     searchindex_filename = 'searchindex.json'
 
     def init(self):
-        if jsonimpl.json is None:
-            raise SphinxError(
-                'The module simplejson (or json in Python >= 2.6) '
-                'is not available. The JSONHTMLBuilder builder will not work.')
         SerializingHTMLBuilder.init(self)

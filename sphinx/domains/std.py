@@ -530,7 +530,7 @@ class StandardDomain(Domain):
             if labelid is None:
                 continue
             node = document.ids[labelid]
-            if name.isdigit() or node.has_key('refuri') or \
+            if name.isdigit() or 'refuri' in node or \
                    node.tagname.startswith('desc_'):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions

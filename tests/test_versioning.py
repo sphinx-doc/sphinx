@@ -15,7 +15,6 @@ from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
 from sphinx.versioning import add_uids, merge_doctrees, get_ratio
-from sphinx.util.pycompat import all
 
 from util import test_root, TestApp
 

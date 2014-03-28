@@ -31,7 +31,7 @@ These extensions are built in and can be activated by respective entries in the
    ext/extlinks
    ext/viewcode
    ext/linkcode
-   ext/oldcmarkup
+   ext/napoleon
 
 
 Third-party extensions

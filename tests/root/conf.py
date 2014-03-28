@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath('..'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.autosummary',
               'sphinx.ext.doctest', 'sphinx.ext.extlinks',
-              'sphinx.ext.viewcode', 'sphinx.ext.oldcmarkup', 'ext']
+              'sphinx.ext.viewcode', 'ext']
 
 jsmath_path = 'dummy.js'
 
@@ -23,7 +23,6 @@ copyright = '2010, Georg Brandl & Team'
 version = '0.6'
 release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
-# unused_docs = []
 exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
@@ -70,6 +69,13 @@ autosummary_generate = ['autosummary']
 
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
             'pyurl': ('http://python.org/%s', None)}
+
+autodoc_mock_imports = [
+    'missing_module',
+    'missing_package1.missing_module1',
+    'missing_package2.missing_module2',
+    'missing_package3.missing_module3',
+]
 
 # modify tags from conf.py
 tags.add('confpytag')

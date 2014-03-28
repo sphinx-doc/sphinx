@@ -101,6 +101,7 @@ Referring to :func:`nothing <>`.
    :type hour: DuplicateType
    :param hour: Duplicate param.  Should not lead to crashes.
    :type hour: DuplicateType
+   :param .Cls extcls: A class from another module.
 
 
 C items
@@ -115,14 +116,6 @@ C items
 .. c:type:: SphinxType
 
 .. c:var:: sphinx_global
-
-
-Old C items (from oldcmarkup ext)
----------------------------------
-
-.. cfunction:: Sphinx_Func()
-
-Refer to :cfunc:`Sphinx_Func`.
 
 
 Javascript items

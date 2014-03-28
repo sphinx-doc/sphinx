@@ -53,8 +53,7 @@ def test_sectioning(app):
     app.env.process_only_nodes(doctree, app.builder)
 
     parts = [getsects(n)
-             for n in filter(lambda n: isinstance(n, nodes.section),
-                             doctree.children)]
+             for n in [_n for _n in doctree.children if isinstance(_n, nodes.section)]]
     for i, s in enumerate(parts):
         testsects(str(i+1) + '.', s, 4)
     assert len(parts) == 4, 'Expected 4 document level headings, got:\n%s' % \

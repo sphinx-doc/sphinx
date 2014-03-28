@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import re
@@ -63,12 +64,15 @@ def ensuredir(path):
     """Ensure that a path exists."""
     try:
         os.makedirs(path)
-    except OSError, err:
+    except OSError as err:
         # 0 for Jython/Win32
         if err.errno not in [0, EEXIST]:
             raise
 
 
+# This function is same as os.walk of Python2.6, 2.7, 3.2, 3.3 except a
+# customization that check UnicodeError.
+# The customization obstacle to replace the function with the os.walk.
 def walk(top, topdown=True, followlinks=False):
     """Backport of os.walk from 2.6, where the *followlinks* argument was
     added.
@@ -80,9 +84,9 @@ def walk(top, topdown=True, followlinks=False):
         try:
             fullpath = path.join(top, name)
         except UnicodeError:
-            print >>sys.stderr, (
-                '%s:: ERROR: non-ASCII filename not supported on this '
-                'filesystem encoding %r, skipped.' % (name, fs_encoding))
+            print('%s:: ERROR: non-ASCII filename not supported on this '
+                  'filesystem encoding %r, skipped.' % (name, fs_encoding),
+                  file=sys.stderr)
             continue
         if path.isdir(fullpath):
             dirs.append(name)
@@ -155,9 +159,8 @@ else:
 
 
 def safe_relpath(path, start=None):
-    from sphinx.util.pycompat import relpath
     try:
-        return relpath(path, start)
+        return os.path.relpath(path, start)
     except ValueError:
         return path
 
@@ -171,14 +174,13 @@ def find_catalog(docname, compaction):
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
-    from sphinx.util.pycompat import relpath
     if not(lang and locale_dirs):
         return []
 
     domain = find_catalog(docname, compaction)
     files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
              for dir_ in locale_dirs]
-    files = [relpath(f, srcdir) for f in files if f]
+    files = [path.relpath(f, srcdir) for f in files if f]
     return files
 
 

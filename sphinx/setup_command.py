@@ -11,6 +11,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -159,12 +160,12 @@ class BuildDoc(Command):
 
         try:
             app.build(force_all=self.all_files)
-        except Exception, err:
+        except Exception as err:
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):
-                print >>sys.stderr, darkred('reST markup error:')
-                print >>sys.stderr, err.args[0].encode('ascii',
-                                                       'backslashreplace')
+                print(darkred('reST markup error:'), file=sys.stderr)
+                print(err.args[0].encode('ascii', 'backslashreplace'),
+                      file=sys.stderr)
             else:
                 raise
 

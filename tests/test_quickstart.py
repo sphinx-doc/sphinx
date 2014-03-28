@@ -170,6 +170,7 @@ def test_quickstart_all_answers(tempdir):
         'Author name': u'Wolfgang Schäuble & G\'Beckstein'.encode('utf-8'),
         'Project version': '2.0',
         'Project release': '2.0.1',
+        'Project language': 'de',
         'Source file suffix': '.txt',
         'Name of your master document': 'contents',
         'autodoc': 'y',

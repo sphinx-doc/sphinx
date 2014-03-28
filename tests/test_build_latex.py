@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import re
@@ -90,8 +91,8 @@ def test_latex(app):
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
-                print stdout
-                print stderr
+                print(stdout)
+                print(stderr)
                 del app.cleanup_trees[:]
                 assert False, 'latex exited with return code %s' % p.returncode
     finally:

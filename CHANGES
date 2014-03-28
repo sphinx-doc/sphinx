@@ -1,54 +1,45 @@
-Release 1.2.3 (in development)
-==============================
+Release 1.3 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* Dropped support for Python 2.5 and 3.1.
+* Dropped support for docutils versions up to 0.9.
+* Removed the ``sphinx.ext.oldcmarkup`` extension.
+* The deprecated config values ``exclude_trees``, ``exclude_dirnames`` and
+  ``unused_docs`` have been removed.
+* A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
+  should appear literally (i.e. no smart quotes) in strong font.  Custom writers
+  will have to be adapted to handle this node.
+
+New features
+------------
+
+* Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
+  support.
+* PR#214: Added stemming support for 14 languages, so that the built-in document
+  search can now handle these.  Thanks to Shibukawa Yoshiki.
+* PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
+  for Python.
+* PR#184: Add :confval:`autodoc_mock_imports`, allowing to mock imports of
+  external modules that need not be present when autodocumenting.
+* #925: Allow list-typed config values to be provided on the command line,
+  like ``-D key=val1,val2``.
+* #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
+  to start at an arbitrary line number, with a new ``lineno-start`` option.
+* PR#172: The :rst:dir:`code-block` and :rst:dir:`literalinclude` directives now
+  can have a ``filename`` option that shows a filename before the code in the
+  output.
+* Prompt for the document language in sphinx-quickstart.
+* PR#217: Added config values to suppress UUID and location information in
+  generated gettext catalogs.
 
 Bugs fixed
 ----------
 
-* #636: Keep straight single quotes in literal blocks in the LaTeX build.
-* #1419: Generated i18n sphinx.js files are missing message catalog entries
-  from '.js_t' and '.html'. The issue was introduced from Sphinx-1.1
-* #1363: Fix i18n: missing python domain's cross-references with currentmodule
-  directive or currentclass directive.
-
-
-Release 1.2.2 (released Mar 2, 2014)
-====================================
-
-Bugs fixed
-----------
-
-* PR#211: When checking for existence of the :confval:`html_logo` file, check
-  the full relative path and not the basename.
-* PR#212: Fix traceback with autodoc and ``__init__`` methods without docstring.
-* PR#213: Fix a missing import in the setup command.
-* #1357: Option names documented by :rst:dir:`option` are now again allowed to
-  not start with a dash or slash, and referencing them will work correctly.
-* #1358: Fix handling of image paths outside of the source directory when using
-  the "wildcard" style reference.
-* #1374: Fix for autosummary generating overly-long summaries if first line
-  doesn't end with a period.
-* #1383: Fix Python 2.5 compatibility of sphinx-apidoc.
-* #1391: Actually prevent using "pngmath" and "mathjax" extensions at the same
-  time in sphinx-quickstart.
-* #1386: Fix bug preventing more than one theme being added by the entry point
-  mechanism.
-* #1370: Ignore "toctree" nodes in text writer, instead of raising.
-* #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
-* #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
-  interface/behavior for `item` argument usage.
-
-Documentation
--------------
-
-* Extended the :ref:`documentation about building extensions <dev-extensions>`.
-
-
-Release 1.2.1 (released Jan 19, 2014)
-=====================================
-
-Bugs fixed
-----------
-
+* #1174: Fix smart quotes being applied inside roles like :rst:role:`program` or
+  :rst:role:`makevar`.
 * #1335: Fix autosummary template overloading with exclamation prefix like
   ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
   call. This was caused by PR#181.
@@ -126,11 +117,33 @@ Bugs fixed
 * #1323: Fix emitting empty ``<ul>`` tags in the HTML writer, which is not
   valid HTML.
 * #1147: Don't emit a sidebar search box in the "singlehtml" builder.
+* PR#211: When checking for existence of the :confval:`html_logo` file, check
+  the full relative path and not the basename.
+* #1357: Option names documented by :rst:dir:`option` are now again allowed to
+  not start with a dash or slash, and referencing them will work correctly.
+* #1358: Fix handling of image paths outside of the source directory when using
+  the "wildcard" style reference.
+* #1374: Fix for autosummary generating overly-long summaries if first line
+  doesn't end with a period.
+* #1391: Actually prevent using "pngmath" and "mathjax" extensions at the same
+  time in sphinx-quickstart.
+* #1386: Fix bug preventing more than one theme being added by the entry point
+  mechanism.
+* #1370: Ignore "toctree" nodes in text writer, instead of raising.
+* #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
+* #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
+  interface/behavior for `item` argument usage.
+* #1363: Fix i18n: missing python domain's cross-references with currentmodule
+  directive or currentclass directive.
+* #1419: Generated i18n sphinx.js files are missing message catalog entries
+  from '.js_t' and '.html'. The issue was introduced in Sphinx 1.1.
+* #636: Keep straight single quotes in literal blocks in the LaTeX build.
 
 Documentation
 -------------
 
 * #1325: Added a "Intersphinx" tutorial section. (:file:`doc/tutorial.rst`)
+* Extended the :ref:`documentation about building extensions <dev-extensions>`.
 
 
 Release 1.2 (released Dec 10, 2013)

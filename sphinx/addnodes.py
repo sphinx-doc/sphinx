@@ -168,6 +168,11 @@ class literal_emphasis(nodes.emphasis):
     applied (e.g. smartypants for HTML output).
     """
 
+class literal_strong(nodes.strong):
+    """Node that behaves like `strong`, but further text processors are not
+    applied (e.g. smartypants for HTML output).
+    """
+
 class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
 

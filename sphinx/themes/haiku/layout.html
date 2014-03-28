@@ -32,7 +32,7 @@
 {% endmacro %}
 
 {% block content %}
-      <div class="header">
+      <div class="header" role="banner">
         {%- block haikuheader %}
         {%- if theme_full_logo != "false" %}
         <a href="{{ pathto('index') }}">
@@ -48,7 +48,7 @@
         {%- endif %}
         {%- endblock %}
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       {{ nav() }}
       </div>
       <div class="content">
@@ -60,7 +60,7 @@
         {%- endif %}#}
         {% block body %}{% endblock %}
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       {{ nav() }}
       </div>
 {% endblock %}

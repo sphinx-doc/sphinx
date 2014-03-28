@@ -52,7 +52,9 @@ coverage.py -a [-d dir] [-o dir1,dir2,...] FILE1 FILE2 ...
   e.g. python coverage.py -i -r -o c:\python23,lib\enthought\traits
 
 Coverage data is saved in the file .coverage by default.  Set the
-COVERAGE_FILE environment variable to save it somewhere else."""
+COVERAGE_FILE environment variable to save it somewhere else.
+"""
+from __future__ import print_function
 
 __version__ = "2.85.20080914"    # see detailed history at the end of this file.
 
@@ -64,6 +66,7 @@ import re
 import string
 import symbol
 import sys
+import atexit
 import threading
 import token
 import types
@@ -187,9 +190,9 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
                 return 0
             # If this line is excluded, or suite_spots maps this line to
             # another line that is exlcuded, then we're excluded.
-            elif self.excluded.has_key(lineno) or \
-                 self.suite_spots.has_key(lineno) and \
-                 self.excluded.has_key(self.suite_spots[lineno][1]):
+            elif lineno in self.excluded or \
+                 lineno in self.suite_spots and \
+                 self.suite_spots[lineno][1] in self.excluded:
                 return 0
             # Otherwise, this is an executable line.
             else:
@@ -218,8 +221,8 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         lastprev = self.getLastLine(prevsuite)
         firstelse = self.getFirstLine(suite)
         for l in range(lastprev+1, firstelse):
-            if self.suite_spots.has_key(l):
-                self.doSuite(None, suite, exclude=self.excluded.has_key(l))
+            if l in self.suite_spots:
+                self.doSuite(None, suite, exclude=l in self.excluded)
                 break
         else:
             self.doSuite(None, suite)
@@ -328,9 +331,9 @@ class coverage:
 
     def help(self, error=None):     #pragma: no cover
         if error:
-            print error
-            print
-        print __doc__
+            print(error)
+            print()
+        print(__doc__)
         sys.exit(1)
 
     def command_line(self, argv, help_fn=None):
@@ -354,9 +357,9 @@ class coverage:
         long_opts = optmap.values()
         options, args = getopt.getopt(argv, short_opts, long_opts)
         for o, a in options:
-            if optmap.has_key(o):
+            if o in optmap:
                 settings[optmap[o]] = 1
-            elif optmap.has_key(o + ':'):
+            elif o + ':' in optmap:
                 settings[optmap[o + ':']] = a
             elif o[2:] in long_opts:
                 settings[o[2:]] = 1
@@ -398,7 +401,7 @@ class coverage:
             self.start()
             import __main__
             sys.path[0] = os.path.dirname(sys.argv[0])
-            execfile(sys.argv[0], __main__.__dict__)
+            exec(compile(open(sys.argv[0]).read(), sys.argv[0], 'exec'), __main__.__dict__)
         if settings.get('collect'):
             self.collect()
         if not args:
@@ -493,7 +496,7 @@ class coverage:
             import marshal
             cexecuted = marshal.load(cache)
             cache.close()
-            if isinstance(cexecuted, types.DictType):
+            if isinstance(cexecuted, dict):
                 return cexecuted
             else:
                 return {}
@@ -514,14 +517,14 @@ class coverage:
 
     def merge_data(self, new_data):
         for file_name, file_data in new_data.items():
-            if self.cexecuted.has_key(file_name):
+            if file_name in self.cexecuted:
                 self.merge_file_data(self.cexecuted[file_name], file_data)
             else:
                 self.cexecuted[file_name] = file_data
 
     def merge_file_data(self, cache_data, new_data):
         for line_number in new_data.keys():
-            if not cache_data.has_key(line_number):
+            if line_number not in cache_data:
                 cache_data[line_number] = new_data[line_number]
 
     def abs_file(self, filename):
@@ -554,7 +557,7 @@ class coverage:
     # normalized case).  See [GDR 2001-12-04b, 3.3].
 
     def canonical_filename(self, filename):
-        if not self.canonical_filename_cache.has_key(filename):
+        if filename not in self.canonical_filename_cache:
             f = filename
             if os.path.isabs(f) and not os.path.exists(f):
                 if not self.get_zip_data(f):
@@ -578,7 +581,7 @@ class coverage:
                 # Can't do anything useful with exec'd strings, so skip them.
                 continue
             f = self.canonical_filename(filename)
-            if not self.cexecuted.has_key(f):
+            if f not in self.cexecuted:
                 self.cexecuted[f] = {}
             self.cexecuted[f][lineno] = 1
         self.c = {}
@@ -601,7 +604,7 @@ class coverage:
     # statements that cross lines.
 
     def analyze_morf(self, morf):
-        if self.analysis_cache.has_key(morf):
+        if morf in self.analysis_cache:
             return self.analysis_cache[morf]
         filename = self.morf_filename(morf)
         ext = os.path.splitext(filename)[1]
@@ -621,7 +624,7 @@ class coverage:
             lines, excluded_lines, line_map = self.find_executable_statements(
                 source, exclude=self.exclude_re
                 )
-        except SyntaxError, synerr:
+        except SyntaxError as synerr:
             raise CoverageException(
                 "Couldn't parse '%s' as Python source: '%s' at line %d" %
                     (filename, synerr.msg, synerr.lineno)
@@ -792,13 +795,13 @@ class coverage:
     def analysis2(self, morf):
         filename, statements, excluded, line_map = self.analyze_morf(morf)
         self.canonicalize_filenames()
-        if not self.cexecuted.has_key(filename):
+        if filename not in self.cexecuted:
             self.cexecuted[filename] = {}
         missing = []
         for line in statements:
             lines = line_map.get(line, [line, line])
             for l in range(lines[0], lines[1]+1):
-                if self.cexecuted[filename].has_key(l):
+                if l in self.cexecuted[filename]:
                     break
             else:
                 missing.append(line)
@@ -837,7 +840,7 @@ class coverage:
 
     def report(self, morfs, show_missing=1, ignore_errors=0, file=None,
                omit_prefixes=[]):
-        if not isinstance(morfs, types.ListType):
+        if not isinstance(morfs, list):
             morfs = [morfs]
         # On windows, the shell doesn't expand wildcards.  Do it here.
         globbed = []
@@ -861,8 +864,8 @@ class coverage:
             fmt_coverage = fmt_coverage + "   %s"
         if not file:
             file = sys.stdout
-        print >>file, header
-        print >>file, "-" * len(header)
+        print(header, file=file)
+        print("-" * len(header), file=file)
         total_statements = 0
         total_executed = 0
         for morf in morfs:
@@ -878,7 +881,7 @@ class coverage:
                 args = (name, n, m, pc)
                 if show_missing:
                     args = args + (readable,)
-                print >>file, fmt_coverage % args
+                print(fmt_coverage % args, file=file)
                 total_statements = total_statements + n
                 total_executed = total_executed + m
             except KeyboardInterrupt:                       #pragma: no cover
@@ -886,9 +889,9 @@ class coverage:
             except:
                 if not ignore_errors:
                     typ, msg = sys.exc_info()[:2]
-                    print >>file, fmt_err % (name, typ, msg)
+                    print(fmt_err % (name, typ, msg), file=file)
         if len(morfs) > 1:
-            print >>file, "-" * len(header)
+            print("-" * len(header), file=file)
             if total_statements > 0:
                 pc = 100.0 * total_executed / total_statements
             else:
@@ -896,7 +899,7 @@ class coverage:
             args = ("TOTAL", total_statements, total_executed, pc)
             if show_missing:
                 args = args + ("",)
-            print >>file, fmt_coverage % args
+            print(fmt_coverage % args, file=file)
 
     # annotate(morfs, ignore_errors).
 
@@ -1006,14 +1009,7 @@ def annotate(*args, **kw):
 def annotate_file(*args, **kw):
     return the_coverage.annotate_file(*args, **kw)
 
-# Save coverage data when Python exits.  (The atexit module wasn't
-# introduced until Python 2.0, so use sys.exitfunc when it's not
-# available.)
-try:
-    import atexit
-    atexit.register(the_coverage.save)
-except ImportError:
-    sys.exitfunc = the_coverage.save
+atexit.register(the_coverage.save)
 
 def main():
     the_coverage.command_line(sys.argv[1:])

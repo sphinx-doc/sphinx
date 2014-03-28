@@ -156,7 +156,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
     try:
         p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
-    except OSError, err:
+    except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
         self.builder.warn('dot command %r cannot be run (needed for graphviz '
@@ -168,7 +168,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
         stdout, stderr = p.communicate(code)
-    except (OSError, IOError), err:
+    except (OSError, IOError) as err:
         if err.errno not in (EPIPE, EINVAL):
             raise
         # in this case, read the standard output and standard error streams
@@ -192,7 +192,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             raise GraphvizError("graphviz_output_format must be one of 'png', "
                                 "'svg', but is %r" % format)
         fname, outfn = render_dot(self, code, options, format, prefix)
-    except GraphvizError, exc:
+    except GraphvizError as exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
@@ -243,7 +243,7 @@ def html_visit_graphviz(self, node):
 def render_dot_latex(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
-    except GraphvizError, exc:
+    except GraphvizError as exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
@@ -276,7 +276,7 @@ def latex_visit_graphviz(self, node):
 def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
-    except GraphvizError, exc:
+    except GraphvizError as exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
     if fname is not None:

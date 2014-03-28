@@ -14,6 +14,8 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
+
 import os
 import sys
 import optparse
@@ -52,12 +54,12 @@ def write_file(name, text, opts):
     """Write the output file for module/package <name>."""
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
-        print 'Would create file %s.' % fname
+        print('Would create file %s.' % fname)
         return
     if not opts.force and path.isfile(fname):
-        print 'File %s already exists, skipping.' % fname
+        print('File %s already exists, skipping.' % fname)
     else:
-        print 'Creating file %s.' % fname
+        print('Creating file %s.' % fname)
         f = open(fname, 'w')
         try:
             f.write(text)
@@ -314,7 +316,7 @@ Note: By default this script will not overwrite already created files.""")
     if opts.suffix.startswith('.'):
         opts.suffix = opts.suffix[1:]
     if not path.isdir(rootpath):
-        print >>sys.stderr, '%s is not a directory.' % rootpath
+        print('%s is not a directory.' % rootpath, file=sys.stderr)
         sys.exit(1)
     if not path.isdir(opts.destdir):
         if not opts.dryrun:

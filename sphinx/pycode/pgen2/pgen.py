@@ -1,7 +1,10 @@
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
+from __future__ import print_function
+
 # Pgen imports
+
 from sphinx.pycode.pgen2 import grammar, token, tokenize
 
 class PgenGrammar(grammar.Grammar):
@@ -203,10 +206,10 @@ class ParserGenerator(object):
         return states # List of DFAState instances; first one is start
 
     def dump_nfa(self, name, start, finish):
-        print "Dump of NFA for", name
+        print("Dump of NFA for", name)
         todo = [start]
         for i, state in enumerate(todo):
-            print "  State", i, state is finish and "(final)" or ""
+            print("  State", i, state is finish and "(final)" or "")
             for label, next in state.arcs:
                 if next in todo:
                     j = todo.index(next)
@@ -214,16 +217,16 @@ class ParserGenerator(object):
                     j = len(todo)
                     todo.append(next)
                 if label is None:
-                    print "    -> %d" % j
+                    print("    -> %d" % j)
                 else:
-                    print "    %s -> %d" % (label, j)
+                    print("    %s -> %d" % (label, j))
 
     def dump_dfa(self, name, dfa):
-        print "Dump of DFA for", name
+        print("Dump of DFA for", name)
         for i, state in enumerate(dfa):
-            print "  State", i, state.isfinal and "(final)" or ""
+            print("  State", i, state.isfinal and "(final)" or "")
             for label, next in state.arcs.iteritems():
-                print "    %s -> %d" % (label, dfa.index(next))
+                print("    %s -> %d" % (label, dfa.index(next)))
 
     def simplify_dfa(self, dfa):
         # This is not theoretically optimal, but works well enough.

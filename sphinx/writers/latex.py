@@ -25,7 +25,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.osutil import ustrftime
-from sphinx.util.pycompat import any
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
 
@@ -165,6 +164,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'footer':          '',
         'printindex':      '\\printindex',
         'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+        'figure_align':    'htbp',
     }
 
     # sphinx specific document classes
@@ -249,7 +249,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # the second item is the default for the master file and can be changed
         # by .. highlight:: directive in the master file
         self.hlsettingstack = 2 * [[builder.config.highlight_language,
-                                    sys.maxint]]
+                                    sys.maxsize]]
         self.footnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
@@ -743,14 +743,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # Redirect head output until header is finished. see visit_tbody.
         self.body = self.tableheaders
     def depart_thead(self, node):
-        self.body.append('\\hline')
+        pass
 
     def visit_tbody(self, node):
         if not self.table.had_head:
             self.visit_thead(node)
         self.body = self.tablebody
     def depart_tbody(self, node):
-        self.body.append('\\hline')
+        pass
 
     def visit_row(self, node):
         self.table.col = 0
@@ -758,6 +758,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.previous_spanning_row == 1:
             self.previous_spanning_row = 0
         self.body.append('\\\\\n')
+        self.body.append('\\hline')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
@@ -1006,7 +1007,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # TODO non vertical space for other alignments.
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
-            self.body.append('\\begin{figure}[htbp]%s\n' % align)
+            self.body.append('\\begin{figure}[%s]%s\n' % (
+                self.elements['figure_align'], align))
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
             self.context.append(ids + align_end + '\\end{figure}\n')
@@ -1153,7 +1155,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 else:
                     self.builder.warn(
                         'unknown index entry type %s found' % type)
-            except ValueError, err:
+            except ValueError as err:
                 self.builder.warn(str(err))
         raise nodes.SkipNode
 
@@ -1247,6 +1249,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_strong(self, node):
         self.body.append('}')
 
+    def visit_literal_strong(self, node):
+        self.body.append(r'\textbf{\texttt{')
+        self.no_contractions += 1
+    def depart_literal_strong(self, node):
+        self.body.append('}}')
+        self.no_contractions -= 1
+
     def visit_abbreviation(self, node):
         abbr = node.astext()
         self.body.append(r'\textsc{')
@@ -1331,6 +1340,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 highlight_args['force'] = True
             if 'linenos' in node:
                 linenos = node['linenos']
+            filename = node.get('filename')
+            if filename:
+                self.body.append('\n{\\colorbox[rgb]{0.9,0.9,0.9}'
+                                 '{\\makebox[\\textwidth][l]'
+                                 '{\\small\\texttt{%s}}}}\n' % (filename,))
             def warner(msg):
                 self.builder.warn(msg, (self.curfilestack[-1], node.line))
             hlcode = self.highlighter.highlight_block(code, lang, warn=warner,

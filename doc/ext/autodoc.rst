@@ -35,6 +35,16 @@ hand-written documentation, this technique eases the pain of having to maintain
 two locations for documentation, while at the same time avoiding
 auto-generated-looking pure API documentation.
 
+If you prefer `NumPy`_ or `Google`_ style docstrings over reStructuredText,
+you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
+:mod:`napoleon <sphinx.ext.napoleon>` is a preprocessor that converts your
+docstrings to correct reStructuredText before :mod:`autodoc` processes them.
+
+.. _Google:
+   http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Comments
+.. _NumPy:
+   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+
 :mod:`autodoc` provides several directives that are versions of the usual
 :rst:dir:`py:module`, :rst:dir:`py:class` and so forth.  On parsing time, they
 import the corresponding module and extract the docstring of the given objects,
@@ -204,6 +214,12 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.2
 
+   * Add a list of modules in the :confval:`autodoc_mock_imports` to prevent
+     import errors to halt the building process when some external dependencies
+     are not importable at build time.
+
+     .. versionadded:: 1.3
+
 
 .. rst:directive:: autofunction
                    autodata
@@ -343,6 +359,14 @@ There are also new config values that you can set:
    docstring content.
 
    .. versionadded:: 1.1
+
+.. confval:: autodoc_mock_imports
+
+   This value contains a list of modules to be mocked up. This is useful when
+   some external dependencies are not met at build time and break the building
+   process.
+
+   .. versionadded:: 1.3
 
 
 Docstring preprocessing

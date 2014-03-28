@@ -29,7 +29,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
      safe_getattr, safe_repr, is_builtin_class_method
-from sphinx.util.pycompat import base_exception, class_types
+from sphinx.util.pycompat import class_types
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -68,6 +68,35 @@ class Options(dict):
             return self[name.replace('_', '-')]
         except KeyError:
             return None
+
+
+class _MockModule(object):
+    """Used by autodoc_mock_imports."""
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return _MockModule()
+
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            # Not very good, we assume Uppercase names are classes...
+            mocktype = type(name, (), {})
+            mocktype.__module__ = __name__
+            return mocktype
+        else:
+            return _MockModule()
+
+def mock_import(modname):
+    if '.' in modname:
+        pkg, _n, mods = modname.rpartition('.')
+        mock_import(pkg)
+    mod = _MockModule()
+    sys.modules[modname] = mod
+    return mod
 
 
 ALL = object()
@@ -332,6 +361,9 @@ class Documenter(object):
                 self.modname, '.'.join(self.objpath))
         try:
             dbg('[autodoc] import %s', self.modname)
+            for modname in self.env.config.autodoc_mock_imports:
+                dbg('[autodoc] adding a mock module %s!', self.modname)
+                mock_import(modname)
             __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
@@ -411,7 +443,7 @@ class Documenter(object):
             # try to introspect the signature
             try:
                 args = self.format_args()
-            except Exception, err:
+            except Exception as err:
                 self.directive.warn('error while formatting arguments for '
                                     '%s: %s' % (self.fullname, err))
                 args = None
@@ -731,7 +763,7 @@ class Documenter(object):
             # parse right now, to get PycodeErrors on parsing (results will
             # be cached anyway)
             self.analyzer.find_attr_docs()
-        except PycodeError, err:
+        except PycodeError as err:
             self.env.app.debug('[autodoc] module analyzer failed: %s', err)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
@@ -1145,7 +1177,7 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, class_types) and \
-               issubclass(member, base_exception)
+               issubclass(member, BaseException)
 
 
 class DataDocumenter(ModuleLevelDocumenter):
@@ -1212,7 +1244,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
             ret = ClassLevelDocumenter.import_object(self)
             if isinstance(self.object, classmethod) or \
                    (isinstance(self.object, MethodType) and
-                    self.object.im_self is not None):
+                    self.object.__self__ is not None):
                 self.directivetype = 'classmethod'
                 # document class and static members before ordinary ones
                 self.member_order = self.member_order - 1
@@ -1404,7 +1436,7 @@ class AutoDirective(Directive):
         try:
             self.genopt = Options(assemble_option_dict(
                 self.options.items(), doc_class.option_spec))
-        except (KeyError, ValueError, TypeError), err:
+        except (KeyError, ValueError, TypeError) as err:
             # an option is either unknown or has a wrong type
             msg = self.reporter.error('An option to %s is either unknown or '
                                       'has an invalid value: %s' % (self.name, err),
@@ -1468,6 +1500,7 @@ def setup(app):
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
+    app.add_config_value('autodoc_mock_imports', [], True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

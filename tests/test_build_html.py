@@ -44,9 +44,6 @@ reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
 %(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'Python c option', does \
 not contain option marker - or -- or /
-%(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
-new-style markup \(e.g. c:function instead of cfunction\), see \
-http://sphinx-doc.org/domains.html
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -191,8 +188,6 @@ HTML_XPATH = {
         (".//a[@href='#c.SPHINX_USE_PYTHON']", ''),
         (".//a[@href='#c.SphinxType']", ''),
         (".//a[@href='#c.sphinx_global']", ''),
-        # reference from old C markup extension
-        (".//a[@href='#c.Sphinx_Func']", ''),
         # test global TOC created by toctree()
         (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']",
             'Testing object descriptions'),

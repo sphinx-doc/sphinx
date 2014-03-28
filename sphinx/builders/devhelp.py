@@ -94,7 +94,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         def istoctree(node):
             return isinstance(node, addnodes.compact_paragraph) and \
-                   node.has_key('toctree')
+                   'toctree' in node
 
         for node in tocdoc.traverse(istoctree):
             write_toc(node, chapters)

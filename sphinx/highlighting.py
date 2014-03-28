@@ -69,12 +69,6 @@ _LATEX_ADD_STYLES = r'''
 \renewcommand\PYGZsq{\textquotesingle}
 '''
 
-parsing_exceptions = (SyntaxError, UnicodeEncodeError)
-if sys.version_info < (2, 5):
-    # Python <= 2.4 raises MemoryError when parsing an
-    # invalid encoding cookie
-    parsing_exceptions += MemoryError,
-
 
 class PygmentsBridge(object):
     # Set these attributes if you want to have different Pygments formatters
@@ -137,10 +131,6 @@ class PygmentsBridge(object):
         # lines beginning with "..." are probably placeholders for suite
         src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
 
-        # if we're using 2.5, use the with statement
-        if sys.version_info >= (2, 5):
-            src = 'from __future__ import with_statement\n' + src
-
         if sys.version_info < (3, 0) and isinstance(src, unicode):
             # Non-ASCII chars will only occur in string literals
             # and comments.  If we wanted to give them to the parser
@@ -149,18 +139,12 @@ class PygmentsBridge(object):
             # just replace all non-ASCII characters.
             src = src.encode('ascii', 'replace')
 
-        if (3, 0) <= sys.version_info < (3, 2):
-            # Python 3.1 can't process '\r' as linesep.
-            # `parser.suite("print('hello')\r\n")` cause error.
-            if '\r\n' in src:
-                src = src.replace('\r\n', '\n')
-
         if parser is None:
             return True
 
         try:
             parser.suite(src)
-        except parsing_exceptions:
+        except (SyntaxError, UnicodeEncodeError):
             return False
         else:
             return True

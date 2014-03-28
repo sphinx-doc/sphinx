@@ -13,12 +13,7 @@ import tempfile
 import shutil
 import re
 from codecs import open
-
-try:
-    from functools import wraps
-except ImportError:
-    # functools is new in 2.4
-    wraps = lambda f: (lambda w: w)
+from functools import wraps
 
 from sphinx import application
 from sphinx.theming import Theme
@@ -67,7 +62,7 @@ def raises_msg(exc, msg, func, *args, **kwds):
     """
     try:
         func(*args, **kwds)
-    except exc, err:
+    except exc as err:
         assert msg in str(err), "\"%s\" not in \"%s\"" % (msg, err)
     else:
         raise AssertionError('%s did not raise %s' %

@@ -81,7 +81,7 @@ def test_read_inventory_v2():
            '/util/glossary.html#term-a-term'
 
 
-@with_app(confoverrides={'extensions': 'sphinx.ext.intersphinx'})
+@with_app()
 @with_tempdir
 def test_missing_reference(tempdir, app):
     inv_file = tempdir / 'inventory'
@@ -157,7 +157,7 @@ def test_missing_reference(tempdir, app):
     assert contnode[0].astext() == 'py3k:unknown'
 
 
-@with_app(confoverrides={'extensions': 'sphinx.ext.intersphinx'})
+@with_app()
 @with_tempdir
 def test_load_mappings_warnings(tempdir, app):
     """

@@ -9,14 +9,13 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import re
 from StringIO import StringIO
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
-
-from sphinx.util.pycompat import relpath
 
 from util import test_roots, path, with_app, SkipTest
 
@@ -49,7 +48,7 @@ def setup_module():
         for f in [f for f in files if f.endswith('.po')]:
             po = dirpath / f
             mo = root / 'xx' / 'LC_MESSAGES' / (
-                    relpath(po[:-3], root) + '.mo')
+                    os.path.relpath(po[:-3], root) + '.mo')
             if not mo.parent.exists():
                 mo.parent.makedirs()
             try:
@@ -60,8 +59,8 @@ def setup_module():
             else:
                 stdout, stderr = p.communicate()
                 if p.returncode != 0:
-                    print stdout
-                    print stderr
+                    print(stdout)
+                    print(stderr)
                     assert False, \
                         'msgfmt exited with return code %s' % p.returncode
                 assert mo.isfile(), 'msgfmt failed'
@@ -75,7 +74,7 @@ def teardown_module():
 def elem_gettexts(elem):
     def itertext(self):
         # this function copied from Python-2.7 'ElementTree.itertext'.
-        # for compatibility to Python-2.5, 2.6, 3.1
+        # for compatibility to Python-2.6
         tag = self.tag
         if not isinstance(tag, basestring) and tag is not None:
             return
@@ -86,7 +85,7 @@ def elem_gettexts(elem):
                 yield s
             if e.tail:
                 yield e.tail
-    return filter(None, [s.strip() for s in itertext(elem)])
+    return [_f for _f in [s.strip() for s in itertext(elem)] if _f]
 
 
 def elem_getref(elem):

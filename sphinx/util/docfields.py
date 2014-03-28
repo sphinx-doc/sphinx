@@ -99,7 +99,8 @@ class GroupedField(Field):
             return Field.make_field(self, types, domain, items[0])
         for fieldarg, content in items:
             par = nodes.paragraph()
-            par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
+            par += self.make_xref(self.rolename, domain, fieldarg,
+                                  addnodes.literal_strong)
             par += nodes.Text(' -- ')
             par += content
             listnode += nodes.list_item('', par)
@@ -137,7 +138,8 @@ class TypedField(GroupedField):
     def make_field(self, types, domain, items):
         def handle_item(fieldarg, content):
             par = nodes.paragraph()
-            par += self.make_xref(self.rolename, domain, fieldarg, nodes.strong)
+            par += self.make_xref(self.rolename, domain, fieldarg,
+                                  addnodes.literal_strong)
             if fieldarg in types:
                 par += nodes.Text(' (')
                 # NOTE: using .pop() here to prevent a single type node to be
@@ -238,10 +240,8 @@ class DocFieldTransformer(object):
             if is_typefield:
                 # filter out only inline nodes; others will result in invalid
                 # markup being written out
-                content = filter(
-                    lambda n: isinstance(n, nodes.Inline) or
-                              isinstance(n, nodes.Text),
-                    content)
+                content = [n for n in content if isinstance(n, nodes.Inline) or
+                           isinstance(n, nodes.Text)]
                 if content:
                     types.setdefault(typename, {})[fieldarg] = content
                 continue

@@ -11,12 +11,7 @@
 
 import os
 from StringIO import StringIO
-
-try:
-    from functools import wraps
-except ImportError:
-    # functools is new in 2.5
-    wraps = lambda f: (lambda w: w)
+from functools import wraps
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \

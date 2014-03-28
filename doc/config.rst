@@ -45,7 +45,8 @@ Important points to note:
 * There is a special object named ``tags`` available in the config file.
   It can be used to query and change the tags (see :ref:`tags`).  Use
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
-  to change.
+  to change. Only tags set via the ``-t`` command-line option or via
+  ``tags.add('tag')`` can be queried using ``tags.has('tag')``.
 
 
 General configuration
@@ -112,38 +113,6 @@ General configuration
    in :confval:`html_static_path`.
 
    .. versionadded:: 1.0
-
-.. confval:: unused_docs
-
-   A list of document names that are present, but not currently included in the
-   toctree.  Use this setting to suppress the warning that is normally emitted
-   in that case.
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
-
-.. confval:: exclude_trees
-
-   A list of directory paths, relative to the source directory, that are to be
-   recursively excluded from the search for source files, that is, their
-   subdirectories won't be searched too.  The default is ``[]``.
-
-   .. versionadded:: 0.4
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
-
-.. confval:: exclude_dirnames
-
-   A list of directory names that are to be excluded from any recursive
-   operation Sphinx performs (e.g. searching for source files or copying static
-   files).  This is useful, for example, to exclude version-control-specific
-   directories like ``'CVS'``.  The default is ``[]``.
-
-   .. versionadded:: 0.5
-
-   .. deprecated:: 1.0
-      Use :confval:`exclude_patterns` instead.
 
 .. confval:: templates_path
 
@@ -429,6 +398,24 @@ documentation on :ref:`intl` for details.
 
    By default, the document ``markup/code.rst`` ends up in the ``markup`` text
    domain.  With this option set to ``False``, it is ``markup/code``.
+
+.. confval:: gettext_uuid
+
+   If true, Sphinx generates uuid information for version tracking in message
+   catalogs.
+
+   The default is ``true``.
+
+   .. versionadded:: 1.3
+
+.. confval:: gettext_location
+
+   If true, Sphinx generates location information for messages in message
+   catalogs.
+
+   The default is ``true``.
+
+   .. versionadded:: 1.3
 
 
 .. _html-options:
@@ -761,10 +748,37 @@ that use Sphinx' HTMLWriter class.
 
    Support is present for these languages:
 
+   * ``da`` -- Danish
+   * ``nl`` -- Dutch
    * ``en`` -- English
+   * ``fi`` -- Finnish
+   * ``fr`` -- French
+   * ``de`` -- German
+   * ``hu`` -- Hungarian
+   * ``it`` -- Italian
    * ``ja`` -- Japanese
+   * ``no`` -- Norwegian
+   * ``pr`` -- Portuguese
+   * ``ro`` -- Romanian
+   * ``ru`` -- Russian
+   * ``es`` -- Spanish
+   * ``sv`` -- Swedish
+   * ``tr`` -- Turkish
+
+   .. admonition:: Accelerate build speed
+
+      Each language (except Japanese) provides its own stemming algorithm.
+      Sphinx uses a Python implementation by default.  You can use a C
+      implementation to accelerate building the index file.
+
+      * `PorterStemmer <https://pypi.python.org/pypi/PorterStemmer>`_ (``en``)
+      * `PyStemmer <https://pypi.python.org/pypi/PyStemmer>`_ (all languages)
 
    .. versionadded:: 1.1
+      With support for ``en`` and ``ja``.
+
+   .. versionchanged:: 1.3
+      Added additional languages.
 
 .. confval:: html_search_options
 
@@ -1130,6 +1144,12 @@ These options influence LaTeX output.
         "Rejne".  You can also set this to ``''`` to disable fncychap.
      ``'preamble'``
         Additional preamble content, default empty.
+     ``'figure_align'``
+        Latex figure float alignment, default 'htbp' (here, top, bottom, page).
+        Whenever an image doesn't fit into the current page, it wil be
+        'floated' into the next page but may be preceeded by any other text.
+        If you don't like this behavior, use 'H' which will disable floating
+        and position figures strictly in the order they appear in the source.
      ``'footer'``
         Additional footer content (before the indices), default empty.
 

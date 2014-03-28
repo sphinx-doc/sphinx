@@ -340,9 +340,6 @@ class BuildEnvironment:
         matchers = compile_matchers(
             config.exclude_patterns[:] +
             config.html_extra_path +
-            config.exclude_trees +
-            [d + config.source_suffix for d in config.unused_docs] +
-            ['**/' + d for d in config.exclude_dirnames] +
             ['**/_sources', '.#*']
         )
         self.found_docs = set(get_matching_docs(
@@ -812,7 +809,7 @@ class BuildEnvironment:
                                 imgtype = imghdr.what(f)
                             finally:
                                 f.close()
-                        except (OSError, IOError), err:
+                        except (OSError, IOError) as err:
                             self.warn_node('image file %s not readable: %s' %
                                            (filename, err), node)
                         if imgtype:
@@ -923,7 +920,7 @@ class BuildEnvironment:
         longtitlenode = titlenode
         # explicit title set with title directive; use this only for
         # the <title> tag in HTML output
-        if document.has_key('title'):
+        if 'title' in document:
             longtitlenode = nodes.title()
             longtitlenode += nodes.Text(document['title'])
         # look for first section title and use that as the title
@@ -1427,7 +1424,7 @@ class BuildEnvironment:
         for node in doctree.traverse(addnodes.only):
             try:
                 ret = builder.tags.eval_condition(node['expr'])
-            except Exception, err:
+            except Exception as err:
                 self.warn_node('exception while evaluating only '
                                'directive expression: %s' % err, node)
                 node.replace_self(node.children or nodes.comment())
@@ -1553,7 +1550,7 @@ class BuildEnvironment:
                         add_entry(first, _('see also %s') % second, link=False)
                     else:
                         self.warn(fn, 'unknown index entry type %r' % type)
-                except ValueError, err:
+                except ValueError as err:
                     self.warn(fn, str(err))
 
         # sort the index entries; put all symbols at the front, even those

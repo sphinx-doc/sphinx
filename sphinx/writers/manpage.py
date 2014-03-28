@@ -10,14 +10,11 @@
 """
 
 from docutils import nodes
-try:
-    from docutils.writers.manpage import MACRO_DEF, Writer, \
-         Translator as BaseTranslator
-    has_manpage_writer = True
-except ImportError:
-    # define the classes in any case, sphinx.application needs it
-    Writer = BaseTranslator = object
-    has_manpage_writer = False
+from docutils.writers.manpage import (
+    MACRO_DEF,
+    Writer,
+    Translator as BaseTranslator
+)
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
@@ -303,6 +300,11 @@ class ManualPageTranslator(BaseTranslator):
         return self.visit_emphasis(node)
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
+
+    def visit_literal_strong(self, node):
+        return self.visit_strong(node)
+    def depart_literal_strong(self, node):
+        return self.depart_strong(node)
 
     def visit_abbreviation(self, node):
         pass

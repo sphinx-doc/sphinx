@@ -15,12 +15,12 @@
 import sys
 from os import path
 
-__version__  = '1.2.2+'
-__released__ = '1.2.2'  # used when Sphinx builds its own docs
+__version__  = '1.3a0'
+__released__ = '1.3a0'  # used when Sphinx builds its own docs
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 2, 2, 'final', 0)
+version_info = (1, 3, 0, 'alpha', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -42,8 +42,9 @@ if '+' in __version__ or 'pre' in __version__:
 
 def main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
-    if sys.version_info[:3] < (2, 5, 0):
-        sys.stderr.write('Error: Sphinx requires at least Python 2.5 to run.\n')
+    if (sys.version_info[:3] < (2, 6, 0) or
+       (3, 0, 0) <= sys.version_info[:3] < (3, 2, 0)):
+        sys.stderr.write('Error: Sphinx requires at least Python 2.6 to run.\n')
         return 1
     try:
         from sphinx import cmdline
@@ -71,12 +72,12 @@ def main(argv=sys.argv):
                 sys.stderr.write(hint)
             return 1
         raise
-    if sys.version_info[:3] >= (3, 3, 0):
-        from sphinx.util.compat import docutils_version
-        if docutils_version < (0, 10):
-            sys.stderr.write('Error: Sphinx requires at least '
-                             'Docutils 0.10 for Python 3.3 and above.\n')
-            return 1
+
+    from sphinx.util.compat import docutils_version
+    if docutils_version < (0, 10):
+        sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
+                         'run.\n')
+        return 1
     return cmdline.main(argv)
 
 

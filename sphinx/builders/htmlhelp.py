@@ -9,6 +9,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import codecs
@@ -197,7 +198,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         f = self.open_file(outdir, outname+'.stp')
         try:
             for word in sorted(stopwords):
-                print >>f, word
+                print(word, file=f)
         finally:
             f.close()
 
@@ -217,8 +218,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 for fn in files:
                     if (staticdir and not fn.endswith('.js')) or \
                            fn.endswith('.html'):
-                        print >>f, path.join(root, fn)[olen:].replace(os.sep,
-                                                                      '\\')
+                        print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
+                              file=f)
         finally:
             f.close()
 
@@ -256,7 +257,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
             def istoctree(node):
                 return isinstance(node, addnodes.compact_paragraph) and \
-                       node.has_key('toctree')
+                       'toctree' in node
             for node in tocdoc.traverse(istoctree):
                 write_toc(node)
             f.write(contents_footer)

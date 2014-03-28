@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import sys
 import StringIO
@@ -24,7 +25,7 @@ def test_build(app):
     cleanup_called = 0
     app.builder.build_all()
     if app.statuscode != 0:
-        print >>sys.stderr, status.getvalue()
+        print(status.getvalue(), file=sys.stderr)
         assert False, 'failures in doctests'
     # in doctest.txt, there are two named groups and the default group,
     # so the cleanup function must be called three times

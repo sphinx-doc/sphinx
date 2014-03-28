@@ -289,14 +289,14 @@ Doctest summary
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
                 return (isinstance(node, (nodes.literal_block, nodes.comment))
-                        and node.has_key('testnodetype')) or \
+                        and 'testnodetype' in node) or \
                        isinstance(node, nodes.doctest_block)
         else:
             def condition(node):
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
-                        and node.has_key('testnodetype')
+                        and 'testnodetype' in node
         for node in doctree.traverse(condition):
-            source = node.has_key('test') and node['test'] or node.astext()
+            source = 'test' in node and node['test'] or node.astext()
             if not source:
                 self.warn('no code/output in %s block at %s:%s' %
                           (node.get('testnodetype', 'doctest'),

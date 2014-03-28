@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import print_function
 
 import gettext
 import os
@@ -63,8 +64,8 @@ def test_gettext(app):
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
-                print stdout
-                print stderr
+                print(stdout)
+                print(stderr)
                 assert False, 'msginit exited with return code %s' % \
                         p.returncode
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
@@ -77,8 +78,8 @@ def test_gettext(app):
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
-                print stdout
-                print stderr
+                print(stdout)
+                print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
                         p.returncode
         assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
@@ -106,7 +107,7 @@ def test_gettext_index_entries(app):
         return None
 
     pot = (app.outdir / 'index_entries.pot').text(encoding='utf-8')
-    msgids = filter(None, map(msgid_getter, pot.splitlines()))
+    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
     expected_msgids = [
         "i18n with index entries",

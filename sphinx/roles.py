@@ -22,15 +22,15 @@ from sphinx.util.nodes import split_explicit_title, process_index_entry, \
 
 
 generic_docroles = {
-    'command' : nodes.strong,
+    'command' : addnodes.literal_strong,
     'dfn' : nodes.emphasis,
     'kbd' : nodes.literal,
     'mailheader' : addnodes.literal_emphasis,
-    'makevar' : nodes.strong,
+    'makevar' : addnodes.literal_strong,
     'manpage' : addnodes.literal_emphasis,
     'mimetype' : addnodes.literal_emphasis,
     'newsgroup' : addnodes.literal_emphasis,
-    'program' : nodes.strong,  # XXX should be an x-ref
+    'program' : addnodes.literal_strong,  # XXX should be an x-ref
     'regexp' : nodes.literal,
 }
 

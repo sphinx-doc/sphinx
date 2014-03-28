@@ -306,7 +306,7 @@ class InheritanceDiagram(Directive):
                 class_names, env.temp_data.get('py:module'),
                 parts=node['parts'],
                 private_bases='private-bases' in self.options)
-        except InheritanceException, err:
+        except InheritanceException as err:
             return [node.document.reporter.warning(err.args[0],
                                                    line=self.lineno)]
 

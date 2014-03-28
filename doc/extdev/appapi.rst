@@ -212,10 +212,13 @@ package.
       .. index:: pair: function; directive
 
    The reference node will be of class ``literal`` (so it will be rendered in a
-   proportional font, as appropriate for code) unless you give the *ref_nodeclass*
-   argument, which must be a docutils node class (most useful are
-   ``docutils.nodes.emphasis`` or ``docutils.nodes.strong`` -- you can also use
-   ``docutils.nodes.generated`` if you want no further text decoration).
+   proportional font, as appropriate for code) unless you give the
+   *ref_nodeclass* argument, which must be a docutils node class.  Most useful
+   are ``docutils.nodes.emphasis`` or ``docutils.nodes.strong`` -- you can also
+   use ``docutils.nodes.generated`` if you want no further text decoration.  If
+   the text should be treated as literal (e.g. no smart quote replacement), but
+   not have typewriter styling, use ``sphinx.addnodes.literal_emphasis`` or
+   ``sphinx.addnodes.literal_strong``.
 
    For the role content, you have the same syntactical possibilities as for
    standard Sphinx roles (see :ref:`xref-syntax`).

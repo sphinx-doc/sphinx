@@ -767,12 +767,8 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     some arguments."""
     def template(cls, a, b, c, d=4, e=5, f=6):
         return a, b, c, d, e, f
-    if sys.version_info >= (2, 5):
-        from functools import partial
-        function = partial(template, b=b, c=c, d=d)
-    else:
-        def function(cls, a, e=5, f=6):
-            return template(a, b, c, d, e, f)
+    from functools import partial
+    function = partial(template, b=b, c=c, d=d)
     function.__name__ = name
     function.__doc__ = docstring
     return classmethod(function)
@@ -804,10 +800,9 @@ class Class(Base):
     #: should be documented -- süß
     attr = 'bar'
 
+    @property
     def prop(self):
         """Property."""
-    # stay 2.4 compatible (docstring!)
-    prop = property(prop, doc="Property.")
 
     docattr = 'baz'
     """should likewise be documented -- süß"""

@@ -65,7 +65,7 @@ class TextBuilder(Builder):
                 f.write(self.writer.output)
             finally:
                 f.close()
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (outfilename, err))
 
     def finish(self):

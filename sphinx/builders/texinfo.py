@@ -223,6 +223,6 @@ class TexinfoBuilder(Builder):
                 mkfile.write(TEXINFO_MAKEFILE)
             finally:
                 mkfile.close()
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (fn, err))
         self.info(' done')

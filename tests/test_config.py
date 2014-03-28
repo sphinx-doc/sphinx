@@ -19,7 +19,8 @@ from sphinx.util.pycompat import b
 
 
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
-                         'latex_elements.docclass': 'scrartcl'})
+                         'latex_elements.docclass': 'scrartcl',
+                         'modindex_common_prefix': 'path1,path2'})
 def test_core_config(app):
     cfg = app.config
 
@@ -31,6 +32,7 @@ def test_core_config(app):
     # overrides
     assert cfg.master_doc == 'master'
     assert cfg.latex_elements['docclass'] == 'scrartcl'
+    assert cfg.modindex_common_prefix == ['path1', 'path2']
 
     # simple default values
     assert 'locale_dirs' not in cfg.__dict__
@@ -92,7 +94,7 @@ def test_errors_warnings(dir):
     write_file(dir / 'conf.py', u'# -*- coding: utf-8\n\n'
                u'project = u"Jägermeister"\n', 'utf-8')
     cfg = Config(dir, 'conf.py', {}, None)
-    cfg.init_values()
+    cfg.init_values(lambda warning: 1/0)
     assert cfg.project == u'Jägermeister'
 
     # test the warning for bytestrings with non-ascii content
@@ -122,5 +124,5 @@ def test_config_eol(tmpdir):
     for eol in ('\n', '\r\n'):
         configfile.write_bytes(b('project = "spam"' + eol))
         cfg = Config(tmpdir, 'conf.py', {}, None)
-        cfg.init_values()
+        cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'

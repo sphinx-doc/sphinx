@@ -254,6 +254,7 @@ class SearchJapanese(SearchLanguage):
     complicated.
     """
     lang = 'ja'
+    language_name = 'Japanese'
 
     def init(self, options):
         type = options.get('type', 'default')

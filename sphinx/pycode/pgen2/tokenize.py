@@ -23,7 +23,10 @@ Older entry points
     tokenize(readline, tokeneater=printtoken)
 are the same, except instead of generating tokens, tokeneater is a callback
 function to which the 5 fields described above are passed as 5 arguments,
-each time a new token is found."""
+each time a new token is found.
+"""
+
+from __future__ import print_function
 
 __author__ = 'Ka-Ping Yee <ping@lfw.org>'
 __credits__ = \
@@ -146,8 +149,8 @@ class StopTokenizing(Exception): pass
 def printtoken(type, token, scell, ecell, line): # for testing
     srow, scol = scell
     erow, ecol = ecell
-    print "%d,%d-%d,%d:\t%s\t%s" % \
-        (srow, scol, erow, ecol, tok_name[type], repr(token))
+    print("%d,%d-%d,%d:\t%s\t%s" %
+          (srow, scol, erow, ecol, tok_name[type], repr(token)))
 
 def tokenize(readline, tokeneater=printtoken):
     """

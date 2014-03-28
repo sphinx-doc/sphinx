@@ -11,8 +11,9 @@
 """
 from uuid import uuid4
 from operator import itemgetter
+from itertools import product
 
-from sphinx.util.pycompat import product, zip_longest, all
+from sphinx.util.pycompat import zip_longest
 
 
 # anything below that ratio is considered equal/changed

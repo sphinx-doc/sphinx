@@ -10,7 +10,6 @@
 """
 
 import re
-import sys
 import Queue
 import socket
 import threading
@@ -110,7 +109,7 @@ class CheckExternalLinksBuilder(Builder):
 
     def check_thread(self):
         kwargs = {}
-        if sys.version_info > (2, 5) and self.app.config.linkcheck_timeout:
+        if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
         def check():
@@ -154,7 +153,7 @@ class CheckExternalLinksBuilder(Builder):
                         req = HeadRequest(req_url)
                         f = opener.open(req, **kwargs)
                         f.close()
-                    except HTTPError, err:
+                    except HTTPError as err:
                         if err.code != 405:
                             raise
                         # retry with GET if that fails, some servers
@@ -163,7 +162,7 @@ class CheckExternalLinksBuilder(Builder):
                         f = opener.open(req, **kwargs)
                         f.close()
 
-            except Exception, err:
+            except Exception as err:
                 self.broken[uri] = str(err)
                 return 'broken', str(err), 0
             if f.url.rstrip('/') == req_url.rstrip('/'):
